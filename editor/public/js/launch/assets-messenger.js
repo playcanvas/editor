@@ -6,16 +6,14 @@ editor.once('load', function() {
     };
 
     var create = function(data) {
-        var assetId = null;
-
         if (data.asset.source || data.asset.status !== 'complete' && ! validRuntimeAssets.hasOwnProperty(data.asset.type))
             return;
 
-        assetId = parseInt(data.asset.id, 10);
-        if (! assetId)
+        var uniqueId = parseInt(data.asset.id, 10);
+        if (! uniqueId)
             return;
 
-        editor.call('loadAsset', assetId);
+        editor.call('loadAsset', uniqueId);
     };
 
     // create or update
@@ -23,15 +21,15 @@ editor.once('load', function() {
 
     // remove
     editor.on('messenger:asset.delete', function(data) {
-        var asset = editor.call('assets:get', data.asset.id);
+        var asset = editor.call('assets:getUnique', data.asset.id);
         if (! asset) return;
         editor.call('assets:remove', asset);
     });
 
     // remove multiple
     editor.on('messenger:assets.delete', function(data) {
-        for(var i = 0; i < data.assets.length; i++) {
-            var asset = editor.call('assets:get', parseInt(data.assets[i], 10));
+        for (var i = 0; i < data.assets.length; i++) {
+            var asset = editor.call('assets:getUnique', parseInt(data.assets[i], 10));
             if (! asset) continue;
             editor.call('assets:remove', asset);
         }

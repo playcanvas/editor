@@ -1015,11 +1015,11 @@ editor.once('load', function () {
         }
     });
 
-    // subscribe to messenger pack.delete
-    editor.on('messenger:pack.delete', function (data) {
+    // subscribe to messenger scene.delete
+    editor.on('messenger:scene.delete', function (data) {
         if (panel.hidden) return;
 
-        var sceneId = parseInt(data.pack.id, 10);
+        var sceneId = parseInt(data.scene.id, 10);
 
         var row = document.getElementById('picker-scene-' + sceneId);
         if (row) {

@@ -7,7 +7,7 @@ editor.once('load', function() {
 
         var ids = [ ];
         for(var i = 0; i < assets.length; i++)
-            ids.push(parseInt(assets[i].get('id'), 10));
+            ids.push(parseInt(assets[i].get('uniqueId'), 10));
 
         return ids;
     };
@@ -23,7 +23,7 @@ editor.once('load', function() {
         editor.call('realtime:send', 'fs', {
             op: 'move',
             ids: getIds(assets),
-            to: assetTo ? parseInt(assetTo.get('id'), 10) : null
+            to: assetTo ? parseInt(assetTo.get('uniqueId'), 10) : null
         });
     });
 

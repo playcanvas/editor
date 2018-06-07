@@ -594,19 +594,6 @@ editor.once('load', function() {
         return assetsIndex[id] || scriptsIndex[id];
     });
 
-
-    editor.on('messenger:asset.thumbnail', function(data) {
-        var gridItem = assetsIndex[parseInt(data.asset.id, 10)];
-
-        if (! gridItem || gridItem.asset.get('source'))
-            return;
-
-        var url = '/api/assets/' + data.asset.id + '/thumbnail/medium?t=' + (gridItem.asset.get('file.hash') || data.asset.hash || '')
-        gridItem.thumbnail.style.backgroundImage = 'url(' + url + ')';
-        gridItem.thumbnail.classList.remove('placeholder');
-    });
-
-
     var appendChildFolders = function(item) {
         var queue = treeAppendQueue[item.asset.get('id')];
         if (! queue || ! queue.length)
@@ -1040,8 +1027,9 @@ editor.once('load', function() {
         if (! asset.get('source')) {
             // update thumbnails change
             asset.on('thumbnails.m:set', function(value) {
-                if (value.startsWith('/api'))
-                    value += '?t=' + asset.get('file.hash');
+                if (value.startsWith('/api')) {
+                    value = value.appendQuery('t=' + asset.get('file.hash'));
+                }
 
                 thumbnail.style.backgroundImage = 'url(' + value + ')';
                 thumbnail.classList.remove('placeholder');

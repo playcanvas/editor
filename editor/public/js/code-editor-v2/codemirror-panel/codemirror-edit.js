@@ -220,7 +220,7 @@ editor.once('load', function () {
     var applyCustomOp = function (op, entry) {
         entry.doc.submitOp(op, function (err) {
             if (err) {
-                editor.emit('documents:error', entry.doc.id, err);
+                editor.emit('documents:error', entry.id, err);
                 return;
             }
         });
@@ -369,12 +369,13 @@ editor.once('load', function () {
     };
 
     editor.on('documents:load', function (doc, asset, docEntry) {
-        if (documentIndex[doc.id]) return;
+        if (documentIndex[asset.get('id')]) return;
 
         var entry = {
+            id: asset.get('id'),
             doc: doc, // our document
             context: doc.type.api(function() { return doc.data; }, function(component, options, callback) { return doc.submitOp(component, options, callback); }),
-            view: editor.call('views:get', doc.id),
+            view: editor.call('views:get', asset.get('id')),
             undo: [], // undo stack
             redo: [], // redo stack
             lastEditTime: 0, // timestamp since last local edit
@@ -402,7 +403,7 @@ editor.once('load', function () {
         });
 
         // add to index
-        documentIndex[doc.id] = entry;
+        documentIndex[asset.get('id')] = entry;
 
         // insert server -> local
         entry.context.onInsert = function (pos, text) {
@@ -464,7 +465,7 @@ editor.once('load', function () {
 
         // this happens sometimes when there is a doc error
         if (! entry.doc.type) {
-            console.warn('Document ' + entry.doc.id + ' has no type');
+            console.warn('Document ' + id + ' has no type');
             return;
         }
 

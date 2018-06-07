@@ -1223,7 +1223,7 @@ editor.once('load', function() {
                             if (src.startsWith('data:image/png;base64')) {
                                 field.image = asset.get('thumbnails.m');
                             } else {
-                                field.image = config.url.home + asset.get('thumbnails.m') + '?t=' + asset.get('file.hash');
+                                field.image = config.url.home + asset.get('thumbnails.m').appendQuery('t=' + asset.get('file.hash'));
                             }
                         } else {
                             field.image = '/editor/scene/img/asset-placeholder-' + asset.get('type') + '.png';
@@ -1321,7 +1321,7 @@ editor.once('load', function() {
                                                 image = images[i] = new Image();
                                                 image.hash = hash;
                                                 image.onload = queueRender;
-                                                image.src = url + '?t=' + hash;
+                                                image.src = url.appendQuery('t=' + hash);
                                             }
                                         }
                                     } else if (images[i]) {

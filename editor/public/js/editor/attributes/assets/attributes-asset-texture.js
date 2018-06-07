@@ -880,7 +880,7 @@ editor.once('load', function() {
 
             var reloadImage = function() {
                 if (assets[0].get('file.url') && assets[0].get('file.hash')) {
-                    image.src = config.url.home + assets[0].get('file.url') + '?t=' + assets[0].get('file.hash');
+                    image.src = config.url.home + assets[0].get('file.url').appendQuery('t=' + assets[0].get('file.hash'));
                     previewContainer.style.display = '';
                 } else {
                     previewContainer.style.display = 'none';

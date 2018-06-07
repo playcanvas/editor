@@ -29,7 +29,8 @@ editor.once('load', function () {
     // When document is loaded create codemirror document
     // and add entry to index
     editor.on('documents:load', function (doc, asset, docEntry) {
-        if (viewIndex[doc.id]) return;
+        var id = asset.get('id');
+        if (viewIndex[id]) return;
 
         var mode;
         var type = asset.get('type');
@@ -54,19 +55,19 @@ editor.once('load', function () {
         entry.view.on('beforeChange', function (view, change) {
             if (entry.suppressChanges) return;
 
-            editor.emit('views:change', doc.id, view, change);
+            editor.emit('views:change', id, view, change);
         });
 
         // called after a change has been made
         entry.view.on('change', function (view, change) {
             if (entry.suppressChanges) return;
 
-            editor.emit('views:afterChange', doc.id, view, change);
+            editor.emit('views:afterChange', id, view, change);
         });
 
-        viewIndex[doc.id] = entry;
+        viewIndex[id] = entry;
 
-        editor.emit('views:new:' + doc.id, entry.view);
+        editor.emit('views:new:' + id, entry.view);
     });
 
     // Focus document in code mirror

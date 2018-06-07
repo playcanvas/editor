@@ -50,7 +50,7 @@ editor.once('load', function () {
                 onClick: function () {
                     panel.emit('confirm', {
                         name: fieldBranchName.value
-                    })
+                    });
                 }
             }
         }
@@ -62,7 +62,8 @@ editor.once('load', function () {
         labelCheckpoint.text = '';
         fieldBranchName.value = '';
         panel.buttonConfirm.disabled = true;
-        panel.checkpoint = null;
+        panel.checkpointId = null;
+        panel.sourceBranch = null;
     });
 
     panel.on('show', function () {
@@ -73,12 +74,14 @@ editor.once('load', function () {
         panel.buttonConfirm.disabled = !value;
     });
 
-    panel.setCheckpoint = function (checkpoint) {
-        panel.checkpoint = checkpoint;
-        labelCheckpoint.text = checkpoint.id.substring(0, 7) + ' - ' + editor.call('datetime:convert', checkpoint.created);
+    panel.setSourceBranch = function (branch) {
+        panel.sourceBranch = branch;
+        labelBranch.text = branch.name;
+    };
 
-        // TODO: load branch name from checkpoint
-        labelBranch.text = checkpoint.branch;
+    panel.setCheckpointId = function (checkpointId) {
+        panel.checkpointId = checkpointId;
+        labelCheckpoint.text = checkpointId.substring(0, 7);
     };
 
     editor.method('picker:versioncontrol:widget:createBranch', function () {

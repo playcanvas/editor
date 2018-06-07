@@ -135,14 +135,14 @@ editor.once('load', function () {
         }
     });
 
-    // subscribe to messenger pack.delete
-    editor.on('messenger:pack.delete', function (data) {
+    // subscribe to messenger scene.delete
+    editor.on('messenger:scene.delete', function (data) {
         // add scene to deleted so that we don't try to reopen it
         // on the 'popstate' event
-        deletedScenes[data.pack.id] = true;
+        deletedScenes[data.scene.id] = true;
 
         // if the current scene has been deleted then change URL to project URL
-        if (parseInt(config.scene.id, 10) === parseInt(data.pack.id, 10)) {
+        if (parseInt(config.scene.id, 10) === parseInt(data.scene.id, 10)) {
             goToProject();
         }
     });

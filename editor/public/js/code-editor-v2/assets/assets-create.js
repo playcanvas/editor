@@ -11,6 +11,9 @@ editor.once('load', function () {
         // scope
         form.append('project', config.project.id);
 
+        // branch
+        form.append('branchId', config.self.branch.id);
+
         // name
         if (args.name)
             form.append('name', args.name);

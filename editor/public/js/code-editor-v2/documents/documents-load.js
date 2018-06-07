@@ -14,13 +14,15 @@ editor.once('load', function () {
 
     // Loads the editable document that corresponds to the specified asset id
     var loadDocument = function (asset) {
-        var id = asset.get('id').toString(); // ensure id is string
+        var id = asset.get('id').toString();
+        var uniqueId = asset.get('uniqueId').toString();
         var connection = editor.call('realtime:connection');
-        var doc = connection.get('documents', id);
+        var doc = connection.get('documents', uniqueId);
 
         // add index entry
         var entry = {
             id: id,
+            uniqueId: uniqueId,
             doc: doc,
             error: null,
             isLoading: true,
@@ -75,9 +77,9 @@ editor.once('load', function () {
     editor.on('select:asset', function (asset) {
         if (asset.get('type') === 'folder') {
             return;
-        };
+        }
 
-        var id = asset.get('id')
+        var id = asset.get('id');
         lastFocusedId = id;
 
         // if already loaded just focus it
@@ -119,7 +121,7 @@ editor.once('load', function () {
 
             // send close message to update whoisonline for document
             var connection = editor.call('realtime:connection');
-            connection.socket.send('close:document:' + id);
+            connection.socket.send('close:document:' + entry.uniqueId);
         }
 
         // stop any queued load events

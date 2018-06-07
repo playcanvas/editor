@@ -1,6 +1,8 @@
 editor.once('load', function() {
     'use strict';
 
+    var uniqueIdToItemId = {};
+
     var assets = new ObserverList({
         index: 'id',
         sorted: function(a, b) {
@@ -27,6 +29,8 @@ editor.once('load', function() {
 
     // allow adding assets
     editor.method('assets:add', function(asset) {
+        uniqueIdToItemId[asset.get('uniqueId')] = asset.get('id');
+
         var pos = assets.add(asset);
 
         if (pos === null)
@@ -86,6 +90,12 @@ editor.once('load', function() {
         return assets.get(id);
     });
 
+    // get asset by unique id
+    editor.method('assets:getUnique', function(uniqueId) {
+        var id = uniqueIdToItemId[uniqueId];
+        return id ? assets.get(id) : null;
+    });
+
     // find assets by function
     editor.method('assets:find', function(fn) {
         return assets.find(fn);
@@ -108,5 +118,6 @@ editor.once('load', function() {
     assets.on('remove', function(asset) {
         asset.destroy();
         editor.emit('assets:remove', asset);
+        delete uniqueIdToItemId[asset.get('uniqueId')];
     });
 });

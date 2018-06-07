@@ -128,6 +128,8 @@ editor.once('load', function() {
         // non-file form data should be above file,
         // to make it parsed on back-end first
 
+        form.append('branchId', config.self.branch.id);
+
         // parent folder
         if (args.parent) {
             if (args.parent instanceof Observer) {

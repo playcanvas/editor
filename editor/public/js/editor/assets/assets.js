@@ -19,6 +19,8 @@ EVENTS
 editor.once('load', function() {
     'use strict';
 
+    var uniqueIdToItemId = {};
+
     var assets = new ObserverList({
         index: 'id',
         sorted: function(a, b) {
@@ -45,6 +47,8 @@ editor.once('load', function() {
 
     // allow adding assets
     editor.method('assets:add', function(asset) {
+        uniqueIdToItemId[asset.get('uniqueId')] = asset.get('id');
+
         var pos = assets.add(asset);
 
         if (pos === null)
@@ -97,11 +101,19 @@ editor.once('load', function() {
     editor.method('assets:clear', function () {
         assets.clear();
         editor.emit('assets:clear');
+
+        uniqueIdToItemId = {};
     });
 
     // get asset by id
     editor.method('assets:get', function(id) {
         return assets.get(id);
+    });
+
+    // get asset by unique id
+    editor.method('assets:getUnique', function (uniqueId) {
+        var id = uniqueIdToItemId[uniqueId];
+        return id ? assets.get(id) : null;
     });
 
     // find assets by function
@@ -127,5 +139,7 @@ editor.once('load', function() {
         asset.destroy();
         editor.emit('assets:remove', asset);
         editor.emit('assets:remove[' + asset.get('id') + ']');
+
+        delete uniqueIdToItemId[asset.get('uniqueId')];
     });
 });

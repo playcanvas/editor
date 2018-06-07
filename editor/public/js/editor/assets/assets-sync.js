@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
@@ -12,12 +12,12 @@ editor.once('load', function() {
     ];
     var docs = {};
 
-    editor.method('loadAsset', function (id, callback) {
+    editor.method('loadAsset', function (uniqueId, callback) {
         var connection = editor.call('realtime:connection');
 
-        var doc = connection.get('assets', '' + id);
+        var doc = connection.get('assets', '' + uniqueId);
 
-        docs[id] = doc;
+        docs[uniqueId] = doc;
 
         // error
         doc.on('error', function (err) {
@@ -33,8 +33,8 @@ editor.once('load', function() {
         doc.on('load', function () {
             var assetData = doc.data;
             if (! assetData) {
-                console.error('Could not load asset: ' + id);
-                editor.call('status:error', 'Could not load asset: ' + id);
+                console.error('Could not load asset: ' + uniqueId);
+                editor.call('status:error', 'Could not load asset: ' + uniqueId);
                 doc.unsubscribe();
                 doc.destroy();
                 return callback && callback();
@@ -45,12 +45,13 @@ editor.once('load', function() {
                 if (local) return;
 
                 for (var i = 0; i < ops.length; i++) {
-                    editor.emit('realtime:op:assets', ops[i], id);
+                    editor.emit('realtime:op:assets', ops[i], uniqueId);
                 }
             });
 
             // notify of asset load
-            assetData.id = id;
+            assetData.id = parseInt(assetData.item_id, 10);
+            assetData.uniqueId = uniqueId;
 
             // delete unnecessary fields
             delete assetData.item_id;
@@ -60,7 +61,7 @@ editor.once('load', function() {
                 assetData.file.url = getFileUrl(assetData.id, assetData.revision, assetData.file.filename);
 
                 if (assetData.file.variants) {
-                    for(var key in assetData.file.variants) {
+                    for (var key in assetData.file.variants) {
                         assetData.file.variants[key].url = getFileUrl(assetData.id, assetData.revision, assetData.file.variants[key].filename);
                     }
                 }
@@ -71,7 +72,7 @@ editor.once('load', function() {
             if (assetData.type === 'sprite') {
                 options = {
                     pathsWithDuplicates: ['data.frameKeys']
-                }
+                };
             }
 
             var asset = new Observer(assetData, options);
@@ -85,35 +86,35 @@ editor.once('load', function() {
         doc.subscribe();
     });
 
-    editor.method('assets:fs:paths:patch', function(data) {
+    editor.method('assets:fs:paths:patch', function (data) {
         var connection = editor.call('realtime:connection');
         var assets = connection.collections.assets;
 
         for(var i = 0; i < data.length; i++) {
-            if (! assets.hasOwnProperty(data[i].id))
+            if (! assets.hasOwnProperty(data[i].uniqueId))
                 continue;
 
             // force snapshot path data
-            assets[data[i].id].data.path = data[i].path;
+            assets[data[i].uniqueId].data.path = data[i].path;
 
             // sync observer
             editor.emit('realtime:op:assets', {
-                p: [ 'path' ],
+                p: ['path'],
                 oi: data[i].path,
                 od: null
-            }, data[i].id);
+            }, data[i].uniqueId);
         }
     });
 
-    var onLoad = function(data) {
-        editor.call('assets:progress', .5);
+    var onLoad = function (data) {
+        editor.call('assets:progress', 0.5);
 
         var count = 0;
 
-        var load = function (id) {
-            editor.call('loadAsset', id, function () {
+        var load = function (uniqueId) {
+            editor.call('loadAsset', uniqueId, function () {
                 count++;
-                editor.call('assets:progress', (count / data.length) * .5 + .5);
+                editor.call('assets:progress', (count / data.length) * 0.5 + 0.5);
                 if (count >= data.length) {
                     editor.call('assets:progress', 1);
                     editor.emit('assets:load');
@@ -132,8 +133,8 @@ editor.once('load', function() {
             while (startBatch < total) {
                 // start bulk subscribe
                 connection.startBulk();
-                for(var i = startBatch; i < startBatch + batchSize && i < total; i++) {
-                    load(data[i].id);
+                for (var i = startBatch; i < startBatch + batchSize && i < total; i++) {
+                    load(data[i].uniqueId);
                 }
                 // end bulk subscribe and send message to server
                 connection.endBulk();
@@ -148,28 +149,28 @@ editor.once('load', function() {
     };
 
     // load all assets
-    editor.on('realtime:authenticated', function() {
+    editor.on('realtime:authenticated', function () {
         editor.call('assets:clear');
 
         Ajax({
-            url: '{{url.api}}/projects/{{project.id}}/assets?view=designer',
+            url: '{{url.api}}/projects/{{project.id}}/assets?branchId={{self.branch.id}}&view=designer',
             auth: true
         })
-        .on('load', function(status, data) {
+        .on('load', function (status, data) {
             onLoad(data);
         })
-        .on('progress', function(progress) {
-            editor.call('assets:progress', .1 + progress * .4);
+        .on('progress', function (progress) {
+            editor.call('assets:progress', 0.1 + progress * 0.4);
         })
-        .on('error', function(status, evt) {
+        .on('error', function (status, evt) {
             console.log(status, evt);
         });
     });
 
     editor.call('assets:progress', 0.1);
 
-    var onAssetSelect = function(asset) {
-        editor.call('selector:set', 'asset', [ asset ]);
+    var onAssetSelect = function (asset) {
+        editor.call('selector:set', 'asset', [asset]);
 
         // navigate to folder too
         var path = asset.get('path');
@@ -185,7 +186,7 @@ editor.once('load', function() {
         var evtAssetAdd;
 
         if (! noSelect) {
-            editor.once('selector:change', function() {
+            editor.once('selector:change', function () {
                 if (evtAssetAdd) {
                     evtAssetAdd.unbind();
                     evtAssetAdd = null;
@@ -193,7 +194,7 @@ editor.once('load', function() {
             });
         }
 
-        editor.call('assets:uploadFile', data, function(err, res) {
+        editor.call('assets:uploadFile', data, function (err, res) {
             if (err) {
                 editor.call('status:error', err);
 
@@ -219,20 +220,20 @@ editor.once('load', function() {
     });
 
     // delete asset
-    editor.method('assets:delete', function(list) {
+    editor.method('assets:delete', function (list) {
         if (! (list instanceof Array))
-            list = [ list ];
+            list = [list];
 
-        var assets = [ ];
+        var assets = [];
 
-        for(var i = 0; i < list.length; i++) {
+        for (var i = 0; i < list.length; i++) {
             if (legacyScripts && list[i].get('type') === 'script') {
                 editor.emit('sourcefiles:remove', list[i]);
                 Ajax({
                     url: '{{url.api}}/projects/' + config.project.id + '/repositories/directory/sourcefiles/' + list[i].get('filename'),
                     auth: true,
                     method: 'DELETE'
-                })
+                });
             } else {
                 assets.push(list[i]);
             }
@@ -243,7 +244,7 @@ editor.once('load', function() {
     });
 
     editor.on('assets:remove', function (asset) {
-        var id = asset.get('id');
+        var id = asset.get('uniqueId');
         if (docs[id]) {
             docs[id].unsubscribe();
             docs[id].destroy();
@@ -252,19 +253,19 @@ editor.once('load', function() {
     });
 
     var getFileUrl = function (id, revision, filename) {
-        return '/api/assets/' + id + '/file/' + encodeURIComponent(filename);
+        return '/api/assets/' + id + '/file/' + encodeURIComponent(filename) + '?branchId=' + config.self.branch.id;
     };
 
-    var assetSetThumbnailPaths = function(asset) {
+    var assetSetThumbnailPaths = function (asset) {
         if (asset.get('type') !== 'texture' && asset.get('type') !== 'textureatlas')
             return;
 
         if (asset.get('has_thumbnail')) {
             asset.set('thumbnails', {
-                's': '/api/assets/' + asset.get('id') + '/thumbnail/small',
-                'm': '/api/assets/' + asset.get('id') + '/thumbnail/medium',
-                'l': '/api/assets/' + asset.get('id') + '/thumbnail/large',
-                'xl': '/api/assets/' + asset.get('id') + '/thumbnail/xlarge'
+                's': '/api/assets/' + asset.get('id') + '/thumbnail/small?branchId' + config.self.branch.id,
+                'm': '/api/assets/' + asset.get('id') + '/thumbnail/medium?branchId' + config.self.branch.id,
+                'l': '/api/assets/' + asset.get('id') + '/thumbnail/large?branchId' + config.self.branch.id,
+                'xl': '/api/assets/' + asset.get('id') + '/thumbnail/xlarge?branchId' + config.self.branch.id
             });
         } else {
             asset.unset('thumbnails');
@@ -272,7 +273,7 @@ editor.once('load', function() {
     };
 
     // hook sync to new assets
-    editor.on('assets:add', function(asset) {
+    editor.on('assets:add', function (asset) {
         if (asset.sync)
             return;
 
@@ -292,8 +293,8 @@ editor.once('load', function() {
         });
 
         // client > server
-        asset.sync.on('op', function(op) {
-            editor.call('realtime:assets:op', op, asset.get('id'));
+        asset.sync.on('op', function (op) {
+            editor.call('realtime:assets:op', op, asset.get('uniqueId'));
         });
 
         // set thumbnails
@@ -322,27 +323,27 @@ editor.once('load', function() {
             setting = false;
         });
 
-        asset.on('has_thumbnail:set', function(value) {
+        asset.on('has_thumbnail:set', function (value) {
             assetSetThumbnailPaths(asset);
         });
     });
 
     // write asset operations
-    editor.method('realtime:assets:op', function(op, id) {
-        if (! editor.call('permissions:write') || !docs[id])
+    editor.method('realtime:assets:op', function (op, uniqueId) {
+        if (! editor.call('permissions:write') || !docs[uniqueId])
             return;
 
         // console.trace();
         // console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
         // console.log(op);
 
-        docs[id].submitOp([ op ]);
+        docs[uniqueId].submitOp([op]);
     });
 
 
     // server > client
-    editor.on('realtime:op:assets', function(op, id) {
-        var asset = editor.call('assets:get', id);
+    editor.on('realtime:op:assets', function (op, uniqueId) {
+        var asset = editor.call('assets:getUnique', uniqueId);
         if (asset) {
             // console.log('in: ' + id + ' [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
             // console.log(op);

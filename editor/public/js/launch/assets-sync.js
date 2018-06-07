@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
@@ -9,12 +9,12 @@ editor.once('load', function() {
 
     var assetNames = { };
 
-    editor.method('loadAsset', function (id, callback) {
+    editor.method('loadAsset', function (uniqueId, callback) {
         var connection = editor.call('realtime:connection');
 
-        var doc = connection.get('assets', '' + id);
+        var doc = connection.get('assets', '' + uniqueId);
 
-        docs[id] = doc;
+        docs[uniqueId] = doc;
 
         // error
         doc.on('error', function (err) {
@@ -30,7 +30,7 @@ editor.once('load', function() {
         doc.on('load', function () {
             var assetData = doc.data;
             if (! assetData) {
-                console.error('Could not load asset: ' + id);
+                console.error('Could not load asset: ' + uniqueId);
                 doc.unsubscribe();
                 doc.destroy();
                 return callback && callback();
@@ -41,11 +41,12 @@ editor.once('load', function() {
                 if (local) return;
 
                 for (var i = 0; i < ops.length; i++) {
-                    editor.emit('realtime:op:assets', ops[i], id);
+                    editor.emit('realtime:op:assets', ops[i], uniqueId);
                 }
             });
 
-            assetData.id = id;
+            assetData.id = parseInt(assetData.item_id, 10);
+            assetData.uniqueId = parseInt(uniqueId, 10);
 
             // delete unecessary fields
             delete assetData.item_id;
@@ -55,13 +56,13 @@ editor.once('load', function() {
                 assetData.file.url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.filename);
 
                 if (assetData.file.variants) {
-                    for(var key in assetData.file.variants) {
+                    for (var key in assetData.file.variants) {
                         assetData.file.variants[key].url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.variants[key].filename);
                     }
                 }
             }
 
-            var asset = editor.call('assets:get', id);
+            var asset = editor.call('assets:get', assetData.id);
             // asset can exist if we are reconnecting to c3
             var assetExists = !!asset;
 
@@ -72,18 +73,18 @@ editor.once('load', function() {
                 if (assetData.type === 'sprite') {
                     options = {
                         pathsWithDuplicates: ['data.frameKeys']
-                    }
+                    };
                 }
 
                 asset = new Observer(assetData, options);
                 editor.call('assets:add', asset);
 
                 var _asset = asset.asset = new pc.Asset(assetData.name, assetData.type, assetData.file, assetData.data);
-                _asset.id = parseInt(assetData.id);
+                _asset.id = parseInt(assetData.id, 10);
                 _asset.preload = assetData.preload ? assetData.preload : false;
 
                 // tags
-                _asset.tags.add(assetData['tags']);
+                _asset.tags.add(assetData.tags);
 
                 if (asset.get('type') !== 'script' || ! asset.get('preload')) {
                     app.assets.add(_asset);
@@ -101,18 +102,18 @@ editor.once('load', function() {
         doc.subscribe();
     });
 
-    var onLoad = function(data) {
-        editor.call('assets:progress', .5);
+    var onLoad = function (data) {
+        editor.call('assets:progress', 0.5);
 
         var count = 0;
         var scripts = { };
 
         var legacyScripts = settings.get('useLegacyScripts');
 
-        var loadScripts = function() {
+        var loadScripts = function () {
             var order = settings.get('scripts');
 
-            for(var i = 0; i < order.length; i++) {
+            for (var i = 0; i < order.length; i++) {
                 if (! scripts[order[i]])
                     continue;
 
@@ -127,10 +128,10 @@ editor.once('load', function() {
             }
         };
 
-        var load = function (id) {
-            editor.call('loadAsset', id, function (asset) {
+        var load = function (uniqueId) {
+            editor.call('loadAsset', uniqueId, function (asset) {
                 count++;
-                editor.call('assets:progress', (count / data.length) * .5 + .5);
+                editor.call('assets:progress', (count / data.length) * 0.5 + 0.5);
 
                 if (! legacyScripts && asset && asset.get('type') === 'script')
                     scripts[asset.get('id')] = asset;
@@ -156,9 +157,9 @@ editor.once('load', function() {
             while (startBatch < total) {
                 // start bulk subscribe
                 connection.startBulk();
-                for(var i = startBatch; i < startBatch + batchSize && i < total; i++) {
+                for (var i = startBatch; i < startBatch + batchSize && i < total; i++) {
                     assetNames[data[i].id] = data[i].name;
-                    load(data[i].id);
+                    load(data[i].uniqueId);
                 }
                 // end bulk subscribe and send message to server
                 connection.endBulk();
@@ -172,27 +173,27 @@ editor.once('load', function() {
     };
 
     // load all assets
-    editor.on('realtime:authenticated', function() {
+    editor.on('realtime:authenticated', function () {
         Ajax({
-            url: '{{url.api}}/projects/{{project.id}}/assets?view=launcher',
+            url: '{{url.api}}/projects/{{project.id}}/assets?branchId={{self.branch.id}}&view=launcher',
             auth: true,
             cookies: true
         })
-        .on('load', function(status, data) {
+        .on('load', function (status, data) {
             onLoad(data);
         })
-        .on('progress', function(progress) {
-            editor.call('assets:progress', .1 + progress * .4);
+        .on('progress', function (progress) {
+            editor.call('assets:progress', 0.1 + progress * 0.4);
         })
-        .on('error', function(status, evt) {
+        .on('error', function (status, evt) {
             console.log(status, evt);
         });
     });
 
-    editor.call('assets:progress', .1);
+    editor.call('assets:progress', 0.1);
 
     editor.on('assets:remove', function (asset) {
-        var id = asset.get('id');
+        var id = asset.get('uniqueId');
         if (docs[id]) {
             docs[id].unsubscribe();
             docs[id].destroy();
@@ -202,7 +203,7 @@ editor.once('load', function() {
 
     var getFileUrl = function (folders, id, revision, filename) {
         var path = '';
-        for(var i = 0; i < folders.length; i++) {
+        for (var i = 0; i < folders.length; i++) {
             var folder = editor.call('assets:get', folders[i]);
             if (folder) {
                 path += encodeURIComponent(folder.get('name')) + '/';
@@ -210,11 +211,11 @@ editor.once('load', function() {
                 path += (assetNames[folders[i]] || 'unknown') + '/';
             }
         }
-        return '/assets/files/' + path + encodeURIComponent(filename) + '?id=' + id;
+        return '/assets/files/' + path + encodeURIComponent(filename) + '?id=' + id + '&branchId=' + config.self.branch.id;
     };
 
     // hook sync to new assets
-    editor.on('assets:add', function(asset) {
+    editor.on('assets:add', function (asset) {
         if (asset.sync)
             return;
 
@@ -224,7 +225,7 @@ editor.once('load', function() {
 
         var setting = false;
 
-        asset.on('*:set', function(path, value) {
+        asset.on('*:set', function (path, value) {
             if (setting || ! path.startsWith('file') || path.endsWith('.url') || ! asset.get('file'))
                 return;
 
@@ -244,8 +245,8 @@ editor.once('load', function() {
     });
 
     // server > client
-    editor.on('realtime:op:assets', function(op, id) {
-        var asset = editor.call('assets:get', id);
+    editor.on('realtime:op:assets', function (op, uniqueId) {
+        var asset = editor.call('assets:getUnique', uniqueId);
         if (asset) {
             asset.sync.write(op);
         } else {

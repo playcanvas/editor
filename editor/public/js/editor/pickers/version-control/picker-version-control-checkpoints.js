@@ -60,6 +60,7 @@ editor.once('load', function () {
         labelBranchHistory.text = "'" + branch.name + "'" + ' checkpoints';
         listCheckpoints.clear();
         panelCheckpoints.element.scrollTop = 0;
+        panel.branch = branch;
     };
 
     panel.setCheckpoints = function (checkpoints) {

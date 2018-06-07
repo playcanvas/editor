@@ -338,9 +338,9 @@ editor.once('load', function () {
 
     };
 
-    // subscribe to messenger pack.delete
-    editor.on('messenger:pack.delete', function (data) {
-        onSceneDeleted(data.pack.id);
+    // subscribe to messenger scene.delete
+    editor.on('messenger:scene.delete', function (data) {
+        onSceneDeleted(data.scene.id);
     });
 
     // subscribe to messenger scene.new

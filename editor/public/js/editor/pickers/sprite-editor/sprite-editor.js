@@ -1752,7 +1752,7 @@ editor.once('load', function() {
             }
 
         };
-        atlasImage.src = atlasAsset.get('file.url') + '?t=' + atlasAsset.get('file.hash');
+        atlasImage.src = atlasAsset.get('file.url').appendQuery('t=' +  atlasAsset.get('file.hash'));
 
         // listen to atlas changes and render
         events.push(atlasAsset.on('*:set', queueRender));

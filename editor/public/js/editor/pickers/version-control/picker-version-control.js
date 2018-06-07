@@ -7,6 +7,7 @@ editor.once('load', function () {
 
     var projectUserSettings = editor.call('settings:projectUser');
     var currentCheckpointListRequest = null;
+    var branches = {}; // branches by id
 
     // main panel
     var panel = new ui.Panel();
@@ -315,7 +316,10 @@ editor.once('load', function () {
     // show create branch panel
     btnNewBranch.on('click', function () {
         showRightSidePanel(panelCreateBranch);
-        // TODO: panelCreateBranch.setCheckpoint( latestCheckpointInCurrentBranch )
+        panelCreateBranch.setSourceBranch(config.self.branch);
+        if (config.self.branch.latestCheckpointId) {
+            panelCreateBranch.setCheckpointId(config.self.branch.latestCheckpointId);
+        }
     });
 
 
@@ -387,8 +391,10 @@ editor.once('load', function () {
 
     panelCheckpointsContainer.on('checkpoint:branch', function (checkpoint) {
         showRightSidePanel(panelCreateBranch);
-        panelCreateBranch.setCheckpoint(checkpoint);
-    })
+        // panelCreateBranch.setSourceBranch(branches[checkpoint.branchId]);
+        panelCreateBranch.setSourceBranch(panelCheckpointsContainer.branch);
+        panelCreateBranch.setCheckpointId(checkpoint.id);
+    });
 
     // Create checkpoint
     panelCreateCheckpoint.on('cancel', showCheckpoints);
@@ -548,11 +554,19 @@ editor.once('load', function () {
             skip: branchesSkip,
             closed: fieldBranchesFilter.value === 'closed'
         }, function (err, data) {
+            branches = {};
+
             if (err) {
                 return console.error(err);
             }
 
             if (! data.result[0]) return;
+
+            // convert array to dict
+            branches = data.result.reduce(function (map, branch) {
+                map[branch.id] = branch;
+                return map;
+            }, {});
 
             data.result.forEach(createBranchListItem);
             selectBranch(data.result[0]);
