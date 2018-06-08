@@ -488,16 +488,9 @@ editor.once('load', function() {
                             return !editor.call('users:hasFlag', 'spriteTester');
                         },
                         select: function() {
-                            var buttonComponentData = editor.call('components:getDefault', 'button');
-                            buttonComponentData.type = 'button';
-
-                            var buttonEntityData = {
+                            editor.call('entities:new', createButtonEntityData({
                                 name: 'Button',
                                 parent: getParentFn(),
-                                components: {
-                                    button: buttonComponentData,
-                                    element: createImageElementComponentData({ useInput: true })
-                                },
                                 children: [
                                     {
                                         name: 'Text',
@@ -506,19 +499,7 @@ editor.once('load', function() {
                                         }
                                     }
                                 ]
-                            };
-
-                            // The button component needs references to its Image entity, which is
-                            // only known post-creation. Defining these as a post-creation callback
-                            // means that they'll also be correctly resolved if the user undoes the
-                            // button creation and then redoes it.
-                            var postCreationCallback = function(button) {
-                                button.history.enabled = false;
-                                button.set('components.button.imageEntity', button.entity.getGuid());
-                                button.history.enabled = true;
-                            };
-
-                            editor.call('entities:new', buttonEntityData, postCreationCallback);
+                            }));
                         }
                     },
                     'add-new-scroll-view': {
