@@ -15,6 +15,14 @@ editor.once('load', function () {
     fieldBranchName.keyChange = true;
     panelName.append(fieldBranchName);
 
+    // blur on enter
+    fieldBranchName.elementInput.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13) {
+            this.blur();
+            createBranch();
+        }
+    });
+
     var panelFrom = new ui.Panel();
     panelFrom.flex = true;
     label = new ui.Label({
@@ -48,14 +56,19 @@ editor.once('load', function () {
                 text: 'Create New Branch',
                 highlighted: true,
                 onClick: function () {
-                    panel.emit('confirm', {
-                        name: fieldBranchName.value
-                    });
+                    createBranch();
                 }
             }
         }
     });
     panel.class.add('create-branch');
+
+    var createBranch = function () {
+        if (panel.buttonConfirm.disabled) return;
+        panel.emit('confirm', {
+            name: fieldBranchName.value
+        });
+    };
 
     panel.on('hide', function () {
         labelBranch.text = '';
