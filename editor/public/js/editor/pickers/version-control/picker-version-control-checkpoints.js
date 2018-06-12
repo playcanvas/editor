@@ -168,18 +168,26 @@ editor.once('load', function () {
         panel.emit('checkpoint:branch', currentCheckpoint);
     });
 
-    // when the checkpoints context menu is closed 'unclick' dropdowns
     menuCheckpoints.on('open', function (open) {
-        if (open || ! currentCheckpoint) return;
-        var item = document.getElementById('checkpoint-' + currentCheckpoint.id);
-        currentCheckpoint = null;
-        if (! item) return;
+        if (! currentCheckpoint) return;
 
-        var dropdown = item.querySelector('.clicked');
-        if (! dropdown) return;
+        // filter menu options
+        if (open) {
+            menuCheckpointsRestore.hidden = panel.branch.id !== config.self.branch.id;
+        }
 
-        dropdown.classList.remove('clicked');
-        dropdown.innerHTML = '&#57689;';
+        // when the checkpoints context menu is closed 'unclick' dropdowns
+        if (! open) {
+            var item = document.getElementById('checkpoint-' + currentCheckpoint.id);
+            currentCheckpoint = null;
+            if (! item) return;
+
+            var dropdown = item.querySelector('.clicked');
+            if (! dropdown) return;
+
+            dropdown.classList.remove('clicked');
+            dropdown.innerHTML = '&#57689;';
+        }
     });
 
     // Return checkpoints container panel
