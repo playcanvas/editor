@@ -1,31 +1,25 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var index = 0;
     editor.method('assets:reimport', function (assetId, type, callback) {
-        var form = new FormData();
+        var data = {
+            branchId: config.self.branch.id
+        };
 
         // conversion pipeline specific parameters
         var settings = editor.call('settings:projectUser');
-        switch(type) {
-            case 'texture':
-            case 'textureatlas':
-                form.append('pow2', settings.get('editor.pipeline.texturePot'));
-                form.append('searchRelatedAssets', settings.get('editor.pipeline.searchRelatedAssets'));
-                break;
-            case 'scene':
-                form.append('searchRelatedAssets', settings.get('editor.pipeline.searchRelatedAssets'));
-                form.append('overwriteModel', settings.get('editor.pipeline.overwriteModel'));
-                form.append('overwriteAnimation', settings.get('editor.pipeline.overwriteAnimation'));
-                form.append('overwriteMaterial', settings.get('editor.pipeline.overwriteMaterial'));
-                form.append('overwriteTexture', settings.get('editor.pipeline.overwriteTexture'));
-                form.append('pow2', settings.get('editor.pipeline.texturePot'));
-                form.append('preserveMapping', settings.get('editor.pipeline.preserveMapping'));
-                break
-            case 'font':
-                break;
-            default:
-                break;
+        if (type === 'texture' || type === 'textureatlas' || type === 'scene') {
+            data.pow2 = settings.get('editor.pipeline.texturePot');
+            data.searchRelatedAssets = settings.get('editor.pipeline.searchRelatedAssets');
+
+            if (type === 'scene') {
+                data.overwriteModel = settings.get('editor.pipeline.overwriteModel');
+                data.overwriteAnimation = settings.get('editor.pipeline.overwriteAnimation');
+                data.overwriteMaterial = settings.get('editor.pipeline.overwriteMaterial');
+                data.overwriteTexture = settings.get('editor.pipeline.overwriteTexture');
+                data.preserveMappping = settings.get('editor.pipeline.preserveMapping');
+            }
         }
 
         var jobId = ++index;
@@ -33,25 +27,21 @@ editor.once('load', function() {
         editor.call('status:job', jobName, 0);
 
         Ajax({
-            url: '/api/assets/import/' + assetId,
-            method: 'PUT',
+            url: '/api/assets/' + assetId + '/reimport',
+            method: 'POST',
             auth: true,
-            data: form,
-            ignoreContentType: true,
-            headers: {
-                Accept: 'application/json'
-            }
+            data: data
         })
-        .on('load', function(status, res) {
+        .on('load', function (status, res) {
             editor.call('status:job', jobName);
             if (callback) {
                 callback(null, res);
             }
         })
-        .on('progress', function(progress) {
+        .on('progress', function (progress) {
             editor.call('status:job', jobName, progress);
         })
-        .on('error', function(status, res) {
+        .on('error', function (status, res) {
             editor.call('status:error', res);
             editor.call('status:job', jobName);
             if (callback) {
