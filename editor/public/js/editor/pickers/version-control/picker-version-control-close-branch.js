@@ -5,11 +5,17 @@ editor.once('load', function () {
         text: 'Type branch name to confirm'
     });
     label.class.add('small');
-    
+
     var fieldName = new ui.TextField();
     fieldName.renderChanges = false;
     fieldName.flexGrow = 1;
     fieldName.keyChange = true;
+
+    fieldName.elementInput.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13 && ! panel.buttonConfirm.disabled) {
+            panel.emit('confirm');
+        }
+    });
 
     var panel = editor.call('picker:versioncontrol:createWidget', {
         note: 'Closing this branch will place it in the archive where it can be restored at a later date. If you are sure then please type the name of the branch below.',
@@ -43,6 +49,6 @@ editor.once('load', function () {
     };
 
     editor.method('picker:versioncontrol:widget:closeBranch', function () {
-        return panel;  
+        return panel;
     });
 });
