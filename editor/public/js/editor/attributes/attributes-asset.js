@@ -407,7 +407,7 @@ editor.once('load', function() {
                     if (assets[0].get('source') || assets[0].get('type') === 'texture' || assets[0].get('type') === 'audio') {
                         window.open(assets[0].get('file.url'));
                     } else {
-                        window.open('/api/assets/' + assets[0].get('id') + '/download');
+                        window.open('/api/assets/' + assets[0].get('id') + '/download?branchId=' + config.self.branch.id);
                     }
                 });
                 panelButtons.append(btnDownload);
