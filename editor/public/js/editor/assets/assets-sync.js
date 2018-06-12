@@ -262,10 +262,10 @@ editor.once('load', function () {
 
         if (asset.get('has_thumbnail')) {
             asset.set('thumbnails', {
-                's': '/api/assets/' + asset.get('id') + '/thumbnail/small?branchId' + config.self.branch.id,
-                'm': '/api/assets/' + asset.get('id') + '/thumbnail/medium?branchId' + config.self.branch.id,
-                'l': '/api/assets/' + asset.get('id') + '/thumbnail/large?branchId' + config.self.branch.id,
-                'xl': '/api/assets/' + asset.get('id') + '/thumbnail/xlarge?branchId' + config.self.branch.id
+                's': '/api/assets/' + asset.get('id') + '/thumbnail/small?branchId=' + config.self.branch.id,
+                'm': '/api/assets/' + asset.get('id') + '/thumbnail/medium?branchId=' + config.self.branch.id,
+                'l': '/api/assets/' + asset.get('id') + '/thumbnail/large?branchId=' + config.self.branch.id,
+                'xl': '/api/assets/' + asset.get('id') + '/thumbnail/xlarge?branchId=' + config.self.branch.id
             });
         } else {
             asset.unset('thumbnails');

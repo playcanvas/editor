@@ -56,8 +56,7 @@ editor.once('load', function() {
             if (app.assets.prefix && ! pc.ABSOLUTE_URL.test(url))
                 url = app.assets.prefix + url;
 
-            var separator = url.indexOf('?') !== -1 ? '&' : '?';
-            url += separator + 't=' + file.hash;
+            url = url.appendQuery('t=' + file.hash);
         }
 
         if (url && (reload || ! asset._editorPreviewModel)) {

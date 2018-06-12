@@ -1180,7 +1180,7 @@ editor.once('load', function() {
                                     image = images[i] = new Image();
                                     image.hash = hash;
                                     image.onload = queueRender;
-                                    image.src = url + '?t=' + hash;
+                                    image.src = url.appendQuery('t=' + hash);
                                 }
                             }
                         } else if (images[i]) {

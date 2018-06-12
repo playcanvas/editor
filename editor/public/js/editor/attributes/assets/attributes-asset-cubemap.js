@@ -405,8 +405,7 @@ editor.once('load', function() {
 
             var makeThumbnailUrl = function(asset) {
                 var url = config.url.home + '/' + (asset.get('thumbnails.l') || asset.get('file.url'));
-                var separator = url.indexOf('?') !== -1 ? '&' : '?';
-                url += separator + 't=' + asset.get('file.hash');
+                url = url.appendQuery('t=' + asset.get('file.hash'));
                 return url;
             };
 
