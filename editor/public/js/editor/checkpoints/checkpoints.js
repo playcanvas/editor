@@ -24,14 +24,13 @@ editor.once('load', function () {
         return request;
     });
 
-    editor.method('checkpoints:restore', function (id, callback) {
+    editor.method('checkpoints:restore', function (id, destinationBranchId, callback) {
         var request = Ajax({
             url: '{{url.api}}/checkpoints/' + id + '/restore',
             auth: true,
             method: 'POST',
-            // TODO: remove this it's not needed when we fix assets-server->dynamo communication
             data: {
-                projectId: config.project.id
+                branchId: destinationBranchId
             }
         });
 
