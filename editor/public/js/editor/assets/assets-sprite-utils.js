@@ -10,7 +10,8 @@ editor.once('load', function() {
             method: 'POST',
             auth: true,
             data: {
-                type: 'textureatlas'
+                type: 'textureatlas',
+                branchId: config.self.branch.id
             },
             headers: {
                 Accept: 'application/json'
