@@ -22,10 +22,10 @@ editor.once('load', function () {
     panelBranchesContainer.flex = true;
 
     // branches top
-    var panelBranchesTop = new ui.Panel();
-    panelBranchesTop.class.add('branches-top');
-    panelBranchesTop.flex = true;
-    panelBranchesContainer.append(panelBranchesTop);
+    // var panelBranchesTop = new ui.Panel();
+    // panelBranchesTop.class.add('branches-top');
+    // panelBranchesTop.flex = true;
+    // panelBranchesContainer.append(panelBranchesTop);
 
     // branches filter
     var panelBranchesFilter = new ui.Panel();
@@ -151,12 +151,12 @@ editor.once('load', function () {
     ];
 
     // new branch button
-    var btnNewBranch = new ui.Button({
-        text: 'NEW BRANCH'
-    });
-    btnNewBranch.flexGrow = 1;
-    btnNewBranch.class.add('icon', 'create');
-    panelBranchesTop.append(btnNewBranch);
+    // var btnNewBranch = new ui.Button({
+    //     text: 'NEW BRANCH'
+    // });
+    // btnNewBranch.flexGrow = 1;
+    // btnNewBranch.class.add('icon', 'create');
+    // panelBranchesTop.append(btnNewBranch);
 
     // branch for which context menu is open
     var contextBranch = null;
@@ -314,13 +314,13 @@ editor.once('load', function () {
     };
 
     // show create branch panel
-    btnNewBranch.on('click', function () {
-        showRightSidePanel(panelCreateBranch);
-        panelCreateBranch.setSourceBranch(config.self.branch);
-        if (config.self.branch.latestCheckpointId) {
-            panelCreateBranch.setCheckpointId(config.self.branch.latestCheckpointId);
-        }
-    });
+    // btnNewBranch.on('click', function () {
+    //     showRightSidePanel(panelCreateBranch);
+    //     panelCreateBranch.setSourceBranch(config.self.branch);
+    //     if (config.self.branch.latestCheckpointId) {
+    //         panelCreateBranch.setCheckpointId(config.self.branch.latestCheckpointId);
+    //     }
+    // });
 
 
     // close branch
@@ -504,7 +504,7 @@ editor.once('load', function () {
         togglePanels(false);
         showRightSidePanel(panelRestoreCheckpointProgress);
 
-        editor.call('checkpoints:restore', panelRestoreCheckpoint.checkpoint.id, function (err, data) {
+        editor.call('checkpoints:restore', panelRestoreCheckpoint.checkpoint.id, config.self.branch.id, function (err, data) {
             panelRestoreCheckpointProgress.finish(err);
             if (err) {
                 togglePanels(true);
@@ -533,7 +533,7 @@ editor.once('load', function () {
     var togglePanels = function (enabled) {
         editor.call('picker:project:setClosable', enabled);
         editor.call('picker:project:toggleLeftPanel', enabled);
-        panelBranchesTop.disabled = !enabled;
+        // panelBranchesTop.disabled = !enabled;
         panelBranches.disabled = !enabled;
         panelBranchesFilter.disabled = !enabled;
     };
