@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var uploadJobs = 0;
@@ -28,21 +28,21 @@ editor.once('load', function() {
     };
 
     var typeToExt = {
-        'scene': [ 'fbx', 'dae', 'obj', '3ds' ],
-        'text': [ 'txt', 'xml', 'atlas' ],
-        'html': [ 'html' ],
-        'css': [ 'css' ],
-        'json': [ 'json' ],
-        'texture': [ 'tif', 'tga', 'png', 'jpg', 'jpeg', 'gif', 'bmp', 'dds', 'hdr', 'exr' ],
-        'audio': [ 'wav', 'mp3', 'mp4', 'ogg', 'm4a' ],
-        'shader': [ 'glsl', 'frag', 'vert' ],
-        'script': [ 'js' ],
-        'font': [ 'ttf', 'ttc', 'otf', 'dfont' ]
+        'scene': ['fbx', 'dae', 'obj', '3ds'],
+        'text': ['txt', 'xml', 'atlas'],
+        'html': ['html'],
+        'css': ['css'],
+        'json': ['json'],
+        'texture': ['tif', 'tga', 'png', 'jpg', 'jpeg', 'gif', 'bmp', 'dds', 'hdr', 'exr'],
+        'audio': ['wav', 'mp3', 'mp4', 'ogg', 'm4a'],
+        'shader': ['glsl', 'frag', 'vert'],
+        'script': ['js'],
+        'font': ['ttf', 'ttc', 'otf', 'dfont']
     };
 
-    var extToType = { };
-    for(var type in typeToExt) {
-        for(var i = 0; i < typeToExt[type].length; i++) {
+    var extToType = {};
+    for (var type in typeToExt) {
+        for (var i = 0; i < typeToExt[type].length; i++) {
             extToType[typeToExt[type][i]] = type;
         }
     }
@@ -51,18 +51,18 @@ editor.once('load', function() {
     editor.method('assets:canUploadFiles', function (files) {
         // check usage first
         var totalSize = 0;
-        for(var i = 0; i < files.length; i++) {
+        for (var i = 0; i < files.length; i++) {
             totalSize += files[i].size;
         }
 
         return config.owner.size + totalSize <= config.owner.diskAllowance;
     });
 
-    editor.method('assets:upload:script', function(file) {
+    editor.method('assets:upload:script', function (file) {
         var reader = new FileReader();
 
-        reader.addEventListener('load', function() {
-            editor.call('sourcefiles:create', file.name, reader.result, function(err) {
+        reader.addEventListener('load', function () {
+            editor.call('sourcefiles:create', file.name, reader.result, function (err) {
                 if (err)
                     return;
 
@@ -73,11 +73,65 @@ editor.once('load', function() {
         reader.readAsText(file);
     });
 
+    var appendCommon = function (form, args) {
+        // NOTE
+        // non-file form data should be above file,
+        // to make it parsed on back-end first
+
+        form.append('branchId', config.self.branch.id);
+
+        // parent folder
+        if (args.parent) {
+            if (args.parent instanceof Observer) {
+                form.append('parent', args.parent.get('id'));
+            } else {
+                var id = parseInt(args.parent, 10);
+                if (!isNaN(id))
+                    form.append('parent', id + '');
+            }
+        }
+
+        // conversion pipeline specific parameters
+        var settings = editor.call('settings:projectUser');
+        switch (args.type) {
+            case 'texture':
+            case 'textureatlas':
+                form.append('pow2', settings.get('editor.pipeline.texturePot'));
+                form.append('searchRelatedAssets', settings.get('editor.pipeline.searchRelatedAssets'));
+                break;
+            case 'scene':
+                form.append('searchRelatedAssets', settings.get('editor.pipeline.searchRelatedAssets'));
+                form.append('overwriteModel', settings.get('editor.pipeline.overwriteModel'));
+                form.append('overwriteAnimation', settings.get('editor.pipeline.overwriteAnimation'));
+                form.append('overwriteMaterial', settings.get('editor.pipeline.overwriteMaterial'));
+                form.append('overwriteTexture', settings.get('editor.pipeline.overwriteTexture'));
+                form.append('pow2', settings.get('editor.pipeline.texturePot'));
+                form.append('preserveMapping', settings.get('editor.pipeline.preserveMapping'));
+                break;
+            case 'font':
+                break;
+            default:
+                break;
+        }
+
+        // filename
+        if (args.filename) {
+            form.append('filename', args.filename);
+        }
+
+        // file
+        if (args.file && args.file.size) {
+            form.append('file', args.file, (args.filename || args.name));
+        }
+
+        return form;
+    };
+
     var create = function (args) {
         var form = new FormData();
 
         // scope
-        form.append('project', config.project.id);
+        form.append('projectId', config.project.id);
 
         // type
         if (!args.type) {
@@ -115,67 +169,13 @@ editor.once('load', function() {
 
         form = appendCommon(form, args);
         return form;
-    }
+    };
 
     var update = function (assetId, args) {
         var form = new FormData();
         form = appendCommon(form, args);
         return form;
-    }
-
-    var appendCommon = function(form, args) {
-        // NOTE
-        // non-file form data should be above file,
-        // to make it parsed on back-end first
-
-        form.append('branchId', config.self.branch.id);
-
-        // parent folder
-        if (args.parent) {
-            if (args.parent instanceof Observer) {
-                form.append('parent', args.parent.get('id'));
-            } else {
-                var id = parseInt(args.parent, 10);
-                if (! isNaN(id))
-                    form.append('parent', id + '');
-            }
-        }
-
-        // conversion pipeline specific parameters
-        var settings = editor.call('settings:projectUser');
-        switch(args.type) {
-            case 'texture':
-            case 'textureatlas':
-                form.append('pow2', settings.get('editor.pipeline.texturePot'));
-                form.append('searchRelatedAssets', settings.get('editor.pipeline.searchRelatedAssets'));
-                break;
-            case 'scene':
-                form.append('searchRelatedAssets', settings.get('editor.pipeline.searchRelatedAssets'));
-                form.append('overwriteModel', settings.get('editor.pipeline.overwriteModel'));
-                form.append('overwriteAnimation', settings.get('editor.pipeline.overwriteAnimation'));
-                form.append('overwriteMaterial', settings.get('editor.pipeline.overwriteMaterial'));
-                form.append('overwriteTexture', settings.get('editor.pipeline.overwriteTexture'));
-                form.append('pow2', settings.get('editor.pipeline.texturePot'));
-                form.append('preserveMapping', settings.get('editor.pipeline.preserveMapping'));
-                break
-            case 'font':
-                break;
-            default:
-                break;
-        }
-
-        // filename
-        if (args.filename) {
-            form.append('filename', args.filename);
-        }
-
-        // file
-        if (args.file && args.file.size) {
-            form.append('file', args.file, (args.filename || args.name));
-        }
-
-        return form;
-    }
+    };
 
     editor.method('assets:uploadFile', function (args, fn) {
         var method = 'POST';
@@ -205,16 +205,16 @@ editor.once('load', function() {
         };
 
         Ajax(data)
-        .on('load', function(status, data) {
+        .on('load', function (status, data) {
             editor.call('status:job', 'asset-upload:' + job);
             if (fn) {
                 fn(null, data);
             }
         })
-        .on('progress', function(progress) {
+        .on('progress', function (progress) {
             editor.call('status:job', 'asset-upload:' + job, progress);
         })
-        .on('error', function(status, data) {
+        .on('error', function (status, data) {
             if (/Disk allowance/.test(data)) {
                 data += '. <a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
             }
@@ -227,8 +227,8 @@ editor.once('load', function() {
         });
     });
 
-    editor.method('assets:upload:files', function(files) {
-        if (! editor.call('assets:canUploadFiles', files)) {
+    editor.method('assets:upload:files', function (files) {
+        if (!editor.call('assets:canUploadFiles', files)) {
             var msg = 'Disk allowance exceeded. <a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
             editor.call('status:error', msg);
             return;
@@ -236,8 +236,8 @@ editor.once('load', function() {
 
         var currentFolder = editor.call('assets:panel:currentFolder');
 
-        for(var i = 0; i < files.length; i++) {
-            var path = [ ];
+        for (var i = 0; i < files.length; i++) {
+            var path = [];
 
             if (currentFolder && currentFolder.get)
                 path = currentFolder.get('path').concat(parseInt(currentFolder.get('id'), 10));
@@ -254,7 +254,7 @@ editor.once('load', function() {
             } else {
                 var type = extToType[ext] || 'binary';
 
-                var source = type !== 'binary' && ! targetExtensions[ext];
+                var source = type !== 'binary' && !targetExtensions[ext];
 
                 // check if we need to convert textures to texture atlases
                 if (type === 'texture' && userSettings.get('editor.pipeline.textureDefaultToAtlas')) {
@@ -263,13 +263,13 @@ editor.once('load', function() {
 
                 // can we overwrite another asset?
                 var sourceAsset = null;
-                var asset = editor.call('assets:findOne', function(item) {
+                var asset = editor.call('assets:findOne', function (item) {
                     // check files in current folder only
-                    if (! item.get('path').equals(path))
+                    if (!item.get('path').equals(path))
                         return;
 
                     // try locate source when dropping on its targets
-                    if (source && ! item.get('source') && item.get('source_asset_id')) {
+                    if (source && !item.get('source') && item.get('source_asset_id')) {
                         var itemSource = editor.call('assets:get', item.get('source_asset_id'));
                         if (itemSource && itemSource.get('type') === type && itemSource.get('name').toLowerCase() === files[i].name.toLowerCase()) {
                             sourceAsset = itemSource;
@@ -284,7 +284,7 @@ editor.once('load', function() {
                 if (ext === 'js') {
                     data = {
                         order: 100,
-                        scripts: { }
+                        scripts: {}
                     };
                 }
 
@@ -297,15 +297,15 @@ editor.once('load', function() {
                     pipeline: true,
                     data: data,
                     meta: asset ? asset[1].get('meta') : null
-                }, function(err, data) {
+                }, function (err, data) {
                     if (err || ext !== 'js') return;
 
-                    var onceAssetLoad = function(asset) {
+                    var onceAssetLoad = function (asset) {
                         var url = asset.get('file.url');
                         if (url) {
                             editor.call('scripts:parse', asset);
                         } else {
-                            asset.once('file.url:set', function() {
+                            asset.once('file.url:set', function () {
                                 editor.call('scripts:parse', asset);
                             });
                         }
@@ -322,8 +322,8 @@ editor.once('load', function() {
         }
     });
 
-    editor.method('assets:upload:picker', function(args) {
-        args = args || { };
+    editor.method('assets:upload:picker', function (args) {
+        args = args || {};
 
         var parent = args.parent || editor.call('assets:panel:currentFolder');
 
@@ -334,7 +334,7 @@ editor.once('load', function() {
         fileInput.style.display = 'none';
         editor.call('layout.assets').append(fileInput);
 
-        var onChange = function() {
+        var onChange = function () {
             editor.call('assets:upload:files', this.files);
 
             this.value = null;
