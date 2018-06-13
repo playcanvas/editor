@@ -159,7 +159,7 @@ editor.once('load', function() {
 
                 editor.call('realtime:send', 'pipeline', {
                     name: 'meta',
-                    id: assets[i].get('id')
+                    id: assets[i].get('uniqueId')
                 });
             }
             this.enabled = false;

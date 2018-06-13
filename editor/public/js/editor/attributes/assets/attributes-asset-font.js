@@ -436,8 +436,8 @@ editor.once('load', function() {
                 }
 
                 var task = {
-                    source: parseInt(source.get('id'), 10),
-                    target: parseInt(asset.get('id'), 10),
+                    source: parseInt(source.get('uniqueId'), 10),
+                    target: parseInt(asset.get('uniqueId'), 10),
                     chars: unique,
                     invert: fieldInvert.value
                 };

@@ -742,7 +742,7 @@ editor.once('load', function() {
             prefilterPanel.append(clearPrefilteredBtn);
 
             var clearPrefiltered = function () {
-                editor.call('realtime:send', 'cubemap:clear:', parseInt(assets[0].get('id'), 10));
+                editor.call('realtime:send', 'cubemap:clear:', parseInt(assets[0].get('uniqueId'), 10));
             };
 
             clearPrefilteredBtn.on('click', clearPrefiltered);

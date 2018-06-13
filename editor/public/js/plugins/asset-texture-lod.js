@@ -329,8 +329,8 @@ editor.once('plugins:load:asset-texture-lod', function() {
                         }
 
                         var task = {
-                            source: parseInt(source.get('id'), 10),
-                            target: parseInt(target.get('id'), 10),
+                            source: parseInt(source.get('uniqueId'), 10),
+                            target: parseInt(target.get('uniqueId'), 10),
                             filename: target.get('name'),
                             options: editor.call('assets:jobs:texture-convert-options', source.get('meta'))
                         };
