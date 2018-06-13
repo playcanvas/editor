@@ -8782,22 +8782,30 @@ strong {
             }
 
             .branches-filter {
-                height: 36px;
+                height: 45px;
                 box-sizing: border-box;
                 border-bottom: 1px solid $border-primary;
                 padding: 7px 10px;
 
-                .ui-select-field {
-                    margin: 0;
-                    height: 22px;
-                    line-height: 22px;
-                    > .value {
-                        line-height: 21px;
-                        &:after {
-                            line-height: 22px;
+                > .content {
+                    align-items: center;
+                    height: 100%;
+
+                    .ui-select-field {
+                        margin: 0;
+                        height: 22px;
+                        line-height: 22px;
+                        > .value {
+                            line-height: 21px;
+                            &:after {
+                                line-height: 22px;
+                            }
                         }
                     }
+
                 }
+
+
             }
 
             .checkpoints-top {
@@ -8876,6 +8884,8 @@ strong {
                             &.icon {
                                 @extend .font-icon;
                                 float: left;
+                                font-size: 8px;
+                                margin-top: 8px;
                                 &.active {
                                     color: #4AE22B;
                                 }
