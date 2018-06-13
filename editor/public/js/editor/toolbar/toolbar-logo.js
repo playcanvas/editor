@@ -477,6 +477,16 @@ editor.once('load', function() {
                 editor.call('picker:publish');
             }
         },
+        'version-control': {
+            title: 'Version Control',
+            icon: '&#58265;',
+            hide: function () {
+                return config.project.settings.useLegacyScripts;
+            },
+            select: function() {
+                editor.call('picker:versioncontrol');
+            }
+        },
         'bake': {
             title: 'Bake LightMaps',
             icon: '&#57745;',

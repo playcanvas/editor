@@ -1,9 +1,10 @@
 editor.once('load', function () {
     'use strict';
 
-    if (!editor.call('users:hasFlag', 'hasCheckpoints')) {
+    if (!editor.call('users:hasFlag', 'hasCheckpoints') || config.project.settings.useLegacyScripts) {
         return;
     }
+
 
     var projectUserSettings = editor.call('settings:projectUser');
     var currentCheckpointListRequest = null;
@@ -411,10 +412,18 @@ editor.once('load', function () {
             panelCreateCheckpointProgress.finish(err);
             if (! err) {
                 setTimeout(function () {
-                    togglePanels(true);
+                    // update latest checkpoint in current branches
+                    if (branches[config.self.branch.id]) {
+                        branches[config.self.branch.id].latestCheckpointId = checkpoint.id;
+                    }
+
+                    config.self.branch.latestCheckpointId = checkpoint.id;
+
+                    // add new checkpoint to checkpoint list
                     var existingCheckpoints = panelCheckpoints.checkpoints || [];
                     existingCheckpoints.unshift(checkpoint);
                     panelCheckpoints.setCheckpoints(existingCheckpoints);
+                    togglePanels(true);
                     showCheckpoints();
                 },  1000);
             } else {
@@ -622,6 +631,10 @@ editor.once('load', function () {
                 editor.emit('viewport:hover', false);
             }, 0);
         }
+    });
+
+    editor.method('picker:versioncontrol', function () {
+        editor.call('picker:project', 'version control');
     });
 
 });

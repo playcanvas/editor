@@ -33,7 +33,7 @@ editor.once('load', function () {
                     overwriteTexture: true
                 }
             },
-            branch: null
+            branch: config.self.branch.id
         },
         userId: config.self.id
     });
@@ -81,10 +81,6 @@ editor.once('load', function () {
 
             if (! settings.has('editor.pipeline.overwriteTexture'))
                 settings.set('editor.pipeline.overwriteTexture', true);
-
-            if (! settings.get('branch')) {
-                settings.set('branch', config.project.masterBranch);
-            }
 
             settings.history.enabled = history;
         });
