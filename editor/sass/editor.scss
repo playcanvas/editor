@@ -8900,6 +8900,8 @@ strong {
             }
 
             .checkpoints {
+                height: 522px; // for some reason percentages don't work
+
                 .ui-list {
                     > .ui-list-item {
                         height: auto;

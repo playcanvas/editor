@@ -216,9 +216,6 @@ editor.once('load', function () {
             text: '&#58208;'
         });
         labelIcon.class.add('icon');
-        if (branch.id === config.self.branch.id) {
-            labelIcon.class.add('active');
-        }
         panel.append(labelIcon);
 
         var labelName = new ui.Label({
@@ -264,6 +261,14 @@ editor.once('load', function () {
         item.on('click', function () {
             selectBranch(branch);
         });
+
+        // if this is our current branch then change the status icon
+        // and hide the dropdown button because it doesn't currently
+        // have any available actions for the current branch
+        if (branch.id === config.self.branch.id) {
+            labelIcon.class.add('active');
+            dropdown.hidden = true;
+        }
     };
 
     var getBranchListItem = function (branch) {
@@ -402,11 +407,14 @@ editor.once('load', function () {
         togglePanels(false);
         showRightSidePanel(panelCreateCheckpointProgress);
 
-        editor.call('checkpoints:create', data.description, function (err) {
+        editor.call('checkpoints:create', data.description, function (err, checkpoint) {
             panelCreateCheckpointProgress.finish(err);
             if (! err) {
                 setTimeout(function () {
                     togglePanels(true);
+                    var existingCheckpoints = panelCheckpoints.checkpoints || [];
+                    existingCheckpoints.unshift(checkpoint);
+                    panelCheckpoints.setCheckpoints(existingCheckpoints);
                     showCheckpoints();
                 },  1000);
             } else {
@@ -547,7 +555,12 @@ editor.once('load', function () {
     };
 
     var reloadBranches = function () {
+        // clear current branches
         listBranches.clear();
+        // clear branch from checkpoints so that checkpoints are also hidden
+        panelCheckpoints.setBranch(null);
+        // make sure we don't have any running checkpoint:list requests
+        currentCheckpointListRequest = null;
 
         editor.call('branches:list', {
             limit: 20,
@@ -568,8 +581,15 @@ editor.once('load', function () {
                 return map;
             }, {});
 
-            data.result.forEach(createBranchListItem);
-            selectBranch(data.result[0]);
+            var selected = data.result[0];
+            data.result.forEach(function (branch) {
+                createBranchListItem(branch);
+                if (branch.id === config.self.branch.id) {
+                    selected = branch;
+                }
+            });
+
+            selectBranch(selected);
         });
     };
 

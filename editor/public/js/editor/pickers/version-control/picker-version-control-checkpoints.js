@@ -7,7 +7,6 @@ editor.once('load', function () {
     // checkpoints top
     var panelCheckpointsTop = new ui.Panel();
     panelCheckpointsTop.class.add('checkpoints-top');
-    panelCheckpointsTop.flexGrow = 1;
     panel.append(panelCheckpointsTop);
 
     // current branch history
@@ -26,7 +25,6 @@ editor.once('load', function () {
     // checkpoints main panel
     var panelCheckpoints = new ui.Panel();
     panelCheckpoints.class.add('checkpoints');
-    panelCheckpoints.flexGrow = 1;
     panel.append(panelCheckpoints);
 
     // checkpoints list
@@ -57,16 +55,21 @@ editor.once('load', function () {
 
     // functions
     panel.setBranch = function (branch) {
-        labelBranchHistory.text = "'" + branch.name + "'" + ' checkpoints';
-        listCheckpoints.clear();
-        panelCheckpoints.element.scrollTop = 0;
         panel.branch = branch;
+        if (branch) {
+            labelBranchHistory.text = "'" + branch.name + "'" + ' checkpoints';
+        } else {
+            labelBranchHistory.text = '';
+        }
+        panel.setCheckpoints(null);
     };
 
     panel.setCheckpoints = function (checkpoints) {
-        if (! checkpoints) {
-            listCheckpoints.clear();
-        } else {
+        listCheckpoints.clear();
+        panelCheckpoints.element.scrollTop = 0;
+
+        panel.checkpoints = checkpoints;
+        if (checkpoints) {
             checkpoints.forEach(createCheckpointListItem);
         }
     };
