@@ -64,7 +64,11 @@ editor.once('load', function () {
     };
 
     panel.setCheckpoints = function (checkpoints) {
-        checkpoints.forEach(createCheckpointListItem);
+        if (! checkpoints) {
+            listCheckpoints.clear();
+        } else {
+            checkpoints.forEach(createCheckpointListItem);
+        }
     };
 
     var createCheckpointListItem = function (checkpoint) {

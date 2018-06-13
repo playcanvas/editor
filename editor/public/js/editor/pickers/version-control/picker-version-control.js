@@ -63,8 +63,8 @@ editor.once('load', function () {
     panel.append(panelRight);
 
     // checkpoints panel
-    var panelCheckpointsContainer = editor.call('picker:versioncontrol:widget:checkpoints');
-    panelRight.append(panelCheckpointsContainer);
+    var panelCheckpoints = editor.call('picker:versioncontrol:widget:checkpoints');
+    panelRight.append(panelCheckpoints);
 
     // new checkpoint panel
     var panelCreateCheckpoint = editor.call('picker:versioncontrol:widget:createCheckpoint');
@@ -137,7 +137,7 @@ editor.once('load', function () {
 
     // contains all possible panels that go to the right
     var allRightPanels = [
-        panelCheckpointsContainer,
+        panelCheckpoints,
         panelCreateCheckpoint,
         panelCreateCheckpointProgress,
         panelRestoreCheckpoint,
@@ -243,7 +243,7 @@ editor.once('load', function () {
         dropdown.on('click', function (e) {
             e.stopPropagation();
 
-            if (panelCheckpointsContainer.hidden) {
+            if (panelCheckpoints.hidden) {
                 showCheckpoints();
             }
 
@@ -278,7 +278,7 @@ editor.once('load', function () {
         if (! item) return;
         listBranches.selected = [item];
 
-        panelCheckpointsContainer.setBranch(branch);
+        panelCheckpoints.setBranch(branch);
 
         // list checkpoints but make sure in the response
         // that the results are from this request and not another
@@ -297,14 +297,14 @@ editor.once('load', function () {
                 return console.error(err);
             }
 
-            panelCheckpointsContainer.setCheckpoints(data);
+            panelCheckpoints.setCheckpoints(data);
         });
 
         currentCheckpointListRequest = request;
     };
 
     var showCheckpoints = function () {
-        showRightSidePanel(panelCheckpointsContainer);
+        showRightSidePanel(panelCheckpoints);
     };
 
     var showRightSidePanel = function (panel) {
@@ -380,19 +380,19 @@ editor.once('load', function () {
         }
     });
 
-    panelCheckpointsContainer.on('checkpoint:new', function () {
+    panelCheckpoints.on('checkpoint:new', function () {
         showRightSidePanel(panelCreateCheckpoint);
     });
 
-    panelCheckpointsContainer.on('checkpoint:restore', function (checkpoint) {
+    panelCheckpoints.on('checkpoint:restore', function (checkpoint) {
         showRightSidePanel(panelRestoreCheckpoint);
         panelRestoreCheckpoint.setCheckpoint(checkpoint);
     });
 
-    panelCheckpointsContainer.on('checkpoint:branch', function (checkpoint) {
+    panelCheckpoints.on('checkpoint:branch', function (checkpoint) {
         showRightSidePanel(panelCreateBranch);
         // panelCreateBranch.setSourceBranch(branches[checkpoint.branchId]);
-        panelCreateBranch.setSourceBranch(panelCheckpointsContainer.branch);
+        panelCreateBranch.setSourceBranch(panelCheckpoints.branch);
         panelCreateBranch.setCheckpointId(checkpoint.id);
     });
 
@@ -588,6 +588,9 @@ editor.once('load', function () {
 
     // on hide
     panel.on('hide', function () {
+        // clear checkpoint
+        panelCheckpoints.setCheckpoints(null);
+
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', true);
         }
