@@ -124,6 +124,18 @@ editor.once('load', function() {
         return entity;
     });
 
+    // When entities are deleted, we need to do some work to identify references to the
+    // deleted entities held by other entities in the graph. For example, if entityA has
+    // a component that holds a reference to entityB and entityB is deleted, we should
+    // nullify the reference so that entityA's component does not retain or try to access
+    // the deleted entity. Similarly, if the deletion is undone, we need to re-populate
+    // the reference so that it points once again at entityB.
+    //
+    // To achieve this, we perform a quick scan of the graph whenever one or more entities
+    // are deleted, to build a snapshot of the entity references at that time. The snapshot
+    // (which is just a map) is then used for identifying all references to any of the deleted
+    // entities, and these are set to null. If the deletion is subsequently undone, the map
+    // is used again in order to set all references back to the correct entity guids.
     var recursivelySearchForEntityReferences = function(sourceEntity, entityReferencesMap) {
         var componentNames = Object.keys(sourceEntity.get('components') || {});
         var i, j;
