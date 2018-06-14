@@ -34,14 +34,16 @@ editor.once('load', function() {
                 return {
                     anchor: [0, 1, 1, 1],
                     pivot: [1, 1],
-                    margin: [0, 0, 0, 0]
+                    margin: [0, 0, 0, 0],
+                    width: DEFAULT_THICKNESS
                 };
 
             case ORIENTATION_HORIZONTAL:
                 return {
                     anchor: [0, 0, 0, 1],
                     pivot: [0, 0],
-                    margin: [0, 0, 0, 0]
+                    margin: [0, 0, 0, 0],
+                    height: DEFAULT_THICKNESS
                 };
         }
     });

@@ -41,6 +41,18 @@ editor.once('load', function() {
         entity.history.enabled = history;
     };
 
+    var applyProperties = function(entity, pathPrefix, properties) {
+        Object.keys(properties).forEach(function(key) {
+            var value = properties[key];
+            var path = pathPrefix + '.' + key;
+            var prevHistory = entity.history.enabled;
+
+            entity.history.enabled = false;
+            entity.set(path, value, undefined, undefined, true);
+            entity.history.enabled = prevHistory;
+        });
+    };
+
     var addEvents = function (entity) {
         var setting = {
             pos: false,
@@ -233,6 +245,32 @@ editor.once('load', function() {
             else if (/^components.layoutchild.excludeFromLayout/.test(path)) {
                 if (value === true && valueOld === false) {
                     editor.call('entities:layout:storeLayout', [entity.entity.getGuid()]);
+                }
+            }
+            // switching the orientation of a scrollbar - we need to update the anchoring
+            // and margins of the track element and handle element to account for the new
+            // orientation.
+            else if (/^components.scrollbar.orientation/.test(path)) {
+                if (value !== valueOld) {
+                    var orientation = value;
+
+                    var containerElementDefaults = editor.call('components:scrollbar:getContainerElementDefaultsForOrientation', orientation);
+                    var handleElementDefaults = editor.call('components:scrollbar:getHandleElementDefaultsForOrientation', orientation);
+
+                    if (orientation === ORIENTATION_HORIZONTAL) {
+                        delete containerElementDefaults.width;
+                    } else if (orientation === ORIENTATION_VERTICAL) {
+                        delete containerElementDefaults.height;
+                    }
+
+                    var containerEntity = entity;
+                    applyProperties(containerEntity, 'components.element', containerElementDefaults);
+
+                    var handleEntityGuid = entity.get('components.scrollbar.handleEntity');
+                    var handleEntity = handleEntityGuid && editor.call('entities:get', handleEntityGuid);
+                    if (handleEntity) {
+                        applyProperties(handleEntity, 'components.element', handleElementDefaults);
+                    }
                 }
             }
         }));
