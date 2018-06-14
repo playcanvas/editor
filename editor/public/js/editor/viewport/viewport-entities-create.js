@@ -144,6 +144,10 @@ editor.once('load', function() {
 
         var entities = editor.call('entities:list');
         entities.forEach(processEntity);
+
+        // give components that need it a chance to process entity references now
+        // that the scene graph has loaded
+        app.fire('tools:sceneloaded');
     };
 
     // handle synchronization - all assets must be loaded
