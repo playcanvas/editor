@@ -1703,8 +1703,6 @@ editor.once('load', function() {
 
 
     var showEditor = function (asset) {
-        if (!editor.call('users:hasFlag', 'spriteTester')) return;
-
         var _spriteAsset = null;
         if (asset.get('type') === 'textureatlas') {
             atlasAsset = asset;

@@ -222,12 +222,6 @@ editor.once('load', function() {
         }
     };
 
-    if (!editor.call('users:hasFlag', 'spriteTester')) {
-        delete filterOptions.options.sprite;
-        delete filterOptions.options.textureAtlasTarget;
-        delete filterOptions.options.textureAtlasSource;
-    }
-
     var filterField = new ui.SelectField(filterOptions);
 
     filterField.class.add('options');

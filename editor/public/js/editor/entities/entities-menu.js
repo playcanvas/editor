@@ -358,9 +358,6 @@ editor.once('load', function() {
             'sprite-sub-menu': {
                 title: 'Sprite',
                 icon: componentsLogos.sprite,
-                hide: function () {
-                    return !editor.call('users:hasFlag', 'spriteTester');
-                },
                 items: {
                     'add-new-sprite': {
                         title: 'Sprite',
@@ -484,9 +481,6 @@ editor.once('load', function() {
                     'add-new-button': {
                         title: 'Button Element',
                         icon: componentsLogos.button,
-                        hide: function () {
-                            return !editor.call('users:hasFlag', 'spriteTester');
-                        },
                         select: function() {
                             editor.call('entities:new', createButtonEntityData({
                                 name: 'Button',
