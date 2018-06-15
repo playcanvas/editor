@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     // by default we hide the scrollview and scrollbar components
-    var HIDE_SCROLLVIEW_COMPONENTS = true;
+    var HIDE_SCROLLVIEW_COMPONENTS = false;
 
     var projectSettings = editor.call('settings:project');
 
