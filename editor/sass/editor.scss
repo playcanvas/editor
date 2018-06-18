@@ -7858,7 +7858,7 @@ strong {
                     top: 35px;
                     left: 90px;
 
-                    > .size, > .views, > .date {
+                    > .size, > .views, > .date, > .branch {
                         padding-right: 10px;
 
                         &:before {
@@ -7871,6 +7871,10 @@ strong {
 
                     > .size:before {
                         content: '\E216';
+                    };
+
+                    > .branch:before {
+                        content: '\E399';
                     };
 
                     > .views:before {

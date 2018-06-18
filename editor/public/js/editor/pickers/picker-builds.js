@@ -273,6 +273,14 @@ editor.once('load', function () {
         size.class.add('size');
         info.appendChild(size.element);
 
+        // branch
+        var branch = new ui.Label({
+            text: app.branch && app.branch.name || 'master'
+        });
+        branch.hidden = app.task.status !== 'complete';
+        branch.class.add('branch');
+        info.appendChild(branch.element);
+
         // error message
         var error = new ui.Label({
             text: app.task.message
