@@ -442,7 +442,7 @@ editor.once('load', function () {
         var data = {
             name: data.name,
             projectId: config.project.id,
-            sourceBranchId: config.self.branch.id,
+            sourceBranchId: panelCheckpoints.branch.id
         };
 
         if (panelCreateBranch.checkpoint) {
@@ -536,7 +536,6 @@ editor.once('load', function () {
         if (open || ! contextBranch) return;
 
         var item = document.getElementById('branch-' + contextBranch.id);
-        contextBranch = null;
         if (! item) return;
 
         var dropdown = item.querySelector('.clicked');
@@ -544,6 +543,10 @@ editor.once('load', function () {
 
         dropdown.classList.remove('clicked');
         dropdown.innerHTML = '&#57689;';
+
+        if (! open) {
+            contextBranch = null;
+        }
     });
 
     // Enable or disable the clickable parts of this picker
