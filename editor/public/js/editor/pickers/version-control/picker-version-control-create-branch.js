@@ -75,11 +75,11 @@ editor.once('load', function () {
         labelCheckpoint.text = '';
         fieldBranchName.value = '';
         panel.buttonConfirm.disabled = true;
-        panel.checkpointId = null;
-        panel.sourceBranch = null;
     });
 
     panel.on('show', function () {
+        panel.checkpointId = null;
+        panel.sourceBranch = null;
         fieldBranchName.focus();
     });
 

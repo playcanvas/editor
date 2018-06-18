@@ -397,7 +397,6 @@ editor.once('load', function () {
 
     panelCheckpoints.on('checkpoint:branch', function (checkpoint) {
         showRightSidePanel(panelCreateBranch);
-        // panelCreateBranch.setSourceBranch(branches[checkpoint.branchId]);
         panelCreateBranch.setSourceBranch(panelCheckpoints.branch);
         panelCreateBranch.setCheckpointId(checkpoint.id);
     });
@@ -442,11 +441,11 @@ editor.once('load', function () {
         var data = {
             name: data.name,
             projectId: config.project.id,
-            sourceBranchId: panelCheckpoints.branch.id
+            sourceBranchId: panelCheckpoints.branch.id,
         };
 
-        if (panelCreateBranch.checkpoint) {
-            data.sourceCheckpointId = panelCreateBranch.checkpoint.id;
+        if (panelCreateBranch.checkpointId) {
+            data.sourceCheckpointId = panelCreateBranch.checkpointId;
         }
 
         editor.call('branches:create', data, function (err, branch) {
