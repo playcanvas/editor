@@ -446,6 +446,7 @@ editor.once('load', function () {
         var data = {
             name: inputName.value,
             project_id: config.project.id,
+            branch_id: config.self.branch.id,
             scenes: selectedScenes.map(function (scene) { return scene.id; })
         };
 
@@ -490,6 +491,7 @@ editor.once('load', function () {
 
         var data = {
             project_id: config.project.id,
+            branch_id: config.self.branch.id,
             scenes: selectedScenes.map(function (scene) { return scene.id; })
         };
 
@@ -576,6 +578,7 @@ editor.once('load', function () {
         var data = {
             name: inputName.value,
             project_id: config.project.id,
+            branch_id: config.self.branch.id,
             scenes: selectedScenes.map(function (scene) { return scene.id; }),
             target: target,
             scripts_concatenate: fieldOptionsConcat ? fieldOptionsConcat.value : false
