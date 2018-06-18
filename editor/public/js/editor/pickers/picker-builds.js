@@ -8,6 +8,8 @@ editor.once('load', function () {
     // holds events that need to be destroyed
     var events = [];
 
+    var projectSettings = editor.call('settings:project');
+
     // disables / enables field depending on permissions
     var handlePermissions = function (field) {
         field.disabled = ! editor.call('permissions:write');
@@ -277,7 +279,7 @@ editor.once('load', function () {
         var branch = new ui.Label({
             text: app.branch && app.branch.name || 'master'
         });
-        branch.hidden = app.task.status !== 'complete';
+        branch.hidden = app.task.status !== 'complete' || projectSettings.get('useLegacyScripts');
         branch.class.add('branch');
         info.appendChild(branch.element);
 
