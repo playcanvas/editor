@@ -481,7 +481,7 @@ editor.once('load', function() {
             title: 'Version Control',
             icon: '&#58265;',
             hide: function () {
-                return config.project.settings.useLegacyScripts;
+                return !editor.call('users:hasFlag', 'hasCheckpoints') || config.project.settings.useLegacyScripts;
             },
             select: function() {
                 editor.call('picker:versioncontrol');
