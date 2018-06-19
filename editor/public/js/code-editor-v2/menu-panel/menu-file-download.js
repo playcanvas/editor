@@ -33,7 +33,7 @@ editor.once('load', function () {
     editor.method('editor:command:download', function (id) {
         id = id || editor.call('documents:getFocused');
         if (id) {
-            window.open('/api/assets/' + id + '/download');
+            window.open('/api/assets/' + id + '/download?branchId=' + config.self.branch.id);
         }
     });
 

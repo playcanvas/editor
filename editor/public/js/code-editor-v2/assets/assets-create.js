@@ -9,7 +9,7 @@ editor.once('load', function () {
         var form = new FormData();
 
         // scope
-        form.append('project', config.project.id);
+        form.append('projectId', config.project.id);
 
         // branch
         form.append('branchId', config.self.branch.id);
