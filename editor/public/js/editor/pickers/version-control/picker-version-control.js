@@ -5,10 +5,12 @@ editor.once('load', function () {
         return;
     }
 
-
     var projectUserSettings = editor.call('settings:projectUser');
     var currentCheckpointListRequest = null;
     var branches = {}; // branches by id
+
+    var branchesSkip = 0;
+    var checkpointsSkip = 0;
 
     // main panel
     var panel = new ui.Panel();
@@ -67,6 +69,21 @@ editor.once('load', function () {
     var panelCheckpoints = editor.call('picker:versioncontrol:widget:checkpoints');
     panelRight.append(panelCheckpoints);
 
+    panelCheckpoints.on('checkpoint:new', function () {
+        showRightSidePanel(panelCreateCheckpoint);
+    });
+
+    panelCheckpoints.on('checkpoint:restore', function (checkpoint) {
+        showRightSidePanel(panelRestoreCheckpoint);
+        panelRestoreCheckpoint.setCheckpoint(checkpoint);
+    });
+
+    panelCheckpoints.on('checkpoint:branch', function (checkpoint) {
+        showRightSidePanel(panelCreateBranch);
+        panelCreateBranch.setSourceBranch(panelCheckpoints.branch);
+        panelCreateBranch.setCheckpointId(checkpoint.id);
+    });
+
     // new checkpoint panel
     var panelCreateCheckpoint = editor.call('picker:versioncontrol:widget:createCheckpoint');
     panelCreateCheckpoint.hidden = true;
@@ -100,6 +117,58 @@ editor.once('load', function () {
     panelCloseBranch.hidden = true;
     panelRight.append(panelCloseBranch);
 
+    // close progress
+    var panelCloseBranchProgress = editor.call('picker:versioncontrol:createProgressWidget', {
+        progressText: 'Closing branch',
+        finishText: 'Branch closed',
+        errorText: 'Failed to close branch'
+    });
+    panelCloseBranchProgress.hidden = true;
+    panelRight.append(panelCloseBranchProgress);
+
+    // Close branch
+    panelCloseBranch.on('cancel', function () {
+        showCheckpoints();
+    });
+    panelCloseBranch.on('confirm', function (data) {
+        togglePanels(false);
+        showRightSidePanel(panelCloseBranchProgress);
+
+        editor.call('branches:close', panelCloseBranch.branch.id, function (err) {
+            panelCloseBranchProgress.finish(err);
+            // if there was an error re-add the item to the list
+            if (err) {
+                togglePanels(true);
+            } else {
+                // remove item from list
+                setTimeout(function () {
+                    togglePanels(true);
+                    var item = getBranchListItem(panelCloseBranch.branch);
+                    if (item) {
+                        var nextItem = item.selected ? (item.element.nextSibling || item.element.previousSibling) : null;
+                        listBranches.remove(item);
+
+                        // select next or previous sibling
+                        if (nextItem) {
+                            nextItem.ui.emit('click');
+                        }
+                    }
+
+                    showCheckpoints();
+                }, 1000);
+            }
+        });
+    });
+
+    // open branch progress panel
+    var panelOpenBranchProgress = editor.call('picker:versioncontrol:createProgressWidget', {
+        progressText: 'Opening branch',
+        finishText: 'Branch opened',
+        errorText: 'Failed to open branch'
+    });
+    panelOpenBranchProgress.hidden = true;
+    panelRight.append(panelOpenBranchProgress);
+
     // merge branches panel
     var panelMergeBranches = editor.call('picker:versioncontrol:widget:mergeBranches');
     panelMergeBranches.hidden = true;
@@ -111,7 +180,40 @@ editor.once('load', function () {
         finishText: 'Merge completed - refreshing the browser',
         errorText: 'Unable to auto merge'
     });
+    panelMergeBranchesProgress.hidden = true;
     panelRight.append(panelMergeBranchesProgress);
+
+    // Merge branches
+    panelMergeBranches.on('cancel', function () {
+        showCheckpoints();
+    });
+    panelMergeBranches.on('confirm', function () {
+        var sourceBranchId = panelMergeBranches.sourceBranch.id;
+        var targetBranchId = panelMergeBranches.targetBranch.id;
+
+        togglePanels(false);
+        showRightSidePanel(panelMergeBranchesProgress);
+        editor.call('branches:merge', sourceBranchId, targetBranchId, function (err, data) {
+            panelMergeBranchesProgress.finish(err);
+            if (err) {
+                togglePanels(true);
+            } else {
+                // if there are merge conflicts then show
+                // conflict manager
+                if (data.conflicts) {
+                    panelMergeBranchesProgress.setMessage('Unable to auto merge - opening conflict manager')
+                    setTimeout(function () {
+                        editor.call('picker:project:close');
+                        editor.call('picker:conflictManager', data);
+                    }, 1500);
+                } else {
+                    // otherwise merge was successful
+                    // so refresh
+                    refreshBrowser();
+                }
+            }
+        });
+    });
 
     // restore checkpoint panel
     var panelRestoreCheckpoint = editor.call('picker:versioncontrol:widget:restoreCheckpoint');
@@ -127,6 +229,24 @@ editor.once('load', function () {
     panelRestoreCheckpointProgress.hidden = true;
     panelRight.append(panelRestoreCheckpointProgress);
 
+    // Restore checkpoints
+    panelRestoreCheckpoint.on('cancel', function () {
+        showCheckpoints();
+    });
+    panelRestoreCheckpoint.on('confirm', function () {
+        togglePanels(false);
+        showRightSidePanel(panelRestoreCheckpointProgress);
+
+        editor.call('checkpoints:restore', panelRestoreCheckpoint.checkpoint.id, config.self.branch.id, function (err, data) {
+            panelRestoreCheckpointProgress.finish(err);
+            if (err) {
+                togglePanels(true);
+            } else {
+                refreshBrowser();
+            }
+        });
+    });
+
     // switch branch progress
     var panelSwitchBranchProgress = editor.call('picker:versioncontrol:createProgressWidget', {
         progressText: 'Switching branch',
@@ -136,20 +256,23 @@ editor.once('load', function () {
     panelSwitchBranchProgress.hidden = true;
     panelRight.append(panelSwitchBranchProgress);
 
-    // contains all possible panels that go to the right
-    var allRightPanels = [
-        panelCheckpoints,
-        panelCreateCheckpoint,
-        panelCreateCheckpointProgress,
-        panelRestoreCheckpoint,
-        panelRestoreCheckpointProgress,
-        panelCreateBranch,
-        panelCreateBranchProgress,
-        panelCloseBranch,
-        panelMergeBranches,
-        panelMergeBranchesProgress,
-        panelSwitchBranchProgress
-    ];
+    var showRightSidePanel = function (panel) {
+        // hide all right side panels first
+        var p = panelRight.innerElement.firstChild;
+        while (p && p.ui) {
+            p.ui.hidden = true;
+            p = p.nextSibling;
+        }
+
+        // show specified panel
+        if (panel) {
+            panel.hidden = false;
+        }
+    };
+
+    var showCheckpoints = function () {
+        showRightSidePanel(panelCheckpoints);
+    };
 
     // new branch button
     // var btnNewBranch = new ui.Button({
@@ -165,12 +288,46 @@ editor.once('load', function () {
     // branches context menu
     var menuBranches = new ui.Menu();
 
+    // when the branches context menu is closed 'unclick' dropdowns
+    menuBranches.on('open', function (open) {
+        if (open || ! contextBranch) return;
+
+        var item = document.getElementById('branch-' + contextBranch.id);
+        if (! item) return;
+
+        var dropdown = item.querySelector('.clicked');
+        if (! dropdown) return;
+
+        dropdown.classList.remove('clicked');
+        dropdown.innerHTML = '&#57689;';
+
+        if (! open) {
+            contextBranch = null;
+        }
+    });
+
     // checkout branch
     var menuBranchesSwitchTo = new ui.MenuItem({
         text: 'Switch To',
         value: 'switch-branch'
     });
     menuBranches.append(menuBranchesSwitchTo);
+
+    // switch to branch
+    menuBranchesSwitchTo.on('select', function () {
+        if (contextBranch) {
+            togglePanels(false);
+            showRightSidePanel(panelSwitchBranchProgress);
+            editor.call('branches:checkout', contextBranch.id, function (err, data) {
+                panelSwitchBranchProgress.finish(err);
+                if (err) {
+                    togglePanels(true);
+                } else {
+                    refreshBrowser();
+                }
+            });
+        }
+    });
 
     // merge branch
     var menuBranchesMerge = new ui.MenuItem({
@@ -179,6 +336,16 @@ editor.once('load', function () {
     });
     menuBranches.append(menuBranchesMerge);
 
+    // merge branch
+    menuBranchesMerge.on('select', function () {
+        if (contextBranch) {
+            showRightSidePanel(panelMergeBranches);
+            panelMergeBranches.setSourceBranch(contextBranch);
+            panelMergeBranches.setTargetBranch(config.self.branch);
+        }
+    });
+
+
     // close branch
     var menuBranchesClose = new ui.MenuItem({
         text: 'Close',
@@ -186,12 +353,58 @@ editor.once('load', function () {
     });
     menuBranches.append(menuBranchesClose);
 
+    // close branch
+    menuBranchesClose.on('select', function () {
+        if (contextBranch) {
+            showRightSidePanel(panelCloseBranch);
+            panelCloseBranch.setBranch(contextBranch);
+        }
+    });
+
     // open branch
     var menuBranchesOpen = new ui.MenuItem({
         text: 'Re-Open',
         value: 'open-branch'
     });
     menuBranches.append(menuBranchesOpen);
+
+    // open branch
+    menuBranchesOpen.on('select', function () {
+        if (! contextBranch) return;
+
+        var branch = contextBranch;
+
+        togglePanels(false);
+        showRightSidePanel(panelOpenBranchProgress);
+
+        editor.call('branches:open', branch.id, function (err) {
+            panelOpenBranchProgress.finish(err);
+            if (err) {
+                togglePanels(true);
+            } else {
+                setTimeout(function () {
+                    var item = getBranchListItem(branch);
+                    if (item) {
+                        var wasSelected = item.selected;
+                        var nextItem = item.element.nextSibling || item.element.previousSibling;
+
+                        // remove branch from the list
+                        listBranches.remove(item);
+                        // select next or previous item
+                        if (nextItem && wasSelected) {
+                            nextItem.ui.emit('click');
+                        } else if (! nextItem) {
+                            // if no more items exist in the list then view the open list
+                            showRightSidePanel(null);
+                            fieldBranchesFilter.value = 'open';
+                        }
+                    }
+
+                    togglePanels(true);
+                }, 1000);
+            }
+        });
+    });
 
     // Filter context menu items
     menuBranches.on('open', function () {
@@ -203,8 +416,6 @@ editor.once('load', function () {
 
     editor.call('layout.root').append(menuBranches);
 
-    var branchesSkip = 0;
-    var checkpointsSkip = 0;
 
     var createBranchListItem = function (branch) {
         var item = new ui.ListItem();
@@ -310,16 +521,6 @@ editor.once('load', function () {
         currentCheckpointListRequest = request;
     };
 
-    var showCheckpoints = function () {
-        showRightSidePanel(panelCheckpoints);
-    };
-
-    var showRightSidePanel = function (panel) {
-        allRightPanels.forEach(function (p) {
-            p.hidden = p !== panel;
-        });
-    };
-
     // show create branch panel
     // btnNewBranch.on('click', function () {
     //     showRightSidePanel(panelCreateBranch);
@@ -328,79 +529,6 @@ editor.once('load', function () {
     //         panelCreateBranch.setCheckpointId(config.self.branch.latestCheckpointId);
     //     }
     // });
-
-
-    // close branch
-    menuBranchesClose.on('select', function () {
-        if (contextBranch) {
-            showRightSidePanel(panelCloseBranch);
-            panelCloseBranch.setBranch(contextBranch);
-        }
-    });
-
-    // open branch
-    menuBranchesOpen.on('select', function () {
-        if (contextBranch) {
-            var item = getBranchListItem(contextBranch);
-            var idx = -1;
-
-            // remove item from list
-            if (item) {
-                idx = Array.prototype.indexOf.call(listBranches.innerElement.childNodes, item.element);
-                listBranches.remove(item);
-            }
-
-            editor.call('branches:open', contextBranch.id, function (err) {
-                if (err) {
-                    console.error(err);
-                    if (idx >= 0) {
-                        var itemNext = listBranches.innerElement.childNodes[idx];
-                        listBranches.appendBefore(item, itemNext);
-                    }
-                }
-            });
-        }
-    });
-
-    // merge branch
-    menuBranchesMerge.on('select', function () {
-        if (contextBranch) {
-            showRightSidePanel(panelMergeBranches);
-            panelMergeBranches.setSourceBranch(contextBranch);
-            panelMergeBranches.setTargetBranch(config.self.branch);
-        }
-    });
-
-    // switch to branch
-    menuBranchesSwitchTo.on('select', function () {
-        if (contextBranch) {
-            togglePanels(false);
-            showRightSidePanel(panelSwitchBranchProgress);
-            editor.call('branches:checkout', contextBranch.id, function (err, data) {
-                panelSwitchBranchProgress.finish(err);
-                if (err) {
-                    togglePanels(true);
-                } else {
-                    refreshBrowser();
-                }
-            });
-        }
-    });
-
-    panelCheckpoints.on('checkpoint:new', function () {
-        showRightSidePanel(panelCreateCheckpoint);
-    });
-
-    panelCheckpoints.on('checkpoint:restore', function (checkpoint) {
-        showRightSidePanel(panelRestoreCheckpoint);
-        panelRestoreCheckpoint.setCheckpoint(checkpoint);
-    });
-
-    panelCheckpoints.on('checkpoint:branch', function (checkpoint) {
-        showRightSidePanel(panelCreateBranch);
-        panelCreateBranch.setSourceBranch(panelCheckpoints.branch);
-        panelCreateBranch.setCheckpointId(checkpoint.id);
-    });
 
     // Create checkpoint
     panelCreateCheckpoint.on('cancel', showCheckpoints);
@@ -457,96 +585,6 @@ editor.once('load', function () {
                 refreshBrowser();
             }
         });
-    });
-
-    // Close branch
-    panelCloseBranch.on('cancel', showCheckpoints);
-    panelCloseBranch.on('confirm', function (data) {
-        var item = getBranchListItem(panelCloseBranch.branch);
-        var idx = -1;
-
-        // remove item from list
-        if (item) {
-            idx = Array.prototype.indexOf.call(listBranches.innerElement.childNodes, item.element);
-            listBranches.remove(item);
-        }
-
-        editor.call('branches:close', panelCloseBranch.branch.id, function (err) {
-            // if there was an error re-add the item to the list
-            if (err) {
-                console.error(err);
-                if (idx >= 0) {
-                    var itemNext = listBranches.innerElement.childNodes[idx];
-                    listBranches.appendBefore(item, itemNext);
-                }
-            }
-
-            showCheckpoints();
-        });
-    });
-
-    // Merge branches
-    panelMergeBranches.on('cancel', showCheckpoints);
-    panelMergeBranches.on('confirm', function () {
-        var sourceBranchId = panelMergeBranches.sourceBranch.id;
-        var targetBranchId = panelMergeBranches.targetBranch.id;
-
-        togglePanels(false);
-        showRightSidePanel(panelMergeBranchesProgress);
-        editor.call('branches:merge', sourceBranchId, targetBranchId, function (err, data) {
-            panelMergeBranchesProgress.finish(err);
-            if (err) {
-                togglePanels(true);
-            } else {
-                // if there are merge conflicts then show
-                // conflict manager
-                if (data.conflicts) {
-                    panelMergeBranchesProgress.setMessage('Unable to auto merge - opening conflict manager')
-                    setTimeout(function () {
-                        editor.call('picker:project:close');
-                        editor.call('picker:conflictManager', data);
-                    }, 1500);
-                } else {
-                    // otherwise merge was successful
-                    // so refresh
-                    refreshBrowser();
-                }
-            }
-        });
-    });
-
-    // Restore checkpoints
-    panelRestoreCheckpoint.on('cancel', showCheckpoints);
-    panelRestoreCheckpoint.on('confirm', function () {
-        togglePanels(false);
-        showRightSidePanel(panelRestoreCheckpointProgress);
-
-        editor.call('checkpoints:restore', panelRestoreCheckpoint.checkpoint.id, config.self.branch.id, function (err, data) {
-            panelRestoreCheckpointProgress.finish(err);
-            if (err) {
-                togglePanels(true);
-            } else {
-                refreshBrowser();
-            }
-        });
-    });
-
-    // when the branches context menu is closed 'unclick' dropdowns
-    menuBranches.on('open', function (open) {
-        if (open || ! contextBranch) return;
-
-        var item = document.getElementById('branch-' + contextBranch.id);
-        if (! item) return;
-
-        var dropdown = item.querySelector('.clicked');
-        if (! dropdown) return;
-
-        dropdown.classList.remove('clicked');
-        dropdown.innerHTML = '&#57689;';
-
-        if (! open) {
-            contextBranch = null;
-        }
     });
 
     // Enable or disable the clickable parts of this picker
@@ -620,6 +658,8 @@ editor.once('load', function () {
 
     // on hide
     panel.on('hide', function () {
+        showRightSidePanel(null);
+
         // clear checkpoint
         panelCheckpoints.setCheckpoints(null);
 
@@ -628,9 +668,9 @@ editor.once('load', function () {
         }
     });
 
-    editor.on('viewport:hover', function(state) {
+    editor.on('viewport:hover', function (state) {
         if (state && ! panel.hidden) {
-            setTimeout(function() {
+            setTimeout(function () {
                 editor.emit('viewport:hover', false);
             }, 0);
         }
