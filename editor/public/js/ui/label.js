@@ -6,11 +6,15 @@ function Label(args) {
 
     this._text = args.text || '';
 
+    // if unsafe is true then use innerHTML for the
+    // contents
+    this._unsafe = !!args.unsafe;
+
     this.element = document.createElement('span');
     this._element.classList.add('ui-label');
 
     if (this._text)
-        this._element.innerHTML = this._text;
+        this._setText(this._text);
 
     this.on('change', this._onChange);
 
@@ -19,6 +23,13 @@ function Label(args) {
 }
 Label.prototype = Object.create(ui.Element.prototype);
 
+Label.prototype._setText = function (text) {
+    if (this._unsafe) {
+        this._element.innerHTML = text;
+    } else {
+        this._element.textContent = text;
+    }
+};
 
 Label.prototype._onChange = function() {
     if (! this.renderChanges)
@@ -45,7 +56,7 @@ Object.defineProperty(Label.prototype, 'text', {
         if (this._link) {
             if (! this._link.set(this.path, value)) {
                 value = this._link.get(this.path);
-                this._element.innerHTML = value;
+                this._setText(value);
             }
         } else {
             if (this._text === value) return;
@@ -54,7 +65,7 @@ Object.defineProperty(Label.prototype, 'text', {
             if (value === undefined || value === null)
                 this._text = '';
 
-            this._element.innerHTML = this._text;
+            this._setText(this._text);
             this.emit('change', value);
         }
     }

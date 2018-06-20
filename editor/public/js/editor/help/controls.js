@@ -14,8 +14,10 @@ editor.once('load', function() {
     });
 
     // header
-    var header = new ui.Label();
-    header.text = '<span class="icon">&#57654;</span>Controls';
+    var header = new ui.Label({
+        unsafe: true,
+        text: '<span class="icon">&#57654;</span>Controls'
+    });
     header.class.add('header');
     overlay.append(header);
 

@@ -42,7 +42,8 @@ editor.once('load', function () {
 
     // published build section
     var publishedBuild = new ui.Label({
-        text: 'Your primary build is available at <a href="' + config.project.playUrl + '" target="_blank">' + config.project.playUrl + '</a>.'
+        text: 'Your primary build is available at <a href="' + config.project.playUrl + '" target="_blank">' + config.project.playUrl + '</a>.',
+        unsafe: true
     });
     publishedBuild.class.add('build');
     panel.append(publishedBuild);

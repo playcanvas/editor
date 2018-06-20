@@ -347,7 +347,7 @@ editor.once('load', function () {
             name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
             mine: [0, 0, 0],
             theirs: [1, 0, 0]
-        }] 
+        }]
     }, {
         id: 'project_437',
         type: 'settings',
@@ -356,7 +356,7 @@ editor.once('load', function () {
             name: 'width',
             mine: 1280,
             theirs: 720
-        }] 
+        }]
     }];
 
 
@@ -386,7 +386,8 @@ editor.once('load', function () {
 
         // icon
         var labelIcon = new ui.Label({
-            text: '&#58208;'
+            text: '&#58208;',
+            unsafe: true
         });
         labelIcon.class.add('icon', 'conflict');
         panel.append(labelIcon);
@@ -524,7 +525,7 @@ editor.once('load', function () {
 
     var checkAllResolved = function () {
         var result = true;
-        
+
         for (var i = 0; i < mergeData.length; i++) {
             if (! mergeData[i].resolved) {
                 return false;
@@ -562,7 +563,7 @@ editor.once('load', function () {
         }
     });
 
-    
+
     // show data
     overlay.on('show', function () {
         for (var i = 0; i < mergeData.length; i++) {
@@ -573,7 +574,7 @@ editor.once('load', function () {
         }
     });
 
-    // clean up 
+    // clean up
     overlay.on('hide', function () {
         listItems.clear();
         panelMineDiffs.clear();

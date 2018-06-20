@@ -214,7 +214,8 @@ editor.once('load', function () {
         item.element.appendChild(panel.element);
 
         var labelIcon = new ui.Label({
-            text: '&#58208;'
+            text: '&#58208;',
+            unsafe: true
         });
         labelIcon.class.add('icon');
         panel.append(labelIcon);

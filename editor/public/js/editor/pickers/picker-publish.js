@@ -33,7 +33,8 @@ editor.once('load', function () {
     panel.append(panelPlaycanvas);
 
     var labelIcon = new ui.Label({
-        text: '&#57960;'
+        text: '&#57960;',
+        unsafe: true
     });
     labelIcon.class.add('icon');
     panelPlaycanvas.append(labelIcon);
@@ -60,7 +61,8 @@ editor.once('load', function () {
     panel.append(panelSelfHost);
 
     labelIcon = new ui.Label({
-        text: '&#57925;'
+        text: '&#57925;',
+        unsafe: true
     });
     labelIcon.class.add('icon');
     panelSelfHost.append(labelIcon);
@@ -86,9 +88,10 @@ editor.once('load', function () {
     panelFbInstant.class.add('buttons');
     panel.append(panelFbInstant);
     panelFbInstant.hidden = !editor.call('users:hasFlag', 'hasPublishOnFacebook');
-    
+
     labelIcon = new ui.Label({
-        text: '&#57941;'
+        text: '&#57941;',
+        unsafe: true
     });
     labelIcon.class.add('icon');
     panelFbInstant.append(labelIcon);
@@ -107,7 +110,7 @@ editor.once('load', function () {
     panelFbInstant.on('click', function () {
         editor.call('picker:publish:facebook');
     });
-    
+
     // on show
     panel.on('show', function () {
         editor.emit('picker:publish:open');

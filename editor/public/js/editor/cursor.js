@@ -22,7 +22,9 @@ editor.once('load', function() {
     });
 
     var hiddenTime = 0;
-    var tooltip = new ui.Label();
+    var tooltip = new ui.Label({
+        unsafe: true
+    });
     tooltip.class.add('cursor-tooltip');
     tooltip.renderChanges = false;
     tooltip.hidden = true;

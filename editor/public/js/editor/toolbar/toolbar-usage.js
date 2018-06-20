@@ -8,7 +8,9 @@ editor.once('load', function () {
     var panel = new ui.Panel();
     panel.class.add('usage');
 
-    var label = new ui.Label();
+    var label = new ui.Label({
+        unsafe: true
+    });
     panel.append(label);
 
     var btnClose = new ui.Button({

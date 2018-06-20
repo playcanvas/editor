@@ -12,7 +12,9 @@ editor.once('load', function() {
     var panel = new ui.Panel();
     overlay.append(panel);
 
-    var label = new ui.Label();
+    var label = new ui.Label({
+        unsafe: true
+    });
     label.renderChanges = false;
     panel.append(label);
 

@@ -66,7 +66,8 @@ editor.once('load', function () {
 
     // upgrade notice
     var labelUpgrade = new ui.Label({
-        text: 'This is a premium feature. <a href="/upgrade?account=' + config.owner.username + '" target="_blank">UPGRADE</a> to be able to download your project.'
+        text: 'This is a premium feature. <a href="/upgrade?account=' + config.owner.username + '" target="_blank">UPGRADE</a> to be able to download your project.',
+        unsafe: true
     });
     labelUpgrade.class.add('upgrade');
     panel.append(labelUpgrade);
