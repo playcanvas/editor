@@ -150,7 +150,7 @@ editor.once('load', function () {
 
                         // select next or previous sibling
                         if (nextItem) {
-                            nextItem.ui.emit('click');
+                            nextItem.ui.selected = true;
                         }
                     }
 
@@ -392,7 +392,7 @@ editor.once('load', function () {
                         listBranches.remove(item);
                         // select next or previous item
                         if (nextItem && wasSelected) {
-                            nextItem.ui.emit('click');
+                            nextItem.ui.selected = true;
                         } else if (! nextItem) {
                             // if no more items exist in the list then view the open list
                             showRightSidePanel(null);
@@ -418,7 +418,9 @@ editor.once('load', function () {
 
 
     var createBranchListItem = function (branch) {
-        var item = new ui.ListItem();
+        var item = new ui.ListItem({
+            allowDeselect: false
+        });
         item.element.id = 'branch-' + branch.id;
 
         var panel = new ui.Panel();
@@ -471,7 +473,7 @@ editor.once('load', function () {
         listBranches.append(item);
 
         // select branch
-        item.on('click', function () {
+        item.on('select', function () {
             selectBranch(branch);
         });
 
@@ -491,10 +493,6 @@ editor.once('load', function () {
 
     var selectBranch = function (branch) {
         showCheckpoints();
-
-        var item = getBranchListItem(branch);
-        if (! item) return;
-        listBranches.selected = [item];
 
         panelCheckpoints.setBranch(branch);
 
@@ -639,7 +637,12 @@ editor.once('load', function () {
                 }
             });
 
-            selectBranch(selected);
+            if (selected) {
+                var item = getBranchListItem(selected);
+                if (item) {
+                    item.selected = true;
+                }
+            }
         });
     };
 
