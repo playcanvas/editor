@@ -622,7 +622,7 @@ editor.once('load', function() {
             }
         }
 
-        if (HIDE_SCROLLVIEW_COMPONENTS) {
+        if (HIDE_SCROLLVIEW_COMPONENTS || !editor.call('users:hasFlag', 'hasScrollViews')) {
             idx = result.indexOf('scrollview');
             if (idx !== -1) {
                 result.splice(idx, 1);
