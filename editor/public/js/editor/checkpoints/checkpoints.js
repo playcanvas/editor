@@ -54,13 +54,8 @@ editor.once('load', function () {
             separator = '&';
         }
 
-        if (args.afterCheckpoint) {
-            url += separator + 'afterCheckpoint=' + args.afterCheckpoint;
-            separator = '&';
-        }
-
-        if (args.beforeCheckpoint) {
-            url += separator + 'beforeCheckpoint=' + args.beforeCheckpoint;
+        if (args.skip) {
+            url += separator + 'skip=' + args.skip;
             separator = '&';
         }
 
@@ -73,7 +68,7 @@ editor.once('load', function () {
             if (callback) callback(data);
         })
         .on('load', function (status, data) {
-            if (callback) callback(null, data.result);
+            if (callback) callback(null, data);
         });
 
         return request;

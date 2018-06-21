@@ -6,11 +6,9 @@ editor.once('load', function () {
     }
 
     var projectUserSettings = editor.call('settings:projectUser');
-    var currentCheckpointListRequest = null;
     var branches = {}; // branches by id
 
     var branchesSkip = 0;
-    var checkpointsSkip = 0;
 
     // main panel
     var panel = new ui.Panel();
@@ -495,28 +493,7 @@ editor.once('load', function () {
         showCheckpoints();
 
         panelCheckpoints.setBranch(branch);
-
-        // list checkpoints but make sure in the response
-        // that the results are from this request and not another
-        // Happens sometimes when this request takes a long time
-        var request = editor.call('checkpoints:list', {
-            branch: branch.id,
-            limit: 20
-        }, function (err, data) {
-            if (request !== currentCheckpointListRequest) {
-                return;
-            }
-
-            currentCheckpointListRequest = null;
-
-            if (err) {
-                return console.error(err);
-            }
-
-            panelCheckpoints.setCheckpoints(data);
-        });
-
-        currentCheckpointListRequest = request;
+        panelCheckpoints.loadCheckpoints();
     };
 
     // show create branch panel
@@ -546,9 +523,12 @@ editor.once('load', function () {
                     config.self.branch.latestCheckpointId = checkpoint.id;
 
                     // add new checkpoint to checkpoint list
-                    var existingCheckpoints = panelCheckpoints.checkpoints || [];
-                    existingCheckpoints.unshift(checkpoint);
-                    panelCheckpoints.setCheckpoints(existingCheckpoints);
+                    if (panelCheckpoints.branch.id === config.self.branch.id) {
+                        var existingCheckpoints = panelCheckpoints.checkpoints || [];
+                        existingCheckpoints.unshift(checkpoint);
+                        panelCheckpoints.setCheckpoints(existingCheckpoints);
+                    }
+
                     togglePanels(true);
                     showCheckpoints();
                 },  1000);
@@ -607,8 +587,6 @@ editor.once('load', function () {
         listBranches.clear();
         // clear branch from checkpoints so that checkpoints are also hidden
         panelCheckpoints.setBranch(null);
-        // make sure we don't have any running checkpoint:list requests
-        currentCheckpointListRequest = null;
 
         editor.call('branches:list', {
             limit: 20,
@@ -665,6 +643,7 @@ editor.once('load', function () {
 
         // clear checkpoint
         panelCheckpoints.setCheckpoints(null);
+        panelCheckpoints.toggleLoadMore(false);
 
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', true);

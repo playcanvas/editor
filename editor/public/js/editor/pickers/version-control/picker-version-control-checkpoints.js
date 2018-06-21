@@ -31,8 +31,20 @@ editor.once('load', function () {
     var listCheckpoints = new ui.List();
     panelCheckpoints.append(listCheckpoints);
 
+    // load more checkpoints list item
+    var listItemLoadMore = new ui.ListItem();
+    listItemLoadMore.class.add('load-more');
+    listItemLoadMore.hidden = true;
+    var btnLoadMore = new ui.Button({
+        text: 'LOAD MORE'
+    });
+    listItemLoadMore.element.appendChild(btnLoadMore.element);
+
     // checkpoints for which context menu is currenty open
     var currentCheckpoint = null;
+
+    var currentCheckpointListRequest = null;
+    var checkpointsSkip = null;
 
     // checkpoints context menu
     var menuCheckpoints = new ui.Menu();
@@ -53,8 +65,11 @@ editor.once('load', function () {
 
     editor.call('layout.root').append(menuCheckpoints);
 
-    // functions
+    // Set the current branch of the panel
     panel.setBranch = function (branch) {
+        // make sure we don't have any running checkpoint:list requests
+        currentCheckpointListRequest = null;
+
         panel.branch = branch;
         if (branch) {
             labelBranchHistory.text = "'" + branch.name + "'" + ' checkpoints';
@@ -62,8 +77,10 @@ editor.once('load', function () {
             labelBranchHistory.text = '';
         }
         panel.setCheckpoints(null);
+        panel.toggleLoadMore(false);
     };
 
+    // Set the checkpoints to be displayed
     panel.setCheckpoints = function (checkpoints) {
         listCheckpoints.clear();
         panelCheckpoints.element.scrollTop = 0;
@@ -71,7 +88,59 @@ editor.once('load', function () {
         panel.checkpoints = checkpoints;
         if (checkpoints) {
             checkpoints.forEach(createCheckpointListItem);
+            checkpointsSkip = checkpoints[checkpoints.length - 1].id;
+        } else {
+            checkpointsSkip = null;
         }
+
+        listCheckpoints.append(listItemLoadMore);
+
+    };
+
+    // Show button to load more checkpoints or not
+    panel.toggleLoadMore = function (toggle) {
+        listItemLoadMore.hidden = !toggle;
+    };
+
+    panel.loadCheckpoints = function () {
+        btnLoadMore.disabled = true;
+        btnLoadMore.text = 'LOADING...';
+
+        var params = {
+            branch: panel.branch.id,
+            limit: 20
+        };
+
+        if (checkpointsSkip) {
+            params.skip = checkpointsSkip;
+        }
+
+        // list checkpoints but make sure in the response
+        // that the results are from this request and not another
+        // Happens sometimes when this request takes a long time
+        var request = editor.call('checkpoints:list', params, function (err, data) {
+            btnLoadMore.disabled = false;
+            btnLoadMore.text = 'LOAD MORE';
+
+            if (request !== currentCheckpointListRequest || panel.hidden || panel.parent.hidden) {
+                return;
+            }
+
+            currentCheckpointListRequest = null;
+
+            if (err) {
+                return console.error(err);
+            }
+
+            if (params.skip) {
+                data.result = panel.checkpoints.concat(data.result);
+            }
+
+            panel.setCheckpoints(data.result);
+            panel.toggleLoadMore(data.pagination.hasMore);
+        });
+
+        currentCheckpointListRequest = request;
     };
 
     var createCheckpointListItem = function (checkpoint) {
@@ -119,7 +188,7 @@ editor.once('load', function () {
         var panelBottomRow = new ui.Panel();
         panelBottomRow.flexGrow = 1;
         panelBottomRow.class.add('bottom-row');
-        panelInfo.append(panelBottomRow)
+        panelInfo.append(panelBottomRow);
 
         var labelId = new ui.Label({
             text: checkpoint.id.substring(0, 7)
@@ -163,6 +232,11 @@ editor.once('load', function () {
     // show create checkpoint panel
     btnNewCheckpoint.on('click', function () {
         panel.emit('checkpoint:new');
+    });
+
+    // load more button
+    btnLoadMore.on('click', function () {
+        panel.loadCheckpoints();
     });
 
     // restore checkpoint

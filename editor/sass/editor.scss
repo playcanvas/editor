@@ -8961,6 +8961,20 @@ strong {
                             margin-left: 15px;
                             margin-top: 10px;
                         }
+
+                        &.load-more {
+                            &:hover {
+                                background: transparent;
+                            }
+                            .ui-button {
+                                width: 100%;
+                                margin: auto;
+                                text-align: center;
+                                height: 28px;
+                                font-size: 12px;
+                                line-height: 28px;
+                            }
+                        }
                     }
                 }
 
