@@ -8849,6 +8849,23 @@ strong {
 
             .branches, .checkpoints {
                 overflow-y: auto;
+
+                .ui-list > .ui-list-item.load-more {
+                    pointer-events: none;
+
+                    &:hover {
+                        background: transparent;
+                    }
+                    .ui-button {
+                        width: 100%;
+                        margin: auto;
+                        text-align: center;
+                        height: 28px;
+                        font-size: 12px;
+                        line-height: 28px;
+                        pointer-events: all;
+                    }
+                }
             }
 
             .branches {
@@ -8960,20 +8977,6 @@ strong {
                         .ui-button.dropdown {
                             margin-left: 15px;
                             margin-top: 10px;
-                        }
-
-                        &.load-more {
-                            &:hover {
-                                background: transparent;
-                            }
-                            .ui-button {
-                                width: 100%;
-                                margin: auto;
-                                text-align: center;
-                                height: 28px;
-                                font-size: 12px;
-                                line-height: 28px;
-                            }
                         }
                     }
                 }

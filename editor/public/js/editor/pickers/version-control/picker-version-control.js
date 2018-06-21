@@ -8,7 +8,8 @@ editor.once('load', function () {
     var projectUserSettings = editor.call('settings:projectUser');
     var branches = {}; // branches by id
 
-    var branchesSkip = 0;
+    var branchesSkip = null;
+    var selectedBranch = null;
 
     // main panel
     var panel = new ui.Panel();
@@ -55,6 +56,18 @@ editor.once('load', function () {
     // branches list
     var listBranches = new ui.List();
     panelBranches.append(listBranches);
+
+    var loadMoreListItem = new ui.ListItem();
+    loadMoreListItem.hidden = true;
+    loadMoreListItem.class.add('load-more');
+    var btnLoadMoreBranches = new ui.Button({
+        text: 'LOAD MORE'
+    });
+    loadMoreListItem.element.append(btnLoadMoreBranches.element);
+    btnLoadMoreBranches.on('click', function (e) {
+        e.stopPropagation(); // do not select parent list item on click
+        loadBranches();
+    });
 
     // right side container panel
     var panelRight = new ui.Panel();
@@ -419,6 +432,7 @@ editor.once('load', function () {
         var item = new ui.ListItem({
             allowDeselect: false
         });
+        item.branch = branch;
         item.element.id = 'branch-' + branch.id;
 
         var panel = new ui.Panel();
@@ -484,12 +498,15 @@ editor.once('load', function () {
         }
     };
 
+    // Get the list item for a branch
     var getBranchListItem = function (branch) {
         var item = document.getElementById('branch-' + branch.id);
         return item && item.ui;
     };
 
+    // Select specified branch and show its checkpoints
     var selectBranch = function (branch) {
+        selectedBranch = branch;
         showCheckpoints();
 
         panelCheckpoints.setBranch(branch);
@@ -542,20 +559,19 @@ editor.once('load', function () {
     panelCreateBranch.on('cancel', showCheckpoints);
     panelCreateBranch.on('confirm', function (data) {
         togglePanels(false);
-
         showRightSidePanel(panelCreateBranchProgress);
 
-        var data = {
+        var params = {
             name: data.name,
             projectId: config.project.id,
-            sourceBranchId: panelCheckpoints.branch.id,
+            sourceBranchId: panelCheckpoints.branch.id
         };
 
         if (panelCreateBranch.checkpointId) {
-            data.sourceCheckpointId = panelCreateBranch.checkpointId;
+            params.sourceCheckpointId = panelCreateBranch.checkpointId;
         }
 
-        editor.call('branches:create', data, function (err, branch) {
+        editor.call('branches:create', params, function (err, branch) {
             panelCreateBranchProgress.finish(err);
             if (err) {
                 togglePanels(true);
@@ -582,22 +598,43 @@ editor.once('load', function () {
         }, 1000);
     };
 
-    var reloadBranches = function () {
-        // clear current branches
-        listBranches.clear();
-        // clear branch from checkpoints so that checkpoints are also hidden
-        panelCheckpoints.setBranch(null);
+    var loadBranches = function () {
+        // change status of loading button
+        btnLoadMoreBranches.disabled = true;
+        btnLoadMoreBranches.text = 'LOADING...';
 
+        // if we are reloading
+        // clear branch from checkpoints so that checkpoints are also hidden
+        if (! branchesSkip) {
+            panelCheckpoints.setBranch(null);
+            selectedBranch = null;
+        }
+
+        // request branches from server
         editor.call('branches:list', {
             limit: 20,
             skip: branchesSkip,
             closed: fieldBranchesFilter.value === 'closed'
         }, function (err, data) {
-            branches = {};
-
             if (err) {
                 return console.error(err);
             }
+
+            // change status of loading button
+            btnLoadMoreBranches.disabled = false;
+            btnLoadMoreBranches.text = 'LOAD MORE';
+            loadMoreListItem.hidden = !data.pagination.hasMore;
+
+
+            // if we are re-loading the branch list then clear the current items
+            if (! branchesSkip) {
+                listBranches.clear();
+                branches = {};
+            }
+
+            // use last item as a marker for loading the next batch of branches
+            var lastItem = data.result[data.result.length - 1];
+            branchesSkip = lastItem ? lastItem.id : null;
 
             if (! data.result[0]) return;
 
@@ -605,15 +642,28 @@ editor.once('load', function () {
             branches = data.result.reduce(function (map, branch) {
                 map[branch.id] = branch;
                 return map;
-            }, {});
+            }, branches);
 
-            var selected = data.result[0];
+            var selected = selectedBranch;
+
+            // create list items for each branch
             data.result.forEach(function (branch) {
                 createBranchListItem(branch);
-                if (branch.id === config.self.branch.id) {
+
+                if (selected) {
+                    return;
+                }
+
+                // if we don't have a selection then selected the currently checked out branch
+                if (! selected && branch.id === config.self.branch.id) {
                     selected = branch;
                 }
             });
+
+            // if we didn't find a proper selection then select the first item
+            if (! selected) {
+                selected = data.result[0];
+            }
 
             if (selected) {
                 var item = getBranchListItem(selected);
@@ -621,17 +671,27 @@ editor.once('load', function () {
                     item.selected = true;
                 }
             }
+
+            // add load more list item in the end
+            listBranches.append(loadMoreListItem);
         });
     };
 
-    fieldBranchesFilter.on('change', reloadBranches);
+    // When the filter changes clear our branch list and reload branches
+    fieldBranchesFilter.on('change', function () {
+        branchesSkip = null;
+        listBranches.clear();
+        loadBranches();
+    });
 
     // on show
     panel.on('show', function () {
         showCheckpoints();
 
         // load and create branches
-        reloadBranches();
+        branchesSkip = null;
+        selectedBranch = null;
+        loadBranches();
 
         if (editor.call('viewport:inViewport'))
             editor.emit('viewport:hover', false);
@@ -650,6 +710,7 @@ editor.once('load', function () {
         }
     });
 
+    // Prevent viewport hovering when the picker is shown
     editor.on('viewport:hover', function (state) {
         if (state && ! panel.hidden) {
             setTimeout(function () {
@@ -658,6 +719,7 @@ editor.once('load', function () {
         }
     });
 
+    // Show the picker
     editor.method('picker:versioncontrol', function () {
         editor.call('picker:project', 'version control');
     });
