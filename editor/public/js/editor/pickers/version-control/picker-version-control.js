@@ -591,11 +591,15 @@ editor.once('load', function () {
     };
 
     var refreshBrowser = function () {
-        // do this in a timeout to give some time to the user
-        // to read any information messages
+        // Do this in a timeout to give some time to the user
+        // to read any information messages.
+        // Also file picker-version-control-messenger.js will actually
+        // refresh the browser first - so this is here really to make sure
+        // the browser is refreshed if for some reason the messenger fails to deliver the message.
+        // That's why the timeout here is larger than what's in picker-version-control-messenger
         setTimeout(function () {
             document.location.reload();
-        }, 1000);
+        }, 2000);
     };
 
     var loadBranches = function () {
@@ -724,4 +728,8 @@ editor.once('load', function () {
         editor.call('picker:project', 'version control');
     });
 
+    // Returns true if the picker is open
+    editor.method('picker:versioncontrol:isOpen', function () {
+        return !panel.hidden;
+    });
 });

@@ -72,7 +72,8 @@ editor.once('load', function () {
 
         panel.branch = branch;
         if (branch) {
-            labelBranchHistory.text = "'" + branch.name + "'" + ' checkpoints';
+            var name = branch.name.length > 25 ? branch.name.substring(0, 22) + '...' : branch.name;
+            labelBranchHistory.text = "'" + name + "'" + ' checkpoints';
         } else {
             labelBranchHistory.text = '';
         }
