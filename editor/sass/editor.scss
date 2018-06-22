@@ -9187,6 +9187,11 @@ strong {
 }
 
 .ui-overlay.version-control-overlay {
+    z-index: 9999; // just below the confirm picker
+    &.show-behind-picker {
+        z-index: 299; // just below project picker
+    }
+
     > .content {
         width: 500px;
         left: calc(50% - 250px);

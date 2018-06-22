@@ -53,6 +53,12 @@ editor.once('load', function () {
             labelTitle.text = title;
         };
 
+        overlay.on('show', function () {
+            if (editor.call('picker:versioncontrol:isProgressWidgetVisible')) {
+                overlay.class.add('show-behind-picker');
+            }
+        });
+
         return overlay;
 
     });

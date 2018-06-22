@@ -1,6 +1,16 @@
 editor.once('load', function () {
     'use strict';
 
+    // this is true if ANY progress widget is currently
+    // showing a spinner. This is so that we don't show
+    // version control overlays on top of these windows if any widget here is showing a spinner
+    // because it looks bad.
+    var showingProgress = false;
+
+    editor.method('picker:versioncontrol:isProgressWidgetVisible', function () {
+        return showingProgress;
+    });
+
     editor.method('picker:versioncontrol:createProgressWidget', function (args) {
         var panel = new ui.Panel();
         panel.class.add('progress-widget');
@@ -55,6 +65,10 @@ editor.once('load', function () {
             labelNote.hidden = !text;
         };
 
+        panel.on('show', function () {
+            showingProgress = true;
+        });
+
         // restore panel contents when the panel is hidden
         panel.on('hide', function () {
             labelMessage.text = args.progressText;
@@ -62,6 +76,7 @@ editor.once('load', function () {
             completed.classList.add('hidden');
             error.classList.add('hidden');
             spinner.classList.remove('hidden');
+            showingProgress = false;
         });
 
         return panel;
