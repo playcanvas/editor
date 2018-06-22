@@ -1,6 +1,5 @@
 @import 'variables';
 @import 'fonts';
-@import 'checkpoint-overlay';
 
 html {
     height: 100%;
@@ -8322,72 +8321,6 @@ strong {
 
     > .content {
         display: none;
-    }
-}
-
-.ui-panel.picker-checkpoint-new {
-    &.disabled {
-        opacity: 0.5;
-        pointer-events: none;
-    }
-
-    > .content {
-        > .ui-panel > .content > .ui-label {
-            font-size: 12px;
-            height: auto;
-            line-height: initial;
-            vertical-align: top;
-
-            &.field-label {
-                margin: 0 0 8px 0;
-            }
-        }
-
-        > .new-checkpoint-form > .content {
-            padding: 20px;
-
-            > textarea {
-                display: block;
-                border: 1px solid $bcg-darker;
-                background-color: $bcg-dark;
-                color: $text-primary;
-                margin: 0;
-                padding: 10px;
-                resize: none;
-
-                @extend .font-regular;
-                font-size: 14px;
-                width: calc(100% - 20px);
-                height: 65px;
-
-                &.active,
-                &:hover,
-                &:focus,
-                &.focus {
-                    border-color: $bcg-darkest;
-                    background-color: $bcg-darkest;
-                    outline: none;
-                    border-color: transparent;
-                    box-shadow: none;
-                }
-            }
-
-            > .create-btn {
-                margin: 10px 0 15px 0;
-                padding: 0;
-                width: 165px;
-                height: 34px;
-                line-height: 34px;
-                font-size: 12px;
-                text-align: center;
-                @extend .font-bold;
-                @extend .font-smooth;
-
-                &:not(.disabled):hover:before {
-                    color: $text-active;
-                }
-            }
-        }
     }
 }
 

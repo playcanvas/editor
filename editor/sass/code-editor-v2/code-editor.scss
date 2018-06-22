@@ -1,6 +1,5 @@
 @import 'variables';
 @import '../fonts';
-@import '../checkpoint-overlay';
 
 html {
     height: 100%;
@@ -39,6 +38,15 @@ strong {
 @media (max-width: 480px) {
     .hidden-xs {
         display: none;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
     }
 }
 
@@ -1257,3 +1265,55 @@ a.link-docs {
     @extend .font-icon;
 }
 
+
+.ui-overlay.version-control-overlay {
+    > .content {
+        width: 500px;
+        left: calc(50% - 250px);
+        height: 106px;
+        top: calc(50% - 53px);
+
+        white-space: nowrap;
+
+        .ui-panel.left {
+            width: 110px;
+            display: inline-block;
+            text-align: center;
+            top: 25px;
+
+            svg {
+                margin: auto;
+                &.spin {
+                    g {
+                        animation-name: spin;
+                        animation-duration: 500ms;
+                        animation-iteration-count: infinite;
+                        animation-timing-function: linear;
+                        transform-origin: center;
+                    }
+                }
+
+                &.hidden {
+                    display: none;
+                }
+            }
+        }
+
+        .ui-panel.right {
+            display: inline-block;
+            width: calc(100% - 110px);
+            white-space: normal;
+            top: 20px;
+
+            .ui-label {
+                margin: 1px;
+                display: block;
+                &.title {
+                    color: $text-primary;
+                    font-size: 16px;
+                }
+            }
+        }
+
+    }
+}
