@@ -8489,6 +8489,24 @@ strong {
     > .content {
         height: 100%;
 
+        svg {
+            display: block;
+
+            &.spin {
+                g {
+                    animation-name: spin;
+                    animation-duration: 500ms;
+                    animation-iteration-count: infinite;
+                    animation-timing-function: linear;
+                    transform-origin: center;
+                }
+            }
+
+            &.hidden {
+                display: none;
+            }
+        }
+
         > .ui-panel {
             height: 100%;
             > .content {
@@ -8651,22 +8669,7 @@ strong {
                         }
 
                         svg {
-                            display: block;
                             margin: 15px auto auto auto;
-
-                            &.spin {
-                                g {
-                                    animation-name: spin;
-                                    animation-duration: 500ms;
-                                    animation-iteration-count: infinite;
-                                    animation-timing-function: linear;
-                                    transform-origin: center;
-                                }
-                            }
-
-                            &.hidden {
-                                display: none;
-                            }
                         }
                     }
                 }
@@ -8782,6 +8785,10 @@ strong {
 
             .branches, .checkpoints {
                 overflow-y: auto;
+
+                .spinner {
+                    margin: 200px auto auto auto;
+                }
 
                 .ui-list > .ui-list-item.load-more {
                     pointer-events: none;

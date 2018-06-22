@@ -65,6 +65,12 @@ editor.once('load', function () {
 
     editor.call('layout.root').append(menuCheckpoints);
 
+    // loading checkpoints icon
+    var spinner = editor.call('picker:versioncontrol:svg:spinner', 64);
+    spinner.classList.add('hidden');
+    spinner.classList.add('spinner');
+    panelCheckpoints.innerElement.appendChild(spinner);
+
     // Set the current branch of the panel
     panel.setBranch = function (branch) {
         // make sure we don't have any running checkpoint:list requests
@@ -114,6 +120,10 @@ editor.once('load', function () {
 
         if (checkpointsSkip) {
             params.skip = checkpointsSkip;
+        } else {
+            // hide list of checkpoints and show spinner
+            listCheckpoints.hidden = true;
+            spinner.classList.remove('hidden');
         }
 
         // list checkpoints but make sure in the response
@@ -122,6 +132,10 @@ editor.once('load', function () {
         var request = editor.call('checkpoints:list', params, function (err, data) {
             btnLoadMore.disabled = false;
             btnLoadMore.text = 'LOAD MORE';
+
+            // show list of checkpoints and hide spinner
+            listCheckpoints.hidden = false;
+            spinner.classList.add('hidden');
 
             if (request !== currentCheckpointListRequest || panel.hidden || panel.parent.hidden) {
                 return;
