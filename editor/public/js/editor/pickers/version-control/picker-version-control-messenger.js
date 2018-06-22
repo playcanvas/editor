@@ -1,13 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    var currentBranchBeingCreated = null;
     var currentCheckpointBeingCreated = null;
-
-    var overlayCreatingBranch = editor.call('picker:versioncontrol:createOverlay', {
-        message: 'Please wait while the branch is being created.',
-        icon: editor.call('picker:versioncontrol:svg:spinner', 50)
-    });
 
     var overlayBranchSwitched = editor.call('picker:versioncontrol:createOverlay', {
         message: 'Refreshing browser window...',
@@ -27,6 +21,12 @@ editor.once('load', function () {
     var overlayCheckpointRestored = editor.call('picker:versioncontrol:createOverlay', {
         message: 'Refreshing browser window...',
         icon: editor.call('picker:versioncontrol:svg:completed', 50)
+    });
+
+    var overlayBranchClosed = editor.call('picker:versioncontrol:createOverlay', {
+        title: 'This branch has been closed.',
+        message: 'Switching to master branch...',
+        icon: editor.call('picker:versioncontrol:svg:spinner', 50)
     });
 
     // don't let the user's full name be too big
@@ -53,33 +53,17 @@ editor.once('load', function () {
         }, 1000);
     };
 
-    // show overlay when branch started being created
-    editor.on('messenger:branch.createStarted', function (data) {
-        currentBranchBeingCreated = data.branch_id;
-        overlayCreatingBranch.setTitle(truncateFullName(data.user_full_name) + ' is creating a branch.');
-        overlayCreatingBranch.hidden = false;
-    });
-
     // show overlay when branch ended
     editor.on('messenger:branch.createEnded', function (data) {
-        if (data.status === 'error') {
-            overlayCreatingBranch.hidden = true;
+        if (data.status === 'error' || data.user_id !== config.self.id) {
             return;
         }
 
-        // if this is us then we need to refresh the browser, otherwise
-        // if this is another user then the branch should still be the same for them
-        // so just hide the overlay
-        if (data.user_id === config.self.id) {
-            config.self.branch.id = data.branch_id;
-            overlayCreatingBranch.hidden = true;
-            overlayBranchSwitched.setTitle('Switched to branch "' + data.name + '"');
-            overlayBranchSwitched.hidden = false;
-            refresh();
-        } else if (currentBranchBeingCreated === data.branch_id) {
-            currentBranchBeingCreated = null;
-            overlayCreatingBranch.hidden = true;
-        }
+        // if this is us then we need to refresh the browser
+        config.self.branch.id = data.branch_id;
+        overlayBranchSwitched.setTitle('Switched to branch "' + data.name + '"');
+        overlayBranchSwitched.hidden = false;
+        refresh();
     });
 
     // show overlay when the branch of this user has been changed
@@ -105,6 +89,11 @@ editor.once('load', function () {
         if (data.checkpoint_id !== currentCheckpointBeingCreated) return;
         currentCheckpointBeingCreated = null;
         overlayCreatingCheckpoint.hidden = true;
+
+        // update latest checkpoint in branch
+        if (data.status !== 'error' && data.branch_id === config.self.branch.id) {
+            config.self.branch.latestCheckpointId = data.checkpoint_id;
+        }
     });
 
     // show overlay when checkpoint starts being restored
@@ -126,5 +115,21 @@ editor.once('load', function () {
             // hide the overlay
             overlayRestoringCheckpoint.hidden = true;
         }
+    });
+
+    // show overlay if our current branch was closed
+    editor.on('messenger:branch.close', function (data) {
+        if (data.branch_id !== config.self.branch.id) return;
+
+        overlayBranchClosed.hidden = false;
+
+        // check out master branch and then refresh the browser
+        Ajax({
+            url: '/api/branches/{{project.masterBranch}}/checkout',
+            method: 'POST',
+            auth: true
+        })
+        .on('load', refresh)
+        .on('error', refresh);
     });
 });
