@@ -11,6 +11,20 @@ editor.once('load', function () {
     fieldDescription.keyChange = true;
     fieldDescription.flexGrow = 1;
 
+    var create = function () {
+        panel.emit('confirm', {
+            description: fieldDescription.value.trim()
+        });
+    };
+
+    fieldDescription.elementInput.addEventListener('keydown', function (e) {
+        if (e.keyCode === 13 && (e.ctrlKey || e.metaKey)) {
+            if (! panel.buttonConfirm.disabled) {
+                create();
+            }
+        }
+    });
+
     var panel = editor.call('picker:versioncontrol:createWidget', {
         title: 'Create a new checkpoint',
         note: 'A new checkpoint will take a snapshot of the current branch which you can revert to at a later date.',
@@ -19,11 +33,7 @@ editor.once('load', function () {
             confirm: {
                 text: 'Create Checkpoint',
                 highlighted: true,
-                onClick: function () {
-                    panel.emit('confirm', {
-                        description: fieldDescription.value.trim()
-                    })
-                }
+                onClick: create
             }
         }
     });
@@ -41,10 +51,10 @@ editor.once('load', function () {
     });
 
     panel.on('show', function () {
-        fieldDescription.focus();  
+        fieldDescription.focus();
     });
 
     editor.method('picker:versioncontrol:widget:createCheckpoint', function () {
-        return panel;  
+        return panel;
     });
 });
