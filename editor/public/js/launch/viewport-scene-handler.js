@@ -8,6 +8,24 @@ editor.once('load', function() {
     app.loader.removeHandler("hierarchy");
     app.loader.removeHandler("scenesettings");
 
+    var loadSceneByItemId = function (itemId, callback) {
+        // Get a specific scene from the server and pass result to callback
+        Ajax({
+            url: '{{url.api}}/scenes/' + itemId + '?branchId=' + config.self.branch.id,
+            cookies: true
+        })
+        .on('error', function (status, data) {
+            if (callback) {
+                callback(data);
+            }
+        })
+        .on('load', function (status, data) {
+            if (callback) {
+                callback(null, data);
+            }
+        });
+    };
+
     var SharedSceneHandler = function (app, handler) {
         this._app = app;
         this._handler = handler;
@@ -18,9 +36,14 @@ editor.once('load', function() {
             var id = parseInt(url.replace("/api/", "").replace(".json", ""));
 
             if (typeof(id) === "number") {
-                editor.call('loadScene', id, function (err, scene) {
-                    callback(err, scene);
-                }, settingsOnly);
+                // load scene from server to get its unique id
+                loadSceneByItemId(id, function (err, scene) {
+                    if (err) {
+                        return callback(err);
+                    }
+
+                    editor.call('loadScene', scene.uniqueId, callback, settingsOnly);
+                });
             } else {
                 this._handler.load(url, callback);
             }
@@ -46,13 +69,21 @@ editor.once('load', function() {
         load: function (url, callback, settingsOnly) {
             var id = parseInt(url.replace("/api/", "").replace(".json", ""));
             if (typeof(id) === "number") {
-                editor.call('loadScene', id, function (err, scene) {
-                    // do this in a timeout so that any errors raised while
-                    // initializing scripts are not swallowed by the connection error handler
-                    setTimeout(function () {
-                        callback(err, scene);
-                    });
-                }, settingsOnly);
+                loadSceneByItemId(id, function (err, scene) {
+                    if (err) {
+                        return callback(err);
+                    }
+
+                    editor.call('loadScene', scene.uniqueId, function (err, scene) {
+                        // do this in a timeout so that any errors raised while
+                        // initializing scripts are not swallowed by the connection error handler
+                        setTimeout(function () {
+                            callback(err, scene);
+                        });
+                    }, settingsOnly);
+
+                });
+
             } else {
                 // callback("Invalid URL: can't extract scene id.")
                 this._handler.load(url, callback);
@@ -78,9 +109,16 @@ editor.once('load', function() {
         load: function (url, callback) {
             var id = parseInt(url.replace("/api/", "").replace(".json", ""));
             if (typeof(id) === "number") {
-                editor.call('loadScene', id, function (err, scene) {
-                    callback(err, scene);
-                }, true);
+                loadSceneByItemId(id, function (err, scene) {
+                    if (err) {
+                        return callback(err);
+                    }
+
+                    editor.call('loadScene', scene.uniqueId, function (err, scene) {
+                        callback(err, scene);
+                    }, true);
+                });
+
             } else {
                 // callback("Invalid URL: can't extract scene id.")
                 this._handler.load(url, callback);
