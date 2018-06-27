@@ -104,6 +104,12 @@ editor.once('load', function () {
         dropdownBranches.value = branches[0].id;
     });
 
+    overlay.on('hide', function () {
+        dropdownBranches._updateOptions({});
+        dropdownBranches.value = null;
+        btnSwitch.disabled = true;
+    });
+
     editor.method('picker:versioncontrol:mergeOverlay', function () {
         var fullName = config.self.branch.merge.user.fullName;
         if (fullName && fullName.length > 33) {
@@ -112,5 +118,9 @@ editor.once('load', function () {
 
         overlay.setTitle(fullName ? fullName + ' is merging branches' : 'Merge in progress');
         overlay.hidden = false;
+    });
+
+    editor.method('picker:versioncontrol:mergeOverlay:hide', function () {
+        overlay.hidden = true;
     });
 });

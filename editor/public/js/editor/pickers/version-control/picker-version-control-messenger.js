@@ -29,6 +29,11 @@ editor.once('load', function () {
         icon: editor.call('picker:versioncontrol:svg:spinner', 50)
     });
 
+    var overlayMergeStopped = editor.call('picker:versioncontrol:createOverlay', {
+        message: 'Refreshing browser...',
+        icon: editor.call('picker:versioncontrol:svg:error', 50)
+    });
+
     // don't let the user's full name be too big
     var truncateFullName = function (fullName) {
         return fullName.length > 36 ? fullName.substring(0, 33) + '...' : fullName;
@@ -139,9 +144,25 @@ editor.once('load', function () {
 
         config.self.branch.merge = {
             id: data.merge_id,
-            userId: data.user_id
+            user: {
+                id: data.user_id,
+                fullName: data.user_full_name
+            }
         };
 
         editor.call('picker:versioncontrol:mergeOverlay');
+    });
+
+    // show overlay if the current merge has been force stopped
+    editor.on('messenger:merge.delete', function (data) {
+        if (! config.self.branch.merge) return;
+        if (config.self.branch.merge.id !== data.merge_id) return;
+
+        editor.call('picker:versioncontrol:mergeOverlay:hide');
+
+        var name = data.user.length > 33 ? data.user.substring(0, 30) + '...' : data.user;
+        overlayMergeStopped.setTitle('Merge force stopped by ' + name);
+        overlayMergeStopped.hidden = false;
+        setTimeout(refresh, 1000); // delay this a bit more
     });
 });
