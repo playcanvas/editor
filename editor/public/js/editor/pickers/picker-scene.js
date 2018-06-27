@@ -370,8 +370,4 @@ editor.once('load', function () {
         events = [];
     };
 
-    // open picker if no scene is loaded
-    if (!config.scene.id)
-        editor.call('picker:scene');
-
 });

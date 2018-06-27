@@ -4,6 +4,7 @@ editor.once('load', function () {
     // overlay
     var root = editor.call('layout.root');
     var overlay = new ui.Overlay();
+    overlay.clickable = false;
     overlay.hidden = true;
     overlay.class.add('picker-conflict-manager');
     root.append(overlay);
@@ -56,6 +57,28 @@ editor.once('load', function () {
     // panelTheirsFile.class.add('file');
     // panelFiles.append(panelTheirsFile);
 
+    // main progress text
+    var labelMainProgress = new ui.Label();
+    labelMainProgress.class.add('progress-text');
+    labelMainProgress.renderChanges = false;
+    labelMainProgress.hidden = true;
+    panelRight.append(labelMainProgress);
+
+    // main progress icon
+    var spinnerIcon = editor.call('picker:versioncontrol:svg:spinner', 64);
+    spinnerIcon.classList.add('progress-icon');
+    spinnerIcon.classList.add('hidden');
+    spinnerIcon.classList.add('spin');
+    var completedIcon = editor.call('picker:versioncontrol:svg:completed', 64);
+    completedIcon.classList.add('progress-icon');
+    completedIcon.classList.add('hidden');
+    var errorIcon = editor.call('picker:versioncontrol:svg:error', 64);
+    errorIcon.classList.add('progress-icon');
+    errorIcon.classList.add('hidden');
+    panelRight.innerElement.appendChild(spinnerIcon);
+    panelRight.innerElement.appendChild(completedIcon);
+    panelRight.innerElement.appendChild(errorIcon);
+
     // panel for data diffs
     var panelDiffs = new ui.Panel('MERGE CONFLICTS');
     panelDiffs.class.add('diffs');
@@ -66,9 +89,32 @@ editor.once('load', function () {
     var panelMineDiffs = new ui.Panel();
     panelDiffs.append(panelMineDiffs);
 
+    // 'mine' object icon
+    var iconMine = new ui.Label();
+    iconMine.class.add('icon-type');
+    panelMineDiffs.append(iconMine);
+
+    // 'mine' object name
+    var labelMine = new ui.Label();
+    labelMine.renderChanges = false;
+    labelMine.class.add('name');
+    panelMineDiffs.append(labelMine);
+
     // 'theirs' diffs panel
     var panelTheirsDiffs = new ui.Panel();
     panelDiffs.append(panelTheirsDiffs);
+
+    // 'theirs' object icon
+    var iconTheirs = new ui.Label();
+    iconTheirs.class.add('icon-type');
+    panelTheirsDiffs.append(iconTheirs);
+
+    // 'theirs' object name
+    var labelTheirs = new ui.Label();
+    labelTheirs.renderChanges = false;
+    labelTheirs.class.add('name');
+    panelTheirsDiffs.append(labelTheirs);
+
 
     // panel for picking mine or theirs
     var panelPick = new ui.Panel();
@@ -81,13 +127,6 @@ editor.once('load', function () {
     panelMinePick.flex = true;
     panelPick.append(panelMinePick);
 
-    // download 'mine' raw button
-    var btnDownloadMine = new ui.Button({
-        text: 'DOWNLOAD RAW'
-    });
-    btnDownloadMine.flexGrow = 1;
-    panelMinePick.append(btnDownloadMine);
-
     // pick button
     var btnPickMine = new ui.Button({
         text: 'USE MINE'
@@ -99,13 +138,6 @@ editor.once('load', function () {
     var panelTheirsPick = new ui.Panel();
     panelTheirsPick.flex = true;
     panelPick.append(panelTheirsPick);
-
-    // download 'theirs' raw button
-    var btnDownloadTheirs = new ui.Button({
-        text: 'DOWNLOAD RAW'
-    });
-    btnDownloadTheirs.flexGrow = 1;
-    panelTheirsPick.append(btnDownloadTheirs);
 
     // pick button
     var btnPickTheirs = new ui.Button({
@@ -120,246 +152,9 @@ editor.once('load', function () {
     panelRight.append(overlaySelected);
 
     // the current conflict we are editing
-    var currentConflict = null;
+    var currentConflicts = null;
     // the merge data that we requested from the server
     var mergeData = null;
-
-    // debug data
-    mergeData = [{
-        id: '1',
-        type: 'texture',
-        name: 'some texture',
-        conflicts: [{
-            name: 'name',
-            mine: 'my texture',
-            theirs: 'their texture'
-        }, {
-            name: 'path',
-            mine: [1, 2, 3],
-            theirs: [1]
-        }],
-    }, {
-        id: '2',
-        type: 'model',
-        name: 'some model',
-        conflicts: [{
-            name: 'file.size',
-            mine: 500,
-            theirs: 600
-        }, {
-            name: 'file.hash',
-            mine: 'sjdsdsjsdjfl23423432',
-            theirs: 'sgdbdsjsdjfl23423432',
-        }, {
-            name: 'name',
-            mine: 'my scene',
-            theirs: 'their scene'
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }]
-    }, {
-        id: '3',
-        type: 'scene',
-        name: 'scene 1',
-        conflicts: [{
-            name: 'name',
-            mine: 'my scene',
-            theirs: 'their scene'
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }, {
-            name: 'entities.34322526-1ac8-11e7-b461-784f436c1506.position',
-            mine: [0, 0, 0],
-            theirs: [1, 0, 0]
-        }]
-    }, {
-        id: 'project_437',
-        type: 'settings',
-        name: 'project settings',
-        conflicts: [{
-            name: 'width',
-            mine: 1280,
-            theirs: 720
-        }]
-    }];
-
-
 
     // Enable / Disable the file conflict views for 'mine' and 'theirs'
     // var toggleFilePanels = function (enabled) {
@@ -420,40 +215,18 @@ editor.once('load', function () {
     };
 
     var showConflicts = function (data) {
-        currentConflict = data;
-        switch (data.type) {
-            case 'scene':
-                showSceneConflicts(data);
-                break;
-            case 'settings':
-                showSettingsConflicts(data);
-                break;
-            default:
-                showAssetConflicts(data);
-                break;
-        }
-    };
+        currentConflicts = data;
+        // panelMineDiffs.style.marginRight = 0;
 
+        // show icon
+        iconMine.element.classList = 'ui-label icon-type';
+        iconMine.class.add('type-' + (data.assetType || data.itemType));
+        iconTheirs.element.classList = 'ui-label icon-type';
+        iconTheirs.class.add('type-' + (data.assetType || data.itemType));
 
-    var showSceneConflicts = function (data) {
-        // toggleFilePanels(false);
-        showDataConflicts(data);
-    };
-
-    var showSettingsConflicts = function (data) {
-        // toggleFilePanels(false);
-        showDataConflicts(data);
-    };
-
-    var showAssetConflicts = function (data) {
-        // toggleFilePanels(true);
-        showDataConflicts(data);
-    };
-
-    var showDataConflicts = function (data) {
-        panelMineDiffs.clear();
-        panelMineDiffs.style.marginRight = 0;
-        panelTheirsDiffs.clear();
+        // show object name
+        labelMine.text = data.name;
+        labelTheirs.text = data.name;
 
         if (data.resolved) {
             showPickOverlay(data.resolved);
@@ -461,73 +234,81 @@ editor.once('load', function () {
             hidePickOverlay();
         }
 
-        for (var i = 0; i < data.conflicts.length; i++) {
-            var conflict = data.conflicts[i];
-            addConflictField(conflict.name, conflict.mine, panelMineDiffs);
-            addConflictField(conflict.name, conflict.theirs, panelTheirsDiffs);
-        }
+        // for (var i = 0; i < data.conflicts.length; i++) {
+        //     var conflict = data.conflicts[i];
+        //     addConflictField(conflict.name, conflict.mine, panelMineDiffs);
+        //     addConflictField(conflict.name, conflict.theirs, panelTheirsDiffs);
+        // }
 
 
         // adjust margin of the left diffs panel to account for the width of the scrollbar (if any)
-        var scrollBarWidth = panelDiffs.element.clientWidth - panelMineDiffs.innerElement.clientWidth - panelTheirsDiffs.innerElement.clientWidth;
-        panelMineDiffs.style.marginRight = scrollBarWidth + 'px';
-    }
-
-    // Add a conflicted field to a panel (either mine or theirs)
-    var addConflictField = function (name, value, panel) {
-        var panelEntry = new ui.Panel();
-
-        var labelName = new ui.Label({
-            text: name
-        });
-        labelName.class.add('name');
-        panelEntry.append(labelName);
-
-        var labelValue = new ui.Label({
-            text: value
-        });
-        labelValue.class.add('value');
-        panelEntry.append(labelValue);
-
-        panel.append(panelEntry);
+        // var scrollBarWidth = panelDiffs.element.clientWidth - panelMineDiffs.innerElement.clientWidth - panelTheirsDiffs.innerElement.clientWidth;
+        // panelMineDiffs.style.marginRight = scrollBarWidth + 'px';
     };
 
-    var pickNone = function () {
-        if (currentConflict) {
-            currentConflict.resolved = null;
-            markUnresolved(currentConflict);
-        }
+    // // Add a conflicted field to a panel (either mine or theirs)
+    // var addConflictField = function (name, value, panel) {
+    //     var panelEntry = new ui.Panel();
 
+    //     var labelName = new ui.Label({
+    //         text: name
+    //     });
+    //     labelName.class.add('name');
+    //     panelEntry.append(labelName);
+
+    //     var labelValue = new ui.Label({
+    //         text: value
+    //     });
+    //     labelValue.class.add('value');
+    //     panelEntry.append(labelValue);
+
+    //     panel.append(panelEntry);
+    // };
+
+    var markResolved = function (mine) {
+        showPickOverlay(mine ? 'mine' : 'theirs');
+
+        currentConflicts.resolved = {};
+        currentConflicts.resolved[mine ? 'useDst' : 'useSrc'] = true;
+        currentConflicts.listItem.icon.class.remove('conflict');
+        currentConflicts.listItem.icon.class.add('resolved');
+        btnComplete.disabled = ! checkAllResolved();
+
+        editor.call('branches:resolveConflicts',
+            mergeData.id,
+            currentConflicts.itemId,
+            currentConflicts.itemType,
+            currentConflicts.data.map(function (conflict) {
+                return conflict.id;
+            }),
+            currentConflicts.resolved
+        );
+    };
+
+    var markUnresolved = function () {
         hidePickOverlay();
-    };
+        btnComplete.disabled = true;
 
-    var pickMine = function () {
-        currentConflict.resolved = 'mine';
-        showPickOverlay('mine');
-        markResolved(currentConflict);
-    };
+        if (! currentConflicts) return;
+        currentConflicts.resolved = null;
+        currentConflicts.listItem.icon.class.add('conflict');
+        currentConflicts.listItem.icon.class.remove('resolved');
 
-    var pickTheirs = function () {
-        currentConflict.resolved = 'theirs';
-        showPickOverlay('theirs');
-        markResolved(currentConflict);
-    };
-
-    var markResolved = function (conflict) {
-        conflict.listItem.icon.class.remove('conflict');
-        conflict.listItem.icon.class.add('resolved');
-    };
-
-    var markUnresolved = function (conflict) {
-        conflict.listItem.icon.class.add('conflict');
-        conflict.listItem.icon.class.remove('resolved');
+        editor.call('branches:resolveConflicts',
+            mergeData.id,
+            currentConflicts.data.map(function (conflict) {
+                return conflict.id;
+            }), {
+                revert: true
+            }
+        );
     };
 
     var checkAllResolved = function () {
         var result = true;
 
-        for (var i = 0; i < mergeData.length; i++) {
-            if (! mergeData[i].resolved) {
+        for (var i = 0; i < mergeData.conflicts.length; i++) {
+            if (! mergeData.conflicts[i].resolved) {
                 return false;
             }
         }
@@ -547,31 +328,99 @@ editor.once('load', function () {
         overlaySelected.classList.remove('theirs');
     };
 
+    var showMainProgress = function (icon, text) {
+        [spinnerIcon, completedIcon, errorIcon].forEach(function (i) {
+            if (icon === i) {
+                i.classList.remove('hidden');
+            } else {
+                i.classList.add('hidden');
+            }
+        });
+
+        labelMainProgress.hidden = false;
+        labelMainProgress.text = text;
+
+        panelDiffs.hidden = true;
+        panelPick.hidden = true;
+        overlaySelected.hidden = true;
+    };
+
+    var hideMainProgress = function () {
+        spinnerIcon.classList.add('hidden');
+        completedIcon.classList.add('hidden');
+        errorIcon.classList.add('hidden');
+        labelMainProgress.hidden = true;
+
+        panelDiffs.hidden = false;
+        panelPick.hidden = false;
+    };
+
+    // Pick mine click handler
     btnPickMine.on('click', function () {
         if (overlaySelected.classList.contains('theirs') || overlaySelected.classList.contains('hidden')) {
-            pickMine();
+            markResolved(true);
         } else {
-            pickNone();
+            markUnresolved();
         }
     });
 
+    // Pick theirs click handler
     btnPickTheirs.on('click', function () {
         if (! overlaySelected.classList.contains('theirs') || overlaySelected.classList.contains('hidden')) {
-            pickTheirs();
+            markResolved(false);
         } else {
-            pickNone();
+            markUnresolved();
         }
     });
 
-
-    // show data
-    overlay.on('show', function () {
-        for (var i = 0; i < mergeData.length; i++) {
-            var item = createLeftListItem(mergeData[i]);
-            if (i === 0) {
-                item.selected = true;
+    // Complete merge button click
+    btnComplete.on('click', function () {
+        listItems.selected = [];
+        btnComplete.disabled = true;
+        showMainProgress(spinnerIcon, 'Completing merge...');
+        editor.call('branches:applyMerge', mergeData.id, function (err) {
+            if (err) {
+                // if there was an error show it in the UI and then go back to the conflicts
+                showMainProgress(errorIcon, err);
+                setTimeout(function () {
+                    hideMainProgress();
+                    btnComplete.disabled = false;
+                    listItems.innerElement.firstChild.ui.selected = true;
+                }, 1000);
+            } else {
+                // if no error then refresh the browser
+                showMainProgress(completedIcon, 'Merge complete - refreshing browser...');
+                setTimeout(function () {
+                    window.location.reload();
+                }, 1000);
             }
-        }
+        });
+    });
+
+
+    // load and show data
+    overlay.on('show', function () {
+        showMainProgress(spinnerIcon, 'Loading conflicts...');
+        editor.call('branches:getMerge', config.self.branch.merge.id, function (err, data) {
+            if (err) {
+                return showMainProgress(errorIcon, err);
+            }
+
+            mergeData = data;
+            if (! mergeData.conflicts.length) {
+                btnComplete.disabled = false;
+                return showMainProgress(completedIcon, 'No conflicts found - Click Complete Merge');
+            }
+
+            hideMainProgress();
+
+            for (var i = 0; i < mergeData.conflicts.length; i++) {
+                var item = createLeftListItem(mergeData.conflicts[i]);
+                if (i === 0) {
+                    item.selected = true;
+                }
+            }
+        });
     });
 
     // clean up
@@ -585,5 +434,4 @@ editor.once('load', function () {
     editor.method('picker:conflictManager', function () {
         overlay.hidden = false;
     });
-
 });

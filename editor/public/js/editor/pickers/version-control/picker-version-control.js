@@ -200,19 +200,22 @@ editor.once('load', function () {
     });
     panelMergeBranches.on('confirm', function () {
         var sourceBranchId = panelMergeBranches.sourceBranch.id;
-        var targetBranchId = panelMergeBranches.targetBranch.id;
+        var destinationBranchId = panelMergeBranches.destinationBranch.id;
 
         togglePanels(false);
         showRightSidePanel(panelMergeBranchesProgress);
-        editor.call('branches:merge', sourceBranchId, targetBranchId, function (err, data) {
+        editor.call('branches:merge', sourceBranchId, destinationBranchId, function (err, data) {
             panelMergeBranchesProgress.finish(err);
             if (err) {
                 togglePanels(true);
             } else {
+                // update merge object in config
+                config.self.branch.merge = data;
+
                 // if there are merge conflicts then show
                 // conflict manager
                 if (data.conflicts) {
-                    panelMergeBranchesProgress.setMessage('Unable to auto merge - opening conflict manager')
+                    panelMergeBranchesProgress.setMessage('Unable to auto merge - opening conflict manager');
                     setTimeout(function () {
                         editor.call('picker:project:close');
                         editor.call('picker:conflictManager', data);
@@ -352,7 +355,7 @@ editor.once('load', function () {
         if (contextBranch) {
             showRightSidePanel(panelMergeBranches);
             panelMergeBranches.setSourceBranch(contextBranch);
-            panelMergeBranches.setTargetBranch(config.self.branch);
+            panelMergeBranches.setDestinationBranch(config.self.branch);
         }
     });
 
@@ -598,7 +601,7 @@ editor.once('load', function () {
         // the browser is refreshed if for some reason the messenger fails to deliver the message.
         // That's why the timeout here is larger than what's in picker-version-control-messenger
         setTimeout(function () {
-            document.location.reload();
+            window.location.reload();
         }, 2000);
     };
 

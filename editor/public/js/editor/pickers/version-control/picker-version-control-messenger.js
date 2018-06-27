@@ -132,4 +132,16 @@ editor.once('load', function () {
         .on('load', refresh)
         .on('error', refresh);
     });
+
+    // if a merge has started for our branch then show overlay
+    editor.on('messenger:merge.new', function (data) {
+        if (data.dst_branch_id !== config.self.branch.id) return;
+
+        config.self.branch.merge = {
+            id: data.merge_id,
+            userId: data.user_id
+        };
+
+        editor.call('picker:versioncontrol:mergeOverlay');
+    });
 });

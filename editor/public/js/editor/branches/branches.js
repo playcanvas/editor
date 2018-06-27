@@ -76,15 +76,60 @@ editor.once('load', function () {
     });
 
     // Start merging branches
-    editor.method('branches:merge', function (sourceId, targetId, callback) {
+    editor.method('branches:merge', function (sourceId, destinationId, callback) {
         request({
-            url: '{{url.api}}/branches/merge',
+            url: '{{url.api}}/merge',
             method: 'POST',
             auth: true,
             data: {
-                sourceBranch: sourceId,
-                targetBranch: targetId
+                srcBranchId: sourceId,
+                dstBranchId: destinationId
             }
+        }, callback);
+    });
+
+    // Apply merge
+    editor.method('branches:applyMerge', function (mergeId, callback) {
+        request({
+            url: '{{url.api}}/merge/' + mergeId + '/apply',
+            method: 'POST',
+            auth: true
+        }, callback);
+    });
+
+    // Get a merge object by merge id including all of its conflicts
+    editor.method('branches:getMerge', function (mergeId, callback) {
+        request({
+            url: '{{url.api}}/merge/' + mergeId,
+            method: 'GET',
+            auth: true
+        }, callback);
+    });
+
+    // Resolve multiple conflicts
+    editor.method('branches:resolveConflicts', function (mergeId, conflictIds, resolveData, callback) {
+        var data = {
+            mergeId: mergeId,
+            conflictIds: conflictIds
+        };
+        for (var key in resolveData) {
+            data[key] = resolveData[key];
+        }
+
+        request({
+            url: '{{url.api}}/conflicts/resolve',
+            method: 'POST',
+            data: data,
+            auth: true
+        }, callback);
+    });
+
+    // Force stops a merge which deletes the merge and all of its conflicts
+    editor.method('branches:forceStopMerge', function (mergeId, callback) {
+        request({
+            url: '{{url.api}}/merge/' + mergeId,
+            method: 'DELETE',
+            auth: true
         }, callback);
     });
 });

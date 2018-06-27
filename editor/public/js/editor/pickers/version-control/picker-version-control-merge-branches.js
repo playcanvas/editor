@@ -13,7 +13,7 @@ editor.once('load', function () {
     labelFrom.class.add('right');
     labelFrom.renderChanges = false;
     panelFrom.append(labelFrom);
-    
+
     var panelInto = new ui.Panel();
     panelInto.flexGrow = 1;
     label = new ui.Label({
@@ -44,19 +44,19 @@ editor.once('load', function () {
 
     panel.on('hide', function () {
         panel.setSourceBranch(null);
-        panel.setTargetBranch(null);
+        panel.setDestinationBranch(null);
     });
 
     panel.setSourceBranch = function (sourceBranch) {
         panel.sourceBranch = sourceBranch;
         labelFrom.text = sourceBranch ? sourceBranch.name : '';
-    }
-    panel.setTargetBranch = function (targetBranch) {
-        panel.targetBranch = targetBranch;
-        labelInto.text = targetBranch ? targetBranch.name : '';
+    };
+    panel.setDestinationBranch = function (destinationBranch) {
+        panel.destinationBranch = destinationBranch;
+        labelInto.text = destinationBranch ? destinationBranch.name : '';
     };
 
     editor.method('picker:versioncontrol:widget:mergeBranches', function () {
-        return panel;  
+        return panel;
     });
 });

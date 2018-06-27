@@ -9011,6 +9011,7 @@ strong {
                                             @extend .font-icon;
                                             margin-right: 15px;
                                             vertical-align: top;
+                                            font-size: 8px;
 
                                             &.resolved {
                                                 color: #4AE22B;
@@ -9035,11 +9036,13 @@ strong {
                                                     &.name {
                                                         color: $text-primary;
                                                         font-size: 13px;
+                                                        margin-top: 2px;
                                                     }
 
                                                     &.type {
                                                         font-size: 12px;
                                                         color: $text-secondary;
+                                                        margin-top: -5px;
                                                     }
                                                 }
                                             }
@@ -9063,28 +9066,42 @@ strong {
                     > .content {
                         height: 100%;
                         flex-direction: column;
+                        justify-content: center;
 
                         > .selected-overlay {
                             position: absolute;
                             left: 0;
-                            top: 0;
+                            top: 32px;
                             width: 50%;
-                            height: 100%;
-                            border: 1px solid #4AE22B;
+                            height: calc(100% - 93px);
+                            border: 1px solid rgba(105,184,117,0.3);
+                            box-sizing: border-box;
+                            background: rgba(105,184,117,0.06);
                             pointer-events: none;
 
                             &.theirs {
                                 left: 50%;
                             }
+                        }
 
-                            &:after {
-                                content: '\E154';
-                                @extend .font-icon;
-                                position: absolute;
-                                right: 10px;
-                                top: 7px;
-                                color: #4AE22B;
-                                font-size: 50px;
+                        > .ui-label.progress-text {
+                            text-align: center;
+                            margin-bottom: 20px;
+                            font-size: 16px;
+                            color: $text-primary;
+                        }
+
+                        > .progress-icon {
+                            margin: 0 auto;
+
+                            &.spin {
+                                g {
+                                    animation-name: spin;
+                                    animation-duration: 500ms;
+                                    animation-iteration-count: infinite;
+                                    animation-timing-function: linear;
+                                    transform-origin: center;
+                                }
                             }
                         }
 
@@ -9117,6 +9134,83 @@ strong {
                                             min-height: 100%;
                                             box-sizing: border-box;
                                             padding: 5px 25px;
+
+                                            > .ui-label.icon-type {
+                                                display: block;
+                                                font-size: 64px;
+                                                text-align: center;
+                                                margin-top: 250px;
+
+                                                @extend .font-icon;
+                                                &:before{
+                                                    content: '\E299';
+                                                }
+
+                                                &.type-animation:before {
+                                                    content: '\E213';
+                                                }
+                                                &.type-audio:before {
+                                                    content: '\E210';
+                                                }
+                                                &.type-cubemap:before {
+                                                    content: '\E220';
+                                                }
+                                                &.type-folder:before {
+                                                    content: '\E139';
+                                                }
+                                                &.type-json:before {
+                                                    content: '\E207';
+                                                }
+                                                &.type-material:before {
+                                                    content: '\E195';
+                                                }
+                                                &.type-model:before {
+                                                    content: '\E188';
+                                                }
+                                                &.type-script:before {
+                                                    content: '\E392';
+                                                }
+                                                &.type-sprite:before {
+                                                    content: '\E395';
+                                                }
+                                                &.type-texture:before {
+                                                    content: '\E201';
+                                                }
+                                                &.type-textureatlas:before {
+                                                    content: '\E201';
+                                                }
+                                                &.type-text:before {
+                                                    content: '\E209';
+                                                }
+                                                &.type-html:before {
+                                                    content: '\E205';
+                                                }
+                                                &.type-css:before {
+                                                    content: '\E206';
+                                                }
+                                                &.type-shader:before {
+                                                    content: '\E353';
+                                                }
+                                                &.type-shader:before {
+                                                    content: '\E202';
+                                                }
+                                                &.type-binary:before {
+                                                    content: '\E299';
+                                                }
+                                                &.type-font:before {
+                                                    content: '\E299';
+                                                }
+                                                &.type-settings:before {
+                                                    content: '\E134';
+                                                }
+
+                                            }
+
+                                            > .ui-label.name {
+                                                display: block;
+                                                text-align: center;
+                                                margin-top: 30px;
+                                            }
 
                                             > .ui-panel {
                                                 white-space: nowrap;
@@ -9244,8 +9338,100 @@ strong {
                     color: $text-primary;
                     font-size: 16px;
                 }
+                &.message {
+                    @extend .font-thin;
+                }
             }
         }
 
+    }
+
+    &.merge-overlay {
+        z-index: 9998; // below other version control overlays
+
+        &.show-behind-picker {
+            z-index: 299; // just below project picker
+        }
+
+        > .content {
+            height: 186px;
+            top: calc(50% - 93px);
+
+            .ui-panel.left {
+                width: 100px;
+                vertical-align: top;
+                .icon {
+                    @extend .font-icon;
+                    font-size: 32px;
+                    color: #E05F2C;
+                    margin-top: -5px;
+                }
+            }
+
+            .ui-panel.right {
+                width: calc(100% - 100px);
+            }
+
+            .ui-panel.switch-branch {
+                margin-top: 20px;
+                white-space: nowrap;
+
+                .ui-label {
+                    display: inline-block;
+                    vertical-align: top;
+                    font-size: 12px;
+                    margin-right: 30px;
+                    }
+
+                .ui-select-field {
+                    display: inline-block;
+                    vertical-align: top;
+                    margin-top: -1px;
+                    width: 190px;
+                }
+
+                .ui-button {
+                    vertical-align: top;
+                    margin-top: -1px;
+                    height: 24px;
+                    line-height: 24px;
+                    font-size: 12px;
+                }
+            }
+
+            .ui-panel.buttons {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                text-align: right;
+                padding: 10px 10px;
+                box-sizing: border-box;
+                border-top: 1px solid $border-primary;
+
+                .ui-button {
+                    font-size: 12px;
+                    width: 160px;
+                    height: 28px;
+                    line-height: 28px;
+                    text-align: center;
+
+                    background: #fb222f;
+                    color: $text-primary;
+                    opacity: 0.8;
+
+                    &:hover {
+                        opacity: 1;
+                    }
+                    &:active {
+                        opacity: 0.9;
+                    }
+
+                    &.disabled {
+                        opacity: 0.2;
+                    }
+                }
+            }
+        }
     }
 }
