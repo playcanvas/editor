@@ -151,6 +151,28 @@ editor.once('load', function () {
     overlaySelected.classList.add('selected-overlay', 'hidden');
     panelRight.append(overlaySelected);
 
+    // close button
+    var btnClose = new ui.Button({
+        text: '&#57650;'
+    });
+    btnClose.class.add('close');
+    btnClose.on('click', function () {
+        editor.call('picker:confirm', 'Closing the conflict manager will stop the merge. Are you sure?', function () {
+            showMainProgress(spinnerIcon, 'Stopping merge');
+            editor.call('branches:forceStopMerge', config.self.branch.merge.id, function (err) {
+                if (err) {
+                    showMainProgress(errorIcon, err);
+                } else {
+                    showMainProgress(completedIcon, 'Merge stopped. Refreshing browser');
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1000);
+                }
+            });
+        });
+    });
+    panel.headerElement.appendChild(btnClose.element);
+
     // the current conflict we are editing
     var currentConflicts = null;
     // the merge data that we requested from the server

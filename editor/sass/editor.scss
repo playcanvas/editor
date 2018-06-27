@@ -8974,6 +8974,18 @@ strong {
         > .ui-panel {
             height: 100%;
 
+            > .ui-header {
+                .ui-button.close {
+                    @extend .font-icon;
+                    position: absolute;
+                    right: 0;
+                    margin: 0;
+                    top: 4px;
+                    background: transparent;
+                    border: 0;
+                }
+            }
+
             > .content {
                 height: 100%;
                 border-top: 1px solid $border-primary;
