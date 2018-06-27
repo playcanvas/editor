@@ -93,7 +93,7 @@ editor.once('load', function () {
         panelCheckpoints.element.scrollTop = 0;
 
         panel.checkpoints = checkpoints;
-        if (checkpoints) {
+        if (checkpoints && checkpoints.length) {
             checkpoints.forEach(createCheckpointListItem);
             checkpointsSkip = checkpoints[checkpoints.length - 1].id;
         } else {

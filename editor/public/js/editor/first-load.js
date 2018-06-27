@@ -13,7 +13,7 @@
         if (merge) {
             // if this user started it then show the conflict manager
             // otherwise if another user started then show the merge in progress overlay
-            if (merge.userId === config.self.id && merge.hasConflicts) {
+            if (merge.user.id === config.self.id && merge.hasConflicts) {
                 editor.call('picker:conflictManager');
             } else {
                 editor.call('picker:versioncontrol:mergeOverlay');

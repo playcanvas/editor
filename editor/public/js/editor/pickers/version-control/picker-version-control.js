@@ -156,11 +156,21 @@ editor.once('load', function () {
                     togglePanels(true);
                     var item = getBranchListItem(panelCloseBranch.branch);
                     if (item) {
-                        var nextItem = item.selected ? (item.element.nextSibling || item.element.previousSibling) : null;
+                        var nextItem = null;
+                        if (item.selected) {
+                            if (item.element.nextSibling !== loadMoreListItem.element) {
+                                nextItem = item.element.nextSibling;
+                            }
+
+                            if (! nextItem) {
+                                nextItem = item.element.previousSibling;
+                            }
+                        }
+
                         listBranches.remove(item);
 
                         // select next or previous sibling
-                        if (nextItem) {
+                        if (nextItem && nextItem !== loadMoreListItem.element) {
                             nextItem.ui.selected = true;
                         }
                     }
@@ -400,7 +410,14 @@ editor.once('load', function () {
                     var item = getBranchListItem(branch);
                     if (item) {
                         var wasSelected = item.selected;
-                        var nextItem = item.element.nextSibling || item.element.previousSibling;
+                        var nextItem = null;
+                        if (item.element.nextSibling !== loadMoreListItem.element) {
+                            nextItem = item.element.nextSibling;
+                        }
+
+                        if (! nextItem) {
+                            nextItem = item.element.previousSibling;
+                        }
 
                         // remove branch from the list
                         listBranches.remove(item);

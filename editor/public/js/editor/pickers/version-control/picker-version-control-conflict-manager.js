@@ -184,7 +184,9 @@ editor.once('load', function () {
             text: '&#58208;',
             unsafe: true
         });
-        labelIcon.class.add('icon', 'conflict');
+        labelIcon.class.add('icon');
+        labelIcon.class.add(isConflictGroupResolved(data) ? 'resolved' : 'conflict');
+
         panel.append(labelIcon);
         item.icon = labelIcon;
 
@@ -193,14 +195,14 @@ editor.once('load', function () {
 
         // name
         var labelName = new ui.Label({
-            text: data.name
+            text: data.itemName
         });
         labelName.class.add('name');
         panelInfo.append(labelName);
 
         // type
         var labelType = new ui.Label({
-            text: data.type
+            text: data.assetType || data.itemType
         });
         labelType.class.add('type');
         panelInfo.append(labelType);
@@ -228,8 +230,8 @@ editor.once('load', function () {
         labelMine.text = data.name;
         labelTheirs.text = data.name;
 
-        if (data.resolved) {
-            showPickOverlay(data.resolved);
+        if (isConflictGroupResolved(data)) {
+            showPickOverlay(data.data[0].useDst ? 'mine' : 'theirs'); // for now just use the resolve field of the first item
         } else {
             hidePickOverlay();
         }
@@ -268,20 +270,21 @@ editor.once('load', function () {
     var markResolved = function (mine) {
         showPickOverlay(mine ? 'mine' : 'theirs');
 
-        currentConflicts.resolved = {};
-        currentConflicts.resolved[mine ? 'useDst' : 'useSrc'] = true;
+        currentConflicts.data.forEach(function (conflict) {
+            conflict[mine ? 'useDst' : 'useSrc'] = true;
+        });
         currentConflicts.listItem.icon.class.remove('conflict');
         currentConflicts.listItem.icon.class.add('resolved');
         btnComplete.disabled = ! checkAllResolved();
 
+        var resolveData = {};
+        resolveData[mine ? 'useDst' : 'useSrc'] = true;
         editor.call('branches:resolveConflicts',
             mergeData.id,
-            currentConflicts.itemId,
-            currentConflicts.itemType,
             currentConflicts.data.map(function (conflict) {
                 return conflict.id;
             }),
-            currentConflicts.resolved
+            resolveData
         );
     };
 
@@ -290,7 +293,12 @@ editor.once('load', function () {
         btnComplete.disabled = true;
 
         if (! currentConflicts) return;
-        currentConflicts.resolved = null;
+
+        currentConflicts.data.forEach(function (conflict) {
+            conflict.useSrc = false;
+            conflict.useDst = false;
+            conflict.useMergedFile = false;
+        });
         currentConflicts.listItem.icon.class.add('conflict');
         currentConflicts.listItem.icon.class.remove('resolved');
 
@@ -304,11 +312,22 @@ editor.once('load', function () {
         );
     };
 
+    var isConflictGroupResolved = function (group) {
+        var resolved = true;
+        for (var i = 0; i < group.data.length; i++) {
+            if (! group.data[i].useSrc && ! group.data[i].useDst && ! group.data[i].useMergedFile) {
+                resolved = false;
+                break;
+            }
+        }
+        return resolved;
+    };
+
     var checkAllResolved = function () {
         var result = true;
 
         for (var i = 0; i < mergeData.conflicts.length; i++) {
-            if (! mergeData.conflicts[i].resolved) {
+            if (! isConflictGroupResolved(mergeData.conflicts[i])) {
                 return false;
             }
         }
@@ -342,7 +361,7 @@ editor.once('load', function () {
 
         panelDiffs.hidden = true;
         panelPick.hidden = true;
-        overlaySelected.hidden = true;
+        overlaySelected.classList.add('hidden');
     };
 
     var hideMainProgress = function () {
