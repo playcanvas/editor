@@ -6,7 +6,6 @@ editor.once('load', function () {
     icon.innerHTML = '&#57880;';
 
     var overlay = editor.call('picker:versioncontrol:createOverlay', {
-        title: 'Merge in progress...',
         message: 'Please wait until merging has been completed',
         icon: icon
     });
@@ -51,9 +50,11 @@ editor.once('load', function () {
     btnForceStopMerge.disabled = ! editor.call('permissions:write');
     panelButtons.append(btnForceStopMerge);
     btnForceStopMerge.on('click', function () {
-        overlay.innerElement.classList.add('hidden'); // hide the inner contents of the overlay but not the whole overlay
-        editor.call('branches:forceStopMerge', config.self.branch.merge.id, function (err, data) {
-            window.location.reload();
+        editor.call('picker:confirm', 'Are you sure you want to force stop this merge process?', function () {
+            overlay.innerElement.classList.add('hidden'); // hide the inner contents of the overlay but not the whole overlay
+            editor.call('branches:forceStopMerge', config.self.branch.merge.id, function (err, data) {
+                window.location.reload();
+            });
         });
     });
 
@@ -104,6 +105,12 @@ editor.once('load', function () {
     });
 
     editor.method('picker:versioncontrol:mergeOverlay', function () {
+        var fullName = config.self.branch.merge.user.fullName;
+        if (fullName && fullName.length > 33) {
+            fullName = fullName.substring(0, 30) + '...';
+        }
+
+        overlay.setTitle(fullName ? fullName + ' is merging branches' : 'Merge in progress');
         overlay.hidden = false;
     });
 });
