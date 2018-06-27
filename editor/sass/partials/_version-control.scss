@@ -1,0 +1,150 @@
+@import 'variables';
+
+.ui-overlay.version-control-overlay {
+    z-index: 9999; // just below the confirm picker
+    &.show-behind-picker {
+        z-index: 299; // just below project picker
+    }
+
+    > .content {
+        width: 500px;
+        left: calc(50% - 250px);
+        height: 106px;
+        top: calc(50% - 53px);
+
+        white-space: nowrap;
+
+        .ui-panel.left {
+            width: 110px;
+            display: inline-block;
+            text-align: center;
+            top: 25px;
+
+            svg {
+                margin: auto;
+                &.spin {
+                    g {
+                        animation-name: spin;
+                        animation-duration: 500ms;
+                        animation-iteration-count: infinite;
+                        animation-timing-function: linear;
+                        transform-origin: center;
+                    }
+                }
+
+                &.hidden {
+                    display: none;
+                }
+            }
+        }
+
+        .ui-panel.right {
+            display: inline-block;
+            width: calc(100% - 110px);
+            white-space: normal;
+            top: 20px;
+
+            .ui-label {
+                margin: 1px;
+                display: block;
+                &.title {
+                    color: $text-primary;
+                    font-size: 16px;
+                }
+                &.message {
+                    @extend .font-thin;
+                }
+            }
+        }
+
+    }
+
+    &.merge-overlay {
+        z-index: 9998; // below other version control overlays
+
+        &.show-behind-picker {
+            z-index: 299; // just below project picker
+        }
+
+        > .content {
+            height: 186px;
+            top: calc(50% - 93px);
+
+            .ui-panel.left {
+                width: 100px;
+                vertical-align: top;
+                .icon {
+                    @extend .font-icon;
+                    font-size: 32px;
+                    color: #E05F2C;
+                    margin-top: -5px;
+                }
+            }
+
+            .ui-panel.right {
+                width: calc(100% - 100px);
+            }
+
+            .ui-panel.switch-branch {
+                margin-top: 20px;
+                white-space: nowrap;
+
+                .ui-label {
+                    display: inline-block;
+                    vertical-align: top;
+                    font-size: 12px;
+                    margin-right: 30px;
+                    }
+
+                .ui-select-field {
+                    display: inline-block;
+                    vertical-align: top;
+                    margin-top: -1px;
+                    width: 190px;
+                }
+
+                .ui-button {
+                    vertical-align: top;
+                    margin-top: -1px;
+                    height: 24px;
+                    line-height: 24px;
+                    font-size: 12px;
+                }
+            }
+
+            .ui-panel.buttons {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                text-align: right;
+                padding: 10px 10px;
+                box-sizing: border-box;
+                border-top: 1px solid $border-primary;
+
+                .ui-button {
+                    font-size: 12px;
+                    width: 160px;
+                    height: 28px;
+                    line-height: 28px;
+                    text-align: center;
+
+                    background: #fb222f;
+                    color: $text-primary;
+                    opacity: 0.8;
+
+                    &:hover {
+                        opacity: 1;
+                    }
+                    &:active {
+                        opacity: 0.9;
+                    }
+
+                    &.disabled {
+                        opacity: 0.2;
+                    }
+                }
+            }
+        }
+    }
+}
