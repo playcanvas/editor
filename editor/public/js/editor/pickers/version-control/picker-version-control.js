@@ -228,6 +228,7 @@ editor.once('load', function () {
                     panelMergeBranchesProgress.setMessage('Unable to auto merge - opening conflict manager');
                     setTimeout(function () {
                         editor.call('picker:project:close');
+                        editor.call('picker:versioncontrol:mergeOverlay:hide'); // hide this in case it's open
                         editor.call('picker:conflictManager', data);
                     }, 1500);
                 } else {

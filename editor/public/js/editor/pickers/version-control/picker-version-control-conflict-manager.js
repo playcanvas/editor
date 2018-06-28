@@ -249,8 +249,8 @@ editor.once('load', function () {
         iconTheirs.class.add('type-' + (data.assetType || data.itemType));
 
         // show object name
-        labelMine.text = data.name;
-        labelTheirs.text = data.name;
+        labelMine.text = data.itemName;
+        labelTheirs.text = data.itemName;
 
         if (isConflictGroupResolved(data)) {
             showPickOverlay(data.data[0].useDst ? 'mine' : 'theirs'); // for now just use the resolve field of the first item
@@ -438,41 +438,53 @@ editor.once('load', function () {
         });
     });
 
+    var onMergeDataLoaded = function (data) {
+        mergeData = data;
+        if (! mergeData.conflicts.length) {
+            btnComplete.disabled = false;
+            return showMainProgress(completedIcon, 'No conflicts found - Click Complete Merge');
+        }
+
+        hideMainProgress();
+
+        for (var i = 0; i < mergeData.conflicts.length; i++) {
+            var item = createLeftListItem(mergeData.conflicts[i]);
+            if (i === 0) {
+                item.selected = true;
+            }
+        }
+
+        btnComplete.disabled = ! checkAllResolved();
+    };
 
     // load and show data
     overlay.on('show', function () {
         showMainProgress(spinnerIcon, 'Loading conflicts...');
-        editor.call('branches:getMerge', config.self.branch.merge.id, function (err, data) {
-            if (err) {
-                return showMainProgress(errorIcon, err);
-            }
 
-            mergeData = data;
-            if (! mergeData.conflicts.length) {
-                btnComplete.disabled = false;
-                return showMainProgress(completedIcon, 'No conflicts found - Click Complete Merge');
-            }
-
-            hideMainProgress();
-
-            for (var i = 0; i < mergeData.conflicts.length; i++) {
-                var item = createLeftListItem(mergeData.conflicts[i]);
-                if (i === 0) {
-                    item.selected = true;
+        if (! mergeData) {
+            editor.call('branches:getMerge', config.self.branch.merge.id, function (err, data) {
+                if (err) {
+                    return showMainProgress(errorIcon, err);
                 }
-            }
-        });
+
+                onMergeDataLoaded(data);
+            });
+        } else {
+            onMergeDataLoaded(mergeData);
+        }
     });
 
     // clean up
     overlay.on('hide', function () {
+        mergeData = null;
         listItems.clear();
         panelMineDiffs.clear();
         panelTheirsDiffs.clear();
     });
 
     // show conflict manager
-    editor.method('picker:conflictManager', function () {
+    editor.method('picker:conflictManager', function (data) {
+        mergeData = data;
         overlay.hidden = false;
     });
 });
