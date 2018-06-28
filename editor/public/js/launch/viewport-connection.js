@@ -24,4 +24,8 @@ editor.once('load', function() {
             hidden = false;
         }
     });
+
+    editor.on('realtime:error', function (err) {
+        console.error(err);
+    })
 });
