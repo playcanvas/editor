@@ -5490,109 +5490,6 @@ strong {
     }
 }
 
-.picker-confirm {
-    z-index: 10000;
-}
-
-.picker-confirm.center {
-    > .content {
-        width: 288px;
-        height: auto;
-        left: calc(50% - 144px);
-        top: calc(50% - 32px);
-        padding: 16px;
-        text-align: right;
-        transition: none;
-
-        > .text {
-            display: block;
-            text-align: center;
-            margin: 4px 0 16px;
-            color: $text-primary;
-            font-size: 14px;
-            text-align: center;
-        }
-        > .ui-button {
-            font-size: 14px;
-            padding: 0 16px;
-            line-height: 26px;
-            text-transform: uppercase;
-            margin: 0;
-        }
-        > .yes {
-            margin-right: 8px;
-        }
-    }
-
-    &.asset-delete {
-        > .content {
-            width: 208px;
-            left: calc(50% - 104px);
-            text-align: center;
-            background-color: $bcg-darker;
-
-            > .ui-button.yes {
-                margin: 0;
-                font-size: 0;
-                height: 32px;
-                line-height: 32px;
-                padding: 0;
-                background-color: #e54d42;
-                border: none;
-                color: $text-primary;
-
-                &:hover {
-                    &:after {
-                        background-color: transparent;
-                    }
-                }
-                &:before {
-                    content: 'DELETE';
-                    font-size: 14px;
-                    padding: 0 16px;
-                }
-                &:after {
-                    content: '\E124';
-                    font-weight: 200;
-                    @extend .font-icon;
-                    font-size: 14px;
-                    font-weight: 200;
-                    float: right;
-                    width: 31px;
-                    padding-right: 1px;
-                    text-align: center;
-                    border-left: 1px solid $bcg-dark;
-                    background-color: #8c413c;
-                }
-            }
-            > .ui-button.no {
-                position: absolute;
-                top: 0;
-                right: 0;
-                padding: 0;
-                margin: 0;
-                width: 32px;
-                height: 32px;
-                background: transparent;
-                font-size: 0;
-                border: none;
-                color: $text-dark;
-
-                &:hover {
-                    color: $text-primary;
-                    background-color: $bcg-darkest;
-                }
-                &:after {
-                    content: '\E132';
-                    @extend .font-icon;
-                    text-align: center;
-                    font-size: 18px;
-                }
-            }
-        }
-    }
-}
-
 .picker-script-create.center {
     > .content {
         width: 288px;
@@ -9299,4 +9196,5 @@ strong {
     }
 }
 
+@import 'partials/ui-common';
 @import 'partials/version-control';

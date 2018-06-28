@@ -1,0 +1,51 @@
+.picker-confirm {
+    z-index: 10000;
+}
+
+.picker-confirm.center {
+    > .content {
+        width: 400px;
+        height: auto;
+        left: calc(50% - 200px);
+        top: calc(50% - 32px);
+        text-align: right;
+        transition: none;
+        padding: 0;
+
+        > .text {
+            display: block;
+            color: $text-primary;
+            font-size: 14px;
+            text-align: left;
+            padding: 30px;
+            margin: 0;
+            margin-bottom: 8px;
+            border-bottom: 1px solid $border-primary;
+        }
+
+        > .ui-button {
+            font-size: 12px;
+            line-height: 26px;
+            height: 26px;
+            text-transform: uppercase;
+            margin: 0 12px 8px 0;
+            text-align: center;
+            min-width: 100px;
+        }
+        > .no {
+            background: darken($text-active, 7%);
+            color: $text-primary;
+
+            &:hover {
+                background: darken($text-active, 12%);
+            }
+        }
+    }
+
+    &.asset-delete {
+        > .content {
+            width: 300px;
+            left: calc(50% - 150px);
+        }
+    }
+}
