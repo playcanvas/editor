@@ -9,6 +9,8 @@ editor.once('load', function() {
             if (! editor.call('permissions:write'))
                 return;
 
+            if (editor.call('picker:isOpen')) return;
+
             var type = editor.call('selector:type');
             var items = editor.call('selector:items');
 
@@ -30,25 +32,20 @@ editor.once('load', function() {
     editor.call('hotkey:register', 'entity:duplicate', {
         key: 'd',
         ctrl: true,
-        callback: function() {
-            if (! editor.call('permissions:write'))
-                return;
+        callback: function () {
+            if (! editor.call('permissions:write')) return;
+            if (editor.call('picker:isOpen')) return;
 
             var type = editor.call('selector:type');
             var items = editor.call('selector:items');
 
-            if (! items.length)
-                return;
+            if (! items.length) return;
 
             if (type === 'entity') {
-                if (items.indexOf(editor.call('entities:root')) !== -1)
-                    return;
-
+                if (items.indexOf(editor.call('entities:root')) !== -1) return;
                 editor.call('entities:duplicate', items);
             } else if (type === 'asset' && items.length === 1) {
-                if (items[0].get('type') !== 'material' && items[0].get('type') !== 'sprite')
-                    return;
-
+                if (items[0].get('type') !== 'material' && items[0].get('type') !== 'sprite') return;
                 editor.call('assets:duplicate', items[0]);
             }
         }
@@ -56,10 +53,7 @@ editor.once('load', function() {
 
     // delete
     var deleteCallback = function() {
-        // if curve editor is open then return
-        // because in that case we want to delete a curve key
-        if (editor.call('picker:curve:isOpen'))
-            return;
+        if (editor.call('picker:isOpen')) return;
 
         if (! editor.call('permissions:write'))
             return;
@@ -98,6 +92,8 @@ editor.once('load', function() {
             if (! editor.call('permissions:write'))
                 return;
 
+            if (editor.call('picker:isOpen')) return;
+
             var type = editor.call('selector:type');
             if (type !== 'entity')
                 return;
@@ -118,6 +114,8 @@ editor.once('load', function() {
             // write permissions only (perhaps we could also allow read permissions)
             if (! editor.call('permissions:write'))
                 return;
+
+            if (editor.call('picker:isOpen')) return;
 
             var items = editor.call('selector:items');
             if (items.length === 0 || items.length === 1 && editor.call('selector:type') === 'entity')
@@ -155,11 +153,17 @@ editor.once('load', function() {
 
     editor.call('hotkey:register', 'entities:rename', {
         key: 'n',
-        callback: onRename
+        callback: function () {
+            if (editor.call('picker:isOpen')) return;
+            onRename();
+        }
     });
 
     editor.call('hotkey:register', 'entities:rename:f2', {
         key: 'f2',
-        callback: onRename
+        callback: function () {
+            if (editor.call('picker:isOpen')) return;
+            onRename();
+        }
     });
 });

@@ -58,7 +58,7 @@ editor.once('load', function () {
     var dropRef = editor.call('drop:target', {
         ref: projectImg,
         filter: function (type, data) {
-            return editor.call('permissions:write') && 
+            return editor.call('permissions:write') &&
                    !leftPanel.disabled &&
                    ! uploadingImage &&
                    type === 'files';
@@ -208,6 +208,9 @@ editor.once('load', function () {
         } else {
             projectImg.classList.remove('hover');
         }
+
+        // editor-blocking picker open
+        editor.emit('picker:open', 'project');
     });
 
     // handle hide
@@ -223,6 +226,9 @@ editor.once('load', function () {
             menuOptions[key].item.class.remove('active');
             menuOptions[key].item.class.remove('selected');
         }
+
+        // editor-blocking picker closed
+        editor.emit('picker:close', 'project');
     });
 
     // prevent user closing popup

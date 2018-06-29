@@ -57,6 +57,14 @@ editor.once('load', function () {
             if (editor.call('picker:versioncontrol:isProgressWidgetVisible')) {
                 overlay.class.add('show-behind-picker');
             }
+
+            // editor-blocking popup opened
+            editor.emit('picker:open', 'version-control-overlay');
+        });
+
+        overlay.on('hide', function () {
+            // editor-blocking popup closed
+            editor.emit('picker:close', 'version-control-overlay');
         });
 
         return overlay;

@@ -329,7 +329,7 @@ editor.once('load', function() {
         editor.call('hotkey:register', 'sprite-editor-esc', {
             key: 'esc',
             callback: function () {
-                if (editor.call('picker:confirm:isOpen')) {
+                if (editor.call('picker:isOpen', 'confirm')) {
                     return;
                 }
 
@@ -2039,6 +2039,10 @@ editor.once('load', function() {
         overlay.hidden = true;
     });
 
+    overlay.on('show', function () {
+        // editor-blocking picker opened
+        editor.emit('picker:open', 'sprite-editor');
+    })
 
     // Clean up
     overlay.on('hide', function () {
@@ -2062,5 +2066,8 @@ editor.once('load', function() {
         }
 
         cleanUp();
+
+        // editor-blocking picker closed
+        editor.emit('picker:close', 'sprite-editor');
     });
 });

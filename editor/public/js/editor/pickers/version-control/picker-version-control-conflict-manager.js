@@ -459,6 +459,9 @@ editor.once('load', function () {
 
     // load and show data
     overlay.on('show', function () {
+        // editor-blocking picker opened
+        editor.emit('picker:open', 'conflict-manager');
+
         showMainProgress(spinnerIcon, 'Loading conflicts...');
 
         if (! mergeData) {
@@ -480,6 +483,9 @@ editor.once('load', function () {
         listItems.clear();
         panelMineDiffs.clear();
         panelTheirsDiffs.clear();
+
+        // editor-blocking picker closed
+        editor.emit('picker:close', 'conflict-manager');
     });
 
     // show conflict manager

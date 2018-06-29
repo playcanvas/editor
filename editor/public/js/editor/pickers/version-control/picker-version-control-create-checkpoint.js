@@ -6,7 +6,9 @@ editor.once('load', function () {
     });
     labelDesc.class.add('small');
 
-    var fieldDescription = new ui.TextAreaField();
+    var fieldDescription = new ui.TextAreaField({
+        blurOnEnter: false
+    });
     fieldDescription.renderChanges = false;
     fieldDescription.keyChange = true;
     fieldDescription.flexGrow = 1;
@@ -51,7 +53,9 @@ editor.once('load', function () {
     });
 
     panel.on('show', function () {
-        fieldDescription.focus();
+        setTimeout(function () {
+            fieldDescription.focus();
+        });
     });
 
     editor.method('picker:versioncontrol:widget:createCheckpoint', function () {

@@ -73,6 +73,8 @@ editor.once('load', function () {
 
     overlay.on('show', function () {
         editor.emit('picker:confirm:open');
+        // editor-blocking picker open
+        editor.emit('picker:open', 'confirm');
     });
 
     // on overlay hide
@@ -85,6 +87,8 @@ editor.once('load', function () {
         }
 
         editor.emit('picker:confirm:close');
+        // editor-blocking picker closed
+        editor.emit('picker:close', 'confirm');
     });
 
 
@@ -116,10 +120,5 @@ editor.once('load', function () {
     // close picker
     editor.method('picker:confirm:close', function () {
         overlay.hidden = true;
-    });
-
-    // Returns true if picker is currently open
-    editor.method('picker:confirm:isOpen', function () {
-        return !overlay.hidden;
     });
 });

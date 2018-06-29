@@ -338,6 +338,7 @@ editor.once('load', function() {
         key: 'a',
         alt: true,
         callback: function (e) {
+            if (editor.call('picker:isOpen:otherThan', 'curve')) return;
             search.focus();
         }
     });

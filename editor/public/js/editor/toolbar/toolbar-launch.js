@@ -249,7 +249,10 @@ editor.once('load', function() {
     editor.call('hotkey:register', 'launch', {
         key: 'enter',
         ctrl: true,
-        callback: launchApp
+        callback: function () {
+            if (editor.call('picker:isOpen')) return;
+            launchApp();
+        }
     });
 
 

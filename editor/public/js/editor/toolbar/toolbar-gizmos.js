@@ -166,6 +166,7 @@ editor.once('load', function() {
     editor.call('hotkey:register', 'gizmo:translate', {
         key: '1',
         callback: function() {
+            if (editor.call('picker:isOpen:otherThan', 'curve')) return;
             gizmoButtons['translate'].emit('click');
         }
     });
@@ -174,6 +175,7 @@ editor.once('load', function() {
     editor.call('hotkey:register', 'gizmo:rotate', {
         key: '2',
         callback: function() {
+            if (editor.call('picker:isOpen:otherThan', 'curve')) return;
             gizmoButtons['rotate'].emit('click');
         }
     });
@@ -182,6 +184,7 @@ editor.once('load', function() {
     editor.call('hotkey:register', 'gizmo:scale', {
         key: '3',
         callback: function() {
+            if (editor.call('picker:isOpen:otherThan', 'curve')) return;
             gizmoButtons['scale'].emit('click');
         }
     });
@@ -190,6 +193,7 @@ editor.once('load', function() {
     editor.call('hotkey:register', 'gizmo:resize', {
         key: '4',
         callback: function() {
+            if (editor.call('picker:isOpen:otherThan', 'curve')) return;
             gizmoButtons['resize'].emit('click');
         }
     });
@@ -198,6 +202,7 @@ editor.once('load', function() {
     editor.call('hotkey:register', 'gizmo:world', {
         key: 'l',
         callback: function() {
+            if (editor.call('picker:isOpen:otherThan', 'curve')) return;
             buttonWorld.emit('click');
         }
     });
@@ -206,10 +211,8 @@ editor.once('load', function() {
     editor.call('hotkey:register', 'viewport:focus', {
         key: 'f',
         callback: function() {
+            if (editor.call('picker:isOpen:otherThan', 'curve')) return;
             editor.call('viewport:focus');
         }
     });
 });
-
-
-

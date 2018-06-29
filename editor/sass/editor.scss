@@ -4315,7 +4315,7 @@ strong {
     background-color: transparent;
 
     > .content {
-        > .project-name, > .scene-name, > .scene-list {
+        > .project-name, > .scene-name, , > .branch-name,  > .scene-list {
             height: 33px;
             min-height: 33px;
             line-height: 34px;
@@ -4347,6 +4347,10 @@ strong {
 
         > .scene-name:before {
             content: '\E134';
+        }
+
+        > .branch-name:before {
+            content: '\E399';
         }
 
         > .scene-list {

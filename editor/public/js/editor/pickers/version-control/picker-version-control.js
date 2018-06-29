@@ -10,6 +10,7 @@ editor.once('load', function () {
 
     var branchesSkip = null;
     var selectedBranch = null;
+    var showNewCheckpointOnLoad = false;
 
     // main panel
     var panel = new ui.Panel();
@@ -699,6 +700,12 @@ editor.once('load', function () {
 
             // add load more list item in the end
             listBranches.append(loadMoreListItem);
+
+            // show new checkpoint panel if necessary
+            if (showNewCheckpointOnLoad) {
+                showNewCheckpointOnLoad = false;
+                showRightSidePanel(panelCreateCheckpoint);
+            }
         });
     };
 
@@ -730,6 +737,8 @@ editor.once('load', function () {
         panelCheckpoints.setCheckpoints(null);
         panelCheckpoints.toggleLoadMore(false);
 
+        showNewCheckpointOnLoad = false;
+
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', true);
         }
@@ -749,8 +758,22 @@ editor.once('load', function () {
         editor.call('picker:project', 'version control');
     });
 
-    // Returns true if the picker is open
-    editor.method('picker:versioncontrol:isOpen', function () {
-        return !panel.hidden;
+    // hotkey to create new checkpoint
+    editor.call('hotkey:register', 'new-checkpoint', {
+        key: 's',
+        ctrl: true,
+        callback: function (e) {
+            if (! editor.call('permissions:write')) return;
+            if (editor.call('picker:isOpen:otherThan', 'project')) {
+                return;
+            }
+
+            if (panel.hidden) {
+                showNewCheckpointOnLoad = true;
+                editor.call('picker:versioncontrol');
+            } else {
+                showRightSidePanel(panelCreateCheckpoint);
+            }
+        }
     });
 });

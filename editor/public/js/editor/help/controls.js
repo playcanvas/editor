@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var root = editor.call('layout.root');
@@ -9,7 +9,7 @@ editor.once('load', function() {
     overlay.center = true;
     overlay.hidden = true;
 
-    overlay.element.addEventListener('mousewheel', function(evt) {
+    overlay.element.addEventListener('mousewheel', function (evt) {
         evt.stopPropagation();
     });
 
@@ -25,7 +25,7 @@ editor.once('load', function() {
     var btnClose = new ui.Button();
     btnClose.class.add('close');
     btnClose.text = '&#57650;';
-    btnClose.on('click', function() {
+    btnClose.on('click', function () {
         overlay.hidden = true;
     });
     header.element.appendChild(btnClose.element);
@@ -45,89 +45,93 @@ editor.once('load', function() {
 
     var items = [
         {
-            buttons: [ 'Ctrl', '$+', 'Enter' ],
+            buttons: ['Ctrl', '$+', 'Enter'],
             title: 'Launch',
-            icons: [ '&#57649;' ]
+            icons: ['&#57649;']
         }, {
-            buttons: [ 'Ctrl', '$+', 'E' ],
+            buttons: ['Ctrl', '$+', 'S'],
+            title: 'New Checkpoint',
+            icons: ['&#58265;']
+        }, {
+            buttons: ['Ctrl', '$+', 'E'],
             title: 'New Entity',
-            icons: [ '&#57632;' ]
+            icons: ['&#57632;']
         }, {
-            buttons: [ 'Ctrl', '$+', 'C' ],
+            buttons: ['Ctrl', '$+', 'C'],
             title: 'Copy Entity',
-            icons: [ '&#58193;' ]
+            icons: ['&#58193;']
         }, {
-            buttons: [ 'Ctrl', '$+', 'V' ],
+            buttons: ['Ctrl', '$+', 'V'],
             title: 'Paste Entity',
-            icons: [ '&#58184;' ]
+            icons: ['&#58184;']
         }, {
-            buttons: [ 'Delete', '$/', 'Ctrl', '$+', 'Backspace' ],
+            buttons: ['Delete', '$/', 'Ctrl', '$+', 'Backspace'],
             title: 'Delete Selected',
-            icons: [ '&#57636;' ]
+            icons: ['&#57636;']
         }, {
-            buttons: [ 'Ctrl', '$+', 'D' ],
+            buttons: ['Ctrl', '$+', 'D'],
             title: 'Duplicate Entity',
-            icons: [ '&#57638;' ]
+            icons: ['&#57638;']
         }, {
-            buttons: [ 'N', '$/', 'F2' ],
+            buttons: ['N', '$/', 'F2'],
             title: 'Rename Entity / Asset',
-            icons: [ '&#57895;' ],
+            icons: ['&#57895;'],
         }, {
-            buttons: [ 'F' ],
+            buttons: ['F'],
             title: 'Focus on Entity',
-            icons: [ '&#58120;' ],
+            icons: ['&#58120;'],
         }, {
-            buttons: [ 'Shift', '$+', 'Z' ],
+            buttons: ['Shift', '$+', 'Z'],
             title: 'Previous Selection',
-            icons: [ '&#57671;' ],
+            icons: ['&#57671;'],
         }, {
-            buttons: [ 'Ctrl', '$+', 'Z' ],
+            buttons: ['Ctrl', '$+', 'Z'],
             title: 'Undo',
-            icons: [ '&#57620;' ]
+            icons: ['&#57620;']
         }, {
-            buttons: [ 'Ctrl', '$+', 'Y', '$/', 'Ctrl', '$+', 'Shift', '$+', 'Z' ],
+            buttons: ['Ctrl', '$+', 'Y', '$/', 'Ctrl', '$+', 'Shift', '$+', 'Z'],
             title: 'Redo',
-            icons: [ '&#57621;' ]
+            icons: ['&#57621;']
         }, {
-            buttons: [ 'Ctrl', '$+', 'B' ],
-            title: 'Beke / Recalculate Lights',
-            icons: [ '&#57745;' ]
+            buttons: ['Ctrl', '$+', 'B'],
+            title: 'Bake / Recalculate Lights',
+            icons: ['&#57745;']
         }, {
-            buttons: [ 'Space' ],
+            buttons: ['Space'],
             title: 'Toggle All Panels',
-            icons: [ '&#57639;' ]
+            icons: ['&#57639;']
         }, {
-            buttons: [ '1', '2', '3' ],
+            buttons: ['1', '2', '3'],
             title: 'Translate / Rotate / Scale Gizmo',
-            icons: [ '&#57618;', '&#57619;', '&#57617;' ]
+            icons: ['&#57618;', '&#57619;', '&#57617;']
         }, {
-            buttons: [ 'L' ],
+            buttons: ['L'],
             title: 'Toggle space: World / Local ',
-            icons: [ '&#57879;' ]
+            icons: ['&#57879;']
         }, {
             buttons: ['Shift', '$+', '?'],
             title: 'Controls',
-            icons: [ '&#57654;']
+            icons: ['&#57654;']
         }, {
             buttons: ['Alt', '$+', 'A'],
             title: 'Focus on Assets Search Field',
-            icons: [ '&#57641;']
+            icons: ['&#57641;']
         }, {
             buttons: ['Ctrl', '$+', 'Space'],
             title: 'How do I...?',
-            icons: [ '&#57656;']
+            icons: ['&#57656;']
         }
     ];
 
-    if (! legacyScripts) {
+    if (!legacyScripts) {
         items.push({
             buttons: ['Ctrl', '$+', 'I'],
             title: 'Open Code Editor',
-            icons: [ '&#57648;' ]
+            icons: ['&#57648;']
         });
     }
 
-    for(var i = 0; i < items.length; i++) {
+    for (var i = 0; i < items.length; i++) {
         var row = document.createElement('div');
         row.classList.add('row');
 
@@ -135,13 +139,13 @@ editor.once('load', function() {
         buttons.classList.add('buttons');
         row.appendChild(buttons);
 
-        for(var n = 0; n < items[i].buttons.length; n++) {
+        for (var n = 0; n < items[i].buttons.length; n++) {
             var button = document.createElement('div');
             var divider = items[i].buttons[n].startsWith('$');
             var sign = '';
             if (divider) sign = items[i].buttons[n].slice(1);
 
-            button.classList.add(divider ? 'divider': 'button');
+            button.classList.add(divider ? 'divider' : 'button');
             if (sign === '+') button.classList.add('plus');
             if (sign === '/') button.classList.add('or');
 
@@ -154,7 +158,7 @@ editor.once('load', function() {
         title.textContent = items[i].title;
         row.appendChild(title);
 
-        for(var n = 0; n < items[i].icons.length; n++) {
+        for (var n = 0; n < items[i].icons.length; n++) {
             var icon = document.createElement('div');
             icon.classList.add('icon');
             icon.innerHTML = items[i].icons[n];
@@ -167,18 +171,22 @@ editor.once('load', function() {
     root.append(overlay);
 
 
-    editor.method('help:controls', function() {
+    editor.method('help:controls', function () {
         overlay.hidden = false;
     });
 
     overlay.on('show', function () {
         editor.emit('help:controls:open');
         window.addEventListener('keydown', onKey);
+
+        editor.emit('picker:open', 'controls');
     });
 
     overlay.on('hide', function () {
         editor.emit('help:controls:close');
         window.removeEventListener('keydown', onKey);
+
+        editor.emit('picker:close', 'controls');
     });
 
     var onKey = function (e) {
@@ -191,7 +199,7 @@ editor.once('load', function() {
     editor.call('hotkey:register', 'help:controls', {
         key: 'forward slash',
         shift: true,
-        callback: function() {
+        callback: function () {
             editor.call('help:controls');
         }
     });
