@@ -27,7 +27,7 @@ editor.once('load', function () {
         editor.call('status:job', jobName, 0);
 
         Ajax({
-            url: '/api/assets/' + assetId + '/reimport',
+            url: '/api/assets/' + assetId + '/reimport?branchId={{self.branch.id}}',
             method: 'POST',
             auth: true,
             data: data
