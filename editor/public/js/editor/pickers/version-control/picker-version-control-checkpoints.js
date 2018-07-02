@@ -212,7 +212,7 @@ editor.once('load', function () {
         panelBottomRow.append(labelId);
 
         var labelInfo = new ui.Label({
-            text: 'created by ' + (checkpoint.user.fullName || 'missing') + ', ' + editor.call('datetime:convert', checkpoint.created)
+            text: 'created by ' + (checkpoint.user.fullName || 'missing') + ', ' + editor.call('datetime:convert', checkpoint.createdAt)
         });
         labelInfo.class.add('info');
         panelBottomRow.append(labelInfo);

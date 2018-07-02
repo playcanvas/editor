@@ -474,7 +474,7 @@ editor.once('load', function () {
         panel.append(labelName);
 
         var labelDate = new ui.Label({
-            text: 'Created ' + editor.call('datetime:convert', branch.created)
+            text: 'Created ' + editor.call('datetime:convert', branch.createdAt)
         });
         labelDate.class.add('date');
         panel.append(labelDate);
