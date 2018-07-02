@@ -61,21 +61,23 @@ editor.once('load', function() {
         sceneName.text = '';
     });
 
-    var branchButton = new ui.Label({
-        text: config.self.branch.name
-    });
-    branchButton.class.add('branch-name');
-    panel.append(branchButton);
-    branchButton.on('click', function () {
-        editor.call('picker:versioncontrol');
-    });
+    if (editor.call('users:hasFlag', 'hasCheckpoints') && ! config.project.settings.useLegacyScripts) {
+        var branchButton = new ui.Label({
+            text: config.self.branch.name
+        });
+        branchButton.class.add('branch-name');
+        panel.append(branchButton);
+        branchButton.on('click', function () {
+            editor.call('picker:versioncontrol');
+        });
 
-    Tooltip.attach({
-        target: branchButton.element,
-        text: 'Version Control',
-        align: 'top',
-        root: root
-    });
+        Tooltip.attach({
+            target: branchButton.element,
+            text: 'Version Control',
+            align: 'top',
+            root: root
+        });
+    }
 
     var sceneList = new ui.Label();
     sceneList.class.add('scene-list');
