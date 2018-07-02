@@ -18,7 +18,7 @@ editor.once('load', function () {
     });
 
     var panel = editor.call('picker:versioncontrol:createWidget', {
-        note: 'Closing this branch will place it in the archive where it can be restored at a later date. If you are sure then please type the name of the branch below.',
+        note: 'Closing this branch will place it in the archive where it can be restored at a later date. You will lose any un-checkpointed progress by closing this branch. If you are sure then please type the name of the branch below.',
         mainContents: [label, fieldName],
         buttons: {
             cancel: {

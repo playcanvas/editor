@@ -49,7 +49,7 @@ editor.once('load', function () {
 
     var panel = editor.call('picker:versioncontrol:createWidget', {
         title: 'Create a new branch',
-        note: 'A new branch will create an independent line of development where you can work in isolation from other team members.',
+        note: 'A new branch will create an independent line of development where you can work in isolation from other team members. You will lose any un-checkpointed progress by creating a new branch!',
         mainContents: [panelName, panelFrom, panelCheckpoint],
         buttons: {
             confirm: {

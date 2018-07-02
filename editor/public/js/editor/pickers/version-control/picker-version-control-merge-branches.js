@@ -29,7 +29,7 @@ editor.once('load', function () {
 
     var panel = editor.call('picker:versioncontrol:createWidget', {
         title: 'Merge branches',
-        note: 'Beginning the merge process will lock other active users\' sessions in the current branch. Make sure to notify them.',
+        note: 'Beginning the merge process will lock other active users\' sessions in the current branch. You will lose any un-checkpointed progress in your current branch by merging this branch.',
         mainContents: [panelFrom, panelInto],
         buttons: {
             cancel: {
