@@ -208,12 +208,8 @@ Menu.prototype.createItem = function (key, data) {
 Menu.fromData = function(data) {
     var menu = new ui.Menu();
 
-    var addItem = function(key, data) {
-
-    };
-
     var listItems = function(data, parent) {
-        for(var key in data) {
+        for (var key in data) {
             var item = menu.createItem(key, data[key]);
             parent.append(item);
 

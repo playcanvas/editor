@@ -1,6 +1,9 @@
 editor.once('load', function() {
     'use strict';
 
+    // by default we hide the scrollview and scrollbar components
+    var HIDE_SCROLLVIEW_COMPONENTS = false;
+
     var projectSettings = editor.call('settings:project');
 
     var schema = {
@@ -415,6 +418,44 @@ editor.once('load', function() {
             }
         },
 
+        scrollview: {
+            title: 'Scroll View',
+            default: {
+                enabled: true,
+                horizontal: true,
+                vertical: true,
+                scrollMode: SCROLL_MODE_BOUNCE,
+                bounceAmount: 0.1,
+                friction: 0.05,
+                horizontalScrollbarVisibility: SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED,
+                verticalScrollbarVisibility: SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED,
+                viewportEntity: null,
+                contentEntity: null,
+                horizontalScrollbarEntity: null,
+                verticalScrollbarEntity: null,
+            },
+            types: {
+                viewportEntity: 'entity',
+                contentEntity: 'entity',
+                horizontalScrollbarEntity: 'entity',
+                verticalScrollbarEntity: 'entity'
+            }
+        },
+
+        scrollbar: {
+            title: 'Scrollbar',
+            default: {
+                enabled: true,
+                orientation: null,
+                value: 0,
+                handleSize: 0.5,
+                handleEntity: null
+            },
+            types: {
+                handleEntity: 'entity'
+            }
+        },
+
         sprite: {
             title: 'Sprite',
             default: {
@@ -571,12 +612,26 @@ editor.once('load', function() {
 
     editor.method('components:list', function () {
         var result = list.slice(0);
+        var idx;
 
-        // filter out sprites
-        if (!editor.call('users:hasFlag', 'spriteTester')) {
-            var idx = result.indexOf('sprite');
-            if (idx !== -1)
+        // filter out zone (which is not really supported)
+        if (!editor.call('users:hasFlag', 'hasZoneComponent')) {
+            idx = result.indexOf('zone');
+            if (idx !== -1) {
                 result.splice(idx, 1);
+            }
+        }
+
+        if (HIDE_SCROLLVIEW_COMPONENTS || !editor.call('users:hasFlag', 'hasScrollViews')) {
+            idx = result.indexOf('scrollview');
+            if (idx !== -1) {
+                result.splice(idx, 1);
+            }
+
+            idx = result.indexOf('scrollbar');
+            if (idx !== -1) {
+                result.splice(idx, 1);
+            }
         }
 
         return result;
@@ -608,7 +663,7 @@ editor.once('load', function() {
     }
 
     editor.method('components:getFieldsOfType', function (component, type) {
-        var types = schema[component].types || {};
+        var types = (schema[component] && schema[component].types) || {};
         var matchingFields = [];
 
         Object.keys(types).forEach(function(fieldName) {

@@ -45,18 +45,11 @@ editor.once('load', function() {
             title: 'Shader',
             icon: '&#57864;'
         },
-        'sprite': {
-            title: 'Sprite',
-            icon: '&#57858;'
-        },
         'text': {
             title: 'Text',
             icon: '&#57864;'
         }
     };
-
-    if (!editor.call('users:hasFlag', 'spriteTester'))
-        delete assets['sprite'];
 
     var addNewMenuItem = function(key, data) {
         // new folder

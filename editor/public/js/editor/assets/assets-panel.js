@@ -1056,7 +1056,7 @@ editor.once('load', function() {
         }
 
         // open sprite editor for textureatlas and sprite assets
-        if (editor.call('users:hasFlag', 'spriteTester') && asset.get('type') === 'sprite' || asset.get('type') === 'textureatlas') {
+        if (asset.get('type') === 'sprite' || asset.get('type') === 'textureatlas') {
             item.element.addEventListener('dblclick', function() {
                 editor.call('picker:sprites', item.asset);
             }, false);

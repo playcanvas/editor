@@ -47,7 +47,10 @@ editor.once('load', function() {
             // prevent multiple init calls during scene loading
             done = true;
 
-            app._parseScenes(config.scenes);
+            // Skip parseScenes if using pre-1.4.0 engine or invalid config
+            if (app._parseScenes) {
+                app._parseScenes(config.scenes);
+            }
 
             // load assets that are in the preload set
             app.preload(function (err) {

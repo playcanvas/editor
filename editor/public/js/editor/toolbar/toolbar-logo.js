@@ -173,7 +173,7 @@ editor.once('load', function() {
                     filter: function() {
                         return editor.call('selector:type') === 'entity';
                     },
-                    items: { }
+                    items: editor.call('menu:entities:add-component')
                 }
             }
         },
@@ -576,51 +576,6 @@ editor.once('load', function() {
                 }, 0);
             }
         };
-    }
-
-    var makeMenuComponentItem = function(key) {
-        var data = {
-            title: components[key].title,
-            icon: componentsLogos[key],
-            filter: function() {
-                if (editor.call('selector:type') !== 'entity')
-                    return false;
-
-                var items = editor.call('selector:items');
-                var path = 'components.' + key;
-
-                for (var i = 0, len = items.length; i < len; i++) {
-                    if (! items[i].has(path))
-                        return true;
-                }
-
-                return false;
-            },
-            select: function() {
-                if (editor.call('selector:type') !== 'entity')
-                    return;
-
-                var items = editor.call('selector:items');
-                var component = this._value;
-
-                editor.call('entities:addComponent', items, component);
-            }
-        };
-
-        if (key === 'audiosource') {
-            data.hide = function () {
-                return !editor.call('settings:project').get('useLegacyAudio');
-            };
-        }
-
-        return data;
-    };
-
-    var components = editor.call('components:schema');
-    var list = editor.call('components:list');
-    for(var i = 0; i < list.length; i++) {
-        var key = list[i];
-        menuData['entity'].items['add-component'].items[key] = makeMenuComponentItem(key);
     }
 
     if (legacyScripts) {
