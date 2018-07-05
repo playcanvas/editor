@@ -346,6 +346,7 @@ editor.once('load', function () {
     // subscribe to messenger scene.new
     editor.on('messenger:scene.new', function (data) {
         if (panel.hidden) return;
+        if (data.scene.branchId !== config.self.branch.id) return;
 
         editor.call('scenes:get', data.scene.id, function (err, scene) {
             if (panel.hidden) return; // check if hidden when Ajax returns
