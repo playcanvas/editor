@@ -34,6 +34,13 @@ editor.once('load', function () {
         icon: editor.call('picker:versioncontrol:svg:error', 50)
     });
 
+    var overlayMergeCompleted = editor.call('picker:versioncontrol:createOverlay', {
+        title: 'Merge completed.',
+        message: 'Refreshing browser...',
+        icon: editor.call('picker:versioncontrol:svg:completed', 50)
+    });
+
+
     // don't let the user's full name be too big
     var truncateFullName = function (fullName) {
         return fullName.length > 36 ? fullName.substring(0, 33) + '...' : fullName;
@@ -164,5 +171,15 @@ editor.once('load', function () {
         overlayMergeStopped.setTitle('Merge force stopped by ' + name);
         overlayMergeStopped.hidden = false;
         setTimeout(refresh, 1000); // delay this a bit more
+    });
+
+    // show overlay when merge is complete and refresh browser
+    editor.on('messenger:merge.complete', function (data) {
+        if (data.dst_branch_id !== config.self.branch.id) return;
+        if (editor.call('picker:isOpen', 'conflict-manager')) return;
+
+        editor.call('picker:versioncontrol:mergeOverlay:hide');
+        overlayMergeCompleted.hidden = false;
+        refresh();
     });
 });
