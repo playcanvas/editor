@@ -277,12 +277,14 @@ editor.once('load', function () {
         info.appendChild(size.element);
 
         // branch
-        var branch = new ui.Label({
-            text: app.branch && app.branch.name || 'master'
-        });
-        branch.hidden = app.task.status !== 'complete' || projectSettings.get('useLegacyScripts');
-        branch.class.add('branch');
-        info.appendChild(branch.element);
+        if (editor.call('users:hasFlag', 'hasCheckpoints')) {
+            var branch = new ui.Label({
+                text: app.branch && app.branch.name || 'master'
+            });
+            branch.hidden = app.task.status !== 'complete' || projectSettings.get('useLegacyScripts');
+            branch.class.add('branch');
+            info.appendChild(branch.element);
+        }
 
         // error message
         var error = new ui.Label({

@@ -61,6 +61,7 @@ editor.once('load', function () {
         text: 'New Branch',
         value: 'new-branch'
     });
+    menuCheckpointsBranch.hidden = ! editor.call('users:hasFlag', 'hasBranches');
     menuCheckpoints.append(menuCheckpointsBranch);
 
     editor.call('layout.root').append(menuCheckpoints);
