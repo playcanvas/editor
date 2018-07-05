@@ -31,6 +31,9 @@ editor.once('load', function () {
     var listCheckpoints = new ui.List();
     panelCheckpoints.append(listCheckpoints);
 
+    // used to group displayed checkpoints into days
+    var lastCheckpointDateDisplayed = null;
+
     // load more checkpoints list item
     var listItemLoadMore = new ui.ListItem();
     listItemLoadMore.class.add('load-more');
@@ -92,6 +95,7 @@ editor.once('load', function () {
     panel.setCheckpoints = function (checkpoints) {
         listCheckpoints.clear();
         panelCheckpoints.element.scrollTop = 0;
+        lastCheckpointDateDisplayed = null;
 
         panel.checkpoints = checkpoints;
         if (checkpoints && checkpoints.length) {
@@ -101,8 +105,8 @@ editor.once('load', function () {
             checkpointsSkip = null;
         }
 
-        listCheckpoints.append(listItemLoadMore);
 
+        listCheckpoints.append(listItemLoadMore);
     };
 
     // Show button to load more checkpoints or not
@@ -160,6 +164,21 @@ editor.once('load', function () {
     };
 
     var createCheckpointListItem = function (checkpoint) {
+        // add current date if necessary
+        var date = new Date(checkpoint.createdAt);
+        if (! lastCheckpointDateDisplayed ||
+              lastCheckpointDateDisplayed.getDate() !== date.getDate() ||
+              lastCheckpointDateDisplayed.getMonth() !== date.getMonth() ||
+              lastCheckpointDateDisplayed.getFullYear() !== date.getFullYear()) {
+
+            lastCheckpointDateDisplayed = date;
+            var dateHeader = document.createElement('div');
+            dateHeader.classList.add('date');
+            var parts = lastCheckpointDateDisplayed.toDateString().split(' ');
+            dateHeader.textContent = parts[0] + ', ' + parts[1] + ' ' + parts[2] + ', ' + parts[3];
+            listCheckpoints.innerElement.appendChild(dateHeader);
+        }
+
         var item = new ui.ListItem();
         item.element.id = 'checkpoint-' + checkpoint.id;
 

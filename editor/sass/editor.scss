@@ -8771,6 +8771,7 @@ strong {
                     > .ui-list-item {
                         height: auto;
                         padding: 25px 15px;
+                        border-bottom: 1px solid transparent;
 
                         img {
                             width: 28px;
@@ -8838,6 +8839,24 @@ strong {
                             margin-left: 15px;
                             margin-top: 10px;
                         }
+                    }
+
+                    > .date {
+                        background: $bcg-darker;
+                        color: $text-secondary;
+                        border-top: 1px solid $border-primary;
+                        border-bottom: 1px solid $border-primary;
+                        height: 35px;
+                        line-height: 35px;
+                        padding: 0 15px;
+
+                        &:first-child {
+                            border-top: 0;
+                        }
+                    }
+
+                    .ui-list-item + .ui-list-item {
+                        border-top: 1px solid $border-primary;
                     }
                 }
 
