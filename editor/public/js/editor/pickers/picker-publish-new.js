@@ -1022,6 +1022,7 @@ editor.once('load', function () {
     // subscribe to messenger scene.delete
     editor.on('messenger:scene.delete', function (data) {
         if (panel.hidden) return;
+        if (data.scene.branchId !== config.self.branch.id) return;
 
         var sceneId = parseInt(data.scene.id, 10);
 

@@ -340,6 +340,7 @@ editor.once('load', function () {
 
     // subscribe to messenger scene.delete
     editor.on('messenger:scene.delete', function (data) {
+        if (data.scene.branchId !== config.self.branch.id) return;
         onSceneDeleted(data.scene.id);
     });
 

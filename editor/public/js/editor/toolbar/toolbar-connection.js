@@ -106,6 +106,8 @@ editor.once('load', function() {
     editor.on('realtime:assets:error', onError);
 
     editor.on('messenger:scene.delete', function (data) {
+        if (data.scene.branchId !== config.self.branch.id) return;
+
         if (config.scene.id && data.scene.id === parseInt(config.scene.id, 10)) {
             setIconClass('error');
             content.innerHTML = 'This scene has been deleted.';
