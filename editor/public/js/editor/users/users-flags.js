@@ -11,5 +11,5 @@ editor.once("load", function () {
 
     editor.method('users:hasFlag', function (flag) {
         return (config.self && config.self.flags[flag] || config.self.flags.superUser);
-    })
+    });
 });

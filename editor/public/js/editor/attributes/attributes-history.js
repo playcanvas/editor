@@ -130,6 +130,9 @@ editor.once('load', function() {
     editor.call('hotkey:register', 'selector:return', {
         key: 'z',
         shift: true,
-        callback: selectorReturn
+        callback: function () {
+            if (editor.call('picker:isOpen:otherThan', 'curve')) return;
+            selectorReturn();
+        }
     });
 });

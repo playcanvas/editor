@@ -22,6 +22,8 @@ editor.once('load', function () {
 
     var mode = 'publish';
 
+    var primaryScene = null;
+
     editor.method('picker:publish:new', function () {
         mode = 'publish';
         editor.call('picker:project', 'publish-new');
@@ -64,7 +66,8 @@ editor.once('load', function () {
 
     // upgrade notice
     var labelUpgrade = new ui.Label({
-        text: 'This is a premium feature. <a href="/upgrade?account=' + config.owner.username + '" target="_blank">UPGRADE</a> to be able to download your project.'
+        text: 'This is a premium feature. <a href="/upgrade?account=' + config.owner.username + '" target="_blank">UPGRADE</a> to be able to download your project.',
+        unsafe: true
     });
     labelUpgrade.class.add('upgrade');
     panel.append(labelUpgrade);
@@ -444,6 +447,7 @@ editor.once('load', function () {
         var data = {
             name: inputName.value,
             project_id: config.project.id,
+            branch_id: config.self.branch.id,
             scenes: selectedScenes.map(function (scene) { return scene.id; })
         };
 
@@ -488,6 +492,7 @@ editor.once('load', function () {
 
         var data = {
             project_id: config.project.id,
+            branch_id: config.self.branch.id,
             scenes: selectedScenes.map(function (scene) { return scene.id; })
         };
 
@@ -574,6 +579,7 @@ editor.once('load', function () {
         var data = {
             name: inputName.value,
             project_id: config.project.id,
+            branch_id: config.self.branch.id,
             scenes: selectedScenes.map(function (scene) { return scene.id; }),
             target: target,
             scripts_concatenate: fieldOptionsConcat ? fieldOptionsConcat.value : false
@@ -771,9 +777,9 @@ editor.once('load', function () {
         if (config.scene.id && parseInt(scene.id, 10) === parseInt(config.scene.id, 10))
             row.class.add('current');
 
-        if (parseInt(scene.id, 10) === parseInt(config.project.primaryScene, 10))
+        if (scene.id === primaryScene) {
             row.class.add('primary');
-
+        }
         // primary scene icon
         var primary = new ui.Button({
             text: '&#57891'
@@ -785,14 +791,12 @@ editor.once('load', function () {
             if (!editor.call('permissions:write'))
                 return;
 
-            var prevPrimary = config.project.primaryScene;
-            config.project.primaryScene = scene.id;
-            onPrimarySceneChanged(scene.id, prevPrimary);
-            editor.call('project:setPrimaryScene', scene.id);
+            primaryScene = scene.id;
+            refreshScenes();
         });
 
         // show tooltip for primary scene icon
-        var tooltipText = parseInt(scene.id, 10) === parseInt(config.project.primaryScene, 10) ? 'Primary Scene' : 'Set Primary Scene';
+        var tooltipText = scene.id === primaryScene ? 'Primary Scene' : 'Set Primary Scene';
         var tooltip = Tooltip.attach({
             target: primary.element,
             text: tooltipText,
@@ -834,7 +838,7 @@ editor.once('load', function () {
         select.on('change', function (value) {
             if (value) {
                 // put primary scene in the beginning
-                if (config.project.primaryScene === scene.id) {
+                if (primaryScene === scene.id) {
                     selectedScenes.splice(0, 0, scene);
                 } else {
                     // if not primary scene just add to the list
@@ -877,20 +881,19 @@ editor.once('load', function () {
 
     var sortScenes = function (scenes) {
         scenes.sort(function (a, b) {
-            var primary = parseInt(config.project.primaryScene, 10);
-            if (primary === parseInt(a.id, 10)) {
+            if (primaryScene === a.id) {
                 return -1;
-            } else if (primary === parseInt(b.id, 10)) {
+            } else if (primaryScene === b.id) {
                 return 1;
-            } else {
-                if (a.modified < b.modified) {
-                    return 1;
-                } else if (a.modified > b.modified) {
-                    return -1;
-                } else {
-                    return 0;
-                }
             }
+
+            if (a.modified < b.modified) {
+                return 1;
+            } else if (a.modified > b.modified) {
+                return -1;
+            }
+
+            return 0;
         });
     };
 
@@ -911,12 +914,6 @@ editor.once('load', function () {
         scenes.forEach(createSceneItem);
 
         content.scrollTop = scrollTop;
-    };
-
-    var onPrimarySceneChanged = function (newValue, oldValue) {
-        if (panel.hidden || parseInt(newValue, 10) === parseInt(oldValue, 10)) return;
-
-        refreshScenes();
     };
 
     // on show
@@ -949,15 +946,14 @@ editor.once('load', function () {
 
             scenes = items;
             // select primary scene
-            for (var i = 0; i < scenes.length; i++) {
-                if (scenes[i].id === config.project.primaryScene) {
-                    selectedScenes.push(scenes[i]);
-                    break;
-                }
+            if (! primaryScene && items[0]) {
+                primaryScene = items[0].id;
+                selectedScenes.push(items[0]);
             }
 
-            if (loadedApps)
+            if (loadedApps) {
                 refreshScenes();
+            }
         });
 
         if (! loadedApps) {
@@ -1002,6 +998,7 @@ editor.once('load', function () {
     // on hide
     panel.on('hide', function () {
         scenes = [];
+        primaryScene = null;
         imageS3Key = null;
         isUploadingImage = false;
         selectedScenes = [];
@@ -1022,11 +1019,12 @@ editor.once('load', function () {
         }
     });
 
-    // subscribe to messenger pack.delete
-    editor.on('messenger:pack.delete', function (data) {
+    // subscribe to messenger scene.delete
+    editor.on('messenger:scene.delete', function (data) {
         if (panel.hidden) return;
+        if (data.scene.branchId !== config.self.branch.id) return;
 
-        var sceneId = parseInt(data.pack.id, 10);
+        var sceneId = parseInt(data.scene.id, 10);
 
         var row = document.getElementById('picker-scene-' + sceneId);
         if (row) {
@@ -1047,23 +1045,18 @@ editor.once('load', function () {
         }
     });
 
-    // subscribe to messenger pack.new
-    editor.on('messenger:pack.new', function (data) {
+    // subscribe to messenger scene.new
+    editor.on('messenger:scene.new', function (data) {
         if (panel.hidden) return;
+        if (data.scene.branchId !== config.self.branch.id) return;
 
-        editor.call('scenes:get', data.pack.id, function (scene) {
+        editor.call('scenes:get', data.scene.id, function (err, scene) {
             if (panel.hidden) return; // check if hidden when Ajax returns
 
-            scenes.push({
-                id: scene.id,
-                modified: scene.modified,
-                name: scene.name
-            });
+            scenes.push(scene);
 
             refreshScenes();
         });
     });
-
-    editor.on('project:primaryScene', onPrimarySceneChanged);
 
 });

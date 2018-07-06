@@ -35,7 +35,8 @@ editor.once('load', function() {
     panel.append(header);
 
     var main = new ui.Label({
-        text: "To help you learn PlayCanvas we've created your first project. It's a simple ball rolling game. Complete the design of the level by adding an extra platform, then design your own levels.<br/><br/>We'll pop up some tips to help you along the way."
+        text: "To help you learn PlayCanvas we've created your first project. It's a simple ball rolling game. Complete the design of the level by adding an extra platform, then design your own levels.<br/><br/>We'll pop up some tips to help you along the way.",
+        unsafe: true
     });
     main.class.add('main');
     panel.append(main);

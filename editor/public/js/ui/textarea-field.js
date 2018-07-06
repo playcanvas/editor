@@ -24,7 +24,7 @@ function TextAreaField(args) {
     this.evtKeyChange = false;
     this.ignoreChange = false;
 
-    this.blurOnEnter = true;
+    this.blurOnEnter = args.blurOnEnter !== undefined ? args.blurOnEnter : true;
     this.refocusable = true;
 
     this.on('disable', this._onDisable);

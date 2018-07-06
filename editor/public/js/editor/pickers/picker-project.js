@@ -59,6 +59,7 @@ editor.once('load', function () {
         ref: projectImg,
         filter: function (type, data) {
             return editor.call('permissions:write') &&
+                   !leftPanel.disabled &&
                    ! uploadingImage &&
                    type === 'files';
         },
@@ -88,7 +89,7 @@ editor.once('load', function () {
     var uploadingImage = false;
 
     projectImg.addEventListener('click', function () {
-        if (! editor.call('permissions:write'))
+        if (! editor.call('permissions:write') || leftPanel.disabled)
             return;
 
         fileInput.click();
@@ -144,7 +145,7 @@ editor.once('load', function () {
     // register new panel / menu option
     editor.method('picker:project:registerMenu', function (name, title, panel) {
         var menuItem = new ui.ListItem({text: name});
-        menuItem.class.add(name);
+        menuItem.class.add(name.replace(' ', '-'));
         list.append(menuItem);
 
         menuItem.on('click', function () {
@@ -207,6 +208,9 @@ editor.once('load', function () {
         } else {
             projectImg.classList.remove('hover');
         }
+
+        // editor-blocking picker open
+        editor.emit('picker:open', 'project');
     });
 
     // handle hide
@@ -222,12 +226,20 @@ editor.once('load', function () {
             menuOptions[key].item.class.remove('active');
             menuOptions[key].item.class.remove('selected');
         }
+
+        // editor-blocking picker closed
+        editor.emit('picker:close', 'project');
     });
 
     // prevent user closing popup
     editor.method('picker:project:setClosable', function (closable) {
         btnClose.hidden = !closable;
         overlay.clickable = closable;
+    });
+
+    // disable / enable the state of the left panel
+    editor.method('picker:project:toggleLeftPanel', function (enabled) {
+        leftPanel.disabled = !enabled;
     });
 
     // activate menu option

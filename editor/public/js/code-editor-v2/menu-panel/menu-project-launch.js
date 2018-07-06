@@ -3,23 +3,6 @@ editor.once('load', function () {
 
     var menu = editor.call('menu:project');
 
-    // Launch
-    var item = menu.createItem('launch-primary', {
-        title: 'Launch Primary Scene',
-        filter: function () {
-            return !!config.project.primaryScene;
-        },
-        select: function () {
-            return editor.call('editor:command:launchPrimary');
-        }
-    });
-    item.class.add('noBorder');
-    menu.append(item);
-
-    editor.method('editor:command:launchPrimary', function () {
-        window.open(config.url.launch + config.project.primaryScene);
-    });
-
     // Launch primary build
     var item = menu.createItem('launch-build', {
         title: 'Launch Primary Build',

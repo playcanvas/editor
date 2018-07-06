@@ -5,8 +5,7 @@ editor.once('load', function () {
 
     var settings = editor.call('settings:create', {
         name: 'projectUser',
-        scopeType: 'project',
-        scopeId: config.project.id,
+        id: 'project_' + config.project.id + '_' + config.self.id,
         deferLoad: true,
         data: {
             editor: {
@@ -33,7 +32,8 @@ editor.once('load', function () {
                     overwriteMaterial: false,
                     overwriteTexture: true
                 }
-            }
+            },
+            branch: config.self.branch.id
         },
         userId: config.self.id
     });
@@ -53,7 +53,7 @@ editor.once('load', function () {
     editor.on('settings:projectUser:load', function () {
         setTimeout(function () {
             var history = settings.history.enabled;
-            settings.history.enabled= false;
+            settings.history.enabled = false;
 
             if (! settings.has('editor.pipeline'))
                 settings.set('editor.pipeline', {});

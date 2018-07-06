@@ -116,7 +116,7 @@ editor.once('load', function() {
         worker.postMessage({
             name: 'parse',
             asset: asset.get('id'),
-            url: '/api/assets/' + asset.get('id') + '/file/' + encodeURIComponent(asset.get('file.filename')),
+            url: '/api/assets/' + asset.get('id') + '/file/' + encodeURIComponent(asset.get('file.filename')).appendQuery('branchId=' + config.self.branch.id),
             engine: config.url.engine
         });
     });

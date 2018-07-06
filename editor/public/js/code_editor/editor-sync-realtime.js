@@ -58,7 +58,7 @@ editor.once('load', function() {
         var filename = assetDocument.data.file.filename;
 
         Ajax({
-            url: '{{url.api}}/assets/{{asset.id}}/file/' + filename,
+            url: '{{url.api}}/assets/{{asset.id}}/file/' + filename + '?branchId={{project.masterBranch}}',
             auth: true,
             notJson: true
         })

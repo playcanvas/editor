@@ -162,19 +162,19 @@ editor.once('load', function () {
     });
 
     // Handle save success
-    editor.on('documents:save:success', function (id) {
-        var asset = editor.call('assets:get', id);
+    editor.on('documents:save:success', function (uniqueId) {
+        var asset = editor.call('assets:getUnique', uniqueId);
         editor.call('status:log', 'Saved "' + asset.get('name') + '"');
 
-        delete savingIndex[id];
+        delete savingIndex[asset.get('id')];
     });
 
     // Handle save error
-    editor.on('documents:save:error', function (id) {
-        var asset = editor.call('assets:get', id);
+    editor.on('documents:save:error', function (uniqueId) {
+        var asset = editor.call('assets:getUnique', uniqueId);
         editor.call('status:error', 'Could not save "' + asset.get('name') + '"');
 
-        delete savingIndex[id];
+        delete savingIndex[asset.get('id')];
     });
 
     // When a document is marked as clean
@@ -193,7 +193,7 @@ editor.once('load', function () {
     // or it's reloaded. In either case make sure we can save the document again
     // if we got disconnected in the meantime
     editor.on('documents:load', function (doc, asset, docEntry) {
-        var id = doc.id;
+        var id = asset.get('id');
         if (savingIndex[id]) {
             delete savingIndex[id];
             editor.call('status:clear');
@@ -216,14 +216,16 @@ editor.once('load', function () {
 
         var doc = editor.call('documents:get', id);
 
+        var uniqueId = parseInt(doc.id, 10);
+
         if (doc.hasPending()) {
             // wait for pending data to be sent and
             // acknowledged by the server before saving
             doc.once('nothing pending', function () {
-                editor.call('realtime:send', 'doc:save:', parseInt(doc.id, 10));
+                editor.call('realtime:send', 'doc:save:', uniqueId);
             });
         } else {
-            editor.call('realtime:send', 'doc:save:', parseInt(doc.id, 10));
+            editor.call('realtime:send', 'doc:save:', uniqueId);
         }
     };
 

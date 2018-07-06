@@ -13,8 +13,7 @@ editor.once('load', function () {
 
     var settings = editor.call('settings:create', {
         name: 'projectPrivate',
-        scopeType: 'project-private',
-        scopeId: config.project.id,
+        id: 'project-private_' + config.project.id,
         deferLoad: true,
         data: defaultData
     });

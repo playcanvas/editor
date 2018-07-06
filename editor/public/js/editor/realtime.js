@@ -35,14 +35,14 @@ editor.once('load', function() {
                             editor.emit('realtime:authenticated');
 
                             // load scene
-                            if (! scene && config.scene.id)
-                                editor.call('realtime:loadScene', config.scene.id);
+                            if (! scene && config.scene.uniqueId) {
+                                editor.call('realtime:loadScene', config.scene.uniqueId);
+                            }
                         }
                     } else if (msg.data.startsWith('whoisonline:')) {
                         var parts = msg.data.split(':');
                         if (parts.length === 5 && parts[1] === 'scene') {
                             var data;
-                            var scene = parts[2];
                             var op = parts[3];
                             if (op === 'set') {
                                 data = JSON.parse(parts[4]);
@@ -159,8 +159,8 @@ editor.once('load', function() {
                 editor.emit('realtime:' + type + ':op:' + op.p[0], op);
         };
 
-        editor.method('realtime:loadScene', function (id) {
-            scene = connection.get('scenes', '' + id);
+        editor.method('realtime:loadScene', function (uniqueId) {
+            scene = connection.get('scenes', '' + uniqueId);
 
             // error
             scene.on('error', function(err) {
@@ -178,7 +178,7 @@ editor.once('load', function() {
                 });
 
                 // notify of scene load
-                editor.emit('scene:load', id);
+                editor.emit('scene:load', scene.data.item_id, uniqueId);
                 editor.emit('scene:raw', scene.data);
             });
 
@@ -217,13 +217,13 @@ editor.once('load', function() {
             editor.emit('permissions:writeState', editor.call('permissions:write'));
         });
 
-        editor.on('scene:unload', function (id) {
+        editor.on('scene:unload', function (id, uniqueId) {
             if (scene) {
                 scene.unsubscribe();
                 scene.destroy();
                 scene = null;
 
-                connection.socket.send('close:scene:' + id);
+                connection.socket.send('close:scene:' + uniqueId);
             }
         });
     });

@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var callback = null;
@@ -17,11 +17,21 @@ editor.once('load', function() {
     label.renderChanges = false;
     overlay.append(label);
 
+    // no
+    var btnNo = new ui.Button();
+    btnNo.text = 'No';
+    btnNo.class.add('no');
+    btnNo.on('click', function () {
+        editor.emit('picker:confirm:no');
+        overlay.hidden = true;
+    });
+    overlay.append(btnNo);
+
     // yes
     var btnYes = new ui.Button();
     btnYes.text = 'Yes';
     btnYes.class.add('yes');
-    btnYes.on('click', function() {
+    btnYes.on('click', function () {
         editor.emit('picker:confirm:yes');
 
         if (callback)
@@ -31,17 +41,6 @@ editor.once('load', function() {
     });
     overlay.append(btnYes);
 
-    // no
-    var btnNo = new ui.Button();
-    btnNo.text = 'No';
-    btnNo.class.add('no');
-    btnNo.on('click', function() {
-        editor.emit('picker:confirm:no');
-        overlay.hidden = true;
-    });
-    overlay.append(btnNo);
-
-
     var root = editor.call('layout.root');
     root.append(overlay);
 
@@ -49,7 +48,7 @@ editor.once('load', function() {
     // esc > no
     editor.call('hotkey:register', 'picker:confirm:no', {
         key: 'esc',
-        callback: function() {
+        callback: function () {
             if (overlay.hidden)
                 return;
 
@@ -63,7 +62,7 @@ editor.once('load', function() {
     });
 
     // enter > yes
-    window.addEventListener('keydown', function(evt) {
+    window.addEventListener('keydown', function (evt) {
         if (evt.keyCode !== 13 || overlay.hidden)
             return;
 
@@ -74,22 +73,26 @@ editor.once('load', function() {
 
     overlay.on('show', function () {
         editor.emit('picker:confirm:open');
+        // editor-blocking picker open
+        editor.emit('picker:open', 'confirm');
     });
 
     // on overlay hide
-    overlay.on('hide', function() {
+    overlay.on('hide', function () {
         if (className) {
-            timeoutClass = setTimeout(function() {
+            timeoutClass = setTimeout(function () {
                 overlay.class.remove(className);
                 className = '';
             }, 100);
         }
 
         editor.emit('picker:confirm:close');
+        // editor-blocking picker closed
+        editor.emit('picker:close', 'confirm');
     });
 
 
-    editor.method('picker:confirm:class', function(name) {
+    editor.method('picker:confirm:class', function (name) {
         if (timeoutClass) {
             clearTimeout(timeoutClass);
             timeoutClass = null;
@@ -106,7 +109,7 @@ editor.once('load', function() {
 
 
     // call picker
-    editor.method('picker:confirm', function(text, fn) {
+    editor.method('picker:confirm', function (text, fn) {
         label.text = text || 'Are you sure?';
         callback = fn || null;
 
@@ -115,12 +118,7 @@ editor.once('load', function() {
     });
 
     // close picker
-    editor.method('picker:confirm:close', function() {
+    editor.method('picker:confirm:close', function () {
         overlay.hidden = true;
-    });
-
-    // Returns true if picker is currently open
-    editor.method('picker:confirm:isOpen', function () {
-        return !overlay.hidden;
     });
 });

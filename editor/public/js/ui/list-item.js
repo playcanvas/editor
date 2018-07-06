@@ -6,6 +6,8 @@ function ListItem(args) {
 
     this._text = args.text || '';
     this._selected = args.selected || false;
+    // if true then clicking on a selected item will deselect it (defaults to true)
+    this._allowDeselect = args.allowDeselect !== undefined ? args.allowDeselect : true;
 
     this.element = document.createElement('li');
     this._element.classList.add('ui-list-item');
@@ -19,8 +21,12 @@ function ListItem(args) {
 ListItem.prototype = Object.create(ui.Element.prototype);
 
 
-ListItem.prototype._onClick = function() {
-    this.selected = ! this.selected;
+ListItem.prototype._onClick = function () {
+    if (! this.selected) {
+        this.selected = true;
+    } else if (this._allowDeselect) {
+        this.selected = false;
+    }
 };
 
 

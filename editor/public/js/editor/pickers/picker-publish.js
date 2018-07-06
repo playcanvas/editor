@@ -4,6 +4,7 @@ editor.once('load', function () {
     // main panel
     var panel = new ui.Panel();
     panel.class.add('picker-publish');
+    panel.flex = true;
 
     // register panel with project popup
     editor.call('picker:project:registerMenu', 'publish', 'Publish', panel);
@@ -31,18 +32,55 @@ editor.once('load', function () {
     panelPlaycanvas.class.add('buttons');
     panel.append(panelPlaycanvas);
 
-    panelPlaycanvas.append(new ui.Label({
-        text: 'Publish on PlayCanvas.'
-    }));
+    var labelIcon = new ui.Label({
+        text: '&#57960;',
+        unsafe: true
+    });
+    labelIcon.class.add('icon');
+    panelPlaycanvas.append(labelIcon);
+
+    var labelDesc = new ui.Label({
+        text: 'Publish your project publicly on PlayCanvas.'
+    });
+    labelDesc.class.add('desc');
+    panelPlaycanvas.append(labelDesc);
 
     // publish button
-    var btnPublish = new ui.Button({text: 'Publish'});
+    var btnPublish = new ui.Button({text: 'Publish To PlayCanvas'});
     btnPublish.class.add('publish');
     handlePermissions(btnPublish);
     panelPlaycanvas.append(btnPublish);
 
-    btnPublish.on('click', function () {
+    panelPlaycanvas.on('click', function () {
         editor.call('picker:publish:new');
+    });
+
+    // self host
+    var panelSelfHost = new ui.Panel();
+    panelSelfHost.class.add('buttons');
+    panel.append(panelSelfHost);
+
+    labelIcon = new ui.Label({
+        text: '&#57925;',
+        unsafe: true
+    });
+    labelIcon.class.add('icon');
+    panelSelfHost.append(labelIcon);
+
+    labelDesc = new ui.Label({
+        text: 'Download build and host it on your own server.'
+    });
+    labelDesc.class.add('desc');
+    panelSelfHost.append(labelDesc);
+
+    // download button
+    var btnDownload = new ui.Button({text: 'Download .zip'});
+    btnDownload.class.add('download');
+    handlePermissions(btnDownload);
+    panelSelfHost.append(btnDownload);
+
+    panelSelfHost.on('click', function () {
+        editor.call('picker:publish:download');
     });
 
     // facebook instant
@@ -51,37 +89,26 @@ editor.once('load', function () {
     panel.append(panelFbInstant);
     panelFbInstant.hidden = !editor.call('users:hasFlag', 'hasPublishOnFacebook');
 
-    panelFbInstant.append(new ui.Label({
-        text: 'Publish build to Facebook Instant Games.'
-    }));
+    labelIcon = new ui.Label({
+        text: '&#57941;',
+        unsafe: true
+    });
+    labelIcon.class.add('icon');
+    panelFbInstant.append(labelIcon);
 
-    var btnPublishFb = new ui.Button({text: 'Publish'});
+    labelDesc = new ui.Label({
+        text: 'Publish your project to Facebook Instant Games.'
+    });
+    labelDesc.class.add('desc');
+    panelFbInstant.append(labelDesc);
+
+    var btnPublishFb = new ui.Button({text: 'Publish To Facebook'});
     btnPublishFb.class.add('publish-fb');
     handlePermissions(btnPublishFb);
     panelFbInstant.append(btnPublishFb);
 
-    btnPublishFb.on('click', function () {
+    panelFbInstant.on('click', function () {
         editor.call('picker:publish:facebook');
-    });
-
-
-    // self host
-    var panelSelfHost = new ui.Panel();
-    panelSelfHost.class.add('buttons');
-    panel.append(panelSelfHost);
-
-    panelSelfHost.append(new ui.Label({
-        text: 'Download build and host it on your own server.'
-    }));
-
-    // download button
-    var btnDownload = new ui.Button({text: 'Download'});
-    btnDownload.class.add('download');
-    handlePermissions(btnDownload);
-    panelSelfHost.append(btnDownload);
-
-    btnDownload.on('click', function () {
-        editor.call('picker:publish:download');
     });
 
     // on show

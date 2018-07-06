@@ -481,6 +481,7 @@ editor.once('load', function () {
         key: 'space',
         ctrl: true,
         callback: function() {
+            if (editor.call('picker:isOpen:otherThan', 'curve')) return;
             editor.call('help:howdoi');
         }
     });

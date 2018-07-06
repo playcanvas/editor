@@ -180,7 +180,8 @@ editor.once('load', function() {
 
             // add help
             var help = new ui.Label({
-                text: '<h5>SELECT MESH INSTANCE</h5>Choose a mesh instance to customize the material for ' + (currentEntities.length > 1 ? 'these Entities.' : 'this Entity.')
+                text: '<h5>SELECT MESH INSTANCE</h5>Choose a mesh instance to customize the material for ' + (currentEntities.length > 1 ? 'these Entities.' : 'this Entity.'),
+                unsafe: true
             });
             help.class.add('help');
             panelNodes.prepend(help);

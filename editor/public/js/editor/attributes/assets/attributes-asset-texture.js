@@ -86,7 +86,7 @@ editor.once('load', function() {
 
                 editor.call('realtime:send', 'pipeline', {
                     name: 'meta',
-                    id: assets[i].get('id')
+                    id: assets[i].get('uniqueId')
                 });
             }
             this.enabled = false;
@@ -752,7 +752,7 @@ editor.once('load', function() {
                     editor.call('realtime:send', 'pipeline', {
                         name: 'delete-variant',
                         data: {
-                            asset: parseInt(assets[i].get('id'), 10),
+                            asset: parseInt(assets[i].get('uniqueId'), 10),
                             options: {
                                 formats: toDelete
                             }
@@ -762,7 +762,7 @@ editor.once('load', function() {
 
                 if (variants.length) {
                     var task = {
-                        asset: parseInt(assets[i].get('id'), 10),
+                        asset: parseInt(assets[i].get('uniqueId'), 10),
                         options: {
                             formats: variants,
                             alpha: assets[i].get('meta.compress.alpha') && (assets[i].get('meta.alpha') || assets[i].get('meta.type').toLowerCase() === 'truecoloralpha'),
@@ -777,7 +777,7 @@ editor.once('load', function() {
                     if (sourceId) {
                         var sourceAsset = editor.call('assets:get', sourceId);
                         if (sourceAsset)
-                            task.source = parseInt(sourceAsset.get('id'), 10);
+                            task.source = parseInt(sourceAsset.get('uniqueId'), 10);
                     }
 
                     editor.call('realtime:send', 'pipeline', {
@@ -880,7 +880,7 @@ editor.once('load', function() {
 
             var reloadImage = function() {
                 if (assets[0].get('file.url') && assets[0].get('file.hash')) {
-                    image.src = config.url.home + assets[0].get('file.url') + '?t=' + assets[0].get('file.hash');
+                    image.src = config.url.home + assets[0].get('file.url').appendQuery('t=' + assets[0].get('file.hash'));
                     previewContainer.style.display = '';
                 } else {
                     previewContainer.style.display = 'none';

@@ -405,8 +405,7 @@ editor.once('load', function() {
 
             var makeThumbnailUrl = function(asset) {
                 var url = config.url.home + '/' + (asset.get('thumbnails.l') || asset.get('file.url'));
-                var separator = url.indexOf('?') !== -1 ? '&' : '?';
-                url += separator + 't=' + asset.get('file.hash');
+                url = url.appendQuery('t=' + asset.get('file.hash'));
                 return url;
             };
 
@@ -743,7 +742,7 @@ editor.once('load', function() {
             prefilterPanel.append(clearPrefilteredBtn);
 
             var clearPrefiltered = function () {
-                editor.call('realtime:send', 'cubemap:clear:', parseInt(assets[0].get('id'), 10));
+                editor.call('realtime:send', 'cubemap:clear:', parseInt(assets[0].get('uniqueId'), 10));
             };
 
             clearPrefilteredBtn.on('click', clearPrefiltered);

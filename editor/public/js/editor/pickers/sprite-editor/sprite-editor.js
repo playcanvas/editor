@@ -329,7 +329,7 @@ editor.once('load', function() {
         editor.call('hotkey:register', 'sprite-editor-esc', {
             key: 'esc',
             callback: function () {
-                if (editor.call('picker:confirm:isOpen')) {
+                if (editor.call('picker:isOpen', 'confirm')) {
                     return;
                 }
 
@@ -1750,7 +1750,7 @@ editor.once('load', function() {
             }
 
         };
-        atlasImage.src = atlasAsset.get('file.url') + '?t=' + atlasAsset.get('file.hash');
+        atlasImage.src = atlasAsset.get('file.url').appendQuery('t=' +  atlasAsset.get('file.hash'));
 
         // listen to atlas changes and render
         events.push(atlasAsset.on('*:set', queueRender));
@@ -2037,6 +2037,10 @@ editor.once('load', function() {
         overlay.hidden = true;
     });
 
+    overlay.on('show', function () {
+        // editor-blocking picker opened
+        editor.emit('picker:open', 'sprite-editor');
+    })
 
     // Clean up
     overlay.on('hide', function () {
@@ -2060,5 +2064,8 @@ editor.once('load', function() {
         }
 
         cleanUp();
+
+        // editor-blocking picker closed
+        editor.emit('picker:close', 'sprite-editor');
     });
 });

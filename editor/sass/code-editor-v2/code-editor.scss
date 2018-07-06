@@ -1,6 +1,5 @@
 @import 'variables';
 @import '../fonts';
-@import '../checkpoint-overlay';
 
 html {
     height: 100%;
@@ -39,6 +38,15 @@ strong {
 @media (max-width: 480px) {
     .hidden-xs {
         display: none;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
     }
 }
 
@@ -535,109 +543,6 @@ strong {
     height: 100%;
     line-height: 34px;
     background-color: $bcg-primary;
-}
-
-.picker-confirm {
-    z-index: 10000;
-}
-
-.picker-confirm.center {
-    > .content {
-        width: 288px;
-        height: auto;
-        left: calc(50% - 144px);
-        top: calc(50% - 32px);
-        padding: 16px;
-        text-align: right;
-        transition: none;
-
-        > .text {
-            display: block;
-            text-align: center;
-            margin: 4px 0 16px;
-            color: $text-primary;
-            font-size: 14px;
-            text-align: center;
-        }
-        > .ui-button {
-            font-size: 14px;
-            padding: 0 16px;
-            line-height: 26px;
-            text-transform: uppercase;
-            margin: 0;
-        }
-        > .yes {
-            margin-right: 8px;
-        }
-    }
-
-    &.asset-delete {
-        > .content {
-            width: 208px;
-            left: calc(50% - 104px);
-            text-align: center;
-            background-color: $bcg-darker;
-
-            > .ui-button.yes {
-                margin: 0;
-                font-size: 0;
-                height: 32px;
-                line-height: 32px;
-                padding: 0;
-                background-color: #e54d42;
-                border: none;
-                color: $text-primary;
-
-                &:hover {
-                    &:after {
-                        background-color: transparent;
-                    }
-                }
-                &:before {
-                    content: 'DELETE';
-                    font-size: 14px;
-                    padding: 0 16px;
-                }
-                &:after {
-                    content: '\E124';
-                    font-weight: 200;
-                    @extend .font-icon;
-                    font-size: 14px;
-                    font-weight: 200;
-                    float: right;
-                    width: 31px;
-                    padding-right: 1px;
-                    text-align: center;
-                    border-left: 1px solid $bcg-dark;
-                    background-color: #8c413c;
-                }
-            }
-            > .ui-button.no {
-                position: absolute;
-                top: 0;
-                right: 0;
-                padding: 0;
-                margin: 0;
-                width: 32px;
-                height: 32px;
-                background: transparent;
-                font-size: 0;
-                border: none;
-                color: $text-dark;
-
-                &:hover {
-                    color: $text-primary;
-                    background-color: $bcg-darkest;
-                }
-                &:after {
-                    content: '\E132';
-                    @extend .font-icon;
-                    text-align: center;
-                    font-size: 18px;
-                }
-            }
-        }
-    }
 }
 
 .picker-script-create.center {
@@ -1257,3 +1162,58 @@ a.link-docs {
     @extend .font-icon;
 }
 
+
+.ui-overlay.version-control-overlay {
+    > .content {
+        width: 500px;
+        left: calc(50% - 250px);
+        height: 106px;
+        top: calc(50% - 53px);
+
+        white-space: nowrap;
+
+        .ui-panel.left {
+            width: 110px;
+            display: inline-block;
+            text-align: center;
+            top: 25px;
+
+            svg {
+                margin: auto;
+                &.spin {
+                    g {
+                        animation-name: spin;
+                        animation-duration: 500ms;
+                        animation-iteration-count: infinite;
+                        animation-timing-function: linear;
+                        transform-origin: center;
+                    }
+                }
+
+                &.hidden {
+                    display: none;
+                }
+            }
+        }
+
+        .ui-panel.right {
+            display: inline-block;
+            width: calc(100% - 110px);
+            white-space: normal;
+            top: 20px;
+
+            .ui-label {
+                margin: 1px;
+                display: block;
+                &.title {
+                    color: $text-primary;
+                    font-size: 16px;
+                }
+            }
+        }
+
+    }
+}
+
+@import '../partials/ui-common';
+@import '../partials/version-control';

@@ -59,6 +59,21 @@ if (! String.prototype.endsWith) {
     });
 }
 
+// Appends query parameter to string (supposedly the string is a URL)
+// automatically figuring out if the separator should be ? or &.
+// Example: url.appendQuery('t=123').appendQuery('q=345');
+if (! String.prototype.appendQuery) {
+    Object.defineProperty(String.prototype, 'appendQuery', {
+        enumerable: false,
+        configurable: false,
+        writable: false,
+        value: function (queryParameter) {
+            var separator = this.indexOf('?') !== -1 ? '&' : '?';
+            return this + separator + queryParameter;
+        }
+    });
+}
+
 // element.classList.add polyfill
 (function () {
     /*global DOMTokenList */

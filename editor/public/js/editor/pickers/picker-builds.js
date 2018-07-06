@@ -8,6 +8,8 @@ editor.once('load', function () {
     // holds events that need to be destroyed
     var events = [];
 
+    var projectSettings = editor.call('settings:project');
+
     // disables / enables field depending on permissions
     var handlePermissions = function (field) {
         field.disabled = ! editor.call('permissions:write');
@@ -40,7 +42,8 @@ editor.once('load', function () {
 
     // published build section
     var publishedBuild = new ui.Label({
-        text: 'Your primary build is available at <a href="' + config.project.playUrl + '" target="_blank">' + config.project.playUrl + '</a>.'
+        text: 'Your primary build is available at <a href="' + config.project.playUrl + '" target="_blank">' + config.project.playUrl + '</a>.',
+        unsafe: true
     });
     publishedBuild.class.add('build');
     panel.append(publishedBuild);
@@ -272,6 +275,16 @@ editor.once('load', function () {
         size.hidden = app.task.status !== 'complete';
         size.class.add('size');
         info.appendChild(size.element);
+
+        // branch
+        if (editor.call('users:hasFlag', 'hasCheckpoints')) {
+            var branch = new ui.Label({
+                text: app.branch && app.branch.name || 'master'
+            });
+            branch.hidden = app.task.status !== 'complete' || projectSettings.get('useLegacyScripts');
+            branch.class.add('branch');
+            info.appendChild(branch.element);
+        }
 
         // error message
         var error = new ui.Label({

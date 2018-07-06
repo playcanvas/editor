@@ -13,11 +13,11 @@ editor.once('load', function () {
     var docIndex = {};
 
     // Load asset from C3 and call callback
-    editor.method('assets:loadOne', function (id, callback) {
-        var id = id.toString(); // ensure id is string
+    editor.method('assets:loadOne', function (uniqueId, callback) {
+        uniqueId = uniqueId.toString(); // ensure id is string
         var connection = editor.call('realtime:connection');
-        var assetDoc = connection.get('assets', id);
-        docIndex[id] = assetDoc;
+        var assetDoc = connection.get('assets', uniqueId);
+        docIndex[uniqueId] = assetDoc;
 
         var asset;
 
@@ -25,13 +25,18 @@ editor.once('load', function () {
         assetDoc.on('error', function (err) {
             console.error(err);
             editor.emit('assets:error', err);
-            editor.call('status:error', 'Realtime error for asset "' + (asset ? asset.get('name') : id) + '": ' + err);
+            editor.call('status:error', 'Realtime error for asset "' + (asset ? asset.get('name') : uniqueId) + '": ' + err);
         });
 
         // mark asset as done
         assetDoc.on('load', function () {
             var data = assetDoc.data;
-            data.id = id;
+            data.id = data.item_id.toString();
+            data.uniqueId = uniqueId;
+
+            delete data.item_id;
+            delete data.branch_id;
+
             asset = new Observer(data);
 
             // create observer sync
@@ -58,7 +63,7 @@ editor.once('load', function () {
                     // When the file changes this means that the
                     // save operation has finished
                     if (ops[i].p.length === 1 && ops[i].p[0] === 'file') {
-                        editor.emit('documents:dirty', id, false);
+                        editor.emit('documents:dirty', data.id, false);
                     }
                 }
             });
@@ -81,18 +86,18 @@ editor.once('load', function () {
         var connection = editor.call('realtime:connection');
         var assets = connection.collections.assets;
 
-        for(var i = 0; i < data.length; i++) {
-            if (! assets.hasOwnProperty(data[i].id))
+        for (var i = 0; i < data.length; i++) {
+            if (! assets.hasOwnProperty(data[i].uniqueId))
                 continue;
 
             // force snapshot path data
-            assets[data[i].id].data.path = data[i].path;
+            assets[data[i].uniqueId].data.path = data[i].path;
 
             // sync observer
-            var observer = editor.call('assets:get', data[i].id) ;
+            var observer = editor.call('assets:get', data[i].id);
             if (observer) {
                 observer.sync.write({
-                    p: [ 'path' ],
+                    p: ['path'],
                     oi: data[i].path,
                     od: null
                 });
@@ -102,12 +107,11 @@ editor.once('load', function () {
 
     // destroy documents if assets are deleted
     editor.on('assets:remove', function (asset) {
-        var connection = editor.call('realtime:connection');
-        var doc = docIndex[asset.get('id')]
+        var doc = docIndex[asset.get('uniqueId')];
         if (doc) {
             doc.unsubscribe();
             doc.destroy();
-            delete docIndex[asset.get('id')];
+            delete docIndex[asset.get('uniqueId')];
         }
     });
 
@@ -115,7 +119,7 @@ editor.once('load', function () {
         editor.call('assets:load:progress', 0);
 
         Ajax({
-            url: '{{url.api}}/projects/{{project.id}}/assets?view=codeeditor',
+            url: '{{url.api}}/projects/{{project.id}}/assets?branchId={{self.branch.id}}&view=codeeditor',
             auth: true
         })
         .on('load', function (status, res) {
@@ -145,8 +149,8 @@ editor.once('load', function () {
             while (startBatch < totalAssets) {
                 // start bulk subscribe
                 connection.startBulk();
-                for(var i = startBatch; i < startBatch + batchSize && i < totalAssets; i++) {
-                    editor.call('assets:loadOne', res[i].id, onLoad);
+                for (var i = startBatch; i < startBatch + batchSize && i < totalAssets; i++) {
+                    editor.call('assets:loadOne', res[i].uniqueId, onLoad);
                 }
                 // end bulk subscribe and send message to server
                 connection.endBulk();

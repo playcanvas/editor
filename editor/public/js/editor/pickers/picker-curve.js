@@ -61,8 +61,13 @@ editor.once('load', function() {
     var root = editor.call('layout.root');
     root.append(overlay);
 
+    overlay.on('show', function () {
+        editor.emit('picker:open', 'curve');
+    });
+
     overlay.on('hide', function () {
         editor.emit('picker:curve:close');
+        editor.emit('picker:close', 'curve');
         cleanup();
     });
 
@@ -1581,10 +1586,6 @@ editor.once('load', function() {
         cleanup();
 
         toggleTextSelection(true);
-    });
-
-    editor.method('picker:curve:isOpen', function () {
-        return !overlay.hidden;
     });
 
     editor.method('picker:curve:rect', function () {

@@ -50,7 +50,7 @@ editor.once('load', function () {
         }
 
         Ajax({
-            url: '{{url.api}}/assets/' + id + '/file/' + asset.get('file.filename'),
+            url: '{{url.api}}/assets/' + id + '/file/' + asset.get('file.filename') + '?branchId={{self.branch.id}}',
             auth: true,
             notJson: true
         })

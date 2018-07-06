@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
@@ -77,7 +77,7 @@ editor.once('load', function() {
     previewRoot.syncHierarchy();
     previewRoot.enabled = false;
 
-    editor.method('preview:material:render', function(asset, canvasWidth, canvasHeight, canvas, args) {
+    editor.method('preview:material:render', function (asset, canvasWidth, canvasHeight, canvas, args) {
         var data = asset.get('data');
         if (! data) return;
 
@@ -115,13 +115,13 @@ editor.once('load', function() {
         lightEntity.light.intensity = 1.0 / (Math.min(1.0, app.scene.exposure) || 0.01);
 
         // update material
-        for(var key in mapping) {
+        for (var key in mapping) {
             var value = data.hasOwnProperty(key) ? data[key] : mapping[key].default;
 
             if (args.params && args.params.hasOwnProperty(key))
                 value = args.params[key];
 
-            switch(mapping[key].type) {
+            switch (mapping[key].type) {
                 case 'boolean':
                 case 'string':
                 case 'int':
@@ -149,10 +149,10 @@ editor.once('load', function() {
                             }
 
                             if (textureAsset.file && textureAsset.resources && textureAsset.resources.length === 7) {
-                                for(var i = 0; i < 6; i++)
+                                for (var i = 0; i < 6; i++)
                                     material[cubemapPrefiltered[i]] = textureAsset.resources[i + 1];
                             } else {
-                                for(var i = 0; i < 6; i++)
+                                for (var i = 0; i < 6; i++)
                                     material[cubemapPrefiltered[i]] = null;
                             }
 
@@ -160,12 +160,12 @@ editor.once('load', function() {
                             app.assets.load(textureAsset);
                         } else {
                             material[key] = null;
-                            for(var i = 0; i < 6; i++)
+                            for (var i = 0; i < 6; i++)
                                 material[cubemapPrefiltered[i]] = null;
                         }
                     } else {
                         material[key] = null;
-                        for(var i = 0; i < 6; i++)
+                        for (var i = 0; i < 6; i++)
                             material[cubemapPrefiltered[i]] = null;
                     }
                     break;
@@ -189,7 +189,7 @@ editor.once('load', function() {
                     }
                     break;
                 case 'object':
-                    switch(key) {
+                    switch (key) {
                         case 'cubeMapProjectionBox':
                             if (value) {
                                 if (material.cubeMapProjectionBox) {

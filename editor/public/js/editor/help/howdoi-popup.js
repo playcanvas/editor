@@ -11,7 +11,9 @@ editor.once('load', function () {
     var panel = new ui.Panel();
     overlay.append(panel);
 
-    var content = new ui.Label();
+    var content = new ui.Label({
+        unsafe: true
+    });
     content.renderChanges = false;
     panel.append(content);
 

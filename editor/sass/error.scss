@@ -36,8 +36,8 @@ body {
         color: $text-primary;
     }
     > a.home {
-        display: block;
-        margin: 8px 16px;
+        display: inline-block;
+        margin: 8px 2px;
         font-weight: bold;
         color: $text-active;
 
@@ -58,4 +58,23 @@ pre.stack {
     background-color: $bcg-darkest;
     padding: 8px;
     margin: 0;
+}
+
+button {
+    margin-top: 10px;
+    font-size: 14px;
+    background: #2c393c;
+    border: 0;
+    color: #b1b8ba;
+    width: 180px;
+    height: 32px;
+    line-height: 32px;
+    background: #f60;
+    opacity: 0.9;
+    color: #fff;
+
+    &:hover {
+        cursor: pointer;
+        opacity: 1;
+    }
 }

@@ -3,8 +3,7 @@ editor.once('load', function () {
 
     var settings = editor.call('settings:create', {
         name: 'user',
-        scopeType: 'user',
-        scopeId: config.self.id,
+        id: 'user_' + config.self.id,
         data: {
             editor: {
                 howdoi: true,

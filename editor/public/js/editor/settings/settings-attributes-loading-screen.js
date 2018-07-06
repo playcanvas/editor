@@ -22,7 +22,8 @@ editor.once('load', function() {
 
         if (!editor.call("users:isSuperUser") && config.owner.plan.type !== 'org' && config.owner.plan.type !== 'organization') {
             var labelUpgrade = new ui.Label({
-                text: 'This is an ORGANIZATION account feature. <a href="/upgrade?plan=organization&account=' + config.owner.username + '" target="_blank">UPGRADE</a> to create custom loading screens.'
+                text: 'This is an ORGANIZATION account feature. <a href="/upgrade?plan=organization&account=' + config.owner.username + '" target="_blank">UPGRADE</a> to create custom loading screens.',
+                unsafe: true
             });
             labelUpgrade.style.fontSize = '12px';
             labelUpgrade.style.color = '#fff';

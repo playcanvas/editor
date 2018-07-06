@@ -421,7 +421,7 @@ editor.once('load', function () {
 
     // hide progress when document is loaded
     editor.on('documents:load', function (doc, asset, docEntry) {
-        toggleProgress(doc.id, false);
+        toggleProgress(asset.get('id'), false);
     });
 
 
@@ -470,12 +470,18 @@ editor.once('load', function () {
         toggleProgress(id, true);
     });
 
-    editor.on('documents:save:success', function (id) {
-        toggleProgress(id, false);
+    editor.on('documents:save:success', function (uniqueId) {
+        var asset = editor.call('assets:getUnique', uniqueId);
+        if (asset) {
+            toggleProgress(asset.get('id'), false);
+        }
     });
 
-    editor.on('documents:save:error', function (id) {
-        toggleProgress(id, false);
+    editor.on('documents:save:error', function (uniqueId) {
+        var asset = editor.call('assets:getUnique', uniqueId);
+        if (asset) {
+            toggleProgress(asset.get('id'), false);
+        }
     });
 
     // returns all tabs
