@@ -49,10 +49,6 @@ editor.once('load', function () {
             title: 'Launch',
             icons: ['&#57649;']
         }, {
-            buttons: ['Ctrl', '$+', 'S'],
-            title: 'New Checkpoint',
-            icons: ['&#58265;']
-        }, {
             buttons: ['Ctrl', '$+', 'E'],
             title: 'New Entity',
             icons: ['&#57632;']
@@ -129,6 +125,14 @@ editor.once('load', function () {
             title: 'Open Code Editor',
             icons: ['&#57648;']
         });
+
+        if (editor.call('user:hasFlag', 'hasCheckpoints')) {
+            items.push({
+                buttons: ['Ctrl', '$+', 'S'],
+                title: 'New Checkpoint',
+                icons: ['&#58265;']
+            });
+        }
     }
 
     for (var i = 0; i < items.length; i++) {
