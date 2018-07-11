@@ -268,20 +268,7 @@ editor.once('load', function () {
 
         // rename item
         item.on('rename', function (name) {
-            var form = new FormData();
-            form.append('name', name);
-            form.append('branchId', config.self.branch.id);
-            Ajax({
-                url: '{{url.api}}/assets/' + id,
-                auth: true,
-                data: form,
-                method: 'PUT',
-                ignoreContentType: true,
-                notJson: true
-            }).on('error', function (err, data) {
-                console.error(err + data);
-                editor.call('status:error', 'Couldn\'t update the name: ' + data);
-            });
+            editor.call('assets:rename', asset, name);
         });
     };
 

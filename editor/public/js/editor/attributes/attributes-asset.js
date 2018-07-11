@@ -241,25 +241,12 @@ editor.once('load', function() {
                     type: 'string',
                     value: assets[0].get('name')
                 });
-                events.push(assets[0].on('name:set', (newName) => {
+                events.push(assets[0].on('name:set', function (newName) {
                     fieldName.value = newName;
                 }));
-                events.push(fieldName.on('change', (newName) => {
+                events.push(fieldName.on('change', function (newName) {
                     if (newName !== assets[0].get('name')) {
-                        var form = new FormData();
-                        form.append('name', newName);
-                        form.append('branchId', config.self.branch.id);
-                        Ajax({
-                            url: '{{url.api}}/assets/' + assets[0].get('id'),
-                            auth: true,
-                            data: form,
-                            method: 'PUT',
-                            ignoreContentType: true,
-                            notJson: true
-                        }).on('error', function (err, data) {
-                            console.error(err + data);
-                            editor.call('status:error', 'Couldn\'t update the name: ' + data);
-                        });
+                        editor.call('assets:rename', assets[0], newName);
                     }
                 }));
                 fieldName.class.add('asset-name');
