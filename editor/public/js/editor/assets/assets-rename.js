@@ -20,17 +20,21 @@ editor.once('load', function() {
 
     editor.method('assets:rename', function (asset, newName) {
         var oldName = asset.get('name');
-        
+        var id = asset.get('id');
         editor.call('history:add', {
             name: 'asset rename',
             undo: function() {
-                changeName(asset.get('id'), oldName);
+                if(editor.call('assets:get', id)) {
+                    changeName(id, oldName);
+                }
             },
             redo: function() {
-                changeName(asset.get('id'), newName);
+                if(editor.call('assets:get', id)) {
+                    changeName(id, newName);
+                }
             }
         });
 
-        changeName(asset.get('id'), newName);
+        changeName(id, newName);
     });
 });
