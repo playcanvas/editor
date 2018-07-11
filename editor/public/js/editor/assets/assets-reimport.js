@@ -3,9 +3,7 @@ editor.once('load', function () {
 
     var index = 0;
     editor.method('assets:reimport', function (assetId, type, callback) {
-        var data = {
-            branchId: config.self.branch.id
-        };
+        var data = {};
 
         // conversion pipeline specific parameters
         var settings = editor.call('settings:projectUser');
@@ -27,7 +25,7 @@ editor.once('load', function () {
         editor.call('status:job', jobName, 0);
 
         Ajax({
-            url: '/api/assets/' + assetId + '/reimport?branchId={{self.branch.id}}',
+            url: '/api/assets/' + assetId + '/reimport?branchId=' + config.self.branch.id,
             method: 'POST',
             auth: true,
             data: data
