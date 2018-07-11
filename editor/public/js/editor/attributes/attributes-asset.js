@@ -239,9 +239,29 @@ editor.once('load', function() {
                     parent: panel,
                     name: 'Name',
                     type: 'string',
-                    link: assets[0],
-                    path: 'name'
+                    value: assets[0].get('name')
                 });
+                events.push(assets[0].on('name:set', (newName) => {
+                    fieldName.value = newName;
+                }));
+                events.push(fieldName.on('change', (newName) => {
+                    if (newName !== assets[0].get('name')) {
+                        var form = new FormData();
+                        form.append('name', newName);
+                        form.append('branchId', config.self.branch.id);
+                        Ajax({
+                            url: '{{url.api}}/assets/' + assets[0].get('id'),
+                            auth: true,
+                            data: form,
+                            method: 'PUT',
+                            ignoreContentType: true,
+                            notJson: true
+                        }).on('error', function (err, data) {
+                            console.error(err + data);
+                            editor.call('status:error', 'Couldn\'t update the name: ' + data);
+                        });
+                    }
+                }));
                 fieldName.class.add('asset-name');
                 // reference
                 editor.call('attributes:reference:attach', 'asset:name', fieldName.parent.innerElement.firstChild.ui);
