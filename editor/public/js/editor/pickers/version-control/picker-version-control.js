@@ -20,6 +20,7 @@ editor.once('load', function () {
 
     // branches container panel
     var panelBranchesContainer = new ui.Panel();
+    panelBranchesContainer.hidden = ! editor.call('users:hasFlag', 'hasBranches');
     panelBranchesContainer.class.add('branches-container');
     panel.append(panelBranchesContainer);
     panelBranchesContainer.flex = true;
@@ -545,7 +546,16 @@ editor.once('load', function () {
     // });
 
     // Create checkpoint
-    panelCreateCheckpoint.on('cancel', showCheckpoints);
+    panelCreateCheckpoint.on('cancel', function () {
+        // we need to load the checkpoints if we cancel creating checkpoints
+        // because initially we might have opened this picker by showing the create checkpoint
+        // panel without having a chance to load the checkpoints first
+        if (! panelCheckpoints.checkpoints)  {
+            selectBranch(selectedBranch);
+        } else {
+            showCheckpoints();
+        }
+    });
     panelCreateCheckpoint.on('confirm', function (data) {
         togglePanels(false);
         showRightSidePanel(panelCreateCheckpointProgress);

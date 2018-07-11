@@ -61,7 +61,7 @@ editor.once('load', function() {
         sceneName.text = '';
     });
 
-    if (editor.call('users:hasFlag', 'hasCheckpoints') && ! config.project.settings.useLegacyScripts) {
+    if (editor.call('users:hasFlag', 'hasBranches') && ! config.project.settings.useLegacyScripts) {
         var branchButton = new ui.Label({
             text: config.self.branch.name
         });

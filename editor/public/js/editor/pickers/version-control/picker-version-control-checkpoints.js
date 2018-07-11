@@ -1,6 +1,8 @@
 editor.once('load', function () {
     'use strict';
 
+    var hasBranchesFlag = editor.call('users:hasFlag', 'hasBranches');
+
     var panel = new ui.Panel();
     panel.class.add('checkpoints-container');
 
@@ -82,8 +84,12 @@ editor.once('load', function () {
 
         panel.branch = branch;
         if (branch) {
-            var name = branch.name.length > 25 ? branch.name.substring(0, 22) + '...' : branch.name;
-            labelBranchHistory.text = "'" + name + "'" + ' checkpoints';
+            if (hasBranchesFlag) {
+                var name = branch.name.length > 25 ? branch.name.substring(0, 22) + '...' : branch.name;
+                labelBranchHistory.text = "'" + name + "' checkpoints";
+            } else {
+                labelBranchHistory.text = 'checkpoints';
+            }
         } else {
             labelBranchHistory.text = '';
         }

@@ -277,7 +277,7 @@ editor.once('load', function () {
         info.appendChild(size.element);
 
         // branch
-        if (editor.call('users:hasFlag', 'hasCheckpoints')) {
+        if (editor.call('users:hasFlag', 'hasBranches')) {
             var branch = new ui.Label({
                 text: app.branch && app.branch.name || 'master'
             });

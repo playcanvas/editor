@@ -8449,6 +8449,7 @@ strong {
                     place-content: flex-start;
 
                     > .side-panel-widget {
+                        flex-grow: 1;
                         > .content {
                             > .ui-panel {
                                 padding: 20px;
