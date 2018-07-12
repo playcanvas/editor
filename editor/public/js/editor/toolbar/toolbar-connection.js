@@ -18,6 +18,7 @@ editor.once('load', function() {
     // icon
     var icon = document.createElement('div');
     icon.classList.add('connection-icon');
+    icon.classList.add('error');
     overlay.innerElement.appendChild(icon);
 
     // content
@@ -29,19 +30,14 @@ editor.once('load', function() {
         if (viewportError) return;
 
         overlay.hidden = true;
-        clearIconClass();
     });
 
     editor.on('realtime:disconnected', function () {
-        setIconClass('error');
         content.innerHTML = 'You have been disconnected from the server.';
         overlay.hidden = false;
     });
 
     editor.on('realtime:nextAttempt', function (time) {
-
-        setIconClass('error');
-
         function setText (remaining) {
             content.innerHTML = 'Disconnected. Reconnecting in ' + remaining + ' seconds...';
         }
@@ -77,14 +73,12 @@ editor.once('load', function() {
     editor.on('realtime:cannotConnect', function () {
         overlay.hidden = false;
         clearTimeout(timeout);
-        setIconClass('error');
         content.innerHTML = 'Cannot connect to the server. Please try again later.';
     });
 
     var onError = function (err) {
         console.log(err);
         console.trace();
-        setIconClass('error');
         content.innerHTML = 'Error while saving changes. Please refresh the editor.';
         overlay.hidden = false;
     };
@@ -93,7 +87,6 @@ editor.once('load', function() {
         viewportError = true;
         console.error(err);
         console.trace();
-        setIconClass('error');
         content.innerHTML = 'Failed creating WebGL Context.<br />Please check <a href="http://webglreport.com/" target="_blank">WebGL Report</a> and report to <a href="http://forum.playcanvas.com/" target="_blank">Forum</a>.';
         overlay.hidden = false;
     });
@@ -109,7 +102,6 @@ editor.once('load', function() {
         if (data.scene.branchId !== config.self.branch.id) return;
 
         if (config.scene.id && data.scene.id === parseInt(config.scene.id, 10)) {
-            setIconClass('error');
             content.innerHTML = 'This scene has been deleted.';
             overlay.hidden = false;
         }
@@ -120,13 +112,4 @@ editor.once('load', function() {
 
         overlay.hidden = true;
     });
-
-    var clearIconClass = function () {
-        icon.classList.remove('error');
-    };
-
-    var setIconClass = function (cls) {
-        clearIconClass();
-        icon.classList.add(cls);
-    };
 });

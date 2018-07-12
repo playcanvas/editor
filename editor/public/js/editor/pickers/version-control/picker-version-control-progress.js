@@ -67,10 +67,15 @@ editor.once('load', function () {
 
         panel.on('show', function () {
             showingProgress = true;
+            panel.parent.class.add('align-center');
         });
 
         // restore panel contents when the panel is hidden
         panel.on('hide', function () {
+            if (panel.parent) {
+                panel.parent.class.remove('align-center');
+            }
+
             labelMessage.text = args.progressText;
             labelNote.hidden = true;
             completed.classList.add('hidden');

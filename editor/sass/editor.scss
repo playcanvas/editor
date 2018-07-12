@@ -5099,17 +5099,11 @@ strong {
 .connection-overlay {
     > .content {
         width: 400px;
+        left: calc(50% - 200px);
         height: 64px;
-        position: absolute;
-        top: 0;
-        bottom: 32px;
-        left: 0;
-        right: 0;
-        margin: auto;
-        display: table;
+        top: calc(50% - 32px);
 
         > .connection-icon {
-            display: table-cell;
             width: 64px;
             height: 64px;
             line-height: 64px;
@@ -5117,6 +5111,7 @@ strong {
             font-size: 34px;
             font-weight: 100;
             text-align: center;
+            display: inline-block;
 
             &.error:before {
                 content: '\E218';
@@ -5124,10 +5119,10 @@ strong {
         }
 
         > .connection-content {
-            display: table-cell;
             padding-left: 20px;
             width: 400px - 64px - 20px;
-            vertical-align: middle;
+            display: inline-block;
+            vertical-align: super;
         }
     }
 }
@@ -8595,6 +8590,9 @@ strong {
                     }
                 }
 
+                &.align-center > .content {
+                    align-content: center;
+                }
 
             }
 

@@ -735,8 +735,9 @@ editor.once('load', function () {
         selectedBranch = null;
         loadBranches();
 
-        if (editor.call('viewport:inViewport'))
+        if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', false);
+        }
     });
 
     // on hide
