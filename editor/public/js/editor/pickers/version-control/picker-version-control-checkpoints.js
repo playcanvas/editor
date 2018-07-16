@@ -3,6 +3,8 @@ editor.once('load', function () {
 
     var hasBranchesFlag = editor.call('users:hasFlag', 'hasBranches');
 
+    var events = [];
+
     var panel = new ui.Panel();
     panel.class.add('checkpoints-container');
 
@@ -23,6 +25,8 @@ editor.once('load', function () {
     });
     btnNewCheckpoint.class.add('icon', 'create');
     panelCheckpointsTop.append(btnNewCheckpoint);
+
+    btnNewCheckpoint.hidden = ! editor.call('permissions:write');
 
     // checkpoints main panel
     var panelCheckpoints = new ui.Panel();
@@ -66,7 +70,6 @@ editor.once('load', function () {
         text: 'New Branch',
         value: 'new-branch'
     });
-    menuCheckpointsBranch.hidden = ! editor.call('users:hasFlag', 'hasBranches');
     menuCheckpoints.append(menuCheckpointsBranch);
 
     editor.call('layout.root').append(menuCheckpoints);
@@ -250,6 +253,10 @@ editor.once('load', function () {
         dropdown.class.add('dropdown');
         panel.append(dropdown);
 
+        if (! editor.call('permissions:write')) {
+            dropdown.hidden = true;
+        }
+
         dropdown.on('click', function (e) {
             e.stopPropagation();
 
@@ -295,7 +302,8 @@ editor.once('load', function () {
 
         // filter menu options
         if (open) {
-            menuCheckpointsRestore.hidden = panel.branch.id !== config.self.branch.id;
+            menuCheckpointsRestore.hidden = panel.branch.id !== config.self.branch.id || ! editor.call('permissions:write');
+            menuCheckpointsBranch.hidden = ! editor.call('users:hasFlag', 'hasBranches') || ! editor.call('permissions:write');
         }
 
         // when the checkpoints context menu is closed 'unclick' dropdowns
@@ -310,6 +318,28 @@ editor.once('load', function () {
             dropdown.classList.remove('clicked');
             dropdown.innerHTML = '&#57689;';
         }
+    });
+
+    panel.on('show', function () {
+        btnNewCheckpoint.hidden = ! editor.call('permissions:write');
+
+        events.push(editor.on('permissions:writeState', function (writeEnabled) {
+            // hide all dropdowns if we no longer have write access
+            panel.innerElement.querySelectorAll('.dropdown').forEach(function (dropdown) {
+                dropdown.ui.hidden = ! writeEnabled;
+            });
+
+            // hide new checkpoint button if we no longer have write access
+            btnNewCheckpoint.hidden = ! writeEnabled;
+        }));
+    });
+
+    // clean up
+    panel.on('hide', function () {
+        events.forEach(function (evt) {
+            evt.unbind();
+        });
+        events.length = 0;
     });
 
     // Return checkpoints container panel

@@ -5,6 +5,8 @@ editor.once('load', function () {
         return;
     }
 
+    var events = [];
+
     var projectUserSettings = editor.call('settings:projectUser');
     var branches = {}; // branches by id
 
@@ -452,7 +454,9 @@ editor.once('load', function () {
     menuBranches.on('open', function () {
         menuBranchesClose.hidden = ! contextBranch || contextBranch.closed || contextBranch.id === config.project.masterBranch || contextBranch.id === projectUserSettings.get('branch');
         menuBranchesOpen.hidden = ! contextBranch || ! contextBranch.closed;
-        menuBranchesSwitchTo.hidden = ! contextBranch || contextBranch.id === projectUserSettings.get('branch') || contextBranch.closed;
+
+        var writeAccess = editor.call('permissions:write');
+        menuBranchesSwitchTo.hidden = !writeAccess || ! contextBranch || contextBranch.id === projectUserSettings.get('branch') || contextBranch.closed;
         menuBranchesMerge.hidden = menuBranchesSwitchTo.hidden;
     });
 
@@ -492,8 +496,13 @@ editor.once('load', function () {
         var dropdown = new ui.Button({
             text: '&#57689;'
         });
+        dropdown.branch = branch;
         dropdown.class.add('dropdown');
         panel.append(dropdown);
+
+        if (! editor.call('permissions:write')) {
+            dropdown.hidden = true;
+        }
 
         dropdown.on('click', function (e) {
             e.stopPropagation();
@@ -743,6 +752,13 @@ editor.once('load', function () {
         selectedBranch = null;
         loadBranches();
 
+        events.push(editor.on('permissions:writeState', function (writeEnabled) {
+            // hide all dropdowns if we no longer have write access
+            panelBranches.innerElement.querySelectorAll('.dropdown').forEach(function (dropdown) {
+                dropdown.ui.hidden = ! writeEnabled || dropdown.ui.branch.id === config.self.branch.id;
+            });
+        }));
+
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', false);
         }
@@ -757,6 +773,11 @@ editor.once('load', function () {
         panelCheckpoints.toggleLoadMore(false);
 
         showNewCheckpointOnLoad = false;
+
+        events.forEach(function (evt) {
+            evt.unbind();
+        });
+        events.length = 0;
 
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', true);
