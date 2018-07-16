@@ -89,19 +89,21 @@ editor.once('load', function () {
         });
     };
 
-    loadBranches(null, function () {
-        if (! branches.length) {
-            return;
-        }
+    overlay.on('show', function () {
+        loadBranches(null, function () {
+            if (! branches.length) {
+                return;
+            }
 
-        // update dropdown
-        btnSwitch.disabled = false;
-        dropdownBranches._updateOptions(branches.map(function (branch) {
-            return {
-                v: branch.id, t: branch.name
-            };
-        }));
-        dropdownBranches.value = branches[0].id;
+            // update dropdown
+            btnSwitch.disabled = false;
+            dropdownBranches._updateOptions(branches.map(function (branch) {
+                return {
+                    v: branch.id, t: branch.name
+                };
+            }));
+            dropdownBranches.value = branches[0].id;
+        });
     });
 
     overlay.on('hide', function () {
