@@ -133,7 +133,7 @@ editor.once('load', function() {
             if (config.project.settings.useLegacyScripts) {
                 loadingScript.src = scriptPrefix + '/' + config.project.settings.loadingScreenScript;
             } else {
-                loadingScript.src = '/api/assets/' + config.project.settings.loadingScreenScript + '/download';
+                loadingScript.src = '/api/assets/' + config.project.settings.loadingScreenScript + '/download?branchId=' + config.self.branch.id;
             }
 
             loadingScript.onload = function() {
