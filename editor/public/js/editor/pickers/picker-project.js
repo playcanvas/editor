@@ -242,6 +242,11 @@ editor.once('load', function () {
         leftPanel.disabled = !enabled;
     });
 
+    // disables / enables a menu option on the left
+    editor.method('picker:project:toggleMenu', function (name, enabled) {
+        menuOptions[name].item.hidden = ! enabled;
+    });
+
     // activate menu option
     var select = function (name) {
         if (! name) return;

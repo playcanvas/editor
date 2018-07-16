@@ -18,6 +18,14 @@ editor.once('load', function () {
     editor.call('picker:project:registerMenu', 'version control', 'Version Control', panel);
     panel.flex = true;
 
+    // hide version control picker if we are not part of the team
+    if (! editor.call('permissions:read')) {
+        editor.call('picker:project:toggleMenu', 'version control', false);
+    }
+    editor.on('permissions:set', function () {
+        editor.call('picker:project:toggleMenu', 'version control', editor.call('permissions:read'));
+    });
+
     // branches container panel
     var panelBranchesContainer = new ui.Panel();
     panelBranchesContainer.hidden = ! editor.call('users:hasFlag', 'hasBranches');

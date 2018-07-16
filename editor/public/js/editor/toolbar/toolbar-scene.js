@@ -81,6 +81,14 @@ editor.once('load', function() {
             align: 'top',
             root: root
         });
+
+        // hide version control picker if we are not part of the team
+        if (! editor.call('permissions:read')) {
+            branchButton.hidden = true;
+        }
+        editor.on('permissions:set', function () {
+            branchButton.hidden = ! editor.call('permissions:read');
+        });
     }
 
     var sceneList = new ui.Label();
