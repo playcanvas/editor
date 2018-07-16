@@ -62,8 +62,12 @@ editor.once('load', function() {
     });
 
     if (editor.call('users:hasFlag', 'hasBranches') && editor.call('users:hasFlag', 'hasCheckpoints') && ! config.project.settings.useLegacyScripts) {
+        var name = config.self.branch.name;
+        if (name.length > 33) {
+            name = name.substring(0, 30) + '...';
+        }
         var branchButton = new ui.Label({
-            text: config.self.branch.name
+            text: name
         });
         branchButton.class.add('branch-name');
         panel.append(branchButton);

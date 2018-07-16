@@ -8747,6 +8747,9 @@ strong {
                             &.name {
                                 color: $text-primary;
                                 margin-left: 25px;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                width: 210px;
                             }
                             &.date {
                                 margin-top: -5px;
