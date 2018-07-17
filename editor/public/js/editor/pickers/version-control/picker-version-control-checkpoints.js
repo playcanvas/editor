@@ -211,9 +211,15 @@ editor.once('load', function () {
         panelTopRow.class.add('top-row');
         panelInfo.append(panelTopRow);
 
+        var descWithoutNewLine = checkpoint.description;
+        var newLineIndex = descWithoutNewLine.indexOf('\n');
+        if (newLineIndex >= 0) {
+            descWithoutNewLine = descWithoutNewLine.substring(0, newLineIndex);
+        }
         var labelDesc = new ui.Label({
-            text: checkpoint.description
+            text: descWithoutNewLine
         });
+        labelDesc.renderChanges = false;
         labelDesc.class.add('desc', 'selectable');
         panelTopRow.append(labelDesc);
 
@@ -223,9 +229,13 @@ editor.once('load', function () {
         btnMore.on('click', function () {
             if (labelDesc.class.contains('more')) {
                 labelDesc.class.remove('more');
+                labelDesc.text = descWithoutNewLine;
+                labelDesc.style.whiteSpace = '';
                 btnMore.text = '...read more';
             } else {
                 labelDesc.class.add('more');
+                labelDesc.text = checkpoint.description;
+                labelDesc.style.whiteSpace = 'pre-wrap';
                 btnMore.text = '...read less';
             }
         });
@@ -276,7 +286,7 @@ editor.once('load', function () {
 
         // hide more button if necessary - do this here because the element
         // must exist in the DOM before scrollWidth / clientWidth are available
-        btnMore.hidden = labelDesc.element.scrollWidth <= labelDesc.element.clientWidth;
+        btnMore.hidden = labelDesc.element.scrollWidth <= labelDesc.element.clientWidth && newLineIndex < 0;
     };
 
     // show create checkpoint panel
