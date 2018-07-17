@@ -102,7 +102,10 @@ editor.once('load', function () {
                 textureAssets.forEach(function (asset, index) {
                     editor.call('status:job', 'prefilter', index);
 
-                    var url = asset.get('file.url').replace(/.png$/, '.dds');
+                    // when prefiltering we load a dds file that the pipeline put next to the png as well as the dds file
+                    // as far as I know, this isn't referenced anywhere else and is only used here to generate the cubemap
+                    // but honestly, who knows it could be used elsewhere too.
+                    var url = swapExtension(asset.get('file.url'), '.png', '.dds');
 
                     app.assets._loader.load(url, "texture", function (err, resource) {
                         if (!err) {
