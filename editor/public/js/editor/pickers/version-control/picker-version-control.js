@@ -223,33 +223,55 @@ editor.once('load', function () {
     panelMergeBranches.on('confirm', function () {
         var sourceBranchId = panelMergeBranches.sourceBranch.id;
         var destinationBranchId = panelMergeBranches.destinationBranch.id;
+        var discardChanges = panelMergeBranches.discardChanges;
 
         togglePanels(false);
-        showRightSidePanel(panelMergeBranchesProgress);
-        editor.call('branches:merge', sourceBranchId, destinationBranchId, function (err, data) {
-            panelMergeBranchesProgress.finish(err);
-            if (err) {
-                togglePanels(true);
-            } else {
-                // update merge object in config
-                config.self.branch.merge = data;
 
-                // if there are merge conflicts then show
-                // conflict manager
-                if (data.conflicts) {
-                    panelMergeBranchesProgress.setMessage('Unable to auto merge - opening conflict manager');
-                    setTimeout(function () {
-                        editor.call('picker:project:close');
-                        editor.call('picker:versioncontrol:mergeOverlay:hide'); // hide this in case it's open
-                        editor.call('picker:conflictManager', data);
-                    }, 1500);
+        var merge = function () {
+            showRightSidePanel(panelMergeBranchesProgress);
+
+            editor.call('branches:merge', sourceBranchId, destinationBranchId, function (err, data) {
+                panelMergeBranchesProgress.finish(err);
+                if (err) {
+                    togglePanels(true);
                 } else {
-                    // otherwise merge was successful
-                    // so refresh
-                    refreshBrowser();
+                    // update merge object in config
+                    config.self.branch.merge = data;
+
+                    // if there are merge conflicts then show
+                    // conflict manager
+                    if (data.conflicts) {
+                        panelMergeBranchesProgress.setMessage('Unable to auto merge - opening conflict manager');
+                        setTimeout(function () {
+                            editor.call('picker:project:close');
+                            editor.call('picker:versioncontrol:mergeOverlay:hide'); // hide this in case it's open
+                            editor.call('picker:conflictManager', data);
+                        }, 1500);
+                    } else {
+                        // otherwise merge was successful
+                        // so refresh
+                        refreshBrowser();
+                    }
                 }
-            }
-        });
+            });
+        };
+
+        if (discardChanges) {
+            merge();
+        } else {
+            // take a checkpoint first
+            showRightSidePanel(panelCreateCheckpointProgress);
+
+            editor.call('checkpoints:create', 'Checkpoint before merging', function (err, checkpoint) {
+                if (err) {
+                    panelCreateCheckpointProgress.finish(err);
+                    return togglePanels(true);
+                }
+
+                // start merging
+                merge();
+            });
+        }
     });
 
     // restore checkpoint panel
@@ -579,28 +601,14 @@ editor.once('load', function () {
 
         editor.call('checkpoints:create', data.description, function (err, checkpoint) {
             panelCreateCheckpointProgress.finish(err);
-            if (! err) {
-                setTimeout(function () {
-                    // update latest checkpoint in current branches
-                    if (branches[config.self.branch.id]) {
-                        branches[config.self.branch.id].latestCheckpointId = checkpoint.id;
-                    }
-
-                    config.self.branch.latestCheckpointId = checkpoint.id;
-
-                    // add new checkpoint to checkpoint list
-                    if (panelCheckpoints.branch.id === config.self.branch.id) {
-                        var existingCheckpoints = panelCheckpoints.checkpoints || [];
-                        existingCheckpoints.unshift(checkpoint);
-                        panelCheckpoints.setCheckpoints(existingCheckpoints);
-                    }
-
-                    togglePanels(true);
-                    showCheckpoints();
-                },  1000);
-            } else {
-                togglePanels(true);
+            if (err) {
+                return togglePanels(true);
             }
+
+            setTimeout(function () {
+                togglePanels(true);
+                showCheckpoints();
+            },  1000);
         });
     });
 
@@ -759,6 +767,31 @@ editor.once('load', function () {
             });
         }));
 
+        // when a checkpoint is created add it to the list
+        events.push(editor.on('messenger:checkpoint.createEnded', function (data) {
+            if (data.status === 'error') return;
+
+            // update latest checkpoint in current branches
+            if (branches[data.branch_id]) {
+                branches[data.branch_id].latestCheckpointId = data.checkpoint_id;
+            }
+
+            // add new checkpoint to checkpoint list
+            if (panelCheckpoints.branch.id === data.branch_id) {
+                var existingCheckpoints = panelCheckpoints.checkpoints || [];
+                existingCheckpoints.unshift({
+                    id: data.checkpoint_id,
+                    user: {
+                        id: data.user_id,
+                        fullName: data.user_full_name
+                    },
+                    createdAt: new Date(data.created_at),
+                    description: data.description
+                });
+                panelCheckpoints.setCheckpoints(existingCheckpoints);
+            }
+        }));
+
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', false);
         }
@@ -816,4 +849,5 @@ editor.once('load', function () {
             }
         }
     });
+
 });

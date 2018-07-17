@@ -27,10 +27,23 @@ editor.once('load', function () {
     labelInto.renderChanges = false;
     panelInto.append(labelInto);
 
+    var panelDiscard = new ui.Panel();
+    panelDiscard.flexGrow = 1;
+    label = new ui.Label({
+        text: 'Discard changes since last checkpoint?'
+    });
+    label.class.add('left');
+    panelDiscard.append(label);
+
+    var checkboxDiscardChanges = new ui.Checkbox();
+    checkboxDiscardChanges.class.add('tick');
+    panelDiscard.append(checkboxDiscardChanges);
+
+
     var panel = editor.call('picker:versioncontrol:createWidget', {
         title: 'Merge branches',
-        note: 'Beginning the merge process will lock other active users\' sessions in the current branch. You will lose any un-checkpointed progress in your current branch by merging this branch.',
-        mainContents: [panelFrom, panelInto],
+        note: 'Beginning the merge process will lock other active users\' sessions in the current branch.',
+        mainContents: [panelFrom, panelInto, panelDiscard],
         buttons: {
             cancel: {
                 highlighted: true
@@ -42,7 +55,12 @@ editor.once('load', function () {
     });
     panel.class.add('merge-branches');
 
+    checkboxDiscardChanges.on('change', function (value) {
+        panel.discardChanges = value;
+    });
+
     panel.on('hide', function () {
+        checkboxDiscardChanges.value = false;
         panel.setSourceBranch(null);
         panel.setDestinationBranch(null);
     });
