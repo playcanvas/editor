@@ -34,10 +34,27 @@ editor.once('load', function () {
     // switch to branch
     btnSwitch.on('click', function () {
         overlay.innerElement.classList.add('hidden'); // hide the inner contents of the overlay but not the whole overlay
-        editor.call('branches:checkout', dropdownBranches.value, function (err, data) {
-            window.location.reload();
-        });
+        editor.call('branches:checkout', dropdownBranches.value, refresh);
     });
+
+    // If we are currently in a scene this will first request the
+    // scene from the server. If the scene no longer exists then we will
+    // refresh to the Project URL. If the scene exists then just refresh the browser window
+    var refresh = function () {
+        setTimeout(function () {
+            if (config.scene && config.scene.id) {
+                editor.call('scenes:get', config.scene.id, function (err, data) {
+                    if (err || ! data) {
+                        window.location = '/editor/project/' + config.project.id + window.location.search;
+                    } else {
+                        window.location.reload();
+                    }
+                });
+            } else {
+                window.location.reload();
+            }
+        }, 1000);
+    };
 
     // bottom buttons panel
     var panelButtons = new ui.Panel();
