@@ -1,40 +1,40 @@
 editor.once('load', function() {
     'use strict';
 
-    var onRename = function() {
-        if (! editor.call('permissions:write'))
-            return;
+    var changeName = function (assetId, assetName) {
+        var form = new FormData();
+        form.append('name', assetName);
+        form.append('branchId', config.self.branch.id);
+        Ajax({
+            url: '{{url.api}}/assets/' + assetId,
+            auth: true,
+            data: form,
+            method: 'PUT',
+            ignoreContentType: true,
+            notJson: true
+        }).on('error', function (err, data) {
+            console.error(err + data);
+            editor.call('status:error', 'Couldn\'t update the name: ' + data);
+        });
+    }
 
-        var type = editor.call('selector:type');
-        if (type !== 'asset')
-            return;
+    editor.method('assets:rename', function (asset, newName) {
+        var oldName = asset.get('name');
+        var id = asset.get('id');
+        editor.call('history:add', {
+            name: 'asset rename',
+            undo: function() {
+                if(editor.call('assets:get', id)) {
+                    changeName(id, oldName);
+                }
+            },
+            redo: function() {
+                if(editor.call('assets:get', id)) {
+                    changeName(id, newName);
+                }
+            }
+        });
 
-        var items = editor.call('selector:items');
-        if (items.length !== 1)
-            return;
-
-        var root = editor.call('attributes.rootPanel');
-        if (! root)
-            return;
-
-        var input = root.element.querySelector('.ui-text-field.asset-name');
-
-        if (! input || ! input.ui)
-            return;
-
-        input.ui.flash();
-        input.ui.elementInput.select();
-    };
-
-    editor.method('assets:rename', onRename);
-
-    editor.call('hotkey:register', 'assets:rename', {
-        key: 'n',
-        callback: onRename
-    });
-
-    editor.call('hotkey:register', 'assets:rename:f2', {
-        key: 'f2',
-        callback: onRename
+        changeName(id, newName);
     });
 });

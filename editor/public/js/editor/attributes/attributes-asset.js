@@ -239,9 +239,16 @@ editor.once('load', function() {
                     parent: panel,
                     name: 'Name',
                     type: 'string',
-                    link: assets[0],
-                    path: 'name'
+                    value: assets[0].get('name')
                 });
+                events.push(assets[0].on('name:set', function (newName) {
+                    fieldName.value = newName;
+                }));
+                events.push(fieldName.on('change', function (newName) {
+                    if (newName !== assets[0].get('name')) {
+                        editor.call('assets:rename', assets[0], newName);
+                    }
+                }));
                 fieldName.class.add('asset-name');
                 // reference
                 editor.call('attributes:reference:attach', 'asset:name', fieldName.parent.innerElement.firstChild.ui);
