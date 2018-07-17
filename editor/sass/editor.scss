@@ -33,6 +33,15 @@ strong {
     user-select: none;
 }
 
+.allowSelect {
+    -webkit-touch-callout: initial;
+    -webkit-user-select: initial;
+    -khtml-user-select: initial;
+    -moz-user-select: initial;
+    -ms-user-select: initial;
+    user-select: initial;
+}
+
 #ui-root {
     position: absolute;
     top: 0;
@@ -6703,6 +6712,12 @@ strong {
 .ui-overlay.picker-project {
     z-index: 300; // larger than drop-area's
 
+    // make labels non-selectable - to make a label
+    // selectable add the 'selectable' class to it
+    .ui-label:not(.selectable), .ui-header {
+        @extend .noSelect;
+    }
+
     &.center {
         > .content {
             @extend .font-regular;
@@ -8707,6 +8722,10 @@ strong {
 
                 .spinner {
                     margin: 200px auto auto auto;
+                }
+
+                .ui-list {
+                    @extend .allowSelect;
                 }
 
                 .ui-list > .ui-list-item.load-more {

@@ -483,13 +483,13 @@ editor.once('load', function () {
         var labelName = new ui.Label({
             text: branch.name
         });
-        labelName.class.add('name');
+        labelName.class.add('name', 'selectable');
         panel.append(labelName);
 
         var labelDate = new ui.Label({
             text: 'Created ' + editor.call('datetime:convert', branch.createdAt)
         });
-        labelDate.class.add('date');
+        labelDate.class.add('date', 'selectable');
         panel.append(labelDate);
 
         // dropdown

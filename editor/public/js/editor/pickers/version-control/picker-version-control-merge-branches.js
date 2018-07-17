@@ -10,7 +10,7 @@ editor.once('load', function () {
     panelFrom.append(label);
 
     var labelFrom = new ui.Label();
-    labelFrom.class.add('right');
+    labelFrom.class.add('right', 'selectable');
     labelFrom.renderChanges = false;
     panelFrom.append(labelFrom);
 
@@ -23,7 +23,7 @@ editor.once('load', function () {
     panelInto.append(label);
 
     var labelInto = new ui.Label();
-    labelInto.class.add('right');
+    labelInto.class.add('right', 'selectable');
     labelInto.renderChanges = false;
     panelInto.append(labelInto);
 

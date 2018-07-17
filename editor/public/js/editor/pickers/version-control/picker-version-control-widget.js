@@ -4,7 +4,7 @@ editor.once('load', function () {
     editor.method('picker:versioncontrol:createWidget', function (args) {
         var panel = new ui.Panel();
         panel.class.add('side-panel-widget');
-        
+
         var panelTop = new ui.Panel();
         panelTop.class.add('top');
         panel.append(panelTop);
@@ -13,14 +13,14 @@ editor.once('load', function () {
             text: args.title || ''
         });
         labelTitle.renderChanges = false;
-        labelTitle.class.add('title');
+        labelTitle.class.add('title', 'selectable');
         panelTop.append(labelTitle);
 
         var labelNote = new ui.Label({
             text: args.note || ''
         });
         labelNote.renderChanges = false;
-        labelNote.class.add('note');
+        labelNote.class.add('note', 'selectable');
         panelTop.append(labelNote);
 
         if (args.mainContents) {
@@ -81,6 +81,6 @@ editor.once('load', function () {
         panel.buttonCancel = btnCancel;
         panel.buttonConfirm = btnConfirm;
 
-        return panel;  
+        return panel;
     });
 });
