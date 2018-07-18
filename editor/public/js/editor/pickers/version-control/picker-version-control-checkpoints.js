@@ -26,7 +26,11 @@ editor.once('load', function () {
     btnNewCheckpoint.class.add('icon', 'create');
     panelCheckpointsTop.append(btnNewCheckpoint);
 
-    btnNewCheckpoint.hidden = ! editor.call('permissions:write');
+    var toggleNewCheckpointButton = function () {
+        btnNewCheckpoint.hidden = ! editor.call('permissions:write') || ! panel.branch || panel.branch.id !== config.self.branch.id;
+    };
+
+    toggleNewCheckpointButton();
 
     // checkpoints main panel
     var panelCheckpoints = new ui.Panel();
@@ -57,6 +61,7 @@ editor.once('load', function () {
 
     // checkpoints context menu
     var menuCheckpoints = new ui.Menu();
+    menuCheckpoints.class.add('version-control');
 
     // restore checkpoint
     var menuCheckpointsRestore = new ui.MenuItem({
@@ -98,6 +103,8 @@ editor.once('load', function () {
         }
         panel.setCheckpoints(null);
         panel.toggleLoadMore(false);
+
+        toggleNewCheckpointButton();
     };
 
     // Set the checkpoints to be displayed
@@ -174,18 +181,19 @@ editor.once('load', function () {
 
     var createCheckpointListItem = function (checkpoint) {
         // add current date if necessary
-        var date = new Date(checkpoint.createdAt);
-        if (! lastCheckpointDateDisplayed ||
-              lastCheckpointDateDisplayed.getDate() !== date.getDate() ||
-              lastCheckpointDateDisplayed.getMonth() !== date.getMonth() ||
-              lastCheckpointDateDisplayed.getFullYear() !== date.getFullYear()) {
-
+        var date = (new Date(checkpoint.createdAt)).toDateString();
+        if (lastCheckpointDateDisplayed !== date) {
             lastCheckpointDateDisplayed = date;
+
             var dateHeader = document.createElement('div');
             dateHeader.classList.add('date');
             dateHeader.classList.add('selectable');
-            var parts = lastCheckpointDateDisplayed.toDateString().split(' ');
-            dateHeader.textContent = parts[0] + ', ' + parts[1] + ' ' + parts[2] + ', ' + parts[3];
+            if (lastCheckpointDateDisplayed === (new Date()).toDateString()) {
+                dateHeader.textContent = 'Today';
+            } else {
+                var parts = lastCheckpointDateDisplayed.split(' ');
+                dateHeader.textContent = parts[0] + ', ' + parts[1] + ' ' + parts[2] + ', ' + parts[3];
+            }
             listCheckpoints.innerElement.appendChild(dateHeader);
         }
 
@@ -333,7 +341,7 @@ editor.once('load', function () {
     });
 
     panel.on('show', function () {
-        btnNewCheckpoint.hidden = ! editor.call('permissions:write');
+        toggleNewCheckpointButton();
 
         events.push(editor.on('permissions:writeState', function (writeEnabled) {
             // hide all dropdowns if we no longer have write access
@@ -342,7 +350,7 @@ editor.once('load', function () {
             });
 
             // hide new checkpoint button if we no longer have write access
-            btnNewCheckpoint.hidden = ! writeEnabled;
+            toggleNewCheckpointButton();
         }));
     });
 

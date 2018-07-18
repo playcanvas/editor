@@ -148,3 +148,10 @@
         }
     }
 }
+
+.ui-menu.version-control {
+    .ui-menu-item {
+        text-transform: uppercase;
+        font-size: 12px;
+    }
+}

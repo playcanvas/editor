@@ -325,6 +325,7 @@ editor.once('load', function () {
 
     // branches context menu
     var menuBranches = new ui.Menu();
+    menuBranches.class.add('version-control');
 
     // when the branches context menu is closed 'unclick' dropdowns
     menuBranches.on('open', function (open) {
@@ -346,7 +347,7 @@ editor.once('load', function () {
 
     // checkout branch
     var menuBranchesSwitchTo = new ui.MenuItem({
-        text: 'Switch To',
+        text: 'Switch To This Branch',
         value: 'switch-branch'
     });
     menuBranches.append(menuBranchesSwitchTo);
@@ -369,7 +370,7 @@ editor.once('load', function () {
 
     // merge branch
     var menuBranchesMerge = new ui.MenuItem({
-        text: 'Merge',
+        text: 'Merge Into Current Branch',
         value: 'merge-branch'
     });
     menuBranches.append(menuBranchesMerge);
@@ -386,7 +387,7 @@ editor.once('load', function () {
 
     // close branch
     var menuBranchesClose = new ui.MenuItem({
-        text: 'Close',
+        text: 'Close This Branch',
         value: 'close-branch'
     });
     menuBranches.append(menuBranchesClose);
@@ -401,7 +402,7 @@ editor.once('load', function () {
 
     // open branch
     var menuBranchesOpen = new ui.MenuItem({
-        text: 'Re-Open',
+        text: 'Re-Open This Branch',
         value: 'open-branch'
     });
     menuBranches.append(menuBranchesOpen);
@@ -421,31 +422,8 @@ editor.once('load', function () {
                 togglePanels(true);
             } else {
                 setTimeout(function () {
-                    var item = getBranchListItem(branch.id);
-                    if (item) {
-                        var wasSelected = item.selected;
-                        var nextItem = null;
-                        if (item.element.nextSibling !== loadMoreListItem.element) {
-                            nextItem = item.element.nextSibling;
-                        }
-
-                        if (! nextItem) {
-                            nextItem = item.element.previousSibling;
-                        }
-
-                        // remove branch from the list
-                        listBranches.remove(item);
-                        // select next or previous item
-                        if (nextItem && wasSelected) {
-                            nextItem.ui.selected = true;
-                        } else if (! nextItem) {
-                            // if no more items exist in the list then view the open list
-                            showRightSidePanel(null);
-                            fieldBranchesFilter.value = 'open';
-                        }
-                    }
-
                     togglePanels(true);
+                    showCheckpoints();
                 }, 1000);
             }
         });
@@ -773,6 +751,12 @@ editor.once('load', function () {
 
         // when a branch is closed remove it from the list and select the next one
         events.push(editor.on('messenger:branch.close', function (data) {
+            if (fieldBranchesFilter.value === 'closed') {
+                return;
+            }
+
+            // we are seeing the open branches view so remove this branch from the list
+            // and select the next branch
             var item = getBranchListItem(data.branch_id);
             if (! item) return;
 
@@ -791,8 +775,66 @@ editor.once('load', function () {
 
             // select next or previous sibling
             if (nextItem && nextItem !== loadMoreListItem.element) {
-                nextItem.ui.selected = true;
+
+                // if the progress panel is open it means we are the ones
+                // closing the branch (or some other branch..) - so wait a bit
+                // so that we can show the progress end message before selecting another branch
+                if (! panelCloseBranchProgress.hidden) {
+                    setTimeout(function () {
+                        nextItem.ui.selected = true;
+                    }, 500);
+                } else {
+                    // otherwise immediately select the next branch
+                    nextItem.ui.selected = true;
+                }
             }
+        }));
+
+        events.push(editor.on('messenger:branch.open', function (data) {
+            if (fieldBranchesFilter.value === 'open') {
+                return;
+            }
+
+            // we are seeing the closed branches list so remove this
+            // branch from this list and select the next one or if there
+            // are no more branches in this list then view the open branches
+            var item = getBranchListItem(data.branch_id);
+            if (! item) return;
+
+            var wasSelected = item.selected;
+            var nextItem = null;
+            if (item.element.nextSibling !== loadMoreListItem.element) {
+                nextItem = item.element.nextSibling;
+            }
+
+            if (! nextItem) {
+                nextItem = item.element.previousSibling;
+            }
+
+            // remove branch from the list
+            listBranches.remove(item);
+
+            // select next or previous item
+            var selectNext = function () {
+                if (nextItem && wasSelected) {
+                    nextItem.ui.selected = true;
+                } else if (! nextItem) {
+                    // if no more items exist in the list then view the open list
+                    showRightSidePanel(null);
+                    fieldBranchesFilter.value = 'open';
+                }
+            };
+
+            // if the progress panel is open it means we are the ones
+            // opening the branch (or some other branch..) - so wait a bit
+            // so that we can show the progress end message before selecting another branch
+            if (! panelOpenBranchProgress.hidden) {
+                setTimeout(selectNext, 500);
+            } else {
+                // otherwise immediately select the next branch
+                selectNext();
+            }
+
         }));
 
         if (editor.call('viewport:inViewport')) {
