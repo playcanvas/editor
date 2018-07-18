@@ -166,27 +166,6 @@ editor.once('load', function () {
                 // remove item from list
                 setTimeout(function () {
                     togglePanels(true);
-                    var item = getBranchListItem(panelCloseBranch.branch);
-                    if (item) {
-                        var nextItem = null;
-                        if (item.selected) {
-                            if (item.element.nextSibling !== loadMoreListItem.element) {
-                                nextItem = item.element.nextSibling;
-                            }
-
-                            if (! nextItem) {
-                                nextItem = item.element.previousSibling;
-                            }
-                        }
-
-                        listBranches.remove(item);
-
-                        // select next or previous sibling
-                        if (nextItem && nextItem !== loadMoreListItem.element) {
-                            nextItem.ui.selected = true;
-                        }
-                    }
-
                     showCheckpoints();
                 }, 1000);
             }
@@ -442,7 +421,7 @@ editor.once('load', function () {
                 togglePanels(true);
             } else {
                 setTimeout(function () {
-                    var item = getBranchListItem(branch);
+                    var item = getBranchListItem(branch.id);
                     if (item) {
                         var wasSelected = item.selected;
                         var nextItem = null;
@@ -561,8 +540,8 @@ editor.once('load', function () {
     };
 
     // Get the list item for a branch
-    var getBranchListItem = function (branch) {
-        var item = document.getElementById('branch-' + branch.id);
+    var getBranchListItem = function (branchId) {
+        var item = document.getElementById('branch-' + branchId);
         return item && item.ui;
     };
 
@@ -727,7 +706,7 @@ editor.once('load', function () {
             }
 
             if (selected) {
-                var item = getBranchListItem(selected);
+                var item = getBranchListItem(selected.id);
                 if (item) {
                     item.selected = true;
                 }
@@ -789,6 +768,30 @@ editor.once('load', function () {
                     description: data.description
                 });
                 panelCheckpoints.setCheckpoints(existingCheckpoints);
+            }
+        }));
+
+        // when a branch is closed remove it from the list and select the next one
+        events.push(editor.on('messenger:branch.close', function (data) {
+            var item = getBranchListItem(data.branch_id);
+            if (! item) return;
+
+            var nextItem = null;
+            if (item.selected) {
+                if (item.element.nextSibling !== loadMoreListItem.element) {
+                    nextItem = item.element.nextSibling;
+                }
+
+                if (! nextItem) {
+                    nextItem = item.element.previousSibling;
+                }
+            }
+
+            listBranches.remove(item);
+
+            // select next or previous sibling
+            if (nextItem && nextItem !== loadMoreListItem.element) {
+                nextItem.ui.selected = true;
             }
         }));
 
