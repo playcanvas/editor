@@ -179,30 +179,10 @@ editor.once('load', function () {
         currentCheckpointListRequest = request;
     };
 
-    var createCheckpointListItem = function (checkpoint) {
-        // add current date if necessary
-        var date = (new Date(checkpoint.createdAt)).toDateString();
-        if (lastCheckpointDateDisplayed !== date) {
-            lastCheckpointDateDisplayed = date;
-
-            var dateHeader = document.createElement('div');
-            dateHeader.classList.add('date');
-            dateHeader.classList.add('selectable');
-            if (lastCheckpointDateDisplayed === (new Date()).toDateString()) {
-                dateHeader.textContent = 'Today';
-            } else {
-                var parts = lastCheckpointDateDisplayed.split(' ');
-                dateHeader.textContent = parts[0] + ', ' + parts[1] + ' ' + parts[2] + ', ' + parts[3];
-            }
-            listCheckpoints.innerElement.appendChild(dateHeader);
-        }
-
-        var item = new ui.ListItem();
-        item.element.id = 'checkpoint-' + checkpoint.id;
-
+    var createCheckpointWidget = function (checkpoint) {
         var panel = new ui.Panel();
+        panel.class.add('checkpoint-widget');
         panel.flex = true;
-        item.element.appendChild(panel.element);
 
         var imgUser = new Image();
         imgUser.src = '/api/users/' + checkpoint.user.id + '/thumbnail?size=28';
@@ -247,6 +227,7 @@ editor.once('load', function () {
                 btnMore.text = '...read less';
             }
         });
+
         panelTopRow.append(btnMore);
 
         var panelBottomRow = new ui.Panel();
@@ -265,6 +246,41 @@ editor.once('load', function () {
         });
         labelInfo.class.add('info', 'selectable');
         panelBottomRow.append(labelInfo);
+
+
+        // hide more button if necessary - do this here because the element
+        // must exist in the DOM before scrollWidth / clientWidth are available,
+        // Users of this widget need to call this function once the panel has been added to the DOM
+        panel.onAddedToDom = function () {
+            btnMore.hidden = labelDesc.element.scrollWidth <= labelDesc.element.clientWidth && newLineIndex < 0;
+        };
+
+        return panel;
+    };
+
+    var createCheckpointListItem = function (checkpoint) {
+        // add current date if necessary
+        var date = (new Date(checkpoint.createdAt)).toDateString();
+        if (lastCheckpointDateDisplayed !== date) {
+            lastCheckpointDateDisplayed = date;
+
+            var dateHeader = document.createElement('div');
+            dateHeader.classList.add('date');
+            dateHeader.classList.add('selectable');
+            if (lastCheckpointDateDisplayed === (new Date()).toDateString()) {
+                dateHeader.textContent = 'Today';
+            } else {
+                var parts = lastCheckpointDateDisplayed.split(' ');
+                dateHeader.textContent = parts[0] + ', ' + parts[1] + ' ' + parts[2] + ', ' + parts[3];
+            }
+            listCheckpoints.innerElement.appendChild(dateHeader);
+        }
+
+        var item = new ui.ListItem();
+        item.element.id = 'checkpoint-' + checkpoint.id;
+
+        var panel = createCheckpointWidget(checkpoint);
+        item.element.appendChild(panel.element);
 
         // dropdown
         var dropdown = new ui.Button({
@@ -292,9 +308,7 @@ editor.once('load', function () {
 
         listCheckpoints.append(item);
 
-        // hide more button if necessary - do this here because the element
-        // must exist in the DOM before scrollWidth / clientWidth are available
-        btnMore.hidden = labelDesc.element.scrollWidth <= labelDesc.element.clientWidth && newLineIndex < 0;
+        panel.onAddedToDom();
     };
 
     // show create checkpoint panel
@@ -366,4 +380,8 @@ editor.once('load', function () {
     editor.method('picker:versioncontrol:widget:checkpoints', function () {
         return panel;
     });
+
+    // Creates single widget for a checkpoint useful for other panels
+    // that show checkpoints
+    editor.method('picker:versioncontrol:widget:checkpoint', createCheckpointWidget);
 });

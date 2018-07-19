@@ -845,6 +845,16 @@ strong {
             }
         }
     }
+
+    &.discard-merge-tooltip {
+        > .inner {
+            max-width: 300px;
+            line-height: 1.8;
+            white-space: normal;
+            padding: 5px 15px;
+            font-size: 12px;
+        }
+    }
 }
 
 .ui-panel.attributes {
@@ -8461,6 +8471,8 @@ strong {
                     > .side-panel-widget {
                         flex-grow: 1;
                         > .content {
+                            height: 100%;
+
                             > .ui-panel {
                                 padding: 20px;
 
@@ -8485,6 +8497,8 @@ strong {
 
                                 &.main {
                                     border-top: 1px solid $border-primary;
+                                    box-sizing: border-box;
+                                    overflow-y: auto;
                                 }
 
                                 &.buttons {
@@ -8493,6 +8507,9 @@ strong {
                                     height: 68px;
                                     padding: 20px;
                                     box-sizing: border-box;
+                                    position: absolute;
+                                    bottom: 0;
+                                    width: 100%;
 
                                     .ui-button {
                                         float: right;
@@ -8564,8 +8581,69 @@ strong {
 
                         &.merge-branches {
                             .ui-panel.main {
+                                background: $bcg-dark;
+
                                 > .content {
                                     flex-direction: column;
+
+                                    > .ui-panel.branch {
+                                        margin-bottom: 20px;
+
+                                        > .ui-header {
+                                            text-transform: uppercase;
+                                            color: $text-secondary;
+                                            border: 1px solid $border-primary;
+
+                                            &:before {
+                                                @extend .font-icon;
+                                                content: '\E399';
+                                                color: $text-active;
+                                                font-size: 16px;
+                                                float: left;
+                                                margin-right: 5px;
+                                                margin-top: -1px;
+                                            }
+
+                                            > .header-note {
+                                                float: right;
+                                                margin-top: 5px;
+                                                margin-right: 10px;
+                                                text-transform: none;
+                                                color: $text-darkest;
+                                            }
+                                        }
+
+                                        > .content {
+                                            border: 1px solid $border-primary;
+                                            border-top: 0;
+                                            flex-direction: column;
+
+                                            > .ui-panel.checkpoint-widget {
+                                                margin: 10px;
+                                            }
+
+                                            > .ui-panel.discard {
+                                                font-size: 12px;
+                                                padding: 10px;
+                                                border-top: 1px solid $border-primary;
+
+                                                .ui-checkpoint {
+                                                    margin-left: 10px;
+                                                }
+
+                                                .help {
+                                                    @extend .font-icon;
+                                                    cursor: pointer;
+                                                    position: absolute;
+                                                    right: 0;
+                                                    font-size: 16px;
+                                                }
+                                            }
+
+                                        }
+
+                                    }
+
                                     .ui-label.left {
                                         font-size: 12px;
                                         width: 120px;
@@ -8573,6 +8651,78 @@ strong {
                                     .ui-label.right {
                                         font-size: 12px;
                                         font-family: inconsolatamedium;
+                                    }
+
+                                    > .ui-label.arrow {
+                                        @extend .font-icon;
+                                        font-size: 32px;
+                                        color: $text-darkest;
+                                        margin: -19px auto 10px auto;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    .checkpoint-widget {
+                        img {
+                            width: 28px;
+                            height: 28px;
+                            margin-right: 15px;
+                        }
+
+                        .ui-panel.info {
+                            flex-grow: 1;
+                            margin-top: -7px;
+                            > .content {
+                                flex-direction: column;
+
+                                .ui-panel.top-row {
+                                    white-space: nowrap;
+
+                                    .ui-label.desc {
+                                        overflow: hidden;
+                                        max-width: 250px;
+                                        color: $text-primary;
+                                        font-size: 13px;
+
+                                        &.more {
+                                            white-space: normal;
+                                        }
+                                    }
+
+                                    .ui-button {
+                                        position: absolute;
+                                        background: transparent;
+                                        border: 0;
+                                        margin: 0;
+                                        padding: 0;
+                                        font-size: 11px;
+                                        text-decoration: underline;
+                                        top: 1px;
+                                        right: 0;
+                                        z-index: 1;
+
+                                        &:hover {
+                                            color: $text-primary;
+                                        }
+                                    }
+                                }
+
+                                .ui-panel.bottom-row {
+                                    margin-top: -10px;
+
+                                    .ui-label {
+                                        &.id {
+                                            color: $text-primary;
+                                            opacity: 0.9;
+                                            font-size: 12px;
+                                        }
+
+                                        &.info {
+                                            color: $text-secondary;
+                                            font-size: 12px;
+                                        }
                                     }
                                 }
                             }
@@ -8794,67 +8944,7 @@ strong {
                         padding: 25px 15px;
                         border-bottom: 1px solid transparent;
 
-                        img {
-                            width: 28px;
-                            height: 28px;
-                            margin-right: 15px;
-                        }
 
-                        .ui-panel.info {
-                            flex-grow: 1;
-                            margin-top: -7px;
-                            > .content {
-                                flex-direction: column;
-
-                                .ui-panel.top-row {
-                                    white-space: nowrap;
-
-                                    .ui-label.desc {
-                                        overflow: hidden;
-                                        max-width: 250px;
-                                        color: $text-primary;
-                                        font-size: 13px;
-
-                                        &.more {
-                                            white-space: normal;
-                                        }
-                                    }
-
-                                    .ui-button {
-                                        position: absolute;
-                                        background: transparent;
-                                        border: 0;
-                                        margin: 0;
-                                        padding: 0;
-                                        font-size: 12px;
-                                        text-decoration: underline;
-                                        top: 2px;
-                                        right: 0;
-
-                                        &:hover {
-                                            color: $text-primary;
-                                        }
-                                    }
-                                }
-
-                                .ui-panel.bottom-row {
-                                    margin-top: -10px;
-
-                                    .ui-label {
-                                        &.id {
-                                            color: $text-primary;
-                                            opacity: 0.9;
-                                            font-size: 12px;
-                                        }
-
-                                        &.info {
-                                            color: $text-secondary;
-                                            font-size: 12px;
-                                        }
-                                    }
-                                }
-                            }
-                        }
 
                         .ui-button.dropdown {
                             margin-left: 15px;
