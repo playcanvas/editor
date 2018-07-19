@@ -46,6 +46,7 @@ editor.once('load', function () {
     labelDiscardHelp.class.add('help');
     panelDiscard.append(labelDiscardHelp);
 
+    // holds pending requests to get checkpoints
     var checkpointRequests = [];
 
     var panel = editor.call('picker:versioncontrol:createWidget', {
@@ -92,6 +93,7 @@ editor.once('load', function () {
 
         panelInto.remove(panelDiscard);
 
+        // abort all pending requests
         checkpointRequests.forEach(function (request) {
             request.abort();
         });
@@ -107,18 +109,25 @@ editor.once('load', function () {
         var branchPanel = isSourceBranch ? panelFrom : panelInto;
         branchPanel.header = branch.name;
 
+        // get checkpoint from server
         var request = editor.call('checkpoints:get', branch.latestCheckpointId, function (err, checkpoint) {
+            // remove request from pending array
             var idx = checkpointRequests.indexOf(request);
             checkpointRequests.splice(idx, 1);
 
+            // create panel to show checkpoint info
             var panel = editor.call('picker:versioncontrol:widget:checkpoint', checkpoint);
             branchPanel.append(panel);
+            // this needs to be called to update the 'read more' button
             panel.onAddedToDom();
 
+            // append the discard panel after the checkpoint in the destination branch panel
             if (! isSourceBranch) {
                 panelInto.append(panelDiscard);
             }
         });
+
+        // add the request to the pending array
         checkpointRequests.push(request);
     };
 
