@@ -1,8 +1,6 @@
 editor.once('load', function () {
     'use strict';
 
-    var hasBranchesFlag = editor.call('users:hasFlag', 'hasBranches');
-
     var events = [];
 
     var panel = new ui.Panel();
@@ -14,7 +12,9 @@ editor.once('load', function () {
     panel.append(panelCheckpointsTop);
 
     // current branch history
-    var labelBranchHistory = new ui.Label();
+    var labelBranchHistory = new ui.Label({
+        text: 'CHECKPOINTS'
+    });
     labelBranchHistory.renderChanges = false;
     labelBranchHistory.class.add('branch-history', 'selectable');
     panelCheckpointsTop.append(labelBranchHistory);
@@ -91,16 +91,7 @@ editor.once('load', function () {
         currentCheckpointListRequest = null;
 
         panel.branch = branch;
-        if (branch) {
-            if (hasBranchesFlag) {
-                var name = branch.name.length > 25 ? branch.name.substring(0, 22) + '...' : branch.name;
-                labelBranchHistory.text = "'" + name + "' checkpoints";
-            } else {
-                labelBranchHistory.text = 'checkpoints';
-            }
-        } else {
-            labelBranchHistory.text = '';
-        }
+
         panel.setCheckpoints(null);
         panel.toggleLoadMore(false);
 
@@ -235,14 +226,11 @@ editor.once('load', function () {
         panelBottomRow.class.add('bottom-row');
         panelInfo.append(panelBottomRow);
 
-        var labelId = new ui.Label({
-            text: checkpoint.id.substring(0, 7)
-        });
-        labelId.class.add('id', 'selectable');
-        panelBottomRow.append(labelId);
-
         var labelInfo = new ui.Label({
-            text: 'created by ' + (checkpoint.user.fullName || 'missing') + ', ' + editor.call('datetime:convert', checkpoint.createdAt)
+            text: editor.call('datetime:convert', checkpoint.createdAt) +
+                  ' - ' +
+                  checkpoint.id.substring(0, 7) +
+                  (checkpoint.user.fullName ? ' by ' + checkpoint.user.fullName : '')
         });
         labelInfo.class.add('info', 'selectable');
         panelBottomRow.append(labelInfo);

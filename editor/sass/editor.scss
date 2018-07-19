@@ -8358,57 +8358,6 @@ strong {
     }
 }
 
-.ui-overlay.center.checkpoint-restore-confirm {
-    z-index: 1000;
-
-    > .content {
-        position: absolute;
-        top: calc(50% - 150px);
-        left: calc(50% - 250px);
-        width: 500px;
-        height: auto;
-    }
-
-    .ui-header {
-        padding-left: 11px;
-    }
-
-    .ui-button {
-        font-size: 12px;
-        height: 26px;
-        line-height: 26px;
-        text-align: center;
-        width: 164px;
-    }
-
-    .button-cancel {
-        margin: 9px 11px 12px 147px;
-        color: $text-primary;
-        background-color: #f60;
-        &:hover {
-            background-color: #ff5000;
-        }
-    }
-
-    .button-yes {
-        margin: 9px 0 12px 0;
-    }
-
-    .ch-confirm-first-line {
-        color: $text-primary;
-        padding: 19px 15px 11px 20px;
-        font-size: 18px;
-    }
-
-    .ch-confirm-second-line {
-        color: $text-secondary;
-        padding: 0 15px 12px 20px;
-        font-size: 13px;
-        line-height: 18px;
-        border-bottom: 2px solid $bcg-darker;
-    }
-}
-
 .ui-panel.attributes-array {
     > .content {
         padding: 0;
@@ -8710,18 +8659,15 @@ strong {
                                 }
 
                                 .ui-panel.bottom-row {
-                                    margin-top: -10px;
+                                    margin-top: -8px;
 
                                     .ui-label {
-                                        &.id {
-                                            color: $text-primary;
-                                            opacity: 0.9;
-                                            font-size: 12px;
-                                        }
-
                                         &.info {
-                                            color: $text-secondary;
+                                            color: $text-dark;
                                             font-size: 12px;
+                                            max-width: 320px;
+                                            overflow: hidden;
+                                            text-overflow: ellipsis;
                                         }
                                     }
                                 }
@@ -8807,6 +8753,8 @@ strong {
             }
 
             .checkpoints-top {
+                background: $bcg-darker;
+
                 .ui-label.branch-history {
                     float: left;
                     color: $text-primary;
@@ -8818,6 +8766,7 @@ strong {
                 .ui-button.create {
                     float: right;
                     width: 147px;
+                    background: $bcg-primary;
                 }
             }
 
@@ -8953,7 +8902,7 @@ strong {
                     }
 
                     > .date {
-                        background: $bcg-darker;
+                        background: $bcg-dark;
                         color: $text-secondary;
                         border-top: 1px solid $border-primary;
                         border-bottom: 1px solid $border-primary;
