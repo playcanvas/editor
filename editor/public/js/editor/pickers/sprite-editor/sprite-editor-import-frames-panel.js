@@ -116,6 +116,14 @@ editor.once('load', function() {
 
             for (var key in data.frames) {
                 var frameData = data.frames[key];
+
+                // the free version of texturepacker doesn't include the pivot data, so provide defaults if necessary
+                if (!frameData.pivot) {
+                    frameData.pivot = {
+                        x: 0.5,
+                        y: 0.5
+                    };
+                }
                 newFrames[counter++] = {
                     name: frameData.filename || 'Frame ' + (counter + 1),
                     border: [0,0,0,0],
