@@ -8,6 +8,7 @@ editor.once('load', function() {
 
     var corners = [];
     var cornerColors = [];
+    var visible = true;
 
     var vecA = new pc.Vec2();
 
@@ -59,6 +60,14 @@ editor.once('load', function() {
             return false;
         };
 
+        editor.method('gizmo:screen:visible', function(state) {
+            if (visible !== state) {
+                visible = state;
+
+                editor.call('viewport:render');
+            }
+        });
+
         editor.on('entities:add', function(entity) {
             var key = entity.get('resource_id');
 
@@ -105,6 +114,10 @@ editor.once('load', function() {
         });
 
         editor.on('viewport:gizmoUpdate', function (dt) {
+            if (!visible) {
+                return;
+            }
+
             for (var key in entities) {
                 var entity = app.root.findByGuid(key);
                 if (! entity)
