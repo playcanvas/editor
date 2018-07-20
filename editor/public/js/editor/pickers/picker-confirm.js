@@ -2,8 +2,6 @@ editor.once('load', function () {
     'use strict';
 
     var callback = null;
-    var className = '';
-    var timeoutClass = null;
 
     // overlay
     var overlay = new ui.Overlay();
@@ -61,14 +59,31 @@ editor.once('load', function () {
         }
     });
 
-    // enter > yes
     window.addEventListener('keydown', function (evt) {
-        if (evt.keyCode !== 13 || overlay.hidden)
-            return;
+        if (overlay.hidden) return;
 
-        btnYes.emit('click');
         evt.preventDefault();
         evt.stopPropagation();
+
+        // enter > click focused button
+        if (evt.keyCode === 13) {
+            if (document.activeElement === btnYes.element) {
+                if (!btnYes.disabled) {
+                    btnYes.emit('click');
+                }
+            } else if (! btnNo.disabled) {
+                btnNo.emit('click');
+            }
+        }
+
+        // tab - focus yes / no buttons
+        else if (evt.keyCode === 9) {
+            if (document.activeElement === btnYes.element) {
+                btnNo.element.focus();
+            } else {
+                btnYes.element.focus();
+            }
+        }
     });
 
     overlay.on('show', function () {
@@ -79,39 +94,27 @@ editor.once('load', function () {
 
     // on overlay hide
     overlay.on('hide', function () {
-        if (className) {
-            timeoutClass = setTimeout(function () {
-                overlay.class.remove(className);
-                className = '';
-            }, 100);
-        }
-
         editor.emit('picker:confirm:close');
         // editor-blocking picker closed
         editor.emit('picker:close', 'confirm');
     });
 
-
-    editor.method('picker:confirm:class', function (name) {
-        if (timeoutClass) {
-            clearTimeout(timeoutClass);
-            timeoutClass = null;
-        }
-
-        if (className)
-            overlay.class.remove(className);
-
-        if (name)
-            overlay.class.add(name);
-
-        className = name;
-    });
-
-
     // call picker
-    editor.method('picker:confirm', function (text, fn) {
+    editor.method('picker:confirm', function (text, fn, options) {
         label.text = text || 'Are you sure?';
         callback = fn || null;
+
+        if (options && options.yesText) {
+            btnYes.text = options.yesText;
+        } else {
+            btnYes.text = 'Yes';
+        }
+
+        if (options && options.noText) {
+            btnNo.text = options.noText;
+        } else {
+            btnNo.text = 'No';
+        }
 
         // show overlay
         overlay.hidden = false;
