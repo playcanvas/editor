@@ -61,12 +61,12 @@ editor.once('load', function () {
         }
     });
 
-    // enter > yes
+    // enter > no
     window.addEventListener('keydown', function (evt) {
         if (evt.keyCode !== 13 || overlay.hidden)
             return;
 
-        btnYes.emit('click');
+        btnNo.emit('click');
         evt.preventDefault();
         evt.stopPropagation();
     });
