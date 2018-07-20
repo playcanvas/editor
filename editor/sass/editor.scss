@@ -846,7 +846,7 @@ strong {
         }
     }
 
-    &.discard-merge-tooltip {
+    &.discard-changes-tooltip {
         > .inner {
             max-width: 300px;
             line-height: 1.8;
@@ -8438,9 +8438,11 @@ strong {
                                             line-height: 1.4;
                                             color: $text-secondary;
                                         }
-                                        &.small {
-                                            font-size: 12px;
-                                        }
+
+                                    }
+
+                                    .ui-label.small {
+                                        font-size: 12px;
                                     }
                                 }
 
@@ -8448,6 +8450,7 @@ strong {
                                     border-top: 1px solid $border-primary;
                                     box-sizing: border-box;
                                     overflow-y: auto;
+                                    background: $bcg-dark;
                                 }
 
                                 &.buttons {
@@ -8487,6 +8490,74 @@ strong {
                             }
                         }
 
+                        .ui-panel.version-control-side-panel-box {
+                            margin-bottom: 20px;
+
+                            > .ui-header {
+                                @extend .allowSelect;
+                                color: $text-secondary;
+                                border: 1px solid $border-primary;
+
+                                &:before {
+                                    @extend .font-icon;
+                                    content: '\E399';
+                                    color: $text-active;
+                                    font-size: 16px;
+                                    float: left;
+                                    margin-right: 5px;
+                                    margin-top: -1px;
+                                }
+
+                                > .title {
+                                    max-width: 270px;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                }
+
+                                > .header-note {
+                                    float: right;
+                                    margin-top: 5px;
+                                    margin-right: 10px;
+                                    text-transform: none;
+                                    color: $text-darkest;
+                                }
+                            }
+
+                            &.no-icon > .ui-header:before {
+                                display: none;
+                            }
+
+                            > .content {
+                                border: 1px solid $border-primary;
+                                border-top: 0;
+                                flex-direction: column;
+
+                                > .ui-panel.checkpoint-widget {
+                                    margin: 10px;
+                                }
+
+                                > .ui-panel.discard {
+                                    font-size: 12px;
+                                    padding: 10px;
+                                    border-top: 1px solid $border-primary;
+
+                                    .ui-checkpoint {
+                                        margin-left: 10px;
+                                    }
+
+                                    .help {
+                                        @extend .font-icon;
+                                        cursor: pointer;
+                                        position: absolute;
+                                        right: 0;
+                                        font-size: 16px;
+                                    }
+                                }
+
+                            }
+
+                        }
+
                         &.create-checkpoint {
                             .ui-panel.main {
                                 > .content {
@@ -8513,6 +8584,13 @@ strong {
                                             }
                                         }
                                     }
+
+                                    .ui-label.branch-icon {
+                                        @extend .font-icon;
+                                        font-size: 32px;
+                                        color: $text-darkest;
+                                        margin: 5px auto 25px auto;
+                                    }
                                 }
                             }
                         }
@@ -8523,6 +8601,14 @@ strong {
                                     flex-direction: column;
                                     .ui-text-field {
                                         width: auto;
+                                        margin-left: 15px;
+                                    }
+
+                                    .ui-label.close-icon {
+                                        @extend .font-icon;
+                                        font-size: 32px;
+                                        color: $text-darkest;
+                                        margin: 5px auto 25px auto;
                                     }
                                 }
                             }
@@ -8530,68 +8616,8 @@ strong {
 
                         &.merge-branches {
                             .ui-panel.main {
-                                background: $bcg-dark;
-
                                 > .content {
                                     flex-direction: column;
-
-                                    > .ui-panel.branch {
-                                        margin-bottom: 20px;
-
-                                        > .ui-header {
-                                            text-transform: uppercase;
-                                            color: $text-secondary;
-                                            border: 1px solid $border-primary;
-
-                                            &:before {
-                                                @extend .font-icon;
-                                                content: '\E399';
-                                                color: $text-active;
-                                                font-size: 16px;
-                                                float: left;
-                                                margin-right: 5px;
-                                                margin-top: -1px;
-                                            }
-
-                                            > .header-note {
-                                                float: right;
-                                                margin-top: 5px;
-                                                margin-right: 10px;
-                                                text-transform: none;
-                                                color: $text-darkest;
-                                            }
-                                        }
-
-                                        > .content {
-                                            border: 1px solid $border-primary;
-                                            border-top: 0;
-                                            flex-direction: column;
-
-                                            > .ui-panel.checkpoint-widget {
-                                                margin: 10px;
-                                            }
-
-                                            > .ui-panel.discard {
-                                                font-size: 12px;
-                                                padding: 10px;
-                                                border-top: 1px solid $border-primary;
-
-                                                .ui-checkpoint {
-                                                    margin-left: 10px;
-                                                }
-
-                                                .help {
-                                                    @extend .font-icon;
-                                                    cursor: pointer;
-                                                    position: absolute;
-                                                    right: 0;
-                                                    font-size: 16px;
-                                                }
-                                            }
-
-                                        }
-
-                                    }
 
                                     .ui-label.left {
                                         font-size: 12px;

@@ -1,15 +1,9 @@
 editor.once('load', function () {
     'use strict';
 
-    var panelFrom = new ui.Panel(' ');
-    panelFrom.flexGrow = 1;
-    panelFrom.class.add('branch');
-
-    var labelHeader = new ui.Label({
-        text: 'Merge from'
+    var boxFrom = new ui.VersionControlSidePanelBox({
+        headerNote: 'Merge from'
     });
-    labelHeader.class.add('header-note');
-    panelFrom.headerElement.appendChild(labelHeader.element);
 
     var labelArrow = new ui.Label({
         text: '&#57704;',
@@ -17,42 +11,19 @@ editor.once('load', function () {
     });
     labelArrow.class.add('arrow');
 
-    var panelInto = new ui.Panel(' ');
-    panelInto.flexGrow = 1;
-    panelInto.class.add('branch');
-
-    labelHeader = new ui.Label({
-        text: 'Merge to'
+    var boxInto = new ui.VersionControlSidePanelBox({
+        headerNote: 'Merge to',
+        discardChanges: true,
+        discardChangesHelp: 'If you choose not to discard your changes then a new checkpoint will be created before merging.'
     });
-    labelHeader.class.add('header-note');
-    panelInto.headerElement.appendChild(labelHeader.element);
-
-    var panelDiscard = new ui.Panel();
-    panelDiscard.class.add('discard');
-    panelDiscard.flexGrow = 1;
-    var label = new ui.Label({
-        text: 'Discard un-checkpointed changes?'
-    });
-    panelDiscard.append(label);
-
-    var checkboxDiscardChanges = new ui.Checkbox();
-    checkboxDiscardChanges.class.add('tick');
-    panelDiscard.append(checkboxDiscardChanges);
-
-    var labelDiscardHelp = new ui.Label({
-        text: '&#57656;',
-        unsafe: true
-    });
-    labelDiscardHelp.class.add('help');
-    panelDiscard.append(labelDiscardHelp);
 
     // holds pending requests to get checkpoints
     var checkpointRequests = [];
 
-    var panel = editor.call('picker:versioncontrol:createWidget', {
+    var panel = editor.call('picker:versioncontrol:createSidePanel', {
         title: 'Merge branches',
         note: 'Beginning the merge process will lock other active users\' sessions in the current branch.',
-        mainContents: [panelFrom, labelArrow, panelInto],
+        mainContents: [boxFrom.panel, labelArrow, boxInto.panel],
         buttons: {
             cancel: {
                 highlighted: true
@@ -64,34 +35,16 @@ editor.once('load', function () {
     });
     panel.class.add('merge-branches');
 
-    var tooltip = Tooltip.attach({
-        target: labelDiscardHelp.element,
-        text: 'If you choose not to discard your changes then a new checkpoint will be created before merging.',
-        align: 'top',
-        root: editor.call('layout.root')
-    });
-    tooltip.class.add('discard-merge-tooltip');
-
-    checkboxDiscardChanges.on('change', function (value) {
+    boxInto.on('discardChanges', function (value) {
         panel.discardChanges = value;
     });
 
     panel.on('hide', function () {
-        checkboxDiscardChanges.value = false;
         panel.setSourceBranch(null);
         panel.setDestinationBranch(null);
 
-        var checkpointPanel = panelFrom.innerElement.querySelector('.checkpoint-widget');
-        if (checkpointPanel) {
-            checkpointPanel.ui.destroy();
-        }
-
-        checkpointPanel = panelInto.innerElement.querySelector('.checkpoint-widget');
-        if (checkpointPanel) {
-            checkpointPanel.ui.destroy();
-        }
-
-        panelInto.remove(panelDiscard);
+        boxFrom.clear();
+        boxInto.clear();
 
         // abort all pending requests
         checkpointRequests.forEach(function (request) {
@@ -106,8 +59,8 @@ editor.once('load', function () {
 
         if (! branch) return;
 
-        var branchPanel = isSourceBranch ? panelFrom : panelInto;
-        branchPanel.header = branch.name;
+        var box = isSourceBranch ? boxFrom : boxInto;
+        box.header = branch.name;
 
         // get checkpoint from server
         var request = editor.call('checkpoints:get', branch.latestCheckpointId, function (err, checkpoint) {
@@ -115,16 +68,7 @@ editor.once('load', function () {
             var idx = checkpointRequests.indexOf(request);
             checkpointRequests.splice(idx, 1);
 
-            // create panel to show checkpoint info
-            var panel = editor.call('picker:versioncontrol:widget:checkpoint', checkpoint);
-            branchPanel.append(panel);
-            // this needs to be called to update the 'read more' button
-            panel.onAddedToDom();
-
-            // append the discard panel after the checkpoint in the destination branch panel
-            if (! isSourceBranch) {
-                panelInto.append(panelDiscard);
-            }
+            box.setCheckpoint(checkpoint);
         });
 
         // add the request to the pending array

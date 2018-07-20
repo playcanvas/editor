@@ -1,7 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    editor.method('picker:versioncontrol:createWidget', function (args) {
+    editor.method('picker:versioncontrol:createSidePanel', function (args) {
         var panel = new ui.Panel();
         panel.class.add('side-panel-widget');
 

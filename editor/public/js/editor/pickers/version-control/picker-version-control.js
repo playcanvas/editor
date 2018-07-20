@@ -104,7 +104,7 @@ editor.once('load', function () {
     panelCheckpoints.on('checkpoint:branch', function (checkpoint) {
         showRightSidePanel(panelCreateBranch);
         panelCreateBranch.setSourceBranch(panelCheckpoints.branch);
-        panelCreateBranch.setCheckpointId(checkpoint.id);
+        panelCreateBranch.setCheckpoint(checkpoint);
     });
 
     // new checkpoint panel
@@ -155,21 +155,32 @@ editor.once('load', function () {
     });
     panelCloseBranch.on('confirm', function (data) {
         togglePanels(false);
-        showRightSidePanel(panelCloseBranchProgress);
 
-        editor.call('branches:close', panelCloseBranch.branch.id, function (err) {
-            panelCloseBranchProgress.finish(err);
-            // if there was an error re-add the item to the list
-            if (err) {
-                togglePanels(true);
-            } else {
-                // remove item from list
-                setTimeout(function () {
+        var close = function () {
+            showRightSidePanel(panelCloseBranchProgress);
+
+            editor.call('branches:close', panelCloseBranch.branch.id, function (err) {
+                panelCloseBranchProgress.finish(err);
+                // if there was an error re-add the item to the list
+                if (err) {
                     togglePanels(true);
-                    showCheckpoints();
-                }, 1000);
-            }
-        });
+                } else {
+                    // remove item from list
+                    setTimeout(function () {
+                        togglePanels(true);
+                        showCheckpoints();
+                    }, 1000);
+                }
+            });
+        };
+
+        if (! panelCloseBranch.discardChanges) {
+            // take a checkpoint first
+            createCheckpoint(panelCloseBranch.branch.id, 'Checkpoint before closing branch "' + panelCloseBranch.branch.name + '"', close);
+        } else {
+            close();
+        }
+
     });
 
     // open branch progress panel
@@ -200,8 +211,8 @@ editor.once('load', function () {
         showCheckpoints();
     });
     panelMergeBranches.on('confirm', function () {
-        var sourceBranchId = panelMergeBranches.sourceBranch.id;
-        var destinationBranchId = panelMergeBranches.destinationBranch.id;
+        var sourceBranch = panelMergeBranches.sourceBranch;
+        var destinationBranch = panelMergeBranches.destinationBranch;
         var discardChanges = panelMergeBranches.discardChanges;
 
         togglePanels(false);
@@ -209,7 +220,7 @@ editor.once('load', function () {
         var merge = function () {
             showRightSidePanel(panelMergeBranchesProgress);
 
-            editor.call('branches:merge', sourceBranchId, destinationBranchId, function (err, data) {
+            editor.call('branches:merge', sourceBranch.id, destinationBranch.id, function (err, data) {
                 panelMergeBranchesProgress.finish(err);
                 if (err) {
                     togglePanels(true);
@@ -239,17 +250,7 @@ editor.once('load', function () {
             merge();
         } else {
             // take a checkpoint first
-            showRightSidePanel(panelCreateCheckpointProgress);
-
-            editor.call('checkpoints:create', 'Checkpoint before merging', function (err, checkpoint) {
-                if (err) {
-                    panelCreateCheckpointProgress.finish(err);
-                    return togglePanels(true);
-                }
-
-                // start merging
-                merge();
-            });
+            createCheckpoint(config.self.branch.id, 'Checkpoint before merging checkpoint "' + sourceBranch.latestCheckpointId + '" into "' + destinationBranch.latestCheckpointId + '"', merge);
         }
     });
 
@@ -273,16 +274,27 @@ editor.once('load', function () {
     });
     panelRestoreCheckpoint.on('confirm', function () {
         togglePanels(false);
-        showRightSidePanel(panelRestoreCheckpointProgress);
 
-        editor.call('checkpoints:restore', panelRestoreCheckpoint.checkpoint.id, config.self.branch.id, function (err, data) {
-            panelRestoreCheckpointProgress.finish(err);
-            if (err) {
-                togglePanels(true);
-            } else {
-                refreshBrowser();
-            }
-        });
+        var restore = function () {
+            showRightSidePanel(panelRestoreCheckpointProgress);
+
+            editor.call('checkpoints:restore', panelRestoreCheckpoint.checkpoint.id, config.self.branch.id, function (err, data) {
+                panelRestoreCheckpointProgress.finish(err);
+                if (err) {
+                    togglePanels(true);
+                } else {
+                    refreshBrowser();
+                }
+            });
+        };
+
+        if (! panelRestoreCheckpoint.discardChanges) {
+            // take a checkpoint first
+            createCheckpoint(config.self.branch.id, 'Checkpoint before restoring "' + panelRestoreCheckpoint.checkpoint.id.substring(0, 7) + '"', restore);
+        } else {
+            restore();
+        }
+
     });
 
     // switch branch progress
@@ -532,6 +544,21 @@ editor.once('load', function () {
         panelCheckpoints.loadCheckpoints();
     };
 
+    var createCheckpoint = function (branchId, description, callback) {
+        togglePanels(false);
+        showRightSidePanel(panelCreateCheckpointProgress);
+
+        editor.call('checkpoints:create', branchId, description, function (err, checkpoint) {
+            panelCreateCheckpointProgress.finish(err);
+            if (err) {
+                return togglePanels(true);
+            }
+
+            callback(checkpoint);
+        });
+
+    };
+
     // show create branch panel
     // btnNewBranch.on('click', function () {
     //     showRightSidePanel(panelCreateBranch);
@@ -553,15 +580,7 @@ editor.once('load', function () {
         }
     });
     panelCreateCheckpoint.on('confirm', function (data) {
-        togglePanels(false);
-        showRightSidePanel(panelCreateCheckpointProgress);
-
-        editor.call('checkpoints:create', data.description, function (err, checkpoint) {
-            panelCreateCheckpointProgress.finish(err);
-            if (err) {
-                return togglePanels(true);
-            }
-
+        createCheckpoint(config.self.branch.id, data.description, function (checkpoint) {
             setTimeout(function () {
                 togglePanels(true);
                 showCheckpoints();
@@ -581,8 +600,8 @@ editor.once('load', function () {
             sourceBranchId: panelCheckpoints.branch.id
         };
 
-        if (panelCreateBranch.checkpointId) {
-            params.sourceCheckpointId = panelCreateBranch.checkpointId;
+        if (panelCreateBranch.checkpoint) {
+            params.sourceCheckpointId = panelCreateBranch.checkpoint.id;
         }
 
         editor.call('branches:create', params, function (err, branch) {

@@ -15,14 +15,14 @@ editor.once('load', function () {
         });
     };
 
-    editor.method('checkpoints:create', function (description, callback) {
+    editor.method('checkpoints:create', function (branchId, description, callback) {
         return request({
             url: '{{url.api}}/checkpoints',
             auth: true,
             method: 'POST',
             data: {
                 projectId: config.project.id,
-                branchId: config.self.branch.id,
+                branchId: branchId,
                 description: description
             }
         }, callback);
