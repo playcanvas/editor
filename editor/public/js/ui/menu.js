@@ -45,10 +45,14 @@ Menu.prototype._onKeyDown = function(evt) {
         this.ui.open = false;
 };
 
-Menu.prototype._onSelectPropagate = function(path) {
-    this.open = false;
-    this.emit(path.join('.') + ':select', path);
-    this.emit('select', path);
+Menu.prototype._onSelectPropagate = function(path, selectedItemHasChildren) {
+    if (selectedItemHasChildren) {
+        this._updatePath(path);
+    } else {
+        this.open = false;
+        this.emit(path.join('.') + ':select', path);
+        this.emit('select', path);
+    }
 };
 
 Menu.prototype._onAppend = function(item) {
@@ -182,7 +186,8 @@ Menu.prototype.createItem = function (key, data) {
     var item = new ui.MenuItem({
         text: data.title || key,
         value: key,
-        icon: data.icon
+        icon: data.icon,
+        hasChildren: !!(data.items && Object.keys(data.items).length > 0)
     });
 
     if (data.select) {

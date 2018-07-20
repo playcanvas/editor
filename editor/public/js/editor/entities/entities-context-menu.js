@@ -386,7 +386,8 @@ editor.once('load', function() {
         var item = new ui.MenuItem({
             text: data.text,
             icon: data.icon,
-            value: data.value
+            value: data.value,
+            hasChildren: !!(data.items && Object.keys(data.items).length > 0)
         });
 
         item.on('select', function() {
