@@ -34,12 +34,6 @@ editor.once('load', function () {
     fieldName.keyChange = true;
     panelTypeName.append(fieldName);
 
-    fieldName.elementInput.addEventListener('keydown', function (e) {
-        if (e.keyCode === 13 && ! panel.buttonConfirm.disabled) {
-            panel.emit('confirm');
-        }
-    });
-
     boxConfirm.append(panelTypeName);
 
     var checkpointRequest = null;
@@ -64,6 +58,13 @@ editor.once('load', function () {
         if (! panel.branch) return;
 
         panel.buttonConfirm.disabled = fieldName.value.toLowerCase() !== panel.branch.name.toLowerCase();
+        if (! panel.buttonConfirm.disabled) {
+            panel.buttonConfirm.class.add('highlighted');
+            panel.buttonCancel.class.remove('highlighted');
+        } else {
+            panel.buttonConfirm.class.remove('highlighted');
+            panel.buttonCancel.class.add('highlighted');
+        }
     });
 
     boxBranch.on('discardChanges', function (value) {
