@@ -97,8 +97,10 @@ editor.once('load', function () {
                 key: 'enter',
                 callback: function (e) {
                     if (btnCancel.class.contains('highlighted')) {
+                        if (btnCancel.disabled) return;
                         btnCancel.emit('click');
                     } else if (btnConfirm.class.contains('highlighted')) {
+                        if (btnConfirm.disabled) return;
                         btnConfirm.emit('click');
                     }
                 }

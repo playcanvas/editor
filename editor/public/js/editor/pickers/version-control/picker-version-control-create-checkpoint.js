@@ -32,10 +32,8 @@ editor.once('load', function () {
         note: 'A new checkpoint will take a snapshot of the current branch which you can revert to at a later date.',
         mainContents: [labelDesc, fieldDescription],
         buttons: {
-            cancel: {
-                highlighted: true
-            },
             confirm: {
+                highlighted: true,
                 text: 'Create Checkpoint',
                 onClick: create
             }
@@ -47,13 +45,6 @@ editor.once('load', function () {
 
     fieldDescription.on('change', function (value) {
         panel.buttonConfirm.disabled = !value.trim();
-        if (! panel.buttonConfirm.disabled) {
-            panel.buttonConfirm.class.add('highlighted');
-            panel.buttonCancel.class.remove('highlighted');
-        } else {
-            panel.buttonConfirm.class.remove('highlighted');
-            panel.buttonCancel.class.add('highlighted');
-        }
     });
 
     panel.on('hide', function () {
