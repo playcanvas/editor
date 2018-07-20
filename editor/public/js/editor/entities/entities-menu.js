@@ -102,6 +102,7 @@ editor.once('load', function() {
         return {
             'add-new-entity': {
                 title: 'Entity',
+                className: 'menu-item-add-entity',
                 icon: '&#57632;',
                 select: function() {
                     editor.call('entities:new', {parent: getParentFn()});
@@ -109,10 +110,12 @@ editor.once('load', function() {
             },
             'audio-sub-menu': {
                 title: 'Audio',
+                className: 'menu-item-audio-sub-menu',
                 icon: componentsLogos.sound,
                 items: {
                     'add-new-listener': {
                         title: 'Audio Listener',
+                        className: 'menu-item-add-audio-listener',
                         icon: componentsLogos.audiolistener,
                         select: function() {
                             editor.call('entities:new', {
@@ -126,6 +129,7 @@ editor.once('load', function() {
                     },
                     'add-new-audiosource': {
                         title: 'Audio Source',
+                        className: 'menu-item-add-audio-source',
                         icon: componentsLogos.audiosource,
                         hide: function () {
                             return ! editor.call('settings:project').get('useLegacyAudio');
@@ -142,6 +146,7 @@ editor.once('load', function() {
                     },
                     'add-new-sound': {
                         title: 'Sound',
+                        className: 'menu-item-add-sound',
                         icon: componentsLogos.sound,
                         select: function() {
                             editor.call('entities:new', {
@@ -157,6 +162,7 @@ editor.once('load', function() {
             },
             'add-new-camera': {
                 title: 'Camera',
+                className: 'menu-item-add-camera',
                 icon: componentsLogos.camera,
                 select: function() {
                     editor.call('entities:new', {
@@ -170,10 +176,12 @@ editor.once('load', function() {
             },
             'light-sub-menu': {
                 title: 'Light',
+                className: 'menu-item-light-sub-menu',
                 icon: componentsLogos.point,
                 items: {
                     'add-new-directional': {
                         title: 'Directional Light',
+                        className: 'menu-item-add-directional-light',
                         icon: componentsLogos.directional,
                         select: function() {
                             var component = editor.call('components:getDefault', 'light');
@@ -190,6 +198,7 @@ editor.once('load', function() {
                     },
                     'add-new-point': {
                         title: 'Point Light',
+                        className: 'menu-item-add-point-light',
                         icon: componentsLogos.point,
                         select: function() {
                             var component = editor.call('components:getDefault', 'light');
@@ -207,6 +216,7 @@ editor.once('load', function() {
                     },
                     'add-new-spot': {
                         title: 'Spot Light',
+                        className: 'menu-item-add-spot-light',
                         icon: componentsLogos.spot,
                         select: function() {
                             var component = editor.call('components:getDefault', 'light');
@@ -225,6 +235,7 @@ editor.once('load', function() {
             },
             'add-new-model': {
                 title: 'Model',
+                className: 'menu-item-add-model',
                 icon: componentsLogos.model,
                 select: function() {
                     var component = editor.call('components:getDefault', 'model');
@@ -241,6 +252,7 @@ editor.once('load', function() {
             },
             'add-new-particles': {
                 title: 'Particle System',
+                className: 'menu-item-add-particle-system',
                 icon: componentsLogos.particlesystem,
                 select: function() {
                     editor.call('entities:new', {
@@ -254,10 +266,12 @@ editor.once('load', function() {
             },
             'primitive-sub-menu': {
                 title: 'Primitive',
+                className: 'menu-item-primitive-sub-menu',
                 icon: componentsLogos.model,
                 items: {
                     'add-new-box': {
                         title: 'Box',
+                        className: 'menu-item-add-box-primitive',
                         icon: componentsLogos.model,
                         select: function() {
                             var component = editor.call('components:getDefault', 'model');
@@ -274,6 +288,7 @@ editor.once('load', function() {
                     },
                     'add-new-capsule': {
                         title: 'Capsule',
+                        className: 'menu-item-add-capsule-primitive',
                         icon: componentsLogos.model,
                         select: function() {
                             var component = editor.call('components:getDefault', 'model');
@@ -290,6 +305,7 @@ editor.once('load', function() {
                     },
                     'add-new-cone': {
                         title: 'Cone',
+                        className: 'menu-item-add-cone-primitive',
                         icon: componentsLogos.model,
                         select: function() {
                             var component = editor.call('components:getDefault', 'model');
@@ -306,6 +322,7 @@ editor.once('load', function() {
                     },
                     'add-new-cylinder': {
                         title: 'Cylinder',
+                        className: 'menu-item-add-cylinder-primitive',
                         icon: componentsLogos.model,
                         select: function() {
                             var component = editor.call('components:getDefault', 'model');
@@ -323,6 +340,7 @@ editor.once('load', function() {
 
                     'add-new-plane': {
                         title: 'Plane',
+                        className: 'menu-item-add-plane-primitive',
                         icon: componentsLogos.model,
                         select: function() {
                             var component = editor.call('components:getDefault', 'model');
@@ -339,6 +357,7 @@ editor.once('load', function() {
                     },
                     'add-new-sphere': {
                         title: 'Sphere',
+                        className: 'menu-item-add-sphere-primitive',
                         icon: componentsLogos.model,
                         select: function() {
                             var component = editor.call('components:getDefault', 'model');
@@ -357,10 +376,12 @@ editor.once('load', function() {
             },
             'sprite-sub-menu': {
                 title: 'Sprite',
+                className: 'menu-item-sprite-sub-menu',
                 icon: componentsLogos.sprite,
                 items: {
                     'add-new-sprite': {
                         title: 'Sprite',
+                        className: 'menu-item-add-sprite',
                         icon: componentsLogos.sprite,
                         select: function() {
                             var data = editor.call('components:getDefault', 'sprite');
@@ -375,6 +396,7 @@ editor.once('load', function() {
                     },
                     'add-new-animated-sprite': {
                         title: 'Animated Sprite',
+                        className: 'menu-item-add-animated-sprite',
                         icon: componentsLogos.sprite,
                         select: function() {
                             var data = editor.call('components:getDefault', 'sprite');
@@ -402,10 +424,12 @@ editor.once('load', function() {
             },
             'ui-sub-menu': {
                 title: 'User Interface',
+                className: 'menu-item-ui-sub-menu',
                 icon: componentsLogos.userinterface,
                 items: {
                     'add-new-2d-screen': {
                         title: '2D Screen',
+                        className: 'menu-item-add-2d-screen-ui',
                         icon: componentsLogos['2d-screen'],
                         select: function() {
                             var data = editor.call('components:getDefault', 'screen');
@@ -422,6 +446,7 @@ editor.once('load', function() {
                     },
                     'add-new-3d-screen': {
                         title: '3D Screen',
+                        className: 'menu-item-add-3d-screen-ui',
                         icon: componentsLogos['3d-screen'],
                         select: function() {
                             var data = editor.call('components:getDefault', 'screen');
@@ -439,6 +464,7 @@ editor.once('load', function() {
                     },
                     'add-new-text': {
                         title: 'Text Element',
+                        className: 'menu-item-add-text-element-ui',
                         icon: componentsLogos['text-element'],
                         select: function() {
                             editor.call('entities:new', {
@@ -452,6 +478,7 @@ editor.once('load', function() {
                     },
                     'add-new-image': {
                         title: 'Image Element',
+                        className: 'menu-item-add-image-element-ui',
                         icon: componentsLogos['image-element'],
                         select: function() {
                             editor.call('entities:new', {
@@ -465,6 +492,7 @@ editor.once('load', function() {
                     },
                     'add-new-group': {
                         title: 'Element Group',
+                        className: 'menu-item-add-element-group-ui',
                         icon: componentsLogos['group-element'],
                         select: function() {
                             var data = editor.call('components:getDefault', 'element');
@@ -480,6 +508,7 @@ editor.once('load', function() {
                     },
                     'add-new-button': {
                         title: 'Button Element',
+                        className: 'menu-item-add-button-element-ui',
                         icon: componentsLogos.button,
                         select: function() {
                             editor.call('entities:new', createButtonEntityData({
@@ -498,6 +527,7 @@ editor.once('load', function() {
                     },
                     'add-new-scroll-view': {
                         title: 'Scroll View Element',
+                        className: 'menu-item-add-scroll-view-element-ui',
                         icon: componentsLogos.scrollview,
                         hide: function () {
                             return !editor.call('users:hasFlag', 'hasScrollViews');
@@ -565,6 +595,7 @@ editor.once('load', function() {
                     },
                     'add-new-scrollbar': {
                         title: 'Scrollbar Element',
+                        className: 'menu-item-add-scrollbar-element-ui',
                         icon: componentsLogos.scrollbar,
                         hide: function () {
                             return !editor.call('users:hasFlag', 'hasScrollViews');

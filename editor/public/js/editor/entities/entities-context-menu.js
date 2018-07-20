@@ -157,6 +157,7 @@ editor.once('load', function() {
 
         menuData['new-entity'] = {
             title: 'New Entity',
+            className: 'menu-item-new-entity',
             filter: function() {
                 return items.length === 1;
             },
@@ -168,6 +169,7 @@ editor.once('load', function() {
 
         menuData['add-component'] = {
             title: 'Add Component',
+            className: 'menu-item-add-component',
             items: editor.call('menu:entities:add-component')
         };
 
@@ -201,6 +203,7 @@ editor.once('load', function() {
 
         menuData['enable'] = {
             title: 'Enable',
+            className: 'menu-item-enable',
             icon: '&#57651;',
             hide: function () {
                 if (items.length === 1) {
@@ -221,6 +224,7 @@ editor.once('load', function() {
 
         menuData['disable'] = {
             title: 'Disable',
+            className: 'menu-item-disable',
             icon: '&#57650;',
             hide: function () {
                 if (items.length === 1) {
@@ -241,6 +245,7 @@ editor.once('load', function() {
 
         menuData['copy'] = {
             title: 'Copy',
+            className: 'menu-item-copy',
             icon: '&#58193;',
             select: function() {
                 editor.call('entities:copy', items);
@@ -249,6 +254,7 @@ editor.once('load', function() {
 
         menuData['paste'] = {
             title: 'Paste',
+            className: 'menu-item-paste',
             icon: '&#58184;',
             filter: function () {
                 return items.length <= 1 && ! editor.call('entities:clipboard:empty');
@@ -260,6 +266,7 @@ editor.once('load', function() {
 
         menuData['duplicate'] = {
             title: 'Duplicate',
+            className: 'menu-item-duplicate',
             icon: '&#57638;',
             filter: function () {
                 var items = getSelection();
@@ -276,6 +283,7 @@ editor.once('load', function() {
 
         menuData['delete'] = {
             title: 'Delete',
+            className: 'menu-item-delete',
             icon: '&#57636;',
             filter: function () {
                 var root = editor.call('entities:root');

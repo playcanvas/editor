@@ -356,9 +356,15 @@ editor.once('load', function() {
     var componentList;
 
     // entity added
-    editor.on('entities:add', function(entity) {
+    editor.on('entities:add', function(entity, isRoot) {
+        var classList = ['tree-item-entity', 'entity-id-' + entity.get('resource_id')];
+        if (isRoot) {
+            classList.push('tree-item-root');
+        }
+
         var element = new ui.TreeItem({
-            text: entity.get('name')
+            text: entity.get('name'),
+            classList: classList
         });
 
         element.entity = entity;
