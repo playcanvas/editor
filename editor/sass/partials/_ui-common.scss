@@ -36,7 +36,7 @@
             background: darken($text-active, 7%);
             color: $text-primary;
 
-            &:hover {
+            &:hover,&:focus {
                 background: darken($text-active, 12%);
             }
         }
