@@ -433,6 +433,8 @@ editor.once('load', function () {
             if (err) {
                 togglePanels(true);
             } else {
+                // do this in a timeout to give time for the
+                // success message to appear
                 setTimeout(function () {
                     togglePanels(true);
                     showCheckpoints();
