@@ -520,6 +520,22 @@ editor.once('load', function () {
             selectBranch(branch);
         });
 
+        // if we are currently showing an error and we click
+        // on a branch that is already selected then hide the error
+        // and show the checkpoints
+        var wasItemSelectedBeforeClick = false;
+        item.element.addEventListener('mousedown', function () {
+            wasItemSelectedBeforeClick = item.selected;
+        });
+        item.element.addEventListener('mouseup', function () {
+            if (! wasItemSelectedBeforeClick || ! item.selected) return;
+            wasItemSelectedBeforeClick = false;
+
+            if (editor.call('picker:versioncontrol:isErrorWidgetVisible')) {
+                showCheckpoints();
+            }
+        });
+
         // if this is our current branch then change the status icon
         // and hide the dropdown button because it doesn't currently
         // have any available actions for the current branch

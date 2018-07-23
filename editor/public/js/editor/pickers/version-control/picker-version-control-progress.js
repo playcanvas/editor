@@ -6,9 +6,14 @@ editor.once('load', function () {
     // version control overlays on top of these windows if any widget here is showing a spinner
     // because it looks bad.
     var showingProgress = false;
+    var showingError = false;
 
     editor.method('picker:versioncontrol:isProgressWidgetVisible', function () {
         return showingProgress;
+    });
+
+    editor.method('picker:versioncontrol:isErrorWidgetVisible', function () {
+        return showingError;
     });
 
     editor.method('picker:versioncontrol:createProgressWidget', function (args) {
@@ -48,10 +53,12 @@ editor.once('load', function () {
                 panel.setMessage(args.errorText);
                 panel.setNote(err);
                 error.classList.remove('hidden');
+                showingError = true;
             } else {
                 panel.setMessage(args.finishText);
                 panel.setNote('');
                 completed.classList.remove('hidden');
+                showingError = false;
             }
             spinner.classList.add('hidden');
         };
@@ -82,6 +89,7 @@ editor.once('load', function () {
             error.classList.add('hidden');
             spinner.classList.remove('hidden');
             showingProgress = false;
+            showingError = false;
         });
 
         return panel;
