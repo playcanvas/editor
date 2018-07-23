@@ -440,6 +440,8 @@ editor.once('load', function () {
 
     var onMergeDataLoaded = function (data) {
         mergeData = data;
+        panelMineDiffs.header = data.destinationBranchName;
+        panelTheirsDiffs.header = data.sourceBranchName;
         if (! mergeData.conflicts.length) {
             btnComplete.disabled = false;
             return showMainProgress(completedIcon, 'No conflicts found - Click Complete Merge');
