@@ -186,6 +186,9 @@ editor.once('load', function () {
     var showBubble = function (name, bubbleFn, delay, force, callback) {
         if (!force && config.self.flags.tips[name] !== false) return false;
 
+        // Set by Selenium tests in order to prevent bubbles from showing up in viewport screenshots
+        if (/disableBubbles=true/.test(location.search)) return false;
+
         if (timeouts[name])
             clearTimeout(timeouts[name]);
 
