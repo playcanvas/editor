@@ -2704,20 +2704,14 @@ strong {
         }
         &:hover {
             &:after {
-                @extend .font-icon;
-                content: '\E133';
-                color: $text-primary;
                 background-color: transparent;
             }
         }
     }
     &:hover {
-        &:after {
+        &.checked:after {
             @extend .font-icon;
             content: '\E133';
-            color: $text-primary;
-        }
-        &.checked:after {
             color: $text-primary;
             background-color: mix($text-dark, $bcg-darkest, 50%);
         }
