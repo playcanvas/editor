@@ -10,7 +10,8 @@ editor.once('viewport:load', function() {
     var events = { };
 
     var combo = new ui.SelectField({
-        options: options
+        options: options,
+        optionClassNamePrefix: 'viewport-camera'
     });
     combo.disabledClick = true;
     combo.class.add('viewport-camera');

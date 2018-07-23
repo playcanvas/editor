@@ -3,6 +3,7 @@ editor.once('load', function() {
 
     var corners = [];
     var cornerColor = new pc.Color(1,1,1,0.9);
+    var visible = true;
 
     for (var i = 0; i < 8; i++) {
         corners.push(new pc.Vec3());
@@ -14,7 +15,19 @@ editor.once('load', function() {
             mask: GIZMO_MASK
         };
 
+        editor.method('gizmo:element:visible', function(state) {
+            if (visible !== state) {
+                visible = state;
+
+                editor.call('viewport:render');
+            }
+        });
+
         editor.on('viewport:gizmoUpdate', function (dt) {
+            if (!visible) {
+                return;
+            }
+
             var selected = editor.call('selector:itemsRaw');
             for (var i = 0, len = selected.length; i < len; i++) {
                 var item = selected[i];

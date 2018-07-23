@@ -31,6 +31,8 @@ function SelectField(args) {
     this._value = null;
     this._type = args.type || 'string';
 
+    this._optionClassNamePrefix = args.optionClassNamePrefix || null;
+
     this.timerClickAway = null;
     this.evtTouchId = null;
     this.evtTouchSecond = false;
@@ -342,6 +344,11 @@ SelectField.prototype._updateOptions = function(options) {
         element.addEventListener('touchstart', this._onOptionSelect);
         element.addEventListener('mouseover', this._onOptionHover);
         element.addEventListener('mouseout', this._onOptionOut);
+
+        if (this._optionClassNamePrefix) {
+            element.classList.add(this._optionClassNamePrefix + '-' + element.textContent.toLowerCase());
+        }
+
         this.elementOptions.appendChild(element);
         this.optionElements[this.optionsKeys[i]] = element;
     }

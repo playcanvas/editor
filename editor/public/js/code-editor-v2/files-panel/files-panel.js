@@ -268,7 +268,7 @@ editor.once('load', function () {
 
         // rename item
         item.on('rename', function (name) {
-            asset.set('name', name);
+            editor.call('assets:rename', asset, name);
         });
     };
 

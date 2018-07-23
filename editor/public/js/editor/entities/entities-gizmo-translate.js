@@ -43,7 +43,11 @@ editor.once('load', function() {
             return;
 
         if (items.length === 1) {
-            vecA.copy(items[0].obj.entity.getPosition());
+            if (items[0].obj.entity) {
+                vecA.copy(items[0].obj.entity.getPosition());
+            } else {
+                return null;
+            }
         } else if (coordSystem === 'local') {
             var reference = items[items.length - 1];
             var parent = reference.parent;

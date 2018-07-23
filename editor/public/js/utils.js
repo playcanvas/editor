@@ -104,3 +104,16 @@ var bytesToHuman = function(bytes) {
     var i = Math.floor(Math.log(bytes) / Math.log(k));
     return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
 };
+
+
+// todo move this into proper library
+
+// replace the oldExtension in a path with the newExtension
+// return the new path
+// oldExtension and newExtension should have leading period
+var swapExtension = function (path, oldExtension, newExtension) {
+    while(path.indexOf(oldExtension) >= 0) {
+        path = path.replace(oldExtension, newExtension);
+    }
+    return path;
+}

@@ -9,6 +9,9 @@ editor.once('load', function() {
     var editorSettings = editor.call('settings:projectUser');
     var Application = editor.call('viewport:application');
 
+    var idleFlagTimeoutId = null;
+    var idleFlagTimeoutDelay = 250;
+
     // create playcanvas application
     try {
         var app = new Application(canvas.element, {
@@ -44,7 +47,16 @@ editor.once('load', function() {
 
     // re-render viewport
     editor.method('viewport:render', function () {
+        canvas.class.remove('viewport-idle');
+
         app.redraw = true;
+
+        clearTimeout(idleFlagTimeoutId);
+        idleFlagTimeoutId = setTimeout(function() {
+            if (!canvas.class.contains('viewport-idle')) {
+                canvas.class.add('viewport-idle');
+            }
+        }, idleFlagTimeoutDelay);
     });
 
     // returns true if the viewport should continuously render

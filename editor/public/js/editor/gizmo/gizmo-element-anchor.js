@@ -20,6 +20,7 @@ editor.once('load', function() {
     var anchorCurrent = [];
     var localPosition = [];
     var offset = new pc.Vec3();
+    var visible = true;
 
     var createAnchorGizmo = function () {
         var obj = {
@@ -147,12 +148,21 @@ editor.once('load', function() {
             if (editor.call('selector:itemsRaw').length > 1)
                 return false;
 
-            return selectedEntity &&
+            return visible &&
+                selectedEntity &&
                 selectedEntity.has('components.element') &&
                 editor.call('permissions:write') &&
                 selectedEntity.entity &&
                 selectedEntity.entity.element.screen;
         };
+
+        editor.method('gizmo:anchor:visible', function(state) {
+            if (visible !== state) {
+                visible = state;
+
+                editor.call('viewport:render');
+            }
+        });
 
         editor.on('viewport:gizmoUpdate', function (dt) {
             gizmoAnchor.root.enabled = gizmoEnabled();

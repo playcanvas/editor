@@ -10,6 +10,12 @@ function TreeItem(args) {
     this.element = document.createElement('div');
     this._element.classList.add('ui-tree-item');
 
+    if (args.classList) {
+        args.classList.forEach(function(className) {
+            this._element.classList.add(className);
+        }, this);
+    }
+
     this.elementTitle = document.createElement('div');
     this.elementTitle.classList.add('title');
     this.elementTitle.draggable = true;

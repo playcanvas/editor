@@ -13,6 +13,7 @@ editor.once('load', function() {
     var colors = { };
     var render = 0;
     var cleared = false;
+    var visible = true;
     var viewportLayer = null
 
     var targets = [ ];
@@ -85,6 +86,14 @@ editor.once('load', function() {
         delete colors[id];
         var ind = users.indexOf(id);
         users.splice(ind, 1);
+    });
+
+    editor.method('viewport:outline:visible', function(state) {
+        if (state !== visible) {
+            visible = state;
+            render++;
+            editor.call('viewport:render');
+        }
     });
 
     // ### OVERLAY QUAD MATERIAL ###
@@ -259,42 +268,44 @@ editor.once('load', function() {
             }
             var meshInstances = outlineLayer.opaqueMeshInstances;
 
-            for(var u = 0; u < users.length; u++) {
-                var id = parseInt(users[u], 10);
+            if (visible) {
+                for(var u = 0; u < users.length; u++) {
+                    var id = parseInt(users[u], 10);
 
-                if (! selection.hasOwnProperty(id) || ! selection[id].length)
-                    continue;
-
-                var color = colors[id];
-                if (!color) {
-                    var data = editor.call('whoisonline:color', id, 'data');
-
-                    if (config.self.id === id)
-                        data = [ 1, 1, 1 ];
-
-                    colors[id] = new pc.Color(data[0], data[1], data[2]);
-                    color = colors[id];
-                }
-
-                for(var i = 0; i < selection[id].length; i++) {
-                    if (! selection[id][i])
+                    if (! selection.hasOwnProperty(id) || ! selection[id].length)
                         continue;
 
-                    var model = selection[id][i].model;
-                    if (! model || ! model.model)
-                        continue;
+                    var color = colors[id];
+                    if (!color) {
+                        var data = editor.call('whoisonline:color', id, 'data');
 
-                    var meshes = model.meshInstances;
-                    for(var m = 0; m < meshes.length; m++) {
-                        //var opChan = 'r';
-                        var instance = meshes[m];
+                        if (config.self.id === id)
+                            data = [ 1, 1, 1 ];
 
-                        //if (! instance.command && instance.drawToDepth && instance.material && instance.layer === pc.LAYER_WORLD) {
-                        if (!instance.command && instance.material) {
+                        colors[id] = new pc.Color(data[0], data[1], data[2]);
+                        color = colors[id];
+                    }
 
-                            instance.onUpdateShader = onUpdateShaderOutline;
-                            instance.setParameter("material_emissive", color.data3, 1<<SHADER_OUTLINE);
-                            meshInstances.push(instance);
+                    for(var i = 0; i < selection[id].length; i++) {
+                        if (! selection[id][i])
+                            continue;
+
+                        var model = selection[id][i].model;
+                        if (! model || ! model.model)
+                            continue;
+
+                        var meshes = model.meshInstances;
+                        for(var m = 0; m < meshes.length; m++) {
+                            //var opChan = 'r';
+                            var instance = meshes[m];
+
+                            //if (! instance.command && instance.drawToDepth && instance.material && instance.layer === pc.LAYER_WORLD) {
+                            if (!instance.command && instance.material) {
+
+                                instance.onUpdateShader = onUpdateShaderOutline;
+                                instance.setParameter("material_emissive", color.data3, 1<<SHADER_OUTLINE);
+                                meshInstances.push(instance);
+                            }
                         }
                     }
                 }

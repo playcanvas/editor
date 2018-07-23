@@ -935,6 +935,7 @@ a:visited {
         white-space: nowrap;
         color: #999;
         background-color: rgba(0, 0, 0, .7);
+        pointer-events: none;
     }
 }
 
@@ -989,6 +990,7 @@ a:visited {
         white-space: nowrap;
         color: #999;
         background-color: rgba(0, 0, 0, .7);
+        pointer-events: none;
     }
     &:hover,
     &.focus {
@@ -1087,6 +1089,7 @@ a:visited {
         white-space: nowrap;
         color: #999;
         background-color: rgba(0, 0, 0, .7);
+        pointer-events: none;
     }
     &:hover,
     &.focus {
@@ -1176,6 +1179,7 @@ a:visited {
         white-space: nowrap;
         color: #999;
         background-color: rgba(0, 0, 0, .7);
+        pointer-events: none;
     }
     &:hover,
     &.focus {

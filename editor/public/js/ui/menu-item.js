@@ -11,6 +11,10 @@ function MenuItem(args) {
     this.element = document.createElement('div');
     this._element.classList.add('ui-menu-item');
 
+    if (args.className) {
+        this._element.classList.add(args.className);
+    }
+
     this.elementTitle = document.createElement('div');
     this.elementTitle.classList.add('title');
     this.elementTitle.ui = this;

@@ -17,6 +17,8 @@ editor.once('load', function () {
     var vecB = new pc.Vec3();
     var minExtends = new pc.Vec3(0.01, 0.01, 0.01);
 
+    var visible = true;
+
     var color = new pc.Color(1, 1, 1);
     var colorBehind = new pc.Color(1, 1, 1, .2);
 
@@ -39,8 +41,17 @@ editor.once('load', function () {
         }
     });
 
+    editor.method('gizmo:boundingbox:visible', function(state) {
+        if (state !== visible) {
+            visible = state;
+            editor.call('viewport:render');
+        }
+    });
+
     editor.method('viewport:render:aabb', function(aabb) {
         if (! app) return; // webgl not available
+
+        if (! visible) return;
 
         var ind = 0;
         for(var x = -1; x <= 1; x += 2) {

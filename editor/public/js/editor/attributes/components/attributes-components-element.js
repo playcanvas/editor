@@ -56,6 +56,7 @@ editor.once('load', function() {
             parent: panel,
             name: 'Preset',
             type: 'string',
+            className: 'field-path-components-element-preset',
             enum: presetsEnum
         });
 
