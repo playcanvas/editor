@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Represents a box widget that is commonly used in side panels
+ * Represents a box widget that is commonly used in version control side panels
  * @param {Object} args Various options for the widget
  * @param {String} [args.header] The box title
  * @param {String} [args.headerNote] The text of the note next to the header
