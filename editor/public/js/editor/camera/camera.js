@@ -150,42 +150,49 @@ editor.once('load', function() {
         var list = [{
             name: 'perspective',
             title: 'Perspective',
+            className: 'viewport-camera-perspective',
             position: new pc.Vec3(9.2, 6, 9),
             rotation: new pc.Vec3(-25, 45, 0),
             default: true
         }, {
             name: 'top',
             title: 'Top',
+            className: 'viewport-camera-top',
             position: new pc.Vec3(0, 1000, 0),
             rotation: new pc.Vec3(-90, 0, 0),
             ortho: true
         }, {
             name: 'bottom',
             title: 'Bottom',
+            className: 'viewport-camera-bottom',
             position: new pc.Vec3(0, -1000, 0),
             rotation: new pc.Vec3(90, 0, 0),
             ortho: true
         }, {
             name: 'front',
             title: 'Front',
+            className: 'viewport-camera-front',
             position: new pc.Vec3(0, 0, 1000),
             rotation: new pc.Vec3(0, 0, 0),
             ortho: true
         }, {
             name: 'back',
             title: 'Back',
+            className: 'viewport-camera-back',
             position: new pc.Vec3(0, 0, -1000),
             rotation: new pc.Vec3(0, 180, 0),
             ortho: true
         }, {
             name: 'left',
             title: 'Left',
+            className: 'viewport-camera-left',
             position: new pc.Vec3(-1000, 0, 0),
             rotation: new pc.Vec3(0, -90, 0),
             ortho: true
         }, {
             name: 'right',
             title: 'Right',
+            className: 'viewport-camera-right',
             position: new pc.Vec3(1000, 0, 0),
             rotation: new pc.Vec3(0, 90, 0),
             ortho: true
@@ -197,6 +204,7 @@ editor.once('load', function() {
             entity.__editorCamera = true;
             entity.__editorName = args.name;
             entity.name = args.title;
+            entity.className = args.className;
             entity.setPosition(args.position);
             entity.setEulerAngles(args.rotation);
             entity.focus = new pc.Vec3();

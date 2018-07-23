@@ -9,7 +9,7 @@ editor.once('load', function() {
 
     // on adding
     entities.on('add', function(entity) {
-        editor.emit('entities:add', entity);
+        editor.emit('entities:add', entity, entity === entityRoot);
     });
 
     // on removing

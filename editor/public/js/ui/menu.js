@@ -181,6 +181,7 @@ Menu.prototype.position = function(x, y) {
 Menu.prototype.createItem = function (key, data) {
     var item = new ui.MenuItem({
         text: data.title || key,
+        className: data.className || null,
         value: key,
         icon: data.icon
     });

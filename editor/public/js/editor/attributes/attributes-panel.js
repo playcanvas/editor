@@ -515,6 +515,11 @@ editor.once('load', function() {
                     }
 
                     args.linkEvents = args.linkEvents.concat(editor.call('attributes:linkField', data));
+
+                    // Give the field a uniquely addressable css class that we can target from Selenium
+                    if (field.element) {
+                        field.element.classList.add('field-path-' + path.replace(/\./g, '-'));
+                    }
                 };
 
                 if (field instanceof Array) {
@@ -1835,6 +1840,10 @@ editor.once('load', function() {
 
                 panel.append(field);
                 break;
+        }
+
+        if (args.className && field instanceof ui.Element) {
+            field.class.add(args.className);
         }
 
         return field;
