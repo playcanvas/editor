@@ -13,13 +13,14 @@ editor.once('load', function() {
         if (items.length > 1)
             msg = 'Delete ' + items.length + ' Assets?';
 
-        editor.call('picker:confirm:class', 'asset-delete');
-
         editor.call('picker:confirm', msg, function() {
             if (! editor.call('permissions:write'))
                 return;
 
             editor.call('assets:delete', items);
+        }, {
+            yesText: 'Delete',
+            noText: 'Cancel'
         });
     });
 

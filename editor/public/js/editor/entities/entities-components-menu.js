@@ -63,10 +63,14 @@ editor.once('load', function() {
         var selection = editor.call('selector:items');
         var entity = editor.call('entities:contextmenu:entity');
 
-        if (selection.indexOf(entity) !== -1) {
-            return selection;
+        if (entity) {
+            if (selection.indexOf(entity) !== -1) {
+                return selection;
+            } else {
+                return [entity];
+            }
         } else {
-            return [ entity ];
+            return selection;
         }
     };
 
