@@ -1,48 +1,42 @@
 editor.once('load', function () {
     'use strict';
 
-    editor.method('checkpoints:create', function (description, callback) {
-        var request = Ajax({
+    var request = function (args, callback) {
+        return Ajax(args)
+        .on('load', function (status, data) {
+            if (data) {
+                callback(null, data);
+            }
+        })
+        .on('error', function (status, err) {
+            if (callback) {
+                callback(err);
+            }
+        });
+    };
+
+    editor.method('checkpoints:create', function (branchId, description, callback) {
+        return request({
             url: '{{url.api}}/checkpoints',
             auth: true,
             method: 'POST',
             data: {
                 projectId: config.project.id,
-                branchId: config.self.branch.id,
+                branchId: branchId,
                 description: description
             }
-        });
-
-        request
-        .on('error', function (status, err) {
-            if (callback) callback(err);
-        })
-        .on('load', function (status, data) {
-            if (callback) callback(null, data);
-        });
-
-        return request;
+        }, callback);
     });
 
     editor.method('checkpoints:restore', function (id, destinationBranchId, callback) {
-        var request = Ajax({
+        return request({
             url: '{{url.api}}/checkpoints/' + id + '/restore',
             auth: true,
             method: 'POST',
             data: {
                 branchId: destinationBranchId
             }
-        });
-
-        request
-        .on('error', function (status, err) {
-            if (callback) callback(err);
-        })
-        .on('load', function (status, data) {
-            if (callback) callback(null, data);
-        });
-
-        return request;
+        }, callback);
     });
 
     editor.method('checkpoints:list', function (args, callback) {
@@ -59,19 +53,16 @@ editor.once('load', function () {
             separator = '&';
         }
 
-        var request = Ajax({
+        return request({
             url: url,
             auth: true
-        });
-
-        request.on('error', function (status, data) {
-            if (callback) callback(data);
-        })
-        .on('load', function (status, data) {
-            if (callback) callback(null, data);
-        });
-
-        return request;
+        }, callback);
     });
 
+    editor.method('checkpoints:get', function (id, callback) {
+        return request({
+            url: '{{url.api}}/checkpoints/' + id,
+            auth: true
+        }, callback);
+    });
 });

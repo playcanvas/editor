@@ -1,6 +1,20 @@
 editor.once('load', function () {
     'use strict';
 
+    var boxFrom = new ui.VersionControlSidePanelBox({
+        headerNote: 'Branching from'
+    });
+
+    var labelIcon = new ui.Label({
+        text: '&#58265;',
+        unsafe: true
+    });
+    labelIcon.class.add('branch-icon');
+
+    var boxNewBranch = new ui.VersionControlSidePanelBox({
+        headerNote: 'New branch'
+    });
+
     var panelName = new ui.Panel();
     panelName.flex = true;
     var label = new ui.Label({
@@ -8,6 +22,7 @@ editor.once('load', function () {
     });
     label.class.add('left');
     panelName.append(label);
+    panelName.style.padding = '10px';
 
     var fieldBranchName = new ui.TextField();
     fieldBranchName.flexGrow = 1;
@@ -23,34 +38,12 @@ editor.once('load', function () {
         }
     });
 
-    var panelFrom = new ui.Panel();
-    panelFrom.flex = true;
-    label = new ui.Label({
-        text: 'Branching From'
-    });
-    label.class.add('left');
-    panelFrom.append(label);
+    boxNewBranch.append(panelName);
 
-    var labelBranch = new ui.Label();
-    labelBranch.renderChanges = false;
-    panelFrom.append(labelBranch);
-
-    var panelCheckpoint = new ui.Panel();
-    panelCheckpoint.flex = true;
-    label = new ui.Label({
-        text: 'Using Checkpoint'
-    });
-    label.class.add('left');
-    panelCheckpoint.append(label);
-
-    var labelCheckpoint = new ui.Label();
-    labelCheckpoint.renderChanges = false;
-    panelCheckpoint.append(labelCheckpoint);
-
-    var panel = editor.call('picker:versioncontrol:createWidget', {
+    var panel = editor.call('picker:versioncontrol:createSidePanel', {
         title: 'Create a new branch',
-        note: 'A new branch will create an independent line of development where you can work in isolation from other team members. You will lose any un-checkpointed progress by creating a new branch!',
-        mainContents: [panelName, panelFrom, panelCheckpoint],
+        note: 'A new branch will create an independent line of development where you can work in isolation from other team members.',
+        mainContents: [boxFrom.panel, labelIcon, boxNewBranch.panel],
         buttons: {
             confirm: {
                 text: 'Create New Branch',
@@ -71,30 +64,31 @@ editor.once('load', function () {
     };
 
     panel.on('hide', function () {
-        labelBranch.text = '';
-        labelCheckpoint.text = '';
+        boxFrom.clear();
+        boxNewBranch.header = ' ';
         fieldBranchName.value = '';
         panel.buttonConfirm.disabled = true;
     });
 
     panel.on('show', function () {
-        panel.checkpointId = null;
+        panel.checkpoint = null;
         panel.sourceBranch = null;
         fieldBranchName.focus();
     });
 
     fieldBranchName.on('change', function (value) {
         panel.buttonConfirm.disabled = !value;
+        boxNewBranch.header = value || ' ';
     });
 
     panel.setSourceBranch = function (branch) {
         panel.sourceBranch = branch;
-        labelBranch.text = branch.name;
+        boxFrom.header = branch.name;
     };
 
-    panel.setCheckpointId = function (checkpointId) {
-        panel.checkpointId = checkpointId;
-        labelCheckpoint.text = checkpointId.substring(0, 7);
+    panel.setCheckpoint = function (checkpoint) {
+        panel.checkpoint = checkpoint;
+        boxFrom.setCheckpoint(checkpoint);
     };
 
     editor.method('picker:versioncontrol:widget:createBranch', function () {

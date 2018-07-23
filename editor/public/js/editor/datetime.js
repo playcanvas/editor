@@ -1,8 +1,14 @@
 editor.once('load', function () {
     'use strict';
 
-    // convert passed time to a local time with moment.js
+    // Converts specified date string to a date in this format:
+    // Wed, Jul 18, 2018, 12:55:00
     editor.method('datetime:convert', function (date) {
-        return new Date(date).toLocaleString();
+        var d = new Date(date);
+        var dateString = d.toDateString();
+        var dateParts = dateString.split(' ');
+        var timeString = d.toTimeString();
+        var space = timeString.indexOf(' ');
+        return dateParts[0] + ', ' + dateParts[1] + ' ' + dateParts[2] + ', ' + dateParts[3] + ', ' + timeString.substring(0, space);
     });
 });

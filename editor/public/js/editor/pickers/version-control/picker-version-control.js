@@ -104,7 +104,7 @@ editor.once('load', function () {
     panelCheckpoints.on('checkpoint:branch', function (checkpoint) {
         showRightSidePanel(panelCreateBranch);
         panelCreateBranch.setSourceBranch(panelCheckpoints.branch);
-        panelCreateBranch.setCheckpointId(checkpoint.id);
+        panelCreateBranch.setCheckpoint(checkpoint);
     });
 
     // new checkpoint panel
@@ -155,42 +155,32 @@ editor.once('load', function () {
     });
     panelCloseBranch.on('confirm', function (data) {
         togglePanels(false);
-        showRightSidePanel(panelCloseBranchProgress);
 
-        editor.call('branches:close', panelCloseBranch.branch.id, function (err) {
-            panelCloseBranchProgress.finish(err);
-            // if there was an error re-add the item to the list
-            if (err) {
-                togglePanels(true);
-            } else {
-                // remove item from list
-                setTimeout(function () {
+        var close = function () {
+            showRightSidePanel(panelCloseBranchProgress);
+
+            editor.call('branches:close', panelCloseBranch.branch.id, function (err) {
+                panelCloseBranchProgress.finish(err);
+                // if there was an error re-add the item to the list
+                if (err) {
                     togglePanels(true);
-                    var item = getBranchListItem(panelCloseBranch.branch);
-                    if (item) {
-                        var nextItem = null;
-                        if (item.selected) {
-                            if (item.element.nextSibling !== loadMoreListItem.element) {
-                                nextItem = item.element.nextSibling;
-                            }
+                } else {
+                    // remove item from list
+                    setTimeout(function () {
+                        togglePanels(true);
+                        showCheckpoints();
+                    }, 1000);
+                }
+            });
+        };
 
-                            if (! nextItem) {
-                                nextItem = item.element.previousSibling;
-                            }
-                        }
+        if (! panelCloseBranch.discardChanges) {
+            // take a checkpoint first
+            createCheckpoint(panelCloseBranch.branch.id, 'Checkpoint before closing branch "' + panelCloseBranch.branch.name + '"', close);
+        } else {
+            close();
+        }
 
-                        listBranches.remove(item);
-
-                        // select next or previous sibling
-                        if (nextItem && nextItem !== loadMoreListItem.element) {
-                            nextItem.ui.selected = true;
-                        }
-                    }
-
-                    showCheckpoints();
-                }, 1000);
-            }
-        });
     });
 
     // open branch progress panel
@@ -221,35 +211,47 @@ editor.once('load', function () {
         showCheckpoints();
     });
     panelMergeBranches.on('confirm', function () {
-        var sourceBranchId = panelMergeBranches.sourceBranch.id;
-        var destinationBranchId = panelMergeBranches.destinationBranch.id;
+        var sourceBranch = panelMergeBranches.sourceBranch;
+        var destinationBranch = panelMergeBranches.destinationBranch;
+        var discardChanges = panelMergeBranches.discardChanges;
 
         togglePanels(false);
-        showRightSidePanel(panelMergeBranchesProgress);
-        editor.call('branches:merge', sourceBranchId, destinationBranchId, function (err, data) {
-            panelMergeBranchesProgress.finish(err);
-            if (err) {
-                togglePanels(true);
-            } else {
-                // update merge object in config
-                config.self.branch.merge = data;
 
-                // if there are merge conflicts then show
-                // conflict manager
-                if (data.conflicts) {
-                    panelMergeBranchesProgress.setMessage('Unable to auto merge - opening conflict manager');
-                    setTimeout(function () {
-                        editor.call('picker:project:close');
-                        editor.call('picker:versioncontrol:mergeOverlay:hide'); // hide this in case it's open
-                        editor.call('picker:conflictManager', data);
-                    }, 1500);
+        var merge = function () {
+            showRightSidePanel(panelMergeBranchesProgress);
+
+            editor.call('branches:merge', sourceBranch.id, destinationBranch.id, function (err, data) {
+                panelMergeBranchesProgress.finish(err);
+                if (err) {
+                    togglePanels(true);
                 } else {
-                    // otherwise merge was successful
-                    // so refresh
-                    refreshBrowser();
+                    // update merge object in config
+                    config.self.branch.merge = data;
+
+                    // if there are merge conflicts then show
+                    // conflict manager
+                    if (data.conflicts) {
+                        panelMergeBranchesProgress.setMessage('Unable to auto merge - opening conflict manager');
+                        setTimeout(function () {
+                            editor.call('picker:project:close');
+                            editor.call('picker:versioncontrol:mergeOverlay:hide'); // hide this in case it's open
+                            editor.call('picker:conflictManager', data);
+                        }, 1500);
+                    } else {
+                        // otherwise merge was successful
+                        // so refresh
+                        refreshBrowser();
+                    }
                 }
-            }
-        });
+            });
+        };
+
+        if (discardChanges) {
+            merge();
+        } else {
+            // take a checkpoint first
+            createCheckpoint(config.self.branch.id, 'Checkpoint before merging checkpoint "' + sourceBranch.latestCheckpointId + '" into "' + destinationBranch.latestCheckpointId + '"', merge);
+        }
     });
 
     // restore checkpoint panel
@@ -272,16 +274,27 @@ editor.once('load', function () {
     });
     panelRestoreCheckpoint.on('confirm', function () {
         togglePanels(false);
-        showRightSidePanel(panelRestoreCheckpointProgress);
 
-        editor.call('checkpoints:restore', panelRestoreCheckpoint.checkpoint.id, config.self.branch.id, function (err, data) {
-            panelRestoreCheckpointProgress.finish(err);
-            if (err) {
-                togglePanels(true);
-            } else {
-                refreshBrowser();
-            }
-        });
+        var restore = function () {
+            showRightSidePanel(panelRestoreCheckpointProgress);
+
+            editor.call('checkpoints:restore', panelRestoreCheckpoint.checkpoint.id, config.self.branch.id, function (err, data) {
+                panelRestoreCheckpointProgress.finish(err);
+                if (err) {
+                    togglePanels(true);
+                } else {
+                    refreshBrowser();
+                }
+            });
+        };
+
+        if (! panelRestoreCheckpoint.discardChanges) {
+            // take a checkpoint first
+            createCheckpoint(config.self.branch.id, 'Checkpoint before restoring "' + panelRestoreCheckpoint.checkpoint.id.substring(0, 7) + '"', restore);
+        } else {
+            restore();
+        }
+
     });
 
     // switch branch progress
@@ -324,6 +337,7 @@ editor.once('load', function () {
 
     // branches context menu
     var menuBranches = new ui.Menu();
+    menuBranches.class.add('version-control');
 
     // when the branches context menu is closed 'unclick' dropdowns
     menuBranches.on('open', function (open) {
@@ -345,7 +359,7 @@ editor.once('load', function () {
 
     // checkout branch
     var menuBranchesSwitchTo = new ui.MenuItem({
-        text: 'Switch To',
+        text: 'Switch To This Branch',
         value: 'switch-branch'
     });
     menuBranches.append(menuBranchesSwitchTo);
@@ -368,7 +382,7 @@ editor.once('load', function () {
 
     // merge branch
     var menuBranchesMerge = new ui.MenuItem({
-        text: 'Merge',
+        text: 'Merge Into Current Branch',
         value: 'merge-branch'
     });
     menuBranches.append(menuBranchesMerge);
@@ -385,7 +399,7 @@ editor.once('load', function () {
 
     // close branch
     var menuBranchesClose = new ui.MenuItem({
-        text: 'Close',
+        text: 'Close This Branch',
         value: 'close-branch'
     });
     menuBranches.append(menuBranchesClose);
@@ -400,7 +414,7 @@ editor.once('load', function () {
 
     // open branch
     var menuBranchesOpen = new ui.MenuItem({
-        text: 'Re-Open',
+        text: 'Re-Open This Branch',
         value: 'open-branch'
     });
     menuBranches.append(menuBranchesOpen);
@@ -419,32 +433,11 @@ editor.once('load', function () {
             if (err) {
                 togglePanels(true);
             } else {
+                // do this in a timeout to give time for the
+                // success message to appear
                 setTimeout(function () {
-                    var item = getBranchListItem(branch);
-                    if (item) {
-                        var wasSelected = item.selected;
-                        var nextItem = null;
-                        if (item.element.nextSibling !== loadMoreListItem.element) {
-                            nextItem = item.element.nextSibling;
-                        }
-
-                        if (! nextItem) {
-                            nextItem = item.element.previousSibling;
-                        }
-
-                        // remove branch from the list
-                        listBranches.remove(item);
-                        // select next or previous item
-                        if (nextItem && wasSelected) {
-                            nextItem.ui.selected = true;
-                        } else if (! nextItem) {
-                            // if no more items exist in the list then view the open list
-                            showRightSidePanel(null);
-                            fieldBranchesFilter.value = 'open';
-                        }
-                    }
-
                     togglePanels(true);
+                    showCheckpoints();
                 }, 1000);
             }
         });
@@ -486,11 +479,11 @@ editor.once('load', function () {
         labelName.class.add('name', 'selectable');
         panel.append(labelName);
 
-        var labelDate = new ui.Label({
-            text: 'Created ' + editor.call('datetime:convert', branch.createdAt)
+        var labelBranchId = new ui.Label({
+            text: branch.id
         });
-        labelDate.class.add('date', 'selectable');
-        panel.append(labelDate);
+        labelBranchId.class.add('branch-id', 'selectable');
+        panel.append(labelBranchId);
 
         // dropdown
         var dropdown = new ui.Button({
@@ -529,6 +522,22 @@ editor.once('load', function () {
             selectBranch(branch);
         });
 
+        // if we are currently showing an error and we click
+        // on a branch that is already selected then hide the error
+        // and show the checkpoints
+        var wasItemSelectedBeforeClick = false;
+        item.element.addEventListener('mousedown', function () {
+            wasItemSelectedBeforeClick = item.selected;
+        });
+        item.element.addEventListener('mouseup', function () {
+            if (! wasItemSelectedBeforeClick || ! item.selected) return;
+            wasItemSelectedBeforeClick = false;
+
+            if (editor.call('picker:versioncontrol:isErrorWidgetVisible')) {
+                showCheckpoints();
+            }
+        });
+
         // if this is our current branch then change the status icon
         // and hide the dropdown button because it doesn't currently
         // have any available actions for the current branch
@@ -539,8 +548,8 @@ editor.once('load', function () {
     };
 
     // Get the list item for a branch
-    var getBranchListItem = function (branch) {
-        var item = document.getElementById('branch-' + branch.id);
+    var getBranchListItem = function (branchId) {
+        var item = document.getElementById('branch-' + branchId);
         return item && item.ui;
     };
 
@@ -551,6 +560,21 @@ editor.once('load', function () {
 
         panelCheckpoints.setBranch(branch);
         panelCheckpoints.loadCheckpoints();
+    };
+
+    var createCheckpoint = function (branchId, description, callback) {
+        togglePanels(false);
+        showRightSidePanel(panelCreateCheckpointProgress);
+
+        editor.call('checkpoints:create', branchId, description, function (err, checkpoint) {
+            panelCreateCheckpointProgress.finish(err);
+            if (err) {
+                return togglePanels(true);
+            }
+
+            callback(checkpoint);
+        });
+
     };
 
     // show create branch panel
@@ -574,33 +598,11 @@ editor.once('load', function () {
         }
     });
     panelCreateCheckpoint.on('confirm', function (data) {
-        togglePanels(false);
-        showRightSidePanel(panelCreateCheckpointProgress);
-
-        editor.call('checkpoints:create', data.description, function (err, checkpoint) {
-            panelCreateCheckpointProgress.finish(err);
-            if (! err) {
-                setTimeout(function () {
-                    // update latest checkpoint in current branches
-                    if (branches[config.self.branch.id]) {
-                        branches[config.self.branch.id].latestCheckpointId = checkpoint.id;
-                    }
-
-                    config.self.branch.latestCheckpointId = checkpoint.id;
-
-                    // add new checkpoint to checkpoint list
-                    if (panelCheckpoints.branch.id === config.self.branch.id) {
-                        var existingCheckpoints = panelCheckpoints.checkpoints || [];
-                        existingCheckpoints.unshift(checkpoint);
-                        panelCheckpoints.setCheckpoints(existingCheckpoints);
-                    }
-
-                    togglePanels(true);
-                    showCheckpoints();
-                },  1000);
-            } else {
+        createCheckpoint(config.self.branch.id, data.description, function (checkpoint) {
+            setTimeout(function () {
                 togglePanels(true);
-            }
+                showCheckpoints();
+            },  1000);
         });
     });
 
@@ -616,8 +618,8 @@ editor.once('load', function () {
             sourceBranchId: panelCheckpoints.branch.id
         };
 
-        if (panelCreateBranch.checkpointId) {
-            params.sourceCheckpointId = panelCreateBranch.checkpointId;
+        if (panelCreateBranch.checkpoint) {
+            params.sourceCheckpointId = panelCreateBranch.checkpoint.id;
         }
 
         editor.call('branches:create', params, function (err, branch) {
@@ -719,7 +721,7 @@ editor.once('load', function () {
             }
 
             if (selected) {
-                var item = getBranchListItem(selected);
+                var item = getBranchListItem(selected.id);
                 if (item) {
                     item.selected = true;
                 }
@@ -757,6 +759,119 @@ editor.once('load', function () {
             panelBranches.innerElement.querySelectorAll('.dropdown').forEach(function (dropdown) {
                 dropdown.ui.hidden = ! writeEnabled || dropdown.ui.branch.id === config.self.branch.id;
             });
+        }));
+
+        // when a checkpoint is created add it to the list
+        events.push(editor.on('messenger:checkpoint.createEnded', function (data) {
+            if (data.status === 'error') return;
+
+            // update latest checkpoint in current branches
+            if (branches[data.branch_id]) {
+                branches[data.branch_id].latestCheckpointId = data.checkpoint_id;
+            }
+
+            // add new checkpoint to checkpoint list
+            if (panelCheckpoints.branch.id === data.branch_id) {
+                var existingCheckpoints = panelCheckpoints.checkpoints || [];
+                existingCheckpoints.unshift({
+                    id: data.checkpoint_id,
+                    user: {
+                        id: data.user_id,
+                        fullName: data.user_full_name
+                    },
+                    createdAt: new Date(data.created_at),
+                    description: data.description
+                });
+                panelCheckpoints.setCheckpoints(existingCheckpoints);
+            }
+        }));
+
+        // when a branch is closed remove it from the list and select the next one
+        events.push(editor.on('messenger:branch.close', function (data) {
+            if (fieldBranchesFilter.value === 'closed') {
+                return;
+            }
+
+            // we are seeing the open branches view so remove this branch from the list
+            // and select the next branch
+            var item = getBranchListItem(data.branch_id);
+            if (! item) return;
+
+            var nextItem = null;
+            if (item.selected) {
+                if (item.element.nextSibling !== loadMoreListItem.element) {
+                    nextItem = item.element.nextSibling;
+                }
+
+                if (! nextItem) {
+                    nextItem = item.element.previousSibling;
+                }
+            }
+
+            listBranches.remove(item);
+
+            // select next or previous sibling
+            if (nextItem && nextItem !== loadMoreListItem.element) {
+
+                // if the progress panel is open it means we are the ones
+                // closing the branch (or some other branch..) - so wait a bit
+                // so that we can show the progress end message before selecting another branch
+                if (! panelCloseBranchProgress.hidden) {
+                    setTimeout(function () {
+                        nextItem.ui.selected = true;
+                    }, 500);
+                } else {
+                    // otherwise immediately select the next branch
+                    nextItem.ui.selected = true;
+                }
+            }
+        }));
+
+        events.push(editor.on('messenger:branch.open', function (data) {
+            if (fieldBranchesFilter.value === 'open') {
+                return;
+            }
+
+            // we are seeing the closed branches list so remove this
+            // branch from this list and select the next one or if there
+            // are no more branches in this list then view the open branches
+            var item = getBranchListItem(data.branch_id);
+            if (! item) return;
+
+            var wasSelected = item.selected;
+            var nextItem = null;
+            if (item.element.nextSibling !== loadMoreListItem.element) {
+                nextItem = item.element.nextSibling;
+            }
+
+            if (! nextItem) {
+                nextItem = item.element.previousSibling;
+            }
+
+            // remove branch from the list
+            listBranches.remove(item);
+
+            // select next or previous item
+            var selectNext = function () {
+                if (nextItem && wasSelected) {
+                    nextItem.ui.selected = true;
+                } else if (! nextItem) {
+                    // if no more items exist in the list then view the open list
+                    showRightSidePanel(null);
+                    fieldBranchesFilter.value = 'open';
+                }
+            };
+
+            // if the progress panel is open it means we are the ones
+            // opening the branch (or some other branch..) - so wait a bit
+            // so that we can show the progress end message before selecting another branch
+            if (! panelOpenBranchProgress.hidden) {
+                setTimeout(selectNext, 500);
+            } else {
+                // otherwise immediately select the next branch
+                selectNext();
+            }
+
         }));
 
         if (editor.call('viewport:inViewport')) {
@@ -816,4 +931,5 @@ editor.once('load', function () {
             }
         }
     });
+
 });

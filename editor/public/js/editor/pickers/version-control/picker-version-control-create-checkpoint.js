@@ -27,14 +27,14 @@ editor.once('load', function () {
         }
     });
 
-    var panel = editor.call('picker:versioncontrol:createWidget', {
+    var panel = editor.call('picker:versioncontrol:createSidePanel', {
         title: 'Create a new checkpoint',
         note: 'A new checkpoint will take a snapshot of the current branch which you can revert to at a later date.',
         mainContents: [labelDesc, fieldDescription],
         buttons: {
             confirm: {
-                text: 'Create Checkpoint',
                 highlighted: true,
+                text: 'Create Checkpoint',
                 onClick: create
             }
         }
