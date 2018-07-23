@@ -6734,7 +6734,7 @@ strong {
 
             width: auto;
             height: 600px;
-            left: calc(50% - 455px);
+            left: calc(50% - 470px);
             top: calc(50% - 300px);
             border: 1px solid $border-primary;
 
@@ -6848,7 +6848,7 @@ strong {
 
                     .ui-panel.right {
                         float: left;
-                        width: 910px - 188px;
+                        width: 940px - 188px;
                         height: 100%;
 
                         > .ui-header {
@@ -8403,7 +8403,7 @@ strong {
             }
 
             &.branches-container {
-                min-width: 280px;
+                min-width: 310px;
                 border-right: 1px solid $border-primary;
 
                 > .content {
@@ -8895,7 +8895,7 @@ strong {
                                 text-overflow: ellipsis;
                                 width: 210px;
                             }
-                            &.date {
+                            &.branch-id {
                                 margin-top: -5px;
                                 margin-left: 25px;
                             }
@@ -9166,6 +9166,11 @@ strong {
                                     overflow-y: auto;
 
                                     > .ui-panel {
+                                        > .ui-header > .title {
+                                            max-width: 400px;
+                                            overflow: hidden;
+                                            text-overflow: ellipsis;
+                                        }
                                         > .content {
                                             flex-direction: column;
                                             min-height: 100%;
