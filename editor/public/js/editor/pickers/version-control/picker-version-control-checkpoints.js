@@ -142,16 +142,16 @@ editor.once('load', function () {
         // that the results are from this request and not another
         // Happens sometimes when this request takes a long time
         var request = editor.call('checkpoints:list', params, function (err, data) {
+            if (request !== currentCheckpointListRequest || panel.hidden || panel.parent.hidden) {
+                return;
+            }
+
             btnLoadMore.disabled = false;
             btnLoadMore.text = 'LOAD MORE';
 
             // show list of checkpoints and hide spinner
             listCheckpoints.hidden = false;
             spinner.classList.add('hidden');
-
-            if (request !== currentCheckpointListRequest || panel.hidden || panel.parent.hidden) {
-                return;
-            }
 
             currentCheckpointListRequest = null;
 
