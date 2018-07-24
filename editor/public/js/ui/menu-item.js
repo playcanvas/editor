@@ -8,6 +8,7 @@ function MenuItem(args) {
 
     this._value = args.value || '';
     this._hasChildren = args.hasChildren;
+    this._clickableSubmenus = args.clickableSubmenus;
 
     this.element = document.createElement('div');
     this._element.classList.add('ui-menu-item');
@@ -70,7 +71,7 @@ MenuItem.prototype._onClick = function() {
     this.ui.emit('select', this.ui._value, this.ui._hasChildren);
     this.ui.parent.emit('select-propagate', [ this.ui._value ], this.ui._hasChildren);
 
-    if (!this.ui._hasChildren) {
+    if (!this.ui._clickableSubmenus || !this.ui._hasChildren) {
         this.ui.class.remove('hover');
     }
 };
@@ -104,7 +105,7 @@ MenuItem.prototype._onSelectPropagate = function(path, selectedItemHasChildren) 
 
     this.parent.emit('select-propagate', path, selectedItemHasChildren);
 
-    if (!selectedItemHasChildren) {
+    if (!this._clickableSubmenus || !selectedItemHasChildren) {
         this.class.remove('hover');
     }
 };
