@@ -12,6 +12,10 @@ editor.once('load', function() {
     var idleFlagTimeoutId = null;
     var idleFlagTimeoutDelay = 250;
 
+    // Allow anti-aliasing to be forcibly disabled - this is useful for Selenium tests in
+    // order to ensure that the generated screenshots are consistent across different GPUs.
+    var disableAntiAliasing = /disableAntiAliasing=true/.test(location.search);
+
     // create playcanvas application
     try {
         var app = new Application(canvas.element, {
@@ -19,6 +23,7 @@ editor.once('load', function() {
             touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas.element) : null,
             editorSettings: editorSettings.json().editor,
             graphicsDeviceOptions: {
+                antialias: !disableAntiAliasing,
                 alpha: false
             }
         });
