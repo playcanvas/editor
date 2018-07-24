@@ -517,7 +517,7 @@ editor.once('load', function() {
                     args.linkEvents = args.linkEvents.concat(editor.call('attributes:linkField', data));
 
                     // Give the field a uniquely addressable css class that we can target from Selenium
-                    if (field.element) {
+                    if (field.element && typeof path === 'string') {
                         field.element.classList.add('field-path-' + path.replace(/\./g, '-'));
                     }
                 };
