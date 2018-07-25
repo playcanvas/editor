@@ -8,6 +8,15 @@ editor.once('load', function() {
 
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
+    // Selenium's moveToObject (http://webdriver.io/api/action/moveToObject.html)
+    // doesn't seem to work properly in terms of activating nested submenus in the
+    // entities context menu. I spent a while trying various combinations of workarounds
+    // from the Selenium side but nothing worked.
+    //
+    // This query string flag allows the submenus to be openable via mouse click,
+    // which Selenium has no problem doing.
+    var clickableSubmenus = /clickableContextSubmenus=true/.test(location.search);
+
     // create data for entity menu
     var menu;
 
@@ -375,7 +384,7 @@ editor.once('load', function() {
         }
 
         // menu
-        menu = ui.Menu.fromData(menuData);
+        menu = ui.Menu.fromData(menuData, { clickableSubmenus: clickableSubmenus });
         root.append(menu);
 
         menu.on('open', function() {
@@ -394,7 +403,9 @@ editor.once('load', function() {
         var item = new ui.MenuItem({
             text: data.text,
             icon: data.icon,
-            value: data.value
+            value: data.value,
+            hasChildren: !!(data.items && Object.keys(data.items).length > 0),
+            clickableSubmenus: clickableSubmenus
         });
 
         item.on('select', function() {

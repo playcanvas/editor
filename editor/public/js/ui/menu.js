@@ -24,6 +24,7 @@ function Menu(args) {
 
     this._index = { };
     this._hovered = [ ];
+    this._clickableSubmenus = args.clickableSubmenus;
 
     this.on('select-propagate', this._onSelectPropagate);
     this.on('append', this._onAppend);
@@ -45,10 +46,14 @@ Menu.prototype._onKeyDown = function(evt) {
         this.ui.open = false;
 };
 
-Menu.prototype._onSelectPropagate = function(path) {
-    this.open = false;
-    this.emit(path.join('.') + ':select', path);
-    this.emit('select', path);
+Menu.prototype._onSelectPropagate = function(path, selectedItemHasChildren) {
+    if (this._clickableSubmenus && selectedItemHasChildren) {
+        this._updatePath(path);
+    } else {
+        this.open = false;
+        this.emit(path.join('.') + ':select', path);
+        this.emit('select', path);
+    }
 };
 
 Menu.prototype._onAppend = function(item) {
@@ -183,7 +188,9 @@ Menu.prototype.createItem = function (key, data) {
         text: data.title || key,
         className: data.className || null,
         value: key,
-        icon: data.icon
+        icon: data.icon,
+        hasChildren: !!(data.items && Object.keys(data.items).length > 0),
+        clickableSubmenus: this._clickableSubmenus
     });
 
     if (data.select) {
@@ -206,8 +213,8 @@ Menu.prototype.createItem = function (key, data) {
 };
 
 
-Menu.fromData = function(data) {
-    var menu = new ui.Menu();
+Menu.fromData = function(data, args) {
+    var menu = new ui.Menu(args);
 
     var listItems = function(data, parent) {
         for (var key in data) {

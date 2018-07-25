@@ -7,6 +7,8 @@ function MenuItem(args) {
     ui.ContainerElement.call(this);
 
     this._value = args.value || '';
+    this._hasChildren = args.hasChildren;
+    this._clickableSubmenus = args.clickableSubmenus;
 
     this.element = document.createElement('div');
     this._element.classList.add('ui-menu-item');
@@ -70,9 +72,12 @@ MenuItem.prototype._onClick = function() {
     if (! this.ui.parent || this.ui.disabled)
         return;
 
-    this.ui.emit('select', this.ui._value);
-    this.ui.parent.emit('select-propagate', [ this.ui._value ]);
-    this.ui.class.remove('hover');
+    this.ui.emit('select', this.ui._value, this.ui._hasChildren);
+    this.ui.parent.emit('select-propagate', [ this.ui._value ], this.ui._hasChildren);
+
+    if (!this.ui._clickableSubmenus || !this.ui._hasChildren) {
+        this.ui.class.remove('hover');
+    }
 };
 
 MenuItem.prototype._onTouchStart = function(evt) {
@@ -80,8 +85,8 @@ MenuItem.prototype._onTouchStart = function(evt) {
         return;
 
     if (! this.ui._container || this.ui.class.contains('hover')) {
-        this.ui.emit('select', this.ui._value);
-        this.ui.parent.emit('select-propagate', [ this.ui._value ]);
+        this.ui.emit('select', this.ui._value, this.ui._hasChildren);
+        this.ui.parent.emit('select-propagate', [ this.ui._value ], this.ui._hasChildren);
         this.ui.class.remove('hover');
     } else {
         this.ui.parent.emit('over', [ this.ui._value ]);
@@ -96,14 +101,17 @@ MenuItem.prototype._onTouchEnd = function(evt) {
     evt.stopPropagation();
 };
 
-MenuItem.prototype._onSelectPropagate = function(path) {
+MenuItem.prototype._onSelectPropagate = function(path, selectedItemHasChildren) {
     if (! this.parent)
         return;
 
     path.splice(0, 0, this._value);
 
-    this.parent.emit('select-propagate', path);
-    this.class.remove('hover');
+    this.parent.emit('select-propagate', path, selectedItemHasChildren);
+
+    if (!this._clickableSubmenus || !selectedItemHasChildren) {
+        this.class.remove('hover');
+    }
 };
 
 MenuItem.prototype._onAppend = function(item) {
