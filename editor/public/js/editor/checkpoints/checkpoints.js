@@ -2,17 +2,20 @@ editor.once('load', function () {
     'use strict';
 
     var request = function (args, callback) {
-        return Ajax(args)
-        .on('load', function (status, data) {
+        var request = Ajax(args);
+
+        request.on('load', function (status, data) {
             if (data) {
                 callback(null, data);
             }
-        })
-        .on('error', function (status, err) {
+        });
+        request.on('error', function (status, err) {
             if (callback) {
                 callback(err);
             }
         });
+
+        return request;
     };
 
     editor.method('checkpoints:create', function (branchId, description, callback) {

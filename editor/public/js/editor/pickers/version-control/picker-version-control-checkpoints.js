@@ -358,6 +358,17 @@ editor.once('load', function () {
 
     // clean up
     panel.on('hide', function () {
+        if (currentCheckpointListRequest) {
+            currentCheckpointListRequest.abort();
+            currentCheckpointListRequest = null;
+        }
+
+        // restore state of buttons
+        btnLoadMore.disabled = false;
+        btnLoadMore.text = 'LOAD MORE';
+        listCheckpoints.hidden = false;
+        spinner.classList.add('hidden');
+
         events.forEach(function (evt) {
             evt.unbind();
         });
