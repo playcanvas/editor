@@ -29,6 +29,7 @@ editor.once('load', function () {
 
     // playcanv.as
     var panelPlaycanvas = new ui.Panel();
+    panelPlaycanvas.flex = true;
     panelPlaycanvas.class.add('buttons');
     panel.append(panelPlaycanvas);
 
@@ -57,6 +58,7 @@ editor.once('load', function () {
 
     // self host
     var panelSelfHost = new ui.Panel();
+    panelSelfHost.flex = true;
     panelSelfHost.class.add('buttons');
     panel.append(panelSelfHost);
 
@@ -85,6 +87,7 @@ editor.once('load', function () {
 
     // facebook instant
     var panelFbInstant = new ui.Panel();
+    panelFbInstant.flex = true;
     panelFbInstant.class.add('buttons');
     panel.append(panelFbInstant);
     panelFbInstant.hidden = !editor.call('users:hasFlag', 'hasPublishOnFacebook');
