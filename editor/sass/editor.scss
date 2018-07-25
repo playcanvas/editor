@@ -7581,8 +7581,12 @@ strong {
             border-top: 1px solid $border-primary;
             margin: 15px;
             text-align: center;
+            flex-grow: 1;
+            flex-basis: 0;
 
             > .content {
+                flex-direction: column;
+
                 > .ui-label {
                     text-align: center;
                     opacity: 0.8;
