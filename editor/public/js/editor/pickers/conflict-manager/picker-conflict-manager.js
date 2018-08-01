@@ -176,7 +176,7 @@ editor.once('load', function () {
     // the current conflict we are editing
     var currentConflicts = null;
     // the merge data that we requested from the server
-    var mergeData = null;
+    var currentMergeObject = null;
     // the UI to resolve conflicts for an item
     var resolver = null;
 
@@ -194,8 +194,8 @@ editor.once('load', function () {
     var checkAllResolved = function () {
         var result = true;
 
-        for (var i = 0; i < mergeData.conflicts.length; i++) {
-            if (! isConflictGroupResolved(mergeData.conflicts[i])) {
+        for (var i = 0; i < currentMergeObject.conflicts.length; i++) {
+            if (! isConflictGroupResolved(currentMergeObject.conflicts[i])) {
                 return false;
             }
         }
@@ -303,16 +303,84 @@ editor.once('load', function () {
                 dstValue: 'Box Dest',
                 useSrc: false,
                 useDst: false
+            }, {
+                id: 'id 7',
+                path: 'entities.28394852-2334-2345-234223422342.components.script.scripts.test.attributes.vectors',
+                baseValue: [[1, 2, 3]],
+                srcValue: [[1, 2, 3], [4, 5, 6]],
+                dstValue: [[4, 5, 6]],
+                baseType: 'array:vec3',
+                srcType: 'array:vec3',
+                dstType: 'array:vec3',
+                useSrc: false,
+                useDst: false
+            }, {
+                id: 'id 8',
+                path: 'entities.28394852-2334-2345-234223422342.components.script.scripts.test.attributes.multiType',
+                baseValue: 5,
+                srcValue: [[1, 2, 3], [4, 5, 6]],
+                dstValue: "alekos",
+                baseType: 'number',
+                srcType: 'array:vec3',
+                dstType: 'string',
+                useSrc: false,
+                useDst: false
+            }, {
+                id: 'id 9',
+                path: 'entities.28394852-2334-2345-234223422342.components.script.order',
+                baseValue: ['test', 'test1', 'test2'],
+                srcValue: ['test', 'test1', 'test2', 'test3'],
+                dstValue: ['test4', 'test5'],
+                useSrc: false,
+                useDst: false
+            }, {
+                id: 'id 10',
+                path: 'entities.28394852-2334-2345-234223422342.components.script.scripts.test.attributes.colorField',
+                baseValue: [200, 0, 0],
+                srcValue: [0, 255, 0],
+                dstValue: [0, 0, 255, 128],
+                baseType: 'rgb',
+                srcType: 'rgb',
+                dstType: 'rgba',
+                useSrc: false,
+                useDst: false
+            }, {
+                id: 'id 11',
+                path: 'entities.28394852-2334-2345-234223422342.components.script.scripts.test.attributes.colorArrayField',
+                baseValue: [[200, 0, 0]],
+                srcValue: [[0, 255, 0], [0, 255, 0], [0, 255, 0], [0, 255, 0], [0, 255, 0]],
+                dstValue: [[0, 255, 0], [0, 255, 0], [0, 255, 0], [0, 255, 0], [0, 255, 0], [0, 255, 0], [0, 255, 0]],
+                baseType: 'array:rgb',
+                srcType: 'array:rgb',
+                dstType: 'array:rgba',
+                useSrc: false,
+                useDst: false
+            }, {
+                id: 'id 12',
+                path: 'entities.28394852-2334-2345-234223422342.components.model.asset',
+                baseValue: 11682,
+                srcValue: 11682,
+                dstValue: 11682,
+                useSrc: false,
+                useDst: false
+            }, {
+                id: 'id 13',
+                path: 'entities.28394852-2334-2345-234223422342.components.animation.assets',
+                baseValue: [11682],
+                srcValue: [11682],
+                dstValue: [11682,11682,11682,11682,11682,11682,11682,11682,11682],
+                useSrc: false,
+                useDst: false
             }]
         };
 
         // debug data
-        resolver = editor.call('picker:conflictManager:showSceneConflicts', panelConflicts, currentConflicts);
+        resolver = editor.call('picker:conflictManager:showSceneConflicts', panelConflicts, currentConflicts, currentMergeObject);
 
         // adjust the positioning of the vertical borders because a scrollbar
         // might have been displayed which might have changed the rendered width
         // of the conflicts panel
-        requestAnimationFrame(function () {
+        resolver.on('reflow', function () {
             var width = panelConflicts.element.clientWidth / 3;
             verticalBorders[0].style.left = width + 'px';
             verticalBorders[1].style.left = 2 * width + 'px';
@@ -360,7 +428,7 @@ editor.once('load', function () {
         listItems.selected = [];
         btnComplete.disabled = true;
         showMainProgress(spinnerIcon, 'Completing merge...');
-        editor.call('branches:applyMerge', mergeData.id, function (err) {
+        editor.call('branches:applyMerge', currentMergeObject.id, function (err) {
             if (err) {
                 // if there was an error show it in the UI and then go back to the conflicts
                 showMainProgress(errorIcon, err);
@@ -380,20 +448,20 @@ editor.once('load', function () {
     });
 
     var onMergeDataLoaded = function (data) {
-        mergeData = data;
+        currentMergeObject = data;
 
         labelTopTheirs.text = data.sourceBranchName;
         labelTopMine.text = data.destinationBranchName;
 
-        if (! mergeData.conflicts.length) {
+        if (! currentMergeObject.conflicts.length) {
             btnComplete.disabled = false;
             return showMainProgress(completedIcon, 'No conflicts found - Click Complete Merge');
         }
 
         hideMainProgress();
 
-        for (var i = 0; i < mergeData.conflicts.length; i++) {
-            var item = createLeftListItem(mergeData.conflicts[i]);
+        for (var i = 0; i < currentMergeObject.conflicts.length; i++) {
+            var item = createLeftListItem(currentMergeObject.conflicts[i]);
             if (i === 0) {
                 item.selected = true;
             }
@@ -409,7 +477,7 @@ editor.once('load', function () {
 
         showMainProgress(spinnerIcon, 'Loading conflicts...');
 
-        if (! mergeData) {
+        if (! currentMergeObject) {
             editor.call('branches:getMerge', config.self.branch.merge.id, function (err, data) {
                 if (err) {
                     return showMainProgress(errorIcon, err);
@@ -418,7 +486,7 @@ editor.once('load', function () {
                 onMergeDataLoaded(data);
             });
         } else {
-            onMergeDataLoaded(mergeData);
+            onMergeDataLoaded(currentMergeObject);
         }
 
 
@@ -429,7 +497,8 @@ editor.once('load', function () {
 
     // clean up
     overlay.on('hide', function () {
-        mergeData = null;
+        currentMergeObject = null;
+
         listItems.clear();
 
         if (resolver) {
@@ -456,7 +525,12 @@ editor.once('load', function () {
 
     // show conflict manager
     editor.method('picker:conflictManager', function (data) {
-        mergeData = data;
+        currentMergeObject = data;
         overlay.hidden = false;
+    });
+
+    // Returns the current merge object
+    editor.method('picker:conflictManager:currentMerge', function () {
+        return currentMergeObject;
     });
 });

@@ -65,7 +65,19 @@ editor.once('load', function () {
         }
     };
 
-    ConflictSection.prototype._appendField = function (args) {
+    /**
+     * Append a new field to the section. This will create
+     * a new field on all 3 panels (base, source, destination);
+     * @param {Object} args The field options
+     * @param {String} args.name The name of the field
+     * @param {Boolean} args.prettify If true the name will be 'prettified'
+     * @param {String} args.type The type of the field if it's the same for all base, source and destination values
+     * @param {String} args.baseType The type of the base value
+     * @param {String} args.sourceType The type of the source value
+     * @param {String} args.destType The type of the destination value
+     * @param {Object} args.conflict The conflict object
+     */
+    ConflictSection.prototype.appendField = function (args) {
         var row = new ui.ConflictSectionRow(args);
         this._rows.push(row);
 
@@ -90,19 +102,6 @@ editor.once('load', function () {
 
     ConflictSection.prototype.onConflictUnresolved = function () {
         this.numResolvedConflicts--;
-    };
-
-    ConflictSection.prototype.appendField = function (name, type, conflict) {
-        var isArray = type.startsWith('array:');
-        if (isArray) {
-            type = type.slice(6);
-        }
-        this._appendField({
-            name: name,
-            type: type,
-            array: isArray,
-            conflict: conflict
-        });
     };
 
     ConflictSection.prototype.onAddedToDom = function () {

@@ -5,20 +5,49 @@ editor.once('load', function () {
     var SOURCE_PANEL = 1;
     var DEST_PANEL = 2;
 
+    var convertAssetValue = function (assetId, checkpointData, alternativeCheckpointData) {
+        if (! assetId) {
+            return assetId;
+        }
+
+        var result = {
+            id: assetId,
+            name: null
+        };
+
+        var name = checkpointData.assets[assetId];
+        if (name === undefined && alternativeCheckpointData) {
+            name = alternativeCheckpointData.assets[assetId];
+        }
+
+        if (name !== undefined) {
+            result.name = name;
+        }
+
+        return result;
+    };
+
     /**
      * A row that contains the base, source and destination fields.
      * @param {Object} args The arguments
      * @param {String} args.name The name of the field
-     * @param {String} args.type The type of the field
-     * @param {Boolean} args.array Whether the field is an array of values
+     * @param {String} args.type The type of the field (if same type for base, source and destination values)
+     * @param {String} args.baseType The type of the base value
+     * @param {String} args.sourceType The type of the source value
+     * @param {String} args.destType The type of the destination value
      * @param {Object} args.conflict The conflict object
+     * @param {Boolean} args.prettify If true the name will be prettified
      */
     var ConflictSectionRow = function (args) {
         Events.call(this);
 
         var self = this;
         this._name = args.name;
-        this._type = args.type;
+        if (args.type) {
+            this._types = [args.type, args.type, args.type];
+        } else {
+            this._types = [args.baseType, args.sourceType, args.destType];
+        }
         this._conflict = args.conflict;
         this._resolved = false;
 
@@ -29,12 +58,47 @@ editor.once('load', function () {
 
         var values = [self._conflict.baseValue, self._conflict.srcValue, self._conflict.dstValue];
 
+        var mergeObject = editor.call('picker:conflictManager:currentMerge');
+
+        // convert asset ids to {id: __, name: __} objects
+        if (values[0]) {
+            if (this._types[0] === 'asset') {
+                values[0] = convertAssetValue(values[0], mergeObject.srcCheckpoint, mergeObject.dstCheckpoint);
+            } else if (this._types[0] === 'array:asset') {
+                values[0] = values[0].map(function (assetId) {
+                    return convertAssetValue(assetId, mergeObject.srcCheckpoint, mergeObject.dstCheckpoint);
+                });
+            }
+
+        }
+
+        if (values[1]) {
+            if (this._types[1] === 'asset') {
+                values[1] = convertAssetValue(values[1], mergeObject.srcCheckpoint);
+            } else if (this._types[1] === 'array:asset') {
+                values[1] = values[1].map(function (assetId) {
+                    return convertAssetValue(assetId, mergeObject.srcCheckpoint);
+                });
+            }
+        }
+
+        if (values[2]) {
+            if (this._types[2] === 'asset') {
+                values[2] = convertAssetValue(values[2], mergeObject.dstCheckpoint);
+            } else if (this._types[2] === 'array:asset') {
+                values[2] = values[2].map(function (assetId) {
+                    return convertAssetValue(assetId, mergeObject.dstCheckpoint);
+                });
+            }
+        }
+
         for (var i = 0; i < 3; i++) {
             var panel = new ui.Panel();
             panel.class.add('conflict-field');
-            panel.class.add('field-' + self._type);
-            if (args.array) {
-                panel.class.add('field-array');
+            var isArray = self._types[i].startsWith('array:');
+            if (isArray) {
+                panel.class.add('field-array-container');
+                self._types[i] = self._types[i].slice('array:'.length);
             }
             this._panels.push(panel);
 
@@ -48,17 +112,17 @@ editor.once('load', function () {
             }
 
             var label = new ui.Label({
-                text: this._prettifyName(self._name)
+                text: args.prettify ? this._prettifyName(self._name) : self._name
             });
             label.class.add('name');
             panel.append(label);
 
             var field;
 
-            if (args.array) {
-                field = new ui.ConflictArrayField(self._type, values[i]);
+            if (isArray) {
+                field = new ui.ConflictArrayField(self._types[i], values[i]);
             } else {
-                field = ui.ConflictField.create(self._type, values[i]);
+                field = ui.ConflictField.create(self._types[i], values[i]);
             }
 
             field.element.class.add('value');
@@ -184,7 +248,7 @@ editor.once('load', function () {
         maxHeight = Math.max(maxHeight, this._fields[2].height);
 
         for (var i = 0; i < 3; i++) {
-            this._fields[i].element.style.height = maxHeight + 'px';
+            this._fields[i].height = maxHeight;
         }
     };
 

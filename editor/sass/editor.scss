@@ -9298,21 +9298,14 @@ strong {
                                                         }
                                                     }
 
-                                                    &.field-vec3 {
-                                                        .value .ui-label {
-                                                            margin-right: 10px;
-                                                        }
-
-                                                    }
-
                                                     &:before {
                                                         content: ' ';
                                                         position: absolute;
-                                                        top: 0;
+                                                        top: -10px;
                                                         left: -10px;
                                                         width: calc(100% + 20px);
-                                                        height: 100%;
-                                                        background: $bcg-darker;
+                                                        height: calc(100% + 20px);
+                                                        background: $bcg-darkest;
                                                         opacity: 0;
                                                         transition: opacity 100ms;
                                                     }
@@ -9321,11 +9314,35 @@ strong {
                                                         opacity: 0.5;
                                                     }
 
-                                                    &.field-array {
+                                                    .field-vector {
+                                                        background: transparent;
+                                                        .ui-label {
+                                                            margin-right: 10px;
+                                                        }
+
+                                                    }
+
+                                                    .field-color {
+                                                        &.ui-color-field {
+                                                            pointer-events: none;
+                                                            &:after {
+                                                                display: none;
+                                                            }
+                                                        }
+                                                    }
+
+                                                    .field-asset {
+                                                        .asset-id {
+                                                            display: block;
+                                                            opacity: 0.5;
+                                                        }
+                                                    }
+
+                                                    &.field-array-container {
                                                         > .content {
                                                             height: 100%;
                                                         }
-                                                        .value {
+                                                        .field-array {
                                                             display: block;
                                                             max-width: 100%;
                                                             height: 100%;
@@ -9359,6 +9376,10 @@ strong {
 
                                                                         &:last-child {
                                                                             padding-bottom: 0;
+                                                                        }
+
+                                                                        .ui-panel {
+                                                                            background: transparent;
                                                                         }
                                                                     }
                                                                 }

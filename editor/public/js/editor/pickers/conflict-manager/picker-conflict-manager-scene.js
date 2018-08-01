@@ -3,14 +3,6 @@ editor.once('load', function () {
 
     var componentSchema = editor.call('components:schema');
 
-    var ENTITY_PROPERTIES = [
-        'name',
-        'position',
-        'rotation',
-        'scale',
-        'tags'
-    ];
-
     var schema = {
         name: 'string',
         entities: {
@@ -19,7 +11,25 @@ editor.once('load', function () {
                 position: 'vec3',
                 rotation: 'vec3',
                 scale: 'vec3',
-                tags: 'array:string'
+                tags: 'array:string',
+                components: {
+                    script: {
+                        order: 'array:string',
+                        scripts: {
+                            '*': {
+                                attributes: {
+
+                                }
+                            }
+                        }
+                    },
+                    model: {
+                        asset: 'asset'
+                    },
+                    animation: {
+                        assets: 'array:asset'
+                    }
+                }
             }
         }
     };
@@ -43,11 +53,33 @@ editor.once('load', function () {
         return result;
     };
 
-    editor.method('picker:conflictManager:showSceneConflicts', function (parent, conflicts) {
+    var appendFieldsToSection = function (fields, section, title) {
+        var addedTitle = false;
+        for (var field in fields)  {
+            var path = fields[field].path;
+            if (! path) continue;
+
+            if (! addedTitle && title) {
+                addedTitle = true;
+                section.appendTitle(title);
+            }
+
+            section.appendField({
+                name: field,
+                type: getType(path),
+                conflict: fields[field],
+                prettify: true
+            });
+        }
+    };
+
+    editor.method('picker:conflictManager:showSceneConflicts', function (parent, conflicts, mergeObject) {
         var resolver = new ui.ConflictResolver();
 
         var index = {};
 
+        // Build index of conflicts so that the conflicts become
+        // a hierarchical object
         for (var i = 0, len = conflicts.data.length; i < len; i++) {
             var conflict = conflicts.data[i];
             var parts = conflict.path.split('.');
@@ -63,45 +95,72 @@ editor.once('load', function () {
             target[parts[parts.length - 1]] = conflict;
         }
 
-        if (index.name) {
-            var sectionProperties = resolver.createSection('PROPERTIES');
-            sectionProperties.appendField('name', getType('name'), index.name);
-        }
+        // Scene properties
+        var sectionProperties = resolver.createSection('PROPERTIES');
+        appendFieldsToSection(index, sectionProperties);
 
+        // Entities
         if (index.entities) {
             resolver.createSeparator('ENTITIES');
             for (var key in index.entities) {
                 var sectionEntity = resolver.createSection(key, true);
                 var entity = index.entities[key];
 
-                var addedTitle = false;
-                for (var i = 0; i < ENTITY_PROPERTIES.length; i++) {
-                    var field = ENTITY_PROPERTIES[i];
-                    if (entity.hasOwnProperty(field)) {
-                        if (! addedTitle) {
-                            addedTitle = true;
-                            sectionEntity.appendTitle('ENTITY PROPERTIES');
+                appendFieldsToSection(entity, sectionEntity, 'ENTITY PROPERTIES');
+
+                // Components
+                if (entity.components) {
+                    for (var component in componentSchema) {
+                        if (! entity.components.hasOwnProperty(component)) continue;
+                        sectionEntity.appendTitle(component.toUpperCase() + ' COMPONENT');
+
+                        // check if this a script to get the scripts object
+                        var scripts;
+                        if (component === 'script') {
+                            scripts = entity.components.script.scripts;
+                            if (scripts) {
+                                // delete this field because we are going to handle it in a special way
+                                delete entity.components.script.scripts;
+                            }
                         }
 
-                        sectionEntity.appendField(field, getType(entity[field].path), entity[field]);
+                        // add component fields
+                        appendFieldsToSection(entity.components[component], sectionEntity);
+
+                        // add script attributes after
+                        if (scripts) {
+                            for (var scriptName in scripts) {
+                                var addedTitle = false;
+
+                                if (! scripts[scriptName]) continue;
+
+                                var attributes = scripts[scriptName].attributes;
+                                if (! attributes) continue;
+
+                                for (var attributeName in attributes) {
+                                    var attribute = attributes[attributeName];
+                                    if (! attribute) continue;
+
+                                    if (! addedTitle) {
+                                        sectionEntity.appendTitle(scriptName, true);
+                                        addedTitle = true;
+                                    }
+
+                                    sectionEntity.appendField({
+                                        name: attributeName,
+                                        baseType: attribute.baseType,
+                                        sourceType: attribute.srcType,
+                                        destType: attribute.dstType,
+                                        conflict: attribute
+                                    });
+                                }
+                            }
+                        }
                     }
                 }
+
             }
         }
-
-        // sectionEntities.appendTitle('ENTITY PROPERTIES');
-        // sectionEntities.appendString('path', ['/root/entity/child/box', '/root/entity/capsule/box', '/root/entity/sphere/cone']);
-        // sectionEntities.appendTitle('SCRIPT COMPONENT');
-        // sectionEntities.indent();
-        // sectionEntities.appendTitle('curve-script.js', true);
-        // sectionEntities.appendString('curveOne', [1, 2, 3]);
-        // sectionEntities.unindent();
-
-        // var sectionPhysics = resolver.createSection("PHYSICS SETTINGS");
-        // sectionPhysics.appendVec3('gravity', [[0, -9, 0], [0, -20, 0], [0, -10, 0]]);
-
-        // var sectionRender = resolver.createSection('RENDER SETTINGS');
-        // sectionPhysics.appendNumber('fog_start', );
 
         resolver.appendToParent(parent);
 

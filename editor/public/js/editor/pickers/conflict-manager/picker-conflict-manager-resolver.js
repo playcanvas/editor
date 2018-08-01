@@ -2,8 +2,11 @@ editor.once('load', function () {
     'use strict';
 
     var ConflictResolver = function () {
+        Events.call(this);
         this.elements = [];
     };
+
+    ConflictResolver.prototype = Object.create(Events.prototype);
 
     ConflictResolver.prototype.createSection = function (title, foldable) {
         var section = new ui.ConflictSection(title, foldable);
@@ -24,13 +27,20 @@ editor.once('load', function () {
         for (var i = 0, len = this.elements.length; i < len; i++) {
             var element = this.elements[i];
             if (element instanceof ui.ConflictSection) {
-                parent.append(element.panel);
+                if (element.numConflicts) {
+                    parent.append(element.panel);
+                }
             } else {
                 parent.append(element);
             }
         }
 
-        this.reflow();
+        // Reflow (call onAddedToDom) after 2 frames. The reason why it's 2 frames
+        // and not 1 is it doesn't always work on 1 frame and I don't know why yet..
+        var self = this;
+        requestAnimationFrame(function () {
+            requestAnimationFrame(self.reflow.bind(self));
+        });
     };
 
     ConflictResolver.prototype.reflow = function () {
@@ -40,6 +50,8 @@ editor.once('load', function () {
                 element.onAddedToDom();
             }
         }
+
+        this.emit('reflow');
     };
 
     ConflictResolver.prototype.resolveUsingSource = function () {
