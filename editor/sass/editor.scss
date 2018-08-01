@@ -9107,7 +9107,7 @@ strong {
                         height: 100%;
                         flex-direction: column;
 
-                        > .vertical-border {
+                        .vertical-border {
                             position: absolute;
                             height: 100%;
                             width: 1px;
@@ -9115,11 +9115,11 @@ strong {
                             z-index: 1;
 
                             &.vertical-border-0 {
-                                left: 33.33%;
+                                left: 33.333%;
                             }
 
                             &.vertical-border-1 {
-                                left: 66.66%;
+                                left: 66.666%;
                             }
                         }
 
@@ -9153,9 +9153,8 @@ strong {
                             > .content {
                                 > .ui-panel {
                                     flex-grow: 1;
-                                    flex-basis: 0;
+                                    flex-basis: $vertical-section-width;
                                     padding: 0 10px;
-                                    min-width: $vertical-section-width;
                                     @extend .font-bold;
                                     @extend .font-smooth;
                                     font-size: 12px;
@@ -9190,8 +9189,7 @@ strong {
                                 height: 100%;
                                 > .ui-panel {
                                     flex-grow: 1;
-                                    flex-basis: 0;
-                                    min-width: $vertical-section-width;
+                                    flex-basis: $vertical-section-width;
                                     border-top: 1px solid $border-primary;
                                     box-sizing: border-box;
 
@@ -9250,8 +9248,7 @@ strong {
                                     > .content {
                                         > .ui-panel {
                                             flex-grow: 1;
-                                            flex-basis: 0;
-                                            min-width: $vertical-section-width;
+                                            flex-basis: $vertical-section-width;
                                             box-sizing: border-box;
 
                                             > .content {

@@ -309,11 +309,14 @@ editor.once('load', function () {
         // debug data
         resolver = editor.call('picker:conflictManager:showSceneConflicts', panelConflicts, currentConflicts);
 
-        // if a scrollbar was rendered then adjust the vertical borders
-        // var scrollBarWidth = panelConflicts.element.offsetWidth - panelConflicts.element.clientWidth;
-        // for (var i = 0; i < verticalBorders.length; i++) {
-        //     verticalBorders[i].style.left = (i+1) * (panelConflicts.element.clientWidth / 3) + 'px';
-        // }
+        // adjust the positioning of the vertical borders because a scrollbar
+        // might have been displayed which might have changed the rendered width
+        // of the conflicts panel
+        requestAnimationFrame(function () {
+            var width = panelConflicts.element.clientWidth / 3;
+            verticalBorders[0].style.left = width + 'px';
+            verticalBorders[1].style.left = 2 * width + 'px';
+        });
     };
 
     var showMainProgress = function (icon, text) {
@@ -417,6 +420,11 @@ editor.once('load', function () {
         } else {
             onMergeDataLoaded(mergeData);
         }
+
+
+        if (editor.call('viewport:inViewport')) {
+            editor.emit('viewport:hover', false);
+        }
     });
 
     // clean up
@@ -431,6 +439,19 @@ editor.once('load', function () {
 
         // editor-blocking picker closed
         editor.emit('picker:close', 'conflict-manager');
+
+        if (editor.call('viewport:inViewport')) {
+            editor.emit('viewport:hover', true);
+        }
+    });
+
+    // Prevent viewport hovering when the picker is shown
+    editor.on('viewport:hover', function (state) {
+        if (state && ! overlay.hidden) {
+            setTimeout(function () {
+                editor.emit('viewport:hover', false);
+            }, 0);
+        }
     });
 
     // show conflict manager

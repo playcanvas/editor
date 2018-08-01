@@ -25,9 +25,19 @@ editor.once('load', function () {
             var element = this.elements[i];
             if (element instanceof ui.ConflictSection) {
                 parent.append(element.panel);
-                element.onAddedToDom();
             } else {
                 parent.append(element);
+            }
+        }
+
+        this.reflow();
+    };
+
+    ConflictResolver.prototype.reflow = function () {
+        for (var i = 0, len = this.elements.length; i < len; i++) {
+            var element = this.elements[i];
+            if (element instanceof ui.ConflictSection) {
+                element.onAddedToDom();
             }
         }
     };
