@@ -77,7 +77,9 @@ editor.once('load', function () {
 
     // A Curve field
     var ConflictFieldCurve = function (value) {
-        this.element = new ui.CurveField();
+        this.element = new ui.CurveField({
+            lineWidth: 3
+        });
         this.element.value = value ? [value] : null;
         this.element.class.add('field-curve');
     };

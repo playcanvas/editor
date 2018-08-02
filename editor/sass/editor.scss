@@ -9360,7 +9360,8 @@ strong {
 
                                                     .field-curve {
                                                         border: 0;
-                                                        background-color: $bcg-darkest !important;
+                                                        margin: 0;
+                                                        background-color: $bcg-dark !important;
                                                         pointer-events: none;
                                                         height: 25px;
                                                     }
@@ -9412,6 +9413,10 @@ strong {
 
                                                                         .ui-label {
                                                                             display: block;
+                                                                        }
+
+                                                                        .field-curve {
+                                                                            width: 100%;
                                                                         }
                                                                     }
                                                                 }
