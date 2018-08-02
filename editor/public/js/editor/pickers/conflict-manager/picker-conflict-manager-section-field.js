@@ -45,7 +45,7 @@ editor.once('load', function () {
     // A String field
     var ConflictFieldString = function (value) {
         this.element = new ui.Label({
-            text: value
+            text: value + ''
         });
         this.element.class.add('field-string', 'selectable');
     };
@@ -70,7 +70,7 @@ editor.once('load', function () {
     // A Color field
     var ConflictFieldColor = function (value) {
         this.element = new ui.ColorField();
-        this.element.value = value;
+        this.element.value = value.map(function (c) { return c * 255; });
         this.element.class.add('field-color');
     };
     ConflictFieldColor.prototype = Object.create(ConflictField.prototype);
@@ -99,7 +99,7 @@ editor.once('load', function () {
         }
 
         var labelId = new ui.Label({
-            text: 'ID: ' + (value && value.id)
+            text: value ? 'ID: ' + value.id : value + ''
         });
         labelId.class.add('asset-id', 'selectable');
         this.element.append(labelId);
@@ -120,7 +120,7 @@ editor.once('load', function () {
         }
 
         var labelId = new ui.Label({
-            text: 'GUID: ' + (value && value.id)
+            text: value ? 'GUID: ' + value.id : value + ''
         });
         labelId.class.add('entity-id', 'selectable');
         this.element.append(labelId);

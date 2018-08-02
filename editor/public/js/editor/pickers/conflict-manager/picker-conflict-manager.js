@@ -336,9 +336,9 @@ editor.once('load', function () {
             }, {
                 id: 'id 10',
                 path: 'entities.28394852-2334-2345-234223422342.components.script.scripts.test.attributes.colorField',
-                baseValue: [200, 0, 0],
-                srcValue: [0, 255, 0],
-                dstValue: [0, 0, 255, 128],
+                baseValue: [0.5, 0, 0],
+                srcValue: [0, 1, 0],
+                dstValue: [0, 0, 1, 0.5],
                 baseType: 'rgb',
                 srcType: 'rgb',
                 dstType: 'rgba',
@@ -347,9 +347,9 @@ editor.once('load', function () {
             }, {
                 id: 'id 11',
                 path: 'entities.28394852-2334-2345-234223422342.components.script.scripts.test.attributes.colorArrayField',
-                baseValue: [[200, 0, 0]],
-                srcValue: [[0, 255, 0], [0, 255, 0], [0, 255, 0], [0, 255, 0], [0, 255, 0]],
-                dstValue: [[0, 255, 0], [0, 255, 0], [0, 255, 0], [0, 255, 0], [0, 255, 0], [0, 255, 0], [0, 255, 0]],
+                baseValue: [[1, 0, 0]],
+                srcValue: [[0, 1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 0]],
+                dstValue: [[0, 1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 0]],
                 baseType: 'array:rgb',
                 srcType: 'array:rgb',
                 dstType: 'array:rgba',
@@ -359,7 +359,7 @@ editor.once('load', function () {
                 id: 'id 12',
                 path: 'entities.28394852-2334-2345-234223422342.components.model.asset',
                 baseValue: 11682,
-                srcValue: 11682,
+                srcValue: null,
                 dstValue: 11682,
                 useSrc: false,
                 useDst: false
@@ -393,6 +393,54 @@ editor.once('load', function () {
                 baseValue: '1c2364cf-9031-11e8-b407-9cebe856ae8d',
                 srcValue: '1c2364cf-9031-11e8-b407-9cebe856ae8d',
                 dstValue: '1c2364cf-9031-11e8-b407-9cebe856ae8d',
+                useSrc: false,
+                useDst: false
+            }, {
+                id: 'id 16_2',
+                path: 'entities.28394852-2334-2345-234223422340.components.light.color',
+                baseValue: [1, 1, 1],
+                srcValue: [0.1, 1, 1],
+                dstValue: [0, 0, 1],
+                useSrc: false,
+                useDst: false
+            }, {
+                id: 'id 16_2',
+                path: 'entities.28394852-2334-2345-234223422340.components.light.cookieOffset',
+                baseValue: [1, 1],
+                srcValue: [0.1, 1],
+                dstValue: [0, 0],
+                useSrc: false,
+                useDst: false
+            }, {
+                id: 'id 16_3',
+                path: 'entities.28394852-2334-2345-234223422340.components.sound.volume',
+                baseValue: 1,
+                srcValue: 0,
+                dstValue: 2,
+                useSrc: false,
+                useDst: false
+            }, {
+                id: 'id 16_4',
+                path: 'entities.28394852-2334-2345-234223422340.components.sound.slots.0.name',
+                baseValue: 'idle',
+                srcValue: 'walk',
+                dstValue: 'run',
+                useSrc: false,
+                useDst: false
+            }, {
+                id: 'id 16_5',
+                path: 'entities.28394852-2334-2345-234223422340.components.sprite.type',
+                baseValue: null,
+                srcValue: 'simple',
+                dstValue: 'animated',
+                useSrc: false,
+                useDst: false
+            }, {
+                id: 'id 16_6',
+                path: 'entities.28394852-2334-2345-234223422340.components.sprite.clips.0.name',
+                baseValue: 'idle',
+                srcValue: 'walk',
+                dstValue: 'run',
                 useSrc: false,
                 useDst: false
             }, {

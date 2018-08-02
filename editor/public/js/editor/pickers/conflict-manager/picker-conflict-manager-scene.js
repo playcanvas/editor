@@ -31,6 +31,26 @@ editor.once('load', function () {
                     },
                     button: {
                         imageEntity: 'entity'
+                    },
+                    light: {
+                        color: 'rgb',
+                        cookieOffset: 'vec2'
+                    },
+                    sound: {
+                        volume: 'number',
+                        slots: {
+                            '*': {
+                                name: 'string'
+                            }
+                        }
+                    },
+                    sprite: {
+                        type: 'string',
+                        clips: {
+                            '*': {
+                                name: 'string'
+                            }
+                        }
                     }
                 }
             }
@@ -56,9 +76,11 @@ editor.once('load', function () {
         return result;
     };
 
-    var appendFieldsToSection = function (fields, section, title) {
+    var appendFieldsToSection = function (fields, section, title, except) {
         var addedTitle = false;
         for (var field in fields)  {
+            if (except && except.indexOf(field) !== -1) continue;
+
             var path = fields[field].path;
             if (! path) continue;
 
@@ -122,47 +144,66 @@ editor.once('load', function () {
                         if (! entity.components.hasOwnProperty(component)) continue;
                         sectionEntity.appendTitle(component.toUpperCase() + ' COMPONENT');
 
-                        // check if this a script to get the scripts object
-                        var scripts = null;
+                        // handle script component so that script attributes appear
+                        // after the rest of the component properties
                         if (component === 'script') {
-                            scripts = entity.components.script.scripts;
+                            appendFieldsToSection(entity.components[component], sectionEntity, null, ['scripts']);
+
+                            // add script attributes after
+                            var scripts = entity.components.script.scripts;
                             if (scripts) {
-                                // delete this field because we are going to handle it in a special way
-                                delete entity.components.script.scripts;
-                            }
-                        }
+                                for (var scriptName in scripts) {
+                                    var addedTitle = false;
 
-                        // add component fields
-                        appendFieldsToSection(entity.components[component], sectionEntity);
+                                    if (! scripts[scriptName]) continue;
 
-                        // add script attributes after
-                        if (scripts) {
-                            for (var scriptName in scripts) {
-                                var addedTitle = false;
+                                    var attributes = scripts[scriptName].attributes;
+                                    if (! attributes) continue;
 
-                                if (! scripts[scriptName]) continue;
+                                    for (var attributeName in attributes) {
+                                        var attribute = attributes[attributeName];
+                                        if (! attribute) continue;
 
-                                var attributes = scripts[scriptName].attributes;
-                                if (! attributes) continue;
+                                        if (! addedTitle) {
+                                            sectionEntity.appendTitle(scriptName, true);
+                                            addedTitle = true;
+                                        }
 
-                                for (var attributeName in attributes) {
-                                    var attribute = attributes[attributeName];
-                                    if (! attribute) continue;
-
-                                    if (! addedTitle) {
-                                        sectionEntity.appendTitle(scriptName, true);
-                                        addedTitle = true;
+                                        sectionEntity.appendField({
+                                            name: attributeName,
+                                            baseType: attribute.baseType,
+                                            sourceType: attribute.srcType,
+                                            destType: attribute.dstType,
+                                            conflict: attribute
+                                        });
                                     }
-
-                                    sectionEntity.appendField({
-                                        name: attributeName,
-                                        baseType: attribute.baseType,
-                                        sourceType: attribute.srcType,
-                                        destType: attribute.dstType,
-                                        conflict: attribute
-                                    });
                                 }
                             }
+                        } else if (component === 'sound') {
+                            // handle sound component so that sound slots appear after the rest of the component properties
+                            appendFieldsToSection(entity.components[component], sectionEntity, null, ['slots']);
+
+                            var slots = entity.components.sound.slots;
+                            if (slots) {
+                                for (var key in slots) {
+                                    sectionEntity.appendTitle('SOUND SLOT ' + key, true);
+                                    appendFieldsToSection(slots[key], sectionEntity);
+                                }
+                            }
+                        } else if (component === 'sprite') {
+                            // handle sprite component so that clips appear after the rest of the component properties
+                            appendFieldsToSection(entity.components[component], sectionEntity, null, ['clips']);
+
+                            var clips = entity.components.sprite.clips;
+                            if (clips) {
+                                for (var key in clips) {
+                                    sectionEntity.appendTitle('CLIP ' + key, true);
+                                    appendFieldsToSection(clips[key], sectionEntity);
+                                }
+                            }
+                        } else {
+                            // add component fields
+                            appendFieldsToSection(entity.components[component], sectionEntity);
                         }
                     }
                 }
