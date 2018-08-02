@@ -1,7 +1,8 @@
 editor.once('load', function () {
     'use strict';
 
-    var ConflictSection = function (title, foldable) {
+    var ConflictSection = function (resolver, title, foldable) {
+        this._resolver = resolver;
         this._numConflicts = 0;
         this._numResolvedConflicts = 0;
         this._indent = 0;
@@ -78,7 +79,7 @@ editor.once('load', function () {
      * @param {Object} args.conflict The conflict object
      */
     ConflictSection.prototype.appendField = function (args) {
-        var row = new ui.ConflictSectionRow(args);
+        var row = new ui.ConflictSectionRow(this._resolver, args);
         this._rows.push(row);
 
         for (var i = 0; i < this._indent; i++) {

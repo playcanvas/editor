@@ -28,6 +28,9 @@ editor.once('load', function () {
                     },
                     animation: {
                         assets: 'array:asset'
+                    },
+                    button: {
+                        imageEntity: 'entity'
                     }
                 }
             }
@@ -74,7 +77,12 @@ editor.once('load', function () {
     };
 
     editor.method('picker:conflictManager:showSceneConflicts', function (parent, conflicts, mergeObject) {
-        var resolver = new ui.ConflictResolver();
+        var resolver = new ui.ConflictResolver(
+            mergeObject.srcCheckpoint.assets,
+            mergeObject.dstCheckpoint.assets,
+            mergeObject.srcCheckpoint.scenes[conflicts.itemId].entities,
+            mergeObject.dstCheckpoint.scenes[conflicts.itemId].entities
+        );
 
         var index = {};
 

@@ -252,7 +252,7 @@ editor.once('load', function () {
 
     var showConflicts = function (data) {
         currentConflicts = {
-            itemId: 565,
+            itemId: 898,
             itemType: 'scene',
             itemName: 'Untitled',
             data: [{
@@ -369,6 +369,30 @@ editor.once('load', function () {
                 baseValue: [11682],
                 srcValue: [11682],
                 dstValue: [11682,11682,11682,11682,11682,11682,11682,11682,11682],
+                useSrc: false,
+                useDst: false
+            }, {
+                id: 'id 14',
+                path: 'entities.28394852-2334-2345-234223422342.components.button.imageEntity',
+                baseValue: '1c2364cf-9031-11e8-b407-9cebe856ae8c',
+                srcValue: '1c2364cf-9031-11e8-b407-9cebe856ae8c',
+                dstValue: '1c2364cf-9031-11e8-b407-9cebe856ae8c',
+                useSrc: false,
+                useDst: false
+            }, {
+                id: 'id 15',
+                path: 'entities.28394852-2334-2345-234223422341.components.model.asset',
+                baseValue: 1,
+                srcValue: 2,
+                dstValue: 3,
+                useSrc: false,
+                useDst: false
+            }, {
+                id: 'id 16',
+                path: 'entities.28394852-2334-2345-234223422340.components.button.imageEntity',
+                baseValue: '1c2364cf-9031-11e8-b407-9cebe856ae8d',
+                srcValue: '1c2364cf-9031-11e8-b407-9cebe856ae8d',
+                dstValue: '1c2364cf-9031-11e8-b407-9cebe856ae8d',
                 useSrc: false,
                 useDst: false
             }]

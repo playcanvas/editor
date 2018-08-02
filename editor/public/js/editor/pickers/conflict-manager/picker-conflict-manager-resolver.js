@@ -1,15 +1,19 @@
 editor.once('load', function () {
     'use strict';
 
-    var ConflictResolver = function () {
+    var ConflictResolver = function (srcAssetIndex, dstAssetIndex, srcEntityIndex, dstEntityIndex) {
         Events.call(this);
         this.elements = [];
+        this.srcAssetIndex = srcAssetIndex;
+        this.dstAssetIndex = dstAssetIndex;
+        this.srcEntityIndex = srcEntityIndex;
+        this.dstEntityIndex = dstEntityIndex;
     };
 
     ConflictResolver.prototype = Object.create(Events.prototype);
 
     ConflictResolver.prototype.createSection = function (title, foldable) {
-        var section = new ui.ConflictSection(title, foldable);
+        var section = new ui.ConflictSection(this, title, foldable);
         this.elements.push(section);
         return section;
     };

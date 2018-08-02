@@ -5,7 +5,7 @@ editor.once('load', function () {
     var SOURCE_PANEL = 1;
     var DEST_PANEL = 2;
 
-    var convertAssetValue = function (assetId, checkpointData, alternativeCheckpointData) {
+    var convertAssetValue = function (assetId, assetIndex, alternativeAssetIndex) {
         if (! assetId) {
             return assetId;
         }
@@ -15,9 +15,31 @@ editor.once('load', function () {
             name: null
         };
 
-        var name = checkpointData.assets[assetId];
-        if (name === undefined && alternativeCheckpointData) {
-            name = alternativeCheckpointData.assets[assetId];
+        var name = assetIndex[assetId];
+        if (name === undefined && alternativeAssetIndex) {
+            name = alternativeAssetIndex[assetId];
+        }
+
+        if (name !== undefined) {
+            result.name = name;
+        }
+
+        return result;
+    };
+
+    var convertEntityValue = function (entityId, entityIndex, alternativeEntityIndex) {
+        if (! entityId) {
+            return entityId;
+        }
+
+        var result = {
+            id: entityId,
+            name: null
+        };
+
+        var name = entityIndex[entityId];
+        if (name === undefined && alternativeEntityIndex) {
+            name = alternativeEntityIndex[entityId];
         }
 
         if (name !== undefined) {
@@ -29,6 +51,7 @@ editor.once('load', function () {
 
     /**
      * A row that contains the base, source and destination fields.
+     * @param {Object} resolver The conflict resolver object
      * @param {Object} args The arguments
      * @param {String} args.name The name of the field
      * @param {String} args.type The type of the field (if same type for base, source and destination values)
@@ -38,10 +61,11 @@ editor.once('load', function () {
      * @param {Object} args.conflict The conflict object
      * @param {Boolean} args.prettify If true the name will be prettified
      */
-    var ConflictSectionRow = function (args) {
+    var ConflictSectionRow = function (resolver, args) {
         Events.call(this);
 
         var self = this;
+        this._resolver = resolver;
         this._name = args.name;
         if (args.type) {
             this._types = [args.type, args.type, args.type];
@@ -58,36 +82,51 @@ editor.once('load', function () {
 
         var values = [self._conflict.baseValue, self._conflict.srcValue, self._conflict.dstValue];
 
-        var mergeObject = editor.call('picker:conflictManager:currentMerge');
-
-        // convert asset ids to {id: __, name: __} objects
+        // convert asset ids and entity guids to {id: __, name: __} objects
         if (values[0]) {
-            if (this._types[0] === 'asset') {
-                values[0] = convertAssetValue(values[0], mergeObject.srcCheckpoint, mergeObject.dstCheckpoint);
-            } else if (this._types[0] === 'array:asset') {
+            if (self._types[0] === 'asset') {
+                values[0] = convertAssetValue(values[0], self._resolver.srcAssetIndex, self._resolver.dstAssetIndex);
+            } else if (self._types[0] === 'array:asset') {
                 values[0] = values[0].map(function (assetId) {
-                    return convertAssetValue(assetId, mergeObject.srcCheckpoint, mergeObject.dstCheckpoint);
+                    return convertAssetValue(assetId, self._resolver.srcAssetIndex, self._resolver.dstAssetIndex);
+                });
+            } else if (self._types[0] === 'entity') {
+                values[0] = convertEntityValue(values[0], self._resolver.srcEntityIndex, self._resolver.dstEntityIndex);
+            } else if (self._types[0] === 'array:entity') {
+                values[0] = values[0].map(function (entityId) {
+                    return convertEntityValue(entityId, self._resolver.srcEntityIndex, self._resolver.dstEntityIndex);
                 });
             }
-
         }
 
         if (values[1]) {
             if (this._types[1] === 'asset') {
-                values[1] = convertAssetValue(values[1], mergeObject.srcCheckpoint);
+                values[1] = convertAssetValue(values[1], self._resolver.srcAssetIndex);
             } else if (this._types[1] === 'array:asset') {
                 values[1] = values[1].map(function (assetId) {
-                    return convertAssetValue(assetId, mergeObject.srcCheckpoint);
+                    return convertAssetValue(assetId, self._resolver.srcAssetIndex);
+                });
+            } else if (this._types[1] === 'entity') {
+                values[1] = convertEntityValue(values[1], self._resolver.srcEntityIndex);
+            } else if (this._types[1] === 'array:entity') {
+                values[1] = values[1].map(function (entityId) {
+                    return convertEntityValue(entityId, self._resolver.srcEntityIndex);
                 });
             }
         }
 
         if (values[2]) {
             if (this._types[2] === 'asset') {
-                values[2] = convertAssetValue(values[2], mergeObject.dstCheckpoint);
+                values[2] = convertAssetValue(values[2], self._resolver.dstAssetIndex);
             } else if (this._types[2] === 'array:asset') {
                 values[2] = values[2].map(function (assetId) {
-                    return convertAssetValue(assetId, mergeObject.dstCheckpoint);
+                    return convertAssetValue(assetId, self._resolver.dstAssetIndex);
+                });
+            } else if (this._types[2] === 'entity') {
+                values[2] = convertEntityValue(values[2], self._resolver.dstEntityIndex);
+            } else if (this._types[2] === 'array:entity') {
+                values[2] = values[2].map(function (entityId) {
+                    return convertEntityValue(entityId, self._resolver.dstEntityIndex);
                 });
             }
         }

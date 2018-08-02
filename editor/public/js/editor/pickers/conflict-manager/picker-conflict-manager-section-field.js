@@ -11,6 +11,8 @@ editor.once('load', function () {
         switch (type) {
             case 'asset':
                 return new ConflictFieldAsset(value);
+            case 'entity':
+                return new ConflictFieldEntity(value);
             case 'vec2':
             case 'vec3':
             case 'vec4':
@@ -43,7 +45,7 @@ editor.once('load', function () {
         this.element = new ui.Label({
             text: value
         });
-        this.element.class.add('field-string');
+        this.element.class.add('field-string', 'selectable');
     };
     ConflictFieldString.prototype = Object.create(ConflictField.prototype);
 
@@ -51,9 +53,11 @@ editor.once('load', function () {
     var ConflictFieldVector = function (value) {
         var panel = new ui.Panel();
         for (var i = 0; i < value.length; i++) {
-            panel.append(new ui.Label({
+            var label = new ui.Label({
                 text: value[i] + ''
-            }));
+            });
+            label.class.add('selectable');
+            panel.append(label);
         }
 
         this.element = panel;
@@ -89,6 +93,27 @@ editor.once('load', function () {
         this.element.append(labelId);
     };
     ConflictFieldAsset.prototype = Object.create(ConflictField.prototype);
+
+    // An Entity field
+    var ConflictFieldEntity = function (value) {
+        this.element = new ui.Panel();
+        this.element.class.add('field-entity');
+
+        if (value && value.name) {
+            var labelName = new ui.Label({
+                text: value.name
+            });
+            labelName.class.add('entity-name', 'selectable');
+            this.element.append(labelName);
+        }
+
+        var labelId = new ui.Label({
+            text: 'GUID: ' + (value && value.id)
+        });
+        labelId.class.add('entity-id', 'selectable');
+        this.element.append(labelId);
+    };
+    ConflictFieldEntity.prototype = Object.create(ConflictField.prototype);
 
     // An array field is a list of other fields
     var ConflictArrayField = function (type, value) {

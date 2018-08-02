@@ -8992,6 +8992,10 @@ strong {
         left: calc(50% - 620px);
         top: calc(50% - 350px);
 
+        .ui-label:not(.selectable) {
+            @extend .noSelect;
+        }
+
         > .ui-panel {
             height: 100%;
 
@@ -9268,9 +9272,12 @@ strong {
                                                         .ui-label {
                                                             margin: 0;
                                                             padding: 0;
-                                                            vertical-align: top;
                                                             overflow: hidden;
                                                             text-overflow: ellipsis;
+                                                        }
+
+                                                        > .ui-label {
+                                                            vertical-align: top;
 
                                                             &.name {
                                                                 width: $name-width;
@@ -9278,6 +9285,7 @@ strong {
                                                                 white-space: nowrap;
                                                             }
                                                         }
+
 
                                                         .value {
                                                             display: inline-block;
@@ -9317,6 +9325,7 @@ strong {
                                                     .field-vector {
                                                         background: transparent;
                                                         .ui-label {
+                                                            display: inline-block !important;
                                                             margin-right: 10px;
                                                         }
 
@@ -9331,11 +9340,22 @@ strong {
                                                         }
                                                     }
 
-                                                    .field-asset {
-                                                        .asset-id {
-                                                            display: block;
-                                                            opacity: 0.5;
-                                                        }
+                                                    .field-asset .asset-name {
+                                                        margin-bottom: -5px;
+                                                    }
+
+                                                    .field-asset .asset-id,
+                                                    .field-entity .entity-id {
+                                                        display: block;
+                                                        opacity: 0.6;
+                                                    }
+
+                                                    .field-entity .entity-name {
+                                                        margin-bottom: -2px;
+                                                    }
+
+                                                    .field-entity .entity-id {
+                                                        line-height: initial;
                                                     }
 
                                                     &.field-array-container {
@@ -9363,6 +9383,7 @@ strong {
                                                                     background: transparent;
                                                                     border: 0;
                                                                     box-sizing: border-box;
+                                                                    @extend .allowSelect;
 
                                                                     > .ui-list-item {
                                                                         border: 0;
@@ -9380,6 +9401,10 @@ strong {
 
                                                                         .ui-panel {
                                                                             background: transparent;
+                                                                        }
+
+                                                                        .ui-label {
+                                                                            display: block;
                                                                         }
                                                                     }
                                                                 }
@@ -9418,6 +9443,7 @@ strong {
                                                     > .ui-panel.conflict-field {
 
                                                         $selected-color: rgb(105, 184, 117);
+                                                        cursor: pointer;
 
                                                         &:after {
                                                             content: ' ';
@@ -9432,7 +9458,7 @@ strong {
                                                             border: 1px solid rgba($selected-color, 0);
                                                             border-radius: 2px;
                                                             transition: background-color 100ms, border-color 100ms;
-                                                            cursor: pointer;
+                                                            pointer-events: none;
                                                         }
 
                                                         &:not(.selected):hover {
