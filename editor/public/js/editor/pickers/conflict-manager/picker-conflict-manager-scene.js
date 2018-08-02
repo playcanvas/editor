@@ -123,7 +123,7 @@ editor.once('load', function () {
                         sectionEntity.appendTitle(component.toUpperCase() + ' COMPONENT');
 
                         // check if this a script to get the scripts object
-                        var scripts;
+                        var scripts = null;
                         if (component === 'script') {
                             scripts = entity.components.script.scripts;
                             if (scripts) {

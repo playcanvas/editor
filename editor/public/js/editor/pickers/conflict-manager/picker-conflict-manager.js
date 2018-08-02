@@ -183,7 +183,7 @@ editor.once('load', function () {
     var isConflictGroupResolved = function (group) {
         var resolved = true;
         for (var i = 0; i < group.data.length; i++) {
-            if (! group.data[i].useSrc && ! group.data[i].useDst && ! group.data[i].useMergedFile) {
+            if (!group.data[i].useSrc && !group.data[i].useDst && !group.data[i].useMergedFile) {
                 resolved = false;
                 break;
             }
@@ -195,7 +195,7 @@ editor.once('load', function () {
         var result = true;
 
         for (var i = 0; i < currentMergeObject.conflicts.length; i++) {
-            if (! isConflictGroupResolved(currentMergeObject.conflicts[i])) {
+            if (!isConflictGroupResolved(currentMergeObject.conflicts[i])) {
                 return false;
             }
         }
@@ -368,7 +368,7 @@ editor.once('load', function () {
                 path: 'entities.28394852-2334-2345-234223422342.components.animation.assets',
                 baseValue: [11682],
                 srcValue: [11682],
-                dstValue: [11682,11682,11682,11682,11682,11682,11682,11682,11682],
+                dstValue: [11682, 11682, 11682, 11682, 11682, 11682, 11682, 11682, 11682],
                 useSrc: false,
                 useDst: false
             }, {
@@ -393,6 +393,184 @@ editor.once('load', function () {
                 baseValue: '1c2364cf-9031-11e8-b407-9cebe856ae8d',
                 srcValue: '1c2364cf-9031-11e8-b407-9cebe856ae8d',
                 dstValue: '1c2364cf-9031-11e8-b407-9cebe856ae8d',
+                useSrc: false,
+                useDst: false
+            }, {
+                id: 'id 17',
+                path: 'entities.28394852-2334-2345-234223422342.components.script.scripts.test.attributes.curves',
+                baseValue: {
+                    "keys": [
+                        0,
+                        0,
+                        0.234883720930233,
+                        3.3125,
+                        0.430232558139535,
+                        -1.375,
+                        0.658139534883721,
+                        1.6875
+                    ],
+                    "type": 2
+                },
+                srcValue: {
+                    "keys": [
+                        0,
+                        0,
+                        0.234883720930233,
+                        3.3125,
+                        0.430232558139535,
+                        -1.375,
+                        0.658139534883721,
+                        1.6875
+                    ],
+                    "type": 2
+                },
+                dstValue: {
+                    "keys": [
+                        0,
+                        0,
+                        0.234883720930233,
+                        3.3125,
+                        0.430232558139535,
+                        -1.375,
+                        0.658139534883721,
+                        1.6875
+                    ],
+                    "type": 2
+                },
+                baseType: 'curve',
+                srcType: 'curve',
+                dstType: 'curve',
+                useSrc: false,
+                useDst: false
+            }, {
+                id: 'id 18',
+                path: 'entities.28394852-2334-2345-234223422342.components.script.scripts.test.attributes.curves2',
+                baseValue: [{
+                    "keys": [
+                        [
+                            0,
+                            0,
+                            0.625581395348837,
+                            -2.8125
+                        ],
+                        [
+                            0,
+                            0,
+                            0.472093023255814,
+                            3.6875
+                        ],
+                        [
+                            0,
+                            0,
+                            0.169767441860465,
+                            2.4375,
+                            0.304651162790698,
+                            -3.125
+                        ]
+                    ],
+                    "type": 2
+                }],
+                srcValue: [{
+                    "keys": [
+                        [
+                            0,
+                            0,
+                            0.625581395348837,
+                            -2.8125
+                        ],
+                        [
+                            0,
+                            0,
+                            0.472093023255814,
+                            3.6875
+                        ],
+                        [
+                            0,
+                            0,
+                            0.169767441860465,
+                            2.4375,
+                            0.304651162790698,
+                            -3.125
+                        ]
+                    ],
+                    "type": 2
+                }],
+                dstValue: [{
+                    "keys": [
+                        [
+                            0,
+                            0,
+                            0.625581395348837,
+                            -2.8125
+                        ],
+                        [
+                            0,
+                            0,
+                            0.472093023255814,
+                            3.6875
+                        ],
+                        [
+                            0,
+                            0,
+                            0.169767441860465,
+                            2.4375,
+                            0.304651162790698,
+                            -3.125
+                        ]
+                    ],
+                    "type": 2
+                }, {
+                    "keys": [
+                        [
+                            0,
+                            0,
+                            0.625581395348837,
+                            -2.8125
+                        ],
+                        [
+                            0,
+                            0,
+                            0.472093023255814,
+                            3.6875
+                        ],
+                        [
+                            0,
+                            0,
+                            0.169767441860465,
+                            2.4375,
+                            0.304651162790698,
+                            -3.125
+                        ]
+                    ],
+                    "type": 2
+                }, {
+                    "keys": [
+                        [
+                            0,
+                            0,
+                            0.625581395348837,
+                            -2.8125
+                        ],
+                        [
+                            0,
+                            0,
+                            0.472093023255814,
+                            3.6875
+                        ],
+                        [
+                            0,
+                            0,
+                            0.169767441860465,
+                            2.4375,
+                            0.304651162790698,
+                            -3.125
+                        ]
+                    ],
+                    "type": 2
+                }],
+                baseType: 'array:curve',
+                srcType: 'array:curve',
+                dstType: 'array:curve',
                 useSrc: false,
                 useDst: false
             }]
@@ -477,7 +655,7 @@ editor.once('load', function () {
         labelTopTheirs.text = data.sourceBranchName;
         labelTopMine.text = data.destinationBranchName;
 
-        if (! currentMergeObject.conflicts.length) {
+        if (!currentMergeObject.conflicts.length) {
             btnComplete.disabled = false;
             return showMainProgress(completedIcon, 'No conflicts found - Click Complete Merge');
         }
@@ -491,7 +669,7 @@ editor.once('load', function () {
             }
         }
 
-        btnComplete.disabled = ! checkAllResolved();
+        btnComplete.disabled = !checkAllResolved();
     };
 
     // load and show data
@@ -501,7 +679,7 @@ editor.once('load', function () {
 
         showMainProgress(spinnerIcon, 'Loading conflicts...');
 
-        if (! currentMergeObject) {
+        if (!currentMergeObject) {
             editor.call('branches:getMerge', config.self.branch.merge.id, function (err, data) {
                 if (err) {
                     return showMainProgress(errorIcon, err);
@@ -540,7 +718,7 @@ editor.once('load', function () {
 
     // Prevent viewport hovering when the picker is shown
     editor.on('viewport:hover', function (state) {
-        if (state && ! overlay.hidden) {
+        if (state && !overlay.hidden) {
             setTimeout(function () {
                 editor.emit('viewport:hover', false);
             }, 0);

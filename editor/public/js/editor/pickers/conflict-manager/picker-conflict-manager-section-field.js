@@ -11,6 +11,8 @@ editor.once('load', function () {
         switch (type) {
             case 'asset':
                 return new ConflictFieldAsset(value);
+            case 'curve':
+                return new ConflictFieldCurve(value);
             case 'entity':
                 return new ConflictFieldEntity(value);
             case 'vec2':
@@ -72,6 +74,14 @@ editor.once('load', function () {
         this.element.class.add('field-color');
     };
     ConflictFieldColor.prototype = Object.create(ConflictField.prototype);
+
+    // A Curve field
+    var ConflictFieldCurve = function (value) {
+        this.element = new ui.CurveField();
+        this.element.value = value ? [value] : null;
+        this.element.class.add('field-curve');
+    };
+    ConflictFieldCurve.prototype = Object.create(ConflictField.prototype);
 
     // An Asset field
     var ConflictFieldAsset = function (value) {
