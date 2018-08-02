@@ -247,7 +247,7 @@ editor.once('load', function () {
         this._panels[SOURCE_PANEL].class.remove('selected');
         this._panels[DEST_PANEL].class.remove('selected');
 
-        this.emit('unresolve');
+        this.emit('unresolve', this._conflict.id);
     };
 
     ConflictSectionRow.prototype.resolveUsingSource = function () {
@@ -258,7 +258,9 @@ editor.once('load', function () {
         this._panels[SOURCE_PANEL].class.add('selected');
         this._resolved = true;
 
-        this.emit('resolve');
+        this.emit('resolve', this._conflict.id, {
+            useSrc: true
+        });
     };
 
     ConflictSectionRow.prototype.resolveUsingDestination = function () {
@@ -269,7 +271,9 @@ editor.once('load', function () {
         this._panels[DEST_PANEL].class.add('selected');
         this._resolved = true;
 
-        this.emit('resolve');
+        this.emit('resolve', this._conflict.id, {
+            useDst: true
+        });
     };
 
     ConflictSectionRow.prototype.appendToParents = function (parents) {
@@ -289,6 +293,10 @@ editor.once('load', function () {
         for (var i = 0; i < 3; i++) {
             this._fields[i].height = maxHeight;
         }
+    };
+
+    ConflictSectionRow.prototype.destroy = function () {
+        this.unbind();
     };
 
     Object.defineProperty(ConflictSectionRow.prototype, 'resolved', {

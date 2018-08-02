@@ -1,19 +1,73 @@
 editor.once('load', function () {
     'use strict';
 
-    var ConflictResolver = function (srcAssetIndex, dstAssetIndex, srcEntityIndex, dstEntityIndex) {
+    var ConflictResolver = function (mergeId, srcAssetIndex, dstAssetIndex, srcEntityIndex, dstEntityIndex) {
         Events.call(this);
         this.elements = [];
+
+        this._mergeId = mergeId;
         this.srcAssetIndex = srcAssetIndex;
         this.dstAssetIndex = dstAssetIndex;
         this.srcEntityIndex = srcEntityIndex;
         this.dstEntityIndex = dstEntityIndex;
+
+        this._pendingResolvedConflicts = {};
+        this._pendingRevertedConflicts = {};
+        this._timeoutSave = null;
     };
 
     ConflictResolver.prototype = Object.create(Events.prototype);
 
+    ConflictResolver.prototype.onConflictResolved = function (conflictId, data) {
+        delete this._pendingRevertedConflicts[conflictId];
+        this._pendingResolvedConflicts[conflictId] = data;
+        if (this._timeoutSave) {
+            clearTimeout(this._timeoutSave);
+        }
+        this._timeoutSave = setTimeout(this.saveConflicts.bind(this));
+
+        this.emit('resolve', conflictId, data);
+    };
+
+    ConflictResolver.prototype.onConflictUnresolved = function (conflictId) {
+        delete this._pendingResolvedConflicts[conflictId];
+        this._pendingRevertedConflicts[conflictId] = true;
+        if (this._timeoutSave) {
+            clearTimeout(this._timeoutSave);
+        }
+        this._timeoutSave = setTimeout(this.saveConflicts.bind(this));
+
+        this.emit('unresolve', conflictId);
+    };
+
+    ConflictResolver.prototype.saveConflicts = function () {
+        var useSrc = [];
+        var useDst = [];
+        var revert = Object.keys(this._pendingRevertedConflicts);
+
+        for (var conflictId in this._pendingResolvedConflicts) {
+            if (this._pendingResolvedConflicts[conflictId].useSrc) {
+                useSrc.push(conflictId);
+            } else {
+                useDst.push(conflictId);
+            }
+        }
+
+        if (useSrc.length) {
+            editor.call('branches:resolveConflicts', this._mergeId, useSrc, { useSrc: true });
+        }
+        if (useDst.length) {
+            editor.call('branches:resolveConflicts', this._mergeId, useDst, { useDst: true });
+        }
+        if (revert.length) {
+            editor.call('branches:resolveConflicts', this._mergeId, revert, { revert: true });
+        }
+    };
+
     ConflictResolver.prototype.createSection = function (title, foldable) {
         var section = new ui.ConflictSection(this, title, foldable);
+        section.on('resolve', this.onConflictResolved.bind(this));
+        section.on('unresolve', this.onConflictUnresolved.bind(this));
         this.elements.push(section);
         return section;
     };
@@ -77,6 +131,8 @@ editor.once('load', function () {
     };
 
     ConflictResolver.prototype.destroy = function () {
+        this.unbind();
+
         for (var i = 0, len = this.elements.length; i < len; i++) {
             this.elements[i].destroy();
         }

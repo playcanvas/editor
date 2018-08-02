@@ -247,385 +247,53 @@ editor.once('load', function () {
             showConflicts(data);
         });
 
+        item.onResolved = function () {
+            labelIcon.class.remove('conflict');
+            labelIcon.class.add('resolved');
+        };
+
+        item.onUnresolved = function () {
+            labelIcon.class.add('conflict');
+            labelIcon.class.remove('resolved');
+        };
+
         return item;
     };
 
     var showConflicts = function (data) {
-        currentConflicts = {
-            itemId: 898,
-            itemType: 'scene',
-            itemName: 'Untitled',
-            data: [{
-                id: 'id 1',
-                path: 'name',
-                baseValue: 'Untitled',
-                srcValue: 'Source Value',
-                dstValue: 'Target Value',
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 2',
-                path: 'entities.28394859-2334-2342-234223422342.name',
-                baseValue: 'Box',
-                srcValue: 'This is a smaller name',
-                dstValue: 'This is quite a larger name and it should wrap properly',
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 3',
-                path: 'entities.28394859-2334-2342-234223422342.position',
-                baseValue: [0, 1, 0],
-                srcValue: [1, 1, 1],
-                dstValue: [2, 3, 4],
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 4',
-                path: 'entities.28394859-2334-2345-234223422342.tags',
-                baseValue: ['tag 1', 'tag 2', 'tag 3'],
-                srcValue: ['tag 1', 'tag 2', 'tag 3', 'tag 4', 'tag 5', 'tag 6'],
-                dstValue: ['tag 1', 'tag 2'],
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 5',
-                path: 'entities.28394852-2334-2345-234223422342.tags',
-                baseValue: ['tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1 tag 1', 'tag 2', 'tag 3', 'tag 4', 'tag 5', 'tag 6', 'tag 7', 'tag 8', 'tag 9', 'tag 10', 'tag 11'],
-                srcValue: ['tag 1 tag 1 tag 1 tag 1 tag 1 tag 1', 'tag 2', 'tag 3', 'tag 4', 'tag 5', 'tag 6'],
-                dstValue: ['tag 1', 'tag 2'],
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 6',
-                path: 'entities.28394852-2334-2345-234223422342.name',
-                baseValue: 'Box',
-                srcValue: 'Box Source',
-                dstValue: 'Box Dest',
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 7',
-                path: 'entities.28394852-2334-2345-234223422342.components.script.scripts.test.attributes.vectors',
-                baseValue: [[1, 2, 3]],
-                srcValue: [[1, 2, 3], [4, 5, 6]],
-                dstValue: [[4, 5, 6]],
-                baseType: 'array:vec3',
-                srcType: 'array:vec3',
-                dstType: 'array:vec3',
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 8',
-                path: 'entities.28394852-2334-2345-234223422342.components.script.scripts.test.attributes.multiType',
-                baseValue: 5,
-                srcValue: [[1, 2, 3], [4, 5, 6]],
-                dstValue: "alekos",
-                baseType: 'number',
-                srcType: 'array:vec3',
-                dstType: 'string',
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 9',
-                path: 'entities.28394852-2334-2345-234223422342.components.script.order',
-                baseValue: ['test', 'test1', 'test2'],
-                srcValue: ['test', 'test1', 'test2', 'test3'],
-                dstValue: ['test4', 'test5'],
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 10',
-                path: 'entities.28394852-2334-2345-234223422342.components.script.scripts.test.attributes.colorField',
-                baseValue: [0.5, 0, 0],
-                srcValue: [0, 1, 0],
-                dstValue: [0, 0, 1, 0.5],
-                baseType: 'rgb',
-                srcType: 'rgb',
-                dstType: 'rgba',
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 11',
-                path: 'entities.28394852-2334-2345-234223422342.components.script.scripts.test.attributes.colorArrayField',
-                baseValue: [[1, 0, 0]],
-                srcValue: [[0, 1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 0]],
-                dstValue: [[0, 1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 0]],
-                baseType: 'array:rgb',
-                srcType: 'array:rgb',
-                dstType: 'array:rgba',
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 12',
-                path: 'entities.28394852-2334-2345-234223422342.components.model.asset',
-                baseValue: 11682,
-                srcValue: null,
-                dstValue: 11682,
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 13',
-                path: 'entities.28394852-2334-2345-234223422342.components.animation.assets',
-                baseValue: [11682],
-                srcValue: [11682],
-                dstValue: [11682, 11682, 11682, 11682, 11682, 11682, 11682, 11682, 11682],
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 14',
-                path: 'entities.28394852-2334-2345-234223422342.components.button.imageEntity',
-                baseValue: '1c2364cf-9031-11e8-b407-9cebe856ae8c',
-                srcValue: '1c2364cf-9031-11e8-b407-9cebe856ae8c',
-                dstValue: '1c2364cf-9031-11e8-b407-9cebe856ae8c',
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 15',
-                path: 'entities.28394852-2334-2345-234223422341.components.model.asset',
-                baseValue: 1,
-                srcValue: 2,
-                dstValue: 3,
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 16',
-                path: 'entities.28394852-2334-2345-234223422340.components.button.imageEntity',
-                baseValue: '1c2364cf-9031-11e8-b407-9cebe856ae8d',
-                srcValue: '1c2364cf-9031-11e8-b407-9cebe856ae8d',
-                dstValue: '1c2364cf-9031-11e8-b407-9cebe856ae8d',
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 16_2',
-                path: 'entities.28394852-2334-2345-234223422340.components.light.color',
-                baseValue: [1, 1, 1],
-                srcValue: [0.1, 1, 1],
-                dstValue: [0, 0, 1],
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 16_2',
-                path: 'entities.28394852-2334-2345-234223422340.components.light.cookieOffset',
-                baseValue: [1, 1],
-                srcValue: [0.1, 1],
-                dstValue: [0, 0],
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 16_3',
-                path: 'entities.28394852-2334-2345-234223422340.components.sound.volume',
-                baseValue: 1,
-                srcValue: 0,
-                dstValue: 2,
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 16_4',
-                path: 'entities.28394852-2334-2345-234223422340.components.sound.slots.0.name',
-                baseValue: 'idle',
-                srcValue: 'walk',
-                dstValue: 'run',
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 16_5',
-                path: 'entities.28394852-2334-2345-234223422340.components.sprite.type',
-                baseValue: null,
-                srcValue: 'simple',
-                dstValue: 'animated',
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 16_6',
-                path: 'entities.28394852-2334-2345-234223422340.components.sprite.clips.0.name',
-                baseValue: 'idle',
-                srcValue: 'walk',
-                dstValue: 'run',
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 17',
-                path: 'entities.28394852-2334-2345-234223422342.components.script.scripts.test.attributes.curves',
-                baseValue: {
-                    "keys": [
-                        0,
-                        0,
-                        0.234883720930233,
-                        3.3125,
-                        0.430232558139535,
-                        -1.375,
-                        0.658139534883721,
-                        1.6875
-                    ],
-                    "type": 2
-                },
-                srcValue: {
-                    "keys": [
-                        0,
-                        0,
-                        0.234883720930233,
-                        3.3125,
-                        0.430232558139535,
-                        -1.375,
-                        0.658139534883721,
-                        1.6875
-                    ],
-                    "type": 2
-                },
-                dstValue: {
-                    "keys": [
-                        0,
-                        0,
-                        0.234883720930233,
-                        3.3125,
-                        0.430232558139535,
-                        -1.375,
-                        0.658139534883721,
-                        1.6875
-                    ],
-                    "type": 2
-                },
-                baseType: 'curve',
-                srcType: 'curve',
-                dstType: 'curve',
-                useSrc: false,
-                useDst: false
-            }, {
-                id: 'id 18',
-                path: 'entities.28394852-2334-2345-234223422342.components.script.scripts.test.attributes.curves2',
-                baseValue: [{
-                    "keys": [
-                        [
-                            0,
-                            0,
-                            0.625581395348837,
-                            -2.8125
-                        ],
-                        [
-                            0,
-                            0,
-                            0.472093023255814,
-                            3.6875
-                        ],
-                        [
-                            0,
-                            0,
-                            0.169767441860465,
-                            2.4375,
-                            0.304651162790698,
-                            -3.125
-                        ]
-                    ],
-                    "type": 2
-                }],
-                srcValue: [{
-                    "keys": [
-                        [
-                            0,
-                            0,
-                            0.625581395348837,
-                            -2.8125
-                        ],
-                        [
-                            0,
-                            0,
-                            0.472093023255814,
-                            3.6875
-                        ],
-                        [
-                            0,
-                            0,
-                            0.169767441860465,
-                            2.4375,
-                            0.304651162790698,
-                            -3.125
-                        ]
-                    ],
-                    "type": 2
-                }],
-                dstValue: [{
-                    "keys": [
-                        [
-                            0,
-                            0,
-                            0.625581395348837,
-                            -2.8125
-                        ],
-                        [
-                            0,
-                            0,
-                            0.472093023255814,
-                            3.6875
-                        ],
-                        [
-                            0,
-                            0,
-                            0.169767441860465,
-                            2.4375,
-                            0.304651162790698,
-                            3.125
-                        ]
-                    ],
-                    "type": 2
-                }, {
-                    "keys": [
-                        [
-                            0,
-                            0,
-                            0.625581395348837,
-                            -2.8125
-                        ],
-                        [
-                            0,
-                            0,
-                            0.472093023255814,
-                            3.6875
-                        ],
-                        [
-                            0,
-                            0,
-                            0.169767441860465,
-                            2.4375,
-                            0.304651162790698,
-                            -3.125
-                        ]
-                    ],
-                    "type": 2
-                }, {
-                    "keys": [
-                        [
-                            0,
-                            0,
-                            0.625581395348837,
-                            8.8125
-                        ],
-                        [
-                            0,
-                            0,
-                            0.472093023255814,
-                            3.6875
-                        ],
-                        [
-                            0,
-                            0,
-                            0.169767441860465,
-                            2.4375,
-                            0.304651162790698,
-                            5.125
-                        ]
-                    ],
-                    "type": 2
-                }],
-                baseType: 'array:curve',
-                srcType: 'array:curve',
-                dstType: 'array:curve',
-                useSrc: false,
-                useDst: false
-            }]
-        };
+        currentConflicts = data;
 
-        // debug data
-        resolver = editor.call('picker:conflictManager:showSceneConflicts', panelConflicts, currentConflicts, currentMergeObject);
+        if (data.itemType === 'scene') {
+            resolver = editor.call('picker:conflictManager:showSceneConflicts', panelConflicts, currentConflicts, currentMergeObject);
+        } else {
+            console.error('TODO');
+            return;
+        }
+
+        var timeoutCheckAllResolved;
+
+        resolver.on('resolve', function () {
+            if (isConflictGroupResolved(data)) {
+                data.listItem.onResolved();
+                if (timeoutCheckAllResolved) {
+                    clearTimeout(timeoutCheckAllResolved);
+                }
+                timeoutCheckAllResolved = setTimeout(function () {
+                    timeoutCheckAllResolved = null;
+                    btnComplete.disabled = ! checkAllResolved();
+                });
+            }
+        });
+
+        resolver.on('unresolve', function () {
+            data.listItem.onUnresolved();
+            if (timeoutCheckAllResolved) {
+                clearTimeout(timeoutCheckAllResolved);
+                timeoutCheckAllResolved = null;
+            }
+
+            btnComplete.disabled = true;
+        });
 
         // adjust the positioning of the vertical borders because a scrollbar
         // might have been displayed which might have changed the rendered width
@@ -677,6 +345,12 @@ editor.once('load', function () {
     btnComplete.on('click', function () {
         listItems.selected = [];
         btnComplete.disabled = true;
+
+        if (resolver) {
+            resolver.destroy();
+            resolver = null;
+        }
+
         showMainProgress(spinnerIcon, 'Completing merge...');
         editor.call('branches:applyMerge', currentMergeObject.id, function (err) {
             if (err) {
@@ -686,7 +360,7 @@ editor.once('load', function () {
                     hideMainProgress();
                     btnComplete.disabled = false;
                     listItems.innerElement.firstChild.ui.selected = true;
-                }, 1000);
+                }, 2000);
             } else {
                 // if no error then refresh the browser
                 showMainProgress(completedIcon, 'Merge complete - refreshing browser...');

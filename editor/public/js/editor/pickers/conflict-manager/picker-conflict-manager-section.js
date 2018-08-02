@@ -2,6 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var ConflictSection = function (resolver, title, foldable) {
+        Events.call(this);
         this._resolver = resolver;
         this._numConflicts = 0;
         this._numResolvedConflicts = 0;
@@ -39,6 +40,8 @@ editor.once('load', function () {
 
         this._rows = [];
     };
+
+    ConflictSection.prototype = Object.create(Events.prototype);
 
     ConflictSection.prototype.indent = function () {
         this._indent++;
@@ -93,16 +96,18 @@ editor.once('load', function () {
 
         this.numConflicts++;
         if (row.resolved) {
-            this.onConflictResolved();
+            this.numResolvedConflicts++;
         }
     };
 
-    ConflictSection.prototype.onConflictResolved = function () {
+    ConflictSection.prototype.onConflictResolved = function (conflictId, data) {
         this.numResolvedConflicts++;
+        this.emit('resolve', conflictId, data);
     };
 
-    ConflictSection.prototype.onConflictUnresolved = function () {
+    ConflictSection.prototype.onConflictUnresolved = function (conflictId) {
         this.numResolvedConflicts--;
+        this.emit('unresolve', conflictId);
     };
 
     ConflictSection.prototype.onAddedToDom = function () {
@@ -125,8 +130,12 @@ editor.once('load', function () {
     };
 
     ConflictSection.prototype.destroy = function () {
+        this.unbind();
         this.panel.destroy();
         this.panels.length = 0;
+        this._rows.forEach(function (row) {
+            row.destroy();
+        });
         this._rows.length = 0;
     };
 
