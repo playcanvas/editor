@@ -1,15 +1,17 @@
 editor.once('load', function () {
     'use strict';
 
-    var ConflictResolver = function (mergeId, srcAssetIndex, dstAssetIndex, srcEntityIndex, dstEntityIndex) {
+    var ConflictResolver = function (conflicts, mergeObject) {
         Events.call(this);
         this.elements = [];
 
-        this._mergeId = mergeId;
-        this.srcAssetIndex = srcAssetIndex;
-        this.dstAssetIndex = dstAssetIndex;
-        this.srcEntityIndex = srcEntityIndex;
-        this.dstEntityIndex = dstEntityIndex;
+        this._mergeId = mergeObject.id;
+
+        this.srcAssetIndex = mergeObject.srcCheckpoint.assets;
+        this.dstAssetIndex = mergeObject.dstCheckpoint.assets;
+
+        this.srcEntityIndex = conflicts.itemType === 'scene' ? mergeObject.srcCheckpoint.scenes[conflicts.itemId].entities : null;
+        this.dstEntityIndex = conflicts.itemType === 'scene' ? mergeObject.dstCheckpoint.scenes[conflicts.itemId].entities : null;
 
         this._pendingResolvedConflicts = {};
         this._pendingRevertedConflicts = {};

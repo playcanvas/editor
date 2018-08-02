@@ -99,13 +99,7 @@ editor.once('load', function () {
     };
 
     editor.method('picker:conflictManager:showSceneConflicts', function (parent, conflicts, mergeObject) {
-        var resolver = new ui.ConflictResolver(
-            mergeObject.id,
-            mergeObject.srcCheckpoint.assets,
-            mergeObject.dstCheckpoint.assets,
-            mergeObject.srcCheckpoint.scenes[conflicts.itemId].entities,
-            mergeObject.dstCheckpoint.scenes[conflicts.itemId].entities
-        );
+        var resolver = new ui.ConflictResolver(conflicts, mergeObject);
 
         var index = {};
 

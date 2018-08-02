@@ -151,7 +151,7 @@ editor.once('load', function () {
             }
 
             var label = new ui.Label({
-                text: args.prettify ? this._prettifyName(self._name) : self._name
+                text: (args.prettify ? this._prettifyName(self._name) : self._name) + ' :'
             });
             label.class.add('name');
             panel.append(label);

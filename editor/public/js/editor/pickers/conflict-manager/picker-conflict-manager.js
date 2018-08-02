@@ -261,10 +261,17 @@ editor.once('load', function () {
     };
 
     var showConflicts = function (data) {
+        if (resolver) {
+            resolver.destroy();
+            resolver = null;
+        }
+
         currentConflicts = data;
 
         if (data.itemType === 'scene') {
             resolver = editor.call('picker:conflictManager:showSceneConflicts', panelConflicts, currentConflicts, currentMergeObject);
+        } else if (data.itemType === 'settings') {
+            resolver = editor.call('picker:conflictManager:showSettingsConflicts', panelConflicts, currentConflicts, currentMergeObject);
         } else {
             console.error('TODO');
             return;
