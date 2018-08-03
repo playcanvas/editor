@@ -46,7 +46,7 @@ editor.once('load', function () {
     labelMainProgress.hidden = true;
     panelRight.append(labelMainProgress);
 
-    // main progress icon
+    // main progress icons
     var spinnerIcon = editor.call('picker:versioncontrol:svg:spinner', 64);
     spinnerIcon.classList.add('progress-icon');
     spinnerIcon.classList.add('hidden');
@@ -119,31 +119,31 @@ editor.once('load', function () {
     panelBottomBase.class.add('base');
     panelBottom.append(panelBottomBase);
 
-    var panelBottomTheirs = new ui.Panel();
-    panelBottomTheirs.flex = true;
-    panelBottomTheirs.class.add('theirs');
-    panelBottom.append(panelBottomTheirs);
+    var panelBottomSource = new ui.Panel();
+    panelBottomSource.flex = true;
+    panelBottomSource.class.add('theirs');
+    panelBottom.append(panelBottomSource);
 
-    var btnPickTheirs = new ui.Button({
+    var btnPickSource = new ui.Button({
         text: 'USE ALL FROM THIS BRANCH'
     });
-    panelBottomTheirs.append(btnPickTheirs);
-    btnPickTheirs.on('click', function () {
+    panelBottomSource.append(btnPickSource);
+    btnPickSource.on('click', function () {
         if (resolver) {
             resolver.resolveUsingSource();
         }
     });
 
-    var panelBottomMine = new ui.Panel();
-    panelBottomMine.flex = true;
-    panelBottomMine.class.add('mine');
-    panelBottom.append(panelBottomMine);
+    var panelBottomDest = new ui.Panel();
+    panelBottomDest.flex = true;
+    panelBottomDest.class.add('mine');
+    panelBottom.append(panelBottomDest);
 
-    var btnPickMine = new ui.Button({
+    var btnPickDest = new ui.Button({
         text: 'USE ALL FROM THIS BRANCH'
     });
-    panelBottomMine.append(btnPickMine);
-    btnPickMine.on('click', function () {
+    panelBottomDest.append(btnPickDest);
+    btnPickDest.on('click', function () {
         if (resolver) {
             resolver.resolveUsingDestination();
         }
@@ -180,6 +180,8 @@ editor.once('load', function () {
     // the UI to resolve conflicts for an item
     var resolver = null;
 
+    // Returns true if all of the conflicts of a group (a group has a unique itemId)
+    // have been resolved
     var isConflictGroupResolved = function (group) {
         var resolved = true;
         for (var i = 0; i < group.data.length; i++) {
@@ -191,6 +193,7 @@ editor.once('load', function () {
         return resolved;
     };
 
+    // Returns true if all of the conflicts have been resolved for all groups
     var checkAllResolved = function () {
         var result = true;
 
@@ -203,6 +206,7 @@ editor.once('load', function () {
         return result;
     };
 
+    // Creates a list item for the list on the left panel
     var createLeftListItem = function (data) {
         var item = new ui.ListItem();
 
@@ -247,11 +251,13 @@ editor.once('load', function () {
             showConflicts(data);
         });
 
+        // Called when all the conflicts of this list item have been resolved
         item.onResolved = function () {
             labelIcon.class.remove('conflict');
             labelIcon.class.add('resolved');
         };
 
+        // Called when a conflict of this list item has been un-resolved
         item.onUnresolved = function () {
             labelIcon.class.add('conflict');
             labelIcon.class.remove('resolved');
@@ -260,7 +266,9 @@ editor.once('load', function () {
         return item;
     };
 
+    // Shows the conflicts of a group
     var showConflicts = function (data) {
+        // destroy the current resolver
         if (resolver) {
             resolver.destroy();
             resolver = null;
@@ -268,6 +276,7 @@ editor.once('load', function () {
 
         currentConflicts = data;
 
+        // create resolver based on type
         if (data.itemType === 'scene') {
             resolver = editor.call('picker:conflictManager:showSceneConflicts', panelConflicts, currentConflicts, currentMergeObject);
         } else if (data.itemType === 'settings') {
@@ -279,19 +288,27 @@ editor.once('load', function () {
 
         var timeoutCheckAllResolved;
 
+        // Called when any conflict is resolved
         resolver.on('resolve', function () {
-            if (isConflictGroupResolved(data)) {
-                data.listItem.onResolved();
-                if (timeoutCheckAllResolved) {
-                    clearTimeout(timeoutCheckAllResolved);
-                }
-                timeoutCheckAllResolved = setTimeout(function () {
-                    timeoutCheckAllResolved = null;
-                    btnComplete.disabled = ! checkAllResolved();
-                });
+            // Check if all the conflicts of a group have been
+            // resolved
+            if (! isConflictGroupResolved(data)) return;
+
+            // Check if all conflicts of all groups are now resolved
+            // in a timeout. Do it in a timeout in case the user
+            // clicks on one of the resolve all buttons in which case
+            // the resolve event will be fired mutliple times in the same frame
+            data.listItem.onResolved();
+            if (timeoutCheckAllResolved) {
+                clearTimeout(timeoutCheckAllResolved);
             }
+            timeoutCheckAllResolved = setTimeout(function () {
+                timeoutCheckAllResolved = null;
+                btnComplete.disabled = ! checkAllResolved();
+            });
         });
 
+        // Called when any conflict has been un-resolved
         resolver.on('unresolve', function () {
             data.listItem.onUnresolved();
             if (timeoutCheckAllResolved) {
@@ -312,6 +329,7 @@ editor.once('load', function () {
         });
     };
 
+    // Hide conflicts and show a progress icon
     var showMainProgress = function (icon, text) {
         [spinnerIcon, completedIcon, errorIcon].forEach(function (i) {
             if (icon === i) {
@@ -333,6 +351,7 @@ editor.once('load', function () {
         panelBottom.hidden = true;
     };
 
+    // Hide progress icons and show conflicts
     var hideMainProgress = function () {
         spinnerIcon.classList.add('hidden');
         completedIcon.classList.add('hidden');
@@ -378,6 +397,7 @@ editor.once('load', function () {
         });
     });
 
+    // Called when we load the merge object from the server
     var onMergeDataLoaded = function (data) {
         currentMergeObject = data;
 

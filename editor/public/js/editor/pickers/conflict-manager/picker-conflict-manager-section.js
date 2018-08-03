@@ -1,6 +1,8 @@
 editor.once('load', function () {
     'use strict';
 
+    // A section contains multiple conflicts and it's meant to group
+    // conflicts into meaningful categories
     var ConflictSection = function (resolver, title, foldable) {
         Events.call(this);
         this._resolver = resolver;
@@ -17,18 +19,18 @@ editor.once('load', function () {
         this._panelBase.class.add('base');
         this.panel.append(this._panelBase);
 
-        this._panelTheirs = new ui.Panel();
-        this._panelTheirs.class.add('theirs');
-        this.panel.append(this._panelTheirs);
+        this._panelSource = new ui.Panel();
+        this._panelSource.class.add('theirs');
+        this.panel.append(this._panelSource);
 
-        this._panelMine = new ui.Panel();
-        this._panelMine.class.add('mine');
-        this.panel.append(this._panelMine);
+        this._panelDest = new ui.Panel();
+        this._panelDest.class.add('mine');
+        this.panel.append(this._panelDest);
 
         this.panels = [
             this._panelBase,
-            this._panelTheirs,
-            this._panelMine
+            this._panelSource,
+            this._panelDest
         ];
 
         this._labelNumConflicts = new ui.Label({
@@ -51,6 +53,7 @@ editor.once('load', function () {
         this._indent--;
     };
 
+    // Adds a title that spans all 3 panels
     ConflictSection.prototype.appendTitle = function (title, light) {
         var label;
 

@@ -1,6 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
+    // Temporary settings schema
     var schema = {
         batchGroups: {
             '*': {
@@ -19,6 +20,7 @@ editor.once('load', function () {
         }
     };
 
+    // Temporary function to get the type of a path
     var getType = function (path) {
         var parts = path.split('.');
         var target = schema;
@@ -38,6 +40,9 @@ editor.once('load', function () {
         return result;
     };
 
+    // Appends all fields to a section.
+    // If a title is specified adds a title if any fiels has been appended.
+    // Skips an fields in the 'except' array
     var appendFieldsToSection = function (fields, section, title, except) {
         var addedTitle = false;
         for (var field in fields)  {
@@ -76,13 +81,13 @@ editor.once('load', function () {
                id;
     };
 
+    // Shows conflicts for project settings
     editor.method('picker:conflictManager:showSettingsConflicts', function (parent, conflicts, mergeObject) {
         var resolver = new ui.ConflictResolver(conflicts, mergeObject);
 
-        var index = {};
-
         // Build index of conflicts so that the conflicts become
         // a hierarchical object
+        var index = {};
         for (var i = 0, len = conflicts.data.length; i < len; i++) {
             var conflict = conflicts.data[i];
             var parts = conflict.path.split('.');

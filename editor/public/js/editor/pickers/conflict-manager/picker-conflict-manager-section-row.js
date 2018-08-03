@@ -38,6 +38,7 @@ editor.once('load', function () {
 
         var values = this._convertValues(self._conflict);
 
+        // Create 3 panels for base, source and destionation values
         for (var i = 0; i < 3; i++) {
             var panel = new ui.Panel();
             panel.class.add('conflict-field');
@@ -51,6 +52,8 @@ editor.once('load', function () {
             panel.on('hover', this._onHover.bind(this));
             panel.on('blur', this._onUnHover.bind(this));
 
+            // Add indentation to all panels
+            // except the base
             if (i !== BASE_PANEL) {
                 if (this._indent) {
                     panel.class.add('indent-' + this._indent);
@@ -104,6 +107,8 @@ editor.once('load', function () {
 
     ConflictSectionRow.prototype = Object.create(Events.prototype);
 
+    // Returns an array of the 3 values (base, source, dest) after it converts
+    // those values from IDs to names (if necessary)
     ConflictSectionRow.prototype._convertValues = function (conflict) {
         var self = this;
 
@@ -124,6 +129,7 @@ editor.once('load', function () {
 
         // convert ids to names
         if (base) {
+            // for base values try to find the name first in the source indes and then in the destination index
             for (var type in indexes) {
                 if (baseType === type) {
                     base = self._convertIdToName(base, indexes[type][0], indexes[type][1]);
@@ -214,6 +220,7 @@ editor.once('load', function () {
         }
     };
 
+    // Converts values like so: thisIsSomeValue to this: This Is Some Value
     ConflictSectionRow.prototype._prettifyName = function (name) {
         var firstLetter = name[0];
         var rest = name.slice(1);
@@ -267,12 +274,14 @@ editor.once('load', function () {
         });
     };
 
+    // Appends all row panels to parent panels
     ConflictSectionRow.prototype.appendToParents = function (parents) {
         for (var i = 0; i < parents.length; i++) {
             parents[i].append(this._panels[i]);
         }
     };
 
+    // Sets the height of each value to be the maximum of the 3 heights
     ConflictSectionRow.prototype.onAddedToDom = function () {
         for (var i = 0; i < 3; i++) {
             this._fields[i].onAddedToDom();

@@ -1,8 +1,11 @@
 editor.once('load', function () {
     'use strict';
 
+    // Shows all the conflicts for an item
     var ConflictResolver = function (conflicts, mergeObject) {
         Events.call(this);
+
+        // holds conflict UI elements
         this.elements = [];
 
         this._mergeId = mergeObject.id;
@@ -23,6 +26,8 @@ editor.once('load', function () {
 
     ConflictResolver.prototype = Object.create(Events.prototype);
 
+    // When a conflict is resolved add it to the pending resolved conflicts
+    // So that it's saved to the server after a frame
     ConflictResolver.prototype.onConflictResolved = function (conflictId, data) {
         delete this._pendingRevertedConflicts[conflictId];
         this._pendingResolvedConflicts[conflictId] = data;
@@ -34,6 +39,8 @@ editor.once('load', function () {
         this.emit('resolve', conflictId, data);
     };
 
+    // When a conflict is unresolved add it to the pending unresolved conflicts
+    // so that it's saved to the server after a frame
     ConflictResolver.prototype.onConflictUnresolved = function (conflictId) {
         delete this._pendingResolvedConflicts[conflictId];
         this._pendingRevertedConflicts[conflictId] = true;
@@ -45,11 +52,13 @@ editor.once('load', function () {
         this.emit('unresolve', conflictId);
     };
 
+    // Save conflict status on the server
     ConflictResolver.prototype.saveConflicts = function () {
         var useSrc = [];
         var useDst = [];
         var revert = Object.keys(this._pendingRevertedConflicts);
 
+        // Group conflicts by status to minimize REST API calls
         for (var conflictId in this._pendingResolvedConflicts) {
             if (this._pendingResolvedConflicts[conflictId].useSrc) {
                 useSrc.push(conflictId);
@@ -69,6 +78,7 @@ editor.once('load', function () {
         }
     };
 
+    // Creates a section that has a title and can be foldable. Sections contain conflicts
     ConflictResolver.prototype.createSection = function (title, foldable) {
         var section = new ui.ConflictSection(this, title, foldable);
         section.on('resolve', this.onConflictResolved.bind(this));
@@ -77,6 +87,7 @@ editor.once('load', function () {
         return section;
     };
 
+    // Creates a separator which is a title that spans all conflict panels
     ConflictResolver.prototype.createSeparator = function (title) {
         var label = new ui.Label({
             text: title
@@ -86,10 +97,12 @@ editor.once('load', function () {
         return label;
     };
 
+    // Append the resolver to a parent
     ConflictResolver.prototype.appendToParent = function (parent) {
         for (var i = 0, len = this.elements.length; i < len; i++) {
             var element = this.elements[i];
             if (element instanceof ui.ConflictSection) {
+                // only append a section if it has conflicts
                 if (element.numConflicts) {
                     parent.append(element.panel);
                 }
@@ -100,12 +113,16 @@ editor.once('load', function () {
 
         // Reflow (call onAddedToDom) after 2 frames. The reason why it's 2 frames
         // and not 1 is it doesn't always work on 1 frame and I don't know why yet..
+        // The problem is that if we don't wait then sometimes some elements will not report
+        // the correct height, probably because of some animation or delayed layout calculation
+        // somewhere...
         var self = this;
         requestAnimationFrame(function () {
             requestAnimationFrame(self.reflow.bind(self));
         });
     };
 
+    // Calls onAddedToDom on every section
     ConflictResolver.prototype.reflow = function () {
         for (var i = 0, len = this.elements.length; i < len; i++) {
             var element = this.elements[i];
@@ -117,6 +134,7 @@ editor.once('load', function () {
         this.emit('reflow');
     };
 
+    // Resolves all conflicts using the source values
     ConflictResolver.prototype.resolveUsingSource = function () {
         for (var i = 0, len = this.elements.length; i < len; i++) {
             var element = this.elements[i];
@@ -126,6 +144,7 @@ editor.once('load', function () {
         }
     };
 
+    // Resolves all conflicts using the destination values
     ConflictResolver.prototype.resolveUsingDestination = function () {
         for (var i = 0, len = this.elements.length; i < len; i++) {
             var element = this.elements[i];
@@ -135,6 +154,7 @@ editor.once('load', function () {
         }
     };
 
+    // Destroyes the resolver and its UI elements
     ConflictResolver.prototype.destroy = function () {
         this.unbind();
 
