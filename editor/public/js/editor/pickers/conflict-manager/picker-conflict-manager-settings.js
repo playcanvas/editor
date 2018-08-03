@@ -3,14 +3,20 @@ editor.once('load', function () {
 
     var schema = {
         batchGroups: {
-
+            '*': {
+                layers: 'array:layer'
+            }
         },
         scripts: 'array:asset',
         loadingScreenScript: 'asset',
         layers: {
 
         },
-        layerOrder: {}
+        layerOrder: {
+            '*': {
+                layer: 'layer'
+            }
+        }
     };
 
     var getType = function (path) {
@@ -54,6 +60,22 @@ editor.once('load', function () {
         }
     };
 
+    var getLayerName = function (id, mergeObject) {
+        // try to get layer name from destination checkpoint first and if not
+        // available try the source checkpoint
+        return mergeObject.dstCheckpoint.settings.layers[id] ||
+               mergeObject.srcCheckpoint.settings.layers[id] ||
+               id;
+    };
+
+    var getBatchGroupName = function (id, mergeObject) {
+        // try to get batch group name from destination checkpoint first and if not
+        // available try the source checkpoint
+        return mergeObject.dstCheckpoint.settings.batchGroups[id] ||
+               mergeObject.srcCheckpoint.settings.batchGroups[id] ||
+               id;
+    };
+
     editor.method('picker:conflictManager:showSettingsConflicts', function (parent, conflicts, mergeObject) {
         var resolver = new ui.ConflictResolver(conflicts, mergeObject);
 
@@ -84,7 +106,7 @@ editor.once('load', function () {
         if (index.layers) {
             resolver.createSeparator('LAYERS');
             for (var key in index.layers) {
-                var section = resolver.createSection('LAYER ' + key, true);
+                var section = resolver.createSection('LAYER ' + getLayerName(key, mergeObject), true);
                 appendFieldsToSection(index.layers[key], section, null);
             }
         }
@@ -93,7 +115,7 @@ editor.once('load', function () {
         if (index.batchGroups) {
             resolver.createSeparator('BATCH GROUPS');
             for (var key in index.batchGroups) {
-                var section = resolver.createSection('BATCH GROUP ' + key, true);
+                var section = resolver.createSection('BATCH GROUP ' + getBatchGroupName(key, mergeObject), true);
                 appendFieldsToSection(index.batchGroups[key], section, null);
             }
         }

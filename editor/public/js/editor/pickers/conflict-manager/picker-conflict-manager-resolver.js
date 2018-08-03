@@ -13,6 +13,9 @@ editor.once('load', function () {
         this.srcEntityIndex = conflicts.itemType === 'scene' ? mergeObject.srcCheckpoint.scenes[conflicts.itemId].entities : null;
         this.dstEntityIndex = conflicts.itemType === 'scene' ? mergeObject.dstCheckpoint.scenes[conflicts.itemId].entities : null;
 
+        this.srcSettingsIndex = mergeObject.srcCheckpoint.settings;
+        this.dstSettingsIndex = mergeObject.dstCheckpoint.settings;
+
         this._pendingResolvedConflicts = {};
         this._pendingRevertedConflicts = {};
         this._timeoutSave = null;

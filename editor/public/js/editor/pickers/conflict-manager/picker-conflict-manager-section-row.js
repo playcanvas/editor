@@ -1,53 +1,9 @@
 editor.once('load', function () {
     'use strict';
 
-    var BASE_PANEL = 2;
+    var BASE_PANEL = 0;
     var SOURCE_PANEL = 1;
     var DEST_PANEL = 2;
-
-    var convertAssetValue = function (assetId, assetIndex, alternativeAssetIndex) {
-        if (! assetId) {
-            return assetId;
-        }
-
-        var result = {
-            id: assetId,
-            name: null
-        };
-
-        var name = assetIndex[assetId];
-        if (name === undefined && alternativeAssetIndex) {
-            name = alternativeAssetIndex[assetId];
-        }
-
-        if (name !== undefined) {
-            result.name = name;
-        }
-
-        return result;
-    };
-
-    var convertEntityValue = function (entityId, entityIndex, alternativeEntityIndex) {
-        if (! entityId) {
-            return entityId;
-        }
-
-        var result = {
-            id: entityId,
-            name: null
-        };
-
-        var name = entityIndex[entityId];
-        if (name === undefined && alternativeEntityIndex) {
-            name = alternativeEntityIndex[entityId];
-        }
-
-        if (name !== undefined) {
-            result.name = name;
-        }
-
-        return result;
-    };
 
     /**
      * A row that contains the base, source and destination fields.
@@ -80,56 +36,7 @@ editor.once('load', function () {
         this._panels = [];
         this._fields = [];
 
-        var values = [self._conflict.baseValue, self._conflict.srcValue, self._conflict.dstValue];
-
-        // convert asset ids and entity guids to {id: __, name: __} objects
-        if (values[0]) {
-            if (self._types[0] === 'asset') {
-                values[0] = convertAssetValue(values[0], self._resolver.srcAssetIndex, self._resolver.dstAssetIndex);
-            } else if (self._types[0] === 'array:asset') {
-                values[0] = values[0].map(function (assetId) {
-                    return convertAssetValue(assetId, self._resolver.srcAssetIndex, self._resolver.dstAssetIndex);
-                });
-            } else if (self._types[0] === 'entity') {
-                values[0] = convertEntityValue(values[0], self._resolver.srcEntityIndex, self._resolver.dstEntityIndex);
-            } else if (self._types[0] === 'array:entity') {
-                values[0] = values[0].map(function (entityId) {
-                    return convertEntityValue(entityId, self._resolver.srcEntityIndex, self._resolver.dstEntityIndex);
-                });
-            }
-        }
-
-        if (values[1]) {
-            if (this._types[1] === 'asset') {
-                values[1] = convertAssetValue(values[1], self._resolver.srcAssetIndex);
-            } else if (this._types[1] === 'array:asset') {
-                values[1] = values[1].map(function (assetId) {
-                    return convertAssetValue(assetId, self._resolver.srcAssetIndex);
-                });
-            } else if (this._types[1] === 'entity') {
-                values[1] = convertEntityValue(values[1], self._resolver.srcEntityIndex);
-            } else if (this._types[1] === 'array:entity') {
-                values[1] = values[1].map(function (entityId) {
-                    return convertEntityValue(entityId, self._resolver.srcEntityIndex);
-                });
-            }
-        }
-
-        if (values[2]) {
-            if (this._types[2] === 'asset') {
-                values[2] = convertAssetValue(values[2], self._resolver.dstAssetIndex);
-            } else if (this._types[2] === 'array:asset') {
-                values[2] = values[2].map(function (assetId) {
-                    return convertAssetValue(assetId, self._resolver.dstAssetIndex);
-                });
-            } else if (this._types[2] === 'entity') {
-                values[2] = convertEntityValue(values[2], self._resolver.dstEntityIndex);
-            } else if (this._types[2] === 'array:entity') {
-                values[2] = values[2].map(function (entityId) {
-                    return convertEntityValue(entityId, self._resolver.dstEntityIndex);
-                });
-            }
-        }
+        var values = this._convertValues(self._conflict);
 
         for (var i = 0; i < 3; i++) {
             var panel = new ui.Panel();
@@ -196,6 +103,90 @@ editor.once('load', function () {
     };
 
     ConflictSectionRow.prototype = Object.create(Events.prototype);
+
+    ConflictSectionRow.prototype._convertValues = function (conflict) {
+        var self = this;
+
+        var base = conflict.baseValue;
+        var src = conflict.srcValue;
+        var dst = conflict.dstValue;
+
+        var baseType = self._types[BASE_PANEL];
+        var srcType = self._types[SOURCE_PANEL];
+        var dstType = self._types[DEST_PANEL];
+
+        var indexes = {
+            'asset': [self._resolver.srcAssetIndex, self._resolver.dstAssetIndex],
+            'entity': [self._resolver.srcEntityIndex, self._resolver.dstEntityIndex],
+            'layer': [self._resolver.srcSettingsIndex.layers, self._resolver.dstSettingsIndex.layers],
+            'batchGroup': [self._resolver.srcSettingsIndex.batchGroups, self._resolver.dstSettingsIndex.batchGroups]
+        };
+
+        // convert ids to names
+        if (base) {
+            for (var type in indexes) {
+                if (baseType === type) {
+                    base = self._convertIdToName(base, indexes[type][0], indexes[type][1]);
+                } else if (baseType === 'array:' + type) {
+                    base = base.map(function (id) {
+                        return self._convertIdToName(id, indexes[type][0], indexes[type][1]);
+                    });
+                }
+            }
+        }
+
+        if (src) {
+            for (var type in indexes) {
+                if (srcType === type) {
+                    src = self._convertIdToName(src, indexes[type][0]);
+                } else if (srcType === 'array:' + type) {
+                    src = src.map(function (id) {
+                        return self._convertIdToName(id, indexes[type][0]);
+                    });
+                }
+            }
+        }
+
+        if (dst) {
+            for (var type in indexes) {
+                if (dstType === type) {
+                    dst = self._convertIdToName(dst, indexes[type][1]);
+                } else if (dstType === 'array:' + type) {
+                    dst = dst.map(function (id) {
+                        return self._convertIdToName(id, indexes[type][1]);
+                    });
+                }
+            }
+        }
+
+        var result = new Array(3);
+        result[BASE_PANEL] = base;
+        result[SOURCE_PANEL] = src;
+        result[DEST_PANEL] = dst;
+        return result;
+    };
+
+    ConflictSectionRow.prototype._convertIdToName = function (id, index, alternativeIndex) {
+        if (id === null || id === undefined) {
+            return id;
+        }
+
+        var result = {
+            id: id,
+            name: null
+        };
+
+        var name = index[id];
+        if (name === undefined && alternativeIndex) {
+            name = alternativeIndex[id];
+        }
+
+        if (name !== undefined) {
+            result.name = name;
+        }
+
+        return result;
+    };
 
     ConflictSectionRow.prototype._onHover = function () {
         for (var i = 0; i < 3; i++) {

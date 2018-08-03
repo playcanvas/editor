@@ -15,6 +15,9 @@ editor.once('load', function () {
                 return new ConflictFieldCurve(value);
             case 'entity':
                 return new ConflictFieldEntity(value);
+            case 'layer':
+            case 'batchGroup':
+                return new ConflictFieldLayer(value);
             case 'vec2':
             case 'vec3':
             case 'vec4':
@@ -126,6 +129,15 @@ editor.once('load', function () {
         this.element.append(labelId);
     };
     ConflictFieldEntity.prototype = Object.create(ConflictField.prototype);
+
+    // A Layer field
+    var ConflictFieldLayer = function (value) {
+        this.element = new ui.Label({
+            text: value !== null && value !== undefined ? (value.name || value.id) : value + ''
+        });
+        this.element.class.add('field-layer', 'selectable');
+    };
+    ConflictFieldLayer.prototype = Object.create(ConflictField.prototype);
 
     // An array field is a list of other fields
     var ConflictArrayField = function (type, value) {
