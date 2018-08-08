@@ -71,8 +71,11 @@ editor.once('load', function () {
 
             var field = null;
 
-            // if this field is missing in its branch then show a deleted field
-            if (i === SOURCE_PANEL && self._conflict.missingInSrc || i === DEST_PANEL && self._conflict.missingInDst) {
+            if (i === BASE_PANEL && self._conflict.missingInBase) {
+                // if the value is missing in base show it as not available
+                field = new ui.ConflictFieldMissing();
+            } else if (i === SOURCE_PANEL && self._conflict.missingInSrc || i === DEST_PANEL && self._conflict.missingInDst) {
+                // if this field is missing in its branch then show a deleted field
                 field = new ui.ConflictFieldDeleted();
             } else if (self._types[i].endsWith('object')) {
                 // if this field type is not a type we support ('object') then if it's missing in the other branch show
