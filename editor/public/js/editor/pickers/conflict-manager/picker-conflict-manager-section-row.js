@@ -85,6 +85,12 @@ editor.once('load', function () {
                 }
             }
 
+            // if for some reason the value is undefined (e.g it could have been too big)
+            // then show a missing field
+            if (! field && values[i] === undefined) {
+                field = new ui.ConflictFieldMissing();
+            }
+
             if (! field) {
                 if (isArray) {
                     field = new ui.ConflictArrayField(self._types[i], values[i]);
