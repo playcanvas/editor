@@ -21,6 +21,18 @@ editor.once('load', function () {
     editor.method('picker:conflictManager:showSettingsConflicts', function (parent, conflicts, mergeObject) {
         var resolver = new ui.ConflictResolver(conflicts, mergeObject);
 
+        // temp check to see if just all settings have changed with no
+        // more details
+        if (conflicts.data.length === 1 && conflicts.data[0].path === '') {
+            var sectionSettings = resolver.createSection('PROJECT SETTINGS');
+            sectionSettings.appendField({
+                type: 'object',
+                conflict: conflicts.data[0]
+            });
+            resolver.appendToParent(parent);
+            return resolver;
+        }
+
         // Build index of conflicts so that the conflicts become
         // a hierarchical object
         var index = {};
