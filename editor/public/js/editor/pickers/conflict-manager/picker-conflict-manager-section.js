@@ -103,6 +103,47 @@ editor.once('load', function () {
         }
     };
 
+    ConflictSection.prototype.appendAllFields = function (args) {
+        var fields = args.fields;
+        var title = args.title;
+        var except = args.except;
+        var schema = args.schema;
+
+        // check if 'fields' is actually a conflict object already
+        // and if missingInDst or missingInSrc is true in which case
+        // report this entry as 'deleted' or 'edited' in the UI
+        if (fields.missingInDst || fields.missingInSrc) {
+            this.appendField({
+                type: editor.call('schema:' + schema + ':getType', fields.path),
+                conflict: fields
+            });
+            return;
+        }
+
+        var addedTitle = false;
+
+        for (var field in fields)  {
+            if (except && except.indexOf(field) !== -1) continue;
+
+            var path = fields[field].path;
+            if (! path) continue;
+
+            if (! addedTitle && title) {
+                addedTitle = true;
+                this.appendTitle(title);
+            }
+
+            var type = editor.call('schema:' + schema + ':getType', path);
+
+            this.appendField({
+                name: field,
+                type: type,
+                conflict: fields[field],
+                prettify: true
+            });
+        }
+    };
+
     ConflictSection.prototype.onConflictResolved = function (conflictId, data) {
         this.numResolvedConflicts++;
         this.emit('resolve', conflictId, data);

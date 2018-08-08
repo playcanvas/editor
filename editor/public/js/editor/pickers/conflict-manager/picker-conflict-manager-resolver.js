@@ -8,13 +8,16 @@ editor.once('load', function () {
         // holds conflict UI elements
         this.elements = [];
 
+        this._conflicts = conflicts;
         this._mergeId = mergeObject.id;
 
         this.srcAssetIndex = mergeObject.srcCheckpoint.assets;
         this.dstAssetIndex = mergeObject.dstCheckpoint.assets;
 
-        this.srcEntityIndex = conflicts.itemType === 'scene' ? mergeObject.srcCheckpoint.scenes[conflicts.itemId].entities : null;
-        this.dstEntityIndex = conflicts.itemType === 'scene' ? mergeObject.dstCheckpoint.scenes[conflicts.itemId].entities : null;
+        var srcScene = conflicts.itemType === 'scene' ? mergeObject.srcCheckpoint.scenes[conflicts.itemId] : null;
+        this.srcEntityIndex = srcScene && srcScene.entities || {};
+        var dstScene = conflicts.itemType === 'scene' ? mergeObject.dstCheckpoint.scenes[conflicts.itemId] : null;
+        this.dstEntityIndex = dstScene && dstScene.entities ||{};
 
         this.srcSettingsIndex = mergeObject.srcCheckpoint.settings;
         this.dstSettingsIndex = mergeObject.dstCheckpoint.settings;
@@ -111,6 +114,11 @@ editor.once('load', function () {
             }
         }
 
+        // debug info
+        if (this.numConflicts !== this._conflicts.data.length) {
+            console.error('Some conflicts might not be shown');
+        }
+
         // Reflow (call onAddedToDom) after 2 frames. The reason why it's 2 frames
         // and not 1 is it doesn't always work on 1 frame and I don't know why yet..
         // The problem is that if we don't wait then sometimes some elements will not report
@@ -163,6 +171,19 @@ editor.once('load', function () {
         }
         this.elements.length = 0;
     };
+
+    Object.defineProperty(ConflictResolver.prototype, 'numConflicts', {
+        get: function () {
+            var result = 0;
+            for (var i = 0, len = this.elements.length; i < len; i++) {
+                if (this.elements[i] instanceof ui.ConflictSection) {
+                    result += this.elements[i].numConflicts;
+                }
+            }
+
+            return result;
+        }
+    });
 
     window.ui.ConflictResolver = ConflictResolver;
 });

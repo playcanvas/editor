@@ -25,6 +25,8 @@ editor.once('load', function () {
             case 'rgb':
             case 'rgba':
                 return new ConflictFieldColor(value);
+            case 'object':
+                return new ConflictFieldMissing();
             default:
                 return new ConflictFieldString(value);
         }
@@ -114,12 +116,22 @@ editor.once('load', function () {
         this.element = new ui.Panel();
         this.element.class.add('field-entity');
 
-        if (value && value.name) {
-            var labelName = new ui.Label({
-                text: value.name
-            });
-            labelName.class.add('entity-name', 'selectable');
-            this.element.append(labelName);
+        if (value) {
+            if (value.deleted) {
+                var labelDeleted = new ui.Label({
+                    text: 'The following parent was deleted on this branch:'
+                });
+                labelDeleted.class.add('deleted');
+                this.element.append(labelDeleted);
+            }
+
+            if (value.name) {
+                var labelName = new ui.Label({
+                    text: value.name
+                });
+                labelName.class.add('entity-name', 'selectable');
+                this.element.append(labelName);
+            }
         }
 
         var labelId = new ui.Label({
@@ -138,6 +150,51 @@ editor.once('load', function () {
         this.element.class.add('field-layer', 'selectable');
     };
     ConflictFieldLayer.prototype = Object.create(ConflictField.prototype);
+
+    // A field saying that the object was deleted in one branch
+    var ConflictFieldDeleted = function () {
+        this.element = new ui.Panel();
+        this.element.class.add('field-deleted');
+
+        var label =  new ui.Label({
+            text: 'DELETE'
+        });
+        label.class.add('title');
+        this.element.append(label);
+
+        label =  new ui.Label({
+            text: 'This item was deleted on this branch'
+        });
+        this.element.append(label);
+    };
+    ConflictFieldDeleted.prototype = Object.create(ConflictField.prototype);
+
+    // A field saying that the object was deleted in one branch
+    var ConflictFieldEdited = function () {
+        this.element = new ui.Panel();
+        this.element.class.add('field-edited');
+
+        var label =  new ui.Label({
+            text: 'KEEP'
+        });
+        label.class.add('title');
+        this.element.append(label);
+
+        label =  new ui.Label({
+            text: 'This item was edited on this branch'
+        });
+        this.element.append(label);
+    };
+    ConflictFieldEdited.prototype = Object.create(ConflictField.prototype);
+
+    // A field saying that no value is available
+    var ConflictFieldMissing = function (value) {
+        this.element = new ui.Label({
+            text: 'Data not available'
+        });
+        this.element.class.add('field-missing');
+    };
+    ConflictFieldMissing.prototype = Object.create(ConflictField.prototype);
 
     // An array field is a list of other fields
     var ConflictArrayField = function (type, value) {
@@ -173,4 +230,7 @@ editor.once('load', function () {
 
     window.ui.ConflictField = ConflictField;
     window.ui.ConflictArrayField = ConflictArrayField;
+    window.ui.ConflictFieldDeleted = ConflictFieldDeleted;
+    window.ui.ConflictFieldEdited = ConflictFieldEdited;
+    window.ui.ConflictFieldMissing = ConflictFieldMissing;
 });

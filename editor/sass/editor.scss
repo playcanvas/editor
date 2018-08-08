@@ -9183,6 +9183,10 @@ strong {
                                             font-size: 15px;
                                         }
                                     }
+
+                                    &.base .ui-label:before {
+                                        content: '\E117';
+                                    }
                                 }
                             }
                         }
@@ -9350,12 +9354,17 @@ strong {
                                                         opacity: 0.6;
                                                     }
 
-                                                    .field-entity .entity-name {
-                                                        margin-bottom: -2px;
-                                                    }
-
-                                                    .field-entity .entity-id {
-                                                        line-height: initial;
+                                                    .field-entity {
+                                                        .entity-name {
+                                                            margin-bottom: -2px;
+                                                        }
+                                                        .entity-id {
+                                                            line-height: initial;
+                                                        }
+                                                        .deleted  {
+                                                            line-height: initial;
+                                                            margin-bottom: 5px;
+                                                        }
                                                     }
 
                                                     .field-curve {
@@ -9364,6 +9373,24 @@ strong {
                                                         background-color: $bcg-dark !important;
                                                         pointer-events: none;
                                                         height: 25px;
+                                                    }
+
+                                                    .field-deleted, .field-edited {
+                                                        max-width: 100% !important;
+                                                        // padding: 25px 0;
+                                                        .ui-label {
+                                                            display: block;
+                                                            @extend .font-regular;
+                                                            &.title {
+                                                                color: $text-primary;
+                                                                font-size: 13px;
+                                                            }
+                                                        }
+                                                    }
+
+                                                    .field-missing {
+                                                        max-width: 100% !important;
+                                                        // padding: 25px 0 !important;
                                                     }
 
                                                     &.field-array-container {
@@ -9446,6 +9473,10 @@ strong {
                                                         @extend .font-bold;
                                                         @extend .font-smooth;
                                                         background: lighten($bcg-dark, 1%);
+                                                    }
+
+                                                    &.light {
+                                                        font-size: 11px;
                                                     }
                                                 }
                                             }

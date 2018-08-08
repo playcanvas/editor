@@ -1,107 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    var componentSchema = editor.call('components:schema');
-
-    // temporary debug schema
-    var schema = {
-        name: 'string',
-        entities: {
-            '*': {
-                name: 'string',
-                position: 'vec3',
-                rotation: 'vec3',
-                scale: 'vec3',
-                tags: 'array:string',
-                components: {
-                    script: {
-                        order: 'array:string',
-                        scripts: {
-                            '*': {
-                                attributes: {
-
-                                }
-                            }
-                        }
-                    },
-                    model: {
-                        asset: 'asset'
-                    },
-                    animation: {
-                        assets: 'array:asset'
-                    },
-                    button: {
-                        imageEntity: 'entity'
-                    },
-                    light: {
-                        color: 'rgb',
-                        cookieOffset: 'vec2'
-                    },
-                    sound: {
-                        volume: 'number',
-                        slots: {
-                            '*': {
-                                name: 'string'
-                            }
-                        }
-                    },
-                    sprite: {
-                        type: 'string',
-                        clips: {
-                            '*': {
-                                name: 'string'
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    };
-
-    // Temporary getType that returns the type of a path
-    var getType = function (path) {
-        var parts = path.split('.');
-        var target = schema;
-        for (var p = 0; p < parts.length - 1; p++) {
-            target = target[parts[p]] || target['*'];
-            if (! target) {
-                break;
-            }
-        }
-
-        var result = target && target[parts[parts.length - 1]];
-        if (! result) {
-            console.warn('Unknown type for ' + path);
-            result = 'string';
-        }
-
-        return result;
-    };
-
-    // Appends all fields to a section.
-    // If a title is specified adds a title if any fiels has been appended.
-    // Skips an fields in the 'except' array
-    var appendFieldsToSection = function (fields, section, title, except) {
-        var addedTitle = false;
-        for (var field in fields)  {
-            if (except && except.indexOf(field) !== -1) continue;
-
-            var path = fields[field].path;
-            if (! path) continue;
-
-            if (! addedTitle && title) {
-                addedTitle = true;
-                section.appendTitle(title);
-            }
-
-            section.appendField({
-                name: field,
-                type: getType(path),
-                conflict: fields[field],
-                prettify: true
-            });
-        }
-    };
+    var componentSchema = config.schema.scene.entities.of.components;
 
     // Shows conflicts for a scene
     editor.method('picker:conflictManager:showSceneConflicts', function (parent, conflicts, mergeObject) {
@@ -113,31 +13,67 @@ editor.once('load', function () {
         var index = {};
         for (var i = 0, len = conflicts.data.length; i < len; i++) {
             var conflict = conflicts.data[i];
+            // check if the whole scene has changed (e.g. deleted in one branch)
+            if (conflict.path === '') {
+                index = conflict;
+                break;
+            }
+
             var parts = conflict.path.split('.');
+            var plen = parts.length;
             var target = index;
 
-            for (var p = 0; p < parts.length - 1; p++) {
+            for (var p = 0; p < plen - 1; p++) {
                 if (! target.hasOwnProperty(parts[p])) {
                     target[parts[p]] = {};
                 }
                 target = target[parts[p]];
             }
 
-            target[parts[parts.length - 1]] = conflict;
+            target[parts[plen - 1]] = conflict;
+        }
+
+        // Check if the whole scene has been deleted in one branch
+        if (index.missingInDst || index.missingInSrc) {
+            var sectionScene = resolver.createSection(conflicts.itemName);
+            sectionScene.appendField({
+                type: 'object',
+                conflict: index
+            });
+
+            resolver.appendToParent(parent);
+            return resolver;
         }
 
         // Scene properties
         var sectionProperties = resolver.createSection('PROPERTIES');
-        appendFieldsToSection(index, sectionProperties);
+        sectionProperties.appendAllFields({
+            schema: 'scene',
+            fields: index
+        });
 
         // Entities
         if (index.entities) {
             resolver.createSeparator('ENTITIES');
             for (var key in index.entities) {
-                var sectionEntity = resolver.createSection(key, true);
+                // create title for entity section
+                var entityName = resolver.srcEntityIndex[key] || resolver.dstEntityIndex[key];
+                if (entityName) {
+                    entityName = "'" + entityName + "' - " + key;
+                } else {
+                    entityName = key;
+                }
+
+                // create entity section
+                var sectionEntity = resolver.createSection(entityName, true);
                 var entity = index.entities[key];
 
-                appendFieldsToSection(entity, sectionEntity, 'ENTITY PROPERTIES');
+                // append entity properties
+                sectionEntity.appendAllFields({
+                    schema: 'scene',
+                    fields: entity,
+                    title: 'ENTITY PROPERTIES'
+                });
 
                 // Components
                 if (entity.components) {
@@ -148,15 +84,28 @@ editor.once('load', function () {
                         // handle script component so that script attributes appear
                         // after the rest of the component properties
                         if (component === 'script') {
-                            appendFieldsToSection(entity.components[component], sectionEntity, null, ['scripts']);
+                            sectionEntity.appendAllFields({
+                                schema: 'scene',
+                                fields: entity.components[component],
+                                except: ['scripts']
+                            });
 
                             // add script attributes after
                             var scripts = entity.components.script.scripts;
                             if (scripts) {
                                 for (var scriptName in scripts) {
-                                    var addedTitle = false;
-
                                     if (! scripts[scriptName]) continue;
+
+                                    sectionEntity.appendTitle(scriptName, true);
+
+                                    // check if script was deleted in one of the branches
+                                    if (scripts[scriptName].missingInSrc || scripts[scriptName].missingInDst) {
+                                        sectionEntity.appendField({
+                                            type: editor.call('schema:scene:getType', scripts[scriptName].path),
+                                            conflict: scripts[scriptName]
+                                        });
+                                        continue;
+                                    }
 
                                     var attributes = scripts[scriptName].attributes;
                                     if (! attributes) continue;
@@ -164,11 +113,6 @@ editor.once('load', function () {
                                     for (var attributeName in attributes) {
                                         var attribute = attributes[attributeName];
                                         if (! attribute) continue;
-
-                                        if (! addedTitle) {
-                                            sectionEntity.appendTitle(scriptName, true);
-                                            addedTitle = true;
-                                        }
 
                                         sectionEntity.appendField({
                                             name: attributeName,
@@ -182,29 +126,67 @@ editor.once('load', function () {
                             }
                         } else if (component === 'sound') {
                             // handle sound component so that sound slots appear after the rest of the component properties
-                            appendFieldsToSection(entity.components[component], sectionEntity, null, ['slots']);
+                            sectionEntity.appendAllFields({
+                                schema: 'scene',
+                                fields: entity.components[component],
+                                except: ['slots']
+                            });
 
                             var slots = entity.components.sound.slots;
                             if (slots) {
                                 for (var key in slots) {
                                     sectionEntity.appendTitle('SOUND SLOT ' + key, true);
-                                    appendFieldsToSection(slots[key], sectionEntity);
+                                    sectionEntity.appendAllFields({
+                                        schema: 'scene',
+                                        fields: slots[key]
+                                    });
                                 }
                             }
                         } else if (component === 'sprite') {
                             // handle sprite component so that clips appear after the rest of the component properties
-                            appendFieldsToSection(entity.components[component], sectionEntity, null, ['clips']);
+                            sectionEntity.appendAllFields({
+                                schema: 'scene',
+                                fields: entity.components[component],
+                                except: ['clips']
+                            });
 
                             var clips = entity.components.sprite.clips;
                             if (clips) {
                                 for (var key in clips) {
                                     sectionEntity.appendTitle('CLIP ' + key, true);
-                                    appendFieldsToSection(clips[key], sectionEntity);
+                                    sectionEntity.appendAllFields({
+                                        schema: 'scene',
+                                        fields: clips[key]
+                                    });
+                                }
+                            }
+                        } else if (component === 'model') {
+                            // handle all model properties except mapping
+                            sectionEntity.appendAllFields({
+                                schema: 'scene',
+                                fields: entity.components[component],
+                                except: ['mapping']
+                            });
+
+                            // handle mapping
+                            var mapping = entity.components.model.mapping;
+                            if (mapping) {
+                                for (var key in mapping) {
+                                    sectionEntity.appendTitle('ENTITY MATERIAL ' + key, true);
+
+                                    sectionEntity.appendField({
+                                        name: 'Material',
+                                        type: editor.call('schema:scene:getType', mapping[key].path),
+                                        conflict: mapping[key]
+                                    });
                                 }
                             }
                         } else {
                             // add component fields
-                            appendFieldsToSection(entity.components[component], sectionEntity);
+                            sectionEntity.appendAllFields({
+                                schema: 'scene',
+                                fields: entity.components[component]
+                            });
                         }
                     }
                 }

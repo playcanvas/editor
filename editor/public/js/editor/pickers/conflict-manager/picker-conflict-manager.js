@@ -91,7 +91,7 @@ editor.once('load', function () {
     var labelTopTheirs = new ui.Label({
         text: 'THEIRS'
     });
-    label.renderChanges = false;
+    labelTopTheirs.renderChanges = false;
     panelTopTheirs.append(labelTopTheirs);
     panelTop.append(panelTopTheirs);
 
@@ -100,7 +100,7 @@ editor.once('load', function () {
     var labelTopMine = new ui.Label({
         text: 'MINE'
     });
-    label.renderChanges = false;
+    labelTopMine.renderChanges = false;
     panelTopMine.append(labelTopMine);
     panelTop.append(panelTopMine);
 
@@ -277,14 +277,21 @@ editor.once('load', function () {
         currentConflicts = data;
 
         // create resolver based on type
+        var methodName;
         if (data.itemType === 'scene') {
-            resolver = editor.call('picker:conflictManager:showSceneConflicts', panelConflicts, currentConflicts, currentMergeObject);
+            methodName = 'picker:conflictManager:showSceneConflicts';
         } else if (data.itemType === 'settings') {
-            resolver = editor.call('picker:conflictManager:showSettingsConflicts', panelConflicts, currentConflicts, currentMergeObject);
-        } else {
-            console.error('TODO');
+            methodName = 'picker:conflictManager:showSettingsConflicts';
+        } else if (data.itemType === 'asset') {
+            methodName = 'picker:conflictManager:showAssetConflicts';
+        }
+
+        if (! methodName) {
+            console.error('Unhandled conflict type');
             return;
         }
+
+        resolver = editor.call(methodName, panelConflicts, currentConflicts, currentMergeObject);
 
         var timeoutCheckAllResolved;
 

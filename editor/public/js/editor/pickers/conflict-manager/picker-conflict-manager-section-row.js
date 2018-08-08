@@ -60,18 +60,38 @@ editor.once('load', function () {
                 }
             }
 
-            var label = new ui.Label({
-                text: (args.prettify ? this._prettifyName(self._name) : self._name) + ' :'
-            });
-            label.class.add('name');
-            panel.append(label);
+            var label = null;
+            if (self._name) {
+                label = new ui.Label({
+                    text: (args.prettify ? this._prettifyName(self._name) : self._name) + ' :'
+                });
+                label.class.add('name');
+                panel.append(label);
+            }
 
-            var field;
+            var field = null;
 
-            if (isArray) {
-                field = new ui.ConflictArrayField(self._types[i], values[i]);
-            } else {
-                field = ui.ConflictField.create(self._types[i], values[i]);
+            // if this field is missing in its branch then show a deleted field
+            if (i === SOURCE_PANEL && self._conflict.missingInSrc || i === DEST_PANEL && self._conflict.missingInDst) {
+                field = new ui.ConflictFieldDeleted();
+            } else if (self._types[i].endsWith('object')) {
+                // if this field type is not a type we support ('object') then if it's missing in the other branch show
+                // it has been edited in this branch
+                if (i === SOURCE_PANEL && self._conflict.missingInDst || i === DEST_PANEL && self._conflict.missingInSrc) {
+                    field = new ui.ConflictFieldEdited();
+                }
+            }
+
+            if (! field) {
+                if (isArray) {
+                    field = new ui.ConflictArrayField(self._types[i], values[i]);
+                } else {
+                    field = ui.ConflictField.create(self._types[i], values[i]);
+                }
+            } else if (label) {
+                // if the field is one of the deleted, edited or missing type fields
+                // then hide the name label
+                label.hidden = true;
             }
 
             field.element.class.add('value');
@@ -145,6 +165,14 @@ editor.once('load', function () {
             for (var type in indexes) {
                 if (srcType === type) {
                     src = self._convertIdToName(src, indexes[type][0]);
+
+                    if (type === 'entity' && conflict.path.endsWith('.parent')) {
+                        // check if parent is deleted
+                        if (! self._resolver.dstEntityIndex[conflict.srcValue]) {
+                            src.deleted = true;
+                        }
+                    }
+
                 } else if (srcType === 'array:' + type) {
                     src = src.map(function (id) {
                         return self._convertIdToName(id, indexes[type][0]);
@@ -157,6 +185,13 @@ editor.once('load', function () {
             for (var type in indexes) {
                 if (dstType === type) {
                     dst = self._convertIdToName(dst, indexes[type][1]);
+
+                    if (type === 'entity' && conflict.path.endsWith('.parent')) {
+                        // check if parent is deleted
+                        if (! self._resolver.srcEntityIndex[conflict.dstValue]) {
+                            dst.deleted = true;
+                        }
+                    }
                 } else if (dstType === 'array:' + type) {
                     dst = dst.map(function (id) {
                         return self._convertIdToName(id, indexes[type][1]);
