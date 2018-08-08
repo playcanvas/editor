@@ -8986,6 +8986,8 @@ strong {
 }
 
 .ui-overlay.picker-conflict-manager {
+    z-index: 300; // larger than drop-area's
+
     > .content {
         width: 1240px;
         height: 700px;
