@@ -78,7 +78,7 @@ editor.once('load', function() {
             // add all awaiting children
             for(var i = 0; i < awaitingParent[obj.get('resource_id')].length; i++) {
                 var awaiting = awaitingParent[obj.get('resource_id')][i];
-                entity.addChild(app.root.findByGuid(awaiting.get('resource_id')));
+                entity.addChild(app.root.getByGuid(awaiting.get('resource_id')));
             }
 
             // delete awaiting queue
