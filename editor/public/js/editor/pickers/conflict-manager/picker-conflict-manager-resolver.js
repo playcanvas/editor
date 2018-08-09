@@ -185,5 +185,19 @@ editor.once('load', function () {
         }
     });
 
+    Object.defineProperty(ConflictResolver.prototype, 'numResolvedConflicts', {
+        get: function () {
+            var result = 0;
+            for (var i = 0, len = this.elements.length; i < len; i++) {
+                if (this.elements[i] instanceof ui.ConflictSection) {
+                    result += this.elements[i].numResolvedConflicts;
+                }
+            }
+
+            return result;
+        }
+
+    });
+
     window.ui.ConflictResolver = ConflictResolver;
 });

@@ -233,15 +233,17 @@ editor.once('load', function () {
 
         // name
         var labelName = new ui.Label({
-            text: data.itemName
+            text: data.itemName === 'project settings' ? 'Project Settings' : data.itemName
         });
         labelName.class.add('name');
         panelInfo.append(labelName);
 
         // type
+        var type = data.assetType || data.itemType;
         var labelType = new ui.Label({
-            text: data.assetType || data.itemType
+            text: type
         });
+        labelType.renderChanges = false;
         labelType.class.add('type');
         panelInfo.append(labelType);
 
@@ -262,6 +264,15 @@ editor.once('load', function () {
             labelIcon.class.add('conflict');
             labelIcon.class.remove('resolved');
         };
+
+        item.setNumberOfConflicts = function (resolved, total) {
+            labelType.text = type + ' - Resolved ' + resolved + '/' + total;
+        };
+
+        var resolved = data.data.reduce(function (sum, conflict) {
+            return sum + ((conflict.useDst || conflict.useSrc) ? 1 : 0);
+        }, 0);
+        item.setNumberOfConflicts(resolved, data.data.length);
 
         return item;
     };
@@ -306,6 +317,8 @@ editor.once('load', function () {
             // clicks on one of the resolve all buttons in which case
             // the resolve event will be fired mutliple times in the same frame
             data.listItem.onResolved();
+            data.listItem.setNumberOfConflicts(resolver.numResolvedConflicts, resolver.numConflicts);
+
             if (timeoutCheckAllResolved) {
                 clearTimeout(timeoutCheckAllResolved);
             }
@@ -323,6 +336,7 @@ editor.once('load', function () {
                 timeoutCheckAllResolved = null;
             }
 
+            data.listItem.setNumberOfConflicts(resolver.numResolvedConflicts, resolver.numConflicts);
             btnComplete.disabled = true;
         });
 
