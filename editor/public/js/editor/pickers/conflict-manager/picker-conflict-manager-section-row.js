@@ -26,7 +26,7 @@ editor.once('load', function () {
         if (args.type) {
             this._types = [args.type, args.type, args.type];
         } else {
-            this._types = [args.baseType, args.sourceType, args.destType];
+            this._types = [args.baseType || '', args.sourceType || '', args.destType || ''];
         }
         this._conflict = args.conflict;
         this._resolved = false;
