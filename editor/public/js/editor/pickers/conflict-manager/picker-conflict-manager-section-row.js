@@ -327,14 +327,15 @@ editor.once('load', function () {
 
     // Sets the height of each value to be the maximum of the 3 heights
     ConflictSectionRow.prototype.onAddedToDom = function () {
-        for (var i = 0; i < 3; i++) {
+        var i;
+        for (i = 0; i < 3; i++) {
             this._fields[i].onAddedToDom();
         }
 
         var maxHeight = Math.max(this._fields[0].height, this._fields[1].height);
         maxHeight = Math.max(maxHeight, this._fields[2].height);
 
-        for (var i = 0; i < 3; i++) {
+        for (i = 0; i < 3; i++) {
             this._fields[i].height = maxHeight;
         }
     };
