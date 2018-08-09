@@ -207,12 +207,12 @@ editor.once('load', function () {
     };
 
     // Creates a list item for the list on the left panel
-    var createLeftListItem = function (data) {
+    var createLeftListItem = function (conflictGroup) {
         var item = new ui.ListItem();
 
         // add some links between the item and the data
-        item.conflict = data;
-        data.listItem = item;
+        item.conflict = conflictGroup;
+        conflictGroup.listItem = item;
 
         var panel = new ui.Panel();
         item.element.appendChild(panel.element);
@@ -223,7 +223,7 @@ editor.once('load', function () {
             unsafe: true
         });
         labelIcon.class.add('icon');
-        labelIcon.class.add(isConflictGroupResolved(data) ? 'resolved' : 'conflict');
+        labelIcon.class.add(isConflictGroupResolved(conflictGroup) ? 'resolved' : 'conflict');
 
         panel.append(labelIcon);
         item.icon = labelIcon;
@@ -233,13 +233,13 @@ editor.once('load', function () {
 
         // name
         var labelName = new ui.Label({
-            text: data.itemName === 'project settings' ? 'Project Settings' : data.itemName
+            text: conflictGroup.itemName === 'project settings' ? 'Project Settings' : conflictGroup.itemName
         });
         labelName.class.add('name');
         panelInfo.append(labelName);
 
         // type
-        var type = data.assetType || data.itemType;
+        var type = conflictGroup.assetType || conflictGroup.itemType;
         var labelType = new ui.Label({
             text: type
         });
@@ -250,7 +250,7 @@ editor.once('load', function () {
         listItems.append(item);
 
         item.on('select', function () {
-            showConflicts(data);
+            showConflicts(conflictGroup);
         });
 
         // Called when all the conflicts of this list item have been resolved
@@ -269,10 +269,10 @@ editor.once('load', function () {
             labelType.text = type + ' - Resolved ' + resolved + '/' + total;
         };
 
-        var resolved = data.data.reduce(function (sum, conflict) {
+        var resolved = conflictGroup.data.reduce(function (sum, conflict) {
             return sum + ((conflict.useDst || conflict.useSrc) ? 1 : 0);
         }, 0);
-        item.setNumberOfConflicts(resolved, data.data.length);
+        item.setNumberOfConflicts(resolved, conflictGroup.data.length);
 
         return item;
     };
