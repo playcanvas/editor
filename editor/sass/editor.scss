@@ -1908,8 +1908,6 @@ strong {
                     }
                 }
                 > .scripts {
-                    border: 1px solid $bcg-darker;
-
                     > .content {
                         > .dragPlaceholder {
                             margin-bottom: 1px;
@@ -8365,6 +8363,36 @@ strong {
         .ui-panel.attributes-array-elements {
             > .content {
                 flex-direction: column;
+
+                .ui-button.delete {
+                    height: 22px;
+                    width: 22px;
+                    @extend .font-icon;
+                    background: transparent;
+                    border: 0;
+                    margin: 0;
+                    margin-left: 3px;
+
+                    color: $text-darkest;
+                    &:hover {
+                        color: #fb222f;
+                    }
+                }
+
+                > .ui-panel {
+                    > .content {
+                        align-items: center;
+                        justify-content: space-between;
+                    }
+
+                    &.field-asset > .content > .top {
+                        // flex-grow doesn't work here for some reason
+                        // unless width has a pixel value so set width to 0
+                        // and let flex-grow take over
+                        width: 0;
+                        flex-grow: 1;
+                    }
+                }
             }
         }
     }

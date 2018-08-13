@@ -217,7 +217,7 @@ editor.once('load', function () {
 
         var cubemap;
         var onLoad = function() {
-            if (app.graphicsDevice.extTextureFloatRenderable && cubemap.rgbm) {
+            if (app.graphicsDevice.textureFloatRenderable && cubemap.rgbm) {
                 prefilterHdrCubemap(assetCubeMap, cubemap, callback);
             } else {
                 prefilterCubemap(assetCubeMap, cubemap, callback);
