@@ -1,7 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    var componentSchema = config.schema.scene.entities.of.components;
+    var componentSchema = config.schema.scene.entities.$of.components;
 
     // Shows conflicts for a scene
     editor.method('picker:conflictManager:showSceneConflicts', function (parent, conflicts, mergeObject) {
