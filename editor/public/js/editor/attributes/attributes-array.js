@@ -114,6 +114,135 @@ editor.once('load', function () {
             var row = -1;
             var rowExistsEverywhere = true;
 
+            var createRow = function (row) {
+                var paths = args.link.map(function (link, i) {return pathAt(args, i) + '.' + row;});
+
+                var fieldArgs = {
+                    parent: panelElements,
+                    type: args.type,
+                    link: args.link,
+                    placeholder: args.placeholder,
+                    reference: args.reference,
+                    kind: args.kind,
+                    enum: args.enum,
+                    curves: args.curves,
+                    gradient: args.gradient,
+                    min: args.min,
+                    max: args.max,
+                    hideRandomize: args.hideRandomize,
+                    paths: paths
+                };
+
+                var field = editor.call('attributes:addField', fieldArgs);
+                arrayElements.push(field);
+
+                // button to remove array element
+                var btnRemove = new ui.Button({
+                    text: '&#57636;',
+                    unsafe: true
+                });
+                btnRemove.class.add('delete');
+
+                var fieldParent = Array.isArray(field) ? field[0].parent : field.parent;
+                fieldParent.append(btnRemove);
+
+                btnRemove.on('click', function () {
+                    var prev;
+
+                    var redo = function () {
+                        prev = new Array(args.link.length);
+
+                        // store previous array
+                        args.link.forEach(function (link, i) {
+                            // get link again in case it changed
+                            if (link.history.getItemFn) {
+                                link = link.history.getItemFn();
+                            }
+
+                            if (! link) return;
+
+                            // store previous array
+                            var path = pathAt(args, i);
+                            var arr = link.get(path);
+                            prev[i] = arr && arr.slice();
+                        });
+
+                        args.link.forEach(function (link, i) {
+                            if (! prev[i]) return;
+
+                            // get link again in case it changed
+                            if (link.history.getItemFn) {
+                                link = link.history.getItemFn();
+                            }
+
+                            if (! link) return;
+
+                            // copy array and remove
+                            // the element at the relevant row
+                            var arr = prev[i].slice();
+                            arr.splice(row, 1);
+
+                            // set new value
+                            var history = link.history.enabled;
+                            link.history.enabled = false;
+
+                            if (typeof(arr[0]) === 'object') {
+                                link.set(pathAt(args, i), []);
+                                arr.forEach(function (element) {
+                                    link.insert(pathAt(args, i), element);
+                                });
+                            } else {
+                                link.set(pathAt(args, i), arr);
+                            }
+
+                            link.history.enabled = history;
+                        });
+                    };
+
+                    var undo = function () {
+                        args.link.forEach(function (link, i) {
+                            if (! prev[i]) return;
+
+                            // get link again in case it changed
+                            if (link.history.getItemFn) {
+                                link = link.history.getItemFn();
+                            }
+
+                            if (! link) return;
+
+                            var path = pathAt(args, i);
+
+                            // set previous value
+                            var history = link.history.enabled;
+                            link.history.enabled = false;
+
+                            var arr = prev[i];
+                            if (typeof(arr[0]) === 'object') {
+                                link.set(pathAt(args, i), []);
+                                arr.forEach(function (element) {
+                                    link.insert(pathAt(args, i), element);
+                                });
+                            } else {
+                                link.set(pathAt(args, i), arr);
+                            }
+
+                            link.history.enabled = history;
+                        });
+
+                        // clean up
+                        prev.length = 0;
+                    };
+
+                    redo();
+
+                    editor.call('history:add', {
+                        name: 'delete array element',
+                        undo: undo,
+                        redo: redo
+                    });
+                });
+            };
+
             while (rowExistsEverywhere) {
                 row++;
 
@@ -125,23 +254,7 @@ editor.once('load', function () {
                 }
 
                 if (rowExistsEverywhere) {
-                    var fieldArgs = {
-                        parent: panelElements,
-                        type: args.type,
-                        link: args.link,
-                        placeholder: args.placeholder,
-                        reference: args.reference,
-                        kind: args.kind,
-                        enum: args.enum,
-                        curves: args.curves,
-                        gradient: args.gradient,
-                        min: args.min,
-                        max: args.max,
-                        hideRandomize: args.hideRandomize,
-                        paths: args.link.map(function (link, i) {return pathAt(args, i) + '.' + row;})
-                    };
-
-                    arrayElements.push(editor.call('attributes:addField', fieldArgs));
+                    createRow(row);
                 }
             }
         };
