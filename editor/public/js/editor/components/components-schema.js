@@ -158,8 +158,8 @@ editor.once('load', function() {
                 castShadows: true,
                 castShadowsLightmap: true,
                 receiveShadows: true,
-                lightMapped: false,
-                lightMapSizeMultiplier: 1.0,
+                lightmapped: false,
+                lightmapSizeMultiplier: 1.0,
                 batchGroupId: null,
                 layers: [LAYERID_WORLD]
             }
