@@ -35,18 +35,30 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'asset:id', fieldId.parent.innerElement.firstChild.ui, null, panel);
 
+        var suspendRenameEvt = false;
+
         var fieldName = editor.call('attributes:addField', {
             parent: panel,
             name: 'Name',
             type: 'string',
-            link: spriteAsset,
-            path: 'name'
+            value: spriteAsset.get('name')
         });
         // reference
         editor.call('attributes:reference:attach', 'asset:name', fieldName.parent.innerElement.firstChild.ui, null, panel);
 
         events.push(fieldName.on('change', function (value) {
             rootPanel.header = 'SPRITE ASSET - ' + value;
+            if (value !== spriteAsset.get('name') && ! suspendRenameEvt) {
+                suspendRenameEvt = true;
+                editor.call('assets:rename', spriteAsset, value);
+                suspendRenameEvt = false;
+            }
+        }));
+
+        events.push(spriteAsset.on('name:set', function (value) {
+            suspendRenameEvt = true;
+            fieldName.value = value;
+            suspendRenameEvt = false;
         }));
 
         var fieldPpu = editor.call('attributes:addField', {
