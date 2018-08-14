@@ -128,7 +128,7 @@ editor.once('load', function() {
             if (! editor.call('permissions:write'))
                 return;
 
-            if (editor.call('picker:isOpen:otherThan', 'curve')) return;
+            if (editor.call('picker:isOpen:otherThan', ['curve', 'sprite-editor'])) return;
 
             editor.call('history:undo');
         }
@@ -143,7 +143,7 @@ editor.once('load', function() {
             if (! editor.call('permissions:write'))
                 return;
 
-            if (editor.call('picker:isOpen:otherThan', 'curve')) return;
+            if (editor.call('picker:isOpen:otherThan', ['curve', 'sprite-editor'])) return;
 
             editor.call('history:redo');
         }
@@ -157,7 +157,7 @@ editor.once('load', function() {
             if (! editor.call('permissions:write'))
                 return;
 
-            if (editor.call('picker:isOpen:otherThan', 'curve')) return;
+            if (editor.call('picker:isOpen:otherThan', ['curve', 'sprite-editor'])) return;
 
             editor.call('history:redo');
         }

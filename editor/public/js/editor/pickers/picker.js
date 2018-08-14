@@ -42,11 +42,15 @@ editor.once('load', function () {
         return openPickers[name];
     });
 
-    // Returns true if any picker is open other than the picker with the
-    // specified name
-    editor.method('picker:isOpen:otherThan', function (name) {
+    // Returns true if any picker is open other than the pickers with the
+    // specified names
+    editor.method('picker:isOpen:otherThan', function (names) {
+        if (typeof names === 'string') {
+            names = [names];
+        }
+
         for (var key in openPickers) {
-            if (key !== name) {
+            if (names.indexOf(key) === -1) {
                 return true;
             }
         }
