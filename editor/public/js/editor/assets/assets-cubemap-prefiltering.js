@@ -248,6 +248,7 @@ editor.once('load', function () {
             if (! asset.get('file'))
                 return;
 
+            // TODO: do not set the file here but use the asset server
             asset.set('file', null);
         };
 
