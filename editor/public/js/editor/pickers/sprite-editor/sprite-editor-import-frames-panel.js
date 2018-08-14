@@ -125,7 +125,7 @@ editor.once('load', function() {
                     };
                 }
                 newFrames[counter++] = {
-                    name: frameData.filename || 'Frame ' + (counter + 1),
+                    name: frameData.filename || key,
                     border: [0,0,0,0],
                     rect: [
                         frameData.frame.x * scaleWidth,
