@@ -394,13 +394,13 @@ editor.once('load', function() {
                 var scriptAsset = editor.call('assets:scripts:assetByScript', scriptName);
                 if (! scriptAsset) continue;
 
-                var attributes = scriptAsset.get('data.scripts.' + scriptName + '.attributes');
-                if (! attributes) continue;
-
+                // go through the script component attribute values
                 for (var attributeName in scriptComponent.scripts[scriptName].attributes) {
                     var previousValue = scriptComponent.scripts[scriptName].attributes[attributeName];
+                    // early out if the value is null
                     if (! previousValue && ! previousValue.length) continue;
 
+                    // get the attribute definition from the asset and make sure it's an entity type
                     var attributeDef = scriptAsset.get('data.scripts.' + scriptName + '.attributes.' + attributeName);
                     if (! attributeDef || attributeDef.type !== 'entity') continue;
 
@@ -408,6 +408,7 @@ editor.once('load', function() {
                     var dirty = false;
 
                     if (attributeDef.array) {
+                        // remap entity array
                         newValue = previousValue.slice();
                         for (var i = 0; i < newValue.length; i++) {
                             if (! newValue[i] || ! duplicatedIdsMap[newValue[i]]) continue;
@@ -415,11 +416,13 @@ editor.once('load', function() {
                             dirty = true;
                         }
                     } else {
+                        // remap entity
                         if (! duplicatedIdsMap[previousValue]) continue;
                         newValue = duplicatedIdsMap[previousValue];
                         dirty = true;
                     }
 
+                    // save changes
                     if (dirty) {
                         var prevHistory = newEntity.history.enabled;
                         newEntity.history.enabled = false;
