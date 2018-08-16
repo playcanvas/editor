@@ -386,6 +386,50 @@ editor.once('load', function() {
             });
         });
 
+        // remap entity script attributes
+        var scriptComponent = oldEntity.get('components.script');
+        if (scriptComponent) {
+            for (var scriptName in scriptComponent.scripts) {
+                // get script asset
+                var scriptAsset = editor.call('assets:scripts:assetByScript', scriptName);
+                if (! scriptAsset) continue;
+
+                var attributes = scriptAsset.get('data.scripts.' + scriptName + '.attributes');
+                if (! attributes) continue;
+
+                for (var attributeName in scriptComponent.scripts[scriptName].attributes) {
+                    var previousValue = scriptComponent.scripts[scriptName].attributes[attributeName];
+                    if (! previousValue && ! previousValue.length) continue;
+
+                    var attributeDef = scriptAsset.get('data.scripts.' + scriptName + '.attributes.' + attributeName);
+                    if (! attributeDef || attributeDef.type !== 'entity') continue;
+
+                    var newValue = null;
+                    var dirty = false;
+
+                    if (attributeDef.array) {
+                        newValue = previousValue.slice();
+                        for (var i = 0; i < newValue.length; i++) {
+                            if (! newValue[i] || ! duplicatedIdsMap[newValue[i]]) continue;
+                            newValue[i] = duplicatedIdsMap[newValue[i]];
+                            dirty = true;
+                        }
+                    } else {
+                        if (! duplicatedIdsMap[previousValue]) continue;
+                        newValue = duplicatedIdsMap[previousValue];
+                        dirty = true;
+                    }
+
+                    if (dirty) {
+                        var prevHistory = newEntity.history.enabled;
+                        newEntity.history.enabled = false;
+                        newEntity.set('components.script.scripts.' + scriptName + '.attributes.' + attributeName, newValue);
+                        newEntity.history.enabled = prevHistory;
+                    }
+                }
+            }
+        }
+
         // Recurse into children. Note that we continue to pass in the same `oldSubtreeRoot`,
         // in order to correctly handle cases where a child has an entity reference
         // field that points to a parent or other ancestor that is still within the
