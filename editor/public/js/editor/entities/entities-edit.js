@@ -1181,8 +1181,16 @@ editor.once('load', function() {
                                                 }
                                             } else if (attrData.type === 'entity') {
                                                 // try to remap entities
-                                                if (mapping[attrs[key]]) {
-                                                    entity.set('components.script.scripts.' + script + '.attributes.' + key, mapping[attrs[key]]);
+                                                if (attrData.array) {
+                                                    for (var j = 0; j < attrs[key].length; j++) {
+                                                        if (attrs[key][j] && mapping[attrs[key][j]]) {
+                                                            entity.set('components.script.scripts.' + script + '.attributes.' + key + '.' + j, mapping[attrs[key][j]]);
+                                                        }
+                                                    }
+                                                } else {
+                                                    if (mapping[attrs[key]]) {
+                                                        entity.set('components.script.scripts.' + script + '.attributes.' + key, mapping[attrs[key]]);
+                                                    }
                                                 }
                                             }
 
@@ -1194,6 +1202,24 @@ editor.once('load', function() {
                     }
                 }
 
+            }
+
+            // remap entity references in components
+            var components = entity.get('components');
+            for (var componentName in components) {
+                var component = components[componentName];
+                var entityFields = editor.call('components:getFieldsOfType', componentName, 'entity');
+
+                entityFields.forEach(function(fieldName) {
+                    var oldEntityId = component[fieldName];
+                    if (mapping[oldEntityId]) {
+                        var newEntityId = mapping[oldEntityId];
+
+                        if (newEntityId) {
+                            entity.set('components.' + componentName + '.' + fieldName, newEntityId);
+                        }
+                    }
+                });
             }
         };
 
