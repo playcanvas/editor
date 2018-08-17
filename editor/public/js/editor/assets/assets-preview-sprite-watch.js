@@ -21,8 +21,10 @@ editor.once('load', function() {
             var atlasAsset = editor.call('assets:get', atlas);
             if (atlasAsset) {
                 var engineAtlas = app.assets.get(atlas);
-                watch.events.onAtlasChange = engineAtlas.on('change', onChange);
-                watch.events.onAtlasLoad = engineAtlas.on('load', onChange);
+                engineAtlas.on('change', onChange);
+                watch.events.onAtlasChange = onChange;
+                engineAtlas.on('load', onChange);
+                watch.events.onAtlasLoad = onChange;
 
                 watch.events.onAtlasRemove = atlasAsset.once('destroy', function () {
                     unwatchAtlas(watch, currentAtlas);
@@ -33,7 +35,8 @@ editor.once('load', function() {
                     app.assets.load(engineAtlas);
 
             } else {
-                watch.events.onAtlasAdd = app.assets.once('assets:add[' + atlas + ']', watchAtlas);
+                app.assets.once('assets:add[' + atlas + ']', watchAtlas);
+                watch.events.onAtlasAdd = watchAtlas;
             }
         };
 
@@ -55,17 +58,18 @@ editor.once('load', function() {
         if (! atlas) return;
 
         var engineAtlas = app.assets.get(atlas);
-        if (! engineAtlas) return;
 
         if (watch.events.onAtlasChange) {
-            if (engineAtlas)
+            if (engineAtlas) {
                 engineAtlas.off('change', watch.events.onAtlasChange);
+            }
             delete watch.events.onAtlasChange;
         }
 
         if (watch.events.onAtlasLoad) {
-            if (engineAtlas)
-                engineAtlas.off('change', watch.events.onAtlasLoad);
+            if (engineAtlas) {
+                engineAtlas.off('load', watch.events.onAtlasLoad);
+            }
             delete watch.events.onAtlasLoad;
         }
 
@@ -85,6 +89,9 @@ editor.once('load', function() {
         unwatchAtlas(watch, atlas);
         if (watch.events.onSetAtlas) {
             watch.events.onSetAtlas.unbind();
+        }
+        if (watch.events.onSpriteChange) {
+            watch.events.onSpriteChange.unbind();
         }
         watch.events = {};
     };
