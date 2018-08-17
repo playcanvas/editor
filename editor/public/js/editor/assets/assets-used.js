@@ -169,7 +169,11 @@ editor.once('load', function() {
             updateAsset(this.get('id'), 'asset', valueOld, value);
         },
         'entity': function(path, value, valueOld) {
-            if (path.startsWith('components.model.mapping.')) {
+            if (path.startsWith('components.animation.assets.')) {
+                var parts = path.split('.');
+                if (parts.length !== 4)
+                    return;
+            } else if (path.startsWith('components.model.mapping.')) {
                 var parts = path.split('.');
                 if (parts.length !== 4)
                     return;
