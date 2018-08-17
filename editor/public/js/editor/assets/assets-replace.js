@@ -204,7 +204,7 @@ editor.once('load', function() {
 
                         if (sprite.clips) {
                             for (var key in sprite.clips) {
-                                if (sprite.clips[key].spriteAsset) {
+                                if (sprite.clips[key].spriteAsset && sprite.clips[key].spriteAsset === id) {
                                     set(obj, 'components.sprite.clips.' + key + '.spriteAsset');
                                 }
                             }
