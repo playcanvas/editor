@@ -162,11 +162,11 @@ editor.once('load', function() {
 
             updateAsset(this.get('id'), 'asset', value);
         },
-        'sprite': function (path, value) {
+        'sprite': function (path, value, valueOld) {
             if (! keys['sprite'][path])
                 return;
 
-            updateAsset(this.get('id'), 'asset', value);
+            updateAsset(this.get('id'), 'asset', valueOld, value);
         },
         'entity': function(path, value, valueOld) {
             if (path.startsWith('components.model.mapping.')) {
