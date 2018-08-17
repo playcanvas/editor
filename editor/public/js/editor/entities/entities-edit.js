@@ -398,7 +398,7 @@ editor.once('load', function() {
                 for (var attributeName in scriptComponent.scripts[scriptName].attributes) {
                     var previousValue = scriptComponent.scripts[scriptName].attributes[attributeName];
                     // early out if the value is null
-                    if (! previousValue && ! previousValue.length) continue;
+                    if (! previousValue || (Array.isArray(previousValue) && ! previousValue.length)) continue;
 
                     // get the attribute definition from the asset and make sure it's an entity type
                     var attributeDef = scriptAsset.get('data.scripts.' + scriptName + '.attributes.' + attributeName);
