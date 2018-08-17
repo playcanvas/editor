@@ -1118,7 +1118,6 @@ editor.once('load', function() {
 
                 renderQueueRemove(asset);
             };
-            item.on('hide', onUnwatch);
             item.once('destroy', onUnwatch);
             if (! item.hidden) {
                 requestAnimationFrame(queueRender);
@@ -1233,7 +1232,6 @@ editor.once('load', function() {
 
                 renderQueueRemove(asset);
             };
-            item.on('hide', onUnwatch);
             item.once('destroy', onUnwatch);
 
             if (! item.hidden) {

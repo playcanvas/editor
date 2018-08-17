@@ -157,6 +157,22 @@ editor.once('load', function() {
                 }
                 break;
 
+            case 'textureatlas':
+                // asset
+                for(var i = 0; i < assets.length; i++) {
+                    var obj = assets[i];
+
+                    if (obj.get('type') === 'sprite') {
+                        var atlas = obj.get('data.textureAtlasAsset');
+                        if (atlas !== id) {
+                            continue;
+                        }
+
+                        set(obj, 'data.textureAtlasAsset');
+                    }
+                }
+                break;
+
             case 'model':
                 // entity
                 for(var i = 0; i < entities.length; i++) {
