@@ -186,7 +186,7 @@ editor.once('load', function () {
                             var history = link.history.enabled;
                             link.history.enabled = false;
 
-                            if (typeof(arr[0]) === 'object') {
+                            if (arr[0] !== null && typeof(arr[0]) === 'object') {
                                 link.set(pathAt(args, i), []);
                                 arr.forEach(function (element) {
                                     link.insert(pathAt(args, i), element);
@@ -217,7 +217,7 @@ editor.once('load', function () {
                             link.history.enabled = false;
 
                             var arr = prev[i];
-                            if (typeof(arr[0]) === 'object') {
+                            if (arr[0] !== null && typeof(arr[0]) === 'object') {
                                 link.set(pathAt(args, i), []);
                                 arr.forEach(function (element) {
                                     link.insert(pathAt(args, i), element);
@@ -346,7 +346,7 @@ editor.once('load', function () {
                     var history = link.history.enabled;
                     link.history.enabled = false;
 
-                    if (typeof(arr[0]) === 'object') {
+                    if (arr[0] !== null && typeof(arr[0]) === 'object') {
                         link.set(pathAt(args, i), []);
                         arr.forEach(function (element) {
                             link.insert(pathAt(args, i), element);
@@ -382,7 +382,7 @@ editor.once('load', function () {
                     link.history.enabled = false;
 
                     var arr = prev[i];
-                    if (typeof(arr[0]) === 'object') {
+                    if (arr[0] !== null && typeof(arr[0]) === 'object') {
                         link.set(pathAt(args, i), []);
                         arr.forEach(function (element) {
                             link.insert(pathAt(args, i), element);
