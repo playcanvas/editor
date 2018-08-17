@@ -1203,6 +1203,24 @@ editor.once('load', function() {
                 }
 
             }
+
+            // remap entity references in components
+            var components = entity.get('components');
+            for (var componentName in components) {
+                var component = components[componentName];
+                var entityFields = editor.call('components:getFieldsOfType', componentName, 'entity');
+
+                entityFields.forEach(function(fieldName) {
+                    var oldEntityId = component[fieldName];
+                    if (mapping[oldEntityId]) {
+                        var newEntityId = mapping[oldEntityId];
+
+                        if (newEntityId) {
+                            entity.set('components.' + componentName + '.' + fieldName, newEntityId);
+                        }
+                    }
+                });
+            }
         };
 
         // add all entities with different resource ids
