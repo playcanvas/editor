@@ -1181,8 +1181,16 @@ editor.once('load', function() {
                                                 }
                                             } else if (attrData.type === 'entity') {
                                                 // try to remap entities
-                                                if (mapping[attrs[key]]) {
-                                                    entity.set('components.script.scripts.' + script + '.attributes.' + key, mapping[attrs[key]]);
+                                                if (attrData.array) {
+                                                    for (var j = 0; j < attrs[key].length; j++) {
+                                                        if (attrs[key][j] && mapping[attrs[key][j]]) {
+                                                            entity.set('components.script.scripts.' + script + '.attributes.' + key + '.' + j, mapping[attrs[key][j]]);
+                                                        }
+                                                    }
+                                                } else {
+                                                    if (mapping[attrs[key]]) {
+                                                        entity.set('components.script.scripts.' + script + '.attributes.' + key, mapping[attrs[key]]);
+                                                    }
                                                 }
                                             }
 
