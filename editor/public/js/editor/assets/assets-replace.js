@@ -126,6 +126,23 @@ editor.once('load', function() {
                         // components.element.textureAsset
                         set(obj, 'components.element.textureAsset');
                     }
+
+                    // button component
+                    var button = obj.get('components.button');
+                    if (button) {
+                        if (button.hoverTextureAsset && button.hoverTextureAsset === id) {
+                            set(obj, 'components.button.hoverTextureAsset');
+                        }
+
+                        if (button.pressedTextureAsset && button.pressedTextureAsset === id) {
+                            set(obj, 'components.button.pressedTextureAsset');
+                        }
+
+                        if (button.inactiveTextureAsset && button.inactiveTextureAsset === id) {
+                            set(obj, 'components.button.inactiveTextureAsset');
+                        }
+                    }
+
                 }
 
                 // asset
@@ -169,6 +186,53 @@ editor.once('load', function() {
                         }
 
                         set(obj, 'data.textureAtlasAsset');
+                    }
+                }
+                break;
+
+            case 'sprite':
+                // entity
+                for (var i = 0; i < entities.length; i++) {
+                    var obj = entities[i];
+
+                    // sprite component
+                    var sprite = obj.get('components.sprite');
+                    if (sprite) {
+                        if (sprite.spriteAsset && sprite.spriteAsset === id) {
+                            set(obj, 'components.sprite.spriteAsset');
+                        }
+
+                        if (sprite.clips) {
+                            for (var key in sprite.clips) {
+                                if (sprite.clips[key].spriteAsset) {
+                                    set(obj, 'components.sprite.' + key + '.spriteAsset');
+                                }
+                            }
+                        }
+                    }
+
+                    // button component
+                    var button = obj.get('components.button');
+                    if (button) {
+                        if (button.hoverSpriteAsset && button.hoverSpriteAsset === id) {
+                            set(obj, 'components.button.hoverSpriteAsset');
+                        }
+
+                        if (button.pressedSpriteAsset && button.pressedSpriteAsset === id) {
+                            set(obj, 'components.button.pressedSpriteAsset');
+                        }
+
+                        if (button.inactiveSpriteAsset && button.inactiveSpriteAsset === id) {
+                            set(obj, 'components.button.inactiveSpriteAsset');
+                        }
+                    }
+
+                    // element component
+                    var element = obj.get('components.element');
+                    if (element) {
+                        if (element.spriteAsset && element.spriteAsset === id) {
+                            set(obj, 'components.element.spriteAsset');
+                        }
                     }
                 }
                 break;

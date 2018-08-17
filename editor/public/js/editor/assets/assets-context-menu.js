@@ -199,6 +199,7 @@ editor.once('load', function() {
         'css': true,
         'html': true,
         'shader': true,
+        'sprite': true,
         'json': true,
         'text': true
     };

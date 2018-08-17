@@ -514,7 +514,7 @@ editor.once('load', function() {
                 fitHeightProportion: 0,
                 excludeFromLayout: false
             }
-        },
+        }
     };
 
     // Paths in components that represent assets.
@@ -541,7 +541,7 @@ editor.once('load', function() {
         'components.button.pressedTextureAsset',
         'components.button.inactiveTextureAsset',
         'components.sprite.spriteAsset',
-        'components.sprite.clips.*.spriteAsset',
+        'components.sprite.clips.*.spriteAsset'
     ];
 
     editor.method('components:assetPaths', function () {
