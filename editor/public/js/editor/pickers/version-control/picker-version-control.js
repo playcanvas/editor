@@ -601,7 +601,14 @@ editor.once('load', function () {
         createCheckpoint(config.self.branch.id, data.description, function (checkpoint) {
             setTimeout(function () {
                 togglePanels(true);
-                showCheckpoints();
+
+                // show checkpoints unless they haven't been loaded yet in which
+                // case re-select the branch which reloads the checkpoints
+                if (! panelCheckpoints.checkpoints) {
+                    selectBranch(selectedBranch);
+                } else {
+                    showCheckpoints();
+                }
             },  1000);
         });
     });
@@ -771,18 +778,23 @@ editor.once('load', function () {
             }
 
             // add new checkpoint to checkpoint list
+            // but only if the checkpoints panel has loaded its checkpoints.
+            // Otherwise do not add it but wait until the panel is shown and all of its checkpoints
+            // (including the new one) are loaded
             if (panelCheckpoints.branch.id === data.branch_id) {
-                var existingCheckpoints = panelCheckpoints.checkpoints || [];
-                existingCheckpoints.unshift({
-                    id: data.checkpoint_id,
-                    user: {
-                        id: data.user_id,
-                        fullName: data.user_full_name
-                    },
-                    createdAt: new Date(data.created_at),
-                    description: data.description
-                });
-                panelCheckpoints.setCheckpoints(existingCheckpoints);
+                var existingCheckpoints = panelCheckpoints.checkpoints;
+                if (existingCheckpoints) {
+                    existingCheckpoints.unshift({
+                        id: data.checkpoint_id,
+                        user: {
+                            id: data.user_id,
+                            fullName: data.user_full_name
+                        },
+                        createdAt: new Date(data.created_at),
+                        description: data.description
+                    });
+                    panelCheckpoints.setCheckpoints(existingCheckpoints);
+                }
             }
         }));
 

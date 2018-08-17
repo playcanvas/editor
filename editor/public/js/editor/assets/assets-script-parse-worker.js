@@ -31,15 +31,18 @@ var parseScript = function(id, url, engine) {
         var valid = true;
 
         if (! name) {
-        __results.scriptsInvalid.push('script name must be defined');
+            __results.scriptsInvalid.push('script name must be defined');
             valid = false;
             name = 'script';
         } else if (typeof(name) !== 'string') {
-        __results.scriptsInvalid.push('script name must be a string');
+            __results.scriptsInvalid.push('script name must be a string');
             valid = false;
             name = 'script';
+        } else if (name.indexOf('.') !== -1) {
+            __results.scriptsInvalid.push('script name cannot contain dots');
+            valid = false;
         } else if (__results.scripts[name]) {
-        __results.scriptsInvalid.push('script `' + name + '` is defined more than once');
+            __results.scriptsInvalid.push('script `' + name + '` is defined more than once');
             valid = false;
         }
 
@@ -62,6 +65,9 @@ var parseScript = function(id, url, engine) {
                     return;
                 } else if (typeof(attr) !== 'string') {
                     script.attributesInvalid.push('attribute name must be a string');
+                    return;
+                } else if (attr.indexOf('.') !== -1) {
+                    script.attributesInvalid.push('attribute name cannot contain dots');
                     return;
                 }
 
