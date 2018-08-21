@@ -293,7 +293,9 @@ editor.once('load', function() {
         grid.enabled = state;
     });
 
-    var labelNoAssets = new ui.Label();
+    var labelNoAssets = new ui.Label({
+        unsafe: true
+    });
     labelNoAssets.renderChanges = false;
     labelNoAssets.class.add('no-assets');
     labelNoAssets.hidden = true;

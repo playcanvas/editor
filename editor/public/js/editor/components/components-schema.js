@@ -6,563 +6,115 @@ editor.once('load', function() {
 
     var projectSettings = editor.call('settings:project');
 
-    var schema = {
-        animation: {
-            title: 'Animation',
-            default: {
-                enabled: true,
-                assets: [ ],
-                speed: 1,
-                loop: true,
-                activate: true
+    var schema = config.schema.scene.entities.$of.components;
+
+    // make titles for each component
+    for (var componentName in schema) {
+        var title;
+        switch (componentName) {
+            case 'audiosource':
+                title = 'Audio Source';
+                break;
+            case 'audiolistener':
+                title = 'Audio Listener';
+                break;
+            case 'particlesystem':
+                title = 'Particle System';
+                break;
+            case 'rigidbody':
+                title = 'Rigid Body';
+                break;
+            case 'scrollview':
+                title = 'Scroll View';
+                break;
+            case 'layoutgroup':
+                title = 'Layout Group';
+                break;
+            case 'layoutchild':
+                title = 'Layout Child';
+                break;
+            default:
+                title = componentName[0].toUpperCase() + componentName.substring(1);
+                break;
+        }
+
+        schema[componentName].$title = title;
+    }
+
+    // some property defaults should be dynamic so
+    // patch them in
+    if (schema.screen) {
+        // default resolution to project resolution for screen components
+        schema.screen.resolution.$default = function () {
+            return [
+                projectSettings.get('width'),
+                projectSettings.get('height')
+            ];
+        };
+        schema.screen.referenceResolution.$default = function () {
+            return [
+                projectSettings.get('width'),
+                projectSettings.get('height')
+            ];
+        };
+    }
+
+    if (schema.element) {
+        schema.element.fontAsset.$default = function () {
+            // Reuse the last selected font, if it still exists in the library
+            var lastSelectedFontId = editor.call('settings:projectUser').get('editor.lastSelectedFontId');
+            var lastSelectedFontStillExists = lastSelectedFontId !== -1 && !!editor.call('assets:get', lastSelectedFontId);
+
+            if (lastSelectedFontStillExists) {
+                return lastSelectedFontId;
             }
-        },
 
-        light: {
-            title: 'Light',
-            default: {
-                enabled: true,
-                type: 'directional',
-                isStatic: false,
-                bake: false,
-                affectDynamic: true,
-                affectLightMapped: false,
-                color: [ 1, 1, 1 ],
-                intensity: 1,
-                castShadows: false,
-                shadowType: 0,
-                shadowDistance: 16,
-                shadowResolution: 1024,
-                shadowBias: 0.2,
-                normalOffsetBias: 0.05,
-                vsmBlurMode: 1,
-                vsmBlurSize: 11,
-                vsmBias: 0.01,
-                range: 8,
-                falloffMode: 0,
-                innerConeAngle: 40,
-                outerConeAngle: 45,
-                cookieAsset: null,
-                cookieIntensity: 1.0,
-                cookieFalloff: true,
-                cookieChannel: 'rgb',
-                cookieAngle: 0.0,
-                cookieOffset: [ 0.0, 0.0 ],
-                cookieScale: [ 1.0, 1.0 ],
-                layers: [LAYERID_WORLD]
-            },
-            types: {
-                color: 'rgb',
-                cookieOffset: 'vec2',
-                cookieScale: 'vec2'
-            }
-        },
+            // Otherwise, select the first available font in the library
+            var firstAvailableFont = editor.call('assets:findOne', function (asset) { return ! asset.get('source') && asset.get('type') === 'font'; });
 
-        audiolistener: {
-            title: 'Audio Listener',
-            default: {
-                enabled: true
-            }
-        },
-
-        audiosource: {
-            title: 'Audio Source',
-            default: {
-                enabled: true,
-                assets: [],
-                volume: 1,
-                pitch: 1,
-                loop: false,
-                activate: true,
-                '3d': true,
-                minDistance: 1,
-                maxDistance: 10000,
-                rollOffFactor: 1
-            }
-        },
-
-        sound: {
-            title: 'Sound',
-            default: {
-                enabled: true,
-                volume: 1,
-                pitch: 1,
-                positional: true,
-                refDistance: 1,
-                maxDistance: 10000,
-                rollOffFactor: 1,
-                distanceModel: 'linear',
-                slots: {
-                    '1': {
-                        name: 'Slot 1',
-                        loop: false,
-                        autoPlay: false,
-                        overlap: false,
-                        asset: null,
-                        startTime: 0,
-                        duration: null,
-                        volume: 1,
-                        pitch: 1
-                    }
-                }
-            }
-        },
-
-        camera: {
-            title: 'Camera',
-            default: {
-                enabled: true,
-                clearColorBuffer: true,
-                clearColor: [0.118, 0.118, 0.118, 1],
-                clearDepthBuffer: true,
-                projection: 0,
-                fov: 45,
-                frustumCulling: true,
-                orthoHeight: 4,
-                nearClip: 0.1,
-                farClip: 1000,
-                priority: 0,
-                rect: [0, 0, 1, 1],
-                layers: [LAYERID_WORLD, LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE, LAYERID_UI]
-            },
-            types: {
-                clearColor: 'rgb',
-                rect: 'vec4'
-            }
-        },
-
-        collision: {
-            title: 'Collision',
-            default: {
-                enabled: true,
-                type: 'box',
-                halfExtents: [0.5,  0.5, 0.5],
-                radius: 0.5,
-                axis: 1,
-                height: 2,
-                asset: null
-            },
-            types: {
-                halfExtents: 'vec3'
-            }
-        },
-
-        model: {
-            title: 'Model',
-            default: {
-                enabled: true,
-                isStatic: false,
-                type: 'asset',
-                asset: null,
-                materialAsset: null,
-                castShadows: true,
-                castShadowsLightmap: true,
-                receiveShadows: true,
-                lightmapped: false,
-                lightmapSizeMultiplier: 1.0,
-                batchGroupId: null,
-                layers: [LAYERID_WORLD]
-            }
-        },
-
-        particlesystem: {
-            title: 'Particle System',
-            default: {
-                enabled: true,
-                autoPlay: true,
-                numParticles: 30,
-                lifetime: 5,
-                rate: 0.1,
-                rate2: 0.1,
-                startAngle: 0,
-                startAngle2: 0,
-                loop: true,
-                preWarm: false,
-                lighting: false,
-                halfLambert: false,
-                intensity: 1,
-                depthWrite: false,
-                depthSoftening: 0,
-                sort: 0,
-                blendType: 2,
-                stretch: 0,
-                alignToMotion: false,
-                emitterShape: 0,
-                emitterExtents: [0, 0, 0],
-                emitterRadius: 0,
-                initialVelocity: 0,
-                animTilesX: 1,
-                animTilesY: 1,
-                animNumFrames: 1,
-                animSpeed: 1,
-                animLoop: true,
-                wrap: false,
-                wrapBounds: [0,0,0],
-                colorMapAsset: null,
-                normalMapAsset: null,
-                mesh: null,
-                layers: [LAYERID_WORLD],
-                localVelocityGraph: {
-                    type: 1,
-                    keys: [[0, 0], [0, 0], [0, 0]],
-                    betweenCurves: false
-                },
-                localVelocityGraph2: {
-                    type: 1,
-                    keys: [[0, 0], [0, 0], [0, 0]]
-                },
-                velocityGraph: {
-                    type: 1,
-                    keys: [[0, -1], [0, -1], [0, -1]],
-                    betweenCurves: true
-                },
-                velocityGraph2: {
-                    type: 1,
-                    keys: [[0, 1], [0, 1], [0, 1]]
-                },
-                rotationSpeedGraph: {
-                    type: 1,
-                    keys: [0, 0],
-                    betweenCurves: false
-                },
-                rotationSpeedGraph2: {
-                    type: 1,
-                    keys: [0, 0]
-                },
-                scaleGraph: {
-                    type: 1,
-                    keys: [0, 0.1],
-                    betweenCurves: false
-                },
-                scaleGraph2: {
-                    type: 1,
-                    keys: [0, 0.1]
-                },
-                colorGraph: {
-                    type: 1,
-                    keys: [[0, 1], [0, 1], [0, 1]],
-                    betweenCurves: false
-                },
-                alphaGraph: {
-                    type: 1,
-                    keys: [0, 1],
-                    betweenCurves: false
-                },
-                alphaGraph2: {
-                    type: 1,
-                    keys: [0, 1]
-                }
-            },
-            types: {
-                emitterExtents: 'vec3',
-                localVelocityGraph: 'curveset',
-                localVelocityGraph2: 'curveset',
-                velocityGraph: 'curveset',
-                velocityGraph2: 'curveset',
-                rotationSpeedGraph: 'curve',
-                rotationSpeedGraph2: 'curve',
-                scaleGraph: 'curve',
-                scaleGraph2: 'curve',
-                colorGraph: 'curveset',
-                alphaGraph: 'curve',
-                alphaGraph2: 'curve'
-            }
-        },
-
-        rigidbody: {
-            title: 'Rigid Body',
-            default: {
-                enabled: true,
-                type: 'static',
-                mass: 1,
-                linearDamping: 0,
-                angularDamping: 0,
-                linearFactor: [1, 1, 1],
-                angularFactor: [1, 1, 1],
-                friction: 0.5,
-                restitution: 0.5
-            },
-            types: {
-                linearFactor: 'vec3',
-                angularFactor: 'vec3'
-            }
-        },
-
-        script: {
-            title: 'Script',
-            default: {
-                enabled: true,
-                order: [ ],
-                scripts: null
-            }
-        },
-
-        zone: {
-            title: 'Zone',
-            default: {
-                enabled: true,
-                size: [ 1, 1, 1 ]
-            }
-        },
-
-        screen: {
-            title: 'Screen',
-            default: {
-                enabled: true,
-                // default resolution to project resolution for screen components
-                resolution: function() {
-                    return [
-                        projectSettings.get('width'),
-                        projectSettings.get('height')
-                    ];
-                },
-                referenceResolution: function() {
-                    return [
-                        projectSettings.get('width'),
-                        projectSettings.get('height')
-                    ];
-                },
-                screenSpace: true,
-                scaleMode: 'blend',
-                scaleBlend: 0.5
-            },
-            types: {
-                resolution: 'vec2',
-                referenceResolution: 'vec2'
-            }
-        },
-
-        element: {
-            title: 'Element',
-            default: {
-                enabled: true,
-                useInput: false,
-                type: 'text',
-                anchor: [0.5, 0.5, 0.5, 0.5],
-                pivot: [0.5, 0.5],
-                text: '',
-                fontAsset: function() {
-                    // Reuse the last selected font, if it still exists in the library
-                    var lastSelectedFontId = editor.call('settings:projectUser').get('editor.lastSelectedFontId');
-                    var lastSelectedFontStillExists = lastSelectedFontId !== -1 && !!editor.call('assets:get', lastSelectedFontId);
-
-                    if (lastSelectedFontStillExists) {
-                        return lastSelectedFontId;
-                    }
-
-                    // Otherwise, select the first available font in the library
-                    var firstAvailableFont = editor.call('assets:findOne', function (asset) { return ! asset.get('source') && asset.get('type') === 'font'; });
-
-                    return firstAvailableFont ? parseInt(firstAvailableFont[1].get('id'), 10) : null;
-                },
-                fontSize: 32,
-                lineHeight: 32,
-                wrapLines: true,
-                spacing: 1,
-                color: [1, 1, 1],
-                opacity: 1,
-                textureAsset: null,
-                spriteAsset: null,
-                spriteFrame: 0,
-                pixelsPerUnit: null,
-                width: 32,
-                height: 32,
-                margin: [-16,-16,-16,-16],
-                alignment: [0.5, 0.5],
-                rect: [0, 0, 1, 1],
-                autoWidth: false,
-                autoHeight: false,
-                materialAsset: null,
-                batchGroupId: null,
-                mask: false,
-                layers: [LAYERID_UI]
-            },
-            types: {
-                anchor: 'vec4',
-                pivot: 'vec2',
-                color: 'rgb',
-                rect: 'vec4',
-                margin: 'vec4',
-                alignment: 'vec2'
-            }
-        },
-
-        button: {
-            title: 'Button',
-            default: {
-                enabled: true,
-                active: true,
-                imageEntity: null,
-                hitPadding: [0, 0, 0, 0],
-                transitionMode: BUTTON_TRANSITION_MODE_TINT,
-                hoverTint: [1, 1, 1, 1],
-                pressedTint: [1, 1, 1, 1],
-                inactiveTint: [1, 1, 1, 1],
-                fadeDuration: 0,
-                hoverSpriteAsset: null,
-                pressedSpriteAsset: null,
-                inactiveSpriteAsset: null,
-                hoverSpriteFrame: 0,
-                pressedSpriteFrame: 0,
-                inactiveSpriteFrame: 0,
-                hoverTextureAsset: null,
-                pressedTextureAsset: null,
-                inactiveTextureAsset: null
-            },
-            types: {
-                imageEntity: 'entity',
-                hitPadding: 'vec4',
-                hoverTint: 'rgba',
-                pressedTint: 'rgba',
-                inactiveTint: 'rgba'
-            }
-        },
-
-        scrollview: {
-            title: 'Scroll View',
-            default: {
-                enabled: true,
-                horizontal: true,
-                vertical: true,
-                scrollMode: SCROLL_MODE_BOUNCE,
-                bounceAmount: 0.1,
-                friction: 0.05,
-                horizontalScrollbarVisibility: SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED,
-                verticalScrollbarVisibility: SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED,
-                viewportEntity: null,
-                contentEntity: null,
-                horizontalScrollbarEntity: null,
-                verticalScrollbarEntity: null,
-            },
-            types: {
-                viewportEntity: 'entity',
-                contentEntity: 'entity',
-                horizontalScrollbarEntity: 'entity',
-                verticalScrollbarEntity: 'entity'
-            }
-        },
-
-        scrollbar: {
-            title: 'Scrollbar',
-            default: {
-                enabled: true,
-                orientation: null,
-                value: 0,
-                handleSize: 0.5,
-                handleEntity: null
-            },
-            types: {
-                handleEntity: 'entity'
-            }
-        },
-
-        sprite: {
-            title: 'Sprite',
-            default: {
-                enabled: true,
-                type: 'simple',
-                width: 1,
-                height: 1,
-                color: [1, 1, 1],
-                opacity: 1,
-                flipX: false,
-                flipY: false,
-                spriteAsset: null,
-                frame: 0,
-                clips: {},
-                autoPlayClip: null,
-                speed: 1,
-                batchGroupId: null,
-                drawOrder: 0,
-                layers: [LAYERID_WORLD]
-            },
-            types: {
-                color: 'rgb'
-            }
-        },
-
-        layoutgroup: {
-            title: 'Layout Group',
-            default: {
-                enabled: true,
-                orientation: pc.ORIENTATION_HORIZONTAL,
-                reverseX: false,
-                reverseY: true,
-                alignment: [0.0, 1.0],
-                padding: [0.0, 0.0, 0.0, 0.0],
-                spacing: [0.0, 0.0],
-                widthFitting: pc.FITTING_NONE,
-                heightFitting: pc.FITTING_NONE,
-                wrap: false
-            },
-            types: {
-                alignment: 'vec2',
-                padding: 'vec4',
-                spacing: 'vec2',
-            }
-        },
-
-        layoutchild: {
-            title: 'Layout Child',
-            default: {
-                enabled: true,
-                minWidth: 0,
-                minHeight: 0,
-                maxWidth: null,
-                maxHeight: null,
-                fitWidthProportion: 0,
-                fitHeightProportion: 0,
-                excludeFromLayout: false
-            }
-        },
-    };
+            return firstAvailableFont ? parseInt(firstAvailableFont[1].get('id'), 10) : null;
+        };
+    }
 
     // Paths in components that represent assets.
     // Does not include asset script attributes.
-    var assetPaths = [
-        'components.animation.assets',
-        'components.light.cookieAsset',
-        'components.model.asset',
-        'components.model.materialAsset',
-        'components.audiosource.assets',
-        'components.sound.slots.*.asset',
-        'components.collision.asset',
-        'components.particlesystem.colorMapAsset',
-        'components.particlesystem.normalMapAsset',
-        'components.particlesystem.mesh',
-        'components.element.fontAsset',
-        'components.element.textureAsset',
-        'components.element.spriteAsset',
-        'components.element.materialAsset',
-        'components.button.hoverSpriteAsset',
-        'components.button.pressedSpriteAsset',
-        'components.button.inactiveSpriteAsset',
-        'components.button.hoverTextureAsset',
-        'components.button.pressedTextureAsset',
-        'components.button.inactiveTextureAsset',
-        'components.sprite.spriteAsset',
-        'components.sprite.clips.*.spriteAsset',
-    ];
+    var assetPaths = [];
+    var gatherAssetPathsRecursively = function (schemaField, path) {
+        for (var fieldName in schemaField) {
+            if (fieldName.startsWith('$')) continue;
+
+            var field = schemaField[fieldName];
+            var type = editor.call('schema:getType', field);
+            if (type === 'asset' || type === 'array:asset') {
+                assetPaths.push(path + '.' + fieldName);
+            } else if (type === 'object' && field.$of) {
+                gatherAssetPathsRecursively(field.$of, path + '.' + fieldName + '.*');
+            }
+        }
+    };
+
+    for (var componentName in schema) {
+        gatherAssetPathsRecursively(schema[componentName], 'components.' + componentName);
+    }
+
 
     editor.method('components:assetPaths', function () {
         return assetPaths;
     });
 
     if (editor.call('settings:project').get('useLegacyScripts')) {
-        schema.script.default.scripts = [ ];
-        delete schema.script.default.order;
-    } else {
-        schema.script.default.scripts = { };
+        schema.script.scripts.$default = [];
+        delete schema.script.order;
     }
 
-    var list = Object.keys(schema).sort(function(a, b) {
+    var list = Object.keys(schema).sort(function (a, b) {
         if (a > b) {
             return 1;
         } else if (a < b) {
             return -1;
-        } else {
-            return 0;
         }
+
+        return 0;
     });
 
     editor.method('components:convertValue', function (component, property, value) {
@@ -570,8 +122,8 @@ editor.once('load', function() {
 
         if (value) {
             var data = schema[component];
-            if (data && data.types) {
-                var type = data.types[property];
+            if (data && data[property]) {
+                var type = editor.call('schema:getType', data[property]);
                 switch (type) {
                     case 'rgb':
                         result = new pc.Color(value[0], value[1], value[2]);
@@ -642,7 +194,14 @@ editor.once('load', function() {
     });
 
     editor.method('components:getDefault', function (component) {
-        var result = utils.deepCopy(schema[component].default);
+        var result = {};
+        for (var fieldName in schema[component]) {
+            if (fieldName.startsWith('$')) continue;
+            var field = schema[component][fieldName];
+            if (field.hasOwnProperty('$default')) {
+                result[fieldName] = utils.deepCopy(field.$default);
+            }
+        }
 
         resolveLazyDefaults(result);
 
@@ -653,7 +212,7 @@ editor.once('load', function() {
         // Any functions in the default property set are used to provide
         // lazy resolution, to handle cases where the values are not known
         // at startup time.
-        Object.keys(defaults).forEach(function(key) {
+        Object.keys(defaults).forEach(function (key) {
             var value = defaults[key];
 
             if (typeof value === 'function') {
@@ -663,14 +222,13 @@ editor.once('load', function() {
     }
 
     editor.method('components:getFieldsOfType', function (component, type) {
-        var types = (schema[component] && schema[component].types) || {};
         var matchingFields = [];
 
-        Object.keys(types).forEach(function(fieldName) {
-            if (types[fieldName] === type) {
-                matchingFields.push(fieldName);
+        for (var field in schema[component]) {
+            if (schema[component][field].$editorType === type) {
+                matchingFields.push(field);
             }
-        });
+        }
 
         return matchingFields;
     });

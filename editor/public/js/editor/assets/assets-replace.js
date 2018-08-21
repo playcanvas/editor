@@ -1,377 +1,521 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    var slots = [ 'aoMap', 'diffuseMap', 'emissiveMap', 'glossMap', 'lightMap', 'metalnessMap', 'opacityMap', 'specularMap', 'normalMap', 'sphereMap' ];
+    var slots = ['aoMap', 'diffuseMap', 'emissiveMap', 'glossMap', 'lightMap', 'metalnessMap', 'opacityMap', 'specularMap', 'normalMap', 'sphereMap'];
 
-    editor.method('assets:replace', function(asset, replacement) {
-        var id = parseInt(asset.get('id'), 10);
-        var idNew = parseInt(replacement.get('id'), 10);
+    /**
+     * Replaces the specified asset with the replacement asset everywhere
+     * @param {Observer} asset The original asset
+     * @param {Observer} replacement The replacement asset
+     */
+    var AssetReplace = function (asset, replacement) {
+        this.asset = asset;
+        this.oldId = parseInt(asset.get('id'), 10);
+        this.newId = parseInt(replacement.get('id'), 10);
 
-        var entities = editor.call('entities:list');
-        var assets = editor.call('assets:list');
+        this.entities = editor.call('entities:list');
+        this.assets = editor.call('assets:list');
 
-        var records = [ ];
+        this.records = [];
+    };
 
-        // TODO
-        // history
+    /**
+     * Set the replacement asset for the specified object at the specified path
+     * @param {Observer} obj The object
+     * @param {String} path The path that we are replacing
+     */
+    AssetReplace.prototype.set = function (obj, path) {
+        var history = obj.history.enabled;
+        obj.history.enabled = false;
+        obj.set(path, this.newId);
+        obj.history.enabled = history;
 
-        var set = function(obj, path) {
-            var history = obj.history.enabled;
-            obj.history.enabled = false;
-            obj.set(path, idNew);
-            obj.history.enabled = history;
+        if (history) {
+            this.records.push({
+                get: obj.history._getItemFn,
+                path: path
+            });
+        }
+    };
 
-            if (history) {
-                records.push({
-                    get: obj.history._getItemFn,
-                    path: path
-                });
+    AssetReplace.prototype.handleAnimation = function () {
+        // entity
+        for (var i = 0; i < this.entities.length; i++) {
+            var obj = this.entities[i];
+
+            // animation
+            var animation = obj.get('components.animation');
+            if (animation && animation.assets) {
+                for (var ind = 0; ind < animation.assets.length; ind++) {
+                    if (animation.assets[ind] !== this.oldId)
+                        continue;
+
+                    // components.animation.assets.?
+                    this.set(obj, 'components.animation.assets.' + ind);
+                }
             }
-        };
+        }
+    };
 
-        switch(asset.get('type')) {
-            case 'material':
-                // entity
-                for(var i = 0; i < entities.length; i++) {
-                    var obj = entities[i];
+    AssetReplace.prototype.handleAudio = function () {
+        // entity
+        for (var i = 0; i < this.entities.length; i++) {
+            var obj = this.entities[i];
 
-                    // model
-                    var model = obj.get('components.model');
-                    if (model) {
-                        if (model.materialAsset === id) {
-                            // components.model.materialAsset
-                            set(obj, 'components.model.materialAsset');
-                        }
-                        if (model.mapping) {
-                            for(var ind in model.mapping) {
-                                if (model.mapping[ind] === id) {
-                                    // components.model.mapping.?
-                                    set(obj, 'components.model.mapping.' + ind);
-                                }
-                            }
-                        }
-                    }
+            // sound
+            var sound = obj.get('components.sound');
+            if (sound) {
+                for (var ind in sound.slots) {
+                    if (!sound.slots[ind] || sound.slots[ind].asset !== this.oldId)
+                        continue;
 
-                    // element
-                    var element = obj.get('components.element');
-                    if (element && element.materialAsset === id) {
-                        // components.element.materialAsset
-                        set(obj, 'components.element.materialAsset');
-                    }
+                    // components.sound.slots.?.asset
+                    this.set(obj, 'components.sound.slots.' + ind + '.asset');
                 }
+            }
 
-                // asset
-                for(var i = 0; i < assets.length; i++) {
-                    var obj = assets[i];
+            // audiosource
+            var audiosource = obj.get('components.audiosource');
+            if (audiosource && audiosource.assets) {
+                for (var a = 0; a < audiosource.assets.length; a++) {
+                    if (audiosource.assets[a] !== this.oldId)
+                        continue;
 
-                    if (obj.get('type') === 'model') {
-                        var mapping = obj.get('data.mapping');
-                        if (mapping) {
-                            for(var ind = 0; ind < mapping.length; ind++) {
-                                if (mapping[ind].material !== id)
-                                    continue;
-
-                                // data.mapping.?.material
-                                set(obj, 'data.mapping.' + ind + '.material');
-
-                                // change meta.userMapping as well
-                                var history = obj.history.enabled;
-                                obj.history.enabled = false;
-                                if (! obj.get('meta')) {
-                                    obj.set('meta', {
-                                        userMapping: {}
-                                    });
-                                } else {
-                                    if (! obj.has('meta.userMapping'))
-                                        obj.set('meta.userMapping', {});
-                                }
-
-                                obj.set('meta.userMapping.' + ind, true);
-
-                                obj.history.enabled = history;
-                            }
-                        }
-                    }
+                    // components.audiosource.assets.?
+                    this.set(obj, 'components.audiosource.assets.' + a);
                 }
-                break;
+            }
+        }
+    };
 
-            case 'texture':
-                // entity
-                for(var i = 0; i < entities.length; i++) {
-                    var obj = entities[i];
+    AssetReplace.prototype.handleCubemap = function () {
+        var i;
+        var obj;
 
-                    // light
-                    var light = obj.get('components.light');
-                    if (light && light.cookieAsset === id) {
-                        // components.light.cookieAsset
-                        set(obj, 'components.light.cookieAsset');
-                    }
+        // entity
+        for (i = 0; i < this.entities.length; i++) {
+            obj = this.entities[i];
 
-                    // particlesystem
-                    var particlesystem = obj.get('components.particlesystem');
-                    if (particlesystem) {
-                        if (particlesystem.colorMapAsset === id) {
-                            // components.particlesystem.colorMapAsset
-                            set(obj, 'components.particlesystem.colorMapAsset');
-                        }
-                        if (particlesystem.normalMapAsset === id) {
-                            // components.particlesystem.normalMapAsset
-                            set(obj, 'components.particlesystem.normalMapAsset');
-                        }
-                    }
-
-                    // element
-                    var element = obj.get('components.element');
-                    if (element && element.textureAsset === id) {
-                        // components.element.textureAsset
-                        set(obj, 'components.element.textureAsset');
-                    }
-                }
-
-                // asset
-                for(var i = 0; i < assets.length; i++) {
-                    var obj = assets[i];
-
-                    if (obj.get('type') === 'cubemap') {
-                        var textures = obj.get('data.textures');
-                        if (textures && textures instanceof Array) {
-                            for(var ind = 0; ind < textures.length; ind++) {
-                                if (textures[ind] !== id)
-                                    continue;
-
-                                // data.mapping.?.material
-                                set(obj, 'data.textures.' + ind);
-                            }
-                        }
-                    } else if (obj.get('type') === 'material') {
-                        var data = obj.get('data');
-                        if (data) {
-                            for(var s = 0; s < slots.length; s++) {
-                                if (data[slots[s]] !== id)
-                                    continue;
-
-                                set(obj, 'data.' + slots[s]);
-                            }
-                        }
-                    }
-                }
-                break;
-
-            case 'textureatlas':
-                // asset
-                for(var i = 0; i < assets.length; i++) {
-                    var obj = assets[i];
-
-                    if (obj.get('type') === 'sprite') {
-                        var atlas = obj.get('data.textureAtlasAsset');
-                        if (atlas !== id) {
-                            continue;
-                        }
-
-                        set(obj, 'data.textureAtlasAsset');
-                    }
-                }
-                break;
-
-            case 'model':
-                // entity
-                for(var i = 0; i < entities.length; i++) {
-                    var obj = entities[i];
-
-                    // model
-                    var model = obj.get('components.model');
-                    if (model && model.asset === id) {
-                        // components.model.asset
-                        set(obj, 'components.model.asset');
-                    }
-
-                    // collision
-                    var collision = obj.get('components.collision');
-                    if (collision && collision.asset === id) {
-                        // components.collision.asset
-                        set(obj, 'components.collision.asset');
-                    }
-
-                    // particlesystem
-                    var particlesystem = obj.get('components.particlesystem');
-                    if (particlesystem && particlesystem.mesh === id) {
-                        // components.particlesystem.mesh
-                        set(obj, 'components.particlesystem.mesh');
-                    }
-                }
-                break;
-
-            case 'animation':
-                // entity
-                for(var i = 0; i < entities.length; i++) {
-                    var obj = entities[i];
-
-                    // animation
-                    var animation = obj.get('components.animation');
-                    if (animation && animation.assets) {
-                        for(ind = 0; ind < animation.assets.length; ind++) {
-                            if (animation.assets[ind] !== id)
-                                continue;
-
-                            // components.animation.assets.?
-                            set(obj, 'components.animation.assets.' + ind);
-                        }
-                    }
-                }
-                break;
-
-            case 'audio':
-                // entity
-                for(var i = 0; i < entities.length; i++) {
-                    var obj = entities[i];
-
-                    // sound
-                    var sound = obj.get('components.sound');
-                    if (sound) {
-                        for(var ind in sound.slots) {
-                            if (! sound.slots[ind] || sound.slots[ind].asset !== id)
-                                continue;
-
-                            // components.sound.slots.?.asset
-                            set(obj, 'components.sound.slots.' + ind + '.asset');
-                        }
-                    }
-
-                    // audiosource
-                    var audiosource = obj.get('components.audiosource');
-                    if (audiosource && audiosource.assets) {
-                        for(var a = 0; a < audiosource.assets.length; a++) {
-                            if (audiosource.assets[a] !== id)
-                                continue;
-
-                            // components.audiosource.assets.?
-                            set(obj, 'components.audiosource.assets.' + a);
-                        }
-                    }
-                }
-                break;
-
-            case 'cubemap':
-                // entity
-                for(var i = 0; i < entities.length; i++) {
-                    var obj = entities[i];
-
-                    // light
-                    var light = obj.get('components.light');
-                    if (light && light.cookieAsset === id) {
-                        // components.light.cookieAsset
-                        set(obj, 'components.light.cookieAsset');
-                    }
-                }
-
-                // asset
-                for(var i = 0; i < assets.length; i++) {
-                    var obj = assets[i];
-
-                    if (obj.get('type') === 'material' && obj.get('data.cubeMap') === id) {
-                        // data.cubeMap
-                        set(obj, 'data.cubeMap');
-                    }
-                }
-
-                // sceneSettings
-                var obj = editor.call('sceneSettings');
-                if (obj.get('render.skybox') === id) {
-                    // render.skybox
-                    set(obj, 'render.skybox');
-                }
-                break;
+            // light
+            var light = obj.get('components.light');
+            if (light && light.cookieAsset === this.oldId) {
+                // components.light.cookieAsset
+                this.set(obj, 'components.light.cookieAsset');
+            }
         }
 
+        // asset
+        for (i = 0; i < this.assets.length; i++) {
+            obj = this.assets[i];
+
+            if (obj.get('type') === 'material' && obj.get('data.cubeMap') === this.oldId) {
+                // data.cubeMap
+                this.set(obj, 'data.cubeMap');
+            }
+        }
+
+        // sceneSettings
+        obj = editor.call('sceneSettings');
+        if (obj.get('render.skybox') === this.oldId) {
+            // render.skybox
+            this.set(obj, 'render.skybox');
+        }
+    };
+
+    AssetReplace.prototype.handleMaterial = function () {
+        var obj;
+        var i;
+        var ind;
+
+        // entity
+        for (i = 0; i < this.entities.length; i++) {
+            obj = this.entities[i];
+
+            // model
+            var model = obj.get('components.model');
+            if (model) {
+                if (model.materialAsset === this.oldId) {
+                    // components.model.materialAsset
+                    this.set(obj, 'components.model.materialAsset');
+                }
+                if (model.mapping) {
+                    for (ind in model.mapping) {
+                        if (model.mapping[ind] === this.oldId) {
+                            // components.model.mapping.?
+                            this.set(obj, 'components.model.mapping.' + ind);
+                        }
+                    }
+                }
+            }
+
+            // element
+            var element = obj.get('components.element');
+            if (element && element.materialAsset === this.oldId) {
+                // components.element.materialAsset
+                this.set(obj, 'components.element.materialAsset');
+            }
+        }
+
+        // asset
+        for (i = 0; i < this.assets.length; i++) {
+            obj = this.assets[i];
+
+            if (obj.get('type') === 'model') {
+                var mapping = obj.get('data.mapping');
+                if (mapping) {
+                    for (ind = 0; ind < mapping.length; ind++) {
+                        if (mapping[ind].material !== this.oldId)
+                            continue;
+
+                        // data.mapping.?.material
+                        this.set(obj, 'data.mapping.' + ind + '.material');
+
+                        // change meta.userMapping as well
+                        var history = obj.history.enabled;
+                        obj.history.enabled = false;
+                        if (!obj.get('meta')) {
+                            obj.set('meta', {
+                                userMapping: {}
+                            });
+                        } else {
+                            if (!obj.has('meta.userMapping'))
+                                obj.set('meta.userMapping', {});
+                        }
+
+                        obj.set('meta.userMapping.' + ind, true);
+
+                        obj.history.enabled = history;
+                    }
+                }
+            }
+        }
+    };
+
+    AssetReplace.prototype.handleModel = function () {
+        var obj;
+        var i;
+
+        // entity
+        for (i = 0; i < this.entities.length; i++) {
+            obj = this.entities[i];
+
+            // model
+            var model = obj.get('components.model');
+            if (model && model.asset === this.oldId) {
+                // components.model.asset
+                this.set(obj, 'components.model.asset');
+            }
+
+            // collision
+            var collision = obj.get('components.collision');
+            if (collision && collision.asset === this.oldId) {
+                // components.collision.asset
+                this.set(obj, 'components.collision.asset');
+            }
+
+            // particlesystem
+            var particlesystem = obj.get('components.particlesystem');
+            if (particlesystem && particlesystem.mesh === this.oldId) {
+                // components.particlesystem.mesh
+                this.set(obj, 'components.particlesystem.mesh');
+            }
+        }
+    };
+
+    AssetReplace.prototype.handleSprite = function () {
+        var obj;
+        var i;
+
+        // entity
+        for (i = 0; i < this.entities.length; i++) {
+            obj = this.entities[i];
+
+            // sprite component
+            var sprite = obj.get('components.sprite');
+            if (sprite) {
+                if (sprite.spriteAsset && sprite.spriteAsset === this.oldId) {
+                    this.set(obj, 'components.sprite.spriteAsset');
+                }
+
+                if (sprite.clips) {
+                    for (var key in sprite.clips) {
+                        if (sprite.clips[key].spriteAsset && sprite.clips[key].spriteAsset === this.oldId) {
+                            this.set(obj, 'components.sprite.clips.' + key + '.spriteAsset');
+                        }
+                    }
+                }
+            }
+
+            // button component
+            var button = obj.get('components.button');
+            if (button) {
+                if (button.hoverSpriteAsset && button.hoverSpriteAsset === this.oldId) {
+                    this.set(obj, 'components.button.hoverSpriteAsset');
+                }
+
+                if (button.pressedSpriteAsset && button.pressedSpriteAsset === this.oldId) {
+                    this.set(obj, 'components.button.pressedSpriteAsset');
+                }
+
+                if (button.inactiveSpriteAsset && button.inactiveSpriteAsset === this.oldId) {
+                    this.set(obj, 'components.button.inactiveSpriteAsset');
+                }
+            }
+
+            // element component
+            var element = obj.get('components.element');
+            if (element) {
+                if (element.spriteAsset && element.spriteAsset === this.oldId) {
+                    this.set(obj, 'components.element.spriteAsset');
+                }
+            }
+        }
+    };
+
+    AssetReplace.prototype.handleTexture = function () {
+        var i;
+        var obj;
+
+        // entity
+        for (i = 0; i < this.entities.length; i++) {
+            obj = this.entities[i];
+
+            // light
+            var light = obj.get('components.light');
+            if (light && light.cookieAsset === this.oldId) {
+                // components.light.cookieAsset
+                this.set(obj, 'components.light.cookieAsset');
+            }
+
+            // particlesystem
+            var particlesystem = obj.get('components.particlesystem');
+            if (particlesystem) {
+                if (particlesystem.colorMapAsset === this.oldId) {
+                    // components.particlesystem.colorMapAsset
+                    this.set(obj, 'components.particlesystem.colorMapAsset');
+                }
+                if (particlesystem.normalMapAsset === this.oldId) {
+                    // components.particlesystem.normalMapAsset
+                    this.set(obj, 'components.particlesystem.normalMapAsset');
+                }
+            }
+
+            // element
+            var element = obj.get('components.element');
+            if (element && element.textureAsset === this.oldId) {
+                // components.element.textureAsset
+                this.set(obj, 'components.element.textureAsset');
+            }
+
+            // button component
+            var button = obj.get('components.button');
+            if (button) {
+                if (button.hoverTextureAsset && button.hoverTextureAsset === this.oldId) {
+                    this.set(obj, 'components.button.hoverTextureAsset');
+                }
+
+                if (button.pressedTextureAsset && button.pressedTextureAsset === this.oldId) {
+                    this.set(obj, 'components.button.pressedTextureAsset');
+                }
+
+                if (button.inactiveTextureAsset && button.inactiveTextureAsset === this.oldId) {
+                    this.set(obj, 'components.button.inactiveTextureAsset');
+                }
+            }
+
+        }
+
+        // asset
+        for (i = 0; i < this.assets.length; i++) {
+            obj = this.assets[i];
+
+            if (obj.get('type') === 'cubemap') {
+                var textures = obj.get('data.textures');
+                if (textures && textures instanceof Array) {
+                    for (var ind = 0; ind < textures.length; ind++) {
+                        if (textures[ind] !== this.oldId)
+                            continue;
+
+                        // data.mapping.?.material
+                        this.set(obj, 'data.textures.' + ind);
+                    }
+                }
+            } else if (obj.get('type') === 'material') {
+                var data = obj.get('data');
+                if (data) {
+                    for (var s = 0; s < slots.length; s++) {
+                        if (data[slots[s]] !== this.oldId)
+                            continue;
+
+                        this.set(obj, 'data.' + slots[s]);
+                    }
+                }
+            }
+        }
+    };
+
+    AssetReplace.prototype.handleTextureAtlas = function () {
+        var obj;
+        var i;
+
+        // asset
+        for (i = 0; i < this.assets.length; i++) {
+            obj = this.assets[i];
+
+            if (obj.get('type') === 'sprite') {
+                var atlas = obj.get('data.textureAtlasAsset');
+                if (atlas !== this.oldId) {
+                    continue;
+                }
+
+                this.set(obj, 'data.textureAtlasAsset');
+            }
+        }
+    };
+
+    AssetReplace.prototype.replaceScriptAttributes = function () {
         // entity.components.script
-        for(var i = 0; i < entities.length; i++) {
-            var obj = entities[i];
+        for (var i = 0; i < this.entities.length; i++) {
+            var obj = this.entities[i];
 
             // script
             var scripts = obj.get('components.script.scripts');
             if (scripts) {
                 for (var script in scripts) {
                     var assetScript = editor.call('assets:scripts:assetByScript', script);
-                    if (! assetScript)
+                    if (!assetScript)
                         continue;
 
                     var assetScripts = assetScript.get('data.scripts');
-                    if (! assetScripts || ! assetScripts[script] || ! assetScripts[script].attributes)
+                    if (!assetScripts || !assetScripts[script] || !assetScripts[script].attributes)
                         continue;
 
                     var attributes = assetScripts[script].attributes;
 
-                    for(var attrName in scripts[script].attributes) {
-                        if (scripts[script].attributes[attrName] !== id)
+                    for (var attrName in scripts[script].attributes) {
+                        if (!attributes[attrName] || attributes[attrName].type !== 'asset')
                             continue;
 
-                        if (! attributes[attrName] || attributes[attrName].type !== 'asset')
-                            continue;
+                        if (attributes[attrName].array) {
+                            var attrArray = scripts[script].attributes[attrName];
+                            for (var j = 0; j < attrArray.length; j++) {
+                                if (attrArray[j] !== this.oldId) continue;
+                                this.set(obj, 'components.script.scripts.' + script + '.attributes.' + attrName + '.' + j);
+                            }
+                        } else {
+                            if (scripts[script].attributes[attrName] !== this.oldId)
+                                continue;
 
-                        // components.script.scripts.?.attributes.?
-                        set(obj, 'components.script.scripts.' + script + '.attributes.' + attrName);
+                            this.set(obj, 'components.script.scripts.' + script + '.attributes.' + attrName);
+                        }
                     }
                 }
             }
         }
+    };
 
-        if (records.length) {
-            editor.call('history:add', {
-                name: 'asset replace',
-                undo: function() {
-                    for(var i = 0; i < records.length; i++) {
-                        var obj = records[i].get();
-                        if (! obj || ! obj.has(records[i].path))
-                            continue;
+    AssetReplace.prototype.saveChanges = function () {
+        var records = this.records;
+        if (! records.length) return;
 
-                        var history = asset.history.enabled;
-                        obj.history.enabled = false;
+        var asset = this.asset;
+        var oldId = this.oldId;
+        var newId = this.newId;
 
-                        obj.set(records[i].path, id);
+        editor.call('history:add', {
+            name: 'asset replace',
+            undo: function () {
+                for (var i = 0; i < records.length; i++) {
+                    var obj = records[i].get();
+                    if (!obj || !obj.has(records[i].path))
+                        continue;
 
-                        // if we changed data.mapping also change meta.userMapping
-                        if (/^data.mapping/.test(records[i].path)) {
-                            if (obj.has('meta.userMapping')) {
-                                var parts = records[i].path.split('.');
-                                obj.unset('meta.userMapping.' + parts[2], true);
-                                if (Object.keys(obj.get('meta.userMapping')).length === 0)
-                                    obj.unset('meta.userMapping');
-                            }
-                        }
+                    var history = asset.history.enabled;
+                    obj.history.enabled = false;
 
-                        obj.history.enabled = history;
-                    }
-                },
-                redo: function() {
-                    for(var i = 0; i < records.length; i++) {
-                        var obj = records[i].get();
-                        if (! obj || ! obj.has(records[i].path))
-                            continue;
+                    obj.set(records[i].path, oldId);
 
-                        var history = asset.history.enabled;
-                        obj.history.enabled = false;
-                        obj.set(records[i].path, idNew);
-
-                        // if we changed data.mapping also change meta.userMapping
-                        if (/^data.mapping/.test(records[i].path)) {
-                            if (! obj.get('meta')) {
-                                obj.set('meta', {
-                                    userMapping: {}
-                                });
-                            } else {
-                                if (! obj.has('meta.userMapping'))
-                                    obj.set('meta.userMapping', {});
-                            }
-
-
+                    // if we changed data.mapping also change meta.userMapping
+                    if (/^data.mapping/.test(records[i].path)) {
+                        if (obj.has('meta.userMapping')) {
                             var parts = records[i].path.split('.');
-                            obj.set('meta.userMapping.' + parts[2], true);
+                            obj.unset('meta.userMapping.' + parts[2], true);
+                            if (Object.keys(obj.get('meta.userMapping')).length === 0)
+                                obj.unset('meta.userMapping');
+                        }
+                    }
+
+                    obj.history.enabled = history;
+                }
+            },
+            redo: function () {
+                for (var i = 0; i < records.length; i++) {
+                    var obj = records[i].get();
+                    if (!obj || !obj.has(records[i].path))
+                        continue;
+
+                    var history = asset.history.enabled;
+                    obj.history.enabled = false;
+                    obj.set(records[i].path, newId);
+
+                    // if we changed data.mapping also change meta.userMapping
+                    if (/^data.mapping/.test(records[i].path)) {
+                        if (!obj.get('meta')) {
+                            obj.set('meta', {
+                                userMapping: {}
+                            });
+                        } else {
+                            if (!obj.has('meta.userMapping'))
+                                obj.set('meta.userMapping', {});
                         }
 
-                        obj.history.enabled = history;
+
+                        var parts = records[i].path.split('.');
+                        obj.set('meta.userMapping.' + parts[2], true);
                     }
+
+                    obj.history.enabled = history;
                 }
-            });
+            }
+        });
+    };
+
+    /**
+     * Replaces the asset in all assets and components that it's referenced
+     */
+    AssetReplace.prototype.replace = function () {
+        switch (this.asset.get('type')) {
+            case 'animation':
+                this.handleAnimation();
+                break;
+            case 'audio':
+                this.handleAudio();
+                break;
+            case 'cubemap':
+                this.handleCubemap();
+                break;
+            case 'material':
+                this.handleMaterial();
+                break;
+            case 'model':
+                this.handleModel();
+                break;
+            case 'sprite':
+                this.handleSprite();
+                break;
+            case 'texture':
+                this.handleTexture();
+                break;
+            case 'textureatlas':
+                this.handleTextureAtlas();
+                break;
         }
+
+        this.replaceScriptAttributes();
+        this.saveChanges();
+    };
+
+    editor.method('assets:replace', function (asset, replacement) {
+        new AssetReplace(asset, replacement).replace();
     });
 });

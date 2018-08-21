@@ -76,7 +76,7 @@ editor.once('load', function() {
 
     var makeAddComponentMenuItem = function (key, components, logos) {
         var data = {
-            title: components[key].title,
+            title: components[key].$title,
             icon: logos[key],
             filter: function () {
                 // if any entity in the selection does not have the component
