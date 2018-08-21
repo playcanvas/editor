@@ -116,7 +116,7 @@ editor.once('load', function() {
     hierarchy.on('reparent', function(items) {
         var records = [ ];
 
-        var preserveTransform = Tree._ctrl && Tree._ctrl();
+        var preserveTransform = ! Tree._ctrl || ! Tree._ctrl();
 
         // make records and collect relevant data
         for(var i = 0; i < items.length; i++) {
