@@ -334,6 +334,16 @@ editor.once('load', function() {
         entity.on('components.script.order:remove', function(script) {
             indexRemove(this, script);
         });
+
+        entity.on('components.script:unset', function (scriptComponent) {
+            var scripts = scriptComponent && scriptComponent.order;
+            if (scripts) {
+                var i = scripts.length;
+                while (i--) {
+                    indexRemove(entity, scripts[i]);
+                }
+            }
+        });
     });
 
     editor.on('entities:remove', function (entity) {
