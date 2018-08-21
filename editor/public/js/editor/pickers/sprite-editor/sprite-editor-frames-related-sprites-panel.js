@@ -4,6 +4,7 @@ editor.once('load', function() {
     editor.method('picker:sprites:attributes:frames:relatedSprites', function (args) {
         var events = [];
 
+        var atlasAsset = args.atlasAsset;
         var frames = args.frames;
         var numFrames = frames.length;
 
@@ -26,7 +27,9 @@ editor.once('load', function() {
         panel.append(list);
 
         var assets = editor.call('assets:find', function (asset) {
-            if (asset.get('type') !== 'sprite') return false;
+            if (asset.get('type') !== 'sprite' || asset.get('data.textureAtlasAsset') !== atlasAsset.get('id')) {
+                return false;
+            }
 
             var keys = asset.getRaw('data.frameKeys');
             for (var i = 0; i < numFrames; i++) {
