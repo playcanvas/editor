@@ -824,6 +824,13 @@ editor.once('load', function() {
         // history action
         events.push(fieldTextureAsset.on('beforechange', function (value) {
             if (! value) return;
+
+            // if the field already has a texture set then do not
+            // change width / height
+            if (fieldTextureAsset.value) {
+                return;
+            }
+
             var asset = editor.call('assets:get', value);
             if (! asset) return;
 
