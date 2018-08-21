@@ -175,6 +175,9 @@ editor.once('load', function () {
                 if (srcType === type) {
                     src = self._convertIdToName(src, indexes[type][0]);
 
+                    // TODO: Commented out because in order to do this we also need the base checkpoint
+                    // to see if the entity exists in there. Ideally whether the parent was deleted or not should
+                    // be stored in the conflict object.
                     // if (type === 'entity' && conflict.path.endsWith('.parent')) {
                     //     // check if parent is deleted
                     //     if (! self._resolver.dstEntityIndex[conflict.srcValue]) {
@@ -195,6 +198,9 @@ editor.once('load', function () {
                 if (dstType === type) {
                     dst = self._convertIdToName(dst, indexes[type][1]);
 
+                    // TODO: Commented out because in order to do this we also need the base checkpoint
+                    // to see if the entity exists in there. Ideally whether the parent was deleted or not should
+                    // be stored in the conflict object.
                     // if (type === 'entity' && conflict.path.endsWith('.parent')) {
                     //     // check if parent is deleted
                     //     if (! self._resolver.srcEntityIndex[conflict.dstValue]) {
