@@ -127,7 +127,11 @@ editor.once('load', function () {
                 case 'int':
                 case 'float':
                 case 'number':
-                    material[key] = value;
+                    if (key === 'bumpMapFactor') {
+                        material['bumpiness'] = value;
+                    } else {
+                        material[key] = value;
+                    }
                     break;
                 case 'vec2':
                     material[key].set(value[0], value[1]);
