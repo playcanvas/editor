@@ -6,6 +6,8 @@ editor.once('load', function() {
 
     var deletedCache = { };
 
+    var settings = editor.call('settings:project');
+
     // add
     editor.on('entities:add', function(entity) {
         var children = entity.get('children');
@@ -388,7 +390,7 @@ editor.once('load', function() {
 
         // remap entity script attributes
         var scriptComponent = oldEntity.get('components.script');
-        if (scriptComponent) {
+        if (scriptComponent && ! settings.get('useLegacyScripts')) {
             for (var scriptName in scriptComponent.scripts) {
                 // get script asset
                 var scriptAsset = editor.call('assets:scripts:assetByScript', scriptName);
@@ -720,8 +722,6 @@ editor.once('load', function() {
 
     // copy entity to local storage
     editor.method('entities:copy', function (entities) {
-        var settings = editor.call('settings:project');
-
         var data = {
             project: config.project.id,
             legacy_scripts: settings.get('useLegacyScripts'),
@@ -956,7 +956,6 @@ editor.once('load', function() {
         if (! parent)
             parent = editor.call('entities:root');
 
-        var settings = editor.call('settings:project');
         var legacy_scripts = settings.get('useLegacyScripts');
 
         var componentAssetPaths = editor.call('components:assetPaths');
@@ -1346,7 +1345,6 @@ editor.once('load', function() {
 
         // if it's a collision or rigidbody component then enable physics
         if (component === 'collision' || component === 'rigidbody') {
-            var settings = editor.call('settings:project');
             var history = settings.history.enabled;
             settings.history.enabled = false;
             settings.set('use3dPhysics', true);
