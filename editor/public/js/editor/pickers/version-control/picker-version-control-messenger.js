@@ -182,4 +182,13 @@ editor.once('load', function () {
         overlayMergeCompleted.hidden = false;
         refresh();
     });
+
+    // if we stopped the merge but the conflict manager is open then show the overlay behind the conflict manager
+    overlayMergeStopped.on('show', function () {
+        if (editor.call('picker:isOpen', 'conflict-manager')) {
+            overlayMergeStopped.class.add('show-behind-picker');
+        } else {
+            overlayMergeStopped.class.remove('show-behind-picker');
+        }
+    });
 });

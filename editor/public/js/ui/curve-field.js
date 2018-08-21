@@ -16,6 +16,8 @@ function CurveField(args) {
     this._element.appendChild(this.canvas.element);
     this.canvas.on('resize', this._render.bind(this));
 
+    this._lineWidth = args.lineWidth || 1;
+
     // create checkerboard pattern
     this.checkerboardCanvas = new ui.Canvas();
     var size = 17;
@@ -229,7 +231,7 @@ CurveField.prototype._renderCurves = function () {
         var minValue = minMax[0];
         var maxValue = minMax[1];
 
-        context.lineWidth = 1;
+        context.lineWidth = this._lineWidth;
 
         var height = canvas.height;
 
