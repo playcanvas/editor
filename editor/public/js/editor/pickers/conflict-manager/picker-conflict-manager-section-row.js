@@ -175,12 +175,15 @@ editor.once('load', function () {
                 if (srcType === type) {
                     src = self._convertIdToName(src, indexes[type][0]);
 
-                    if (type === 'entity' && conflict.path.endsWith('.parent')) {
-                        // check if parent is deleted
-                        if (! self._resolver.dstEntityIndex[conflict.srcValue]) {
-                            src.deleted = true;
-                        }
-                    }
+                    // TODO: Commented out because in order to do this we also need the base checkpoint
+                    // to see if the entity exists in there. Ideally whether the parent was deleted or not should
+                    // be stored in the conflict object.
+                    // if (type === 'entity' && conflict.path.endsWith('.parent')) {
+                    //     // check if parent is deleted
+                    //     if (! self._resolver.dstEntityIndex[conflict.srcValue]) {
+                    //         src.deleted = true;
+                    //     }
+                    // }
 
                 } else if (srcType === 'array:' + type) {
                     src = src.map(function (id) {
@@ -195,12 +198,15 @@ editor.once('load', function () {
                 if (dstType === type) {
                     dst = self._convertIdToName(dst, indexes[type][1]);
 
-                    if (type === 'entity' && conflict.path.endsWith('.parent')) {
-                        // check if parent is deleted
-                        if (! self._resolver.srcEntityIndex[conflict.dstValue]) {
-                            dst.deleted = true;
-                        }
-                    }
+                    // TODO: Commented out because in order to do this we also need the base checkpoint
+                    // to see if the entity exists in there. Ideally whether the parent was deleted or not should
+                    // be stored in the conflict object.
+                    // if (type === 'entity' && conflict.path.endsWith('.parent')) {
+                    //     // check if parent is deleted
+                    //     if (! self._resolver.srcEntityIndex[conflict.dstValue]) {
+                    //         dst.deleted = true;
+                    //     }
+                    // }
                 } else if (dstType === 'array:' + type) {
                     dst = dst.map(function (id) {
                         return self._convertIdToName(id, indexes[type][1]);
