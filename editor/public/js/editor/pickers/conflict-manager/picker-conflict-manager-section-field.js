@@ -12,6 +12,7 @@ editor.once('load', function () {
             case 'asset':
                 return new ConflictFieldAsset(value);
             case 'curve':
+            case 'curveset':
                 return new ConflictFieldCurve(value);
             case 'entity':
                 return new ConflictFieldEntity(value);
