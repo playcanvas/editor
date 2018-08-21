@@ -73,6 +73,10 @@ editor.once('load', function () {
         return type;
     };
 
+    editor.method('schema:getType', function (schemaField, fixedLength) {
+        return schemaToType(schemaField, fixedLength);
+    });
+
     editor.method('schema:scene:getType', function (path) {
         return getType(config.schema.scene, path);
     });

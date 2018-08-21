@@ -13,7 +13,7 @@ editor.once('load', function() {
     var list = editor.call('components:list');
     for(var i = 0; i < list.length; i++) {
         menuAddComponent.append(new ui.MenuItem({
-            text: components[list[i]].title,
+            text: components[list[i]].$title,
             value: list[i]
         }));
     }
