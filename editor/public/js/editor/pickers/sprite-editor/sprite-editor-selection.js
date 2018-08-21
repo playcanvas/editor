@@ -207,14 +207,30 @@ editor.once('load', function () {
         // as that's likely going to be used for Image Elements otherwise default to 100
         // which is better for world-space sprites
         var ppu = args && args.sliced && highlightedFrames.length === 1 ? 1 : 100;
-        // if we just have one frame in the atlas use the atlas name for the sprite name
-        // without the extension, otherwise use a generic name
+
+        // get the atlas name without the extension
         var atlasNameWithoutExt = atlasAsset.get('name');
         var lastDot = atlasNameWithoutExt.lastIndexOf('.');
         if (lastDot > 0) {
             atlasNameWithoutExt = atlasNameWithoutExt.substring(0, lastDot);
         }
-        var name = highlightedFrames.length === 1 && Object.keys(atlasAsset.get('data.frames')).length === 1 ? atlasNameWithoutExt : 'New Sprite';
+
+        var name;
+
+        // if we just have one frame in the atlas use the atlas name for the sprite name
+        // without the extension, otherwise if it's only 1 frame selected use the frame name,
+        // otherwise use a generic name
+        if (highlightedFrames.length === 1) {
+            if (Object.keys(atlasAsset.get('data.frames')).length === 1) {
+                name = atlasNameWithoutExt;
+            } else {
+                name = atlasAsset.get('data.frames.' + highlightedFrames[0] + '.name');
+            }
+        }
+
+        if (! name) {
+            name = 'New Sprite';
+        }
 
         editor.call('assets:create:sprite', {
             name: name,
