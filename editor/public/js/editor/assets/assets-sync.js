@@ -284,7 +284,7 @@ editor.once('load', function () {
 
             var assetData = asset.get('data');
             if (assetData)
-                asset.set('data', editor.call('material:default', assetData));
+                asset.set('data', editor.call('schema:material:getDefaultData', assetData));
         }
 
         asset.sync = new ObserverSync({
