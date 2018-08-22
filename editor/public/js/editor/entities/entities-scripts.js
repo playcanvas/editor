@@ -4,8 +4,8 @@ editor.once('load', function() {
     // index all entities with scripts
     // when primary script set, update attributes on entities component
     // when script attributes change, update attributes on entities component
-
     var index = { };
+
     var defaults = {
         boolean: false,
         number: 0,
@@ -36,6 +36,8 @@ editor.once('load', function() {
     };
 
 
+    // Adds an entry into the index when the specified
+    // script name has been added to the specified entity.
     var indexAdd = function(entity, script) {
         if (! index[script])
             index[script] = { };
@@ -51,6 +53,10 @@ editor.once('load', function() {
 
         updateAttributes(entity, script);
     };
+
+
+    // When the specified script is removed from the specified entity
+    // remove it from the index
     var indexRemove = function(entity, script) {
         if (! index[script])
             return;
