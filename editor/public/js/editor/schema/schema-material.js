@@ -24,4 +24,27 @@ editor.once('load', function () {
 
         return result;
     });
+
+    /**
+     * Gets the default value of a specific field from the material schema
+     * @param {String} fieldName The name of the field
+     * @returns {*} The default value or undefined
+     */
+    editor.method('schema:material:getDefaultValueForField', function (fieldName) {
+        var field = config.schema.materialData[fieldName];
+
+        if (field && field.hasOwnProperty('$default')) {
+            return utils.deepCopy(field.$default);
+        }
+
+        return undefined;
+    });
+
+    /**
+     * Returns the type of a data field
+     * @param {String} fieldName The name of the field
+     */
+    editor.method('schema:material:getType', function (fieldName) {
+        return editor.call('schema:getTypeForPath', config.schema.materialData, fieldName);
+    });
 });

@@ -1,7 +1,14 @@
 editor.once('load', function () {
     'use strict';
 
-    var pathToSchema = function (schema, path) {
+    /**
+     * Gets the schema object that corresponds to the specified dot separated
+     * path from the specified schema object.
+     * @param {String} path The path separated by dots
+     * @param {Object} schema The schema object
+     * @returns {Object} The sub schema
+     */
+    var pathToSchema = function (path, schema) {
         if (typeof(path) === 'string') {
             path = path.split('.');
         }
@@ -10,23 +17,29 @@ editor.once('load', function () {
             path = [path];
         }
 
-        let currPath = schema;
+        let result = schema;
         for (var i = 0, len = path.length; i < len; i++) {
             var p = path[i];
-            if (currPath.$type === 'map' && currPath.$of) {
-                currPath = currPath.$of;
-            } else if (currPath[p] || (currPath.$type && currPath.$type[p])) {
-                currPath = currPath[p] || currPath.$type[p];
-            } else if (!isNaN(parseInt(p, 10)) && Array.isArray(currPath) || Array.isArray(currPath.$type)) {
-                currPath = Array.isArray(currPath) ? currPath[0] : currPath.$type[0];
+            if (result.$type === 'map' && result.$of) {
+                result = result.$of;
+            } else if (result[p] || (result.$type && result.$type[p])) {
+                result = result[p] || result.$type[p];
+            } else if (!isNaN(parseInt(p, 10)) && Array.isArray(result) || Array.isArray(result.$type)) {
+                result = Array.isArray(result) ? result[0] : result.$type[0];
             } else {
                 return null;
             }
         }
 
-        return currPath;
+        return result;
     };
 
+    /**
+     * Converts the specified schema object to a type recursively.
+     * @param {Object} schema The schema object or field of a parent schema object.
+     * @param {Boolean} fixedLength Whether the specified schema field has a fixed length if it's an array type.
+     * @returns {String} The type
+     */
     var schemaToType = function (schema, fixedLength) {
         if (typeof schema === 'string') {
             if (schema === 'map' || schema === 'mixed') {
@@ -61,8 +74,24 @@ editor.once('load', function () {
         return 'object';
     };
 
-    var getType = function (schema, path) {
-        var subSchema = pathToSchema(schema, path);
+    /**
+     * Gets the type of the specified schema object,
+     * @param {Object} schemaField A field of the schema
+     * @param {Boolean} fixedLength Whether this field has a fixed length if it's an array type
+     * @returns {String} The type
+     */
+    editor.method('schema:getType', function (schemaField, fixedLength) {
+        return schemaToType(schemaField, fixedLength);
+    });
+
+    /**
+     * Gets the type of the specified path from the specified schema
+     * @param {Object} schema The schema object
+     * @param {String} path A path separated by dots
+     * @param {String} The type
+     */
+    editor.method('schema:getTypeForPath', function (schema, path) {
+        var subSchema = pathToSchema(path, schema);
         var type = subSchema && schemaToType(subSchema);
 
         if (! type) {
@@ -71,21 +100,5 @@ editor.once('load', function () {
         }
 
         return type;
-    };
-
-    editor.method('schema:getType', function (schemaField, fixedLength) {
-        return schemaToType(schemaField, fixedLength);
-    });
-
-    editor.method('schema:scene:getType', function (path) {
-        return getType(config.schema.scene, path);
-    });
-
-    editor.method('schema:asset:getType', function (path) {
-        return getType(config.schema.asset, path);
-    });
-
-    editor.method('schema:settings:getType', function (path) {
-        return getType(config.schema.settings, path);
     });
 });
