@@ -3,19 +3,7 @@ editor.once('load', function () {
     var app = null;
     var entities = [ ];
 
-    var firstBB = true;
-    var bbA = new pc.BoundingBox();
-    var bbB = new pc.BoundingBox();
-    var bbC = new pc.BoundingBox();
-    var bbD = new pc.BoundingBox();
-    var bbE = new pc.BoundingBox();
-    var bbF = new pc.BoundingBox();
-
-    var matA = new pc.Mat4();
-    var matB = new pc.Mat4();
-    var vecA = new pc.Vec3();
-    var vecB = new pc.Vec3();
-    var minExtends = new pc.Vec3(0.01, 0.01, 0.01);
+    var BOUNDING_BOX_MIN_EXTENTS = new pc.Vec3(0.01, 0.01, 0.01);
 
     var visible = true;
 
@@ -30,6 +18,19 @@ editor.once('load', function () {
     var points = [ ];
     for(var c = 0; c < 32; c++)
         points[c] = new pc.Vec3();
+
+    // temp variables for getBoundingBoxForHierarchy
+    var _entityResultBB = new pc.BoundingBox();
+
+    // temp variables for getBoundingBoxForEntity
+    var _tmpBB = new pc.BoundingBox();
+    var _matA = new pc.Mat4();
+
+    // temp variables for entities:getBoundingBoxForEntity
+    var _resultBB = new pc.BoundingBox();
+
+    // tmp variable used to render bounding box
+    var _selectionBB = new pc.BoundingBox();
 
     editor.on('selector:change', function(type, items) {
         if (type === 'entity') {
@@ -86,133 +87,149 @@ editor.once('load', function () {
         }
     });
 
-    editor.method('entities:boundingbox', function(entity) {
-        var bb = editor.call('entities:boundingbox:entity', entity);
 
-        if (bb) {
-            if (firstBB) {
-                firstBB = false;
-                bbA.copy(bb);
-            } else {
-                bbA.add(bb);
-            }
+    // Get the bounding box the encloses a hierarchy of entities
+    // {pc.Entity} root - the root entity of the hierarchy
+    var getBoundingBoxForHierarchy = function (root, hierarchyBB) {
+        var bb = getBoundingBoxForEntity(root, _entityResultBB);
+
+        // first time through we initialize with the new boundingbox
+        if (!hierarchyBB) {
+            hierarchyBB = new pc.BoundingBox();
+            hierarchyBB.copy(bb);
+        } else {
+            hierarchyBB.add(bb);
         }
 
 
-        var children = entity.getChildren();
+        var children = root.getChildren();
         for(var i = 0; i < children.length; i++) {
             if (children[i].__editor || ! (children[i] instanceof pc.Entity))
                 continue;
 
-            editor.call('entities:boundingbox', children[i]);
+            // now we pass in the bounding box to be added to
+            getBoundingBoxForHierarchy(children[i], hierarchyBB);
         }
-    });
 
-    editor.method('entities:boundingbox:entity', function(entity) {
-        var first = true;
+        return hierarchyBB;
+    };
 
+    // calculate the bounding box for a single entity and return it
+    // bounding box is calculated from one of the components
+    // attached to the entity in a priority order
+    var getBoundingBoxForEntity = function (entity, resultBB) {
+        // why is this here? to sync the hierarchy?
         entity.getWorldTransform();
-        bbD.center.set(0, 0, 0);
 
+        // clear result box
+        resultBB.center.set(0,0,0);
+        resultBB.halfExtents.set(0,0,0);
+
+        // first choice is to use the bounding box of all mesh instances on a model component
         if (entity.model && entity.model.model && entity.model.meshInstances.length) {
-            var meshes = entity.model.meshInstances;
+            var meshInstances = entity.model.meshInstances;
 
-            for(var i = 0; i < meshes.length; i++) {
-                if (meshes[i]._hidden)
+            for(var i = 0; i < meshInstances.length; i++) {
+                if (meshInstances[i]._hidden)
                     continue;
 
-                meshes[i].node.getWorldTransform();
+                // not sure why this is here, probably to force hierachy to sync
+                meshInstances[i].node.getWorldTransform();
 
-                if (first) {
-                    first = false;
-                    bbC.copy(meshes[i].aabb);
+                if (i === 0) {
+                    resultBB.copy(meshInstances[i].aabb);
                 } else {
-                    bbC.add(meshes[i].aabb);
+                    resultBB.add(meshInstances[i].aabb);
                 }
             }
+
+            return resultBB;
         }
 
-        if (first && entity.collision) {
+        // next is the collision bounding box
+        if (entity.collision) {
             switch(entity.collision.type) {
                 case 'box':
-                    first = false;
-                    bbD.halfExtents.copy(entity.collision.halfExtents);
-                    bbE.setFromTransformedAabb(bbD, entity.getWorldTransform());
-                    bbC.copy(bbE);
-                    break;
+                    _tmpBB.center.set(0,0,0);
+                    _tmpBB.halfExtents.copy(entity.collision.halfExtents);
+                    resultBB.setFromTransformedAabb(_tmpBB, entity.getWorldTransform());
+                    return resultBB;
                 case 'sphere':
-                    first = false;
-                    bbD.center.copy(entity.getPosition());
-                    bbD.halfExtents.set(entity.collision.radius, entity.collision.radius, entity.collision.radius);
-                    bbC.copy(bbD);
-                    break;
+                    resultBB.center.copy(entity.getPosition());
+                    resultBB.halfExtents.set(entity.collision.radius, entity.collision.radius, entity.collision.radius);
+                    return resultBB;
                 case 'capsule':
                 case 'cylinder':
-                    first = false;
-                    bbD.halfExtents.set(entity.collision.radius, entity.collision.radius, entity.collision.radius);
-                    bbD.halfExtents.data[entity.collision.axis] = entity.collision.height / 2;
-                    bbE.setFromTransformedAabb(bbD, entity.getWorldTransform());
-                    bbC.copy(bbE);
-                    break;
+                    _tmpBB.halfExtents.set(entity.collision.radius, entity.collision.radius, entity.collision.radius);
+                    _tmpBB.halfExtents.data[entity.collision.axis] = entity.collision.height / 2;
+                    resultBB.setFromTransformedAabb(_tmpBB, entity.getWorldTransform());
+                    return resultBB;
             }
         }
 
-        if (first && entity.element) {
-            first = false;
-
-            if (entity.element.type === 'image') {
-                if (entity.element._image._meshInstance) {
-                    bbC.copy(entity.element._image._meshInstance.aabb);
-                }
-            } else if (entity.element.type === 'text') {
-                if (entity.element._text._meshInstance) {
-                    bbC.copy(entity.element._text._meshInstance.aabb);
-                }
+        // the an element component
+        if (entity.element) {
+            // if the element has an aabb (image or text element)
+            var aabb = entity.element.aabb;
+            if (aabb) {
+                resultBB.copy(aabb);
+            } else {
+                // otherwise for group element use the world corners
+                entity.element.worldCorners.forEach(function (corner) {
+                    _tmpBB.center.copy(corner);
+                    _tmpBB.halfExtents.set(0,0,0);
+                    resultBB.add(_tmpBB);
+                });
             }
+            return resultBB;
         }
 
-        if (first && entity.sprite) {
-            first = false;
-            if (entity.sprite._meshInstance) {
-                bbC.copy(entity.sprite._meshInstance.aabb);
+        // then sprite component
+        if (entity.sprite) {
+            var aabb = entity.sprite.aabb;
+            if (aabb) {
+                resultBB.copy(aabb);
             }
+            return resultBB;
         }
 
-        if (first && entity.particlesystem) {
+        // the particle system
+        if (entity.particlesystem) {
             if (entity.particlesystem.emitter) {
-                first = false;
-                bbD.copy(entity.particlesystem.emitter.localBounds);
-                bbE.setFromTransformedAabb(bbD, entity.getWorldTransform());
-                bbC.copy(bbE);
+                _tmpBB.center.set(0,0,0);
+                _tmpBB.copy(entity.particlesystem.emitter.localBounds);
+                resultBB.setFromTransformedAabb(_tmpBB, entity.getWorldTransform());
+                return resultBB;
             } else if (entity.particlesystem.emitterShape === pc.EMITTERSHAPE_BOX) {
-                first = false;
-                bbD.halfExtents.copy(entity.particlesystem.emitterExtents).scale(0.5);
-                bbE.setFromTransformedAabb(bbD, entity.getWorldTransform());
-                bbC.copy(bbE);
+                _tmpBB.center.set(0,0,0);
+                _tmpBB.halfExtents.copy(entity.particlesystem.emitterExtents).scale(0.5);
+                resultBB.setFromTransformedAabb(_tmpBB, entity.getWorldTransform());
+                return resultBB;
             } else if (entity.particlesystem.emitterShape === pc.EMITTERSHAPE_SPHERE) {
-                first = false;
-                bbD.center.copy(entity.getPosition());
-                bbD.halfExtents.set(entity.particlesystem.emitterRadius, entity.particlesystem.emitterRadius, entity.particlesystem.emitterRadius);
-                bbC.copy(bbD);
+                resultBB.center.copy(entity.getPosition());
+                resultBB.halfExtents.set(entity.particlesystem.emitterRadius, entity.particlesystem.emitterRadius, entity.particlesystem.emitterRadius);
+                return resultBB;
             }
         }
 
-        if (first && entity.zone) {
-            first = false;
-            bbD.halfExtents.copy(entity.zone.size).scale(0.5);
+        // then zone
+        if (entity.zone) {
+            _tmpBB.halfExtents.copy(entity.zone.size).scale(0.5);
             var position = entity.getPosition();
             var rotation = entity.getRotation();
-            matA.setTRS(position, rotation, pc.Vec3.ONE);
-            bbE.setFromTransformedAabb(bbD, matA);
-            bbC.copy(bbE);
+            _matA.setTRS(position, rotation, pc.Vec3.ONE);
+            resultBB.setFromTransformedAabb(_tmpBB, _matA);
+            return resultBB;
         }
 
-        if (first) {
-            bbC.center.copy(entity.getPosition());
-            bbC.halfExtents.copy(minExtends);
-        }
+        // finally just return a default bounding box
+        resultBB.center.copy(entity.getPosition());
+        resultBB.halfExtents.copy(BOUNDING_BOX_MIN_EXTENTS);
+        return resultBB;
+    };
 
-        return bbC;
+    editor.method('entities:getBoundingBoxForEntity', function(entity) {
+        return getBoundingBoxForEntity(entity, _resultBB);
     });
 
     editor.once('viewport:load', function() {
@@ -232,7 +249,7 @@ editor.once('load', function () {
             if (! entities.length)
                 return;
 
-            firstBB = true;
+            // firstBB = true;
             var noEntities = true;
 
             for(var i = 0; i < entities.length; i++) {
@@ -240,12 +257,17 @@ editor.once('load', function () {
                     continue;
 
                 noEntities = false;
-                editor.call('entities:boundingbox', entities[i]);
+                var entityBox = getBoundingBoxForHierarchy(entities[i]);
+                if (i === 0) {
+                    _selectionBB.copy(entityBox);
+                } else {
+                    _selectionBB.add(entityBox);
+                }
             }
 
             if (! noEntities) {
-                bbA.halfExtents.add(minExtends);
-                editor.call('viewport:render:aabb', bbA);
+                _selectionBB.halfExtents.add(BOUNDING_BOX_MIN_EXTENTS);
+                editor.call('viewport:render:aabb', _selectionBB);
             }
         });
     });

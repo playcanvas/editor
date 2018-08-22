@@ -464,7 +464,7 @@ editor.once('load', function() {
             }
         }
 
-        setHovered(null, null);
+        setHovered(null, null);
         setSelected(enabledCurves[0], null);
 
         var suspend = suspendEvents;

@@ -10,7 +10,7 @@ editor.once('load', function() {
     var aabbA = new pc.BoundingBox();
 
     var calculateChildAABB = function(entity) {
-        aabbA.add(editor.call('entities:boundingbox:entity', entity));
+        aabbA.add(editor.call('entities:getBoundingBoxForEntity', entity));
 
         var children = entity.getChildren();
         for(var i = 0; i < children.length; i++) {
