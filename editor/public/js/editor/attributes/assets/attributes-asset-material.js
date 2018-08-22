@@ -526,21 +526,6 @@ editor.once('load', function() {
 
     var vecA = new pc.Vec3();
 
-
-    editor.method('material:default', function (existingData) {
-        existingData = existingData || {};
-
-        var obj = {
-            shader: existingData.shader || 'blinn'
-        };
-
-        for(var key in mapping) {
-            obj[key] = existingData[key] !== undefined ? existingData[key] : mapping[key].default;
-        }
-
-        return obj;
-    });
-
     editor.method('material:rememberMissingFields', function (asset) {
         // check missing tilings / offsets
         mappingMaps.forEach(function (map) {
