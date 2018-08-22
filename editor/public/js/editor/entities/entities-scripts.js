@@ -336,11 +336,11 @@ editor.once('load', function() {
         });
 
         entity.on('components.script:unset', function (scriptComponent) {
-            var scripts = scriptComponent && scriptComponent.order;
-            if (scripts) {
-                var i = scripts.length;
+            var scriptOrder = scriptComponent && scriptComponent.order;
+            if (scriptOrder) {
+                var i = scriptOrder.length;
                 while (i--) {
-                    indexRemove(entity, scripts[i]);
+                    indexRemove(entity, scriptOrder[i]);
                 }
             }
         });
