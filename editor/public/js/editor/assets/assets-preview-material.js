@@ -10,15 +10,13 @@ editor.once('load', function () {
     var layerComposition = editor.call('preview:layerComposition');
     var layer = editor.call('preview:layer');
 
+    // material parser
+    var materialParser = new pc.JsonStandardMaterialParser();
+
     // material
     var material = new pc.StandardMaterial();
 
-    var mapping = editor.call('assets:material:mapping');
-    var mappingShading = {
-        'phong': 0,
-        'blinn': 1
-    };
-    var cubemapPrefiltered = [
+    var PREFILTERED_CUBEMAP_PROPERTIES = [
         'prefilteredCubeMap128',
         'prefilteredCubeMap64',
         'prefilteredCubeMap32',
@@ -114,102 +112,56 @@ editor.once('load', function () {
 
         lightEntity.light.intensity = 1.0 / (Math.min(1.0, app.scene.exposure) || 0.01);
 
-        // update material
-        for (var key in mapping) {
-            var value = data.hasOwnProperty(key) ? data[key] : mapping[key].default;
+        // migrate material data
+        var migrated = materialParser.migrate(data);
 
-            if (args.params && args.params.hasOwnProperty(key))
-                value = args.params[key];
+        // convert asset references to engine resources
+        var i, len, name, engineAsset;
 
-            switch (mapping[key].type) {
-                case 'boolean':
-                case 'string':
-                case 'int':
-                case 'float':
-                case 'number':
-                    material[key] = value;
-                    break;
-                case 'vec2':
-                    material[key].set(value[0], value[1]);
-                    break;
-                case 'rgb':
-                case 'vec3':
-                    material[key].set(value[0], value[1], value[2]);
-                    break;
-                case 'cubemap':
-                    if (value) {
-                        // TODO
-                        // handle async
-                        var textureAsset = app.assets.get(value);
-                        if (textureAsset) {
-                            if (textureAsset.resource) {
-                                material[key] = textureAsset.resource;
-                            } else {
-                                material[key] = null;
-                            }
+        // handle texture assets
+        for (i = 0, len = pc.StandardMaterial.TEXTURE_PARAMETERS.length; i < len; i++) {
+            name = pc.StandardMaterial.TEXTURE_PARAMETERS[i];
+            if (! migrated.hasOwnProperty(name) || ! migrated[name]) continue;
 
-                            if (textureAsset.file && textureAsset.resources && textureAsset.resources.length === 7) {
-                                for (var i = 0; i < 6; i++)
-                                    material[cubemapPrefiltered[i]] = textureAsset.resources[i + 1];
-                            } else {
-                                for (var i = 0; i < 6; i++)
-                                    material[cubemapPrefiltered[i]] = null;
-                            }
-
-                            textureAsset.loadFaces = true;
-                            app.assets.load(textureAsset);
-                        } else {
-                            material[key] = null;
-                            for (var i = 0; i < 6; i++)
-                                material[cubemapPrefiltered[i]] = null;
-                        }
-                    } else {
-                        material[key] = null;
-                        for (var i = 0; i < 6; i++)
-                            material[cubemapPrefiltered[i]] = null;
-                    }
-                    break;
-                case 'texture':
-                    if (value) {
-                        // TODO
-                        // handle async
-                        var textureAsset = app.assets.get(value);
-                        if (textureAsset) {
-                            if (textureAsset.resource) {
-                                material[key] = textureAsset.resource;
-                            } else {
-                                app.assets.load(textureAsset);
-                                material[key] = null;
-                            }
-                        } else {
-                            material[key] = null;
-                        }
-                    } else {
-                        material[key] = null;
-                    }
-                    break;
-                case 'object':
-                    switch (key) {
-                        case 'cubeMapProjectionBox':
-                            if (value) {
-                                if (material.cubeMapProjectionBox) {
-                                    material.cubeMapProjectionBox.center.set(0, 0, 0);
-                                    material.cubeMapProjectionBox.halfExtents.set(value.halfExtents[0], value.halfExtents[1], value.halfExtents[2]);
-                                } else {
-                                    material.cubeMapProjectionBox = new pc.BoundingBox(new pc.Vec3(0, 0, 0), new pc.Vec3(value.halfExtents[0], value.halfExtents[1], value.halfExtents[2]));
-                                }
-                            } else {
-                                material.cubeMapProjectionBox = null;
-                            }
-                            break;
-                    }
-                    break;
+            engineAsset = app.assets.get(migrated[name]);
+            if (! engineAsset || ! engineAsset.resource) {
+                migrated[name] = null;
+                if (engineAsset) {
+                    app.assets.load(engineAsset);
+                }
+            } else {
+                migrated[name] = engineAsset.resource;
             }
         }
 
-        material.shadingModel = mappingShading[data.shader];
+        // handle cubemap assets
+        for (i = 0, len = pc.StandardMaterial.CUBEMAP_PARAMETERS.length; i < len; i++) {
+            name = pc.StandardMaterial.CUBEMAP_PARAMETERS[i];
+            if (! migrated.hasOwnProperty(name) || ! migrated[name]) continue;
 
-        material.update();
+            engineAsset = app.assets.get(migrated[name]);
+            if (! engineAsset) {
+                migrated[name] = null;
+            } else {
+                if (engineAsset.resource) {
+                    migrated[name] = engineAsset.resource;
+                    if (engineAsset.file && engineAsset.resources && engineAsset.resources.length === 7) {
+                        for (var j = 0; j < 6; j++) {
+                            migrated[PREFILTERED_CUBEMAP_PROPERTIES[j]] = engineAsset.resources[i + 1];
+                        }
+                    }
+                }
+
+                if (migrated.shadingModel === pc.SPECULAR_PHONG) {
+                    // phong based - so ensure we load individual faces
+                    engineAsset.loadFaces = true;
+                    app.assets.load(engineAsset);
+                }
+            }
+        }
+
+        // re-initialize material with migrated properties
+        material.initialize(migrated);
 
         // set up layer
         layer.addCamera(cameraEntity.camera);
