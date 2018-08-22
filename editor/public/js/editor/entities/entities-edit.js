@@ -26,106 +26,6 @@ editor.once('load', function() {
         childToParent[child.get('resource_id')] = parent.get('resource_id');
     });
 
-    var createNewEntityData = function(raw, parentResourceId) {
-        var entityData = {
-            name: raw.name || 'New Entity',
-            tags: [ ],
-            enabled: true,
-            resource_id: pc.guid.create(),
-            parent: parentResourceId,
-            children: [ ],
-            position: raw.position || [ 0, 0, 0 ],
-            rotation: raw.rotation || [ 0, 0, 0 ],
-            scale: raw.scale || [ 1, 1, 1 ],
-            components: raw.components || { },
-            __postCreationCallback: raw.postCreationCallback
-        };
-
-        if (raw.children) {
-            for (var i = 0; i < raw.children.length; i++) {
-                var childEntityData = createNewEntityData(raw.children[i], entityData.resource_id);
-                entityData.children.push(childEntityData);
-            }
-        }
-
-        return entityData;
-    };
-
-    // Create a new entity.
-    //
-    // The `raw` data can also define a postCreationCallback argument at each level, which is
-    // designed for cases where composite entity hierarchies need some post-processing, and the
-    // post processing needs to be done both in the case of initial creation and also the case
-    // of undo/redo.
-    editor.method('entities:new', function (raw) {
-        // get root if parent is null
-        raw = raw || { };
-        var parent = raw.parent || editor.call('entities:root');
-
-        var data = createNewEntityData(raw, parent.get('resource_id'));
-
-        var selectorType, selectorItems;
-
-        if (! raw.noHistory) {
-            var selectorType = editor.call('selector:type');
-            var selectorItems = editor.call('selector:items');
-            if (selectorType === 'entity') {
-                for(var i = 0; i < selectorItems.length; i++)
-                    selectorItems[i] = selectorItems[i].get('resource_id');
-            }
-        }
-
-        // create new Entity data
-        var entity = new Observer(data);
-        childToParent[entity.get('resource_id')] = parent.get('resource_id');
-        addEntity(entity, parent, ! raw.noSelect);
-
-        // history
-        if (! raw.noHistory) {
-            var resourceId = entity.get('resource_id');
-            var parentId = parent.get('resource_id');
-
-            editor.call('history:add', {
-                name: 'new entity ' + resourceId,
-                undo: function() {
-                    var entity = editor.call('entities:get', resourceId);
-                    if (! entity)
-                        return;
-
-                    removeEntity(entity);
-
-                    if (selectorType === 'entity' && selectorItems.length) {
-                        var items = [ ];
-                        for(var i = 0; i < selectorItems.length; i++) {
-                            var item = editor.call('entities:get', selectorItems[i]);
-                            if (item)
-                                items.push(item);
-                        }
-
-                        if (items.length) {
-                            editor.call('selector:history', false);
-                            editor.call('selector:set', selectorType, items);
-                            editor.once('selector:change', function() {
-                                editor.call('selector:history', true);
-                            });
-                        }
-                    }
-                },
-                redo: function() {
-                    var parent = editor.call('entities:get', parentId);
-                    if (! parent)
-                        return;
-
-                    var entity = new Observer(data);
-                    childToParent[entity.get('resource_id')] = parent.get('resource_id');
-                    addEntity(entity, parent, true);
-                }
-            });
-        }
-
-        return entity;
-    });
-
     // When entities are deleted, we need to do some work to identify references to the
     // deleted entities held by other entities in the graph. For example, if entityA has
     // a component that holds a reference to entityB and entityB is deleted, we should
@@ -188,6 +88,8 @@ editor.once('load', function() {
     var addEntity = function(entity, parent, select, ind, entityReferencesMap) {
         entityReferencesMap = entityReferencesMap || {};
 
+        childToParent[entity.get('resource_id')] = parent.get('resource_id');
+
         var children = entity.get('children');
         if (children.length)
             entity.set('children', [ ]);
@@ -234,7 +136,6 @@ editor.once('load', function() {
             }
 
             var child = new Observer(data);
-            childToParent[child.get('resource_id')] = entity.get('resource_id');
             addEntity(child, entity, undefined, undefined, entityReferencesMap);
         });
 
@@ -601,7 +502,6 @@ editor.once('load', function() {
                         continue;
 
                     var entity = new Observer(entitiesNewData[i]);
-                    childToParent[id] = meta.parentId;
                     addEntity(entity, parent, true, meta.ind + 1);
 
                     entities.push(entity);
@@ -696,7 +596,6 @@ editor.once('load', function() {
 
                     var entity = new Observer(records[i].data);
                     items.push(entity);
-                    childToParent[entity.get('resource_id')] = parent.get('resource_id');
                     addEntity(entity, parent, false, records[i].ind, entityReferencesMap);
                 }
 
