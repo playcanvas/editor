@@ -8,8 +8,10 @@ editor.once('load', function() {
 
     var schema = config.schema.scene.entities.$of.components;
 
+    var componentName;
+
     // make titles for each component
-    for (var componentName in schema) {
+    for (componentName in schema) {
         var title;
         switch (componentName) {
             case 'audiosource':
@@ -93,7 +95,7 @@ editor.once('load', function() {
         }
     };
 
-    for (var componentName in schema) {
+    for (componentName in schema) {
         gatherAssetPathsRecursively(schema[componentName], 'components.' + componentName);
     }
 
