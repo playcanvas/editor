@@ -128,6 +128,49 @@ editor.once('load', function () {
     };
 
     /**
+     * Duplicates an entity in the scene
+     * @param {Observer} entity The entity
+     * @param {Observer} parent The parent of the new entity
+     * @param {Number} ind The index in the parent's children array where we want to insert the new entity
+     * @param {Object} duplicatedIdsMap A guid->guid map that contains references from the source resource ids to the new resource ids
+     * @returns {Observer} The new entity
+     */
+    var duplicateEntity = function (entity, parent, ind, duplicatedIdsMap) {
+        var originalResourceId = entity.get('resource_id');
+        var data = entity.json();
+        var children = data.children;
+
+        data.children = [];
+        data.resource_id = pc.guid.create();
+        data.parent = parent.get('resource_id');
+
+        entity = new Observer(data);
+        editor.call('entities:updateChildToParentIndex', entity.get('resource_id'), parent.get('resource_id'));
+        duplicatedIdsMap[originalResourceId] = entity.get('resource_id');
+
+        // call add event
+        editor.call('entities:add', entity);
+
+        // sharedb
+        editor.call('realtime:scene:op', {
+            p: ['entities', entity.get('resource_id')],
+            oi: entity.json()
+        });
+
+        // this is necessary for the entity to be added to the tree view
+        parent.history.enabled = false;
+        parent.insert('children', entity.get('resource_id'), ind);
+        parent.history.enabled = true;
+
+        // add children too
+        children.forEach(function (childId) {
+            duplicateEntity(editor.call('entities:get', childId), entity, undefined, duplicatedIdsMap);
+        });
+
+        return entity;
+    };
+
+    /**
      * Duplicates the specified entities and adds them to the scene.
      * @param {Observer[]} entities The entities to duplicate
      */
@@ -207,7 +250,7 @@ editor.once('load', function () {
             id = entity.get('resource_id');
             var parent = editor.call('entities:get', getParent(id));
             var duplicatedIdsMap = {};
-            var entityNew = editor.call('entities:duplicateEntity', entity, parent, ids[id].ind + 1, duplicatedIdsMap);
+            var entityNew = duplicateEntity(entity, parent, ids[id].ind + 1, duplicatedIdsMap);
             resolveDuplicatedEntityReferenceProperties(entity, entity, entityNew, duplicatedIdsMap);
             entitiesNew.push(entityNew);
             entitiesNewData.push(entityNew.json());
