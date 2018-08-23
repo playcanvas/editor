@@ -208,11 +208,6 @@ editor.once('load', function() {
         description: 'Environment properties determine how a material reflects and refracts the environment.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html'
     }, {
-        title: 'fresnelFactor',
-        subTitle: '{Number}',
-        description: 'description',
-        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#fresnelFactor'
-    }, {
         title: 'fresnelModel',
         subTitle: '{pc.FRESNEL_*}',
         description: 'A parameter for Fresnel. May mean different things depending on fresnelModel.',

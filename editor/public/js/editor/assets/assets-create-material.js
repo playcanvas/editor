@@ -7,7 +7,7 @@ editor.once('load', function() {
 
         args = args || { };
 
-        var data = editor.call('material:default');
+        var data = editor.call('schema:material:getDefaultData');
 
         var asset = {
             name: 'New Material',
