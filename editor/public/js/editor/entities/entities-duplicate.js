@@ -122,11 +122,15 @@ editor.once('load', function () {
         }
     };
 
+    // Gets the resource id of the parent of the entity with the specified resource id
     var getParent = function (childResourceId) {
         return editor.call('entities:getParentResourceId', childResourceId);
     };
 
-    // duplicate entity
+    /**
+     * Duplicates the specified entities and adds them to the scene.
+     * @param {Observer[]} entities The entities to duplicate
+     */
     editor.method('entities:duplicate', function (entities) {
         var i;
         var id;
