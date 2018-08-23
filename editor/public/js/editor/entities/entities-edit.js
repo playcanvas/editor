@@ -1,105 +1,67 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    // index
-    var childToParent = { };
+    // An index where the key is the guid
+    // of a child entity and the value is the guid of
+    // a parent entity
+    var childToParent = {};
 
-    var deletedCache = { };
 
+    // An index where the key is the guid of
+    // a deleted entity and the value is the JSON
+    // representation of the entity at the time when
+    // it was deleted. Used to re-create entities from
+    // this cache instead of re-creating it from scratch
+    var deletedCache = {};
+
+    // project settings
     var settings = editor.call('settings:project');
 
-    // add
-    editor.on('entities:add', function(entity) {
+    // Attach event listeners on a new entity.
+    // Maintains the childToParent index
+    editor.on('entities:add', function (entity) {
         var children = entity.get('children');
-        for(var i = 0; i < children.length; i++)
+        for (var i = 0; i < children.length; i++)
             childToParent[children[i]] = entity.get('resource_id');
 
-        entity.on('children:insert', function(value) {
-            childToParent[value] = this.get('resource_id');
+        entity.on('children:insert', function (value) {
+            childToParent[value] = entity.get('resource_id');
         });
-        entity.on('children:remove', function(value) {
+        entity.on('children:remove', function (value) {
             delete childToParent[value];
         });
     });
 
-    editor.method('entities:childToParent', function(child, parent) {
-        childToParent[child.get('resource_id')] = parent.get('resource_id');
-    });
-
-    // When entities are deleted, we need to do some work to identify references to the
-    // deleted entities held by other entities in the graph. For example, if entityA has
-    // a component that holds a reference to entityB and entityB is deleted, we should
-    // nullify the reference so that entityA's component does not retain or try to access
-    // the deleted entity. Similarly, if the deletion is undone, we need to re-populate
-    // the reference so that it points once again at entityB.
-    //
-    // To achieve this, we perform a quick scan of the graph whenever one or more entities
-    // are deleted, to build a snapshot of the entity references at that time. The snapshot
-    // (which is just a map) is then used for identifying all references to any of the deleted
-    // entities, and these are set to null. If the deletion is subsequently undone, the map
-    // is used again in order to set all references back to the correct entity guids.
-    var recursivelySearchForEntityReferences = function(sourceEntity, entityReferencesMap) {
-        var componentNames = Object.keys(sourceEntity.get('components') || {});
-        var i, j;
-
-        for (i = 0; i < componentNames.length; i++) {
-            var componentName = componentNames[i];
-            var entityFields = editor.call('components:getFieldsOfType', componentName, 'entity');
-
-            for (j = 0; j < entityFields.length; j++) {
-                var fieldName = entityFields[j];
-                var targetEntityGuid = sourceEntity.get('components.' + componentName + '.' + fieldName);
-
-                entityReferencesMap[targetEntityGuid] = entityReferencesMap[targetEntityGuid] || [];
-                entityReferencesMap[targetEntityGuid].push({
-                    sourceEntityGuid: sourceEntity.get('resource_id'),
-                    componentName: componentName,
-                    fieldName: fieldName
-                });
-            }
-        }
-
-        var children = sourceEntity.get('children');
-
-        if (children.length > 0) {
-            for (i = 0; i < children.length; i++) {
-                recursivelySearchForEntityReferences(editor.call('entities:get', children[i]), entityReferencesMap);
-            }
-        }
-    };
-
-    var updateEntityReferenceFields = function(entityReferencesMap, oldValue, newValue) {
+    var updateEntityReferenceFields = function (entityReferencesMap, oldValue, newValue) {
         var referencesToThisEntity = entityReferencesMap[oldValue];
+        if (! referencesToThisEntity) return;
 
-        if (referencesToThisEntity) {
-            referencesToThisEntity.forEach(function(reference) {
-                var sourceEntity = editor.call('entities:get', reference.sourceEntityGuid);
+        referencesToThisEntity.forEach(function (reference) {
+            var sourceEntity = editor.call('entities:get', reference.sourceEntityGuid);
+            if (! sourceEntity) return;
 
-                if (sourceEntity) {
-                    var prevHistory = sourceEntity.history.enabled;
-                    sourceEntity.history.enabled = false;
-                    sourceEntity.set('components.' + reference.componentName + '.' + reference.fieldName, newValue);
-                    sourceEntity.history.enabled = prevHistory;
-                }
-            });
-        }
+            var prevHistory = sourceEntity.history.enabled;
+            sourceEntity.history.enabled = false;
+            sourceEntity.set('components.' + reference.componentName + '.' + reference.fieldName, newValue);
+            sourceEntity.history.enabled = prevHistory;
+        });
     };
 
-    var addEntity = function(entity, parent, select, ind, entityReferencesMap) {
+    var addEntity = function (entity, parent, select, ind, entityReferencesMap) {
         entityReferencesMap = entityReferencesMap || {};
 
         childToParent[entity.get('resource_id')] = parent.get('resource_id');
 
         var children = entity.get('children');
         if (children.length)
-            entity.set('children', [ ]);
+            entity.set('children', []);
 
         // call add event
         editor.call('entities:add', entity);
 
         // shareDb
         editor.call('realtime:scene:op', {
-            p: [ 'entities', entity.get('resource_id') ],
+            p: ['entities', entity.get('resource_id')],
             oi: entity.json()
         });
 
@@ -109,17 +71,17 @@ editor.once('load', function() {
         parent.history.enabled = true;
 
         if (select) {
-            setTimeout(function() {
+            setTimeout(function () {
                 editor.call('selector:history', false);
-                editor.call('selector:set', 'entity', [ entity ]);
-                editor.once('selector:change', function() {
+                editor.call('selector:set', 'entity', [entity]);
+                editor.once('selector:change', function () {
                     editor.call('selector:history', true);
                 });
             }, 0);
         }
 
         // add children too
-        children.forEach(function(childIdOrData) {
+        children.forEach(function (childIdOrData) {
             var data;
 
             // If we've been provided an id, we're re-creating children from the deletedCache
@@ -128,7 +90,7 @@ editor.once('load', function() {
                 if (!data) {
                     return;
                 }
-            // If we've been provided an object, we're creating children for a new entity
+                // If we've been provided an object, we're creating children for a new entity
             } else if (typeof childIdOrData === 'object') {
                 data = childIdOrData;
             } else {
@@ -147,7 +109,7 @@ editor.once('load', function() {
 
         // First set all entity reference fields targeting this guid to null
         updateEntityReferenceFields(entityReferencesMap, guid, null);
-        setTimeout(function() {
+        setTimeout(function () {
             // Then update the same fields to target the guid again
             updateEntityReferenceFields(entityReferencesMap, guid, guid);
         }, 0);
@@ -157,7 +119,7 @@ editor.once('load', function() {
         }
     };
 
-    var removeEntity = function(entity, entityReferencesMap) {
+    var removeEntity = function (entity, entityReferencesMap) {
         entityReferencesMap = entityReferencesMap || {};
         deletedCache[entity.get('resource_id')] = entity.json();
 
@@ -167,7 +129,7 @@ editor.once('load', function() {
         // remove children
         entity.get('children').forEach(function (child) {
             var entity = editor.call('entities:get', child);
-            if (! entity)
+            if (!entity)
                 return;
 
             removeEntity(entity, entityReferencesMap);
@@ -176,7 +138,7 @@ editor.once('load', function() {
         if (editor.call('selector:type') === 'entity' && editor.call('selector:items').indexOf(entity) !== -1) {
             editor.call('selector:history', false);
             editor.call('selector:remove', entity);
-            editor.once('selector:change', function() {
+            editor.once('selector:change', function () {
                 editor.call('selector:history', true);
             });
         }
@@ -197,20 +159,20 @@ editor.once('load', function() {
 
         // sharedb
         editor.call('realtime:scene:op', {
-            p: [ 'entities', entity.get('resource_id') ],
-            od: { }
+            p: ['entities', entity.get('resource_id')],
+            od: {}
         });
     };
 
     editor.method('entities:addEntity', addEntity);
     editor.method('entities:removeEntity', removeEntity);
 
-    var duplicateEntity = function(entity, parent, ind, duplicatedIdsMap) {
+    var duplicateEntity = function (entity, parent, ind, duplicatedIdsMap) {
         var originalResourceId = entity.get('resource_id');
         var data = entity.json();
         var children = data.children;
 
-        data.children = [ ];
+        data.children = [];
         data.resource_id = pc.guid.create();
         data.parent = parent.get('resource_id');
 
@@ -223,7 +185,7 @@ editor.once('load', function() {
 
         // sharedb
         editor.call('realtime:scene:op', {
-            p: [ 'entities', entity.get('resource_id') ],
+            p: ['entities', entity.get('resource_id')],
             oi: entity.json()
         });
 
@@ -233,7 +195,7 @@ editor.once('load', function() {
         parent.history.enabled = true;
 
         // add children too
-        children.forEach(function(childId) {
+        children.forEach(function (childId) {
             duplicateEntity(editor.call('entities:get', childId), entity, undefined, duplicatedIdsMap);
         });
 
@@ -261,16 +223,16 @@ editor.once('load', function() {
     // What needs to happen is that properties that refer to entities within the old
     // duplicated structure are automatically updated to point to the corresponding
     // entities within the new structure. This function implements that requirement.
-    var resolveDuplicatedEntityReferenceProperties = function(oldSubtreeRoot, oldEntity, newEntity, duplicatedIdsMap) {
+    var resolveDuplicatedEntityReferenceProperties = function (oldSubtreeRoot, oldEntity, newEntity, duplicatedIdsMap) {
         // TODO Would be nice to also make this work for entity script attributes
 
         var components = oldEntity.get('components');
 
-        Object.keys(components).forEach(function(componentName) {
+        Object.keys(components).forEach(function (componentName) {
             var component = components[componentName];
             var entityFields = editor.call('components:getFieldsOfType', componentName, 'entity');
 
-            entityFields.forEach(function(fieldName) {
+            entityFields.forEach(function (fieldName) {
                 var oldEntityId = component[fieldName];
                 var entityWithinOldSubtree = oldSubtreeRoot.entity.findByGuid(oldEntityId);
 
@@ -291,21 +253,21 @@ editor.once('load', function() {
 
         // remap entity script attributes
         var scriptComponent = oldEntity.get('components.script');
-        if (scriptComponent && ! settings.get('useLegacyScripts')) {
+        if (scriptComponent && !settings.get('useLegacyScripts')) {
             for (var scriptName in scriptComponent.scripts) {
                 // get script asset
                 var scriptAsset = editor.call('assets:scripts:assetByScript', scriptName);
-                if (! scriptAsset) continue;
+                if (!scriptAsset) continue;
 
                 // go through the script component attribute values
                 for (var attributeName in scriptComponent.scripts[scriptName].attributes) {
                     var previousValue = scriptComponent.scripts[scriptName].attributes[attributeName];
                     // early out if the value is null
-                    if (! previousValue || (Array.isArray(previousValue) && ! previousValue.length)) continue;
+                    if (!previousValue || (Array.isArray(previousValue) && !previousValue.length)) continue;
 
                     // get the attribute definition from the asset and make sure it's an entity type
                     var attributeDef = scriptAsset.get('data.scripts.' + scriptName + '.attributes.' + attributeName);
-                    if (! attributeDef || attributeDef.type !== 'entity') continue;
+                    if (!attributeDef || attributeDef.type !== 'entity') continue;
 
                     var newValue = null;
                     var dirty = false;
@@ -314,13 +276,13 @@ editor.once('load', function() {
                         // remap entity array
                         newValue = previousValue.slice();
                         for (var i = 0; i < newValue.length; i++) {
-                            if (! newValue[i] || ! duplicatedIdsMap[newValue[i]]) continue;
+                            if (!newValue[i] || !duplicatedIdsMap[newValue[i]]) continue;
                             newValue[i] = duplicatedIdsMap[newValue[i]];
                             dirty = true;
                         }
                     } else {
                         // remap entity
-                        if (! duplicatedIdsMap[previousValue]) continue;
+                        if (!duplicatedIdsMap[previousValue]) continue;
                         newValue = duplicatedIdsMap[previousValue];
                         dirty = true;
                     }
@@ -344,7 +306,7 @@ editor.once('load', function() {
         var newChildren = newEntity.get('children');
 
         if (oldChildren && oldChildren.length > 0) {
-            oldChildren.forEach(function(oldChildId, index) {
+            oldChildren.forEach(function (oldChildId, index) {
                 var oldChild = editor.call('entities:get', oldChildId);
                 var newChild = editor.call('entities:get', newChildren[index]);
 
@@ -357,17 +319,17 @@ editor.once('load', function() {
     editor.method('entities:duplicate', function (entities) {
         var root = editor.call('entities:root');
         var items = entities.slice(0);
-        var entitiesNew = [ ];
-        var entitiesNewData = [ ];
-        var entitiesNewMeta = { };
-        var ids = { };
+        var entitiesNew = [];
+        var entitiesNewData = [];
+        var entitiesNewMeta = {};
+        var ids = {};
 
         // make sure not duplicating root
         if (items.indexOf(root) !== -1)
             return;
 
         // build entities index
-        for(var i = 0; i < items.length; i++) {
+        for (var i = 0; i < items.length; i++) {
             var id = items[i].get('resource_id');
 
             ids[id] = {
@@ -380,11 +342,11 @@ editor.once('load', function() {
 
         // filter children off
         var i = items.length;
-        while(i--) {
+        while (i--) {
             var item = ids[items[i].get('resource_id')];
             var parentId = item.parentId;
 
-            while(parentId && parentId !== root.get('resource_id')) {
+            while (parentId && parentId !== root.get('resource_id')) {
                 if (ids[parentId]) {
                     items.splice(i, 1);
                     delete ids[item.id];
@@ -395,14 +357,14 @@ editor.once('load', function() {
         }
 
         // sort by order index within parent
-        items.sort(function(a, b) {
+        items.sort(function (a, b) {
             return ids[b.get('resource_id')].ind - ids[a.get('resource_id')].ind;
         });
 
         // remember current selection
         var selectorType = editor.call('selector:type');
         var selectorItems = editor.call('selector:items');
-        for(var i = 0; i < selectorItems.length; i++) {
+        for (var i = 0; i < selectorItems.length; i++) {
             var item = selectorItems[i];
             if (selectorType === 'entity') {
                 selectorItems[i] = {
@@ -410,7 +372,7 @@ editor.once('load', function() {
                     id: item.get('resource_id')
                 };
             } else if (selectorType === 'asset') {
-                selectorItems[i] = { };
+                selectorItems[i] = {};
                 if (selectorItems[i].get('type') === 'script') {
                     selectorItems[i].type = 'script';
                     selectorItems[i].id = item.get('filename');
@@ -422,7 +384,7 @@ editor.once('load', function() {
         }
 
         // duplicate
-        for(var i = 0; i < items.length; i++) {
+        for (var i = 0; i < items.length; i++) {
             var entity = items[i];
             var id = entity.get('resource_id');
             var parent = editor.call('entities:get', childToParent[id]);
@@ -438,10 +400,10 @@ editor.once('load', function() {
         }
 
         // set new selection
-        setTimeout(function() {
+        setTimeout(function () {
             editor.call('selector:history', false);
             editor.call('selector:set', 'entity', entitiesNew);
-            editor.once('selector:change', function() {
+            editor.once('selector:change', function () {
                 editor.call('selector:history', true);
             });
         }, 0);
@@ -449,11 +411,11 @@ editor.once('load', function() {
         // add history action
         editor.call('history:add', {
             name: 'duplicate entities',
-            undo: function() {
+            undo: function () {
                 // remove duplicated entities
-                for(var i = 0; i < entitiesNewData.length; i++) {
+                for (var i = 0; i < entitiesNewData.length; i++) {
                     var entity = editor.call('entities:get', entitiesNewData[i].resource_id);
-                    if (! entity)
+                    if (!entity)
                         continue;
 
                     removeEntity(entity);
@@ -461,8 +423,8 @@ editor.once('load', function() {
 
                 // restore selection
                 if (selectorType) {
-                    var items = [ ];
-                    for(var i = 0; i < selectorItems.length; i++) {
+                    var items = [];
+                    for (var i = 0; i < selectorItems.length; i++) {
                         var item;
 
                         if (selectorItems[i].type === 'entity') {
@@ -473,7 +435,7 @@ editor.once('load', function() {
                             item = editor.call('sourcefiles:get', selectorItems[i].id);
                         }
 
-                        if (! item)
+                        if (!item)
                             continue;
 
                         items.push(item);
@@ -482,23 +444,23 @@ editor.once('load', function() {
                     if (items.length) {
                         editor.call('selector:history', false);
                         editor.call('selector:set', selectorType, items);
-                        editor.once('selector:change', function() {
+                        editor.once('selector:change', function () {
                             editor.call('selector:history', true);
                         });
                     }
                 }
             },
-            redo: function() {
-                var entities = [ ];
+            redo: function () {
+                var entities = [];
 
-                for(var i = 0; i < entitiesNewData.length; i++) {
+                for (var i = 0; i < entitiesNewData.length; i++) {
                     var id = entitiesNewData[i].resource_id;
                     var meta = entitiesNewMeta[id];
-                    if (! meta)
+                    if (!meta)
                         continue;
 
                     var parent = editor.call('entities:get', meta.parentId);
-                    if (! parent)
+                    if (!parent)
                         continue;
 
                     var entity = new Observer(entitiesNewData[i]);
@@ -508,10 +470,10 @@ editor.once('load', function() {
                 }
 
                 if (entities.length) {
-                    setTimeout(function() {
+                    setTimeout(function () {
                         editor.call('selector:history', false);
                         editor.call('selector:set', 'entity', entities);
-                        editor.once('selector:change', function() {
+                        editor.once('selector:change', function () {
                             editor.call('selector:history', true);
                         });
                     }, 0);
@@ -520,104 +482,7 @@ editor.once('load', function() {
         });
     });
 
-    // delete entity
-    editor.method('entities:delete', function (items) {
-        var records = [ ];
-        var itemsToDelete = [ ];
 
-        // index items
-        var itemsIds = { };
-        for(var i = 0; i < items.length; i++) {
-            itemsIds[items[i].get('resource_id')] = items[i];
-        }
-
-        // find out if item has ancestor
-        for(var i = 0; i < items.length; i++) {
-            var child = false;
-            var parent = childToParent[items[i].get('resource_id')];
-            while(! child && parent) {
-                if (itemsIds[parent]) {
-                    child = true;
-                } else {
-                    parent = childToParent[parent]
-                }
-            }
-
-            if (! child)
-                itemsToDelete.push(items[i]);
-        }
-
-        // delete only non-childed items
-        items = itemsToDelete;
-
-        for(var i = 0; i < items.length; i++) {
-            var resourceId = items[i].get('resource_id');
-            var parentId = childToParent[resourceId];
-            var ind;
-            if (parentId) {
-                var parent = editor.call('entities:get', parentId);
-                if (parent)
-                    ind = parent.get('children').indexOf(resourceId);
-            }
-
-            records.push({
-                resourceId: resourceId,
-                parentId: parentId,
-                ind: ind,
-                data: items[i].json()
-            });
-        }
-
-        // Build a map of representing all entity reference properties in the graph. This is
-        // effectively a snapshot of the entity references as they were at the point of deletion,
-        // so that they can be re-constituted later if the deletion is undone.
-        var entityReferencesMap = {};
-        recursivelySearchForEntityReferences(editor.call('entities:root'), entityReferencesMap);
-
-        for(var i = 0; i < items.length; i++) {
-            removeEntity(items[i], entityReferencesMap);
-        }
-
-        // sort records by index
-        // so that items are re-added
-        // in the correct order in undo
-        records.sort(function (a, b) {
-            return a.ind - b.ind;
-        });
-
-        editor.call('history:add', {
-            name: 'delete entities',
-            undo: function() {
-                var items = [ ];
-                for (var i = 0, len = records.length; i < len; i++) {
-                    var parent = editor.call('entities:get', records[i].parentId);
-                    if (! parent)
-                        return;
-
-                    var entity = new Observer(records[i].data);
-                    items.push(entity);
-                    addEntity(entity, parent, false, records[i].ind, entityReferencesMap);
-                }
-
-                setTimeout(function() {
-                    editor.call('selector:history', false);
-                    editor.call('selector:set', 'entity', items);
-                    editor.once('selector:change', function() {
-                        editor.call('selector:history', true);
-                    });
-                }, 0);
-            },
-            redo: function() {
-                for(var i = 0, len = records.length; i < len; i++) {
-                    var entity = editor.call('entities:get', records[i].resourceId);
-                    if (! entity)
-                        return;
-
-                    removeEntity(entity, entityReferencesMap);
-                }
-            }
-        });
-    });
 
     // copy entity to local storage
     editor.method('entities:copy', function (entities) {
@@ -631,11 +496,11 @@ editor.once('load', function() {
         // store asset path in data by converting the array of
         // folder ids to an array of folder names
         var storeAssetPath = function (assetId) {
-            if (! assetId || data.assets[assetId])
+            if (!assetId || data.assets[assetId])
                 return;
 
             var asset = editor.call('assets:get', assetId);
-            if (! asset)
+            if (!asset)
                 return;
 
             var parts = [];
@@ -644,7 +509,7 @@ editor.once('load', function() {
             if (path && path.length) {
                 for (var i = 0; i < path.length; i++) {
                     var a = editor.call('assets:get', path[i]);
-                    if (! a) continue;
+                    if (!a) continue;
 
                     parts.push(a.get('name'));
                 }
@@ -666,7 +531,7 @@ editor.once('load', function() {
         var gatherDependencies = function (entity) {
             // store entity json
             var resourceId = entity.get('resource_id');
-            if (! data.hierarchy[resourceId]) {
+            if (!data.hierarchy[resourceId]) {
                 data.hierarchy[resourceId] = entity.json();
             }
 
@@ -678,18 +543,18 @@ editor.once('load', function() {
                 // handle paths that contain a '*' as a wildcard
                 if (containsStar.test(path)) {
                     var parts = path.split('.*.');
-                    if (! entity.has(parts[0])) continue;
+                    if (!entity.has(parts[0])) continue;
 
                     var obj = entity.get(parts[0]);
-                    if (! obj) continue;
+                    if (!obj) continue;
 
                     for (var key in obj) {
                         var fullKey = parts[0] + '.' + key + '.' + parts[1];
-                        if (! entity.has(fullKey))
+                        if (!entity.has(fullKey))
                             continue;
 
                         var assets = entity.get(fullKey);
-                        if (! assets) continue;
+                        if (!assets) continue;
                         if (assets instanceof Array) {
                             assets.forEach(storeAssetPath);
                         } else {
@@ -699,7 +564,7 @@ editor.once('load', function() {
                 } else if (entity.has(path)) {
                     // handle path without '*'
                     var assets = entity.get(path);
-                    if (! assets) continue;
+                    if (!assets) continue;
 
                     if (assets instanceof Array) {
                         assets.forEach(storeAssetPath);
@@ -717,10 +582,10 @@ editor.once('load', function() {
                     if (settings.get('useLegacyScripts')) {
                         for (var i = 0, len = scripts.length; i < len; i++) {
                             var script = scripts[i];
-                            if (! script.attributes) continue;
+                            if (!script.attributes) continue;
                             for (var name in script.attributes) {
                                 var attr = script.attributes[name];
-                                if (! attr) continue;
+                                if (!attr) continue;
                                 if (attr.type === 'asset') {
                                     if (attr.value) {
                                         if (attr.value.length) {
@@ -745,10 +610,10 @@ editor.once('load', function() {
                         // scripts 2.0
                         for (var key in scripts) {
                             var scriptData = scripts[key];
-                            if (! scriptData || ! scriptData.attributes) continue;
+                            if (!scriptData || !scriptData.attributes) continue;
 
                             var asset = editor.call('assets:scripts:assetByScript', key);
-                            if (! asset) continue;
+                            if (!asset) continue;
 
                             // search for asset script attributes in script asset
                             var assetData = asset.get('data.scripts.' + key + '.attributes');
@@ -784,21 +649,21 @@ editor.once('load', function() {
         // sort entities by their index in their parent's children list
         entities.sort(function (a, b) {
             var pA = a.get('parent');
-            if (! pA)
+            if (!pA)
                 return -1;
 
             pA = editor.call('entities:get', pA);
-            if (! pA)
+            if (!pA)
                 return -1;
 
             var indA = pA.get('children').indexOf(a.get('resource_id'));
 
             var pB = b.get('parent');
-            if (! pB)
+            if (!pB)
                 return 1;
 
             pB = editor.call('entities:get', pB);
-            if (! pB)
+            if (!pB)
                 return -1;
 
             var indB = pB.get('children').indexOf(b.get('resource_id'));
@@ -848,11 +713,11 @@ editor.once('load', function() {
     editor.method('entities:paste', function (parent) {
         // parse data from local storage
         var data = editor.call('entities:clipboard:get');
-        if (! data)
+        if (!data)
             return;
 
         // paste on root if no parent specified
-        if (! parent)
+        if (!parent)
             parent = editor.call('entities:root');
 
         var legacy_scripts = settings.get('useLegacyScripts');
@@ -863,17 +728,17 @@ editor.once('load', function() {
         // try to find asset id in this project
         // from path of asset in old project
         var remapAsset = function (assetId) {
-            if (! assetId) return null;
+            if (!assetId) return null;
 
             // return the old asset id if not found
             var result = parseInt(assetId, 10);
 
             var assetData = data.assets[assetId];
-            if (! assetData)
+            if (!assetData)
                 return result;
 
             var len = assetData.path.length;
-            var name = assetData.path[len-1];
+            var name = assetData.path[len - 1];
             var type = assetData.type;
 
             var pathToId = [];
@@ -920,7 +785,7 @@ editor.once('load', function() {
                             }
                         }
 
-                        if (! pathsEqual)
+                        if (!pathsEqual)
                             continue;
                     }
 
@@ -971,17 +836,17 @@ editor.once('load', function() {
                     var path = componentAssetPaths[i];
                     if (containsStar.test(path)) {
                         var parts = path.split('.*.');
-                        if (! entity.has(parts[0])) continue;
+                        if (!entity.has(parts[0])) continue;
 
                         var obj = entity.get(parts[0]);
-                        if (! obj) continue;
+                        if (!obj) continue;
 
                         for (var key in obj) {
                             var fullKey = parts[0] + '.' + key + '.' + parts[1];
-                            if (! entity.has(fullKey)) continue;
+                            if (!entity.has(fullKey)) continue;
 
                             var assets = entity.get(fullKey);
-                            if (! assets) continue;
+                            if (!assets) continue;
 
                             if (assets instanceof Array) {
                                 for (var j = 0; j < assets.length; j++) {
@@ -995,7 +860,7 @@ editor.once('load', function() {
                     }
                     else if (entity.has(path)) {
                         var assets = entity.get(path);
-                        if (! assets) continue;
+                        if (!assets) continue;
 
                         if (assets instanceof Array) {
                             for (var j = 0; j < assets.length; j++) {
@@ -1021,11 +886,11 @@ editor.once('load', function() {
                         if (legacy_scripts) {
                             for (var i = 0, len = scripts.length; i < len; i++) {
                                 var script = scripts[i];
-                                if (! script.attributes) continue;
+                                if (!script.attributes) continue;
 
                                 for (var name in script.attributes) {
                                     var attr = script.attributes[name];
-                                    if (! attr) continue;
+                                    if (!attr) continue;
 
                                     if (attr.type === 'asset' && data.project !== config.project.id) {
                                         if (attr.value) {
@@ -1058,12 +923,12 @@ editor.once('load', function() {
                         } else {
                             // scripts 2.0
                             if (scripts) {
-                                for(var script in scripts) {
+                                for (var script in scripts) {
                                     var asset = editor.call('assets:scripts:assetByScript', script);
-                                    if (! asset) continue;
+                                    if (!asset) continue;
 
                                     var attrs = scripts[script].attributes;
-                                    if (! attrs) continue;
+                                    if (!attrs) continue;
 
                                     for (var key in attrs) {
                                         var attrData = asset.get('data.scripts.' + script + '.attributes.' + key);
@@ -1108,7 +973,7 @@ editor.once('load', function() {
                 var component = components[componentName];
                 var entityFields = editor.call('components:getFieldsOfType', componentName, 'entity');
 
-                entityFields.forEach(function(fieldName) {
+                entityFields.forEach(function (fieldName) {
                     var oldEntityId = component[fieldName];
                     if (mapping[oldEntityId]) {
                         var newEntityId = mapping[oldEntityId];
@@ -1137,7 +1002,7 @@ editor.once('load', function() {
 
             // sharedb
             editor.call('realtime:scene:op', {
-                p: [ 'entities', entity.get('resource_id') ],
+                p: ['entities', entity.get('resource_id')],
                 oi: entity.json()
             });
 
@@ -1161,10 +1026,10 @@ editor.once('load', function() {
         }
 
         // select pasted entities
-        setTimeout(function() {
+        setTimeout(function () {
             editor.call('selector:history', false);
             editor.call('selector:set', 'entity', selectedEntities);
-            editor.once('selector:change', function() {
+            editor.once('selector:change', function () {
                 editor.call('selector:history', true);
             });
         }, 0);
@@ -1172,10 +1037,10 @@ editor.once('load', function() {
         // add history
         editor.call('history:add', {
             name: 'paste entities',
-            undo: function() {
+            undo: function () {
                 for (var i = selectedEntities.length - 1; i >= 0; i--) {
                     var entity = editor.call('entities:get', selectedEntities[i].get('resource_id'));
-                    if (! entity) continue;
+                    if (!entity) continue;
 
                     removeEntity(entity);
                 }
@@ -1183,8 +1048,8 @@ editor.once('load', function() {
                 var selectorType = editor.call('selector:type');
                 var selectorItems = editor.call('selector:items');
                 if (selectorType === 'entity' && selectorItems.length) {
-                    var items = [ ];
-                    for(var i = 0; i < selectorItems.length; i++) {
+                    var items = [];
+                    for (var i = 0; i < selectorItems.length; i++) {
                         var item = editor.call('entities:get', selectorItems[i]);
                         if (item)
                             items.push(item);
@@ -1193,15 +1058,15 @@ editor.once('load', function() {
                     if (items.length) {
                         editor.call('selector:history', false);
                         editor.call('selector:set', selectorType, items);
-                        editor.once('selector:change', function() {
+                        editor.once('selector:change', function () {
                             editor.call('selector:history', true);
                         });
                     }
                 }
             },
-            redo: function() {
+            redo: function () {
                 var newParent = editor.call('entities:get', parent.get('resource_id'));
-                if (! newParent) return;
+                if (!newParent) return;
 
                 var numChildren = newParent.get('children').length;
 
@@ -1209,7 +1074,7 @@ editor.once('load', function() {
                 // re-add entities
                 for (var i = 0; i < selectedEntities.length; i++) {
                     var fromCache = deletedCache[selectedEntities[i].get('resource_id')];
-                    if (! fromCache) continue;
+                    if (!fromCache) continue;
                     var e = new Observer(fromCache);
                     addEntity(e, newParent, false, numChildren + i);
                     entities.push(e);
@@ -1217,7 +1082,7 @@ editor.once('load', function() {
 
                 editor.call('selector:history', false);
                 editor.call('selector:set', 'entity', entities);
-                editor.once('selector:change', function() {
+                editor.once('selector:change', function () {
                     editor.call('selector:history', true);
                 });
             }
@@ -1226,9 +1091,9 @@ editor.once('load', function() {
 
     editor.method('entities:addComponent', function (entities, component) {
         var componentData = editor.call('components:getDefault', component);
-        var records = [ ];
+        var records = [];
 
-        for(var i = 0; i < entities.length; i++) {
+        for (var i = 0; i < entities.length; i++) {
             if (entities[i].has('components.' + component))
                 continue;
 
@@ -1252,20 +1117,20 @@ editor.once('load', function() {
 
         editor.call('history:add', {
             name: 'entities.' + component,
-            undo: function() {
-                for(var i = 0; i < records.length; i++) {
+            undo: function () {
+                for (var i = 0; i < records.length; i++) {
                     var item = records[i].get();
-                    if (! item)
+                    if (!item)
                         continue;
                     item.history.enabled = false;
                     item.unset('components.' + component);
                     item.history.enabled = true;
                 }
             },
-            redo: function() {
-                for(var i = 0; i < records.length; i++) {
+            redo: function () {
+                for (var i = 0; i < records.length; i++) {
                     var item = records[i].get();
-                    if (! item)
+                    if (!item)
                         continue;
                     item.history.enabled = false;
                     item.set('components.' + component, records[i].value);
@@ -1273,5 +1138,14 @@ editor.once('load', function() {
                 }
             }
         });
+    });
+
+    /**
+     * Gets the resource id of the parent of the entityh with the specified resource id.
+     * @param {String} childResourceId The resource id of an entity
+     * @returns {String} The resource id of the entity's parent
+     */
+    editor.method('entities:getParentResourceId', function (childResourceId) {
+        return childToParent[childResourceId];
     });
 });
