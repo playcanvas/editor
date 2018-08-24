@@ -174,6 +174,7 @@ editor.once('load', function () {
             if (aabb) {
                 resultBB.copy(aabb);
             } else {
+                resultBB.center.copy(entity.getPosition());
                 // otherwise for group element use the world corners
                 entity.element.worldCorners.forEach(function (corner) {
                     _tmpBB.center.copy(corner);
