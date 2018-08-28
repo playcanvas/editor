@@ -445,7 +445,6 @@ editor.once('load', function () {
 
         return result;
     };
-    window.getSelectedScenes = getSelectedScenes;
 
     var jobInProgress = false;
 
