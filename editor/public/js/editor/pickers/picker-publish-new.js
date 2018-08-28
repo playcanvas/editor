@@ -424,8 +424,27 @@ editor.once('load', function () {
     // holds all scenes
     var scenes = [];
 
-    // holds selected scenes
-    var selectedScenes = [];
+    // returns a list of the selected scenes
+    // with the primary scene first
+    var getSelectedScenes = function () {
+        var result = [];
+
+        var listItems = container.innerElement.childNodes;
+        for (var i = 0; i < listItems.length; i++) {
+            if (listItems[i].ui.isSelected()) {
+                result.push(listItems[i].ui.sceneId);
+            }
+        }
+
+        // put primary scene first
+        result.sort(function (a, b) {
+            if (a === primaryScene) return -1;
+            if (b === primaryScene) return 1;
+            return 0;
+        });
+
+        return result;
+    };
 
     var jobInProgress = false;
 
@@ -448,7 +467,7 @@ editor.once('load', function () {
             name: inputName.value,
             project_id: config.project.id,
             branch_id: config.self.branch.id,
-            scenes: selectedScenes.map(function (scene) { return scene.id; })
+            scenes: getSelectedScenes()
         };
 
         if (inputDescription.value)
@@ -493,7 +512,7 @@ editor.once('load', function () {
         var data = {
             project_id: config.project.id,
             branch_id: config.self.branch.id,
-            scenes: selectedScenes.map(function (scene) { return scene.id; })
+            scenes: getSelectedScenes()
         };
 
         if (inputNotes.value)
@@ -580,7 +599,7 @@ editor.once('load', function () {
             name: inputName.value,
             project_id: config.project.id,
             branch_id: config.self.branch.id,
-            scenes: selectedScenes.map(function (scene) { return scene.id; }),
+            scenes: getSelectedScenes(),
             target: target,
             scripts_concatenate: fieldOptionsConcat ? fieldOptionsConcat.value : false
         };
@@ -749,6 +768,7 @@ editor.once('load', function () {
     });
 
     var refreshButtonsState = function () {
+        var selectedScenes = getSelectedScenes();
         var disabled = !inputName.value ||
                        !selectedScenes.length ||
                        inputName.value.length > 1000 ||
@@ -771,6 +791,7 @@ editor.once('load', function () {
     var createSceneItem = function (scene) {
         var row = new ui.ListItem();
         row.element.id = 'picker-scene-' + scene.id;
+        row.sceneId = scene.id;
 
         container.append(row);
 
@@ -825,32 +846,20 @@ editor.once('load', function () {
         select.class.add('tick');
         row.element.appendChild(select.element);
 
-        if (selectedScenes.indexOf(scene) !== -1) {
-            select.value = true;
-        }
-
         // if selectAll changes then change this too
         events.push(selectAll.on('change', function (value) {
             select.value = value;
         }));
 
         // handle checkbox tick
-        select.on('change', function (value) {
-            if (value) {
-                // put primary scene in the beginning
-                if (primaryScene === scene.id) {
-                    selectedScenes.splice(0, 0, scene);
-                } else {
-                    // if not primary scene just add to the list
-                    selectedScenes.push(scene);
-                }
-            } else {
-                // remove scene from selection
-                selectedScenes.splice(selectedScenes.indexOf(scene), 1);
-            }
+        select.on('change', refreshButtonsState);
 
-            refreshButtonsState();
-        });
+        row.select = function () {
+            select.value = true;
+        };
+        row.isSelected = function () {
+            return select.value;
+        };
 
         return row;
     };
@@ -901,6 +910,8 @@ editor.once('load', function () {
         var content = document.querySelector('.ui-panel.right > .content');
         var scrollTop = content.scrollTop;
 
+        var selectedScenes = getSelectedScenes();
+
         destroyTooltips();
         destroyEvents();
         container.element.innerHTML = '';
@@ -911,7 +922,16 @@ editor.once('load', function () {
         loadingScenes.hidden = true;
         progressBar.hidden = true;
         refreshButtonsState();
-        scenes.forEach(createSceneItem);
+
+        // keep previous scene selection or
+        // if no scene is selected then select
+        // the primary scene
+        scenes.forEach(function (scene) {
+            var item = createSceneItem(scene);
+            if (selectedScenes.indexOf(scene.id) !== -1 || selectedScenes.length === 0 && scene.id === primaryScene) {
+                item.select();
+            }
+        });
 
         content.scrollTop = scrollTop;
     };
@@ -948,7 +968,6 @@ editor.once('load', function () {
             // select primary scene
             if (! primaryScene && items[0]) {
                 primaryScene = items[0].id;
-                selectedScenes.push(items[0]);
             }
 
             if (loadedApps) {
@@ -1001,7 +1020,6 @@ editor.once('load', function () {
         primaryScene = null;
         imageS3Key = null;
         isUploadingImage = false;
-        selectedScenes = [];
         urlToDownload = null;
         jobInProgress = false;
         destroyTooltips();
