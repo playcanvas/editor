@@ -212,7 +212,6 @@ editor.once('load', function() {
                     for(var i = 0; i < data.length; i++) {
                         var entity = new Observer(data[i]);
                         entities.push(entity);
-                        editor.call('entities:childToParent', entity, parent);
                         editor.call('entities:addEntity', entity, parent, false);
                     }
 

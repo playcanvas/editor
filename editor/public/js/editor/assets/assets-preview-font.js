@@ -87,7 +87,7 @@ editor.once('load', function() {
 
         // find maxScale and maxYOffset
         for (var i = 0; i < 2; i++) {
-            var char = text.charCodeAt(i);
+            var char = text[i]; // TODO: use symbol not char
 
             var charData = font.data.chars[char];
             if (! charData) {
@@ -109,7 +109,7 @@ editor.once('load', function() {
         uvs.length = 0;
 
         for (var i = 0; i < 2; i++) {
-            var char = text.charCodeAt(i);
+            var char = text[i]; // TODO: use symbol not char
             var charData = font.data.chars[char];
             if (! charData) continue;
 
@@ -173,7 +173,7 @@ editor.once('load', function() {
 
     var hasChars = function (chars, font) {
         for (var i = 0; i < chars.length; i++)
-            if (! font.data.chars[chars.charCodeAt(i)])
+            if (! font.data.chars[chars[i]])
                 return false;
 
         return true;
