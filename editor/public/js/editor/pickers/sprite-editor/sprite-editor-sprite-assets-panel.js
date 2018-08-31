@@ -156,6 +156,8 @@ editor.once('load', function() {
 
             // context menu
             var contextMenu = function (e) {
+                if (! editor.call('permissions:write')) return;
+
                 contextMenuAsset = asset;
                 menu.open = true;
                 menu.position(e.clientX + 1, e.clientY);
