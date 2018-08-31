@@ -1342,139 +1342,187 @@ editor.once('load', function () {
         ctx.lineWidth = 1;
 
         // top left corner
-        ctx.fillRect(x - handleWidth / 2,
+        ctx.fillRect(
+            x - handleWidth / 2,
             y - handleWidth / 2,
             handleWidth,
-            handleWidth);
+            handleWidth
+        );
 
-        ctx.strokeRect(x - handleWidth / 2,
+        ctx.strokeRect(
+            x - handleWidth / 2,
             y - handleWidth / 2,
             handleWidth,
-            handleWidth);
+            handleWidth
+        );
         // top right corner
-        ctx.fillRect(x + w - handleWidth / 2,
+        ctx.fillRect(
+            x + w - handleWidth / 2,
             y - handleWidth / 2,
             handleWidth,
-            handleWidth);
+            handleWidth
+        );
 
-        ctx.strokeRect(x + w - handleWidth / 2,
+        ctx.strokeRect(
+            x + w - handleWidth / 2,
             y - handleWidth / 2,
             handleWidth,
-            handleWidth);
+            handleWidth
+        );
 
         // bottom left corner
-        ctx.fillRect(x - handleWidth / 2,
+        ctx.fillRect(
+            x - handleWidth / 2,
             y + h - handleWidth / 2,
             handleWidth,
-            handleWidth);
+            handleWidth
+        );
 
-        ctx.strokeRect(x - handleWidth / 2,
+        ctx.strokeRect(
+            x - handleWidth / 2,
             y + h - handleWidth / 2,
             handleWidth,
-            handleWidth);
+            handleWidth
+        );
         // bottom right corner
-        ctx.fillRect(x + w - handleWidth / 2,
+        ctx.fillRect(
+            x + w - handleWidth / 2,
             y + h - handleWidth / 2,
             handleWidth,
-            handleWidth);
+            handleWidth
+        );
 
-        ctx.strokeRect(x + w - handleWidth / 2,
+        ctx.strokeRect(
+            x + w - handleWidth / 2,
             y + h - handleWidth / 2,
             handleWidth,
-            handleWidth);
+            handleWidth
+        );
 
 
         ctx.fillStyle = COLOR_BLUE;
         ctx.strokeStyle = COLOR_DARK;
 
         // left border
-        ctx.fillRect(lb - handleWidth / 2,
+        ctx.fillRect(
+            lb - handleWidth / 2,
             (bb + tb) / 2 - handleWidth / 2,
             handleWidth,
-            handleWidth);
-        ctx.strokeRect(lb - handleWidth / 2,
+            handleWidth
+        );
+        ctx.strokeRect(
+            lb - handleWidth / 2,
             (bb + tb) / 2 - handleWidth / 2,
             handleWidth,
-            handleWidth);
+            handleWidth
+        );
 
 
         // bottom border
-        ctx.fillRect((lb + rb) / 2 - handleWidth / 2,
+        ctx.fillRect(
+            (lb + rb) / 2 - handleWidth / 2,
             bb - handleWidth / 2,
             handleWidth,
-            handleWidth);
-        ctx.strokeRect((lb + rb) / 2 - handleWidth / 2,
+            handleWidth
+        );
+        ctx.strokeRect(
+            (lb + rb) / 2 - handleWidth / 2,
             bb - handleWidth / 2,
             handleWidth,
-            handleWidth);
+            handleWidth
+        );
 
         // right border
-        ctx.fillRect(rb - handleWidth / 2,
+        ctx.fillRect(
+            rb - handleWidth / 2,
             (bb + tb) / 2 - handleWidth / 2,
             handleWidth,
-            handleWidth);
-        ctx.strokeRect(rb - handleWidth / 2,
+            handleWidth
+        );
+        ctx.strokeRect(
+            rb - handleWidth / 2,
             (bb + tb) / 2 - handleWidth / 2,
             handleWidth,
-            handleWidth);
+            handleWidth
+        );
 
         // top border
-        ctx.fillRect((lb + rb) / 2 - handleWidth / 2,
+        ctx.fillRect(
+            (lb + rb) / 2 - handleWidth / 2,
             tb - handleWidth / 2,
             handleWidth,
-            handleWidth);
-        ctx.strokeRect((lb + rb) / 2 - handleWidth / 2,
+            handleWidth
+        );
+        ctx.strokeRect(
+            (lb + rb) / 2 - handleWidth / 2,
             tb - handleWidth / 2,
             handleWidth,
-            handleWidth);
+            handleWidth
+        );
 
         // bottom left border
         if (frame.border[0] || frame.border[1]) {
-            ctx.fillRect(lb - handleWidth / 2,
+            ctx.fillRect(
+                lb - handleWidth / 2,
                 bb - handleWidth / 2,
                 handleWidth,
-                handleWidth);
-            ctx.strokeRect(lb - handleWidth / 2,
+                handleWidth
+            );
+            ctx.strokeRect(
+                lb - handleWidth / 2,
                 bb - handleWidth / 2,
                 handleWidth,
-                handleWidth);
+                handleWidth
+            );
         }
 
         // bottom right border
         if (frame.border[1] || frame.border[2]) {
-            ctx.fillRect(rb - handleWidth / 2,
+            ctx.fillRect(
+                rb - handleWidth / 2,
                 bb - handleWidth / 2,
                 handleWidth,
-                handleWidth);
-            ctx.strokeRect(rb - handleWidth / 2,
+                handleWidth
+            );
+            ctx.strokeRect(
+                rb - handleWidth / 2,
                 bb - handleWidth / 2,
                 handleWidth,
-                handleWidth);
+                handleWidth
+            );
         }
 
 
         // top right border
         if (frame.border[2] || frame.border[3]) {
-            ctx.fillRect(rb - handleWidth / 2,
+            ctx.fillRect(
+                rb - handleWidth / 2,
                 tb - handleWidth / 2,
                 handleWidth,
-                handleWidth);
-            ctx.strokeRect(rb - handleWidth / 2,
+                handleWidth
+            );
+            ctx.strokeRect(
+                rb - handleWidth / 2,
                 tb - handleWidth / 2,
                 handleWidth,
-                handleWidth);
+                handleWidth
+            );
         }
 
         // top left border
         if (frame.border[3] || frame.border[0]) {
-            ctx.fillRect(lb - handleWidth / 2,
+            ctx.fillRect(
+                lb - handleWidth / 2,
                 tb - handleWidth / 2,
                 handleWidth,
-                handleWidth);
-            ctx.strokeRect(lb - handleWidth / 2,
+                handleWidth
+            );
+            ctx.strokeRect(
+                lb - handleWidth / 2,
                 tb - handleWidth / 2,
                 handleWidth,
-                handleWidth);
+                handleWidth
+            );
         }
 
         // pivot
