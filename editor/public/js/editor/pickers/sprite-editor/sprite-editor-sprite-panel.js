@@ -25,6 +25,10 @@ editor.once('load', function() {
         var panel = editor.call('attributes:addPanel', {
             parent: rootPanel
         });
+        panel.disabled = ! editor.call('permissions:write');
+        events.push(editor.on('permissions:writeState', function (canWrite) {
+            panel.disabled = ! canWrite;
+        }));
 
         var fieldId = editor.call('attributes:addField', {
             parent: panel,
@@ -93,6 +97,11 @@ editor.once('load', function() {
         });
         panelEdit.flex = true;
         panelEdit.class.add('buttons');
+
+        panelEdit.disabled = ! editor.call('permissions:write');
+        events.push(editor.on('permissions:writeState', function (canWrite) {
+            panelEdit.disabled = ! canWrite;
+        }));
 
         // add frames tooltip
         var panelAddFramesInfo = new ui.Panel('Adding more frames to a sprite');
@@ -174,6 +183,8 @@ editor.once('load', function() {
 
 
             var onDragStart = function (evt) {
+                if (! editor.call('permissions:write')) return;
+
                 draggedPanel = panel;
                 draggedIndex = panels.indexOf(panel);
 

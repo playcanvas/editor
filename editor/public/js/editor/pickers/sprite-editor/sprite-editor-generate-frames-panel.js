@@ -1,7 +1,9 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     editor.method('picker:sprites:attributes:slice', function (args) {
+        var events = [];
+
         var atlasAsset = args.atlasAsset;
         var atlasImage = args.atlasImage;
         var imageData = args.atlasImageData;
@@ -12,6 +14,12 @@ editor.once('load', function() {
             parent: rootPanel,
             name: 'GENERATE FRAMES'
         });
+
+        panel.disabled = ! editor.call('permissions:write');
+
+        events.push(editor.on('permissions:writeState', function (canWrite) {
+            panel.disabled = ! canWrite;
+        }));
 
         var METHOD_DELETE_EXISTING = 1;
         var METHOD_ONLY_APPEND = 2;
@@ -30,7 +38,6 @@ editor.once('load', function() {
         var PIVOT_BOTTOM        = 7;
         var PIVOT_BOTTOM_RIGHT  = 8;
 
-        var events = [];
 
         var fieldMethod = editor.call('attributes:addField', {
             parent: panel,

@@ -1,7 +1,8 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     editor.method('picker:sprites:attributes:importFrames', function (args) {
+        var events = [];
         var atlasAsset = args.atlasAsset;
 
         var rootPanel = editor.call('picker:sprites:rightPanel');
@@ -12,7 +13,11 @@ editor.once('load', function() {
         });
         panel.class.add('component');
 
-        var events = [];
+        panel.disabled = ! editor.call('permissions:write');
+
+        events.push(editor.on('permissions:writeState', function (canWrite) {
+            panel.disabled = ! canWrite;
+        }));
 
         var panelError = new ui.Panel('Invalid JSON file');
         panelError.class.add('import-error');

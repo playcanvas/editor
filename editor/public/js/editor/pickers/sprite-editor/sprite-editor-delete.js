@@ -6,6 +6,8 @@ editor.once('load', function () {
     // Options can be:
     // - history: if true then make this undoable
     editor.method('picker:sprites:deleteFrames', function (keys, options) {
+        if (! editor.call('permissions:write')) return;
+
         var atlasAsset = editor.call('picker:sprites:atlasAsset');
         if (! atlasAsset)
             return;
