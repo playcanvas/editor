@@ -60,8 +60,11 @@ editor.once('load', function () {
         });
 
         // Layers
-        if (index.layers) {
+        if (index.layers || index.layerOrder) {
             resolver.createSeparator('LAYERS');
+        }
+
+        if (index.layers) {
             for (var key in index.layers) {
                 var section = resolver.createSection('LAYER ' + getLayerName(key, mergeObject), true);
                 section.appendAllFields({
@@ -69,6 +72,14 @@ editor.once('load', function () {
                     fields: index.layers[key]
                 });
             }
+        }
+
+        if (index.layerOrder) {
+            var section = resolver.createSection('LAYER ORDER', true);
+            section.appendField({
+                type: 'array:sublayer',
+                conflict: index.layerOrder
+            });
         }
 
         // Batch groups
@@ -88,7 +99,6 @@ editor.once('load', function () {
             resolver.createSeparator('SCRIPTS LOADING ORDER');
             var section = resolver.createSection('SCRIPTS', true);
             section.appendField({
-                name: 'Order',
                 type: 'array:asset',
                 conflict: index.scripts
             });
