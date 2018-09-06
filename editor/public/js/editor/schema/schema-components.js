@@ -82,6 +82,12 @@ editor.once('load', function() {
     // Does not include asset script attributes.
     var assetPaths = [];
     var gatherAssetPathsRecursively = function (schemaField, path) {
+        if (schemaField.$editorType === 'asset' || schemaField.$editorType === 'array:asset') {
+            // this is for cases like components.model.mapping
+            assetPaths.push(path);
+            return;
+        }
+
         for (var fieldName in schemaField) {
             if (fieldName.startsWith('$')) continue;
 

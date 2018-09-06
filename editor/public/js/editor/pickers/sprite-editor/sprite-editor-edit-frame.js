@@ -3,6 +3,8 @@ editor.once('load', function () {
 
     // Modify frame and make the action undoable
     editor.method('picker:sprites:commitFrameChanges', function (key, frame, oldFrame) {
+        if (! editor.call('permissions:write')) return;
+
         var atlasAsset = editor.call('picker:sprites:atlasAsset');
         if (! atlasAsset) return;
 

@@ -24,6 +24,8 @@ editor.once('load', function () {
 
     // Trim transparent pixels from specified frames
     editor.method('picker:sprites:trimFrames', function (frames) {
+        if (! editor.call('permissions:write')) return;
+
         var prev = {};
 
         var frames = frames.slice();

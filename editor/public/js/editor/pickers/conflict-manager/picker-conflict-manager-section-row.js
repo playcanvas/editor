@@ -159,21 +159,36 @@ editor.once('load', function () {
         // convert ids to names
         if (base) {
             // for base values try to find the name first in the source indes and then in the destination index
+            var handled = false;
             for (var type in indexes) {
                 if (baseType === type) {
                     base = self._convertIdToName(base, indexes[type][0], indexes[type][1]);
+                    handled = true;
+                    break;
                 } else if (baseType === 'array:' + type) {
                     base = base.map(function (id) {
                         return self._convertIdToName(id, indexes[type][0], indexes[type][1]);
                     });
+                    handled = true;
+                    break;
                 }
+            }
+
+            // special handling for sublayers - use the 'layer' field as the id for the field
+            if (! handled && baseType === 'array:sublayer' && base) {
+                base.forEach(function (sublayer) {
+                    self._convertSublayer(sublayer, indexes.layer[0], indexes.layer[1]);
+                });
             }
         }
 
         if (src) {
+            var handled = false;
             for (var type in indexes) {
                 if (srcType === type) {
                     src = self._convertIdToName(src, indexes[type][0]);
+                    handled = true;
+                    break;
 
                     // TODO: Commented out because in order to do this we also need the base checkpoint
                     // to see if the entity exists in there. Ideally whether the parent was deleted or not should
@@ -189,14 +204,26 @@ editor.once('load', function () {
                     src = src.map(function (id) {
                         return self._convertIdToName(id, indexes[type][0]);
                     });
+                    handled = true;
+                    break;
                 }
+            }
+
+            // special handling for sublayers - use the 'layer' field as the id for the field
+            if (! handled && srcType === 'array:sublayer' && src) {
+                src.forEach(function (sublayer) {
+                    self._convertSublayer(sublayer, indexes.layer[0]);
+                });
             }
         }
 
         if (dst) {
+            var handled = false;
             for (var type in indexes) {
                 if (dstType === type) {
                     dst = self._convertIdToName(dst, indexes[type][1]);
+                    handled = true;
+                    break;
 
                     // TODO: Commented out because in order to do this we also need the base checkpoint
                     // to see if the entity exists in there. Ideally whether the parent was deleted or not should
@@ -211,7 +238,16 @@ editor.once('load', function () {
                     dst = dst.map(function (id) {
                         return self._convertIdToName(id, indexes[type][1]);
                     });
+                    handled = true;
+                    break;
                 }
+            }
+
+            // special handling for sublayers - use the 'layer' field as the id for the field
+            if (! handled && dstType === 'array:sublayer' && dst) {
+                dst.forEach(function (sublayer) {
+                    self._convertSublayer(sublayer, indexes.layer[1]);
+                });
             }
         }
 
@@ -242,6 +278,11 @@ editor.once('load', function () {
         }
 
         return result;
+    };
+
+    ConflictSectionRow.prototype._convertSublayer = function (sublayer, index, alternativeIndex) {
+        var layer = this._convertIdToName(sublayer.layer, index, alternativeIndex);
+        sublayer.layer = (layer.name || layer.id);
     };
 
     ConflictSectionRow.prototype._onHover = function () {

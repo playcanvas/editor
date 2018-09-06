@@ -19,12 +19,16 @@ editor.once('load', function() {
         editor.call('picker:sprites:attributes:frames:preview', {
             atlasAsset: atlasAsset,
             atlasImage: atlasImage,
-            frames: frames//frames.map(function (f) {return atlasAsset.get('data.frames.' + f);})
+            frames: frames
         });
 
         var panel = editor.call('attributes:addPanel', {
             parent: rootPanel
         });
+        panel.disabled = ! editor.call('permissions:write');
+        events.push(editor.on('permissions:writeState', function (canWrite) {
+            panel.disabled = ! canWrite;
+        }));
 
         var fieldName = editor.call('attributes:addField', {
             parent: panel,
@@ -495,6 +499,10 @@ editor.once('load', function() {
             name: 'ACTIONS'
         });
         panelButtons.class.add('buttons');
+        panelButtons.disabled = ! editor.call('permissions:write');
+        events.push(editor.on('permissions:writeState', function (canWrite) {
+            panelButtons.disabled = ! canWrite;
+        }));
 
         // new sprite
         var btnCreateSprite = new ui.Button({

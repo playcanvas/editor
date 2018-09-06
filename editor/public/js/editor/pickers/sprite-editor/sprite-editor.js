@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var handleWidth = 10;
@@ -33,7 +33,7 @@ editor.once('load', function() {
     var selectedHandle = null;
     var hoveringHandle = null;
     var startingHandleFrame = null;
-    var startingHandleCoords = {x: 0, y: 0};
+    var startingHandleCoords = { x: 0, y: 0 };
 
     var resizeInterval = null;
     var pivotX = 0;
@@ -272,7 +272,7 @@ editor.once('load', function() {
         return frame.rect[3] * scaledHeight / atlasImage.height;
     };
 
-    var windowToCanvas = function(windowX, windowY) {
+    var windowToCanvas = function (windowX, windowY) {
         var rect = canvas.element.getBoundingClientRect();
         return {
             x: Math.round(windowX - rect.left),
@@ -280,7 +280,7 @@ editor.once('load', function() {
         };
     };
 
-    var resizeCanvas = function() {
+    var resizeCanvas = function () {
         var result = false;
 
         var width = canvasPanel.element.clientWidth;
@@ -379,7 +379,7 @@ editor.once('load', function() {
     };
 
     var onKeyUp = function (e) {
-        if (! e.shiftKey) {
+        if (!e.shiftKey) {
             shiftDown = false;
             if (panning) {
                 stopPanning();
@@ -403,7 +403,7 @@ editor.once('load', function() {
         if (e.button !== 0) return;
 
         // start panning with left button and shift
-        if (! panning && leftButtonDown && shiftDown) {
+        if (!panning && leftButtonDown && shiftDown) {
             startPanning(e.clientX, e.clientY);
             return;
         }
@@ -413,7 +413,7 @@ editor.once('load', function() {
         var selected = editor.call('picker:sprites:selectedFrame');
 
         // if a frame is already selected try to select one of its handles
-        if (selected && ! ctrlDown) {
+        if (selected && !ctrlDown) {
             oldFrame = atlasAsset.get('data.frames.' + selected);
             if (oldFrame) {
                 setHandle(handlesHitTest(p, oldFrame), oldFrame, p);
@@ -427,11 +427,11 @@ editor.once('load', function() {
         }
 
         // if no handle selected try to select the frame under the cursor
-        if (! selected || ! selectedHandle) {
+        if (!selected || !selectedHandle) {
             var frameUnderCursor = framesHitTest(p);
-            if (! frameUnderCursor) {
+            if (!frameUnderCursor) {
                 // clear selection unless Ctrl is down
-                if (! ctrlDown) {
+                if (!ctrlDown) {
                     selected = editor.call('picker:sprites:selectFrames', null, {
                         history: true,
                         clearSprite: !spriteEditMode
@@ -460,14 +460,14 @@ editor.once('load', function() {
         }
 
         // if no frame selected then start a new frame
-        if (! selected && ! spriteEditMode) {
+        if (!selected && !spriteEditMode && editor.call('permissions:write')) {
             var diffX = clamp((p.x - imageLeft()) / imageWidth(), 0, 1);
             var diffY = clamp((1 - (p.y - imageTop()) / imageHeight()), 0, 1);
 
             var x = Math.floor(atlasImage.width * diffX);
             var y = Math.floor(atlasImage.height * diffY);
-            newFrame =  {
-                rect: [ x, y, 0, 0],
+            newFrame = {
+                rect: [x, y, 0, 0],
                 pivot: [0.5, 0.5],
                 border: [0, 0, 0, 0]
             };
@@ -542,7 +542,7 @@ editor.once('load', function() {
         if (e.button !== 0) return;
 
         // stop panning
-        if (panning && ! leftButtonDown) {
+        if (panning && !leftButtonDown) {
             stopPanning();
         }
 
@@ -596,7 +596,7 @@ editor.once('load', function() {
                     }
                 }
 
-                if(! dirty) {
+                if (!dirty) {
                     for (var i = 0; i < 2; i++) {
                         if (oldFrame.pivot[i] !== frame.pivot[i]) {
                             dirty = true;
@@ -979,8 +979,8 @@ editor.once('load', function() {
                 break;
             }
             case HANDLE.FRAME: {
-                frame.rect[0] = clamp(startingHandleFrame.rect[0] + (dx) , 0, realWidth - frame.rect[2]);
-                frame.rect[1] = clamp(startingHandleFrame.rect[1] - (dy) , 0, realHeight - frame.rect[3]);
+                frame.rect[0] = clamp(startingHandleFrame.rect[0] + (dx), 0, realWidth - frame.rect[2]);
+                frame.rect[1] = clamp(startingHandleFrame.rect[1] - (dy), 0, realHeight - frame.rect[3]);
                 break;
             }
 
@@ -1068,19 +1068,19 @@ editor.once('load', function() {
         requestAnimationFrame(renderCanvas);
     };
 
-    var renderCanvas = function() {
+    var renderCanvas = function () {
         queuedRender = false;
 
         if (overlay.hidden) return;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        if (! atlasImageLoaded) return;
+        if (!atlasImageLoaded) return;
 
         var selected = editor.call('picker:sprites:selectedFrame');
 
         // clear selection if no longer exists
-        if (selected && ! atlasAsset.has('data.frames.' + selected)) {
+        if (selected && !atlasAsset.has('data.frames.' + selected)) {
             selected = editor.call('picker:sprites:selectFrames', null);
         }
 
@@ -1102,11 +1102,11 @@ editor.once('load', function() {
         // draw background outside image
         ctx.fillStyle = COLOR_DARKEST;
         // left
-        ctx.fillRect(0,0, left, canvas.height);
+        ctx.fillRect(0, 0, left, canvas.height);
         // top
-        ctx.fillRect(0,0, canvas.width, top);
+        ctx.fillRect(0, 0, canvas.width, top);
         // right
-        ctx.fillRect(left + width,0, canvas.width - left - width, canvas.height);
+        ctx.fillRect(left + width, 0, canvas.width - left - width, canvas.height);
         // bottom
         ctx.fillRect(0, top + height, canvas.width, canvas.height - top - height);
 
@@ -1139,12 +1139,12 @@ editor.once('load', function() {
         ctx.beginPath();
         ctx.lineWidth = 1;
         ctx.strokeStyle = spriteAsset ? COLOR_ORANGE : COLOR_DARK;
-        for (var i = 0, len = highlightedFrames.length; i<len; i++) {
+        for (var i = 0, len = highlightedFrames.length; i < len; i++) {
             var key = highlightedFrames[i];
             if (selected && selected === key) continue;
 
             // check if frame no longer exists
-            if (! frames[key]) {
+            if (!frames[key]) {
                 highlightedFrames.splice(i, 1);
                 len--;
                 i--;
@@ -1160,11 +1160,11 @@ editor.once('load', function() {
         ctx.beginPath();
         ctx.lineWidth = 1;
         ctx.strokeStyle = COLOR_DARK;
-        for (var i = 0, len = newSpriteFrames.length; i<len; i++) {
+        for (var i = 0, len = newSpriteFrames.length; i < len; i++) {
             var key = newSpriteFrames[i];
 
             // check if frame no longer exists
-            if (! frames[key]) {
+            if (!frames[key]) {
                 newSpriteFrames.splice(i, 1);
                 len--;
                 i--;
@@ -1178,8 +1178,8 @@ editor.once('load', function() {
         ctx.beginPath();
         ctx.lineWidth = 1;
         ctx.setLineDash([4]);
-        if (! spriteEditMode) {
-            for (var i = 0, len = highlightedFrames.length; i<len; i++) {
+        if (!spriteEditMode) {
+            for (var i = 0, len = highlightedFrames.length; i < len; i++) {
                 var key = highlightedFrames[i];
                 if (selected && selected === key) continue;
                 renderBorderLines(frames[key]._data, left, top, width, height);
@@ -1243,7 +1243,7 @@ editor.once('load', function() {
             // render pivot
             var px = x + frame.pivot[0] * w;
             var py = y + (1 - frame.pivot[1]) * h;
-            ctx.moveTo(px,py);
+            ctx.moveTo(px, py);
             ctx.arc(px, py, pivotWidth, 0, 2 * Math.PI);
         }
     };
@@ -1264,25 +1264,25 @@ editor.once('load', function() {
         // left line
         if (frame.border[0]) {
             ctx.moveTo(lb, y);
-            ctx.lineTo(lb, y+h);
+            ctx.lineTo(lb, y + h);
         }
 
         // right line
         if (frame.border[2]) {
             ctx.moveTo(rb, y);
-            ctx.lineTo(rb, y+h);
+            ctx.lineTo(rb, y + h);
         }
 
         // bottom line
         if (frame.border[1]) {
             ctx.moveTo(x, bb);
-            ctx.lineTo(x+w, bb);
+            ctx.lineTo(x + w, bb);
         }
 
         // top line
         if (frame.border[3]) {
             ctx.moveTo(x, tb);
-            ctx.lineTo(x+w, tb);
+            ctx.lineTo(x + w, tb);
         }
     };
 
@@ -1313,25 +1313,25 @@ editor.once('load', function() {
         // left line
         if (frame.border[0]) {
             ctx.moveTo(lb, y);
-            ctx.lineTo(lb, y+h);
+            ctx.lineTo(lb, y + h);
         }
 
         // right line
         if (frame.border[2]) {
             ctx.moveTo(rb, y);
-            ctx.lineTo(rb, y+h);
+            ctx.lineTo(rb, y + h);
         }
 
         // bottom line
         if (frame.border[1]) {
             ctx.moveTo(x, bb);
-            ctx.lineTo(x+w, bb);
+            ctx.lineTo(x + w, bb);
         }
 
         // top line
         if (frame.border[3]) {
             ctx.moveTo(x, tb);
-            ctx.lineTo(x+w, tb);
+            ctx.lineTo(x + w, tb);
         }
 
         ctx.stroke();
@@ -1342,139 +1342,187 @@ editor.once('load', function() {
         ctx.lineWidth = 1;
 
         // top left corner
-        ctx.fillRect(x - handleWidth / 2,
-                     y - handleWidth / 2,
-                     handleWidth,
-                     handleWidth);
+        ctx.fillRect(
+            x - handleWidth / 2,
+            y - handleWidth / 2,
+            handleWidth,
+            handleWidth
+        );
 
-        ctx.strokeRect(x - handleWidth / 2,
-                     y - handleWidth / 2,
-                     handleWidth,
-                     handleWidth);
+        ctx.strokeRect(
+            x - handleWidth / 2,
+            y - handleWidth / 2,
+            handleWidth,
+            handleWidth
+        );
         // top right corner
-        ctx.fillRect(x + w - handleWidth / 2,
-                     y - handleWidth / 2,
-                     handleWidth,
-                     handleWidth);
+        ctx.fillRect(
+            x + w - handleWidth / 2,
+            y - handleWidth / 2,
+            handleWidth,
+            handleWidth
+        );
 
-        ctx.strokeRect(x + w - handleWidth / 2,
-                     y - handleWidth / 2,
-                     handleWidth,
-                     handleWidth);
+        ctx.strokeRect(
+            x + w - handleWidth / 2,
+            y - handleWidth / 2,
+            handleWidth,
+            handleWidth
+        );
 
         // bottom left corner
-        ctx.fillRect(x - handleWidth / 2,
-                     y + h - handleWidth / 2,
-                     handleWidth,
-                     handleWidth);
+        ctx.fillRect(
+            x - handleWidth / 2,
+            y + h - handleWidth / 2,
+            handleWidth,
+            handleWidth
+        );
 
-        ctx.strokeRect(x - handleWidth / 2,
-                     y + h - handleWidth / 2,
-                     handleWidth,
-                     handleWidth);
+        ctx.strokeRect(
+            x - handleWidth / 2,
+            y + h - handleWidth / 2,
+            handleWidth,
+            handleWidth
+        );
         // bottom right corner
-        ctx.fillRect(x + w - handleWidth / 2,
-                     y + h - handleWidth / 2,
-                     handleWidth,
-                     handleWidth);
+        ctx.fillRect(
+            x + w - handleWidth / 2,
+            y + h - handleWidth / 2,
+            handleWidth,
+            handleWidth
+        );
 
-        ctx.strokeRect(x + w - handleWidth / 2,
-                     y + h - handleWidth / 2,
-                     handleWidth,
-                     handleWidth);
+        ctx.strokeRect(
+            x + w - handleWidth / 2,
+            y + h - handleWidth / 2,
+            handleWidth,
+            handleWidth
+        );
 
 
         ctx.fillStyle = COLOR_BLUE;
         ctx.strokeStyle = COLOR_DARK;
 
         // left border
-        ctx.fillRect(lb - handleWidth / 2,
-                     (bb + tb) / 2 - handleWidth / 2,
-                     handleWidth,
-                     handleWidth);
-        ctx.strokeRect(lb - handleWidth / 2,
-                     (bb + tb) / 2 - handleWidth / 2,
-                     handleWidth,
-                     handleWidth);
+        ctx.fillRect(
+            lb - handleWidth / 2,
+            (bb + tb) / 2 - handleWidth / 2,
+            handleWidth,
+            handleWidth
+        );
+        ctx.strokeRect(
+            lb - handleWidth / 2,
+            (bb + tb) / 2 - handleWidth / 2,
+            handleWidth,
+            handleWidth
+        );
 
 
         // bottom border
-        ctx.fillRect((lb + rb) / 2 - handleWidth / 2,
-                     bb - handleWidth / 2,
-                     handleWidth,
-                     handleWidth);
-        ctx.strokeRect((lb + rb) / 2 - handleWidth / 2,
-                     bb - handleWidth / 2,
-                     handleWidth,
-                     handleWidth);
+        ctx.fillRect(
+            (lb + rb) / 2 - handleWidth / 2,
+            bb - handleWidth / 2,
+            handleWidth,
+            handleWidth
+        );
+        ctx.strokeRect(
+            (lb + rb) / 2 - handleWidth / 2,
+            bb - handleWidth / 2,
+            handleWidth,
+            handleWidth
+        );
 
         // right border
-        ctx.fillRect(rb - handleWidth / 2,
-                     (bb + tb) / 2 - handleWidth / 2,
-                     handleWidth,
-                     handleWidth);
-        ctx.strokeRect(rb - handleWidth / 2,
-                     (bb + tb) / 2 - handleWidth / 2,
-                     handleWidth,
-                     handleWidth);
+        ctx.fillRect(
+            rb - handleWidth / 2,
+            (bb + tb) / 2 - handleWidth / 2,
+            handleWidth,
+            handleWidth
+        );
+        ctx.strokeRect(
+            rb - handleWidth / 2,
+            (bb + tb) / 2 - handleWidth / 2,
+            handleWidth,
+            handleWidth
+        );
 
         // top border
-        ctx.fillRect((lb + rb) / 2 - handleWidth / 2,
-                     tb - handleWidth / 2,
-                     handleWidth,
-                     handleWidth);
-        ctx.strokeRect((lb + rb) / 2 - handleWidth / 2,
-                     tb - handleWidth / 2,
-                     handleWidth,
-                     handleWidth);
+        ctx.fillRect(
+            (lb + rb) / 2 - handleWidth / 2,
+            tb - handleWidth / 2,
+            handleWidth,
+            handleWidth
+        );
+        ctx.strokeRect(
+            (lb + rb) / 2 - handleWidth / 2,
+            tb - handleWidth / 2,
+            handleWidth,
+            handleWidth
+        );
 
         // bottom left border
         if (frame.border[0] || frame.border[1]) {
-            ctx.fillRect(lb - handleWidth / 2,
-                     bb - handleWidth / 2,
-                     handleWidth,
-                     handleWidth);
-            ctx.strokeRect(lb - handleWidth / 2,
-                         bb - handleWidth / 2,
-                         handleWidth,
-                         handleWidth);
+            ctx.fillRect(
+                lb - handleWidth / 2,
+                bb - handleWidth / 2,
+                handleWidth,
+                handleWidth
+            );
+            ctx.strokeRect(
+                lb - handleWidth / 2,
+                bb - handleWidth / 2,
+                handleWidth,
+                handleWidth
+            );
         }
 
         // bottom right border
         if (frame.border[1] || frame.border[2]) {
-            ctx.fillRect(rb - handleWidth / 2,
-                     bb - handleWidth / 2,
-                     handleWidth,
-                     handleWidth);
-            ctx.strokeRect(rb - handleWidth / 2,
-                         bb - handleWidth / 2,
-                         handleWidth,
-                         handleWidth);
+            ctx.fillRect(
+                rb - handleWidth / 2,
+                bb - handleWidth / 2,
+                handleWidth,
+                handleWidth
+            );
+            ctx.strokeRect(
+                rb - handleWidth / 2,
+                bb - handleWidth / 2,
+                handleWidth,
+                handleWidth
+            );
         }
 
 
         // top right border
         if (frame.border[2] || frame.border[3]) {
-            ctx.fillRect(rb - handleWidth / 2,
-                     tb - handleWidth / 2,
-                     handleWidth,
-                         handleWidth);
-            ctx.strokeRect(rb - handleWidth / 2,
-                         tb - handleWidth / 2,
-                         handleWidth,
-                         handleWidth);
+            ctx.fillRect(
+                rb - handleWidth / 2,
+                tb - handleWidth / 2,
+                handleWidth,
+                handleWidth
+            );
+            ctx.strokeRect(
+                rb - handleWidth / 2,
+                tb - handleWidth / 2,
+                handleWidth,
+                handleWidth
+            );
         }
 
         // top left border
         if (frame.border[3] || frame.border[0]) {
-            ctx.fillRect(lb - handleWidth / 2,
-                     tb - handleWidth / 2,
-                     handleWidth,
-                     handleWidth);
-            ctx.strokeRect(lb - handleWidth / 2,
-                         tb - handleWidth / 2,
-                         handleWidth,
-                         handleWidth);
+            ctx.fillRect(
+                lb - handleWidth / 2,
+                tb - handleWidth / 2,
+                handleWidth,
+                handleWidth
+            );
+            ctx.strokeRect(
+                lb - handleWidth / 2,
+                tb - handleWidth / 2,
+                handleWidth,
+                handleWidth
+            );
         }
 
         // pivot
@@ -1493,8 +1541,8 @@ editor.once('load', function() {
         ctx.stroke();
     };
 
-    var updateRightPanel = function() {
-        if (! rightPanel) {
+    var updateRightPanel = function () {
+        if (!rightPanel) {
             rightPanel = new ui.Panel();
             rightPanel.class.add('right-panel');
             rightPanel.class.add('attributes');
@@ -1513,32 +1561,30 @@ editor.once('load', function() {
             rightPanel.emit('clear');
         }
 
-        if (! atlasImageLoaded) return;
+        if (!atlasImageLoaded) return;
 
         var spriteAsset = editor.call('picker:sprites:selectedSprite');
 
         if (spriteAsset) {
-            editor.call('picker:sprites:attributes:sprite', {atlasAsset: atlasAsset, atlasImage: atlasImage, spriteAsset: spriteAsset});
+            editor.call('picker:sprites:attributes:sprite', { atlasAsset: atlasAsset, atlasImage: atlasImage, spriteAsset: spriteAsset });
         } else {
             var highlightedFrames = editor.call('picker:sprites:highlightedFrames');
             if (highlightedFrames.length) {
-                editor.call('picker:sprites:attributes:frames', {atlasAsset: atlasAsset, atlasImage: atlasImage, frames: highlightedFrames});
+                editor.call('picker:sprites:attributes:frames', { atlasAsset: atlasAsset, atlasImage: atlasImage, frames: highlightedFrames });
                 editor.call('picker:sprites:attributes:frames:relatedSprites', { atlasAsset: atlasAsset, frames: highlightedFrames });
             } else {
                 editor.call('picker:sprites:attributes:atlas', atlasAsset);
-                editor.call('picker:sprites:attributes:slice', {atlasAsset: atlasAsset, atlasImage: atlasImage, atlasImageData: atlasImageData});
-                editor.call('picker:sprites:attributes:importFrames', {atlasAsset: atlasAsset});
+                editor.call('picker:sprites:attributes:slice', { atlasAsset: atlasAsset, atlasImage: atlasImage, atlasImageData: atlasImageData });
+                editor.call('picker:sprites:attributes:importFrames', { atlasAsset: atlasAsset });
             }
         }
     };
 
-    var rectContainsPoint = function(p, left, top, width, height) {
+    var rectContainsPoint = function (p, left, top, width, height) {
         return left <= p.x && left + width >= p.x && top <= p.y && top + height >= p.y;
     };
 
-    var framesHitTest = function(p) {
-        var frameToReturn = null;
-
+    var framesHitTest = function (p) {
         var imgWidth = imageWidth();
         var imgHeight = imageHeight();
         var imgLeft = imageLeft();
@@ -1560,7 +1606,9 @@ editor.once('load', function() {
         return null;
     };
 
-    var handlesHitTest = function(p, frame) {
+    var handlesHitTest = function (p, frame) {
+        if (! editor.call('permissions:write')) return false;
+
         var imgWidth = imageWidth();
         var imgHeight = imageHeight();
         var imgLeft = imageLeft();
@@ -1713,7 +1761,7 @@ editor.once('load', function() {
             atlasAsset = null;
         }
 
-        if (! atlasAsset)
+        if (!atlasAsset)
             return;
 
         panel.header = 'SPRITE EDITOR - ' + atlasAsset.get('name').toUpperCase();
@@ -1733,13 +1781,8 @@ editor.once('load', function() {
 
             aspectRatio = atlasImage.width / atlasImage.height;
 
-            editor.call('picker:sprites:frames', {
-                atlasAsset: atlasAsset,
-                atlasImage: atlasImage
-            });
-
-            editor.call('picker:sprites:spriteassets', {atlasAsset: atlasAsset});
-
+            editor.call('picker:sprites:frames', { atlasAsset: atlasAsset });
+            editor.call('picker:sprites:spriteassets', { atlasAsset: atlasAsset });
             editor.emit('picker:sprites:open');
 
             if (_spriteAsset) {
@@ -1750,7 +1793,7 @@ editor.once('load', function() {
             }
 
         };
-        atlasImage.src = atlasAsset.get('file.url').appendQuery('t=' +  atlasAsset.get('file.hash'));
+        atlasImage.src = atlasAsset.get('file.url').appendQuery('t=' + atlasAsset.get('file.hash'));
 
         // listen to atlas changes and render
         events.push(atlasAsset.on('*:set', queueRender));
@@ -1763,7 +1806,7 @@ editor.once('load', function() {
         if (resizeInterval) {
             clearInterval(resizeInterval);
         }
-        resizeInterval = setInterval(function() {
+        resizeInterval = setInterval(function () {
             if (resizeCanvas()) {
                 queueRender();
             }
@@ -1800,7 +1843,7 @@ editor.once('load', function() {
         cls.remove('grabbing');
 
 
-        if ((panning || shiftDown) && ! selectedHandle) {
+        if ((panning || shiftDown) && !selectedHandle) {
             if (panning) {
                 cls.add('grabbing');
             } else if (shiftDown) {
@@ -1913,12 +1956,12 @@ editor.once('load', function() {
     });
 
     // Return left panel
-    editor.method('picker:sprites:leftPanel', function() {
+    editor.method('picker:sprites:leftPanel', function () {
         return leftPanel;
     });
 
     // Return right panel
-    editor.method('picker:sprites:rightPanel', function() {
+    editor.method('picker:sprites:rightPanel', function () {
         return rightPanel;
     });
 
@@ -1996,7 +2039,7 @@ editor.once('load', function() {
         setHandle(null);
         updateCursor();
 
-        if (! spriteEditMode) {
+        if (!spriteEditMode) {
             updateRightPanel();
         }
 
@@ -2023,7 +2066,7 @@ editor.once('load', function() {
             },
             redo: function () {
                 var currentAsset = editor.call('assets:get', asset.get('id'));
-                if (! currentAsset) return;
+                if (!currentAsset) return;
 
                 showEditor(currentAsset);
             }
@@ -2044,14 +2087,14 @@ editor.once('load', function() {
 
     // Clean up
     overlay.on('hide', function () {
-        if (! suspendCloseUndo) {
+        if (!suspendCloseUndo) {
             var currentAsset = atlasAsset;
 
             editor.call('history:add', {
                 name: 'close sprite editor',
                 undo: function () {
                     var asset = editor.call('assets:get', currentAsset.get('id'));
-                    if (! asset) return;
+                    if (!asset) return;
 
                     showEditor(asset);
                 },

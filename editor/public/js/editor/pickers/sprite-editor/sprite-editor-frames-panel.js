@@ -5,7 +5,6 @@ editor.once('load', function() {
         var events = [];
 
         var atlasAsset = args.atlasAsset;
-        var atlasImage = args.atlasImage;
 
         var panels = {};
         var selectedKeys = [];
@@ -78,6 +77,12 @@ editor.once('load', function() {
             btnRemove.class.add('remove');
             panel.append(btnRemove);
 
+            btnRemove.disabled = ! editor.call('permissions:write');
+
+            frameEvents.push(editor.on('permissions:writeState', function (canWrite) {
+                btnRemove.disabled = ! canWrite;
+            }));
+
             btnRemove.on('click', function (e) {
                 e.stopPropagation();
                 editor.call('picker:sprites:deleteFrames', [key], {
@@ -137,7 +142,7 @@ editor.once('load', function() {
                     } else {
                         // if selected remove from selection
                         keys.splice(idx, 1);
-                    editor.call('picker:sprites:selectFrames', keys, {
+                        editor.call('picker:sprites:selectFrames', keys, {
                             history: true,
                             clearSprite: !spriteEditMode
                         });
