@@ -19,6 +19,8 @@ editor.once('load', function () {
             case 'layer':
             case 'batchGroup':
                 return new ConflictFieldLayer(value);
+            case 'sublayer':
+                return new ConflictFieldSublayer(value);
             case 'vec2':
             case 'vec3':
             case 'vec4':
@@ -151,6 +153,16 @@ editor.once('load', function () {
         this.element.class.add('field-layer', 'selectable');
     };
     ConflictFieldLayer.prototype = Object.create(ConflictField.prototype);
+
+    // A sublayer field
+    var ConflictFieldSublayer = function (value) {
+        this.element = new ui.Label({
+            text: value ? value.layer + ' ' + (value.transparent ? 'Transparent' : 'Opaque') : value
+        });
+        this.element.class.add('field-sublayer', 'selectable');
+    };
+    ConflictFieldSublayer.prototype = Object.create(ConflictField.prototype);
+
 
     // A field saying that the object was deleted in one branch
     var ConflictFieldDeleted = function () {
