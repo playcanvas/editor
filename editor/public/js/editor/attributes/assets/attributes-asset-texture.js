@@ -384,7 +384,8 @@ editor.once('load', function() {
             original: { size: 0, vram: 0 },
             dxt: { size: 0, vram: 0, timeout: false },
             pvr: { size: 0, vram: 0, timeout: false },
-            etc1: { size: 0, vram: 0, timeout: false }
+            etc1: { size: 0, vram: 0, timeout: false },
+            etc2: { size: 0, vram: 0, timeout: false }
         };
 
 
@@ -682,6 +683,24 @@ editor.once('load', function() {
         if (! formats.etc1.size && ! formats.etc1.vram) labelEtc1Size.text = '-';
         fieldEtc1.parent.append(labelEtc1Size);
 
+        // etc2
+        var fieldEtc2 = editor.call('attributes:addField', {
+            parent: panelCompression,
+            type: 'checkbox',
+            name: 'ETC2',
+            link: assets,
+            path: 'meta.compress.etc2'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:texture:compress:etc2', fieldEtc2.parent.innerElement.firstChild.ui);
+
+        // label
+        var labelEtc2Size = labelSize['etc2'] = new ui.Label({
+            text: bytesToHuman(formats.etc2.size) + ' [VRAM ' + bytesToHuman(formats.etc2.vram) + ']'
+        });
+        labelEtc2Size.class.add('size');
+        if (! formats.etc2.size && ! formats.etc2.vram) labelEtc2Size.text = '-';
+        fieldEtc2.parent.append(labelEtc2Size);
 
         checkFormats();
 
