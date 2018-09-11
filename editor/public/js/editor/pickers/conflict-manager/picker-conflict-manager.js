@@ -500,6 +500,14 @@ editor.once('load', function () {
             btnComplete.disabled = true;
         });
 
+        // fired by the text resolver to go back
+        // to viewing asset conflicts
+        resolver.on('close', function () {
+            if (hasDataConflicts(group)) {
+                showConflicts(group);
+            }
+        });
+
         // adjust the positioning of the vertical borders because a scrollbar
         // might have been displayed which might have changed the rendered width
         // of the conflicts panel

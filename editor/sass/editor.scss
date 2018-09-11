@@ -9587,6 +9587,22 @@ strong {
                                     float: right;
                                     margin: 0;
                                     margin-top: 5px;
+                                    margin-left: 15px;
+
+                                    &:before {
+                                        @extend .font-icon;
+                                        margin-right: 5px;
+                                        vertical-align: middle;
+                                        font-size: 16px;
+                                    }
+
+                                    &.mark-resolved:before {
+                                        content: '\E133';
+                                    }
+
+                                    &.go-back:before {
+                                        content: '\E158';
+                                    }
                                 }
                             }
                         }
