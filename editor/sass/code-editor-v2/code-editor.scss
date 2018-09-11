@@ -76,6 +76,15 @@ strong {
         height: 100%;
         overflow: hidden;
     }
+
+    &.file-only-mode {
+        #ui-top, #ui-left, #ui-bottom, #ui-tabs {
+            display: none;
+        }
+        #ui-center, #ui-code {
+            height: 100%;
+        }
+    }
 }
 
 #ui-top {

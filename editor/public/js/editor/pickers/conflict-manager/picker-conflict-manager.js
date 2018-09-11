@@ -1,6 +1,14 @@
 editor.once('load', function () {
     'use strict';
 
+    var LAYOUT_NONE = 0;
+    var LAYOUT_FIELDS_ONLY = 1;
+    var LAYOUT_FIELDS_AND_FILE_CONFLICTS = 2;
+    var LAYOUT_FILE_CONFLICTS_ONLY = 3;
+    var LAYOUT_PROGRESS_ONLY = 4;
+
+    var layoutMode = LAYOUT_NONE;
+
     // overlay
     var root = editor.call('layout.root');
     var overlay = new ui.Overlay();
@@ -38,6 +46,7 @@ editor.once('load', function () {
     panelRight.flex = true;
     panelRight.flexGrow = 1;
     panel.append(panelRight);
+
 
     // main progress text
     var labelMainProgress = new ui.Label();
@@ -151,6 +160,37 @@ editor.once('load', function () {
 
     panelRight.append(panelBottom);
 
+    // panel that warns about file merge
+    var panelFileConflicts = new ui.Panel('FILE CONFLICTS');
+    panelFileConflicts.class.add('file-conflicts');
+    panelFileConflicts.flex = true;
+    panelFileConflicts.hidden = true;
+    panelRight.append(panelFileConflicts);
+
+    var labelInfo = new ui.Label({
+        text: '&#58368;',
+        unsafe: true
+    });
+    labelInfo.class.add('font-icon');
+    panelFileConflicts.append(labelInfo);
+
+    var labelFileConflicts = new ui.Label({
+        text: 'FILE CONFLICTS'
+    });
+    labelFileConflicts.class.add('file-conflicts');
+    panelFileConflicts.append(labelFileConflicts);
+
+    var labelFileConflictsSmall = new ui.Label({
+        text: 'The asset also has file conflicts'
+    });
+    labelFileConflictsSmall.class.add('file-conflicts-small');
+    panelFileConflicts.append(labelFileConflictsSmall);
+
+    var btnViewFileConflicts = new ui.Button({
+        text: 'VIEW FILE CONFLICTS'
+    });
+    panelFileConflicts.append(btnViewFileConflicts);
+
     // close button
     var btnClose = new ui.Button({
         text: '&#57650;'
@@ -158,6 +198,10 @@ editor.once('load', function () {
     btnClose.class.add('close');
     btnClose.on('click', function () {
         editor.call('picker:confirm', 'Closing the conflict manager will stop the merge. Are you sure?', function () {
+            if (resolver) {
+                resolver.destroy();
+            }
+
             showMainProgress(spinnerIcon, 'Stopping merge');
             editor.call('branches:forceStopMerge', config.self.branch.merge.id, function (err) {
                 if (err) {
@@ -179,6 +223,28 @@ editor.once('load', function () {
     var currentMergeObject = null;
     // the UI to resolve conflicts for an item
     var resolver = null;
+
+    // Returns true if the conflict group has any file conflicts
+    var hasFileConflicts = function (group) {
+        for (var i = 0; i < group.data.length; i++) {
+            if (group.data[i].isTextualMerge) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    // Returns true if the conflict group has any regular data conflicts
+    var hasDataConflicts = function (group) {
+        for (var i = 0; i < group.data.length; i++) {
+            if (! group.data[i].isTextualMerge) {
+                return true;
+            }
+        }
+
+        return false;
+    };
 
     // Returns true if all of the conflicts of a group (a group has a unique itemId)
     // have been resolved
@@ -265,59 +331,153 @@ editor.once('load', function () {
             labelIcon.class.remove('resolved');
         };
 
-        item.setNumberOfConflicts = function (resolved, total) {
+        item.refreshResolvedCount = function () {
+            var resolved = 0;
+            var total = conflictGroup.data.length;
+            for (var i = 0; i < total; i++) {
+                if (conflictGroup.data[i].useSrc ||
+                    conflictGroup.data[i].useDst ||
+                    conflictGroup.data[i].useMergedFile) {
+
+                    resolved++;
+                }
+            }
+
             labelType.text = type + ' - Resolved ' + resolved + '/' + total;
         };
 
-        var resolved = conflictGroup.data.reduce(function (sum, conflict) {
-            return sum + ((conflict.useDst || conflict.useSrc) ? 1 : 0);
-        }, 0);
-        item.setNumberOfConflicts(resolved, conflictGroup.data.length);
+        item.refreshResolvedCount();
 
         return item;
     };
 
+    var showRegularConflicts = function () {
+        panelTop.hidden = false;
+        panelConflicts.hidden = false;
+        panelBottom.hidden = false;
+
+        for (var i = 0; i < verticalBorders.length; i++) {
+            verticalBorders[i].classList.remove('hidden');
+        }
+    };
+
+    var showFileConflictsPanel = function () {
+        panelFileConflicts.hidden = false;
+        panelRight.class.add('file-conflicts-visible');
+    };
+
+    // Enables / disables the appropriate panels for the right
+    // side depending on the specified mode
+    var setLayoutMode = function (mode)  {
+        layoutMode = mode;
+
+        // turn off all right panel children first
+        // and then enable the fields required by
+        // the mode
+        panelRight.class.remove('file-conflicts-visible');
+        var children = panelRight.innerElement.childNodes;
+        for (var i = 0; i < children.length; i++) {
+            children[i].classList.add('hidden');
+        }
+
+        switch (mode) {
+            case LAYOUT_FIELDS_ONLY:
+                showRegularConflicts();
+                break;
+            case LAYOUT_FIELDS_AND_FILE_CONFLICTS:
+                showRegularConflicts();
+                showFileConflictsPanel();
+                break;
+        }
+    };
+
+    // Hide conflicts and show a progress icon
+    var showMainProgress = function (icon, text) {
+        [spinnerIcon, completedIcon, errorIcon].forEach(function (i) {
+            if (icon === i) {
+                i.classList.remove('hidden');
+            } else {
+                i.classList.add('hidden');
+            }
+        });
+
+        labelMainProgress.hidden = false;
+        labelMainProgress.text = text;
+    };
+
     // Shows the conflicts of a group
-    var showConflicts = function (data) {
+    var showConflicts = function (group, forceLayoutMode) {
         // destroy the current resolver
         if (resolver) {
             resolver.destroy();
             resolver = null;
         }
 
-        currentConflicts = data;
+        currentConflicts = group;
+
+        var parent = panelConflicts;
+
+        var mode = forceLayoutMode ||  LAYOUT_FIELDS_ONLY;
+        if (! forceLayoutMode) {
+            if (hasFileConflicts(group)) {
+                if (hasDataConflicts(group)) {
+                    mode = LAYOUT_FIELDS_AND_FILE_CONFLICTS;
+                } else {
+                    mode = LAYOUT_FILE_CONFLICTS_ONLY;
+                }
+            }
+        }
 
         // create resolver based on type
         var methodName;
-        if (data.itemType === 'scene') {
-            methodName = 'picker:conflictManager:showSceneConflicts';
-        } else if (data.itemType === 'settings') {
-            methodName = 'picker:conflictManager:showSettingsConflicts';
-        } else if (data.itemType === 'asset') {
-            methodName = 'picker:conflictManager:showAssetConflicts';
+        switch (group.itemType) {
+            case 'scene':
+                methodName = 'picker:conflictManager:showSceneConflicts';
+                break;
+            case 'settings':
+                methodName = 'picker:conflictManager:showSettingsConflicts';
+                break;
+            default: // asset
+                if (mode === LAYOUT_FILE_CONFLICTS_ONLY) {
+                    parent = panelRight;
+                    methodName = 'picker:conflictManager:showAssetFileConflicts';
+                } else {
+                    methodName = 'picker:conflictManager:showAssetFieldConflicts';
+                }
+                break;
         }
 
-        if (! methodName) {
-            console.error('Unhandled conflict type');
-            return;
-        }
+        setLayoutMode(mode);
 
-        resolver = editor.call(methodName, panelConflicts, currentConflicts, currentMergeObject);
+        resolver = editor.call(
+            methodName,
+            parent,
+            currentConflicts,
+            currentMergeObject
+        );
 
         var timeoutCheckAllResolved;
 
         // Called when any conflict is resolved
         resolver.on('resolve', function () {
+            group.listItem.refreshResolvedCount();
+
+            // go back to regular layout
+            if (layoutMode === LAYOUT_FILE_CONFLICTS_ONLY) {
+                if (hasDataConflicts(group)) {
+                    showConflicts(group);
+                }
+            }
+
             // Check if all the conflicts of a group have been
             // resolved
-            if (! isConflictGroupResolved(data)) return;
+            if (! isConflictGroupResolved(group)) return;
 
             // Check if all conflicts of all groups are now resolved
             // in a timeout. Do it in a timeout in case the user
             // clicks on one of the resolve all buttons in which case
             // the resolve event will be fired mutliple times in the same frame
-            data.listItem.onResolved();
-            data.listItem.setNumberOfConflicts(resolver.numResolvedConflicts, resolver.numConflicts);
+            group.listItem.onResolved();
 
             if (timeoutCheckAllResolved) {
                 clearTimeout(timeoutCheckAllResolved);
@@ -330,13 +490,13 @@ editor.once('load', function () {
 
         // Called when any conflict has been un-resolved
         resolver.on('unresolve', function () {
-            data.listItem.onUnresolved();
+            group.listItem.onUnresolved();
             if (timeoutCheckAllResolved) {
                 clearTimeout(timeoutCheckAllResolved);
                 timeoutCheckAllResolved = null;
             }
 
-            data.listItem.setNumberOfConflicts(resolver.numResolvedConflicts, resolver.numConflicts);
+            group.listItem.refreshResolvedCount();
             btnComplete.disabled = true;
         });
 
@@ -350,43 +510,9 @@ editor.once('load', function () {
         });
     };
 
-    // Hide conflicts and show a progress icon
-    var showMainProgress = function (icon, text) {
-        [spinnerIcon, completedIcon, errorIcon].forEach(function (i) {
-            if (icon === i) {
-                i.classList.remove('hidden');
-            } else {
-                i.classList.add('hidden');
-            }
-        });
-
-        for (var i = 0; i < verticalBorders.length; i++) {
-            verticalBorders[i].classList.add('hidden');
-        }
-
-        labelMainProgress.hidden = false;
-        labelMainProgress.text = text;
-
-        panelTop.hidden = true;
-        panelConflicts.hidden = true;
-        panelBottom.hidden = true;
-    };
-
-    // Hide progress icons and show conflicts
-    var hideMainProgress = function () {
-        spinnerIcon.classList.add('hidden');
-        completedIcon.classList.add('hidden');
-        errorIcon.classList.add('hidden');
-        labelMainProgress.hidden = true;
-
-        for (var i = 0; i < verticalBorders.length; i++) {
-            verticalBorders[i].classList.remove('hidden');
-        }
-
-        panelTop.hidden = false;
-        panelConflicts.hidden = false;
-        panelBottom.hidden = false;
-    };
+    btnViewFileConflicts.on('click', function () {
+        showConflicts(currentConflicts, LAYOUT_FILE_CONFLICTS_ONLY);
+    });
 
     // // Complete merge button click
     btnComplete.on('click', function () {
@@ -400,11 +526,12 @@ editor.once('load', function () {
 
         showMainProgress(spinnerIcon, 'Completing merge...');
         editor.call('branches:applyMerge', currentMergeObject.id, function (err) {
+            setLayoutMode(layoutMode);
+
             if (err) {
                 // if there was an error show it in the UI and then go back to the conflicts
                 showMainProgress(errorIcon, err);
                 setTimeout(function () {
-                    hideMainProgress();
                     btnComplete.disabled = false;
                     listItems.innerElement.firstChild.ui.selected = true;
                 }, 2000);
@@ -430,8 +557,6 @@ editor.once('load', function () {
             return showMainProgress(completedIcon, 'No conflicts found - Click Complete Merge');
         }
 
-        hideMainProgress();
-
         for (var i = 0; i < currentMergeObject.conflicts.length; i++) {
             var item = createLeftListItem(currentMergeObject.conflicts[i]);
             if (i === 0) {
@@ -447,6 +572,7 @@ editor.once('load', function () {
         // editor-blocking picker opened
         editor.emit('picker:open', 'conflict-manager');
 
+        setLayoutMode(LAYOUT_NONE);
         showMainProgress(spinnerIcon, 'Loading conflicts...');
 
         if (!currentMergeObject) {
@@ -505,4 +631,9 @@ editor.once('load', function () {
     editor.method('picker:conflictManager:currentMerge', function () {
         return currentMergeObject;
     });
+
+    editor.method('picker:conflictManager:rightPanel', function () {
+        return panelRight;
+    });
+
 });

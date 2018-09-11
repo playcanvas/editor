@@ -132,4 +132,32 @@ editor.once('load', function () {
             auth: true
         }, callback);
     });
+
+    // Gets the contents of a conflict file
+    editor.method('conflicts:getUnresolvedFile', function (conflictId, callback) {
+        request({
+            url: '{{url.api}}/conflicts/' + conflictId + '/file',
+            method: 'GET',
+            auth: true,
+            notJson: true
+        }, callback);
+    });
+
+
+    // Uploads the specified file to resolve a conflict
+    editor.method('conflicts:uploadResolvedFile', function (conflictId, file, callback) {
+        var formData = new FormData();
+        formData.append('file', file);
+
+        request({
+            url: '{{url.api}}/conflicts/' + conflictId + '/file',
+            method: 'PUT',
+            data: formData,
+            auth: true,
+            ignoreContentType: true,
+            headers: {
+                Accept: 'application/json'
+            }
+        }, callback);
+    });
 });

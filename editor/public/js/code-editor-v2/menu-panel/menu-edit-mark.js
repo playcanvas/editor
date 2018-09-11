@@ -6,7 +6,7 @@ editor.once('load', function () {
     var cm = editor.call('editor:codemirror');
 
     var canEditLine = function () {
-        return editor.call('documents:getFocused') && !cm.isReadOnly();
+        return editor.call('editor:resolveConflictMode') || editor.call('documents:getFocused') && !cm.isReadOnly();
     };
 
     var group = menu.createItem('mark', {

@@ -171,11 +171,11 @@ editor.once('load', function () {
     });
 
     // connect to C3
-    if (editor.call('visibility')) {
-        connect();
-    } else {
-        editor.once('visible', connect);
-    }
-
-
+    // if (! editor.call('editor:resolveConflictMode')) { // no need to connect in resolveConflict mode
+        if (editor.call('visibility')) {
+            connect();
+        } else {
+            editor.once('visible', connect);
+        }
+    // }
 });

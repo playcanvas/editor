@@ -7,7 +7,9 @@ editor.once('load', function () {
     var mac = navigator.userAgent.indexOf('Mac OS X') !== -1;
     var cm = editor.call('editor:codemirror');
 
-    var hasFocused = function () {
+    var canSearch = function () {
+        if (editor.call('editor:resolveConflictMode')) return true;
+
         var focusedTab = editor.call('tabs:focused');
         return focusedTab && (!focusedTab.asset || !!editor.call('documents:getFocused'));
     };
@@ -15,7 +17,7 @@ editor.once('load', function () {
     // Find Under
     var item = menu.createItem('find-under', {
         title: 'Quick Find',
-        filter: hasFocused,
+        filter: canSearch,
         select: function () {
             return editor.call('editor:command:findUnder');
         }
@@ -37,7 +39,7 @@ editor.once('load', function () {
     });
 
     editor.method('editor:command:findUnder', function () {
-        if (hasFocused()) {
+        if (canSearch()) {
             cm.execCommand('findUnder');
             cm.focus();
         }
@@ -46,7 +48,7 @@ editor.once('load', function () {
     // Find Under Previous
     var item = menu.createItem('find-under-prev', {
         title: 'Quick Find Previous',
-        filter: hasFocused,
+        filter: canSearch,
         select: function () {
             return editor.call('editor:command:findUnderPrev');
         }
@@ -55,7 +57,7 @@ editor.once('load', function () {
     menu.append(item);
 
     editor.method('editor:command:findUnderPrev', function () {
-        if (hasFocused()) {
+        if (canSearch()) {
             cm.execCommand('findUnderPrevious');
             cm.focus();
         }
@@ -64,7 +66,7 @@ editor.once('load', function () {
     // Find All Under
     var item = menu.createItem('find-all-under', {
         title: 'Quick Find All',
-        filter: hasFocused,
+        filter: canSearch,
         select: function () {
             return editor.call('editor:command:findAllUnder');
         }
@@ -90,7 +92,7 @@ editor.once('load', function () {
     }
 
     editor.method('editor:command:findAllUnder', function () {
-        if (hasFocused()) {
+        if (canSearch()) {
             cm.execCommand('findAllUnder');
             cm.focus();
         }
@@ -99,7 +101,7 @@ editor.once('load', function () {
     // Select next occurrence
     var item = menu.createItem('select-next-occurrence', {
         title: 'Quick Add Next',
-        filter: hasFocused,
+        filter: canSearch,
         select: function () {
             return editor.call('editor:command:selectNextOccurrence');
         }
@@ -119,7 +121,7 @@ editor.once('load', function () {
     });
 
     editor.method('editor:command:selectNextOccurrence', function () {
-        if (hasFocused()) {
+        if (canSearch()) {
             cm.execCommand('selectNextOccurrence');
             cm.focus();
         }
