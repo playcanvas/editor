@@ -379,22 +379,47 @@ editor.once('load', function () {
         var obj;
         var i;
 
+        var oldId = this.oldId;
+        var newId = this.newId;
+        var changed = [];
+
         for (i = 0; i < this.entities.length; i++) {
             obj = this.entities[i];
 
             var element = obj.get('components.element');
-            if (element && element.textureAsset === this.oldId) {
-
+            if (element && element.textureAsset === oldId) {
+                changed.push(obj);
                 var history = obj.history.enabled;
                 obj.history.enabled = false;
                 obj.set('components.element.textureAsset', null);
-                obj.set('components.element.spriteAsset', this.newId);
+                obj.set('components.element.spriteAsset', newId);
                 obj.history.enabled = history;
 
                 if (history) {
-                    this.records.push({
-                        get: obj.history._getItemFn,
-                        path: 'components.element.textureAsset'
+                    // set up undo
+                    editor.call('history:add', {
+                        name: 'asset texture to sprite',
+                        undo: function () {
+                            for (var i = 0; i < changed.length; i++) {
+                                var obj = changed[i];
+                                var history = obj.history.enabled;
+                                obj.history.enabled = false;
+                                obj.set('components.element.textureAsset', oldId);
+                                obj.set('components.element.spriteAsset', null);
+                                obj.history.enabled = history;
+                            }
+                        },
+
+                        redo: function () {
+                            for (var i = 0; i < changed.length; i++) {
+                                var obj = changed[i];
+                                var history = obj.history.enabled;
+                                obj.history.enabled = false;
+                                obj.set('components.element.textureAsset', null);
+                                obj.set('components.element.spriteAsset', newId);
+                                obj.history.enabled = history;
+                            }
+                        }
                     });
                 }
             }
