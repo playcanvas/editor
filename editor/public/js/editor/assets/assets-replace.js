@@ -10,6 +10,8 @@ editor.once('load', function () {
      */
     var AssetReplace = function (asset, replacement) {
         this.asset = asset;
+        this.replacement = replacement;
+
         this.oldId = parseInt(asset.get('id'), 10);
         this.newId = parseInt(replacement.get('id'), 10);
 
@@ -373,6 +375,33 @@ editor.once('load', function () {
         }
     };
 
+    AssetReplace.prototype.handleTextureToSprite = function () {
+        var obj;
+        var i;
+
+        for (i = 0; i < this.entities.length; i++) {
+            obj = this.entities[i];
+
+            var element = obj.get('components.element');
+            if (element && element.textureAsset === this.oldId) {
+
+                var history = obj.history.enabled;
+                obj.history.enabled = false;
+                obj.set('components.element.textureAsset', null);
+                obj.set('components.element.spriteAsset', this.newId);
+                obj.history.enabled = history;
+
+                if (history) {
+                    this.records.push({
+                        get: obj.history._getItemFn,
+                        path: 'components.element.textureAsset'
+                    });
+                }
+            }
+        }
+
+    };
+
     AssetReplace.prototype.replaceScriptAttributes = function () {
         // entity.components.script
         for (var i = 0; i < this.entities.length; i++) {
@@ -515,7 +544,27 @@ editor.once('load', function () {
         this.saveChanges();
     };
 
+    // Special-case where we want to replace textures with sprites
+    // This will only work on Element components and will replace a texture asset with sprite asset
+    // It is not available generally only behind a user flag
+    AssetReplace.prototype.replaceTextureToSprite = function () {
+        var srcType = this.asset.get('type');
+        var dstType = this.replacement.get('type');
+
+        if (srcType !== 'texture' || dstType !== 'sprite') {
+            console.error('replaceTextureToSprite must take texture and replace with sprite');
+        }
+
+        this.handleTextureToSprite();
+        this.saveChanges();
+    };
+
     editor.method('assets:replace', function (asset, replacement) {
         new AssetReplace(asset, replacement).replace();
     });
+
+    editor.method('assets:replaceTextureToSprite', function (asset, replacement) {
+        new AssetReplace(asset, replacement).replaceTextureToSprite();
+    });
+
 });
