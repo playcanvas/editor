@@ -67,7 +67,7 @@ editor.once('load', function () {
     TextResolver.prototype.uploadResolved = function () {
         this.btnMarkResolved.disabled = true;
         var content = this.getEditorContent();
-        var file = new Blob([content], { type: 'application/javascript' });
+        var file = new Blob([content]);
         editor.call('conflicts:uploadResolvedFile', this._textualMergeConflict.id, file, function (err) {
             this.btnMarkResolved.disabled = false;
             if (err) {
