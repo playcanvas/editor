@@ -73,6 +73,19 @@ editor.once('load', function() {
         'audio': '&#57872;'
     };
 
+    var ICONS = {
+        REFERENCES: '&#57622;',
+        TEXTURE_ATLAS: '&#58162;',
+        SPRITE_ASSET: '&#58261;',
+        REPLACE: '&#57640;',
+        REIMPORT: '&#57889;',
+        DOWNLOAD: '&#57896;',
+        EDIT: '&#57648;',
+        DUPLICATE: '&#57638;',
+        DELETE: '&#57636;',
+        SCENE_SETTINGS: '&#57652;',
+    };
+
     var assets = {
         'upload': 'Upload',
         'folder': 'Folder',
@@ -141,7 +154,7 @@ editor.once('load', function() {
     // related
     var menuItemReferences = new ui.MenuItem({
         text: 'References',
-        icon: '&#57622;',
+        icon: ICONS.REFERENCES,
         value: 'references'
     });
     menu.append(menuItemReferences);
@@ -149,7 +162,7 @@ editor.once('load', function() {
     // Create Atlas
     var menuItemTextureToAtlas = new ui.MenuItem({
         text: 'Create Texture Atlas',
-        icon: '&#58162;',
+        icon: ICONS.TEXTURE_ATLAS,
         value: 'texture-to-atlas'
     });
     menu.append(menuItemTextureToAtlas);
@@ -161,7 +174,7 @@ editor.once('load', function() {
     // Create Sprite From Atlas
     var menuItemCreateSprite = new ui.MenuItem({
         text: 'Create Sprite Asset',
-        icon: '&#58261;',
+        icon: ICONS.SPRITE_ASSET,
         value: 'atlas-to-sprite'
     });
     menu.append(menuItemCreateSprite);
@@ -175,7 +188,7 @@ editor.once('load', function() {
     // Create Sliced Sprite From Atlas
     var menuItemCreateSlicedSprite = new ui.MenuItem({
         text: 'Create Sliced Sprite Asset',
-        icon: '&#58261;',
+        icon: ICONS.SPRITE_ASSET,
         value: 'atlas-to-sliced-sprite'
     });
     menu.append(menuItemCreateSlicedSprite);
@@ -205,7 +218,7 @@ editor.once('load', function() {
     };
     var menuItemReplace = new ui.MenuItem({
         text: 'Replace',
-        icon: '&#57640;',
+        icon: ICONS.REPLACE,
         value: 'replace'
     });
     menuItemReplace.on('select', function() {
@@ -227,13 +240,37 @@ editor.once('load', function() {
     });
     menu.append(menuItemReplace);
 
+    var menuItemReplaceTextureToSprite = new ui.MenuItem({
+        text: 'Convert Texture To Sprite',
+        icon: ICONS.SPRITE_ASSET,
+        value: 'replaceTextureToSprite'
+    });
+    menuItemReplaceTextureToSprite.on('select', function() {
+        var id = parseInt(currentAsset.get('id'), 10);
+
+        editor.call('picker:asset', 'sprite', currentAsset);
+
+        var evtPick = editor.once('picker:asset', function(asset) {
+            editor.call('assets:replaceTextureToSprite', currentAsset, asset);
+            evtPick = null;
+        });
+
+        editor.once('picker:asset:close', function() {
+            if (evtPick) {
+                evtPick.unbind();
+                evtPick = null;
+            }
+        });
+    });
+    menu.append(menuItemReplaceTextureToSprite);
+
     // todo: xdu.
     // todo: merge these 2 items.
 
     // extract. Used for source assets.
     var menuItemExtract = new ui.MenuItem({
         text: 'Re-Import',
-        icon: '&#57889;',
+        icon: ICONS.REIMPORT,
         value: 'extract'
     });
     menuItemExtract.on('select', function() {
@@ -245,7 +282,7 @@ editor.once('load', function() {
     // re-import. Used for target assets.
     var menuItemReImport = new ui.MenuItem({
         text: 'Re-Import',
-        icon: '&#57889;',
+        icon: ICONS.REIMPORT,
         value: 're-import'
     });
     menuItemReImport.on('select', function() {
@@ -256,7 +293,7 @@ editor.once('load', function() {
     // download
     var menuItemDownload = new ui.MenuItem({
         text: 'Download',
-        icon: '&#57896;',
+        icon: ICONS.DOWNLOAD,
         value: 'download'
     });
     menuItemDownload.on('select', function() {
@@ -268,7 +305,7 @@ editor.once('load', function() {
     // edit
     var menuItemEdit = new ui.MenuItem({
         text: 'Edit',
-        icon: '&#57648;',
+        icon: ICONS.EDIT,
         value: 'edit'
     });
     menuItemEdit.on('select', function() {
@@ -280,7 +317,7 @@ editor.once('load', function() {
     // duplicate
     var menuItemDuplicate = new ui.MenuItem({
         text: 'Duplicate',
-        icon: '&#57638;',
+        icon: ICONS.DUPLICATE,
         value: 'duplicate'
     });
     menuItemDuplicate.on('select', function() {
@@ -292,7 +329,7 @@ editor.once('load', function() {
     // delete
     var menuItemDelete = new ui.MenuItem({
         text: 'Delete',
-        icon: '&#57636;',
+        icon: ICONS.DELETE,
         value: 'delete'
     });
     menuItemDelete.style.fontWeight = 200;
@@ -394,6 +431,7 @@ editor.once('load', function() {
                 if (ref && ref.count && ref.ref) {
                     menuItemReferences.hidden = false;
                     menuItemReplace.hidden = replaceAvailable[currentAsset.get('type')] ? false : true;
+                    menuItemReplaceTextureToSprite.hidden = !editor.call('users:hasFlag', 'hasTextureToSprite') || (currentAsset.get('type') !== 'texture');
 
                     while(menuItemReferences.innerElement.firstChild)
                         menuItemReferences.innerElement.firstChild.ui.destroy();
@@ -406,7 +444,7 @@ editor.once('load', function() {
 
                         if (type === 'editorSettings') {
                             menuItem.text = 'Scene Settings';
-                            menuItem.icon = '&#57652;';
+                            menuItem.icon = ICONS.SCENE_SETTINGS;
                             item = editor.call('settings:projectUser');
                             if (! item) return;
                         } else {
@@ -474,10 +512,12 @@ editor.once('load', function() {
                 } else {
                     menuItemReferences.hidden = true;
                     menuItemReplace.hidden = true;
+                    menuItemReplaceTextureToSprite.hidden = true;
                 }
             } else {
                 menuItemReferences.hidden = true;
                 menuItemReplace.hidden = true;
+                menuItemReplaceTextureToSprite.hidden = true;
                 menuItemReImport.hidden = true;
                 menuItemExtract.hidden = [ 'scene', 'texture', 'textureatlas' ].indexOf(currentAsset.get('type')) === -1 || ! currentAsset.get('meta');
             }
@@ -491,6 +531,7 @@ editor.once('load', function() {
             menuItemDelete.hidden = true;
             menuItemReferences.hidden = true;
             menuItemReplace.hidden = true;
+            menuItemReplaceTextureToSprite.hidden = true;
             menuItemTextureToAtlas.hidden = true;
             menuItemCreateSprite.hidden = true;
             menuItemCreateSlicedSprite.hidden = true;
