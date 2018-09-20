@@ -34,7 +34,8 @@ editor.once('load', function() {
                         dxt: false,
                         pvr: false,
                         pvrBpp: 4,
-                        etc1: false
+                        etc1: false,
+                        etc2: false
                     });
                 } else {
                     if (! asset.has('meta.compress.pvr'))
@@ -45,6 +46,9 @@ editor.once('load', function() {
 
                     if (! asset.has('meta.compress.etc1'))
                         asset.set('meta.compress.etc1', false);
+
+                    if (! asset.has('meta.compress.etc2'))
+                        asset.set('meta.compress.etc2', false);
                 }
             }
             if (asset.get('data')) {
