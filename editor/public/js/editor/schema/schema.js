@@ -17,7 +17,7 @@ editor.once('load', function () {
             path = [path];
         }
 
-        let result = schema;
+        var result = schema;
         for (var i = 0, len = path.length; i < len; i++) {
             var p = path[i];
             if (result.$type === 'map' && result.$of) {
