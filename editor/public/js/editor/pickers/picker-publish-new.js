@@ -377,6 +377,19 @@ editor.once('load', function () {
         panelOptionsConcat.append(fieldOptionsConcat);
         var label = new ui.Label({ text: 'Concatenate Scripts' });
         panelOptionsConcat.append(label);
+
+        // create preload bundle
+        if (editor.call('users:hasFlag', 'hasPreloadBundling')) {
+            var panelOptionsPreload = new ui.Panel();
+            panelOptionsPreload.class.add('field');
+            panelOptions.append(panelOptionsPreload);
+            var fieldOptionsPreload = new ui.Checkbox();
+            fieldOptionsPreload.value = true;
+            fieldOptionsPreload.class.add('tick');
+            panelOptionsPreload.append(fieldOptionsPreload);
+            var labelPreload = new ui.Label({ text: 'Create Preload Bundles' });
+            panelOptionsPreload.append(labelPreload);
+        }
     }
 
 
@@ -484,6 +497,9 @@ editor.once('load', function () {
 
         if (fieldOptionsConcat)
             data.scripts_concatenate = fieldOptionsConcat.value;
+        
+        if (fieldOptionsPreload)
+            data.preload_bundle = fieldOptionsPreload.value;
 
         editor.call('apps:new', data, function () {
             jobInProgress = false;
@@ -601,7 +617,8 @@ editor.once('load', function () {
             branch_id: config.self.branch.id,
             scenes: getSelectedScenes(),
             target: target,
-            scripts_concatenate: fieldOptionsConcat ? fieldOptionsConcat.value : false
+            scripts_concatenate: fieldOptionsConcat ? fieldOptionsConcat.value : false,
+            preload_bundle: fieldOptionsPreload ? fieldOptionsPreload.value : false
         };
 
         // ajax call
