@@ -161,7 +161,7 @@ editor.once('load', function () {
         }
 
         // re-initialize material with migrated properties
-        material.initialize(migrated);
+        materialParser.initialize(material, migrated);
 
         // set up layer
         layer.addCamera(cameraEntity.camera);
