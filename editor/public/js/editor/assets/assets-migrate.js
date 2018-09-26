@@ -24,7 +24,7 @@ editor.once('load', function() {
                 asset.set('data.alphaToCoverage', false);
         }
 
-        if (asset.get('type') === 'texture' && ! asset.get('source')) {
+        if ((asset.get('type') === 'texture' || asset.get('type') === 'textureatlas') && ! asset.get('source')) {
             if (asset.get('meta')) {
                 if (! asset.has('meta.compress')) {
                     var alpha = asset.get('meta.alpha') || (asset.get('meta.type').toLowerCase() || '') === 'truecoloralpha' || false;
