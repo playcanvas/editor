@@ -532,9 +532,10 @@ editor.once('load', function () {
             resolver = null;
         }
 
+        setLayoutMode(LAYOUT_NONE);
         showMainProgress(spinnerIcon, 'Completing merge...');
+
         editor.call('branches:applyMerge', currentMergeObject.id, function (err) {
-            setLayoutMode(layoutMode);
 
             if (err) {
                 // if there was an error show it in the UI and then go back to the conflicts
