@@ -10,10 +10,13 @@ editor.once('load', function () {
         for (var i = 0; i < conflicts.data.length; i++) {
             if (conflicts.data[i].isTextualMerge) continue;
 
+            // get the type from the path - force 'data' to be an object for now
+            var type = conflicts.data[i].path === 'data' ? 'object' : editor.call('schema:asset:getType', conflicts.data[i].path);
+
             sectionAsset.appendField({
                 name: conflicts.data[i].path,
                 prettify: true,
-                type: editor.call('schema:asset:getType', conflicts.data[i].path),
+                type: type,
                 conflict: conflicts.data[i]
             });
         }
