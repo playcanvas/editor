@@ -50,7 +50,7 @@ editor.once('load', function() {
     // colors for different kinds of events
     var kindColors = {
         '': '#ff0',
-        'asset': 'rgba(128, 255, 128, 0.1)',
+        'asset': '#6f6',
         'shader': '#f60',
         'update': '#06f',
         'render': '#07f',
@@ -296,11 +296,7 @@ editor.once('load', function() {
                     }
                 }
                 if (! foundY) {
-                    if (e.k === 'asset') {
-                        y = stack.length;
-                    } else {
-                        y = stack.length * (barHeight + barMargin);
-                    }
+                    y = stack.length * (barHeight + barMargin);
                     stack.push(t2 + scrollTime);
                 }
 
