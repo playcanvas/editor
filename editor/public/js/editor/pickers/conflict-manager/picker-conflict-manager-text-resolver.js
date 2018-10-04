@@ -33,6 +33,11 @@ editor.once('load', function () {
         this.btnGoBack = new ui.Button({
             text: 'VIEW ASSET CONFLICTS'
         });
+        // hide this button if there are only textual conflicts
+        if (this._textualMergeConflict && conflict.data.length <= 1)  {
+            this.btnGoBack.hidden = true;
+        }
+
         this.btnGoBack.class.add('go-back');
         this.panelTop.append(this.btnGoBack);
         this.btnGoBack.on('click', function () {
