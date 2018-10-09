@@ -115,7 +115,7 @@ editor.once('load', function() {
             return;
 
         // don't render if selected or disabled
-        if (! this._link.entity._enabled || ! this._link.entity._enabledInHierarchy || this._link.entity.__noIcon || scale === 0 || selectedIds[this._link.entity._guid]) {
+        if (! this._link.entity._enabled || ! this._link.entity._enabledInHierarchy || this._link.entity.__noIcon || scale === 0 || selectedIds[this._link.entity.getGuid()]) {
             if (this.entity)
                 this.entityDelete();
 
