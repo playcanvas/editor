@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('settings:project').get('useLegacyScripts'))
@@ -10,22 +10,20 @@ editor.once('load', function() {
     // notify about primary script asset
     // provide api to access assets by scripts and list available script objects
 
+    var collisionScripts = {};
+    var collisionStates = {};
 
-    var collisionAssets = { };
-    var collisionScripts = { };
-    var collisionStates = { };
-
-    var assetToScripts = { };
-    var scriptsList = [ ];
-    var scripts = { };
-    var scriptsPrimary = { };
+    var assetToScripts = {};
+    var scriptsList = [];
+    var scripts = {};
+    var scriptsPrimary = {};
 
 
-    var addScript = function(asset, script) {
+    var addScript = function (asset, script) {
         var assetId = asset.get('id');
 
-        if (! assetToScripts[assetId])
-            assetToScripts[assetId] = { };
+        if (!assetToScripts[assetId])
+            assetToScripts[assetId] = {};
 
         if (assetToScripts[assetId][script]) {
             // 1. check if already indexed, then update
@@ -35,7 +33,7 @@ editor.once('load', function() {
         } else {
             // 2. if not indexed, then add
             assetToScripts[assetId][script] = true;
-            if (! scripts[script]) scripts[script] = { };
+            if (!scripts[script]) scripts[script] = {};
             scripts[script][assetId] = asset;
 
             editor.emit('assets:scripts:add', asset, script);
@@ -49,12 +47,12 @@ editor.once('load', function() {
 
             primaryScriptSet(asset, script);
         } else {
-            if (! collisionScripts[script])
-                collisionScripts[script] = { };
+            if (!collisionScripts[script])
+                collisionScripts[script] = {};
 
-            if (! collisionScripts[script][assetId]) {
-                for(var key in scripts[script]) {
-                    if (! scripts[script].hasOwnProperty(key) || collisionScripts[script][key])
+            if (!collisionScripts[script][assetId]) {
+                for (var key in scripts[script]) {
+                    if (!scripts[script].hasOwnProperty(key) || collisionScripts[script][key])
                         continue;
 
                     collisionScripts[script][key] = scripts[script][key];
@@ -65,10 +63,10 @@ editor.once('load', function() {
         }
     };
 
-    var removeScript = function(asset, script) {
+    var removeScript = function (asset, script) {
         var assetId = asset.get('id');
 
-        if (! assetToScripts[assetId] || ! assetToScripts[assetId][script] || ! scripts[script])
+        if (!assetToScripts[assetId] || !assetToScripts[assetId][script] || !scripts[script])
             return;
 
         delete assetToScripts[assetId][script];
@@ -89,7 +87,7 @@ editor.once('load', function() {
             if (Object.keys(collisionScripts[script]).length === 1)
                 delete collisionScripts[script];
 
-            for(var key in collisions)
+            for (var key in collisions)
                 checkCollisions(collisions[key], script);
         }
 
@@ -100,12 +98,12 @@ editor.once('load', function() {
         // console.log('assets:scripts:remove', asset.json(), script);
     };
 
-    var checkCollisions = function(asset, script) {
-        var collides = [ ];
+    var checkCollisions = function (asset, script) {
+        var collides = [];
 
         if (collisionScripts[script]) {
-            for(var key in collisionScripts[script]) {
-                if (! collisionScripts[script].hasOwnProperty(key))
+            for (var key in collisionScripts[script]) {
+                if (!collisionScripts[script].hasOwnProperty(key))
                     continue;
 
                 if (collisionScripts[script][key].get('preload'))
@@ -115,10 +113,10 @@ editor.once('load', function() {
 
         if (collides.length > 1) {
             // collision occurs
-            if (! collisionStates[script])
-                collisionStates[script] = { };
+            if (!collisionStates[script])
+                collisionStates[script] = {};
 
-            for(var i = 0; i < collides.length; i++) {
+            for (var i = 0; i < collides.length; i++) {
                 var key = collides[i].get('id');
                 if (collisionStates[script][key])
                     continue;
@@ -134,8 +132,8 @@ editor.once('load', function() {
         } else {
             // no collision
             if (collisionStates[script]) {
-                for(var key in collisionStates[script]) {
-                    if (! collisionStates[script].hasOwnProperty(key))
+                for (var key in collisionStates[script]) {
+                    if (!collisionStates[script].hasOwnProperty(key))
                         continue;
 
                     editor.emit('assets:scripts:resolve', collisionStates[script][key], script);
@@ -157,7 +155,7 @@ editor.once('load', function() {
         }
     };
 
-    var primaryScriptSet = function(asset, script) {
+    var primaryScriptSet = function (asset, script) {
         if (asset === null && scriptsPrimary[script]) {
             // unset
             asset = scriptsPrimary[script];
@@ -166,7 +164,7 @@ editor.once('load', function() {
             editor.emit('assets[' + asset.get('id') + ']:scripts:primary:unset', script);
             editor.emit('assets:scripts[' + script + ']:primary:unset', asset);
             editor.emit('assets[' + asset.get('id') + ']:scripts[' + script + ']:primary:unset');
-        } else if (asset && asset.get('preload') && (! scriptsPrimary[script] || scriptsPrimary[script] !== asset)) {
+        } else if (asset && asset.get('preload') && (!scriptsPrimary[script] || scriptsPrimary[script] !== asset)) {
             // set
             scriptsPrimary[script] = asset;
             editor.emit('assets:scripts:primary:set', asset, script);
@@ -176,7 +174,7 @@ editor.once('load', function() {
         }
     };
 
-    editor.on('assets:add', function(asset) {
+    editor.on('assets:add', function (asset) {
         if (asset.get('type') !== 'script')
             return;
 
@@ -184,24 +182,24 @@ editor.once('load', function() {
 
         // index scripts
         var scripts = asset.get('data.scripts');
-        for(var key in scripts) {
-            if (! scripts.hasOwnProperty(key))
+        for (var key in scripts) {
+            if (!scripts.hasOwnProperty(key))
                 continue;
 
             addScript(asset, key);
         }
 
         // subscribe to changes
-        asset.on('*:set', function(path, value, old) {
+        asset.on('*:set', function (path, value, old) {
             if (path === 'preload') {
                 var scripts = Object.keys(this.get('data.scripts'));
-                for(var i = 0; i < scripts.length; i++)
+                for (var i = 0; i < scripts.length; i++)
                     checkCollisions(this, scripts[i]);
 
                 return;
             }
 
-            if (! path.startsWith('data.scripts.'))
+            if (!path.startsWith('data.scripts.'))
                 return;
 
             var parts = path.split('.');
@@ -220,8 +218,8 @@ editor.once('load', function() {
             }
         });
 
-        asset.on('*:unset', function(path, value) {
-            if (! path.startsWith('data.scripts.'))
+        asset.on('*:unset', function (path, value) {
+            if (!path.startsWith('data.scripts.'))
                 return;
 
             var parts = path.split('.');
@@ -234,8 +232,8 @@ editor.once('load', function() {
         });
 
         // add attribute
-        asset.on('*:insert', function(path, value, ind) {
-            if (! path.startsWith('data.scripts.'))
+        asset.on('*:insert', function (path, value, ind) {
+            if (!path.startsWith('data.scripts.'))
                 return;
 
             var parts = path.split('.');
@@ -249,8 +247,8 @@ editor.once('load', function() {
         });
 
         // remove attribute
-        asset.on('*:remove', function(path, value) {
-            if (! path.startsWith('data.scripts.'))
+        asset.on('*:remove', function (path, value) {
+            if (!path.startsWith('data.scripts.'))
                 return;
 
             var parts = path.split('.');
@@ -263,8 +261,8 @@ editor.once('load', function() {
             editor.emit('assets[' + asset.get('id') + ']:scripts[' + script + ']:attribute:unset', value);
         });
 
-        asset.on('*:move', function(path, value, ind, indOld) {
-            if (! path.startsWith('data.scripts.'))
+        asset.on('*:move', function (path, value, ind, indOld) {
+            if (!path.startsWith('data.scripts.'))
                 return;
 
             var parts = path.split('.');
@@ -279,10 +277,10 @@ editor.once('load', function() {
             }
         });
 
-        asset.once('destroy', function() {
+        asset.once('destroy', function () {
             var scripts = asset.get('data.scripts');
-            for(var key in scripts) {
-                if (! scripts.hasOwnProperty(key))
+            for (var key in scripts) {
+                if (!scripts.hasOwnProperty(key))
                     continue;
 
                 removeScript(asset, key);
@@ -290,15 +288,15 @@ editor.once('load', function() {
         });
     });
 
-    editor.method('assets:scripts:list', function() {
+    editor.method('assets:scripts:list', function () {
         return scriptsList.slice(0);
     });
 
-    editor.method('assets:scripts:assetByScript', function(script) {
+    editor.method('assets:scripts:assetByScript', function (script) {
         return scriptsPrimary[script] || null;
     });
 
-    editor.method('assets:scripts:collide', function(script) {
+    editor.method('assets:scripts:collide', function (script) {
         return collisionStates[script];
     });
 });
