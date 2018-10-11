@@ -283,8 +283,8 @@ editor.once('load', function() {
 
                 if (! this.color && this._link.entity) {
                     var hash = 0;
-                    var string = this._link.entity._guid;
-                    for(var i = 0; i < string.length; i++)
+                    var string = this._link.entity.getGuid();
+                    for (var i = 0; i < string.length; i++)
                         hash += string.charCodeAt(i);
 
                     this.color = editor.call('color:hsl2rgb', (hash % 128) / 128, 0.5, 0.5);

@@ -50,10 +50,10 @@ editor.once('load', function() {
         // try to insert the node at the right index
         for (var i = 0, len = parent._children.length; i < len; i++) {
             var child = parent._children[i];
-            if (childIndex[child._guid]) {
-                // if our indes is less than this child's index
+            if (child instanceof pc.Entity && childIndex[child.getGuid()]) {
+                // if our index is less than this child's index
                 // then put the item here
-                if (index < childIndex[child._guid].index) {
+                if (index < childIndex[child.getGuid()].index) {
                     parent.insertChild(node, i);
                     return;
                 }
