@@ -116,7 +116,7 @@ editor.once('load', function () {
 
             if (! this.color) {
                 var hash = 0;
-                var string = this._link.entity._guid;
+                var string = this._link.entity.getGuid();
                 for(var i = 0; i < string.length; i++)
                     hash += string.charCodeAt(i);
 
