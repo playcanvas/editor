@@ -144,6 +144,22 @@ editor.once('load', function() {
         title: 'Use Legacy Audio',
         description: 'If checked the old AudioSource component will be available in the Editor otherwise you will only see the new Sound component.'
     }, {
+        name: 'project:useKeyboard',
+        title: 'Enable Keyboard input',
+        description: 'Disable this if you do not want to handle any keyboard input in your application.'
+    }, {
+        name: 'project:useMouse',
+        title: 'Enable Mouse input',
+        description: 'Disable this if you do not want to handle any mouse input in your application.'
+    }, {
+        name: 'project:useTouch',
+        title: 'Enable Touch input',
+        description: 'Disable this if you do not want to handle any touch input in your application.'
+    }, {
+        name: 'project:useGamepads',
+        title: 'Enable Gamepad input',
+        description: 'Disable this if you do not want to handle any gamepad input in your application.'
+    }, {
         name: 'asset-tasks',
         title: 'Asset Tasks',
         description: 'Settings for defining default behaviour rules for asset pipeline jobs: assets extracting, textures resizing, etc.'
