@@ -1,10 +1,10 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     // Wait for assets, hierarchy and settings to load before initializing application and starting.
     var done = false;
     var hierarchy = false;
-    var assets  = false;
+    var assets = false;
     var settings = false;
     var sourcefiles = false;
     var libraries = false;
@@ -13,6 +13,8 @@ editor.once('load', function() {
     var loadingScreen = false;
     var scriptList = [];
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
+    var canvas;
+    var app;
 
     var layerIndex = {};
 
@@ -43,7 +45,7 @@ editor.once('load', function() {
 
     // try to start preload and initialization of application after load event
     var init = function () {
-        if (!done && assets && hierarchy && settings && (! legacyScripts || sourcefiles) && libraries && loadingScreen) {
+        if (!done && assets && hierarchy && settings && (!legacyScripts || sourcefiles) && libraries && loadingScreen) {
             // prevent multiple init calls during scene loading
             done = true;
 
@@ -79,7 +81,7 @@ editor.once('load', function() {
     };
 
     var createCanvas = function () {
-        var canvas = document.createElement('canvas');
+        canvas = document.createElement('canvas');
         canvas.setAttribute('id', 'application-canvas');
         canvas.setAttribute('tabindex', 0);
         // canvas.style.visibility = 'hidden';
@@ -136,7 +138,7 @@ editor.once('load', function() {
                 loadingScript.src = '/api/assets/' + config.project.settings.loadingScreenScript + '/download?branchId=' + config.self.branch.id;
             }
 
-            loadingScript.onload = function() {
+            loadingScript.onload = function () {
                 loadingScreen = true;
                 init();
             };
@@ -148,10 +150,10 @@ editor.once('load', function() {
 
             var head = document.getElementsByTagName('head')[0];
             head.insertBefore(loadingScript, head.firstChild);
-         } else {
-             // no loading screen script so just use default splash screen
-             defaultLoadingScreen();
-         }
+        } else {
+            // no loading screen script so just use default splash screen
+            defaultLoadingScreen();
+        }
     };
 
     var createLayer = function (key, data) {
@@ -194,7 +196,7 @@ editor.once('load', function() {
     var preferWebGl2 = config.project.settings.preferWebGl2;
     if (queryParams.hasOwnProperty('webgl1')) {
         try {
-            preferWebGl2 = queryParams.webgl1 === undefined ? false : ! JSON.parse(queryParams.webgl1);
+            preferWebGl2 = queryParams.webgl1 === undefined ? false : !JSON.parse(queryParams.webgl1);
         } catch (ex) { }
     }
 
@@ -205,14 +207,22 @@ editor.once('load', function() {
     pc.script.legacy = projectSettings.get('useLegacyScripts');
 
     // playcanvas app
-    var app = new pc.Application(canvas, {
-        elementInput: new pc.ElementInput(canvas),
-        mouse: new pc.input.Mouse(canvas),
-        touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas) : null,
-        keyboard: new pc.input.Keyboard(window),
-        gamepads: new pc.input.GamePads(),
+    var useMouse = projectSettings.get('useMouse');
+    var useKeyboard = projectSettings.get('useKeyboard');
+    var useGamepads = projectSettings.get('useGamepads');
+    var useTouch = projectSettings.get('useTouch');
+
+    app = new pc.Application(canvas, {
+        elementInput: new pc.ElementInput(canvas, {
+            useMouse: useMouse,
+            useTouch: useTouch
+        }),
+        mouse: useMouse ? new pc.input.Mouse(canvas) : null,
+        touch: useTouch && !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas) : null,
+        keyboard: useKeyboard ? new pc.input.Keyboard(window) : null,
+        gamepads: useGamepads ? new pc.input.GamePads() : null,
         scriptPrefix: scriptPrefix,
-        scriptsOrder: projectSettings.get('scripts') || [ ],
+        scriptsOrder: projectSettings.get('scripts') || [],
         assetPrefix: '/api',
         graphicsDeviceOptions: {
             preferWebGl2: preferWebGl2,
@@ -250,10 +260,10 @@ editor.once('load', function() {
             layerIndex[key] = createLayer(key, config.project.settings.layers[key]);
         }
 
-        for (var i = 0, len = config.project.settings.layerOrder.length; i<len; i++) {
+        for (var i = 0, len = config.project.settings.layerOrder.length; i < len; i++) {
             var sublayer = config.project.settings.layerOrder[i];
             var layer = layerIndex[sublayer.layer];
-            if (! layer) continue;
+            if (!layer) continue;
 
             if (sublayer.transparent) {
                 composition.pushTransparent(layer);
@@ -278,14 +288,14 @@ editor.once('load', function() {
 
     // append css to style
     var createCss = function () {
-        if (! document.head.querySelector)
+        if (!document.head.querySelector)
             return;
 
-        if (! style)
+        if (!style)
             style = document.head.querySelector('style');
 
         // css media query for aspect ratio changes
-        var css  = "@media screen and (min-aspect-ratio: " + config.project.settings.width + "/" + config.project.settings.height + ") {";
+        var css = "@media screen and (min-aspect-ratio: " + config.project.settings.width + "/" + config.project.settings.height + ") {";
         css += "    #application-canvas.fill-mode-KEEP_ASPECT {";
         css += "        width: auto;";
         css += "        height: 100%;";
@@ -349,7 +359,7 @@ editor.once('load', function() {
             if (parts.length < 2) return;
             var groupId = parseInt(parts[1], 10);
             var groupSettings = projectSettings.get('batchGroups.' + groupId);
-            if (! app.batcher._batchGroups[groupId]) {
+            if (!app.batcher._batchGroups[groupId]) {
                 app.batcher.addGroup(
                     groupSettings.name,
                     groupSettings.dynamic,
@@ -384,18 +394,18 @@ editor.once('load', function() {
                     layer[parts[2]] = value;
                 }
             }
-          } else if (path.startsWith('layerOrder.')) {
-              parts = path.split('.');
+        } else if (path.startsWith('layerOrder.')) {
+            parts = path.split('.');
 
-              if (parts.length === 3) {
-                  if (parts[2] === 'enabled') {
-                      var subLayerId = parseInt(parts[1]);
-                      // Unlike Editor, DON'T add 2 to subLayerId here
-                      app.scene.layers.subLayerEnabled[subLayerId] = value;
-                      editor.call('viewport:render');
-                  }
-              }
-          }
+            if (parts.length === 3) {
+                if (parts[2] === 'enabled') {
+                    var subLayerId = parseInt(parts[1]);
+                    // Unlike Editor, DON'T add 2 to subLayerId here
+                    app.scene.layers.subLayerEnabled[subLayerId] = value;
+                    editor.call('viewport:render');
+                }
+            }
+        }
     });
 
     projectSettings.on('*:unset', function (path, value) {
@@ -420,7 +430,7 @@ editor.once('load', function() {
     projectSettings.on('layerOrder:insert', function (value, index) {
         var id = value.get('layer');
         var layer = layerIndex[id];
-        if (! layer) return;
+        if (!layer) return;
 
         var transparent = value.get('transparent');
 
@@ -434,7 +444,7 @@ editor.once('load', function() {
     projectSettings.on('layerOrder:remove', function (value) {
         var id = value.get('layer');
         var layer = layerIndex[id];
-        if (! layer) return;
+        if (!layer) return;
 
         var transparent = value.get('transparent');
 
@@ -448,7 +458,7 @@ editor.once('load', function() {
     projectSettings.on('layerOrder:move', function (value, indNew, indOld) {
         var id = value.get('layer');
         var layer = layerIndex[id];
-        if (! layer) return;
+        if (!layer) return;
 
         var transparent = value.get('transparent');
         if (transparent) {
@@ -466,7 +476,7 @@ editor.once('load', function() {
     reflow();
 
     // get application
-    editor.method('viewport:app', function() {
+    editor.method('viewport:app', function () {
         return app;
     });
 
