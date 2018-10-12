@@ -3,8 +3,12 @@ editor.once('load', function() {
 
     var getLayoutGroup = function(entityId) {
         var entity = editor.call('entities:get', entityId);
-
         return entity && entity.entity && entity.entity.layoutgroup;
+    };
+
+    var getLayoutChild = function(entityId) {
+        var entity = editor.call('entities:get', entityId);
+        return entity && entity.entity && entity.entity.layoutchild;
     };
 
     function forceSet(entity, path, value) {
@@ -35,10 +39,13 @@ editor.once('load', function() {
         }
     });
 
+    // return true if the entity's properties are controlled by a layout group parent
     editor.method('entities:layout:isUnderControlOfLayoutGroup', function(entity) {
         var layoutGroup = getLayoutGroup(entity.get('parent'));
         var isElement = entity.has('components.element');
-        var isControlledByLayoutGroup = layoutGroup && layoutGroup.enabled;
+        var exludedFromLayout = entity.get('components.layoutchild.excludeFromLayout');
+
+        var isControlledByLayoutGroup = layoutGroup && layoutGroup.enabled && !exludedFromLayout;
 
         return isElement && isControlledByLayoutGroup;
     });

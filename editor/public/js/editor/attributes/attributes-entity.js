@@ -395,7 +395,9 @@ editor.once('load', function() {
 
         var addEvents = function (entity) {
             inspectEvents.push(entity.on('*:set', function (path) {
-                if (/components.screen.screenSpace/.test(path) || /^parent/.test(path)) {
+                if (/components.screen.screenSpace/.test(path) ||
+                    /^parent/.test(path) ||
+                    /components.layoutchild.excludeFromLayout/.test(path)) {
                     toggleFieldsIfNeeded(entity);
                 }
             }));
