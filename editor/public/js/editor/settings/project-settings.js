@@ -15,6 +15,10 @@ editor.once('load', function () {
         'transparentCanvas',
         'useDevicePixelRatio',
         'useLegacyScripts',
+        'useKeyboard',
+        'useMouse',
+        'useGamepads',
+        'useTouch',
         'vr',
         'loadingScreenScript',
         'plugins',
@@ -160,6 +164,20 @@ editor.once('load', function () {
                 enabled: true
             });
         }
+
+        if (typeof settings.get('useKeyboard') !== 'boolean') {
+            settings.set('useKeyboard', true);
+        }
+        if (typeof settings.get('useMouse') !== 'boolean') {
+            settings.set('useMouse', true);
+        }
+        if (typeof settings.get('useTouch') !== 'boolean') {
+            settings.set('useTouch', true);
+        }
+        if (typeof settings.get('useGamepads') !== 'boolean') {
+            settings.set('useGamepads', !!settings.get('vr'));
+        }
+
         settings.history.enabled = history;
         settings.sync.enabled = sync;
     });

@@ -199,6 +199,7 @@ editor.once('load', function() {
 
         entities.forEach(function(entity) {
             events.push(entity.on('parent:set', toggleAnchorAndPresets));
+            events.push(entity.on('components.layoutchild.excludeFromLayout:set', toggleAnchorAndPresets));
         });
 
         var fieldPivot = editor.call('attributes:addField', {
