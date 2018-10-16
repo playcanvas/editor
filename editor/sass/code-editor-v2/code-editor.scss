@@ -76,6 +76,15 @@ strong {
         height: 100%;
         overflow: hidden;
     }
+
+    &.file-only-mode {
+        #ui-top, #ui-left, #ui-bottom, #ui-tabs {
+            display: none;
+        }
+        #ui-center, #ui-code {
+            height: 100%;
+        }
+    }
 }
 
 #ui-top {
@@ -1214,6 +1223,62 @@ a.link-docs {
 
     }
 }
+
+
+.conflict-overlay {
+    position: absolute;
+    width: 100%;
+    @extend .font-regular;
+
+    &.conflict-overlay-header {
+        z-index: 2;
+
+        &:not(.reverse) {
+            margin-top: -32px;
+        }
+
+        > .ui-button {
+            font-size: 12px;
+            color: $text-primary;
+        }
+    }
+
+    &.conflict-overlay-content {
+        > .ui-label {
+            font-size: 12px;
+            color: $text-primary;
+            float: right;
+            margin-right: 20px;
+            &:before {
+                font-size: 12px;
+                content: '\E399';
+                @extend .font-icon;
+                margin-right: 5px;
+            }
+        }
+    }
+
+    &.src-branch {
+        background:rgba(#15515E, 0.5);
+
+        > .ui-button {
+            background: #1D6D7F;
+            border: 1px solid #20292B;
+        }
+    }
+
+    &.dst-branch {
+        background:rgba(#0B3B76, 0.5);
+
+        > .ui-button {
+            background: #2460AA;
+            border: 1px solid #20292B;
+        }
+    }
+
+}
+
+
 
 @import '../partials/ui-common';
 @import '../partials/version-control';

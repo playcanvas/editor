@@ -6,6 +6,10 @@ editor.once('load', function() {
     var canUndo = false;
     var canRedo = false;
 
+    var hotkeyExceptions = [
+        'curve',
+        'sprite-editor'
+    ];
 
     var checkCanUndoRedo = function() {
         if (canUndo && current == -1) {
@@ -128,7 +132,7 @@ editor.once('load', function() {
             if (! editor.call('permissions:write'))
                 return;
 
-            if (editor.call('picker:isOpen:otherThan', ['curve', 'sprite-editor'])) return;
+            if (editor.call('picker:isOpen:otherThan', hotkeyExceptions)) return;
 
             editor.call('history:undo');
         }
@@ -143,7 +147,7 @@ editor.once('load', function() {
             if (! editor.call('permissions:write'))
                 return;
 
-            if (editor.call('picker:isOpen:otherThan', ['curve', 'sprite-editor'])) return;
+            if (editor.call('picker:isOpen:otherThan', hotkeyExceptions)) return;
 
             editor.call('history:redo');
         }
@@ -157,7 +161,7 @@ editor.once('load', function() {
             if (! editor.call('permissions:write'))
                 return;
 
-            if (editor.call('picker:isOpen:otherThan', ['curve', 'sprite-editor'])) return;
+            if (editor.call('picker:isOpen:otherThan', hotkeyExceptions)) return;
 
             editor.call('history:redo');
         }

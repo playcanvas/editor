@@ -25,13 +25,15 @@ editor.once('load', function () {
     menu.append(item);
 
     // hotkey
-    editor.call('hotkey:register', 'go-to-anything', {
-        key: 'p',
-        ctrl: true,
-        callback: function () {
-            editor.call('editor:command:goToAnything');
-        }
-    });
+    if (! editor.call('editor:resolveConflictMode')) {
+        editor.call('hotkey:register', 'go-to-anything', {
+            key: 'p',
+            ctrl: true,
+            callback: function () {
+                editor.call('editor:command:goToAnything');
+            }
+        });
+    }
 
     editor.method('editor:command:goToAnything', function () {
         if (! isFuzzyOpen) {

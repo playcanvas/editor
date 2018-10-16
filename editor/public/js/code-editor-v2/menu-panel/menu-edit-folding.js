@@ -14,7 +14,7 @@ editor.once('load', function () {
     menu.append(group);
 
     var canFold = function () {
-        return !!editor.call('documents:getFocused');
+        return editor.call('editor:resolveConflictMode') || !!editor.call('documents:getFocused');
     };
 
     // Fold

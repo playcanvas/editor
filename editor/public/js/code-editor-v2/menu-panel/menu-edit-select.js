@@ -11,6 +11,10 @@ editor.once('load', function () {
     group.class.add('selection');
     menu.append(group);
 
+    var canSelect = function () {
+        return editor.call('editor:resolveConflictMode') || !!editor.call('documents:getFocused');
+    };
+
     // select all
     var item = menu.createItem('select-all', {
         title: 'Select All',
@@ -109,7 +113,7 @@ editor.once('load', function () {
 
     // select all
     editor.method('editor:command:can:selectAll', function () {
-        return !!editor.call('documents:getFocused');
+        return canSelect();
     });
 
     editor.method('editor:command:selectAll', function () {
@@ -120,7 +124,7 @@ editor.once('load', function () {
 
     // select line
     editor.method('editor:command:can:selectLine', function () {
-        return !!editor.call('documents:getFocused');
+        return canSelect();
     });
 
     editor.method('editor:command:selectLine', function () {
@@ -131,7 +135,7 @@ editor.once('load', function () {
 
     // select scope
     editor.method('editor:command:can:selectScope', function () {
-        return !!editor.call('documents:getFocused');
+        return canSelect();
     });
 
     editor.method('editor:command:selectScope', function () {
@@ -142,7 +146,7 @@ editor.once('load', function () {
 
     // select between brackets
     editor.method('editor:command:can:selectBrackets', function () {
-        return !!editor.call('documents:getFocused');
+        return canSelect();
     });
 
     editor.method('editor:command:selectBrackets', function () {
@@ -153,7 +157,7 @@ editor.once('load', function () {
 
     // select lines up
     editor.method('editor:command:can:selectLinesUp', function () {
-        return !!editor.call('documents:getFocused');
+        return canSelect();
     });
 
     editor.method('editor:command:selectLinesUp', function () {
@@ -164,7 +168,7 @@ editor.once('load', function () {
 
     // select lines down
     editor.method('editor:command:can:selectLinesDown', function () {
-        return !!editor.call('documents:getFocused');
+        return canSelect();
     });
 
     editor.method('editor:command:selectLinesDown', function () {

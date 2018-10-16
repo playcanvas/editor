@@ -9569,6 +9569,95 @@ strong {
                                 }
                             }
                         }
+
+                        > .textmerge-top {
+                            height: 36px;
+                            line-height: 36px;
+                            padding: 0 10px;
+
+                            > .content {
+                                > .ui-label.name {
+                                    color: $text-primary;
+                                    margin: 0;
+                                    vertical-align: middle;
+                                }
+
+                                > .ui-button {
+                                    font-size: 12px;
+                                    float: right;
+                                    margin: 0;
+                                    margin-top: 5px;
+                                    margin-left: 15px;
+
+                                    &:before {
+                                        @extend .font-icon;
+                                        margin-right: 5px;
+                                        vertical-align: middle;
+                                        font-size: 16px;
+                                    }
+
+                                    &.mark-resolved:before {
+                                        content: '\E133';
+                                    }
+
+                                    &.go-back:before {
+                                        content: '\E158';
+                                    }
+                                }
+                            }
+                        }
+
+                        > iframe {
+                            width: 100%;
+                            height: 100%;
+                            border: 0;
+                        }
+                    }
+
+                    &.file-conflicts-visible {
+                        > .content {
+                            .vertical-border {
+                                height: 375px;
+                            }
+
+                            > .ui-panel {
+                                flex-grow: 0;
+
+                                &.conflicts {
+                                    height: 280px;
+                                }
+
+                                &.file-conflicts {
+                                    flex-grow: 1;
+                                    > .content {
+                                        padding-top: 90px;
+                                        flex-direction: column;
+                                        > * {
+                                            margin: auto;
+                                            margin-top: 10px;
+
+                                            &.ui-label.font-icon {
+                                                color: $text-active;
+                                                font-size: 64px;
+                                                margin-bottom: 10px;
+                                            }
+
+                                            &.ui-label.file-conflicts {
+                                                font-size: 14px;
+                                                color: $text-primary;
+                                            }
+
+                                            &.ui-button {
+                                                font-size: 12px;
+                                                width: 220px;
+                                                text-align: center;
+                                                margin-top: 20px;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

@@ -74,10 +74,13 @@
         editor.emit('start');
 
         // if there is a merge in progress for our branch
-        var merge = config.self.branch.merge;
-        if (merge) {
-            editor.call('picker:versioncontrol:mergeOverlay');
+        if (! config.resolveConflict) {
+            var merge = config.self.branch.merge;
+            if (merge) {
+                editor.call('picker:versioncontrol:mergeOverlay');
+            }
         }
+
     }, false);
 })();
 

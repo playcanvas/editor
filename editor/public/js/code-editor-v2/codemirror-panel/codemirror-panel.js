@@ -309,4 +309,8 @@ editor.once('load', function () {
         }
     });
 
+    editor.method('tern', function () {
+        return tern;
+    });
+
 });
