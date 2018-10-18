@@ -192,7 +192,11 @@ editor.once('load', function () {
     };
 
     MergeFileEditor.prototype.run = function () {
-        editor.call('conflicts:getUnresolvedFile', config.resolveConflict, function (err, contents) {
+        // if the conflict is resolved then get the resolved file otherwise get the unresolved file
+        var conflict = config.self.branch.merge.conflict;
+        var isResolved = conflict.useSrc || conflict.useDst || conflict.useMergedFile;
+        var method = isResolved ? 'conflicts:getResolvedFile' : 'conflicts:getUnresolvedFile';
+        editor.call(method, config.resolveConflict, function (err, contents) {
             if (err) {
                 console.error(err);
                 editor.call('status:error', err);

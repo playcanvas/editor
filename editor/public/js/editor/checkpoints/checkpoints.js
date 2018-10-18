@@ -68,4 +68,14 @@ editor.once('load', function () {
             auth: true
         }, callback);
     });
+
+    // Gets the specified file of an asset from a specific immutable backup
+    editor.method('checkpoints:getAssetFile', function (assetId, assetImmutableBackupId, filename, callback) {
+        return request({
+            url: '{{url.api}}/assets/' + assetId + '/file/' + filename + '?immutableBackup=' + assetImmutableBackupId,
+            auth: true,
+            method: 'GET',
+            notJson: true
+        }, callback);
+    });
 });

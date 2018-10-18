@@ -27,8 +27,8 @@ editor.once('load', function () {
     });
 
     // Shows asset text file contents
-    editor.method('picker:conflictManager:showAssetFileConflicts', function (parent, conflicts) {
-        var resolver = new ui.TextResolver(conflicts);
+    editor.method('picker:conflictManager:showAssetFileConflicts', function (parent, conflicts, mergeObject) {
+        var resolver = new ui.TextResolver(conflicts, mergeObject);
         resolver.appendToParent(parent);
         return resolver;
     });

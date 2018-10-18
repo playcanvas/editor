@@ -143,6 +143,16 @@ editor.once('load', function () {
         }, callback);
     });
 
+    // Gets the contents of a resolved conflict file
+    editor.method('conflicts:getResolvedFile', function (conflictId, callback) {
+        request({
+            url: '{{url.api}}/conflicts/' + conflictId + '/file?resolved=true',
+            method: 'GET',
+            auth: true,
+            notJson: true
+        }, callback);
+    });
+
 
     // Uploads the specified file to resolve a conflict
     editor.method('conflicts:uploadResolvedFile', function (conflictId, file, callback) {
