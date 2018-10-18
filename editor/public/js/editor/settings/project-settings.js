@@ -165,16 +165,16 @@ editor.once('load', function () {
             });
         }
 
-        if (typeof settings.get('useKeyboard') !== 'boolean') {
+        if (settings.has('useKeyboard')) {
             settings.set('useKeyboard', true);
         }
-        if (typeof settings.get('useMouse') !== 'boolean') {
+        if (settings.has('useMouse')) {
             settings.set('useMouse', true);
         }
-        if (typeof settings.get('useTouch') !== 'boolean') {
+        if (settings.has('useTouch')) {
             settings.set('useTouch', true);
         }
-        if (typeof settings.get('useGamepads') !== 'boolean') {
+        if (settings.has('useGamepads')) {
             settings.set('useGamepads', !!settings.get('vr'));
         }
 
