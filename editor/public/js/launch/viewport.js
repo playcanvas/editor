@@ -207,10 +207,10 @@ editor.once('load', function () {
     pc.script.legacy = projectSettings.get('useLegacyScripts');
 
     // playcanvas app
-    var useMouse = projectSettings.get('useMouse');
-    var useKeyboard = projectSettings.get('useKeyboard');
-    var useGamepads = projectSettings.get('useGamepads');
-    var useTouch = projectSettings.get('useTouch');
+    var useMouse = projectSettings.has('useMouse') ? projectSettings.get('useMouse') : true;
+    var useKeyboard = projectSettings.has('useKeyboard') ? projectSettings.get('useKeyboard') : true;
+    var useTouch = projectSettings.has('useTouch') ? projectSettings.get('useTouch') : true;
+    var useGamepads = projectSettings.has('useGamepads') ? projectSettings.get('useGamepads') : !!projectSettings.get('vr');
 
     app = new pc.Application(canvas, {
         elementInput: new pc.ElementInput(canvas, {
