@@ -11,8 +11,8 @@ editor.once('load', function () {
         shader: 'glsl'
     };
 
-    var REGEX_SRC_BRANCH = /(.*?<<<<<<<[\s\S]*?)=======.*?$/gm;
-    var REGEX_DST_BRANCH = /.*?=======.*?\n([\s\S]*?>>>>>>>.*?$)/gm; // eslint-disable-line no-div-regex
+    var REGEX_DST_BRANCH = /(.*?<<<<<<<[\s\S]*?)=======.*?$/gm;
+    var REGEX_SRC_BRANCH = /.*?=======.*?\n([\s\S]*?>>>>>>>.*?$)/gm; // eslint-disable-line no-div-regex
 
     var MergeFileEditor = function () {
         this.type = config.self.branch.merge.conflict.assetType;
@@ -131,28 +131,28 @@ editor.once('load', function () {
         }
     };
 
-    MergeFileEditor.prototype.createSrcOverlays = function () {
-        var content = this.cm.getValue();
-
-        var match;
-        while ((match = REGEX_SRC_BRANCH.exec(content)) !== null) {
-            var startPos = this.cm.posFromIndex(match.index);
-            startPos.line--;
-            var endPos = this.cm.posFromIndex(match.index + match[1].length);
-            endPos.line--;
-
-            this.createOverlay('src-branch', config.self.branch.merge.sourceBranchName, startPos, endPos);
-        }
-    };
-
     MergeFileEditor.prototype.createDstOverlays = function () {
         var content = this.cm.getValue();
 
         var match;
         while ((match = REGEX_DST_BRANCH.exec(content)) !== null) {
             var startPos = this.cm.posFromIndex(match.index);
+            startPos.line--;
             var endPos = this.cm.posFromIndex(match.index + match[1].length);
-            this.createOverlay('dst-branch', config.self.branch.merge.destinationBranchName, startPos, endPos, true);
+            endPos.line--;
+
+            this.createOverlay('dst-branch', config.self.branch.merge.destinationBranchName, startPos, endPos);
+        }
+    };
+
+    MergeFileEditor.prototype.createSrcOverlays = function () {
+        var content = this.cm.getValue();
+
+        var match;
+        while ((match = REGEX_SRC_BRANCH.exec(content)) !== null) {
+            var startPos = this.cm.posFromIndex(match.index);
+            var endPos = this.cm.posFromIndex(match.index + match[1].length);
+            this.createOverlay('src-branch', config.self.branch.merge.sourceBranchName, startPos, endPos, true);
         }
     };
 
@@ -165,8 +165,8 @@ editor.once('load', function () {
         }
         this.overlays.length = 0;
 
-        this.createSrcOverlays();
         this.createDstOverlays();
+        this.createSrcOverlays();
     };
 
     MergeFileEditor.prototype.deferredRefreshOverlays = function () {
@@ -192,7 +192,11 @@ editor.once('load', function () {
     };
 
     MergeFileEditor.prototype.run = function () {
-        editor.call('conflicts:getUnresolvedFile', config.resolveConflict, function (err, contents) {
+        // if the conflict is resolved then get the resolved file otherwise get the unresolved file
+        var conflict = config.self.branch.merge.conflict;
+        var isResolved = conflict.useSrc || conflict.useDst || conflict.useMergedFile;
+        var method = isResolved ? 'conflicts:getResolvedFile' : 'conflicts:getUnresolvedFile';
+        editor.call(method, config.resolveConflict, function (err, contents) {
             if (err) {
                 console.error(err);
                 editor.call('status:error', err);
@@ -210,6 +214,6 @@ editor.once('load', function () {
     mergeFileEditor.run();
 
     editor.method('dis', function () {
-        mergeFileEditor.refreshOverlays()
+        mergeFileEditor.refreshOverlays();
     });
 });

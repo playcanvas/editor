@@ -88,6 +88,8 @@ editor.once('load', function () {
                 return;
             }
 
+            var lastBranch = data.result[data.result.length - 1];
+
             // remove 'our' branch
             for (var i = 0; i < data.result.length; i++) {
                 if (data.result[i].id === config.self.branch.id) {
@@ -98,8 +100,8 @@ editor.once('load', function () {
 
             // concatenate result and load more branches
             branches = branches.concat(data.result);
-            if (data.pagination.hasMore && branches.length < 100) {
-                loadBranches(data.result[data.result.length - 1]);
+            if (lastBranch && data.pagination.hasMore && branches.length < 100) {
+                loadBranches(lastBranch.id, fn);
             } else {
                 fn();
             }
