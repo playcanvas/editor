@@ -65,7 +65,7 @@ editor.once('load', function () {
         // use all from source
         this._btnUseSource = new ui.MenuItem({
             icon: '&#58265;',
-            text: 'tiksdflsdjf ldksfj sladfkads fsldfjdslkfldskafadslkfjads'//mergeObject.sourceBranchName + '"'
+            text: mergeObject.sourceBranchName
         });
         this._menu.append(this._btnUseSource);
         this._btnUseSource.on('select', this._onClickUseSource.bind(this));
@@ -84,7 +84,7 @@ editor.once('load', function () {
         });
         // hide this button if there are only textual conflicts
         if (this._textualMergeConflict && conflict.data.length <= 1)  {
-            // this._btnGoBack.hidden = true;
+            this._btnGoBack.hidden = true;
         }
 
         this._btnGoBack.class.add('go-back');
