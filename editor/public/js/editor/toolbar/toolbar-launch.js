@@ -47,14 +47,21 @@ editor.once('load', function() {
             query.push('local=' + settings.get('editor.localServer'));
         }
 
-        if (launchOptions.webgl1)
+        if (launchOptions.webgl1) {
             query.push('webgl1=true');
+        }
 
-        if (launchOptions.profiler)
+        if (launchOptions.profiler) {
             query.push('profile=true');
+        }
 
-        if (launchOptions.debug)
+        if (launchOptions.debug) {
             query.push('debug=true');
+        }
+
+        if (launchOptions.concatenate) {
+            query.push('concatenateScripts=true');
+        }
 
         if (!launchOptions.local && launchOptions.facebook && privateSettings.get('facebook.appId')) {
             url = 'https://www.facebook.com/embed/instantgames/' +
@@ -179,6 +186,15 @@ editor.once('load', function() {
         });
 
         tooltipLocal.class.add('launch-tooltip');
+    } else {
+        var optionConcatenate = createOption('concatenate', 'Concatenate Scripts');
+        var tooltipConcatenate = Tooltip.attach({
+            target: optionConcatenate.parent.element,
+            text: 'Enable to concatenate scripts to reduce network requests.',
+            align: 'right',
+            root: root
+        });
+        tooltipConcatenate.class.add('launch-tooltip');
     }
 
     var preferWebGl1 = createOption('webgl1', 'Prefer WebGL 1.0');
