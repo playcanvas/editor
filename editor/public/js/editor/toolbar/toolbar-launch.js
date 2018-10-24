@@ -187,14 +187,16 @@ editor.once('load', function() {
 
         tooltipLocal.class.add('launch-tooltip');
     } else {
-        var optionConcatenate = createOption('concatenate', 'Concatenate Scripts');
-        var tooltipConcatenate = Tooltip.attach({
-            target: optionConcatenate.parent.element,
-            text: 'Enable to concatenate scripts to reduce network requests.',
-            align: 'right',
-            root: root
-        });
-        tooltipConcatenate.class.add('launch-tooltip');
+        if (editor.call('users:hasFlag', 'hasConcatenateScripts')) {
+            var optionConcatenate = createOption('concatenate', 'Concatenate Scripts');
+            var tooltipConcatenate = Tooltip.attach({
+                target: optionConcatenate.parent.element,
+                text: 'Enable to concatenate scripts to reduce network requests.',
+                align: 'right',
+                root: root
+            });
+            tooltipConcatenate.class.add('launch-tooltip');
+        }
     }
 
     var preferWebGl1 = createOption('webgl1', 'Prefer WebGL 1.0');
