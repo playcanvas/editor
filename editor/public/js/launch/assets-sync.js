@@ -241,15 +241,13 @@ editor.once('load', function () {
 
             var parts = path.split('.');
 
-            if (concatenateScripts && asset.get('type') === 'script' && asset.get('preload')) {
-                asset.set('file.url', concatenatedScriptsUrl);
-            } else {
-                if ((parts.length === 1 || parts.length === 2) && parts[1] !== 'variants') {
-                    asset.set('file.url', getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), asset.get('file.filename')));
-                } else if (parts.length >= 3 && parts[1] === 'variants') {
-                    var format = parts[2];
-                    asset.set('file.variants.' + format + '.url', getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), asset.get('file.variants.' + format + '.filename')));
-                }
+            // NOTE: if we have concatenated scripts then this will reset the file URL to the original URL and not the
+            // concatenated URL which is what we want for hot reloading
+            if ((parts.length === 1 || parts.length === 2) && parts[1] !== 'variants') {
+                asset.set('file.url', getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), asset.get('file.filename')));
+            } else if (parts.length >= 3 && parts[1] === 'variants') {
+                var format = parts[2];
+                asset.set('file.variants.' + format + '.url', getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), asset.get('file.variants.' + format + '.filename')));
             }
 
             setting = false;
