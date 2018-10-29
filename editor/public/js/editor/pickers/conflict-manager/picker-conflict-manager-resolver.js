@@ -114,11 +114,6 @@ editor.once('load', function () {
             }
         }
 
-        // debug info
-        if (this.numConflicts !== this._conflicts.data.length) {
-            console.error('Some conflicts might not be shown');
-        }
-
         // Reflow (call onAddedToDom) after 2 frames. The reason why it's 2 frames
         // and not 1 is it doesn't always work on 1 frame and I don't know why yet..
         // The problem is that if we don't wait then sometimes some elements will not report
@@ -171,33 +166,6 @@ editor.once('load', function () {
         }
         this.elements.length = 0;
     };
-
-    Object.defineProperty(ConflictResolver.prototype, 'numConflicts', {
-        get: function () {
-            var result = 0;
-            for (var i = 0, len = this.elements.length; i < len; i++) {
-                if (this.elements[i] instanceof ui.ConflictSection) {
-                    result += this.elements[i].numConflicts;
-                }
-            }
-
-            return result;
-        }
-    });
-
-    Object.defineProperty(ConflictResolver.prototype, 'numResolvedConflicts', {
-        get: function () {
-            var result = 0;
-            for (var i = 0, len = this.elements.length; i < len; i++) {
-                if (this.elements[i] instanceof ui.ConflictSection) {
-                    result += this.elements[i].numResolvedConflicts;
-                }
-            }
-
-            return result;
-        }
-
-    });
 
     window.ui.ConflictResolver = ConflictResolver;
 });

@@ -8,6 +8,8 @@ editor.once('load', function () {
     var mac = navigator.userAgent.indexOf('Mac OS X') !== -1;
 
     var canFind = function () {
+        if (editor.call('editor:resolveConflictMode')) return true;
+
         var focusedTab = editor.call('tabs:focused');
         return focusedTab && (!focusedTab.asset || !!editor.call('documents:getFocused'));
     };

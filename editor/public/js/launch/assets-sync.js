@@ -9,6 +9,10 @@ editor.once('load', function () {
 
     var assetNames = { };
 
+    var queryParams = (new pc.URI(window.location.href)).getQuery();
+    var concatenateScripts = (queryParams.concatenateScripts === 'true');
+    var concatenatedScriptsUrl = '/projects/' + config.project.id + '/concatenated-scripts/scripts.js?branchId=' + config.self.branch.id;
+
     editor.method('loadAsset', function (uniqueId, callback) {
         var connection = editor.call('realtime:connection');
 
@@ -53,7 +57,11 @@ editor.once('load', function () {
             delete assetData.branch_id;
 
             if (assetData.file) {
-                assetData.file.url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.filename);
+                if (concatenateScripts && assetData.type === 'script' && assetData.preload) {
+                    assetData.file.url = concatenatedScriptsUrl;
+                } else {
+                    assetData.file.url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.filename);
+                }
 
                 if (assetData.file.variants) {
                     for (var key in assetData.file.variants) {
@@ -233,6 +241,8 @@ editor.once('load', function () {
 
             var parts = path.split('.');
 
+            // NOTE: if we have concatenated scripts then this will reset the file URL to the original URL and not the
+            // concatenated URL which is what we want for hot reloading
             if ((parts.length === 1 || parts.length === 2) && parts[1] !== 'variants') {
                 asset.set('file.url', getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), asset.get('file.filename')));
             } else if (parts.length >= 3 && parts[1] === 'variants') {

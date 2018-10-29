@@ -493,13 +493,18 @@ editor.once('load', function () {
     });
 
     editor.method('editor:command:can:undo', function () {
-        return !editor.call('editor:isReadOnly') &&
+        return editor.call('editor:resolveConflictMode') ||
+               !editor.call('editor:isReadOnly') &&
                focusedDocument && focusedDocument.undo.length;
     });
 
     // Undo
     editor.method('editor:command:undo', function () {
         if (editor.call('editor:command:can:undo')) {
+            if (editor.call('editor:resolveConflictMode')) {
+                return cm.undo();
+            }
+
             var snapshot = focusedDocument.context.get() || '';
             var curr = focusedDocument.undo.pop();
 
@@ -513,13 +518,18 @@ editor.once('load', function () {
     });
 
     editor.method('editor:command:can:redo', function () {
-        return !editor.call('editor:isReadOnly') &&
+        return editor.call('editor:resolveConflictMode') ||
+               !editor.call('editor:isReadOnly') &&
                focusedDocument && focusedDocument.redo.length;
     });
 
     // Redo
     editor.method('editor:command:redo', function () {
         if (editor.call('editor:command:can:redo')) {
+            if (editor.call('editor:resolveConflictMode')) {
+                return cm.redo();
+            }
+
             var snapshot = focusedDocument.context.get() || '';
             var curr = focusedDocument.redo.pop();
 
