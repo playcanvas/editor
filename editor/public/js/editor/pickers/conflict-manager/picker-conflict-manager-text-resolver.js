@@ -38,7 +38,7 @@ editor.once('load', function () {
             text: 'MARK AS RESOLVED'
         });
         this._btnMarkResolved.class.add('mark-resolved');
-        this._btnMarkResolved.on('click', this._uploadResolved.bind(this));
+        this._btnMarkResolved.on('click', this._onClickMarkResolved.bind(this));
         this._panelTop.append(this._btnMarkResolved);
 
 
@@ -120,8 +120,26 @@ editor.once('load', function () {
         this._iframe = null;
     };
 
+    TextResolver.prototype._getCodeEditor = function () {
+        return this._iframe.contentWindow.editor;
+    };
+
     TextResolver.prototype._getCodeMirror = function () {
-        return this._iframe.contentWindow.editor.call('editor:codemirror');
+        var codeEditor = this._getCodeEditor();
+        return codeEditor.call('editor:codemirror');
+    };
+
+    TextResolver.prototype._onClickMarkResolved = function () {
+        var hasMoreConflicts = this._getCodeEditor().call('editor:merge:hasConflicts');
+        if (hasMoreConflicts) {
+            editor.call(
+                'picker:confirm',
+                'There are more unresolved conflicts in this file. Are you sure you want to mark it as resolved?',
+                this._uploadResolved.bind(this)
+            );
+        } else {
+            this._uploadResolved();
+        }
     };
 
     TextResolver.prototype._uploadResolved = function () {

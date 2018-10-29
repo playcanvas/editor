@@ -11,6 +11,9 @@ editor.once('load', function () {
         shader: 'glsl'
     };
 
+    var REGEX_CONFLICT_START = /<<<<<<</gm;
+    var REGEX_CONFLICT_SEPARATOR = /=======/gm;
+    var REGEX_CONFLICT_END = />>>>>>>/gm;
     var REGEX_DST_BRANCH = /(.*?<<<<<<<[\s\S]*?)=======.*?$/gm;
     var REGEX_SRC_BRANCH = /.*?=======.*?\n([\s\S]*?>>>>>>>.*?$)/gm; // eslint-disable-line no-div-regex
 
@@ -224,7 +227,18 @@ editor.once('load', function () {
     var mergeFileEditor = new MergeFileEditor();
     mergeFileEditor.run();
 
-    editor.method('dis', function () {
-        mergeFileEditor.refreshOverlays();
+    /**
+     * Returns true if there are still conflicts in the file
+     */
+    editor.method('editor:merge:hasConflicts', function () {
+        if (mergeFileEditor.overlays.length > 0) {
+            return true;
+        }
+
+        var value = mergeFileEditor.cm.getValue();
+        return REGEX_CONFLICT_START.test(value) ||
+               REGEX_CONFLICT_END.test(value) ||
+               REGEX_CONFLICT_SEPARATOR.test(value);
     });
+
 });
