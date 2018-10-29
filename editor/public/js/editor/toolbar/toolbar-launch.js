@@ -191,7 +191,7 @@ editor.once('load', function() {
             var optionConcatenate = createOption('concatenate', 'Concatenate Scripts');
             var tooltipConcatenate = Tooltip.attach({
                 target: optionConcatenate.parent.element,
-                text: 'Enable to concatenate scripts to reduce network requests.',
+                text: 'Enable the concatenation of scripts to reduce network requests.',
                 align: 'right',
                 root: root
             });
