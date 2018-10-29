@@ -103,7 +103,6 @@ editor.once('load', function () {
         //     text: 'USE ME'
         // });
         // header.appendChild(btnUse.element);
-
         var label = new ui.Label({
             text: branchName
         });
@@ -119,6 +118,17 @@ editor.once('load', function () {
 
         // this.overlays.push(header);
         this.overlays.push(content);
+
+        // position label on the right of the current viewport
+        content.positionLabel = function () {
+            var scrollInfo = this.cm.getScrollInfo();
+            var margin = 20;
+            var right = Math.max(scrollInfo.width - scrollInfo.clientWidth - scrollInfo.left + margin, 0);
+            label.style.right = right + 'px';
+        }.bind(this);
+
+        content.positionLabel();
+        this.cm.on('scroll', content.positionLabel);
 
         if (reverse) {
             // header.classList.add('reverse');
@@ -161,6 +171,7 @@ editor.once('load', function () {
 
         // clear existing overlays
         for (var i = 0; i < this.overlays.length; i++) {
+            this.cm.off('scroll', this.overlays[i].positionLabel);
             this.overlays[i].parentElement.removeChild(this.overlays[i]);
         }
         this.overlays.length = 0;
