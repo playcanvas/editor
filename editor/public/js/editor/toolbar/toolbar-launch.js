@@ -128,7 +128,7 @@ editor.once('load', function() {
     var optionProfiler = createOption('profiler', 'Profiler');
     var tooltipProfiler = Tooltip.attach({
         target: optionProfiler.parent.element,
-        text: 'Enable to include panel for profiling Frame, Scene and Timeline data.',
+        text: 'Enable the visual performance profiler in the launch page.',
         align: 'right',
         root: root
     });
@@ -150,7 +150,7 @@ editor.once('load', function() {
 
     var tooltipDebug = Tooltip.attach({
         target: optionDebug.parent.element,
-        text: 'Enable to ensure engine logs warnings and errors to be addressed during development.',
+        text: 'Enable the logging of warning and error messages to the JavaScript console.',
         align: 'right',
         root: root
     });
@@ -190,7 +190,7 @@ editor.once('load', function() {
         var optionConcatenate = createOption('concatenate', 'Concatenate Scripts');
         var tooltipConcatenate = Tooltip.attach({
             target: optionConcatenate.parent.element,
-            text: 'Enable the concatenation of scripts to reduce network requests.',
+            text: 'Concatenate scripts on launch to reduce scene load time.',
             align: 'right',
             root: root
         });
@@ -201,7 +201,7 @@ editor.once('load', function() {
 
     var tooltipPreferWebGl1 = Tooltip.attach({
         target: preferWebGl1.parent.element,
-        text: 'If WebGL 2.0 is preferred in Project Settings, for testing purposes WebGL 1.0 can be enforced.',
+        text: 'Force the use of WebGL 1 regardless of whether WebGL 2 is preferred in Scene Settings.',
         align: 'right',
         root: root
     });
