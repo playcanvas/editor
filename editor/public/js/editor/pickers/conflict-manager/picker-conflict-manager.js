@@ -202,6 +202,7 @@ editor.once('load', function () {
                 resolver.destroy();
             }
 
+            setLayoutMode(LAYOUT_NONE);
             showMainProgress(spinnerIcon, 'Stopping merge');
             editor.call('branches:forceStopMerge', config.self.branch.merge.id, function (err) {
                 if (err) {

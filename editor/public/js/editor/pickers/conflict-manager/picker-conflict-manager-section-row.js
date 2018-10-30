@@ -81,8 +81,14 @@ editor.once('load', function () {
                 // if this field type is not a type we support ('object') then if it's missing in the other branch show
                 // it has been edited in this branch
                 if (i === SOURCE_PANEL && self._conflict.missingInDst || i === DEST_PANEL && self._conflict.missingInSrc) {
-                    field = new ui.ConflictFieldEdited();
+                    field = new ui.ConflictFieldKeep();
                 }
+            }
+
+            // if there is no name (path is empty) and this is the source or dest panel then just show
+            // that this field was edited
+            if (! field && ! self._name && i === SOURCE_PANEL || i === DEST_PANEL) {
+                field = new ui.ConflictFieldEdited();
             }
 
             // if for some reason the value is undefined (e.g it could have been too big)
