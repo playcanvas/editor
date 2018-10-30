@@ -401,10 +401,6 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'asset:texture:compression', panelCompression, panelCompression.headerElement);
 
-
-        if ( !editor.call('users:hasFlag', 'betaTester') && config.owner.plan.type === 'free')
-            panelCompression.hidden = true;
-
         // compress alpha
         var fieldCompressAlpha = editor.call('attributes:addField', {
             parent: panelCompression,
