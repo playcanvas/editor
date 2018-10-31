@@ -182,13 +182,32 @@ editor.once('load', function () {
     };
     ConflictFieldDeleted.prototype = Object.create(ConflictField.prototype);
 
-    // A field saying that the object was deleted in one branch
-    var ConflictFieldEdited = function () {
+    // A field saying that the object was edited in one branch and whether
+    // we should keep it
+    var ConflictFieldKeep = function () {
         this.element = new ui.Panel();
         this.element.class.add('field-edited');
 
         var label =  new ui.Label({
             text: 'KEEP'
+        });
+        label.class.add('title');
+        this.element.append(label);
+
+        label =  new ui.Label({
+            text: 'This item was edited on this branch'
+        });
+        this.element.append(label);
+    };
+    ConflictFieldKeep.prototype = Object.create(ConflictField.prototype);
+
+    // A field saying that the object was edited in one branch
+    var ConflictFieldEdited = function () {
+        this.element = new ui.Panel();
+        this.element.class.add('field-edited');
+
+        var label =  new ui.Label({
+            text: 'EDITED'
         });
         label.class.add('title');
         this.element.append(label);
@@ -244,6 +263,7 @@ editor.once('load', function () {
     window.ui.ConflictField = ConflictField;
     window.ui.ConflictArrayField = ConflictArrayField;
     window.ui.ConflictFieldDeleted = ConflictFieldDeleted;
+    window.ui.ConflictFieldKeep = ConflictFieldKeep;
     window.ui.ConflictFieldEdited = ConflictFieldEdited;
     window.ui.ConflictFieldMissing = ConflictFieldMissing;
 });

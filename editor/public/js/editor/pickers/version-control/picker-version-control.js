@@ -230,12 +230,12 @@ editor.once('load', function () {
 
                     // if there are merge conflicts then show
                     // conflict manager
-                    if (data.conflicts) {
+                    if (data.numConflicts) {
                         panelMergeBranchesProgress.setMessage('Unable to auto merge - opening conflict manager');
                         setTimeout(function () {
                             editor.call('picker:project:close');
                             editor.call('picker:versioncontrol:mergeOverlay:hide'); // hide this in case it's open
-                            editor.call('picker:conflictManager', data);
+                            editor.call('picker:conflictManager');
                         }, 1500);
                     } else {
                         // otherwise merge was successful
