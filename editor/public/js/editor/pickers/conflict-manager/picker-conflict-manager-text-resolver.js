@@ -78,6 +78,22 @@ editor.once('load', function () {
         this._menu.append(this._btnUseDest);
         this._btnUseDest.on('select', this._onClickUseDest.bind(this));
 
+        // go to next conflict
+        this._btnNextConflict = new ui.Button({
+            text: 'NEXT'
+        });
+        this._btnNextConflict.class.add('go-to-next');
+        this._panelTop.append(this._btnNextConflict);
+        this._btnNextConflict.on('click', this._onClickNext.bind(this));
+
+        // go to prev conflict
+        this._btnPrevConflict = new ui.Button({
+            text: 'PREV'
+        });
+        this._btnPrevConflict.class.add('go-to-prev');
+        this._panelTop.append(this._btnPrevConflict);
+        this._btnPrevConflict.on('click', this._onClickPrev.bind(this));
+
         // go back to asset conflicts
         this._btnGoBack = new ui.Button({
             text: 'VIEW ASSET CONFLICTS'
@@ -120,17 +136,12 @@ editor.once('load', function () {
         this._iframe = null;
     };
 
-    TextResolver.prototype._getCodeEditor = function () {
-        return this._iframe.contentWindow.editor;
-    };
-
-    TextResolver.prototype._getCodeMirror = function () {
-        var codeEditor = this._getCodeEditor();
-        return codeEditor.call('editor:codemirror');
+    TextResolver.prototype._codeEditorMethod = function (method, arg1, arg2, arg3, arg4) {
+        return this._iframe.contentWindow.editor.call(method, arg1, arg2, arg3, arg4);
     };
 
     TextResolver.prototype._onClickMarkResolved = function () {
-        var hasMoreConflicts = this._getCodeEditor().call('editor:merge:hasConflicts');
+        var hasMoreConflicts = this._codeEditorMethod('editor:merge:getNumberOfConflicts') > 0;
         if (hasMoreConflicts) {
             editor.call(
                 'picker:confirm',
@@ -146,7 +157,7 @@ editor.once('load', function () {
         this._toggleButtons(false);
 
         this._btnMarkResolved.disabled = true;
-        var content = this._getCodeMirror().getValue();
+        var content = this._codeEditorMethod('editor:merge:getContent');
         var file = new Blob([content]);
         editor.call('conflicts:uploadResolvedFile', this._textualMergeConflict.id, file, function (err) {
             this._toggleButtons(true);
@@ -183,8 +194,7 @@ editor.once('load', function () {
     };
 
     TextResolver.prototype._onClickGoBack = function () {
-        var cm = this._getCodeMirror();
-        if (!cm.isClean()) {
+        if (this._codeEditorMethod('editor:merge:isDirty')) {
             editor.call('picker:confirm', 'Your changes will not be saved unless you hit "Mark As Resolved". Are you sure you want to go back?', function () {
                 this.emit('close');
             }.bind(this));
@@ -195,7 +205,7 @@ editor.once('load', function () {
 
     TextResolver.prototype._onClickUseSource = function () {
         if (this._sourceFile) {
-            this._getCodeMirror().setValue(this._sourceFile);
+            this._codeEditorMethod('editor:merge:setContent', this._sourceFile);
             return;
         }
 
@@ -209,7 +219,7 @@ editor.once('load', function () {
             }
 
             this._sourceFile = data;
-            this._getCodeMirror().setValue(this._sourceFile);
+            this._codeEditorMethod('editor:merge:setContent', this._sourceFile);
 
         }.bind(this));
     };
@@ -217,7 +227,7 @@ editor.once('load', function () {
     TextResolver.prototype._onClickUseDest = function () {
 
         if (this._destFile) {
-            this._getCodeMirror().setValue(this._destFile);
+            this._codeEditorMethod('editor:merge:setContent', this._destFile);
             return;
         }
 
@@ -230,7 +240,7 @@ editor.once('load', function () {
             }
 
             this._destFile = data;
-            this._getCodeMirror().setValue(this._destFile);
+            this._codeEditorMethod('editor:merge:setContent', this._destFile);
 
         }.bind(this));
 
@@ -238,7 +248,7 @@ editor.once('load', function () {
 
     TextResolver.prototype._onClickRevert = function () {
         if (this._unresolvedFile) {
-            this._getCodeMirror().setValue(this._unresolvedFile);
+            this._codeEditorMethod('editor:merge:setContent', this._unresolvedFile);
             return;
         }
 
@@ -251,8 +261,16 @@ editor.once('load', function () {
             }
 
             this._unresolvedFile = data;
-            this._getCodeMirror().setValue(this._unresolvedFile);
+            this._codeEditorMethod('editor:merge:setContent', this._unresolvedFile);
         }.bind(this));
+    };
+
+    TextResolver.prototype._onClickNext = function () {
+        this._codeEditorMethod('editor:merge:goToNextConflict');
+    };
+
+    TextResolver.prototype._onClickPrev = function () {
+        this._codeEditorMethod('editor:merge:goToPrevConflict');
     };
 
     window.ui.TextResolver = TextResolver;

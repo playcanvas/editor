@@ -11,19 +11,26 @@ editor.once('load', function () {
         shader: 'glsl'
     };
 
-    var REGEX_CONFLICT_START = /<<<<<<</gm;
-    var REGEX_CONFLICT_SEPARATOR = /=======/gm;
-    var REGEX_CONFLICT_END = />>>>>>>/gm;
     var REGEX_DST_BRANCH = /(.*?<<<<<<<[\s\S]*?)=======.*?$/gm;
     var REGEX_SRC_BRANCH = /.*?=======.*?\n([\s\S]*?>>>>>>>.*?$)/gm; // eslint-disable-line no-div-regex
 
     var MergeFileEditor = function () {
+        // the asset type
         this.type = config.self.branch.merge.conflict.assetType;
         this.codePanel = editor.call('layout.code');
+        // whether tern finished loading
         this.ternLoaded = false;
+        // code mirror instance
         this.cm = editor.call('editor:codemirror');
+        // the Code Mirror document
         this.doc = null;
+        // The overlay HTML elements
         this.overlays = [];
+        // Each group contains a src and dest overlay or just one of them
+        // Each group essentially represents a conflict that could have just
+        // the source, dest or both portions
+        this.overlayGroups = [];
+        // timeout for refreshing overlay elements
         this.timeoutRefreshOverlays = null;
 
         editor.once('tern:load', this.onTernLoaded.bind(this));
@@ -118,6 +125,10 @@ editor.once('load', function () {
 
         var height = this.cm.heightAtLine(endPos.line) - this.cm.heightAtLine(startPos.line);
         content.style.height = height + 'px';
+        content.pos = this.cm.indexFromPos({
+            line: startPos.line + 1,
+            ch: 0
+        });
 
         // this.overlays.push(header);
         this.overlays.push(content);
@@ -169,6 +180,72 @@ editor.once('load', function () {
         }
     };
 
+    // Creates groups out of the created overlays
+    MergeFileEditor.prototype.rebuildOverlayGroups = function () {
+        this.overlayGroups.length = 0;
+        // sort overlays by position in code
+        var sortedOverlays = this.overlays.slice().sort(function (a, b) {
+            return a.pos - b.pos;
+        });
+
+        // creates a group
+        function createOverlayGroup() {
+            return {
+                dest: null,
+                src: null
+            };
+        }
+
+        var currentGroup;
+        for (var i = 0; i < sortedOverlays.length; i++) {
+            if (!currentGroup) {
+                currentGroup = createOverlayGroup();
+            }
+
+            // if this is a dest overlay then put it in the dest field
+            // of the group
+            if (sortedOverlays[i].classList.contains('dst-branch')) {
+                // if there already exists a dest field then push that in
+                // the overlayGroups and start a new group
+                if (currentGroup.dest !== null) {
+                    this.overlayGroups.push(currentGroup);
+                    currentGroup = createOverlayGroup();
+                }
+
+                currentGroup.dest = sortedOverlays[i].pos;
+            } else {
+                // if this is a source overlay then
+                if (currentGroup.src !== null) {
+                    // if there's already a source overlay then
+                    // push that in overlayGroups and start a new group
+                    this.overlayGroups.push(currentGroup);
+                    currentGroup = createOverlayGroup();
+                } else if (currentGroup.dest === null) {
+                    // if there is no dest group (since dest group should
+                    // come first) then push this group in the overlayGroups
+                    // and start a new group
+                    currentGroup.src = sortedOverlays[i].pos;
+                    this.overlayGroups.push(currentGroup);
+                    currentGroup = createOverlayGroup();
+                } else {
+                    // none of the above is true so just set the src field
+                    currentGroup.src = sortedOverlays[i].pos;
+                }
+            }
+
+            // if we filled both dest and src fields then push the group in the overlayGroups array
+            if (currentGroup.dest !== null && currentGroup.src !== null) {
+                this.overlayGroups.push(currentGroup);
+                currentGroup = null;
+            }
+        }
+
+        // if there is a last group then add it to the overlayGroups
+        if (currentGroup && (currentGroup.dest || currentGroup.src)) {
+            this.overlayGroups.push(currentGroup);
+        }
+    };
+
     MergeFileEditor.prototype.refreshOverlays = function () {
         this.timeoutRefreshOverlays = null;
 
@@ -181,6 +258,7 @@ editor.once('load', function () {
 
         this.createDstOverlays();
         this.createSrcOverlays();
+        this.rebuildOverlayGroups();
     };
 
     MergeFileEditor.prototype.deferredRefreshOverlays = function () {
@@ -203,6 +281,58 @@ editor.once('load', function () {
         setTimeout(function () {
             this.cm.focus();
         }.bind(this));
+    };
+
+    // Moves cursor to the next conflict. Wraps around if needed
+    MergeFileEditor.prototype.goToNextConflict = function () {
+        var cm = this.cm;
+        cm.focus();
+
+        var currentPos = cm.indexFromPos(cm.getCursor());
+        var foundPos = null;
+        for (var i = 0; i < this.overlayGroups.length; i++) {
+            var group = this.overlayGroups[i];
+            var overlayPos = group.dest !== null ? group.dest : group.src;
+            if (overlayPos > currentPos) {
+                foundPos = overlayPos;
+                break;
+            }
+        }
+
+        if (foundPos === null) {
+            var wrappedGroup = this.overlayGroups[0];
+            foundPos = wrappedGroup.dest !== null ? wrappedGroup.dest : wrappedGroup.src;
+        }
+
+        if (foundPos !== null) {
+            cm.setCursor(cm.posFromIndex(foundPos));
+        }
+    };
+
+    // Moves cursor to the previous conflict. Wraps around if needed
+    MergeFileEditor.prototype.goToPrevConflict = function () {
+        var cm = this.cm;
+        cm.focus();
+
+        var currentPos = cm.indexFromPos(cm.getCursor());
+        var foundPos = null;
+        for (var i = this.overlayGroups.length - 1; i >= 0; i--) {
+            var group = this.overlayGroups[i];
+            var overlayPos = group.dest !== null ? group.dest : group.src;
+            if (overlayPos < currentPos) {
+                foundPos = overlayPos;
+                break;
+            }
+        }
+
+        if (foundPos === null) {
+            var wrappedGroup = this.overlayGroups[this.overlayGroups.length - 1];
+            foundPos = wrappedGroup.dest !== null ? wrappedGroup.dest : wrappedGroup.src;
+        }
+
+        if (foundPos !== null) {
+            cm.setCursor(cm.posFromIndex(foundPos));
+        }
     };
 
     MergeFileEditor.prototype.run = function () {
@@ -228,17 +358,45 @@ editor.once('load', function () {
     mergeFileEditor.run();
 
     /**
-     * Returns true if there are still conflicts in the file
+     * Gets the number of conflict overlays in the code editor
      */
-    editor.method('editor:merge:hasConflicts', function () {
-        if (mergeFileEditor.overlays.length > 0) {
-            return true;
-        }
+    editor.method('editor:merge:getNumberOfConflicts', function () {
+        return mergeFileEditor.overlayGroups.length;
+    });
 
-        var value = mergeFileEditor.cm.getValue();
-        return REGEX_CONFLICT_START.test(value) ||
-               REGEX_CONFLICT_END.test(value) ||
-               REGEX_CONFLICT_SEPARATOR.test(value);
+    /**
+     * Returns true if the code editor is dirty
+     */
+    editor.method('editor:merge:isDirty', function () {
+        return !mergeFileEditor.cm.isClean();
+    });
+
+    /**
+     * Gets the current content of the code editor
+     */
+    editor.method('editor:merge:getContent', function () {
+        return mergeFileEditor.cm.getValue();
+    });
+
+    /**
+     * Sets the current content of the code editor
+     */
+    editor.method('editor:merge:setContent', function (value) {
+        return mergeFileEditor.cm.setValue(value);
+    });
+
+    /**
+     * Moves cursor to the next conflict
+     */
+    editor.method('editor:merge:goToNextConflict', function () {
+        mergeFileEditor.goToNextConflict();
+    });
+
+    /**
+     * Moves cursor to the previous conflict
+     */
+    editor.method('editor:merge:goToPrevConflict', function () {
+        mergeFileEditor.goToPrevConflict();
     });
 
 });

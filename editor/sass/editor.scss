@@ -9621,6 +9621,20 @@ strong {
                                     &.go-back:before {
                                         content: '\E158';
                                     }
+
+                                    &.go-to-prev:before {
+                                        content: '\E162';
+                                    }
+                                    &.go-to-next {
+                                        margin-left: 0px;
+                                        &:after {
+                                            @extend .font-icon;
+                                            margin-left: 5px;
+                                            vertical-align: middle;
+                                            font-size: 16px;
+                                            content: '\E164';
+                                        }
+                                    }
                                 }
                             }
                         }
