@@ -218,7 +218,7 @@ editor.once('load', function () {
             useTouch: useTouch
         }),
         mouse: useMouse ? new pc.input.Mouse(canvas) : null,
-        touch: useTouch && !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas) : null,
+        touch: useTouch && pc.platform.touch ? new pc.input.TouchDevice(canvas) : null,
         keyboard: useKeyboard ? new pc.input.Keyboard(window) : null,
         gamepads: useGamepads ? new pc.input.GamePads() : null,
         scriptPrefix: scriptPrefix,
