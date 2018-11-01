@@ -473,8 +473,19 @@ editor.once('load', function () {
 
         // get app from server
         editor.call('apps:get', data.app.id, function (app) {
-            apps.push(app);
-            refreshApps();
+            // add app if it's not already inside the apps array
+            var found = false;
+            for (var i = 0; i < apps.length; i++) {
+                if (apps[i].id === data.app.id) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (! found) {
+                apps.push(app);
+                refreshApps();
+            }
         });
     });
 
