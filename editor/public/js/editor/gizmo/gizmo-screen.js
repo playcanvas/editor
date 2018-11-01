@@ -125,13 +125,17 @@ editor.once('load', function() {
 
                 var isScreenSpace = entities[key].entity.get('components.screen.screenSpace');
 
+                // never cull screen content in editor
+                entity.screen.cull = false;
+
                 // always render screens as 3d screens in the viewport
                 if (isScreenSpace) {
                     entity.setLocalScale(0.01, 0.01, 0.01);
                     entity.setLocalEulerAngles(0, 0, 0);
 
-                    if (entity.screen.screenSpace)
+                    if (entity.screen.screenSpace) {
                         entity.screen.screenSpace = false;
+                    }
 
 
                     var res = entity.screen.resolution;
