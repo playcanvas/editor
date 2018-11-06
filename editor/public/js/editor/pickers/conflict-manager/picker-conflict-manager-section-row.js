@@ -87,7 +87,7 @@ editor.once('load', function () {
 
             // if there is no name (path is empty) and this is the source or dest panel then just show
             // that this field was edited
-            if (! field && ! self._name && i === SOURCE_PANEL || i === DEST_PANEL) {
+            if (! field && ! self._name && (i === SOURCE_PANEL || i === DEST_PANEL)) {
                 field = new ui.ConflictFieldEdited();
             }
 
