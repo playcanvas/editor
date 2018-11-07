@@ -1200,7 +1200,7 @@ editor.once('load', function() {
             }
 
             if (changed) {
-                var next = panelScripts.element.nextSibling;
+                var next = panel.element.nextSibling;
                 removeScriptAttribute(script, name);
                 var panel = addScriptAttribute(script, name, value);
 
