@@ -70,7 +70,8 @@ editor.once('load', function() {
         'model': '&#57735;',
         'scene': '&#57735;',
         'animation': '&#57875;',
-        'audio': '&#57872;'
+        'audio': '&#57872;',
+        'bundle': '&#57897;',
     };
 
     var ICONS = {
@@ -96,7 +97,8 @@ editor.once('load', function() {
         'material': 'Material',
         'script': 'Script',
         'shader': 'Shader',
-        'text': 'Text'
+        'text': 'Text',
+        'bundle': 'Asset Bundle'
     };
 
     var addNewMenuItem = function(key, title) {

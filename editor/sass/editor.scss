@@ -1493,6 +1493,9 @@ strong {
                 &.type-folder:before {
                     content: '\E139';
                 }
+                &.type-bundle:before {
+                    content: '\E229';
+                }
                 &.type-json:before {
                     content: '\E207';
                 }
@@ -3295,6 +3298,15 @@ strong {
                 display: none;
             }
         }
+        &.type-bundle {
+            > .thumbnail.placeholder:after {
+                content: '\E229';
+                font-size: 58px;
+            }
+            > .icon {
+                display: none;
+            }
+        }
         &.type-json {
             > .thumbnail.placeholder:after {
                 content: '\E207';
@@ -3632,6 +3644,11 @@ strong {
             height: 64px;
 
             &.type-folder {
+                > .thumbnail.placeholder:after {
+                    font-size: 38px;
+                }
+            }
+            &.type-bundle {
                 > .thumbnail.placeholder:after {
                     font-size: 38px;
                 }

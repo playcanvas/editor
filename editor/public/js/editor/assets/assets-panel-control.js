@@ -48,6 +48,10 @@ editor.once('load', function() {
         'text': {
             title: 'Text',
             icon: '&#57864;'
+        },
+        'bundle': {
+            title: 'Asset Bundle',
+            icon: '&#57897;'
         }
     };
 
