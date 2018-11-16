@@ -71,7 +71,7 @@ editor.once('load', function() {
         'scene': '&#57735;',
         'animation': '&#57875;',
         'audio': '&#57872;',
-        'bundle': '&#57897;',
+        'bundle': '&#58384;'
     };
 
     var ICONS = {

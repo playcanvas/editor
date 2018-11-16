@@ -51,7 +51,7 @@ editor.once('load', function() {
         },
         'bundle': {
             title: 'Asset Bundle',
-            icon: '&#57897;'
+            icon: '&#58384;'
         }
     };
 

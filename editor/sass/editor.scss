@@ -1494,7 +1494,7 @@ strong {
                     content: '\E139';
                 }
                 &.type-bundle:before {
-                    content: '\E229';
+                    content: '\E410';
                 }
                 &.type-json:before {
                     content: '\E207';
@@ -3300,7 +3300,7 @@ strong {
         }
         &.type-bundle {
             > .thumbnail.placeholder:after {
-                content: '\E229';
+                content: '\E410';
                 font-size: 58px;
             }
             > .icon {
