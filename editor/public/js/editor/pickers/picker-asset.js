@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
@@ -15,6 +15,9 @@ editor.once('load', function() {
     var currentType = '';
     var currentAsset = null;
     var gridSelected = null;
+    var allowMultiSelection = false;
+    var assetSelection = [];
+
     var assetsPanelFolded = false;
     var assetsPanelFilter = '';
     var assetsPanelSearch = '';
@@ -33,7 +36,7 @@ editor.once('load', function() {
 
         if (legacyScripts && type === 'script') {
             result = 'There are no scripts. Click on the <span class="font-icon" style="font-size: 18px">&#57632;</span> button to add one';
-        } else if (type === 'material' || type === 'cubemap' || type === 'text' || type === 'json' || type === 'html' || type === 'shader' || type === 'css' || (! legacyScripts && type === 'script')) {
+        } else if (type === 'material' || type === 'cubemap' || type === 'text' || type === 'json' || type === 'html' || type === 'shader' || type === 'css' || (!legacyScripts && type === 'script')) {
             result = 'There are no ' + pluralize(type) + ' in this folder. Click on the <span class="font-icon" style="font-size: 18px">&#57632;</span> button to add one';
         } else {
             result = 'There are no ' + pluralize(type) + ' in this folder. Add one by uploading a ' + type + ' file';
@@ -51,7 +54,7 @@ editor.once('load', function() {
     // esc to close
     editor.call('hotkey:register', 'picker:assets:close', {
         key: 'esc',
-        callback: function() {
+        callback: function () {
             if (overlay.hidden)
                 return;
 
@@ -59,15 +62,25 @@ editor.once('load', function() {
         }
     });
 
-    assetsGrid.on('deselect', function(item) {
-        if (overlay.hidden || ! item.asset || item.asset !== currentAsset)
+    assetsGrid.on('deselect', function (item) {
+        if (overlay.hidden || !item.asset)
             return;
 
-        this.selected = [ item ];
+        if (item.asset === currentAsset) {
+            this.selected = [item];
+        } else {
+            if (allowMultiSelection) {
+                var idx = assetSelection.indexOf(item.asset);
+                if (idx !== -1) {
+                    assetSelection.splice(idx, 1);
+                    editor.emit('picker:assets', assetSelection);
+                }
+            }
+        }
     });
 
     // picked asset
-    assetsGrid.on('select', function(item) {
+    assetsGrid.on('select', function (item) {
         if (item.asset) {
             if (overlay.hidden ||
                 (currentType !== '*' && item.asset.get('type') !== currentType) ||
@@ -76,26 +89,39 @@ editor.once('load', function() {
             }
 
             // emit event
-            if (item.asset)
-                editor.emit('picker:asset', item.asset);
+            if (item.asset) {
+                if (allowMultiSelection) {
+                    assetSelection.push(item.asset);
+                    editor.emit('picker:assets', assetSelection);
+                } else {
+                    editor.emit('picker:asset', item.asset);
+                }
+            }
         } else if (item.script) {
             if (overlay.hidden ||
                 (currentType !== '*' && currentType !== "script")) {
                 return;
             }
 
-            if (item.script)
-                editor.emit('picker:asset', item.script);
+            if (item.script) {
+                if (allowMultiSelection) {
+                    assetSelection.push(item.script);
+                    editor.emit('picker:assets', assetSelection);
+                } else {
+                    editor.emit('picker:asset', item.script);
+                }
+            }
         }
 
-
-        // hide picker
-        overlay.hidden = true;
+        if (!allowMultiSelection) {
+            // hide picker
+            overlay.hidden = true;
+        }
     });
 
 
     // on close asset picker
-    overlay.on('hide', function() {
+    overlay.on('hide', function () {
         // show all assets back
         editor.call('assets:filter:type:disabled', false);
         editor.call('assets:filter:type', assetsPanelFilter);
@@ -108,6 +134,11 @@ editor.once('load', function() {
         editor.call('selector:enabled', true);
         // select what was selected
         assetsGrid.selected = gridSelected;
+
+        if (allowMultiSelection) {
+            editor.emit('picker:assets', assetSelection);
+        }
+
         // emit event
         editor.emit('picker:asset:close');
         // styling
@@ -116,8 +147,20 @@ editor.once('load', function() {
     });
 
 
-    // open asset picker
-    editor.method('picker:asset', function(type, asset) {
+    /**
+     * Opens the asset picker. To get the selected asset(s) listen for the 'picker:asset' event or
+     * the 'picker:assets' event if args.multi is true.
+     * @param {Object} args Arguments
+     * @param {String} [args.type] The asset type that this picker can pick. Can also be '*' for all
+     * @param {Boolean} [args.multi] Allows selection of multiple assets
+     * @param {Observer} [args.currentAsset] The currently selected asset
+     */
+    editor.method('picker:asset', function (args) {
+        var type = args.type;
+
+        allowMultiSelection = !!args.multi;
+        assetSelection.length = 0;
+
         // show only asset assets
         assetsPanelFilter = editor.call('assets:filter:type');
         assetsPanelSearch = editor.call('assets:filter:search');
@@ -137,17 +180,18 @@ editor.once('load', function() {
         }
 
         editor.call('assets:filter:type', (pickerType === '*') ? 'all' : pickerType);
-        editor.call('assets:filter:type:disabled', (! pickerType || pickerType === '*') ? false : true);
+        editor.call('assets:filter:type:disabled', (!pickerType || pickerType === '*') ? false : true);
+
         // disable selector
         editor.call('selector:enabled', false);
         // find current asset
         currentType = type;
-        currentAsset = asset;
+        currentAsset = args.currentAsset;
         if (currentAsset) {
             var gridItem = assetsGrid.assetsIndex[currentAsset.get('id')];
             // select in grid
             if (gridItem) {
-                assetsGrid.selected = [ gridItem ];
+                assetsGrid.selected = [gridItem];
                 // navigate to folder of referenced file
                 if (legacyScripts && type === 'script') {
                     editor.call('assets:panel:currentFolder', 'scripts');
@@ -173,7 +217,7 @@ editor.once('load', function() {
         // flash assets panel
         assetsPanel.flash();
         // focus on panel
-        setTimeout(function() {
+        setTimeout(function () {
             if (assetsGrid.selected && assetsGrid.selected.length) {
                 assetsGrid.selected[0].element.focus();
             } else {
@@ -187,11 +231,11 @@ editor.once('load', function() {
                 editor.call('assets:panel:message', msg);
             }
         }, 100);
+
     });
 
-
     // close asset picker
-    editor.method('picker:asset:close', function() {
+    editor.method('picker:asset:close', function () {
         // hide overlay
         overlay.hidden = true;
     });

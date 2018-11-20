@@ -226,7 +226,10 @@ editor.once('load', function() {
     menuItemReplace.on('select', function() {
         var id = parseInt(currentAsset.get('id'), 10);
 
-        editor.call('picker:asset', currentAsset.get('type'), currentAsset);
+        editor.call('picker:asset', {
+            type: currentAsset.get('type'),
+            currentAsset: currentAsset
+        });
 
         var evtPick = editor.once('picker:asset', function(asset) {
             editor.call('assets:replace', currentAsset, asset);
@@ -250,7 +253,10 @@ editor.once('load', function() {
     menuItemReplaceTextureToSprite.on('select', function() {
         var id = parseInt(currentAsset.get('id'), 10);
 
-        editor.call('picker:asset', 'sprite', currentAsset);
+        editor.call('picker:asset', {
+            type: 'sprite',
+            currentAsset: currentAsset
+        });
 
         var evtPick = editor.once('picker:asset', function(asset) {
             editor.call('assets:replaceTextureToSprite', currentAsset, asset);

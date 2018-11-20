@@ -114,7 +114,9 @@ editor.once('load', function() {
             });
 
             // show asset picker
-            editor.call("picker:asset", "script", null);
+            editor.call("picker:asset", {
+                type: "script"
+            });
 
             editor.once('picker:asset:close', function () {
                 if (evtPick) {
@@ -631,14 +633,13 @@ editor.once('load', function() {
                     // assets
                     options = {
                         panel: parent,
-                        title: 'Asset',
+                        name: attribute.displayName || attribute.name,
                         type: attribute.options.type || '*',
                         link: scripts,
                         path: 'attributes.' + attribute.name + '.value',
                         reference: reference
                     };
                     field = editor.call('attributes:addAssetsList', options);
-                    field.parent._label.text = attribute.displayName || attribute.name;
                 }
 
                 field.options = options;

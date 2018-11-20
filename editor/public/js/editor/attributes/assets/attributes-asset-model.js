@@ -3,7 +3,10 @@ editor.once('load', function() {
 
     var pickMaterial = function(assetId, fn) {
         var asset = editor.call('assets:get', assetId);
-        editor.call('picker:asset', 'material', asset);
+        editor.call('picker:asset', {
+            type: 'material',
+            currentAsset: asset
+        });
 
         var evtPick = editor.once('picker:asset', function(asset) {
             fn(asset.get('id'));

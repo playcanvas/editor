@@ -23,162 +23,251 @@ editor.once('load', function () {
         }
     };
 
+    /**
+     * Creates an Asset List widget
+     * @param {Object} args Widget arguments
+     * @param {Observer[]} args.link The observers we are editing
+     * @param {String} [args.type] The asset type that is selectible from the asset list
+     * @param {Function} [args.filterFn] A custom function that filters assets that can be dragged on the list. The function
+     * takes the asset as its only argument.
+     */
     editor.method('attributes:addAssetsList', function (args) {
         var link = args.link;
-        var title = args.title;
         var assetType = args.type;
+        var assetFilterFn = args.filterFn;
         var panel = args.panel;
         var events = [];
-        var itemAdd;
         // index list items by asset id
         var assetIndex = {};
 
+        var panelWidget = new ui.Panel();
+        panelWidget.class.add('asset-list');
+
+        var isSelectingAssets = false;
+        var currentSelection = null;
+
+        var btnSelectionMode = new ui.Button({
+            text: 'Add Assets'
+        });
+        btnSelectionMode.class.add('selection-mode');
+        panelWidget.append(btnSelectionMode);
+
+        // panel for buttons
+        var panelButtons = new ui.Panel();
+        panelButtons.class.add('buttons');
+        panelButtons.flex = true;
+        panelButtons.hidden = true;
+
+        // label
+        var labelAdd = new ui.Label({
+            text: 'Add Assets'
+        });
+        panelButtons.append(labelAdd);
+
+        // add button
+        var btnAdd = new ui.Button({
+            text: 'ADD SELECTION'
+        });
+        btnAdd.disabled = true;
+        btnAdd.class.add('add-assets');
+
+        panelButtons.append(btnAdd);
+
+        // done button
+        var btnDone = new ui.Button({
+            text: 'DONE'
+        });
+        btnDone.class.add('done');
+        panelButtons.append(btnDone);
+
+        panelWidget.append(panelButtons);
+
+        btnSelectionMode.on('click', function () {
+            isSelectingAssets = true;
+            panelButtons.hidden = false;
+            btnSelectionMode.hidden = true;
+
+            fieldAssets.parent.style.zIndex = 102;
+            dropRef.disabled = true;
+
+            // asset picker
+            editor.call('picker:asset', {
+                type: assetType,
+                multi: true
+            });
+
+            // on pick
+            var evtPick = editor.on('picker:assets', function (assets) {
+                currentSelection = assets.filter(function (asset) {
+                    if (assetFilterFn) {
+                        return assetFilterFn(asset);
+                    }
+
+                    if (legacyScripts && asset.get('type') === 'script') {
+                        return false;
+                    }
+
+                    return true;
+                }).map(function (asset) {
+                    return parseInt(asset.get('id'), 10);
+                });
+
+                btnAdd.disabled = !currentSelection.length;
+            });
+
+            editor.once('picker:asset:close', function () {
+                currentSelection = null;
+                isSelectingAssets = false;
+                panelButtons.hidden = true;
+                btnSelectionMode.hidden = false;
+                btnAdd.disabled = true;
+                fieldAssets.parent.style.zIndex = '';
+                dropRef.disabled = !panel.enabled;
+
+                if (evtPick) {
+                    evtPick.unbind();
+                    evtPick = null;
+                }
+            });
+        });
+
+        btnDone.on('click', function () {
+            editor.call('picker:asset:close');
+        });
+
         // assets
+        var fieldAssets;
         var fieldAssetsList = new ui.List();
+        fieldAssetsList.class.add('empty');
         fieldAssetsList.flexGrow = 1;
 
         fieldAssetsList.on('select', function (item) {
-            if (item === itemAdd || !item.asset)
-                return;
-
+            if (!item.asset) return;
             editor.call('selector:set', 'asset', [item.asset]);
         });
 
-        // drop
-        var dropRef = editor.call('drop:target', {
-            ref: fieldAssetsList.element,
-            type: 'asset.' + assetType,
-            filter: function (type, data) {
-                // type
-                if ((assetType && assetType !== '*' && type !== 'asset.' + assetType) || !type.startsWith('asset') || editor.call('assets:get', parseInt(data.id, 10)).get('source'))
-                    return false;
+        // Adds asset ids to the list
+        var addAssets = function (assetIds) {
+            var records = [];
 
-                // overflowed
-                var rectA = root.innerElement.getBoundingClientRect();
-                var rectB = fieldAssetsList.element.getBoundingClientRect();
-                if (rectB.top <= rectA.top || rectB.bottom >= rectA.bottom)
-                    return false;
+            for (var i = 0; i < link.length; i++) {
+                var path = pathAt(args, i);
 
-                // already added
-                var id = parseInt(data.id, 10);
-                for (var i = 0; i < link.length; i++) {
-                    if (link[i].get(pathAt(args, i)).indexOf(id) === -1)
-                        return true;
-                }
+                for (var j = 0; j < assetIds.length; j++) {
+                    var assetId = assetIds[j];
 
-                return false;
-            },
-            drop: function (type, data) {
-                if ((assetType && assetType !== '*' && type !== 'asset.' + assetType) || !type.startsWith('asset') || editor.call('assets:get', parseInt(data.id, 10)).get('source'))
-                    return;
-
-                var records = [];
-
-                var id = parseInt(data.id, 10);
-
-                for (var i = 0; i < link.length; i++) {
-                    var path = pathAt(args, i);
-                    if (link[i].get(path).indexOf(id) !== -1)
+                    // check if already in list
+                    if (link[i].get(path).indexOf(assetId) !== -1)
                         continue;
 
                     records.push({
                         get: link[i].history !== undefined ? link[i].history._getItemFn : null,
                         item: link[i],
                         path: path,
-                        value: id
+                        value: assetId
                     });
 
                     historyState(link[i], false);
-                    link[i].insert(path, id);
+                    link[i].insert(path, assetId);
                     historyState(link[i], true);
                 }
-
-                editor.call('history:add', {
-                    name: pathAt(args, 0),
-                    undo: function () {
-                        for (var i = 0; i < records.length; i++) {
-                            var item;
-                            if (records[i].get) {
-                                item = records[i].get();
-                                if (!item)
-                                    continue;
-                            } else {
-                                item = records[i].item;
-                            }
-
-                            historyState(item, false);
-                            item.removeValue(records[i].path, records[i].value);
-                            historyState(item, true);
-                        }
-                    },
-                    redo: function () {
-                        for (var i = 0; i < records.length; i++) {
-                            var item;
-                            if (records[i].get) {
-                                item = records[i].get();
-                                if (!item)
-                                    continue;
-                            } else {
-                                item = records[i].item;
-                            }
-
-                            historyState(item, false);
-                            item.insert(records[i].path, records[i].value);
-                            historyState(item, true);
-                        }
-                    }
-                });
             }
-        });
-        dropRef.disabled = panel.disabled;
-        panel.on('enable', function () {
-            dropRef.disabled = false;
-        });
-        panel.on('disable', function () {
-            dropRef.disabled = true;
 
-            // clear list item
-            var items = fieldAssetsList.element.children;
-            var i = items.length;
-            while (i-- > 1) {
-                if (!items[i].ui || !(items[i].ui instanceof ui.ListItem))
+            editor.call('history:add', {
+                name: pathAt(args, 0),
+                undo: function () {
+                    for (var i = 0; i < records.length; i++) {
+                        var item;
+                        if (records[i].get) {
+                            item = records[i].get();
+                            if (!item) continue;
+                        } else {
+                            item = records[i].item;
+                        }
+
+                        historyState(item, false);
+                        item.removeValue(records[i].path, records[i].value);
+                        historyState(item, true);
+                    }
+                },
+                redo: function () {
+                    for (var i = 0; i < records.length; i++) {
+                        var item;
+                        if (records[i].get) {
+                            item = records[i].get();
+                            if (!item) continue;
+                        } else {
+                            item = records[i].item;
+                        }
+
+                        historyState(item, false);
+                        item.insert(records[i].path, records[i].value);
+                        historyState(item, true);
+                    }
+                }
+            });
+        };
+
+        // Removes asset id from the list
+        var removeAsset = function (assetId) {
+            var records = [];
+
+            for (var i = 0; i < link.length; i++) {
+                var path = pathAt(args, i);
+                var ind = link[i].get(path).indexOf(assetId);
+                if (ind === -1)
                     continue;
 
-                items[i].ui.destroy();
+                records.push({
+                    get: link[i].history !== undefined ? link[i].history._getItemFn : null,
+                    item: link[i],
+                    path: path,
+                    value: assetId,
+                    ind: ind
+                });
+
+                historyState(link[i], false);
+                link[i].removeValue(path, assetId);
+                historyState(link[i], true);
             }
 
-            assetIndex = {};
-        });
-        fieldAssetsList.on('destroy', function () {
-            dropRef.unregister();
-        });
+            editor.call('history:add', {
+                name: pathAt(args, 0),
+                undo: function () {
+                    for (var i = 0; i < records.length; i++) {
+                        var item;
+                        if (records[i].get) {
+                            item = records[i].get();
+                            if (!item) continue;
+                        } else {
+                            item = records[i].item;
+                        }
 
-        var fieldAssets = editor.call('attributes:addField', {
-            parent: panel,
-            name: args.name || 'Assets',
-            type: 'element',
-            element: fieldAssetsList,
-            reference: args.reference
-        });
-        fieldAssets.class.add('assets');
+                        historyState(item, false);
+                        item.insert(records[i].path, records[i].value, records[i].ind);
+                        historyState(item, true);
+                    }
+                },
+                redo: function () {
+                    for (var i = 0; i < records.length; i++) {
+                        var item;
+                        if (records[i].get) {
+                            item = records[i].get();
+                            if (!item) continue;
+                        } else {
+                            item = records[i].item;
+                        }
 
-        // reference assets
-        editor.call('attributes:reference:attach', assetType + ':assets', fieldAssets.parent.innerElement.firstChild.ui);
+                        historyState(item, false);
+                        item.removeValue(records[i].path, records[i].value);
+                        historyState(item, true);
+                    }
+                }
+            });
+        };
 
-        // assets list
-        itemAdd = new ui.ListItem({
-            text: 'Add ' + title
-        });
-        itemAdd.class.add('add-asset');
-        fieldAssetsList.append(itemAdd);
-
-        // add asset icon
-        var iconAdd = document.createElement('span');
-        iconAdd.classList.add('icon');
-        itemAdd.element.appendChild(iconAdd);
-
-        // add asset
-        var addAsset = function (assetId, after) {
+        // add asset list item to the list
+        var addAssetListItem = function (assetId, after) {
             assetId = parseInt(assetId, 10);
 
             var item = assetIndex[assetId];
@@ -196,6 +285,7 @@ editor.once('load', function () {
             item = new ui.ListItem({
                 text: (link.length === 1) ? text : '* ' + text
             });
+            item.class.add('type-' + asset.get('type'));
             item.count = 1;
             item.asset = asset;
             item._assetText = text;
@@ -206,68 +296,16 @@ editor.once('load', function () {
                 fieldAssetsList.append(item);
             }
 
+            fieldAssetsList.class.remove('empty');
+
             assetIndex[assetId] = item;
 
             // remove button
             var btnRemove = new ui.Button();
             btnRemove.class.add('remove');
             btnRemove.on('click', function () {
-                var records = [];
+                removeAsset(assetId);
 
-                for (var i = 0; i < link.length; i++) {
-                    var path = pathAt(args, i);
-                    var ind = link[i].get(path).indexOf(assetId);
-                    if (ind === -1)
-                        continue;
-
-                    records.push({
-                        get: link[i].history !== undefined ? link[i].history._getItemFn : null,
-                        item: link[i],
-                        path: path,
-                        value: assetId,
-                        ind: ind
-                    });
-
-                    historyState(link[i], false);
-                    link[i].removeValue(path, assetId);
-                    historyState(link[i], true);
-                }
-
-                editor.call('history:add', {
-                    name: pathAt(args, 0),
-                    undo: function () {
-                        for (var i = 0; i < records.length; i++) {
-                            var item;
-                            if (records[i].get) {
-                                item = records[i].get();
-                                if (!item)
-                                    continue;
-                            } else {
-                                item = records[i].item;
-                            }
-
-                            historyState(item, false);
-                            item.insert(records[i].path, records[i].value, records[i].ind);
-                            historyState(item, true);
-                        }
-                    },
-                    redo: function () {
-                        for (var i = 0; i < records.length; i++) {
-                            var item;
-                            if (records[i].get) {
-                                item = records[i].get();
-                                if (!item)
-                                    continue;
-                            } else {
-                                item = records[i].item;
-                            }
-
-                            historyState(item, false);
-                            item.removeValue(records[i].path, records[i].value);
-                            historyState(item, true);
-                        }
-                    }
-                });
             });
             btnRemove.parent = item;
             item.element.appendChild(btnRemove.element);
@@ -277,7 +315,8 @@ editor.once('load', function () {
             });
         };
 
-        var removeAsset = function (assetId) {
+        // Removes list item for the specified asset id
+        var removeAssetListItem = function (assetId) {
             var item = assetIndex[assetId];
 
             if (!item)
@@ -288,87 +327,104 @@ editor.once('load', function () {
             if (item.count === 0) {
                 item.destroy();
                 fieldAssets.emit('remove', item);
+
+                if (!fieldAssetsList.element.children.length) {
+                    fieldAssetsList.class.add('empty');
+                }
+
             } else {
                 item.text = (item.count === link.length ? '' : '* ') + item._assetText;
             }
         };
 
-        // on adding new asset
-        itemAdd.on('click', function () {
-            // call picker
-            editor.call('picker:asset', assetType, null);
+        // drop
+        var dropRef = editor.call('drop:target', {
+            ref: panelWidget.element,
+            type: 'asset.' + assetType,
+            filter: function (type, data) {
+                // type
+                if ((assetType && assetType !== '*' && type !== 'asset.' + assetType) || !type.startsWith('asset') || editor.call('assets:get', parseInt(data.id, 10)).get('source'))
+                    return false;
 
-            // on pick
-            var evtPick = editor.once('picker:asset', function (asset) {
-                if (legacyScripts && asset.get('type') === 'script')
+                // if a custom filter function has
+                // been provided then use it now
+                if (assetFilterFn) {
+                    if (!assetFilterFn(editor.call('assets:get', data.id))) {
+                        return false;
+                    }
+                }
+
+                // overflowed
+                var rectA = root.innerElement.getBoundingClientRect();
+                var rectB = panelWidget.element.getBoundingClientRect();
+                if (rectB.top <= rectA.top || rectB.bottom >= rectA.bottom)
+                    return false;
+
+                // already added
+                var id = parseInt(data.id, 10);
+                for (var i = 0; i < link.length; i++) {
+                    if (link[i].get(pathAt(args, i)).indexOf(id) === -1)
+                        return true;
+                }
+
+                return false;
+            },
+            drop: function (type, data) {
+                if ((assetType && assetType !== '*' && type !== 'asset.' + assetType) || !type.startsWith('asset') || editor.call('assets:get', parseInt(data.id, 10)).get('source'))
                     return;
 
-                var records = [];
-                var assetId = parseInt(asset.get('id'), 10);
+                var assetId = parseInt(data.id, 10);
+                addAssets([assetId]);
+            }
+        });
+        dropRef.disabled = panel.disabled;
+        panel.on('enable', function () {
+            if (!isSelectingAssets)
+                dropRef.disabled = false;
+        });
+        panel.on('disable', function () {
+            dropRef.disabled = true;
 
-                for (var i = 0; i < link.length; i++) {
-                    var path = pathAt(args, i);
+            // clear list item
+            var items = fieldAssetsList.element.children;
+            var i = items.length;
+            while (i-- > 1) {
+                if (!items[i].ui || !(items[i].ui instanceof ui.ListItem))
+                    continue;
 
-                    // already in list
-                    if (link[i].get(path).indexOf(assetId) !== -1)
-                        continue;
+                items[i].ui.destroy();
+            }
 
-                    records.push({
-                        get: link[i].history !== undefined ? link[i].history._getItemFn : null,
-                        item: link[i],
-                        path: path,
-                        value: assetId
-                    });
+            fieldAssetsList.class.add('empty');
 
-                    historyState(link[i], false);
-                    link[i].insert(path, assetId);
-                    historyState(link[i], true);
-                    evtPick = null;
+            assetIndex = {};
+        });
+        fieldAssetsList.on('destroy', function () {
+            dropRef.unregister();
+        });
+
+        panelWidget.append(fieldAssetsList);
+
+        fieldAssets = editor.call('attributes:addField', {
+            parent: panel,
+            name: args.name || '',
+            type: 'element',
+            element: panelWidget,
+            reference: args.reference
+        });
+        fieldAssets.class.add('assets');
+
+        // reference assets
+        editor.call('attributes:reference:attach', assetType + ':assets', fieldAssets.parent.innerElement.firstChild.ui);
+
+        // on adding new asset
+        btnAdd.on('click', function () {
+            if (isSelectingAssets) {
+                if (currentSelection) {
+                    addAssets(currentSelection);
+                    currentSelection = null;
                 }
-
-                editor.call('history:add', {
-                    name: pathAt(args, 0),
-                    undo: function () {
-                        for (var i = 0; i < records.length; i++) {
-                            var item;
-                            if (records[i].get) {
-                                item = records[i].get();
-                                if (!item)
-                                    continue;
-                            } else {
-                                item = records[i].item;
-                            }
-
-                            historyState(item, false);
-                            item.removeValue(records[i].path, records[i].value);
-                            historyState(item, true);
-                        }
-                    },
-                    redo: function () {
-                        for (var i = 0; i < records.length; i++) {
-                            var item;
-                            if (records[i].get) {
-                                item = records[i].get();
-                                if (!item)
-                                    continue;
-                            } else {
-                                item = records[i].item;
-                            }
-
-                            historyState(item, false);
-                            item.insert(records[i].path, records[i].value);
-                            historyState(item, true);
-                        }
-                    }
-                });
-            });
-
-            editor.once('picker:asset:close', function () {
-                if (evtPick) {
-                    evtPick.unbind();
-                    evtPick = null;
-                }
-            });
+            }
         });
 
         var createInsertHandler = function (index) {
@@ -376,11 +432,11 @@ editor.once('load', function () {
             return link[index].on(path + ':insert', function (assetId, ind) {
                 var before;
                 if (ind === 0) {
-                    before = itemAdd;
+                    before = null;
                 } else {
                     before = assetIndex[this.get(path + '.' + ind)];
                 }
-                addAsset(assetId, before);
+                addAssetListItem(assetId, before);
             });
         };
 
@@ -389,7 +445,7 @@ editor.once('load', function () {
             var assets = link[i].get(pathAt(args, i));
             if (assets) {
                 for (var a = 0; a < assets.length; a++)
-                    addAsset(assets[a]);
+                    addAssetListItem(assets[a]);
             }
 
             events.push(link[i].on(pathAt(args, i) + ':set', function (assets, assetsOld) {
@@ -414,22 +470,25 @@ editor.once('load', function () {
                     if (assetIds[id])
                         continue;
 
-                    removeAsset(id);
+                    removeAssetListItem(id);
                 }
 
                 // add
                 for (id in assetIds)
-                    addAsset(id);
+                    addAssetListItem(id);
             }));
 
             events.push(createInsertHandler(i));
 
-            events.push(link[i].on(pathAt(args, i) + ':remove', removeAsset));
+            events.push(link[i].on(pathAt(args, i) + ':remove', removeAssetListItem));
         }
 
         fieldAssetsList.once('destroy', function () {
-            for (var i = 0; i < events.length; i++)
+            for (var i = 0; i < events.length; i++) {
                 events[i].unbind();
+            }
+
+            events.length = 0;
         });
 
         return fieldAssetsList;

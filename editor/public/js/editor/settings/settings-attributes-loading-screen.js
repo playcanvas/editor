@@ -141,7 +141,7 @@ editor.once('load', function() {
             });
 
             // show asset picker
-            editor.call("picker:asset", "script", null);
+            editor.call("picker:asset", { type: "script" });
 
             editor.once('picker:asset:close', function () {
                 if (evtPick) {
@@ -222,7 +222,7 @@ editor.once('load', function() {
             });
 
             // show asset picker
-            editor.call("picker:asset", "script", null);
+            editor.call("picker:asset", { type: "script" });
 
             editor.once('picker:asset:close', function () {
                 if (evtPick) {

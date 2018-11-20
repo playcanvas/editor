@@ -113,7 +113,7 @@ editor.once('load', function() {
         });
 
         // show asset picker
-        editor.call("picker:asset", "script", null);
+        editor.call("picker:asset", { type: "script" });
     });
     overlay.append(button);
 

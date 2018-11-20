@@ -1142,7 +1142,10 @@ editor.once('load', function() {
 
                 fieldTitle.on('click', function() {
                     var asset = editor.call('assets:get', field.value);
-                    editor.call('picker:asset', args.kind, asset);
+                    editor.call('picker:asset', {
+                        type: args.kind,
+                        currentAsset: asset
+                    });
 
                     evtPick = editor.once('picker:asset', function(asset) {
                         var oldValues = { };
