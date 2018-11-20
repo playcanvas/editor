@@ -16,8 +16,6 @@ editor.once('load', function () {
             name: 'ASSETS'
         });
         panelAttributes.class.add('component');
-        // reference
-        editor.call('attributes:reference:attach', 'asset:bundle:asset', panelAttributes, panelAttributes.headerElement);
 
         // assets list
         var fieldAssets = editor.call('attributes:addAssetsList', {
