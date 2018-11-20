@@ -24,7 +24,8 @@ editor.once('load', function () {
             return isAssetValid(asset, existingAssetIds);
         });
 
-        if (! validAssets.length) return;
+        var len = validAssets.length;
+        if (!len) return;
 
         var undo = function () {
             var asset = editor.call('assets:get', bundleAsset.get('id'));
@@ -32,7 +33,7 @@ editor.once('load', function () {
 
             var history = asset.history.enabled;
             asset.history.enabled = false;
-            for (var i = 0; i < validAssets.length; i++) {
+            for (var i = 0; i < len; i++) {
                 asset.removeValue('data.assets', validAssets[i].get('id'));
             }
             asset.history.enabled = history;
@@ -46,7 +47,7 @@ editor.once('load', function () {
 
             var history = asset.history.enabled;
             asset.history.enabled = false;
-            for (var i = 0; i < validAssets.length; i++) {
+            for (var i = 0; i < len; i++) {
                 if (isAssetValid(validAssets[i], existingAssetIds)) {
                     asset.insert('data.assets', validAssets[i].get('id'));
                 }
@@ -56,7 +57,7 @@ editor.once('load', function () {
 
         var history = bundleAsset.history.enabled;
         bundleAsset.history.enabled = false;
-        for (var i = 0; i < validAssets.length; i++) {
+        for (var i = 0; i < len; i++) {
             bundleAsset.insert('data.assets', validAssets[i].get('id'));
         }
         bundleAsset.history.enabled = history;
@@ -66,5 +67,7 @@ editor.once('load', function () {
             undo: undo,
             redo: redo
         });
+
+        return len;
     });
 });

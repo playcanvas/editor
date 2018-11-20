@@ -3255,9 +3255,37 @@ strong {
             > .thumbnail.placeholder:after {
                 content: '\E410';
                 font-size: 58px;
+                transition: opacity 300ms;
+                transition-delay: 100ms;
+                opacity: 1;
             }
             > .icon {
                 display: none;
+            }
+
+            > .confirm {
+                position: absolute;
+                &:after {
+                    @extend .font-icon;
+                    content: '\E154';
+                    color: $text-primary;
+                    font-size: 48px;
+                    transition: opacity 100ms;
+                    transition-delay: 0ms;
+                    opacity: 0;
+                }
+            }
+
+            &.confirm-animation {
+                > .thumbnail.placeholder:after {
+                    transition-delay: 0ms;
+                    opacity: 0;
+                }
+
+                > .confirm:after {
+                    transition-delay: 300ms;
+                    opacity: 1;
+                }
             }
         }
         &.type-json {

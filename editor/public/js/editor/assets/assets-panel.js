@@ -285,7 +285,14 @@ editor.once('load', function() {
             if (grid.dragOver.get('type') === 'folder') {
                 editor.call('assets:fs:move', assets, grid.dragOver);
             } else if (grid.dragOver.get('type') === 'bundle') {
-                editor.call('assets:bundle:addAssets', assets, grid.dragOver);
+                var countAdded = editor.call('assets:bundle:addAssets', assets, grid.dragOver);
+                if (countAdded) {
+                    var item = assetsIndex[grid.dragOver.get('id')];
+                    item.class.add('confirm-animation');
+                    setTimeout(function () {
+                        item.class.remove('confirm-animation');
+                    }, 800);
+                }
             }
         }
     });
@@ -954,6 +961,11 @@ editor.once('load', function() {
     };
 
     var onAddBundle = function (asset, item) {
+        var confirmElement = document.createElement('div');
+        confirmElement.classList.add('confirm');
+        confirmElement.classList.add('thumbnail');
+        item.element.appendChild(confirmElement);
+
         var onMouseOver = function () {
             if (! dragging || grid.dragOver === asset)
                 return;
