@@ -232,6 +232,10 @@ editor.once('load', function () {
         }
     });
 
+    if (queryParams.disableBundles === 'true') {
+        app._enableBundles = false;
+    }
+
     if (canvas.classList) {
         canvas.classList.add('fill-mode-' + config.project.settings.fillMode);
     }
