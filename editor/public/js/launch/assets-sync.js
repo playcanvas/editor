@@ -13,6 +13,9 @@ editor.once('load', function () {
     var concatenateScripts = (queryParams.concatenateScripts === 'true');
     var concatenatedScriptsUrl = '/projects/' + config.project.id + '/concatenated-scripts/scripts.js?branchId=' + config.self.branch.id;
 
+    var remainingBundles = 0;
+    var skippedAssets = [];
+
     editor.method('loadAsset', function (uniqueId, callback) {
         var connection = editor.call('realtime:connection');
 
@@ -94,7 +97,23 @@ editor.once('load', function () {
                 // tags
                 _asset.tags.add(assetData.tags);
 
-                if (asset.get('type') !== 'script' || ! asset.get('preload')) {
+                var addAsset = false;
+                if (asset.get('type') === 'script') {
+                    if (!asset.get('preload')) {
+                        addAsset = true;
+                    }
+                } else if (asset.get('type') === 'bundle') {
+                    addAsset = true;
+                    remainingBundles--;
+                } else {
+                    if (remainingBundles === 0) {
+                        addAsset = true;
+                    } else {
+                        skippedAssets.push(_asset);
+                    }
+                }
+
+                if (addAsset) {
                     app.assets.add(_asset);
                 }
             } else {
@@ -145,6 +164,14 @@ editor.once('load', function () {
                     scripts[asset.get('id')] = asset;
 
                 if (count >= data.length) {
+
+                    // add assets that we skipped due to waiting
+                    // for bundles to be added first
+                    for (var i = 0, len = skippedAssets.length; i < len; i++) {
+                        app.assets.add(skippedAssets[i]);
+                    }
+                    skippedAssets.length = 0;
+
                     if (! legacyScripts)
                         loadScripts();
 
@@ -166,6 +193,10 @@ editor.once('load', function () {
                 // start bulk subscribe
                 connection.startBulk();
                 for (var i = startBatch; i < startBatch + batchSize && i < total; i++) {
+                    if (data[i].type === 'bundle') {
+                        remainingBundles++;
+                    }
+
                     assetNames[data[i].id] = data[i].name;
                     load(data[i].uniqueId);
                 }
