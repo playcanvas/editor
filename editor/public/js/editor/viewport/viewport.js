@@ -27,6 +27,8 @@ editor.once('load', function() {
                 alpha: false
             }
         });
+
+        app._enableBundles = false;
     } catch(ex) {
         editor.emit('viewport:error', ex);
         return;
