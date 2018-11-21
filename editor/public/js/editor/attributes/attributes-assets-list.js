@@ -46,6 +46,7 @@ editor.once('load', function () {
         var isSelectingAssets = false;
         var currentSelection = null;
 
+        // button that enables selection mode
         var btnSelectionMode = new ui.Button({
             text: 'Add Assets'
         });
@@ -134,6 +135,14 @@ editor.once('load', function () {
         btnDone.on('click', function () {
             editor.call('picker:asset:close');
         });
+
+        // search field
+        var fieldFilter = new ui.TextField();
+        fieldFilter.hidden = true;
+        fieldFilter.elementInput.setAttribute('placeholder', 'Type to filter');
+        fieldFilter.keyChange = true;
+        fieldFilter.renderChanges = false;
+        panelWidget.append(fieldFilter);
 
         // assets
         var fieldAssets;
@@ -297,6 +306,7 @@ editor.once('load', function () {
             }
 
             fieldAssetsList.class.remove('empty');
+            fieldFilter.hidden = false;
 
             assetIndex[assetId] = item;
 
@@ -330,6 +340,7 @@ editor.once('load', function () {
 
                 if (!fieldAssetsList.element.children.length) {
                     fieldAssetsList.class.add('empty');
+                    fieldFilter.hidden = true;
                 }
 
             } else {
@@ -396,6 +407,7 @@ editor.once('load', function () {
             }
 
             fieldAssetsList.class.add('empty');
+            fieldFilter.hidden = true;
 
             assetIndex = {};
         });
@@ -482,6 +494,32 @@ editor.once('load', function () {
 
             events.push(link[i].on(pathAt(args, i) + ':remove', removeAssetListItem));
         }
+
+        var filterAssets = function (filter) {
+            var id;
+
+            if (! filter) {
+                for (id in assetIndex) {
+                    assetIndex[id].hidden = false;
+                }
+                return;
+            }
+
+            var items = [];
+            for (id in assetIndex) {
+                items.push([assetIndex[id].text, parseInt(id, 10)]);
+            }
+            var results = editor.call('search:items', items, filter);
+            for (id in assetIndex) {
+                if (results.indexOf(parseInt(id, 10)) === -1) {
+                    assetIndex[id].hidden = true;
+                } else {
+                    assetIndex[id].hidden = false;
+                }
+            }
+        };
+
+        fieldFilter.on('change', filterAssets);
 
         fieldAssetsList.once('destroy', function () {
             for (var i = 0; i < events.length; i++) {

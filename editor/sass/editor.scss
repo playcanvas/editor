@@ -9775,6 +9775,28 @@ strong {
             }
         }
 
+        .ui-text-field {
+            width: 100%;
+            margin: 10px 0 -6px 0;
+            position: relative;
+            color: $text-darkest;
+
+            > input {
+                padding-left: 28px;
+                &::placeholder {
+                    color: $text-darkest;
+                }
+            }
+
+            &:before {
+                @extend .font-icon;
+                content: '\E129';
+                position: absolute;
+                top: 1px;
+                left: 5px;
+            }
+        }
+
         .ui-list {
             margin: 0;
             margin-top: 5px;
