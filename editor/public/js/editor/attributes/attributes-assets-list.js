@@ -435,6 +435,7 @@ editor.once('load', function () {
                 if (currentSelection) {
                     addAssets(currentSelection);
                     currentSelection = null;
+                    editor.call('picker:asset:deselect');
                 }
             }
         });

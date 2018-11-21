@@ -234,6 +234,11 @@ editor.once('load', function () {
 
     });
 
+    // Deselects all picked assets
+    editor.method('picker:asset:deselect', function () {
+        assetsGrid.selected = currentAsset ? [currentAsset] : [];
+    });
+
     // close asset picker
     editor.method('picker:asset:close', function () {
         // hide overlay

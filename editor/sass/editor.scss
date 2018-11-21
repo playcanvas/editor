@@ -9725,6 +9725,7 @@ strong {
                     background: $bcg-primary;
                     font-size: 12px;
                     text-align: center;
+                    margin: auto;
 
                     &:before {
                         @extend .font-icon;
@@ -9732,6 +9733,7 @@ strong {
                     }
 
                     &.add-assets {
+                        margin-right: 3px;
                         flex-grow: 1;
                         &:before {
                             content: '\E120';
