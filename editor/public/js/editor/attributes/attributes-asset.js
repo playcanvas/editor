@@ -57,6 +57,88 @@ editor.once('load', function() {
             events = null;
         });
 
+        var allBundles = editor.call('assets:bundles:list');
+        var bundlesEnum = { "": "" };
+        for (var i = 0; i < allBundles.length; i++) {
+            bundlesEnum[allBundles[i].get('id')] = allBundles[i].get('name');
+        }
+
+        var fieldBundlesArgs = {
+            parent: panel,
+            name: 'Bundles',
+            type: 'tags',
+            tagType: 'number',
+            enum: bundlesEnum,
+            placeholder: 'Select Bundle',
+            path: 'bundles',
+            stopHistory: true, // do not trigger history events for these 'proxy' observers
+            tagToString: function (tag) {
+                var asset = editor.call('assets:get', tag);
+                return asset ? asset.get('name') : 'Missing';
+            },
+            onClickTag: function () {
+                var id = this.originalValue;
+                var asset = editor.call('assets:get', id);
+                if (asset) {
+                    editor.call('selector:set', 'asset', [asset]);
+                }
+            }
+        };
+
+        var refreshBundleObservers = function () {
+            // unlinkField is added by attributes-panel.js
+            // call it in order to unlink the field from its previous observers
+            if (fieldBundlesArgs.unlinkField) {
+                fieldBundlesArgs.unlinkField();
+            }
+
+            // destroy the old observers
+            if (fieldBundlesArgs.link) {
+                for (var i = 0; i < fieldBundlesArgs.link.length; i++) {
+                    fieldBundlesArgs.link[i].destroy();
+                }
+            }
+
+            // set the link of the field to be a list of observers with a 'bundles'
+            // field. The bundles field holds all of the bundle asset ids that each
+            // asset belongs to. This will allow us to use the same 'tags' type field.
+            fieldBundlesArgs.link = assets.map(function (asset) {
+                var bundleAssets = editor.call('assets:bundles:listForAsset', asset);
+                var observer = new Observer({
+                    bundles: bundleAssets.map(function (bundle) {
+                        return bundle.get('id');
+                    })
+                });
+
+                observer.on('bundles:insert', function (bundleId) {
+                    var bundleAsset = editor.call('assets:get', bundleId);
+                    if (bundleAsset) {
+                        editor.call('assets:bundles:addAssets', assets, bundleAsset);
+                    }
+                });
+
+                observer.on('bundles:remove', function (bundleId) {
+                    var bundleAsset = editor.call('assets:get', bundleId);
+                    if (bundleAsset) {
+                        editor.call('assets:bundles:removeAssets', assets, bundleAsset);
+                    }
+                });
+
+                return observer;
+            });
+
+            // link the field to the new observers
+            // The linkField method is added by attributes-panel.js
+            if (fieldBundlesArgs.linkField) {
+                fieldBundlesArgs.linkField();
+            }
+        };
+
+        refreshBundleObservers();
+
+        events.push(editor.on('assets:bundles:insert', refreshBundleObservers));
+        events.push(editor.on('assets:bundles:remove', refreshBundleObservers));
+
         if (multi) {
             var fieldFilename = editor.call('attributes:addField', {
                 parent: panel,
@@ -64,14 +146,20 @@ editor.once('load', function() {
                 value: assets.length
             });
 
+            var canShowBundles = true;
             var scriptSelected = false;
-            if (legacyScripts) {
-                for(var i = 0; i < assets.length; i++) {
+            for(var i = 0; i < assets.length; i++) {
+                if (legacyScripts) {
                     // scripts are not real assets, and have no preload option
                     if (! scriptSelected && assets[i].get('type') === 'script')
                         scriptSelected = true;
                 }
+
+                if (canShowBundles && !editor.call('assets:bundles:canAssetBeAddedToBundle', assets[i])) {
+                    canShowBundles = false;
+                }
             }
+
 
             var source = (assets[0].get('type') === 'folder') ? 1 : assets[0].get('source') + 0;
 
@@ -211,6 +299,11 @@ editor.once('load', function() {
                     }
                 }
             }
+
+            // add bundles field
+            if (canShowBundles) {
+                editor.call('attributes:addField', fieldBundlesArgs);
+            }
         } else {
             if (legacyScripts && assets[0].get('type') === 'script') {
                 // filename
@@ -223,6 +316,7 @@ editor.once('load', function() {
                 });
                 // reference
                 editor.call('attributes:reference:attach', 'asset:script:filename', fieldFilename.parent.innerElement.firstChild.ui);
+
             } else {
                 // id
                 var fieldId = editor.call('attributes:addField', {
@@ -391,12 +485,16 @@ editor.once('load', function() {
                 }
             }
 
+            if (editor.call('assets:bundles:canAssetBeAddedToBundle', assets[0])) {
+                editor.call('attributes:addField', fieldBundlesArgs);
+            }
+
             var panelButtons = new ui.Panel();
             panelButtons.class.add('buttons');
             panel.append(panelButtons);
 
             // download
-            if (assets[0].get('type') !== 'folder' && assets[0].get('type') !== 'bundle' && ! (legacyScripts && assets[0].get('type') === 'script') && assets[0].get('type') !== 'sprite') {
+            if (assets[0].get('type') !== 'folder' && ! (legacyScripts && assets[0].get('type') === 'script') && assets[0].get('type') !== 'sprite' && assets[0].get('type') !== 'bundle') {
                 // download
                 var btnDownload = new ui.Button();
 

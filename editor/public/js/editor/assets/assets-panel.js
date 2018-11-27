@@ -285,7 +285,7 @@ editor.once('load', function() {
             if (grid.dragOver.get('type') === 'folder') {
                 editor.call('assets:fs:move', assets, grid.dragOver);
             } else if (grid.dragOver.get('type') === 'bundle') {
-                var countAdded = editor.call('assets:bundle:addAssets', assets, grid.dragOver);
+                var countAdded = editor.call('assets:bundles:addAssets', assets, grid.dragOver);
                 if (countAdded) {
                     var item = assetsIndex[grid.dragOver.get('id')];
                     item.class.add('confirm-animation');

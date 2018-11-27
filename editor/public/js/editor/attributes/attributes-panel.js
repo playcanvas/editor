@@ -224,7 +224,7 @@ editor.once('load', function() {
             args.field._changing = false;
 
             // history
-            if (args.type !== 'rgb' && ! args.slider && ! args.field._stopHistory) {
+            if (args.type !== 'rgb' && ! args.slider && ! args.stopHistory) {
                 editor.call('history:add', {
                     name: pathAt(args, 0),
                     undo: function() {
@@ -501,7 +501,8 @@ editor.once('load', function() {
                         enum: args.enum,
                         link: args.link,
                         trim: args.trim,
-                        name: args.name
+                        name: args.name,
+                        stopHistory: args.stopHistory
                     };
 
                     if (! path) {
@@ -668,41 +669,43 @@ editor.once('load', function() {
                         historyState(args.link[i], true);
                     }
 
-                    editor.call('history:add', {
-                        name: pathAt(args, 0),
-                        undo: function() {
-                            for(var i = 0; i < records.length; i++) {
-                                var item;
-                                if (records[i].get) {
-                                    item = records[i].get();
-                                    if (! item)
-                                        continue;
-                                } else {
-                                    item = records[i].item;
-                                }
+                    if (!args.stopHistory) {
+                        editor.call('history:add', {
+                            name: pathAt(args, 0),
+                            undo: function() {
+                                for(var i = 0; i < records.length; i++) {
+                                    var item;
+                                    if (records[i].get) {
+                                        item = records[i].get();
+                                        if (! item)
+                                            continue;
+                                    } else {
+                                        item = records[i].item;
+                                    }
 
-                                historyState(item, false);
-                                item.insert(records[i].path, records[i].value);
-                                historyState(item, true);
-                            }
-                        },
-                        redo: function() {
-                            for(var i = 0; i < records.length; i++) {
-                                var item;
-                                if (records[i].get) {
-                                    item = records[i].get();
-                                    if (! item)
-                                        continue;
-                                } else {
-                                    item = records[i].item;
+                                    historyState(item, false);
+                                    item.insert(records[i].path, records[i].value);
+                                    historyState(item, true);
                                 }
+                            },
+                            redo: function() {
+                                for(var i = 0; i < records.length; i++) {
+                                    var item;
+                                    if (records[i].get) {
+                                        item = records[i].get();
+                                        if (! item)
+                                            continue;
+                                    } else {
+                                        item = records[i].item;
+                                    }
 
-                                historyState(item, false);
-                                item.removeValue(records[i].path, records[i].value);
-                                historyState(item, true);
+                                    historyState(item, false);
+                                    item.removeValue(records[i].path, records[i].value);
+                                    historyState(item, true);
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 };
 
                 var addTag = function(tag) {
@@ -732,41 +735,43 @@ editor.once('load', function() {
                         historyState(args.link[i], true);
                     }
 
-                    editor.call('history:add', {
-                        name: pathAt(args, 0),
-                        undo: function() {
-                            for(var i = 0; i < records.length; i++) {
-                                var item;
-                                if (records[i].get) {
-                                    item = records[i].get();
-                                    if (! item)
-                                        continue;
-                                } else {
-                                    item = records[i].item;
-                                }
+                    if (!args.stopHistory) {
+                        editor.call('history:add', {
+                            name: pathAt(args, 0),
+                            undo: function() {
+                                for(var i = 0; i < records.length; i++) {
+                                    var item;
+                                    if (records[i].get) {
+                                        item = records[i].get();
+                                        if (! item)
+                                            continue;
+                                    } else {
+                                        item = records[i].item;
+                                    }
 
-                                historyState(item, false);
-                                item.removeValue(records[i].path, records[i].value);
-                                historyState(item, true);
-                            }
-                        },
-                        redo: function() {
-                            for(var i = 0; i < records.length; i++) {
-                                var item;
-                                if (records[i].get) {
-                                    item = records[i].get();
-                                    if (! item)
-                                        continue;
-                                } else {
-                                    item = records[i].item;
+                                    historyState(item, false);
+                                    item.removeValue(records[i].path, records[i].value);
+                                    historyState(item, true);
                                 }
+                            },
+                            redo: function() {
+                                for(var i = 0; i < records.length; i++) {
+                                    var item;
+                                    if (records[i].get) {
+                                        item = records[i].get();
+                                        if (! item)
+                                            continue;
+                                    } else {
+                                        item = records[i].item;
+                                    }
 
-                                historyState(item, false);
-                                item.insert(records[i].path, records[i].value);
-                                historyState(item, true);
+                                    historyState(item, false);
+                                    item.insert(records[i].path, records[i].value);
+                                    historyState(item, true);
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 };
 
                 var onInsert = function(tag) {
