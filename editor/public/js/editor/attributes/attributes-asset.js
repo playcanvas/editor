@@ -302,7 +302,10 @@ editor.once('load', function() {
 
             // add bundles field
             if (canShowBundles) {
-                editor.call('attributes:addField', fieldBundlesArgs);
+                var fieldBundles = editor.call('attributes:addField', fieldBundlesArgs);
+
+                // reference
+                editor.call('attributes:reference:attach', 'asset:bundles', fieldBundles.parent.parent.innerElement.firstChild.ui);
             }
         } else {
             if (legacyScripts && assets[0].get('type') === 'script') {
@@ -486,7 +489,10 @@ editor.once('load', function() {
             }
 
             if (editor.call('assets:bundles:canAssetBeAddedToBundle', assets[0])) {
-                editor.call('attributes:addField', fieldBundlesArgs);
+                var fieldBundles = editor.call('attributes:addField', fieldBundlesArgs);
+
+                // reference
+                editor.call('attributes:reference:attach', 'asset:bundles', fieldBundles.parent.parent.innerElement.firstChild.ui);
             }
 
             var panelButtons = new ui.Panel();
