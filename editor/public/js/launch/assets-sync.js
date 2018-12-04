@@ -12,9 +12,7 @@ editor.once('load', function () {
     var queryParams = (new pc.URI(window.location.href)).getQuery();
     var concatenateScripts = (queryParams.concatenateScripts === 'true');
     var concatenatedScriptsUrl = '/projects/' + config.project.id + '/concatenated-scripts/scripts.js?branchId=' + config.self.branch.id;
-
-    var remainingBundles = 0;
-    var skippedAssets = [];
+    var useBundles = (queryParams.useBundles !== 'false');
 
     editor.method('loadAsset', function (uniqueId, callback) {
         var connection = editor.call('realtime:connection');
@@ -97,24 +95,8 @@ editor.once('load', function () {
                 // tags
                 _asset.tags.add(assetData.tags);
 
-                var addAsset = false;
-                if (asset.get('type') === 'script') {
-                    if (!asset.get('preload')) {
-                        addAsset = true;
-                    }
-                } else if (asset.get('type') === 'bundle') {
-                    addAsset = true;
-                    remainingBundles--;
-                } else {
-                    if (remainingBundles === 0) {
-                        addAsset = true;
-                    } else {
-                        skippedAssets.push(_asset);
-                    }
-                }
-
-                if (addAsset) {
-                    app.assets.add(_asset);
+                if (asset.get('type') !== 'script' || ! asset.get('preload')) {
+                    // app.assets.add(_asset);
                 }
             } else {
                 for (var key in assetData)
@@ -129,8 +111,99 @@ editor.once('load', function () {
         doc.subscribe();
     });
 
+    var createEngineAsset = function (asset) {
+        // if engine asset already exists return
+        if (app.assets.get(asset.get('id'))) return;
+
+        // handle bundle assets
+        if (useBundles && asset.get('type') === 'bundle') {
+            var sync = asset.sync.enabled;
+            asset.sync.enabled = false;
+
+            // get the assets in this bundle
+            // that have a file
+            var assetsInBundle = asset.get('data.assets').map(function (id) {
+                return editor.call('assets:get', id);
+            }).filter(function (asset) {
+                return asset.has('file.filename');
+            });
+
+            if (assetsInBundle.length) {
+                // set the main filename and url for the bundle asset
+                asset.set('file', {});
+                asset.set('file.filename', asset.get('name') + '.tar');
+                asset.set('file.url', getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), asset.get('file.filename')));
+
+                // find assets with variants
+                var assetsWithVariants = assetsInBundle.filter(function (asset) {
+                    return asset.has('file.variants');
+                });
+
+                ['dxt', 'etc1', 'etc2', 'pvr'].forEach(function (variant) {
+                    // search for assets with the specified variants and if some
+                    // exist then generate the variant file
+                    for (var i = 0, len = assetsWithVariants.length; i < len; i++) {
+                        if (assetsWithVariants[i].has('file.variants.' + variant)) {
+                            if (! asset.has('file.variants')) {
+                                asset.set('file.variants', {});
+                            }
+
+                            var filename = asset.get('name') + '-' + variant + '.tar';
+                            asset.set('file.variants.' + variant, {
+                                filename: filename,
+                                url: getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), filename)
+
+                            });
+                            return;
+                        }
+                    }
+                });
+            }
+
+            asset.sync.enabled = sync;
+        }
+
+        if (useBundles && asset.get('type') !== 'bundle') {
+            // if the asset is in a bundle then replace its url with the url that it's supposed to have in the bundle
+            if (editor.call('assets:bundles:containAsset', asset.get('id'))) {
+                var file = asset.get('file');
+                if (file) {
+                    var sync = asset.sync.enabled;
+                    asset.sync.enabled = false;
+
+                    asset.set('file.url', getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), file.filename, true));
+                    if (file.variants) {
+                        for (var key in file.variants) {
+                            asset.set('file.variants.' + key + '.url', getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), file.variants[key].filename, true));
+                        }
+                    }
+
+                    asset.sync.enabled = sync;
+                }
+            }
+        }
+
+        // create the engine asset
+        var assetData = asset.json();
+        var engineAsset = asset.asset = new pc.Asset(assetData.name, assetData.type, assetData.file, assetData.data);
+        engineAsset.id = parseInt(assetData.id, 10);
+        engineAsset.preload = assetData.preload ? assetData.preload : false;
+
+        // tags
+        engineAsset.tags.add(assetData.tags);
+
+        // add to the asset registry
+        app.assets.add(engineAsset);
+    };
+
     var onLoad = function (data) {
         editor.call('assets:progress', 0.5);
+
+        var total = data.length;
+        if (!total) {
+            editor.call('assets:progress', 1);
+            editor.emit('assets:load');
+        }
 
         var count = 0;
         var scripts = { };
@@ -144,13 +217,9 @@ editor.once('load', function () {
                 if (! scripts[order[i]])
                     continue;
 
-                // Make sure script hasn't been added already
-                // This shouldn't happen it might only happen if
-                // for some reason the script order contains a non-preloaded
-                // script - non-preloaded scripts have already been added to the
-                // registry in `loadAsset`
-                if (! app.assets.get(order[i])) {
-                    app.assets.add(scripts[order[i]].asset);
+                var asset = editor.call('assets:get', order[i]);
+                if (asset) {
+                    createEngineAsset(asset);
                 }
             }
         };
@@ -158,22 +227,37 @@ editor.once('load', function () {
         var load = function (uniqueId) {
             editor.call('loadAsset', uniqueId, function (asset) {
                 count++;
-                editor.call('assets:progress', (count / data.length) * 0.5 + 0.5);
+                editor.call('assets:progress', (count / total) * 0.5 + 0.5);
 
                 if (! legacyScripts && asset && asset.get('type') === 'script')
                     scripts[asset.get('id')] = asset;
 
-                if (count >= data.length) {
-
-                    // add assets that we skipped due to waiting
-                    // for bundles to be added first
-                    for (var i = 0, len = skippedAssets.length; i < len; i++) {
-                        app.assets.add(skippedAssets[i]);
-                    }
-                    skippedAssets.length = 0;
-
+                if (count === total) {
                     if (! legacyScripts)
                         loadScripts();
+
+                    // sort assets by script first and then by bundle
+                    var assets = editor.call('assets:list');
+                    assets.sort(function (a, b) {
+                        var typeA = a.get('type');
+                        var typeB = b.get('type');
+                        if (typeA === 'script' && typeB !== 'script') {
+                            return -1;
+                        }
+                        if (typeB === 'script' && typeA !== 'script') {
+                            return 1;
+                        }
+                        if (typeA === 'bundle' && typeB !== 'bundle') {
+                            return -1;
+                        }
+                        if (typeB === 'bundle' && typeA !== 'bundle') {
+                            return 1;
+                        }
+                        return 0;
+                    });
+
+                    // create runtime asset for every asset observer
+                    assets.forEach(createEngineAsset);
 
                     editor.call('assets:progress', 1);
                     editor.emit('assets:load');
@@ -181,33 +265,23 @@ editor.once('load', function () {
             });
         };
 
-        if (data.length) {
-            var connection = editor.call('realtime:connection');
+        var connection = editor.call('realtime:connection');
 
-            // do bulk subsribe in batches of 'batchSize' assets
-            var batchSize = 256;
-            var startBatch = 0;
-            var total = data.length;
+        // do bulk subsribe in batches of 'batchSize' assets
+        var batchSize = 256;
+        var startBatch = 0;
 
-            while (startBatch < total) {
-                // start bulk subscribe
-                connection.startBulk();
-                for (var i = startBatch; i < startBatch + batchSize && i < total; i++) {
-                    if (data[i].type === 'bundle') {
-                        remainingBundles++;
-                    }
-
-                    assetNames[data[i].id] = data[i].name;
-                    load(data[i].uniqueId);
-                }
-                // end bulk subscribe and send message to server
-                connection.endBulk();
-
-                startBatch += batchSize;
+        while (startBatch < total) {
+            // start bulk subscribe
+            connection.startBulk();
+            for (var i = startBatch; i < startBatch + batchSize && i < total; i++) {
+                assetNames[data[i].id] = data[i].name;
+                load(data[i].uniqueId);
             }
-        } else {
-            editor.call('assets:progress', 1);
-            editor.emit('assets:load');
+            // end bulk subscribe and send message to server
+            connection.endBulk();
+
+            startBatch += batchSize;
         }
     };
 
@@ -240,7 +314,13 @@ editor.once('load', function () {
         }
     });
 
-    var getFileUrl = function (folders, id, revision, filename) {
+    var getFileUrl = function (folders, id, revision, filename, useBundles) {
+        if (useBundles) {
+            // if we are using bundles then this URL should be the URL
+            // in the tar archive
+            return ['files/assets', id, revision, filename].join('/');
+        }
+
         var path = '';
         for (var i = 0; i < folders.length; i++) {
             var folder = editor.call('assets:get', folders[i]);
@@ -250,7 +330,7 @@ editor.once('load', function () {
                 path += (assetNames[folders[i]] || 'unknown') + '/';
             }
         }
-        return '/assets/files/' + path + encodeURIComponent(filename) + '?id=' + id + '&branchId=' + config.self.branch.id;
+        return 'assets/files/' + path + encodeURIComponent(filename) + '?id=' + id + '&branchId=' + config.self.branch.id;
     };
 
     // hook sync to new assets

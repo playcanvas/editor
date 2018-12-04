@@ -202,6 +202,7 @@ editor.once('load', function() {
             all: 'All',
             animation: 'Animation',
             audio: 'Audio',
+            bundle: 'Asset Bundle',
             binary: 'Binary',
             cubemap: 'Cubemap',
             css: 'Css',

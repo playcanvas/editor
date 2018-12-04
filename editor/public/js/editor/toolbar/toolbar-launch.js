@@ -64,7 +64,7 @@ editor.once('load', function() {
         }
 
         if (launchOptions.disableBundles) {
-            query.push('disableBundles=true');
+            query.push('useBundles=false');
         }
 
         if (!launchOptions.local && launchOptions.facebook && privateSettings.get('facebook.appId')) {

@@ -500,7 +500,7 @@ editor.once('load', function() {
             panel.append(panelButtons);
 
             // download
-            if (assets[0].get('type') !== 'folder' && ! (legacyScripts && assets[0].get('type') === 'script') && assets[0].get('type') !== 'sprite' && assets[0].get('type') !== 'bundle') {
+            if (assets[0].get('type') !== 'folder' && ! (legacyScripts && assets[0].get('type') === 'script') && assets[0].get('type') !== 'sprite') {
                 // download
                 var btnDownload = new ui.Button();
 

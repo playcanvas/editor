@@ -223,7 +223,7 @@ editor.once('load', function () {
         gamepads: useGamepads ? new pc.input.GamePads() : null,
         scriptPrefix: scriptPrefix,
         scriptsOrder: projectSettings.get('scripts') || [],
-        assetPrefix: '/api',
+        assetPrefix: '/api/',
         graphicsDeviceOptions: {
             preferWebGl2: preferWebGl2,
             antialias: config.project.settings.antiAlias === false ? false : true,
@@ -232,7 +232,7 @@ editor.once('load', function () {
         }
     });
 
-    if (queryParams.disableBundles === 'true') {
+    if (queryParams.useBundles === 'false') {
         app._enableBundles = false;
     }
 
