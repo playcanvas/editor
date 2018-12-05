@@ -217,4 +217,22 @@ editor.once('load', function () {
             redo: redo
         });
     });
+
+    /**
+     * Calculates the file size of a bundle Asset by adding up the file
+     * sizes of all the assets it references.
+     * @param {Observer} The bundle asset
+     * @returns {Number} The file size
+     */
+    editor.method('assets:bundles:calculateSize', function (bundleAsset) {
+        var size = 0;
+        var assets = bundleAsset.get('data.assets');
+        for (var i = 0; i < assets.length; i++) {
+            var asset = editor.call('assets:get', assets[i]);
+            if (! asset || !asset.has('file.size')) continue;
+
+            size += asset.get('file.size');
+        }
+        return size;
+    });
 });

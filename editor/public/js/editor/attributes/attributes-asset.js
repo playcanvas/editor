@@ -225,8 +225,13 @@ editor.once('load', function() {
                 var sizeCalculate = function() {
                     var size = 0;
 
-                    for(var i = 0; i < assets.length; i++)
-                        size += assets[i].get('file.size') || 0;
+                    for(var i = 0; i < assets.length; i++) {
+                        if (assets[i].get('type') === 'bundle') {
+                            size += editor.call('assets:bundles:calculateSize', assets[i]);
+                        } else {
+                            size += assets[i].get('file.size') || 0;
+                        }
+                    }
 
                     fieldSize.value = bytesToHuman(size);
                 };
@@ -242,12 +247,19 @@ editor.once('load', function() {
                     evtSize.push(assets[i].on('file:unset', sizeCalculate));
                     evtSize.push(assets[i].on('file.size:set', sizeCalculate));
                     evtSize.push(assets[i].on('file.size:unset', sizeCalculate));
+
+                    if (assets[i].get('type') === 'bundle') {
+                        evtSize.push(assets[i].on('data.assets:set', sizeCalculate));
+                        evtSize.push(assets[i].on('data.assets:insert', sizeCalculate));
+                        evtSize.push(assets[i].on('data.assets:remove', sizeCalculate));
+                    }
                 }
 
                 panel.once('destroy', function () {
                     for(var i = 0; i < evtSize.length; i++) {
                         evtSize[i].unbind();
                     }
+                    evtSize.length = 0;
                 });
 
                 // reference
@@ -426,24 +438,38 @@ editor.once('load', function() {
             }
 
             // size
-            if (assets[0].has('file')) {
+            if (assets[0].has('file') || assets[0].get('type') === 'bundle') {
+                var size = assets[0].get('type') === 'bundle' ? editor.call('assets:bundles:calculateSize', assets[0]) : assets[0].get('file.size');
                 var fieldSize = editor.call('attributes:addField', {
                     parent: panel,
                     name: 'Size',
-                    value: bytesToHuman(assets[0].get('file.size'))
+                    value: bytesToHuman(size)
                 });
 
-                var evtFileSet = assets[0].on('file:set', function (value) {
+                var evtSize = [];
+                evtSize.push(assets[0].on('file:set', function (value) {
                     fieldSize.text = bytesToHuman(value ? value.size : 0);
-                });
+                }));
 
-                var evtFileSizeSet = assets[0].on('file.size:set', function(value) {
+                evtSize.push(assets[0].on('file.size:set', function(value) {
                     fieldSize.text = bytesToHuman(value);
-                });
+                }));
+
+                if (assets[0].get('type') === 'bundle') {
+                    var recalculateSize = function () {
+                        fieldSize.text = bytesToHuman(editor.call('assets:bundles:calculateSize', assets[0]));
+                    };
+
+                    evtSize.push(assets[0].on('data.assets:set', recalculateSize));
+                    evtSize.push(assets[0].on('data.assets:insert', recalculateSize));
+                    evtSize.push(assets[0].on('data.assets:remove', recalculateSize));
+                }
 
                 panel.once('destroy', function () {
-                    evtFileSet.unbind();
-                    evtFileSizeSet.unbind();
+                    for (var i = 0; i < evtSize.length; i++) {
+                        evtSize[i].unbind();
+                    }
+                    evtSize.length = 0;
                 });
 
                 // reference
