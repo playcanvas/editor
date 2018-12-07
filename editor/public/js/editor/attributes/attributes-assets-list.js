@@ -288,13 +288,18 @@ editor.once('load', function () {
 
             var asset = editor.call('assets:get', assetId);
             var text = assetId;
-            if (asset && asset.get('name'))
+            if (asset && asset.get('name')) {
                 text = asset.get('name');
+            } else if (!asset) {
+                text += ' (Missing)';
+            }
 
             item = new ui.ListItem({
                 text: (link.length === 1) ? text : '* ' + text
             });
-            item.class.add('type-' + asset.get('type'));
+            if (asset) {
+                item.class.add('type-' + asset.get('type'));
+            }
             item.count = 1;
             item.asset = asset;
             item._assetText = text;
