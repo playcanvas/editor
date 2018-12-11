@@ -84,7 +84,7 @@ editor.once('load', function() {
         EDIT: '&#57648;',
         DUPLICATE: '&#57638;',
         DELETE: '&#57636;',
-        SCENE_SETTINGS: '&#57652;',
+        SCENE_SETTINGS: '&#57652;'
     };
 
     var assets = {
@@ -97,9 +97,12 @@ editor.once('load', function() {
         'material': 'Material',
         'script': 'Script',
         'shader': 'Shader',
-        'text': 'Text',
-        'bundle': 'Asset Bundle'
+        'text': 'Text'
     };
+
+    if (editor.call('users:hasFlag', 'hasBundles')) {
+        assets.bundle = 'Asset Bundle';
+    }
 
     var addNewMenuItem = function(key, title) {
         // new folder

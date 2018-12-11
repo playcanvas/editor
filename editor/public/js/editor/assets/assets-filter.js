@@ -197,31 +197,60 @@ editor.once('load', function() {
 
 
     // options
-    var filterOptions = {
-        options: {
-            all: 'All',
-            animation: 'Animation',
-            audio: 'Audio',
-            bundle: 'Asset Bundle',
-            binary: 'Binary',
-            cubemap: 'Cubemap',
-            css: 'Css',
-            font: 'Font',
-            json: 'Json',
-            html: 'Html',
-            material: 'Material',
-            model: 'Model',
-            scene: 'Model (source)',
-            script: 'Script',
-            shader: 'Shader',
-            sprite: 'Sprite',
-            text: 'Text',
-            textureTarget: 'Texture',
-            textureSource: 'Texture (source)',
-            textureAtlasTarget: 'Texture Atlas',
-            textureAtlasSource: 'Texture Atlas (source)'
-        }
-    };
+    var filterOptions;
+
+    if (editor.call('users:hasFlag', 'hasBundles')) {
+        filterOptions = {
+            options: {
+                all: 'All',
+                animation: 'Animation',
+                audio: 'Audio',
+                bundle: 'Asset Bundle',
+                binary: 'Binary',
+                cubemap: 'Cubemap',
+                css: 'Css',
+                font: 'Font',
+                json: 'Json',
+                html: 'Html',
+                material: 'Material',
+                model: 'Model',
+                scene: 'Model (source)',
+                script: 'Script',
+                shader: 'Shader',
+                sprite: 'Sprite',
+                text: 'Text',
+                textureTarget: 'Texture',
+                textureSource: 'Texture (source)',
+                textureAtlasTarget: 'Texture Atlas',
+                textureAtlasSource: 'Texture Atlas (source)'
+            }
+        };
+    } else {
+        filterOptions = {
+            options: {
+                all: 'All',
+                animation: 'Animation',
+                audio: 'Audio',
+                binary: 'Binary',
+                cubemap: 'Cubemap',
+                css: 'Css',
+                font: 'Font',
+                json: 'Json',
+                html: 'Html',
+                material: 'Material',
+                model: 'Model',
+                scene: 'Model (source)',
+                script: 'Script',
+                shader: 'Shader',
+                sprite: 'Sprite',
+                text: 'Text',
+                textureTarget: 'Texture',
+                textureSource: 'Texture (source)',
+                textureAtlasTarget: 'Texture Atlas',
+                textureAtlasSource: 'Texture Atlas (source)'
+            }
+        };
+    }
 
     var filterField = new ui.SelectField(filterOptions);
 

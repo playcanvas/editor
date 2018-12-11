@@ -201,15 +201,17 @@ editor.once('load', function() {
         tooltipConcatenate.class.add('launch-tooltip');
     }
 
-    var optionDisableBundles = createOption('disableBundles', 'Disable Asset Bundles');
+    if (editor.call('users:hasFlag', 'hasBundles')) {
+        var optionDisableBundles = createOption('disableBundles', 'Disable Asset Bundles');
 
-    var tooltipBundles = Tooltip.attach({
-        target: optionDisableBundles.parent.element,
-        text: 'Disable loading assets from Asset Bundles.',
-        align: 'right',
-        root: root
-    });
-    tooltipBundles.class.add('launch-tooltip');
+        var tooltipBundles = Tooltip.attach({
+            target: optionDisableBundles.parent.element,
+            text: 'Disable loading assets from Asset Bundles.',
+            align: 'right',
+            root: root
+        });
+        tooltipBundles.class.add('launch-tooltip');
+    }
 
     var preferWebGl1 = createOption('webgl1', 'Prefer WebGL 1.0');
 

@@ -146,7 +146,7 @@ editor.once('load', function() {
                 value: assets.length
             });
 
-            var canShowBundles = true;
+            var canShowBundles = editor.call('users:hasFlag', 'hasBundles');
             var scriptSelected = false;
             for(var i = 0; i < assets.length; i++) {
                 if (legacyScripts) {
@@ -514,7 +514,7 @@ editor.once('load', function() {
                 }
             }
 
-            if (editor.call('assets:bundles:canAssetBeAddedToBundle', assets[0])) {
+            if (editor.call('users:hasFlag', 'hasBundles') && editor.call('assets:bundles:canAssetBeAddedToBundle', assets[0])) {
                 var fieldBundles = editor.call('attributes:addField', fieldBundlesArgs);
 
                 // reference
