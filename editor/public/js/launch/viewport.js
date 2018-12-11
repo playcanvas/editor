@@ -233,7 +233,7 @@ editor.once('load', function () {
     });
 
     if (queryParams.useBundles === 'false') {
-        app._enableBundles = false;
+        app.enableBundles = false;
     }
 
     if (canvas.classList) {
