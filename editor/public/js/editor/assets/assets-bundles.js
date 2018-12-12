@@ -161,12 +161,7 @@ editor.once('load', function () {
             asset.history.enabled = history;
         };
 
-        var history = bundleAsset.history.enabled;
-        bundleAsset.history.enabled = false;
-        for (var i = 0; i < len; i++) {
-            bundleAsset.insert('data.assets', validAssets[i].get('id'));
-        }
-        bundleAsset.history.enabled = history;
+        redo();
 
         editor.call('history:add', {
             name: 'asset.' + bundleAsset.get('id') + '.data.assets',
