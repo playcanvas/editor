@@ -51,6 +51,13 @@ editor.once('load', function() {
         }
     };
 
+    if (editor.call('users:hasFlag', 'hasBundles')) {
+        assets.bundle = {
+            title: 'Asset Bundle',
+            icon: '&#58384;'
+        };
+    }
+
     var addNewMenuItem = function(key, data) {
         // new folder
         var item = new ui.MenuItem({

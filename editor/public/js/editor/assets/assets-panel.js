@@ -6,7 +6,6 @@ editor.once('load', function() {
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
     var dragging = false;
-    var draggingType = '';
     var draggingData = { };
     var selector = {
         type: '',
@@ -111,7 +110,7 @@ editor.once('load', function() {
         }
     });
 
-    editor.on('drop:active', function(state, type, data) {
+    editor.on('drop:active', function (state, type, data) {
         dragging = state;
 
         if (! dragging) {
@@ -121,8 +120,7 @@ editor.once('load', function() {
         }
     });
 
-    editor.on('drop:set', function(type, data) {
-        draggingType = type;
+    editor.on('drop:set', function (type, data) {
         draggingData = data;
     });
 
@@ -277,13 +275,25 @@ editor.once('load', function() {
             };
 
             if (data.ids) {
-                for(var i = 0; i < data.ids.length; i++)
+                for (var i = 0; i < data.ids.length; i++) {
                     addAsset(data.ids[i]);
+                }
             } else {
                 addAsset(data.id);
             }
 
-            editor.call('assets:fs:move', assets, grid.dragOver);
+            if (grid.dragOver.get('type') === 'folder') {
+                editor.call('assets:fs:move', assets, grid.dragOver);
+            } else if (grid.dragOver.get('type') === 'bundle') {
+                var countAdded = editor.call('assets:bundles:addAssets', assets, grid.dragOver);
+                if (countAdded) {
+                    var item = assetsIndex[grid.dragOver.get('id')];
+                    item.class.add('confirm-animation');
+                    setTimeout(function () {
+                        item.class.remove('confirm-animation');
+                    }, 800);
+                }
+            }
         }
     });
     dropRef.element.classList.add('assets-drop-area');
@@ -813,10 +823,205 @@ editor.once('load', function() {
         delete renderQueueIndex[id];
     };
 
-    editor.on('assets:add', function(asset, pos) {
+    var showGridDropHighlight = function (item) {
+        var clip = files.element.getBoundingClientRect();
+        var rect = item.element.getBoundingClientRect();
+        var top = Math.max(rect.top, clip.top);
+        var bottom = Math.min(rect.bottom, clip.bottom);
+
+        if ((bottom - top) > 8) {
+            gridDropBorder.classList.add('active');
+            gridDropBorder.style.left = rect.left + 'px';
+            gridDropBorder.style.top = top + 'px';
+            gridDropBorder.style.right = (window.innerWidth - rect.right) + 'px';
+            gridDropBorder.style.bottom = (window.innerHeight - bottom) + 'px';
+        }
+    };
+
+    var showTreeDropHighlight = function (item) {
+        var clip = files.element.getBoundingClientRect();
+        var rect = item.tree.elementTitle.getBoundingClientRect();
+        var top = Math.max(rect.top, clip.top);
+        var bottom = Math.min(rect.bottom, clip.bottom);
+        if (rect.height && (bottom - top) > 4) {
+            treeDropBorder.classList.add('active');
+            treeDropBorder.style.left = rect.left + 'px';
+            treeDropBorder.style.top = top + 'px';
+            treeDropBorder.style.right = (window.innerWidth - rect.right) + 'px';
+            treeDropBorder.style.bottom = (window.innerHeight - bottom) + 'px';
+        }
+    };
+
+    // Called when a folder asset is added
+    var onAddFolder = function (asset, item) {
+        item.tree = new ui.TreeItem({
+            text: asset.get('name')
+        });
+        item.tree.asset = asset;
+
+        var path = asset.get('path');
+        var parent;
+        if (path.length) {
+            var parentFolderId = path[path.length - 1];
+            if (assetsIndex[parentFolderId]) {
+                parent = assetsIndex[parentFolderId].tree;
+            } else {
+                if (! treeAppendQueue[parentFolderId])
+                    treeAppendQueue[parentFolderId] = [];
+
+                treeAppendQueue[parentFolderId].push(item);
+            }
+        } else {
+            parent = treeRoot;
+        }
+
+        if (parent) {
+            var closest = treeFindClosest(parent, item.tree);
+            if (closest === -1) {
+                parent.append(item.tree);
+            } else {
+                parent.appendBefore(item.tree, parent.child(closest).ui);
+            }
+
+            appendChildFolders(item);
+        }
+
+        var onMouseOver = function () {
+            if (! dragging || grid.dragOver === asset)
+                return;
+
+            // don't allow to drag on it self
+            if (draggingData.ids) {
+                // multi-drag
+                if (draggingData.ids.indexOf(parseInt(asset.get('id'), 10)) !== -1)
+                    return;
+            } else if (draggingData.id) {
+                // single-drag
+                if (parseInt(asset.get('id'), 10) === parseInt(draggingData.id, 10))
+                    return;
+            } else {
+                // script file drag
+                return;
+            }
+
+
+            // already in that folder
+            var dragAsset = editor.call('assets:get', draggingData.id || draggingData.ids[0]);
+            var path = dragAsset.get('path');
+            if (path.length && path[path.length - 1] === parseInt(asset.get('id'), 10))
+                return;
+
+            // don't allow dragging into own child
+            if (draggingData.ids) {
+                // multi-drag
+                var assetPath = asset.get('path');
+                for (var i = 0; i < draggingData.ids.length; i++) {
+                    if (assetPath.indexOf(draggingData.ids[i]) !== -1)
+                        return;
+                }
+            } else {
+                // single-drag
+                if (asset.get('path').indexOf(parseInt(dragAsset.get('id'), 10)) !== -1)
+                    return;
+            }
+
+            showGridDropHighlight(item);
+            showTreeDropHighlight(item);
+
+            grid.dragOver = asset;
+        };
+
+        var onMouseOut = function () {
+            if (! dragging || grid.dragOver !== asset)
+                return;
+
+            gridDropBorder.classList.remove('active');
+            treeDropBorder.classList.remove('active');
+            grid.dragOver = undefined;
+        };
+
+        // draggable
+        item.tree.elementTitle.draggable = true;
+
+        item.element.addEventListener('mouseout', onMouseOut, false);
+        item.tree.elementTitle.addEventListener('mouseout', onMouseOut, false);
+
+        item.element.addEventListener('mouseover', onMouseOver, false);
+        item.tree.elementTitle.addEventListener('mouseover', onMouseOver, false);
+    };
+
+    // Called when a script asset is added
+    var onAddScript = function (asset, item, events) {
+        events.push(editor.on('assets[' + asset.get('id') + ']:scripts:collide', function (script) {
+            item.class.add('scripts-collide');
+        }));
+        events.push(editor.on('assets[' + asset.get('id') + ']:scripts:resolve', function (script) {
+            item.class.remove('scripts-collide');
+        }));
+    };
+
+    var onAddBundle = function (asset, item) {
+        var confirmElement = document.createElement('div');
+        confirmElement.classList.add('confirm');
+        confirmElement.classList.add('thumbnail');
+        item.element.appendChild(confirmElement);
+
+        var onMouseOver = function () {
+            if (! dragging || grid.dragOver === asset)
+                return;
+
+            if (! draggingData.ids && !draggingData.id) {
+                // script file drag
+                return;
+            }
+
+            var assetIds = draggingData.ids ? draggingData.ids.slice() : [draggingData.id];
+
+            // don't allow to drag on it self
+            if (assetIds.indexOf(parseInt(asset.get('id'), 10)) !== -1) {
+                return;
+            }
+
+            // make sure we'fe found at least 1 valid asset
+            var valid = false;
+            var bundleAssets = asset.get('data.assets');
+            for (var i = 0; i < assetIds.length; i++) {
+                var draggedAsset = editor.call('assets:get', assetIds[i]);
+                if (! draggedAsset) continue;
+                if (bundleAssets.indexOf(draggedAsset.get('id')) !== -1) continue;
+
+                if (!draggedAsset.get('source')) {
+                    var type = draggedAsset.get('type');
+                    if (['folder', 'script', 'bundle'].indexOf(type) === -1) {
+                        valid = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!valid) return;
+
+            showGridDropHighlight(item);
+
+            grid.dragOver = asset;
+        };
+
+        var onMouseOut = function () {
+            if (! dragging || grid.dragOver !== asset)
+                return;
+
+            gridDropBorder.classList.remove('active');
+            grid.dragOver = undefined;
+        };
+
+        item.element.addEventListener('mouseout', onMouseOut, false);
+        item.element.addEventListener('mouseover', onMouseOver, false);
+    };
+
+    editor.on('assets:add', function (asset, pos) {
         asset._type = 'asset';
 
-        var events = [ ];
+        var events = [];
         var item = new ui.GridItem();
         item.asset = asset;
         item.class.add('type-' + asset.get('type'));
@@ -826,11 +1031,11 @@ editor.once('load', function() {
 
         asset.once('destroy', onAssetItemRemove);
 
-        var onMouseDown = function(evt) {
+        var onMouseDown = function (evt) {
             evt.stopPropagation();
         };
 
-        var onDragStart = function(evt) {
+        var onDragStart = function (evt) {
             evt.preventDefault();
             evt.stopPropagation();
 
@@ -870,133 +1075,13 @@ editor.once('load', function() {
         };
 
         if (asset.get('type') === 'folder') {
-            item.tree = new ui.TreeItem({
-                text: asset.get('name')
-            });
-            item.tree.asset = asset;
-
-            var appended = false;
-            var path = asset.get('path');
-            var parent;
-            if (path.length) {
-                var parentFolderId = path[path.length - 1];
-                if (assetsIndex[parentFolderId]) {
-                    appended = true;
-                    parent = assetsIndex[parentFolderId].tree;
-                } else {
-                    if (! treeAppendQueue[parentFolderId])
-                        treeAppendQueue[parentFolderId] = [ ];
-
-                    treeAppendQueue[parentFolderId].push(item);
-                }
-            } else {
-                appended = true;
-                parent = treeRoot;
-            }
-
-            if (parent) {
-                var closest = treeFindClosest(parent, item.tree);
-                if (closest === -1) {
-                    parent.append(item.tree);
-                } else {
-                    parent.appendBefore(item.tree, parent.child(closest).ui);
-                }
-
-                appendChildFolders(item);
-            }
-
-            // draggable
-            item.tree.elementTitle.draggable = true;
+            onAddFolder(asset, item);
             item.tree.elementTitle.addEventListener('mousedown', onMouseDown, false);
             item.tree.elementTitle.addEventListener('dragstart', onDragStart, false);
-
-            var onMouseOver = function() {
-                if (! dragging || grid.dragOver === asset)
-                    return;
-
-                // don't allow to drag on it self
-                if (draggingData.ids) {
-                    // multi-drag
-                    if (draggingData.ids.indexOf(parseInt(asset.get('id'), 10)) !== -1)
-                        return;
-                } else if (draggingData.id) {
-                    // single-drag
-                    if (parseInt(asset.get('id'), 10) === parseInt(draggingData.id, 10))
-                        return;
-                } else {
-                    // script file drag
-                    return;
-                }
-
-
-                // already in that folder
-                var dragAsset = editor.call('assets:get', draggingData.id || draggingData.ids[0]);
-                var path = dragAsset.get('path');
-                if (path.length && path[path.length - 1] === parseInt(asset.get('id')))
-                    return;
-
-                // don't allow dragging into own child
-                if (draggingData.ids) {
-                    // multi-drag
-                    var assetPath = asset.get('path');
-                    for(var i = 0; i < draggingData.ids.length; i++) {
-                        if (assetPath.indexOf(draggingData.ids[i]) !== -1)
-                            return;
-                    }
-                } else {
-                    // single-drag
-                    if (asset.get('path').indexOf(parseInt(dragAsset.get('id'), 10)) !== -1)
-                        return;
-                }
-
-                var clip = files.element.getBoundingClientRect();
-                var rect = item.element.getBoundingClientRect();
-                var top = Math.max(rect.top, clip.top);
-                var bottom = Math.min(rect.bottom, clip.bottom);
-
-                if ((bottom - top) > 8) {
-                    gridDropBorder.classList.add('active');
-                    gridDropBorder.style.left = rect.left + 'px';
-                    gridDropBorder.style.top = top + 'px';
-                    gridDropBorder.style.right = (window.innerWidth - rect.right) + 'px';
-                    gridDropBorder.style.bottom = (window.innerHeight - bottom) + 'px';
-                }
-
-                var rect = item.tree.elementTitle.getBoundingClientRect();
-                top = Math.max(rect.top, clip.top);
-                bottom = Math.min(rect.bottom, clip.bottom);
-                if (rect.height && (bottom - top) > 4) {
-                    treeDropBorder.classList.add('active');
-                    treeDropBorder.style.left = rect.left + 'px';
-                    treeDropBorder.style.top = top + 'px';
-                    treeDropBorder.style.right = (window.innerWidth - rect.right) + 'px';
-                    treeDropBorder.style.bottom = (window.innerHeight - bottom) + 'px';
-                }
-
-                grid.dragOver = asset;
-            };
-
-            var onMouseOut = function() {
-                if (! dragging || grid.dragOver !== asset)
-                    return;
-
-                gridDropBorder.classList.remove('active');
-                treeDropBorder.classList.remove('active');
-                grid.dragOver = undefined;
-            };
-
-            item.element.addEventListener('mouseout', onMouseOut, false);
-            item.tree.elementTitle.addEventListener('mouseout', onMouseOut, false);
-
-            item.element.addEventListener('mouseover', onMouseOver, false);
-            item.tree.elementTitle.addEventListener('mouseover', onMouseOver, false);
         } else if (asset.get('type') === 'script') {
-            events.push(editor.on('assets[' + asset.get('id') + ']:scripts:collide', function(script) {
-                item.class.add('scripts-collide');
-            }));
-            events.push(editor.on('assets[' + asset.get('id') + ']:scripts:resolve', function(script) {
-                item.class.remove('scripts-collide');
-            }));
+            onAddScript(asset, item, events);
+        } else if (asset.get('type') === 'bundle') {
+            onAddBundle(asset, item, events);
         }
 
         var updateTask = function() {

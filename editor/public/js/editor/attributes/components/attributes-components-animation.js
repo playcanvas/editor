@@ -20,7 +20,7 @@ editor.once('load', function() {
         // animation.assets
         var fieldAssets = editor.call('attributes:addAssetsList', {
             panel: panel,
-            title: 'Animation',
+            name: 'Assets',
             type: 'animation',
             link: entities,
             path: 'components.animation.assets'

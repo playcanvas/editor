@@ -223,7 +223,7 @@ editor.once('load', function () {
         gamepads: useGamepads ? new pc.input.GamePads() : null,
         scriptPrefix: scriptPrefix,
         scriptsOrder: projectSettings.get('scripts') || [],
-        assetPrefix: '/api',
+        assetPrefix: '/api/',
         graphicsDeviceOptions: {
             preferWebGl2: preferWebGl2,
             antialias: config.project.settings.antiAlias === false ? false : true,
@@ -231,6 +231,10 @@ editor.once('load', function () {
             preserveDrawingBuffer: !!config.project.settings.preserveDrawingBuffer
         }
     });
+
+    if (queryParams.useBundles === 'false') {
+        app.enableBundles = false;
+    }
 
     if (canvas.classList) {
         canvas.classList.add('fill-mode-' + config.project.settings.fillMode);
