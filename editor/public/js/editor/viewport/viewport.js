@@ -28,7 +28,7 @@ editor.once('load', function() {
             }
         });
 
-        app._enableBundles = false;
+        app.enableBundles = false;
     } catch(ex) {
         editor.emit('viewport:error', ex);
         return;
