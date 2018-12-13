@@ -176,7 +176,6 @@ editor.once('load', function() {
             return [ ];
 
         args = args || { };
-        args.limitResults = args.limitResults || 16;
         args.containsCharsTolerance = args.containsCharsTolerance || 0.5;
         args.editsDistanceTolerance = args.editsDistanceTolerance || 0.5;
 
@@ -218,8 +217,9 @@ editor.once('load', function() {
             records[i] = records[i].item;
 
         // limit number of results
-        if (records.length > args.limitResults)
+        if (args.hasOwnProperty('limitResults') && records.length > args.limitResults) {
             records = records.slice(0, args.limitResults);
+        }
 
         return records;
     });

@@ -14,8 +14,8 @@ editor.once('load', function() {
 
         // audiosource.assets
         var fieldAssets = editor.call('attributes:addAssetsList', {
-            title: 'Audio',
             type: 'audio',
+            name: 'Assets',
             link: entities,
             panel: panel,
             path: 'components.audiosource.assets'

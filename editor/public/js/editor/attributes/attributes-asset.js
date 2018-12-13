@@ -57,6 +57,88 @@ editor.once('load', function() {
             events = null;
         });
 
+        var allBundles = editor.call('assets:bundles:list');
+        var bundlesEnum = { "": "" };
+        for (var i = 0; i < allBundles.length; i++) {
+            bundlesEnum[allBundles[i].get('id')] = allBundles[i].get('name');
+        }
+
+        var fieldBundlesArgs = {
+            parent: panel,
+            name: 'Bundles',
+            type: 'tags',
+            tagType: 'number',
+            enum: bundlesEnum,
+            placeholder: 'Select Bundle',
+            path: 'bundles',
+            stopHistory: true, // do not trigger history events for these 'proxy' observers
+            tagToString: function (tag) {
+                var asset = editor.call('assets:get', tag);
+                return asset ? asset.get('name') : 'Missing';
+            },
+            onClickTag: function () {
+                var id = this.originalValue;
+                var asset = editor.call('assets:get', id);
+                if (asset) {
+                    editor.call('selector:set', 'asset', [asset]);
+                }
+            }
+        };
+
+        var refreshBundleObservers = function () {
+            // unlinkField is added by attributes-panel.js
+            // call it in order to unlink the field from its previous observers
+            if (fieldBundlesArgs.unlinkField) {
+                fieldBundlesArgs.unlinkField();
+            }
+
+            // destroy the old observers
+            if (fieldBundlesArgs.link) {
+                for (var i = 0; i < fieldBundlesArgs.link.length; i++) {
+                    fieldBundlesArgs.link[i].destroy();
+                }
+            }
+
+            // set the link of the field to be a list of observers with a 'bundles'
+            // field. The bundles field holds all of the bundle asset ids that each
+            // asset belongs to. This will allow us to use the same 'tags' type field.
+            fieldBundlesArgs.link = assets.map(function (asset) {
+                var bundleAssets = editor.call('assets:bundles:listForAsset', asset);
+                var observer = new Observer({
+                    bundles: bundleAssets.map(function (bundle) {
+                        return bundle.get('id');
+                    })
+                });
+
+                observer.on('bundles:insert', function (bundleId) {
+                    var bundleAsset = editor.call('assets:get', bundleId);
+                    if (bundleAsset) {
+                        editor.call('assets:bundles:addAssets', assets, bundleAsset);
+                    }
+                });
+
+                observer.on('bundles:remove', function (bundleId) {
+                    var bundleAsset = editor.call('assets:get', bundleId);
+                    if (bundleAsset) {
+                        editor.call('assets:bundles:removeAssets', assets, bundleAsset);
+                    }
+                });
+
+                return observer;
+            });
+
+            // link the field to the new observers
+            // The linkField method is added by attributes-panel.js
+            if (fieldBundlesArgs.linkField) {
+                fieldBundlesArgs.linkField();
+            }
+        };
+
+        refreshBundleObservers();
+
+        events.push(editor.on('assets:bundles:insert', refreshBundleObservers));
+        events.push(editor.on('assets:bundles:remove', refreshBundleObservers));
+
         if (multi) {
             var fieldFilename = editor.call('attributes:addField', {
                 parent: panel,
@@ -64,14 +146,20 @@ editor.once('load', function() {
                 value: assets.length
             });
 
+            var canShowBundles = editor.call('users:hasFlag', 'hasBundles');
             var scriptSelected = false;
-            if (legacyScripts) {
-                for(var i = 0; i < assets.length; i++) {
+            for(var i = 0; i < assets.length; i++) {
+                if (legacyScripts) {
                     // scripts are not real assets, and have no preload option
                     if (! scriptSelected && assets[i].get('type') === 'script')
                         scriptSelected = true;
                 }
+
+                if (canShowBundles && !editor.call('assets:bundles:canAssetBeAddedToBundle', assets[i])) {
+                    canShowBundles = false;
+                }
             }
+
 
             var source = (assets[0].get('type') === 'folder') ? 1 : assets[0].get('source') + 0;
 
@@ -137,8 +225,13 @@ editor.once('load', function() {
                 var sizeCalculate = function() {
                     var size = 0;
 
-                    for(var i = 0; i < assets.length; i++)
-                        size += assets[i].get('file.size') || 0;
+                    for(var i = 0; i < assets.length; i++) {
+                        if (assets[i].get('type') === 'bundle') {
+                            size += editor.call('assets:bundles:calculateSize', assets[i]);
+                        } else {
+                            size += assets[i].get('file.size') || 0;
+                        }
+                    }
 
                     fieldSize.value = bytesToHuman(size);
                 };
@@ -154,12 +247,19 @@ editor.once('load', function() {
                     evtSize.push(assets[i].on('file:unset', sizeCalculate));
                     evtSize.push(assets[i].on('file.size:set', sizeCalculate));
                     evtSize.push(assets[i].on('file.size:unset', sizeCalculate));
+
+                    if (assets[i].get('type') === 'bundle') {
+                        evtSize.push(assets[i].on('data.assets:set', sizeCalculate));
+                        evtSize.push(assets[i].on('data.assets:insert', sizeCalculate));
+                        evtSize.push(assets[i].on('data.assets:remove', sizeCalculate));
+                    }
                 }
 
                 panel.once('destroy', function () {
                     for(var i = 0; i < evtSize.length; i++) {
                         evtSize[i].unbind();
                     }
+                    evtSize.length = 0;
                 });
 
                 // reference
@@ -211,6 +311,14 @@ editor.once('load', function() {
                     }
                 }
             }
+
+            // add bundles field
+            if (canShowBundles) {
+                var fieldBundles = editor.call('attributes:addField', fieldBundlesArgs);
+
+                // reference
+                editor.call('attributes:reference:attach', 'asset:bundles', fieldBundles.parent.parent.innerElement.firstChild.ui);
+            }
         } else {
             if (legacyScripts && assets[0].get('type') === 'script') {
                 // filename
@@ -223,6 +331,7 @@ editor.once('load', function() {
                 });
                 // reference
                 editor.call('attributes:reference:attach', 'asset:script:filename', fieldFilename.parent.innerElement.firstChild.ui);
+
             } else {
                 // id
                 var fieldId = editor.call('attributes:addField', {
@@ -329,24 +438,38 @@ editor.once('load', function() {
             }
 
             // size
-            if (assets[0].has('file')) {
+            if (assets[0].has('file') || assets[0].get('type') === 'bundle') {
+                var size = assets[0].get('type') === 'bundle' ? editor.call('assets:bundles:calculateSize', assets[0]) : assets[0].get('file.size');
                 var fieldSize = editor.call('attributes:addField', {
                     parent: panel,
                     name: 'Size',
-                    value: bytesToHuman(assets[0].get('file.size'))
+                    value: bytesToHuman(size)
                 });
 
-                var evtFileSet = assets[0].on('file:set', function (value) {
+                var evtSize = [];
+                evtSize.push(assets[0].on('file:set', function (value) {
                     fieldSize.text = bytesToHuman(value ? value.size : 0);
-                });
+                }));
 
-                var evtFileSizeSet = assets[0].on('file.size:set', function(value) {
+                evtSize.push(assets[0].on('file.size:set', function(value) {
                     fieldSize.text = bytesToHuman(value);
-                });
+                }));
+
+                if (assets[0].get('type') === 'bundle') {
+                    var recalculateSize = function () {
+                        fieldSize.text = bytesToHuman(editor.call('assets:bundles:calculateSize', assets[0]));
+                    };
+
+                    evtSize.push(assets[0].on('data.assets:set', recalculateSize));
+                    evtSize.push(assets[0].on('data.assets:insert', recalculateSize));
+                    evtSize.push(assets[0].on('data.assets:remove', recalculateSize));
+                }
 
                 panel.once('destroy', function () {
-                    evtFileSet.unbind();
-                    evtFileSizeSet.unbind();
+                    for (var i = 0; i < evtSize.length; i++) {
+                        evtSize[i].unbind();
+                    }
+                    evtSize.length = 0;
                 });
 
                 // reference
@@ -389,6 +512,13 @@ editor.once('load', function() {
                         });
                     }
                 }
+            }
+
+            if (editor.call('users:hasFlag', 'hasBundles') && editor.call('assets:bundles:canAssetBeAddedToBundle', assets[0])) {
+                var fieldBundles = editor.call('attributes:addField', fieldBundlesArgs);
+
+                // reference
+                editor.call('attributes:reference:attach', 'asset:bundles', fieldBundles.parent.parent.innerElement.firstChild.ui);
             }
 
             var panelButtons = new ui.Panel();

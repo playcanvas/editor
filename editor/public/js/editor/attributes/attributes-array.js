@@ -59,11 +59,9 @@ editor.once('load', function () {
             type: 'number',
             placeholder: 'Array Size',
             link: sizeObservers,
-            path: 'size'
+            path: 'size',
+            stopHistory: true // do not use default number field history
         });
-
-        // do not use default number field history
-        fieldSize._stopHistory = true;
 
         fieldSize.parent.flexGrow = 1;
 

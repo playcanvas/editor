@@ -63,6 +63,10 @@ editor.once('load', function() {
             query.push('concatenateScripts=true');
         }
 
+        if (launchOptions.disableBundles) {
+            query.push('useBundles=false');
+        }
+
         if (!launchOptions.local && launchOptions.facebook && privateSettings.get('facebook.appId')) {
             url = 'https://www.facebook.com/embed/instantgames/' +
                   privateSettings.get('facebook.appId') +
@@ -195,6 +199,18 @@ editor.once('load', function() {
             root: root
         });
         tooltipConcatenate.class.add('launch-tooltip');
+    }
+
+    if (editor.call('users:hasFlag', 'hasBundles')) {
+        var optionDisableBundles = createOption('disableBundles', 'Disable Asset Bundles');
+
+        var tooltipBundles = Tooltip.attach({
+            target: optionDisableBundles.parent.element,
+            text: 'Disable loading assets from Asset Bundles.',
+            align: 'right',
+            root: root
+        });
+        tooltipBundles.class.add('launch-tooltip');
     }
 
     var preferWebGl1 = createOption('webgl1', 'Prefer WebGL 1.0');

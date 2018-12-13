@@ -515,7 +515,10 @@ editor.once('load', function() {
                         return;
 
                     var texture = editor.call('assets:get', assets[0].get('data.textures.' + ind));
-                    editor.call('picker:asset', 'texture', texture);
+                    editor.call('picker:asset', {
+                        type: 'texture',
+                        currentAsset: texture
+                    });
 
                     var evtPick = editor.once('picker:asset', function(texture) {
                         // clear prefiltered data

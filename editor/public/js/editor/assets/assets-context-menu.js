@@ -70,7 +70,8 @@ editor.once('load', function() {
         'model': '&#57735;',
         'scene': '&#57735;',
         'animation': '&#57875;',
-        'audio': '&#57872;'
+        'audio': '&#57872;',
+        'bundle': '&#58384;'
     };
 
     var ICONS = {
@@ -83,7 +84,7 @@ editor.once('load', function() {
         EDIT: '&#57648;',
         DUPLICATE: '&#57638;',
         DELETE: '&#57636;',
-        SCENE_SETTINGS: '&#57652;',
+        SCENE_SETTINGS: '&#57652;'
     };
 
     var assets = {
@@ -98,6 +99,10 @@ editor.once('load', function() {
         'shader': 'Shader',
         'text': 'Text'
     };
+
+    if (editor.call('users:hasFlag', 'hasBundles')) {
+        assets.bundle = 'Asset Bundle';
+    }
 
     var addNewMenuItem = function(key, title) {
         // new folder
@@ -224,7 +229,10 @@ editor.once('load', function() {
     menuItemReplace.on('select', function() {
         var id = parseInt(currentAsset.get('id'), 10);
 
-        editor.call('picker:asset', currentAsset.get('type'), currentAsset);
+        editor.call('picker:asset', {
+            type: currentAsset.get('type'),
+            currentAsset: currentAsset
+        });
 
         var evtPick = editor.once('picker:asset', function(asset) {
             editor.call('assets:replace', currentAsset, asset);
@@ -248,7 +256,10 @@ editor.once('load', function() {
     menuItemReplaceTextureToSprite.on('select', function() {
         var id = parseInt(currentAsset.get('id'), 10);
 
-        editor.call('picker:asset', 'sprite', currentAsset);
+        editor.call('picker:asset', {
+            type: 'sprite',
+            currentAsset: currentAsset
+        });
 
         var evtPick = editor.once('picker:asset', function(asset) {
             editor.call('assets:replaceTextureToSprite', currentAsset, asset);

@@ -22,7 +22,7 @@ editor.once('load', function() {
 
         var assetId = asset.get('id');
         var assets = editor.call('assets:find', function(asset) {
-            return asset.get('source_asset_id') === assetId;
+            return parseInt(asset.get('source_asset_id'), 10) === assetId;
         });
 
         var addAsset = function(asset) {

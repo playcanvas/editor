@@ -35,6 +35,9 @@ editor.once('load', function() {
     }, {
         name: 'source',
         description: 'Reference to another asset where this asset were imported from.'
+    }, {
+        name: 'bundles',
+        description: 'If the asset is included in any Asset Bundles then these are listed here. You can also add the asset to an Asset Bundle by using the dropdown.'
     }];
 
     for(var i = 0; i < fields.length; i++) {
