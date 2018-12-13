@@ -107,7 +107,14 @@ editor.once('load', function() {
 
     SharedSceneSettingsHandler.prototype = {
         load: function (url, callback) {
-            var id = parseInt(url.replace("/api/", "").replace(".json", ""));
+            if (typeof url === 'string') {
+                url = {
+                    load: url,
+                    original: url
+                };
+            }
+
+            var id = parseInt(url.original.replace("/api/", "").replace(".json", ""));
             if (typeof(id) === "number") {
                 loadSceneByItemId(id, function (err, scene) {
                     if (err) {
