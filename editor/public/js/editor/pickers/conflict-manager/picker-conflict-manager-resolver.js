@@ -10,6 +10,7 @@ editor.once('load', function () {
 
         this._conflicts = conflicts;
         this._mergeId = mergeObject.id;
+        this.isDiff = mergeObject.isDiff;
 
         this.srcAssetIndex = mergeObject.srcCheckpoint.assets;
         this.dstAssetIndex = mergeObject.dstCheckpoint.assets;
@@ -17,7 +18,7 @@ editor.once('load', function () {
         var srcScene = conflicts.itemType === 'scene' ? mergeObject.srcCheckpoint.scenes[conflicts.itemId] : null;
         this.srcEntityIndex = srcScene && srcScene.entities || {};
         var dstScene = conflicts.itemType === 'scene' ? mergeObject.dstCheckpoint.scenes[conflicts.itemId] : null;
-        this.dstEntityIndex = dstScene && dstScene.entities ||{};
+        this.dstEntityIndex = dstScene && dstScene.entities || {};
 
         this.srcSettingsIndex = mergeObject.srcCheckpoint.settings;
         this.dstSettingsIndex = mergeObject.dstCheckpoint.settings;

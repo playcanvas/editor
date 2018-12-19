@@ -29,7 +29,7 @@ editor.once('load', function () {
             case 'rgba':
                 return new ConflictFieldColor(value);
             case 'object':
-                return new ConflictFieldMissing();
+                return new ConflictFieldNotRenderable();
             default:
                 return new ConflictFieldString(value);
         }
@@ -62,9 +62,10 @@ editor.once('load', function () {
     // A Vector field
     var ConflictFieldVector = function (value) {
         var panel = new ui.Panel();
+        var vars = ['x: ', 'y: ', 'z: ', 'w: '];
         for (var i = 0; i < value.length; i++) {
             var label = new ui.Label({
-                text: value[i] + ''
+                text: vars[i] + value[i] + ''
             });
             label.class.add('selectable');
             panel.append(label);
@@ -170,7 +171,7 @@ editor.once('load', function () {
         this.element.class.add('field-deleted');
 
         var label =  new ui.Label({
-            text: 'DELETE'
+            text: 'DELETED'
         });
         label.class.add('title');
         this.element.append(label);
@@ -182,24 +183,23 @@ editor.once('load', function () {
     };
     ConflictFieldDeleted.prototype = Object.create(ConflictField.prototype);
 
-    // A field saying that the object was edited in one branch and whether
-    // we should keep it
-    var ConflictFieldKeep = function () {
+    // A field saying that the object was created in this branch
+    var ConflictFieldCreated = function () {
         this.element = new ui.Panel();
         this.element.class.add('field-edited');
 
         var label =  new ui.Label({
-            text: 'KEEP'
+            text: 'CREATED'
         });
         label.class.add('title');
         this.element.append(label);
 
         label =  new ui.Label({
-            text: 'This item was edited on this branch'
+            text: 'This item was created on this branch'
         });
         this.element.append(label);
     };
-    ConflictFieldKeep.prototype = Object.create(ConflictField.prototype);
+    ConflictFieldCreated.prototype = Object.create(ConflictField.prototype);
 
     // A field saying that the object was edited in one branch
     var ConflictFieldEdited = function () {
@@ -220,13 +220,22 @@ editor.once('load', function () {
     ConflictFieldEdited.prototype = Object.create(ConflictField.prototype);
 
     // A field saying that no value is available
-    var ConflictFieldMissing = function (value) {
+    var ConflictFieldNotAvailable = function (value) {
         this.element = new ui.Label({
-            text: 'Data not available'
+            text: 'Not available'
         });
         this.element.class.add('field-missing');
     };
-    ConflictFieldMissing.prototype = Object.create(ConflictField.prototype);
+    ConflictFieldNotAvailable.prototype = Object.create(ConflictField.prototype);
+
+    // A field saying that its value is not renderable
+    var ConflictFieldNotRenderable = function (value) {
+        this.element = new ui.Label({
+            text: 'No preview available'
+        });
+        this.element.class.add('field-missing');
+    };
+    ConflictFieldNotRenderable.prototype = Object.create(ConflictField.prototype);
 
     // An array field is a list of other fields
     var ConflictArrayField = function (type, value) {
@@ -263,7 +272,8 @@ editor.once('load', function () {
     window.ui.ConflictField = ConflictField;
     window.ui.ConflictArrayField = ConflictArrayField;
     window.ui.ConflictFieldDeleted = ConflictFieldDeleted;
-    window.ui.ConflictFieldKeep = ConflictFieldKeep;
+    window.ui.ConflictFieldCreated = ConflictFieldCreated;
     window.ui.ConflictFieldEdited = ConflictFieldEdited;
-    window.ui.ConflictFieldMissing = ConflictFieldMissing;
+    window.ui.ConflictFieldNotAvailable = ConflictFieldNotAvailable;
+    window.ui.ConflictFieldNotRenderable = ConflictFieldNotRenderable;
 });

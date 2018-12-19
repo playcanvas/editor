@@ -6724,7 +6724,7 @@ strong {
 
             width: auto;
             height: 600px;
-            left: calc(50% - 470px);
+            left: calc(50% - 530px);
             top: calc(50% - 300px);
             border: 1px solid $border-primary;
 
@@ -6838,7 +6838,7 @@ strong {
 
                     .ui-panel.right {
                         float: left;
-                        width: 940px - 188px;
+                        width: 1060px - 188px;
                         height: 100%;
 
                         > .ui-header {
@@ -6916,7 +6916,7 @@ strong {
                 position: absolute;
                 cursor: pointer;
                 top: 15px;
-                max-width: 360px;
+                max-width: 710px;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
@@ -7615,6 +7615,8 @@ strong {
 
                 &:hover {
                     cursor: pointer;
+                    background: $bcg-dark;
+
                     > .ui-label {
                         opacity: 1;
                     }
@@ -7750,7 +7752,7 @@ strong {
 
                     > .name {
                         font-size: 14px;
-                        max-width: 270px;
+                        max-width: 710px;
                         color: $text-primary;
                     }
 
@@ -8682,7 +8684,7 @@ strong {
 
                                     .ui-label.desc {
                                         overflow: hidden;
-                                        max-width: 250px;
+                                        max-width: 360px;
                                         color: $text-primary;
                                         font-size: 13px;
 
@@ -8812,9 +8814,12 @@ strong {
                     @extend .font-bold;
                 }
 
-                .ui-button.create {
-                    float: right;
+                .ui-button {
                     width: 147px;
+                    float: right;
+                    &.diff {
+                        margin-right: 5px;
+                    }
                 }
             }
 
@@ -9008,6 +9013,10 @@ strong {
         &.create:before {
             content: '\E120';
         }
+
+        &.diff:before {
+            content: '\E236';
+        }
     }
 }
 
@@ -9198,7 +9207,7 @@ strong {
                                         margin: 0;
                                         color: $text-primary;
                                         vertical-align: middle;
-                                        max-width: 100%;
+                                        max-width: 320px;
                                         overflow: hidden;
                                         text-overflow: ellipsis;
                                         white-space: nowrap;
@@ -9357,8 +9366,8 @@ strong {
                                                     .field-vector {
                                                         background: transparent;
                                                         .ui-label {
-                                                            display: inline-block !important;
-                                                            margin-right: 10px;
+                                                            display: block;
+                                                            white-space: nowrap;
                                                         }
 
                                                     }
@@ -9374,6 +9383,10 @@ strong {
 
                                                     .field-asset .asset-name {
                                                         margin-bottom: -5px;
+                                                    }
+
+                                                    .field-string {
+                                                        word-break: break-word;
                                                     }
 
                                                     .field-asset .asset-id,
@@ -9512,6 +9525,7 @@ strong {
                                             &.theirs, &.mine {
                                                 > .content {
                                                     > .ui-panel.conflict-field {
+                                                        $dis: &;
 
                                                         $selected-color: rgb(105, 184, 117);
                                                         cursor: pointer;
@@ -9685,6 +9699,91 @@ strong {
                                             }
                                         }
                                     }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    &.diff {
+        > .content {
+            > .ui-panel {
+                > .content {
+                    > .ui-panel.right {
+                        > .content {
+                            > .ui-panel.conflicts {
+                                height: 100%;
+
+                                > .content {
+                                    > .ui-panel.section {
+                                        > .content {
+                                            > .ui-panel {
+                                                > .content {
+                                                    > .ui-panel.conflict-field {
+                                                        cursor: default;
+                                                        &:after {
+                                                            pointer-events: all;
+                                                            display: none;
+                                                        }
+
+                                                        &:nth-child(odd):before {
+                                                            opacity: 0.4;
+                                                            background: $bcg-dark;
+                                                        }
+
+
+                                                        > .content {
+                                                            > .ui-label.name {
+                                                                width: 160px;
+                                                            }
+
+                                                            .value {
+                                                                max-width: 270px;
+                                                            }
+                                                        }
+
+                                                        &.indent-1 > .content  {
+                                                            .value {
+                                                                max-width: 260px;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            > .vertical-border-1 {
+                                display: none;
+                            }
+
+                            > .ui-panel.top {
+                                > .content {
+                                    > .ui-panel {
+                                        .ui-label {
+                                            max-width: 470px;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        &.file-conflicts-visible {
+
+                            > .content {
+                                > .ui-panel.file-conflicts> .content {
+                                    padding-top: 45px;
+                                    padding-bottom: 45px;
+                                }
+
+                                .vertical-border {
+                                    height: 427px;
                                 }
                             }
                         }

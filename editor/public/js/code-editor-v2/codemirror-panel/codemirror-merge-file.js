@@ -2,6 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     if (! editor.call('editor:resolveConflictMode')) return;
+    if (config.self.branch.merge.isDiff) return;
 
     var MODES = {
         script: 'javascript',

@@ -52,6 +52,16 @@ editor.once('load', function () {
             fields: index
         });
 
+        // append scene settings
+        if (index.settings) {
+            for (var key in index.settings) {
+                sectionProperties.appendAllFields({
+                    schema: 'scene',
+                    fields: index.settings[key]
+                });
+            }
+        }
+
         // Entities
         if (index.entities) {
             resolver.createSeparator('ENTITIES');

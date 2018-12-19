@@ -5,9 +5,11 @@ editor.once('load', function () {
     var LAYOUT_FIELDS_ONLY = 1;
     var LAYOUT_FIELDS_AND_FILE_CONFLICTS = 2;
     var LAYOUT_FILE_CONFLICTS_ONLY = 3;
-    var LAYOUT_PROGRESS_ONLY = 4;
 
     var layoutMode = LAYOUT_NONE;
+
+    // if true then we are showing a diff instead of a merge
+    var diffMode = false;
 
     // overlay
     var root = editor.call('layout.root');
@@ -95,23 +97,23 @@ editor.once('load', function () {
     panelTopBase.append(label);
     panelTop.append(panelTopBase);
 
-    var panelTopTheirs = new ui.Panel();
-    panelTopTheirs.class.add('theirs');
-    var labelTopTheirs = new ui.Label({
-        text: 'THEIRS'
-    });
-    labelTopTheirs.renderChanges = false;
-    panelTopTheirs.append(labelTopTheirs);
-    panelTop.append(panelTopTheirs);
-
-    var panelTopMine = new ui.Panel();
-    panelTopMine.class.add('mine');
+    var panelDest = new ui.Panel();
+    panelDest.class.add('mine');
     var labelTopMine = new ui.Label({
-        text: 'MINE'
+        text: 'DEST'
     });
     labelTopMine.renderChanges = false;
-    panelTopMine.append(labelTopMine);
-    panelTop.append(panelTopMine);
+    panelDest.append(labelTopMine);
+    panelTop.append(panelDest);
+
+    var panelSource = new ui.Panel();
+    panelSource.class.add('theirs');
+    var labelTopTheirs = new ui.Label({
+        text: 'SOURCE'
+    });
+    labelTopTheirs.renderChanges = false;
+    panelSource.append(labelTopTheirs);
+    panelTop.append(panelSource);
 
     // conflict panel
     var panelConflicts = new ui.Panel();
@@ -128,21 +130,6 @@ editor.once('load', function () {
     panelBottomBase.class.add('base');
     panelBottom.append(panelBottomBase);
 
-    var panelBottomSource = new ui.Panel();
-    panelBottomSource.flex = true;
-    panelBottomSource.class.add('theirs');
-    panelBottom.append(panelBottomSource);
-
-    var btnPickSource = new ui.Button({
-        text: 'USE ALL FROM THIS BRANCH'
-    });
-    panelBottomSource.append(btnPickSource);
-    btnPickSource.on('click', function () {
-        if (resolver) {
-            resolver.resolveUsingSource();
-        }
-    });
-
     var panelBottomDest = new ui.Panel();
     panelBottomDest.flex = true;
     panelBottomDest.class.add('mine');
@@ -155,6 +142,21 @@ editor.once('load', function () {
     btnPickDest.on('click', function () {
         if (resolver) {
             resolver.resolveUsingDestination();
+        }
+    });
+
+    var panelBottomSource = new ui.Panel();
+    panelBottomSource.flex = true;
+    panelBottomSource.class.add('theirs');
+    panelBottom.append(panelBottomSource);
+
+    var btnPickSource = new ui.Button({
+        text: 'USE ALL FROM THIS BRANCH'
+    });
+    panelBottomSource.append(btnPickSource);
+    btnPickSource.on('click', function () {
+        if (resolver) {
+            resolver.resolveUsingSource();
         }
     });
 
@@ -197,24 +199,32 @@ editor.once('load', function () {
     });
     btnClose.class.add('close');
     btnClose.on('click', function () {
-        editor.call('picker:confirm', 'Closing the conflict manager will stop the merge. Are you sure?', function () {
-            if (resolver) {
-                resolver.destroy();
+        if (diffMode) {
+            if (currentMergeObject) {
+                editor.call('branches:forceStopMerge', currentMergeObject.id);
             }
-
-            setLayoutMode(LAYOUT_NONE);
-            showMainProgress(spinnerIcon, 'Stopping merge');
-            editor.call('branches:forceStopMerge', config.self.branch.merge.id, function (err) {
-                if (err) {
-                    showMainProgress(errorIcon, err);
-                } else {
-                    showMainProgress(completedIcon, 'Merge stopped. Refreshing browser');
-                    setTimeout(function () {
-                        window.location.reload();
-                    }, 1000);
+            overlay.hidden = true;
+            editor.call('picker:versioncontrol');
+        } else {
+            editor.call('picker:confirm', 'Closing the conflict manager will stop the merge. Are you sure?', function () {
+                if (resolver) {
+                    resolver.destroy();
                 }
+
+                setLayoutMode(LAYOUT_NONE);
+                showMainProgress(spinnerIcon, 'Stopping merge');
+                editor.call('branches:forceStopMerge', config.self.branch.merge.id, function (err) {
+                    if (err) {
+                        showMainProgress(errorIcon, err);
+                    } else {
+                        showMainProgress(completedIcon, 'Merge stopped. Refreshing browser');
+                        setTimeout(function () {
+                            window.location.reload();
+                        }, 1000);
+                    }
+                });
             });
-        });
+        }
     });
     panel.headerElement.appendChild(btnClose.element);
 
@@ -344,7 +354,11 @@ editor.once('load', function () {
                 }
             }
 
-            labelType.text = type + ' - Resolved ' + resolved + '/' + total;
+            if (diffMode) {
+                labelType.text = type + ' -  ' + total + ' Change' + (total > 1 ? 's' : '');
+            } else {
+                labelType.text = type + ' - Resolved ' + resolved + '/' + total;
+            }
         };
 
         item.refreshResolvedCount();
@@ -355,7 +369,7 @@ editor.once('load', function () {
     var showRegularConflicts = function () {
         panelTop.hidden = false;
         panelConflicts.hidden = false;
-        panelBottom.hidden = false;
+        panelBottom.hidden = diffMode;
 
         for (var i = 0; i < verticalBorders.length; i++) {
             verticalBorders[i].classList.remove('hidden');
@@ -513,7 +527,7 @@ editor.once('load', function () {
         // might have been displayed which might have changed the rendered width
         // of the conflicts panel
         resolver.on('reflow', function () {
-            var width = panelConflicts.element.clientWidth / 3;
+            var width = panelConflicts.element.clientWidth / (diffMode ? 2 : 3);
             verticalBorders[0].style.left = width + 'px';
             verticalBorders[1].style.left = 2 * width + 'px';
         });
@@ -559,8 +573,13 @@ editor.once('load', function () {
     var onMergeDataLoaded = function (data) {
         currentMergeObject = data;
 
-        labelTopTheirs.text = data.sourceBranchName;
-        labelTopMine.text = data.destinationBranchName;
+        if (diffMode) {
+            labelTopTheirs.text = data.sourceBranchName + ' - Current State';
+            labelTopMine.text = data.destinationBranchName + ' - Checkpoint [' + data.destinationCheckpointId.substring(0, 7) + ']';
+        } else {
+            labelTopTheirs.text = data.sourceBranchName + ' - [Source Branch]';
+            labelTopMine.text = data.destinationBranchName + ' - [Destination Branch]';
+        }
 
         if (!currentMergeObject.conflicts.length) {
             btnComplete.disabled = false;
@@ -577,15 +596,30 @@ editor.once('load', function () {
         btnComplete.disabled = !checkAllResolved();
     };
 
+    // Enables / Disables diff mode
+    var toggleDiffMode = function (toggle) {
+        diffMode = toggle;
+        if (diffMode) {
+            overlay.class.add('diff');
+        } else {
+            overlay.class.remove('diff');
+        }
+
+        panel.header = diffMode ? 'CHANGES' : 'CONFLICT MANAGER';
+        btnComplete.hidden = diffMode;
+        panelBottom.hidden = diffMode;
+        panelTopBase.hidden = diffMode;
+    };
+
     // load and show data
     overlay.on('show', function () {
         // editor-blocking picker opened
         editor.emit('picker:open', 'conflict-manager');
 
         setLayoutMode(LAYOUT_NONE);
-        showMainProgress(spinnerIcon, 'Loading conflicts...');
 
         if (!currentMergeObject) {
+            showMainProgress(spinnerIcon, 'Loading conflicts...');
             editor.call('branches:getMerge', config.self.branch.merge.id, function (err, data) {
                 if (err) {
                     return showMainProgress(errorIcon, err);
@@ -633,6 +667,7 @@ editor.once('load', function () {
 
     // show conflict manager
     editor.method('picker:conflictManager', function (data) {
+        toggleDiffMode(false);
         currentMergeObject = data;
         overlay.hidden = false;
     });
@@ -646,4 +681,10 @@ editor.once('load', function () {
         return panelRight;
     });
 
+    // shows diff manager which is the conflict manager in a different mode
+    editor.method('picker:diffManager', function (diff) {
+        toggleDiffMode(true);
+        currentMergeObject = diff;
+        overlay.hidden = false;
+    });
 });

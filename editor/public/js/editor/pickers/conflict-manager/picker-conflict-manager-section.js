@@ -18,19 +18,20 @@ editor.once('load', function () {
         this._panelBase = new ui.Panel();
         this._panelBase.class.add('base');
         this.panel.append(this._panelBase);
-
-        this._panelSource = new ui.Panel();
-        this._panelSource.class.add('theirs');
-        this.panel.append(this._panelSource);
+        this._panelBase.hidden = resolver.isDiff;
 
         this._panelDest = new ui.Panel();
         this._panelDest.class.add('mine');
         this.panel.append(this._panelDest);
 
+        this._panelSource = new ui.Panel();
+        this._panelSource.class.add('theirs');
+        this.panel.append(this._panelSource);
+
         this.panels = [
             this._panelBase,
-            this._panelSource,
-            this._panelDest
+            this._panelDest,
+            this._panelSource
         ];
 
         this._labelNumConflicts = new ui.Label({
@@ -38,6 +39,7 @@ editor.once('load', function () {
         });
         this._labelNumConflicts.renderChanges = false;
         this._labelNumConflicts.class.add('num-conflicts');
+        this._labelNumConflicts.hidden = resolver.isDiff;
         this.panel.headerElement.appendChild(this._labelNumConflicts.element);
 
         this._rows = [];
@@ -57,9 +59,11 @@ editor.once('load', function () {
     ConflictSection.prototype.appendTitle = function (title, light) {
         var label;
 
-        for (var i = 0; i < 3; i++) {
+        var startIndex = this._resolver.isDiff ? 1 : 0;
+
+        for (var i = startIndex; i < 3; i++) {
             label = new ui.Label({
-                text: i === 0 ? title : ''
+                text: i === startIndex ? title : ''
             });
             label.class.add('title');
             if (light) {
