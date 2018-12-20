@@ -2,14 +2,15 @@ editor.once('load', function () {
     'use strict';
 
     var BASE_PANEL = 0;
-    var SOURCE_PANEL = 1;
-    var DEST_PANEL = 2;
+    var DEST_PANEL = 1;
+    var SOURCE_PANEL = 2;
 
     /**
      * A row that contains the base, source and destination fields.
      * @param {Object} resolver The conflict resolver object
      * @param {Object} args The arguments
      * @param {String} args.name The name of the field
+     * @param {Boolean} args.noPath If true then this field has no path (which means the whole object is considered to be a conflict e.g. a whole asset)
      * @param {String} args.type The type of the field (if same type for base, source and destination values)
      * @param {String} args.baseType The type of the base value
      * @param {String} args.sourceType The type of the source value
@@ -26,7 +27,7 @@ editor.once('load', function () {
         if (args.type) {
             this._types = [args.type, args.type, args.type];
         } else {
-            this._types = [args.baseType || '', args.sourceType || '', args.destType || ''];
+            this._types = [args.baseType || '', args.destType || '', args.sourceType || ''];
         }
         this._conflict = args.conflict;
         this._resolved = false;
@@ -49,8 +50,10 @@ editor.once('load', function () {
             }
             this._panels.push(panel);
 
-            panel.on('hover', this._onHover.bind(this));
-            panel.on('blur', this._onUnHover.bind(this));
+            if (!resolver.isDiff) {
+                panel.on('hover', this._onHover.bind(this));
+                panel.on('blur', this._onUnHover.bind(this));
+            }
 
             // Add indentation to all panels
             // except the base
@@ -71,30 +74,24 @@ editor.once('load', function () {
 
             var field = null;
 
-            if (i === BASE_PANEL && self._conflict.missingInBase) {
-                // if the value is missing in base show it as not available
-                field = new ui.ConflictFieldMissing();
-            } else if (i === SOURCE_PANEL && self._conflict.missingInSrc || i === DEST_PANEL && self._conflict.missingInDst) {
-                // if this field is missing in its branch then show a deleted field
+            if (this._wasMissing(i, self._conflict, resolver.isDiff)) {
+                field = new ui.ConflictFieldNotAvailable();
+            } else if (this._wasDeleted(i, self._conflict, resolver.isDiff)) {
                 field = new ui.ConflictFieldDeleted();
-            } else if (self._types[i].endsWith('object')) {
-                // if this field type is not a type we support ('object') then if it's missing in the other branch show
-                // it has been edited in this branch
-                if (i === SOURCE_PANEL && self._conflict.missingInDst || i === DEST_PANEL && self._conflict.missingInSrc) {
-                    field = new ui.ConflictFieldKeep();
+            } else if (this._wasCreated(i, self._conflict, resolver.isDiff)) {
+                field = new ui.ConflictFieldCreated();
+            } else if (self._types[i].endsWith('object') || args.noPath) {
+                if (this._wasEdited(i, self._conflict, resolver.isDiff)) {
+                    field = new ui.ConflictFieldEdited();
+                } else {
+                    field = new ui.ConflictFieldNotRenderable();
                 }
-            }
-
-            // if there is no name (path is empty) and this is the source or dest panel then just show
-            // that this field was edited
-            if (! field && ! self._name && (i === SOURCE_PANEL || i === DEST_PANEL)) {
-                field = new ui.ConflictFieldEdited();
             }
 
             // if for some reason the value is undefined (e.g it could have been too big)
             // then show a missing field
             if (! field && values[i] === undefined) {
-                field = new ui.ConflictFieldMissing();
+                field = new ui.ConflictFieldNotAvailable();
             }
 
             if (! field) {
@@ -103,10 +100,6 @@ editor.once('load', function () {
                 } else {
                     field = ui.ConflictField.create(self._types[i], values[i]);
                 }
-            } else if (label) {
-                // if the field is one of the deleted, edited or missing type fields
-                // then hide the name label
-                label.hidden = true;
             }
 
             field.element.class.add('value');
@@ -123,24 +116,110 @@ editor.once('load', function () {
             this._resolved = true;
         }
 
-        this._panels[SOURCE_PANEL].on('click', function () {
-            if (self._conflict.useSrc) {
-                self.unresolve();
-            } else {
-                self.resolveUsingSource();
-            }
-        });
+        if (!resolver.isDiff) {
+            this._panels[SOURCE_PANEL].on('click', function () {
+                if (self._conflict.useSrc) {
+                    self.unresolve();
+                } else {
+                    self.resolveUsingSource();
+                }
+            });
 
-        this._panels[DEST_PANEL].on('click', function () {
-            if (self._conflict.useDst) {
-                self.unresolve();
-            } else {
-                self.resolveUsingDestination();
-            }
-        });
+            this._panels[DEST_PANEL].on('click', function () {
+                if (self._conflict.useDst) {
+                    self.unresolve();
+                } else {
+                    self.resolveUsingDestination();
+                }
+            });
+        }
     };
 
     ConflictSectionRow.prototype = Object.create(Events.prototype);
+
+    ConflictSectionRow.prototype._wasMissing = function (side, conflict, isDiff) {
+        if (side === BASE_PANEL && conflict.missingInBase) {
+            return true;
+        }
+        if (side === SOURCE_PANEL && conflict.missingInSrc) {
+            if (isDiff) {
+                return conflict.missingInDst;
+            }
+            return conflict.missingInBase;
+        }
+
+        if (side === DEST_PANEL && conflict.missingInDst) {
+            if (isDiff) {
+                return true;
+            }
+            return conflict.missingInBase;
+        }
+
+        return false;
+    };
+
+    ConflictSectionRow.prototype._wasDeleted = function (side, conflict, isDiff) {
+        if (side === SOURCE_PANEL) {
+            if (conflict.missingInSrc) {
+                if (isDiff) {
+                    return !conflict.missingInDst;
+                }
+                return !conflict.missingInBase;
+            }
+        } else if (side === DEST_PANEL) {
+            if (conflict.missingInDst) {
+                if (isDiff) {
+                    // for diffs 'dest' is considered to be the base
+                    return false;
+                }
+                return !conflict.missingInBase;
+            }
+        }
+
+        return false;
+    };
+
+    ConflictSectionRow.prototype._wasCreated = function (side, conflict, isDiff) {
+        if (side === SOURCE_PANEL) {
+            if (!conflict.missingInSrc) {
+                if (isDiff) {
+                    return conflict.missingInDst;
+                }
+                return conflict.missingInBase;
+            }
+        } else if (side === DEST_PANEL) {
+            if (!conflict.missingInDst) {
+                if (isDiff) {
+                    // we assume the base is the dest when diffing
+                    return false;
+                }
+                return conflict.missingInBase;
+            }
+        }
+
+        return false;
+    };
+
+    ConflictSectionRow.prototype._wasEdited = function (side, conflict, isDiff) {
+        if (side === SOURCE_PANEL) {
+            if (!conflict.missingInSrc) {
+                if (isDiff) {
+                    return !conflict.missingInDst;
+                }
+                return !conflict.missingInBase;
+            }
+        } else if (side === DEST_PANEL) {
+            if (!conflict.missingInDst) {
+                if (isDiff) {
+                    // we assume the base is the dest when diffing
+                    return false;
+                }
+                return !conflict.missingInBase;
+            }
+        }
+
+        return false;
+    };
 
     // Returns an array of the 3 values (base, source, dest) after it converts
     // those values from IDs to names (if necessary)
@@ -164,7 +243,7 @@ editor.once('load', function () {
 
         // convert ids to names
         if (base) {
-            // for base values try to find the name first in the source indes and then in the destination index
+            // for base values try to find the name first in the source index and then in the destination index
             var handled = false;
             for (var type in indexes) {
                 if (baseType === type) {
@@ -323,8 +402,8 @@ editor.once('load', function () {
         var rest = name.slice(1);
         return firstLetter.toUpperCase() +
         rest
-        // insert a space before all caps
-        .replace(/([A-Z])/g, ' $1')
+        // insert a space before all caps and numbers
+        .replace(/([A-Z0-9])/g, ' $1')
         // replace special characters with spaces
         .replace(/[^a-zA-Z0-9](.)/g, function (match, group) {
             return ' ' + group.toUpperCase();

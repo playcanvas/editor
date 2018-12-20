@@ -26,11 +26,19 @@ editor.once('load', function () {
     btnNewCheckpoint.class.add('icon', 'create');
     panelCheckpointsTop.append(btnNewCheckpoint);
 
-    var toggleNewCheckpointButton = function () {
+    // generate diff
+    var btnDiff = new ui.Button({
+        text: 'VIEW CHANGES'
+    });
+    btnDiff.class.add('icon', 'diff');
+    panelCheckpointsTop.append(btnDiff);
+
+    var toggleTopButtons = function () {
         btnNewCheckpoint.hidden = ! editor.call('permissions:write') || ! panel.branch || panel.branch.id !== config.self.branch.id;
+        btnDiff.hidden = btnNewCheckpoint.hidden || !editor.call('users:hasFlag', 'hasBranches');
     };
 
-    toggleNewCheckpointButton();
+    toggleTopButtons();
 
     // checkpoints main panel
     var panelCheckpoints = new ui.Panel();
@@ -95,7 +103,7 @@ editor.once('load', function () {
         panel.setCheckpoints(null);
         panel.toggleLoadMore(false);
 
-        toggleNewCheckpointButton();
+        toggleTopButtons();
     };
 
     // Set the checkpoints to be displayed
@@ -304,6 +312,11 @@ editor.once('load', function () {
         panel.emit('checkpoint:new');
     });
 
+    // generate diff
+    btnDiff.on('click', function () {
+        panel.emit('diff:new');
+    });
+
     // load more button
     btnLoadMore.on('click', function () {
         panel.loadCheckpoints();
@@ -343,7 +356,7 @@ editor.once('load', function () {
     });
 
     panel.on('show', function () {
-        toggleNewCheckpointButton();
+        toggleTopButtons();
 
         events.push(editor.on('permissions:writeState', function (writeEnabled) {
             // hide all dropdowns if we no longer have write access
@@ -352,7 +365,7 @@ editor.once('load', function () {
             });
 
             // hide new checkpoint button if we no longer have write access
-            toggleNewCheckpointButton();
+            toggleTopButtons();
         }));
     });
 

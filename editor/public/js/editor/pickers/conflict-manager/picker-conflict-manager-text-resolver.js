@@ -13,6 +13,8 @@ editor.once('load', function () {
 
         this._conflict = conflict;
 
+        this._isDiff = mergeObject.isDiff;
+
         this._panelTop = new ui.Panel();
         this._panelTop.class.add('textmerge-top');
         this._panelTop.hidden = true;
@@ -39,8 +41,8 @@ editor.once('load', function () {
         });
         this._btnMarkResolved.class.add('mark-resolved');
         this._btnMarkResolved.on('click', this._onClickMarkResolved.bind(this));
+        this._btnMarkResolved.hidden = this._isDiff;
         this._panelTop.append(this._btnMarkResolved);
-
 
         // button that opens dropdown menu
         this._btnUseAllFrom = new ui.Button({
@@ -49,6 +51,7 @@ editor.once('load', function () {
         this._btnUseAllFrom.class.add('use-all');
         this._panelTop.append(this._btnUseAllFrom);
         this._btnUseAllFrom.on('click', this._onClickUseAllFrom.bind(this));
+        this._btnUseAllFrom.hidden = this._isDiff;
 
         // revert all changes
         this._btnRevert = new ui.Button({
@@ -56,6 +59,7 @@ editor.once('load', function () {
         });
         this._btnRevert.on('click', this._onClickRevert.bind(this));
         this._panelTop.append(this._btnRevert);
+        this._btnRevert.hidden = this._isDiff;
 
         // dropdown menu
         this._menu = new ui.Menu();
@@ -85,6 +89,7 @@ editor.once('load', function () {
         this._btnNextConflict.class.add('go-to-next');
         this._panelTop.append(this._btnNextConflict);
         this._btnNextConflict.on('click', this._onClickNext.bind(this));
+        this._btnNextConflict.hidden = this._isDiff;
 
         // go to prev conflict
         this._btnPrevConflict = new ui.Button({
@@ -93,6 +98,7 @@ editor.once('load', function () {
         this._btnPrevConflict.class.add('go-to-prev');
         this._panelTop.append(this._btnPrevConflict);
         this._btnPrevConflict.on('click', this._onClickPrev.bind(this));
+        this._btnPrevConflict.hidden = this._isDiff;
 
         // go back to asset conflicts
         this._btnGoBack = new ui.Button({
@@ -194,7 +200,7 @@ editor.once('load', function () {
     };
 
     TextResolver.prototype._onClickGoBack = function () {
-        if (this._codeEditorMethod('editor:merge:isDirty')) {
+        if (!this._isDiff && this._codeEditorMethod('editor:merge:isDirty')) {
             editor.call('picker:confirm', 'Your changes will not be saved unless you hit "Mark As Resolved". Are you sure you want to go back?', function () {
                 this.emit('close');
             }.bind(this));

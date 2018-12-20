@@ -12,10 +12,12 @@ editor.once('load', function () {
 
             // get the type from the path - force 'data' to be an object for now
             var path = conflicts.data[i].path;
+            var noPath = !path;
             var type = !path || path === 'data' ? 'object' : editor.call('schema:asset:getType', conflicts.data[i].path);
 
             sectionAsset.appendField({
                 name: conflicts.data[i].path,
+                noPath: noPath,
                 prettify: true,
                 type: type,
                 conflict: conflicts.data[i]

@@ -1276,6 +1276,18 @@ a.link-docs {
         }
     }
 
+    &.hunk {
+        background:$bcg-primary;
+    }
+
+    &.add {
+        background:rgba(green, 0.2);
+    }
+
+    &.remove {
+        background:rgba(red, 0.2);
+    }
+
 }
 
 

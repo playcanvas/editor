@@ -2,6 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     if (! editor.call('editor:resolveConflictMode')) return;
+    if (config.self.branch.merge.isDiff) return;
 
     var MODES = {
         script: 'javascript',
@@ -279,21 +280,26 @@ editor.once('load', function () {
         }
 
         setTimeout(function () {
-            this.cm.focus();
+            this.goToNextConflict(true);
         }.bind(this));
     };
 
     // Moves cursor to the next conflict. Wraps around if needed
-    MergeFileEditor.prototype.goToNextConflict = function () {
+    MergeFileEditor.prototype.goToNextConflict = function (stayInCurrentConflictIfPossible) {
         var cm = this.cm;
         cm.focus();
 
+        var len = this.overlayGroups.length;
+        if (!len) {
+            return;
+        }
+
         var currentPos = cm.indexFromPos(cm.getCursor());
         var foundPos = null;
-        for (var i = 0; i < this.overlayGroups.length; i++) {
+        for (var i = 0; i < len; i++) {
             var group = this.overlayGroups[i];
             var overlayPos = group.dest !== null ? group.dest : group.src;
-            if (overlayPos > currentPos) {
+            if (stayInCurrentConflictIfPossible && overlayPos >= currentPos || overlayPos > currentPos) {
                 foundPos = overlayPos;
                 break;
             }
@@ -305,7 +311,9 @@ editor.once('load', function () {
         }
 
         if (foundPos !== null) {
-            cm.setCursor(cm.posFromIndex(foundPos));
+            var pos = cm.posFromIndex(foundPos);
+            cm.setCursor(pos);
+            cm.scrollIntoView(pos, 300);
         }
     };
 
@@ -314,9 +322,14 @@ editor.once('load', function () {
         var cm = this.cm;
         cm.focus();
 
+        var len = this.overlayGroups.length;
+        if (!len) {
+            return;
+        }
+
         var currentPos = cm.indexFromPos(cm.getCursor());
         var foundPos = null;
-        for (var i = this.overlayGroups.length - 1; i >= 0; i--) {
+        for (var i = len - 1; i >= 0; i--) {
             var group = this.overlayGroups[i];
             var overlayPos = group.dest !== null ? group.dest : group.src;
             if (overlayPos < currentPos) {
@@ -331,7 +344,9 @@ editor.once('load', function () {
         }
 
         if (foundPos !== null) {
-            cm.setCursor(cm.posFromIndex(foundPos));
+            var pos = cm.posFromIndex(foundPos);
+            cm.setCursor(pos);
+            cm.scrollIntoView(pos, 300);
         }
     };
 

@@ -107,6 +107,28 @@ editor.once('load', function () {
         panelCreateBranch.setCheckpoint(checkpoint);
     });
 
+    // generate diff
+    panelCheckpoints.on('diff:new', function () {
+        togglePanels(false);
+        showRightSidePanel(panelGenerateDiffProgress);
+        editor.call('diff:create', function (err, diff) {
+            panelGenerateDiffProgress.finish(err);
+
+            togglePanels(true);
+
+            if (!err && diff.numConflicts === 0) {
+                panelGenerateDiffProgress.setMessage("There are no changes");
+                setTimeout(function () {
+                    showCheckpoints();
+                }, 1500);
+            } else if (! err) {
+                editor.call('picker:project:close');
+                editor.call('picker:versioncontrol:mergeOverlay:hide'); // hide this in case it's open
+                editor.call('picker:diffManager', diff);
+            }
+        });
+    });
+
     // new checkpoint panel
     var panelCreateCheckpoint = editor.call('picker:versioncontrol:widget:createCheckpoint');
     panelCreateCheckpoint.hidden = true;
@@ -120,6 +142,15 @@ editor.once('load', function () {
     });
     panelCreateCheckpointProgress.hidden = true;
     panelRight.append(panelCreateCheckpointProgress);
+
+    // generate diff progress panel
+    var panelGenerateDiffProgress = editor.call('picker:versioncontrol:createProgressWidget', {
+        progressText: 'Getting changes since last checkpoint',
+        finishText: 'Showing changes',
+        errorText: 'Failed to get changes'
+    });
+    panelGenerateDiffProgress.hidden = true;
+    panelRight.append(panelGenerateDiffProgress);
 
     // new branch panel
     var panelCreateBranch = editor.call('picker:versioncontrol:widget:createBranch');
@@ -641,7 +672,7 @@ editor.once('load', function () {
 
     // Enable or disable the clickable parts of this picker
     var togglePanels = function (enabled) {
-        editor.call('picker:project:setClosable', enabled);
+        editor.call('picker:project:setClosable', enabled && config.scene.id);
         editor.call('picker:project:toggleLeftPanel', enabled);
         // panelBranchesTop.disabled = !enabled;
         panelBranches.disabled = !enabled;

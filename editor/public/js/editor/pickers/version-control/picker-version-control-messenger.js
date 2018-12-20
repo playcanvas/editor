@@ -80,6 +80,10 @@ editor.once('load', function () {
 
     // show overlay when the branch of this user has been changed
     editor.on('messenger:branch.switch', function (data) {
+        if (data.project_id !== config.project.id) {
+            return;
+        }
+
         config.self.branch.id = data.branch_id;
         overlayBranchSwitched.setTitle('Switched to branch "' + data.name + '"');
         overlayBranchSwitched.hidden = false;

@@ -52,9 +52,29 @@ editor.once('load', function () {
             fields: index
         });
 
+        // append scene settings
+        if (index.settings) {
+            for (var key in index.settings) {
+                sectionProperties.appendAllFields({
+                    schema: 'scene',
+                    fields: index.settings[key]
+                });
+            }
+        }
+
         // Entities
         if (index.entities) {
             resolver.createSeparator('ENTITIES');
+
+            // for diffs it's more likely that we are going to have a large
+            // number of entities so cloak sections that are out of view if we have a lot
+            // of entities to improve DOM performance
+            var allowSectionCloaking = false;
+            if (resolver.isDiff) {
+                var numEntities = Object.keys(index.entities).length;
+                allowSectionCloaking = numEntities > 50;
+            }
+
             for (var key in index.entities) {
                 // create title for entity section
                 var entityName = resolver.srcEntityIndex[key] || resolver.dstEntityIndex[key];
@@ -65,7 +85,7 @@ editor.once('load', function () {
                 }
 
                 // create entity section
-                var sectionEntity = resolver.createSection(entityName, true);
+                var sectionEntity = resolver.createSection(entityName, true, allowSectionCloaking);
                 var entity = index.entities[key];
 
                 // append entity properties
