@@ -9264,6 +9264,19 @@ strong {
                                     width: 100%;
                                     border-top: 1px solid $border-primary;
 
+                                    &.cloaked {
+                                        overflow: visible;
+                                        background: $bcg-darker;
+
+                                        > .ui-header {
+                                            display: none;
+                                        }
+
+                                        > .content {
+                                            display: none;
+                                        }
+                                    }
+
                                     > .ui-header {
                                         z-index: 2;
                                         background: $bcg-dark;

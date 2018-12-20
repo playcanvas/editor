@@ -26,6 +26,12 @@ editor.once('load', function () {
         this._pendingResolvedConflicts = {};
         this._pendingRevertedConflicts = {};
         this._timeoutSave = null;
+
+        this._parent = null;
+
+        this._scrollListener = function () {
+            this.emit('scroll');
+        }.bind(this);
     };
 
     ConflictResolver.prototype = Object.create(Events.prototype);
@@ -83,8 +89,8 @@ editor.once('load', function () {
     };
 
     // Creates a section that has a title and can be foldable. Sections contain conflicts
-    ConflictResolver.prototype.createSection = function (title, foldable) {
-        var section = new ui.ConflictSection(this, title, foldable);
+    ConflictResolver.prototype.createSection = function (title, foldable, cloakIfNecessary) {
+        var section = new ui.ConflictSection(this, title, foldable, cloakIfNecessary);
         section.on('resolve', this.onConflictResolved.bind(this));
         section.on('unresolve', this.onConflictUnresolved.bind(this));
         this.elements.push(section);
@@ -103,6 +109,8 @@ editor.once('load', function () {
 
     // Append the resolver to a parent
     ConflictResolver.prototype.appendToParent = function (parent) {
+        this._parent = parent;
+
         for (var i = 0, len = this.elements.length; i < len; i++) {
             var element = this.elements[i];
             if (element instanceof ui.ConflictSection) {
@@ -114,6 +122,8 @@ editor.once('load', function () {
                 parent.append(element);
             }
         }
+
+        parent.element.addEventListener('scroll', this._scrollListener, false);
 
         // Reflow (call onAddedToDom) after 2 frames. The reason why it's 2 frames
         // and not 1 is it doesn't always work on 1 frame and I don't know why yet..
@@ -161,6 +171,11 @@ editor.once('load', function () {
     // Destroyes the resolver and its UI elements
     ConflictResolver.prototype.destroy = function () {
         this.unbind();
+
+        if (this._parent) {
+            this._parent.element.removeEventListener('scroll', this._scrollListener, false);
+            this._parent = null;
+        }
 
         for (var i = 0, len = this.elements.length; i < len; i++) {
             this.elements[i].destroy();

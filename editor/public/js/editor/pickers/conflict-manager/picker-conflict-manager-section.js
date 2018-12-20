@@ -3,17 +3,34 @@ editor.once('load', function () {
 
     // A section contains multiple conflicts and it's meant to group
     // conflicts into meaningful categories
-    var ConflictSection = function (resolver, title, foldable) {
+    var ConflictSection = function (resolver, title, foldable, allowCloaking) {
         Events.call(this);
         this._resolver = resolver;
         this._numConflicts = 0;
         this._numResolvedConflicts = 0;
         this._indent = 0;
 
+        this._foldable = foldable;
+        this._allowCloaking = allowCloaking;
+        this._cloaked = false;
+        this._cloakFn = this.cloakIfNecessary.bind(this);
+
         this.panel = new ui.Panel(title);
         this.panel.class.add('section');
         this.panel.foldable = foldable;
         this.panel.flex = true;
+        this.panel.on('fold', function () {
+            resolver.emit('section:fold');
+        });
+        this.panel.on('unfold', function () {
+            resolver.emit('section:unfold');
+        });
+
+        if (this._allowCloaking) {
+            resolver.on('section:fold', this.cloakIfNecessaryDeferred.bind(this));
+            resolver.on('section:unfold', this.cloakIfNecessaryDeferred.bind(this));
+            resolver.on('scroll', this.cloakIfNecessaryDeferred.bind(this));
+        }
 
         this._panelBase = new ui.Panel();
         this._panelBase.class.add('base');
@@ -162,6 +179,43 @@ editor.once('load', function () {
         // make value fields in the same row have equal heights
         for (var i = 0, len = this._rows.length; i < len; i++) {
             this._rows[i].onAddedToDom();
+        }
+
+        if (this._allowCloaking) {
+            this.cloakIfNecessary();
+        }
+    };
+
+    ConflictSection.prototype.cloakIfNecessaryDeferred = function () {
+        setTimeout(this._cloakFn, 100);
+    };
+
+    // Checks if the section is visible in the viewport. If not it will 'cloak'
+    // it meaning it will hide all of its contents but keep its original height
+    // to make the DOM faster to render
+    ConflictSection.prototype.cloakIfNecessary = function () {
+        if (!this.panel.parent) {
+            return;
+        }
+
+        var parentRect = this.panel.parent.element.getBoundingClientRect();
+        var rect = this.panel.element.getBoundingClientRect();
+        var safetyMargin = 200;
+        if (rect.bottom < parentRect.top - safetyMargin || rect.top > parentRect.bottom + safetyMargin) {
+            if (!this._cloaked) {
+                this._cloaked = true;
+                var height = rect.height;
+                this.panel.element.style.height = height + 'px';
+                this.panel.class.remove('foldable');
+                this.panel.class.add('cloaked');
+            }
+        } else if (this._cloaked) {
+            this._cloaked = false;
+            this.panel.element.style.height = '';
+            this.panel.class.remove('cloaked');
+            if (this._foldable) {
+                this.panel.foldable = true;
+            }
         }
     };
 
