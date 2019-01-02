@@ -191,7 +191,11 @@ editor.once('load', function () {
 
         // resume docs
         for (var id in documentsIndex) {
-            documentsIndex[id].doc.resume();
+            var doc = documentsIndex[id].doc;
+            if (!doc.subscribed) {
+                doc.subscribe();
+            }
+            doc.resume();
         }
 
         // load any queued documents

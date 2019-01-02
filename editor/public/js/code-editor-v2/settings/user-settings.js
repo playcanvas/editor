@@ -20,6 +20,10 @@ editor.once('load', function () {
 
     editor.on('realtime:authenticated', function () {
         if (doc) {
+            if (!doc.subscribed) {
+                doc.subscribe();
+            }
+
             doc.resume();
             return;
         }
