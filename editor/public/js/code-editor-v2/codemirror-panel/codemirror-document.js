@@ -45,7 +45,8 @@ editor.once('load', function () {
             type: type,
             asset: asset,
             view: CodeMirror.Doc(doc.data, mode),
-            suppressChanges: false
+            suppressChanges: false,
+            scrollInfo: null
         };
 
         // emit change
@@ -79,6 +80,12 @@ editor.once('load', function () {
         }
         // unhide code
         panel.toggleCode(true);
+
+        // remember scrolling info for the current view
+        // so we can restore it after switching back to it
+        if (focusedView) {
+            focusedView.scrollInfo = cm.getScrollInfo();
+        }
 
         if (focusedView && viewIndex[id] === focusedView) {
             var content = focusedView.doc.data;
@@ -130,6 +137,11 @@ editor.once('load', function () {
         // focus editor
         setTimeout(function () {
             cm.focus();
+
+            // set scroll position
+            if (focusedView.scrollInfo) {
+                cm.scrollTo(focusedView.scrollInfo.left, focusedView.scrollInfo.top);
+            }
         });
     });
 
