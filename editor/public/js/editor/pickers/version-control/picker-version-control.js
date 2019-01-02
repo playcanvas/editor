@@ -96,6 +96,10 @@ editor.once('load', function () {
         showRightSidePanel(panelCreateCheckpoint);
     });
 
+    panelCheckpoints.on('checkpoint:diff', function (checkpoint) {
+        showRightSidePanel(panelRestoreCheckpoint);
+    });
+
     panelCheckpoints.on('checkpoint:restore', function (checkpoint) {
         showRightSidePanel(panelRestoreCheckpoint);
         panelRestoreCheckpoint.setCheckpoint(checkpoint);
@@ -107,27 +111,10 @@ editor.once('load', function () {
         panelCreateBranch.setCheckpoint(checkpoint);
     });
 
-    // generate diff
-    panelCheckpoints.on('diff:new', function () {
-        togglePanels(false);
-        showRightSidePanel(panelGenerateDiffProgress);
-        editor.call('diff:create', function (err, diff) {
-            panelGenerateDiffProgress.finish(err);
-
-            togglePanels(true);
-
-            if (!err && diff.numConflicts === 0) {
-                panelGenerateDiffProgress.setMessage("There are no changes");
-                setTimeout(function () {
-                    showCheckpoints();
-                }, 1500);
-            } else if (! err) {
-                editor.call('picker:project:close');
-                editor.call('picker:versioncontrol:mergeOverlay:hide'); // hide this in case it's open
-                editor.call('picker:diffManager', diff);
-            }
-        });
+    panelCheckpoints.on('checkpoint:diff', function (checkpointId) {
+        diffCheckpoint(checkpointId);
     });
+
 
     // new checkpoint panel
     var panelCreateCheckpoint = editor.call('picker:versioncontrol:widget:createCheckpoint');
@@ -145,7 +132,7 @@ editor.once('load', function () {
 
     // generate diff progress panel
     var panelGenerateDiffProgress = editor.call('picker:versioncontrol:createProgressWidget', {
-        progressText: 'Getting changes since last checkpoint',
+        progressText: 'Getting changes',
         finishText: 'Showing changes',
         errorText: 'Failed to get changes'
     });
@@ -605,7 +592,27 @@ editor.once('load', function () {
 
             callback(checkpoint);
         });
+    };
 
+    var diffCheckpoint = function (checkpointId) {
+        togglePanels(false);
+        showRightSidePanel(panelGenerateDiffProgress);
+        editor.call('diff:create', checkpointId, function (err, diff) {
+            panelGenerateDiffProgress.finish(err);
+
+            togglePanels(true);
+
+            if (!err && diff.numConflicts === 0) {
+                panelGenerateDiffProgress.setMessage("There are no changes");
+                setTimeout(function () {
+                    showCheckpoints();
+                }, 1500);
+            } else if (! err) {
+                editor.call('picker:project:close');
+                editor.call('picker:versioncontrol:mergeOverlay:hide'); // hide this in case it's open
+                editor.call('picker:diffManager', diff);
+            }
+        });
     };
 
     // show create branch panel

@@ -71,6 +71,14 @@ editor.once('load', function () {
     var menuCheckpoints = new ui.Menu();
     menuCheckpoints.class.add('version-control');
 
+    // view changes vs current state
+    var menuCheckpointsDiff = new ui.MenuItem({
+        text: 'View Changes Vs Current State',
+        value: 'diff-checkpoint'
+    });
+    menuCheckpoints.append(menuCheckpointsDiff);
+    menuCheckpointsDiff.hidden = !editor.call('users:hasFlag', 'hasBranches');
+
     // restore checkpoint
     var menuCheckpointsRestore = new ui.MenuItem({
         text: 'Restore',
@@ -316,12 +324,17 @@ editor.once('load', function () {
 
     // generate diff
     btnDiff.on('click', function () {
-        panel.emit('diff:new');
+        panel.emit('checkpoint:diff', config.self.branch.latestCheckpointId);
     });
 
     // load more button
     btnLoadMore.on('click', function () {
         panel.loadCheckpoints();
+    });
+
+    // diff checkpoint
+    menuCheckpointsDiff.on('select', function () {
+        panel.emit('checkpoint:diff', currentCheckpoint.id);
     });
 
     // restore checkpoint

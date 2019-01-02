@@ -11,22 +11,17 @@ editor.once('load', function () {
         });
     };
 
-    // Load project branches
-    // args.limit: the limit
-    // args.skip: the number of entries to skip
-    // args.closed: If true only return closed branches
     /**
-     * Generates a new diff from the current state to the latest
-     * checkpoint.
+     * Generates a new diff from the current state to the specified checkpoint id
      * @param {Function} [callback] Optional callback after the diff is generated.
      * Has the following signature: (err, diff)
      */
-    editor.method('diff:create', function (callback) {
+    editor.method('diff:create', function (checkpointId, callback) {
         request({
             url: '{{url.api}}/diff',
             method: 'POST',
             data: {
-                dstCheckpointId: config.self.branch.latestCheckpointId
+                dstCheckpointId: checkpointId
             },
             auth: true
         }, callback);
