@@ -170,7 +170,15 @@ editor.once('load', function () {
     // this is for reconnections
     editor.on('realtime:authenticated', function () {
         for (var id in docIndex) {
-            docIndex[id].resume();
+            var assetDoc = docIndex[id];
+
+            // check if we are no longer subscribed
+            // to the document and re-subscribe
+            if (!assetDoc.subscribed) {
+                assetDoc.subscribe();
+            }
+
+            assetDoc.resume();
         }
     });
 
