@@ -21,6 +21,7 @@ editor.once('load', function () {
             url: '{{url.api}}/diff',
             method: 'POST',
             data: {
+                srcBranchId: config.self.branch.id,
                 dstCheckpointId: checkpointId
             },
             auth: true
