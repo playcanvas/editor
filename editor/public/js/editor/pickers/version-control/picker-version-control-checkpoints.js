@@ -35,7 +35,7 @@ editor.once('load', function () {
 
     var toggleTopButtons = function () {
         btnNewCheckpoint.hidden = ! editor.call('permissions:write') || ! panel.branch || panel.branch.id !== config.self.branch.id;
-        btnDiff.hidden = btnNewCheckpoint.hidden;
+        btnDiff.hidden = btnNewCheckpoint.hidden || !config.self.branch.latestCheckpointId;
     };
 
     toggleTopButtons();
