@@ -1,9 +1,6 @@
 editor.once('load', function() {
     'use strict';
 
-    // by default we hide the scrollview and scrollbar components
-    var HIDE_SCROLLVIEW_COMPONENTS = false;
-
     var projectSettings = editor.call('settings:project');
 
     var schema = config.schema.scene.entities.$of.components;
@@ -177,18 +174,6 @@ editor.once('load', function() {
         // filter out zone (which is not really supported)
         if (!editor.call('users:hasFlag', 'hasZoneComponent')) {
             idx = result.indexOf('zone');
-            if (idx !== -1) {
-                result.splice(idx, 1);
-            }
-        }
-
-        if (HIDE_SCROLLVIEW_COMPONENTS || !editor.call('users:hasFlag', 'hasScrollViews')) {
-            idx = result.indexOf('scrollview');
-            if (idx !== -1) {
-                result.splice(idx, 1);
-            }
-
-            idx = result.indexOf('scrollbar');
             if (idx !== -1) {
                 result.splice(idx, 1);
             }

@@ -35,7 +35,7 @@ editor.once('load', function () {
 
     var toggleTopButtons = function () {
         btnNewCheckpoint.hidden = ! editor.call('permissions:write') || ! panel.branch || panel.branch.id !== config.self.branch.id;
-        btnDiff.hidden = btnNewCheckpoint.hidden || !editor.call('users:hasFlag', 'hasBranches');
+        btnDiff.hidden = btnNewCheckpoint.hidden || !config.self.branch.latestCheckpointId;
     };
 
     toggleTopButtons();
@@ -77,7 +77,6 @@ editor.once('load', function () {
         value: 'diff-checkpoint'
     });
     menuCheckpoints.append(menuCheckpointsDiff);
-    menuCheckpointsDiff.hidden = !editor.call('users:hasFlag', 'hasBranches');
 
     // restore checkpoint
     var menuCheckpointsRestore = new ui.MenuItem({
@@ -353,7 +352,7 @@ editor.once('load', function () {
         // filter menu options
         if (open) {
             menuCheckpointsRestore.hidden = panel.branch.id !== config.self.branch.id || ! editor.call('permissions:write');
-            menuCheckpointsBranch.hidden = ! editor.call('users:hasFlag', 'hasBranches') || ! editor.call('permissions:write');
+            menuCheckpointsBranch.hidden = ! editor.call('permissions:write');
         }
 
         // when the checkpoints context menu is closed 'unclick' dropdowns

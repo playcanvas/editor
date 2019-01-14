@@ -277,14 +277,12 @@ editor.once('load', function () {
         info.appendChild(size.element);
 
         // branch
-        if (editor.call('users:hasFlag', 'hasBranches')) {
-            var branch = new ui.Label({
-                text: app.branch && app.branch.name || 'master'
-            });
-            branch.hidden = app.task.status !== 'complete' || projectSettings.get('useLegacyScripts');
-            branch.class.add('branch');
-            info.appendChild(branch.element);
-        }
+        var branch = new ui.Label({
+            text: app.branch && app.branch.name || 'master'
+        });
+        branch.hidden = app.task.status !== 'complete' || projectSettings.get('useLegacyScripts');
+        branch.class.add('branch');
+        info.appendChild(branch.element);
 
         // error message
         var error = new ui.Label({

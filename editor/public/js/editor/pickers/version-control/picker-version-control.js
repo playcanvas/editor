@@ -1,7 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    if (!editor.call('users:hasFlag', 'hasCheckpoints') || config.project.settings.useLegacyScripts) {
+    if (config.project.settings.useLegacyScripts) {
         return;
     }
 
@@ -30,7 +30,6 @@ editor.once('load', function () {
 
     // branches container panel
     var panelBranchesContainer = new ui.Panel();
-    panelBranchesContainer.hidden = ! editor.call('users:hasFlag', 'hasBranches');
     panelBranchesContainer.class.add('branches-container');
     panel.append(panelBranchesContainer);
     panelBranchesContainer.flex = true;
