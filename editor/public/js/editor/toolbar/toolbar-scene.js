@@ -61,7 +61,7 @@ editor.once('load', function() {
         sceneName.text = '';
     });
 
-    if (editor.call('users:hasFlag', 'hasBranches') && editor.call('users:hasFlag', 'hasCheckpoints') && ! config.project.settings.useLegacyScripts) {
+    if (! config.project.settings.useLegacyScripts) {
         var name = config.self.branch.name;
         if (name.length > 33) {
             name = name.substring(0, 30) + '...';

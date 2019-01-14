@@ -126,13 +126,11 @@ editor.once('load', function () {
             icons: ['&#57648;']
         });
 
-        if (editor.call('users:hasFlag', 'hasCheckpoints')) {
-            items.push({
-                buttons: ['Ctrl', '$+', 'S'],
-                title: 'New Checkpoint',
-                icons: ['&#58265;']
-            });
-        }
+        items.push({
+            buttons: ['Ctrl', '$+', 'S'],
+            title: 'New Checkpoint',
+            icons: ['&#58265;']
+        });
     }
 
     for (var i = 0; i < items.length; i++) {
