@@ -529,9 +529,6 @@ editor.once('load', function() {
                         title: 'Scroll View Element',
                         className: 'menu-item-add-scroll-view-element-ui',
                         icon: componentsLogos.scrollview,
-                        hide: function () {
-                            return !editor.call('users:hasFlag', 'hasScrollViews');
-                        },
                         select: function() {
                             var viewportSize = 200;
                             var scrollbarSize = 20;
@@ -597,9 +594,6 @@ editor.once('load', function() {
                         title: 'Scrollbar Element',
                         className: 'menu-item-add-scrollbar-element-ui',
                         icon: componentsLogos.scrollbar,
-                        hide: function () {
-                            return !editor.call('users:hasFlag', 'hasScrollViews');
-                        },
                         select: function() {
                             editor.call('entities:new', createScrollbarEntityData(ORIENTATION_VERTICAL, {
                                 name: 'Scrollbar',
