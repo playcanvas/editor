@@ -202,6 +202,7 @@ editor.once('load', function () {
 
     // listen for project setting changes
     var projectSettings = editor.call('settings:project');
+    var projectUserSettings = editor.call('settings:projectUser');
 
     // legacy scripts
     pc.script.legacy = projectSettings.get('useLegacyScripts');
@@ -281,6 +282,16 @@ editor.once('load', function () {
         app.scene.layers = composition;
     }
 
+    // localization
+    if (config.self.locale) {
+        app.i18n.locale = config.self.locale;
+    }
+
+    if (config.project.settings.i18nAssets) {
+        app.i18n.assets = config.project.settings.i18nAssets;
+
+    }
+
     app._loadLibraries(libraryUrls, function (err) {
         app._onVrChange(config.project.settings.vr);
         libraries = true;
@@ -353,6 +364,25 @@ editor.once('load', function () {
 
     projectSettings.on('preferWebGl2:set', function (value) {
         config.project.settings.preferWebGl2 = value;
+    });
+
+    projectSettings.on('i18nAssets:set', function (value) {
+        app.i18n.assets = value;
+    });
+
+    projectSettings.on('i18nAssets:insert', function (value) {
+        app.i18n.assets = projectSettings.get('i18nAssets');
+    });
+
+    projectSettings.on('i18nAssets:remove', function (value) {
+        app.i18n.assets = projectSettings.get('i18nAssets');
+    });
+
+    // locale change
+    projectUserSettings.on('editor.locale:set', function (value) {
+        if (value) {
+            app.i18n.locale = value;
+        }
     });
 
     projectSettings.on('*:set', function (path, value) {

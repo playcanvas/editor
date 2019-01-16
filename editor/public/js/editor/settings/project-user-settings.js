@@ -22,6 +22,7 @@ editor.once('load', function () {
                 snapIncrement: 1,
                 localServer: 'http://localhost:51000',
                 launchDebug: true,
+                locale: 'en-US',
                 pipeline: {
                     texturePot: true,
                     textureDefaultToAtlas: false,
@@ -55,6 +56,9 @@ editor.once('load', function () {
             var history = settings.history.enabled;
             settings.history.enabled = false;
 
+            var sync = settings.sync.enabled;
+            settings.sync.enabled = editor.call('permissions:read'); // read permissions enough for project user settings
+
             if (! settings.has('editor.pipeline'))
                 settings.set('editor.pipeline', {});
 
@@ -82,12 +86,18 @@ editor.once('load', function () {
             if (! settings.has('editor.pipeline.overwriteTexture'))
                 settings.set('editor.pipeline.overwriteTexture', true);
 
+            if (! settings.has('editor.locale')) {
+                settings.set('editor.locale', 'en-US');
+            }
+
             settings.history.enabled = history;
+            settings.sync.enabled = sync;
         });
     });
 
     var reload = function () {
-        if (isConnected && editor.call('permissions:read')) {
+        // config.project.hasReadAccess is only for the launch page
+        if (isConnected && (editor.call('permissions:read') || config.project.hasReadAccess)) {
             settings.reload(settings.scopeId);
         }
     };

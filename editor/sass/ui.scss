@@ -1099,7 +1099,7 @@ a:visited {
     }
 }
 // proxy
-.ui-text-field[proxy] {
+.ui-text-field[proxy], .ui-textarea-field[proxy] {
     position: relative;
 
     &:before {

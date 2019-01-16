@@ -432,7 +432,9 @@ editor.once('load', function () {
         fieldAssets.class.add('assets');
 
         // reference assets
-        editor.call('attributes:reference:attach', assetType + ':assets', fieldAssets.parent.innerElement.firstChild.ui);
+        if (args.reference) {
+            editor.call('attributes:reference:attach', args.reference, fieldAssets.parent.innerElement.firstChild.ui);
+        }
 
         // on adding new asset
         btnAdd.on('click', function () {

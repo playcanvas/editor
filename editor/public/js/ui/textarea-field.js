@@ -168,4 +168,17 @@ Object.defineProperty(TextAreaField.prototype, 'keyChange', {
     }
 });
 
+Object.defineProperty(TextAreaField.prototype, 'proxy', {
+    get: function() {
+        return this._element.getAttribute('proxy');
+    },
+    set: function(value) {
+        if (! value) {
+            this._element.removeAttribute('proxy');
+        } else {
+            this._element.setAttribute('proxy', value);
+        }
+    }
+});
+
 window.ui.TextAreaField = TextAreaField;

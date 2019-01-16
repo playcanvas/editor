@@ -196,6 +196,15 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'settings:localServer', fieldLocalServer.parent.innerElement.firstChild.ui);
 
+        var fieldLocale = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Locale',
+            type: 'string',
+            link: settings,
+            path: 'editor.locale'
+        });
+
+        editor.call('attributes:reference:attach', 'settings:locale', fieldLocale.parent.innerElement.firstChild.ui);
 
         // chat notification
         var fieldChatNotification = editor.call('attributes:addField', {
