@@ -206,6 +206,8 @@ editor.once('load', function() {
 
         editor.call('attributes:reference:attach', 'settings:locale', fieldLocale.parent.innerElement.firstChild.ui);
 
+        fieldLocale.parent.hidden = !editor.call('users:hasFlag', 'hasLocalization');
+
         // chat notification
         var fieldChatNotification = editor.call('attributes:addField', {
             parent: panel,

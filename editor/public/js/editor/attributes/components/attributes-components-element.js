@@ -481,7 +481,7 @@ editor.once('load', function() {
             type: 'checkbox'
         });
 
-        fieldLocalized.parent.hidden = fieldType.value !== 'text';
+        fieldLocalized.parent.hidden = (fieldType.value !== 'text' || !editor.call('users:hasFlag', 'hasLocalization'));
 
         // reference
         editor.call('attributes:reference:attach', 'element:localized', fieldLocalized.parent.innerElement.firstChild.ui);
@@ -926,7 +926,7 @@ editor.once('load', function() {
             fieldLineHeight.parent.hidden = value !== 'text';
             fieldWrapLines.parent.hidden = value !== 'text';
             fieldSpacing.parent.hidden = value !== 'text';
-            fieldLocalized.parent.hidden = value !== 'text';
+            fieldLocalized.parent.hidden = (value !== 'text' || !editor.call('users:hasFlag', 'hasLocalization'));
             toggleSize();
             toggleMargin();
             toggleFields();
