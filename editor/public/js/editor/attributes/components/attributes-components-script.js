@@ -636,8 +636,7 @@ editor.once('load', function() {
                         name: attribute.displayName || attribute.name,
                         type: attribute.options.type || '*',
                         link: scripts,
-                        path: 'attributes.' + attribute.name + '.value',
-                        reference: reference
+                        path: 'attributes.' + attribute.name + '.value'
                     };
                     field = editor.call('attributes:addAssetsList', options);
                 }

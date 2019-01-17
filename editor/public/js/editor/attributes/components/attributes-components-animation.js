@@ -23,7 +23,8 @@ editor.once('load', function() {
             name: 'Assets',
             type: 'animation',
             link: entities,
-            path: 'components.animation.assets'
+            path: 'components.animation.assets',
+            reference: 'animation:assets'
         });
 
         var first = true;

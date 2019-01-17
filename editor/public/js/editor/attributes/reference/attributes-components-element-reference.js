@@ -32,6 +32,15 @@ editor.once('load', function() {
         description: 'The text content of the Element. Hit Shift+Enter to add new lines.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#text'
     }, {
+        title: 'key',
+        subTitle: '{String}',
+        description: 'The localization key of the Element. Hit Shift+Enter to add new lines.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#key'
+    }, {
+        name: 'localized',
+        title: 'Localized',
+        description: 'Enable this to set the localization key of the Element. The localization key will be used to get the translation of the element\'s text at runtime.'
+    }, {
         title: 'fontAsset',
         subTitle: '{pc.Asset}',
         description: 'The font asset used by the Element.',

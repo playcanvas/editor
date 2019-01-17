@@ -24,7 +24,8 @@ editor.once('load', function () {
         'plugins',
         'useModelV2',
         'layers',
-        'layerOrder'
+        'layerOrder',
+        'i18nAssets'
     ];
 
     var data = {};
@@ -85,6 +86,32 @@ editor.once('load', function () {
         }
 
         delete obj[parts[parts.length-1]];
+    });
+
+    settings.on('*:insert', function (path, value, index) {
+        var parts = path.split('.');
+        var obj = config.project.settings;
+        for (var i = 0; i < parts.length - 1; i++) {
+            obj = obj[parts[i]];
+        }
+
+        var arr = obj[parts[parts.length - 1]];
+        if (Array.isArray(arr)) {
+            arr.splice(index, 0, value);
+        }
+    });
+
+    settings.on('*:remove', function (path, value, index) {
+        var parts = path.split('.');
+        var obj = config.project.settings;
+        for (var i = 0; i < parts.length - 1; i++) {
+            obj = obj[parts[i]];
+        }
+
+        var arr = obj[parts[parts.length - 1]];
+        if (Array.isArray(arr)) {
+            arr.splice(index, 1);
+        }
     });
 
     // migrations
@@ -176,6 +203,10 @@ editor.once('load', function () {
         }
         if (settings.has('useGamepads')) {
             settings.set('useGamepads', !!settings.get('vr'));
+        }
+
+        if (!settings.get('i18nAssets')) {
+            settings.set('i18nAssets', []);
         }
 
         settings.history.enabled = history;

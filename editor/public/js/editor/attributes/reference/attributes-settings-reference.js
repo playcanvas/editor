@@ -27,6 +27,9 @@ editor.once('load', function() {
         name: 'localServer',
         description: 'Set a URL to use as the local server. When you click on "Launch Local" all your scripts will be loaded from this URL.'
     }, {
+        name: 'locale',
+        description: 'The locale that you can preview in the Editor and when you Launch your application. This is only visible to you not other members of your team.'
+    }, {
         title: 'gravity',
         subTitle: '{pc.Vec3}',
         description: 'Gravity is the acceleration applied every frame to all rigid bodies in your scene. By default, it is set to -9.8 meters per second per second, which essentially approximates Earth\'s gravity. If you are making a game in space, you might want to set this to 0, 0, 0 (zero g).',
@@ -287,6 +290,13 @@ editor.once('load', function() {
         name: 'layers:sublayers:enabled',
         title: 'Enabled',
         description: 'Enables or disables this part of the layer. When a part is disabled the mesh instances of that part will not be rendered.'
+    }, {
+        name: 'localization:i18nAssets',
+        title: 'Localization Assets',
+        description: 'JSON Assets that contain localization data. Assets in this list will automatically be parsed for localization data when loaded. These are used to localized your Text Elements.'
+    }, {
+        name: 'localization:createAsset',
+        description: 'Creates a new Localization JSON Asset with the default en-US format.'
     }];
 
     for(var i = 0; i < fields.length; i++) {

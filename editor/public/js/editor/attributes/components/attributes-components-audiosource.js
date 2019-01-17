@@ -18,7 +18,8 @@ editor.once('load', function() {
             name: 'Assets',
             link: entities,
             panel: panel,
-            path: 'components.audiosource.assets'
+            path: 'components.audiosource.assets',
+            reference: 'audiosource:assets'
         });
 
         // audiosource.playback

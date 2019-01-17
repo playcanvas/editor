@@ -475,6 +475,17 @@ editor.once('load', function() {
 
         fieldAlignment[0].parent.hidden = fieldType.value !== 'text';
 
+        var fieldLocalized = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Localized',
+            type: 'checkbox'
+        });
+
+        fieldLocalized.parent.hidden = (fieldType.value !== 'text' || !editor.call('users:hasFlag', 'hasLocalization'));
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:localized', fieldLocalized.parent.innerElement.firstChild.ui);
+
         var fieldText = editor.call('attributes:addField', {
             parent: panel,
             name: 'Text',
@@ -483,10 +494,128 @@ editor.once('load', function() {
             path: 'components.element.text'
         });
 
-        fieldText.parent.hidden = fieldType.value !== 'text';
-
         // reference
         editor.call('attributes:reference:attach', 'element:text', fieldText.parent.innerElement.firstChild.ui);
+
+        var fieldKey = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Key',
+            type: 'text',
+            link: entities,
+            path: 'components.element.key'
+        });
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:key', fieldKey.parent.innerElement.firstChild.ui);
+
+        // Show / hide the text / key fields
+        var toggleTextFields = function () {
+            fieldText.parent.hidden = fieldType.value !== 'text' || fieldLocalized.value || fieldLocalized.class.contains('null');
+            fieldKey.parent.hidden = fieldType.value !== 'text' || !fieldLocalized.value || fieldLocalized.class.contains('null');
+        };
+
+        var suppressLocalizedEvents = false;
+
+        // manually set the value of the localized field.
+        // if we have selected entities with some localized and
+        // some not localized elements then add the 'null' class
+        // like attributes-panel.js does to show that there are multiple
+        // values set for the checkpoint
+        var refreshLocalizedValue = function () {
+            var i; var len;
+            var countUnlocalized = 0;
+            suppressLocalizedEvents = true;
+            for (i = 0, len = entities.length; i < len; i++) {
+                if (entities[i].get('components.element.key') === null) {
+                    countUnlocalized++;
+                }
+            }
+            if (countUnlocalized) {
+                if (countUnlocalized !== len) {
+                    fieldLocalized.class.add('null');
+                } else {
+                    fieldLocalized.class.remove('null');
+                }
+
+                fieldLocalized.value = false;
+            } else {
+                fieldLocalized.value = true;
+                fieldLocalized.class.remove('null');
+            }
+
+            suppressLocalizedEvents = false;
+        };
+
+        refreshLocalizedValue();
+
+        toggleTextFields();
+
+        // update the value of the localized field when we change the element key
+        // If the key is null it means the element is not localized. If not null then it is localized.
+        for (var i = 0, len = entities.length; i < len; i++) {
+            events.push(entities[i].on('components.element.key:set', refreshLocalizedValue));
+        }
+
+        // When the user changes the localized field then
+        // set the 'key' value instead of the 'text' value if localized
+        // or vice-versa if not localized.
+        fieldLocalized.on('change', function (localized) {
+            toggleTextFields();
+
+            if (suppressLocalizedEvents) return;
+
+            var prev;
+            var path = localized ? 'components.element.key' : 'components.element.text';
+            var otherPath = localized ? 'components.element.text' : 'components.element.key';
+
+            var undo = function () {
+                for (var id in prev) {
+                    var e = editor.call('entities:get', id);
+                    if (!e) return;
+                    if (e.has('components.element')) {
+                        var history = e.history.enabled;
+                        e.history.enabled = false;
+                        e.set(path, null);
+                        e.set(otherPath, prev[id]);
+                        e.history.enabled = history;
+                    }
+                }
+            };
+
+            var redo = function () {
+                prev = {};
+                for (var i = 0, len = entities.length; i < len; i++) {
+                    var id = entities[i].get('resource_id');
+                    var e = editor.call('entities:get', id);
+                    if (!e) continue;
+
+                    if (e.has('components.element')) {
+                        // we need to switch between the 'key'
+                        // and 'text' fields depending on whether we picked
+                        // for this element to be localized or not.
+                        // But don't do anything if this element is already localized
+                        // (or not depending on which we picked).
+                        var val = e.get(otherPath);
+                        if (val === null) continue;
+
+                        prev[id] = val;
+                        var history = e.history.enabled;
+                        e.history.enabled = false;
+                        e.set(otherPath, null);
+                        e.set(path, prev[id]);
+                        e.history.enabled = history;
+                    }
+                }
+            };
+
+            redo();
+
+            editor.call('history:add', {
+                name: 'entities.localized',
+                undo: undo,
+                redo: redo
+            });
+        });
 
         var fieldFontSize = editor.call('attributes:addField', {
             parent: panel,
@@ -791,12 +920,13 @@ editor.once('load', function() {
         toggleFields();
 
         events.push(fieldType.on('change', function (value) {
-            fieldText.parent.hidden = value !== 'text';
+            toggleTextFields();
             fieldFontAsset.parent.hidden = value !== 'text';
             fieldFontSize.parent.hidden = value !== 'text';
             fieldLineHeight.parent.hidden = value !== 'text';
             fieldWrapLines.parent.hidden = value !== 'text';
             fieldSpacing.parent.hidden = value !== 'text';
+            fieldLocalized.parent.hidden = (value !== 'text' || !editor.call('users:hasFlag', 'hasLocalization'));
             toggleSize();
             toggleMargin();
             toggleFields();

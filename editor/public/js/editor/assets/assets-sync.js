@@ -358,6 +358,11 @@ editor.once('load', function () {
         var app = editor.call('viewport:app');
         if (app) {
             // clear ALL asset registry events
+            // TODO: This will mean that after re-connection some events
+            // that were registered on the asset registry will not be re-registered.
+            // That might break some stuff. E.g. currently translations in the Editor
+            // will not re-appear after re-connection because they rely on the asset registry's
+            // 'add' event which gets removed.
             app.assets._callbacks = { };
         }
 

@@ -487,6 +487,12 @@ editor.once('load', function() {
             if (children.length) {
                 for(var c = 0; c < children.length; c++) {
                     var child = uiItemIndex[children[c]];
+                    if (!child) {
+                        var err = 'Cannot find child entity ' + children[c];
+                        editor.call('status:error', err);
+                        console.error(err);
+                        continue;
+                    }
                     element.append(child);
                 }
             }
