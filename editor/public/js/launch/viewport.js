@@ -283,13 +283,14 @@ editor.once('load', function () {
     }
 
     // localization
-    if (config.self.locale) {
-        app.i18n.locale = config.self.locale;
-    }
+    if (app.i18n) { // make it backwards compatible ...
+        if (config.self.locale) {
+            app.i18n.locale = config.self.locale;
+        }
 
-    if (config.project.settings.i18nAssets) {
-        app.i18n.assets = config.project.settings.i18nAssets;
-
+        if (config.project.settings.i18nAssets) {
+            app.i18n.assets = config.project.settings.i18nAssets;
+        }
     }
 
     app._loadLibraries(libraryUrls, function (err) {
