@@ -194,6 +194,19 @@ editor.once('load', function() {
                     entity.set('components.element.pixelsPerUnit', null);
                 }
 
+                if (! entity.has('components.element.outlineColor')) {
+                    entity.set('components.element.outlineColor', [0.0, 0.0, 0.0, 1.0]);
+                }
+                if (! entity.has('components.element.outlineThickness')) {
+                    entity.set('components.element.outlineThickness', 0.0);
+                }
+                if (! entity.has('components.element.shadowColor')) {
+                    entity.set('components.element.shadowColor', [0.0, 0.0, 0.0, 1.0]);
+                }
+                if (! entity.has('components.element.shadowOffset')) {
+                    entity.set('components.element.shadowOffset', [0.0, 0.0]);
+                }
+
                 // layers
                 if (! entity.has('components.element.layers')) {
                     entity.set('components.element.layers', []);
