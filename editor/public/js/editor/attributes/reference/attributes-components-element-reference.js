@@ -146,6 +146,26 @@ editor.once('load', function() {
         subTitle: '{Number[]}',
         description: 'The layers that this Element belongs to. When an Element belongs to multiple layers it will be rendered multiple times.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#layers'
+    }, {
+        title: 'outlineColor',
+        subTitle: '{pc.Color}',
+        description: 'The text outline effect color and opacity.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#outlineColor'
+    }, {
+        title: 'outlineThickness',
+        subTitle: '{Number}',
+        description: 'The text outline effect width. These range from 0 to 1. To disable outline effect set to 0.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#outlineThickness'
+    }, {
+        title: 'shadowColor',
+        subTitle: '{pc.Color}',
+        description: 'The text shadow cast effect color and opacity.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#shadowColor'
+    }, {
+        title: 'shadowOffset',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the horizontal and vertical shift of the text shadow cast effect. The rage of both components is form -1 to 1. To disable effect set both to 0.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#shadowOffset'
     }];
 
     for(var i = 0; i < fields.length; i++) {
