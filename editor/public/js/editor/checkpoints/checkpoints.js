@@ -70,9 +70,9 @@ editor.once('load', function () {
     });
 
     // Gets the specified file of an asset from a specific immutable backup
-    editor.method('checkpoints:getAssetFile', function (assetId, assetImmutableBackupId, filename, callback) {
+    editor.method('checkpoints:getAssetFile', function (assetId, branchId, assetImmutableBackupId, filename, callback) {
         return request({
-            url: '{{url.api}}/assets/' + assetId + '/file/' + filename + '?immutableBackup=' + assetImmutableBackupId,
+            url: '{{url.api}}/assets/' + assetId + '/file/' + filename + '?immutableBackup=' + assetImmutableBackupId + '&branchId=' + branchId,
             auth: true,
             method: 'GET',
             notJson: true
