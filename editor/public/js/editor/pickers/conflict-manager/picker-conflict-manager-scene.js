@@ -127,6 +127,14 @@ editor.once('load', function () {
                                         continue;
                                     }
 
+                                    // append all fields for that specific script instance
+                                    // except script attributes which are done after
+                                    sectionEntity.appendAllFields({
+                                        schema: 'scene',
+                                        fields: scripts[scriptName],
+                                        except: ['attributes']
+                                    });
+
                                     var attributes = scripts[scriptName].attributes;
                                     if (! attributes) continue;
 
