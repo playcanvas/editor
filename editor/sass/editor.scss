@@ -9431,8 +9431,6 @@ strong {
                                                     }
 
                                                     .field-deleted, .field-edited {
-                                                        max-width: 100% !important;
-                                                        // padding: 25px 0;
                                                         .ui-label {
                                                             display: block;
                                                             @extend .font-regular;
@@ -9441,11 +9439,6 @@ strong {
                                                                 font-size: 13px;
                                                             }
                                                         }
-                                                    }
-
-                                                    .field-missing {
-                                                        max-width: 100% !important;
-                                                        // padding: 25px 0 !important;
                                                     }
 
                                                     &.field-array-container {
@@ -9749,6 +9742,10 @@ strong {
                                                             background: $bcg-dark;
                                                         }
 
+
+                                                        .field-deleted, .field-edited, .field-missing {
+                                                            max-width: 100% !important;
+                                                        }
 
                                                         > .content {
                                                             > .ui-label.name {
