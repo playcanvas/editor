@@ -12,6 +12,8 @@ editor.once('load', function () {
         Events.call(this);
 
         this._conflict = conflict;
+        this._sourceBranchId = mergeObject.sourceBranchId;
+        this._destBranchId = mergeObject.destinationBranchId;
 
         this._isDiff = mergeObject.isDiff;
 
@@ -217,17 +219,24 @@ editor.once('load', function () {
 
         this._toggleButtons(false);
 
-        editor.call('checkpoints:getAssetFile', this._conflict.itemId, this._conflict.srcImmutableBackup, this._conflict.srcFilename, function (err, data) {
-            this._toggleButtons(true);
+        editor.call(
+            'checkpoints:getAssetFile',
+            this._conflict.itemId,
+            this._sourceBranchId,
+            this._conflict.srcImmutableBackup,
+            this._conflict.srcFilename,
+            function (err, data) {
+                this._toggleButtons(true);
 
-            if (err) {
-                return editor.call('status:error', err);
-            }
+                if (err) {
+                    return editor.call('status:error', err);
+                }
 
-            this._sourceFile = data;
-            this._codeEditorMethod('editor:merge:setContent', this._sourceFile);
+                this._sourceFile = data;
+                this._codeEditorMethod('editor:merge:setContent', this._sourceFile);
 
-        }.bind(this));
+            }.bind(this)
+        );
     };
 
     TextResolver.prototype._onClickUseDest = function () {
@@ -238,17 +247,23 @@ editor.once('load', function () {
         }
 
         this._toggleButtons(false);
-        editor.call('checkpoints:getAssetFile', this._conflict.itemId, this._conflict.dstImmutableBackup, this._conflict.dstFilename, function (err, data) {
-            this._toggleButtons(true);
+        editor.call(
+            'checkpoints:getAssetFile',
+            this._conflict.itemId,
+            this._destBranchId,
+            this._conflict.dstImmutableBackup,
+            this._conflict.dstFilename,
+            function (err, data) {
+                this._toggleButtons(true);
 
-            if (err) {
-                return editor.call('status:error', err);
-            }
+                if (err) {
+                    return editor.call('status:error', err);
+                }
 
-            this._destFile = data;
-            this._codeEditorMethod('editor:merge:setContent', this._destFile);
-
-        }.bind(this));
+                this._destFile = data;
+                this._codeEditorMethod('editor:merge:setContent', this._destFile);
+            }.bind(this)
+        );
 
     };
 
