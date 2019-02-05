@@ -714,7 +714,7 @@ editor.once('load', function() {
             precision: 2,
             step: 0.1,
             min: 0,
-            max: 2,
+            max: 1,
             link: entities,
             path: 'components.element.outlineThickness'
         });
@@ -727,7 +727,7 @@ editor.once('load', function() {
             precision: 3,
             step: 1,
             min: 0,
-            max: 2,
+            max: 1,
             type: 'number',
             slider: true,
             link: entities,
