@@ -81,6 +81,21 @@ editor.once('load', function() {
         description: 'Make the height of the element match the height of the text content automatically.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#autoHeight'
     }, {
+        title: 'autoFitWidth',
+        subTitle: '{Boolean}',
+        description: 'If enabled then the font size and the line height of the Element will scale automatically so that it fits the Element\'s width. The value of this field will be ignored if autoWidth is enabled. The font size will scale between the values of minFontSize and fontSize. The lineHeight will scale proportionately.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#autoFitWidth'
+    }, {
+        title: 'autoFitHeight',
+        subTitle: '{Boolean}',
+        description: 'If enabled then the font size of the Element will scale automatically so that it fits the Element\'s height. The value of this field will be ignored if autoHeight is enabled. The font size will scale between the values of minFontSize and fontSize. The lineHeight will scale proportionately.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#autoFitHeight'
+    }, {
+        title: 'autoHeight',
+        subTitle: '{Booelan}',
+        description: 'Make the height of the element match the height of the text content automatically.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#autoHeight'
+    }, {
         title: 'size',
         subTitle: 'width / height {Number}',
         description: 'The width and height of the Element. You can only edit the width or the height if the corresponding anchors of the Element are not split.',
@@ -103,18 +118,33 @@ editor.once('load', function() {
     }, {
         title: 'fontSize',
         subTitle: '{Number}',
-        description: 'The size of the font used by the Element.',
+        description: 'The size of the font used by the Element. When autoFitWidth or autoFitHeight are true then it scales between minFontSize and maxFontSize depending on the size of the Element.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#fontSize'
+    }, {
+        title: 'minFontSize',
+        subTitle: '{Number}',
+        description: 'The minimum size of the font that the Element can scale to when using autoFitWidth or autoFitHeight.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#fontSize'
+    }, {
+        title: 'maxFontSize',
+        subTitle: '{Number}',
+        description: 'The maximum size of the font that the Element can scale to when using autoFitWidth or autoFitHeight.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#fontSize'
     }, {
         title: 'lineHeight',
         subTitle: '{Number}',
-        description: 'The height of each line of text.',
+        description: 'The height of each line of text. If autoFitWidth or autoFitHeight are enabled then the lineHeight will scale with the font.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#lineHeight'
     }, {
         title: 'wrapLines',
         subTitle: '{Boolean}',
         description: 'Whether to automatically wrap lines based on the element width.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#wrapLines'
+    }, {
+        title: 'maxLines',
+        subTitle: '{Number}',
+        description: 'The maximum number of lines that this Element can display. Any left-over text will be appended to the last line of the Element. You can delete this value if you wish to have unlimited lines.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#maxLines'
     }, {
         title: 'spacing',
         subTitle: '{Number}',
