@@ -212,6 +212,26 @@ editor.once('load', function() {
                     entity.set('components.element.layers', []);
                     entity.insert('components.element.layers', LAYERID_UI);
                 }
+
+                if (!entity.has('components.element.autoFitWidth')) {
+                    entity.set('components.element.autoFitWidth', false);
+                }
+
+                if (!entity.has('components.element.autoFitHeight')) {
+                    entity.set('components.element.autoFitHeight', false);
+                }
+
+                if (!entity.has('components.element.maxLines')) {
+                    entity.set('components.element.maxLines', null);
+                }
+
+                if (!entity.has('components.element.minFontSize')) {
+                    entity.set('components.element.minFontSize', 8);
+                }
+
+                if (!entity.has('components.element.maxFontSize')) {
+                    entity.set('components.element.maxFontSize', entity.get('components.element.fontSize') || 32);
+                }
             }
 
             // sprite

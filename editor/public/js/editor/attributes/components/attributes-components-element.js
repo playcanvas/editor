@@ -247,6 +247,8 @@ editor.once('load', function() {
         fieldAutoWidth.on('change', function (value) {
             toggleSize();
             toggleMargin();
+            fieldAutoFitWidth.disabled = !!value;
+            toggleFontSizeFields();
         });
 
         // autoHeight
@@ -268,8 +270,9 @@ editor.once('load', function() {
         fieldAutoHeight.on('change', function (value) {
             toggleSize();
             toggleMargin();
+            fieldAutoFitHeight.disabled = !!value;
+            toggleFontSizeFields();
         });
-
 
         var setPresetValue = function () {
             var val = fieldAnchor.map(function (f) {return f.value}).join(',') + '/' + fieldPivot.map(function (f) {return f.value}).join(',');
@@ -475,6 +478,22 @@ editor.once('load', function() {
 
         fieldAlignment[0].parent.hidden = fieldType.value !== 'text';
 
+
+        var fieldFontAsset = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Font',
+            type: 'asset',
+            kind: 'font',
+            link: entities,
+            path: 'components.element.fontAsset'
+        });
+
+        fieldFontAsset.parent.hidden = fieldType.value !== 'text';
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:fontAsset', fieldFontAsset.parent.innerElement.firstChild.ui);
+
+
         var fieldLocalized = editor.call('attributes:addField', {
             parent: panel,
             name: 'Localized',
@@ -617,6 +636,54 @@ editor.once('load', function() {
             });
         });
 
+        // auto fit
+        var panelAutoFit = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Auto-Fit'
+        });
+        label = panelAutoFit;
+        panelAutoFit = panelAutoFit.parent;
+        label.destroy();
+        panelAutoFit.hidden = fieldType.value !== 'text';
+
+        // auto fit width
+        var fieldAutoFitWidth = editor.call('attributes:addField', {
+            panel: panelAutoFit,
+            type: 'checkbox',
+            link: entities,
+            path: 'components.element.autoFitWidth'
+        });
+        label = new ui.Label({ text: 'Width' });
+        label.class.add('label-infield');
+        label.style.paddingRight = '12px';
+        panelAutoFit.append(label);
+        fieldAutoFitWidth.disabled = fieldAutoWidth.value;
+
+        editor.call('attributes:reference:attach', 'element:autoFitWidth', label);
+
+        fieldAutoFitWidth.on('change', function () {
+            toggleFontSizeFields();
+        });
+
+        // auto fit height
+        var fieldAutoFitHeight = editor.call('attributes:addField', {
+            panel: panelAutoFit,
+            type: 'checkbox',
+            link: entities,
+            path: 'components.element.autoFitHeight'
+        });
+        label = new ui.Label({ text: 'Height' });
+        label.class.add('label-infield');
+        label.style.paddingRight = '12px';
+        panelAutoFit.append(label);
+        fieldAutoFitHeight.disabled = fieldAutoHeight.value;
+
+        editor.call('attributes:reference:attach', 'element:autoFitHeight', label);
+
+        fieldAutoFitHeight.on('change', function () {
+            toggleFontSizeFields();
+        });
+
         var fieldFontSize = editor.call('attributes:addField', {
             parent: panel,
             name: 'Font Size',
@@ -630,6 +697,38 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'element:fontSize', fieldFontSize.parent.innerElement.firstChild.ui);
 
+        var fieldMinFontSize = editor.call('attributes:addField', {
+            panel: fieldFontSize.parent,
+            type: 'number',
+            min: 0,
+            placeholder: 'Min',
+            link: entities,
+            path: 'components.element.minFontSize'
+        });
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:minFontSize', fieldMinFontSize);
+
+        var fieldMaxFontSize = editor.call('attributes:addField', {
+            panel: fieldFontSize.parent,
+            type: 'number',
+            placeholder: 'Max',
+            min: 0,
+            link: entities,
+            path: 'components.element.maxFontSize'
+        });
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:maxFontSize', fieldMaxFontSize);
+
+        var toggleFontSizeFields = function () {
+            fieldMaxFontSize.hidden = fieldType.value !== 'text' || ((fieldAutoFitWidth.disabled || !fieldAutoFitWidth.value) && (fieldAutoFitHeight.disabled || !fieldAutoFitHeight.value));
+            fieldMinFontSize.hidden = fieldMaxFontSize.hidden;
+            fieldFontSize.hidden = !fieldMaxFontSize.hidden;
+        };
+
+        toggleFontSizeFields();
+
         var fieldLineHeight = editor.call('attributes:addField', {
             parent: panel,
             name: 'Line Height',
@@ -642,6 +741,37 @@ editor.once('load', function() {
 
         // reference
         editor.call('attributes:reference:attach', 'element:lineHeight', fieldLineHeight.parent.innerElement.firstChild.ui);
+
+        var fieldWrapLines = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Wrap Lines',
+            type: 'checkbox',
+            link: entities,
+            path: 'components.element.wrapLines'
+        });
+
+        fieldWrapLines.parent.hidden = fieldType.value !== 'text';
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:wrapLines', fieldWrapLines.parent.innerElement.firstChild.ui);
+
+        fieldWrapLines.on('change', function (value) {
+            fieldMaxLines.parent.hidden = fieldType.value !== 'text' || !value;
+        });
+
+        var fieldMaxLines = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Max Lines',
+            type: 'number',
+            min: 1,
+            allowNull: true,
+            link: entities,
+            path: 'components.element.maxLines'
+        });
+
+        fieldMaxLines.parent.hidden = fieldType.value !== 'text' || !fieldWrapLines.value;
+
+        editor.call('attributes:reference:attach', 'element:maxLines', fieldMaxLines.parent.innerElement.firstChild.ui);
 
         var fieldSpacing = editor.call('attributes:addField', {
             parent: panel,
@@ -762,19 +892,6 @@ editor.once('load', function() {
         fieldShadowOffset[0].parent.hidden = (fieldType.value !== 'text') || !editor.call('users:hasFlag', 'hasTextEffects');
         editor.call('attributes:reference:attach', 'element:shadowOffset', fieldShadowOffset[0].parent.innerElement.firstChild.ui);
 
-        var fieldWrapLines = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Wrap Lines',
-            type: 'checkbox',
-            link: entities,
-            path: 'components.element.wrapLines'
-        });
-
-        fieldWrapLines.parent.hidden = fieldType.value !== 'text';
-
-        // reference
-        editor.call('attributes:reference:attach', 'element:wrapLines', fieldWrapLines.parent.innerElement.firstChild.ui);
-
         var fieldRect = editor.call('attributes:addField', {
             parent: panel,
             name: 'Rect',
@@ -847,21 +964,6 @@ editor.once('load', function() {
         });
         // reference
         editor.call('attributes:reference:attach', 'element:pixelsPerUnit', fieldPpu.parent.innerElement.firstChild.ui, null, panel);
-
-
-        var fieldFontAsset = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Font',
-            type: 'asset',
-            kind: 'font',
-            link: entities,
-            path: 'components.element.fontAsset'
-        });
-
-        fieldFontAsset.parent.hidden = fieldType.value !== 'text';
-
-        // reference
-        editor.call('attributes:reference:attach', 'element:fontAsset', fieldFontAsset.parent.innerElement.firstChild.ui);
 
         var fieldMaterialAsset = editor.call('attributes:addField', {
             parent: panel,
@@ -991,12 +1093,14 @@ editor.once('load', function() {
             fieldFontSize.parent.hidden = value !== 'text';
             fieldLineHeight.parent.hidden = value !== 'text';
             fieldWrapLines.parent.hidden = value !== 'text';
+            fieldMaxLines.parent.hidden = value !== 'text' || !fieldWrapLines.value;
             fieldSpacing.parent.hidden = value !== 'text';
             fieldLocalized.parent.hidden = (value !== 'text' || !editor.call('users:hasFlag', 'hasLocalization'));
             toggleSize();
             toggleMargin();
             toggleFields();
             panelAutoSize.hidden = value !== 'text';
+            panelAutoFit.hidden = value !== 'text';
             fieldAlignment[0].parent.hidden = value !== 'text';
             fieldOutlineColor.parent.hidden = (value !== 'text') || !editor.call('users:hasFlag', 'hasTextEffects');
             fieldOutlineThickness.parent.hidden = (value !== 'text') || !editor.call('users:hasFlag', 'hasTextEffects');
