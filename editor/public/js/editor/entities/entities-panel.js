@@ -10,6 +10,7 @@ editor.once('load', function() {
     // list
     var hierarchy = new ui.Tree();
     hierarchy.allowRenaming = editor.call('permissions:write');
+    hierarchy.draggable = hierarchy.allowRenaming;
     hierarchy.class.add('hierarchy');
     panel.append(hierarchy);
 
