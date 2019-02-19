@@ -223,6 +223,7 @@ TreeItem.prototype._onRename = function(select) {
     field.parent = this;
     field.renderChanges = false;
     field.value = this.text;
+    field.elementInput.readOnly = !this.tree.allowRenaming;
     field.elementInput.addEventListener('blur', function() {
         field.destroy();
         self.class.remove('rename');
@@ -267,7 +268,7 @@ TreeItem.prototype._onClick = function(evt) {
 };
 
 TreeItem.prototype._onDblClick = function(evt) {
-    if (! this.ui.tree.allowRenaming || evt.button !== 0 || this.ui.disabled)
+    if (! this.ui.tree.allowRenaming || evt.button !== 0)
         return;
 
     evt.stopPropagation();
@@ -281,14 +282,14 @@ TreeItem.prototype._onDblClick = function(evt) {
 };
 
 TreeItem.prototype._onMouseDown = function(evt) {
-    if (this.ui.tree.disabled || ! this.ui.tree.draggable)
+    if (! this.ui.tree.draggable)
         return;
 
     evt.stopPropagation();
 };
 
 TreeItem.prototype._onDragStart = function(evt) {
-    if (this.ui.tree.disabled || ! this.ui.tree.draggable) {
+    if (! this.ui.tree.draggable) {
         evt.stopPropagation();
         evt.preventDefault();
         return;

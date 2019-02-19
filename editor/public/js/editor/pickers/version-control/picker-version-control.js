@@ -729,6 +729,11 @@ editor.once('load', function () {
             if (! branchesSkip) {
                 listBranches.clear();
                 branches = {};
+
+                // create current branch as first item
+                if (fieldBranchesFilter.value !== 'closed') {
+                    createBranchListItem(config.self.branch);
+                }
             }
 
             // use last item as a marker for loading the next batch of branches
@@ -747,7 +752,11 @@ editor.once('load', function () {
 
             // create list items for each branch
             data.result.forEach(function (branch) {
-                createBranchListItem(branch);
+                // skip the current branch as we've already
+                // created that first
+                if (branch.id !== config.self.branch.id) {
+                    createBranchListItem(branch);
+                }
 
                 if (selected) {
                     return;
