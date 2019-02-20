@@ -757,20 +757,11 @@ editor.once('load', function () {
                 if (branch.id !== config.self.branch.id) {
                     createBranchListItem(branch);
                 }
-
-                if (selected) {
-                    return;
-                }
-
-                // if we don't have a selection then selected the currently checked out branch
-                if (! selected && branch.id === config.self.branch.id) {
-                    selected = branch;
-                }
             });
 
-            // if we didn't find a proper selection then select the first item
+            // if we didn't find a proper selection then select our branch
             if (! selected) {
-                selected = data.result[0];
+                selected = config.self.branch;
             }
 
             if (selected) {
