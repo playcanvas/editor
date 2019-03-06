@@ -125,7 +125,7 @@ editor.once('load', function () {
             var assetsInBundle = asset.get('data.assets').map(function (id) {
                 return editor.call('assets:get', id);
             }).filter(function (asset) {
-                return asset.has('file.filename');
+                return asset && asset.has('file.filename');
             });
 
             if (assetsInBundle.length) {
