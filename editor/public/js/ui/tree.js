@@ -374,7 +374,6 @@ Tree.prototype._onDragStart = function(item) {
 
         this.class.add('dragging');
         for(var i = 0; i < this._dragItems.length; i++) {
-            this._dragItems[i].open = false;
             this._dragItems[i].class.add('dragged');
         }
 
@@ -428,23 +427,41 @@ Tree.prototype._hoverCalculate = function(evt) {
         }
         if (! parent)
             this._dragArea = 'inside';
-    } else if (this.reordering && area <= 1 && this._dragItems.indexOf(this._dragOver.prev) === -1) {
-        this._dragArea = 'before';
-    } else if (this.reordering && area >= 4 && this._dragItems.indexOf(this._dragOver.next) === -1 && (this._dragOver._children === 0 || ! this._dragOver.open)) {
-        this._dragArea = 'after';
     } else {
-        var parent = false;
-        if (this.reordering && this._dragOver.open) {
-            for(var i = 0; i < this._dragItems.length; i++) {
-                if (this._dragItems[i].parent === this._dragOver) {
-                    parent = true;
-                    this._dragArea = 'before';
+        // check if we are trying to drag item inside any of its children
+        var invalid = false;
+        for (var i = 0; i < this._dragItems.length; i++) {
+            var parent = this._dragOver.parent;
+            while (parent) {
+                if (parent === this._dragItems[i]) {
+                    invalid = true;
                     break;
                 }
+
+                parent = parent.parent;
             }
         }
-        if (! parent)
-            this._dragArea = 'inside';
+
+        if (invalid) {
+            this._dragOver = null;
+        } else if (this.reordering && area <= 1 && this._dragItems.indexOf(this._dragOver.prev) === -1) {
+            this._dragArea = 'before';
+        } else if (this.reordering && area >= 4 && this._dragItems.indexOf(this._dragOver.next) === -1 && (this._dragOver._children === 0 || ! this._dragOver.open)) {
+            this._dragArea = 'after';
+        } else {
+            var parent = false;
+            if (this.reordering && this._dragOver.open) {
+                for(var i = 0; i < this._dragItems.length; i++) {
+                    if (this._dragItems[i].parent === this._dragOver) {
+                        parent = true;
+                        this._dragArea = 'before';
+                        break;
+                    }
+                }
+            }
+            if (! parent)
+                this._dragArea = 'inside';
+        }
     }
 
     if (oldArea !== this._dragArea || oldDragOver !== this._dragOver)
