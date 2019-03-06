@@ -11,7 +11,7 @@ editor.once('load', function () {
 
     // files tree
     var tree = new ui.Tree();
-    tree.allowRenaming = false;
+    tree.allowRenaming = true;
     tree.draggable = false;
     tree.reordering = false;
     tree.class.add('files');
@@ -57,6 +57,8 @@ editor.once('load', function () {
     var treeRoot = new ui.TreeItem({
         text: '/'
     });
+    // do not allow double click renaming
+    treeRoot.elementTitle.removeEventListener('dblclick', treeRoot._onDblClick);
     treeRoot.class.add('type-folder');
     tree.append(treeRoot);
     treeRoot.open = true;
@@ -192,6 +194,8 @@ editor.once('load', function () {
             text: asset.get('name'),
             allowDrop: asset.get('type') === 'folder'
         });
+        // do not allow double click renaming
+        item.elementTitle.removeEventListener('dblclick', item._onDblClick);
         item.class.add('type-' + asset.get('type'));
 
         // var users = document.createElement('span');
