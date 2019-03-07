@@ -37,4 +37,22 @@ editor.once('load', function () {
         }, callback);
     });
 
+    /**
+     * Generates a diff between a checkpoint and the current merge.
+     * @param {Function} [callback] Optional callback after the diff is generated.
+     */
+    editor.method('diff:merge', function (callback) {
+        request({
+            url: '{{url.api}}/diff',
+            method: 'POST',
+            data: {
+                srcBranchId: config.self.branch.merge.sourceBranchId,
+                dstBranchId: config.self.branch.merge.destinationBranchId,
+                dstCheckpointId: config.self.branch.merge.destinationCheckpointId,
+                mergeId: config.self.branch.merge.id
+            },
+            auth: true
+        }, callback);
+    });
+
 });

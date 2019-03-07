@@ -35,11 +35,17 @@ editor.once('load', function () {
     listItems.flexGrow = 1;
     panelLeft.append(listItems);
 
+    // review merge button
+    var btnReview = new ui.Button({
+        text: 'REVIEW MERGE'
+    });
+    btnReview.disabled = true;
+    panelLeft.append(btnReview);
+
     // complete merge button
     var btnComplete = new ui.Button({
         text: 'COMPLETE MERGE'
     });
-    btnComplete.disabled = true;
     panelLeft.append(btnComplete);
 
     // right panel
@@ -199,13 +205,7 @@ editor.once('load', function () {
     });
     btnClose.class.add('close');
     btnClose.on('click', function () {
-        if (diffMode) {
-            if (currentMergeObject) {
-                editor.call('branches:forceStopMerge', currentMergeObject.id);
-            }
-            overlay.hidden = true;
-            editor.call('picker:versioncontrol');
-        } else {
+        if (config.self.branch.merge) {
             editor.call('picker:confirm', 'Closing the conflict manager will stop the merge. Are you sure?', function () {
                 if (resolver) {
                     resolver.destroy();
@@ -223,7 +223,17 @@ editor.once('load', function () {
                         }, 1000);
                     }
                 });
+
+                if (diffMode && currentMergeObject && currentMergeObject.id !== config.self.branch.merge.id) {
+                    // delete current diff too
+                    editor.call('branches:forceStopMerge', currentMergeObject.id);
+                }
             });
+        } else if (diffMode && currentMergeObject) {
+            // delete regular diff
+            editor.call('branches:forceStopMerge', currentMergeObject.id);
+            overlay.hidden = true;
+            editor.call('picker:versioncontrol');
         }
     });
     panel.headerElement.appendChild(btnClose.element);
@@ -499,7 +509,7 @@ editor.once('load', function () {
             }
             timeoutCheckAllResolved = setTimeout(function () {
                 timeoutCheckAllResolved = null;
-                btnComplete.disabled = ! checkAllResolved();
+                btnReview.disabled = ! checkAllResolved();
             });
         });
 
@@ -512,7 +522,7 @@ editor.once('load', function () {
             }
 
             group.listItem.refreshResolvedCount();
-            btnComplete.disabled = true;
+            btnReview.disabled = true;
         });
 
         // fired by the text resolver to go back
@@ -537,7 +547,7 @@ editor.once('load', function () {
         showConflicts(currentConflicts, LAYOUT_FILE_CONFLICTS_ONLY);
     });
 
-    // // Complete merge button click
+    // Complete merge button click
     btnComplete.on('click', function () {
         listItems.selected = [];
         btnComplete.disabled = true;
@@ -550,7 +560,7 @@ editor.once('load', function () {
         setLayoutMode(LAYOUT_NONE);
         showMainProgress(spinnerIcon, 'Completing merge...');
 
-        editor.call('branches:applyMerge', currentMergeObject.id, function (err) {
+        editor.call('branches:applyMerge', config.self.branch.merge.id, true, function (err) {
 
             if (err) {
                 // if there was an error show it in the UI and then go back to the conflicts
@@ -569,12 +579,58 @@ editor.once('load', function () {
         });
     });
 
+    // Review merge button click
+    btnReview.on('click', function () {
+        listItems.selected = [];
+        btnReview.disabled = true;
+
+        if (resolver) {
+            resolver.destroy();
+            resolver = null;
+        }
+
+        setLayoutMode(LAYOUT_NONE);
+        showMainProgress(spinnerIcon, 'Resolving conflicts...');
+
+        editor.call('branches:applyMerge', config.self.branch.merge.id, false, function (err) {
+            if (err) {
+                // if there was an error show it in the UI and then go back to the conflicts
+                showMainProgress(errorIcon, err);
+                setTimeout(function () {
+                    btnReview.disabled = false;
+                    listItems.innerElement.firstChild.ui.selected = true;
+                }, 2000);
+            } else {
+                // if no error then show the merge diff
+                // vaios
+                showMainProgress(spinnerIcon, 'Loading changes...');
+                editor.call('diff:merge', function (err, data) {
+                    toggleDiffMode(true);
+                    if (err) {
+                        return showMainProgress(errorIcon, err);
+                    }
+
+                    btnReview.disabled = false;
+                    btnReview.hidden = true;
+                    btnComplete.disabled = false;
+                    btnComplete.hidden = false;
+                    onMergeDataLoaded(data);
+                });
+            }
+        });
+    });
+
     // Called when we load the merge object from the server
     var onMergeDataLoaded = function (data) {
+        listItems.clear();
         currentMergeObject = data;
 
         if (diffMode) {
-            labelTopTheirs.text = data.sourceBranchName + ' - ' + (data.sourceCheckpointId ? 'Checkpoint [' + data.sourceCheckpointId.substring(0, 7) + ']' : 'Current State');
+            if (config.self.branch.merge) {
+                labelTopTheirs.text = 'Merge Result';
+            } else {
+                labelTopTheirs.text = data.sourceBranchName + ' - ' + (data.sourceCheckpointId ? 'Checkpoint [' + data.sourceCheckpointId.substring(0, 7) + ']' : 'Current State');
+            }
             labelTopMine.text = data.destinationBranchName + ' - ' + (data.destinationCheckpointId ? 'Checkpoint [' + data.destinationCheckpointId.substring(0, 7) + ']' : 'Current State');
         } else {
             labelTopTheirs.text = data.sourceBranchName + ' - [Source Branch]';
@@ -582,8 +638,12 @@ editor.once('load', function () {
         }
 
         if (!currentMergeObject.conflicts.length) {
-            btnComplete.disabled = false;
-            return showMainProgress(completedIcon, 'No conflicts found - Click Complete Merge');
+            btnReview.disabled = false;
+            if (diffMode) {
+                return showMainProgress(completedIcon, 'No changes found - Click Complete Merge');
+            } else {
+                return showMainProgress(completedIcon, 'No conflicts found - Click Review Merge');
+            }
         }
 
         for (var i = 0; i < currentMergeObject.conflicts.length; i++) {
@@ -593,7 +653,9 @@ editor.once('load', function () {
             }
         }
 
-        btnComplete.disabled = !checkAllResolved();
+        if (!diffMode) {
+            btnReview.disabled = !checkAllResolved();
+        }
     };
 
     // Enables / Disables diff mode
@@ -605,8 +667,23 @@ editor.once('load', function () {
             overlay.class.remove('diff');
         }
 
-        panel.header = diffMode ? 'CHANGES' : 'CONFLICT MANAGER';
-        btnComplete.hidden = diffMode;
+        if (diffMode) {
+            if (config.self.branch.merge) {
+                btnComplete.hidden = false;
+                btnComplete.disabled = false;
+                btnReview.hidden = true;
+                panel.header = 'REVIEW MERGE CHANGES';
+            } else {
+                btnComplete.hidden = true;
+                btnReview.hidden = true;
+                panel.header = 'DIFF'
+            }
+        } else {
+            btnReview.hidden = false;
+            btnReview.disabled = true;
+            btnComplete.hidden = true;
+            panel.header = 'RESOLVE CONFLICTS'
+        }
         panelBottom.hidden = diffMode;
         panelTopBase.hidden = diffMode;
     };
@@ -619,14 +696,32 @@ editor.once('load', function () {
         setLayoutMode(LAYOUT_NONE);
 
         if (!currentMergeObject) {
-            showMainProgress(spinnerIcon, 'Loading conflicts...');
-            editor.call('branches:getMerge', config.self.branch.merge.id, function (err, data) {
-                if (err) {
-                    return showMainProgress(errorIcon, err);
-                }
+            if (diffMode) {
+                // in this case we are doing a diff between the current merge
+                // and the destination checkpoint
+                showMainProgress(spinnerIcon, 'Loading changes...');
+                editor.call('diff:merge', function (err, data) {
+                    console.log(data);
+                    if (err) {
+                        return showMainProgress(errorIcon, err);
+                    }
 
-                onMergeDataLoaded(data);
-            });
+                    onMergeDataLoaded(data);
+                });
+
+            } else {
+                // get the conflicts of the current merge
+                showMainProgress(spinnerIcon, 'Loading conflicts...');
+                editor.call('branches:getMerge', config.self.branch.merge.id, function (err, data) {
+                    console.log(data);
+                    if (err) {
+                        return showMainProgress(errorIcon, err);
+                    }
+
+                    onMergeDataLoaded(data);
+                });
+            }
+
         } else {
             onMergeDataLoaded(currentMergeObject);
         }

@@ -246,7 +246,7 @@ editor.once('load', function () {
     // merge branches progress
     var panelMergeBranchesProgress = editor.call('picker:versioncontrol:createProgressWidget', {
         progressText: 'Attempting to auto merge branches',
-        finishText: 'Merge completed - refreshing the browser',
+        finishText: 'Merge ready - Opening Merge Review',
         errorText: 'Unable to auto merge'
     });
     panelMergeBranchesProgress.hidden = true;
@@ -285,8 +285,12 @@ editor.once('load', function () {
                         }, 1500);
                     } else {
                         // otherwise merge was successful
-                        // so refresh
-                        refreshBrowser();
+                        // so review changes
+                        setTimeout(function () {
+                            editor.call('picker:project:close');
+                            editor.call('picker:versioncontrol:mergeOverlay:hide'); // hide this in case it's open
+                            editor.call('picker:diffManager');
+                        }, 1500);
                     }
                 }
             });

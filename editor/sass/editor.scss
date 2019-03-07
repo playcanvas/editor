@@ -9191,6 +9191,9 @@ strong {
 
     &.diff-mode {
         > .content {
+            .checkpoints {
+                height: 522px - 130px;
+            }
             .checkpoints, .branches {
                 .ui-list {
                     > .ui-list-item {
