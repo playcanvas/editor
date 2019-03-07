@@ -574,8 +574,8 @@ editor.once('load', function () {
         currentMergeObject = data;
 
         if (diffMode) {
-            labelTopTheirs.text = data.sourceBranchName + ' - Current State';
-            labelTopMine.text = data.destinationBranchName + ' - Checkpoint [' + data.destinationCheckpointId.substring(0, 7) + ']';
+            labelTopTheirs.text = data.sourceBranchName + ' - ' + (data.sourceCheckpointId ? 'Checkpoint [' + data.sourceCheckpointId.substring(0, 7) + ']' : 'Current State');
+            labelTopMine.text = data.destinationBranchName + ' - ' + (data.destinationCheckpointId ? 'Checkpoint [' + data.destinationCheckpointId.substring(0, 7) + ']' : 'Current State');
         } else {
             labelTopTheirs.text = data.sourceBranchName + ' - [Source Branch]';
             labelTopMine.text = data.destinationBranchName + ' - [Destination Branch]';

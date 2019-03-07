@@ -3,6 +3,8 @@ editor.once('load', function () {
 
     var events = [];
 
+    var diffMode = false;
+
     var panel = new ui.Panel();
     panel.class.add('checkpoints-container');
 
@@ -26,16 +28,15 @@ editor.once('load', function () {
     btnNewCheckpoint.class.add('icon', 'create');
     panelCheckpointsTop.append(btnNewCheckpoint);
 
-    // generate diff
+    // open diff checkpoints panel
     var btnDiff = new ui.Button({
-        text: 'VIEW CHANGES'
+        text: 'VIEW DIFF'
     });
     btnDiff.class.add('icon', 'diff');
     panelCheckpointsTop.append(btnDiff);
 
     var toggleTopButtons = function () {
         btnNewCheckpoint.hidden = ! editor.call('permissions:write') || ! panel.branch || panel.branch.id !== config.self.branch.id;
-        btnDiff.hidden = btnNewCheckpoint.hidden || !config.self.branch.latestCheckpointId;
     };
 
     toggleTopButtons();
@@ -70,13 +71,6 @@ editor.once('load', function () {
     // checkpoints context menu
     var menuCheckpoints = new ui.Menu();
     menuCheckpoints.class.add('version-control');
-
-    // view changes vs current state
-    var menuCheckpointsDiff = new ui.MenuItem({
-        text: 'View Changes Vs Current State',
-        value: 'diff-checkpoint'
-    });
-    menuCheckpoints.append(menuCheckpointsDiff);
 
     // restore checkpoint
     var menuCheckpointsRestore = new ui.MenuItem({
@@ -119,8 +113,14 @@ editor.once('load', function () {
         panelCheckpoints.element.scrollTop = 0;
         lastCheckpointDateDisplayed = null;
 
+        var length = checkpoints && checkpoints.length;
+        if (length && panel.branch && !panel.branch.closed) {
+            createCurrentStateUi();
+        }
+
+        // create checkpoints
         panel.checkpoints = checkpoints;
-        if (checkpoints && checkpoints.length) {
+        if (length) {
             checkpoints.forEach(createCheckpointListItem);
             checkpointsSkip = checkpoints[checkpoints.length - 1].id;
         } else {
@@ -186,19 +186,19 @@ editor.once('load', function () {
     };
 
     var createCheckpointWidget = function (checkpoint) {
-        var panel = new ui.Panel();
-        panel.class.add('checkpoint-widget');
-        panel.flex = true;
+        var panelWidget = new ui.Panel();
+        panelWidget.class.add('checkpoint-widget');
+        panelWidget.flex = true;
 
         var imgUser = new Image();
         imgUser.src = '/api/users/' + checkpoint.user.id + '/thumbnail?size=28';
         imgUser.classList.add('noSelect');
-        panel.append(imgUser);
+        panelWidget.append(imgUser);
 
         var panelInfo = new ui.Panel();
         panelInfo.class.add('info');
         panelInfo.flex = true;
-        panel.append(panelInfo);
+        panelWidget.append(panelInfo);
 
         var panelTopRow = new ui.Panel();
         panelTopRow.flexGrow = 1;
@@ -254,11 +254,20 @@ editor.once('load', function () {
         // hide more button if necessary - do this here because the element
         // must exist in the DOM before scrollWidth / clientWidth are available,
         // Users of this widget need to call this function once the panel has been added to the DOM
-        panel.onAddedToDom = function () {
+        panelWidget.onAddedToDom = function () {
             btnMore.hidden = labelDesc.element.scrollWidth <= labelDesc.element.clientWidth && newLineIndex < 0;
         };
 
-        return panel;
+        return panelWidget;
+    };
+
+    var createCheckpointSectionHeader = function (title) {
+        var header = document.createElement('div');
+        header.classList.add('date');
+        header.classList.add('selectable');
+        header.textContent = title;
+        listCheckpoints.innerElement.appendChild(header);
+        return header;
     };
 
     var createCheckpointListItem = function (checkpoint) {
@@ -267,32 +276,28 @@ editor.once('load', function () {
         if (lastCheckpointDateDisplayed !== date) {
             lastCheckpointDateDisplayed = date;
 
-            var dateHeader = document.createElement('div');
-            dateHeader.classList.add('date');
-            dateHeader.classList.add('selectable');
             if (lastCheckpointDateDisplayed === (new Date()).toDateString()) {
-                dateHeader.textContent = 'Today';
+                createCheckpointSectionHeader('Today');
             } else {
                 var parts = lastCheckpointDateDisplayed.split(' ');
-                dateHeader.textContent = parts[0] + ', ' + parts[1] + ' ' + parts[2] + ', ' + parts[3];
+                createCheckpointSectionHeader(parts[0] + ', ' + parts[1] + ' ' + parts[2] + ', ' + parts[3]);
             }
-            listCheckpoints.innerElement.appendChild(dateHeader);
         }
 
         var item = new ui.ListItem();
         item.element.id = 'checkpoint-' + checkpoint.id;
 
-        var panel = createCheckpointWidget(checkpoint);
-        item.element.appendChild(panel.element);
+        var panelListItem = createCheckpointWidget(checkpoint);
+        item.element.appendChild(panelListItem.element);
 
         // dropdown
         var dropdown = new ui.Button({
             text: '&#57689;'
         });
         dropdown.class.add('dropdown');
-        panel.append(dropdown);
+        panelListItem.append(dropdown);
 
-        if (! editor.call('permissions:write')) {
+        if (! editor.call('permissions:write') || diffMode) {
             dropdown.hidden = true;
         }
 
@@ -309,12 +314,86 @@ editor.once('load', function () {
             menuCheckpoints.position(rect.right - menuCheckpoints.innerElement.clientWidth, rect.bottom);
         });
 
+        // select
+        var checkboxSelect = new ui.Checkbox();
+        checkboxSelect.class.add('tick');
+        panelListItem.append(checkboxSelect);
+        checkboxSelect.value = editor.call('picker:versioncontrol:widget:diffCheckpoints:isCheckpointSelected', panel.branch, checkpoint);
+
+        var suppressCheckboxEvents = false;
+        checkboxSelect.on('change', function (value) {
+            if (suppressCheckboxEvents) return;
+            if (value) {
+                editor.emit('checkpoint:diff:select', panel.branch, checkpoint);
+            } else {
+                editor.emit('checkpoint:diff:deselect', panel.branch, checkpoint);
+            }
+        });
+
+        events.push(editor.on('checkpoint:diff:deselect', function (deselectedBranch, deselectedCheckpoint) {
+            if (deselectedCheckpoint && deselectedCheckpoint.id === checkpoint.id) {
+                suppressCheckboxEvents = true;
+                checkboxSelect.value = false;
+                suppressCheckboxEvents = false;
+            }
+        }));
+
         listCheckpoints.append(item);
 
         if (!panelCheckpoints.hidden) {
-            panel.onAddedToDom();
+            panelListItem.onAddedToDom();
         }
     };
+
+    // Creates a list item for the current state visible only in diffMode
+    var createCurrentStateListItem = function () {
+        var item = new ui.ListItem();
+        var panelItem = new ui.Panel();
+        // panelItem.class.add('checkpoint-widget');
+        panelItem.flex = true;
+
+        var label = new ui.Label({
+            text: 'Changes made since the last checkpoint'
+        });
+        panelItem.append(label);
+
+        // select
+        var checkboxSelect = new ui.Checkbox();
+        checkboxSelect.class.add('tick');
+        panelItem.append(checkboxSelect);
+        checkboxSelect.value = editor.call('picker:versioncontrol:widget:diffCheckpoints:isCheckpointSelected', panel.branch, null);
+
+        var suppressCheckboxEvents = false;
+        checkboxSelect.on('change', function (value) {
+            if (suppressCheckboxEvents) return;
+            if (value) {
+                editor.emit('checkpoint:diff:select', panel.branch, null);
+            } else {
+                editor.emit('checkpoint:diff:deselect', panel.branch, null);
+            }
+        });
+
+        events.push(editor.on('checkpoint:diff:deselect', function (deselectedBranch, deselectedCheckpoint) {
+            if (!deselectedCheckpoint && deselectedBranch && deselectedBranch.id === panel.branch.id) {
+                suppressCheckboxEvents = true;
+                checkboxSelect.value = false;
+                suppressCheckboxEvents = false;
+            }
+        }));
+
+        listCheckpoints.append(item);
+
+        item.element.appendChild(panelItem.element);
+
+        return item;
+    };
+
+    var createCurrentStateUi = function() {
+        var currentStateHeader = createCheckpointSectionHeader('CURRENT STATE');
+        currentStateHeader.classList.add('current-state');
+        var currentStateListItem = createCurrentStateListItem();
+        currentStateListItem.class.add('current-state');
+    }
 
     // show create checkpoint panel
     btnNewCheckpoint.on('click', function () {
@@ -323,17 +402,12 @@ editor.once('load', function () {
 
     // generate diff
     btnDiff.on('click', function () {
-        panel.emit('checkpoint:diff', config.self.branch.latestCheckpointId);
+        panel.emit('checkpoint:diff');
     });
 
     // load more button
     btnLoadMore.on('click', function () {
         panel.loadCheckpoints();
-    });
-
-    // diff checkpoint
-    menuCheckpointsDiff.on('select', function () {
-        panel.emit('checkpoint:diff', currentCheckpoint.id);
     });
 
     // restore checkpoint
@@ -411,6 +485,13 @@ editor.once('load', function () {
         });
         events.length = 0;
     });
+
+    // Toggles diff mode for the checkpoint view.
+    panel.toggleDiffMode = function (enabled) {
+        diffMode = enabled;
+        btnNewCheckpoint.disabled = enabled;
+        btnDiff.disabled = enabled;
+    };
 
     // Return checkpoints container panel
     editor.method('picker:versioncontrol:widget:checkpoints', function () {
