@@ -95,10 +95,6 @@ editor.once('load', function () {
         showRightSidePanel(panelCreateCheckpoint);
     });
 
-    panelCheckpoints.on('checkpoint:diff', function (checkpoint) {
-        showRightSidePanel(panelRestoreCheckpoint);
-    });
-
     panelCheckpoints.on('checkpoint:restore', function (checkpoint) {
         showRightSidePanel(panelRestoreCheckpoint);
         panelRestoreCheckpoint.setCheckpoint(checkpoint);
@@ -110,10 +106,43 @@ editor.once('load', function () {
         panelCreateBranch.setCheckpoint(checkpoint);
     });
 
-    panelCheckpoints.on('checkpoint:diff', function (checkpointId) {
-        diffCheckpoint(checkpointId);
+    panelCheckpoints.on('checkpoint:diff', function () {
+        panelDiffCheckpoints.hidden = false;
     });
 
+    editor.on('checkpoint:diff:select', function (branch, checkpoint) {
+        var numSelected = panelDiffCheckpoints.getSelectedCount();
+        panel.class.remove('diff-checkpoints-selected-' + numSelected)
+        panelDiffCheckpoints.onCheckpointSelected(branch, checkpoint);
+        numSelected = panelDiffCheckpoints.getSelectedCount();
+        if (numSelected) {
+            panel.class.add('diff-checkpoints-selected-' + numSelected)
+        }
+    });
+
+    editor.on('checkpoint:diff:deselect', function (branch, checkpoint) {
+        var numSelected = panelDiffCheckpoints.getSelectedCount();
+        panel.class.remove('diff-checkpoints-selected-' + numSelected)
+        panelDiffCheckpoints.onCheckpointDeselected(branch, checkpoint);
+        numSelected = panelDiffCheckpoints.getSelectedCount();
+        if (numSelected) {
+            panel.class.add('diff-checkpoints-selected-' + numSelected)
+        }
+    });
+
+    var panelDiffCheckpoints = editor.call('picker:versioncontrol:widget:diffCheckpoints');
+    panelDiffCheckpoints.hidden = true;
+    panel.append(panelDiffCheckpoints);
+
+    panelDiffCheckpoints.on('show', function () {
+        panel.class.add('diff-mode');
+        panelCheckpoints.toggleDiffMode(true);
+    });
+
+    panelDiffCheckpoints.on('hide', function () {
+        panel.class.remove('diff-mode');
+        panelCheckpoints.toggleDiffMode(false);
+    });
 
     // new checkpoint panel
     var panelCreateCheckpoint = editor.call('picker:versioncontrol:widget:createCheckpoint');
@@ -217,7 +246,7 @@ editor.once('load', function () {
     // merge branches progress
     var panelMergeBranchesProgress = editor.call('picker:versioncontrol:createProgressWidget', {
         progressText: 'Attempting to auto merge branches',
-        finishText: 'Merge completed - refreshing the browser',
+        finishText: 'Merge ready - Opening Merge Review',
         errorText: 'Unable to auto merge'
     });
     panelMergeBranchesProgress.hidden = true;
@@ -256,8 +285,12 @@ editor.once('load', function () {
                         }, 1500);
                     } else {
                         // otherwise merge was successful
-                        // so refresh
-                        refreshBrowser();
+                        // so review changes
+                        setTimeout(function () {
+                            editor.call('picker:project:close');
+                            editor.call('picker:versioncontrol:mergeOverlay:hide'); // hide this in case it's open
+                            editor.call('picker:diffManager');
+                        }, 1500);
                     }
                 }
             });
@@ -593,10 +626,12 @@ editor.once('load', function () {
         });
     };
 
-    var diffCheckpoint = function (checkpointId) {
+    panelDiffCheckpoints.on('diff', function (srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId) {
+        panelDiffCheckpoints.hidden = true;
+
         togglePanels(false);
         showRightSidePanel(panelGenerateDiffProgress);
-        editor.call('diff:create', checkpointId, function (err, diff) {
+        editor.call('diff:create', srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId, function (err, diff) {
             panelGenerateDiffProgress.finish(err);
 
             togglePanels(true);
@@ -612,7 +647,7 @@ editor.once('load', function () {
                 editor.call('picker:diffManager', diff);
             }
         });
-    };
+    });
 
     // show create branch panel
     // btnNewBranch.on('click', function () {
@@ -935,6 +970,9 @@ editor.once('load', function () {
         // clear checkpoint
         panelCheckpoints.setCheckpoints(null);
         panelCheckpoints.toggleLoadMore(false);
+
+        // hide diff panel
+        panelDiffCheckpoints.hidden = true;
 
         showNewCheckpointOnLoad = false;
 

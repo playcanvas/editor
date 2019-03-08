@@ -8403,6 +8403,7 @@ strong {
     height: 100%;
     > .content {
         height: 100%;
+        overflow: hidden;
 
         svg {
             display: block;
@@ -8821,6 +8822,7 @@ strong {
                     width: 147px;
                     float: right;
                     &.diff {
+                        width: 105px;
                         margin-right: 5px;
                     }
                 }
@@ -8852,6 +8854,7 @@ strong {
 
                     .ui-button.dropdown {
                         @extend .font-icon;
+                        display: block;
                         width: 16px;
                         height: 16px;
                         line-height: 16px;
@@ -8949,11 +8952,37 @@ strong {
                         padding: 25px 15px;
                         border-bottom: 1px solid transparent;
 
-
+                        &.selected, &:hover {
+                            background: transparent;
+                            cursor: default;
+                        }
 
                         .ui-button.dropdown {
                             margin-left: 15px;
                             margin-top: 10px;
+                        }
+
+                        .ui-checkbox {
+                            display: none;
+                        }
+
+                        &.current-state {
+                            display: none;
+                            padding-top: 10px;
+                            padding-bottom: 10px;
+
+                            .ui-label {
+                                width: 100%;
+
+                                &:before {
+                                    content: '\E326';
+                                    @extend .font-icon;
+                                    margin-right: 20px;
+                                    margin-left: 5px;
+                                    font-size: 16px;
+                                    color: $text-primary;
+                                }
+                            }
                         }
                     }
 
@@ -8965,9 +8994,14 @@ strong {
                         height: 35px;
                         line-height: 35px;
                         padding: 0 15px;
+                        text-transform: uppercase;
 
                         &:first-child {
                             border-top: 0;
+                        }
+
+                        &.current-state {
+                            display: none;
                         }
                     }
 
@@ -8975,7 +9009,228 @@ strong {
                         border-top: 1px solid $border-primary;
                     }
                 }
+            }
 
+
+            &.diff-checkpoints {
+                position: absolute;
+                width: 100%;
+                bottom: 0;
+                background: $bcg-dark;
+
+                height: 130px;
+                overflow: hidden;
+
+                > .ui-header:before {
+                    @extend .font-icon;
+                    content: '\E236';
+                    font-size: 14px;
+                    font-weight: 100;
+                    float: left;
+                    margin-right: 10px;
+                    color: $text-active;
+                }
+
+                > .ui-header > .close {
+                    @extend .font-icon;
+                    float: right;
+                    background: transparent;
+                    border: 0;
+                }
+
+                > .content {
+                    height: calc(100% - 35px);
+
+                    > .checkpoint {
+                        position: absolute;
+                        top: 10px;
+                        width: 350px;
+                        height: 75px;
+                        z-index: 1;
+                        background: $bcg-darker;
+
+                        border: 1px solid $border-primary;
+
+
+                        &.empty {
+                            border: 1px dashed $text-active;
+                            > .content {
+                                > .ui-label.diff-info {
+                                    display: block;
+                                    margin-top: 27px;
+                                    text-align: center;
+                                    font-size: 12px;
+                                    font-weight: bold;
+                                }
+                                > .checkpoint-content {
+                                    display: none;
+                                }
+                            }
+
+                            & ~ .empty {
+                                border-color: $bcg-darkest;
+                                > .content > .ui-label.diff-info {
+                                    display: none;
+                                }
+
+                            }
+                        }
+
+                        &.checkpoint-left {
+                            left: 15px;
+                        }
+
+                        &.checkpoint-right {
+                            left: 405px;
+                        }
+
+                        > .content {
+                            height: 100%;
+
+                            > .ui-label.diff-info {
+                                display: none;
+                            }
+
+                            > .checkpoint-content {
+                                height: 100%;
+
+                                > .ui-header {
+                                    padding: 0 15px;
+                                    height: 28px;
+                                    background: transparent;
+                                    border-bottom: 1px solid $border-primary;
+
+                                    &:before {
+                                        content: '\E399';
+                                        @extend .font-icon;
+                                        margin-right: 5px;
+                                        float: left;
+                                        font-weight: 100;
+                                        font-size: 14px;
+                                    }
+
+                                    > .title {
+                                        max-width: 280px;
+                                        overflow: hidden;
+                                        text-overflow: ellipsis;
+                                    }
+
+                                    > .close {
+                                        @extend .font-icon;
+                                        background: transparent;
+                                        border: 0;
+                                        position: absolute;
+                                        right: 0;
+                                    }
+                                }
+
+                                > .content {
+                                    padding: 8px 15px;
+
+                                    > .ui-label {
+                                        display: block;
+                                        line-height: 1;
+                                        font-size: 12px;
+                                        white-space: nowrap;
+                                        overflow: hidden;
+                                        text-overflow: ellipsis;
+
+                                        &.title {
+                                            color: $text-primary;
+                                            font-weight: bold;
+                                        }
+
+                                        &.desc {
+                                            font-size: 11px;
+                                            color: $text-dark;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    > .arrow {
+                        position: absolute;
+                        left: 375px;
+                        top: 35px;
+                        font-size: 18px;
+
+                        @extend .font-icon;
+                    }
+
+                    > .ui-button {
+                        position: absolute;
+                        width: 90px;
+                        right: 10px;
+                        font-size: 12px;
+                        line-height: 32px;
+                        height: 32px;
+                        text-align: center;
+                        background: $bcg-primary;
+                        border: 1px solid $border-primary;
+
+                        &.compare {
+                            top: 7px;
+                        }
+
+                        &.switch {
+                            top: initial;
+                            bottom: 5px;
+                            &:before {
+                                content: '\E128';
+                                @extend .font-icon;
+                                margin-right: 5px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    &.diff-mode {
+        > .content {
+            .checkpoints {
+                height: 522px - 130px;
+            }
+            .checkpoints, .branches {
+                .ui-list {
+                    > .ui-list-item {
+                        .ui-button.dropdown {
+                            display: none;
+                        }
+
+                        .ui-checkbox {
+                            display: inherit;
+                            margin-left: 15px;
+                        }
+
+                        &.current-state {
+                            display: inherit;
+                        }
+                    }
+
+                    > .date.current-state {
+                        display: inherit;
+                    }
+                }
+            }
+
+            .branches-container, .side-panel {
+                height: calc(100% - 130px);
+            }
+
+        }
+
+        &.diff-checkpoints-selected-2 {
+            > .content {
+                .checkpoints {
+                    .ui-list > .ui-list-item .ui-checkbox:not(.checked) {
+                        opacity: $disabled-opacity;
+                        pointer-events: none;
+                    }
+                }
             }
         }
     }
@@ -9722,6 +9977,18 @@ strong {
         > .content {
             > .ui-panel {
                 > .content {
+                    > .ui-panel.left {
+                        > .content {
+                            .ui-list-item {
+                                padding: 25px 15px 25px 32px;
+
+                                .icon {
+                                    display: none;
+                                }
+                            }
+                        }
+                    }
+
                     > .ui-panel.right {
                         > .content {
                             > .ui-panel.conflicts {

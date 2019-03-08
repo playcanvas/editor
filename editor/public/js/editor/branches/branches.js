@@ -89,10 +89,13 @@ editor.once('load', function () {
     });
 
     // Apply merge
-    editor.method('branches:applyMerge', function (mergeId, callback) {
+    editor.method('branches:applyMerge', function (mergeId, finalize, callback) {
         request({
             url: '{{url.api}}/merge/' + mergeId + '/apply',
             method: 'POST',
+            data: {
+                finalize: finalize
+            },
             auth: true
         }, callback);
     });
