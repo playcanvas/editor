@@ -9977,6 +9977,18 @@ strong {
         > .content {
             > .ui-panel {
                 > .content {
+                    > .ui-panel.left {
+                        > .content {
+                            .ui-list-item {
+                                padding: 25px 15px 25px 32px;
+
+                                .icon {
+                                    display: none;
+                                }
+                            }
+                        }
+                    }
+
                     > .ui-panel.right {
                         > .content {
                             > .ui-panel.conflicts {
