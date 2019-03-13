@@ -104,7 +104,7 @@ editor.once('load', function () {
 
         // go back to asset conflicts
         this._btnGoBack = new ui.Button({
-            text: 'VIEW ASSET CONFLICTS'
+            text: this._isDiff ? 'VIEW ASSET CHANGES' : 'VIEW ASSET CONFLICTS'
         });
         // hide this button if there are only textual conflicts
         if (this._textualMergeConflict && conflict.data.length <= 1)  {

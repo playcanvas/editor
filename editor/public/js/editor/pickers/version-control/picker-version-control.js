@@ -495,12 +495,13 @@ editor.once('load', function () {
 
     // Filter context menu items
     menuBranches.on('open', function () {
-        menuBranchesClose.hidden = ! contextBranch || contextBranch.closed || contextBranch.id === config.project.masterBranch || contextBranch.id === projectUserSettings.get('branch');
-        menuBranchesOpen.hidden = ! contextBranch || ! contextBranch.closed;
-
         var writeAccess = editor.call('permissions:write');
-        menuBranchesSwitchTo.hidden = !writeAccess || ! contextBranch || contextBranch.id === projectUserSettings.get('branch') || contextBranch.closed;
-        menuBranchesMerge.hidden = menuBranchesSwitchTo.hidden;
+
+        menuBranchesClose.hidden = !writeAccess || !contextBranch || contextBranch.closed || contextBranch.id === config.project.masterBranch || contextBranch.id === projectUserSettings.get('branch');
+        menuBranchesOpen.hidden = !writeAccess || !contextBranch || !contextBranch.closed;
+
+        menuBranchesSwitchTo.hidden = !contextBranch || contextBranch.id === projectUserSettings.get('branch') || contextBranch.closed;
+        menuBranchesMerge.hidden = !writeAccess || !contextBranch || contextBranch.id === projectUserSettings.get('branch') || contextBranch.closed;
     });
 
     editor.call('layout.root').append(menuBranches);
@@ -542,10 +543,6 @@ editor.once('load', function () {
         dropdown.branch = branch;
         dropdown.class.add('dropdown');
         panel.append(dropdown);
-
-        if (! editor.call('permissions:write')) {
-            dropdown.hidden = true;
-        }
 
         dropdown.on('click', function (e) {
             e.stopPropagation();
