@@ -8854,7 +8854,10 @@ strong {
 
                     .ui-button.dropdown {
                         @extend .font-icon;
-                        display: block;
+                        &:not(.hidden) {
+                            display: block;
+                        }
+
                         width: 16px;
                         height: 16px;
                         line-height: 16px;

@@ -185,12 +185,14 @@ editor.once('load', function () {
     var labelFileConflicts = new ui.Label({
         text: 'FILE CONFLICTS'
     });
+    labelFileConflicts.renderChanges = false;
     labelFileConflicts.class.add('file-conflicts');
     panelFileConflicts.append(labelFileConflicts);
 
     var labelFileConflictsSmall = new ui.Label({
         text: 'The asset also has file conflicts'
     });
+    labelFileConflictsSmall.renderChanges = false;
     labelFileConflictsSmall.class.add('file-conflicts-small');
     panelFileConflicts.append(labelFileConflictsSmall);
 
@@ -678,11 +680,21 @@ editor.once('load', function () {
                 btnReview.hidden = true;
                 panel.header = 'DIFF'
             }
+
+            labelFileConflicts.text = "FILE CHANGES";
+            labelFileConflictsSmall.text = "The asset also has file changes";
+            btnViewFileConflicts.text = "VIEW FILE CHANGES";
+            panelFileConflicts.header = 'FILE CHANGES';
         } else {
             btnReview.hidden = false;
             btnReview.disabled = true;
             btnComplete.hidden = true;
             panel.header = 'RESOLVE CONFLICTS'
+
+            labelFileConflicts.text = "FILE CONFLICTS";
+            labelFileConflictsSmall.text = "The asset also has file conflicts";
+            btnViewFileConflicts.text = "VIEW FILE CONFLICTS";
+            panelFileConflicts.header = 'FILE CONFLICTS';
         }
         panelBottom.hidden = diffMode;
         panelTopBase.hidden = diffMode;
