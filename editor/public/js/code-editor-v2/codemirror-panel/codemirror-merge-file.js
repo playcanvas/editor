@@ -355,18 +355,24 @@ editor.once('load', function () {
         var conflict = config.self.branch.merge.conflict;
         var isResolved = conflict.useSrc || conflict.useDst || conflict.useMergedFile;
         var method = isResolved ? 'conflicts:getResolvedFile' : 'conflicts:getUnresolvedFile';
-        editor.call(method, config.resolveConflict, function (err, contents) {
-            if (err) {
-                console.error(err);
-                editor.call('status:error', err);
-                return;
-            }
+        editor.call(
+            method,
+            config.self.branch.merge.id,
+            config.self.branch.merge.conflict.id,
+            config.self.branch.merge.conflict.mergedFilePath,
+            function (err, contents) {
+                if (err) {
+                    console.error(err);
+                    editor.call('status:error', err);
+                    return;
+                }
 
-            this.doc = CodeMirror.Doc(contents, MODES[this.type]);
-            if (this.ternLoaded) {
-                this.renderDocument();
-            }
-        }.bind(this));
+                this.doc = CodeMirror.Doc(contents, MODES[this.type]);
+                if (this.ternLoaded) {
+                    this.renderDocument();
+                }
+            }.bind(this)
+        );
     };
 
     var mergeFileEditor = new MergeFileEditor();

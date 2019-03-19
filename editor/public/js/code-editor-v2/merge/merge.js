@@ -1,7 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    if (! config.resolveConflict) return;
+    if (! config.self.branch.merge || !config.self.branch.merge.conflict) return;
 
     var root = editor.call('layout.root');
     root.class.add('file-only-mode');

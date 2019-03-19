@@ -135,16 +135,21 @@ editor.once('load', function () {
     };
 
     DiffEditor.prototype.run = function () {
-        editor.call('conflicts:getUnresolvedFile', config.resolveConflict, function (err, contents) {
-            if (err) {
-                console.error(err);
-                editor.call('status:error', err);
-                return;
-            }
+        editor.call('conflicts:getUnresolvedFile',
+            config.self.branch.merge.id,
+            config.self.branch.merge.conflict.id,
+            config.self.branch.merge.conflict.mergedFilePath,
+            function (err, contents) {
+                if (err) {
+                    console.error(err);
+                    editor.call('status:error', err);
+                    return;
+                }
 
-            this.doc = CodeMirror.Doc(contents, MODES[this.type]);
-            this.renderDocument();
-        }.bind(this));
+                this.doc = CodeMirror.Doc(contents, MODES[this.type]);
+                this.renderDocument();
+            }.bind(this)
+        );
     };
 
     var diffEditor = new DiffEditor();
