@@ -137,9 +137,9 @@ editor.once('load', function () {
     });
 
     // Gets the contents of a conflict file
-    editor.method('conflicts:getUnresolvedFile', function (conflictId, callback) {
+    editor.method('conflicts:getUnresolvedFile', function (mergeId, conflictId, filename, callback) {
         request({
-            url: '{{url.api}}/conflicts/' + conflictId + '/file',
+            url: '{{url.api}}/merge/' + mergeId + '/conflicts/' + conflictId + '/file/' + filename,
             method: 'GET',
             auth: true,
             notJson: true
@@ -147,9 +147,9 @@ editor.once('load', function () {
     });
 
     // Gets the contents of a resolved conflict file
-    editor.method('conflicts:getResolvedFile', function (conflictId, callback) {
+    editor.method('conflicts:getResolvedFile', function (mergeId, conflictId, filename, callback) {
         request({
-            url: '{{url.api}}/conflicts/' + conflictId + '/file?resolved=true',
+            url: '{{url.api}}/merge/' + mergeId + '/conflicts/' + conflictId + '/file/' + filename + '?resolved=true',
             method: 'GET',
             auth: true,
             notJson: true

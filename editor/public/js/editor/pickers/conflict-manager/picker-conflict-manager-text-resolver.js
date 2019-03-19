@@ -11,6 +11,7 @@ editor.once('load', function () {
     var TextResolver = function (conflict, mergeObject) {
         Events.call(this);
 
+        this._mergeId = mergeObject.id;
         this._conflict = conflict;
         this._sourceBranchId = mergeObject.sourceBranchId;
         this._destBranchId = mergeObject.destinationBranchId;
@@ -120,7 +121,7 @@ editor.once('load', function () {
             this._panelTop.hidden = false;
         }.bind(this));
 
-        this._iframe.src = '/editor/code/' + config.project.id + '?resolveConflict=' + this._textualMergeConflict.id;
+        this._iframe.src = '/editor/code/' + config.project.id + '?mergeId=' + this._mergeId + '&conflictId=' + this._textualMergeConflict.id + '&assetType=' + this._conflict.assetType + '&mergedFilePath=' + this._textualMergeConflict.mergedFilePath;
 
         this._sourceFile = null;
         this._destFile = null;
@@ -275,15 +276,20 @@ editor.once('load', function () {
 
         this._toggleButtons(false);
 
-        editor.call('conflicts:getUnresolvedFile', this._textualMergeConflict.id, function (err, data) {
-            this._toggleButtons(true);
-            if (err) {
-                return editor.call('status:error', err);
-            }
+        editor.call('conflicts:getUnresolvedFile',
+            this._mergeId,
+            this._textualMergeConflict.id,
+            this._textualMergeConflict.mergedFilePath,
+            function (err, data) {
+                this._toggleButtons(true);
+                if (err) {
+                    return editor.call('status:error', err);
+                }
 
-            this._unresolvedFile = data;
-            this._codeEditorMethod('editor:merge:setContent', this._unresolvedFile);
-        }.bind(this));
+                this._unresolvedFile = data;
+                this._codeEditorMethod('editor:merge:setContent', this._unresolvedFile);
+            }.bind(this)
+        );
     };
 
     TextResolver.prototype._onClickNext = function () {

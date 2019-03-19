@@ -639,7 +639,7 @@ editor.once('load', function () {
             labelTopMine.text = data.destinationBranchName + ' - [Destination Branch]';
         }
 
-        if (!currentMergeObject.conflicts.length) {
+        if (!currentMergeObject.conflicts || !currentMergeObject.conflicts.length) {
             btnReview.disabled = false;
             if (diffMode) {
                 return showMainProgress(completedIcon, 'No changes found - Click Complete Merge');
