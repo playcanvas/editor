@@ -355,15 +355,23 @@ editor.once('load', function() {
 
             if (type === 'asset') {
                 items = editor.call('selector:items');
-                for(var i = 0; i < items.length; i++) {
-                    if ((assetType === 'script' && items[i].get('filename') === asset.get('filename')) || (assetType !== 'script' && items[i].get('id') === asset.get('id'))) {
+                for (var i = 0; i < items.length; i++) {
+                    // if the asset that was right-clicked is in the selection
+                    // then include all the other selected items in the delete
+                    // otherwise only delete the right-clicked item
+                    if (assetType === 'script' && legacyScripts) {
+                        if (items[i].get('filename') === asset.get('filename')) {
+                            multiple = true;
+                            break;
+                        }
+                    } else if (items[i].get('id') === asset.get('id')) {
                         multiple = true;
                         break;
                     }
                 }
             }
 
-            editor.call('assets:delete:picker', multiple ? items : [ asset ]);
+            editor.call('assets:delete:picker', multiple ? items : [asset]);
         }
     });
     menu.append(menuItemDelete);
