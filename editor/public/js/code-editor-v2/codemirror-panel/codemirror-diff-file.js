@@ -12,7 +12,7 @@ editor.once('load', function () {
         shader: 'glsl'
     };
 
-    var REGEX_HUNK = /^\@\@ -([0-9]+),[0-9]+ \+([0-9]+),[0-9]+ \@\@$/gm;
+    var REGEX_HUNK = /^\@\@ -([0-9]+)(?:,[0-9]+)? \+([0-9]+)(?:,[0-9]+)? \@\@$/gm;
 
     var DiffEditor = function () {
         // the asset type
