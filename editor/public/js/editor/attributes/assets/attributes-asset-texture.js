@@ -576,6 +576,8 @@ editor.once('load', function() {
 
             fieldPvr.disabled = fieldPvrBpp.disabled = rgbm !== -2 && (fieldDxt.disabled || rgbm === 1);
             fieldEtc1.disabled = fieldPvr.disabled || (alpha === 1 && alphaValid !== 0);
+
+            updatePvrWarning();
         };
 
         calculateOriginalSize();
@@ -659,6 +661,31 @@ editor.once('load', function() {
         if (! formats.pvr.size && ! formats.pvr.vram) labelPvrSize.text = '-';
         fieldPvr.parent.append(labelPvrSize);
 
+
+        var labelPvrWarning = new ui.Label({
+            text: 'Compressed texture will be resized square'
+        });
+        labelPvrWarning.class.add('pvr-warning');
+        fieldPvr.parent.parent.append(labelPvrWarning);
+        labelPvrWarning.hidden = true;
+
+        var updatePvrWarning = function () {
+            var hidden = true;
+            // only show pvr warning if any selected texture is non-square
+            // and pvr is ticked
+            if (fieldPvr.value && !fieldPvr.disabled) {
+                for (var i = 0; i < assets.length; i++) {
+                    if (assets[i].get('meta.width') !== assets[i].get('meta.height')) {
+                        hidden = false;
+                        break;
+                    }
+                }
+            }
+
+            labelPvrWarning.hidden = hidden;
+        };
+
+        fieldPvr.on('change', updatePvrWarning);
 
         // etc1
         var fieldEtc1 = editor.call('attributes:addField', {

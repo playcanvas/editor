@@ -1749,6 +1749,15 @@ strong {
         }
         &.variants {
             > .content {
+                > .ui-label.pvr-warning {
+                    &:not(.hidden) {
+                        display: block;
+                    }
+                    color: #d34141;
+                    text-align: right;
+                    font-size: 12px;
+                }
+
                 > .ui-panel {
                     > .content {
                         > .ui-label.size {
