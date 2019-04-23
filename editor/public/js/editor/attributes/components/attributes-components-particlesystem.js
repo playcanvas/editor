@@ -476,7 +476,7 @@ editor.once('load', function() {
         // emitterShape
         var fieldEmitterShape = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Emmiter Shape',
+            name: 'Emitter Shape',
             type: 'number',
             enum: [
                 { v: '', t: '...' },
@@ -493,7 +493,7 @@ editor.once('load', function() {
         // emitterExtents
         var fieldSpawnBounds = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Emmiter Extents',
+            name: 'Emitter Extents',
             placeholder: [ 'X', 'Y', 'Z' ],
             type: 'vec3',
             link: entities,
@@ -507,10 +507,27 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'particlesystem:emitterExtents', fieldSpawnBounds[0].parent.innerElement.firstChild.ui);
 
 
+        // emitterExtentsInner
+        var fieldSpawnBoundsInner = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Emitter Extents Inner',
+            placeholder: [ 'X', 'Y', 'Z' ],
+            type: 'vec3',
+            link: entities,
+            path: 'components.particlesystem.emitterExtentsInner'
+        });
+        fieldSpawnBoundsInner [0].parent.hidden = fieldEmitterShape.value !== 0 || fieldEmitterShape.class.contains('null');
+        fieldEmitterShape.on('change', function(value) {
+            fieldSpawnBoundsInner[0].parent.hidden = value !== 0 || this.class.contains('null');
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'particlesystem:emitterExtentsInner', fieldSpawnBoundsInner[0].parent.innerElement.firstChild.ui);
+
+
         // emitterRadius
         var fieldSpawnRadius = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Emmiter Radius',
+            name: 'Emitter Radius',
             type: 'number',
             link: entities,
             path: 'components.particlesystem.emitterRadius'
@@ -523,6 +540,22 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'particlesystem:emitterRadius', fieldSpawnRadius.parent.innerElement.firstChild.ui);
 
 
+        // emitterRadiusInner
+        var fieldSpawnRadiusInner = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Emitter Radius Inner',
+            type: 'number',
+            link: entities,
+            path: 'components.particlesystem.emitterRadiusInner'
+        });
+        fieldSpawnRadiusInner.parent.hidden = fieldEmitterShape.value !== 1 || fieldEmitterShape.class.contains('null');
+        fieldEmitterShape.on('change', function(value) {
+            fieldSpawnRadiusInner.parent.hidden = value !== 1 || this.class.contains('null');
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'particlesystem:emitterRadiusInner', fieldSpawnRadiusInner.parent.innerElement.firstChild.ui);
+
+
         // wrap
         var fieldWrap = editor.call('attributes:addField', {
             parent: panel,
@@ -533,6 +566,17 @@ editor.once('load', function() {
         });
         // reference
         editor.call('attributes:reference:attach', 'particlesystem:wrap', fieldWrap.parent.innerElement.firstChild.ui);
+
+        // localSpace
+        var fieldLocalSpace = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Local Space',
+            type: 'checkbox',
+            link: entities,
+            path: 'components.particlesystem.localSpace'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'particlesystem:localSpace', fieldLocalSpace.parent.innerElement.firstChild.ui);
 
         // layers
         var layers = projectSettings.get('layers');
@@ -588,6 +632,38 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'particlesystem:wrapBounds', fieldWrapBounds[0].parent.innerElement.firstChild.ui);
 
+        // orientation
+        var fieldOrientation = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Orientation',
+            type: 'number',
+            enum: [
+                { v: '', t: '...' },
+                { v: 0, t: 'Screen' },
+                { v: 1, t: 'World Normal' },
+                { v: 2, t: 'Emitter Normal' }
+            ],
+            link: entities,
+            path: 'components.particlesystem.orientation'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'particlesystem:orientation', fieldOrientation.parent.innerElement.firstChild.ui);
+
+        // particleNormal
+        var fieldParticleNormal = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Particle Normal',
+            placeholder: [ 'X', 'Y', 'Z' ],
+            type: 'vec3',
+            link: entities,
+            path: 'components.particlesystem.particleNormal'
+        });
+        fieldParticleNormal[0].parent.hidden = fieldOrientation.value === 0 || fieldOrientation.class.contains('null');
+        fieldOrientation.on('change', function(value) {
+            fieldParticleNormal[0].parent.hidden = value === 0 || this.class.contains('null');
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'particlesystem:particleNormal', fieldParticleNormal[0].parent.innerElement.firstChild.ui);
 
         // colorMapAsset
         var fieldColorMap = editor.call('attributes:addField', {
@@ -759,6 +835,20 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'particlesystem:velocityGraph', fieldVelocity.parent.innerElement.firstChild.ui);
 
 
+        // radialSpeedGraph
+        var fieldRadialSpeed = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Radial Speed',
+            type: 'curveset',
+            link: entities[0],
+            path: 'components.particlesystem.radialSpeedGraph',
+            canRandomize: true,
+            curves: [ 'R' ],
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'particlesystem:radialSpeedGraph', fieldRadialSpeed.parent.innerElement.firstChild.ui);
+
+
         // rotationSpeedGraph
         var fieldRotationSpeed = editor.call('attributes:addField', {
             parent: panel,
@@ -828,6 +918,7 @@ editor.once('load', function() {
             fieldScale.disabled = true;
             fieldColor.disabled = true;
             fieldAlpha.disabled = true;
+            fieldRadialSpeed.disabled = true;
         }
     });
 });

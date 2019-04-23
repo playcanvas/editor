@@ -35,11 +35,26 @@ editor.on('load', function () {
     left.element.id = 'ui-left';
     left.class.add('noSelect');
     left.foldable = true;
+    left.folded = editor.call('localStorage:get', 'editor:layout:left:fold') || false;
     left.horizontal = true;
     left.scroll = true;
     left.resizable = 'right';
+    var leftWidth = editor.call('localStorage:get', 'editor:layout:left:width') || '220px';
+    left.style.width = leftWidth;
+    left.innerElement.style.width = leftWidth;
     left.resizeMin = 200;
     left.resizeMax = 500;
+
+    left.on('resize', function () {
+        editor.call('localStorage:set', 'editor:layout:left:width', left.innerElement.style.width);
+    });
+    left.on('fold', function () {
+        editor.call('localStorage:set', 'editor:layout:left:fold', true);
+    });
+    left.on('unfold', function () {
+        editor.call('localStorage:set', 'editor:layout:left:fold', false);
+    });
+
     middle.append(left);
     // expose
     editor.method('layout.left', function() { return left; });

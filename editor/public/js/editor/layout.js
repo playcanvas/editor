@@ -87,14 +87,27 @@ editor.on('load', function() {
     hierarchyPanel.enabled = false;
     hierarchyPanel.class.add('hierarchy');
     hierarchyPanel.flexShrink = false;
-    hierarchyPanel.style.width = '256px';
-    hierarchyPanel.innerElement.style.width = '256px';
+    var hierarchyPanelSize = editor.call('localStorage:get', 'editor:layout:hierarchy:width') || '256px';
+    hierarchyPanel.style.width = hierarchyPanelSize;
+    hierarchyPanel.innerElement.style.width = hierarchyPanelSize;
     hierarchyPanel.foldable = true;
+    hierarchyPanel.folded = editor.call('localStorage:get', 'editor:layout:hierarchy:fold') || false;
     hierarchyPanel.horizontal = true;
     hierarchyPanel.scroll = true;
     hierarchyPanel.resizable = 'right';
     hierarchyPanel.resizeMin = 196;
     hierarchyPanel.resizeMax = 512;
+
+    hierarchyPanel.on('resize', function () {
+        editor.call('localStorage:set', 'editor:layout:hierarchy:width', hierarchyPanel.style.width);
+    });
+    hierarchyPanel.on('fold', function () {
+        editor.call('localStorage:set', 'editor:layout:hierarchy:fold', true);
+    });
+    hierarchyPanel.on('unfold', function () {
+        editor.call('localStorage:set', 'editor:layout:hierarchy:fold', false);
+    });
+
     middle.append(hierarchyPanel);
     // expose
     editor.method('layout.left', function() { return hierarchyPanel; });
@@ -125,13 +138,25 @@ editor.on('load', function() {
     var assetsPanel = new ui.Panel('ASSETS');
     assetsPanel.class.add('assets');
     assetsPanel.foldable = true;
+    assetsPanel.folded = editor.call('localStorage:get', 'editor:layout:assets:fold') || false;
     assetsPanel.flexShrink = false;
-    assetsPanel.innerElement.style.height = '212px';
+    assetsPanel.innerElement.style.height = editor.call('localStorage:get', 'editor:layout:assets:height') || '212px';
     assetsPanel.scroll = true;
     assetsPanel.resizable = 'top';
     assetsPanel.resizeMin = 106;
     assetsPanel.resizeMax = 106 * 6;
     assetsPanel.headerSize = -1;
+
+    assetsPanel.on('resize', function () {
+        editor.call('localStorage:set', 'editor:layout:assets:height', assetsPanel.innerElement.style.height);
+    });
+    assetsPanel.on('fold', function () {
+        editor.call('localStorage:set', 'editor:layout:assets:fold', true);
+    });
+    assetsPanel.on('unfold', function () {
+        editor.call('localStorage:set', 'editor:layout:assets:fold', false);
+    });
+
     center.append(assetsPanel);
     // expose
     editor.method('layout.assets', function() { return assetsPanel; });
@@ -144,14 +169,27 @@ editor.on('load', function() {
     attributesPanel.enabled = false;
     attributesPanel.class.add('attributes');
     attributesPanel.flexShrink = false;
-    attributesPanel.style.width = '320px';
-    attributesPanel.innerElement.style.width = '320px';
+    var attributesPanelWidth = editor.call('localStorage:get', 'editor:layout:attributes:width') || '320px';
+    attributesPanel.style.width = attributesPanelWidth;
+    attributesPanel.innerElement.style.width = attributesPanelWidth;
     attributesPanel.horizontal = true;
     attributesPanel.foldable = true;
+    attributesPanel.folded = editor.call('localStorage:get', 'editor:layout:attributes:fold') || false;
     attributesPanel.scroll = true;
     attributesPanel.resizable = 'left';
     attributesPanel.resizeMin = 256;
     attributesPanel.resizeMax = 512;
+
+    attributesPanel.on('resize', function () {
+        editor.call('localStorage:set', 'editor:layout:attributes:width', attributesPanel.innerElement.style.width);
+    });
+    attributesPanel.on('fold', function () {
+        editor.call('localStorage:set', 'editor:layout:attributes:fold', true);
+    });
+    attributesPanel.on('unfold', function () {
+        editor.call('localStorage:set', 'editor:layout:attributes:fold', false);
+    });
+
     middle.append(attributesPanel);
     // expose
     editor.method('layout.right', function() { return attributesPanel; });

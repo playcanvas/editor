@@ -267,6 +267,34 @@ editor.once('load', function() {
                     entity.set('components.particlesystem.layers', []);
                     entity.insert('components.particlesystem.layers', LAYERID_WORLD);
                 }
+                if (! entity.has('components.particlesystem.emitterRadiusInner')) {
+                    entity.set('components.particlesystem.emitterRadiusInner', 0.0);
+                }
+                if (! entity.has('components.particlesystem.emitterExtentsInner')) {
+                    entity.set('components.particlesystem.emitterExtentsInner', [0.0, 0.0, 0.0]);
+                }
+                if (! entity.has('components.particlesystem.orientation')) {
+                    entity.set('components.particlesystem.orientation', 0);
+                }
+                if (! entity.has('components.particlesystem.particleNormal')) {
+                    entity.set('components.particlesystem.particleNormal', [0.0, 1.0, 0.0]);
+                }
+                if (! entity.has('components.particlesystem.radialSpeedGraph')) {
+                    entity.set('components.particlesystem.radialSpeedGraph', {
+                        type: 1,
+                        keys: [0, 0],
+                        betweenCurves: false
+                    });
+                }
+                if (! entity.has('components.particlesystem.radialSpeedGraph2')) {
+                    entity.set('components.particlesystem.radialSpeedGraph2', {
+                        type: 1,
+                        keys: [0, 0]
+                    });
+                }
+                if (! entity.has('components.particlesystem.localSpace')) {
+                    entity.set('components.particlesystem.localSpace', false);
+                }
             }
 
             entity.history.enabled = true;

@@ -63,6 +63,16 @@ editor.once('load', function() {
         description: 'The color map texture to apply to all particles in the system. If no texture asset is assigned, a default spot texture is used.',
         url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#colorMap'
     }, {
+        title: 'orientation',
+        subTitle: '{pc.PARTICLEORIENTATION_*}',
+        description: 'Orientation mode controls particle planes facing. The options are: Screen: Particles are facing camera. World Normal: User defines world space normal to set planes orientation. Emitter Normal: Similar to previous, but the normal is affected by emitter(entity) transformation.',
+        url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#orientation'
+    }, {
+        title: 'particleNormal',
+        subTitle: '{pc.Vec3}',
+        description: 'Either world or emitter space vector to define particle plane orientation.',
+        url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#particleNormal'
+    }, {
         title: 'depthSoftening',
         subTitle: '{Number}',
         description: 'This variable value determines how much particles fade out as they get closer to another surface. This avoids the situation where particles appear to cut into surfaces.',
@@ -78,9 +88,19 @@ editor.once('load', function() {
         description: 'The half extents of a local space bounding box within which particles are spawned at random positions.',
         url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#emitterExtents'
     }, {
+        title: 'emitterExtentsInner',
+        subTitle: '{pc.Vec3}',
+        description: 'The exception volume of a local space bounding box within which particles are not spawned.',
+        url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#emitterExtents'
+    }, {
         title: 'emitterRadius',
         subTitle: '{Number}',
         description: 'The radius within which particles are spawned at random positions.',
+        url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#emitterRadius'
+    }, {
+        title: 'emitterRadiusInner',
+        subTitle: '{Number}',
+        description: 'The inner sphere radius within which particles are not spawned',
         url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#emitterRadius'
     }, {
         title: 'emitterShape',
@@ -148,6 +168,11 @@ editor.once('load', function() {
         description: 'The bounds of the time range defining the interval in seconds between particle births. The time for the next particle emission will be chosen at random between rate and rate2.',
         url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#rate'
     }, {
+        title: 'localSpace',
+        subTitle: '{Boolean}',
+        description: 'Binds particles to emitter node transformation.',
+        url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#localSpace'
+    }, {
         title: 'rotationSpeedGraph',
         subTitle: '{pc.Curve}',
         description: 'A curve defining how each particle\'s angular velocity changes over time. If two curves are specified in the curve editor, the angular velocity will be a random lerp between both curves.',
@@ -157,6 +182,11 @@ editor.once('load', function() {
         subTitle: '{pc.Curve}',
         description: 'A curve defining how each particle\'s scale changes over time. By default, a particle is 1 unit in width and height. If two curves are specified in the curve editor, the scale will be a random lerp between both curves.',
         url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#scaleGraph'
+    }, {
+        title: 'radialSpeedGraph',
+        subTitle: '{pc.Curve}',
+        description: 'A curve defining how particle\'s radial speed changes over time. Individual particle radial velocity points from emitter origin to particle current position. If two curves are specified in the curve editor, the value will be a random between both curves.',
+        url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#radialSpeedGraph'
     }, {
         title: 'sort',
         subTitle: '{pc.PARTICLESORT_*}',

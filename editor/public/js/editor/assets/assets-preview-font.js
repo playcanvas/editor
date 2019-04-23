@@ -82,7 +82,7 @@ editor.once('load', function() {
         var width = 1;
         var height = 1;
         var maxScale = -1;
-        var maxYOffset = 0;
+        var maxYOffset = 1;
         var maxWidth = 0;
 
         // find maxScale and maxYOffset
@@ -102,11 +102,13 @@ editor.once('load', function() {
             maxScale = Math.max(maxScale, 1 / (charData.scale || 1));
 
             // find max yoffset so that we line up characters a bit better in the preview
-            maxYOffset = Math.max(maxYOffset, charData.yoffset / charData.height || 0);
+            maxYOffset = Math.min(maxYOffset, charData.yoffset / charData.height || 0);
         }
 
         positions.length = 0;
         uvs.length = 0;
+
+        var GSCALE = 2; // global font preview scale
 
         for (var i = 0; i < 2; i++) {
             var char = text[i]; // TODO: use symbol not char
@@ -117,25 +119,32 @@ editor.once('load', function() {
 
             // scale of character relative to max scale
             var scale = 1 / (charData.scale || 1);
-            scale = scale / maxScale;
+            scale = GSCALE * scale / maxScale;
 
             // yoffset of character relative to maxYOffset
-            var yoffset = maxYOffset - (charData.yoffset / charData.height || 0) - height / 2;
+            var yoffset = GSCALE * (maxYOffset - height / 2) * maxScale;
+
+            // char offsets combined
+            var ox = charData.xoffset + (charData.bounds ? charData.bounds[0] : 0);
+            var oy = charData.yoffset + (charData.bounds ? charData.bounds[1] : 0);
+
+            // char width
+            var dw = GSCALE * charData.xadvance / charData.width;
 
             // calculate position for character
             positions.push(maxWidth, yoffset, 0);
-            positions.push(maxWidth + scale*width, yoffset, 0);
-            positions.push(maxWidth + scale*width, yoffset + height*scale, 0);
-            positions.push(maxWidth, yoffset + height*scale, 0);
+            positions.push(maxWidth + dw, yoffset, 0);
+            positions.push(maxWidth + dw, yoffset + scale * (height - 2 * oy * charData.scale / charData.height) * maxScale, 0);
+            positions.push(maxWidth, yoffset + scale * (height - 2 * oy * charData.scale / charData.height) * maxScale, 0);
 
-            // remember maxWidth
-            maxWidth += scale*width;
+            // increment total width
+            maxWidth += dw;
 
             // calculate uvs
-            var x1 = charData.x / font.data.info.maps[map].width;
-            var y1 = 1 - (charData.y + charData.height) / font.data.info.maps[map].height;
-            var x2 = (charData.x + charData.width) / font.data.info.maps[map].width;
-            var y2 = 1 - charData.y / font.data.info.maps[map].height;
+            var x1 = (charData.x + ox * charData.scale) / font.data.info.maps[map].width;
+            var y1 = 1 - (charData.y + charData.height - oy * charData.scale) / font.data.info.maps[map].height;
+            var x2 = (charData.x + (ox + charData.xadvance) * charData.scale) / font.data.info.maps[map].width;
+            var y2 = 1 - (charData.y + oy * charData.scale) / font.data.info.maps[map].height;
 
             uvs.push(x1, y1);
             uvs.push(x2, y1);
@@ -253,6 +262,19 @@ editor.once('load', function() {
             // set the font texture based on which characters we chose to display
             // defaultScreenSpaceTextMaterial.msdfMap = engineAsset.resource.textures[0];
             defaultScreenSpaceTextMaterial.setParameter('font_sdfIntensity', asset.get('data.intensity'));
+
+            var char = engineAsset.resource.data.chars[text[0]];
+            var pxRange = (char && char.range) ? ((char.scale || 1) * char.range) : 2;
+            defaultScreenSpaceTextMaterial.setParameter('font_pxrange', pxRange);
+
+            var map = char.map || 0;
+            defaultScreenSpaceTextMaterial.setParameter('font_textureWidth', engineAsset.resource.data.info.maps[map].width);
+
+            defaultScreenSpaceTextMaterial.setParameter('outline_thickness', 0);
+
+            var shadowOffsetUniform = new Float32Array([0, 0]);
+            defaultScreenSpaceTextMaterial.setParameter('shadow_offset', shadowOffsetUniform);
+
             defaultScreenSpaceTextMaterial.update();
 
             updateMeshes(text, engineAsset.resource);
