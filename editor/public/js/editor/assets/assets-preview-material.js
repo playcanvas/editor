@@ -161,6 +161,7 @@ editor.once('load', function () {
         }
 
         // re-initialize material with migrated properties
+        material.reset();
         materialParser.initialize(material, migrated);
 
         // set up layer
