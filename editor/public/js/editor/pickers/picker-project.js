@@ -283,7 +283,7 @@ editor.once('load', function () {
     // subscribe to project image
     editor.on('messenger:project.image', function (data) {
         config.project.thumbnails = data.project.thumbnails;
-        projectImg.style.backgroundImage = 'url("' + data.project.thumbnails.m + '")';
+        projectImg.style.backgroundImage = 'url("' + (data.project.thumbnails && data.project.thumbnails.m || blankImage) + '")';
         projectImg.classList.remove('progress');
     });
 
