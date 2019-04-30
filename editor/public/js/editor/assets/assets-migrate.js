@@ -63,6 +63,10 @@ editor.once('load', function() {
             }
         }
 
+        if (!asset.has('i18n')) {
+            asset.set('i18n', {});
+        }
+
         asset.history.enabled = true;
     };
 

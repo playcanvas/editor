@@ -2633,6 +2633,35 @@ strong {
 
 
     }
+
+    .ui-panel.localization {
+        > .content {
+            .add-locale {
+                margin-bottom: 10px;
+                &.error {
+                    outline: 1px solid #fb222f;
+                }
+            }
+
+            .ui-panel.locale {
+                margin-bottom: 10px;
+
+                > .ui-header {
+                    text-transform: initial;
+
+                    > .ui-button.remove {
+                        float: right;
+                        border-color: transparent;
+                        background: transparent;
+                        @extend .font-icon;
+                    }
+                }
+                > .content {
+                    border: 1px solid $bcg-dark;
+                }
+            }
+        }
+    }
 }
 
 .ui-checkbox.tick {
