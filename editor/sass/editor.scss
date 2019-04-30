@@ -5868,6 +5868,103 @@ strong {
     }
 }
 
+.picker-gradient {
+    > .content {
+        width: 390px;
+
+        > .picker-gradient-panel {
+            height: 100%;
+            font-size: 11px;
+
+            > .picker-gradient-header {
+
+            }
+
+            > .picker-gradient-gradient {
+                width: 380px;
+                height: 48px;
+                display: block;
+                padding: 5px 5px 0px 5px;
+            }
+
+            > .picker-gradient-anchors {
+                width: 380px;
+                height: 34px;
+                display: block;
+                padding: 0px 5px;
+            }
+
+            > .picker-gradient-footer {
+                padding: 5px 5px;
+                > .content {
+                    > .ui-number-field {
+                        vertical-align: bottom;
+                    }
+                    > .ui-slider {
+                        vertical-align: bottom;
+                    }
+                }
+            }
+
+            > .color-panel {
+                height: 151px;
+
+                > .content {
+                    > .color-rect {
+                        margin: 5px 5px;
+                        width: 140px;
+                        height: 140px;
+                        cursor: crosshair;
+                        position: relative;
+                        float: left;
+                    }
+
+                    > .color-handle {
+                        position: absolute;
+                        width: 16px;
+                        height: 16px;
+                        border: 1px solid #000;
+                        outline: 1px solid #fff;
+                        pointer-events: none;
+                    }
+
+                    > .hue-rect {
+                        margin: 5px 5px 5px 0px;
+                        width: 20px;
+                        height: 140px;
+                        cursor: crosshair;
+                    }
+
+                    > .hue-handle {
+                        position: absolute;
+                        width: 24px;
+                        height: 4px;
+                        border: 1px solid rgb(92, 82, 79);
+                        outline: 1px solid #fff;
+                        pointer-events: none;
+                    }
+
+                    > .fields {
+                        display: inline-block;
+                        padding: 0px 5px;
+                        width: 196px;
+                        height: 145px;
+                        vertical-align: top;
+
+                        > .ui-number-field {
+                            margin-top: 0px;
+                        }
+
+                        > .ui-text-field {
+                            margin-top: 0px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 .sprites-editor.center {
     > .overlay {
         background-color: rgba($bcg-darkest, .9);

@@ -1220,3 +1220,42 @@ a:visited {
         }
     }
 }
+
+.picker-gradient {
+    > .content {
+        border: 1px solid $bcg-darkest;
+        background-color: $bcg-dark;
+
+        > .picker-gradient-panel {
+            > .picker-gradient-header {
+                > .content {
+                    .ui-button.picker-gradient-toggle {
+                        background-color: $bcg-primary;
+                        color: $text-secondary;
+
+                        &:hover {
+                            border-color: $bcg-darker;
+                        }
+
+                        &.active {
+                            background-color: $bcg-darker;
+                        }
+                    }
+                }
+            }
+
+            > .color-panel {
+                background-color: $bcg-dark;
+                > .content {
+                    > .color-rect,
+                    > .hue-rect {
+                        border: 1px solid $bcg-darker;
+                    }
+                    > .fields {
+                        background-color: $bcg-primary;
+                    }
+                }
+            }
+        }
+    }
+}
