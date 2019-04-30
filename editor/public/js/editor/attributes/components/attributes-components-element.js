@@ -834,7 +834,7 @@ editor.once('load', function() {
             link: entities,
             path: 'components.element.outlineColor'
         });
-        fieldOutlineColor.parent.hidden = (fieldType.value !== 'text') || !editor.call('users:hasFlag', 'hasTextEffects');
+        fieldOutlineColor.parent.hidden = (fieldType.value !== 'text');
         editor.call('attributes:reference:attach', 'element:outlineColor', fieldOutlineColor.parent.innerElement.firstChild.ui);
 
         var fieldOutlineThickness = editor.call('attributes:addField', {
@@ -849,7 +849,7 @@ editor.once('load', function() {
             path: 'components.element.outlineThickness'
         });
         fieldOutlineThickness.style.width = '32px';
-        fieldOutlineThickness.parent.hidden = (fieldType.value !== 'text') || !editor.call('users:hasFlag', 'hasTextEffects');
+        fieldOutlineThickness.parent.hidden = (fieldType.value !== 'text');
         editor.call('attributes:reference:attach', 'element:outlineThickness', fieldOutlineThickness.parent.innerElement.firstChild.ui);
 
         var fieldOutlineThicknessSlider = editor.call('attributes:addField', {
@@ -864,7 +864,7 @@ editor.once('load', function() {
             path: 'components.element.outlineThickness'
         });
         fieldOutlineThicknessSlider.flexGrow = 4;
-        fieldOutlineThicknessSlider.parent.hidden = (fieldType.value !== 'text') || !editor.call('users:hasFlag', 'hasTextEffects');
+        fieldOutlineThicknessSlider.parent.hidden = (fieldType.value !== 'text');
 
         var fieldShadowColor =  editor.call('attributes:addField', {
             parent: panel,
@@ -874,7 +874,7 @@ editor.once('load', function() {
             link: entities,
             path: 'components.element.shadowColor'
         });
-        fieldShadowColor.parent.hidden = (fieldType.value !== 'text') || !editor.call('users:hasFlag', 'hasTextEffects');
+        fieldShadowColor.parent.hidden = (fieldType.value !== 'text');
         editor.call('attributes:reference:attach', 'element:shadowColor', fieldShadowColor.parent.innerElement.firstChild.ui);
 
         var fieldShadowOffset = editor.call('attributes:addField', {
@@ -889,7 +889,7 @@ editor.once('load', function() {
             link: entities,
             path: 'components.element.shadowOffset'
         });
-        fieldShadowOffset[0].parent.hidden = (fieldType.value !== 'text') || !editor.call('users:hasFlag', 'hasTextEffects');
+        fieldShadowOffset[0].parent.hidden = (fieldType.value !== 'text');
         editor.call('attributes:reference:attach', 'element:shadowOffset', fieldShadowOffset[0].parent.innerElement.firstChild.ui);
 
         var fieldRect = editor.call('attributes:addField', {
@@ -1102,11 +1102,11 @@ editor.once('load', function() {
             panelAutoSize.hidden = value !== 'text';
             panelAutoFit.hidden = value !== 'text';
             fieldAlignment[0].parent.hidden = value !== 'text';
-            fieldOutlineColor.parent.hidden = (value !== 'text') || !editor.call('users:hasFlag', 'hasTextEffects');
-            fieldOutlineThickness.parent.hidden = (value !== 'text') || !editor.call('users:hasFlag', 'hasTextEffects');
-            fieldOutlineThicknessSlider.parent.hidden = (value !== 'text') || !editor.call('users:hasFlag', 'hasTextEffects');
-            fieldShadowColor.parent.hidden = (value !== 'text') || !editor.call('users:hasFlag', 'hasTextEffects');
-            fieldShadowOffset[0].parent.hidden = (value !== 'text') || !editor.call('users:hasFlag', 'hasTextEffects');
+            fieldOutlineColor.parent.hidden = (value !== 'text');
+            fieldOutlineThickness.parent.hidden = (value !== 'text');
+            fieldOutlineThicknessSlider.parent.hidden = (value !== 'text');
+            fieldShadowColor.parent.hidden = (value !== 'text');
+            fieldShadowOffset[0].parent.hidden = (value !== 'text');
         }));
 
 
