@@ -1012,6 +1012,9 @@ editor.once('load', function() {
             var choices = null;
             if (attribute.type === 'curve') {
                 if (attribute.color) {
+                    if ((attribute.color === 'rgb') || (attribute.color === 'rgba')) {
+                        type = 'gradient';
+                    }
                     curves = attribute.color.split('');
                     min = 0;
                     max = 1;

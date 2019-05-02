@@ -6,11 +6,11 @@ function Helpers() { }
 Object.assign(Helpers, {
     rgbaStr : function(colour, scale) {
         if (!scale) { scale = 1; }
-        var rgba = colour.map(function(element) {
-            return Math.round(element * scale);
+        var rgba = colour.map(function(element, index) {
+            return index < 3 ? Math.round(element * scale) : element;
         } ).join(',');
         for (var i=colour.length; i<4; ++i) {
-            rgba += ',' + scale;
+            rgba += ',' + (i < 3 ? scale : 1);
         }
         return 'rgba(' + rgba + ')';
     },
@@ -19,6 +19,27 @@ Object.assign(Helpers, {
         return clr.map(function(v) {
             return ('00' + v.toString(16)).slice(-2).toUpperCase();
         }).join('');
+    },
+
+    // rgb(a) -> hsva
+    toHsva : function(rgba) {
+        var hsva = rgb2hsv(rgba.map(function(v) { return v * 255; }));
+        hsva.push(rgba.length > 3 ? rgba[3] : 1);
+        return hsva;
+    },
+
+    // hsv(1) -> rgba
+    toRgba : function(hsva) {
+        var rgba = hsv2rgb(hsva).map(function(v) { return v / 255; });
+        rgba.push(hsva.length > 3 ? hsva[3] : 1);
+        return rgba;
+    },
+
+    // calculate the normalized coordinate [x,y] relative to rect
+    normalizedCoord : function(widget, x, y) {
+        var rect = widget.element.getBoundingClientRect();
+        return [(x - rect.left) / rect.width,
+                (y - rect.top) / rect.height];
     },
 });
 
@@ -33,7 +54,10 @@ function ColorPicker(parent) {
             func.apply(self, [evt]);
         }
     };
-    
+
+    // pixel scale
+    var ps = window.devicePixelRatio;
+
     this.panel = new ui.Panel();
     this.panel.class.add('color-panel')
     parent.appendChild(this.panel.element);
@@ -41,8 +65,8 @@ function ColorPicker(parent) {
     this.colorRect = new ui.Canvas();
     this.colorRect.class.add('color-rect');
     this.panel.append(this.colorRect.element);
-    this.colorRect.resize(this.colorRect.element.clientWidth * window.devicePixelRatio,
-                          this.colorRect.element.clientHeight * window.devicePixelRatio);
+    this.colorRect.resize(this.colorRect.element.clientWidth * ps,
+                          this.colorRect.element.clientHeight * ps);
 
     this.colorHandle = document.createElement('div');
     this.colorHandle.classList.add('color-handle');
@@ -51,55 +75,51 @@ function ColorPicker(parent) {
     this.hueRect = new ui.Canvas();
     this.hueRect.class.add('hue-rect');
     this.panel.append(this.hueRect.element);
-    this.hueRect.resize(this.hueRect.element.clientWidth * window.devicePixelRatio,
-                        this.hueRect.element.clientHeight * window.devicePixelRatio);
+    this.hueRect.resize(this.hueRect.element.clientWidth * ps,
+                        this.hueRect.element.clientHeight * ps);
 
     this.hueHandle = document.createElement('div');
     this.hueHandle.classList.add('hue-handle');
     this.panel.append(this.hueHandle);
 
+    this.alphaRect = new ui.Canvas();
+    this.alphaRect.class.add('alpha-rect');
+    this.panel.append(this.alphaRect.element);
+    this.alphaRect.resize(this.alphaRect.element.clientWidth * ps,
+                          this.alphaRect.element.clientHeight * ps);
+
+    this.alphaHandle = document.createElement('div');
+    this.alphaHandle.classList.add('alpha-handle');
+    this.panel.append(this.alphaHandle);
+
     this.fields = document.createElement('div');
     this.fields.classList.add('fields');
     this.panel.append(this.fields);
 
-    this.fieldChangeHandler = genEvtHandler(this, this._onValueChanged);
+    this.fieldChangeHandler = genEvtHandler(this, this._onFieldChanged);
     this.hexChangeHandler = genEvtHandler(this, this._onHexChanged);
     this.downHandler = genEvtHandler(this, this._onMouseDown);
     this.moveHandler = genEvtHandler(this, this._onMouseMove);
     this.upHandler = genEvtHandler(this, this._onMouseUp);
 
-    this.rField = new ui.NumberField({
-        precision : 1,
-        step : 1,
-        min : 0,
-        max : 255
-    });
-    this.rField.renderChanges = false;
-    this.rField.placeholder = 'r';
-    this.rField.on('change', this.fieldChangeHandler);
-    this.fields.appendChild(this.rField.element);
+    function numberField(label) {
+        var field = new ui.NumberField({
+            precision : 1,
+            step : 1,
+            min : 0,
+            max : 255
+        });
+        field.renderChanges = false;
+        field.placeholder = label;
+        field.on('change', this.fieldChangeHandler);
+        this.fields.appendChild(field.element);
+        return field;
+    };
 
-    this.gField = new ui.NumberField({
-        precision : 1,
-        step : 1,
-        min : 0,
-        max : 255
-    });
-    this.gField.renderChanges = false;
-    this.gField.placeholder = 'g';
-    this.gField.on('change', this.fieldChangeHandler);
-    this.fields.appendChild(this.gField.element);
-
-    this.bField = new ui.NumberField({
-        precision : 1,
-        step : 1,
-        min : 0,
-        max : 255
-    });
-    this.bField.renderChanges = false;
-    this.bField.placeholder = 'b';
-    this.bField.on('change', this.fieldChangeHandler);
-    this.fields.appendChild(this.bField.element);
+    this.rField = numberField.call(this, 'r');
+    this.gField = numberField.call(this, 'g');
+    this.bField = numberField.call(this, 'b');
+    this.aField = numberField.call(this, 'a');
 
     this.hexField = new ui.TextField({});
     this.hexField.renderChanges = false;
@@ -110,12 +130,15 @@ function ColorPicker(parent) {
     // hook up mouse handlers
     this.colorRect.element.addEventListener('mousedown', this.downHandler);
     this.hueRect.element.addEventListener('mousedown', this.downHandler);
+    this.alphaRect.element.addEventListener('mousedown', this.downHandler);
 
     this._generateHue(this.hueRect);
-    this._hsv = [-1, -1, -1];
-    this._storeHsv = [0, 0, 0];
+    this._generateAlpha(this.alphaRect);
+
+    this._hsva = [-1, -1, -1, 1];
+    this._storeHsva = [0, 0, 0, 1];
     this._dragMode = 0;
-    this.changing = false;
+    this._changing = false;
 };
 
 ColorPicker.prototype = {
@@ -127,6 +150,17 @@ ColorPicker.prototype = {
         for (var t=0; t<=6; t+=1) {
             gradient.addColorStop(t / 6, Helpers.rgbaStr(hsv2rgb([t / 6, 1, 1])));
         }
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, w, h);
+    },
+
+    _generateAlpha : function (canvas) {
+        var ctx = canvas.element.getContext('2d');
+        var w = canvas.element.width;
+        var h = canvas.element.height;
+        var gradient = ctx.createLinearGradient(0, 0, 0, h);
+        gradient.addColorStop(0, 'rgb(255, 255, 255)');
+        gradient.addColorStop(1, 'rgb(0, 0, 0)');
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, w, h);
     },
@@ -149,24 +183,25 @@ ColorPicker.prototype = {
         ctx.fillRect(0, 0, w, h);
     },
 
-    _onValueChanged : function() {
-        if (!this.changing) {
-            var rgb = [this.rField.value,
-                       this.gField.value,
-                       this.bField.value];
-            this.hsv = rgb2hsv(rgb);
+    _onFieldChanged : function() {
+        if (!this._changing) {
+            var rgba = [this.rField.value,
+                        this.gField.value,
+                        this.bField.value,
+                        this.aField.value].map(function (v) { return v / 255; });
+            this.hsva = Helpers.toHsva(rgba);
             this.emit('change', this.color);
         }
     },
 
     _onHexChanged : function() {
-        if (!this.changing) {
+        if (!this._changing) {
             var hex = this.hexField.value.trim().toLowerCase();
             if (/^([0-9a-f]{2}){3,4}$/.test(hex)) {
                 var rgb = [ parseInt(hex.substring(0, 2), 16),
                             parseInt(hex.substring(2, 4), 16),
                             parseInt(hex.substring(4, 6), 16) ];
-                this.hsv = rgb2hsv(rgb);
+                this.hsva = rgb2hsv(rgb).push(this.hsva[3]);
                 this.emit('change', this.color);
             }
         }
@@ -175,12 +210,13 @@ ColorPicker.prototype = {
     _onMouseDown : function(evt) {
         if (evt.currentTarget === this.colorRect.element) {
             this._dragMode = 1;     // drag color
-        }
-        else {
+        } else if (evt.currentTarget === this.hueRect.element) {
             this._dragMode = 2;     // drag hue
+        } else {
+            this._dragMode = 3;     // drag alpha
         }
 
-        this._storeHsv = this._hsv.slice();
+        this._storeHsva = this._hsva.slice();
         this._onMouseMove(evt);
 
         // hook up mouse
@@ -189,21 +225,27 @@ ColorPicker.prototype = {
     },
 
     _onMouseMove : function(evt) {
-        var newhsv;
+        var newhsva;
         if (this._dragMode === 1) {
-            var rect = this.colorRect.element.getBoundingClientRect();
-            var s = pc.math.clamp((evt.pageX - rect.left) / rect.width, 0, 1);
-            var v = pc.math.clamp((evt.pageY - rect.top) / rect.height, 0, 1);
-            newhsv = [this.hsv[0], s, 1 - v];
+            var m = Helpers.normalizedCoord(this.colorRect, evt.pageX, evt.pageY);
+            var s = pc.math.clamp(m[0], 0, 1);
+            var v = pc.math.clamp(m[1], 0, 1);
+            newhsva = [this.hsva[0], s, 1 - v, this._hsva[3]];
+        } else if (this._dragMode === 2) {
+            var m = Helpers.normalizedCoord(this.hueRect, evt.pageX, evt.pageY);
+            var h = pc.math.clamp(m[1], 0, 1);
+            newhsva = [h, this.hsva[1], this.hsva[2], this.hsva[3]];
         } else {
-            var rect = this.hueRect.element.getBoundingClientRect();
-            var h = pc.math.clamp((evt.pageY - rect.top) / rect.height, 0, 1);
-            newhsv = [h, this.hsv[1], this.hsv[2]];
+            var m = Helpers.normalizedCoord(this.alphaRect, evt.pageX, evt.pageY);
+            var a = pc.math.clamp(m[1], 0, 1);
+            newhsva = [this.hsva[0], this.hsva[1], this.hsva[2], 1 - a];
         }
-        if (newhsv[0] !== this._hsv[0] ||
-            newhsv[1] !== this._hsv[1] ||
-            newhsv[2] !== this._hsv[2]) {
-            this.hsv = newhsv;
+        if (newhsva[0] !== this._hsva[0] ||
+            newhsva[1] !== this._hsva[1] ||
+            newhsva[2] !== this._hsva[2] ||
+            newhsva[3] !== this._hsva[3]) {
+            this.hsva = newhsva;
+            this.emit('changing', this.color);
         }
     },
 
@@ -211,9 +253,10 @@ ColorPicker.prototype = {
         window.removeEventListener('mousemove', this.moveHandler);
         window.removeEventListener('mouseup', this.upHandler);
 
-        if (this._storeHsv[0] !== this._hsv[0] ||
-            this._storeHsv[1] !== this._hsv[1] ||
-            this._storeHsv[2] !== this._hsv[2]) {
+        if (this._storeHsva[0] !== this._hsva[0] ||
+            this._storeHsva[1] !== this._hsva[1] ||
+            this._storeHsva[2] !== this._hsva[2] ||
+            this._storeHsva[3] !== this._hsva[3]) {
                 this.emit('change', this.color);
         }
     },
@@ -221,21 +264,16 @@ ColorPicker.prototype = {
     __proto__ : Events.prototype,
 };
 
-Object.defineProperty(ColorPicker.prototype, 'hsv', {
+Object.defineProperty(ColorPicker.prototype, 'hsva', {
     get: function() {
-        return this._hsv;
+        return this._hsva;
     },
-    set: function(hsv) {
-
-        if ((hsv[1] === 0 || hsv[2] === 0) && this._hsv[0] !== -1) {
-            hsv[0] = this._hsv[0];
-        }
-
-        var rgb = hsv2rgb(hsv);
-        var hueRgb = hsv2rgb([hsv[0], 1, 1]);
+    set: function(hsva) {
+        var rgb = hsv2rgb(hsva);
+        var hueRgb = hsv2rgb([hsva[0], 1, 1]);
 
         // regenerate gradient canvas if hue changes
-        if (hsv[0] !== this._hsv[0]) {
+        if (hsva[0] !== this._hsva[0]) {
             this._generateGradient(this.colorRect, hueRgb);
         }
 
@@ -245,36 +283,61 @@ Object.defineProperty(ColorPicker.prototype, 'hsv', {
         var h = r.height - 2;
 
         this.colorHandle.style.backgroundColor = Helpers.rgbaStr(rgb);
-        this.colorHandle.style.left = e.offsetLeft - 8 + Math.floor(w * hsv[1]) + 'px';
-        this.colorHandle.style.top = e.offsetTop - 8 + Math.floor(h * (1 - hsv[2])) + 'px';
+        this.colorHandle.style.left = e.offsetLeft - 7 + Math.floor(w * hsva[1]) + 'px';
+        this.colorHandle.style.top = e.offsetTop - 7 + Math.floor(h * (1 - hsva[2])) + 'px';
 
         this.hueHandle.style.backgroundColor = Helpers.rgbaStr(hueRgb);
-        this.hueHandle.style.top = e.offsetTop - 3 + Math.floor(140 * hsv[0]) + 'px';
-        this.hueHandle.style.left = '150px';        
+        this.hueHandle.style.top = e.offsetTop - 3 + Math.floor(140 * hsva[0]) + 'px';
+        this.hueHandle.style.left = '162px';
 
-        this.changing = true;
+        this.alphaHandle.style.backgroundColor = Helpers.rgbaStr(hsv2rgb([0, 0, hsva[3]]));
+        this.alphaHandle.style.top = e.offsetTop - 3 + Math.floor(140 * (1 - hsva[3]))  + 'px';
+        this.alphaHandle.style.left = '194px';
+
+        this._changing = true;
         this.rField.value = rgb[0];
         this.gField.value = rgb[1];
         this.bField.value = rgb[2];
+        this.aField.value = Math.round(hsva[3] * 255);
         this.hexField.value = Helpers.hexStr(rgb);
-        this.changing = false;
+        this._changing = false;
 
-        this._hsv = hsv;
+        this._hsva = hsva;
     }
 });
 
 Object.defineProperty(ColorPicker.prototype, 'color', {
     get: function() {
-        return hsv2rgb(this._hsv).map(function(v) { return v / 255; });
+        return Helpers.toRgba(this._hsva);
     },
     set: function(clr) {
-        this.hsv = rgb2hsv(clr.map(function(v) { return v * 255; }));
+        var hsva = Helpers.toHsva(clr);
+        if (hsva[0] === 0 && hsva[1] === 0 && this._hsva[0] !== -1) {
+            // if the incoming RGB is a shade of grey (without hue),
+            // use the current active hue instead.
+            hsva[0] = this._hsva[0];
+        }
+        this.hsva = hsva;
     },
+});
+
+Object.defineProperty(ColorPicker.prototype, 'editAlpha', {
+    set: function(editAlpha) {
+        if (editAlpha) {
+            this.alphaRect.element.style.display = 'inline';
+            this.alphaHandle.style.display = 'block';
+            this.aField.element.style.display = 'inline-block';
+        } else {
+            this.alphaRect.element.style.display = 'none';
+            this.alphaHandle.style.display = 'none';
+            this.aField.element.style.display = 'none';
+        }
+    }
 });
 
 // gradient picker
 
-editor.once('load', function() { 
+editor.once('load', function() {
     'use strict';
 
     // open the picker
@@ -304,54 +367,6 @@ editor.once('load', function() {
         UI.anchors.element.removeEventListener('mousedown', anchorsOnMouseDown);
         editor.emit('picker:gradient:close');
         editor.emit('picker:close', 'gradient');
-    };
-
-    function setValue(value, args) {
-        // sanity checks mostly for script 'curve' attributes
-        if (!(value instanceof Array) ||
-            value.length !== 1 ||
-            value[0].keys == undefined ||
-            (value[0].keys.length !== 3 && value[0].keys.length !== 4))
-            return;
-
-        // store the curve type
-        var comboItems = {
-            0: 'Step',
-            1: 'Linear',
-            2: 'Spline',
-        };
-        STATE.typeMap = {
-            0: pc.CURVE_STEP,
-            1: pc.CURVE_LINEAR,
-            2: pc.CURVE_SPLINE
-        };
-        // check if curve is using a legacy curve type
-        if (value[0].type !== pc.CURVE_STEP &&
-            value[0].type !== pc.CURVE_LINEAR &&
-            value[0].type !== pc.CURVE_SPLINE) {
-            comboItems[3] = 'Legacy';
-            STATE.typeMap[3] = value[0].type;
-        }
-        UI.typeCombo._updateOptions(comboItems);
-        UI.typeCombo.value = { 0:1, 1:3, 2:3, 3:3, 4:2, 5:0 }[value[0].type];
-
-        // store the curves
-        STATE.curves = [];
-        value[0].keys.forEach(function (keys) {
-            var curve = new pc.Curve(keys);
-            curve.type = value[0].type;
-            STATE.curves.push(curve);
-        });
-
-        // calculate the anchor times
-        STATE.anchors = calcAnchorTimes();
-
-        // select the anchor
-        if (STATE.anchors.length === 0) {
-            selectAnchor(-1);
-        } else {
-            selectAnchor(pc.math.clamp(STATE.selectedAnchor, 0, STATE.anchors.length - 1));
-        }
     };
 
     function onDeleteKey() {
@@ -386,7 +401,7 @@ editor.once('load', function() {
         var s = STATE;
 
         // fill background
-        ctx.fillStyle = 'rgb(0, 0, 0)';
+        ctx.fillStyle = UI.checkerPattern;
         ctx.fillRect(0, 0, w, h);
 
         // fill gradient
@@ -399,6 +414,32 @@ editor.once('load', function() {
 
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, w, h);
+
+        // render the tip of the selected anchor
+        if (STATE.selectedAnchor !== -1) {
+            var toDevice = function(value) {
+                return value * window.devicePixelRatio;
+            }
+
+            var time = STATE.anchors[STATE.selectedAnchor];
+            var coords = [time * w, h];
+
+            ctx.beginPath();
+            ctx.rect(coords[0] - toDevice(2),
+                     coords[1],
+                     toDevice(4),
+                     toDevice(-6));
+            ctx.fillStyle = 'rgb(255, 255, 255)';
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.rect(coords[0] - toDevice(1),
+                     coords[1],
+                     toDevice(2),
+                     toDevice(-6));
+            ctx.fillStyle = 'rgb(0, 0, 0)';
+            ctx.fill();
+        }
     };
 
     function renderAnchors() {
@@ -439,8 +480,6 @@ editor.once('load', function() {
             return value * window.devicePixelRatio;
         }
 
-        ctx.lineWidth = toDevice(1);
-
         // render selected arrow
         if (type === "selected") {
             ctx.beginPath();
@@ -448,29 +487,36 @@ editor.once('load', function() {
                      coords[1],
                      toDevice(4),
                      toDevice(-coords[1]));
+            ctx.fillStyle = 'rgb(255, 255, 255)';
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.rect(coords[0] - toDevice(1),
+                     coords[1],
+                     toDevice(2),
+                     toDevice(-coords[1]));
             ctx.fillStyle = 'rgb(0, 0, 0)';
             ctx.fill();
-            ctx.strokeStyle = 'rgb(255, 255, 255)';
-            ctx.stroke();
+        }
+
+        // render selection highlight
+        if (type === "selected" || type === "hovered") {
+            ctx.beginPath();
+            ctx.arc(coords[0], coords[1], toDevice(radius + 2), 0, 2 * Math.PI, false);
+            ctx.fillStyle = 'rgb(255, 255, 255)';
+            ctx.fill();
         }
 
         // render the colour circle and border
         ctx.beginPath();
-        ctx.arc(coords[0], coords[1], toDevice(radius), 0, 2 * Math.PI, false);
-        ctx.fillStyle = Helpers.rgbaStr(evaluateGradient(time), 255);
+        ctx.arc(coords[0], coords[1], toDevice(radius + 1), 0, 2 * Math.PI, false);
+        ctx.fillStyle = 'rgb(0, 0, 0)';
         ctx.fill();
-        ctx.strokeStyle = 'rgb(0, 0, 0)';
-        ctx.stroke();
 
-        // render additional which selection highlight
-        if (type === "selected" || type === "hovered") {
-            ctx.beginPath();
-            ctx.arc(coords[0], coords[1], toDevice(radius + 1), 0, 2 * Math.PI, false);
-            ctx.strokeStyle = 'rgb(255, 255, 255)';
-            ctx.stroke();
-        }
-
-        ctx.lineWidth = lineWidth;
+        ctx.beginPath();
+        ctx.arc(coords[0], coords[1], toDevice(radius), 0, 2 * Math.PI, false);
+        ctx.fillStyle = Helpers.rgbaStr(evaluateGradient(time, 1), 255);
+        ctx.fill();
     };
 
     function evaluateGradient(time, alphaOverride) {
@@ -486,12 +532,6 @@ editor.once('load', function() {
             result.push(STATE.curves[3].value(time));
         } else {
             result.push(1);
-        }
-
-        for (var i=0; i<result.length; ++i) {
-            if (!isFinite(result[i]) || isNaN(result[i])) {
-                var oops = STATE.curves[i].value(time);
-            }
         }
 
         return result;
@@ -605,12 +645,10 @@ editor.once('load', function() {
         STATE.changing = true;
         if (index === -1) {
             UI.positionEdit.value = "";
-            UI.positionSlider.value = "";
             UI.colorPicker.color = [0, 0, 0];
         } else {
             var time = STATE.anchors[index];
             UI.positionEdit.value = Math.round(time * 100);
-            UI.positionSlider.value = time;
             STATE.selectedValue = evaluateGradient(time);
             UI.colorPicker.color = STATE.selectedValue;
         }
@@ -707,13 +745,13 @@ editor.once('load', function() {
         }
     };
 
-    function colorSelectedAnchor(clr) {
+    function colorSelectedAnchor(clr, dragging) {
         if (STATE.selectedAnchor !== -1) {
             var time = STATE.anchors[STATE.selectedAnchor];
 
             for (var i=0; i<STATE.curves.length; ++i) {
                 var curve = STATE.curves[i];
-    
+
                 for (var j=0; j<curve.keys.length; ++j) {
                     if (curve.keys[j][0] === time) {
                         curve.keys[j][1] = clr[i];
@@ -722,7 +760,11 @@ editor.once('load', function() {
                 }
             }
             STATE.selectedValue = clr;
-            emitCurveChange();
+            if (dragging) {
+                render();
+            } else {
+                emitCurveChange();
+            }
         }
     }
 
@@ -740,11 +782,107 @@ editor.once('load', function() {
         editor.emit('picker:curve:change', paths, values);
     };
 
+    function doCopy() {
+        var data = {
+            type: STATE.curves[0].type,
+            keys: STATE.curves.map(function(c) {
+                return [].concat.apply([], c.keys);
+            })
+        };
+        editor.call('localStorage:set', 'playcanvas_editor_clipboard_gradient', data);
+    };
+
+    function doPaste() {
+        var data = editor.call('localStorage:get', 'playcanvas_editor_clipboard_gradient');
+        if (data) {
+            // only paste the number of curves we're currently editing
+            var pasteData = {
+                type: data.type,
+                keys: [],
+            };
+
+            for (var index=0; index<STATE.curves.length; ++index) {
+                if (index < data.keys.length) {
+                    pasteData.keys.push(data.keys[index]);
+                } else {
+                    pasteData.keys.push([].concat.apply([], STATE.curves[index].keys));
+                }
+            }
+
+            setValue([pasteData]);
+            emitCurveChange();
+        }
+    };
+
+    function createCheckerPattern() {
+        var canvas = new ui.Canvas();
+        canvas.width = 16;
+        canvas.height = 16;
+        var ctx = canvas.element.getContext('2d');
+        ctx.fillStyle = "#949a9c";
+        ctx.fillRect(0,0,8,8);
+        ctx.fillRect(8,8,8,8);
+        ctx.fillStyle = "#657375";
+        ctx.fillRect(8,0,8,8);
+        ctx.fillRect(0,8,8,8);
+        return ctx.createPattern(canvas.element, 'repeat');
+    }
+
+    function setValue(value, args) {
+        // sanity checks mostly for script 'curve' attributes
+        if (!(value instanceof Array) ||
+            value.length !== 1 ||
+            value[0].keys == undefined ||
+            (value[0].keys.length !== 3 && value[0].keys.length !== 4))
+            return;
+
+        // store the curve type
+        var comboItems = {
+            0: 'Step',
+            1: 'Linear',
+            2: 'Spline',
+        };
+        STATE.typeMap = {
+            0: CURVE_STEP,
+            1: CURVE_LINEAR,
+            2: CURVE_SPLINE
+        };
+        // check if curve is using a legacy curve type
+        if (value[0].type !== CURVE_STEP &&
+            value[0].type !== CURVE_LINEAR &&
+            value[0].type !== CURVE_SPLINE) {
+            comboItems[3] = 'Legacy';
+            STATE.typeMap[3] = value[0].type;
+        }
+        UI.typeCombo._updateOptions(comboItems);
+        UI.typeCombo.value = { 0:1, 1:3, 2:3, 3:3, 4:2, 5:0 }[value[0].type];
+
+        // store the curves
+        STATE.curves = [];
+        value[0].keys.forEach(function (keys) {
+            var curve = new pc.Curve(keys);
+            curve.type = value[0].type;
+            STATE.curves.push(curve);
+        });
+
+        // calculate the anchor times
+        STATE.anchors = calcAnchorTimes();
+
+        // select the anchor
+        if (STATE.anchors.length === 0) {
+            selectAnchor(-1);
+        } else {
+            selectAnchor(pc.math.clamp(STATE.selectedAnchor, 0, STATE.anchors.length - 1));
+        }
+
+        UI.colorPicker.editAlpha = STATE.curves.length > 3;
+    };
+
     // constants
     var CONST = {
-        bg: '#293538',
-        anchorRadius : 6,
-        selectedRadius : 8,
+        bg: '#2c393c',
+        anchorRadius : 5,
+        selectedRadius : 7,
     };
 
     // ui widgets
@@ -753,6 +891,7 @@ editor.once('load', function() {
         overlay : new ui.Overlay(),
         panel : document.createElement('div'),
         gradient : new ui.Canvas(),
+        checkerPattern : createCheckerPattern(),
         anchors : new ui.Canvas(),
         footer : new ui.Panel(),
         typeLabel : new ui.Label( { text : 'Type' }),
@@ -762,8 +901,9 @@ editor.once('load', function() {
         }),
         positionLabel : new ui.Label( { text : 'Position' }),
         positionEdit : new ui.NumberField( { min : 0, max : 100, step : 1 } ),
-        positionSlider : new ui.Slider( {  } ),
-        colourPicker : null,
+        copyButton : new ui.Button({ text: '&#58193' }),
+        pasteButton : new ui.Button({ text: '&#58184' }),
+        colorPicker : null,
     };
 
     // current state
@@ -801,14 +941,16 @@ editor.once('load', function() {
     // gradient
     UI.panel.appendChild(UI.gradient.element);
     UI.gradient.class.add('picker-gradient-gradient');
-    UI.gradient.resize(UI.gradient.element.clientWidth * window.devicePixelRatio,
-                       UI.gradient.element.clientHeight * window.devicePixelRatio);
+    var r = getClientRect(UI.gradient.element);
+    UI.gradient.resize(r.width * window.devicePixelRatio,
+                       r.height * window.devicePixelRatio);
 
     // anchors
     UI.panel.appendChild(UI.anchors.element);
     UI.anchors.class.add('picker-gradient-anchors');
-    UI.anchors.resize(UI.anchors.element.clientWidth * window.devicePixelRatio,
-                      UI.anchors.element.clientHeight * window.devicePixelRatio);
+    r = getClientRect(UI.anchors.element);
+    UI.anchors.resize(r.width * window.devicePixelRatio,
+                      r.height * window.devicePixelRatio);
 
     // footer
     UI.panel.appendChild(UI.footer.element);
@@ -826,17 +968,30 @@ editor.once('load', function() {
     UI.positionEdit.renderChanges = false;
     UI.positionEdit.on('change', function(value) { if (!STATE.changing) { moveSelectedAnchor(value/100); } } );
 
-    // TODO: ideally this width wouldn't be specified.
-    // can we use flexgrow for sizing instead?
-    UI.footer.append(UI.positionSlider);
-    UI.positionSlider.style.width = '84px';
-    UI.positionSlider.on('start', function() { if (!STATE.changing) { dragStart(); } } );
-    UI.positionSlider.on('change', function(value) { if (!STATE.changing) { dragUpdate(value); } } );
-    UI.positionSlider.on('end', function() { if (!STATE.changing) { dragEnd(); } } );
+    UI.copyButton.on('click', doCopy);
+    UI.footer.append(UI.copyButton);
+    Tooltip.attach({
+        target: UI.copyButton.element,
+        text: 'Copy',
+        align: 'bottom',
+        root: UI.root
+    });
+
+    UI.pasteButton.on('click', doPaste);
+    UI.footer.append(UI.pasteButton);
+    Tooltip.attach({
+        target: UI.pasteButton.element,
+        text: 'Paste',
+        align: 'bottom',
+        root: UI.root
+    });
 
     // construct the color picker
     UI.colorPicker = new ColorPicker(UI.panel);
     UI.colorPicker.on('change', colorSelectedAnchor);
+    UI.colorPicker.on('changing', function(color) {
+        colorSelectedAnchor(color, true);
+    });
 
     // esc to close
     editor.call('hotkey:register', 'picker:gradient:close', {

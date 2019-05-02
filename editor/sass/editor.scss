@@ -2633,35 +2633,6 @@ strong {
 
 
     }
-
-    .ui-panel.localization {
-        > .content {
-            .add-locale {
-                margin-bottom: 10px;
-                &.error {
-                    outline: 1px solid #fb222f;
-                }
-            }
-
-            .ui-panel.locale {
-                margin-bottom: 10px;
-
-                > .ui-header {
-                    text-transform: initial;
-
-                    > .ui-button.remove {
-                        float: right;
-                        border-color: transparent;
-                        background: transparent;
-                        @extend .font-icon;
-                    }
-                }
-                > .content {
-                    border: 1px solid $bcg-dark;
-                }
-            }
-        }
-    }
 }
 
 .ui-checkbox.tick {
@@ -5870,7 +5841,7 @@ strong {
 
 .picker-gradient {
     > .content {
-        width: 390px;
+        width: 340px;
 
         > .picker-gradient-panel {
             height: 100%;
@@ -5881,17 +5852,17 @@ strong {
             }
 
             > .picker-gradient-gradient {
-                width: 380px;
-                height: 48px;
+                width: 320px;
+                height: 28px;
                 display: block;
-                padding: 5px 5px 0px 5px;
+                padding: 10px 10px 0px 10px;
             }
 
             > .picker-gradient-anchors {
-                width: 380px;
-                height: 34px;
+                width: 320px;
+                height: 28px;
                 display: block;
-                padding: 0px 5px;
+                padding: 0px 10px 0px 10px;
             }
 
             > .picker-gradient-footer {
@@ -5903,15 +5874,20 @@ strong {
                     > .ui-slider {
                         vertical-align: bottom;
                     }
+                    > .ui-button {
+                        @extend .font-icon;
+                        vertical-align: bottom;
+                    }
                 }
             }
 
             > .color-panel {
-                height: 151px;
+                height: 156px;
 
                 > .content {
+
                     > .color-rect {
-                        margin: 5px 5px;
+                        margin: 5px 10px 10px 10px;
                         width: 140px;
                         height: 140px;
                         cursor: crosshair;
@@ -5921,23 +5897,23 @@ strong {
 
                     > .color-handle {
                         position: absolute;
-                        width: 16px;
-                        height: 16px;
+                        width: 14px;
+                        height: 14px;
                         border: 1px solid #000;
                         outline: 1px solid #fff;
                         pointer-events: none;
                     }
 
-                    > .hue-rect {
-                        margin: 5px 5px 5px 0px;
+                    > .hue-rect, > .alpha-rect {
+                        margin: 5px 10px 10px 0px;
                         width: 20px;
                         height: 140px;
                         cursor: crosshair;
                     }
 
-                    > .hue-handle {
+                    > .hue-handle, > .alpha-handle {
                         position: absolute;
-                        width: 24px;
+                        width: 20px;
                         height: 4px;
                         border: 1px solid rgb(92, 82, 79);
                         outline: 1px solid #fff;
@@ -5946,17 +5922,19 @@ strong {
 
                     > .fields {
                         display: inline-block;
-                        padding: 0px 5px;
-                        width: 196px;
+                        margin: 3px 0px 0px 0px;
+                        width: 112px;
                         height: 145px;
                         vertical-align: top;
 
                         > .ui-number-field {
-                            margin-top: 0px;
+                            margin: 2px 0px;
+                            width: 108px;
                         }
 
                         > .ui-text-field {
-                            margin-top: 0px;
+                            margin: 2px 0px;
+                            width: 108px;
                         }
                     }
                 }

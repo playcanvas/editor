@@ -234,6 +234,12 @@ CurveField.prototype._renderCurves = function () {
         context.lineWidth = this._lineWidth;
 
         var height = canvas.height;
+        var width = canvas.width;
+
+        // prevent divide by 0
+        if (width === 0) {
+            return;
+        }
 
         for (var i = 0; i < primaryCurves.length; i++) {
             var val, x;
@@ -295,7 +301,7 @@ CurveField.prototype._renderGradient = function () {
 
         var precision = 2;
 
-        var gradient = context.createLinearGradient(0, 0, canvas.width, canvas.height);
+        var gradient = context.createLinearGradient(0, 0, canvas.width, 0);
 
         for (var t = precision; t < canvas.width; t += precision) {
             curve.value(t / canvas.width, rgb);

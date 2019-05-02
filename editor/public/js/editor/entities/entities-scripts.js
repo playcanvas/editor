@@ -14,7 +14,7 @@ editor.once('load', function () {
         vec2: [0, 0],
         vec3: [0, 0, 0],
         vec4: [0, 0, 0, 0],
-        curve: { keys: [0, 0], type: 2 }
+        curve: { keys: [0, 0], type: CURVE_SPLINE }
     };
 
     // The expected typeof value for each script attribute type
@@ -245,15 +245,14 @@ editor.once('load', function () {
                 if (attribute.array) {
                     value = [];
                 } else {
-                    value = {
-                        keys: [0, 0],
-                        type: 2
-                    };
+                    value = utils.deepCopy(value);
                     if (attribute.color || attribute.curves) {
                         var len = attribute.color ? attribute.color.length : attribute.curves.length;
+                        var v = attribute.color ? 1 : 0;
                         value.keys = [];
-                        for (var c = 0; c < len; c++)
-                            value.keys.push([0, 0]);
+                        for (var c = 0; c < len; c++) {
+                            value.keys.push([0, v]);
+                        }
                     }
                 }
             }
