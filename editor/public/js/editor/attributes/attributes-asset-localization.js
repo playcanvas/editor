@@ -17,12 +17,15 @@ editor.once('load', function () {
         panel.class.add('component');
         panel.class.add('localization');
 
+        // reference
+        editor.call('attributes:reference:attach', 'asset:localization', panel, panel.headerElement);
+
         // Add locale
         var fieldAddLocale = editor.call('attributes:addField', {
             parent: panel,
             name: 'Add Locale',
             type: 'string',
-            placeholder: 'Type to add'
+            placeholder: 'Type to add (e.g. en-US)'
         });
 
         fieldAddLocale.class.add('add-locale');
