@@ -263,22 +263,46 @@ editor.once('load', function () {
 
                 // can we overwrite another asset?
                 var sourceAsset = null;
-                var asset = editor.call('assets:findOne', function (item) {
+                var candidates = editor.call('assets:find', function (item) {
                     // check files in current folder only
                     if (!item.get('path').equals(path))
-                        return;
+                        return false;
 
                     // try locate source when dropping on its targets
                     if (source && !item.get('source') && item.get('source_asset_id')) {
                         var itemSource = editor.call('assets:get', item.get('source_asset_id'));
                         if (itemSource && itemSource.get('type') === type && itemSource.get('name').toLowerCase() === files[i].name.toLowerCase()) {
                             sourceAsset = itemSource;
-                            return;
+                            return false;
                         }
                     }
 
-                    return item.get('source') === source && item.get('type') === type && item.get('name').toLowerCase() === files[i].name.toLowerCase();
+
+                    if (item.get('source') === source && item.get('name').toLowerCase() === files[i].name.toLowerCase()) {
+                        // we want the same type or try to replace a texture atlas with the same name if one exists
+                        if (item.get('type') === type || (type === 'texture' && item.get('type') === 'textureatlas')) {
+                            return true;
+                        }
+                    }
+
+                    return false;
                 });
+
+                // candidates contains [index, asset] entries. Each entry
+                // represents an asset that could be overwritten by the uploaded asset.
+                // Use the first candidate by default (or undefined if the array is empty).
+                // If we are uploading a texture try to find a textureatlas candidate and
+                // if one exists then overwrite the textureatlas instead.
+                var asset = candidates[0];
+                if (type === 'texture') {
+                    for (var j = 0; j < candidates.length; j++) {
+                        if (candidates[j][1].get('type') === 'textureatlas') {
+                            asset = candidates[j];
+                            type = 'textureatlas';
+                            break;
+                        }
+                    }
+                }
 
                 var data = null;
                 if (ext === 'js') {
