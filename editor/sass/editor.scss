@@ -5839,6 +5839,110 @@ strong {
     }
 }
 
+.picker-gradient {
+    > .content {
+        width: 340px;
+
+        > .picker-gradient-panel {
+            height: 100%;
+            font-size: 11px;
+
+            > .picker-gradient-header {
+
+            }
+
+            > .picker-gradient-gradient {
+                width: 320px;
+                height: 28px;
+                display: block;
+                padding: 10px 10px 0px 10px;
+            }
+
+            > .picker-gradient-anchors {
+                width: 320px;
+                height: 28px;
+                display: block;
+                padding: 0px 10px 0px 10px;
+            }
+
+            > .picker-gradient-footer {
+                padding: 5px 5px;
+                > .content {
+                    > .ui-number-field {
+                        vertical-align: bottom;
+                    }
+                    > .ui-slider {
+                        vertical-align: bottom;
+                    }
+                    > .ui-button {
+                        @extend .font-icon;
+                        vertical-align: bottom;
+                    }
+                }
+            }
+
+            > .color-panel {
+                height: 156px;
+
+                > .content {
+
+                    > .color-rect {
+                        margin: 5px 10px 10px 10px;
+                        width: 140px;
+                        height: 140px;
+                        cursor: crosshair;
+                        position: relative;
+                        float: left;
+                    }
+
+                    > .color-handle {
+                        position: absolute;
+                        width: 14px;
+                        height: 14px;
+                        border: 1px solid #000;
+                        outline: 1px solid #fff;
+                        pointer-events: none;
+                    }
+
+                    > .hue-rect, > .alpha-rect {
+                        margin: 5px 10px 10px 0px;
+                        width: 20px;
+                        height: 140px;
+                        cursor: crosshair;
+                    }
+
+                    > .hue-handle, > .alpha-handle {
+                        position: absolute;
+                        width: 20px;
+                        height: 4px;
+                        border: 1px solid rgb(92, 82, 79);
+                        outline: 1px solid #fff;
+                        pointer-events: none;
+                    }
+
+                    > .fields {
+                        display: inline-block;
+                        margin: 3px 0px 0px 0px;
+                        width: 112px;
+                        height: 145px;
+                        vertical-align: top;
+
+                        > .ui-number-field {
+                            margin: 2px 0px;
+                            width: 108px;
+                        }
+
+                        > .ui-text-field {
+                            margin: 2px 0px;
+                            width: 108px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 .sprites-editor.center {
     > .overlay {
         background-color: rgba($bcg-darkest, .9);

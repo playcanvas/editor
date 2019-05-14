@@ -1220,3 +1220,25 @@ a:visited {
         }
     }
 }
+
+.picker-gradient {
+    > .content {
+        border: 1px solid $bcg-darkest;
+        background-color: $bcg-dark;
+
+        > .picker-gradient-panel {
+            > .color-panel {
+                > .content {
+                    > .color-rect,
+                    > .hue-rect,
+                    > .alpha-rect {
+                        border: 1px solid $bcg-darker;
+                    }
+                    > .fields {
+                        background-color: $bcg-primary;
+                    }
+                }
+            }
+        }
+    }
+}

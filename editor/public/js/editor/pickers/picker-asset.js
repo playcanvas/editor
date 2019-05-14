@@ -177,6 +177,8 @@ editor.once('load', function () {
             pickerType = 'textureTarget';
         } else if (type === 'textureatlas') {
             pickerType = 'textureAtlasTarget';
+        } else if (type === 'font') {
+            pickerType = 'fontTarget';
         }
 
         editor.call('assets:filter:type', (pickerType === '*') ? 'all' : pickerType);

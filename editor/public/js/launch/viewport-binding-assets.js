@@ -6,6 +6,7 @@ editor.once('load', function() {
 
     var regexFrameUpdate = /^data\.frames\.(\d+)/;
     var regexFrameRemove = /^data\.frames\.(\d+)$/;
+    var regexI18n = /^i18n\.[^\.]+?$/;
 
     var attachSetHandler = function (asset) {
         // do only for target assets
@@ -56,8 +57,15 @@ editor.once('load', function() {
 
         // attach update handler
         asset.on('*:set', function (path, value) {
-            // handle texture atlases specifically for better performance
-            if (asset.get('type') === 'textureatlas') {
+            // handle i18n changes
+            if (regexI18n.test(path)) {
+                var parts = path.split('.');
+                var realtimeAsset = app.assets.get(asset.get('id'));
+                if (realtimeAsset) {
+                    realtimeAsset.addLocalizedAssetId(parts[1], value);
+                }
+            } else if (asset.get('type') === 'textureatlas') {
+                // handle texture atlases specifically for better performance
                 var realtimeAsset = app.assets.get(asset.get('id'));
                 if (! realtimeAsset) return;
 
@@ -87,8 +95,16 @@ editor.once('load', function() {
             }
         });
         asset.on('*:unset', function (path, value) {
-            // handle deleting frames from texture atlas
-            if (asset.get('type') === 'textureatlas') {
+            // handle deleting i18n
+            if (regexI18n.test(path)) {
+                var realtimeAsset = app.assets.get(asset.get('id'));
+                if (realtimeAsset) {
+                    var parts = path.split('.');
+                    realtimeAsset.removeLocalizedAssetId(parts[1]);
+                }
+
+            } else if (asset.get('type') === 'textureatlas') {
+                // handle deleting frames from texture atlas
                 var realtimeAsset = app.assets.get(asset.get('id'));
                 if (! realtimeAsset) return;
 
@@ -175,8 +191,16 @@ editor.once('load', function() {
             var newAsset = new pc.Asset(data.name, data.type, data.file, data.data);
             newAsset.id = parseInt(assetJson.id, 10);
             app.assets.add(newAsset);
+
             // tags
             newAsset.tags.add(data.tags);
+
+            // i18n
+            if (assetJson.i18n) {
+                for (var locale in assetJson.i18n) {
+                    newAsset.addLocalizedAssetId(locale, assetJson.i18n[locale]);
+                }
+            }
 
             attachSetHandler(asset);
         });

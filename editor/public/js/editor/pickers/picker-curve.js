@@ -104,7 +104,10 @@ editor.once('load', function() {
         options: {
             0: 'Linear',
             1: 'Smooth Step',
-            2: 'Spline'
+            2: 'Legacy Spline', // catmull, deprecated
+            // 3: 'Spline (Legacy)', // cardinal, deprecated
+            4: 'Spline',  // spline
+            5: 'Step'
         },
         type: 'number'
     });

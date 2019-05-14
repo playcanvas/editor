@@ -1012,6 +1012,9 @@ editor.once('load', function() {
             var choices = null;
             if (attribute.type === 'curve') {
                 if (attribute.color) {
+                    if ((attribute.color === 'rgb') || (attribute.color === 'rgba')) {
+                        type = 'gradient';
+                    }
                     curves = attribute.color.split('');
                     min = 0;
                     max = 1;
@@ -1046,6 +1049,8 @@ editor.once('load', function() {
                     enum: choices,
                     curves: curves,
                     gradient: !! attribute.color,
+                    precision: attribute.precision,
+                    step: attribute.step,
                     min: min,
                     max: max,
                     hideRandomize: true,
@@ -1065,6 +1070,8 @@ editor.once('load', function() {
                     gradient: !! attribute.color,
                     min: min,
                     max: max,
+                    precision: attribute.precision,
+                    step: attribute.step,
                     hideRandomize: true,
                     path: 'components.script.scripts.' + script + '.attributes.' + name
                 };
@@ -1078,6 +1085,8 @@ editor.once('load', function() {
                         link: entities,
                         min: min,
                         max: max,
+                        precision: attribute.precision,
+                        step: attribute.step,
                         path: 'components.script.scripts.' + script + '.attributes.' + name
                     });
                     panel.field.flexGrow = 1;

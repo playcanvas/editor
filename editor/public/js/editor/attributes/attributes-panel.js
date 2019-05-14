@@ -1829,6 +1829,123 @@ editor.once('load', function() {
                 panel.append(field);
                 break;
 
+            case 'gradient':
+                field = new ui.CurveField(args);
+                field.flexGrow = 1;
+                field.text = args.text || '';
+
+                if (args.link) {
+                    var link = args.link;
+                    if (args.link instanceof Array)
+                        link = args.link[0];
+                    var path = pathAt(args, 0);
+                    field.link(link, [path]);
+                }
+
+                var gradientPickerVisible = false;
+
+                var toggleGradientPicker = function () {
+                    if (!field.class.contains('disabled') && !gradientPickerVisible) {
+                        editor.call('picker:gradient', field.value, args);
+
+                        gradientPickerVisible = true;
+
+                        // position picker
+                        var rectPicker = editor.call('picker:gradient:rect');
+                        var rectField = field.element.getBoundingClientRect();
+                        editor.call('picker:gradient:position', rectField.right - rectPicker.width, rectField.bottom);
+
+                        var evtPickerChanged = editor.on('picker:curve:change', function (paths, values) {
+                            if (!field._link) return;
+
+                            var link = field._link;
+
+                            var previous = {
+                                paths: [],
+                                values: []
+                            };
+
+                            var path;
+                            for (var i=0; i<paths.length; i++) {
+                                // always use 0 because we do not support multiselect
+                                path = pathAt(args, 0) + paths[i].substring(1);
+                                previous.paths.push(path);
+                                previous.values.push(field._link.get(path));
+                            }
+
+                            var undo = function() {
+                                var item = link;
+                                if (link.history && link.history._getItemFn) {
+                                    item = link.history._getItemFn();
+                                }
+
+                                if (!item) return;
+
+                                var history = false;
+                                if (item.history) {
+                                    history = item.history.enabled;
+                                    item.history.enabled = false;
+                                }
+
+                                for (var i=0; i<previous.paths.length; i++) {
+                                    item.set(previous.paths[i], previous.values[i]);
+                                }
+
+                                if (item.history)
+                                    item.history.enabled = history;
+                            };
+
+                            var redo = function() {
+                                var item = link;
+                                if (link.history && link.history._getItemFn) {
+                                    item = link.history._getItemFn();
+                                }
+
+                                if (!item) return;
+
+                                var history = false;
+                                if (item.history) {
+                                    history = item.history.enabled;
+                                    item.history.enabled = false;
+                                }
+
+                                for (var i=0; i<paths.length; i++) {
+                                    // always use 0 because we do not support multiselect
+                                    path = pathAt(args, 0) + paths[i].substring(1);
+                                    item.set(path, values[i]);
+                                }
+
+                                if (item.history)
+                                    item.history.enabled = history;
+                            };
+
+                            redo();
+
+                            editor.call('history:' + 'add', {
+                                name : path + '.curves',
+                                undo: undo,
+                                redo: redo
+                            });
+                        });
+
+                        var evtRefreshPicker = field.on('change', function (value) {
+                            editor.call('picker:gradient:set', value, args);
+                        });
+
+                        editor.once('picker:gradient:close', function () {
+                            evtRefreshPicker.unbind();
+                            evtPickerChanged.unbind();
+                            gradientPickerVisible = false;
+                        });
+                    }
+                };
+
+                // open curve editor on click
+                field.on('click', toggleGradientPicker);
+
+                panel.append(field);
+                break;
+
             case 'array':
                 field = editor.call('attributes:addArray', args);
                 panel.append(field);

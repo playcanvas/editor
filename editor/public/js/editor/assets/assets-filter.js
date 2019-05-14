@@ -74,6 +74,12 @@ editor.once('load', function() {
                     } else {
                         assetType = 'textureAtlasTarget';
                     }
+                } else if (assetType === 'font') {
+                    if (item.get('source')) {
+                        assetType = 'fontSource';
+                    } else {
+                        assetType = 'fontTarget';
+                    }
                 }
 
                 visible = assetType === filterField.value;
@@ -209,7 +215,8 @@ editor.once('load', function() {
                 binary: 'Binary',
                 cubemap: 'Cubemap',
                 css: 'Css',
-                font: 'Font',
+                fontTarget: 'Font',
+                fontSource: 'Font (source)',
                 json: 'Json',
                 html: 'Html',
                 material: 'Material',
@@ -234,7 +241,8 @@ editor.once('load', function() {
                 binary: 'Binary',
                 cubemap: 'Cubemap',
                 css: 'Css',
-                font: 'Font',
+                fontTarget: 'Font',
+                fontSource: 'Font (source)',
                 json: 'Json',
                 html: 'Html',
                 material: 'Material',

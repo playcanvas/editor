@@ -95,6 +95,13 @@ editor.once('load', function () {
                 // tags
                 _asset.tags.add(assetData.tags);
 
+                // i18n
+                if (assetData.i18n) {
+                    for (var locale in assetData.i18n) {
+                        _asset.addLocalizedAssetId(locale, assetData.i18n[locale]);
+                    }
+                }
+
                 if (asset.get('type') !== 'script' || ! asset.get('preload')) {
                     // app.assets.add(_asset);
                 }
@@ -191,6 +198,13 @@ editor.once('load', function () {
 
         // tags
         engineAsset.tags.add(assetData.tags);
+
+        // i18n
+        if (assetData.i18n) {
+            for (var locale in assetData.i18n) {
+                engineAsset.addLocalizedAssetId(locale, assetData.i18n[locale]);
+            }
+        }
 
         // add to the asset registry
         app.assets.add(engineAsset);

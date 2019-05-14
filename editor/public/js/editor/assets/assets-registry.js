@@ -34,6 +34,13 @@ editor.once('load', function() {
 
             var newAsset = new pc.Asset(data.name, data.type, data.file, data.data);
             newAsset.id = parseInt(assetJson.id, 10);
+
+            if (assetJson.i18n) {
+                for (var locale in assetJson.i18n) {
+                    newAsset.addLocalizedAssetId(locale, assetJson.i18n[locale]);
+                }
+            }
+
             assetRegistry.add(newAsset);
 
             var timeout;

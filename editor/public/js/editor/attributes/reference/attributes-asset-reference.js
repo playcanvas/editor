@@ -38,6 +38,10 @@ editor.once('load', function() {
     }, {
         name: 'bundles',
         description: 'If the asset is included in any Asset Bundles then these are listed here. You can also add the asset to an Asset Bundle by using the dropdown.'
+    }, {
+        name: 'localization',
+        title: 'LOCALIZATION',
+        description: 'Here you can define a replacement asset to be used for a particular locale. When the application\'s locale changes then references to this asset will use the replacement asset for the new locale.'
     }];
 
     for(var i = 0; i < fields.length; i++) {

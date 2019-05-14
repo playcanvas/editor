@@ -10,6 +10,7 @@ editor.once('load', function() {
 
     var regexFrameUpdate = /^data\.frames\.(\d+)/;
     var regexFrameRemove = /^data\.frames\.(\d+)$/;
+    var regexI18n = /^i18n\.[^\.]+?$/;
 
     // add assets to asset registry
     editor.on('assets:add', function (asset) {
@@ -30,8 +31,13 @@ editor.once('load', function() {
         // when data is changed
         asset.on('*:set', function (path, value) {
 
-            // handle frame changes for texture atlas
-            if (asset.get('type') === 'textureatlas') {
+            // handle i18n changes
+            if (regexI18n.test(path)) {
+                var parts = path.split('.');
+                assetEngine.addLocalizedAssetId(parts[1], value);
+
+            } else if (asset.get('type') === 'textureatlas') {
+                // handle frame changes for texture atlas
                 var match = path.match(regexFrameUpdate);
                 if (match) {
                     var frameKey = match[1];
@@ -57,8 +63,13 @@ editor.once('load', function() {
             editor.call('viewport:render');
         });
 
-        if (asset.get('type') === 'textureatlas') {
-            asset.on('*:unset', function (path) {
+        asset.on('*:unset', function (path) {
+            if (regexI18n.test(path)) {
+                var parts = path.split('.');
+                assetEngine.removeLocalizedAssetId(parts[1]);
+
+                editor.call('viewport:render');
+            } else if (asset.get('type') === 'textureatlas') {
                 var match = path.match(regexFrameRemove);
                 if (match) {
                     var frameKey = match[1];
@@ -73,8 +84,10 @@ editor.once('load', function() {
 
                     editor.call('viewport:render');
                 }
-            });
-        } else if (asset.get('type') === 'sprite') {
+            }
+        });
+
+        if (asset.get('type') === 'sprite') {
             var updateFrameKeys = function () {
                 if (assetEngine.resource) {
                     assetEngine.resource.frameKeys = asset.get('data.frameKeys');

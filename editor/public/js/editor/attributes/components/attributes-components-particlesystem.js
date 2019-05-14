@@ -884,7 +884,7 @@ editor.once('load', function() {
         var fieldColor = editor.call('attributes:addField', {
             parent: panel,
             name: 'Color',
-            type: 'curveset',
+            type: 'gradient',
             link: entities[0],
             path: 'components.particlesystem.colorGraph',
             gradient: true,

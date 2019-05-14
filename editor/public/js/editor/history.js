@@ -8,6 +8,7 @@ editor.once('load', function() {
 
     var hotkeyExceptions = [
         'curve',
+        'gradient',
         'sprite-editor'
     ];
 

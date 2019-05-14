@@ -8,7 +8,8 @@ editor.once('load', function () {
         'scope',
         'data',
         'meta',
-        'file'
+        'file',
+        'i18n'
     ];
     var docs = {};
 
