@@ -159,7 +159,7 @@ editor.once('load', function() {
     console.error = function(item) {
         var errorPassed = false;
 
-        if (item instanceof Error) {
+        if (item instanceof Error && item.stack) {
             consoleError.call(this, item.stack);
 
             var msg = item.message;
