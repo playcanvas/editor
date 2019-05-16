@@ -34,6 +34,12 @@ editor.once('load', function() {
             });
         }
 
+        if (obj.has('tags')) {
+            obj.get('tags').forEach(function (tag) {
+                entity.tags.add(tag);
+            });
+        }
+
         entity.template = obj.get('template');
 
         return entity;
@@ -137,6 +143,20 @@ editor.once('load', function() {
                     if (assetId)
                         entity.model.asset = assetId;
                 });
+            }
+        });
+
+        obj.on('tags:insert', function (value) {
+            var entity = app.root.findByGuid(obj.get('resource_id'));
+            if (entity) {
+                entity.tags.add(value);
+            }
+        });
+
+        obj.on('tags:remove', function (value) {
+            var entity = app.root.findByGuid(obj.get('resource_id'));
+            if (entity) {
+                entity.tags.remove(value);
             }
         });
 
