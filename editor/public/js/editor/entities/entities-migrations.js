@@ -232,6 +232,10 @@ editor.once('load', function() {
                 if (!entity.has('components.element.maxFontSize')) {
                     entity.set('components.element.maxFontSize', entity.get('components.element.fontSize') || 32);
                 }
+
+                if (! entity.has('components.element.enableMarkup')) {
+                    entity.set('components.element.enableMarkup', false);
+                }
             }
 
             // sprite

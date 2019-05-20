@@ -506,7 +506,9 @@ editor.once('load', function() {
     var context = canvas.element.getContext('2d');
 
     function cleanup () {
+        selectedCurve = null;
         selectedCurveIndex = -1;
+        selectedAnchor = null;
         selectedAnchorIndex = -1;
         changing = false;
         dragging = false;

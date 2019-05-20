@@ -513,6 +513,10 @@ editor.once('load', function() {
             path: 'components.element.text'
         });
 
+        // in order to display RTL text correctly in the editor
+        // see https://www.w3.org/International/articles/inline-bidi-markup/
+        fieldText.elementInput.setAttribute("dir", "auto");
+
         // reference
         editor.call('attributes:reference:attach', 'element:text', fieldText.parent.innerElement.firstChild.ui);
 
@@ -636,6 +640,20 @@ editor.once('load', function() {
             });
         });
 
+        // enableMarkup
+        var fieldEnableMarkup = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Enable Markup',
+            type: 'checkbox',
+            link: entities,
+            path: 'components.element.enableMarkup'
+        });
+
+        fieldEnableMarkup.parent.hidden = fieldType.value !== 'text';
+
+        // reference
+        editor.call('attributes:reference:attach', 'element:enableMarkup', fieldEnableMarkup.parent.innerElement.firstChild.ui);
+        
         // auto fit
         var panelAutoFit = editor.call('attributes:addField', {
             parent: panel,
@@ -1107,6 +1125,7 @@ editor.once('load', function() {
             fieldOutlineThicknessSlider.parent.hidden = (value !== 'text');
             fieldShadowColor.parent.hidden = (value !== 'text');
             fieldShadowOffset[0].parent.hidden = (value !== 'text');
+            fieldEnableMarkup.parent.hidden = (value !== 'text');
         }));
 
 
