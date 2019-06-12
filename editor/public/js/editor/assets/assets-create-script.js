@@ -70,7 +70,8 @@ editor.once('load', function() {
             file: new Blob([ args.content || '' ], { type: 'text/javascript' }),
             data: {
                 scripts: { },
-                loading: false
+                loading: false,
+                loadingType: LOAD_SCRIPT_AS_ASSET
             },
             scope: {
                 type: 'project',
@@ -108,6 +109,3 @@ editor.once('load', function() {
         }, args.noSelect);
     });
 });
-
-
-

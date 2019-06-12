@@ -96,6 +96,10 @@ editor.once('load', function() {
         description: 'The name of the script to use for creating the loading screen of the application. The script needs to call pc.script.createLoadingScreen.',
         url: 'http://developer.playcanvas.com/en/api/pc.script.html#createLoadingScreen'
     }, {
+        name: 'project:externalScripts',
+        title: 'External Scripts',
+        description: 'The URLs of external scripts you would like to include in your application. These URLs are added as <script> tags in the main HTML page of the application before any other script is loaded.',
+    }, {
         name: 'project',
         title: 'Project Settings',
         description: 'Settings that affect the entire Project and not just this Scene.'
@@ -217,22 +221,6 @@ editor.once('load', function() {
         subTitle: '{Number}',
         description: 'The lightmap baking mode. Can be "Color Only" for just a single color lightmap or "Color and Direction" for single color plus dominant light direction (used for bump/specular).',
         url: 'http://developer.playcanvas.com/api/pc.Scene.html#lightmapMode'
-    }, {
-        name: 'facebook',
-        title: 'Facebook Settings',
-        description: 'Settings for publishing on Facebook Instant Games'
-    }, {
-        name: 'facebook:app-id',
-        title: 'App ID',
-        description: 'This is the Facebook App ID which you can find at the dashboard of your Facebook application.'
-    }, {
-        name: 'facebook:upload-token',
-        title: 'Upload Access Token',
-        description: 'An Access Token for uploading a build to Facebook.'
-    }, {
-        name: 'facebook:sdk-version',
-        title: 'SDK Version',
-        description: 'The Facebook Instant SDK version to use when publishing to Facebook. If you want you can also enter a version manually.'
     }, {
         name: 'batchGroups',
         title: 'Batch Groups',

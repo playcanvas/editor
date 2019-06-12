@@ -21,6 +21,7 @@ editor.once('load', function () {
         'useTouch',
         'vr',
         'loadingScreenScript',
+        'externalScripts',
         'plugins',
         'useModelV2',
         'layers',
@@ -207,6 +208,10 @@ editor.once('load', function () {
 
         if (!settings.get('i18nAssets')) {
             settings.set('i18nAssets', []);
+        }
+
+        if (!settings.get('externalScripts')) {
+            settings.set('externalScripts', []);
         }
 
         settings.history.enabled = history;

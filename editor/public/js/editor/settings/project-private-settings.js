@@ -1,12 +1,10 @@
 editor.once('load', function () {
     'use strict';
 
+    // this used to have facebook settings
+    // but we removed those so leaving this here in case
+    // it is needed in the future
     var defaultData = {
-        facebook: {
-            appId: '',
-            uploadToken: '',
-            sdkVersion: ''
-        }
     };
 
     var isConnected = false;
@@ -29,17 +27,6 @@ editor.once('load', function () {
     settings.history.on('record', function(action, data) {
         editor.call('history:' + action, data);
     });
-
-    settings.on('facebook.appId:set', function (value) {
-        if (value && ! settings.get('facebook.sdkVersion')) {
-            // set default sdk version
-            var history = settings.history.enabled;
-            settings.history.enabled = false;
-            settings.set('facebook.sdkVersion', config.facebook.version);
-            settings.history.enabled = history;
-        }
-    });
-
 
     var reload = function () {
         if (! isConnected) return;
@@ -86,7 +73,9 @@ editor.once('load', function () {
             // unset private settings
             settings.disconnect();
             settings.history.enabled = false;
-            settings.unset('facebook');
+            for (var key in defaultData) {
+                settings.unset(key);
+            }
         } else {
             // reload settings
             settings.history.enabled = true;

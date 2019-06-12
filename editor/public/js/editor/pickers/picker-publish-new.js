@@ -13,12 +13,9 @@ editor.once('load', function () {
     var panel = new ui.Panel();
     panel.class.add('picker-publish-new');
 
-    var privateSettings = editor.call('settings:projectPrivate');
-
     // register panel with project popup
     editor.call('picker:project:registerPanel', 'publish-download', 'Download New Build', panel);
     editor.call('picker:project:registerPanel', 'publish-new', 'Publish New Build', panel);
-    editor.call('picker:project:registerPanel', 'publish-facebook', 'Publish to Facebook Instant Games', panel);
 
     var mode = 'publish';
 
@@ -28,7 +25,6 @@ editor.once('load', function () {
         mode = 'publish';
         editor.call('picker:project', 'publish-new');
         panel.class.remove('download-mode');
-        panel.class.remove('facebook-mode');
         panel.class.remove('upgrade');
     });
 
@@ -36,31 +32,11 @@ editor.once('load', function () {
         mode = 'download';
         editor.call('picker:project', 'publish-download');
         panel.class.add('download-mode');
-        panel.class.remove('facebook-mode');
 
         if (config.owner.plan.type === 'free') {
             panel.class.add('upgrade');
         } else {
             panel.class.remove('upgrade');
-        }
-    });
-
-    editor.method('picker:publish:facebook', function () {
-        mode = 'facebook';
-        editor.call('picker:project', 'publish-facebook')
-        panel.class.remove('download-mode');
-        panel.class.add('facebook-mode');
-
-        if (config.owner.plan.type === 'free') {
-            panel.class.add('upgrade');
-        } else {
-            panel.class.remove('upgrade');
-        }
-
-        panelFbId.hidden = !!privateSettings.get('facebook.appId');
-        panelFbToken.hidden = !!privateSettings.get('facebook.uploadToken');
-        if (! panelFbToken.hidden) {
-            tooltipToken.html = getTooltipTokenHtml();
         }
     });
 
@@ -232,109 +208,12 @@ editor.once('load', function () {
         refreshButtonsState();
     });
 
-    // facebook
-    var panelFbId = new ui.Panel()
-    panelFbId.class.add('facebook');
-    panel.append(panelFbId)
-
-    // app id
-    label = new ui.Label({text: 'App ID'});
-    label.class.add('field-label');
-    panelFbId.append(label);
-
-    var btnHelpAppId = new ui.Button({
-        text: '&#57656;'
-    });
-    btnHelpAppId.class.add('help');
-    panelFbId.append(btnHelpAppId);
-
-    var tooltipFbId = Tooltip.attach({
-        target: btnHelpAppId.element,
-        html: 'This is the Facebook App ID which you can find at the dashboard of your Facebook application. Click <a href="https://developers.facebook.com/apps/" target="_blank">here</a> to see all your Facebook applications.',
-        align: 'left',
-        hoverable: true,
-        root: editor.call('layout.root')
-    });
-    tooltipFbId.class.add('publish-facebook');
-
-    var suspendFbChanges = false;
-
-    var inputFbAppId = new ui.TextField();
-    inputFbAppId.class.add('input-field');
-    inputFbAppId.renderChanges = false;
-    inputFbAppId.placeholder = 'e.g. 777394875732366';
-    panelFbId.append(inputFbAppId);
-    inputFbAppId.on('change', function (value) {
-        if (! suspendFbChanges)
-            privateSettings.set('facebook.appId', value);
-        tooltipToken.html = getTooltipTokenHtml();
-        refreshButtonsState();
-    });
-
-    privateSettings.on('facebook.appId:set', function (value) {
-        suspendFbChanges = true;
-        inputFbAppId.value = value;
-        suspendFbChanges = false;
-    });
-
-    // upload token
-    var panelFbToken = new ui.Panel()
-    panelFbToken.class.add('facebook');
-    panel.append(panelFbToken);
-
-    label = new ui.Label({text: 'Upload Access Token'});
-    label.class.add('field-label');
-    panelFbToken.append(label);
-
-    var btnHelpToken = new ui.Button({
-        text: '&#57656;'
-    });
-    btnHelpToken.class.add('help');
-    panelFbToken.append(btnHelpToken);
-
-    var getTooltipTokenHtml = function () {
-        var result = 'An Access Token used when uploading a build to Facebook. You can find this under the ';
-        if (privateSettings.get('facebook.appId')) {
-            result += '<a href="https://developers.facebook.com/apps/' + privateSettings.get('facebook.appId') + '/hosting/" target="_blank">Canvas Hosting page</a>';
-        } else {
-            result +=  'Canvas Hosting page';
-        }
-        result += ' at the dashboard of your Facebook application.';
-        return result;
-    };
-
-    var tooltipToken = Tooltip.attach({
-        target: btnHelpToken.element,
-        html: getTooltipTokenHtml(),
-        align: 'left',
-        hoverable: true,
-        root: editor.call('layout.root')
-    });
-    tooltipToken.class.add('publish-facebook');
-
-    var inputFbUploadToken = new ui.TextField();
-    inputFbUploadToken.class.add('input-field');
-    inputFbUploadToken.renderChanges = false;
-    panelFbToken.append(inputFbUploadToken);
-
-    inputFbUploadToken.on('change', function (value) {
-        if (! suspendFbChanges)
-            privateSettings.set('facebook.uploadToken', value);
-        refreshButtonsState();
-    });
-
-    privateSettings.on('facebook.uploadToken:set', function (value) {
-        suspendFbChanges = true;
-        inputFbUploadToken.value = value;
-        suspendFbChanges = false;
-    });
-
     // release notes
     var panelNotes = new ui.Panel();
     panelNotes.class.add('notes');
     panel.append(panelNotes);
 
-    label = new ui.Label({text: 'Release Notes'});
+    var label = new ui.Label({text: 'Release Notes'});
     label.class.add('field-label');
     panelNotes.append(label);
 
@@ -497,7 +376,7 @@ editor.once('load', function () {
 
         if (fieldOptionsConcat)
             data.scripts_concatenate = fieldOptionsConcat.value;
-        
+
         if (fieldOptionsPreload)
             data.preload_bundle = fieldOptionsPreload.value;
 
@@ -508,90 +387,6 @@ editor.once('load', function () {
             jobInProgress = false;
             editor.call('status:error', 'Error while publishing: ' + status);
             editor.call('picker:builds');
-        });
-    });
-
-    // publish on facebook button
-    var btnPublishFb = new ui.Button({
-        text: 'Publish Now'
-    });
-    btnPublishFb.class.add('publish-fb');
-    panel.append(btnPublishFb);
-
-    btnPublishFb.on('click', function () {
-        if (jobInProgress)
-            return;
-
-        jobInProgress = true;
-        refreshButtonsState();
-
-        var data = {
-            project_id: config.project.id,
-            branch_id: config.self.branch.id,
-            scenes: getSelectedScenes()
-        };
-
-        if (inputNotes.value)
-            data.release_notes = inputNotes.value;
-
-        // ajax call
-        editor.call('apps:publishFb', data, function (job) {
-            // show progress
-            panelFacebookProgress.hidden = false;
-            btnFacebookLink.hidden = true;
-            facebookProgressIconWrapper.classList.remove('success');
-            facebookProgressIconWrapper.classList.remove('error');
-
-            facebookProgressTitle.class.remove('error');
-            facebookProgressTitle.text = 'Preparing build...';
-
-            // when job is updated get the job and
-            // proceed depending on job status
-            var evt = editor.on('messenger:job.update', function (msg) {
-                console.log('messenger update')
-                if (msg.job.id === job.id) {
-                    evt.unbind();
-
-                    // get job
-                    Ajax({
-                        url: '{{url.api}}/jobs/' + job.id,
-                        auth: true
-                    })
-                    .on('load', function (status, data) {
-                        var job = data;
-                        // success ?
-                        if (job.status === 'complete') {
-                            facebookProgressIconWrapper.classList.add('success');
-                            facebookProgressTitle.text = 'Build published';
-                            btnFacebookLink.hidden = false;
-                            jobInProgress = false;
-                            refreshButtonsState();
-                        }
-                        // handle error
-                        else if (job.status === 'error') {
-                            facebookProgressIconWrapper.classList.add('error');
-                            facebookProgressTitle.class.add('error');
-                            facebookProgressTitle.text = job.messages[0];
-                            jobInProgress = false;
-                            refreshButtonsState();
-                        }
-                    }).on('error', function () {
-                        // error
-                        facebookProgressIconWrapper.classList.add('error');
-                        facebookProgressTitle.class.add('error');
-                        facebookProgressTitle.text = 'Error: Could not publish';
-                        jobInProgress = false;
-                        refreshButtonsState();
-                    });
-                }
-            });
-            events.push(evt);
-        }, function () {
-            jobInProgress = false;
-            refreshButtonsState();
-
-            // error
-            console.error(arguments);
         });
     });
 
@@ -751,39 +546,6 @@ editor.once('load', function () {
         editor.call('picker:publish');
     });
 
-    // facebook progress
-    var panelFacebookProgress = document.createElement('div');
-    panelFacebookProgress.classList.add('progress');
-    panelFacebookProgress.classList.add('facebook');
-    panel.append(panelFacebookProgress);
-
-    // icon
-    var facebookProgressIconWrapper = document.createElement('span');
-    facebookProgressIconWrapper.classList.add('icon');
-    panelFacebookProgress.appendChild(facebookProgressIconWrapper);
-
-    var facebookProgressImg = new Image();
-    facebookProgressIconWrapper.appendChild(facebookProgressImg);
-    facebookProgressImg.src = config.url.static + "/platform/images/common/ajax-loader.gif";
-
-    // progress info
-    var facebookProgressInfo = document.createElement('span');
-    facebookProgressInfo.classList.add('progress-info');
-    panelFacebookProgress.appendChild(facebookProgressInfo);
-
-    var facebookProgressTitle = new ui.Label({text: 'Preparing build'});
-    facebookProgressTitle.renderChanges = false;
-    facebookProgressTitle.class.add('progress-title');
-    facebookProgressInfo.appendChild(facebookProgressTitle.element);
-
-    var btnFacebookLink = new ui.Button({text: 'View Builds'});
-    btnFacebookLink.class.add('ready');
-    facebookProgressInfo.appendChild(btnFacebookLink.element);
-
-    btnFacebookLink.on('click', function () {
-        window.open('https://developers.facebook.com/apps/' + privateSettings.get('facebook.appId') + '/hosting');
-    });
-
     var refreshButtonsState = function () {
         var selectedScenes = getSelectedScenes();
         var disabled = !inputName.value ||
@@ -798,11 +560,6 @@ editor.once('load', function () {
         btnPublish.disabled = disabled;
         btnWebDownload.disabled = disabled;
         btnIosDownload.disabled = disabled;
-
-        btnPublishFb.disabled = jobInProgress ||
-                                !privateSettings.get('facebook.appId') ||
-                                !privateSettings.get('facebook.uploadToken') ||
-                                !selectedScenes.length;
     };
 
     var createSceneItem = function (scene) {
@@ -956,7 +713,6 @@ editor.once('load', function () {
     // on show
     panel.on('show', function () {
         panelDownloadProgress.hidden = true;
-        panelFacebookProgress.hidden = true;
         panelNoScenes.hidden = false;
         labelNoScenes.hidden = true;
         loadingScenes.hidden = false;

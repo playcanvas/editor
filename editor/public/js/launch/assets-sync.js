@@ -58,7 +58,7 @@ editor.once('load', function () {
             delete assetData.branch_id;
 
             if (assetData.file) {
-                if (concatenateScripts && assetData.type === 'script' && assetData.preload) {
+                if (concatenateScripts && assetData.type === 'script' && assetData.preload && !assetData.data.loadingType) {
                     assetData.file.url = concatenatedScriptsUrl;
                 } else {
                     assetData.file.url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.filename);
@@ -195,6 +195,9 @@ editor.once('load', function () {
         var engineAsset = asset.asset = new pc.Asset(assetData.name, assetData.type, assetData.file, assetData.data);
         engineAsset.id = parseInt(assetData.id, 10);
         engineAsset.preload = assetData.preload ? assetData.preload : false;
+        if (assetData.type === 'script' && assetData.data && assetData.data.loadingType > 0) {
+            engineAsset.loaded = true;
+        }
 
         // tags
         engineAsset.tags.add(assetData.tags);
