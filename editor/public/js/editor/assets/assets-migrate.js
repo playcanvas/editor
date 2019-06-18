@@ -67,6 +67,12 @@ editor.once('load', function() {
             asset.set('i18n', {});
         }
 
+        if (asset.get('type') === 'script') {
+            if (asset.get('data') && !asset.has('data.loadingType')) {
+                asset.set('data.loadingType', LOAD_SCRIPT_AS_ASSET);
+            }
+        }
+
         asset.history.enabled = true;
     };
 
