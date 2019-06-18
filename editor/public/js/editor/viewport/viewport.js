@@ -2,8 +2,7 @@ editor.once('load', function() {
     'use strict'
 
     var canvas = new ui.Canvas({
-        id: 'canvas-3d',
-        useDevicePixelRatio: true
+        id: 'canvas-3d'
     });
 
     var keepRendering = false;
