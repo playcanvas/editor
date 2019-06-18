@@ -55,35 +55,38 @@ function ColorPicker(parent) {
         }
     };
 
+    // pixel scale
+    var ps = window.devicePixelRatio;
+
     this.panel = new ui.Panel();
     this.panel.class.add('color-panel')
     parent.appendChild(this.panel.element);
 
-    this.colorRect = new ui.Canvas( { useDevicePixelRatio: true } );
+    this.colorRect = new ui.Canvas();
     this.colorRect.class.add('color-rect');
     this.panel.append(this.colorRect.element);
-    this.colorRect.resize(this.colorRect.element.clientWidth,
-                          this.colorRect.element.clientHeight);
+    this.colorRect.resize(this.colorRect.element.clientWidth * ps,
+                          this.colorRect.element.clientHeight * ps);
 
     this.colorHandle = document.createElement('div');
     this.colorHandle.classList.add('color-handle');
     this.panel.append(this.colorHandle);
 
-    this.hueRect = new ui.Canvas( { useDevicePixelRatio: true } );
+    this.hueRect = new ui.Canvas();
     this.hueRect.class.add('hue-rect');
     this.panel.append(this.hueRect.element);
-    this.hueRect.resize(this.hueRect.element.clientWidth,
-                        this.hueRect.element.clientHeight);
+    this.hueRect.resize(this.hueRect.element.clientWidth * ps,
+                        this.hueRect.element.clientHeight * ps);
 
     this.hueHandle = document.createElement('div');
     this.hueHandle.classList.add('hue-handle');
     this.panel.append(this.hueHandle);
 
-    this.alphaRect = new ui.Canvas( { useDevicePixelRatio: true } );
+    this.alphaRect = new ui.Canvas();
     this.alphaRect.class.add('alpha-rect');
     this.panel.append(this.alphaRect.element);
-    this.alphaRect.resize(this.alphaRect.element.clientWidth,
-                          this.alphaRect.element.clientHeight);
+    this.alphaRect.resize(this.alphaRect.element.clientWidth * ps,
+                          this.alphaRect.element.clientHeight * ps);
 
     this.alphaHandle = document.createElement('div');
     this.alphaHandle.classList.add('alpha-handle');
@@ -141,8 +144,8 @@ function ColorPicker(parent) {
 ColorPicker.prototype = {
     _generateHue : function (canvas) {
         var ctx = canvas.element.getContext('2d');
-        var w = canvas.pixelWidth;
-        var h = canvas.pixelHeight;
+        var w = canvas.element.width;
+        var h = canvas.element.height;
         var gradient = ctx.createLinearGradient(0, 0, 0, h);
         for (var t=0; t<=6; t+=1) {
             gradient.addColorStop(t / 6, Helpers.rgbaStr(hsv2rgb([t / 6, 1, 1])));
@@ -153,8 +156,8 @@ ColorPicker.prototype = {
 
     _generateAlpha : function (canvas) {
         var ctx = canvas.element.getContext('2d');
-        var w = canvas.pixelWidth;
-        var h = canvas.pixelHeight;
+        var w = canvas.element.width;
+        var h = canvas.element.height;
         var gradient = ctx.createLinearGradient(0, 0, 0, h);
         gradient.addColorStop(0, 'rgb(255, 255, 255)');
         gradient.addColorStop(1, 'rgb(0, 0, 0)');
@@ -164,8 +167,8 @@ ColorPicker.prototype = {
 
     _generateGradient : function (canvas, clr) {
         var ctx = canvas.element.getContext('2d');
-        var w = canvas.pixelWidth;
-        var h = canvas.pixelHeight;
+        var w = canvas.element.width;
+        var h = canvas.element.height;
 
         var gradient = ctx.createLinearGradient(0, 0, w, 0);
         gradient.addColorStop(0, Helpers.rgbaStr([255, 255, 255, 255]));
@@ -392,9 +395,8 @@ editor.once('load', function() {
 
     function renderGradient() {
         var ctx = UI.gradient.element.getContext('2d');
-        var w = UI.gradient.pixelWidth;
-        var h = UI.gradient.pixelHeight;
-        var r = UI.gradient.pixelRatio;
+        var w = UI.gradient.width;
+        var h = UI.gradient.height;
 
         var s = STATE;
 
@@ -415,22 +417,26 @@ editor.once('load', function() {
 
         // render the tip of the selected anchor
         if (STATE.selectedAnchor !== -1) {
+            var toDevice = function(value) {
+                return value * window.devicePixelRatio;
+            }
+
             var time = STATE.anchors[STATE.selectedAnchor];
             var coords = [time * w, h];
 
             ctx.beginPath();
-            ctx.rect(coords[0] - 2 * r,
+            ctx.rect(coords[0] - toDevice(2),
                      coords[1],
-                     4 * r,
-                     -6 * r);
+                     toDevice(4),
+                     toDevice(-6));
             ctx.fillStyle = 'rgb(255, 255, 255)';
             ctx.fill();
 
             ctx.beginPath();
-            ctx.rect(coords[0] - r,
+            ctx.rect(coords[0] - toDevice(1),
                      coords[1],
-                     2 * r,
-                     -6 * r);
+                     toDevice(2),
+                     toDevice(-6));
             ctx.fillStyle = 'rgb(0, 0, 0)';
             ctx.fill();
         }
@@ -438,8 +444,8 @@ editor.once('load', function() {
 
     function renderAnchors() {
         var ctx = UI.anchors.element.getContext('2d');
-        var w = UI.anchors.pixelWidth;
-        var h = UI.anchors.pixelHeight;
+        var w = UI.anchors.width;
+        var h = UI.anchors.height;
 
         ctx.fillStyle = CONST.bg;
         ctx.fillRect(0, 0, w, h);
@@ -464,26 +470,31 @@ editor.once('load', function() {
     };
 
     function renderAnchor(ctx, time, type) {
-        var coords = [time * UI.anchors.pixelWidth, UI.anchors.pixelHeight / 2];
+        var coords = [time * UI.anchors.width, UI.anchors.height / 2];
         var radius = (type === "selected" ? CONST.selectedRadius : CONST.anchorRadius);
         var lineWidth = ctx.lineWidth;
-        var r = UI.anchors.pixelRatio;
+
+        // html element px units are virtual pixel units. this maps html pixel units to
+        // physical device pixel units
+        var toDevice = function(value) {
+            return value * window.devicePixelRatio;
+        }
 
         // render selected arrow
         if (type === "selected") {
             ctx.beginPath();
-            ctx.rect(coords[0] - 2 * r,
+            ctx.rect(coords[0] - toDevice(2),
                      coords[1],
-                     4 * r,
-                     -coords[1] * r);
+                     toDevice(4),
+                     toDevice(-coords[1]));
             ctx.fillStyle = 'rgb(255, 255, 255)';
             ctx.fill();
 
             ctx.beginPath();
-            ctx.rect(coords[0] - 1 * r,
+            ctx.rect(coords[0] - toDevice(1),
                      coords[1],
-                     2 * r,
-                     -coords[1] * r);
+                     toDevice(2),
+                     toDevice(-coords[1]));
             ctx.fillStyle = 'rgb(0, 0, 0)';
             ctx.fill();
         }
@@ -491,19 +502,19 @@ editor.once('load', function() {
         // render selection highlight
         if (type === "selected" || type === "hovered") {
             ctx.beginPath();
-            ctx.arc(coords[0], coords[1], (radius + 2) * r, 0, 2 * Math.PI, false);
+            ctx.arc(coords[0], coords[1], toDevice(radius + 2), 0, 2 * Math.PI, false);
             ctx.fillStyle = 'rgb(255, 255, 255)';
             ctx.fill();
         }
 
         // render the colour circle and border
         ctx.beginPath();
-        ctx.arc(coords[0], coords[1], (radius + 1) * r, 0, 2 * Math.PI, false);
+        ctx.arc(coords[0], coords[1], toDevice(radius + 1), 0, 2 * Math.PI, false);
         ctx.fillStyle = 'rgb(0, 0, 0)';
         ctx.fill();
 
         ctx.beginPath();
-        ctx.arc(coords[0], coords[1], (radius) * r, 0, 2 * Math.PI, false);
+        ctx.arc(coords[0], coords[1], toDevice(radius), 0, 2 * Math.PI, false);
         ctx.fillStyle = Helpers.rgbaStr(evaluateGradient(time, 1), 255);
         ctx.fill();
     };
@@ -879,9 +890,9 @@ editor.once('load', function() {
         root : editor.call('layout.root'),
         overlay : new ui.Overlay(),
         panel : document.createElement('div'),
-        gradient : new ui.Canvas( { useDevicePixelRatio: true } ),
+        gradient : new ui.Canvas(),
         checkerPattern : createCheckerPattern(),
-        anchors : new ui.Canvas( { useDevicePixelRatio: true } ),
+        anchors : new ui.Canvas(),
         footer : new ui.Panel(),
         typeLabel : new ui.Label( { text : 'Type' }),
         typeCombo : new ui.SelectField({
@@ -931,13 +942,15 @@ editor.once('load', function() {
     UI.panel.appendChild(UI.gradient.element);
     UI.gradient.class.add('picker-gradient-gradient');
     var r = getClientRect(UI.gradient.element);
-    UI.gradient.resize(r.width, r.height);
+    UI.gradient.resize(r.width * window.devicePixelRatio,
+                       r.height * window.devicePixelRatio);
 
     // anchors
     UI.panel.appendChild(UI.anchors.element);
     UI.anchors.class.add('picker-gradient-anchors');
     r = getClientRect(UI.anchors.element);
-    UI.anchors.resize(r.width, r.height);
+    UI.anchors.resize(r.width * window.devicePixelRatio,
+                      r.height * window.devicePixelRatio);
 
     // footer
     UI.panel.appendChild(UI.footer.element);

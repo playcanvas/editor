@@ -288,7 +288,8 @@ editor.once('load', function () {
 
         // If it's resolution does not match change it
         if (canvas.element.width !== width || canvas.element.height !== height) {
-            canvas.resize(width, height);
+            canvas.element.width = width;
+            canvas.element.height = height;
             result = true;
         }
 
