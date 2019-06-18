@@ -67,15 +67,6 @@ editor.once('load', function() {
             query.push('useBundles=false');
         }
 
-        if (!launchOptions.local && launchOptions.facebook && privateSettings.get('facebook.appId')) {
-            url = 'https://www.facebook.com/embed/instantgames/' +
-                  privateSettings.get('facebook.appId') +
-                  '/player?game_url=' +
-                  url;
-
-            query.push('facebook=true');
-        }
-
         if (query.length)
             url += '?' + query.join('&');
 
@@ -163,9 +154,6 @@ editor.once('load', function() {
 
     if (legacyScripts) {
         var local = createOption('local', 'Use Local Server');
-        local.on('change', function (value) {
-            fb.parent.disabled = value;
-        });
 
         var getTooltipText = function () {
             var tooltipText = 'Enable this if you want to load scripts from your local server.';
@@ -229,52 +217,6 @@ editor.once('load', function() {
     editor.call('settings:project').on('preferWebGl2:set', function(value) {
         preferWebGl1.parent.disabled = ! value;
     });
-
-    // facebook
-    var fb = createOption('facebook', 'Launch on Facebook');
-
-    if (!editor.call('users:hasFlag', 'hasPublishOnFacebook')) {
-        fb.parent.hidden = true;
-    }
-
-    var tooltipFb = Tooltip.attach({
-        target: fb.parent.element,
-        text: 'In order to launch on Facebook you have to set your Facebook App ID in the settings.',
-        align: 'right',
-        root: root
-    });
-    tooltipFb.class.add('launch-tooltip');
-
-    if (privateSettings.get('facebook.appId'))
-        tooltipFb.class.add('invisible');
-
-    privateSettings.on('facebook.appId:set', function (value) {
-        if (value) {
-            tooltipFb.class.add('invisible');
-        } else {
-            tooltipFb.class.remove('invisible');
-        }
-    });
-
-    fb.on('change', function (value) {
-        if (! value) return;
-
-        if (! privateSettings.get('facebook.appId')) {
-            editor.call('viewport:expand', false);
-
-            // open facebook settings
-            editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
-            setTimeout(function() {
-                editor.call('editorSettings:panel:unfold', 'facebook');
-            }, 0);
-        }
-    });
-
-
-    var onLaunchClick = function() {
-        panelOptions.hidden = true;
-        launchApp();
-    };
 
     editor.method('launch', launchApp);
 

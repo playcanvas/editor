@@ -857,16 +857,6 @@ strong {
         }
     }
 
-    &.publish-facebook {
-        > .inner {
-            max-width: 300px;
-            line-height: 1.8;
-            white-space: normal;
-            padding: 5px 15px;
-            font-size: 12px;
-        }
-    }
-
     &.launch-tooltip {
         > .inner {
             max-width: 300px;
@@ -945,33 +935,6 @@ strong {
             font-weight: 200;
             font-size: 14px;
         }
-    }
-
-    .ui-panel.facebook:not(.folded) {
-        overflow: visible;
-
-        .error {
-            outline: 1px solid #d34141;
-        }
-
-        .facebook-version {
-            position: relative;
-
-            .facebook-versions {
-                margin: 0;
-                padding: 0;
-                left: -1px;
-                right: -1px;
-                width: auto;
-                position: absolute;
-                z-index: 1;
-
-                .ui-list-item.focused {
-                    background-color: $bcg-darkest;
-                }
-            }
-        }
-
     }
 
     &.asset-preview {
@@ -2452,6 +2415,7 @@ strong {
             }
             .ui-button.loading-order {
                 line-height: 20px;
+                font-size: 12px;
             }
             .ui-label.no-data {
                 line-height: 24px;
@@ -7261,10 +7225,6 @@ strong {
             display: none;
         }
 
-        .ui-panel.facebook {
-            display: none;
-        }
-
         > .description > .content > textarea,
         > .notes > .content > textarea {
             display: block;
@@ -7334,16 +7294,13 @@ strong {
             &:not(.disabled):hover:before {
                 color: $text-active;
             }
-            &.publish, &.publish-fb {
+            &.publish {
                 text-align: center;
                 width: calc(100% - 30px);
 
                 &:before {
                     content: '\E226';
                 }
-            }
-            &.publish-fb {
-                display: none;
             }
             &.web-download, &.ios-download {
                 display: none;
@@ -7501,7 +7458,7 @@ strong {
         }
     }
 
-    &.download-mode, &.facebook-mode {
+    &.download-mode {
         .ui-panel {
             &.description, &.version {
                 display: none;
@@ -7510,10 +7467,6 @@ strong {
 
         .ui-button.publish {
             display: none;
-        }
-
-        .ui-button.publish-fb {
-            display: block;
         }
 
         .progress {
@@ -7637,16 +7590,8 @@ strong {
             display: none;
         }
 
-        .ui-button.publish-fb {
-            display: none;
-        }
-
         .ui-button.web-download, .ui-button.ios-download {
             display: inline-block;
-        }
-
-        .progress.facebook {
-            display: none;
         }
 
         .progress {
@@ -7657,36 +7602,6 @@ strong {
             > .progress-info {
                 > .ready:before {
                     content: '\E245';
-                }
-            }
-        }
-    }
-
-    &.facebook-mode {
-        .ui-panel {
-            &.info, &.options {
-                display: none;
-            }
-
-            &.facebook:not(.hidden) {
-                display: block;
-            }
-        }
-        .ui-button.web-download, .ui-button.ios-download {
-            display: none;
-        }
-
-        .progress.download {
-            display: none;
-        }
-        .progress {
-            > .icon.success:after {
-                content: '\E133';
-            }
-
-            > .progress-info {
-                > .ready:before {
-                    content: '\E166';
                 }
             }
         }

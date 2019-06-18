@@ -3,6 +3,7 @@ editor.once('viewport:load', function() {
 
     var depthTarget;
     var app = editor.call('viewport:app');
+    var canvas = editor.call('viewport:canvas');
     if (! app) return; // webgl not available
 
     var scene = app.scene;
@@ -17,8 +18,8 @@ editor.once('viewport:load', function() {
 
     editor.method('camera:depth:render', function(camera) {
         var rect = camera.camera._rect;
-        var width = Math.floor(rect.width * device.width);
-        var height = Math.floor(rect.height * device.height);
+        var width = Math.floor(rect.width * canvas.width);
+        var height = Math.floor(rect.height * canvas.height);
 
         if (depthTarget && (depthTarget.width !== width || depthTarget.height !== height)) {
             depthTarget.destroy();

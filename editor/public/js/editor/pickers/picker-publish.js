@@ -85,35 +85,6 @@ editor.once('load', function () {
         editor.call('picker:publish:download');
     });
 
-    // facebook instant
-    var panelFbInstant = new ui.Panel();
-    panelFbInstant.flex = true;
-    panelFbInstant.class.add('buttons');
-    panel.append(panelFbInstant);
-    panelFbInstant.hidden = !editor.call('users:hasFlag', 'hasPublishOnFacebook');
-
-    labelIcon = new ui.Label({
-        text: '&#57941;',
-        unsafe: true
-    });
-    labelIcon.class.add('icon');
-    panelFbInstant.append(labelIcon);
-
-    labelDesc = new ui.Label({
-        text: 'Publish your project to Facebook Instant Games.'
-    });
-    labelDesc.class.add('desc');
-    panelFbInstant.append(labelDesc);
-
-    var btnPublishFb = new ui.Button({text: 'Publish To Facebook'});
-    btnPublishFb.class.add('publish-fb');
-    handlePermissions(btnPublishFb);
-    panelFbInstant.append(btnPublishFb);
-
-    panelFbInstant.on('click', function () {
-        editor.call('picker:publish:facebook');
-    });
-
     // on show
     panel.on('show', function () {
         editor.emit('picker:publish:open');

@@ -49,6 +49,22 @@ editor.once('load', function() {
             // reference
             editor.call('attributes:reference:attach', 'asset:script:order', fieldOrder.parent.innerElement.firstChild.ui);
 
+            // loading type
+            var fieldLoadingType = editor.call('attributes:addField', {
+                name: 'Loading Type',
+                type: 'number',
+                enum: [
+                    { v: '', t: '...' },
+                    { v: LOAD_SCRIPT_AS_ASSET, t: 'Asset' },
+                    { v: LOAD_SCRIPT_BEFORE_ENGINE, t: 'Before Engine' },
+                    { v: LOAD_SCRIPT_AFTER_ENGINE, t: 'After Engine' }
+                ],
+                link: assets,
+                path: 'data.loadingType'
+            });
+            panel.innerElement.insertBefore(fieldLoadingType.parent.element, fieldOrder.parent.element.nextSibling);
+            // reference
+            editor.call('attributes:reference:attach', 'asset:script:loadingType', fieldLoadingType.parent.innerElement.firstChild.ui);
 
             // parse
             var btnParse = new ui.Button({
@@ -442,6 +458,3 @@ editor.once('load', function() {
         });
     });
 });
-
-
-
