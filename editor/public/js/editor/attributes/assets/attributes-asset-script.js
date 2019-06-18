@@ -22,6 +22,8 @@ editor.once('load', function() {
             panelScripts.class.add('component', 'asset-script');
 
 
+
+
             // order
             var fieldOrder = editor.call('attributes:addField', {
                 parent: panel,
@@ -40,12 +42,13 @@ editor.once('load', function() {
                     editor.call('editorSettings:panel:unfold', 'scripts-order');
                 }, 0);
             });
-            // reparent
+
             var preloadField = panel.innerElement.querySelector('.ui-panel.field-checkbox.preload');
             if (preloadField && preloadField.nextSibling) {
                 fieldOrder.parent.parent.innerElement.removeChild(fieldOrder.parent.element);
                 panel.innerElement.insertBefore(fieldOrder.parent.element, preloadField.nextSibling);
             }
+
             // reference
             editor.call('attributes:reference:attach', 'asset:script:order', fieldOrder.parent.innerElement.firstChild.ui);
 
@@ -62,7 +65,13 @@ editor.once('load', function() {
                 link: assets,
                 path: 'data.loadingType'
             });
-            panel.innerElement.insertBefore(fieldLoadingType.parent.element, fieldOrder.parent.element.nextSibling);
+
+            // reparent
+            if (preloadField && preloadField.nextSibling) {
+                fieldLoadingType.parent.parent.innerElement.removeChild(fieldLoadingType.parent.element);
+                panel.innerElement.insertBefore(fieldLoadingType.parent.element, preloadField.nextSibling);
+            }
+
             // reference
             editor.call('attributes:reference:attach', 'asset:script:loadingType', fieldLoadingType.parent.innerElement.firstChild.ui);
 
