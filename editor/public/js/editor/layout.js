@@ -35,167 +35,144 @@ editor.on('load', function() {
 
 
     // main container
-    var root = new ui.Panel();
-    root.element.id = 'ui-root';
-    root.flex = true;
-    root.flexDirection = 'column';
-    root.flexWrap = 'nowrap';
-    root.scroll = true;
-    document.body.appendChild(root.element);
-    // expose
-    editor.method('layout.root', function() { return root; });
-
-    var top = new ui.Panel();
-    top.style.backgroundColor = '#5f6f72';
-    top.style.cursor = 'pointer';
-    top.element.id = 'ui-top';
-    top.flexShrink = false;
-    top.once('click', function() {
-        top.destroy();
-        toolbar.style.marginTop = '';
+    var root = new pcui.Container({
+        id: 'layout-root',
+        grid: true
     });
-    root.append(top);
-
-    // middle
-    var middle = new ui.Panel();
-    middle.element.id = 'ui-middle';
-    middle.flexible = true;
-    middle.flexGrow = true;
-    root.append(middle);
-
-    // bottom (status)
-    var bottom = new ui.Panel();
-    bottom.element.id = 'ui-bottom';
-    bottom.flexShrink = false;
-    root.append(bottom);
+    document.body.appendChild(root.dom);
     // expose
-    editor.method('layout.bottom', function() { return bottom; });
-
+    editor.method('layout.root', function () {
+        return root;
+    });
 
     // toolbar (left)
-    var toolbar = new ui.Panel();
-    toolbar.element.id = 'ui-toolbar';
-    toolbar.flexShrink = false;
-    toolbar.style.width = '45px';
-    middle.append(toolbar);
+    var toolbar = new pcui.Container({
+        id: 'layout-toolbar',
+        flex: true
+    });
+    root.append(toolbar);
     // expose
-    editor.method('layout.toolbar', function() { return toolbar; });
-
+    editor.method('layout.toolbar', function () { return toolbar; });
 
     // hierarchy
-    var hierarchyPanel = new ui.Panel('HIERARCHY');
-    hierarchyPanel.enabled = false;
-    hierarchyPanel.class.add('hierarchy');
-    hierarchyPanel.flexShrink = false;
-    var hierarchyPanelSize = editor.call('localStorage:get', 'editor:layout:hierarchy:width') || '256px';
-    hierarchyPanel.style.width = hierarchyPanelSize;
-    hierarchyPanel.innerElement.style.width = hierarchyPanelSize;
-    hierarchyPanel.foldable = true;
-    hierarchyPanel.folded = editor.call('localStorage:get', 'editor:layout:hierarchy:fold') || false;
-    hierarchyPanel.horizontal = true;
-    hierarchyPanel.scroll = true;
-    hierarchyPanel.resizable = 'right';
-    hierarchyPanel.resizeMin = 196;
-    hierarchyPanel.resizeMax = 512;
+    var hierarchyPanel = new pcui.Panel({
+        headerText: 'HIERARCHY',
+        id: 'layout-hierarchy',
+        flex: true,
+        enabled: false,
+        width: editor.call('localStorage:get', 'editor:layout:hierarchy:width') || 256,
+        panelType: 'normal',
+        collapsible: true,
+        collapseHorizontally: true,
+        collapsed: editor.call('localStorage:get', 'editor:layout:hierarchy:collapse') || window.innerWidth <= 480,
+        scrollable: true,
+        resizable: 'right',
+        resizeMin: 196,
+        resizeMax: 512
+    });
 
     hierarchyPanel.on('resize', function () {
-        editor.call('localStorage:set', 'editor:layout:hierarchy:width', hierarchyPanel.style.width);
+        editor.call('localStorage:set', 'editor:layout:hierarchy:width', hierarchyPanel.width);
     });
-    hierarchyPanel.on('fold', function () {
-        editor.call('localStorage:set', 'editor:layout:hierarchy:fold', true);
+    hierarchyPanel.on('collapse', function () {
+        editor.call('localStorage:set', 'editor:layout:hierarchy:collapse', true);
     });
-    hierarchyPanel.on('unfold', function () {
-        editor.call('localStorage:set', 'editor:layout:hierarchy:fold', false);
+    hierarchyPanel.on('expand', function () {
+        editor.call('localStorage:set', 'editor:layout:hierarchy:collapse', false);
     });
 
-    middle.append(hierarchyPanel);
+    root.append(hierarchyPanel);
     // expose
-    editor.method('layout.left', function() { return hierarchyPanel; });
-    editor.on('permissions:writeState', function(state) {
+    editor.method('layout.hierarchy', function () { return hierarchyPanel; });
+
+    editor.on('permissions:writeState', function (state) {
         hierarchyPanel.enabled = state;
     });
-    if (window.innerWidth <= 480)
-        hierarchyPanel.folded = true;
-
-
-    // center
-    var center = new ui.Panel();
-    center.flexible = true;
-    center.flexGrow = true;
-    center.flexDirection = 'column';
-    middle.append(center);
 
     // viewport
-    var viewport = new ui.Panel();
-    viewport.flexible = true;
-    viewport.flexGrow = true;
+    var viewport = new pcui.Container({
+        id: 'layout-viewport'
+    });
     viewport.class.add('viewport');
-    center.append(viewport);
+    root.append(viewport);
     // expose
-    editor.method('layout.viewport', function() { return viewport; });
+    editor.method('layout.viewport', function () { return viewport; });
 
     // assets
-    var assetsPanel = new ui.Panel('ASSETS');
+    var assetsPanel = new pcui.Panel({
+        id: 'layout-assets',
+        headerText: 'ASSETS',
+        flex: true,
+        flexDirection: 'row',
+        panelType: 'normal',
+        collapsible: true,
+        collapsed: editor.call('localStorage:get', 'editor:layout:assets:collapse') || window.innerHeight <= 480,
+        height: editor.call('localStorage:get', 'editor:layout:assets:height') || 212,
+        scrollable: true,
+        resizable: 'top',
+        resizeMin: 106,
+        resizeMax: 106 * 6
+    });
     assetsPanel.class.add('assets');
-    assetsPanel.foldable = true;
-    assetsPanel.folded = editor.call('localStorage:get', 'editor:layout:assets:fold') || false;
-    assetsPanel.flexShrink = false;
-    assetsPanel.innerElement.style.height = editor.call('localStorage:get', 'editor:layout:assets:height') || '212px';
-    assetsPanel.scroll = true;
-    assetsPanel.resizable = 'top';
-    assetsPanel.resizeMin = 106;
-    assetsPanel.resizeMax = 106 * 6;
-    assetsPanel.headerSize = -1;
 
     assetsPanel.on('resize', function () {
-        editor.call('localStorage:set', 'editor:layout:assets:height', assetsPanel.innerElement.style.height);
+        editor.call('localStorage:set', 'editor:layout:assets:height', assetsPanel.height);
     });
-    assetsPanel.on('fold', function () {
-        editor.call('localStorage:set', 'editor:layout:assets:fold', true);
+    assetsPanel.on('collapse', function () {
+        editor.call('localStorage:set', 'editor:layout:assets:collapse', true);
     });
-    assetsPanel.on('unfold', function () {
-        editor.call('localStorage:set', 'editor:layout:assets:fold', false);
+    assetsPanel.on('expand', function () {
+        editor.call('localStorage:set', 'editor:layout:assets:collapse', false);
     });
 
-    center.append(assetsPanel);
+    root.append(assetsPanel);
     // expose
-    editor.method('layout.assets', function() { return assetsPanel; });
-    if (window.innerHeight <= 480)
-        assetsPanel.folded = true;
-
+    editor.method('layout.assets', function () { return assetsPanel; });
 
     // attributes
-    var attributesPanel = new ui.Panel('INSPECTOR');
-    attributesPanel.enabled = false;
+    var attributesPanel = new pcui.Panel({
+        id: 'layout-attributes',
+        headerText: 'INSPECTOR',
+        enabled: false,
+        panelType: 'normal',
+        width: editor.call('localStorage:get', 'editor:layout:attributes:width') || 320,
+        collapsible: true,
+        collapseHorizontally: true,
+        collapsed: editor.call('localStorage:get', 'editor:layout:attributes:collapse') || false,
+        scrollable: true,
+        resizable: 'left',
+        resizeMin: 256,
+        resizeMax: 512
+    });
     attributesPanel.class.add('attributes');
-    attributesPanel.flexShrink = false;
-    var attributesPanelWidth = editor.call('localStorage:get', 'editor:layout:attributes:width') || '320px';
-    attributesPanel.style.width = attributesPanelWidth;
-    attributesPanel.innerElement.style.width = attributesPanelWidth;
-    attributesPanel.horizontal = true;
-    attributesPanel.foldable = true;
-    attributesPanel.folded = editor.call('localStorage:get', 'editor:layout:attributes:fold') || false;
-    attributesPanel.scroll = true;
-    attributesPanel.resizable = 'left';
-    attributesPanel.resizeMin = 256;
-    attributesPanel.resizeMax = 512;
 
     attributesPanel.on('resize', function () {
-        editor.call('localStorage:set', 'editor:layout:attributes:width', attributesPanel.innerElement.style.width);
+        editor.call('localStorage:set', 'editor:layout:attributes:width', attributesPanel.width);
     });
-    attributesPanel.on('fold', function () {
-        editor.call('localStorage:set', 'editor:layout:attributes:fold', true);
+    attributesPanel.on('collapse', function () {
+        editor.call('localStorage:set', 'editor:layout:attributes:collapse', true);
     });
-    attributesPanel.on('unfold', function () {
-        editor.call('localStorage:set', 'editor:layout:attributes:fold', false);
+    attributesPanel.on('expand', function () {
+        editor.call('localStorage:set', 'editor:layout:attributes:collapse', false);
     });
 
-    middle.append(attributesPanel);
+    root.append(attributesPanel);
     // expose
-    editor.method('layout.right', function() { return attributesPanel; });
-    editor.on('permissions:writeState', function(state) {
+    editor.method('layout.attributes', function () { return attributesPanel; });
+    editor.on('permissions:writeState', function (state) {
         attributesPanel.enabled = state;
     });
+
+    // status bar
+    var statusBar = new pcui.Container({
+        id: 'layout-statusbar',
+        flex: true,
+        flexDirection: 'row'
+    });
+    root.append(statusBar);
+    // expose
+    editor.method('layout.statusBar', function () { return statusBar; });
+
     if (window.innerWidth <= 720)
         attributesPanel.folded = true;
 });

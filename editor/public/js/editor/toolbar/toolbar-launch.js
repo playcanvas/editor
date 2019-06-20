@@ -83,7 +83,7 @@ editor.once('load', function() {
         root: root
     });
 
-    var layoutRight = editor.call('layout.right');
+    var layoutRight = editor.call('layout.attributes');
 
     var launchOptions = { };
 

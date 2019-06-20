@@ -120,15 +120,15 @@ editor.once('load', function () {
         if (assets.length === 1) {
             previewTexturesHover = {};
 
-            var previewContainer = document.createElement('div');
-            previewContainer.classList.add('asset-preview-container');
+            var previewContainer = new pcui.Container();
+            previewContainer.class.add('asset-preview-container');
 
             var preview = document.createElement('canvas');
             var ctx = preview.getContext('2d');
             preview.width = 256;
             preview.height = 256;
             preview.classList.add('asset-preview', 'flipY');
-            previewContainer.appendChild(preview);
+            previewContainer.append(preview);
 
             var modelSphere = new ui.Button({
                 text: '&#58121;'
@@ -136,7 +136,7 @@ editor.once('load', function () {
             modelSphere.class.add('sphere');
             if (currentPreviewModel === 'sphere')
                 modelSphere.class.add('active');
-            previewContainer.appendChild(modelSphere.element);
+            previewContainer.append(modelSphere.element);
             modelSphere.parent = panelParams;
 
             modelSphere.on('click', function () {
@@ -156,7 +156,7 @@ editor.once('load', function () {
             modelBox.class.add('box');
             if (currentPreviewModel === 'box')
                 modelBox.class.add('active');
-            previewContainer.appendChild(modelBox.element);
+            previewContainer.append(modelBox.element);
             modelBox.parent = panelParams;
 
             modelBox.on('click', function () {
@@ -204,10 +204,10 @@ editor.once('load', function () {
                     return;
 
                 if ((Math.abs(sx - x) + Math.abs(sy - y)) < 8) {
-                    if (root.element.classList.contains('large')) {
-                        root.element.classList.remove('large');
+                    if (root.class.contains('large')) {
+                        root.class.remove('large');
                     } else {
-                        root.element.classList.add('large');
+                        root.class.add('large');
                     }
                 }
 
@@ -225,7 +225,7 @@ editor.once('load', function () {
 
 
             root.class.add('asset-preview');
-            root.element.insertBefore(previewContainer, root.innerElement);
+            root.prepend(previewContainer);
 
             // rendering preview
             var renderQueued;
@@ -235,7 +235,7 @@ editor.once('load', function () {
                     renderQueued = false;
 
                 // render
-                editor.call('preview:render', assets[0], previewContainer.clientWidth, previewContainer.clientHeight, preview, {
+                editor.call('preview:render', assets[0], previewContainer.width, previewContainer.height, preview, {
                     rotation: [Math.max(-90, Math.min(90, previewRotation[0] + (sy - y) * 0.3)), previewRotation[1] + (sx - x) * 0.3],
                     model: currentPreviewModel,
                     params: previewTexturesHover
@@ -356,7 +356,6 @@ editor.once('load', function () {
 
                 evtSceneSettings.unbind();
                 evtPanelResize.unbind();
-                previewContainer.parentNode.removeChild(previewContainer);
 
                 window.removeEventListener('mousemove', onMouseMove);
                 window.removeEventListener('mouseup', onMouseUp);

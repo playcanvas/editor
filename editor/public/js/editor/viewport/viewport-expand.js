@@ -2,9 +2,9 @@ editor.once('load', function() {
     'use strict';
 
     var panels = [ ];
-    panels.push(editor.call('layout.left'));
+    panels.push(editor.call('layout.hierarchy'));
     panels.push(editor.call('layout.assets'));
-    panels.push(editor.call('layout.right'));
+    panels.push(editor.call('layout.attributes'));
 
     var expanded = false;
 

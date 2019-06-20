@@ -4,7 +4,7 @@ editor.once('load', function() {
     var assetsPanel = editor.call('layout.assets');
 
     var dropRef = editor.call('drop:target', {
-        ref: assetsPanel.element,
+        ref: assetsPanel.dom,
         type: 'files',
         drop: function(type, data) {
             if (type !== 'files')

@@ -27,6 +27,30 @@ utils.isMobile = function() {
       /iPhone|iPad|iPod/i.test(navigator.userAgent);
 };
 
+/**
+ * Copies all properties from source into target. Meant to be used
+ * with prototypes.
+ * @param {Object} target The target object
+ * @param {Object} source The source object.
+ * @example
+ * // mixin interface
+ * function superclass () {}
+ * function interface () {}
+ * function myclass () {
+ *   superclass.call(this);
+ *   interface.call(this);
+ * }
+ * myclass.prototype = Object.create(superclass.prototype);
+ * utils.mixin(myclass.prototype, interface.prototype);
+ * myclass.prototype.constructor = myclass;
+ */
+utils.mixin = function (target, source) {
+    // not using Object.assign here because that does not copy
+    // property definitions created with Object.defineProperty
+    var properties = Object.getOwnPropertyDescriptors(source);
+    Object.defineProperties(target, properties);
+};
+
 // String.startsWith
 if (! String.prototype.startsWith) {
     Object.defineProperty(String.prototype, 'startsWith', {

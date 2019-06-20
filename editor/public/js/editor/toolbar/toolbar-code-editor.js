@@ -12,7 +12,7 @@ editor.once('load', function() {
     });
     button.class.add('pc-icon');
 
-    var publishButton = toolbar.innerElement.querySelector('.publish-download');
+    var publishButton = toolbar.dom.querySelector('.publish-download');
     toolbar.appendBefore(button, publishButton);
 
     button.on('click', function() {

@@ -4,7 +4,7 @@ editor.once('load', function() {
     var settings = editor.call('editor:settings');
 
     var root = editor.call('layout.root');
-    var panel = editor.call('layout.right');
+    var panel = editor.call('layout.attributes');
     var hidden = true;
     var width = panel.resizeMin + 'px';
 

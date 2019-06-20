@@ -1,26 +1,6 @@
 editor.once('load', function() {
     'use strict';
 
-    var pickMaterial = function(assetId, fn) {
-        var asset = editor.call('assets:get', assetId);
-        editor.call('picker:asset', {
-            type: 'material',
-            currentAsset: asset
-        });
-
-        var evtPick = editor.once('picker:asset', function(asset) {
-            fn(asset.get('id'));
-            evtPick = null;
-        });
-
-        editor.once('picker:asset:close', function() {
-            if (evtPick) {
-                evtPick.unbind();
-                evtPick = null;
-            }
-        });
-    };
-
     var panelNodes = null;
 
     editor.method('attributes:asset:model:nodesPanel', function () {
@@ -424,8 +404,8 @@ editor.once('load', function() {
         if (assets.length === 1 && assets[0].has('data.mapping') && assets[0].get('data.mapping').length) {
             var root = editor.call('attributes.rootPanel');
 
-            var previewContainer = document.createElement('div');
-            previewContainer.classList.add('asset-preview-container');
+            var previewContainer = new pcui.Container();
+            previewContainer.class.add('asset-preview-container');
 
             // preview
             var preview = document.createElement('canvas');
@@ -433,7 +413,7 @@ editor.once('load', function() {
             preview.width = 256;
             preview.height = 256;
             preview.classList.add('asset-preview', 'flipY');
-            previewContainer.appendChild(preview);
+            previewContainer.append(preview);
 
             var sx = 0, sy = 0, x = 0, y = 0, nx = 0, ny = 0;
             var dragging = false;
@@ -469,10 +449,10 @@ editor.once('load', function() {
                     return;
 
                 if ((Math.abs(sx - x) + Math.abs(sy - y)) < 8) {
-                    if (root.element.classList.contains('large')) {
-                        root.element.classList.remove('large');
+                    if (root.class.contains('large')) {
+                        root.class.remove('large');
                     } else {
-                        root.element.classList.add('large');
+                        root.class.add('large');
                     }
                 }
 
@@ -489,7 +469,7 @@ editor.once('load', function() {
             window.addEventListener('mouseup', onMouseUp, false);
 
             root.class.add('asset-preview');
-            root.element.insertBefore(previewContainer, root.innerElement);
+            root.prepend(previewContainer);
 
             // rendering preview
             var renderQueued;
@@ -499,7 +479,7 @@ editor.once('load', function() {
                     renderQueued = false;
 
                 // render
-                editor.call('preview:render', assets[0], previewContainer.clientWidth, previewContainer.clientHeight, preview, {
+                editor.call('preview:render', assets[0], previewContainer.width, previewContainer.height, preview, {
                     rotation: [ Math.max(-90, Math.min(90, previewRotation[0] + (sy - y) * 0.3)), previewRotation[1] + (sx - x) * 0.3 ]
                 });
             };
@@ -528,6 +508,8 @@ editor.once('load', function() {
                 name: 'Mesh Instances'
             });
             panelNodes.class.add('component');
+            panelNodes.flex = true;
+            panelNodes.innerElement.style.flexDirection = 'column';
             panelNodes.foldable = true;
             panelNodes.folded = panelToggles['nodes'];
             panelNodes.on('fold', function() {
@@ -662,9 +644,6 @@ editor.once('load', function() {
                 evtSceneSettings.unbind();
                 evtPanelResize.unbind();
 
-                if (previewContainer.parentNode)
-                    previewContainer.parentNode.removeChild(previewContainer);
-
                 window.removeEventListener('mousemove', onMouseMove);
                 window.removeEventListener('mouseup', onMouseUp);
 
@@ -674,11 +653,10 @@ editor.once('load', function() {
             // hide preview when asset info is hidden
             events.push(editor.once('attributes:assets:toggleInfo', function (toggle) {
                 panelMeta.hidden = true;
+                previewContainer.hidden = true;
                 panelPipeline.hidden = true;
 
                 root.class.remove('asset-preview', 'animate');
-                if (previewContainer.parentNode)
-                    previewContainer.parentNode.removeChild(previewContainer);
             }));
 
             // template nodes

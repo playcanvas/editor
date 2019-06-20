@@ -106,7 +106,7 @@ editor.once('load', function () {
             54,
             -39,
             'bottom',
-            editor.call('layout.assets').element
+            editor.call('layout.assets').dom
         );
     };
 
@@ -118,7 +118,7 @@ editor.once('load', function () {
             560,
             -36,
             'bottom-right',
-            editor.call('layout.assets').element
+            editor.call('layout.assets').dom
         );
 
         bubble.style.zIndex = 'initial';

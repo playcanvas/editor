@@ -63,27 +63,27 @@ editor.once('load', function() {
 
         // preview
         if (assets.length === 1) {
-            var previewContainer = document.createElement('div');
-            previewContainer.classList.add('asset-preview-container');
+            var previewContainer = new pcui.Container();
+            previewContainer.class.add('asset-preview-container');
 
             var preview = document.createElement('canvas');
             var ctx = preview.getContext('2d');
             preview.width = 256;
             preview.height = 256;
             preview.classList.add('asset-preview');
-            previewContainer.appendChild(preview);
+            previewContainer.append(preview);
 
             preview.addEventListener('click', function() {
-                if (root.element.classList.contains('large')) {
-                    root.element.classList.remove('large');
+                if (root.class.contains('large')) {
+                    root.class.remove('large');
                 } else {
-                    root.element.classList.add('large');
+                    root.class.add('large');
                 }
                 queueRender();
             }, false);
 
             root.class.add('asset-preview');
-            root.element.insertBefore(previewContainer, root.innerElement);
+            root.prepend(previewContainer);
 
             var time = 0;
             var playing = false;
@@ -94,7 +94,7 @@ editor.once('load', function() {
             var btnPlay = new ui.Button({
                 text: '&#57649;'
             });
-            previewContainer.appendChild(btnPlay.element);
+            previewContainer.append(btnPlay.element);
             btnPlay.parent = panelProperties;
 
             btnPlay.on('click', function() {
@@ -131,7 +131,7 @@ editor.once('load', function() {
                 }
 
                 // render
-                editor.call('preview:render', assets[0], previewContainer.clientWidth, previewContainer.clientHeight, preview, {
+                editor.call('preview:render', assets[0], previewContainer.width, previewContainer.height, preview, {
                     frame: frame,
                     animating: true
                 });
@@ -161,9 +161,6 @@ editor.once('load', function() {
                 root.class.remove('asset-preview', 'animate');
 
                 evtPanelResize.unbind();
-
-                if (previewContainer.parentNode)
-                    previewContainer.parentNode.removeChild(previewContainer);
 
                 editor.call('assets:sprite:unwatch', assets[0], spriteWatch);
 

@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var jobs = { };
-    var panel = editor.call('layout.bottom');
+    var panel = editor.call('layout.statusBar');
 
 
     // status

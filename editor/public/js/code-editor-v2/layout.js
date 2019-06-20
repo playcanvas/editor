@@ -96,7 +96,7 @@ editor.on('load', function () {
     right.hidden = true;
     middle.append(right);
     // expose
-    editor.method('layout.right', function() { return right; });
+    editor.method('layout.attributes', function() { return right; });
 
     // bottom (status)
     var bottom = new ui.Panel();
@@ -104,7 +104,7 @@ editor.on('load', function () {
     // bottom.flexShrink = false;
     root.append(bottom);
     // expose
-    editor.method('layout.bottom', function() { return bottom; });
+    editor.method('layout.statusBar', function() { return bottom; });
 
     // disable context menu for everything but the code view
     root.element.addEventListener('contextmenu', function (e) {

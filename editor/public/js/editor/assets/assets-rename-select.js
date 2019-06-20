@@ -17,7 +17,7 @@ editor.once('load', function() {
         if (! root)
             return;
 
-        var input = root.element.querySelector('.ui-text-field.asset-name');
+        var input = root.dom.querySelector('.ui-text-field.asset-name');
 
         if (! input || ! input.ui)
             return;

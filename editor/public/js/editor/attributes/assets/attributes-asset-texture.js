@@ -923,14 +923,14 @@ editor.once('load', function() {
             var reloadImage = function() {
                 if (assets[0].get('file.url') && assets[0].get('file.hash')) {
                     image.src = config.url.home + assets[0].get('file.url').appendQuery('t=' + assets[0].get('file.hash'));
-                    previewContainer.style.display = '';
+                    previewContainer.hidden = false;
                 } else {
-                    previewContainer.style.display = 'none';
+                    previewContainer.hidden = true;
                 }
             };
 
-            var previewContainer = document.createElement('div');
-            previewContainer.classList.add('asset-preview-container');
+            var previewContainer = new pcui.Container();
+            previewContainer.class.add('asset-preview-container');
 
             var preview = document.createElement('div');
             preview.classList.add('asset-preview');
@@ -940,18 +940,18 @@ editor.once('load', function() {
                 preview.style.backgroundImage = 'url("' + image.src  + '")';
             };
             reloadImage();
-            previewContainer.appendChild(preview);
+            previewContainer.append(preview);
 
             preview.addEventListener('click', function() {
-                if (root.element.classList.contains('large')) {
-                    root.element.classList.remove('large');
+                if (root.class.contains('large')) {
+                    root.class.remove('large');
                 } else {
-                    root.element.classList.add('large');
+                    root.class.add('large');
                 }
             }, false);
 
             root.class.add('asset-preview');
-            root.element.insertBefore(previewContainer, root.innerElement);
+            root.prepend(previewContainer);
 
             var events = [ ];
             events.push(assets[0].on('file.hash:set', reloadImage));
@@ -960,7 +960,7 @@ editor.once('load', function() {
             panel.on('destroy', function() {
                 for(var i = 0; i < events.length; i++)
                     events[i].unbind();
-                previewContainer.parentNode.removeChild(previewContainer);
+
                 root.class.remove('asset-preview', 'animate');
             });
         }

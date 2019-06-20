@@ -1,7 +1,7 @@
 editor.on('load', function() {
     var hierarchyOverlay = new ui.Panel();
     hierarchyOverlay.class.add('overlay');
-    editor.call('layout.left').append(hierarchyOverlay);
+    editor.call('layout.hierarchy').append(hierarchyOverlay);
 
     var p = new ui.Progress();
     p.on('progress:100', function() {

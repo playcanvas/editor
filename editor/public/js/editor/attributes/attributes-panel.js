@@ -3,8 +3,8 @@ editor.once('load', function() {
 
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     var title = 'INSPECTOR';
-    var root = editor.call('layout.right');
-    root.header = title;
+    var root = editor.call('layout.attributes');
+    root.headerText = title;
 
     var clearPanel = function() {
         editor.emit('attributes:beforeClear');
@@ -17,7 +17,7 @@ editor.once('load', function() {
 
     // set header
     editor.method('attributes:header', function(text) {
-        root.header = text;
+        root.headerText = text;
     });
 
     // return root panel
@@ -1991,7 +1991,7 @@ editor.once('load', function() {
             editor.call('attributes:clear');
         }));
 
-        root.header = type;
+        root.headerText = type;
         editor.emit('attributes:inspect[' + type + ']', [ item ]);
         editor.emit('attributes:inspect[*]', type, [ item ]);
     });
@@ -2006,7 +2006,7 @@ editor.once('load', function() {
             label.style.textAlign = 'center';
             root.append(label);
 
-            root.header = title;
+            root.headerText = title;
 
             return;
         }
@@ -2018,7 +2018,7 @@ editor.once('load', function() {
             }));
         }
 
-        root.header = type;
+        root.headerText = type;
         editor.emit('attributes:inspect[' + type + ']', items);
         editor.emit('attributes:inspect[*]', type, items);
     });

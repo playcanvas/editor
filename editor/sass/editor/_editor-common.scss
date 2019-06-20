@@ -1,0 +1,62 @@
+.asset-icon-prefix {
+    &.type-animation:before {
+        content: '\E213';
+    }
+    &.type-audio:before {
+        content: '\E210';
+    }
+    &.type-cubemap:before {
+        content: '\E220';
+    }
+    &.type-folder:before {
+        content: '\E139';
+    }
+    &.type-bundle:before {
+        content: '\E410';
+    }
+    &.type-json:before {
+        content: '\E207';
+    }
+    &.type-material:before {
+        content: '\E195';
+    }
+    &.type-model:before {
+        content: '\E188';
+    }
+    &.type-scene:before {
+        content: '\E188';
+    }
+    &.type-script:before {
+        content: '\E392';
+    }
+    &.type-sprite:before {
+        content: '\E395';
+    }
+    &.type-texture:before {
+        content: '\E201';
+    }
+    &.type-textureatlas:before {
+        content: '\E201';
+    }
+    &.type-text:before {
+        content: '\E209';
+    }
+    &.type-html:before {
+        content: '\E205';
+    }
+    &.type-css:before {
+        content: '\E206';
+    }
+    &.type-shader:before {
+        content: '\E353';
+    }
+    &.type-shader:before {
+        content: '\E202';
+    }
+    &.type-binary:before {
+        content: '\E299';
+    }
+    &.type-font:before {
+        content: '\E299';
+    }
+}

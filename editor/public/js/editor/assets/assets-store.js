@@ -7,7 +7,7 @@ editor.once('load', function () {
         text: "Library"
     });
     btnStore.class.add('store');
-    assetsPanel.headerAppend(btnStore);
+    assetsPanel.header.append(btnStore);
 
     btnStore.on('click', function () {
         window.open('https://store.playcanvas.com/', '_blank');

@@ -129,7 +129,7 @@ editor.once('load', function () {
         editor.call('assets:panel:currentFolder', assetsPanelFolder);
         // fold back assets panel if needed
         if (assetsPanelFolded)
-            assetsPanel.folded = true;
+            assetsPanel.collapsed = true;
         // enable selector
         editor.call('selector:enabled', true);
         // select what was selected
@@ -211,9 +211,9 @@ editor.once('load', function () {
         assetsPanel.style.zIndex = 102;
         assetsPanel.style.overflow = 'visible';
         // if panel folded?
-        assetsPanelFolded = assetsPanel.folded;
+        assetsPanelFolded = assetsPanel.collapsed;
         if (assetsPanelFolded)
-            assetsPanel.folded = false;
+            assetsPanel.collapsed = false;
         // show overlay
         overlay.hidden = false;
         // flash assets panel

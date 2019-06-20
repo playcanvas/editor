@@ -1,8 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    var root = editor.call('layout.root');
-    var panel = editor.call('layout.left');
+    var panel = editor.call('layout.hierarchy');
     var hierarchy = editor.call('entities:hierarchy');
     var changing = false;
     var itemsIndex = { };
@@ -176,7 +175,7 @@ editor.once('load', function() {
     search.keyChange = true;
     search.class.add('search');
     search.renderChanges = false;
-    panel.element.insertBefore(search.element, panel.innerElement);
+    panel.prepend(search);
 
     search.element.addEventListener('keydown', function(evt) {
         if (evt.keyCode === 27) {
