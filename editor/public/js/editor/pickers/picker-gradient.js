@@ -201,7 +201,7 @@ ColorPicker.prototype = {
                 var rgb = [ parseInt(hex.substring(0, 2), 16),
                             parseInt(hex.substring(2, 4), 16),
                             parseInt(hex.substring(4, 6), 16) ];
-                this.hsva = rgb2hsv(rgb).push(this.hsva[3]);
+                this.hsva = rgb2hsv(rgb).concat([this.hsva[3]]);
                 this.emit('change', this.color);
             }
         }
