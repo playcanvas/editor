@@ -131,43 +131,6 @@ strong {
     }
 }
 
-.ui-panel {
-    > .content > .ui-panel.overlay {
-        z-index: 10;
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        width: auto;
-        height: auto;
-        // background-color: $bcg-darker;
-
-        opacity: 1;
-        visibility: visible;
-        transition: visibility 100ms, opacity 100ms;
-
-        &.hidden {
-            display: block;
-            visibility: hidden;
-            opacity: 0;
-        }
-
-        > .content {
-            height: 100%;
-
-            > .ui-progress {
-                width: 128px;
-                height: 4px;
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                margin: -2px 0 0 -64px;
-            }
-        }
-    }
-}
-
 .drop-ref-highlight {
     z-index: 210;
 }

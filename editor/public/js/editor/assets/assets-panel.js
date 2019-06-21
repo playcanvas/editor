@@ -17,8 +17,10 @@ editor.once('load', function() {
     };
     var searching = false;
 
-    var overlay = new ui.Panel();
-    overlay.class.add('overlay');
+    var overlay = new pcui.Container({
+        flex: true
+    });
+    overlay.class.add('progress-overlay');
     assetsPanel.append(overlay);
 
     var loading = new ui.Progress();

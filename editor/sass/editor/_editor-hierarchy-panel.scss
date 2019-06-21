@@ -176,6 +176,35 @@
             }
         }
     }
+
+    .pcui-container.progress-overlay {
+        z-index: 10;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: $bcg-primary;
+
+        justify-content: center;
+        align-items: center;
+        flex-direction: row;
+
+        opacity: 1;
+        visibility: visible;
+        transition: visibility 100ms, opacity 100ms;
+
+        &.pcui-hidden {
+            visibility: hidden;
+            opacity: 0;
+            display: inherit;
+        }
+
+        > .ui-progress {
+            flex-basis: 128px;
+            height: 4px;
+        }
+    }
 }
 
 .pcui-container.hierarchy-controls {

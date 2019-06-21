@@ -1,6 +1,8 @@
 editor.on('load', function() {
-    var hierarchyOverlay = new ui.Panel();
-    hierarchyOverlay.class.add('overlay');
+    var hierarchyOverlay = new pcui.Container({
+        flex: true
+    });
+    hierarchyOverlay.class.add('progress-overlay');
     editor.call('layout.hierarchy').append(hierarchyOverlay);
 
     var p = new ui.Progress();
