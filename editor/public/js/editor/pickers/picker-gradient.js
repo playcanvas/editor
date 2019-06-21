@@ -370,10 +370,12 @@ editor.once('load', function() {
     };
 
     function onDeleteKey() {
-        if (STATE.selectedAnchor !== -1) {
-            var deleteTime = STATE.anchors[STATE.selectedAnchor];
-            STATE.selectedAnchor = -1;
-            deleteAnchor(deleteTime);
+        if (!UI.overlay.hidden) {
+            if (STATE.selectedAnchor !== -1) {
+                var deleteTime = STATE.anchors[STATE.selectedAnchor];
+                STATE.selectedAnchor = -1;
+                deleteAnchor(deleteTime);
+            }
         }
     };
 
@@ -734,6 +736,7 @@ editor.once('load', function() {
                 }
             }
         }
+        selectHovered(-1);
         emitCurveChange();
     }
 
