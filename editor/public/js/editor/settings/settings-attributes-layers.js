@@ -422,10 +422,10 @@ editor.once('load', function() {
             var diff;
             if (rect.bottom > parentRect.bottom) {
                 diff = rect.bottom - parentRect.bottom;
-                attributesPanel.innerElement.scrollTop += diff;
+                attributesPanel.content.dom.scrollTop += diff;
             } else if (rect.top < parentRect.top) {
                 diff = parentRect.top - rect.top;
-                attributesPanel.innerElement.scrollTop -= diff;
+                attributesPanel.content.dom.scrollTop -= diff;
             }
         };
 

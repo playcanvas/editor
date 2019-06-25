@@ -201,7 +201,7 @@ ColorPicker.prototype = {
                 var rgb = [ parseInt(hex.substring(0, 2), 16),
                             parseInt(hex.substring(2, 4), 16),
                             parseInt(hex.substring(4, 6), 16) ];
-                this.hsva = rgb2hsv(rgb).push(this.hsva[3]);
+                this.hsva = rgb2hsv(rgb).concat([this.hsva[3]]);
                 this.emit('change', this.color);
             }
         }
@@ -370,10 +370,12 @@ editor.once('load', function() {
     };
 
     function onDeleteKey() {
-        if (STATE.selectedAnchor !== -1) {
-            var deleteTime = STATE.anchors[STATE.selectedAnchor];
-            STATE.selectedAnchor = -1;
-            deleteAnchor(deleteTime);
+        if (!UI.overlay.hidden) {
+            if (STATE.selectedAnchor !== -1) {
+                var deleteTime = STATE.anchors[STATE.selectedAnchor];
+                STATE.selectedAnchor = -1;
+                deleteAnchor(deleteTime);
+            }
         }
     };
 
@@ -734,6 +736,7 @@ editor.once('load', function() {
                 }
             }
         }
+        selectHovered(-1);
         emitCurveChange();
     }
 

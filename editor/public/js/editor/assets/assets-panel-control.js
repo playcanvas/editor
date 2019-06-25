@@ -109,8 +109,7 @@ editor.once('load', function() {
     var controls = new ui.Panel();
     controls.enabled = false;
     controls.class.add('assets-controls');
-    controls.parent = assetsPanel;
-    assetsPanel.headerElement.insertBefore(controls.element, assetsPanel.headerElementTitle.nextSibling);
+    assetsPanel.header.append(controls);
     editor.on('permissions:writeState', function(state) {
         controls.enabled = state;
     });
@@ -221,7 +220,7 @@ editor.once('load', function() {
     tooltipUp.class.add('innactive');
 
 
-    var assetsGrid = assetsPanel.element.querySelector('.ui-panel > .content > ul.ui-grid.assets').ui;
+    var assetsGrid = assetsPanel.dom.querySelector('.ui-panel > .content > ul.ui-grid.assets').ui;
 
     // thumbnails size
     var btnThumbSize = new ui.Button({

@@ -25,8 +25,8 @@ editor.once('load', function() {
 
         // unfold panel
         var panel = editor.call('attributes.rootPanel');
-        if (panel.folded)
-            panel.folded = false;
+        if (panel.collapsed)
+            panel.collapsed = false;
 
         var multi = assets.length > 1;
         var type = ((assets[0].get('source') && assets[0].get('type') !== 'folder') ? 'source ' : '') + assets[0].get('type');

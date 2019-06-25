@@ -5,7 +5,7 @@ editor.once('load', function() {
     var uiItemIndex = { };
     var awaitingParent = { };
 
-    var panel = editor.call('layout.left');
+    var panel = editor.call('layout.hierarchy');
 
     // list
     var hierarchy = new ui.Tree();
@@ -22,7 +22,7 @@ editor.once('load', function() {
     var resizeTree = function() {
         resizeQueued = false;
         hierarchy.element.style.width = '';
-        hierarchy.element.style.width = (panel.innerElement.scrollWidth - 5) + 'px';
+        hierarchy.element.style.width = (panel.content.style.scrollWidth - 5) + 'px';
     };
     var resizeQueue = function() {
         if (resizeQueued) return;
@@ -70,11 +70,11 @@ editor.once('load', function() {
             window.removeEventListener('mousemove', dragEvt);
             return;
         }
-        var rect = panel.innerElement.getBoundingClientRect();
+        var rect = panel.content.dom.getBoundingClientRect();
 
-        if ((evt.clientY - rect.top) < 32 && panel.innerElement.scrollTop > 0) {
+        if ((evt.clientY - rect.top) < 32 && panel.content.dom.scrollTop > 0) {
             dragScroll = -1;
-        } else if ((rect.bottom - evt.clientY) < 32 && (panel.innerElement.scrollHeight - (rect.height + panel.innerElement.scrollTop)) > 0) {
+        } else if ((rect.bottom - evt.clientY) < 32 && (panel.content.dom.scrollHeight - (rect.height + panel.content.dom.scrollTop)) > 0) {
             dragScroll = 1;
         } else {
             dragScroll = 0;
@@ -85,7 +85,7 @@ editor.once('load', function() {
             if (dragScroll === 0)
                 return;
 
-            panel.innerElement.scrollTop += dragScroll * 8;
+            panel.content.dom.scrollTop += dragScroll * 8;
             hierarchy._dragOver = null;
             hierarchy._updateDragHandle();
         }, 1000 / 60);
@@ -105,7 +105,7 @@ editor.once('load', function() {
 
 
     var target = editor.call('drop:target', {
-        ref: panel.innerElement,
+        ref: panel.content.dom,
         type: 'entity',
         hole: true,
         passThrough: true

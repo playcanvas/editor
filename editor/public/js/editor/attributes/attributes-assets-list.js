@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
-    var root = editor.call('layout.right');
+    var root = editor.call('layout.attributes');
 
     // get the right path from args
     var pathAt = function (args, index) {
@@ -41,6 +41,7 @@ editor.once('load', function () {
         var assetIndex = {};
 
         var panelWidget = new ui.Panel();
+        panelWidget.flex = true;
         panelWidget.class.add('asset-list');
 
         var isSelectingAssets = false;
@@ -78,6 +79,7 @@ editor.once('load', function () {
         var btnDone = new ui.Button({
             text: 'DONE'
         });
+        btnDone.flexGrow = 1;
         btnDone.class.add('done');
         panelButtons.append(btnDone);
 

@@ -13,7 +13,7 @@ editor.once('load', function() {
     // filters
     var panelFilters = new ui.Panel();
     panelFilters.class.add('filters');
-    assetsPanel.headerAppend(panelFilters);
+    assetsPanel.header.append(panelFilters);
 
     var tagsCheck = function(asset, tags) {
         var data = asset.get('tags');

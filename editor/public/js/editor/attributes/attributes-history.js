@@ -6,13 +6,13 @@ editor.once('load', function() {
 
 
     var root = editor.call('layout.root');
-    var panel = editor.call('layout.right');
+    var panel = editor.call('layout.attributes');
 
 
     var controls = new ui.Panel();
     controls.class.add('inspector-controls');
     controls.parent = panel;
-    panel.headerAppend(controls);
+    panel.header.append(controls);
 
 
     var selectorReturn = function() {

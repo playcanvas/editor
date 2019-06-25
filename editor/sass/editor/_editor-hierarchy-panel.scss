@@ -1,0 +1,245 @@
+#layout-hierarchy {
+    border-left: 1px solid $bcg-darker;
+
+    &.pcui-collapsed {
+        .hierarchy-controls {
+            display: none;
+        }
+    }
+
+    .pcui-panel-content > .ui-text-field.search {
+        margin: 0;
+        width: 100%;
+        height: 26px;
+        border: none;
+        border-top: 1px solid $bcg-primary;
+        background-color: $bcg-darker;
+
+        &.active,
+        &:hover,
+        &:focus,
+        &.focus {
+            border-color: $bcg-darkest;
+            background-color: $bcg-darkest;
+            &:before {
+                content: '';
+                padding: 0;
+            }
+            &:after {
+                content: '';
+            }
+        }
+        > input.field {
+            line-height: 24px;
+        }
+        &:before {
+            content: 'Search';
+            position: absolute;
+            color: $text-dark;
+            line-height: 24px;
+            padding: 0 8px;
+            @extend .font-bold;
+            font-size: 12px;
+        }
+        &.not-empty:before {
+            padding: 0;
+            content: '';
+        }
+        &:after {
+            content: '\E129';
+            line-height: 24px;
+            background-color: $bcg-darker;
+            @extend .font-icon;
+            font-size: 14px;
+            text-align: center;
+        }
+        &.not-empty {
+            background-color: $bcg-darkest;
+            > input.field {
+                color: $text-active;
+            }
+            > .clear {
+                display: block;
+            }
+            &:after {
+                content: '';
+            }
+        }
+        > .clear {
+            display: none;
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            color: #d34141;
+            @extend .font-icon;
+            font-size: 18px;
+            text-align: center;
+            cursor: pointer;
+        }
+    }
+
+    > .pcui-panel-content {
+        > .search-results {
+            margin: 2px;
+            border: none;
+            background-color: $bcg-primary;
+
+            &:focus {
+                outline: none;
+                border: none;
+            }
+            > .ui-list-item {
+                @extend .font-regular;
+                font-size: 14px;
+                height: 24px;
+                line-height: 22px;
+                padding: 0 5px;
+                border: none;
+
+                &:before {
+                    content: '\E185';
+                    padding-right: 6px;
+                    line-height: 24px;
+                    @extend .font-icon;
+                    font-size: 14px;
+                    text-align: center;
+                    background-color: transparent;
+                    color: $text-darkest;
+                }
+                &:hover {
+                    background-color: $bcg-dark;
+
+                    &:before {
+                        color: $text-primary;
+                    }
+                }
+                &.selected {
+                    background-color: $bcg-darkest;
+
+                    &:before {
+                        color: $text-primary;
+                    }
+                }
+                &.disabled {
+                    opacity: 1;
+
+                    > span {
+                        opacity: 0.4;
+                    }
+                }
+                &.container:before {
+                    content: '\E139';
+                }
+                &.c-script:before {
+                    content: '\E236';
+                }
+                &.c-model:before {
+                    content: '\E188';
+                }
+                &.c-animation:before {
+                    content: '\E198';
+                }
+                &.c-audiosource:before {
+                    content: '\E197';
+                }
+                &.c-sound:before {
+                    content: '\E197';
+                }
+                &.c-collision:before {
+                    content: '\E187';
+                }
+                &.c-rigidbody:before {
+                    content: '\E189';
+                }
+                &.c-particlesystem:before {
+                    content: '\E199';
+                }
+                &.c-light:before {
+                    content: '\E194';
+                }
+                &.c-audiolistener:before {
+                    content: '\E196';
+                }
+                &.c-camera:before {
+                    content: '\E212';
+                }
+                &.c-screen:before {
+                    content: '\E141';
+                }
+                &.c-sprite:before {
+                    content: '\E395';
+                }
+            }
+        }
+    }
+
+    .pcui-container.progress-overlay {
+        z-index: 10;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: $bcg-primary;
+
+        justify-content: center;
+        align-items: center;
+        flex-direction: row;
+
+        opacity: 1;
+        visibility: visible;
+        transition: visibility 100ms, opacity 100ms;
+
+        &.pcui-hidden {
+            visibility: hidden;
+            opacity: 0;
+            display: inherit;
+        }
+
+        > .ui-progress {
+            flex-basis: 128px;
+            height: 4px;
+        }
+    }
+}
+
+.pcui-container.hierarchy-controls {
+    margin-left: auto;
+    background-color: transparent;
+
+    > .ui-button {
+        width: 32px;
+        border: none;
+        padding: 0;
+        margin: 0;
+        color: #9ba1a3;
+        @extend .font-icon;
+        font-size: 14px;
+        text-align: center;
+        background-color: transparent;
+
+        &.active {
+            color: $text-active;
+            background-color: $bcg-darkest;
+        }
+        &.disabled {
+            opacity: 1;
+            color: mix(#9ba1a3, #364346, 30%);
+
+            &:hover,
+            &:focus {
+                color: mix(#9ba1a3, #364346, 30%);
+                background-color: transparent;
+            }
+        }
+        &:hover,
+        &:focus {
+            color: #fff;
+            background-color: $bcg-darkest;
+        }
+    }
+}

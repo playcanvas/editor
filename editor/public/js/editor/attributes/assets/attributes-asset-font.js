@@ -186,8 +186,8 @@ editor.once('load', function() {
 
         // preview
         if (assets.length === 1) {
-            var previewContainer = document.createElement('div');
-            previewContainer.classList.add('asset-preview-container');
+            var previewContainer = new pcui.Container();
+            previewContainer.class.add('asset-preview-container');
 
             var preview = document.createElement('canvas');
             var ctx = preview.getContext('2d');
@@ -195,20 +195,20 @@ editor.once('load', function() {
             preview.height = 256;
             preview.classList.add('asset-preview');
             preview.classList.add('flipY');
-            previewContainer.appendChild(preview);
+            previewContainer.append(preview);
 
             preview.addEventListener('click', function() {
-                if (root.element.classList.contains('large')) {
-                    root.element.classList.remove('large');
+                if (root.class.contains('large')) {
+                    root.class.remove('large');
                 } else {
-                    root.element.classList.add('large');
+                    root.class.add('large');
                 }
 
                 queueRender();
             }, false);
 
             root.class.add('asset-preview');
-            root.element.insertBefore(previewContainer, root.innerElement);
+            root.prepend(previewContainer);
 
             var renderQueued;
 
@@ -217,7 +217,7 @@ editor.once('load', function() {
                     renderQueued = false;
 
                 // render
-                editor.call('preview:render', assets[0], previewContainer.clientWidth, previewContainer.clientHeight, preview);
+                editor.call('preview:render', assets[0], previewContainer.width, previewContainer.height, preview);
             };
             renderPreview();
 
@@ -247,9 +247,6 @@ editor.once('load', function() {
                 editor.call('assets:font:unwatch', assets[0], watcher);
                 evtPanelResize.unbind();
                 evtSceneSettings.unbind();
-
-                if (previewContainer.parentNode)
-                    previewContainer.parentNode.removeChild(previewContainer);
 
                 paramsPanel = null;
             });

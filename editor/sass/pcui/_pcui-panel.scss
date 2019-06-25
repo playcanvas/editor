@@ -1,0 +1,150 @@
+// panel element
+.pcui-panel {
+    background-color: $bcg-primary;
+}
+
+// header of panel
+.pcui-panel-header {
+    @extend .font-bold;
+    @extend .font-smooth;
+    background-color: $bcg-darker;
+    color: $text-primary;
+    font-size: 12px;
+    white-space: nowrap;
+    padding-left: 10px;
+    flex-shrink: 0;
+    align-items: center;
+}
+
+// contents of panel
+.pcui-panel-content {
+    flex-grow: 1;
+}
+
+// collapsible panel
+.pcui-panel.pcui-collapsible {
+    // hide stuff
+    overflow: hidden;
+    // animate height and width
+    transition: height 100ms, width 100ms;
+
+    // cursor pointer on header
+    > .pcui-panel-header {
+        cursor: pointer;
+
+        // expanded icon
+        &:before {
+            left: 0;
+            content: '\E179';
+            @extend .font-icon;
+            font-size: 14px;
+            margin-right: 10px;
+            text-align: center;
+            color: $text-active;
+        }
+
+        // header collapsible hover state
+        &:hover {
+            color: $text-primary;
+            &:before {
+                color: $text-primary;
+            }
+        }
+
+    }
+
+    &.pcui-panel-normal {
+        > .pcui-panel-header:before {
+            content: '\E183';
+            font-weight: 200;
+        }
+    }
+
+    // delay visibility hidden
+    > .pcui-panel-content {
+        transition: visibility 100ms;
+    }
+
+    // collapsed panel
+    &.pcui-collapsed {
+        // hide contents
+        > .pcui-panel-content {
+            visibility: hidden;
+        }
+
+        > .pcui-panel-header {
+            // collapsed icon
+            &:before {
+                content: '\E180';
+            }
+        }
+
+        &.pcui-panel-normal {
+            > .pcui-panel-header:before {
+                content: '\E184';
+            }
+        }
+
+        // collapsed horizontally
+        &.pcui-panel-horizontal {
+            > .pcui-panel-header {
+                width: 2048px; // this is to make the now vertical header really big
+
+                // rotate the header 90 degrees
+                -webkit-transform: rotate(90deg);
+                -moz-transform: rotate(90deg);
+                -ms-transform: rotate(90deg);
+                -o-transform: rotate(90deg);
+                transform: rotate(90deg);
+
+                -webkit-transform-origin: 0% 100%;
+                -moz-transform-origin: 0% 100%;
+                -ms-transform-origin: 0% 100%;
+                -o-transform-origin: 0% 100%;
+                transform-origin: 0% 100%;
+
+                // collapsed icon
+                &:before {
+                    content: '\E177';
+                }
+            }
+
+            &.pcui-panel-normal {
+                > .pcui-panel-header:before {
+                    content: '\E181'
+                }
+            }
+
+            // do not animate visibility
+            > .pcui-panel-content {
+                transition: none;
+            }
+        }
+    }
+}
+
+// resizable panel
+.pcui-panel.pcui-resizable {
+    // hide resize handle if panel is collapsed
+    &.pcui-collapsible.pcui-collapsed {
+        > .pcui-resizable-handle {
+            display: none;
+        }
+    }
+
+    // disable width / height transitions while resizing
+    &.pcui-resizable-resizing {
+        transition: none;
+        > .pcui-panel-content {
+            transition: none;
+        }
+    }
+}
+
+// disabled panel
+.pcui-panel.pcui-disabled {
+    > .pcui-panel-header {
+        background-color: mix($bcg-dark, $bcg-primary, 60);
+        color: #999;
+    }
+}

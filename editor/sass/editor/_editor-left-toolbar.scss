@@ -1,0 +1,103 @@
+#layout-toolbar {
+    background-color: $bcg-darker;
+
+    > .ui-button {
+        display: block;
+        margin: 0;
+        padding: 0;
+        width: 45px;
+        height: 45px;
+        border: none;
+        overflow: hidden;
+
+        &.hidden {
+            display: none;
+        }
+        &.logo {
+            background-image: url("https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/editor_logo.png");
+            background-size: 92px 46px;
+            background-repeat: no-repeat;
+            background-position: -1px -1px;
+
+            &:hover {
+                background-position: -47px -1px;
+            }
+        }
+        &.icon, &.pc-icon {
+            color: #9ba1a3;
+            line-height: 43px;
+            text-align: center;
+            background-color: #364346;
+
+            &.active {
+                color: $text-primary;
+                background-color: $bcg-darkest;
+
+                &:hover,
+                &:focus {
+                    background-color: mix($bcg-dark, $bcg-darkest, 50%);
+                }
+            }
+            &.light-mapper.active {
+                background-color: #364346;
+                color: $text-active;
+
+                &:hover,
+                &:focus {
+                    color: $text-primary;
+                    background-color: $bcg-dark;
+                }
+            }
+            &.disabled {
+                opacity: 1;
+                color: mix(#9ba1a3, #364346, 30%);
+
+                &:hover,
+                &:focus {
+                    color: mix(#9ba1a3, #364346, 30%);
+                    background-color: #364346;
+                }
+            }
+            &:hover,
+            &:focus {
+                color: $text-primary;
+                background-color: $bcg-dark;
+            }
+        }
+
+        &.icon {
+            @extend .font-icon;
+            font-size: 24px;
+        }
+
+        &.pc-icon {
+            @extend .font-icon;
+            font-size: 20px;
+        }
+
+        &.push-top {
+            margin-top: auto;
+        }
+
+        &.bottom {
+            background-color: $bcg-darker;
+        }
+
+        &.help-howdoi {
+            order: 1;
+        }
+
+        &.help-controls {
+            order: 2;
+        }
+
+        &.contact {
+            order: 3;
+        }
+
+        &.editor-settings {
+            order: 4;
+        }
+    }
+
+}

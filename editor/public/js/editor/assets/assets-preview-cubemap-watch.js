@@ -169,7 +169,7 @@ editor.once('load', function() {
         var watch = watching[asset.get('id')];
         if (! watch) return;
 
-        if (! watch.hasOwnProperty(handle))
+        if (! watch.callbacks.hasOwnProperty(handle))
             return;
 
         if (watch.callbacks[handle].autoLoad)

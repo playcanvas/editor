@@ -166,7 +166,6 @@ editor.once('load', function() {
             if (! panelNodes)
                 return;
 
-            panelNodes.style.zIndex = 102;
             panelNodes.style.overflow = 'visible';
 
             var root = editor.call('attributes.rootPanel');

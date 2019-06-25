@@ -140,7 +140,7 @@ editor.once('load', function() {
         if (! root)
             return;
 
-        var input = root.element.querySelector('.ui-text-field.entity-name');
+        var input = root.dom.querySelector('.ui-text-field.entity-name');
 
         if (! input || ! input.ui)
             return;

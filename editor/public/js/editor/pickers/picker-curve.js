@@ -350,11 +350,12 @@ editor.once('load', function() {
     });
 
     btnResetCurve.on('click', function () {
-        // reset keys of selected curve
-        if (selectedCurve) {
+        // reset keys of the selected (or only visible) curve
+        var curveToReset = selectedCurve || (enabledCurves.length === 1 ? enabledCurves[0] : undefined);
+        if (curveToReset) {
             changing = true;
 
-            resetCurve(selectedCurve);
+            resetCurve(curveToReset);
 
             render();
 
@@ -716,7 +717,7 @@ editor.once('load', function() {
         // rendering the same graphs twice
         var renderedCurveIndices = {};
 
-        // // draw curves in the order in which they were enabled
+        // draw curves in the order in which they were enabled
         for (var i = 0; i < enabledCurves.length; i++) {
             var curve = enabledCurves[i];
             var index = curves.indexOf(curve);

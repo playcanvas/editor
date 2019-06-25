@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var root = editor.call('layout.root');
-    var panel = editor.call('layout.right');
+    var panel = editor.call('layout.attributes');
     var index = { };
     var missing = { };
 
@@ -78,10 +78,11 @@ editor.once('load', function() {
             var target = args.target;
             var element = args.element;
             var targetPanel = args.panel || panel;
+            targetPanel = targetPanel.dom || targetPanel.element;
 
             var show = function() {
                 if (! target || target.hidden) return;
-                tooltip.position(targetPanel.element.getBoundingClientRect().left, element.getBoundingClientRect().top + 16);
+                tooltip.position(targetPanel.getBoundingClientRect().left, element.getBoundingClientRect().top + 16);
                 tooltip.hidden = false;
             };
 

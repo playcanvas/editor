@@ -7,7 +7,7 @@ editor.once('load', function() {
     var button = new ui.Button({
         text: '&#57652;'
     });
-    button.class.add('pc-icon', 'editor-settings');
+    button.class.add('pc-icon', 'editor-settings', 'bottom');
     toolbar.append(button);
 
     button.on('click', function() {
@@ -19,7 +19,7 @@ editor.once('load', function() {
     });
 
     editor.on('attributes:inspect[editorSettings]', function() {
-        editor.call('attributes.rootPanel').folded = false;
+        editor.call('attributes.rootPanel').collapsed = false;
 
         button.class.add('active');
     });

@@ -1,7 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    var panel = editor.call('layout.bottom');
+    var panel = editor.call('layout.statusBar');
     var label = new ui.Label({
         text: 'Loading...'
     });

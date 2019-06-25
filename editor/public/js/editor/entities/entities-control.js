@@ -2,45 +2,41 @@ editor.once('load', function() {
     'use strict'
 
     var root = editor.call('layout.root');
-    var panel = editor.call('layout.left');
+    var panel = editor.call('layout.hierarchy');
 
     // controls
-    var controls = new ui.Panel();
+    var controls = new pcui.Container({
+        flex: true,
+        flexDirection: 'row',
+        alignItems: 'center',
+        hidden: !editor.call('permissions:write')
+    });
+    controls.class.add('hierarchy-controls');
 
-    controls.hidden = ! editor.call('permissions:write');
     editor.on('permissions:writeState', function(state) {
         controls.hidden = ! state;
     });
 
-    controls.class.add('hierarchy-controls');
-    controls.parent = panel;
-    panel.headerAppend(controls);
+    panel.header.append(controls);
 
-
-    // controls delete
-    var btnDelete = new ui.Button({
-        text: '&#57636;'
+    // controls add
+    var btnAdd = new ui.Button({
+        text: '&#57632;'
     });
-    btnDelete.class.add('delete');
-    btnDelete.style.fontWeight = 200;
-    btnDelete.on('click', function() {
-        var type = editor.call('selector:type');
-
-        if (type !== 'entity')
-            return;
-
-        editor.call('entities:delete', editor.call('selector:items'));
+    btnAdd.class.add('add');
+    btnAdd.on('click', function() {
+        menuEntities.open = true;
+        var rect = btnAdd.element.getBoundingClientRect();
+        menuEntities.position(rect.left, rect.top);
     });
-    controls.append(btnDelete);
+    controls.append(btnAdd);
 
-    var tooltipDelete = Tooltip.attach({
-        target: btnDelete.element,
-        text: 'Delete Entity',
+    Tooltip.attach({
+        target: btnAdd.element,
+        text: 'Add Entity',
         align: 'top',
         root: root
     });
-    tooltipDelete.class.add('innactive');
-
 
     // controls duplicate
     var btnDuplicate = new ui.Button({
@@ -68,24 +64,29 @@ editor.once('load', function() {
     var menuEntities = ui.Menu.fromData(editor.call('menu:entities:new'));
     root.append(menuEntities);
 
-    // controls add
-    var btnAdd = new ui.Button({
-        text: '&#57632;'
+     // controls delete
+     var btnDelete = new ui.Button({
+        text: '&#57636;'
     });
-    btnAdd.class.add('add');
-    btnAdd.on('click', function() {
-        menuEntities.open = true;
-        var rect = btnAdd.element.getBoundingClientRect();
-        menuEntities.position(rect.left, rect.top);
-    });
-    controls.append(btnAdd);
+    btnDelete.class.add('delete');
+    btnDelete.style.fontWeight = 200;
+    btnDelete.on('click', function() {
+        var type = editor.call('selector:type');
 
-    Tooltip.attach({
-        target: btnAdd.element,
-        text: 'Add Entity',
+        if (type !== 'entity')
+            return;
+
+        editor.call('entities:delete', editor.call('selector:items'));
+    });
+    controls.append(btnDelete);
+
+    var tooltipDelete = Tooltip.attach({
+        target: btnDelete.element,
+        text: 'Delete Entity',
         align: 'top',
         root: root
     });
+    tooltipDelete.class.add('innactive');
 
 
     editor.on('attributes:clear', function() {
@@ -111,6 +112,3 @@ editor.once('load', function() {
         }
     });
 });
-
-
-
