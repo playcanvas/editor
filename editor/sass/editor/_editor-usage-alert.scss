@@ -1,0 +1,40 @@
+#usage-alert {
+    background-color: #e95e4f;
+    grid-column: 1 / -1;
+    height: 30px;
+    line-height: 30px;
+    padding-left: 10px;
+
+    .ui-label {
+        color: white;
+        font-size: 12px;
+        height: 30px;
+        line-height: 30px;
+        margin: 0;
+
+        a {
+            color: yellow;
+        }
+    }
+
+    .ui-button.close {
+        float: right;
+        padding: 0;
+        margin: 0;
+        background-color: transparent;
+        color: white;
+        opacity: 0.75;
+        border: none;
+        font-size: 14px;
+        height: 30px;
+        width: 30px;
+        line-height: 30px;
+        text-align: center;
+
+        @extend .font-icon;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+}

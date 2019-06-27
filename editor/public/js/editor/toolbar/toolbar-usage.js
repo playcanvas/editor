@@ -5,21 +5,22 @@ editor.once('load', function () {
         return;
 
     var root = editor.call('layout.root');
-    var panel = new ui.Panel();
-    panel.class.add('usage');
+    var container = new pcui.Container({
+        id: 'usage-alert'
+    });
 
     var label = new ui.Label({
         unsafe: true
     });
-    panel.append(label);
+    container.append(label);
 
     var btnClose = new ui.Button({
         text: '&#57650;'
     });
-    panel.append(btnClose);
+    container.append(btnClose);
     btnClose.class.add('close');
     btnClose.on('click', function () {
-        panel.hidden = true;
+        container.hidden = true;
     });
 
     var refreshUsage = function () {
@@ -27,16 +28,16 @@ editor.once('load', function () {
         var upgrade = '<a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
         if (diff > 0 && diff < 30000000) {
             label.text = 'You are close to your disk allowance limit. ' + upgrade;
-            panel.hidden = false;
+            container.hidden = false;
         } else if (diff < 0) {
             label.text = 'You are over your disk allowance limit. ' + upgrade;
-            panel.hidden = false;
+            container.hidden = false;
         } else {
-            panel.hidden = true;
+            container.hidden = true;
         }
     };
 
-    root.append(panel);
+    root.append(container);
 
     refreshUsage();
 
