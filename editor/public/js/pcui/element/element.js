@@ -225,10 +225,21 @@ Object.assign(pcui, (function () {
         this._destroyed = true;
 
         if (this.parent) {
-            this.parent.remove(this);
+            this._parent = null;
+
+            this._evtParentDestroy.unbind();
+            this._evtParentDisable.unbind();
+            this._evtParentEnable.unbind();
+            this._evtParentDestroy = null;
+            this._evtParentDisable = null;
+            this._evtParentEnable = null;
         }
 
         if (this._dom) {
+            if (this._dom && this._dom.parentElement) {
+                this._dom.parentElement.removeChild(this._dom);
+            }
+
             // remove event listeners
             this._dom.removeEventListener('click', this._domEventClick);
             this._dom.removeEventListener('mouseover', this._domEventMouseOver);
@@ -243,6 +254,10 @@ Object.assign(pcui, (function () {
         this._domEventClick = null;
         this._domEventMouseOver = null;
         this._domEventMouseOut = null;
+
+        this.emit('destroy');
+
+        this.unbind();
     };
 
     Object.defineProperty(Element.prototype, 'enabled', {

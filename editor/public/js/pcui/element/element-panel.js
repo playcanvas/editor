@@ -220,7 +220,7 @@ Object.assign(pcui, (function () {
             this._reflowTimeout = null;
         }
 
-        ui.Container.prototype.destroy.call(this);
+        pcui.Container.prototype.destroy.call(this);
     };
 
     Object.defineProperty(Panel.prototype, 'collapsible', {
