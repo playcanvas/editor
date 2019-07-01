@@ -973,7 +973,7 @@
                                     float: left;
                                     width: 12px;
                                     height: 24px;
-                                    margin: 4px 2px;
+                                    margin: 4px 18px 4px 2px;
                                     cursor: move;
                                     @extend .noSelect;
                                     $color: mix($text-darkest, $bcg-primary, 50%);
@@ -1079,6 +1079,10 @@
                                     font-size: 22px;
                                     font-weight: bold;
                                     color: #f30;
+                                }
+
+                                &:after {
+                                    left: 11px;
                                 }
                             }
                             > .content {

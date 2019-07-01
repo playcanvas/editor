@@ -653,6 +653,7 @@ editor.once('load', function() {
             }
 
             panel = scriptPanelsIndex[script] = new ui.Panel();
+            panel.foldable = true;
             panel.script = script;
             panel.header = script;
             panel.attributesIndex = { };
