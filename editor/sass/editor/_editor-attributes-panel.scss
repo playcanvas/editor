@@ -1008,7 +1008,7 @@
                                         cursor: pointer;
                                         overflow: hidden;
                                         text-overflow: ellipsis;
-                                        max-width: calc(100% - 192px);
+                                        max-width: calc(100% - 204px);
 
                                         &:hover {
                                             text-decoration: underline;
@@ -1456,6 +1456,9 @@
                             > .title {
                                 padding: 0 8px;
                                 color: $text-active;
+                                max-width: calc(100% - 55px);
+                                overflow: hidden;
+                                text-overflow: ellipsis;
                             }
                             > .number {
                                 float: right;
