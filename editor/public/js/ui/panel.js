@@ -103,7 +103,7 @@ Panel.prototype._onNodesChanged = function() {
 Panel.prototype._onParent = function() {
     // HACK
     // wait till DOM parses, then reflow
-    requestAnimationFrame(this._reflow.bind(this));
+    setTimeout(this._reflow.bind(this));
 };
 
 Object.defineProperty(Panel.prototype, 'header', {
