@@ -167,7 +167,7 @@ editor.once('load', function () {
         });
     };
 
-    loadModules(config.wasmModules, '').then(function() {
+    loadModules(config.wasmModules, "", function() {
 
         var canvas = createCanvas();
 

@@ -30,7 +30,7 @@ var loadModules = function (MODULES, urlPrefix, doneCallback) {
     function loadWasmModuleAsync(moduleName, jsUrl, binaryUrl, doneCallback) {
         loadScriptAsync(jsUrl, function () {
             window[moduleName + 'Lib'] = window[moduleName];
-            window[moduleName]({ locateFile: () => binaryUrl }).then( function () {
+            window[moduleName]({ locateFile: () => urlPrefix + binaryUrl }).then( function () {
                 doneCallback();
             });
         });
