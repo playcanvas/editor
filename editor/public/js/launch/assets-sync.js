@@ -192,12 +192,32 @@ editor.once('load', function () {
                 }
             }
 
+            var isWasmModule = function(assetData) {
+                // check if this asset is either a wasm module or one of the linked scripts
+                return assetData.type === 'wasm' ||
+                       (assetData.type === 'script' &&
+                        editor.call('assets:list')
+                        .map(function(a) { return a.asset; })
+                        .find(function(a) {
+                            return a.type === 'wasm' &&
+                                a.data &&
+                                ((a.data.glueScriptId && a.data.glueScriptId === assetData.id) ||
+                                    (a.data.fallbackScriptId && a.data.fallbackScriptId === assetData.id));
+                        }));
+            };
+
             // create the engine asset
             var assetData = asset.json();
             var engineAsset = asset.asset = new pc.Asset(assetData.name, assetData.type, assetData.file, assetData.data);
             engineAsset.id = parseInt(assetData.id, 10);
             engineAsset.preload = assetData.preload ? assetData.preload : false;
-            if (assetData.type === 'script' && assetData.data && assetData.data.loadingType > 0) {
+            if (assetData.type === 'script' &&
+                assetData.data &&
+                assetData.data.loadingType > 0) {
+                // disable load on script before/after engine scripts
+                engineAsset.loaded = true;
+            } else if (isWasmModule(assetData)) {
+                // disable load on module assets
                 engineAsset.loaded = true;
             }
 
