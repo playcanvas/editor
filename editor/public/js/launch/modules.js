@@ -1,4 +1,4 @@
-var loadModules = function (MODULES, urlPrefix, doneCallback) {
+var loadModules = function (modules, urlPrefix, doneCallback) {
 
     // check for wasm module support
     function wasmSupported() {
@@ -44,10 +44,11 @@ var loadModules = function (MODULES, urlPrefix, doneCallback) {
         });
     }
 
-    if (typeof MODULES === "undefined" || MODULES.length === 0) {
-        doneCallback();
+    if (typeof modules === "undefined" || modules.length === 0) {
+        // caller may depend on callback behaviour being async
+        setTimeout(doneCallback);
     } else {
-        var asyncCounter = MODULES.length;
+        var asyncCounter = modules.length;
         var asyncCallback = function () {
             asyncCounter--;
             if (asyncCounter === 0) {
@@ -56,10 +57,13 @@ var loadModules = function (MODULES, urlPrefix, doneCallback) {
         };
 
         var wasm = wasmSupported();
-        MODULES.forEach(function (m) {
+        modules.forEach(function (m) {
             if (wasm) {
                 loadWasmModuleAsync(m.moduleName, m.glueUrl, m.wasmUrl, asyncCallback);
             } else {
+                if (!m.fallbackUrl) {
+                    throw new Error('wasm not supported and no fallback supplied for module ' + m.moduleName);
+                }
                 loadAsmModuleAsync(m.moduleName, m.fallbackUrl, asyncCallback);
             }
         });

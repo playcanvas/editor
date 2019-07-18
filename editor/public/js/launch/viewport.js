@@ -167,8 +167,7 @@ editor.once('load', function () {
         });
     };
 
-    loadModules(config.wasmModules, "", function() {
-
+    var viewportMain = function() {
         var canvas = createCanvas();
 
         // convert library properties into URLs
@@ -545,5 +544,8 @@ editor.once('load', function () {
 
         // in tools.js
         editor.emit('tools:viewport:ready');
-    });
+    };
+
+    // load modules then call main
+    loadModules(config.wasmModules, "", viewportMain);
 });
