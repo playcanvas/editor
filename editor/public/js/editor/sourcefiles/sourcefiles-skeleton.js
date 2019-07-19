@@ -33,7 +33,7 @@ editor.once('load', function () {
 
     editor.method('sourcefiles:loadingScreen:skeleton', function () {
         return [
-            "pc.script.createLoadingScreen(function (app) {",
+            "var loadingScreen = function (app) {",
             "    var showSplash = function () {",
             "        // splash wrapper",
             "        var wrapper = document.createElement('div');",
@@ -143,7 +143,7 @@ editor.once('load', function () {
             "    });",
             "    app.on('preload:progress', setProgress);",
             "    app.on('start', hideSplash);",
-            "});"
+            "};"
         ].join('\n');
     });
 });
