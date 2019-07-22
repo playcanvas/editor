@@ -13,17 +13,6 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'asset:wasm:asset', panel, panel.headerElement);
 
-        // include in build
-        var includeInBuild = editor.call('attributes:addField', {
-            parent: panel,
-            type: 'checkbox',
-            name: 'Include',
-            link: assets,
-            path: 'data.includeInBuild'
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'asset:wasm:includeInBuild', includeInBuild._label);
-
         // module name
         var moduleName = editor.call('attributes:addField', {
             parent: panel,
