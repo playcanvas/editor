@@ -12,6 +12,7 @@ editor.once('load', function() {
         'components'
     ];
 
+
     editor.on('entities:add', function(entity) {
         if (entity.sync)
             return;

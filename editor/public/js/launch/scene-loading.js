@@ -1,91 +1,88 @@
 editor.once('load', function () {
     'use strict';
 
-    editor.on('tools:viewport:ready', function() {
+    // cache
+    var loaded = {};
+    var isLoading = false;
+    var loadScene = function (id, callback, settingsOnly) {
+        if (loaded[id]) {
+            if (callback)
+                callback(null, loaded[id].data);
 
-        // cache
-        var loaded = {};
-        var isLoading = false;
-        var loadScene = function (id, callback, settingsOnly) {
-            if (loaded[id]) {
-                if (callback)
-                    callback(null, loaded[id].data);
+            return;
+        }
 
-                return;
-            }
+        isLoading = true;
 
-            isLoading = true;
+        var connection = editor.call('realtime:connection');
+        var scene = connection.get('scenes', '' + id);
 
-            var connection = editor.call('realtime:connection');
-            var scene = connection.get('scenes', '' + id);
+        // error
+        scene.on('error', function (err) {
+            if (callback)
+                callback(new Error(err));
+        });
 
-            // error
-            scene.on('error', function (err) {
-                if (callback)
-                    callback(new Error(err));
-            });
+        // ready to sync
+        scene.on('load', function () {
+            // cache loaded scene for any subsequent load requests
+            loaded[id] = scene;
 
-            // ready to sync
-            scene.on('load', function () {
-                // cache loaded scene for any subsequent load requests
-                loaded[id] = scene;
+            // notify of operations
+            scene.on('op', function (ops, local) {
+                if (local)
+                    return;
 
-                // notify of operations
-                scene.on('op', function (ops, local) {
-                    if (local)
-                        return;
+                for (var i = 0; i < ops.length; i++) {
+                    var op = ops[i];
 
-                    for (var i = 0; i < ops.length; i++) {
-                        var op = ops[i];
+                    // console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
 
-                        // console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-
-                        if (op.p[0]) {
-                            editor.emit('realtime:op:' + op.p[0], op);
-                        }
+                    if (op.p[0]) {
+                        editor.emit('realtime:op:' + op.p[0], op);
                     }
-                });
-
-                // notify of scene load
-                var snapshot = scene.data;
-                if (settingsOnly !== true) {
-                    editor.emit('scene:raw', snapshot);
                 }
-                if (callback) {
-                    callback(null, snapshot);
-                }
-
-                isLoading = false;
             });
 
-            // subscribe for realtime events
-            scene.subscribe();
-        };
-
-        editor.method('loadScene', loadScene);
-        editor.method('isLoadingScene', function () {
-            return isLoading;
-        });
-
-        editor.on('realtime:authenticated', function () {
-            var startedLoading = false;
-
-            // if we are reconnecting try to reload
-            // all scenes that we've already loaded
-            for (var id in loaded) {
-                startedLoading = true;
-                loaded[id].destroy();
-                delete loaded[id];
-
-                editor.call('loadScene', id);
+            // notify of scene load
+            var snapshot = scene.data;
+            if (settingsOnly !== true) {
+                editor.emit('scene:raw', snapshot);
+            }
+            if (callback) {
+                callback(null, snapshot);
             }
 
-            // if no scenes have been loaded at
-            // all then we are initializing
-            // for the first time so load the main scene
-            if (! startedLoading) {
-                editor.call('loadScene', config.scene.uniqueId);
-            }
+            isLoading = false;
         });
+
+        // subscribe for realtime events
+        scene.subscribe();
+    };
+
+    editor.method('loadScene', loadScene);
+    editor.method('isLoadingScene', function () {
+        return isLoading;
+    });
+
+    editor.on('realtime:authenticated', function () {
+        var startedLoading = false;
+
+        // if we are reconnecting try to reload
+        // all scenes that we've already loaded
+        for (var id in loaded) {
+            startedLoading = true;
+            loaded[id].destroy();
+            delete loaded[id];
+
+            editor.call('loadScene', id);
+        }
+
+        // if no scenes have been loaded at
+        // all then we are initializing
+        // for the first time so load the main scene
+        if (! startedLoading) {
+            editor.call('loadScene', config.scene.uniqueId);
+        }
     });
 });
