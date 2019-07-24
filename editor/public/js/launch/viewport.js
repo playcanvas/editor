@@ -185,7 +185,7 @@ editor.once('load', function () {
         }
     }
 
-    
+
     var scriptPrefix = config.project.scriptPrefix;
 
     // queryParams.local can be true or it can be a URL
@@ -293,7 +293,7 @@ editor.once('load', function () {
         }
     }
 
-    loadModules(config.wasmModules, "", function() {
+    editor.call('editor:loadModules', config.wasmModules, "", function() {
         app._loadLibraries(libraryUrls, function (err) {
             app._onVrChange(config.project.settings.vr);
             libraries = true;
