@@ -4,6 +4,7 @@ editor.once('load', function() {
     if (! editor.call('settings:project').get('useLegacyScripts'))
         return;
 
+
     var onLoad = function (data) {
         var i = 0;
         var l = data.result.length;
