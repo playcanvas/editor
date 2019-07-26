@@ -5886,6 +5886,9 @@ strong {
 
 .ui-overlay.picker-project {
     z-index: 300; // larger than drop-area's
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     // make labels non-selectable - to make a label
     // selectable add the 'selectable' class to it
@@ -5896,16 +5899,21 @@ strong {
     &.center {
         > .content {
             @extend .font-regular;
-
-            width: auto;
-            height: 600px;
-            left: calc(50% - 530px);
-            top: calc(50% - 300px);
+            top: auto;
+            left: auto;
+            width: 100%;
+            max-width: 1060px;
+            height: 100%;
             border: 1px solid $border-primary;
+
+            @media(min-width: 1060px) {
+              height: 600px;
+            }
 
             .ui-panel.project {
                 height: 100%;
                 > .content {
+                    display: flex;
                     height: 100%;
 
                     .ui-panel.left {
@@ -5913,7 +5921,7 @@ strong {
                         margin: 0;
                         padding: 0;
 
-                        float: left;
+                        flex: 0 0 188px;
                         width: 188px;
                         height: 100%;
                         border-right: 1px solid $border-primary;
@@ -6012,8 +6020,7 @@ strong {
                     }
 
                     .ui-panel.right {
-                        float: left;
-                        width: 1060px - 188px;
+                        flex: 1 1 auto;
                         height: 100%;
 
                         > .ui-header {
