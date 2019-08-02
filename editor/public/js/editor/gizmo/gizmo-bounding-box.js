@@ -101,8 +101,7 @@ editor.once('load', function () {
             hierarchyBB.add(bb);
         }
 
-
-        var children = root.getChildren();
+        var children = root.children;
         for(var i = 0; i < children.length; i++) {
             if (children[i].__editor || ! (children[i] instanceof pc.Entity))
                 continue;
