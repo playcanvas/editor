@@ -77,8 +77,8 @@ editor.once('load', function() {
             var node = picked[0].node;
 
             // traverse to pc.Entity
-            while (! (node instanceof pc.Entity) && node && node.getParent) {
-                node = node.getParent();
+            while (! (node instanceof pc.Entity) && node && node.parent) {
+                node = node.parent;
             }
             if (! node) return;
 

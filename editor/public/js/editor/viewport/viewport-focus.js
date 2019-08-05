@@ -12,7 +12,7 @@ editor.once('load', function() {
     var calculateChildAABB = function(entity) {
         aabbA.add(editor.call('entities:getBoundingBoxForEntity', entity));
 
-        var children = entity.getChildren();
+        var children = entity.children;
         for(var i = 0; i < children.length; i++) {
             if (! (children[i] instanceof pc.Entity) || children[i].__editor)
                 continue;

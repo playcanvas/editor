@@ -1,8 +1,6 @@
 editor.once('load', function () {
     'use strict';
 
-    if (!editor.call('users:hasFlag', 'externalScripts')) return;
-
     var projectSettings = editor.call('settings:project');
     if (projectSettings.get('useLegacyScripts')) return;
 

@@ -118,7 +118,7 @@ editor.once('load', function () {
         doc.subscribe();
     });
 
-    var createEngineAsset = function (asset) {
+    var createEngineAsset = function (asset, wasmAssetIds) {
         // if engine asset already exists return
         if (app.assets.get(asset.get('id'))) return;
 
@@ -195,7 +195,13 @@ editor.once('load', function () {
         var engineAsset = asset.asset = new pc.Asset(assetData.name, assetData.type, assetData.file, assetData.data);
         engineAsset.id = parseInt(assetData.id, 10);
         engineAsset.preload = assetData.preload ? assetData.preload : false;
-        if (assetData.type === 'script' && assetData.data && assetData.data.loadingType > 0) {
+        if (assetData.type === 'script' &&
+            assetData.data &&
+            assetData.data.loadingType > 0) {
+            // disable load on script before/after engine scripts
+            engineAsset.loaded = true;
+        } else if (wasmAssetIds.hasOwnProperty(assetData.id)) {
+            // disable load on module assets
             engineAsset.loaded = true;
         }
 
@@ -227,7 +233,29 @@ editor.once('load', function () {
 
         var legacyScripts = settings.get('useLegacyScripts');
 
-        var loadScripts = function () {
+        // get the set of wasm asset ids i.e. the wasm module ids and linked glue/fallback
+        // script ids. the list is used to suppress the asset system from the loading
+        // the scripts again.
+        var getWasmAssetIds = function() {
+            var result = { };
+            editor.call('assets:list')
+            .forEach(function(a) {
+                var asset = a.asset;
+                if (asset.type !== 'wasm' || !asset.data) {
+                    return;
+                }
+                result[asset.id] = 1;
+                if (asset.data.glueScriptId) {
+                    result[asset.data.glueScriptId] = 1;
+                }
+                if (asset.data.fallbackScriptId) {
+                    result[asset.data.fallbackScriptId] = 1;
+                }
+            });
+            return result;
+        };
+
+        var loadScripts = function (wasmAssetIds) {
             var order = settings.get('scripts');
 
             for (var i = 0; i < order.length; i++) {
@@ -236,7 +264,7 @@ editor.once('load', function () {
 
                 var asset = editor.call('assets:get', order[i]);
                 if (asset) {
-                    createEngineAsset(asset);
+                    createEngineAsset(asset, wasmAssetIds);
                 }
             }
         };
@@ -250,8 +278,10 @@ editor.once('load', function () {
                     scripts[asset.get('id')] = asset;
 
                 if (count === total) {
+                    var wasmAssetIds = getWasmAssetIds();
+
                     if (! legacyScripts)
-                        loadScripts();
+                        loadScripts(wasmAssetIds);
 
                     // sort assets by script first and then by bundle
                     var assets = editor.call('assets:list');
@@ -274,7 +304,7 @@ editor.once('load', function () {
                     });
 
                     // create runtime asset for every asset observer
-                    assets.forEach(createEngineAsset);
+                    assets.forEach(function(a) { createEngineAsset(a, wasmAssetIds); });
 
                     editor.call('assets:progress', 1);
                     editor.emit('assets:load');

@@ -90,12 +90,12 @@ editor.once('load', function() {
                     // the impression that the user has intentionally changed the margin,
                     // which in turn will change its width/height unnecessarily.
                     if (property === 'margin' || property === 'anchor') {
-                        var existing = entity.element[property].data;
+                        var existing = entity.element[property];
 
-                        if (approxEqual(value[0], existing[0]) &&
-                            approxEqual(value[1], existing[1]) &&
-                            approxEqual(value[2], existing[2]) &&
-                            approxEqual(value[3], existing[3])) {
+                        if (approxEqual(value[0], existing.x) &&
+                            approxEqual(value[1], existing.y) &&
+                            approxEqual(value[2], existing.z) &&
+                            approxEqual(value[3], existing.w)) {
                             callSetter = false;
                         }
                     }

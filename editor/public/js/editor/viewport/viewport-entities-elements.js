@@ -29,14 +29,14 @@ editor.once('load', function() {
         // this is only for the local user
         entity.history.enabled = false;
         entity.sync.enabled = false;
-        var margin = entity.entity.element.margin.data;
-        entity.set('components.element.margin', [margin[0], margin[1], margin[2], margin[3]]);
-        var anchor = entity.entity.element.anchor.data;
-        entity.set('components.element.anchor', [anchor[0], anchor[1], anchor[2], anchor[3]]);
+        var margin = entity.entity.element.margin;
+        entity.set('components.element.margin', [margin.x, margin.y, margin.z, margin.w]);
+        var anchor = entity.entity.element.anchor;
+        entity.set('components.element.anchor', [anchor.x, anchor.y, anchor.z, anchor.w]);
         entity.set('components.element.width', entity.entity.element.width);
         entity.set('components.element.height', entity.entity.element.height);
-        var pos = entity.entity.getLocalPosition().data;
-        entity.set('position', [pos[0], pos[1], pos[2]]);
+        var pos = entity.entity.getLocalPosition();
+        entity.set('position', [pos.x, pos.y, pos.z]);
         entity.sync.enabled = sync;
         entity.history.enabled = history;
     };
@@ -78,11 +78,11 @@ editor.once('load', function() {
                 // it won't get sent to C3 due to observer.silence
                 setTimeout(function () {
                     if (!editor.call('entities:layout:isUnderControlOfLayoutGroup', entity)) {
-                        var margin = entity.entity.element.margin.data;
+                        var margin = entity.entity.element.margin;
                         var history = entity.history.enabled;
                         entity.history.enabled = false;
                         setting.margin = true;
-                        entity.set('components.element.margin', [fixed(margin[0]), fixed(margin[1]), fixed(margin[2]), fixed(margin[3])]);
+                        entity.set('components.element.margin', [fixed(margin.x), fixed(margin.y), fixed(margin.z), fixed(margin.w)]);
                         setting.margin = false;
                         entity.history.enabled = history;
                     }
@@ -96,14 +96,14 @@ editor.once('load', function() {
                 setting.anchor = true;
 
                 setTimeout(function () {
-                    var pos = entity.entity.getLocalPosition().data;
+                    var pos = entity.entity.getLocalPosition();
                     var width = entity.entity.element.width;
                     var height = entity.entity.element.height;
 
                     var history = entity.history.enabled;
                     entity.history.enabled = false;
                     setting.size = true;
-                    entity.set('position', [fixed(pos[0]), fixed(pos[1]), fixed(pos[2])]);
+                    entity.set('position', [fixed(pos.x), fixed(pos.y), fixed(pos.z)]);
                     entity.set('components.element.width', fixed(width));
                     entity.set('components.element.height', fixed(height));
                     setting.size = false;
@@ -120,15 +120,15 @@ editor.once('load', function() {
 
                 setTimeout(function () {
 
-                    var pos = entity.entity.getLocalPosition().data;
-                    var margin = entity.entity.element.margin.data;
+                    var pos = entity.entity.getLocalPosition();
+                    var margin = entity.entity.element.margin;
 
                     var history = entity.history.enabled;
                     entity.history.enabled = false;
                     setting.position = true;
                     setting.margin = true;
-                    entity.set('position', [fixed(pos[0]), fixed(pos[1]), fixed(pos[2])]);
-                    entity.set('components.element.margin', [fixed(margin[0]), fixed(margin[1]), fixed(margin[2]), fixed(margin[3])]);
+                    entity.set('position', [fixed(pos.x), fixed(pos.y), fixed(pos.z)]);
+                    entity.set('components.element.margin', [fixed(margin.x), fixed(margin.y), fixed(margin.z), fixed(margin.w)]);
                     setting.position = false;
                     setting.margin = false;
                     entity.history.enabled = history;
@@ -143,12 +143,12 @@ editor.once('load', function() {
                 setting.size = true;
 
                 setTimeout(function () {
-                    var margin = entity.entity.element.margin.data;
+                    var margin = entity.entity.element.margin;
 
                     var history = entity.history.enabled;
                     entity.history.enabled = false;
                     setting.margin = true;
-                    entity.set('components.element.margin', [fixed(margin[0]), fixed(margin[1]), fixed(margin[2]), fixed(margin[3])]);
+                    entity.set('components.element.margin', [fixed(margin.x), fixed(margin.y), fixed(margin.z), fixed(margin.w)]);
                     setting.margin = false;
                     entity.history.enabled = history;
 
@@ -162,7 +162,7 @@ editor.once('load', function() {
                 setting.margin = true;
 
                 setTimeout(function () {
-                    var pos = entity.entity.getLocalPosition().data;
+                    var pos = entity.entity.getLocalPosition();
                     var width = entity.entity.element.width;
                     var height = entity.entity.element.height;
 
@@ -170,7 +170,7 @@ editor.once('load', function() {
                     entity.history.enabled = false;
                     setting.position = true;
                     setting.size = true;
-                    entity.set('position', [fixed(pos[0]), fixed(pos[1]), fixed(pos[2])]);
+                    entity.set('position', [fixed(pos.x), fixed(pos.y), fixed(pos.z)]);
                     entity.set('components.element.width', fixed(width));
                     entity.set('components.element.height', fixed(height));
                     setting.size = false;

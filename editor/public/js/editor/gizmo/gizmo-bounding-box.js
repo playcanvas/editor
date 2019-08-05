@@ -101,8 +101,7 @@ editor.once('load', function () {
             hierarchyBB.add(bb);
         }
 
-
-        var children = root.getChildren();
+        var children = root.children;
         for(var i = 0; i < children.length; i++) {
             if (children[i].__editor || ! (children[i] instanceof pc.Entity))
                 continue;
@@ -122,8 +121,8 @@ editor.once('load', function () {
         entity.getWorldTransform();
 
         // clear result box
-        resultBB.center.set(0,0,0);
-        resultBB.halfExtents.set(0,0,0);
+        resultBB.center.set(0, 0, 0);
+        resultBB.halfExtents.set(0, 0, 0);
 
         // first choice is to use the bounding box of all mesh instances on a model component
         if (entity.model && entity.model.model && entity.model.meshInstances.length) {
@@ -150,7 +149,7 @@ editor.once('load', function () {
         if (entity.collision) {
             switch(entity.collision.type) {
                 case 'box':
-                    _tmpBB.center.set(0,0,0);
+                    _tmpBB.center.set(0, 0, 0);
                     _tmpBB.halfExtents.copy(entity.collision.halfExtents);
                     resultBB.setFromTransformedAabb(_tmpBB, entity.getWorldTransform());
                     return resultBB;
@@ -161,7 +160,8 @@ editor.once('load', function () {
                 case 'capsule':
                 case 'cylinder':
                     _tmpBB.halfExtents.set(entity.collision.radius, entity.collision.radius, entity.collision.radius);
-                    _tmpBB.halfExtents.data[entity.collision.axis] = entity.collision.height / 2;
+                    var axes = ['x', 'y', 'z'];
+                    _tmpBB.halfExtents[axes[entity.collision.axis]] = entity.collision.height / 2;
                     resultBB.setFromTransformedAabb(_tmpBB, entity.getWorldTransform());
                     return resultBB;
             }
@@ -178,7 +178,7 @@ editor.once('load', function () {
                 // otherwise for group element use the world corners
                 entity.element.worldCorners.forEach(function (corner) {
                     _tmpBB.center.copy(corner);
-                    _tmpBB.halfExtents.set(0,0,0);
+                    _tmpBB.halfExtents.set(0, 0, 0);
                     resultBB.add(_tmpBB);
                 });
             }

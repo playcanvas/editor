@@ -1224,8 +1224,8 @@ editor.once('load', function() {
                             entity.set('components.element.height', height);
 
                             if (entity.entity) {
-                                var margin = entity.entity.element.margin.data;
-                                entity.set('components.element.margin', [margin[0], margin[1], margin[2], margin[3]]);
+                                var margin = entity.entity.element.margin;
+                                entity.set('components.element.margin', [margin.x, margin.y, margin.z, margin.w]);
                             }
                         }
                         entity.history.enabled = history;

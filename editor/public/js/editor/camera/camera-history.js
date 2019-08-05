@@ -59,11 +59,13 @@ editor.once('load', function() {
 
         var get = obj.history._getItemFn;
 
-        var posCur = Array.prototype.slice.call(camera.getLocalPosition().data);
-        var rotCur = Array.prototype.slice.call(camera.getLocalEulerAngles().data);
+        var localPos = camera.getLocalPosition();
+        var posCur = [localPos.x, localPos.y, localPos.z];
+        var localEul = camera.getLocalEulerAngles();
+        var rotCur = [localEul.x, localEul.y, localEul.z];
         var ortCur = camera.camera.orthoHeight;
 
-        var posPrev = Array.prototype.slice.call(position.data);
+        var posPrev = [position.x, position.y, position.z];
         var rotPrev = eulers.slice(0);
         var ortPrev = orthoHeight;
 

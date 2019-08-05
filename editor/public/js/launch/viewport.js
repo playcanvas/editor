@@ -293,11 +293,13 @@ editor.once('load', function () {
         }
     }
 
-    app._loadLibraries(libraryUrls, function (err) {
-        app._onVrChange(config.project.settings.vr);
-        libraries = true;
-        if (err) console.error(err);
-        init();
+    editor.call('editor:loadModules', config.wasmModules, "", function() {
+        app._loadLibraries(libraryUrls, function (err) {
+            app._onVrChange(config.project.settings.vr);
+            libraries = true;
+            if (err) console.error(err);
+            init();
+        });
     });
 
     var style = document.head.querySelector ? document.head.querySelector('style') : null;
