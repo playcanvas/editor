@@ -163,8 +163,8 @@ editor.once('load', function() {
 
                 if (! entity.has('components.element.margin')) {
                     if (entity.entity && entity.entity.element) {
-                        var margin = entity.entity.element.margin.data;
-                        entity.set('components.element.margin', [margin[0], margin[1], margin[2], margin[3]]);
+                        var margin = entity.entity.element.margin;
+                        entity.set('components.element.margin', [margin.x, margin.y, margin.z, margin.w);
                     } else {
                         entity.set('components.element.margin', [0, 0, 0, 0]);
                     }

@@ -223,17 +223,17 @@ editor.once('load', function() {
 
         editor.call('users:loadOne', userId, function(user) {
             var dataNormal = editor.call('whoisonline:color', user.id, 'data');
-            var colorNormal = new pc.Color(dataNormal[0], dataNormal[1], dataNormal[2], 1.0);
-            camera.model.meshInstances[0].setParameter('uColor', colorNormal.data);
+            var colorNormal = new Float32Array([ dataNormal[0], dataNormal[1], dataNormal[2], 1 ]);
+            camera.model.meshInstances[0].setParameter('uColor', colorNormal);
             camera.model.meshInstances[0].mask = GIZMO_MASK;
 
-            var colorBehind = new pc.Color(dataNormal[0], dataNormal[1], dataNormal[2], 0.15);
-            cameraInner.model.meshInstances[0].setParameter('uColor', colorBehind.data);
+            var colorBehind = new Float32Array([ dataNormal[0], dataNormal[1], dataNormal[2], 0.15 ]);
+            cameraInner.model.meshInstances[0].setParameter('uColor', colorBehind);
             cameraInner.model.meshInstances[0].mask = GIZMO_MASK;
 
             var dataLight = editor.call('whoisonline:color', user.id, 'data');
-            var colorLight = new pc.Color(dataLight[0], dataLight[1], dataLight[2], 0.25);
-            cameraQuad.model.meshInstances[0].setParameter('uColor', colorLight.data);
+            var colorLight = new Float32Array([ dataLight[0], dataLight[1], dataLight[2], 0.25 ]);
+            cameraQuad.model.meshInstances[0].setParameter('uColor', colorLight);
             cameraQuad.model.meshInstances[0].mask = GIZMO_MASK;
         });
     };

@@ -37,6 +37,7 @@ editor.once('load', function() {
         this.entity = null;
         this.behind = null;
         this.color = new pc.Color();
+        this.colorUniform = new Float32Array(4);
 
         this._link = null;
         this.events = [ ];
@@ -169,11 +170,16 @@ editor.once('load', function() {
                 textureName = 'unknown';
 
             this.entity.model.model.meshInstances[0].setParameter('texture_diffuseMap', textures[textureName]);
-            this.entity.model.model.meshInstances[0].setParameter('uColor', this.color.data);
+            this.colorUniform[0] = this.color.r;
+            this.colorUniform[1] = this.color.g;
+            this.colorUniform[2] = this.color.b;
+            this.colorUniform[3] = this.color.a;
+            this.entity.model.model.meshInstances[0].setParameter('uColor', this.colorUniform);
 
-            this.color.a = 0.25;
             this.behind.model.model.meshInstances[0].setParameter('texture_diffuseMap', textures[textureName]);
-            this.behind.model.model.meshInstances[0].setParameter('uColor', this.color.data);
+            this.color.a = 0.25;
+            this.colorUniform[3] = this.color.a;
+            this.behind.model.model.meshInstances[0].setParameter('uColor', this.colorUniform);
 
             if (this.local !== components[i]) {
                 // clear local binds

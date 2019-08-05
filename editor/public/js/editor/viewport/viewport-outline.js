@@ -11,6 +11,7 @@ editor.once('load', function() {
     var users = [ ];
     var selection = { };
     var colors = { };
+    var colorUniform = new Float32Array(3);
     var render = 0;
     var cleared = false;
     var visible = true;
@@ -303,7 +304,10 @@ editor.once('load', function() {
                             if (!instance.command && instance.material) {
 
                                 instance.onUpdateShader = onUpdateShaderOutline;
-                                instance.setParameter("material_emissive", color.data3, 1<<SHADER_OUTLINE);
+                                colorUniform[0] = color.r;
+                                colorUniform[1] = color.g;
+                                colorUniform[2] = color.b;
+                                instance.setParameter("material_emissive", colorUniform, 1<<SHADER_OUTLINE);
                                 meshInstances.push(instance);
                             }
                         }
