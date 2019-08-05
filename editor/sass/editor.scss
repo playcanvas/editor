@@ -2602,7 +2602,7 @@ strong {
         }
         &.type-binary {
             > .thumbnail.placeholder:after {
-                content: '\E299';
+                content: '\E208';
             }
             > .icon {
                 display: none;
@@ -2610,13 +2610,20 @@ strong {
         }
         &.type-font {
             > .thumbnail.placeholder:after {
-                content: '\E299';
+                content: '\E208';
             }
             > .icon {
                 display: none;
             }
         }
-
+        &.type-wasm {
+            > .thumbnail.placeholder:after {
+                content: '\E208';
+            }
+            > .icon {
+                display: none;
+            }
+        }
         &.scripts {
             > .thumbnail.placeholder:before {
                 content: 's';
