@@ -30,7 +30,7 @@ editor.once('load', function() {
         entity.history.enabled = false;
         entity.sync.enabled = false;
         var margin = entity.entity.element.margin;
-        entity.set('components.element.margin', [margin.x, margin.y, margin.z, margin.w);
+        entity.set('components.element.margin', [margin.x, margin.y, margin.z, margin.w]);
         var anchor = entity.entity.element.anchor;
         entity.set('components.element.anchor', [anchor.x, anchor.y, anchor.z, anchor.w]);
         entity.set('components.element.width', entity.entity.element.width);

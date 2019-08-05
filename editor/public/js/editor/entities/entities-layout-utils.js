@@ -30,10 +30,10 @@ editor.once('load', function() {
             forceSet(entity, 'components.element.height', entity.entity.element.height);
 
             var anchor = entity.entity.element.anchor;
-            forceSet(entity, 'components.element.anchor', [anchor.x, anchor.y, anchor.z, anchor.w);
+            forceSet(entity, 'components.element.anchor', [anchor.x, anchor.y, anchor.z, anchor.w]);
 
             var pos = entity.entity.getLocalPosition();
-            forceSet(entity, 'position', [pos.x, pos.y, pos.z);
+            forceSet(entity, 'position', [pos.x, pos.y, pos.z]);
 
             entity.history.enabled = historyEnabled;
         }
