@@ -1,0 +1,91 @@
+.pcui-entity-input {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+
+    border: 1px solid $bcg-darker;
+    border-radius: 2px;
+    box-sizing: border-box;
+    margin: $element-margin;
+    height: 24px;
+    background-color: $bcg-dark;
+    vertical-align: top;
+    transition: color 100ms, background-color 100ms, box-shadow 100ms;
+
+    color: $text-secondary;
+
+    > .pcui-label {
+        margin: 0;
+        flex: 1;
+        padding: $element-margin;
+        color: inherit;
+        font-size: 12px;
+    }
+
+    > .pcui-button {
+        margin: 0;
+        background: transparent;
+        border: 0;
+        flex-shrink: 0;
+    }
+
+    &:before {
+        color: inherit;
+    }
+}
+
+// empty
+.pcui-entity-input-empty {
+    > .pcui-label {
+        color: $text-darkest;
+    }
+
+    > .pcui-button {
+        display: none;
+    }
+}
+
+.pcui-entity-input.pcui-multiple-values {
+    position: relative;
+
+    &:before {
+        position: absolute;
+        padding: 0 8px;
+        content: '...';
+        white-space: nowrap;
+    }
+}
+
+// focus / hover states
+.pcui-entity-input:not(.pcui-disabled):not(.pcui-readonly) {
+    &.pcui-focus, &:hover {
+        cursor: pointer;
+        &:after, &:before {
+            display: none;
+        }
+    }
+
+    &:hover {
+        color: $text-primary;
+        background-color: $bcg-darker;
+        box-shadow: $element-shadow-hover;
+    }
+
+    &.pcui-focus {
+        background-color: $bcg-darkest;
+        box-shadow: $element-shadow-active;
+    }
+}
+// readonly state
+.pcui-entity-input.pcui-readonly {
+    color: $text-secondary;
+
+    > .pcui-button {
+        display: none;
+    }
+}
+
+// disabled state
+.pcui-entity-input.pcui-disabled {
+    color: $text-darkest;
+}

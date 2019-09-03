@@ -236,8 +236,8 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'settings:loadingScreenScript', fieldScriptPicker.parent.innerElement.firstChild.ui);
 
         // drag drop
-        var dropRef = editor.call('drop:target', {
-            ref: panelLoadingScreen.element,
+        editor.call('drop:target', {
+            ref: panelLoadingScreen,
             filter: function(type, data) {
                 var rectA = root.innerElement.getBoundingClientRect();
                 var rectB = panelLoadingScreen.element.getBoundingClientRect();

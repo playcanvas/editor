@@ -653,7 +653,7 @@ editor.once('load', function() {
 
         // reference
         editor.call('attributes:reference:attach', 'element:enableMarkup', fieldEnableMarkup.parent.innerElement.firstChild.ui);
-        
+
         // auto fit
         var panelAutoFit = editor.call('attributes:addField', {
             parent: panel,
@@ -1167,7 +1167,7 @@ editor.once('load', function() {
                 return;
 
             fieldTextureAsset.once('change', function (value) {
-                var lastHistoryAction = editor.call('history:list')[editor.call('history:current')];
+                var lastHistoryAction = editor.call('editor:history').lastAction;
                 var lastUndo = lastHistoryAction.undo;
                 var lastRedo = lastHistoryAction.redo;
 

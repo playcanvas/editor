@@ -1,0 +1,90 @@
+.pcui-slider {
+    @extend .noSelect;
+    display: inline-flex;
+    height: 24px;
+    margin: $element-margin;
+    align-items: center;
+
+    > .pcui-numeric-input {
+        flex: 1;
+    }
+}
+
+.pcui-slider-container {
+    flex: 3;
+}
+
+.pcui-slider-bar {
+    position: relative;
+    width: calc(100% - 18px);
+    height: 4px;
+    margin: 9px 8px;
+    background-color: $bcg-dark;
+    border: 1px solid $bcg-darker;
+}
+
+.pcui-slider-handle {
+    position: absolute;
+    top: -7px;
+    left: 0;
+    margin-left: -9px;
+    width: 8px;
+    height: 16px;
+    background-color: $text-darkest;
+    border: 1px solid $bcg-darker;
+    transition: left 100ms ease;
+
+    &:hover, &:focus {
+        outline: none;
+    }
+}
+
+// active state
+.pcui-slider-active {
+    cursor: ew-resize;
+
+    .pcui-slider-bar {
+        border-color: $bcg-darkest;
+        background-color: $bcg-darkest;
+    }
+
+    .pcui-slider-handle {
+        border-color: $bcg-darkest;
+        background-color: $text-primary;
+        transition: none;
+    }
+}
+
+// hover state
+.pcui-slider:not(.pcui-disabled):not(.pcui-readonly) {
+    &:hover {
+        cursor: pointer;
+    }
+
+    .pcui-slider-handle {
+        &:focus,
+        &:hover {
+            cursor: ew-resize;
+            outline: none;
+            border-color: $bcg-darkest;
+            background-color: $text-primary;
+        }
+    }
+}
+
+// readonly state (hide slider)
+.pcui-slider.pcui-readonly {
+    .pcui-numeric-input {
+        flex: 1;
+    }
+    .pcui-slider-bar {
+        display: none;
+    }
+}
+
+// multiple values
+.pcui-slider.pcui-multiple-values {
+    .pcui-slider-handle {
+        display: none;
+    }
+}

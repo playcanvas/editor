@@ -279,7 +279,7 @@ editor.once('load', function() {
                     continue;
 
                 var record = {
-                    get: entities[i].history._getItemFn,
+                    item: entities[i],
                     data: {
                         enabled: true,
                         attributes: { }
@@ -297,7 +297,7 @@ editor.once('load', function() {
                 name: 'entities.components.script.scripts',
                 undo: function() {
                     for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
+                        var item = records[i].item.latest();
                         if (! item) continue;
 
                         item.history.enabled = false;
@@ -308,7 +308,7 @@ editor.once('load', function() {
                 },
                 redo: function() {
                     for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
+                        var item = records[i].item.latest();
                         if (! item) continue;
 
                         item.history.enabled = false;
@@ -478,9 +478,9 @@ editor.once('load', function() {
                 hole: true,
                 passThrough: true
             });
-            target.element.style.outline = '1px dotted #f60';
-            panelScripts.once('drestroy', function() {
-                target.unregister();
+            target.style.outline = '1px dotted #f60';
+            panelScripts.once('destroy', function() {
+                target.destroy();
             });
 
             var dragCalculateSizes = function() {
@@ -778,14 +778,14 @@ editor.once('load', function() {
                         continue;
 
                     records.push({
-                        get: entities[i].history._getItemFn,
+                        item: entities[i],
                         ind: entities[i].get('components.script.order').indexOf(script),
                         data: entities[i].get('components.script.scripts.' + script)
                     });
                 }
 
                 for(var i = 0; i < records.length; i++) {
-                    var entity = records[i].get();
+                    var entity = records[i].item;
                     entity.history.enabled = false;
                     entity.unset('components.script.scripts.' + script);
                     entity.removeValue('components.script.order', script);
@@ -796,7 +796,7 @@ editor.once('load', function() {
                     name: 'entities.components.script.scripts',
                     undo: function() {
                         for(var i = 0; i < records.length; i++) {
-                            var item = records[i].get();
+                            var item = records[i].item.latest();
                             if (! item) continue;
 
                             item.history.enabled = false;
@@ -807,7 +807,7 @@ editor.once('load', function() {
                     },
                     redo: function() {
                         for(var i = 0; i < records.length; i++) {
-                            var item = records[i].get();
+                            var item = records[i].item.latest();
                             if (! item) continue;
 
                             item.history.enabled = false;

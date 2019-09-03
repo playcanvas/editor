@@ -346,7 +346,7 @@ SelectField.prototype._updateOptions = function(options) {
         element.addEventListener('mouseout', this._onOptionOut);
 
         if (this._optionClassNamePrefix) {
-            element.classList.add(this._optionClassNamePrefix + '-' + element.textContent.toLowerCase());
+            element.classList.add(this._optionClassNamePrefix + '-' + element.textContent.toLowerCase().replace(/ /g, '-'));
         }
 
         this.elementOptions.appendChild(element);

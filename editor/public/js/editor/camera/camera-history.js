@@ -57,8 +57,6 @@ editor.once('load', function() {
             return;
         }
 
-        var get = obj.history._getItemFn;
-
         var localPos = camera.getLocalPosition();
         var posCur = [localPos.x, localPos.y, localPos.z];
         var localEul = camera.getLocalEulerAngles();
@@ -73,8 +71,8 @@ editor.once('load', function() {
 
         editor.call('history:add', {
             name: 'camera.user',
-            undo: function() {
-                var item = get();
+            undo: function () {
+                var item = obj.latest();
                 if (! item) return;
 
                 item.history.enabled = false;
@@ -83,8 +81,8 @@ editor.once('load', function() {
                 item.set('components.camera.orthoHeight', ortPrev);
                 item.history.enabled = true;
             },
-            redo: function() {
-                var item = get();
+            redo: function () {
+                var item = obj.latest();
                 if (! item) return;
 
                 item.history.enabled = false;

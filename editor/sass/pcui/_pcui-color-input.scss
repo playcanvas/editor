@@ -1,0 +1,75 @@
+// color input
+.pcui-color-input {
+    @extend .noSelect;
+    position: relative;
+    display: inline-block;
+    border: 1px solid $bcg-darkest;
+    box-sizing: border-box;
+    width: 44px;
+    height: 24px;
+    margin: $element-margin;
+    vertical-align: top;
+    cursor: pointer;
+    transition: opacity 100ms;
+
+    > div {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #000;
+    }
+
+    // checkerboard pattern
+    @include checkerboard(#fff, black, 44px/5);
+
+    &:after {
+        content: '\00a0';
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 0;
+        height: 0;
+        background-color: transparent;
+        border-bottom: 16px solid $bcg-darker;
+        border-left: 16px solid transparent;
+    }
+}
+
+.pcui-color-input.pcui-multiple-values {
+    > div {
+        display: none;
+    }
+
+    @include checkerboard(#465659, #5b696c, 44px/5);
+}
+
+// readonly color input
+.pcui-color-input.pcui-readonly {
+    opacity: $element-opacity-readonly;
+    cursor: default;
+    &:after {
+        display: none;
+    }
+}
+
+// disabled color input
+.pcui-color-input.pcui-disabled {
+    opacity: $element-opacity-disabled;
+    cursor: default;
+}
+
+// hover / focus states
+.pcui-color-input:not(.pcui-disabled):not(.pcui-readonly) {
+    &:hover, &:focus {
+        box-shadow: $element-shadow-hover;
+
+        &:after {
+            border-bottom-color: $bcg-darkest;
+        }
+    }
+    &:active {
+        box-shadow: $element-shadow-active;
+    }
+}

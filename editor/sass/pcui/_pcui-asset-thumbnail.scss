@@ -1,0 +1,49 @@
+// asset thumbnail viewer
+.pcui-asset-thumb {
+    position: relative;
+
+    > img {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    > canvas {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: $bcg-dark;
+
+        &.flip-y {
+            transform: scale(1, -1);
+        }
+    }
+
+    &.pcui-asset-thumb-empty:before {
+        display: block;
+        content: '';
+        width: 100%;
+        height: 100%;
+
+        @include checkerboard(#465659, #5b696c, (66px / 5));
+    }
+}
+
+// showing multiple values
+.pcui-asset-thumb.pcui-multiple-values {
+    > img, > canvas {
+        display: none
+    }
+}
+
+// hovered state
+.pcui-asset-thumb:not(.pcui-readonly):not(.pcui-disabled):not(.pcui-asset-thumb-empty):not(.pcui-asset-thumb-missing) {
+    &:hover {
+        cursor: pointer;
+        box-shadow: $element-shadow-hover;
+    }
+}

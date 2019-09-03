@@ -186,8 +186,9 @@ editor.once('load', function() {
 
         // preview
         if (assets.length === 1) {
-            var previewContainer = new pcui.Container();
-            previewContainer.class.add('asset-preview-container');
+            var previewContainer = new pcui.Container({
+                class: 'asset-preview-container'
+            });
 
             var preview = document.createElement('canvas');
             var ctx = preview.getContext('2d');
@@ -196,6 +197,8 @@ editor.once('load', function() {
             preview.classList.add('asset-preview');
             preview.classList.add('flipY');
             previewContainer.append(preview);
+
+            var previewRenderer = new pcui.FontThumbnailRenderer(assets[0], preview);
 
             preview.addEventListener('click', function() {
                 if (root.class.contains('large')) {
@@ -217,7 +220,9 @@ editor.once('load', function() {
                     renderQueued = false;
 
                 // render
-                editor.call('preview:render', assets[0], previewContainer.width, previewContainer.height, preview);
+                preview.width = previewContainer.width;
+                preview.height = previewContainer.height;
+                previewRenderer.render();
             };
             renderPreview();
 
@@ -230,23 +235,16 @@ editor.once('load', function() {
 
             // render on resize
             var evtPanelResize = root.on('resize', queueRender);
-            var evtSceneSettings = editor.on('preview:scene:changed', queueRender);
-
-            // font resource loaded
-            var watcher = editor.call('assets:font:watch', {
-                asset: assets[0],
-                autoLoad: true,
-                callback: queueRender
-            });
-
-            var renderTimeout;
 
             paramsPanel.once('destroy', function() {
                 root.class.remove('asset-preview', 'animate');
 
-                editor.call('assets:font:unwatch', assets[0], watcher);
+                if (previewRenderer) {
+                    previewRenderer.destroy();
+                    previewRenderer = null;
+                }
+
                 evtPanelResize.unbind();
-                evtSceneSettings.unbind();
 
                 paramsPanel = null;
             });

@@ -58,7 +58,7 @@ editor.once('load', function() {
         });
         panel.class.add('component', 'entity', name);
         // reference
-        editor.call('attributes:reference:' + name + ':attach', panel, panel.headerElementTitle);
+        editor.call('attributes:reference:attach', name + ':component', panel, panel.headerElementTitle);
 
         // show/hide panel
         var checkingPanel;
@@ -107,7 +107,7 @@ editor.once('load', function() {
 
             for(var i = 0; i < entities.length; i++) {
                 records.push({
-                    get: entities[i].history._getItemFn,
+                    item: entities[i],
                     value: entities[i].get('components.' + name)
                 });
 
@@ -120,7 +120,7 @@ editor.once('load', function() {
                 name: 'entities.set[components.' + name + ']',
                 undo: function() {
                     for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
+                        var item = records[i].item.latest();
                         if (! item)
                             continue;
 
@@ -131,7 +131,7 @@ editor.once('load', function() {
                 },
                 redo: function() {
                     for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
+                        var item = records[i].item.latest();
                         if (! item)
                             continue;
 

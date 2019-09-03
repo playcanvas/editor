@@ -5,17 +5,15 @@ Object.assign(pcui, (function () {
      * @name pcui.ISelectable
      * @classdesc Provides an interface for selecting an Element.
      */
-    function ISelectable() {}
+    class ISelectable {
+        get selected() {
+            throw new Error('Not implemented');
+        }
 
-    Object.defineProperty(ISelectable.prototype, 'selected', {
-        get: function () {
+        set selected(value) {
             throw new Error('Not implemented');
-        },
-        set: function (value) {
-            throw new Error('Not implemented');
-        },
-        configurable: true
-    });
+        }
+    }
 
     return {
         ISelectable: ISelectable

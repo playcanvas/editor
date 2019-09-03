@@ -929,8 +929,9 @@ editor.once('load', function() {
                 }
             };
 
-            var previewContainer = new pcui.Container();
-            previewContainer.class.add('asset-preview-container');
+            var previewContainer = new pcui.Container({
+                class: 'asset-preview-container'
+            });
 
             var preview = document.createElement('div');
             preview.classList.add('asset-preview');

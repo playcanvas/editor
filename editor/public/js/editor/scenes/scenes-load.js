@@ -78,7 +78,10 @@ editor.once('load', function () {
         // clear history in a timeout
         // otherwise some select events might remain
         setTimeout(function () {
-            editor.call('history:clear');
+            var history = editor.call('editor:history');
+            if (history) {
+                history.clear();
+            }
         });
     });
 

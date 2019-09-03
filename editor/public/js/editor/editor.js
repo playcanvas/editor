@@ -32,6 +32,8 @@
                 console.info('%c%s %c(editor.method error)', 'color: #06f', name, 'color: #f00');
                 console.log(ex.stack);
             }
+        } else {
+            console.info('%c%s %c - editor.method does not exist yet', 'color: #06f', name, 'color: #f00');
         }
         return null;
     };

@@ -13,8 +13,8 @@ editor.once('load', function() {
     var vecC = new pc.Vec3();
 
 
-    var dropRef = editor.call('drop:target', {
-        ref: canvas.element,
+    editor.call('drop:target', {
+        ref: canvas,
         filter: function(type, data) {
             if (type === 'asset.model') {
                 var asset = app.assets.get(data.id);

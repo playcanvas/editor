@@ -81,7 +81,7 @@ editor.once('load', function() {
 
                 // modify last history action to include changing
                 // the mapping
-                var lastHistoryAction = editor.call('history:list')[editor.call('history:current')];
+                var lastHistoryAction = editor.call('editor:history').lastAction;
                 var lastUndo = lastHistoryAction.undo;
                 var lastRedo = lastHistoryAction.redo;
 

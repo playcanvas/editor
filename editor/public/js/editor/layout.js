@@ -91,9 +91,9 @@ editor.on('load', function() {
 
     // viewport
     var viewport = new pcui.Container({
-        id: 'layout-viewport'
+        id: 'layout-viewport',
+        class: 'viewport'
     });
-    viewport.class.add('viewport');
     root.append(viewport);
     // expose
     editor.method('layout.viewport', function () { return viewport; });
@@ -101,6 +101,7 @@ editor.on('load', function() {
     // assets
     var assetsPanel = new pcui.Panel({
         id: 'layout-assets',
+        class: 'assets',
         headerText: 'ASSETS',
         flex: true,
         flexDirection: 'row',
@@ -113,7 +114,6 @@ editor.on('load', function() {
         resizeMin: 106,
         resizeMax: 106 * 6
     });
-    assetsPanel.class.add('assets');
 
     assetsPanel.on('resize', function () {
         editor.call('localStorage:set', 'editor:layout:assets:height', assetsPanel.height);
@@ -132,6 +132,7 @@ editor.on('load', function() {
     // attributes
     var attributesPanel = new pcui.Panel({
         id: 'layout-attributes',
+        class: 'attributes',
         headerText: 'INSPECTOR',
         enabled: false,
         panelType: 'normal',
@@ -144,7 +145,6 @@ editor.on('load', function() {
         resizeMin: 256,
         resizeMax: 512
     });
-    attributesPanel.class.add('attributes');
 
     attributesPanel.on('resize', function () {
         editor.call('localStorage:set', 'editor:layout:attributes:width', attributesPanel.width);

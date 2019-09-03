@@ -5,17 +5,15 @@ Object.assign(pcui, (function () {
      * @name pcui.IFlex
      * @classdesc Provides an interface for allowing support for the flexbox CSS layout
      */
-    function IFlex() {}
+    class IFlex {
+        get flex() {
+            throw new Error('Not implemented');
+        }
 
-    Object.defineProperty(IFlex.prototype, 'flex', {
-        get: function () {
+        set flex(value) {
             throw new Error('Not implemented');
-        },
-        set: function (value) {
-            throw new Error('Not implemented');
-        },
-        configurable: true
-    });
+        }
+    }
 
     return {
         IFlex: IFlex

@@ -1,17 +1,21 @@
 Object.assign(pcui, (function () {
     'use strict';
 
+    const CLASS_ELEMENT = 'pcui-element';
+
     // these are properties that are
     // available as Element properties and
     // can also be set through the Element constructor
-    var SIMPLE_CSS_PROPERTIES = [
+    const SIMPLE_CSS_PROPERTIES = [
         'flexDirection',
         'flexGrow',
         'flexBasis',
         'flexShrink',
         'flexWrap',
         'alignItems',
-        'justifyContent'
+        'alignSelf',
+        'justifyContent',
+        'justifySelf'
     ];
 
     // utility function to expose a CSS property
@@ -53,6 +57,13 @@ Object.assign(pcui, (function () {
 
     /**
      * @event
+     * @name pcui.Element#readOnly
+     * @param {Boolean} readOnly Whether the Element is now read only
+     * @description Fired when the readOnly property of an Element changes
+     */
+
+    /**
+     * @event
      * @name pcui.Element#parent
      * @description Fired when the Element's parent gets set
      * @param {pcui.Element} parent The new parent
@@ -83,192 +94,252 @@ Object.assign(pcui, (function () {
      * @name pcui.Element
      * @classdesc The base class for all UI elements.
      * @extends Events
-     * @param {HTMLElement} dom The DOM element that this pcui.Element wraps.
-     * @param {Object} args The arguments. All settable properties can also be set through the constructor.
-     * @param {String} [args.id] The desired id for the Element HTML node.
      * @property {Boolean} enabled Gets / sets whether the Element or its parent chain is enabled or not. Defaults to true.
      * @property {HTMLElement} dom Gets the root DOM node for this Element.
-     * @property {pcui.Element} parent Gets / sets the parent Element.
+     * @property {pcui.Element} parent Gets the parent Element.
      * @property {Boolean} hidden Gets / sets whether the Element is hidden.
+     * @property {Boolean} readOnly Gets / sets whether the Element is read only.
      * @property {Number} width Gets / sets the width of the Element in pixels. Can also be an empty string to remove it.
      * @property {Number} height Gets / sets the height of the Element in pixels. Can also be an empty string to remove it.
-     * @property {class} parent Gets / sets the parent Element.
+     * @property {Boolean} error Gets / sets whether the Element is in an error state.
+     * @property {pcui.BindingBase} binding Gets / sets the Binding object for the element.
      * @property {CSSStyleDeclaration} style Shortcut to pcui.Element.dom.style.
      * @property {DOMTokenList} class Shortcut to pcui.Element.dom.classList.
      */
-    function Element(dom, args) {
-        Events.call(this);
+    class Element extends Events {
+        /**
+         * Creates a new Element.
+         * @param {HTMLElement} dom The DOM element that this pcui.Element wraps.
+         * @param {Object} args The arguments. All settable properties can also be set through the constructor.
+         * @param {String} [args.id] The desired id for the Element HTML node.
+         * @param {String|String[]} [args.class] The CSS class or classes we want to add to the element.
+         */
+        constructor(dom, args) {
+            super();
 
-        if (!args) args = {};
+            if (!args) args = {};
 
-        this._destroyed = false;
-        this._enabled = true;
-        this._hidden = false;
-        this._parent = null;
-
-        this._domEventClick = this._onClick.bind(this);
-        this._domEventMouseOver = this._onMouseOver.bind(this);
-        this._domEventMouseOut = this._onMouseOut.bind(this);
-
-        this._evtParentDestroy = null;
-        this._evtParentDisable = null;
-        this._evtParentEnable = null;
-
-        this._dom = dom;
-
-        if (args.id !== undefined) {
-            this._dom.id = args.id;
-        }
-
-        // add ui reference
-        this._dom.ui = this;
-
-        // add event listeners
-        this._dom.addEventListener('click', this._domEventClick);
-        this._dom.addEventListener('mouseover', this._domEventMouseOver);
-        this._dom.addEventListener('mouseout', this._domEventMouseOut);
-
-        // add element class
-        this._dom.classList.add('pcui-element');
-
-        if (args.enabled !== undefined) {
-            this.enabled = args.enabled;
-        }
-        if (args.hidden !== undefined) {
-            this.hidden = args.hidden;
-        }
-        if (args.width !== undefined) {
-            this.width = args.width;
-        }
-        if (args.height !== undefined) {
-            this.height = args.height;
-        }
-
-        // copy CSS properties from args
-        for (var key in args) {
-            if (args[key] === undefined) continue;
-            if (SIMPLE_CSS_PROPERTIES.indexOf(key) !== -1) {
-                this[key] = args[key];
-            }
-        }
-    }
-
-    Element.prototype = Object.create(Events.prototype);
-    Element.prototype.constructor = Element;
-
-    Element.prototype.link = function (observer, path) {
-        throw new Error('Not implemented');
-    };
-
-    Element.prototype.unlink = function () {
-        throw new Error('Not implemented');
-    };
-
-    /**
-     * @name pcui.Element#flash
-     * @description Triggers a flash animation on the Element.
-     */
-    Element.prototype.flash = function () {
-        this.class.add('flash');
-        setTimeout(function () {
-            this.class.remove('flash');
-        }.bind(this), 200);
-    };
-
-    Element.prototype._onClick = function (evt) {
-        if (this.enabled) {
-            this.emit('click', evt);
-        }
-    };
-
-    Element.prototype._onMouseOver = function (evt) {
-        this.emit('hover', evt);
-    };
-
-    Element.prototype._onMouseOut = function (evt) {
-        this.emit('hoverend', evt);
-    };
-
-    Element.prototype._onEnabledChange = function (enabled) {
-        if (enabled) {
-            this.class.remove('pcui-disabled');
-        } else {
-            this.class.add('pcui-disabled');
-        }
-
-        this.emit(enabled ? 'enable' : 'disable');
-    };
-
-    Element.prototype._onParentDestroy = function () {
-        this.destroy();
-    };
-
-    Element.prototype._onParentDisable = function () {
-        if (this._enabled) {
-            this._onEnabledChange(false);
-        }
-    };
-
-    Element.prototype._onParentEnable = function () {
-        if (this._enabled) {
-            this._onEnabledChange(true);
-        }
-    };
-
-    /**
-     * @name pcui.Element#destroy
-     * @description Destroys the Element and its events.
-     */
-    Element.prototype.destroy = function () {
-        if (this._destroyed) return;
-
-        this._destroyed = true;
-
-        if (this.parent) {
+            this._destroyed = false;
             this._parent = null;
 
-            this._evtParentDestroy.unbind();
-            this._evtParentDisable.unbind();
-            this._evtParentEnable.unbind();
-            this._evtParentDestroy = null;
-            this._evtParentDisable = null;
-            this._evtParentEnable = null;
-        }
+            this._domEventClick = this._onClick.bind(this);
+            this._domEventMouseOver = this._onMouseOver.bind(this);
+            this._domEventMouseOut = this._onMouseOut.bind(this);
+            this._eventsParent = [];
 
-        if (this._dom) {
-            if (this._dom && this._dom.parentElement) {
-                this._dom.parentElement.removeChild(this._dom);
+            this._dom = dom;
+
+            if (args.id !== undefined) {
+                this._dom.id = args.id;
             }
 
-            // remove event listeners
-            this._dom.removeEventListener('click', this._domEventClick);
-            this._dom.removeEventListener('mouseover', this._domEventMouseOver);
-            this._dom.removeEventListener('mouseout', this._domEventMouseOut);
+            // add ui reference
+            this._dom.ui = this;
 
-            // remove ui reference
-            delete this._dom.ui;
+            // add event listeners
+            this._dom.addEventListener('click', this._domEventClick);
+            this._dom.addEventListener('mouseover', this._domEventMouseOver);
+            this._dom.addEventListener('mouseout', this._domEventMouseOut);
 
-            this._dom = null;
+            // add element class
+            this._dom.classList.add(CLASS_ELEMENT);
+
+            // add user classes
+            if (args.class) {
+                if (Array.isArray(args.class)) {
+                    for (let i = 0; i < args.class.length; i++) {
+                        this._dom.classList.add(args.class[i]);
+                    }
+                } else {
+                    this._dom.classList.add(args.class);
+                }
+            }
+
+            this.enabled = args.enabled !== undefined ? args.enabled : true;
+            this.hidden = args.hidden || false;
+            this.readOnly = args.readOnly || false;
+
+            if (args.width !== undefined) {
+                this.width = args.width;
+            }
+            if (args.height !== undefined) {
+                this.height = args.height;
+            }
+
+            // copy CSS properties from args
+            for (const key in args) {
+                if (args[key] === undefined) continue;
+                if (SIMPLE_CSS_PROPERTIES.indexOf(key) !== -1) {
+                    this[key] = args[key];
+                }
+            }
+
+            // set the binding object
+            if (args.binding) {
+                this.binding = args.binding;
+            }
+
         }
 
-        this._domEventClick = null;
-        this._domEventMouseOver = null;
-        this._domEventMouseOut = null;
+        /**
+         * @name pcui.Element#link
+         * @description Links the specified observers and paths to the Element's data binding.
+         * @param {Observer|Observer[]} observers An array of observers or a single observer.
+         * @param {String|String[]} paths A path for the observer(s) or an array of paths that maps to each separate observer.
+         */
+        link(observers, paths) {
+            this._binding.link(observers, paths);
+        }
 
-        this.emit('destroy');
 
-        this.unbind();
-    };
+        /**
+         * @name pcui.Element#unlink
+         * @description Unlinks the Element from its observers
+         */
+        unlink() {
+            if (this._binding) {
+                this._binding.unlink();
+            }
+        }
 
-    Object.defineProperty(Element.prototype, 'enabled', {
-        get: function () {
+        /**
+         * @name pcui.Element#flash
+         * @description Triggers a flash animation on the Element.
+         */
+        flash() {
+            this.class.add(pcui.CLASS_FLASH);
+            setTimeout(function () {
+                this.class.remove(pcui.CLASS_FLASH);
+            }.bind(this), 200);
+        }
+
+        _onClick(evt) {
+            if (this.enabled) {
+                this.emit('click', evt);
+            }
+        }
+
+        _onMouseOver(evt) {
+            this.emit('hover', evt);
+        }
+
+        _onMouseOut(evt) {
+            this.emit('hoverend', evt);
+        }
+
+        _onEnabledChange(enabled) {
+            if (enabled) {
+                this.class.remove(pcui.CLASS_DISABLED);
+            } else {
+                this.class.add(pcui.CLASS_DISABLED);
+            }
+
+            this.emit(enabled ? 'enable' : 'disable');
+        }
+
+        _onParentDestroy() {
+            this.destroy();
+        }
+
+        _onParentDisable() {
+            if (this._enabled) {
+                this._onEnabledChange(false);
+            }
+        }
+
+        _onParentEnable() {
+            if (this._enabled) {
+                this._onEnabledChange(true);
+            }
+        }
+
+        _onReadOnlyChange(readOnly) {
+            if (readOnly) {
+                this.class.add(pcui.CLASS_READONLY);
+            } else {
+                this.class.remove(pcui.CLASS_READONLY);
+            }
+
+            this.emit('readOnly', readOnly);
+        }
+
+        _onParentReadOnlyChange(readOnly) {
+            if (readOnly) {
+                if (!this._readOnly) {
+                    this._onReadOnlyChange(true);
+                }
+            } else {
+                if (!this._readOnly) {
+                    this._onReadOnlyChange(false);
+                }
+            }
+
+        }
+
+        /**
+         * @name pcui.Element#destroy
+         * @description Destroys the Element and its events.
+         */
+        destroy() {
+            if (this._destroyed) return;
+
+            this._destroyed = true;
+
+            this.binding = null;
+
+            if (this.parent) {
+                const parent = this.parent;
+                this._parent = null;
+
+                for (let i = 0; i < this._eventsParent.length; i++) {
+                    this._eventsParent[i].unbind();
+                    this._eventsParent.length = 0;
+                }
+
+                if (this._dom && this._dom.parentElement) {
+                    this._dom.parentElement.removeChild(this._dom);
+                }
+
+                // emit remove event on parent
+                // check if parent has been destroyed already
+                // because we do not want to be emitting events
+                // on a destroyed parent after it's been destroyed
+                // as it is easy to lead to null exceptions
+                if (parent.remove && !parent._destroyed) {
+                    parent.emit('remove', this);
+                }
+            }
+
+            if (this._dom) {
+                // remove event listeners
+                this._dom.removeEventListener('click', this._domEventClick);
+                this._dom.removeEventListener('mouseover', this._domEventMouseOver);
+                this._dom.removeEventListener('mouseout', this._domEventMouseOut);
+
+                // remove ui reference
+                delete this._dom.ui;
+
+                this._dom = null;
+            }
+
+            this._domEventClick = null;
+            this._domEventMouseOver = null;
+            this._domEventMouseOut = null;
+
+            this.emit('destroy');
+
+            this.unbind();
+        }
+
+        get enabled() {
             return this._enabled && (!this._parent || this._parent.enabled);
-        },
-        set: function (value) {
+        }
+
+        set enabled(value) {
             if (this._enabled === value) return;
 
             // remember if enabled in hierarchy
-            var enabled = this.enabled;
+            const enabled = this.enabled;
 
             this._enabled = value;
 
@@ -277,133 +348,182 @@ Object.assign(pcui, (function () {
                 this._onEnabledChange(value);
             }
         }
-    });
 
-    Object.defineProperty(Element.prototype, 'dom', {
-        get: function () {
+        get dom() {
             return this._dom;
         }
-    });
 
-    Object.defineProperty(Element.prototype, 'parent', {
-        get: function () {
+        get parent() {
             return this._parent;
-        },
-        set: function (value) {
+        }
+
+        set parent(value) {
             if (value === this._parent) return;
 
-            var oldEnabled = this.enabled;
+            const oldEnabled = this.enabled;
+            const oldReadonly = this.readOnly;
 
             if (this._parent) {
-                this._evtParentDestroy.unbind();
-                this._evtParentDisable.unbind();
-                this._evtParentEnable.unbind();
+                for (let i = 0; i < this._eventsParent.length; i++) {
+                    this._eventsParent[i].unbind();
+                }
+                this._eventsParent.length = 0;
             }
 
             this._parent = value;
 
             if (this._parent) {
-                this._evtParentDestroy = this._parent.once('destroy', this._onParentDestroy.bind(this));
-                this._evtParentDisable = this._parent.on('disable', this._onParentDisable.bind(this));
-                this._evtParentEnable = this._parent.on('enable', this._onParentEnable.bind(this));
+                this._eventsParent.push(this._parent.once('destroy', this._onParentDestroy.bind(this)));
+                this._eventsParent.push(this._parent.on('disable', this._onParentDisable.bind(this)));
+                this._eventsParent.push(this._parent.on('enable', this._onParentEnable.bind(this)));
+                this._eventsParent.push(this._parent.on('readOnly', this._onParentReadOnlyChange.bind(this)));
             }
 
             this.emit('parent', this._parent);
 
-            var newEnabled = this.enabled;
+            const newEnabled = this.enabled;
             if (newEnabled !== oldEnabled) {
                 this._onEnabledChange(newEnabled);
             }
-        }
-    });
 
-    Object.defineProperty(Element.prototype, 'hidden', {
-        get: function () {
+            const newReadonly = this.readOnly;
+            if (newReadonly !== oldReadonly) {
+                this._onReadOnlyChange(newReadonly);
+            }
+
+        }
+
+        get hidden() {
             return this._hidden;
-        },
-        set: function (value) {
+        }
+
+        set hidden(value) {
             if (value === this._hidden) return;
 
             this._hidden = value;
 
             if (value) {
-                this.class.add('pcui-hidden');
+                this.class.add(pcui.CLASS_HIDDEN);
             } else {
-                this.class.remove('pcui-hidden');
+                this.class.remove(pcui.CLASS_HIDDEN);
             }
 
             this.emit(value ? 'hide' : 'show');
         }
-    });
 
-    Object.defineProperty(Element.prototype, 'style', {
-        get: function () {
+        get readOnly() {
+            return this._readOnly || (this._parent && this._parent.readOnly);
+        }
+
+        set readOnly(value) {
+            if (this._readOnly === value) return;
+            this._readOnly = value;
+
+            this._onReadOnlyChange(value);
+        }
+
+        get error() {
+            return this._hasError;
+        }
+
+        set error(value) {
+            if (this._hasError === value) return;
+            this._hasError = value;
+            if (value) {
+                this.class.add(pcui.CLASS_ERROR);
+            } else {
+                this.class.remove(pcui.CLASS_ERROR);
+            }
+        }
+
+        get style() {
             return this._dom.style;
         }
-    });
 
-    Object.defineProperty(Element.prototype, 'class', {
-        get: function () {
+        get class() {
             return this._dom.classList;
         }
-    });
 
-    Object.defineProperty(Element.prototype, 'width', {
-        get: function () {
+        get width() {
             return this._dom.clientWidth;
-        },
-        set: function (value) {
+        }
+
+        set width(value) {
             if (typeof value === 'number') {
                 value += 'px';
             }
             this.style.width = value;
         }
-    });
 
-    Object.defineProperty(Element.prototype, 'height', {
-        get: function () {
+        get height() {
             return this._dom.clientHeight;
-        },
-        set: function (value) {
+        }
+
+        set height(value) {
             if (typeof value === 'number') {
                 value += 'px';
             }
             this.style.height = value;
         }
-    });
+
+        get binding() {
+            return this._binding;
+        }
+
+        set binding(value) {
+            if (this._binding === value) return;
+
+            let prevObservers;
+            let prevPaths;
+
+            if (this._binding) {
+                prevObservers = this._binding.observers;
+                prevPaths = this._binding.paths;
+
+                this.unlink();
+                this._binding.element = null;
+                this._binding = null;
+            }
+
+            this._binding = value;
+
+            if (this._binding) {
+                this._binding.element = this;
+                if (prevObservers && prevPaths) {
+                    this.link(prevObservers, prevPaths);
+                }
+            }
+        }
+
+        /*  Backwards Compatibility */
+        // we should remove those after we migrate
+        get disabled() {
+            return !this.enabled;
+        }
+
+        set disabled(value) {
+            this.enabled = !value;
+        }
+
+        get element() {
+            return this.dom;
+        }
+
+        set element(value) {
+            this.dom = value;
+        }
+
+        get innerElement() {
+            return this.domContent;
+        }
+
+        set innerElement(value) {
+            this.domContent = value;
+        }
+    };
 
     // expose rest of CSS properties
     SIMPLE_CSS_PROPERTIES.forEach(exposeCssProperty);
-
-    // ******************************************************************************************
-    /*  Backwards Compatibility */
-    // we should remove those after we migrate
-    Object.defineProperty(Element.prototype, 'disabled', {
-        get: function () {
-            return !this.enabled;
-        },
-        set: function (value) {
-            this.enabled = !value;
-        }
-    });
-
-    Object.defineProperty(Element.prototype, 'element', {
-        get: function () {
-            return this.dom;
-        },
-        set: function (value) {
-            this.dom = value;
-        }
-    });
-
-    Object.defineProperty(Element.prototype, 'innerElement', {
-        get: function () {
-            return this.domContent;
-        },
-        set: function (value) {
-            this.domContent = value;
-        }
-    });
 
     return {
         Element: Element

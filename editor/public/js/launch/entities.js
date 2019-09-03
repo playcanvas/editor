@@ -5,6 +5,12 @@ editor.once('load', function() {
         index: 'resource_id'
     });
 
+    function createLatestFn(resourceId) {
+        return function () {
+            return entities.get(resourceId);
+        };
+    }
+
     // on adding
     entities.on('add', function(obj) {
         editor.emit('entities:add', obj);
@@ -12,6 +18,9 @@ editor.once('load', function() {
 
     editor.method('entities:add', function (obj) {
         entities.add(obj);
+
+        // function to get latest version of entity observer
+        obj.latestFn = createLatestFn(obj.get('resource_id'));
     });
 
     // on removing

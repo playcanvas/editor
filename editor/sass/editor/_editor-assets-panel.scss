@@ -284,9 +284,9 @@
         transition: visibility 100ms, opacity 100ms;
 
         &.pcui-hidden {
+            display: inherit;
             visibility: hidden;
             opacity: 0;
-            display: inherit;
         }
 
         > .ui-progress {
@@ -294,5 +294,4 @@
             height: 4px;
         }
     }
-
 }

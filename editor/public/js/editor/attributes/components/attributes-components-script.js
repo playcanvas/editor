@@ -161,7 +161,7 @@ editor.once('load', function() {
                     });
 
                     records.push({
-                        get: entities[i].history._getItemFn
+                        item: entities[i]
                     });
 
                     entities[i].history.enabled = false;
@@ -190,7 +190,7 @@ editor.once('load', function() {
                 name: 'entities.components.script.scripts',
                 undo: function() {
                     for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
+                        var item = records[i].item.latest();
                         if (! item)
                             continue;
 
@@ -211,7 +211,7 @@ editor.once('load', function() {
                 },
                 redo: function() {
                     for(var i = 0; i < records.length; i++) {
-                        var item = records[i].get();
+                        var item = records[i].item.latest();
                         if (! item)
                             continue;
 
@@ -743,7 +743,7 @@ editor.once('load', function() {
                             var data = scripts[s].json();
 
                             records.push({
-                                get: entities[i].history._getItemFn,
+                                item: entities[i],
                                 value: data,
                                 ind: s
                             });
@@ -764,7 +764,7 @@ editor.once('load', function() {
                     name: 'entities.components.script.scripts',
                     undo: function() {
                         for(var i = 0; i < records.length; i++) {
-                            var item = records[i].get();
+                            var item = records[i].item.latest();
                             if (! item)
                                 continue;
 
@@ -795,7 +795,7 @@ editor.once('load', function() {
                     },
                     redo: function() {
                         for(var i = 0; i < records.length; i++) {
-                            var item = records[i].get();
+                            var item = records[i].item.latest();
                             if (! item)
                                 continue;
 
@@ -974,8 +974,8 @@ editor.once('load', function() {
         }
 
         // drag drop
-        var dropRef = editor.call('drop:target', {
-            ref: panel.element,
+        editor.call('drop:target', {
+            ref: panel,
             filter: function(type, data) {
                 if (type !== 'asset.script') return false;
 
@@ -1013,7 +1013,6 @@ editor.once('load', function() {
                 events[i].unbind();
 
             events = null;
-            dropRef.unregister();
         });
     });
 });

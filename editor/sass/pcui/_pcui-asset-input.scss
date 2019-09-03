@@ -1,0 +1,84 @@
+// asset input
+.pcui-asset-input {
+    @extend .pcui-grid;
+    position: relative;
+    height: 66px;
+    box-sizing: border-box;
+    margin: $element-margin;
+    grid-template-columns: 66px minmax(0, 1fr);
+    grid-template-rows: 36px 30px;
+    grid-template-areas:
+        "thumb label"
+        "thumb controls";
+}
+
+// thumb on the left
+.pcui-asset-input-thumb {
+    grid-area: thumb;
+    width: 100%;
+    height: 100%;
+    border: 1px solid $bcg-darker;
+    box-sizing: border-box;
+}
+
+// text on the top right
+.pcui-asset-input-label {
+    grid-area: label;
+    align-self: center;
+    margin: 0;
+    margin-left: $element-margin;
+    font-size: 12px;
+}
+
+// buttons and asset name container
+.pcui-asset-input-controls {
+    grid-area: controls;
+    align-items: center;
+
+    @extend .pcui-flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    margin-left: $element-margin;
+    align-self: center;
+    background: $bcg-dark;
+    border: 1px solid $bcg-darker;
+    border-radius: 2px;
+    height: 24px;
+    box-sizing: border-box;
+}
+
+// asset name field
+.pcui-asset-input-asset {
+    flex-grow: 1;
+    font-size: 12px;
+    color: $text-secondary;
+    min-width: 10px;
+}
+
+// edit / remove buttons
+.pcui-asset-input-edit, .pcui-asset-input-remove {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+    margin: 1px;
+    border: 0;
+}
+
+.pcui-asset-input-edit {
+    margin-left: auto;
+}
+
+
+// readonly state
+.pcui-asset-input.pcui-readonly {
+    .pcui-asset-input-edit, .pcui-asset-input-remove {
+        display: none;
+    }
+}
+
+// disabled state
+.pcui-asset-input.pcui-disabled {
+    opacity: $element-opacity-disabled;
+}

@@ -42,12 +42,7 @@ editor.once('load', function () {
     // add history
     settings.history = new ObserverHistory({
         item: settings,
-        getItemFn: function () {return settings;}
-    });
-
-    // record history
-    settings.history.on('record', function(action, data) {
-        editor.call('history:' + action, data);
+        history: editor.call('editor:history')
     });
 
     // migrations

@@ -172,7 +172,6 @@ editor.once('load', function () {
                         continue;
 
                     records.push({
-                        get: link[i].history !== undefined ? link[i].history._getItemFn : null,
                         item: link[i],
                         path: path,
                         value: assetId
@@ -188,13 +187,8 @@ editor.once('load', function () {
                 name: pathAt(args, 0),
                 undo: function () {
                     for (var i = 0; i < records.length; i++) {
-                        var item;
-                        if (records[i].get) {
-                            item = records[i].get();
-                            if (!item) continue;
-                        } else {
-                            item = records[i].item;
-                        }
+                        var item = records[i].item.latest();
+                        if (!item) continue;
 
                         historyState(item, false);
                         item.removeValue(records[i].path, records[i].value);
@@ -203,13 +197,8 @@ editor.once('load', function () {
                 },
                 redo: function () {
                     for (var i = 0; i < records.length; i++) {
-                        var item;
-                        if (records[i].get) {
-                            item = records[i].get();
-                            if (!item) continue;
-                        } else {
-                            item = records[i].item;
-                        }
+                        var item = records[i].item.latest();
+                        if (!item) continue;
 
                         historyState(item, false);
                         item.insert(records[i].path, records[i].value);
@@ -230,7 +219,6 @@ editor.once('load', function () {
                     continue;
 
                 records.push({
-                    get: link[i].history !== undefined ? link[i].history._getItemFn : null,
                     item: link[i],
                     path: path,
                     value: assetId,
@@ -246,13 +234,8 @@ editor.once('load', function () {
                 name: pathAt(args, 0),
                 undo: function () {
                     for (var i = 0; i < records.length; i++) {
-                        var item;
-                        if (records[i].get) {
-                            item = records[i].get();
-                            if (!item) continue;
-                        } else {
-                            item = records[i].item;
-                        }
+                        var item = records[i].item.latest();
+                        if (!item) continue;
 
                         historyState(item, false);
                         item.insert(records[i].path, records[i].value, records[i].ind);
@@ -261,13 +244,8 @@ editor.once('load', function () {
                 },
                 redo: function () {
                     for (var i = 0; i < records.length; i++) {
-                        var item;
-                        if (records[i].get) {
-                            item = records[i].get();
-                            if (!item) continue;
-                        } else {
-                            item = records[i].item;
-                        }
+                        var item = records[i].item.latest();
+                        if (!item) continue;
 
                         historyState(item, false);
                         item.removeValue(records[i].path, records[i].value);
@@ -357,7 +335,7 @@ editor.once('load', function () {
 
         // drop
         var dropRef = editor.call('drop:target', {
-            ref: panelWidget.element,
+            ref: panelWidget,
             type: 'asset.' + assetType,
             filter: function (type, data) {
                 // type
@@ -419,7 +397,7 @@ editor.once('load', function () {
             assetIndex = {};
         });
         fieldAssetsList.on('destroy', function () {
-            dropRef.unregister();
+            dropRef.destroy();
         });
 
         panelWidget.append(fieldAssetsList);

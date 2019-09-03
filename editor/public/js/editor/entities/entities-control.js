@@ -6,12 +6,12 @@ editor.once('load', function() {
 
     // controls
     var controls = new pcui.Container({
+        class: 'hierarchy-controls',
         flex: true,
         flexDirection: 'row',
         alignItems: 'center',
         hidden: !editor.call('permissions:write')
     });
-    controls.class.add('hierarchy-controls');
 
     editor.on('permissions:writeState', function(state) {
         controls.hidden = ! state;

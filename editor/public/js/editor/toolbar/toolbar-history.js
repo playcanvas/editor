@@ -3,7 +3,7 @@ editor.once('load', function() {
 
     var root = editor.call('layout.root');
     var toolbar = editor.call('layout.toolbar');
-
+    var history = editor.call('editor:history');
 
     // undo
     var buttonUndo = new ui.Button({
@@ -11,10 +11,10 @@ editor.once('load', function() {
     });
     buttonUndo.hidden = ! editor.call('permissions:write');
     buttonUndo.class.add('pc-icon');
-    buttonUndo.enabled = editor.call('history:canUndo');
+    buttonUndo.enabled = history.canUndo;
     toolbar.append(buttonUndo);
 
-    editor.on('history:canUndo', function(state) {
+    history.on('canUndo', function (state) {
         buttonUndo.enabled = state;
         if (state) {
             tooltipUndo.class.remove('innactive');
@@ -23,7 +23,7 @@ editor.once('load', function() {
         }
     });
     buttonUndo.on('click', function() {
-        editor.call('history:undo');
+        history.undo();
     });
 
     var tooltipUndo = Tooltip.attach({
@@ -32,7 +32,7 @@ editor.once('load', function() {
         align: 'left',
         root: root
     });
-    if (! editor.call('history:canUndo'))
+    if (! history.canUndo)
         tooltipUndo.class.add('innactive');
 
 
@@ -42,10 +42,10 @@ editor.once('load', function() {
     });
     buttonRedo.hidden = ! editor.call('permissions:write');
     buttonRedo.class.add('pc-icon');
-    buttonRedo.enabled = editor.call('history:canRedo');
+    buttonRedo.enabled = history.canRedo;
     toolbar.append(buttonRedo);
 
-    editor.on('history:canRedo', function(state) {
+    history.on('canRedo', function(state) {
         buttonRedo.enabled = state;
         if (state) {
             tooltipRedo.class.remove('innactive');
@@ -54,7 +54,7 @@ editor.once('load', function() {
         }
     });
     buttonRedo.on('click', function() {
-        editor.call('history:redo');
+        history.redo();
     });
 
     var tooltipRedo = Tooltip.attach({
@@ -63,13 +63,10 @@ editor.once('load', function() {
         align: 'left',
         root: root
     });
-    if (! editor.call('history:canUndo'))
+    if (! history.canRedo)
         tooltipRedo.class.add('innactive');
 
     editor.on('permissions:writeState', function(state) {
         buttonUndo.hidden = buttonRedo.hidden = ! state;
     });
 });
-
-
-

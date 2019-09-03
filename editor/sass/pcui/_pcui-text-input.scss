@@ -1,0 +1,95 @@
+.pcui-text-input {
+    display: inline-block;
+    border: 1px solid $bcg-darker;
+    border-radius: 2px;
+    box-sizing: border-box;
+    margin: $element-margin;
+    height: 24px;
+    background-color: $bcg-dark;
+    vertical-align: top;
+    transition: color 100ms, background-color 100ms, box-shadow 100ms;
+
+    color: $text-primary;
+
+    > input {
+        height: 100%;
+        width: calc(100% - 16px);
+        padding: 0 8px;
+        line-height: 1;
+        color: inherit;
+        background: transparent;
+        border: none;
+        outline: none;
+        box-shadow: none;
+        @extend .fixedFont;
+    }
+
+    &:before {
+        color: inherit;
+    }
+}
+
+.pcui-text-input.pcui-multiple-values {
+    position: relative;
+
+    &:before {
+        position: absolute;
+        padding: 0 8px;
+        content: '...';
+        white-space: nowrap;
+    }
+}
+
+// focus / hover states
+.pcui-text-input:not(.pcui-disabled):not(.pcui-readonly) {
+    &.pcui-focus, &:hover {
+        &:after, &:before {
+            display: none;
+        }
+    }
+
+    &:hover {
+        background-color: $bcg-darker;
+        box-shadow: $element-shadow-hover;
+    }
+
+    &.pcui-focus {
+        background-color: $bcg-darkest;
+        box-shadow: $element-shadow-active;
+    }
+}
+// readonly state
+.pcui-text-input.pcui-readonly {
+    color: $text-secondary;
+}
+
+// disabled state
+.pcui-text-input.pcui-disabled {
+    color: $text-darkest;
+}
+
+// error state
+.pcui-text-input.pcui-error {
+    color: $text-secondary;
+    box-shadow: $element-shadow-error;
+}
+
+// placeholder
+.pcui-text-input[placeholder] {
+    position: relative;
+
+    &:after {
+        content: attr(placeholder);
+        background-color: inherit;
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 0 8px;
+        line-height: 22px;
+        font-size: 10px;
+        font-weight: 600;
+        white-space: nowrap;
+        color: $element-color-placeholder;
+        pointer-events: none;
+    }
+}

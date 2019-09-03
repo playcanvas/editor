@@ -114,8 +114,8 @@ editor.once('load', function() {
         }
     };
 
-    var dropRef = editor.call('drop:target', {
-        ref: canvas.element,
+    editor.call('drop:target', {
+        ref: canvas,
         type: 'asset.material',
         hole: true,
         drop: function(type, data) {

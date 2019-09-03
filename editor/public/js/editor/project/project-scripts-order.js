@@ -45,9 +45,9 @@ editor.once('load', function() {
             hole: true,
             passThrough: true
         });
-        target.element.style.outline = '1px dotted #f60';
-        panelItems.once('drestroy', function() {
-            target.unregister();
+        target.style.outline = '1px dotted #f60';
+        panelItems.once('destroy', function() {
+            target.destroy();
         });
 
         var dragCalculateSizes = function() {

@@ -17,7 +17,7 @@ editor.once('load', function () {
                 continue;
 
             records.push({
-                get: entities[i].history._getItemFn,
+                item: entities[i],
                 value: componentData
             });
 
@@ -38,7 +38,7 @@ editor.once('load', function () {
             name: 'entities.' + component,
             undo: function () {
                 for (var i = 0; i < records.length; i++) {
-                    var item = records[i].get();
+                    var item = records[i].item.latest();
                     if (!item)
                         continue;
                     item.history.enabled = false;
@@ -48,7 +48,7 @@ editor.once('load', function () {
             },
             redo: function () {
                 for (var i = 0; i < records.length; i++) {
-                    var item = records[i].get();
+                    var item = records[i].item.latest();
                     if (!item)
                         continue;
                     item.history.enabled = false;

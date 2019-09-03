@@ -5,7 +5,15 @@ Object.assign(pcui, (function () {
      * @name pcui.IScrollable
      * @classdesc Provides an interface for allowing scrolling on an Element.
      */
-    function IScrollable() {}
+    class IScrollable {
+        get scrollable() {
+            throw new Error('Not implemented');
+        }
+
+        set scrollable(value) {
+            throw new Error('Not implemented');
+        }
+    }
 
     /**
      * @event
@@ -14,16 +22,6 @@ Object.assign(pcui, (function () {
      * @param {Event} The native scroll event.
      */
 
-
-    Object.defineProperty(IScrollable.prototype, 'scrollable', {
-        get: function () {
-            throw new Error('Not implemented');
-        },
-        set: function (value) {
-            throw new Error('Not implemented');
-        },
-        configurable: true
-    });
 
     return {
         IScrollable: IScrollable

@@ -106,7 +106,7 @@ editor.once('load', function() {
             items[i].obj.history.enabled = true;
 
             records.push({
-                get: items[i].obj.history._getItemFn,
+                item: items[i].obj,
                 valueOld: items[i].start.slice(0),
                 value: items[i].obj.get('scale')
             });
@@ -116,7 +116,7 @@ editor.once('load', function() {
             name: 'entities.scale',
             undo: function() {
                 for(var i = 0; i < records.length; i++) {
-                    var item = records[i].get();
+                    var item = records[i].item.latest();
                     if (! item)
                         continue;
 
@@ -127,7 +127,7 @@ editor.once('load', function() {
             },
             redo: function() {
                 for(var i = 0; i < records.length; i++) {
-                    var item = records[i].get();
+                    var item = records[i].item.latest();
                     if (! item)
                         continue;
 

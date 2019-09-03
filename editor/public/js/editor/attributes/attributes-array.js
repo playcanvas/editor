@@ -153,9 +153,7 @@ editor.once('load', function () {
                         // store previous array
                         args.link.forEach(function (link, i) {
                             // get link again in case it changed
-                            if (link.history.getItemFn) {
-                                link = link.history.getItemFn();
-                            }
+                            link = link.latest();
 
                             if (! link) return;
 
@@ -169,9 +167,7 @@ editor.once('load', function () {
                             if (! prev[i]) return;
 
                             // get link again in case it changed
-                            if (link.history.getItemFn) {
-                                link = link.history.getItemFn();
-                            }
+                            link = link.latest();
 
                             if (! link) return;
 
@@ -202,9 +198,7 @@ editor.once('load', function () {
                             if (! prev[i]) return;
 
                             // get link again in case it changed
-                            if (link.history.getItemFn) {
-                                link = link.history.getItemFn();
-                            }
+                            link = link.latest();
 
                             if (! link) return;
 
@@ -311,9 +305,7 @@ editor.once('load', function () {
                 // undo a half-completed redo
                 args.link.forEach(function (link, i) {
                     // get link again in case it changed
-                    if (link.history.getItemFn) {
-                        link = link.history.getItemFn();
-                    }
+                    link = link.latest();
 
                     if (! link) return;
 
@@ -327,9 +319,7 @@ editor.once('load', function () {
                     if (! prev[i]) return;
 
                     // get link again in case it changed
-                    if (link.history.getItemFn) {
-                        link = link.history.getItemFn();
-                    }
+                    link = link.latest();
 
                     if (! link) return;
 
@@ -367,9 +357,7 @@ editor.once('load', function () {
                     if (! prev[i]) return;
 
                     // get link again in case it changed
-                    if (link.history.getItemFn) {
-                        link = link.history.getItemFn();
-                    }
+                    link = link.latest();
 
                     if (! link) return;
 

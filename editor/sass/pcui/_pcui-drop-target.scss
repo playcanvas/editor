@@ -1,0 +1,28 @@
+.pcui-droptarget {
+    position: absolute;
+    margin: -2px 0 0 -2px;
+    padding: 2px;
+    background-color: rgba($text-active, 0.4);
+    transition: background-color 100ms;
+    z-index: 220;
+    pointer-events: auto; // this is needed because a parent can have pointer-events none
+}
+
+.pcui-droptarget-hole {
+    outline: 2px solid $text-active;
+    background-color: transparent;
+}
+
+.pcui-droptarget-passthrough {
+    pointer-events: none;
+}
+
+.pcui-droptarget-dragover {
+    &:not(.pcui-droptarget-hole) {
+        background-color: rgba($text-active, 0.7);
+    }
+}
+
+.pcui-droptarget-front {
+    z-index: 210;
+}

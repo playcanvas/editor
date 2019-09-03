@@ -18,13 +18,13 @@ editor.once('load', function() {
     var searching = false;
 
     var overlay = new pcui.Container({
-        flex: true
+        flex: true,
+        class: 'progress-overlay'
     });
-    overlay.class.add('progress-overlay');
     assetsPanel.append(overlay);
 
     var loading = new ui.Progress();
-    loading.on('progress:100', function() {
+    loading.on('progress:100', function () {
         overlay.hidden = true;
     });
     overlay.append(loading);
@@ -134,7 +134,7 @@ editor.once('load', function() {
     folders.append(tree);
 
     var dropRef = editor.call('drop:target', {
-        ref: folders.element,
+        ref: folders,
         hole: true,
         passThrough: true,
         filter: function(type, data) {
@@ -166,7 +166,7 @@ editor.once('load', function() {
             editor.call('assets:fs:move', assets, grid.dragOver);
         }
     });
-    dropRef.element.classList.add('assets-drop-area');
+    dropRef.class.add('assets-drop-area');
 
     var treeAppendQueue = { };
 
@@ -253,7 +253,7 @@ editor.once('load', function() {
 
 
     var dropRef = editor.call('drop:target', {
-        ref: files.element,
+        ref: files,
         hole: true,
         passThrough: true,
         filter: function(type, data) {
@@ -298,7 +298,7 @@ editor.once('load', function() {
             }
         }
     });
-    dropRef.element.classList.add('assets-drop-area');
+    dropRef.class.add('assets-drop-area');
 
     editor.on('permissions:writeState', function(state) {
         tree.enabled = state;
@@ -1152,143 +1152,47 @@ editor.once('load', function() {
         }
 
         var thumbnail;
-        var evtSceneSettings, evtAssetChanged;
+        var previewRenderer, evtAssetChanged;
 
-        if (asset.get('type') === 'material' || asset.get('type') === 'model' || asset.get('type') === 'sprite' || (asset.get('type') === 'font') && !asset.get('source')) {
-            var queuedRender = false;
+        function createPreviewRenderer() {
+            if (previewRenderer) return;
 
+            switch (asset.get('type')) {
+                case 'material':
+                    previewRenderer = new pcui.MaterialThumbnailRenderer(asset, thumbnail);
+                    break;
+                case 'model':
+                    previewRenderer = new pcui.ModelThumbnailRenderer(asset, thumbnail);
+                    break;
+                case 'cubemap':
+                    previewRenderer = new pcui.CubemapThumbnailRenderer(asset, thumbnail, editor.call('assets:raw'));
+                    break;
+                case 'font':
+                    previewRenderer = new pcui.FontThumbnailRenderer(asset, thumbnail);
+                    break;
+                case 'sprite':
+                    previewRenderer = new pcui.SpriteThumbnailRenderer(asset, thumbnail, editor.call('assets:raw'));
+                    break;
+            }
+        }
+
+        if (asset.get('type') === 'material' || asset.get('type') === 'model' || asset.get('type') === 'sprite' || (asset.get('type') === 'font') || (asset.get('type') === 'cubemap') && !asset.get('source')) {
             thumbnail = document.createElement('canvas');
             thumbnail.changed = true;
             thumbnail.width = 64;
             thumbnail.height = 64;
 
-            if (asset.get('type') !== 'sprite') {
+            if (asset.get('type') !== 'sprite' && asset.get('type') !== 'cubemap') {
                 thumbnail.classList.add('flipY');
             }
 
-            var watching = null;
-
-            var onRender = thumbnail.render = function() {
-                queuedRender = false;
-
+            thumbnail.render = function () {
                 if (item.hidden)
                     return;
 
                 thumbnail.changed = false;
 
-                editor.call('preview:render', asset, 64, 64, thumbnail);
-            };
-            var queueRender = function() {
-                if (item.hidden) {
-                    thumbnail.changed = true;
-                    renderQueueRemove(asset);
-                } else {
-                    renderQueueAdd(asset);
-                }
-            };
-            item.on('show', function() {
-                if (thumbnail.changed)
-                    queueRender();
-
-                if (! watching) {
-                    watching = editor.call('assets:' + asset.get('type') + ':watch', {
-                        asset: asset,
-                        autoLoad: true,
-                        callback: queueRender
-                    });
-                }
-            });
-            var onUnwatch = function() {
-                if (! watching)
-                    return;
-
-                editor.call('assets:' + asset.get('type') + ':unwatch', asset, watching);
-                watching = null;
-
-                renderQueueRemove(asset);
-            };
-            item.once('destroy', onUnwatch);
-            if (! item.hidden) {
-                requestAnimationFrame(queueRender);
-
-                if (! watching) {
-                    watching = editor.call('assets:' + asset.get('type') + ':watch', {
-                        asset: asset,
-                        autoLoad: true,
-                        callback: queueRender
-                    });
-                }
-            }
-
-            evtSceneSettings = editor.on('preview:scene:changed', queueRender);
-        } else if (asset.get('type') === 'cubemap') {
-            thumbnail = document.createElement('canvas');
-            thumbnail.changed = true;
-            thumbnail.width = 64;
-            thumbnail.height = 64;
-
-            var watching = null;
-
-            var positions = [ [ 32, 24 ], [ 0, 24 ], [ 16, 8 ], [ 16, 40 ], [ 16, 24 ], [ 48, 24 ] ];
-            var images = [ null, null, null, null, null, null ];
-
-            var onRender = thumbnail.render = function() {
-                queuedRender = false;
-
-                if (item.hidden)
-                    return;
-
-                thumbnail.changed = false;
-
-                var ctx = thumbnail.ctx;
-                if (! ctx) ctx = thumbnail.ctx = thumbnail.getContext('2d');
-
-                ctx.clearRect(0, 0, 64, 64);
-
-                // left
-                for(var i = 0; i < 6; i++) {
-                    var id = asset.get('data.textures.' + i);
-                    var image = null;
-
-                    if (id) {
-                        var texture = editor.call('assets:get', id);
-                        if (texture) {
-                            var hash = texture.get('file.hash');
-                            if (images[i] && images[i].hash === hash) {
-                                image = images[i];
-                            } else {
-                                var url = texture.get('thumbnails.s');
-
-                                if (images[i])
-                                    images[i].onload = null;
-
-                                images[i] = null;
-
-                                if (url) {
-                                    image = images[i] = new Image();
-                                    image.hash = hash;
-                                    image.onload = queueRender;
-                                    image.src = url.appendQuery('t=' + hash);
-                                }
-                            }
-                        } else if (images[i]) {
-                            images[i].onload = null;
-                            images[i] = null;
-                        }
-                    } else if (images[i]) {
-                        images[i].onload = null;
-                        images[i] = null;
-                    }
-
-                    if (image) {
-                        ctx.drawImage(image, positions[i][0], positions[i][1], 16, 16);
-                    } else {
-                        ctx.beginPath();
-                        ctx.rect(positions[i][0], positions[i][1], 16, 16);
-                        ctx.fillStyle = '#000';
-                        ctx.fill();
-                    }
-                }
+                previewRenderer.render();
             };
             var queueRender = function() {
                 if (item.hidden) {
@@ -1303,44 +1207,28 @@ editor.once('load', function() {
                 if (thumbnail.changed)
                     queueRender();
 
-                if (! watching) {
-                    watching = editor.call('assets:cubemap:watch', {
-                        asset: asset,
-                        autoLoad: true,
-                        callback: queueRender
-                    });
+                if (! previewRenderer) {
+                    createPreviewRenderer();
                 }
             });
-
-            var onUnwatch = function() {
-                if (! watching)
+            item.once('destroy', function () {
+                if (! previewRenderer)
                     return;
 
-                editor.call('assets:cubemap:unwatch', asset, watching);
-                watching = null;
+                previewRenderer.destroy();
+                previewRenderer = null;
 
                 renderQueueRemove(asset);
-            };
-            item.once('destroy', onUnwatch);
+            });
 
             if (! item.hidden) {
                 requestAnimationFrame(queueRender);
 
-                if (! watching) {
-                    watching = editor.call('assets:cubemap:watch', {
-                        asset: asset,
-                        autoLoad: true,
-                        callback: queueRender
-                    });
+                if (!previewRenderer) {
+                    createPreviewRenderer();
                 }
             }
 
-            evtAssetChanged = asset.on('*:set', function(path) {
-                if (queuedRender || ! path.startsWith('data.textures'))
-                    return;
-
-                queueRender();
-            });
         } else {
             thumbnail = document.createElement('div');
         }
@@ -1451,8 +1339,10 @@ editor.once('load', function() {
 
             delete assetsIndex[asset.get('id')];
 
-            if (evtSceneSettings)
-                evtSceneSettings.unbind();
+            if (previewRenderer) {
+                previewRenderer.destroy();
+                previewRenderer = null;
+            }
 
             if (evtAssetChanged)
                 evtAssetChanged.unbind();

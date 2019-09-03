@@ -63,8 +63,9 @@ editor.once('load', function() {
 
         // preview
         if (assets.length === 1) {
-            var previewContainer = new pcui.Container();
-            previewContainer.class.add('asset-preview-container');
+            var previewContainer = new pcui.Container({
+                class: 'asset-preview-container'
+            });
 
             var preview = document.createElement('canvas');
             var ctx = preview.getContext('2d');
@@ -72,6 +73,8 @@ editor.once('load', function() {
             preview.height = 256;
             preview.classList.add('asset-preview');
             previewContainer.append(preview);
+
+            var previewRenderer = new pcui.SpriteThumbnailRenderer(assets[0], preview, editor.call('assets:raw'));
 
             preview.addEventListener('click', function() {
                 if (root.class.contains('large')) {
@@ -131,10 +134,9 @@ editor.once('load', function() {
                 }
 
                 // render
-                editor.call('preview:render', assets[0], previewContainer.width, previewContainer.height, preview, {
-                    frame: frame,
-                    animating: true
-                });
+                preview.width = previewContainer.width;
+                preview.height = previewContainer.height;
+                previewRenderer.render(frame, true);
 
                 if (playing) {
                     queueRender();
@@ -152,17 +154,15 @@ editor.once('load', function() {
             // render on resize
             var evtPanelResize = root.on('resize', queueRender);
 
-            var spriteWatch = editor.call('assets:sprite:watch', {
-                asset: assets[0],
-                callback: queueRender
-            });
-
             panelProperties.once('destroy', function() {
                 root.class.remove('asset-preview', 'animate');
 
                 evtPanelResize.unbind();
 
-                editor.call('assets:sprite:unwatch', assets[0], spriteWatch);
+                if (previewRenderer) {
+                    previewRenderer.destroy();
+                    previewRenderer = null;
+                }
 
                 panelProperties = null;
 

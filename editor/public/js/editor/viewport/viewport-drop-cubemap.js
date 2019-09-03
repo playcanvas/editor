@@ -106,8 +106,8 @@ editor.once('load', function() {
         setCubemap();
     };
 
-    var dropRef = editor.call('drop:target', {
-        ref: canvas.element,
+    editor.call('drop:target', {
+        ref: canvas,
         type: 'asset.cubemap',
         hole: true,
         drop: function(type, data) {

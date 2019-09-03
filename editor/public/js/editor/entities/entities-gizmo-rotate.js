@@ -157,7 +157,7 @@ editor.once('load', function() {
             items[i].obj.history.enabled = true;
 
             records.push({
-                get: items[i].obj.history._getItemFn,
+                item: items[i].obj,
                 valueRotOld: items[i].startLocal.slice(0),
                 valueRot: items[i].obj.get('rotation'),
                 valuePosOld: items[i].startPosLocal.slice(0),
@@ -169,7 +169,7 @@ editor.once('load', function() {
             name: 'entities.rotate',
             undo: function() {
                 for(var i = 0; i < records.length; i++) {
-                    var item = records[i].get();
+                    var item = records[i].item.latest();
                     if (! item)
                         continue;
 
@@ -181,7 +181,7 @@ editor.once('load', function() {
             },
             redo: function() {
                 for(var i = 0; i < records.length; i++) {
-                    var item = records[i].get();
+                    var item = records[i].item.latest();
                     if (! item)
                         continue;
 

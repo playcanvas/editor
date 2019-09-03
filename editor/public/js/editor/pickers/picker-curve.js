@@ -120,24 +120,16 @@ editor.once('load', function() {
 
         curveType = value;
 
-        var paths, values;
-
-        if (! suspendEvents) {
-            paths = [];
-            values = [];
-        }
-
         // set type for each curve
         curves.forEach(function (curve, i) {
             curve.type = value;
-            if (! suspendEvents) {
-                paths.push(i.toString() + '.type');
-                values.push(curveType);
-            }
         });
 
-        if (! suspendEvents)
+        if (! suspendEvents) {
+            var paths = betweenCurves ? ['0.type', '1.type'] : ['0.type'];
+            var values = new Array(paths.length).fill(curveType);
             editor.emit('picker:curve:change', paths, values);
+        }
 
         render();
 

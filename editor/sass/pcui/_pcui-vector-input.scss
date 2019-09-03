@@ -1,0 +1,17 @@
+.pcui-vector-input {
+    @extend .pcui-flex;
+    flex-direction: row;
+    align-items: center;
+
+    > .pcui-numeric-input {
+        flex: 1;
+        margin: $element-margin $element-margin / 2;
+
+        &:first-child {
+            margin-left: $element-margin;
+        }
+        &:last-child {
+            margin-right: $element-margin;
+        }
+    }
+}

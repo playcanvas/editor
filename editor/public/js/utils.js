@@ -28,27 +28,45 @@ utils.isMobile = function() {
 };
 
 /**
- * Copies all properties from source into target. Meant to be used
- * with prototypes.
- * @param {Object} target The target object
- * @param {Object} source The source object.
- * @example
- * // mixin interface
- * function superclass () {}
- * function interface () {}
- * function myclass () {
- *   superclass.call(this);
- *   interface.call(this);
- * }
- * myclass.prototype = Object.create(superclass.prototype);
- * utils.mixin(myclass.prototype, interface.prototype);
- * myclass.prototype.constructor = myclass;
+ * @name utils.implements
+ * @description Adds properties and methods from the sourceClass
+ * to the targetClass but only if properties with the same name do not
+ * already exist in the targetClass.
+ * @param {Object} targetClass The target class.
+ * @param {Object} sourceClass The source class.
+ * @example utils.implements(pcui.Container, pcui.IContainer);
  */
-utils.mixin = function (target, source) {
-    // not using Object.assign here because that does not copy
-    // property definitions created with Object.defineProperty
-    var properties = Object.getOwnPropertyDescriptors(source);
-    Object.defineProperties(target, properties);
+utils.implements = function (targetClass, sourceClass) {
+    var properties = Object.getOwnPropertyDescriptors(sourceClass.prototype);
+    for (var key in properties) {
+        if (targetClass.prototype.hasOwnProperty(key)) {
+            delete properties[key];
+        }
+    }
+
+    Object.defineProperties(targetClass.prototype, properties);
+};
+
+/**
+ * @name utils.proxy
+ * @description Creates new properties on the target class that get / set
+ * the properties of the member.
+ * @param {Object} targetClass The target class
+ * @param {String} memberName The name of the member of the target class that properties will be proxied to.
+ * @param {String[]} properties A list of properties to be proxied.
+ * @example utils.proxy(pcui.SliderInput, '_numericInput', ['max', 'min', 'placeholder'])
+ */
+utils.proxy = function (targetClass, memberName, properties) {
+    properties.forEach(property => {
+        Object.defineProperty(targetClass.prototype, property, {
+            get: function () {
+                return this[memberName][property];
+            },
+            set: function (value) {
+                this[memberName][property] = value;
+            }
+        });
+    });
 };
 
 // String.startsWith
@@ -140,4 +158,4 @@ var swapExtension = function (path, oldExtension, newExtension) {
         path = path.replace(oldExtension, newExtension);
     }
     return path;
-}
+};

@@ -466,7 +466,7 @@ editor.once('load', function() {
 
             lastZone._link.history.enabled = true;
 
-            var getItem = lastZone._link.history._getItemFn;
+            var link = lastZone._link;
 
             var newPosition = lastZone._link.get('position');
             var newSize = lastZone._link.get('components.zone.size');
@@ -477,7 +477,7 @@ editor.once('load', function() {
             editor.call('history:add', {
                 name: 'entity.zone',
                 undo: function() {
-                    var item = getItem();
+                    var item = link.latest();
                     if (! item) return;
 
                     item.history.enabled = false;
@@ -486,7 +486,7 @@ editor.once('load', function() {
                     item.history.enabled = true;
                 },
                 redo: function() {
-                    var item = getItem();
+                    var item = link.latest();
                     if (! item) return;
 
                     item.history.enabled = false;

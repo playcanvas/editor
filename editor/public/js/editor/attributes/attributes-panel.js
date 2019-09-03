@@ -212,7 +212,6 @@ editor.once('load', function() {
                 if (! args.link[i].has(path)) continue;
 
                 items.push({
-                    get: args.link[i].history !== undefined ? args.link[i].history._getItemFn : null,
                     item: args.link[i],
                     value: args.link[i].has(path) ? args.link[i].get(path) : undefined
                 });
@@ -231,14 +230,9 @@ editor.once('load', function() {
                         var different = false;
                         for(var i = 0; i < items.length; i++) {
                             var path = pathAt(args, i);
-                            var item;
-                            if (items[i].get) {
-                                item = items[i].get();
-                                if (! item)
-                                    continue;
-                            } else {
-                                item = items[i].item;
-                            }
+                            var item = items[i].item.latest();
+                            if (! item)
+                                continue;
 
                             if (! different && items[0].value !== items[i].value)
                                 different = true;
@@ -260,14 +254,9 @@ editor.once('load', function() {
                     redo: function() {
                         for(var i = 0; i < items.length; i++) {
                             var path = pathAt(args, i);
-                            var item;
-                            if (items[i].get) {
-                                item = items[i].get();
-                                if (! item)
-                                    continue;
-                            } else {
-                                item = items[i].item;
-                            }
+                            var item = items[i].item.latest();
+                            if (! item)
+                                continue;
 
                             historyState(item, false);
                             if (value === undefined)
@@ -307,7 +296,6 @@ editor.once('load', function() {
                         v = v.slice(0);
 
                     items.push({
-                        get: args.link[i].history !== undefined ? args.link[i].history._getItemFn : null,
                         item: args.link[i],
                         value: v
                     });
@@ -322,14 +310,9 @@ editor.once('load', function() {
                     name: pathAt(args, 0),
                     undo: function() {
                         for(var i = 0; i < items.length; i++) {
-                            var item;
-                            if (items[i].get) {
-                                item = items[i].get();
-                                if (! item)
-                                    continue;
-                            } else {
-                                item = items[i].item;
-                            }
+                            var item = items[i].item.latest();
+                            if (! item)
+                                continue;
 
                             historyState(item, false);
                             item.set(pathAt(args, i), items[i].value);
@@ -338,14 +321,9 @@ editor.once('load', function() {
                     },
                     redo: function() {
                         for(var i = 0; i < items.length; i++) {
-                            var item;
-                            if (items[i].get) {
-                                item = items[i].get();
-                                if (! item)
-                                    continue;
-                            } else {
-                                item = items[i].item;
-                            }
+                            var item = items[i].item.latest();
+                            if (! item)
+                                continue;
 
                             historyState(item, false);
                             item.set(pathAt(args, i), value);
@@ -658,7 +636,6 @@ editor.once('load', function() {
                             continue;
 
                         records.push({
-                            get: args.link[i].history !== undefined ? args.link[i].history._getItemFn : null,
                             item: args.link[i],
                             path: path,
                             value: tag
@@ -674,14 +651,9 @@ editor.once('load', function() {
                             name: pathAt(args, 0),
                             undo: function() {
                                 for(var i = 0; i < records.length; i++) {
-                                    var item;
-                                    if (records[i].get) {
-                                        item = records[i].get();
-                                        if (! item)
-                                            continue;
-                                    } else {
-                                        item = records[i].item;
-                                    }
+                                    var item = records[i].item.latest();
+                                    if (! item)
+                                        continue;
 
                                     historyState(item, false);
                                     item.insert(records[i].path, records[i].value);
@@ -690,14 +662,9 @@ editor.once('load', function() {
                             },
                             redo: function() {
                                 for(var i = 0; i < records.length; i++) {
-                                    var item;
-                                    if (records[i].get) {
-                                        item = records[i].get();
-                                        if (! item)
-                                            continue;
-                                    } else {
-                                        item = records[i].item;
-                                    }
+                                    var item = records[i].item.latest();
+                                    if (! item)
+                                        continue;
 
                                     historyState(item, false);
                                     item.removeValue(records[i].path, records[i].value);
@@ -724,7 +691,6 @@ editor.once('load', function() {
                             continue;
 
                         records.push({
-                            get: args.link[i].history !== undefined ? args.link[i].history._getItemFn : null,
                             item: args.link[i],
                             path: path,
                             value: tag
@@ -740,14 +706,9 @@ editor.once('load', function() {
                             name: pathAt(args, 0),
                             undo: function() {
                                 for(var i = 0; i < records.length; i++) {
-                                    var item;
-                                    if (records[i].get) {
-                                        item = records[i].get();
-                                        if (! item)
-                                            continue;
-                                    } else {
-                                        item = records[i].item;
-                                    }
+                                    var item = records[i].item.latest();
+                                    if (! item)
+                                        continue;
 
                                     historyState(item, false);
                                     item.removeValue(records[i].path, records[i].value);
@@ -756,14 +717,9 @@ editor.once('load', function() {
                             },
                             redo: function() {
                                 for(var i = 0; i < records.length; i++) {
-                                    var item;
-                                    if (records[i].get) {
-                                        item = records[i].get();
-                                        if (! item)
-                                            continue;
-                                    } else {
-                                        item = records[i].item;
-                                    }
+                                    var item = records[i].item.latest();
+                                    if (! item)
+                                        continue;
 
                                     historyState(item, false);
                                     item.insert(records[i].path, records[i].value);
@@ -1212,8 +1168,7 @@ editor.once('load', function() {
                     field.value = null;
                 });
 
-                var watch = null;
-                var watchAsset = null;
+                var previewRenderer;
                 var renderQueued;
                 var queueRender;
 
@@ -1221,9 +1176,9 @@ editor.once('load', function() {
                 var updateThumbnail = function(empty) {
                     var asset = editor.call('assets:get', field.value);
 
-                    if (watch) {
-                        editor.call('assets:' + watchAsset.get('type') + ':unwatch', watchAsset, watch);
-                        watchAsset = watch = null;
+                    if (previewRenderer) {
+                        previewRenderer.destroy();
+                        previewRenderer = null;
                     }
 
                     if (empty) {
@@ -1242,13 +1197,16 @@ editor.once('load', function() {
                             field.image = '/editor/scene/img/asset-placeholder-' + asset.get('type') + '.png';
                         }
 
-                        if (args.kind === 'material' || args.kind === 'model' || args.kind === 'cubemap' || args.kind == 'font' || args.kind === 'sprite') {
-                            watchAsset = asset;
-                            watch = editor.call('assets:' + args.kind + ':watch', {
-                                asset: watchAsset,
-                                autoLoad: true,
-                                callback: queueRender
-                            });
+                        if (args.kind === 'material') {
+                            previewRenderer = new pcui.MaterialThumbnailRenderer(asset, field.elementImage);
+                        } else if (args.kind === 'model') {
+                            previewRenderer = new pcui.ModelThumbnailRenderer(asset, field.elementImage);
+                        } else if (args.kind === 'cubemap') {
+                            previewRenderer = new pcui.CubemapThumbnailRenderer(asset, field.elementImage, editor.call('assets:raw'));
+                        } else if (args.kind === 'font') {
+                            previewRenderer = new pcui.FontThumbnailRenderer(asset, field.elementImage);
+                        } else if (args.kind === 'sprite') {
+                            previewRenderer = new pcui.SpriteThumbnailRenderer(asset, field.elementImage, editor.call('assets:raw'));
                         }
                     }
 
@@ -1256,17 +1214,17 @@ editor.once('load', function() {
                         queueRender();
                 };
 
-                if (args.kind === 'material' || args.kind === 'model' || args.kind === 'font' || args.kind === 'sprite') {
-                    if (args.kind !== 'sprite') {
+                if (args.kind === 'material' || args.kind === 'model' || args.kind === 'font' || args.kind === 'sprite' || args.kind === 'cubemap') {
+                    if (args.kind !== 'sprite' && args.kind !== 'cubemap') {
                         field.elementImage.classList.add('flipY');
                     }
 
                     var renderPreview = function() {
                         renderQueued = false;
 
-                        if (watchAsset) {
+                        if (previewRenderer) {
                             // render
-                            editor.call('preview:render', watchAsset, 128, 128, field.elementImage);
+                            previewRenderer.render();
                         } else {
                             var ctx = field.elementImage.ctx;
                             if (! ctx)
@@ -1284,92 +1242,10 @@ editor.once('load', function() {
                         requestAnimationFrame(renderPreview);
                     };
 
-                    var evtSceneSettings = editor.on('preview:scene:changed', queueRender);
-
                     field.once('destroy', function() {
-                        evtSceneSettings.unbind();
-                        evtSceneSettings = null;
-
-                        if (watch) {
-                            editor.call('assets:' + watchAsset.get('type') + ':unwatch', watchAsset, watch);
-                            watchAsset = watch = null;
-                        }
-                    });
-                } else if (args.kind === 'cubemap') {
-                    field.elementImage.width = 60;
-                    field.elementImage.height = 60;
-
-                    var positions = [ [ 30, 22 ], [ 0, 22 ], [ 15, 7 ], [ 15, 37 ], [ 15, 22 ], [ 45, 22 ] ];
-                    var images = [ null, null, null, null, null, null ];
-
-                    var renderPreview = function() {
-                        renderQueued = false;
-
-                        var ctx = field.elementImage.ctx;
-                        if (! ctx)
-                            ctx = field.elementImage.ctx = field.elementImage.getContext('2d');
-
-                        ctx.clearRect(0, 0, field.elementImage.width, field.elementImage.height);
-
-                        if (watchAsset) {
-                            for(var i = 0; i < 6; i++) {
-                                var id = watchAsset.get('data.textures.' + i);
-                                var image = null;
-
-                                if (id) {
-                                    var texture = editor.call('assets:get', id);
-                                    if (texture) {
-                                        var hash = texture.get('file.hash');
-                                        if (images[i] && images[i].hash === hash) {
-                                            image = images[i];
-                                        } else {
-                                            var url = texture.get('thumbnails.s');
-
-                                            if (images[i])
-                                                images[i].onload = null;
-
-                                            images[i] = null;
-
-                                            if (url) {
-                                                image = images[i] = new Image();
-                                                image.hash = hash;
-                                                image.onload = queueRender;
-                                                image.src = url.appendQuery('t=' + hash);
-                                            }
-                                        }
-                                    } else if (images[i]) {
-                                        images[i].onload = null;
-                                        images[i] = null;
-                                    }
-                                } else if (images[i]) {
-                                    images[i].onload = null;
-                                    images[i] = null;
-                                }
-
-                                if (image) {
-                                    ctx.drawImage(image, positions[i][0], positions[i][1], 15, 15);
-                                } else {
-                                    ctx.beginPath();
-                                    ctx.rect(positions[i][0], positions[i][1], 15, 15);
-                                    ctx.fillStyle = '#000';
-                                    ctx.fill();
-                                }
-                            }
-                        }
-                    };
-
-                    renderPreview();
-
-                    queueRender = function() {
-                        if (renderQueued) return;
-                        renderQueued = true;
-                        requestAnimationFrame(renderPreview);
-                    };
-
-                    field.once('destroy', function() {
-                        if (watch) {
-                            editor.call('assets:cubemap:unwatch', watchAsset, watch);
-                            watchAsset = watch = null;
+                        if (previewRenderer) {
+                            previewRenderer.destroy();
+                            previewRenderer = null;
                         }
                     });
                 }
@@ -1422,7 +1298,7 @@ editor.once('load', function() {
                 updateField();
 
                 var dropRef = editor.call('drop:target', {
-                    ref: panel.element,
+                    ref: panel,
                     filter: function(type, data) {
                         var rectA = root.innerElement.getBoundingClientRect();
                         var rectB = panel.element.getBoundingClientRect();
@@ -1466,7 +1342,7 @@ editor.once('load', function() {
                     }
                 });
                 field.on('destroy', function() {
-                    dropRef.unregister();
+                    dropRef.destroy();
                     if (evtThumbnailChange) {
                         evtThumbnailChange.unbind();
                         evtThumbnailChange = null;
@@ -1599,7 +1475,7 @@ editor.once('load', function() {
                 });
 
                 var dropRef = editor.call('drop:target', {
-                    ref: field.element,
+                    ref: field,
                     filter: function(type, data) {
                         var rectA = root.innerElement.getBoundingClientRect();
                         var rectB = field.element.getBoundingClientRect();
@@ -1620,9 +1496,7 @@ editor.once('load', function() {
                             args.leave();
                     }
                 });
-                field.on('destroy', function() {
-                    dropRef.unregister();
-                });
+
 
                 break;
             case 'image':
@@ -1732,10 +1606,7 @@ editor.once('load', function() {
 
 
                             var undo = function () {
-                                var item = link;
-                                if (link.history && link.history._getItemFn) {
-                                    item = link.history._getItemFn();
-                                }
+                                var item = link.latest();
 
                                 if (! item) return;
 
@@ -1758,10 +1629,7 @@ editor.once('load', function() {
                             };
 
                             var redo = function () {
-                                var item = link;
-                                if (link.history && link.history._getItemFn) {
-                                    item = link.history._getItemFn();
-                                }
+                                var item = link.latest();
 
                                 if (! item) return;
 
@@ -1794,8 +1662,9 @@ editor.once('load', function() {
                             redo();
 
                             // add custom history event
-                            editor.call('history:' + (combine ? 'update' : 'add'), {
+                            editor.call('history:add', {
                                 name: path + '.curves',
+                                combine: combine,
                                 undo: undo,
                                 redo: redo
                             });
@@ -1874,10 +1743,7 @@ editor.once('load', function() {
                             }
 
                             var undo = function() {
-                                var item = link;
-                                if (link.history && link.history._getItemFn) {
-                                    item = link.history._getItemFn();
-                                }
+                                var item = link.latest();
 
                                 if (!item) return;
 
@@ -1896,10 +1762,7 @@ editor.once('load', function() {
                             };
 
                             var redo = function() {
-                                var item = link;
-                                if (link.history && link.history._getItemFn) {
-                                    item = link.history._getItemFn();
-                                }
+                                var item = link.latest();
 
                                 if (!item) return;
 
@@ -1921,8 +1784,8 @@ editor.once('load', function() {
 
                             redo();
 
-                            editor.call('history:' + 'add', {
-                                name : path + '.curves',
+                            editor.call('history:add', {
+                                name: path + '.curves',
                                 undo: undo,
                                 redo: redo
                             });

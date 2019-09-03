@@ -218,9 +218,6 @@ strong {
             &.over {
                 background-color: transparent;
             }
-            &.assets-drop-area {
-                outline: none;
-            }
         }
         &.no-pointer {
             pointer-events: none;
@@ -228,10 +225,15 @@ strong {
         &.over {
             background-color: rgba($text-active, .7);
         }
-        &.drop-area-project-img {
-            z-index: 301; // larger than picker-project
-        }
     }
+}
+
+.assets-drop-area {
+    outline: none;
+}
+
+.drop-area-project-img {
+    z-index: 301; // larger than picker-project
 }
 
 .ui-tooltip {

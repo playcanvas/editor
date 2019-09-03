@@ -105,12 +105,12 @@ editor.once('load', function() {
 
 
     var target = editor.call('drop:target', {
-        ref: panel.content.dom,
+        ref: panel.content,
         type: 'entity',
         hole: true,
         passThrough: true
     });
-    target.element.style.outline = 'none';
+    target.style.outline = 'none';
 
 
     // reparenting

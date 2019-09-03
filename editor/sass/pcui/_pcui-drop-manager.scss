@@ -1,0 +1,61 @@
+.pcui-dropmanager {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 100ms, visibility 100ms;
+    pointer-events: none;
+}
+
+.pcui-dropmanager-wall {
+    position: absolute;
+    background-color: rgba($bcg-darkest, 0.3);
+    z-index: 201;
+    pointer-events: auto;
+}
+
+.pcui-dropmanager-wall-full {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.pcui-dropmanager-wall-top {
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+.pcui-dropmanager-wall-right {
+    right: 0;
+}
+
+.pcui-dropmanager-wall-bottom {
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+}
+
+.pcui-dropmanager-wall-left {
+    left: 0;
+}
+
+.pcui-dropmanager-targets {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    pointer-events: auto;
+}
+
+// active drop manager
+.pcui-dropmanager-active {
+    visibility: visible;
+    opacity: 1;
+}

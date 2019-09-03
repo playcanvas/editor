@@ -78,7 +78,7 @@ editor.once('load', function () {
         }
     });
 
-    dropRef.element.classList.add('drop-area-project-img');
+    dropRef.class.add('drop-area-project-img');
 
     // hidden file input to upload project image
     var fileInput = document.createElement('input');

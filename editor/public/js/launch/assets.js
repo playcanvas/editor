@@ -7,6 +7,13 @@ editor.once('load', function () {
         index: 'id'
     });
 
+    function createLatestFn(id) {
+        // function to get latest version of asset observer
+        return function () {
+            return assets.get(id);
+        };
+    }
+
     // list assets
     editor.method('assets:list', function () {
         return assets.array();
@@ -15,6 +22,10 @@ editor.once('load', function () {
     // allow adding assets
     editor.method('assets:add', function (asset) {
         uniqueIdToItemId[asset.get('uniqueId')] = asset.get('id');
+
+        // function to get latest version of asset observer
+        asset.latestFn = createLatestFn(asset.get('id'));
+
         assets.add(asset);
     });
 

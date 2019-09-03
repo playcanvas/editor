@@ -1,0 +1,23 @@
+.pcui-label {
+    display: inline-block;
+    line-height: 1;
+    box-sizing: border-box;
+    margin: $element-margin;
+    vertical-align: bottom;
+    transition: opacity 100ms;
+    color: $text-secondary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pcui-label.pcui-multiple-values {
+    position: relative;
+    color: transparent;
+
+    &:before {
+        content: '...';
+        color: $text-secondary;
+        white-space: nowrap;
+    }
+}

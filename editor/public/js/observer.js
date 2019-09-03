@@ -27,6 +27,8 @@ function Observer(data, options) {
     this._parentField = options.parentField || null;
     this._parentKey = options.parentKey || null;
 
+    this._latestFn = options.latestFn || null;
+
     this._silent = false;
 
     var propagate = function(evt) {
@@ -853,6 +855,15 @@ Observer.prototype.forEach = function(fn, target, path) {
     }
 };
 
+/**
+ * Returns the latest observer instance. This is important when
+ * dealing with undo / redo where the observer might have been deleted
+ * and/or possibly re-created.
+ * @returns {Observer} The latest instance of the observer.
+ */
+Observer.prototype.latest = function () {
+    return this._latestFn ? this._latestFn() : this;
+};
 
 Observer.prototype.destroy = function() {
     if (this._destroyed) return;
@@ -860,3 +871,12 @@ Observer.prototype.destroy = function() {
     this.emit('destroy');
     this.unbind();
 };
+
+Object.defineProperty(Observer.prototype, 'latestFn', {
+    get: function () {
+        return this._latestFn;
+    },
+    set: function (value) {
+        this._latestFn = value;
+    }
+});

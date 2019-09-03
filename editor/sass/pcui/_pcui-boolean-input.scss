@@ -1,0 +1,96 @@
+// boolean input
+.pcui-boolean-input {
+    display: inline-block;
+    position: relative;
+
+    border: 1px solid $bcg-darker;
+    box-sizing: border-box;
+
+    background-color: $bcg-dark;
+    color: #fff;
+
+    width: 14px;
+    height: 14px;
+    line-height: 1;
+
+    overflow: hidden;
+
+    margin: $element-margin;
+    transition: opacity 100ms, background-color 100ms, box-shadow 100ms;
+
+    &:focus {
+        outline: none;
+    }
+}
+
+// ticked
+.pcui-boolean-input-ticked:not(.pcui-readonly) {
+    border-color: $text-secondary;
+    background-color: $bcg-darkest;
+    &:after {
+        @extend .font-icon;
+        position: absolute;
+        content: '\E383';
+        color: $text-secondary;
+        background-color: inherit;
+        font-size: 21px;
+        top: -4px;
+        left: -4px;
+    }
+}
+
+// hover / focus
+.pcui-boolean-input:not(.pcui-disabled):not(.pcui-readonly) {
+    &:hover, &:focus {
+        cursor: pointer;
+        border-color: $bcg-darkest;
+        background-color: $bcg-darker;
+        box-shadow: $element-shadow-hover;
+    }
+
+    &.pcui-boolean-input-ticked {
+        &:hover, &:focus {
+            background-color: $bcg-darkest;
+            border-color: $text-secondary;
+        }
+    }
+}
+
+// readonly state
+.pcui-boolean-input.pcui-readonly {
+    overflow: visible;
+    width: auto;
+    height: auto;
+    background-color: transparent;
+    border: 0;
+
+    &:after {
+        @extend .font-regular;
+        font-size: 13px;
+        color: $text-secondary;
+        content: 'False';
+        position: static;
+    }
+    &.pcui-boolean-input-ticked:after {
+        content: 'True';
+    }
+}
+
+// disabled state
+.pcui-boolean-input.pcui-disabled {
+    opacity: $element-opacity-disabled;
+}
+
+// showing multiple values
+.pcui-boolean-input.pcui-multiple-values {
+    &:after {
+        position: absolute;
+        @extend .font-regular;
+        font-size: 17px;
+        font-weight: bold;
+        color: $text-secondary;
+        left: 4px;
+        top: -3px;
+        content: '-';
+    }
+}

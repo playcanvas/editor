@@ -148,7 +148,7 @@ editor.once('load', function() {
             items[i].obj.history.enabled = true;
 
             var data = {
-                get: items[i].obj.history._getItemFn,
+                item: items[i].obj,
                 valueOld: items[i].startLocal.slice(0),
                 value: items[i].obj.get('position')
             };
@@ -160,9 +160,8 @@ editor.once('load', function() {
             name: 'entities.translate',
             undo: function() {
                 for(var i = 0; i < records.length; i++) {
-                    var item = records[i].get();
-                    if (! item)
-                        continue;
+                    var item = records[i].item.latest();
+                    if (! item) continue;
 
                     item.history.enabled = false;
                     item.set('position', records[i].valueOld);
@@ -171,9 +170,8 @@ editor.once('load', function() {
             },
             redo: function() {
                 for(var i = 0; i < records.length; i++) {
-                    var item = records[i].get();
-                    if (! item)
-                        continue;
+                    var item = records[i].item.latest();
+                    if (! item) continue;
 
                     item.history.enabled = false;
                     item.set('position', records[i].value);

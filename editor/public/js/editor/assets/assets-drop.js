@@ -4,9 +4,9 @@ editor.once('load', function() {
     var assetsPanel = editor.call('layout.assets');
 
     var dropRef = editor.call('drop:target', {
-        ref: assetsPanel.dom,
+        ref: assetsPanel,
         type: 'files',
-        drop: function(type, data) {
+        drop: function (type, data) {
             if (type !== 'files')
                 return;
 
@@ -14,5 +14,5 @@ editor.once('load', function() {
         }
     });
 
-    dropRef.element.classList.add('assets-drop-area');
+    dropRef.class.add('assets-drop-area');
 });

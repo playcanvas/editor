@@ -19,12 +19,11 @@
 // contents of panel
 .pcui-panel-content {
     flex-grow: 1;
+    flex-basis: 0;
 }
 
 // collapsible panel
 .pcui-panel.pcui-collapsible {
-    // hide stuff
-    overflow: hidden;
     // animate height and width
     transition: height 100ms, width 100ms;
 
@@ -67,6 +66,9 @@
 
     // collapsed panel
     &.pcui-collapsed {
+        // hide stuff
+        overflow: hidden;
+
         // hide contents
         > .pcui-panel-content {
             visibility: hidden;

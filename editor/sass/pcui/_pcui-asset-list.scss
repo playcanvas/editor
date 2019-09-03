@@ -1,0 +1,90 @@
+.pcui-asset-list {
+    margin: $element-margin;
+    transition: opacity 100ms;
+
+    .pcui-text-input {
+        margin: 0;
+    }
+}
+
+.pcui-asset-list-btn-selection-mode {
+    margin: 0 0 $element-margin 0;
+}
+
+.pcui-asset-list-selection-mode {
+    z-index: 102;
+}
+
+.pcui-asset-list-btn-remove {
+    margin-left: auto;
+    border: 0;
+    background-color: transparent;
+    visibility: hidden;
+}
+
+.pcui-asset-list-item {
+    font-size: 12px;
+    background-color: $bcg-dark;
+    margin: 1px 0;
+    height: 24px;
+    padding-left: $element-margin;
+    transition: background-color 100ms;
+
+    > * {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+}
+
+@each $assetType in $assets {
+    .pcui-asset-list-item-#{$assetType} {
+        &:before {
+            content: map-get($icons, 'asset-#{$assetType}');
+            @extend .font-icon;
+        }
+    }
+}
+
+.pcui-asset-list-not-everywhere {
+    > .pcui-label:before {
+        content: '*';
+        margin: 0 $element-margin;
+    }
+}
+
+// hover
+.pcui-asset-list:not(.pcui-disabled):not(.pcui-readonly) {
+    .pcui-asset-list-item {
+        &:hover {
+            background-color: $bcg-darker;
+            cursor: pointer;
+
+            .pcui-asset-list-btn-remove {
+                visibility: visible;
+            }
+        }
+
+        &:active {
+            background-color: $bcg-darkest;
+        }
+    }
+
+
+}
+
+// disabled
+.pcui-asset-list.pcui-disabled {
+    opacity: $element-opacity-disabled;
+
+    .pcui-asset-list-btn-remove {
+        display: none;
+    }
+}
+
+// readonly
+.pcui-asset-list.pcui-readonly {
+    .pcui-asset-list-btn-selection-mode,
+    .pcui-text-input {
+        display: none;
+    }
+}

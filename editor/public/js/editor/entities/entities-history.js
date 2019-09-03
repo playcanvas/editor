@@ -10,14 +10,7 @@ editor.once('load', function() {
         entity.history = new ObserverHistory({
             item: entity,
             prefix: 'entity.' + resourceId + '.',
-            getItemFn: function () {
-                return editor.call('entities:get', resourceId);
-            }
-        });
-
-        // record history
-        entity.history.on('record', function(action, data) {
-            editor.call('history:' + action, data);
+            history: editor.call('editor:history')
         });
     });
 });

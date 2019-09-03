@@ -1,0 +1,34 @@
+.pcui-gradient {
+    display: inline-block;
+    flex: 1;
+    height: 24px;
+    box-sizing: border-box;
+    margin: $element-margin;
+    transition: opacity 100ms, box-shadow 100ms;
+    cursor: pointer;
+
+    border: 1px solid $bcg-darker;
+    background-color: $bcg-dark;
+
+    > canvas {
+        width: 100%;
+        height: 100%;
+        background-color: transparent;
+    }
+}
+
+// disabled gradient input
+.pcui-gradient.pcui-disabled, .pcui-gradient.pcui-multiple-values {
+    opacity: $element-opacity-disabled;
+}
+
+// hover / focus states
+.pcui-gradient:not(.pcui-disabled):not(.pcui-readonly) {
+    &:hover, &:focus {
+        cursor: pointer;
+        box-shadow: $element-shadow-hover;
+    }
+    &:active {
+        box-shadow: $element-shadow-active;
+    }
+}

@@ -5,6 +5,8 @@ editor.once('load', function() {
     var toolbar = editor.call('layout.toolbar');
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
+    var history = editor.call('editor:history');
+
 
     var logo = new ui.Button();
     logo.class.add('logo');
@@ -44,7 +46,7 @@ editor.once('load', function() {
 
         for(var i = 0; i < items.length; i++) {
             records.push({
-                get: items[i].history._getItemFn,
+                item: items[i],
                 value: value,
                 valueOld: items[i].get(field)
             });
@@ -54,11 +56,11 @@ editor.once('load', function() {
             items[i].history.enabled = true;
         }
 
-        editor.call('history:add', {
+        history.add({
             name: 'entities.set[' + field + ']',
-            undo: function() {
-                for(var i = 0; i < records.length; i++) {
-                    var item = records[i].get();
+            undo: function () {
+                for (var i = 0; i < records.length; i++) {
+                    var item = records[i].item.latest();
                     if (! item)
                         continue;
 
@@ -67,9 +69,9 @@ editor.once('load', function() {
                     item.history.enabled = true;
                 }
             },
-            redo: function() {
-                for(var i = 0; i < records.length; i++) {
-                    var item = records[i].get();
+            redo: function () {
+                for (var i = 0; i < records.length; i++) {
+                    var item = records[i].item.latest();
                     if (! item)
                         continue;
 
@@ -187,20 +189,20 @@ editor.once('load', function() {
                     title: 'Undo',
                     icon: '&#57620;',
                     filter: function() {
-                        return editor.call('history:canUndo');
+                        return history.canUndo;
                     },
                     select: function() {
-                        editor.call('history:undo');
+                        return history.undo();
                     }
                 },
                 'redo': {
                     title: 'Redo',
                     icon: '&#57621;',
                     filter: function() {
-                        return editor.call('history:canRedo');
+                        return history.canRedo;
                     },
                     select: function() {
-                        editor.call('history:redo');
+                        history.redo();
                     }
                 },
                 'enable': {

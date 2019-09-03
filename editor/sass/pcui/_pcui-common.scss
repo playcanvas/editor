@@ -6,3 +6,73 @@
     -ms-user-select: none;
     user-select: none;
 }
+
+.fixedFont {
+    font-family: inconsolatamedium, Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
+    font-weight: normal;
+    font-size: 12px;
+}
+
+$element-margin: 6px;
+
+$element-shadow-hover: 0 0 2px 1px rgba(255,102,0,0.3);
+$element-shadow-active: 0 0 0 1px rgba(255,102,0,0.3);
+$element-shadow-error: 0 0 0 1px #D34141;
+
+$element-color-placeholder: #829193;
+
+$element-opacity-disabled: 0.4;
+$element-opacity-readonly: 0.7;
+
+
+
+$assets: 'animation',
+         'audio',
+         'binary',
+         'bundle',
+         'cubemap',
+         'css',
+         'folder',
+         'font',
+         'json',
+         'html',
+         'material',
+         'model',
+         'scene',
+         'script',
+         'shader',
+         'sprite',
+         'text',
+         'texture',
+         'textureatlas';
+
+$icons: (
+    'asset-animation': '\E213',
+    'asset-audio': '\E210',
+    'asset-binary': '\E299',
+    'asset-bundle': '\E410',
+    'asset-cubemap': '\E220',
+    'asset-css': '\E206',
+    'asset-folder': '\E139',
+    'asset-font': '\E299',
+    'asset-json': '\E207',
+    'asset-html': '\E205',
+    'asset-material': '\E195',
+    'asset-model': '\E188',
+    'asset-scene': '\E188',
+    'asset-script': '\E392',
+    'asset-shader': '\E353',
+    'asset-sprite': '\E395',
+    'asset-text': '\E209',
+    'asset-texture': '\E201',
+    'asset-textureatlas': '\E201'
+);
+
+@mixin checkerboard($color1, $color2, $size) {
+    background-color: $color1;
+    background-image: linear-gradient(45deg, $color2 25%, transparent 25%, transparent 75%, $color2 75%, $color2 100%),
+                      linear-gradient(45deg, $color2 25%, transparent 25%, transparent 75%, $color2 75%, $color2 100%);
+    background-size: ($size*2) ($size*2);
+    background-position: 0 0, $size $size;
+
+}

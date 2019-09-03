@@ -10,14 +10,7 @@ editor.once('load', function() {
         asset.history = new ObserverHistory({
             item: asset,
             prefix: 'asset.' + id + '.',
-            getItemFn: function () {
-                return editor.call('assets:get', id);
-            }
-        });
-
-        // record history
-        asset.history.on('record', function(action, data) {
-            editor.call('history:' + action, data);
+            history: editor.call('editor:history')
         });
     });
 });

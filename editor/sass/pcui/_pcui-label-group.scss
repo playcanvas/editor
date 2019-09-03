@@ -1,0 +1,24 @@
+.pcui-label-group {
+    @extend .pcui-flex;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    margin: $element-margin;
+
+    // set width for label and don't let it shrink
+    > .pcui-label {
+        width: 100px;
+        flex-shrink: 0;
+        margin: 0;
+    }
+
+    // field should be stretched
+    // except for ones marked
+    // as specifically not flexible
+    > .pcui-element:last-child {
+        margin: 0 0 0 $element-margin;
+        &:not(.pcui-not-flexible) {
+            flex: 1;
+        }
+    }
+}

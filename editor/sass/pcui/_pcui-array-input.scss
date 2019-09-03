@@ -1,0 +1,35 @@
+.pcui-array-input {
+    margin: $element-margin;
+
+    .pcui-numeric-input {
+        margin: 0 0 $element-margin 0;
+    }
+}
+
+.pcui-array-input-item {
+    > * {
+        margin-top: 1px;
+        margin-bottom: 1px;
+    }
+
+    // field should be stretched
+    // except for ones marked
+    // as specifically not flexible
+    > *:first-child {
+        &:not(.pcui-not-flexible) {
+            flex: 1;
+        }
+    }
+
+    > .pcui-button {
+        margin-left: - $element-margin / 2;
+        background-color: transparent;
+        border: 0;
+    }
+}
+
+.pcui-array-input-item-asset {
+    > .pcui-button {
+        margin-top: 36px;
+    }
+}

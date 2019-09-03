@@ -404,16 +404,18 @@ editor.once('load', function() {
         if (assets.length === 1 && assets[0].has('data.mapping') && assets[0].get('data.mapping').length) {
             var root = editor.call('attributes.rootPanel');
 
-            var previewContainer = new pcui.Container();
-            previewContainer.class.add('asset-preview-container');
+            var previewContainer = new pcui.Container({
+                class: 'asset-preview-container'
+            });
 
             // preview
             var preview = document.createElement('canvas');
-            var ctx = preview.getContext('2d');
             preview.width = 256;
             preview.height = 256;
             preview.classList.add('asset-preview', 'flipY');
             previewContainer.append(preview);
+
+            var previewRenderer = new pcui.ModelThumbnailRenderer(assets[0], preview);
 
             var sx = 0, sy = 0, x = 0, y = 0, nx = 0, ny = 0;
             var dragging = false;
@@ -479,9 +481,12 @@ editor.once('load', function() {
                     renderQueued = false;
 
                 // render
-                editor.call('preview:render', assets[0], previewContainer.width, previewContainer.height, preview, {
-                    rotation: [ Math.max(-90, Math.min(90, previewRotation[0] + (sy - y) * 0.3)), previewRotation[1] + (sx - x) * 0.3 ]
-                });
+                preview.width = previewContainer.width;
+                preview.height = previewContainer.height;
+                previewRenderer.render(
+                    Math.max(-90, Math.min(90, previewRotation[0] + (sy - y) * 0.3)),
+                    previewRotation[1] + (sx - x) * 0.3
+                );
             };
             renderPreview();
 
@@ -494,14 +499,6 @@ editor.once('load', function() {
 
             // render on resize
             var evtPanelResize = root.on('resize', queueRender);
-            var evtSceneSettings = editor.on('preview:scene:changed', queueRender);
-
-            // model resource loaded
-            var watcher = editor.call('assets:model:watch', {
-                asset: assets[0],
-                autoLoad: true,
-                callback: queueRender
-            });
 
             // nodes panel
             panelNodes = editor.call('attributes:addPanel', {
@@ -580,7 +577,7 @@ editor.once('load', function() {
 
                         assets[0].history.enabled = history;
 
-                        var lastHistoryAction = editor.call('history:list')[editor.call('history:current')];
+                        var lastHistoryAction = editor.call('editor:history').lastAction;
                         var undo = lastHistoryAction.undo;
                         var redo = lastHistoryAction.redo;
 
@@ -639,9 +636,11 @@ editor.once('load', function() {
             panelNodes.on('destroy', function () {
                 root.class.remove('asset-preview', 'animate');
 
-                editor.call('assets:model:unwatch', assets[0], watcher);
+                if (previewRenderer) {
+                    previewRenderer.destroy();
+                    previewRenderer = null;
+                }
 
-                evtSceneSettings.unbind();
                 evtPanelResize.unbind();
 
                 window.removeEventListener('mousemove', onMouseMove);

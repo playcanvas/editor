@@ -39,6 +39,12 @@ editor.once('load', function() {
         }
     });
 
+    function createLatestFn(id) {
+        // function to get latest version of asset observer
+        return function () {
+            return assets.get(id);
+        };
+    }
 
     // return assets ObserverList
     editor.method('assets:raw', function() {
@@ -47,7 +53,10 @@ editor.once('load', function() {
 
     // allow adding assets
     editor.method('assets:add', function(asset) {
-        uniqueIdToItemId[asset.get('uniqueId')] = asset.get('id');
+        var id = asset.get('id');
+        uniqueIdToItemId[asset.get('uniqueId')] = id;
+
+        asset.latestFn = createLatestFn(id);
 
         var pos = assets.add(asset);
 

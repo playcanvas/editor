@@ -19,9 +19,20 @@
 .pcui-element {
     border: 0 solid $border-primary;
 
+    @extend .font-regular;
+
     &.flash {
         outline: 1px solid $text-active;
         -webkit-animation: pcui-flash-animation 200ms ease-in-out forwards;
         animation: pcui-flash-animation 200ms ease-in-out forwards;
+    }
+
+    &:focus {
+        outline: none;
+    }
+
+    // remove dotted border on focused elements in firefox
+    &::-moz-focus-inner {
+        border: 0;
     }
 }

@@ -5,7 +5,31 @@ Object.assign(pcui, (function () {
      * @name pcui.IContainer
      * @classdesc Provides an interface for appending / removing children from an Element.
      */
-    function IContainer() {}
+    class IContainer {
+        append(element) {
+            throw new Error('Not Implemented');
+        }
+
+        appendBefore(element, referenceElement) {
+            throw new Error('Not Implemented');
+        }
+
+        appendAfter(element, referenceElement) {
+            throw new Error('Not Implemented');
+        }
+
+        prepend(element) {
+            throw new Error('Not Implemented');
+        }
+
+        remove(element) {
+            throw new Error('Not Implemented');
+        }
+
+        clear() {
+            throw new Error('Not Implemented');
+        }
+    }
 
     /**
      * @event
@@ -21,29 +45,7 @@ Object.assign(pcui, (function () {
      * @param {pcui.Element} The element that was removed
      */
 
-    IContainer.prototype.append = function (element) {
-        throw new Error('Not Implemented');
-    };
 
-    IContainer.prototype.appendBefore = function (element, referenceElement) {
-        throw new Error('Not Implemented');
-    };
-
-    IContainer.prototype.appendAfter = function (element, referenceElement) {
-        throw new Error('Not Implemented');
-    };
-
-    IContainer.prototype.prepend = function (element) {
-        throw new Error('Not Implemented');
-    };
-
-    IContainer.prototype.remove = function (element) {
-        throw new Error('Not Implemented');
-    };
-
-    IContainer.prototype.clear = function () {
-        throw new Error('Not Implemented');
-    };
 
     return {
         IContainer: IContainer

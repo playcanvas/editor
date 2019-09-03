@@ -120,15 +120,17 @@ editor.once('load', function () {
         if (assets.length === 1) {
             previewTexturesHover = {};
 
-            var previewContainer = new pcui.Container();
-            previewContainer.class.add('asset-preview-container');
+            var previewContainer = new pcui.Container({
+                class: 'asset-preview-container'
+            });
 
             var preview = document.createElement('canvas');
-            var ctx = preview.getContext('2d');
             preview.width = 256;
             preview.height = 256;
             preview.classList.add('asset-preview', 'flipY');
             previewContainer.append(preview);
+
+            var previewRenderer = new pcui.MaterialThumbnailRenderer(assets[0], preview);
 
             var modelSphere = new ui.Button({
                 text: '&#58121;'
@@ -235,11 +237,14 @@ editor.once('load', function () {
                     renderQueued = false;
 
                 // render
-                editor.call('preview:render', assets[0], previewContainer.width, previewContainer.height, preview, {
-                    rotation: [Math.max(-90, Math.min(90, previewRotation[0] + (sy - y) * 0.3)), previewRotation[1] + (sx - x) * 0.3],
-                    model: currentPreviewModel,
-                    params: previewTexturesHover
-                });
+                preview.width = previewContainer.width;
+                preview.height = previewContainer.height;
+
+                previewRenderer.render(
+                    Math.max(-90, Math.min(90, previewRotation[0] + (sy - y) * 0.3)),
+                    previewRotation[1] + (sx - x) * 0.3,
+                    currentPreviewModel
+                );
             };
 
             // queue up the rendering to prevent too oftern renders
@@ -253,14 +258,7 @@ editor.once('load', function () {
 
             // render on resize
             var evtPanelResize = root.on('resize', queueRender);
-            var evtSceneSettings = editor.on('preview:scene:changed', queueRender);
 
-            // material textures loaded
-            var materialWatch = editor.call('assets:material:watch', {
-                asset: assets[0],
-                autoLoad: true,
-                callback: queueRender
-            });
         }
 
         var handleTextureHover = function (path) {
@@ -352,9 +350,12 @@ editor.once('load', function () {
             panelParams.on('destroy', function () {
                 root.class.remove('asset-preview');
 
-                editor.call('assets:material:unwatch', assets[0], materialWatch);
+                if (previewRenderer) {
+                    previewRenderer.destroy();
+                    previewRenderer = null;
 
-                evtSceneSettings.unbind();
+                }
+
                 evtPanelResize.unbind();
 
                 window.removeEventListener('mousemove', onMouseMove);
@@ -465,7 +466,7 @@ editor.once('load', function () {
                 for (i = 0; i < assets.length; i++) {
                     for (var m = 0; m < mappingMaps.length; m++) {
                         items.push({
-                            get: assets[i].history._getItemFn,
+                            item: assets[i],
                             path: 'data.' + mappingMaps[m] + 'Map',
                             valueOffset: assets[i].get('data.' + mappingMaps[m] + 'MapOffset'),
                             valueTiling: assets[i].get('data.' + mappingMaps[m] + 'MapTiling')
@@ -482,9 +483,8 @@ editor.once('load', function () {
                     name: 'assets.materials.tiling-offset',
                     undo: function () {
                         for (var i = 0; i < items.length; i++) {
-                            var item = items[i].get();
-                            if (!item)
-                                continue;
+                            var item = items[i].item.latest();
+                            if (!item) continue;
 
                             item.history.enabled = false;
                             item.set(items[i].path + 'Offset', items[i].valueOffset);
@@ -494,9 +494,8 @@ editor.once('load', function () {
                     },
                     redo: function () {
                         for (var i = 0; i < items.length; i++) {
-                            var item = items[i].get();
-                            if (!item)
-                                continue;
+                            var item = items[i].item.latest();
+                            if (!item) continue;
 
                             item.history.enabled = false;
                             item.set(items[i].path + 'Offset', valueOffset);
@@ -561,7 +560,7 @@ editor.once('load', function () {
 
                     var fullpath = path + '.' + field;
                     items.push({
-                        get: assets[i].history._getItemFn,
+                        item: assets[i],
                         path: fullpath,
                         value: assets[i].get(fullpath)
                     });
@@ -576,9 +575,8 @@ editor.once('load', function () {
                 name: 'assets.materials.' + type + '.' + field,
                 undo: function () {
                     for (var i = 0; i < items.length; i++) {
-                        var item = items[i].get();
-                        if (!item)
-                            continue;
+                        var item = items[i].item.latest();
+                        if (!item) continue;
 
                         item.history.enabled = false;
                         item.set(items[i].path, items[i].value);
@@ -587,9 +585,8 @@ editor.once('load', function () {
                 },
                 redo: function () {
                     for (var i = 0; i < items.length; i++) {
-                        var item = items[i].get();
-                        if (!item)
-                            continue;
+                        var item = items[i].item.latest();
+                        if (!item) continue;
 
                         item.history.enabled = false;
                         item.set(items[i].path, value);

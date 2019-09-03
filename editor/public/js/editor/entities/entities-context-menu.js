@@ -121,7 +121,7 @@ editor.once('load', function() {
 
         for(var i = 0; i < items.length; i++) {
             records.push({
-                get: items[i].history._getItemFn,
+                item: items[i],
                 value: value,
                 valueOld: items[i].get(field)
             });
@@ -135,7 +135,7 @@ editor.once('load', function() {
             name: 'entities.set[' + field + ']',
             undo: function() {
                 for(var i = 0; i < records.length; i++) {
-                    var item = records[i].get();
+                    var item = records[i].item.latest();
                     if (! item)
                         continue;
 
@@ -146,7 +146,7 @@ editor.once('load', function() {
             },
             redo: function() {
                 for(var i = 0; i < records.length; i++) {
-                    var item = records[i].get();
+                    var item = records[i].item.latest();
                     if (! item)
                         continue;
 
