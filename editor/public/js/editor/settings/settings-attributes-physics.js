@@ -6,9 +6,6 @@ editor.once('load', function() {
 
     var folded = true;
 
-    // TODO: this flag should come from the project settings
-    var enableLegacyAmmo = true;
-
     editor.on('attributes:inspect[editorSettings]', function() {
         // physics
         var physicsPanel = editor.call('attributes:addPanel', {
@@ -21,7 +18,7 @@ editor.once('load', function() {
         physicsPanel.class.add('component');
 
         // enable 3d physics
-        if (enableLegacyAmmo) {
+        if (editor.call('settings:project').get('useLegacyAmmoPhysics')) {
             var fieldPhysics = editor.call('attributes:addField', {
                 parent: physicsPanel,
                 name: 'Enable',
