@@ -64,7 +64,7 @@ editor.once('load', function() {
 
         button.on('click', function() {
             Ajax( {
-                url:'{{url.api}}/store/items?name=Ammo',
+                url:'{{url.api}}/store/items?name=ammo.js',
                 method:'GET',
                 auth: true,
                 data: { }
