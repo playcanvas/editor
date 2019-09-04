@@ -80,7 +80,7 @@ editor.once('load', function() {
             while (! (node instanceof pc.Entity) && node && node.parent) {
                 node = node.parent;
             }
-            if (! node) return;
+            if (! node || !(node instanceof pc.Entity)) return;
 
             fn(node, picked[0]);
         }
