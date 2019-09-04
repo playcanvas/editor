@@ -86,7 +86,7 @@ Object.assign(pcui, (function () {
             this._deactiveTimeout = null;
 
             this._dropType = 'files';
-            this._dropData = null;
+            this._dropData = {};
         }
 
         _onActivate() {
