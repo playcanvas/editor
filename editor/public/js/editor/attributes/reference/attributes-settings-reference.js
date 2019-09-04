@@ -35,6 +35,10 @@ editor.once('load', function() {
         description: 'Gravity is the acceleration applied every frame to all rigid bodies in your scene. By default, it is set to -9.8 meters per second per second, which essentially approximates Earth\'s gravity. If you are making a game in space, you might want to set this to 0, 0, 0 (zero g).',
         url: 'http://developer.playcanvas.com/api/pc.RigidBodyComponentSystem.html#setGravity'
     }, {
+        name: 'ammo',
+        title: 'Physics Library',
+        description: 'Add the Ammo asm.js and wasm modules to this project from the Playcanvas Store'
+    }, {
         title: 'ambientColor',
         subTitle: '{pc.Color}',
         description: 'The color of the scene\'s ambient light source. PlayCanvas allows you to create directional, point and spot lights. These lights account for direct light that falls on objects. But in reality, light actually bounces around the environment and we call this indirect light. A global ambient light is a crude approximation of this and allows you to set a light source that appears to shine from all directions. The global ambient color is multiplied with the Ambient property of a Phong Material to add a contribution to the final color of an object. Note, if you are using a Skybox and Physical Materials the Ambient Color has no effect.',

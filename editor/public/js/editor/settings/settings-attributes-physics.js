@@ -44,23 +44,21 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'settings:gravity', fieldGravity[0].parent.innerElement.firstChild.ui);
 
         // ammo module button
-        var buttonPanel = new ui.Panel();
-        buttonPanel.class.add('flex', 'component');
-        physicsPanel.append(buttonPanel);
-
-        var button = new ui.Button({
-            text: 'Import Ammo into this project'
+        var button = new pcui.Button({
+            text: 'IMPORT AMMO',
+            icon: 'E228'
         });
-        buttonPanel.append(button);
-
-        var tooltipText = "Add the Ammo asm.js and wasm modules to this project from the Playcanvas Store";
-
-        Tooltip.attach({
-            target: button.element,
-            html:  tooltipText,
-            align: 'right',
-            root: editor.call('layout.root')
+        var physicsLibraryGroup = new pcui.LabelGroup({
+            field: button,
+            text: 'Physics Library'
         });
+        physicsLibraryGroup.style.margin = '3px';
+        physicsLibraryGroup.label.style.flexBasis = '122px';
+        physicsLibraryGroup.label.style.fontSize = '12px';
+        physicsPanel.append(physicsLibraryGroup);
+
+        // reference
+        editor.call('attributes:reference:attach', 'settings:ammo', physicsLibraryGroup.label);
 
         button.on('click', function() {
             Ajax( {
