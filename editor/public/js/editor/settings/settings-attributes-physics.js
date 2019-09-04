@@ -53,7 +53,7 @@ editor.once('load', function() {
             text: 'Physics Library'
         });
         physicsLibraryGroup.style.margin = '3px';
-        physicsLibraryGroup.label.style.flexBasis = '122px';
+        physicsLibraryGroup.label.style.width = '27%';
         physicsLibraryGroup.label.style.fontSize = '12px';
         physicsPanel.append(physicsLibraryGroup);
 
