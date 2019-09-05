@@ -177,15 +177,6 @@ editor.once('load', function () {
 
     var queryParams = (new pc.URI(window.location.href)).getQuery();
 
-    if (config.project.settings.vr && (utils.isMobile() || !pc.VrManager.isSupported)) {
-        if (queryParams.vrpolyfill) {
-            libraryUrls.push(queryParams.vrpolyfill);
-        } else {
-            libraryUrls.push(config.url.webvr);
-        }
-    }
-
-
     var scriptPrefix = config.project.scriptPrefix;
 
     // queryParams.local can be true or it can be a URL
@@ -295,7 +286,6 @@ editor.once('load', function () {
 
     editor.call('editor:loadModules', config.wasmModules, "", function() {
         app._loadLibraries(libraryUrls, function (err) {
-            app._onVrChange(config.project.settings.vr);
             libraries = true;
             if (err) console.error(err);
             init();
