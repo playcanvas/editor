@@ -22,3 +22,9 @@
         }
     }
 }
+
+.pcui-label-group.pcui-disabled {
+    > .pcui-label {
+        opacity: $element-opacity-disabled;
+    }
+}

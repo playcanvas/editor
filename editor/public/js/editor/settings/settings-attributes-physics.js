@@ -97,6 +97,19 @@ editor.once('load', function() {
         physicsLibraryGroup.label.style.fontSize = '12px';
         panel.append(physicsLibraryGroup);
 
+        if (!editor.call('permissions:write')) {
+            physicsLibraryGroup.enabled = false;
+        }
+        var evtPermissions = editor.on('permissions:writeState', function (write) {
+            physicsLibraryGroup.enabled = write;
+        });
+        panel.once('destroy', function () {
+            if (evtPermissions) {
+                evtPermissions.unbind();
+                evtPermissions = null;
+            }
+        });
+
         // reference
         editor.call('attributes:reference:attach', 'settings:ammo', physicsLibraryGroup.label);
 
