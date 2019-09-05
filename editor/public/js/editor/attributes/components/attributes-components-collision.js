@@ -131,5 +131,12 @@ editor.once('load', function() {
         });
         // reference
         editor.call('attributes:reference:attach', 'collision:asset', fieldAsset._label);
+
+        if (editor.call("users:isSuperUser")) {
+            // add import ammo button
+            if (!editor.call('project:settings:hasPhysics')) {
+                editor.call('attributes:appendImportAmmo', panel);
+            }
+        }
     });
 });

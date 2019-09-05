@@ -26,7 +26,8 @@ editor.once('load', function () {
         'useModelV2',
         'layers',
         'layerOrder',
-        'i18nAssets'
+        'i18nAssets',
+        'useLegacyAmmoPhysics'
     ];
 
     var data = {};

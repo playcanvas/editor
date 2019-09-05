@@ -184,5 +184,12 @@ editor.once('load', function() {
             path: 'components.rigidbody.restitution'
         });
         fieldRestitutionSlider.flexGrow = 4;
+
+        if (editor.call("users:isSuperUser")) {
+            // add import ammo button
+            if (!editor.call('project:settings:hasPhysics')) {
+                editor.call('attributes:appendImportAmmo', panel);
+            }
+        }
     });
 });
