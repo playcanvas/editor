@@ -133,9 +133,20 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'collision:asset', fieldAsset._label);
 
         if (editor.call("users:isSuperUser")) {
-            // add import ammo button
             if (!editor.call('project:settings:hasPhysics')) {
-                editor.call('attributes:appendImportAmmo', panel);
+                // add import ammo button
+                var group = editor.call('attributes:appendImportAmmo', panel);
+
+                // restyle
+                group.label.text = 'Ammo module not found';
+                group.style.border = '1px solid #D34141';
+                group.style.borderRadius = '2px';
+                group.style.margin = '3px';
+                group.style.padding = '8px';
+                group.label.style.width = '50%';
+                group.label.style.fontSize = '12px';
+                group.class.add('library-warning');
+                group.label.class.add('library-warning-text');
             }
         }
     });
