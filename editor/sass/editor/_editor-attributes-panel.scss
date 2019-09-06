@@ -1888,22 +1888,19 @@
     }
 }
 
-.ui-panel.component.entity.collision {
+.ui-panel.component.entity.collision, .ui-panel.component.entity.rigidbody {
     .library-warning {
         background-color: $bcg-darkest;
+        border: 1px solid #D34141;
+        border-radius: 2px;
+        margin: 3px;
+        padding: 8px;
     }
 
     .library-warning-text {
         color: #d34141;
-    }
-}
-
-.ui-panel.component.entity.rigidbody {
-    .library-warning {
-        background-color: $bcg-darkest;
-    }
-
-    .library-warning-text {
-        color: #d34141;
+        flex-basis: 50%;
+        flex-shrink: 1;
+        font-size: 12px;
     }
 }

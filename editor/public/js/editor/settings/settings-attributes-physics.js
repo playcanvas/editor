@@ -25,7 +25,7 @@ editor.once('load', function() {
             // enable 3d physics checkbox
             fieldPhysics = editor.call('attributes:addField', {
                 parent: physicsPanel,
-                name: 'Legacy Physics',
+                name: 'Enable Physics',
                 type: 'checkbox',
                 link: projectSettings,
                 path: 'use3dPhysics'

@@ -192,12 +192,6 @@ editor.once('load', function() {
 
                 // restyle
                 group.label.text = 'Ammo module not found';
-                group.style.border = '1px solid #D34141';
-                group.style.borderRadius = '2px';
-                group.style.margin = '3px';
-                group.style.padding = '8px';
-                group.label.style.width = '50%';
-                group.label.style.fontSize = '12px';
                 group.class.add('library-warning');
                 group.label.class.add('library-warning-text');
             }
