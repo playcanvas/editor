@@ -1887,3 +1887,23 @@
         }
     }
 }
+
+.ui-panel.component.entity.collision {
+    .library-warning {
+        background-color: $bcg-darkest;
+    }
+
+    .library-warning-text {
+        color: #d34141;
+    }
+}
+
+.ui-panel.component.entity.rigidbody {
+    .library-warning {
+        background-color: $bcg-darkest;
+    }
+
+    .library-warning-text {
+        color: #d34141;
+    }
+}

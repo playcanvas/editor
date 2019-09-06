@@ -33,17 +33,14 @@ editor.once('load', function() {
             editor.call('attributes:reference:attach',
                         'settings:project:physics',
                         fieldPhysics.parent.innerElement.firstChild.ui);
+            fieldPhysics.on('change', function(value) {
+                editor.emit('onUse3dPhysicsChanged', value);
+            });
         }
 
         if (editor.call("users:isSuperUser")) {
             // add import ammo button
-            var widget = editor.call('attributes:appendImportAmmo', physicsPanel);
-            if (enableLegacyAmmoPhysics) {
-                fieldPhysics.on('change', function(value) {
-                    widget.disabled = value;
-                });
-                widget.disabled = projectSettings.get('use3dPhysics');
-            }
+            editor.call('attributes:appendImportAmmo', physicsPanel);
         }
 
         // gravity
@@ -61,14 +58,17 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'settings:gravity', fieldGravity[0].parent.innerElement.firstChild.ui);
     });
 
+    // check legacy physics include flag
+    editor.method('project:settings:hasLegacyPhysics', function() {
+        return (projectSettings.get('useLegacyAmmoPhysics') || editor.call("users:isSuperUser")) &&
+                projectSettings.get('use3dPhysics');
+    });
+
     // method for checking whether the current project has physics
     editor.method('project:settings:hasPhysics', function() {
-        // check legacy physics include flag
-        if ((projectSettings.get('useLegacyAmmoPhysics') || editor.call("users:isSuperUser")) &&
-             projectSettings.get('use3dPhysics')) {
+        if (editor.call('project:settings:hasLegacyPhysics')) {
             return true;
         }
-
         // check for wasm ammo assets
         var ammoAssets = editor.call('assets:find', function(item) {
             var name = item.get('name');
@@ -82,85 +82,91 @@ editor.once('load', function() {
         return false;
     });
 
+    // add ammo module to the project
+    editor.method('project:physics:addAmmo', function() {
+        // ensure legacy physics is disabled
+        projectSettings.set('use3dPhysics', false);
+
+        function addAmmoToProject() {
+            Ajax( {
+                url:'{{url.api}}/store/items?name=ammo.js',
+                method:'GET',
+                auth: true,
+                data: { }
+            }).on('load', function(status, data) {
+                if (data.length === 1) {
+                    Ajax( {
+                        url:'{{url.api}}/store/' + data[0].id.toString() + '/clone',
+                        method: 'POST',
+                        auth: true,
+                        data: { scope: { type: 'project', id: config.project.id } },
+                        notJson: true       // server response is empty
+                    } ).on('load', function(status, data) {
+                        editor.call('status:text', 'Ammo successfully imported');
+                        editor.emit('onPhysicsAmmoImported');
+                    } ).on('error', function(err) {
+                        editor.call('status:error', 'Failed to import Ammo');
+                    } );
+                }
+            }).on('error', function(err) {
+                editor.call('status:error', 'Failed to import Ammo');
+            });
+        }
+
+        // show popup if we think there already exists physics in the scene
+        if (editor.call('project:settings:hasPhysics')) {
+            editor.call('picker:confirm',
+                        'It appears your assets panel already contains the ammo physics modules. Do you want to continue?',
+                        function() { addAmmoToProject(); },
+                        {
+                            yesText: 'Yes',
+                            noText: 'Cancel'
+                        });
+        } else {
+            addAmmoToProject();
+        }
+    });
+
     // append the physics module controls to the provided panel
     editor.method('attributes:appendImportAmmo', function(panel) {
+        // button
         var button = new pcui.Button({
             text: 'IMPORT AMMO',
             icon: 'E228'
         });
-        var physicsLibraryGroup = new pcui.LabelGroup({
+        button.on('click', function() {
+            editor.call('project:physics:addAmmo');
+        });
+
+        // group
+        var group = new pcui.LabelGroup({
             field: button,
             text: 'Physics Library'
         });
-        physicsLibraryGroup.style.margin = '3px';
-        physicsLibraryGroup.label.style.width = '27%';
-        physicsLibraryGroup.label.style.fontSize = '12px';
-        panel.append(physicsLibraryGroup);
-
-        if (!editor.call('permissions:write')) {
-            physicsLibraryGroup.enabled = false;
-        }
-        var evtPermissions = editor.on('permissions:writeState', function (write) {
-            physicsLibraryGroup.enabled = write;
-        });
-        panel.once('destroy', function () {
-            if (evtPermissions) {
-                evtPermissions.unbind();
-                evtPermissions = null;
-            }
-        });
+        group.style.margin = '3px';
+        group.label.style.width = '27%';
+        group.label.style.fontSize = '12px';
+        panel.append(group);
 
         // reference
-        editor.call('attributes:reference:attach', 'settings:ammo', physicsLibraryGroup.label);
+        editor.call('attributes:reference:attach', 'settings:ammo', group.label);
 
+        // enable state is based on write permissions and state of legacy physics
+        function updateEnableState() {
+            group.enabled = !editor.call('project:settings:hasLegacyPhysics') &&
+                             editor.call('permissions:write');
+        }
+        editor.on('permissions:writeState', function (write) {
+            updateEnableState();
+        });
+        editor.on('onUse3dPhysicsChanged', function() {
+            updateEnableState();
+        })
         editor.on('onPhysicsAmmoImported', function() {
-            physicsLibraryGroup.disabled = true;
+            group.enabled = false;
         });
+        updateEnableState();
 
-        button.on('click', function() {
-            // ensure legacy physics is disabled
-            projectSettings.set('use3dPhysics', false);
-
-            function addAmmoToProject() {
-                Ajax( {
-                    url:'{{url.api}}/store/items?name=ammo.js',
-                    method:'GET',
-                    auth: true,
-                    data: { }
-                }).on('load', function(status, data) {
-                    if (data.length === 1) {
-                        Ajax( {
-                            url:'{{url.api}}/store/' + data[0].id.toString() + '/clone',
-                            method: 'POST',
-                            auth: true,
-                            data: { scope: { type: 'project', id: config.project.id } },
-                            notJson: true       // server response is empty
-                        } ).on('load', function(status, data) {
-                            editor.call('status:text', 'Ammo successfully imported');
-                            editor.emit('onPhysicsAmmoImported');
-                        } ).on('error', function(err) {
-                            editor.call('status:error', 'Failed to import Ammo');
-                        } );
-                    }
-                }).on('error', function(err) {
-                    editor.call('status:error', 'Failed to import Ammo');
-                });
-            }
-
-            // show popup if we think there already exists physics in the scene
-            if (editor.call('project:settings:hasPhysics')) {
-                editor.call('picker:confirm',
-                'It appears your assets panel already contains the ammo physics modules. Do you want to continue?',
-                function() { addAmmoToProject(); },
-                {
-                    yesText: 'Yes',
-                    noText: 'Cancel'
-                });
-            } else {
-                addAmmoToProject();
-            }
-        });
-
-        return physicsLibraryGroup;
+        return group;
     });
 });
