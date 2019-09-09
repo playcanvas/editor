@@ -25,9 +25,9 @@ Object.assign(pcui, (function () {
             this.value = image;
             this.status = 'loading';
 
-            image.onload = function () {
-                self.status = 'loaded';
-                self.emit('loaded', self);
+            image.onload = () => {
+                this.status = 'loaded';
+                this.emit('loaded', this);
             };
         }
     }
@@ -264,8 +264,8 @@ Object.assign(pcui, (function () {
                     if (entry.status === 'loaded') {
                         img = entry.value;
                     } else {
-                        entry.once('loaded', function (entry) {
-                            editor.call('assets:sprite:watch:trigger', asset);
+                        entry.once('loaded', entry => {
+                            editor.call('assets:sprite:watch:trigger', this._asset);
                         });
                     }
 
@@ -278,8 +278,8 @@ Object.assign(pcui, (function () {
 
                     // insert image into cache which fires an event when the image is loaded
                     entry = imageCache.insert(engineAtlas.file.hash, img);
-                    entry.once('loaded', function (entry) {
-                        editor.call('assets:sprite:watch:trigger', asset);
+                    entry.once('loaded', entry => {
+                        editor.call('assets:sprite:watch:trigger', this._asset);
                     });
                 }
             } else {
