@@ -2846,7 +2846,7 @@ editor.once('load', function () {
         label.style.lineHeight = '24px';
         fieldUseFog.parent.append(label);
         // reference
-        editor.call('attributes:reference:attach', 'asset:material:useFog', fieldUseFog.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:useFog', label);
 
         // useLighting
         var fieldUseLighting = editor.call('attributes:addField', {
@@ -2862,7 +2862,7 @@ editor.once('load', function () {
         label.style.lineHeight = '24px';
         fieldUseLighting.parent.append(label);
         // reference
-        editor.call('attributes:reference:attach', 'asset:material:useLighting', fieldUseLighting.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:useLighting', label);
 
 
         // useSkybox
@@ -2881,7 +2881,7 @@ editor.once('load', function () {
         label.style.lineHeight = '24px';
         fieldUseLighting.parent.append(label);
         // reference
-        editor.call('attributes:reference:attach', 'asset:material:useSkybox', fieldUseLighting.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:useSkybox', label);
 
         // useGammaTonemap
         var fieldUseGammaTonemap = editor.call('attributes:addField', {
@@ -2897,7 +2897,7 @@ editor.once('load', function () {
         label.style.lineHeight = '24px';
         fieldUseGammaTonemap.parent.append(label);
         // reference
-        editor.call('attributes:reference:attach', 'asset:material:useGammaTonemap', fieldUseGammaTonemap.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'asset:material:useGammaTonemap', label);
 
 
         // attach change event on tiling / offset fields
