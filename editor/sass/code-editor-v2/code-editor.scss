@@ -393,6 +393,21 @@ strong {
             float: right;
             padding-right: 5px;
         }
+
+        &.branch-name {
+          max-width: 150px;
+          padding-right: 10px;
+          border-right: 1px solid $border-primary;
+          margin-right: 5px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          &::before {
+            @extend .font-icon;
+            content: '\E399';
+            margin-right: 5px;
+          }
+        }
     }
 
 }

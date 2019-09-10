@@ -2,6 +2,19 @@ editor.once('load', function () {
     'use strict';
 
     var panel = editor.call('layout.statusBar');
+
+    var branchName = new ui.Label({
+        text: config.self.branch.name
+    });
+    branchName.class.add('branch-name');
+    panel.append(branchName);
+    if (!editor.call('permissions:read')) {
+        branchName.hidden = true;
+    }
+    editor.on('permissions:set', function () {
+        branchName.hidden = !editor.call('permissions:read');
+    });
+
     var label = new ui.Label({
         text: 'Loading...'
     });
