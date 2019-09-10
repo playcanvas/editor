@@ -743,7 +743,7 @@ editor.once('load', function () {
 
         // request branches from server
         editor.call('branches:list', {
-            limit: 20,
+            limit: 40,
             skip: branchesSkip,
             closed: fieldBranchesFilter.value === 'closed'
         }, function (err, data) {
