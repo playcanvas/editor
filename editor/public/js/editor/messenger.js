@@ -10,6 +10,7 @@ editor.on('start', function() {
 
     messenger.on('connect', function() {
         this.authenticate(config.accessToken, 'designer');
+        editor.emit('messenger:connected');
     });
 
     messenger.on('welcome', function() {
@@ -18,6 +19,10 @@ editor.on('start', function() {
 
     messenger.on('message', function(evt) {
         editor.emit('messenger:' + evt.name, evt.data);
+    });
+
+    editor.method('messenger:isConnected', function () {
+        return messenger.isConnected;
     });
 
     window.msg = messenger;

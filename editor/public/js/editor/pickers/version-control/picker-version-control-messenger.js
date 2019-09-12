@@ -195,4 +195,23 @@ editor.once('load', function () {
             overlayMergeStopped.class.remove('show-behind-picker');
         }
     });
+
+    // check if our current branch is different than the one we have currently loaded
+    // this can happen say if the branch is switch while the window is being refreshed
+    function checkValidBranch() {
+        if (!editor.call('permissions:read')) return;
+
+        editor.call('branches:getCurrentBranch', function (status, data) {
+            if (data && data.id !== config.self.branch.id) {
+                console.log('Branch switched while refreshing. Reloading page...');
+                refresh();
+            }
+        });
+    }
+
+    editor.on('messenger:connected', checkValidBranch);
+
+    if (editor.call('messenger:isConnected')) {
+        checkValidBranch();
+    }
 });

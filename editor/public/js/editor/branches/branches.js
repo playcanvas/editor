@@ -136,6 +136,14 @@ editor.once('load', function () {
         }, callback);
     });
 
+    // Gets the current checked out branch from the server
+    editor.method('branches:getCurrentBranch', function (callback) {
+        request({
+            url: `/editor/project/${config.project.id}/branch`,
+            auth: true
+        }, callback);
+    });
+
     // Gets the contents of a conflict file
     editor.method('conflicts:getUnresolvedFile', function (mergeId, conflictId, filename, callback) {
         request({
@@ -173,4 +181,5 @@ editor.once('load', function () {
             }
         }, callback);
     });
+
 });
