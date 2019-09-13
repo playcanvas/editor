@@ -226,8 +226,9 @@ editor.once('load', function () {
         searchField.elementInput.select();
         searchField.elementInput.focus();
 
+        // update search query and view search overlay
         updateQuery();
-
+        cm.execCommand('viewSearch');
     };
 
     // Open and focus search picker
@@ -357,7 +358,9 @@ editor.once('load', function () {
         suspendChangeEvt = false;
 
         if (dirty || options) {
+            // update search query and view search overlay
             updateQuery(options);
+            cm.execCommand('viewSearch');
         }
     });
 
@@ -399,13 +402,18 @@ editor.once('load', function () {
             error.text = 'Invalid Regular Expression';
             error.hidden = false;
         }
+    };
 
-        if (! findInFiles) {
-            editor.emit('picker:search:change', regexp);
+    var cancelDelayedSearch = function () {
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+            searchTimeout = null;
         }
     };
 
     var search = function (reverse) {
+        cancelDelayedSearch();
+
         if (queryDirty) {
             queryDirty = false;
             cm.execCommand('clearSearch');
@@ -438,9 +446,11 @@ editor.once('load', function () {
         if (suspendChangeEvt) return;
 
         if (previousText !== value) {
-            if (searchTimeout) {
-                clearTimeout(searchTimeout);
-            }
+            updateQuery();
+
+            cancelDelayedSearch();
+
+            if (findInFiles) return;
 
             // if the current asset is large then defer searching
             // otherwise do it right away
@@ -448,21 +458,14 @@ editor.once('load', function () {
             if (focused) {
                 var asset = editor.call('assets:get', focused);
                 if (asset && asset.get('file.size') > 10000) {
-                    searchTimeout = setTimeout(onSearchChanged, 300);
+                    searchTimeout = setTimeout(search, 300);
                     return;
                 }
             }
 
-            onSearchChanged();
+            search();
         }
     });
-
-    var onSearchChanged = function () {
-        searchTimeout = null;
-        updateQuery();
-        if (! findInFiles)
-            search();
-    };
 
     // option buttons
     optionRegex.on('click', function () {
@@ -552,4 +555,8 @@ editor.once('load', function () {
     refreshPermissions();
 
     editor.on('permissions:set', refreshPermissions);
+
+    // stop search timeout when documents are focused / unfocused
+    editor.on('documents:focus', cancelDelayedSearch);
+    editor.on('documents:unfocus', cancelDelayedSearch);
 });

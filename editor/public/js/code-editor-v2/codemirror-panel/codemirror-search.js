@@ -40,21 +40,13 @@ editor.once('load', function () {
     editor.on('picker:search:open', function () {
         isPickerOpen = true;
         resetSearchPositions();
-        resetSearchOverlay();
+        showSearchOverlay();
     });
 
     editor.on('picker:search:close', function () {
         isPickerOpen = false;
         resetSearchPositions();
     });
-
-    // When the search query changes update the overlay
-    editor.on('picker:search:change', function (value) {
-        regex = value;
-        if (overlay)
-            resetSearchOverlay();
-    });
-
 
     // Either performs clean search or finds next/prev occurrence
     var doSearch = function (reverse, addToSelection) {
@@ -104,13 +96,14 @@ editor.once('load', function () {
         }
     };
 
-    // Hide existing search overlay and show new one
-    var resetSearchOverlay = function () {
-        hideSearchOverlay();
-        showSearchOverlay();
-    };
-
     var showSearchOverlay = function () {
+        var newRegex = editor.call('picker:search:regex');
+        if (regex === newRegex) return;
+
+        hideSearchOverlay();
+
+        regex = newRegex;
+
         if (regex) {
             overlay = editor.call('editor:codemirror:overlay', regex, className);
             cm.addOverlay(overlay);
@@ -121,6 +114,8 @@ editor.once('load', function () {
 
     // Hide existing search overlay
     var hideSearchOverlay = function () {
+        regex = null;
+
         if (overlay) {
             cm.removeOverlay(overlay);
             overlay = null;
@@ -193,6 +188,8 @@ editor.once('load', function () {
 
     // Register codemirror commands
     CodeMirror.commands.clearSearch = hideSearchOverlay;
+
+    CodeMirror.commands.viewSearch = showSearchOverlay;
 
     CodeMirror.commands.find = function (cm) {
         hideSearchOverlay();
@@ -299,8 +296,6 @@ editor.once('load', function () {
         // only do full words with this - won't work in all cases like if you select non-word characters
         // but that's also kinda how sublime works.
         editor.call('picker:search:set', underCursor.text, {isRegex: false, matchWholeWords: true});
-
-        resetSearchOverlay();
 
         var cursor = cm.getSearchCursor(regex);
         var matches = [];
