@@ -149,6 +149,7 @@ editor.once('load', function() {
 
         // animation.playback
         var panelPlayback = new ui.Panel();
+        panelPlayback.flex = true;
         editor.call('attributes:addField', {
             parent: panel,
             name: 'Playback',
