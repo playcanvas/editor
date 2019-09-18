@@ -18,12 +18,12 @@ editor.once('load', function() {
         physicsPanel.class.add('component');
 
         // TODO: remove superuser clause once useLegacyAmmoPhysics has been deployed
-        var enableLegacyAmmoPhysics = !editor.call("users:isSuperUser") || projectSettings.get('useLegacyAmmoPhysics');
-        var fieldPhysics = null;
+        var isSuperUser = !!editor.call("users:isSuperUser");
+        var enableLegacyAmmoPhysics = !!projectSettings.get('useLegacyAmmoPhysics');
 
-        if (enableLegacyAmmoPhysics) {
+        if (enableLegacyAmmoPhysics || isSuperUser) {
             // enable 3d physics checkbox
-            fieldPhysics = editor.call('attributes:addField', {
+            var fieldPhysics = editor.call('attributes:addField', {
                 parent: physicsPanel,
                 name: 'Enable Physics',
                 type: 'checkbox',
@@ -38,10 +38,8 @@ editor.once('load', function() {
             });
         }
 
-        if (editor.call("users:isSuperUser")) {
-            // add import ammo button
-            editor.call('attributes:appendImportAmmo', physicsPanel);
-        }
+        // add import ammo button
+        editor.call('attributes:appendImportAmmo', physicsPanel);
 
         // gravity
         var fieldGravity = editor.call('attributes:addField', {
@@ -75,11 +73,7 @@ editor.once('load', function() {
             var type = item.get('type');
             return name.indexOf('ammo') >= 0 && (type === 'script' || type === 'wasm');
         });
-        if (ammoAssets.length > 0) {
-            return true;
-        }
-
-        return false;
+        return ammoAssets.length > 0;
     });
 
     // add ammo module to the project

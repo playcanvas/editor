@@ -132,16 +132,14 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'collision:asset', fieldAsset._label);
 
-        if (editor.call("users:isSuperUser")) {
-            if (!editor.call('project:settings:hasPhysics')) {
-                // add import ammo button
-                var group = editor.call('attributes:appendImportAmmo', panel);
+        if (!editor.call('project:settings:hasPhysics')) {
+            // add import ammo button
+            var group = editor.call('attributes:appendImportAmmo', panel);
 
-                // restyle
-                group.label.text = 'Ammo module not found';
-                group.class.add('library-warning');
-                group.label.class.add('library-warning-text');
-            }
+            // restyle
+            group.label.text = 'Ammo module not found';
+            group.class.add('library-warning');
+            group.label.class.add('library-warning-text');
         }
     });
 });
