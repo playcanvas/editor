@@ -376,6 +376,16 @@ editor.once('load', function() {
     });
     menu.append(menuItemDelete);
 
+    // move-to-store
+    var menuItemMoveToStore = new ui.MenuItem({
+        text: 'Move To Store',
+        icon: ICONS.EDIT,
+        value: 'add_to_store'
+    });
+    menuItemMoveToStore.on('select', function() {
+        editor.call('assets:move-to-store', currentAsset);
+    });
+    menu.append(menuItemMoveToStore);
 
     // filter buttons
     menu.on('open', function() {
@@ -540,6 +550,9 @@ editor.once('load', function() {
                 menuItemReImport.hidden = true;
                 menuItemExtract.hidden = [ 'scene', 'texture', 'textureatlas' ].indexOf(currentAsset.get('type')) === -1 || ! currentAsset.get('meta');
             }
+
+            // move-to-store
+            menuItemMoveToStore.hidden = !editor.call("users:isSuperUser");
         } else {
             // no asset
             menuItemExtract.hidden = true;
@@ -554,6 +567,7 @@ editor.once('load', function() {
             menuItemTextureToAtlas.hidden = true;
             menuItemCreateSprite.hidden = true;
             menuItemCreateSlicedSprite.hidden = true;
+            menuItemMoveToStore.hidden = true;
         }
 
         for(var i = 0; i < customMenuItems.length; i++) {
