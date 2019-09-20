@@ -250,14 +250,6 @@ editor.once('load', function () {
 
             ext = ext[ext.length - 1].toLowerCase();
 
-
-            // Temp: disable uploading WASM files
-            if (ext === 'wasm' && !editor.call('users:hasFlag', 'hasWasm')) {
-                var msg = 'Uploading WASM files not supported';
-                editor.call('status:error', msg);
-                return;
-            }
-
             if (legacyScripts && ext === 'js') {
                 editor.call('assets:upload:script', files[i]);
             } else {
