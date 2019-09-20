@@ -408,6 +408,7 @@ Object.assign(pcui, (function () {
             this._domEventResizeTouchStart = null;
             this._domEventResizeTouchMove = null;
             this._domEventResizeTouchEnd = null;
+            this._domEventScroll = null;
 
             super.destroy();
         }

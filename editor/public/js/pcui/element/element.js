@@ -293,8 +293,8 @@ Object.assign(pcui, (function () {
 
                 for (let i = 0; i < this._eventsParent.length; i++) {
                     this._eventsParent[i].unbind();
-                    this._eventsParent.length = 0;
                 }
+                this._eventsParent.length = 0;
 
                 if (this._dom && this._dom.parentElement) {
                     this._dom.parentElement.removeChild(this._dom);
