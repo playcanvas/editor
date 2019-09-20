@@ -6,7 +6,6 @@ editor.once('load', function() {
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
     var settings = editor.call('settings:projectUser');
-    var privateSettings = editor.call('settings:projectPrivate');
 
     // panel
     var panel = new ui.Panel();
@@ -94,9 +93,11 @@ editor.once('load', function() {
 
     var createOption = function (name, title) {
         var panel = new ui.Panel();
+        panel.flex = true;
         panelOptions.append(panel);
 
         var option = new ui.Checkbox();
+        option.style.marginTop = '6px';
         option.value = false;
         option.class.add('tick');
         panel.append(option);
