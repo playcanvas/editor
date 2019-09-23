@@ -21,7 +21,7 @@ editor.once('load', function() {
             }
             Ajax(
                 {
-                    url:'{{url.api}}/store/item/' + text,
+                    url:'{{url.api}}/store/items/' + text,
                     method:'PUT',
                     auth: true,
                     data: {

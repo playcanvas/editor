@@ -18,10 +18,9 @@ editor.once('load', function() {
         physicsPanel.class.add('component');
 
         // TODO: remove superuser clause once useLegacyAmmoPhysics has been deployed
-        var isSuperUser = !!editor.call("users:isSuperUser");
         var enableLegacyAmmoPhysics = !!projectSettings.get('useLegacyAmmoPhysics');
 
-        if (enableLegacyAmmoPhysics || isSuperUser) {
+        if (enableLegacyAmmoPhysics) {
             // enable 3d physics checkbox
             var fieldPhysics = editor.call('attributes:addField', {
                 parent: physicsPanel,
@@ -58,8 +57,8 @@ editor.once('load', function() {
 
     // check legacy physics include flag
     editor.method('project:settings:hasLegacyPhysics', function() {
-        return (projectSettings.get('useLegacyAmmoPhysics') || editor.call("users:isSuperUser")) &&
-                projectSettings.get('use3dPhysics');
+        return projectSettings.get('useLegacyAmmoPhysics') &&
+               projectSettings.get('use3dPhysics');
     });
 
     // method for checking whether the current project has physics
