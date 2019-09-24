@@ -30,8 +30,10 @@ editor.once('load', function() {
     // load and initialize a wasm module
     function loadWasmModuleAsync(moduleName, jsUrl, binaryUrl, doneCallback) {
         loadScriptAsync(jsUrl, function () {
-            window[moduleName + 'Lib'] = window[moduleName];
-            window[moduleName]({ locateFile: () => binaryUrl }).then( function () {
+            var lib = window[moduleName];
+            window[moduleName + 'Lib'] = lib;
+            lib({ locateFile: () => binaryUrl }).then( function (instance) {
+                window[moduleName] = instance;
                 doneCallback();
             });
         });
