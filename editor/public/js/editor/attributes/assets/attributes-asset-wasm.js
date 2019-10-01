@@ -31,9 +31,15 @@ editor.once('load', function() {
             kind: 'script',
             name: 'Glue script',
             link: assets,
-            path: 'data.glueScriptId',
+            path: 'data.glueScriptId'
         });
         glueScript.parent.class.add('script-picker');
+        glueScript.on('change', function() {
+            var asset = editor.call('assets:get', assets[0].get('data.glueScriptId'));
+            if (asset) {
+                asset.set('preload', false);
+            }
+        });
 
         // reference
         editor.call('attributes:reference:attach', 'asset:wasm:glueScriptId', glueScript._label);        
@@ -45,12 +51,17 @@ editor.once('load', function() {
             kind: 'script',
             name: 'Fallback script',
             link: assets,
-            path: 'data.fallbackScriptId',
+            path: 'data.fallbackScriptId'
         });
         fallbackScript.parent.class.add('script-picker');
+        fallbackScript.on('change', function() {
+            var asset = editor.call('assets:get', assets[0].get('data.fallbackScriptId'));
+            if (asset) {
+                asset.set('preload', false);
+            }
+        });
 
         // reference
         editor.call('attributes:reference:attach', 'asset:wasm:fallbackScriptId', fallbackScript._label);
-
     });
 });
