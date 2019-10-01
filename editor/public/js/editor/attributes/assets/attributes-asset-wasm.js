@@ -37,7 +37,10 @@ editor.once('load', function() {
         glueScript.on('change', function() {
             var asset = editor.call('assets:get', assets[0].get('data.glueScriptId'));
             if (asset) {
+                var history = asset.history.enabled;
+                asset.history.enabled = false;
                 asset.set('preload', false);
+                asset.history.enabled = history;
             }
         });
 
@@ -57,7 +60,10 @@ editor.once('load', function() {
         fallbackScript.on('change', function() {
             var asset = editor.call('assets:get', assets[0].get('data.fallbackScriptId'));
             if (asset) {
+                var history = asset.history.enabled;
+                asset.history.enabled = false;
                 asset.set('preload', false);
+                asset.history.enabled = history;
             }
         });
 
