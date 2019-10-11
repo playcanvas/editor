@@ -35,7 +35,8 @@ editor.once('load', function() {
                         pvr: false,
                         pvrBpp: 4,
                         etc1: false,
-                        etc2: false
+                        etc2: false,
+                        basis: false
                     });
                 } else {
                     if (! asset.has('meta.compress.pvr'))
@@ -49,7 +50,9 @@ editor.once('load', function() {
 
                     if (! asset.has('meta.compress.etc2'))
                         asset.set('meta.compress.etc2', false);
-                }
+
+                    if (! asset.has('meta.compress.basis'))
+                        asset.set('meta.compress.basis', false);                }
             }
             if (asset.get('data')) {
                 if (! asset.has('data.mipmaps'))

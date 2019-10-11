@@ -146,7 +146,7 @@ editor.once('load', function () {
                     return asset.has('file.variants');
                 });
 
-                ['dxt', 'etc1', 'etc2', 'pvr'].forEach(function (variant) {
+                ['dxt', 'etc1', 'etc2', 'pvr', 'basis'].forEach(function (variant) {
                     // search for assets with the specified variants and if some
                     // exist then generate the variant file
                     for (var i = 0, len = assetsWithVariants.length; i < len; i++) {
