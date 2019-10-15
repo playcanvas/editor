@@ -131,7 +131,13 @@ editor.once('load', function () {
                 }
                 newFrames[counter++] = {
                     name: frameData.filename || key,
-                    border: [0,0,0,0],
+                    border: frameData.borders ? [
+                        frameData.borders.x,
+                        frameData.frame.h - frameData.borders.y - frameData.borders.h,
+                        frameData.frame.w - frameData.borders.x - frameData.borders.w,
+                        frameData.borders.y
+                    ] :
+                    [0, 0, 0, 0],
                     rect: [
                         frameData.frame.x * scaleWidth,
                         (height - frameData.frame.y - frameData.frame.h) * scaleHeight,
