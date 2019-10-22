@@ -156,41 +156,40 @@ editor.once('load', function() {
 
     // redirect console.error to the in-game console
     var consoleError = console.error;
-    console.error = function(item) {
+    console.error = function(...args) {
         var errorPassed = false;
+        consoleError(...args);
 
-        if (item instanceof Error && item.stack) {
-            consoleError.call(this, item.stack);
+        args.forEach(item => {
+            if (item instanceof Error && item.stack) {
+                var msg = item.message;
+                var lines = item.stack.split('\n');
+                if (lines.length >= 2) {
+                    var line = lines[1];
+                    var url = line.slice(line.indexOf('(') + 1);
+                    var m = url.match(/:[0-9]+:[0-9]+\)/);
+                    if (m) {
+                        url = url.slice(0, m.index);
+                        var parts = m[0].slice(1, -1).split(':');
 
-            var msg = item.message;
-            var lines = item.stack.split('\n');
-            if (lines.length >= 2) {
-                var line = lines[1];
-                var url = line.slice(line.indexOf('(') + 1);
-                var m = url.match(/:[0-9]+:[0-9]+\)/);
-                if (m) {
-                    url = url.slice(0, m.index);
-                    var parts = m[0].slice(1, -1).split(':');
+                        if (parts.length === 2) {
+                            var line = parseInt(parts[0], 10);
+                            var col = parseInt(parts[1], 10);
 
-                    if (parts.length === 2) {
-                        var line = parseInt(parts[0], 10);
-                        var col = parseInt(parts[1], 10);
-
-                        onError(msg, url, line, col, item);
-                        errorPassed = true;
+                            onError(msg, url, line, col, item);
+                            errorPassed = true;
+                        }
                     }
                 }
             }
-        } else {
-            consoleError.call(this, item);
-        }
 
-        if (item instanceof Error) {
-            if (! errorPassed)
-                append(item.message, 'error');
-        } else {
-            append(item.toString(), 'error');
-        }
+            if (item instanceof Error) {
+                if (!errorPassed)
+                    append(item.message, 'error');
+            } else {
+                append(item.toString(), 'error');
+            }
+        });
     };
 
 });
