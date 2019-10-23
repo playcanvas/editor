@@ -132,10 +132,10 @@ editor.once('load', function () {
                 newFrames[counter++] = {
                     name: frameData.filename || key,
                     border: frameData.borders ? [
-                        frameData.borders.x,
-                        frameData.frame.h - frameData.borders.y - frameData.borders.h,
-                        frameData.frame.w - frameData.borders.x - frameData.borders.w,
-                        frameData.borders.y
+                        Math.max(0, frameData.borders.x),
+                        Math.max(0, frameData.frame.h - frameData.borders.y - frameData.borders.h),
+                        Math.max(0, frameData.frame.w - frameData.borders.x - frameData.borders.w),
+                        Math.max(0, frameData.borders.y)
                     ] :
                     [0, 0, 0, 0],
                     rect: [
