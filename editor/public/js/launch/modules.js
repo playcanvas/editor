@@ -39,14 +39,6 @@ editor.once('load', function() {
         });
     }
 
-    // load and initialize an asm.js module
-    function loadAsmModuleAsync(moduleName, jsUrl, doneCallback) {
-        return loadScriptAsync(jsUrl, function () {
-            window[moduleName] = window[moduleName]();
-            doneCallback();
-        });
-    }
-
     editor.method('editor:loadModules', function (modules, urlPrefix, doneCallback) {
         if (typeof modules === "undefined" || modules.length === 0) {
             // caller may depend on callback behaviour being async
@@ -62,13 +54,17 @@ editor.once('load', function() {
 
             var wasm = wasmSupported();
             modules.forEach(function (m) {
-                if (wasm) {
-                    loadWasmModuleAsync(m.moduleName, urlPrefix + m.glueUrl, urlPrefix + m.wasmUrl, asyncCallback);
-                } else {
-                    if (!m.fallbackUrl) {
-                        throw new Error('wasm not supported and no fallback supplied for module ' + m.moduleName);
+                if (!m.hasOwnProperty('preload') || m.preload) {
+                    if (wasm) {
+                        loadWasmModuleAsync(m.moduleName, urlPrefix + m.glueUrl, urlPrefix + m.wasmUrl, asyncCallback);
+                    } else {
+                        if (!m.fallbackUrl) {
+                            throw new Error('wasm not supported and no fallback supplied for module ' + m.moduleName);
+                        }
+                        loadWasmModuleAsync(m.moduleName, urlPrefix + m.fallbackUrl, "", asyncCallback);
                     }
-                    loadAsmModuleAsync(m.moduleName, urlPrefix + m.fallbackUrl, asyncCallback);
+                } else {
+                    asyncCallback();
                 }
             });
         }
