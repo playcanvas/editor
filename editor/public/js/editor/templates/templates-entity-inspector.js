@@ -134,7 +134,7 @@ Object.assign(pcui, (function () {
                     clearTimeout(this._refreshTimeout);
                 }
 
-                this._refreshTimeout = setTimeout(this._refreshOverrides.bind(this), 100);
+                this._refreshTimeout = setTimeout(this._refreshOverrides.bind(this), 50);
             };
 
             this._eventMessenger = editor.on('messenger:template.apply', this._onTemplateApply.bind(this));
