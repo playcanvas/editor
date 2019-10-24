@@ -36,7 +36,8 @@ editor.once('load', function() {
                 'plane': 'Plane'
             },
             link: entities,
-            path: 'components.model.type'
+            path: 'components.model.type',
+            canOverrideTemplate: true
         });
         fieldType.on('change', function(value) {
             fieldAsset.parent.hidden = value !== 'asset';
@@ -54,7 +55,8 @@ editor.once('load', function() {
             type: 'asset',
             kind: 'model',
             link: entities,
-            path: 'components.model.asset'
+            path: 'components.model.asset',
+            canOverrideTemplate: true
         });
         fieldAsset.parent.hidden = fieldType.value !== 'asset';
         // reference
@@ -151,7 +153,8 @@ editor.once('load', function() {
             type: 'asset',
             kind: 'material',
             link: entities,
-            path: 'components.model.materialAsset'
+            path: 'components.model.materialAsset',
+            canOverrideTemplate: true
         });
         fieldMaterial.class.add('material-asset');
         fieldMaterial.parent.hidden = fieldType.value === 'asset';
@@ -167,6 +170,9 @@ editor.once('load', function() {
             link: entities,
             path: 'components.model.castShadows'
         });
+
+        editor.call('attributes:registerOverridePath', 'components.model.castShadows', fieldCastShadows.element);
+
         // label
         var label = new ui.Label({ text: 'Cast' });
         label.class.add('label-infield');
@@ -183,6 +189,9 @@ editor.once('load', function() {
             link: entities,
             path: 'components.model.castShadowsLightmap'
         });
+
+        editor.call('attributes:registerOverridePath', 'components.model.castShadowsLightmap', fieldCastShadowsLightmap.element);
+
         // label
         var labelCastShadowsLightmap = new ui.Label({ text: 'Cast Lightmap' });
         labelCastShadowsLightmap.class.add('label-infield');
@@ -198,8 +207,12 @@ editor.once('load', function() {
             panel: fieldCastShadows.parent,
             type: 'checkbox',
             link: entities,
-            path: 'components.model.receiveShadows'
+            path: 'components.model.receiveShadows',
+            canOverrideTemplate: true
         });
+
+        editor.call('attributes:registerOverridePath', 'components.model.receiveShadows', fieldReceiveShadows.element);
+
         // label
         var label = new ui.Label({ text: 'Receive' });
         label.class.add('label-infield');
@@ -216,6 +229,9 @@ editor.once('load', function() {
             link: entities,
             path: 'components.model.isStatic'
         });
+
+        editor.call('attributes:registerOverridePath', 'components.model.isStatic', fieldIsStatic.element);
+
         // label
         var label = new ui.Label({ text: 'Static' });
         label.class.add('label-infield');
@@ -232,6 +248,9 @@ editor.once('load', function() {
             link: entities,
             path: 'components.model.lightmapped'
         });
+
+        editor.call('attributes:registerOverridePath', 'components.model.lightmapped', fieldLightmapped.element);
+
         // label
         var label = new ui.Label({ text: 'Lightmapped' });
         label.class.add('label-infield');
@@ -325,7 +344,8 @@ editor.once('load', function() {
             type: 'number',
             min: 0,
             link: entities,
-            path: 'components.model.lightmapSizeMultiplier'
+            path: 'components.model.lightmapSizeMultiplier',
+            canOverrideTemplate: true
         });
         fieldLightmapSizeMultiplier.on('change', function() {
             collectResolutions();
@@ -355,7 +375,8 @@ editor.once('load', function() {
             type: 'number',
             enum: batchEnum,
             link: entities,
-            path: 'components.model.batchGroupId'
+            path: 'components.model.batchGroupId',
+            canOverrideTemplate: true
         });
 
         var btnAddGroup = document.createElement('li');
@@ -399,6 +420,7 @@ editor.once('load', function() {
             placeholder: 'Add Layer',
             link: entities,
             path: 'components.model.layers',
+            canOverrideTemplate: true,
             tagToString: function (tag) {
                 return projectSettings.get('layers.' + tag + '.name') || 'Missing';
             },
@@ -442,6 +464,8 @@ editor.once('load', function() {
         var panelMaterials = editor.call('attributes:addPanel');
         panelMaterials.class.add('component', 'override-material');
         panel.append(panelMaterials);
+
+        editor.call('attributes:registerOverridePath', 'components.model.mapping', panelMaterials.element);
 
         // check if we should show the override button
         // mainly if all entities have a model component
@@ -555,6 +579,7 @@ editor.once('load', function() {
                 name: meshInstances[index] ? meshInstances[index].node.name : 'node ' + index,
                 link: entities,
                 path: 'components.model.mapping.' + index,
+                canOverrideTemplate: true,
                 over: function(type, data) {
                     valuesBefore = entities.map(function (entity) {
                         var path = 'components.model.mapping.' + index;

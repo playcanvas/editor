@@ -25,7 +25,8 @@ editor.once('load', function() {
             min: 0,
             type: 'vec3',
             link: entities,
-            path: 'components.zone.size'
+            path: 'components.zone.size',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'zone:size', fieldSize[0].parent.innerElement.firstChild.ui);

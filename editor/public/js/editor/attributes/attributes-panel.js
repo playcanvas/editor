@@ -12,6 +12,13 @@ editor.once('load', function() {
         editor.emit('attributes:clear');
     };
 
+    var overridesSidebar = editor.call('layout.overridesSidebar');
+
+    editor.method('attributes:registerOverridePath', (path, field) => {
+        if (!overridesSidebar) return;
+        overridesSidebar.registerElementForPath(path, field, root.innerElement);
+    });
+
     // clearing
     editor.method('attributes:clear', clearPanel);
 
@@ -456,6 +463,10 @@ editor.once('load', function() {
             }
         }
 
+        if (args.canOverrideTemplate && args.path) {
+            editor.call('attributes:registerOverridePath', args.path, panel.element);
+        }
+
         var field;
 
         args.linkEvents = [ ];
@@ -764,7 +775,13 @@ editor.once('load', function() {
                 };
 
                 // when tag field is initialized
-                var onSet = function (values) {
+                var onSet = function (values, oldValues) {
+                    if (oldValues) {
+                        for (let i = 0; i < oldValues.length; i++) {
+                            onRemove(oldValues[i]);
+                        }
+                    }
+
                     for (var i = 0; i < values.length; i++) {
                         var value = values[i];
                         onInsert(value);
@@ -1879,6 +1896,11 @@ editor.once('load', function() {
             inspectedItems.push(items[i].once('destroy', function() {
                 editor.call('attributes:clear');
             }));
+        }
+
+        if (overridesSidebar) {
+            overridesSidebar.entity = null;
+            overridesSidebar.hidden = true;
         }
 
         root.headerText = type;

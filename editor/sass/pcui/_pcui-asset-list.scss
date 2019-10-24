@@ -1,6 +1,7 @@
 .pcui-asset-list {
     margin: $element-margin;
     transition: opacity 100ms;
+    overflow: hidden;
 
     .pcui-text-input {
         margin: 0;
@@ -84,7 +85,8 @@
 // readonly
 .pcui-asset-list.pcui-readonly {
     .pcui-asset-list-btn-selection-mode,
-    .pcui-text-input {
+    .pcui-text-input,
+    .pcui-asset-list-btn-remove {
         display: none;
     }
 }

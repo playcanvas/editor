@@ -225,6 +225,7 @@ editor.once('load', function() {
                 script: 'Script',
                 shader: 'Shader',
                 sprite: 'Sprite',
+                template: 'Template',
                 text: 'Text',
                 textureTarget: 'Texture',
                 textureSource: 'Texture (source)',
@@ -251,6 +252,7 @@ editor.once('load', function() {
                 script: 'Script',
                 shader: 'Shader',
                 sprite: 'Sprite',
+                template: 'Template',
                 text: 'Text',
                 textureTarget: 'Texture',
                 textureSource: 'Texture (source)',
@@ -258,6 +260,10 @@ editor.once('load', function() {
                 textureAtlasSource: 'Texture Atlas (source)'
             }
         };
+    }
+
+    if (!editor.call('users:hasFlag', 'hasTemplates') || legacyScripts) {
+        delete filterOptions.options.template;
     }
 
     var filterField = new ui.SelectField(filterOptions);

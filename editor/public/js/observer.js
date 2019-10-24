@@ -521,7 +521,9 @@ Observer.prototype.unset = function(path, silent, remote) {
 
     // recursive
     if (node._data[key] && node._data[key]._data) {
-        for(var i = 0; i < node._data[key]._keys.length; i++) {
+        // do this in reverse order because node._data[key]._keys gets
+        // modified as we loop
+        for(var i = node._data[key]._keys.length - 1; i >= 0; i--) {
             obj.unset(path + '.' + node._data[key]._keys[i], true);
         }
     }

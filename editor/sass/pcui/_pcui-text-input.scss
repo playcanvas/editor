@@ -61,6 +61,8 @@
 // readonly state
 .pcui-text-input.pcui-readonly {
     color: $text-secondary;
+    background-color: transparentize($color: $bcg-dark, $amount: 1 - $element-opacity-readonly);
+    border-color: transparent;
 }
 
 // disabled state
@@ -80,7 +82,7 @@
 
     &:after {
         content: attr(placeholder);
-        background-color: inherit;
+        background-color: transparent;
         position: absolute;
         top: 0;
         right: 0;

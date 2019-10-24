@@ -384,7 +384,7 @@ editor.once('load', function () {
             // clear list item
             var items = fieldAssetsList.element.children;
             var i = items.length;
-            while (i-- > 1) {
+            while (i--) {
                 if (!items[i].ui || !(items[i].ui instanceof ui.ListItem))
                     continue;
 
@@ -448,34 +448,21 @@ editor.once('load', function () {
                     addAssetListItem(assets[a]);
             }
 
+            // eslint-disable-next-line no-loop-func
             events.push(link[i].on(pathAt(args, i) + ':set', function (assets, assetsOld) {
-                var a, id;
-
                 if (!(assets instanceof Array))
                     return;
 
                 if (!(assetsOld instanceof Array))
                     assetsOld = [];
 
-                var assetIds = {};
-                for (a = 0; a < assets.length; a++)
-                    assetIds[assets[a]] = true;
-
-                var assetOldIds = {};
-                for (a = 0; a < assetsOld.length; a++)
-                    assetOldIds[assetsOld[a]] = true;
-
-                // remove
-                for (id in assetOldIds) {
-                    if (assetIds[id])
-                        continue;
-
-                    removeAssetListItem(id);
+                for (let a = 0; a < assetsOld.length; a++) {
+                    removeAssetListItem(assetsOld[a]);
                 }
 
-                // add
-                for (id in assetIds)
-                    addAssetListItem(id);
+                for (let a = 0; a < assets.length; a++) {
+                    addAssetListItem(assets[a]);
+                }
             }));
 
             events.push(createInsertHandler(i));
@@ -516,6 +503,10 @@ editor.once('load', function () {
 
             events.length = 0;
         });
+
+        if (args.canOverrideTemplate && (args.path || args.paths)) {
+            editor.call('attributes:registerOverridePath', pathAt(args, 0), fieldAssets.parent.element);
+        }
 
         return fieldAssetsList;
     });

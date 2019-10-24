@@ -26,7 +26,8 @@ editor.once('load', function() {
                 'kinematic': 'Kinematic'
             },
             link: entities,
-            path: 'components.rigidbody.type'
+            path: 'components.rigidbody.type',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'rigidbody:type', fieldType.parent.innerElement.firstChild.ui);
@@ -50,7 +51,8 @@ editor.once('load', function() {
             step: .1,
             min: 0,
             link: entities,
-            path: 'components.rigidbody.mass'
+            path: 'components.rigidbody.mass',
+            canOverrideTemplate: true
         });
         fieldMass.placeholder = 'Kg';
         // reference
@@ -71,6 +73,9 @@ editor.once('load', function() {
             path: 'components.rigidbody.linearDamping'
         });
         fieldLinearDamping.style.width = '32px';
+
+        editor.call('attributes:registerOverridePath', 'components.rigidbody.linearDamping', fieldLinearDamping.element);
+
         // reference
         editor.call('attributes:reference:attach', 'rigidbody:damping', fieldLinearDamping.parent.innerElement.firstChild.ui);
 
@@ -89,6 +94,7 @@ editor.once('load', function() {
         });
         fieldAngularDamping.style.width = '32px';
 
+        editor.call('attributes:registerOverridePath', 'components.rigidbody.angularDamping', fieldAngularDamping.element);
 
         // linearFactor
         var fieldLinearFactor = editor.call('attributes:addField', {
@@ -101,7 +107,8 @@ editor.once('load', function() {
             max: 1,
             type: 'vec3',
             link: entities,
-            path: 'components.rigidbody.linearFactor'
+            path: 'components.rigidbody.linearFactor',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'rigidbody:linearFactor', fieldLinearFactor[0].parent.innerElement.firstChild.ui);
@@ -118,7 +125,8 @@ editor.once('load', function() {
             max: 1,
             type: 'vec3',
             link: entities,
-            path: 'components.rigidbody.angularFactor'
+            path: 'components.rigidbody.angularFactor',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'rigidbody:angularFactor', fieldAngularFactor[0].parent.innerElement.firstChild.ui);
@@ -134,7 +142,8 @@ editor.once('load', function() {
             min: 0,
             max: 1,
             link: entities,
-            path: 'components.rigidbody.friction'
+            path: 'components.rigidbody.friction',
+            canOverrideTemplate: true
         });
         fieldFriction.style.width = '32px';
         // reference
@@ -165,7 +174,8 @@ editor.once('load', function() {
             min: 0,
             max: 1,
             link: entities,
-            path: 'components.rigidbody.restitution'
+            path: 'components.rigidbody.restitution',
+            canOverrideTemplate: true
         });
         fieldRestitution.style.width = '32px';
         // reference

@@ -527,6 +527,17 @@ editor.once('load', function() {
         }
     };
 
+    if (editor.call('users:hasFlag', 'hasTemplates') && !legacyScripts) {
+        menuData.entity.items.template = {
+            title: 'Template',
+            filter: () => {
+                return editor.call('selector:type') === 'entity' &&
+                       editor.call('selector:items').length === 1;
+            },
+            items: editor.call('menu:entities:template')
+        };
+    }
+
     if (legacyScripts) {
         menuData['entity']['items']['add-builtin-script'] = {
             title: 'Add Built-In Script',

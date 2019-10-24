@@ -76,6 +76,11 @@
     .pcui-asset-input-edit, .pcui-asset-input-remove {
         display: none;
     }
+
+    .pcui-asset-input-controls {
+        background-color: transparentize($color: $bcg-dark, $amount: 1 - $element-opacity-readonly);
+        border-color: transparent;
+    }
 }
 
 // disabled state

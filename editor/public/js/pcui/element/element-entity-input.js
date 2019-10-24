@@ -81,6 +81,12 @@ Object.assign(pcui, (function () {
                     this._highlightEntityFn(this.value, false);
                 }
             });
+
+            this.on('hide', () => {
+                if (this.value) {
+                    this._highlightEntityFn(this.value, false);
+                }
+            });
         }
 
         _pickEntity(callback) {
@@ -123,7 +129,7 @@ Object.assign(pcui, (function () {
                 }
             } else {
                 this._label.unlink();
-                this._label.value = 'Select Entity';
+                this._label.value = this.readOnly ? '' : 'Select Entity';
                 this.class.add(CLASS_EMPTY);
             }
 
@@ -172,6 +178,7 @@ Object.assign(pcui, (function () {
             if (this._destroyed) return;
             this.dom.removeEventListener('focus', this._domEvtFocus);
             this.dom.removeEventListener('blur', this._domEvtBlur);
+            this._highlightEntity(this.value, false);
 
             super.destroy();
         }

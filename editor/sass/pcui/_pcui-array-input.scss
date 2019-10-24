@@ -1,5 +1,6 @@
 .pcui-array-input {
     margin: $element-margin;
+    overflow: hidden;
 
     .pcui-numeric-input {
         margin: 0 0 $element-margin 0;
@@ -31,5 +32,11 @@
 .pcui-array-input-item-asset {
     > .pcui-button {
         margin-top: 36px;
+    }
+}
+
+.pcui-array-input.pcui-readonly {
+    .pcui-array-input-item-delete {
+        display: none;
     }
 }

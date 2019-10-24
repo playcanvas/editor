@@ -40,17 +40,20 @@ editor.once('load', function() {
                 {v: '', t: '...'},
                 {v: ORIENTATION_HORIZONTAL, t: 'Horizontal'},
                 {v: ORIENTATION_VERTICAL, t: 'Vertical'}
-            ]
+            ],
+            canOverrideTemplate: true
         });
 
         addField('reverseX', {
             name: 'Reverse X',
-            type: 'checkbox'
+            type: 'checkbox',
+            canOverrideTemplate: true
         });
 
         addField('reverseY', {
             name: 'Reverse Y',
-            type: 'checkbox'
+            type: 'checkbox',
+            canOverrideTemplate: true
         });
 
         addField('alignment', {
@@ -60,19 +63,22 @@ editor.once('load', function() {
             precision: 2,
             step: 0.1,
             min: 0,
-            max: 1
+            max: 1,
+            canOverrideTemplate: true
         });
 
         addField('padding', {
             name: 'Padding',
             type: 'vec4',
-            placeholder: ['←', '↓', '→', '↑']
+            placeholder: ['←', '↓', '→', '↑'],
+            canOverrideTemplate: true
         });
 
         addField('spacing', {
             name: 'Spacing',
             type: 'vec2',
             placeholder: ['↔', '↕'],
+            canOverrideTemplate: true
         });
 
         addField('widthFitting', {
@@ -84,7 +90,8 @@ editor.once('load', function() {
                 {v: FITTING_STRETCH, t: 'Stretch'},
                 {v: FITTING_SHRINK, t: 'Shrink'},
                 {v: FITTING_BOTH, t: 'Both'}
-            ]
+            ],
+            canOverrideTemplate: true
         });
 
         addField('heightFitting', {
@@ -96,12 +103,14 @@ editor.once('load', function() {
                 {v: FITTING_STRETCH, t: 'Stretch'},
                 {v: FITTING_SHRINK, t: 'Shrink'},
                 {v: FITTING_BOTH, t: 'Both'}
-            ]
+            ],
+            canOverrideTemplate: true
         });
 
         addField('wrap', {
             name: 'Wrap',
-            type: 'checkbox'
+            type: 'checkbox',
+            canOverrideTemplate: true
         });
 
         panel.on('destroy', function () {

@@ -27,7 +27,8 @@ editor.once('load', function() {
                 {v: 'group', t: 'Group'}
             ],
             link: entities,
-            path: 'components.element.type'
+            path: 'components.element.type',
+            canOverrideTemplate: true
         });
 
         // reference
@@ -72,7 +73,8 @@ editor.once('load', function() {
             min: 0,
             max: 1,
             link: entities,
-            path: 'components.element.anchor'
+            path: 'components.element.anchor',
+            canOverrideTemplate: true
         });
 
         var onAnchorChange = function () {
@@ -212,7 +214,8 @@ editor.once('load', function() {
             min: 0,
             max: 1,
             link: entities,
-            path: 'components.element.pivot'
+            path: 'components.element.pivot',
+            canOverrideTemplate: true
         });
 
         // reference
@@ -234,8 +237,10 @@ editor.once('load', function() {
             panel: panelAutoSize,
             type: 'checkbox',
             link: entities,
-            path: 'components.element.autoWidth'
+            path: 'components.element.autoWidth',
         });
+        editor.call('attributes:registerOverridePath', 'components.element.autoWidth', fieldAutoWidth.element);
+
         // label
         label = new ui.Label({ text: 'Width' });
         label.class.add('label-infield');
@@ -258,6 +263,8 @@ editor.once('load', function() {
             link: entities,
             path: 'components.element.autoHeight'
         });
+        editor.call('attributes:registerOverridePath', 'components.element.autoHeight', fieldAutoHeight.element);
+
         // label
         label = new ui.Label({ text: 'Height' });
         label.class.add('label-infield');
@@ -406,6 +413,7 @@ editor.once('load', function() {
             link: entities,
             path: 'components.element.width'
         });
+        editor.call('attributes:registerOverridePath', 'components.element.width', fieldWidth.element);
 
         fieldWidth.style.width = '32px';
 
@@ -417,8 +425,10 @@ editor.once('load', function() {
             type: 'number',
             placeholder: 'Height',
             link: entities,
-            path: 'components.element.height'
+            path: 'components.element.height',
+            canOverrideTemplate: true
         });
+        editor.call('attributes:registerOverridePath', 'components.element.height', fieldHeight.element);
 
         fieldHeight.style.width = '32px';
 
@@ -439,7 +449,8 @@ editor.once('load', function() {
             type: 'vec4',
             placeholder: ['←', '↓', '→', '↑'],
             link: entities,
-            path: 'components.element.margin'
+            path: 'components.element.margin',
+            canOverrideTemplate: true
         });
 
         // reference
@@ -470,7 +481,8 @@ editor.once('load', function() {
             min: 0,
             max: 1,
             link: entities,
-            path: 'components.element.alignment'
+            path: 'components.element.alignment',
+            canOverrideTemplate: true
         });
 
         // reference
@@ -485,7 +497,8 @@ editor.once('load', function() {
             type: 'asset',
             kind: 'font',
             link: entities,
-            path: 'components.element.fontAsset'
+            path: 'components.element.fontAsset',
+            canOverrideTemplate: true
         });
 
         fieldFontAsset.parent.hidden = fieldType.value !== 'text';
@@ -510,7 +523,8 @@ editor.once('load', function() {
             name: 'Text',
             type: 'text',
             link: entities,
-            path: 'components.element.text'
+            path: 'components.element.text',
+            canOverrideTemplate: true
         });
 
         // in order to display RTL text correctly in the editor
@@ -525,7 +539,8 @@ editor.once('load', function() {
             name: 'Key',
             type: 'text',
             link: entities,
-            path: 'components.element.key'
+            path: 'components.element.key',
+            canOverrideTemplate: true
         });
 
         // reference
@@ -646,7 +661,8 @@ editor.once('load', function() {
             name: 'Enable Markup',
             type: 'checkbox',
             link: entities,
-            path: 'components.element.enableMarkup'
+            path: 'components.element.enableMarkup',
+            canOverrideTemplate: true
         });
 
         fieldEnableMarkup.parent.hidden = fieldType.value !== 'text';
@@ -671,6 +687,8 @@ editor.once('load', function() {
             link: entities,
             path: 'components.element.autoFitWidth'
         });
+        editor.call('attributes:registerOverridePath', 'components.element.autoFitWidth', fieldAutoFitWidth.element);
+
         label = new ui.Label({ text: 'Width' });
         label.class.add('label-infield');
         label.style.paddingRight = '12px';
@@ -690,6 +708,8 @@ editor.once('load', function() {
             link: entities,
             path: 'components.element.autoFitHeight'
         });
+        editor.call('attributes:registerOverridePath', 'components.element.autoFitHeight', fieldAutoFitHeight.element);
+
         label = new ui.Label({ text: 'Height' });
         label.class.add('label-infield');
         label.style.paddingRight = '12px';
@@ -707,7 +727,8 @@ editor.once('load', function() {
             name: 'Font Size',
             type: 'number',
             link: entities,
-            path: 'components.element.fontSize'
+            path: 'components.element.fontSize',
+            canOverrideTemplate: true
         });
 
         fieldFontSize.parent.hidden = fieldType.value !== 'text';
@@ -723,6 +744,7 @@ editor.once('load', function() {
             link: entities,
             path: 'components.element.minFontSize'
         });
+        editor.call('attributes:registerOverridePath', 'components.element.minFontSize', fieldMinFontSize.element);
 
         // reference
         editor.call('attributes:reference:attach', 'element:minFontSize', fieldMinFontSize);
@@ -735,6 +757,7 @@ editor.once('load', function() {
             link: entities,
             path: 'components.element.maxFontSize'
         });
+        editor.call('attributes:registerOverridePath', 'components.element.maxFontSize', fieldMaxFontSize.element);
 
         // reference
         editor.call('attributes:reference:attach', 'element:maxFontSize', fieldMaxFontSize);
@@ -752,7 +775,8 @@ editor.once('load', function() {
             name: 'Line Height',
             type: 'number',
             link: entities,
-            path: 'components.element.lineHeight'
+            path: 'components.element.lineHeight',
+            canOverrideTemplate: true
         });
 
         fieldLineHeight.parent.hidden = fieldType.value !== 'text';
@@ -765,7 +789,8 @@ editor.once('load', function() {
             name: 'Wrap Lines',
             type: 'checkbox',
             link: entities,
-            path: 'components.element.wrapLines'
+            path: 'components.element.wrapLines',
+            canOverrideTemplate: true
         });
 
         fieldWrapLines.parent.hidden = fieldType.value !== 'text';
@@ -784,7 +809,8 @@ editor.once('load', function() {
             min: 1,
             allowNull: true,
             link: entities,
-            path: 'components.element.maxLines'
+            path: 'components.element.maxLines',
+            canOverrideTemplate: true
         });
 
         fieldMaxLines.parent.hidden = fieldType.value !== 'text' || !fieldWrapLines.value;
@@ -796,7 +822,8 @@ editor.once('load', function() {
             name: 'Spacing',
             type: 'number',
             link: entities,
-            path: 'components.element.spacing'
+            path: 'components.element.spacing',
+            canOverrideTemplate: true
         });
 
         fieldSpacing.parent.hidden = fieldType.value !== 'text';
@@ -810,7 +837,8 @@ editor.once('load', function() {
             type: 'rgb',
             channels: 3,
             link: entities,
-            path: 'components.element.color'
+            path: 'components.element.color',
+            canOverrideTemplate: true
         });
 
         // reference
@@ -823,7 +851,8 @@ editor.once('load', function() {
             min: 0,
             max: 1,
             link: entities,
-            path: 'components.element.opacity'
+            path: 'components.element.opacity',
+            canOverrideTemplate: true
         });
 
         fieldOpacity.style.width = '32px';
@@ -850,7 +879,8 @@ editor.once('load', function() {
             type: 'rgb',
             channels: 4,
             link: entities,
-            path: 'components.element.outlineColor'
+            path: 'components.element.outlineColor',
+            canOverrideTemplate: true
         });
         fieldOutlineColor.parent.hidden = (fieldType.value !== 'text');
         editor.call('attributes:reference:attach', 'element:outlineColor', fieldOutlineColor.parent.innerElement.firstChild.ui);
@@ -864,7 +894,8 @@ editor.once('load', function() {
             min: 0,
             max: 1,
             link: entities,
-            path: 'components.element.outlineThickness'
+            path: 'components.element.outlineThickness',
+            canOverrideTemplate: true
         });
         fieldOutlineThickness.style.width = '32px';
         fieldOutlineThickness.parent.hidden = (fieldType.value !== 'text');
@@ -890,7 +921,8 @@ editor.once('load', function() {
             type: 'rgb',
             channels: 4,
             link: entities,
-            path: 'components.element.shadowColor'
+            path: 'components.element.shadowColor',
+            canOverrideTemplate: true
         });
         fieldShadowColor.parent.hidden = (fieldType.value !== 'text');
         editor.call('attributes:reference:attach', 'element:shadowColor', fieldShadowColor.parent.innerElement.firstChild.ui);
@@ -905,7 +937,8 @@ editor.once('load', function() {
             min: -1,
             max: 1,
             link: entities,
-            path: 'components.element.shadowOffset'
+            path: 'components.element.shadowOffset',
+            canOverrideTemplate: true
         });
         fieldShadowOffset[0].parent.hidden = (fieldType.value !== 'text');
         editor.call('attributes:reference:attach', 'element:shadowOffset', fieldShadowOffset[0].parent.innerElement.firstChild.ui);
@@ -916,7 +949,8 @@ editor.once('load', function() {
             type: 'vec4',
             placeholder: ['u', 'v', 'w', 'h'],
             link: entities,
-            path: 'components.element.rect'
+            path: 'components.element.rect',
+            canOverrideTemplate: true
         });
 
         // reference
@@ -927,7 +961,8 @@ editor.once('load', function() {
             name: 'Mask',
             type: 'checkbox',
             link: entities,
-            path: 'components.element.mask'
+            path: 'components.element.mask',
+            canOverrideTemplate: true
         });
 
         fieldMask.parent.hidden = fieldType.value !== 'image';
@@ -941,7 +976,8 @@ editor.once('load', function() {
             type: 'asset',
             kind: 'texture',
             link: entities,
-            path: 'components.element.textureAsset'
+            path: 'components.element.textureAsset',
+            canOverrideTemplate: true
         });
 
         // reference
@@ -953,7 +989,8 @@ editor.once('load', function() {
             type: 'asset',
             kind: 'sprite',
             link: entities,
-            path: 'components.element.spriteAsset'
+            path: 'components.element.spriteAsset',
+            canOverrideTemplate: true
         });
 
         // reference
@@ -968,7 +1005,8 @@ editor.once('load', function() {
             precision: 0,
             step: 1,
             link: entities,
-            path: 'components.element.spriteFrame'
+            path: 'components.element.spriteFrame',
+            canOverrideTemplate: true
         });
 
         var fieldPpu = editor.call('attributes:addField', {
@@ -978,7 +1016,8 @@ editor.once('load', function() {
             link: entities,
             min: 0,
             allowNull: true,
-            path: 'components.element.pixelsPerUnit'
+            path: 'components.element.pixelsPerUnit',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'element:pixelsPerUnit', fieldPpu.parent.innerElement.firstChild.ui, null, panel);
@@ -989,7 +1028,8 @@ editor.once('load', function() {
             type: 'asset',
             kind: 'material',
             link: entities,
-            path: 'components.element.materialAsset'
+            path: 'components.element.materialAsset',
+            canOverrideTemplate: true
         });
 
         // reference
@@ -1000,7 +1040,8 @@ editor.once('load', function() {
             name: 'Use Input',
             type: 'checkbox',
             link: entities,
-            path: 'components.element.useInput'
+            path: 'components.element.useInput',
+            canOverrideTemplate: true
         });
 
         // reference
@@ -1028,7 +1069,8 @@ editor.once('load', function() {
             type: 'number',
             enum: batchEnum,
             link: entities,
-            path: 'components.element.batchGroupId'
+            path: 'components.element.batchGroupId',
+            canOverrideTemplate: true
         });
 
 
@@ -1073,6 +1115,7 @@ editor.once('load', function() {
             placeholder: 'Add Layer',
             link: entities,
             path: 'components.element.layers',
+            canOverrideTemplate: true,
             tagToString: function (tag) {
                 return projectSettings.get('layers.' + tag + '.name') || 'Missing';
             },

@@ -2266,6 +2266,12 @@ strong {
             &:hover > .icon:after {
                 color: $text-primary;
             }
+
+            &:hover {
+                > .icon:after, > .text:before {
+                    color: $text-primary;
+                }
+            }
             > .icon:after {
                 content: '\E185';
                 line-height: 22px;
@@ -2275,6 +2281,12 @@ strong {
                 background-color: transparent;
                 color: $text-darkest;
             }
+
+            > .text:before {
+                color: $text-darkest;
+                text-shadow: -1px 2px 1px $bcg-primary;
+            }
+
             > .users {
                 position: absolute;
                 top: 0;
@@ -2300,6 +2312,10 @@ strong {
         }
         &.selected {
             > .title > .icon:after {
+                color: $text-primary;
+            }
+
+            > .title > .text:before {
                 color: $text-primary;
             }
         }
@@ -2363,6 +2379,17 @@ strong {
         }
         &.c-scrollbar > .title > .icon:after {
             content: '\E409';
+        }
+        &.template-instance > .title > .icon:after {
+            content: '\E411';
+        }
+        &.template-instance-child > .title > .text:before {
+            position: absolute;
+            left: -13px;
+            top: -9px;
+            font-size: 12px;
+            content: '\E411';
+            @extend .font-icon;
         }
         &.rename {
             > .title {
@@ -2621,6 +2648,14 @@ strong {
         &.type-wasm {
             > .thumbnail.placeholder:after {
                 content: '\E208';
+            }
+            > .icon {
+                display: none;
+            }
+        }
+        &.type-template {
+            > .thumbnail.placeholder:after {
+                content: '\E411';
             }
             > .icon {
                 display: none;

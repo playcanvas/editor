@@ -24,7 +24,8 @@ editor.once('load', function() {
             type: 'animation',
             link: entities,
             path: 'components.animation.assets',
-            reference: 'animation:assets'
+            reference: 'animation:assets',
+            canOverrideTemplate: true
         });
 
         var first = true;
@@ -126,7 +127,8 @@ editor.once('load', function() {
             precision: 3,
             step: 0.1,
             link: entities,
-            path: 'components.animation.speed'
+            path: 'components.animation.speed',
+            canOverrideTemplate: true
         });
         fieldSpeed.style.width = '32px';
         // reference
@@ -164,6 +166,8 @@ editor.once('load', function() {
             link: entities,
             path: 'components.animation.activate'
         });
+        editor.call('attributes:registerOverridePath', 'components.animation.activate', fieldActivate.element);
+
         // label
         var label = new ui.Label({ text: 'Activate' });
         label.class.add('label-infield');
@@ -177,8 +181,11 @@ editor.once('load', function() {
             panel: panelPlayback,
             type: 'checkbox',
             link: entities,
-            path: 'components.animation.loop'
+            path: 'components.animation.loop',
+            canOverrideTemplate: true
         });
+        editor.call('attributes:registerOverridePath', 'components.animation.loop', fieldLoop.element);
+
         // label
         var label = new ui.Label({ text: 'Loop' });
         label.class.add('label-infield');

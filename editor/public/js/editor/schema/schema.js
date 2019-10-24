@@ -101,4 +101,10 @@ editor.once('load', function () {
 
         return type;
     });
+
+    editor.method('schema:getMergeMethodForPath', function (schema, path) {
+        var h = pathToSchema(path, schema);
+
+        return h && h.$mergeMethod;
+    });
 });

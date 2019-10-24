@@ -1,0 +1,156 @@
+.template-entity-inspector {
+    padding: 10px 10px;
+    border-bottom: 1px solid $bcg-dark;
+
+    &.pcui-disabled {
+        opacity: 0.7;
+    }
+}
+
+
+.template-entity-inspector-header {
+    color: $text-primary;
+    font-size: 12px;
+    flex-basis: 100%;
+    flex-grow: 1;
+    flex-shrink: 0;
+    margin-left: 0;
+    margin-bottom: 10px;
+}
+
+.template-entity-inspector-container {
+    border: 1px solid $bcg-dark;
+    border-radius: 5px;
+    background: $bcg-dark;
+}
+
+.template-entity-inspector-container-top,
+.template-entity-inspector-container-middle {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.template-entity-inspector-container-top {
+    padding-top: 5px;
+}
+
+.template-entity-inspector-container-middle {
+    padding-bottom: 5px;
+}
+
+.template-entity-inspector-root {
+    font-size: 12px;
+    &:before {
+        content: '\E411';
+        @extend .font-icon;
+        margin-right: 5px;
+        vertical-align: middle;
+    }
+
+    &:hover {
+        cursor: pointer;
+        color: $text-active;
+    }
+}
+
+.template-entity-inspector-overrides {
+    font-size: 12px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.template-entity-inspector-overrides-positive {
+    .template-entity-inspector-overrides {
+        color: #00F1FF;
+    }
+}
+
+.template-entity-inspector-entity-list {
+    background: $bcg-darker;
+    max-height: 144px;
+}
+
+.template-entity-inspector-entity-list > .pcui-container {
+    padding-left: 5px;
+    padding-right: 5px;
+    height: 36px;
+    flex-shrink: 0;
+
+    border-bottom: 1px solid $border-primary;
+
+    &:last-child {
+        border-bottom: 0;
+    }
+
+    .pcui-button {
+        visibility: hidden;
+    }
+
+    &:hover, &.template-entity-inspector-entity-list-clicked {
+        background: $bcg-darkest;
+
+        .template-entity-inspector-entity-list-name {
+            color: $text-primary;
+        }
+
+        .pcui-button {
+            visibility: visible;
+        }
+    }
+}
+
+.template-entity-inspector-entity-list-name {
+    line-height: 24px;
+    font-size: 12px;
+
+    &:before {
+        @extend .font-icon;
+        content: '\E185';
+        margin-right: 10px;
+    }
+}
+
+.template-entity-inspector-entity-list-icon {
+    position: absolute;
+    left: 16px;
+    top: 0px;
+    font-size: 12px;
+    color: #00F1FF;
+}
+
+.template-entity-inspector-entity-list-icon-font {
+    @extend .font-icon;
+    left: 8px;
+    top: -4px;
+    font-size: 20px;
+}
+
+.template-entity-inspector-entity-list-btn-view,
+.template-entity-inspector-entity-list-btn-dropdown {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    margin-right: 5px;
+    margin-left: 0;
+}
+
+.template-entity-inspector-entity-list-dropdown {
+    position: absolute;
+    right: 20px;
+    background: $bcg-primary;
+    z-index: 1;
+    max-width: 250px;
+    min-width: 150px;
+    box-shadow: 0 0 2px 1px $bcg-darkest;
+
+    > .pcui-label {
+        flex-shrink: 0;
+        margin: 0;
+        padding: 10px;
+
+        &:hover {
+            background: $bcg-darkest;
+            cursor: pointer;
+        }
+    }
+}

@@ -29,7 +29,8 @@ editor.once('load', function() {
                 'point': 'Point'
             },
             link: entities,
-            path: 'components.light.type'
+            path: 'components.light.type',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'light:type', fieldType.parent.innerElement.firstChild.ui);
@@ -41,7 +42,8 @@ editor.once('load', function() {
             name: 'Color',
             type: 'rgb',
             link: entities,
-            path: 'components.light.color'
+            path: 'components.light.color',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'light:color', fieldColor.parent.innerElement.firstChild.ui);
@@ -57,7 +59,8 @@ editor.once('load', function() {
             min: 0,
             max: 32,
             link: entities,
-            path: 'components.light.intensity'
+            path: 'components.light.intensity',
+            canOverrideTemplate: true
         });
         fieldIntensity.style.width = '32px';
         // reference
@@ -87,7 +90,8 @@ editor.once('load', function() {
             step: .1,
             min: 0,
             link: entities,
-            path: 'components.light.range'
+            path: 'components.light.range',
+            canOverrideTemplate: true
         });
         fieldRange.parent.hidden = ! (fieldType.value === '' || fieldType.value !== 'directional');
         fieldType.on('change', function(value) {
@@ -107,7 +111,8 @@ editor.once('load', function() {
                 1: 'Inverse Squared'
             },
             link: entities,
-            path: 'components.light.falloffMode'
+            path: 'components.light.falloffMode',
+            canOverrideTemplate: true
         });
         fieldFalloffMode.parent.hidden = ! (fieldType.value === '' || fieldType.value !== 'directional');
         fieldType.on('change', function(value) {
@@ -130,6 +135,8 @@ editor.once('load', function() {
             link: entities,
             path: 'components.light.innerConeAngle'
         });
+        editor.call('attributes:registerOverridePath', 'components.light.innerConeAngle', fieldInnerConeAngle.element);
+
         fieldInnerConeAngle.style.width = '32px';
         fieldInnerConeAngle.parent.hidden = ! (fieldType.value === '' || fieldType.value === 'spot');
         fieldType.on('change', function(value) {
@@ -149,8 +156,10 @@ editor.once('load', function() {
             min: 0,
             max: 90,
             link: entities,
-            path: 'components.light.outerConeAngle'
+            path: 'components.light.outerConeAngle',
+            canOverrideTemplate: true
         });
+        editor.call('attributes:registerOverridePath', 'components.light.outerConeAngle', fieldOuterConeAngle.element);
         fieldOuterConeAngle.style.width = '32px';
 
 
@@ -166,7 +175,8 @@ editor.once('load', function() {
             name: 'States',
             type: 'checkbox',
             link: entities,
-            path: 'components.light.isStatic'
+            path: 'components.light.isStatic',
+            canOverrideTemplate: true
         });
         // label
         var label = new ui.Label({ text: 'Static' });
@@ -185,6 +195,8 @@ editor.once('load', function() {
             link: entities,
             path: 'components.light.bake'
         });
+        editor.call('attributes:registerOverridePath', 'components.light.bake', fieldLightMap.element);
+
         // label
         var label = new ui.Label({ text: 'Bake' });
         label.class.add('label-infield');
@@ -200,6 +212,9 @@ editor.once('load', function() {
             link: entities,
             path: 'components.light.bakeDir'
         });
+
+        editor.call('attributes:registerOverridePath', 'components.light.bakeDir', fieldLightMapDirection.element);
+
         // label
         var labelLightMapDirection = new ui.Label({ text: 'Direction' });
         labelLightMapDirection.class.add('label-infield');
@@ -219,8 +234,11 @@ editor.once('load', function() {
             name: 'Affect',
             type: 'checkbox',
             link: entities,
-            path: 'components.light.affectDynamic'
+            path: 'components.light.affectDynamic',
+            canOverrideTemplate: true
         });
+        editor.call('attributes:registerOverridePath', 'components.light.affectDynamic', fieldAffectDynamic.element);
+
         // label
         var label = new ui.Label({ text: 'Non-Baked' });
         label.class.add('label-infield');
@@ -235,8 +253,11 @@ editor.once('load', function() {
             panel: fieldAffectDynamic.parent,
             type: 'checkbox',
             link: entities,
-            path: 'components.light.affectLightmapped'
+            path: 'components.light.affectLightmapped',
+            canOverrideTemplate: true
         });
+        editor.call('attributes:registerOverridePath', 'components.light.affectLightmapped', fieldAffectLightmapped.element);
+
         // label
         var labelBaked = new ui.Label({ text: 'Baked' });
         labelBaked.class.add('label-infield');
@@ -262,7 +283,8 @@ editor.once('load', function() {
             name: 'Shadows',
             type: 'checkbox',
             link: entities,
-            path: 'components.light.castShadows'
+            path: 'components.light.castShadows',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'light:castShadows', fieldCastShadows.parent.innerElement.firstChild.ui);
@@ -289,7 +311,8 @@ editor.once('load', function() {
                 { v: pc.SHADOWUPDATE_REALTIME, t: 'Realtime' }
             ],
             link: entities,
-            path: 'components.light.shadowUpdateMode'
+            path: 'components.light.shadowUpdateMode',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'light:shadowUpdateMode', fieldShadowUpdateMode.parent.innerElement.firstChild.ui);
@@ -347,7 +370,8 @@ editor.once('load', function() {
                 { v: 4096, t: '4096 x 4096' }
             ],
             link: entities,
-            path: 'components.light.shadowResolution'
+            path: 'components.light.shadowResolution',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'light:shadowResolution', fieldShadowResolution.parent.innerElement.firstChild.ui);
@@ -362,7 +386,8 @@ editor.once('load', function() {
             step: 1,
             min: 0,
             link: entities,
-            path: 'components.light.shadowDistance'
+            path: 'components.light.shadowDistance',
+            canOverrideTemplate: true
         });
         fieldShadowDistance.parent.hidden = ! (fieldType.value === '' || fieldType.value === 'directional');
         fieldType.on('change', function(value) {
@@ -386,7 +411,8 @@ editor.once('load', function() {
                 { v: 3, t: 'Variance Shadow Map (32bit)' }
             ],
             link: entities,
-            path: 'components.light.shadowType'
+            path: 'components.light.shadowType',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'light:shadowType', fieldShadowType.parent.innerElement.firstChild.ui);
@@ -402,7 +428,8 @@ editor.once('load', function() {
                 { v: 1, t: 'Gaussian' }
             ],
             link: entities,
-            path: 'components.light.vsmBlurMode'
+            path: 'components.light.vsmBlurMode',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'light:vsmBlurMode', fieldShadowVsmBlurMode.parent.innerElement.firstChild.ui);
@@ -420,7 +447,8 @@ editor.once('load', function() {
             min: 1,
             max: 25,
             link: entities,
-            path: 'components.light.vsmBlurSize'
+            path: 'components.light.vsmBlurSize',
+            canOverrideTemplate: true
         });
         fieldShadowVsmBlurSize.style.width = '32px';
         // reference
@@ -440,7 +468,8 @@ editor.once('load', function() {
             type: 'number',
             slider: true,
             link: entities,
-            path: 'components.light.vsmBlurSize'
+            path: 'components.light.vsmBlurSize',
+            canOverrideTemplate: true
         });
         fieldShadowVsmBlurSizeSlider.flexGrow = 4;
 
@@ -455,7 +484,8 @@ editor.once('load', function() {
             min: 0,
             max: 1,
             link: entities,
-            path: 'components.light.vsmBias'
+            path: 'components.light.vsmBias',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'light:vsmBias', fieldVsmBias.parent.innerElement.firstChild.ui);
@@ -476,9 +506,13 @@ editor.once('load', function() {
             min: 0,
             max: 1,
             link: entities,
-            path: 'components.light.shadowBias'
+            path: 'components.light.shadowBias',
+            canOverrideTemplate: true
         });
         fieldShadowBias.style.width = '32px';
+
+        editor.call('attributes:registerOverridePath', 'components.light.shadowBias', fieldShadowBias.element);
+
         // reference
         editor.call('attributes:reference:attach', 'light:shadowBias', fieldShadowBias.parent.innerElement.firstChild.ui);
         //
@@ -498,10 +532,14 @@ editor.once('load', function() {
             min: 0,
             max: 1,
             link: entities,
-            path: 'components.light.normalOffsetBias'
+            path: 'components.light.normalOffsetBias',
+            canOverrideTemplate: true
         });
         fieldShadowBiasNormalOffset.style.width = '32px';
         fieldShadowBiasNormalOffset.flexGrow = 2;
+
+        editor.call('attributes:registerOverridePath', 'components.light.normalOffsetBias', fieldShadowBiasNormalOffset.element);
+
         // reference
         editor.call('attributes:reference:attach', 'light:normalOffsetBias', fieldShadowBiasNormalOffset);
 
@@ -521,7 +559,8 @@ editor.once('load', function() {
             type: 'asset',
             kind: fieldType.value === 'point' ? 'cubemap' : 'texture',
             link: entities,
-            path: 'components.light.cookieAsset'
+            path: 'components.light.cookieAsset',
+            canOverrideTemplate: true
         };
         var fieldCookie = editor.call('attributes:addField', argsCookie);
         fieldCookie.parent.hidden = fieldType.value === 'directional';
@@ -559,7 +598,8 @@ editor.once('load', function() {
             min: 0,
             max: 1,
             link: entities,
-            path: 'components.light.cookieIntensity'
+            path: 'components.light.cookieIntensity',
+            canOverrideTemplate: true
         });
         fieldCookieIntensity.style.width = '32px';
         // reference
@@ -588,7 +628,8 @@ editor.once('load', function() {
             min: 0,
             max: 360.0,
             link: entities,
-            path: 'components.light.cookieAngle'
+            path: 'components.light.cookieAngle',
+            canOverrideTemplate: true
         });
         fieldCookieAngle.style.width = '32px';
         // reference
@@ -616,7 +657,8 @@ editor.once('load', function() {
             precision: 3,
             placeholder: [ 'U', 'V' ],
             link: entities,
-            path: 'components.light.cookieOffset'
+            path: 'components.light.cookieOffset',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'light:cookieOffset', fieldCookieOffset[0].parent.innerElement.firstChild.ui);
@@ -631,7 +673,8 @@ editor.once('load', function() {
             precision: 3,
             placeholder: [ 'U', 'V' ],
             link: entities,
-            path: 'components.light.cookieScale'
+            path: 'components.light.cookieScale',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'light:cookieScale', fieldCookieScale[0].parent.innerElement.firstChild.ui);
@@ -652,7 +695,8 @@ editor.once('load', function() {
             name: 'Falloff',
             type: 'checkbox',
             link: entities,
-            path: 'components.light.cookieFalloff'
+            path: 'components.light.cookieFalloff',
+            canOverrideTemplate: true
         });
         fieldCookieFalloff.parent.hidden = fieldType.value !== 'spot';
         fieldType.on('change', function() {
@@ -675,7 +719,8 @@ editor.once('load', function() {
                 'rgb': 'RGB'
             },
             link: entities,
-            path: 'components.light.cookieChannel'
+            path: 'components.light.cookieChannel',
+            canOverrideTemplate: true
         });
         fieldCookieChannel.element.parentNode.removeChild(fieldCookieChannel.element);
         fieldCookie.parent.innerElement.querySelector('.top > .ui-label').parentNode.appendChild(fieldCookieChannel.element);
@@ -709,6 +754,7 @@ editor.once('load', function() {
             placeholder: 'Add Layer',
             link: entities,
             path: 'components.light.layers',
+            canOverrideTemplate: true,
             tagToString: function (tag) {
                 return projectSettings.get('layers.' + tag + '.name') || 'Missing';
             },

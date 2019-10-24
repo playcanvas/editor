@@ -1,0 +1,209 @@
+.template-overrides {
+    background: $bcg-darkest;
+    position: absolute;
+    right: 0;
+    width: 690px;
+    max-height: 90%;
+    border: 1px solid $bcg-darkest;
+}
+
+.template-overrides-top-header {
+    flex-basis: 50px;
+    flex-direction: row;
+    flex-shrink: 0;
+    align-items: center;
+
+    .pcui-label {
+        font-size: 12px;
+        color: $text-primary;
+        width: 50%;
+    }
+}
+
+.template-overrides-btn-close {
+    position: absolute;
+    top: 5px;
+    right: 0;
+}
+
+.template-overrides-margin-left {
+    margin-left: auto;
+}
+
+.template-overrides-container {
+    flex-grow: 1;
+}
+
+.template-overrides-entity {
+    > .pcui-panel-header {
+        border-top: 1px solid $border-primary;
+    }
+
+    > .pcui-panel-content {
+        grid-template-columns: calc(50% - 13px) calc(50% - 13px) 26px;
+        grid-auto-rows: min-content;
+        grid-auto-flow: column;
+    }
+}
+
+.template-overrides-column-left,
+.template-overrides-column-right {
+    padding: 9px 15px;
+    margin: 0;
+    height: initial;
+
+    &.pcui-label-group  {
+        > .pcui-label {
+            font-size: 12px;
+            width: 130px;
+        }
+
+        // align asset lists and arrays at flex start
+        .pcui-asset-list, .pcui-array-input {
+            align-self: flex-start;
+        }
+    }
+}
+
+.template-overrides-column-no-top-padding {
+    padding-top: 0;
+}
+
+.template-overrides-column-left {
+    grid-column: 1;
+    border-right: 1px solid $bcg-darker;
+
+}
+
+.template-overrides-column-right {
+    grid-column: 2;
+}
+
+.template-overrides-column-apply {
+    grid-column: 3;
+    background: $bcg-darker;
+    width: 26px;
+    height: 100%;
+    align-items: center;
+    flex-direction: row;
+}
+
+.template-overrides-component-name {
+    background: $bcg-dark;
+    font-size: 12px;
+    padding-top: 9px;
+    padding-bottom: 9px;
+    outline: 1px solid $bcg-darker;
+
+    &:before {
+        @extend .font-icon;
+        margin-right: 5px;
+    }
+}
+
+.template-overrides-component-new:after {
+    content: 'NEW';
+    float: right;
+    color: $text-primary;
+}
+
+.template-overrides-component-removed:after {
+    content: 'REMOVED';
+    float: right;
+    color: $text-primary;
+}
+
+.template-overrides-label-top {
+    > .pcui-label {
+        align-self: flex-start;
+    }
+}
+
+.template-overrides-override-single-label {
+    text-align: center;
+    padding: 15px;
+    font-size: 11px;
+}
+
+.template-overrides-dropdown {
+    position: absolute;
+    right: 0;
+    background: $bcg-primary;
+    z-index: 1;
+    max-width: 250px;
+    min-width: 150px;
+    box-shadow: 0 0 2px 1px $bcg-darkest;
+
+    > .pcui-label {
+        flex-shrink: 0;
+        margin: 0;
+        padding: 10px;
+
+        &:hover {
+            background: $bcg-darkest;
+            cursor: pointer;
+        }
+    }
+}
+
+.template-overrides-override-marker {
+    color: #00F1FF;
+    @extend .font-icon;
+
+    flex-grow: 1;
+    font-size: 8px;
+    height: 100%;
+    margin: 0;
+
+    display: -webkit-flex;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    &:not(.template-overrides-override-marker-hidden):hover {
+        background-color: $bcg-darkest;
+        cursor: pointer;
+    }
+}
+
+.template-overrides-override-group-placeholder {
+    height: 25px;
+    background: transparentize($bcg-darkest, 0.8);
+}
+
+.template-overrides-override-group-content {
+    height: 25px;
+    background: $bcg-dark;
+    font-size: 12px;
+
+    > .pcui-label {
+        line-height: 15px;
+    }
+}
+
+.template-overrides-override-group-icon {
+    @extend .font-icon;
+    color: $text-darkest;
+}
+
+.template-overrides-override-group-attribute {
+    padding-left: 25px;
+    padding-right: 25px;
+}
+
+.template-overrides-override-group-attribute-first {
+    padding-top: 0;
+}
+
+.template-overrides-override-group-attribute-last {
+    padding-bottom: 16px;
+}
+
+.template-overrides-override-group-not-first {
+    padding-top: 0px;
+}
+
+.template-overrides-override-group-action {
+    margin-left: auto;
+    color: $text-primary;
+}

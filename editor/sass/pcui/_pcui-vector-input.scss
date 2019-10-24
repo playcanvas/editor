@@ -8,10 +8,10 @@
         margin: $element-margin $element-margin / 2;
 
         &:first-child {
-            margin-left: $element-margin;
+            margin-left: 0;
         }
         &:last-child {
-            margin-right: $element-margin;
+            margin-right: 0;
         }
     }
 }

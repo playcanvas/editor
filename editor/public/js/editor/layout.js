@@ -163,6 +163,45 @@ editor.on('load', function() {
         attributesPanel.enabled = state;
     });
 
+    // overrides sidebar
+    var overridesSidebar = new pcui.TemplateOverrideSidebar({
+        id: 'layout-overrides-sidebar',
+        hidden: true,
+        flex: true
+    });
+
+    function hasTemplates() {
+        return editor.call('users:hasFlag', 'hasTemplates') && !editor.call('settings:project').get('useLegacyScripts');
+    }
+
+    editor.on('permissions:writeState', function (state) {
+        overridesSidebar.enabled = state;
+    });
+
+    attributesPanel.on('collapse', function () {
+        overridesSidebar.hidden = true;
+    });
+
+    attributesPanel.on('hide', function () {
+        overridesSidebar.hidden = true;
+    });
+
+    attributesPanel.on('expand', function () {
+        overridesSidebar.hidden = !hasTemplates() || !overridesSidebar.hasOverrides() || editor.call('selector:type') !== 'entity';
+    });
+
+    attributesPanel.on('show', function () {
+        overridesSidebar.hidden = !hasTemplates() || !overridesSidebar.hasOverrides() || attributesPanel.collapsed || editor.call('selector:type') !== 'entity';
+    });
+
+    root.append(overridesSidebar);
+
+    editor.method('layout.overridesSidebar', function () {
+        if (hasTemplates()) {
+            return overridesSidebar;
+        }
+    });
+
     // status bar
     var statusBar = new pcui.Container({
         id: 'layout-statusbar',

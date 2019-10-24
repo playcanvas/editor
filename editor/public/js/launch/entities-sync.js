@@ -9,6 +9,8 @@ editor.once('load', function() {
         'rotation',
         'scale',
         'enabled',
+        'template_id',
+        'template_ent_ids',
         'components'
     ];
 

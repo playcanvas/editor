@@ -60,3 +60,64 @@
         content: '\E299';
     }
 }
+
+
+.component-icon-prefix {
+    &.type-animation:before {
+        content: '\E198';
+    }
+    &.type-audiolistener:before {
+        content: '\E196';
+    }
+    &.type-audiosource:before {
+        content: '\E197';
+    }
+    &.type-button:before {
+        content: '\E405';
+    }
+    &.type-camera:before {
+        content: '\E212';
+    }
+    &.type-collision:before {
+        content: '\E187';
+    }
+    &.type-element:before {
+        content: '\E378';
+    }
+    &.type-layoutchild:before {
+        content: '\E143';
+    }
+    &.type-layoutgroup:before {
+        content: '\E143';
+    }
+    &.type-light:before {
+        content: '\E194';
+    }
+    &.type-model:before {
+        content: '\E188';
+    }
+    &.type-particlesystem:before {
+        content: '\E199';
+    }
+    &.type-rigidbody:before {
+        content: '\E189';
+    }
+    &.type-screen:before {
+        content: '\E403';
+    }
+    &.type-script:before {
+        content: '\E236';
+    }
+    &.type-scrollbar:before {
+        content: '\E409';
+    }
+    &.type-scrollview:before {
+        content: '\E408';
+    }
+    &.type-sound:before {
+        content: '\E197';
+    }
+    &.type-sprite:before {
+        content: '\E395';
+    }
+}
