@@ -34,17 +34,26 @@ editor.once('load', function () {
         };
 
         editor.call('assets:create', asset, function (err, assetId) {
-            if (!err) {
-                onAssetCreated(root, assetId, data.srcToDst);
+            if (err) {
+                return editor.call('status:error', err);
+            }
+
+            const onAssetCreated = () => {
+                const history = root.history.enabled;
+                root.history.enabled = false;
+                root.set('template_id', parseInt(assetId, 10));
+                root.set('template_ent_ids', data.srcToDst);
+                root.history.enabled = history;
+            }
+
+            // check if asset exists first because of initial race condition
+            // if it doesn't exist wait for it before setting template_id because
+            // that will propagate other events which will fail if the asset is not there yet
+            if (!editor.call('assets:get', assetId)) {
+                editor.once(`assets:add[${assetId}]`, onAssetCreated);
+            } else {
+                onAssetCreated();
             }
         });
     });
-
-    const onAssetCreated = function (root, assetId, srcToDst) {
-        const templId = parseInt(assetId, 10);
-
-        root.set('template_id', templId);
-
-        root.set('template_ent_ids', srcToDst);
-    };
 });

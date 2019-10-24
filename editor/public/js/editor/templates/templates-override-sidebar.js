@@ -283,7 +283,7 @@ Object.assign(pcui, (function () {
                 return;
             }
 
-            const overrides = editor.call('templates:computeOverrides', current);
+            const overrides = editor.call('templates:computeFilteredOverrides', current);
             overrides.conflicts.forEach(override => {
                 const registered = this._registeredElements[override.path];
                 if (registered) {
