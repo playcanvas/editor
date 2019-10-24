@@ -42,7 +42,8 @@ editor.once('load', function() {
                 {v: SCROLL_MODE_CLAMP, t: 'Clamp'},
                 {v: SCROLL_MODE_BOUNCE, t: 'Bounce'},
                 {v: SCROLL_MODE_INFINITE, t: 'Infinite'}
-            ]
+            ],
+            canOverrideTemplate: true
         });
 
         var fieldBounceAmount = addField('bounceAmount', {
@@ -52,6 +53,7 @@ editor.once('load', function() {
             step: 0.01,
             min: 0,
             max: 10,
+            canOverrideTemplate: true
         });
 
         addField('friction', {
@@ -60,17 +62,20 @@ editor.once('load', function() {
             precision: 3,
             step: 0.01,
             min: 0,
-            max: 1
+            max: 1,
+            canOverrideTemplate: true
         });
 
         addField('viewportEntity', {
             name: 'Viewport',
-            type: 'entity'
+            type: 'entity',
+            canOverrideTemplate: true
         });
 
         addField('contentEntity', {
             name: 'Content',
-            type: 'entity'
+            type: 'entity',
+            canOverrideTemplate: true
         });
 
         var dividerHorizontal = document.createElement('div');
@@ -79,12 +84,14 @@ editor.once('load', function() {
 
         var fieldHorizontal = addField('horizontal', {
             name: 'Horizontal',
-            type: 'checkbox'
+            type: 'checkbox',
+            canOverrideTemplate: true
         });
 
         var fieldHorizontalScrollbarEntity = addField('horizontalScrollbarEntity', {
             name: 'Scrollbar',
-            type: 'entity'
+            type: 'entity',
+            canOverrideTemplate: true
         });
 
         var fieldHorizontalScrollbarVisibility = addField('horizontalScrollbarVisibility', {
@@ -94,7 +101,8 @@ editor.once('load', function() {
                 {v: '', t: '...'},
                 {v: SCROLLBAR_VISIBILITY_SHOW_ALWAYS, t: 'Show Always'},
                 {v: SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED, t: 'Show When Required'}
-            ]
+            ],
+            canOverrideTemplate: true
         });
 
         var dividerVertical = document.createElement('div');
@@ -103,12 +111,14 @@ editor.once('load', function() {
 
         var fieldVertical = addField('vertical', {
             name: 'Vertical',
-            type: 'checkbox'
+            type: 'checkbox',
+            canOverrideTemplate: true
         });
 
         var fieldVerticalScrollbarEntity = addField('verticalScrollbarEntity', {
             name: 'Scrollbar',
-            type: 'entity'
+            type: 'entity',
+            canOverrideTemplate: true
         });
 
         var fieldVerticalScrollbarVisibility = addField('verticalScrollbarVisibility', {
@@ -118,7 +128,8 @@ editor.once('load', function() {
                 {v: '', t: '...'},
                 {v: SCROLLBAR_VISIBILITY_SHOW_ALWAYS, t: 'Show Always'},
                 {v: SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED, t: 'Show When Required'}
-            ]
+            ],
+            canOverrideTemplate: true
         });
 
         var toggleFields = function () {

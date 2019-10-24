@@ -60,6 +60,9 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', name + ':component', panel, panel.headerElementTitle);
 
+        // override for new component
+        editor.call('attributes:registerOverridePath', 'components.' + name, panel.element);
+
         // show/hide panel
         var checkingPanel;
         var checkPanel = function() {
@@ -151,6 +154,7 @@ editor.once('load', function() {
             link: entities,
             path: 'components.' + name + '.enabled'
         });
+        editor.call('attributes:registerOverridePath', `components.${name}.enabled`, fieldEnabled.element);
         fieldEnabled.class.remove('tick');
         fieldEnabled.class.add('component-toggle');
         fieldEnabled.element.parentNode.removeChild(fieldEnabled.element);
@@ -175,9 +179,45 @@ editor.once('load', function() {
     var argsFieldsChanges = [ ];
 
 
+    var templateOverrides = new pcui.TemplateOverridesView({
+        flex: true,
+        assets: editor.call('assets:raw'),
+        entities: editor.call('entities:raw'),
+        projectSettings: editor.call('settings:project'),
+        hidden: true
+    });
+    editor.call('layout.root').append(templateOverrides);
+
+    var templateInspector = new pcui.TemplatesEntityInspector({
+        flex: true,
+        assets: editor.call('assets:raw'),
+        entities: editor.call('entities:raw'),
+        templateOverridesDiffView: templateOverrides,
+        hidden: true
+    });
+
+    var overridesSidebar = editor.call('layout.overridesSidebar');
+
+    // disable attributes panel when overrides diff is open
+    templateOverrides.on('show', () => {
+        editor.call('layout.attributes').enabled = false;
+    });
+
+    templateOverrides.on('hide', () => {
+        editor.call('layout.attributes').enabled = editor.call('permissions:write');
+    });
+
     // initialize fields
     var initialize = function() {
         items = { };
+
+        var root = editor.call('attributes.rootPanel');
+
+        // template panel
+        if (editor.call('users:hasFlag', 'hasTemplates') && !editor.call('settings:project').get('useLegacyScripts')) {
+            items.panelTemplate = templateInspector;
+            root.append(items.panelTemplate);
+        }
 
         // panel
         var panel = items.panel = editor.call('attributes:addPanel');
@@ -298,6 +338,10 @@ editor.once('load', function() {
         if (! items || ! items.panel.parent)
             return;
 
+        if (items.panelTemplate) {
+            items.panelTemplate.parent.remove(items.panelTemplate);
+        }
+
         // remove panel from inspector
         items.panel.parent.remove(items.panel);
 
@@ -327,6 +371,9 @@ editor.once('load', function() {
 
         var root = editor.call('attributes.rootPanel');
 
+        if (items.panelTemplate && ! items.panelTemplate.parent)
+            root.append(items.panelTemplate);
+
         if (! items.panel.parent)
             root.append(items.panel);
 
@@ -346,9 +393,6 @@ editor.once('load', function() {
         // enable renderChanges
         for(var i = 0; i < argsFieldsChanges.length; i++)
             argsFieldsChanges[i].renderChanges = true;
-
-        // disable fields if needed
-        toggleFields(entities);
 
         onInspect(entities);
     });
@@ -388,6 +432,26 @@ editor.once('load', function() {
             items.fieldScale[i].renderChanges = !disableScale;
         }
 
+        if (items.panelTemplate) {
+            if (selectedEntities.length === 1) {
+                items.panelTemplate.entity = selectedEntities[0];
+            } else {
+                items.panelTemplate.entity = null;
+            }
+        }
+
+        if (overridesSidebar) {
+            if (selectedEntities.length === 1) {
+                overridesSidebar.entity = selectedEntities[0];
+
+                editor.call('attributes:registerOverridePath', 'enabled', items.fieldEnabled.parent.element);
+                editor.call('attributes:registerOverridePath', 'name', items.fieldName.parent.element);
+                editor.call('attributes:registerOverridePath', 'tags', items.fieldTags.parent.parent.element);
+                editor.call('attributes:registerOverridePath', 'position', items.fieldPosition[0].parent.element);
+                editor.call('attributes:registerOverridePath', 'rotation', items.fieldRotation[0].parent.element);
+                editor.call('attributes:registerOverridePath', 'scale', items.fieldScale[0].parent.element);
+            }
+        }
     };
 
     var onInspect = function (entities) {
@@ -412,6 +476,8 @@ editor.once('load', function() {
         for (var i = 0, len = entities.length; i < len; i++) {
             addEvents(entities[i]);
         }
+
+        toggleFields(entities);
     };
 
     var onUninspect = function () {
@@ -421,5 +487,14 @@ editor.once('load', function() {
 
         inspectEvents.length = 0;
 
+        if (items && items.panelTemplate) {
+            templateOverrides.hidden = true;
+            items.panelTemplate.hidden = true;
+            items.panelTemplate.entity = null;
+        }
+
+        if (overridesSidebar) {
+            overridesSidebar.clearOverrides();
+        }
     };
 });

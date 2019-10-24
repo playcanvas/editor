@@ -15,6 +15,7 @@ Object.assign(pcui, (function () {
         /**
          * Creates a new LabelGroup.
          * @param {Object} args The arguments. Extends the pcui.Element arguments. Any settable property can also be set through the constructor.
+         * @param {Boolean} [args.nativeTooltip] If true then use the text as the HTML tooltip of the label.
          */
         constructor(args) {
             if (!args) args = {};
@@ -24,7 +25,8 @@ Object.assign(pcui, (function () {
             this.class.add(CLASS_LABEL_GROUP);
 
             this._label = new pcui.Label({
-                text: args.text || 'Label'
+                text: args.text || 'Label',
+                nativeTooltip: args.nativeTooltip
             });
             this.dom.appendChild(this._label.dom);
             this._label.parent = this;

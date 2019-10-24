@@ -182,6 +182,18 @@ editor.once('load', function() {
             items: editor.call('menu:entities:add-component')
         };
 
+        if (editor.call('users:hasFlag', 'hasTemplates') && !legacyScripts) {
+            menuData['template'] = {
+                title: 'Template',
+                className: 'menu-item-templates',
+                icon: '&#58385;',
+                filter: function () {
+                    return items.length === 1;
+                },
+                items: editor.call('menu:entities:template')
+            };
+        }
+
         if (legacyScripts) {
             menuData['add-builtin-script'] = {
                 title: 'Add Built-In Script',

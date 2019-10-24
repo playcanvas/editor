@@ -115,195 +115,23 @@ editor.once('load', function() {
 
     // reparenting
     hierarchy.on('reparent', function(items) {
-        var records = [ ];
-
         var preserveTransform = ! Tree._ctrl || ! Tree._ctrl();
 
-        // make records and collect relevant data
-        for(var i = 0; i < items.length; i++) {
-            if (items[i].item.entity.reparenting)
-                continue;
-
-            var record = {
-                item: items[i].item,
-                parent: items[i].item.parent.entity,
-                entity: items[i].item.entity,
-                parentOld: items[i].old.entity,
-                resourceId: items[i].item.entity.get('resource_id'),
-                parentId: items[i].item.parent.entity.get('resource_id'),
-                parentIdOld: items[i].old.entity.get('resource_id')
+        var data = items
+        .filter(item => !item.item.entity.reparenting)
+        .map(item => {
+            item.item.entity.reparenting = true;
+            return {
+                entity: item.item.entity,
+                parent: item.item.parent.entity,
+                index: Array.prototype.indexOf.call(item.item.parent.innerElement.childNodes, item.item.element) - 1
             };
+        });
 
-            if (preserveTransform && record.entity) {
-                record.position = record.entity.entity.getPosition().clone();
-                record.rotation = record.entity.entity.getRotation().clone();
-            }
+        editor.call('entities:reparent', data, preserveTransform);
 
-            // relative entity
-            record.indOld = record.parentOld.get('children').indexOf(record.resourceId);
-            record.indNew = Array.prototype.indexOf.call(record.item.parent.innerElement.childNodes, record.item.element) - 1;
-
-            records.push(record);
-        }
-
-        for(var i = 0; i < records.length; i++) {
-            var record = records[i];
-
-            record.entity.reparenting = true;
-
-            record.parent.history.enabled = false;
-            record.parentOld.history.enabled = false;
-            record.entity.history.enabled = false;
-
-            if (record.parent === record.parentOld) {
-                // move
-                record.parent.removeValue('children', record.resourceId);
-                record.parent.insert('children', record.resourceId, record.indNew + ((record.indNew > record.indOld) ? (records.length - 1 - i) : 0));
-            } else {
-                // reparenting
-
-                // remove from old parent
-                record.parentOld.removeValue('children', record.resourceId);
-
-                // add to new parent children
-                if (record.indNew !== -1) {
-                    // before other item
-                    record.parent.insert('children', record.resourceId, record.indNew);
-                } else {
-                    // at the end
-                    record.parent.insert('children', record.resourceId);
-                }
-
-                // set parent
-                record.entity.set('parent', record.parentId);
-            }
-
-            if (preserveTransform && record.position) {
-                record.entity.entity.setPosition(record.position);
-                record.entity.entity.setRotation(record.rotation);
-
-                var localPosition = record.entity.entity.getLocalPosition();
-                var localRotation = record.entity.entity.getLocalEulerAngles();
-                record.entity.set('position', [ localPosition.x, localPosition.y, localPosition.z ]);
-                record.entity.set('rotation', [ localRotation.x, localRotation.y, localRotation.z ]);
-            }
-
-            record.parent.history.enabled = true;
-            record.parentOld.history.enabled = true;
-            record.entity.history.enabled = true;
-            record.entity.reparenting = false;
-        }
-
-        editor.call('history:add', {
-            name: 'reparent entities',
-            undo: function() {
-                for(var i = 0; i < records.length; i++) {
-                    var entity = editor.call('entities:get', records[i].resourceId);
-                    if (! entity) continue;
-
-                    var parent = editor.call('entities:get', entity.get('parent'));
-                    var parentOld = editor.call('entities:get', records[i].parentIdOld);
-                    if (! parentOld || ! parent) continue;
-
-                    if (parent.get('children').indexOf(records[i].resourceId) === -1 || (parentOld.get('children').indexOf(records[i].resourceId) !== -1 && parentOld !== parent))
-                        return;
-
-                    // check if not reparenting to own child
-                    var deny = false;
-                    var checkParent = editor.call('entities:get', parentOld.get('parent'));
-                    while(checkParent) {
-                        if (checkParent === entity) {
-                            deny = true;
-                            checkParent = null;
-                            break;
-                        } else {
-                            checkParent = editor.call('entities:get', checkParent.get('parent'));
-                        }
-                    }
-                    if (deny)
-                        continue;
-
-                    parent.history.enabled = false;
-                    parent.removeValue('children', records[i].resourceId);
-                    parent.history.enabled = true;
-
-                    parentOld.history.enabled = false;
-                    var off = parent !== parentOld ? 0 : ((records[i].indNew < records[i].indOld) ? (records.length - 1 - i) : 0);
-                    parentOld.insert('children', records[i].resourceId, records[i].indOld === -1 ? undefined : records[i].indOld + off);
-                    parentOld.history.enabled = true;
-
-                    entity.history.enabled = false;
-                    entity.set('parent', records[i].parentIdOld);
-
-                    if (preserveTransform && records[i].position && entity.entity) {
-                        entity.entity.setPosition(records[i].position);
-                        entity.entity.setRotation(records[i].rotation);
-
-                        var localPosition = entity.entity.getLocalPosition();
-                        var localRotation = entity.entity.getLocalEulerAngles();
-                        entity.set('position', [ localPosition.x, localPosition.y, localPosition.z ]);
-                        entity.set('rotation', [ localRotation.x, localRotation.y, localRotation.z ]);
-                    }
-
-                    entity.history.enabled = true;
-
-                    editor.call('viewport:render');
-                }
-            },
-            redo: function() {
-                for(var i = 0; i < records.length; i++) {
-                    var entity = editor.call('entities:get', records[i].resourceId);
-                    if (! entity) continue;
-
-                    var parent = editor.call('entities:get', records[i].parentId);
-                    var parentOld = editor.call('entities:get', entity.get('parent'));
-                    if (! parentOld || ! parent) continue;
-
-                    if (parentOld.get('children').indexOf(records[i].resourceId) === -1 || (parent.get('children').indexOf(records[i].resourceId) !== -1 && parent !== parentOld))
-                        continue;
-
-                    // check if not reparenting to own child
-                    var deny = false;
-                    var checkParent = editor.call('entities:get', parent.get('parent'));
-                    while(checkParent) {
-                        if (checkParent === entity) {
-                            deny = true;
-                            checkParent = null;
-                            break;
-                        } else {
-                            checkParent = editor.call('entities:get', checkParent.get('parent'));
-                        }
-                    }
-                    if (deny)
-                        continue;
-
-                    parentOld.history.enabled = false;
-                    parentOld.removeValue('children', records[i].resourceId);
-                    parentOld.history.enabled = true;
-
-                    parent.history.enabled = false;
-                    var off = parent !== parentOld ? 0 : ((records[i].indNew > records[i].indOld) ? (records.length - 1 - i) : 0);
-                    parent.insert('children', records[i].resourceId, records[i].indNew + off);
-                    parent.history.enabled = true;
-
-                    entity.history.enabled = false;
-                    entity.set('parent', records[i].parentId);
-
-                    if (preserveTransform && records[i].position && entity.entity) {
-                        entity.entity.setPosition(records[i].position);
-                        entity.entity.setRotation(records[i].rotation);
-
-                        var localPosition = entity.entity.getLocalPosition();
-                        var localRotation = entity.entity.getLocalEulerAngles();
-                        entity.set('position', [ localPosition.x, localPosition.y, localPosition.z ]);
-                        entity.set('rotation', [ localRotation.x, localRotation.y, localRotation.z ]);
-                    }
-
-                    entity.history.enabled = true;
-
-                    editor.call('viewport:render');
-                }
-            }
+        data.forEach(entry => {
+            entry.entity.reparenting = false;
         });
 
         resizeQueue();
@@ -323,7 +151,9 @@ editor.once('load', function() {
         if (type !== 'entity')
             return;
 
-        uiItemIndex[entity.get('resource_id')].selected = false;
+        if (uiItemIndex[entity.get('resource_id')]) {
+            uiItemIndex[entity.get('resource_id')].selected = false;
+        }
     });
     // selector change
     editor.on('selector:change', function(type, items) {
@@ -350,9 +180,41 @@ editor.once('load', function() {
     // entity removed
     editor.on('entities:remove', function(entity) {
         uiItemIndex[entity.get('resource_id')].destroy();
+        delete uiItemIndex[entity.get('resource_id')];
         resizeQueue();
     });
 
+    // Go through the entity and its children
+    // recursively and update the icons of each tree item
+    // depending on whether each child belongs to a template or not
+    function resetTemplateIcons(entity) {
+        const item = uiItemIndex[entity.get('resource_id')];
+
+        if (item) {
+            if (entity.get('template_id')) {
+                item.class.remove('template-instance-child');
+                item.class.add('template-instance');
+                entity.emit('isPartOfTemplate', true);
+            } else {
+                item.class.remove('template-instance');
+                if (editor.call('templates:isTemplateChild', entity)) {
+                    item.class.add('template-instance-child');
+                    entity.emit('isPartOfTemplate', true);
+                } else {
+                    item.class.remove('template-instance-child');
+                    entity.emit('isPartOfTemplate', false);
+                }
+            }
+        }
+
+        const children = entity.get('children');
+        for (let i = 0; i < children.length; i++) {
+            const child = editor.call('entities:get', children[i]);
+            if (child) {
+                resetTemplateIcons(child);
+            }
+        }
+    }
 
     var componentList;
 
@@ -378,6 +240,12 @@ editor.once('load', function() {
         var components = Object.keys(entity.get('components'));
         for(var i = 0; i < components.length; i++)
             element.class.add('c-' + components[i]);
+
+        if (entity.get('template_id')) {
+            element.class.add('template-instance');
+        } else if (editor.call('templates:isTemplateChild', entity)) {
+            element.class.add('template-instance-child');
+        }
 
         var watchComponent = function(component) {
             entity.on('components.' + component + ':set', function() {
@@ -461,6 +329,19 @@ editor.once('load', function() {
             }
         });
 
+        // handle templates
+        entity.on('template_ent_ids:set', () => {
+            resetTemplateIcons(entity);
+        });
+
+        entity.on('template_ent_ids:unset', () => {
+            resetTemplateIcons(entity);
+        });
+
+        entity.on('parent:set', () => {
+            resetTemplateIcons(entity);
+        });
+
         // collaborators
         var users = element.users = document.createElement('span');
         users.classList.add('users');
@@ -520,5 +401,38 @@ editor.once('load', function() {
             item.class.add('highlight');
         else
             item.class.remove('highlight');
+    });
+
+    // get a dictionary with the expanded state of an entity and its children
+    editor.method('entities:panel:getExpandedState', function (entity) {
+        const result = {};
+
+        function recurse(entity) {
+            if (!entity) return;
+
+            const item = uiItemIndex[entity.get('resource_id')];
+            if (item) {
+                result[entity.get('resource_id')] = item.open;
+            }
+
+            const children = entity.get('children');
+            for (let i = 0; i < children.length; i++) {
+                recurse(editor.call('entities:get', children[i]));
+            }
+        }
+
+        recurse(entity);
+
+        return result;
+    });
+
+    // restore the expanded state of an entity tree item
+    editor.method('entities:panel:restoreExpandedState', function (state) {
+        for (const resourceId in state) {
+            const item = uiItemIndex[resourceId];
+            if (!item) continue;
+
+            item.open = state[resourceId];
+        }
     });
 });

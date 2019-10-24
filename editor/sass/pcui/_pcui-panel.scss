@@ -16,6 +16,12 @@
     align-items: center;
 }
 
+.pcui-panel-header-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 1;
+}
+
 // contents of panel
 .pcui-panel-content {
     flex-grow: 1;

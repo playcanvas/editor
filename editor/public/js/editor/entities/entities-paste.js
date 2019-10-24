@@ -110,6 +110,18 @@ editor.once('load', function () {
             entity.set('parent', parent.get('resource_id'));
         }
 
+        // if this is a template instance remap template_ent_ids
+        const templateEntIds = entity.get('template_ent_ids');
+        if (templateEntIds) {
+            const newTemplateEntIds = {};
+            for (const oldId in templateEntIds) {
+                if (mapping[oldId]) {
+                    newTemplateEntIds[mapping[oldId]] = templateEntIds[oldId];
+                }
+            }
+            entity.set('template_ent_ids', newTemplateEntIds);
+        }
+
         editor.call('entities:updateChildToParentIndex', newResourceId, entity.get('parent'));
 
         // set children to empty array because these

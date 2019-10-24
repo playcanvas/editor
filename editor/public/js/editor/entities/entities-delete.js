@@ -14,6 +14,8 @@ editor.once('load', function () {
     // entities, and these are set to null. If the deletion is subsequently undone, the map
     // is used again in order to set all references back to the correct entity guids.
     var recursivelySearchForEntityReferences = function (sourceEntity, entityReferencesMap) {
+        if (!sourceEntity) return;
+
         var componentNames = Object.keys(sourceEntity.get('components') || {});
         var i, j;
 

@@ -12,6 +12,12 @@
         margin: 0;
     }
 
+    // remove top margin from sub elements
+    > .pcui-element {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
     // field should be stretched
     // except for ones marked
     // as specifically not flexible
@@ -19,6 +25,14 @@
         margin: 0 0 0 $element-margin;
         &:not(.pcui-not-flexible) {
             flex: 1;
+        }
+    }
+
+    // remove top/bottom margin from vector fields
+    > .pcui-vector-input {
+        > .pcui-numeric-input {
+            margin-top: 0;
+            margin-bottom: 0;
         }
     }
 }

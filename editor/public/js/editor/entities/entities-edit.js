@@ -73,6 +73,16 @@ editor.once('load', function () {
         if (children.length)
             entity.set('children', []);
 
+        // manually add ObserverSync to entity before calling entities:add so that we can
+        // disable it. We need to disable it before adding the entity to the scene because
+        // some sharedb ops that might throw errors (mainly when the entity has script attributes).
+        // Instead we call entities:add which will call any other handlers that might set data on the
+        // entity and then we manually add it to the scene with realtime:scene:op with all its data in
+        // one op.
+        editor.call('entities:addObserverSync', entity);
+
+        entity.sync.enabled = false;
+
         // call add event
         editor.call('entities:add', entity);
 
@@ -81,6 +91,8 @@ editor.once('load', function () {
             p: ['entities', entity.get('resource_id')],
             oi: entity.json()
         });
+
+        entity.sync.enabled = true;
 
         // this is necessary for the entity to be added to the tree view
         parent.history.enabled = false;
@@ -142,9 +154,11 @@ editor.once('load', function () {
      * @param {Object} entityReferencesMap Holds references to entities that need to be updated when
      * this entity is removed. See addEntity for more.
      */
-    var removeEntity = function (entity, entityReferencesMap) {
+    var removeEntity = function (entity, entityReferencesMap, forgetDeletedEntities) {
         entityReferencesMap = entityReferencesMap || {};
-        deletedCache[entity.get('resource_id')] = entity.json();
+        if (!forgetDeletedEntities) {
+            deletedCache[entity.get('resource_id')] = entity.json();
+        }
 
         // Nullify any entity references which currently point to this guid
         updateEntityReferenceFields(entityReferencesMap, entity.get('resource_id'), null);
@@ -155,7 +169,7 @@ editor.once('load', function () {
             if (!entity)
                 return;
 
-            removeEntity(entity, entityReferencesMap);
+            removeEntity(entity, entityReferencesMap, forgetDeletedEntities);
         });
 
         if (editor.call('selector:type') === 'entity' && editor.call('selector:items').indexOf(entity) !== -1) {

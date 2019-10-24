@@ -104,17 +104,19 @@ editor.once('load', function () {
         label.text = text || 'Are you sure?';
         callback = fn || null;
 
-        if (options && options.yesText) {
+        if (options && options.yesText !== undefined) {
             btnYes.text = options.yesText;
         } else {
             btnYes.text = 'Yes';
         }
+        btnYes.hidden = !btnYes.text;
 
-        if (options && options.noText) {
+        if (options && options.noText !== undefined) {
             btnNo.text = options.noText;
         } else {
             btnNo.text = 'No';
         }
+        btnNo.hidden = !btnNo.text;
 
         // show overlay
         overlay.hidden = false;

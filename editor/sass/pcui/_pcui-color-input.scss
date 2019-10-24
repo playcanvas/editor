@@ -47,7 +47,6 @@
 
 // readonly color input
 .pcui-color-input.pcui-readonly {
-    opacity: $element-opacity-readonly;
     cursor: default;
     &:after {
         display: none;

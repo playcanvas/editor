@@ -29,7 +29,8 @@ editor.once('load', function() {
                 'mesh': 'Mesh'
             },
             link: entities,
-            path: 'components.collision.type'
+            path: 'components.collision.type',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'collision:type', fieldType.parent.innerElement.firstChild.ui);
@@ -45,7 +46,8 @@ editor.once('load', function() {
             min: 0,
             type: 'vec3',
             link: entities,
-            path: 'components.collision.halfExtents'
+            path: 'components.collision.halfExtents',
+            canOverrideTemplate: true
         });
         fieldHalfExtents[0].parent.hidden = fieldType.value !== 'box' && fieldType.value !== '';
         fieldType.on('change', function(value) {
@@ -64,7 +66,8 @@ editor.once('load', function() {
             step: 0.1,
             min: 0,
             link: entities,
-            path: 'components.collision.radius'
+            path: 'components.collision.radius',
+            canOverrideTemplate: true
         });
         fieldRadius.parent.hidden = fieldType.value !== '' && [ 'sphere', 'capsule', 'cylinder' ].indexOf(fieldType.value) === -1;
         fieldType.on('change', function(value) {
@@ -83,7 +86,8 @@ editor.once('load', function() {
             step: 0.1,
             min: 0,
             link: entities,
-            path: 'components.collision.height'
+            path: 'components.collision.height',
+            canOverrideTemplate: true
         });
         // show/hide
         fieldHeight.parent.hidden = fieldType.value !== '' && [ 'capsule', 'cylinder' ].indexOf(fieldType.value) === -1;
@@ -106,7 +110,8 @@ editor.once('load', function() {
                 { v: 2, t: 'Z' }
             ],
             link: entities,
-            path: 'components.collision.axis'
+            path: 'components.collision.axis',
+            canOverrideTemplate: true
         });
         fieldAxis.parent.hidden = fieldType.value !== '' && [ 'capsule', 'cylinder' ].indexOf(fieldType.value) === -1;
         fieldType.on('change', function(value) {
@@ -123,7 +128,8 @@ editor.once('load', function() {
             type: 'asset',
             kind: 'model',
             link: entities,
-            path: 'components.collision.asset'
+            path: 'components.collision.asset',
+            canOverrideTemplate: true
         });
         fieldAsset.parent.hidden = fieldType.value !== '' && fieldType.value !== 'mesh';
         fieldType.on('change', function(value) {

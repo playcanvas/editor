@@ -18,7 +18,8 @@ editor.once('load', function() {
             type: 'checkbox',
             name: 'Positional',
             link: entities,
-            path: 'components.sound.positional'
+            path: 'components.sound.positional',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'sound:positional', fieldPositional.parent.innerElement.firstChild.ui);
@@ -37,7 +38,8 @@ editor.once('load', function() {
             min: 0,
             max: 1,
             link: entities,
-            path: 'components.sound.volume'
+            path: 'components.sound.volume',
+            canOverrideTemplate: true
         });
         fieldVolume.style.width = '32px';
         // reference
@@ -66,7 +68,8 @@ editor.once('load', function() {
             step: 0.1,
             min: 0,
             link: entities,
-            path: 'components.sound.pitch'
+            path: 'components.sound.pitch',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'sound:pitch', fieldPitch.parent.innerElement.firstChild.ui);
@@ -99,6 +102,8 @@ editor.once('load', function() {
         fieldRefDistance.style.width = '32px';
         fieldRefDistance.flexGrow = 1;
 
+        editor.call('attributes:registerOverridePath', 'components.sound.refDistance', fieldRefDistance.element);
+
         // maxDistance
         var fieldMaxDistance = editor.call('attributes:addField', {
             panel: panelDistance,
@@ -113,6 +118,8 @@ editor.once('load', function() {
         fieldRefDistance.style.width = '32px';
         fieldRefDistance.flexGrow = 1;
 
+        editor.call('attributes:registerOverridePath', 'components.sound.maxDistance', fieldMaxDistance.element);
+
         // distanceModel
         var fieldDistanceModel = editor.call('attributes:addField', {
             parent: panel,
@@ -124,7 +131,8 @@ editor.once('load', function() {
                 inverse: 'Inverse'
             },
             link: entities,
-            path: 'components.sound.distanceModel'
+            path: 'components.sound.distanceModel',
+            canOverrideTemplate: true
         });
 
         fieldDistanceModel.parent.hidden = ! (fieldPositional.value || fieldPositional.class.contains('null'));
@@ -141,7 +149,8 @@ editor.once('load', function() {
             step: 0.1,
             min: 0,
             link: entities,
-            path: 'components.sound.rollOffFactor'
+            path: 'components.sound.rollOffFactor',
+            canOverrideTemplate: true
         });
         fieldRollOffFactor.parent.hidden = ! (fieldPositional.value || fieldPositional.class.contains('null'));
 
@@ -173,6 +182,8 @@ editor.once('load', function() {
             panelSlot.folded = false;
             panelSlots.append(panelSlot);
 
+            editor.call('attributes:registerOverridePath', 'components.sound.slots.' + key, panelSlot.element);
+
             // reference
             editor.call('attributes:reference:attach', 'sound:slot:slot', panelSlot, panelSlot.headerElementTitle);
 
@@ -190,6 +201,8 @@ editor.once('load', function() {
                 name: 'Name',
                 type: 'string'
             });
+
+            editor.call('attributes:registerOverridePath', 'components.sound.slots.' + key + '.name', fieldSlotName.parent.element);
 
             // reference
             editor.call('attributes:reference:attach', 'sound:slot:name', fieldSlotName.parent.innerElement.firstChild.ui);
@@ -281,7 +294,8 @@ editor.once('load', function() {
                 type: 'asset',
                 kind: 'audio',
                 link: entities,
-                path: 'components.sound.slots.' + key + '.asset'
+                path: 'components.sound.slots.' + key + '.asset',
+                canOverrideTemplate: true
             });
 
             // reference
@@ -310,6 +324,8 @@ editor.once('load', function() {
             fieldSlotStartTime.style.width = '32px';
             fieldSlotStartTime.flexGrow = 1;
 
+            editor.call('attributes:registerOverridePath', 'components.sound.slots.' + key + '.startTime', fieldSlotStartTime.element);
+
             // reference
             editor.call('attributes:reference:attach', 'sound:slot:startTime', fieldSlotStartTime);
 
@@ -326,6 +342,8 @@ editor.once('load', function() {
             });
             fieldSlotDuration.style.width = '32px';
             fieldSlotDuration.flexGrow = 1;
+
+            editor.call('attributes:registerOverridePath', 'components.sound.slots.' + key + '.duration', fieldSlotDuration.element);
 
             // reference
             editor.call('attributes:reference:attach', 'sound:slot:duration', fieldSlotDuration);
@@ -350,6 +368,8 @@ editor.once('load', function() {
             label.class.add('label-infield');
             panelPlayback.append(label);
 
+            editor.call('attributes:registerOverridePath', 'components.sound.slots.' + key + '.autoPlay', fieldSlotAutoPlay.element);
+
             // reference
             editor.call('attributes:reference:attach', 'sound:slot:autoPlay', label);
 
@@ -363,6 +383,8 @@ editor.once('load', function() {
             label = new ui.Label({ text: 'Overlap' });
             label.class.add('label-infield');
             panelPlayback.append(label);
+
+            editor.call('attributes:registerOverridePath', 'components.sound.slots.' + key + '.overlap', fieldSlotOverlap.element);
 
             // reference
             editor.call('attributes:reference:attach', 'sound:slot:overlap', label);
@@ -378,6 +400,8 @@ editor.once('load', function() {
             label.class.add('label-infield');
             panelPlayback.append(label);
 
+            editor.call('attributes:registerOverridePath', 'components.sound.slots.' + key + '.loop', fieldSlotLoop.element);
+
             // reference
             editor.call('attributes:reference:attach', 'sound:slot:loop', label);
 
@@ -391,7 +415,8 @@ editor.once('load', function() {
                 min: 0,
                 max: 1,
                 link: entities,
-                path: 'components.sound.slots.' + key + '.volume'
+                path: 'components.sound.slots.' + key + '.volume',
+                canOverrideTemplate: true
             });
 
             // reference
@@ -421,7 +446,8 @@ editor.once('load', function() {
                 step: 0.1,
                 min: 0,
                 link: entities,
-                path: 'components.sound.slots.' + key + '.pitch'
+                path: 'components.sound.slots.' + key + '.pitch',
+                canOverrideTemplate: true
             });
 
             // reference

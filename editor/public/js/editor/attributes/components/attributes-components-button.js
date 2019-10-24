@@ -25,6 +25,7 @@ editor.once('load', function() {
             options.parent = panel;
             options.path = path;
             options.link = entities;
+            options.canOverrideTemplate = true;
 
             var field = editor.call('attributes:addField', options);
             var fieldParent = Array.isArray(field) ? field[0].parent : field.parent;

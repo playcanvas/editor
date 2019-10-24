@@ -41,7 +41,8 @@ editor.once('load', function() {
                 {v: '', t: '...'},
                 {v: ORIENTATION_HORIZONTAL, t: 'Horizontal'},
                 {v: ORIENTATION_VERTICAL, t: 'Vertical'}
-            ]
+            ],
+            canOverrideTemplate: true
         });
 
         addField('value', {
@@ -50,12 +51,14 @@ editor.once('load', function() {
             precision: 3,
             step: 0.01,
             min: 0,
-            max: 1
+            max: 1,
+            canOverrideTemplate: true
         });
 
         addField('handleEntity', {
             name: 'Handle',
-            type: 'entity'
+            type: 'entity',
+            canOverrideTemplate: true
         });
 
         addField('handleSize', {
@@ -64,7 +67,8 @@ editor.once('load', function() {
             precision: 3,
             step: 0.01,
             min: 0,
-            max: 1
+            max: 1,
+            canOverrideTemplate: true
         });
 
         panel.on('destroy', function () {

@@ -5,6 +5,7 @@ Object.assign(pcui, (function () {
     const CLASS_ARRAY_SIZE = CLASS_ARRAY_INPUT + '-size';
     const CLASS_ARRAY_CONTAINER = CLASS_ARRAY_INPUT + '-items';
     const CLASS_ARRAY_ELEMENT = CLASS_ARRAY_INPUT + '-item';
+    const CLASS_ARRAY_DELETE = CLASS_ARRAY_ELEMENT + '-delete';
 
     var DEFAULTS = {
         boolean: false,
@@ -139,8 +140,14 @@ Object.assign(pcui, (function () {
                 case 'asset':
                     element = new pcui.AssetInput(args);
                     break;
+                case 'entity':
+                    element = new pcui.EntityInput(args);
+                    break;
                 case 'rgb':
                     element = new pcui.ColorInput(args);
+                    break;
+                case 'curveset':
+                    element = new pcui.CurveInput(args);
                     break;
                 case 'vec2':
                     element = new pcui.VectorInput(Object.assign({
@@ -158,7 +165,8 @@ Object.assign(pcui, (function () {
                     }, args));
                     break;
                 default:
-                    throw new Error('Invalid array element');
+                    element = new pcui.TextInput(args);
+                    break;
             }
 
             container.append(element);
@@ -172,7 +180,8 @@ Object.assign(pcui, (function () {
 
             const btnDelete = new pcui.Button({
                 icon: 'E289',
-                size: 'small'
+                size: 'small',
+                class: CLASS_ARRAY_DELETE
             });
             btnDelete.dom.tabIndex = -1; // skip buttons on tab
             btnDelete.on('click', () => {
@@ -292,7 +301,11 @@ Object.assign(pcui, (function () {
                 if (this._binding && this._binding.observers) {
                     this._linkArrayElement(this._arrayElements[i].element, i);
                 } else {
-                    this._arrayElements[i].element.values = valuesPerRow[i];
+                    if (valuesPerRow[i].length > 1) {
+                        this._arrayElements[i].element.values = valuesPerRow[i];
+                    } else {
+                        this._arrayElements[i].element.value = valuesPerRow[i][0];
+                    }
                 }
 
                 lastElementIndex = i;

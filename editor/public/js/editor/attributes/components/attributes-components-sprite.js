@@ -44,7 +44,8 @@ editor.once('load', function() {
                 {v: 'animated', t: 'Animated'}
             ],
             link: entities,
-            path: 'components.sprite.type'
+            path: 'components.sprite.type',
+            canOverrideTemplate: true
         });
 
         // reference
@@ -57,7 +58,8 @@ editor.once('load', function() {
             type: 'asset',
             kind: 'sprite',
             link: entities,
-            path: 'components.sprite.spriteAsset'
+            path: 'components.sprite.spriteAsset',
+            canOverrideTemplate: true
         });
 
         // reference
@@ -70,7 +72,8 @@ editor.once('load', function() {
             type: 'number',
             link: entities,
             min: 0,
-            path: 'components.sprite.frame'
+            path: 'components.sprite.frame',
+            canOverrideTemplate: true
         });
 
         // reference
@@ -88,6 +91,8 @@ editor.once('load', function() {
 
         fieldWidth.style.width = '32px';
 
+        editor.call('attributes:registerOverridePath', 'components.sprite.width', fieldWidth.element);
+
         // reference
         editor.call('attributes:reference:attach', 'sprite:size', fieldWidth.parent.innerElement.firstChild.ui);
 
@@ -102,6 +107,8 @@ editor.once('load', function() {
 
         fieldHeight.style.width = '32px';
 
+        editor.call('attributes:registerOverridePath', 'components.sprite.height', fieldHeight.element);
+
         // sprite color
         var fieldColor = editor.call('attributes:addField', {
             parent: panel,
@@ -109,7 +116,8 @@ editor.once('load', function() {
             type: 'rgb',
             channels: 3,
             link: entities,
-            path: 'components.sprite.color'
+            path: 'components.sprite.color',
+            canOverrideTemplate: true
         });
 
         // reference
@@ -123,7 +131,8 @@ editor.once('load', function() {
             min: 0,
             max: 1,
             link: entities,
-            path: 'components.sprite.opacity'
+            path: 'components.sprite.opacity',
+            canOverrideTemplate: true
         });
 
         fieldOpacity.style.width = '32px';
@@ -164,6 +173,8 @@ editor.once('load', function() {
         label.style.paddingRight = '12px';
         panelFlip.append(label);
 
+        editor.call('attributes:registerOverridePath', 'components.sprite.flipX', fieldFlipX.element);
+
         // reference
         editor.call('attributes:reference:attach', 'sprite:flipX', label);
 
@@ -178,6 +189,8 @@ editor.once('load', function() {
         label.style.paddingRight = '12px';
         panelFlip.append(label);
 
+        editor.call('attributes:registerOverridePath', 'components.sprite.flipY', fieldFlipY.element);
+
         // reference
         editor.call('attributes:reference:attach', 'sprite:flipX', label);
 
@@ -187,7 +200,8 @@ editor.once('load', function() {
             name: 'Speed',
             type: 'number',
             link: entities,
-            paths: 'components.sprite.speed'
+            paths: 'components.sprite.speed',
+            canOverrideTemplate: true
         });
 
         // reference
@@ -232,7 +246,8 @@ editor.once('load', function() {
             type: 'number',
             enum: batchEnum,
             link: entities,
-            path: 'components.sprite.batchGroupId'
+            path: 'components.sprite.batchGroupId',
+            canOverrideTemplate: true
         });
 
         var btnAddGroup = document.createElement('li');
@@ -277,6 +292,7 @@ editor.once('load', function() {
             placeholder: 'Add Layer',
             link: entities,
             path: 'components.sprite.layers',
+            canOverrideTemplate: true,
             tagToString: function (tag) {
                 return projectSettings.get('layers.' + tag + '.name') || 'Missing';
             },
@@ -299,7 +315,8 @@ editor.once('load', function() {
             name: 'Draw Order',
             type: 'number',
             link: entities,
-            path: 'components.sprite.drawOrder'
+            path: 'components.sprite.drawOrder',
+            canOverrideTemplate: true
         });
 
         // reference
@@ -312,7 +329,8 @@ editor.once('load', function() {
             type: 'string',
             link: entities,
             path: 'components.sprite.autoPlayClip',
-            enum: enumAutoPlay
+            enum: enumAutoPlay,
+            canOverrideTemplate: true
         });
 
         // reference
@@ -339,6 +357,8 @@ editor.once('load', function() {
             panelClips.append(panelClip);
 
             indexPanels[clipName] = panelClip;
+
+            editor.call('attributes:registerOverridePath', paths[0], panelClip.element);
 
             // reference
             editor.call('attributes:reference:attach', 'spriteAnimation:clip', panelClip, panelClip.headerElementTitle);
@@ -412,6 +432,8 @@ editor.once('load', function() {
             });
 
             fieldClipName.value = clipName;
+
+            editor.call('attributes:registerOverridePath', paths[0] + '.name', fieldClipName.parent.element);
 
             var suspendName = false;
             fieldClipName.on('change', function (value) {
@@ -548,6 +570,8 @@ editor.once('load', function() {
             label.style.paddingRight = '12px';
             panelPlayback.append(label);
 
+            editor.call('attributes:registerOverridePath', paths[0] + '.loop', fieldClipLoop.element);
+
             // reference
             editor.call('attributes:reference:attach', 'spriteAnimation:loop', label);
 
@@ -561,6 +585,8 @@ editor.once('load', function() {
                 paths: paths.map(function (p) {return p + '.fps';})
             });
 
+            editor.call('attributes:registerOverridePath', paths[0] + '.fps', fieldClipFps.element);
+
             // reference
             editor.call('attributes:reference:attach', 'spriteAnimation:fps', fieldClipFps);
 
@@ -571,7 +597,8 @@ editor.once('load', function() {
                 type: 'asset',
                 kind: 'sprite',
                 link: entities,
-                path: paths.map(function (p) {return p + '.spriteAsset';})
+                path: paths.map(function (p) {return p + '.spriteAsset';}),
+                canOverrideTemplate: true
             });
 
             editor.call('attributes:reference:attach', 'spriteAnimation:spriteAsset', fieldClipSpriteAsset._label);

@@ -33,6 +33,19 @@ editor.once('load', function () {
     var resolveDuplicatedEntityReferenceProperties = function (oldSubtreeRoot, oldEntity, newEntity, duplicatedIdsMap) {
         // TODO Would be nice to also make this work for entity script attributes
 
+        // remap template_ent_ids for template instances
+        const templateEntIds = newEntity.get('template_ent_ids');
+        if (templateEntIds) {
+            const newTemplateEntIds = {};
+            for (const oldId in templateEntIds) {
+                if (duplicatedIdsMap[oldId]) {
+                    newTemplateEntIds[duplicatedIdsMap[oldId]] = templateEntIds[oldId];
+                }
+            }
+
+            newEntity.set('template_ent_ids', newTemplateEntIds);
+        }
+
         var components = oldEntity.get('components');
 
         Object.keys(components).forEach(function (componentName) {

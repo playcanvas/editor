@@ -21,8 +21,11 @@ editor.once('load', function() {
             type: 'checkbox',
             name: 'Clear Buffers',
             link: entities,
-            path: 'components.camera.clearColorBuffer'
+            path: 'components.camera.clearColorBuffer',
+            canOverrideTemplate: true
         });
+        editor.call('attributes:registerOverridePath', 'components.camera.clearColorBuffer', fieldClearColorBuffer.element);
+
         // label
         var label = new ui.Label({ text: 'Color' });
         label.class.add('label-infield');
@@ -33,12 +36,14 @@ editor.once('load', function() {
 
 
         // clearDepthBuffer
-        var fieldCastShadows = editor.call('attributes:addField', {
+        var fieldClearDepthBuffer = editor.call('attributes:addField', {
             panel: fieldClearColorBuffer.parent,
             type: 'checkbox',
             link: entities,
             path: 'components.camera.clearDepthBuffer'
         });
+        editor.call('attributes:registerOverridePath', 'components.camera.clearDepthBuffer', fieldClearDepthBuffer.element);
+
         // label
         var label = new ui.Label({ text: 'Depth' });
         label.class.add('label-infield');
@@ -53,8 +58,10 @@ editor.once('load', function() {
             name: 'Clear Color',
             type: 'rgb',
             link: entities,
-            path: 'components.camera.clearColor'
+            path: 'components.camera.clearColor',
+            canOverrideTemplate: true
         });
+
         fieldClearColor.parent.hidden = ! (fieldClearColorBuffer.value || fieldClearColorBuffer.class.contains('null'));
         fieldClearColorBuffer.on('change', function(value) {
             fieldClearColor.parent.hidden = ! (value || this.class.contains('null'));
@@ -74,7 +81,8 @@ editor.once('load', function() {
                 { v: 1, t: 'Orthographic' } // pc.PROJECTION_ORTHOGRAPHIC
             ],
             link: entities,
-            path: 'components.camera.projection'
+            path: 'components.camera.projection',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'camera:projection', fieldProjection.parent.innerElement.firstChild.ui);
@@ -85,7 +93,8 @@ editor.once('load', function() {
             type: 'checkbox',
             name: 'Frustum Culling',
             link: entities,
-            path: 'components.camera.frustumCulling'
+            path: 'components.camera.frustumCulling',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'camera:frustumCulling', fieldFrustumCulling.parent.innerElement.firstChild.ui);
@@ -100,7 +109,8 @@ editor.once('load', function() {
             step: 1,
             min: 0,
             link: entities,
-            path: 'components.camera.fov'
+            path: 'components.camera.fov',
+            canOverrideTemplate: true
         });
         fieldFov.style.width = '32px';
         fieldFov.parent.hidden = fieldProjection.value !== 0 && fieldProjection.value !== '';
@@ -130,7 +140,8 @@ editor.once('load', function() {
             name: 'Ortho Height',
             type: 'number',
             link: entities,
-            path: 'components.camera.orthoHeight'
+            path: 'components.camera.orthoHeight',
+            canOverrideTemplate: true
         });
         fieldOrthoHeight.parent.hidden = fieldProjection.value !== 1 && fieldProjection.value !== '';
         fieldProjection.on('change', function(value) {
@@ -152,6 +163,8 @@ editor.once('load', function() {
             link: entities,
             path: 'components.camera.nearClip'
         });
+        editor.call('attributes:registerOverridePath', 'components.camera.nearClip', fieldNearClip.element);
+
         fieldNearClip.style.width = '32px';
         // reference
         editor.call('attributes:reference:attach', 'camera:clip', fieldNearClip.parent.innerElement.firstChild.ui);
@@ -168,6 +181,7 @@ editor.once('load', function() {
             link: entities,
             path: 'components.camera.farClip'
         });
+        editor.call('attributes:registerOverridePath', 'components.camera.farClip', fieldFarClip.element);
         fieldFarClip.style.width = '32px';
 
 
@@ -180,7 +194,8 @@ editor.once('load', function() {
             step: 1,
             min: 0,
             link: entities,
-            path: 'components.camera.priority'
+            path: 'components.camera.priority',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'camera:priority', fieldPriority.parent.innerElement.firstChild.ui);
@@ -197,7 +212,8 @@ editor.once('load', function() {
             min: 0,
             max: 1,
             link: entities,
-            path: 'components.camera.rect'
+            path: 'components.camera.rect',
+            canOverrideTemplate: true
         });
         // reference
         editor.call('attributes:reference:attach', 'camera:rect', fieldRect[0].parent.innerElement.firstChild.ui);
@@ -220,6 +236,7 @@ editor.once('load', function() {
             placeholder: 'Add Layer',
             link: entities,
             path: 'components.camera.layers',
+            canOverrideTemplate: true,
             tagToString: function (tag) {
                 return projectSettings.get('layers.' + tag + '.name') || 'Missing';
             },

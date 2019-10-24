@@ -36,6 +36,10 @@ editor.once('load', function () {
             element: panel
         });
 
+        if (args.canOverrideTemplate && (args.path || args.paths)) {
+            editor.call('attributes:registerOverridePath', pathAt(args, 0), args.panel ? args.panel.element : panel.element);
+        }
+
         panel.parent.flex = true;
 
         // create array length observer for each link

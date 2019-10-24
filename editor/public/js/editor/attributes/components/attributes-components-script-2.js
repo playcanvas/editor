@@ -459,6 +459,7 @@ editor.once('load', function() {
         panelScripts.hidden = true;
         panelScripts.class.add('scripts');
 
+        editor.call('attributes:registerOverridePath', 'components.script.order', panelScripts.element);
 
         var scriptPanelsIndex = { };
 
@@ -838,6 +839,7 @@ editor.once('load', function() {
                 link: entities,
                 path: 'components.script.scripts.' + script + '.enabled'
             });
+            editor.call('attributes:registerOverridePath', 'components.script.scripts.' + script + '.enabled', fieldEnabled.element);
             fieldEnabled.class.remove('tick');
             fieldEnabled.class.add('component-toggle');
             fieldEnabled.element.parentNode.removeChild(fieldEnabled.element);
@@ -951,7 +953,11 @@ editor.once('load', function() {
                     }
                 }
             }
+
+            // register override for new script
+            editor.call('attributes:registerOverridePath', 'components.script.scripts.' + script, panel.element);
         };
+
         var removeScript = function(script) {
             if (! scriptPanelsIndex[script])
                 return;
@@ -979,6 +985,23 @@ editor.once('load', function() {
             if (! panelScripts.innerElement.firstChild)
                 panelScripts.hidden = true;
         };
+
+        function moveScript(value, ind) {
+            var panel = scriptPanelsIndex[value];
+            if (! panel) return;
+
+            var parent = panel.element.parentNode;
+            parent.removeChild(panel.element);
+
+            var next = parent.children[ind];
+            if (next) {
+                parent.insertBefore(panel.element, next);
+            } else {
+                parent.appendChild(panel.element);
+            }
+        }
+
+
         var addScriptAttribute = function(script, name, attribute, ind) {
             var panelScripts = scriptPanelsIndex[script];
             if (! panelScripts || panelScripts.attributesIndex[name])
@@ -1055,7 +1078,8 @@ editor.once('load', function() {
                     min: min,
                     max: max,
                     hideRandomize: true,
-                    path: 'components.script.scripts.' + script + '.attributes.' + name
+                    path: 'components.script.scripts.' + script + '.attributes.' + name,
+                    canOverrideTemplate: true
                 });
             } else {
                 panel.args = {
@@ -1074,7 +1098,8 @@ editor.once('load', function() {
                     precision: attribute.precision,
                     step: attribute.step,
                     hideRandomize: true,
-                    path: 'components.script.scripts.' + script + '.attributes.' + name
+                    path: 'components.script.scripts.' + script + '.attributes.' + name,
+                    canOverrideTemplate: true
                 };
                 panel.field = editor.call('attributes:addField', panel.args);
 
@@ -1277,20 +1302,20 @@ editor.once('load', function() {
                 }
             }));
 
-            // on script move
             if (entities.length === 1) {
+
+
+                // on script move
                 events.push(entities[i].on('components.script.order:move', function(value, ind, indOld) {
-                    var panel = scriptPanelsIndex[value];
-                    if (! panel) return;
+                    moveScript(value, ind);
+                }));
 
-                    var parent = panel.element.parentNode;
-                    parent.removeChild(panel.element);
+                // on script order set
+                events.push(entities[i].on('components.script.order:set', function (value) {
+                    if (!value) return;
 
-                    var next = parent.children[ind];
-                    if (next) {
-                        parent.insertBefore(panel.element, next);
-                    } else {
-                        parent.appendChild(panel.element);
+                    for (let i = 0; i < value.length; i++) {
+                        moveScript(value[i], i);
                     }
                 }));
             }

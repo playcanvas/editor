@@ -39,6 +39,7 @@ editor.once('load', function() {
             type: 'number',
             placeholder: 'Min Width'
         });
+        editor.call('attributes:registerOverridePath', 'components.layoutchild.minWidth', fieldMinWidth.element);
 
         fieldMinWidth.style.width = '32px';
 
@@ -47,6 +48,7 @@ editor.once('load', function() {
             type: 'number',
             placeholder: 'Min Height'
         });
+        editor.call('attributes:registerOverridePath', 'components.layoutchild.minHeight', fieldMinHeight.element);
 
         fieldMinHeight.style.width = '32px';
 
@@ -56,6 +58,7 @@ editor.once('load', function() {
             placeholder: 'Max Width',
             allowNull: true
         });
+        editor.call('attributes:registerOverridePath', 'components.layoutchild.maxWidth', fieldMaxWidth.element);
 
         fieldMaxWidth.style.width = '32px';
 
@@ -65,6 +68,7 @@ editor.once('load', function() {
             placeholder: 'Max Height',
             allowNull: true
         });
+        editor.call('attributes:registerOverridePath', 'components.layoutchild.maxHeight', fieldMaxHeight.element);
 
         fieldMaxHeight.style.width = '32px';
 
@@ -73,6 +77,7 @@ editor.once('load', function() {
             type: 'number',
             placeholder: 'Width'
         });
+        editor.call('attributes:registerOverridePath', 'components.layoutchild.fitWidthProportion', fieldFitWidthProportion.element);
 
         fieldFitWidthProportion.style.width = '32px';
 
@@ -81,12 +86,14 @@ editor.once('load', function() {
             type: 'number',
             placeholder: 'Height'
         });
+        editor.call('attributes:registerOverridePath', 'components.layoutchild.fitHeightProportion', fieldFitHeightProportion.element);
 
         fieldFitHeightProportion.style.width = '32px';
 
         addField('excludeFromLayout', {
             name: 'Exclude from Layout',
-            type: 'checkbox'
+            type: 'checkbox',
+            canOverrideTemplate: true
         });
 
         panel.on('destroy', function () {

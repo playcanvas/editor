@@ -20,7 +20,8 @@ editor.once('load', function() {
             name: 'Screen Space',
             type: 'checkbox',
             link: entities,
-            path: 'components.screen.screenSpace'
+            path: 'components.screen.screenSpace',
+            canOverrideTemplate: true
         });
 
         // reference
@@ -33,7 +34,8 @@ editor.once('load', function() {
             placeholder: ['Width', 'Height'],
             type: 'vec2',
             link: entities,
-            path: 'components.screen.resolution'
+            path: 'components.screen.resolution',
+            canOverrideTemplate: true
         });
 
         fieldResolution[0].parent.hidden = !!fieldScreenspace.value;
@@ -48,7 +50,8 @@ editor.once('load', function() {
             placeholder: ['Width', 'Height'],
             type: 'vec2',
             link: entities,
-            path: 'components.screen.referenceResolution'
+            path: 'components.screen.referenceResolution',
+            canOverrideTemplate: true
         });
 
         // reference
@@ -65,7 +68,8 @@ editor.once('load', function() {
                 {v: 'blend', t: 'Blend'},
             ],
             link: entities,
-            path: 'components.screen.scaleMode'
+            path: 'components.screen.scaleMode',
+            canOverrideTemplate: true
         });
 
         fieldScaleMode.parent.hidden = !fieldScreenspace.value;
@@ -86,7 +90,8 @@ editor.once('load', function() {
             precision: 2,
             step: 0.1,
             link: entities,
-            path: 'components.screen.scaleBlend'
+            path: 'components.screen.scaleBlend',
+            canOverrideTemplate: true
         });
 
         fieldScaleBlend.style.width = '32px';

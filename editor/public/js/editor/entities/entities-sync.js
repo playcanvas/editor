@@ -11,10 +11,12 @@ editor.once('load', function() {
         'rotation',
         'scale',
         'enabled',
+        'template_id',
+        'template_ent_ids',
         'components'
     ];
 
-    editor.on('entities:add', function(entity) {
+    function addObserverSync(entity) {
         if (entity.sync)
             return;
 
@@ -28,7 +30,11 @@ editor.once('load', function() {
         entity.sync.on('op', function(op) {
             editor.call('realtime:scene:op', op);
         });
-    });
+    }
+
+    editor.on('entities:add', addObserverSync);
+
+    editor.method('entities:addObserverSync', addObserverSync);
 
 
     // server > client

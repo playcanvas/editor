@@ -2,7 +2,7 @@ editor.once('load', function() {
     // get the unicode for all of the component and new entity logos
     editor.method('components:logos', function () {
         return {
-            'animation': '&#57875;',
+            'animation': '&#57752;',
             'audiolistener': '&#57750;',
             'audiosource': '&#57751;',
             'sound': '&#57751;',

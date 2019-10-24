@@ -24,7 +24,7 @@
 }
 
 // ticked
-.pcui-boolean-input-ticked:not(.pcui-readonly) {
+.pcui-boolean-input-ticked {
     border-color: $text-secondary;
     background-color: $bcg-darkest;
     &:after {
@@ -53,26 +53,6 @@
             background-color: $bcg-darkest;
             border-color: $text-secondary;
         }
-    }
-}
-
-// readonly state
-.pcui-boolean-input.pcui-readonly {
-    overflow: visible;
-    width: auto;
-    height: auto;
-    background-color: transparent;
-    border: 0;
-
-    &:after {
-        @extend .font-regular;
-        font-size: 13px;
-        color: $text-secondary;
-        content: 'False';
-        position: static;
-    }
-    &.pcui-boolean-input-ticked:after {
-        content: 'True';
     }
 }
 
