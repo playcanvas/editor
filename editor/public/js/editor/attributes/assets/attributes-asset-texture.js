@@ -830,7 +830,8 @@ editor.once('load', function() {
                         options: {
                             formats: variants,
                             alpha: assets[i].get('meta.compress.alpha') && (assets[i].get('meta.alpha') || assets[i].get('meta.type').toLowerCase() === 'truecoloralpha'),
-                            mipmaps: assets[i].get('data.mipmaps')
+                            mipmaps: assets[i].get('data.mipmaps'),
+                            normals: false
                         }
                     };
 
