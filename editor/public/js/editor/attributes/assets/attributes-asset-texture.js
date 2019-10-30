@@ -163,7 +163,6 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'asset:texture:alpha', fieldAlpha.parent.innerElement.firstChild.ui);
 
-
         // interlaced
         var fieldInterlaced = editor.call('attributes:addField', {
             parent: panel,
@@ -440,6 +439,26 @@ editor.once('load', function() {
 
         // reference
         editor.call('attributes:reference:attach', 'asset:texture:compress:alpha', labelCompressAlpha);
+
+
+        // compress normals
+        var fieldCompressNormals = editor.call('attributes:addField', {
+            parent: fieldCompressAlpha.parent,
+            type: 'checkbox',
+            name: '',
+            link: assets,
+            path: 'meta.compress.normals'
+        });
+        // label
+        var labelCompressNormals = new ui.Label({ text: 'Normals' });
+        labelCompressNormals.style.verticalAlign = 'top';
+        labelCompressNormals.style.paddingRight = '12px';
+        labelCompressNormals.style.fontSize = '12px';
+        labelCompressNormals.style.lineHeight = '24px';
+        fieldCompressNormals.parent.append(labelCompressNormals);
+
+        // reference
+        editor.call('attributes:reference:attach', 'asset:texture:compress:normals', labelCompressNormals);
 
 
         var originalExt = '';
@@ -831,7 +850,7 @@ editor.once('load', function() {
                             formats: variants,
                             alpha: assets[i].get('meta.compress.alpha') && (assets[i].get('meta.alpha') || assets[i].get('meta.type').toLowerCase() === 'truecoloralpha'),
                             mipmaps: assets[i].get('data.mipmaps'),
-                            normals: false
+                            normals: !!assets[i].get('meta.compress.normals')
                         }
                     };
 
@@ -863,6 +882,7 @@ editor.once('load', function() {
             var data = asset.get('file.variants.' + format);
             var rgbm = asset.get('data.rgbm');
             var alpha = asset.get('meta.compress.alpha') && (asset.get('meta.alpha') || ((asset.get('meta.type') || '').toLowerCase() === 'truecoloralpha')) || rgbm;
+            var normals = !!asset.get('meta.compress.normals');
             var compress = asset.get('meta.compress.' + format);
             var mipmaps = asset.get('data.mipmaps');
 
@@ -893,6 +913,9 @@ editor.once('load', function() {
             if (data && ((data.opt & 4) !== 0) !== ! mipmaps)
                 return true;
 
+            if (format === 'basis' && data && (!!(data.opt & 8) !== normals))
+                return true;
+
             return false;
         };
 
@@ -921,7 +944,12 @@ editor.once('load', function() {
         };
         var queueCheck = false;
         var onAssetChangeCompression = function(path) {
-            if (queueCheck || (path !== 'task' && ! path.startsWith('meta') && ! path.startsWith('file') && ! path.startsWith('data.rgbm') && ! path.startsWith('data.mipmaps')))
+            if (queueCheck ||
+                (path !== 'task' &&
+                ! path.startsWith('meta') &&
+                ! path.startsWith('file') &&
+                ! path.startsWith('data.rgbm') &&
+                ! path.startsWith('data.mipmaps')))
                 return;
 
             queueCheck = true;

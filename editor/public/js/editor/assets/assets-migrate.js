@@ -31,6 +31,7 @@ editor.once('load', function() {
 
                     asset.set('meta.compress', {
                         alpha: alpha,
+                        normals: false,
                         dxt: false,
                         pvr: false,
                         pvrBpp: 4,
@@ -39,6 +40,9 @@ editor.once('load', function() {
                         basis: false
                     });
                 } else {
+                    if (! asset.has('meta.compress.normals'))
+                        asset.set('meta.compress.normals', false);
+
                     if (! asset.has('meta.compress.pvr'))
                         asset.set('meta.compress.pvr', false);
 
