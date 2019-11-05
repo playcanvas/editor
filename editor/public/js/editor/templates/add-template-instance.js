@@ -1,91 +1,102 @@
 editor.once('load', function () {
     'use strict';
 
-    editor.method('template:addInstance', function (asset, parent, desiredEntityResourceIds, desiredChildIndex) {
+    editor.method('template:addInstance', function (asset, parent, opts) {
         if (! editor.call('permissions:write')) {
             return;
         }
 
-        return new AddTemplateInstance(asset, parent, desiredEntityResourceIds, desiredChildIndex).run();
+        return new AddTemplateInstance(asset, parent, opts).run();
     });
 
     class AddTemplateInstance {
-        constructor(asset, parent, desiredEntityResourceIds, desiredChildIndex) {
+        constructor(asset, parent, opts) {
             this.asset = asset;
 
             this.parent = parent;
 
-            this.desiredEntityResourceIds = desiredEntityResourceIds || {};
+            this.opts = opts || {};
 
-            this.desiredChildIndex = desiredChildIndex;
+            this.childIndex = this.opts.childIndex;
 
-            this.dstEnts = {};
-
-            this.srcToDst = {};
-
-            this.dstToSrc = {};
+            this.subtreeRootId = this.opts.subtreeRootId;
         }
 
         run() {
             this.prepData();
 
-            this.createDstEnts();
+            this.subtreeRootId ? this.prepSubtree() : this.prepFull();
 
-            this.remapAllEntIds();
-
-            this.setRootFields();
-
-            return this.addToScene(this.dstRootEnt, this.parent, this.desiredChildIndex);
+            return editor.call(
+                'template:utils',
+                'addEntitySubtree',
+                this.dstRootEnt,
+                this.dstEnts,
+                this.parent,
+                this.childIndex
+            );
         }
 
         prepData() {
-            this.srcEnts = this.asset.get('data').entities;
+            this.setMaps();
 
-            const a = Object.values(this.srcEnts);
+            this.allSrcEnts = this.asset.get('data').entities;
+
+            const a = Object.values(this.allSrcEnts);
 
             this.scriptAttrs = editor.call('template:getScriptAttributes', a);
         }
 
-         createDstEnts() {
-             const ids = Object.keys(this.srcEnts);
+        setMaps() {
+            this.dstToSrc = this.opts.dstToSrc || {};
 
-             ids.forEach(id => this.createEnt(id, this.srcEnts[id]));
-         }
-
-        createEnt(srcId, srcEnt) {
-            const dstId = this.desiredEntityResourceIds[srcId] || pc.guid.create();
-
-            const dstEnt = editor.call('template:utils', 'cloneWithId', srcEnt, dstId);
-
-            this.updateMaps(srcId, dstId);
-
-            if (!srcEnt.parent) {
-                this.dstRootEnt = dstEnt;
-            }
-
-            this.dstEnts[dstId] = dstEnt;
+            this.srcToDst = this.opts.srcToDst ||
+                editor.call('template:utils', 'invertMap', this.dstToSrc);
         }
 
-        updateMaps(srcId, dstId) {
-            this.srcToDst[srcId] = dstId;
+        prepSubtree() {
+            this.subtreeRootEnt = this.allSrcEnts[this.subtreeRootId];
 
-            this.dstToSrc[dstId] = srcId;
+            this.createSubtreeEnts();
+
+            const dstRootId = this.srcToDst[this.subtreeRootId];
+
+            this.dstRootEnt = this.dstEnts[dstRootId];
+
+            this.setChildIndex();
         }
 
-        remapAllEntIds() {
-            const ents = Object.values(this.dstEnts);
+        createSubtreeEnts() {
+            const ents = editor.call(
+                'template:utils',
+                'getDescendants',
+                this.subtreeRootEnt,
+                this.allSrcEnts,
+                {}
+            );
 
-            ents.forEach(ent => {
-                editor.call(
-                    'template:remapEntityIds',
-                    ent,
-                    this.scriptAttrs,
-                    this.srcToDst
-                );
-            });
+            this.createDstEnts(ents);
         }
 
-        setRootFields() {
+        setChildIndex() {
+            const p = this.allSrcEnts[this.subtreeRootEnt.parent];
+
+            this.childIndex = p.children.indexOf(this.subtreeRootId);
+        }
+
+        prepFull() {
+            this.createDstEnts(this.allSrcEnts);
+
+            const srcRootId = editor.call('template:utils', 'findIdWithoutParent', this.allSrcEnts);
+
+            const dstRootId = this.srcToDst[srcRootId];
+
+            this.dstRootEnt = this.dstEnts[dstRootId];
+
+            this.setInstanceRootFields();
+        }
+
+        setInstanceRootFields() {
             this.dstRootEnt.template_ent_ids = this.dstToSrc;
 
             this.dstRootEnt.parent = this.parent.get('resource_id');
@@ -93,24 +104,14 @@ editor.once('load', function () {
             this.dstRootEnt.template_id = parseInt(this.asset.get('id'), 10);
         }
 
-        addToScene(data, parent, childIndex) {
-            const childrenCopy = data.children;
-
-            data.children = [];
-
-            const entity = this.addEntObserver(data, parent, childIndex);
-
-            childrenCopy.forEach(childId => {
-                this.addToScene(this.dstEnts[childId], entity);
-            });
-
-            return entity;
-        }
-
-        addEntObserver(data, parent, childIndex) {
-            const entity = new Observer(data);
-            editor.call('entities:addEntity', entity, parent, false, childIndex);
-            return entity;
+        createDstEnts(ents) {
+            this.dstEnts = editor.call( // updates maps
+                'template:createInstanceEntities',
+                ents,
+                this.srcToDst,
+                this.dstToSrc,
+                this.scriptAttrs
+            );
         }
     }
 });
