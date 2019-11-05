@@ -22,6 +22,44 @@ editor.once('load', function () {
 
     editor.method('templates:revertDeletedEntity', (deletedEntity, templateInstanceRoot, entities) => {
         entities = entities || editor.call('entities:raw');
+
+        let newEntity = null;
+
+        function undo() {
+            newEntity = newEntity.latest();
+            if (!newEntity) return;
+
+            editor.call('entities:removeEntity', newEntity, null, true);
+
+            newEntity = null;
+        }
+
+        function redo() {
+            const templId = templateInstanceRoot.get('template_id');
+            const asset = editor.call('assets:get', templId);
+            if (!asset) return;
+
+            const dstToSrc = templateInstanceRoot.get('template_ent_ids'); // for create asset is src
+            const srcToDst = editor.call('template:utils', 'invertMap', dstToSrc);
+            const parentId = srcToDst[deletedEntity.parent];
+            const parentEnt = entities.get(parentId);
+
+            const opts = {
+                subtreeRootId: deletedEntity.resource_id,
+                dstToSrc: dstToSrc,
+                srcToDst: srcToDst
+            };
+
+            newEntity = editor.call('template:addInstance', asset, parentEnt, opts);
+        }
+
+        redo();
+
+        editor.call('history:add', {
+            name: 'revert deleted entity ' + deletedEntity.resource_id,
+            undo: undo,
+            redo: redo
+        });
     });
 
     function revertNewScript(entity, override, scriptName) {
@@ -423,11 +461,6 @@ editor.once('load', function () {
             parent = editor.call('entities:get', entity.get('parent'));
             if (!parent) return;
 
-            const desiredResourceIds = {};
-            for (const key in templateEntIds) {
-                desiredResourceIds[templateEntIds[key]] = key;
-            }
-
             const ignorePaths = editor.call('template:utils', 'ignoreRootPathsForRevert');
 
             const ignorePathValues = ignorePaths.map(path => entity.get(path));
@@ -443,7 +476,12 @@ editor.once('load', function () {
             editor.call('entities:removeEntity', entity);
 
             setTimeout(function () {
-                entity = editor.call('template:addInstance', asset, parent, desiredResourceIds, childIndex);
+                const opts = {
+                    dstToSrc: templateEntIds,
+                    childIndex: childIndex
+                };
+
+                entity = editor.call('template:addInstance', asset, parent, opts);
 
                 entity.history.enabled = false;
                 ignorePaths.forEach((path, i) => {

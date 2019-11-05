@@ -269,6 +269,54 @@ editor.once('load', function() {
 
         rmFalsey: function (a) {
             return a.filter(v => v);
+        },
+
+        getDescendants: function (entity, idToEntity, result) {
+            const id = entity && entity.resource_id;
+
+            if (id && !result[id]) {
+                result[id] = entity;
+
+                TemplateUtils.addEntChildren(entity, idToEntity, result);
+            }
+
+            return result;
+        },
+
+        addEntChildren: function (entity, idToEntity, result) {
+            entity.children.forEach(id => {
+                const ch = idToEntity[id];
+
+                TemplateUtils.getDescendants(ch, idToEntity, result);
+            })
+        },
+
+        addEntitySubtree: function (entData, allEnts, parent, childIndex) {
+            const childrenCopy = entData.children;
+
+            entData.children = [];
+
+            const entity = TemplateUtils.addEntObserver(entData, parent, childIndex);
+
+            childrenCopy.forEach(childId => {
+                TemplateUtils.addEntitySubtree(allEnts[childId], allEnts, entity);
+            });
+
+            return entity;
+        },
+
+        addEntObserver(data, parent, childIndex) {
+            const entity = new Observer(data);
+
+            editor.call('entities:addEntity', entity, parent, false, childIndex);
+
+            return entity;
+        },
+
+        findIdWithoutParent(ents) {
+            const ids = Object.keys(ents);
+
+            return ids.find(id => !ents[id].parent);
         }
     };
 });
