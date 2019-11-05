@@ -194,6 +194,16 @@ editor.on('load', function() {
         overridesSidebar.hidden = !hasTemplates() || !overridesSidebar.hasOverrides() || attributesPanel.collapsed || editor.call('selector:type') !== 'entity';
     });
 
+    let sideBarWidth = 0;
+    overridesSidebar.on('show', function () {
+        sideBarWidth = overridesSidebar.width;
+        attributesPanel.resize(-overridesSidebar.width, 0);
+    });
+
+    overridesSidebar.on('hide', function () {
+        attributesPanel.resize(sideBarWidth, 0);
+    });
+
     root.append(overridesSidebar);
 
     editor.method('layout.overridesSidebar', function () {

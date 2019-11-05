@@ -387,6 +387,21 @@ Object.assign(pcui, (function () {
             this.class.remove(CLASS_RESIZING);
         }
 
+        /**
+         * Resize the container
+         * @param {Number} x The amount of pixels to resize the width
+         * @param {Number} y The amount of pixels to resize the height
+         */
+        resize(x, y) {
+            x = x || 0;
+            y = y || 0;
+
+            this._resizeStart();
+            this._resizeMove(0, 0);
+            this._resizeMove(-x + RESIZE_HANDLE_SIZE, -y);
+            this._resizeEnd();
+        }
+
         destroy() {
             if (this._destroyed) return;
             this.domContent = null;
