@@ -404,6 +404,16 @@ editor.once('load', function() {
         fieldPreserveDrawingBuffer.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:attach', 'settings:project:preserveDrawingBuffer', fieldPreserveDrawingBuffer.parent.innerElement.firstChild.ui);
 
+
+        // divider
+        var divider = document.createElement('div');
+        divider.classList.add('fields-divider');
+        panelRendering.append(divider);
+
+        // optional rendering modules
+        editor.call('attributes:appendImportModule', panelRendering, 'basist.js', 'basist_');
+
+
         filter();
 
         // filter fields when scene settings change
