@@ -517,7 +517,7 @@ editor.once('load', function() {
             }, 0);
         };
 
-        var checkFormats = function() {
+        var checkFormats = function(path) {
             var width = -1;
             var height = -1;
             var rgbm = -1;
@@ -568,6 +568,23 @@ editor.once('load', function() {
                     originalExt = 'various';
                 } else if (originalExt !== 'various') {
                     originalExt = ext;
+                }
+
+                // PVR format only supports square power-of-two textures. If basis is selected then
+                // we also enable PVR variant in order to provide the correct version of the texture
+                // on the platforms supporting PVR.
+                // NOTE: ideally the basis transcoder would optionally resize the compressed image to
+                // be square POT, but this isn't currently possible.
+                if (path === 'meta.compress.basis') {
+                    var thisBasis = assets[i].get('meta.compress.basis');
+                    if (thisBasis) {
+                        var thisWidth = assets[i].get('meta.width');
+                        var thisHeight = assets[i].get('meta.height');
+                        var thisPOT = ((thisWidth & (thisWidth - 1)) === 0) && ((thisHeight & (thisHeight - 1)) === 0);
+                        if (!thisPOT || thisWidth !== thisHeight) {
+                            assets[i].set('meta.compress.pvr', true);
+                        }
+                    }
                 }
             }
 
@@ -955,7 +972,7 @@ editor.once('load', function() {
             queueCheck = true;
             setTimeout(function() {
                 queueCheck = false;
-                checkFormats();
+                checkFormats(path);
                 checkCompression();
                 checkCompressAlpha();
             }, 0);
