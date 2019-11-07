@@ -194,6 +194,27 @@ editor.on('load', function() {
         overridesSidebar.hidden = !hasTemplates() || !overridesSidebar.hasOverrides() || attributesPanel.collapsed || editor.call('selector:type') !== 'entity';
     });
 
+    let sideBarWidth = 0;
+    overridesSidebar.on('show', function () {
+        sideBarWidth = 0;
+
+        if (attributesPanel.collapsed) {
+            // hide the sidebar if the attributes panel is collapsed
+            overridesSidebar.hidden = true;
+            return;
+        }
+
+        // adjust the width of the attributes panel to account for the width of the sidebar
+        sideBarWidth = overridesSidebar.width;
+        attributesPanel.resize(-overridesSidebar.width, 0);
+    });
+
+    overridesSidebar.on('hide', function () {
+        // adjust the width of the attributes panel to account for the width of the sidebar
+        if (attributesPanel.collapsed) return;
+        attributesPanel.resize(sideBarWidth, 0);
+    });
+
     root.append(overridesSidebar);
 
     editor.method('layout.overridesSidebar', function () {
