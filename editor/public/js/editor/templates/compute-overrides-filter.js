@@ -4,7 +4,11 @@ editor.once('load', function () {
     editor.method('templates:computeFilteredOverrides', function (root) {
         const overrides = editor.call('templates:computeOverrides', root);
 
-        filterChildrenConflicts(overrides);
+        filterRemovableConflicts(
+            overrides, 'children', 'templates:handleChildrenConflict');
+
+        filterRemovableConflicts(
+            overrides, 'components.script.order', 'templates:handleScriptOrderConflict');
 
         setAllReparentPaths(overrides);
 
@@ -18,10 +22,10 @@ editor.once('load', function () {
 
     });
 
-    function filterChildrenConflicts(overrides) {
+    function filterRemovableConflicts(overrides, path, method)  {
         const a = overrides.conflicts.map(h => {
-            return h.path === 'children' ?
-                editor.call('templates:handleChildrenConflict', h, overrides) :
+            return h.path === path ?
+                editor.call(method, h, overrides) :
                 h;
         });
 

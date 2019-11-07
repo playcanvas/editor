@@ -217,6 +217,16 @@ editor.once('load', function() {
             return h;
         },
 
+        strArrayToMap: function(a) {
+            const h = {};
+
+            a.forEach(s => {
+                h[s] = 1;
+            });
+
+            return h;
+        },
+
         isStopPathInSchema: function (path) {
             const s = TemplateUtils.pathToStr(path);
 
@@ -317,6 +327,12 @@ editor.once('load', function() {
             const ids = Object.keys(ents);
 
             return ids.find(id => !ents[id].parent);
+        },
+
+        selectPresentInSecond(a1, a2) {
+            const h = TemplateUtils.strArrayToMap(a2);
+
+            return a1.filter(s => h[s]);
         }
     };
 });
