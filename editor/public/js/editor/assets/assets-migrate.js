@@ -56,7 +56,8 @@ editor.once('load', function() {
                         asset.set('meta.compress.etc2', false);
 
                     if (! asset.has('meta.compress.basis'))
-                        asset.set('meta.compress.basis', false);                }
+                        asset.set('meta.compress.basis', false);
+                }
             }
             if (asset.get('data')) {
                 if (! asset.has('data.mipmaps'))
