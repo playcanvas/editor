@@ -10,6 +10,8 @@ editor.once('load', function () {
         filterRemovableConflicts(
             overrides, 'components.script.order', 'templates:handleScriptOrderConflict');
 
+        editor.call('template:utils', 'markAddRmScriptConflicts', overrides);
+
         setAllReparentPaths(overrides);
 
         keepOnePerSubtree(overrides, 'addedEntities');
