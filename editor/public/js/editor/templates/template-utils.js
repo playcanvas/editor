@@ -32,6 +32,12 @@ editor.once('load', function() {
     const TemplateUtils = {
         stopAndReportAttrTypes: { 'curve' : 1 },
 
+        SCRIPT_NAME_REG: /^components\.script\.scripts\.([^\.]+)$/,
+
+        getScriptNameReg: function() {
+            return TemplateUtils.SCRIPT_NAME_REG;
+        },
+
         isIgnoreRootOverride: function(path) {
             return IGNORE_ROOT_PATHS_FOR_OVERRIDES[path];
         },
@@ -359,7 +365,7 @@ editor.once('load', function() {
         },
 
         setScriptName: function(h) {
-            const s = TemplateUtils.matchFromRegex(h.path, /^components.script.scripts\.(.+)/);
+            const s = TemplateUtils.matchFromRegex(h.path, TemplateUtils.getScriptNameReg());
 
             if (s) {
                 h.script_name = s;
