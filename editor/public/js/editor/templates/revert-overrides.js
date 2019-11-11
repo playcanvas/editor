@@ -1,8 +1,6 @@
 editor.once('load', function () {
     'use strict';
 
-    const REGEX_SCRIPT_PATH = /^components\.script\.scripts\.([^\.]*?)$/;
-
     function rememberEntitiesPanelState(entity) {
         return editor.call('entities:panel:getExpandedState', entity);
     }
@@ -382,8 +380,10 @@ editor.once('load', function () {
         let entity = entities.get(override.resource_id);
         if (!entity) return;
 
+        const scriptReg = editor.call('template:utils', 'getScriptNameReg');
+
         if (override.missing_in_dst) {
-            const match = override.path.match(REGEX_SCRIPT_PATH);
+            const match = override.path.match(scriptReg);
             if (match) {
                 revertNewScript(entity, override, match[1]);
             } else if (override.path === 'template_id') {
@@ -401,7 +401,7 @@ editor.once('load', function () {
                 revertScriptOrder(entity, override);
             } else {
                 // handle deleted script
-                const match = override.path.match(REGEX_SCRIPT_PATH);
+                const match = override.path.match(scriptReg);
                 if (match) {
                     revertDeletedScript(entity, override, match[1]);
                 } else {

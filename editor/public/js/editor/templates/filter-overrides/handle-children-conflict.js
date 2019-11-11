@@ -41,7 +41,7 @@ editor.once('load', function () {
         rmAdded() {
             this.conflict.src_value = this.conflict.src_value.filter(id => {
                 return !this.addedIds[id];
-            })
+            });
         }
 
         rmReparented() {
