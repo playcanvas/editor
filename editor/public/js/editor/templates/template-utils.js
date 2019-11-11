@@ -373,7 +373,9 @@ editor.once('load', function() {
 
             const a = TemplateUtils.getNodeAtPath(ent, ['components', 'script', 'order']);
 
-            h.order_index_in_asset = a.indexOf(h.script_name);
+            if (a) {
+                h.order_index_in_asset = a.indexOf(h.script_name);
+            }
         }
     };
 });
