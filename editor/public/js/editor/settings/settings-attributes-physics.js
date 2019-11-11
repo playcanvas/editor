@@ -61,63 +61,10 @@ editor.once('load', function() {
                projectSettings.get('use3dPhysics');
     });
 
-    // method for checking whether the current project has physics
+    // method for checking whether the current project has physics (either legacy or module)
     editor.method('project:settings:hasPhysics', function() {
-        if (editor.call('project:settings:hasLegacyPhysics')) {
-            return true;
-        }
-        // check for wasm ammo assets
-        var ammoAssets = editor.call('assets:find', function(item) {
-            var name = item.get('name');
-            var type = item.get('type');
-            return name.indexOf('ammo') >= 0 && (type === 'script' || type === 'wasm');
-        });
-        return ammoAssets.length > 0;
-    });
-
-    // add ammo module to the project
-    editor.method('project:physics:addAmmo', function() {
-        // ensure legacy physics is disabled
-        projectSettings.set('use3dPhysics', false);
-
-        function addAmmoToProject() {
-            Ajax( {
-                url:'{{url.api}}/store/items?name=ammo.js',
-                method:'GET',
-                auth: true,
-                data: { }
-            }).on('load', function(status, data) {
-                if (data.length === 1) {
-                    Ajax( {
-                        url:'{{url.api}}/store/' + data[0].id.toString() + '/clone',
-                        method: 'POST',
-                        auth: true,
-                        data: { scope: { type: 'project', id: config.project.id } },
-                        notJson: true       // server response is empty
-                    } ).on('load', function(status, data) {
-                        editor.call('status:text', 'Ammo successfully imported');
-                        editor.emit('onPhysicsAmmoImported');
-                    } ).on('error', function(err) {
-                        editor.call('status:error', 'Failed to import Ammo');
-                    } );
-                }
-            }).on('error', function(err) {
-                editor.call('status:error', 'Failed to import Ammo');
-            });
-        }
-
-        // show popup if we think there already exists physics in the scene
-        if (editor.call('project:settings:hasPhysics')) {
-            editor.call('picker:confirm',
-                        'It appears your assets panel already contains the ammo physics modules. Do you want to continue?',
-                        function() { addAmmoToProject(); },
-                        {
-                            yesText: 'Yes',
-                            noText: 'Cancel'
-                        });
-        } else {
-            addAmmoToProject();
-        }
+        return editor.call('project:settings:hasLegacyPhysics') ||
+                editor.call('project:module:hasModule', 'ammo');
     });
 
     // append the physics module controls to the provided panel
@@ -128,7 +75,10 @@ editor.once('load', function() {
             icon: 'E228'
         });
         button.on('click', function() {
-            editor.call('project:physics:addAmmo');
+            // ensure legacy physics is disabled
+            projectSettings.set('use3dPhysics', false);
+            // add the module
+            editor.call('project:module:addModule', 'ammo.js', 'ammo');
         });
 
         // group
