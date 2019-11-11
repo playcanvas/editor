@@ -32,7 +32,7 @@ editor.once('load', function() {
     const TemplateUtils = {
         stopAndReportAttrTypes: { 'curve' : 1 },
 
-        SCRIPT_NAME_REG: /^components\.script\.scripts\.([^\.]+)$/,
+        SCRIPT_NAME_REG: /^components\.script\.scripts\.([^.]+)$/,
 
         getScriptNameReg: function() {
             return TemplateUtils.SCRIPT_NAME_REG;
