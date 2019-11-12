@@ -105,8 +105,10 @@ editor.once('load', function() {
         editor.on('onUse3dPhysicsChanged', function() {
             updateEnableState();
         })
-        editor.on('onPhysicsAmmoImported', function() {
-            group.enabled = false;
+        editor.on('onModuleImported', function(name) {
+            if (name === 'ammo.js') {
+                group.enabled = false;
+            }
         });
         updateEnableState();
 
