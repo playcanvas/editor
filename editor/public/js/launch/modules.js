@@ -16,10 +16,10 @@ editor.once('load', function() {
     // load a script
     function loadScriptAsync(url, doneCallback) {
         var tag = document.createElement('script');
-        tag.onload = () => {
+        tag.onload = function () {
             doneCallback();
         };
-        tag.onerror = () => {
+        tag.onerror = function () {
             throw new Error('failed to load ' + url);
         };
         tag.async = true;
@@ -32,7 +32,7 @@ editor.once('load', function() {
         loadScriptAsync(jsUrl, function () {
             var lib = window[moduleName];
             window[moduleName + 'Lib'] = lib;
-            lib({ locateFile: () => binaryUrl }).then( function (instance) {
+            lib({ locateFile: function () { return binaryUrl; } } ).then( function (instance) {
                 window[moduleName] = instance;
                 doneCallback();
             });
