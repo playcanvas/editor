@@ -374,8 +374,6 @@ Object.assign(pcui, (function () {
                 this._overrides.conflicts.forEach(override => {
                     override.srcToDst = this._overrides.srcToDst;
 
-                    override.templateAsset = this._templateAsset;
-
                     if (!entities[override.resource_id]) {
                         entities[override.resource_id] = [];
                     }
