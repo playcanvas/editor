@@ -382,6 +382,12 @@ editor.once('load', function() {
             if (a) {
                 h.order_index_in_asset = a.indexOf(h.script_name);
             }
+        },
+
+        remapOverrideForRevert(override) {
+            const h = TemplateUtils.invertMap(override.srcToDst);
+
+            return TemplateUtils.remapEntVal(override.dst_value, h);
         }
     };
 });
