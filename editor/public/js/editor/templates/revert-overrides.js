@@ -405,6 +405,9 @@ editor.once('load', function () {
                 if (match) {
                     revertDeletedScript(entity, override, match[1]);
                 } else {
+
+                    // todo if path is ent ref, remap array or string
+
                     entity.set(override.path, override.dst_value);
                 }
             }
