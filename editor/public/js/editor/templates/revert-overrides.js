@@ -405,7 +405,11 @@ editor.once('load', function () {
                 if (match) {
                     revertDeletedScript(entity, override, match[1]);
                 } else {
-                    entity.set(override.path, override.dst_value);
+                    const val = override.is_entity_reference ?
+                      editor.call('template:utils', 'remapOverrideForRevert', override) :
+                      override.dst_value;
+
+                    entity.set(override.path, val);
                 }
             }
         }
