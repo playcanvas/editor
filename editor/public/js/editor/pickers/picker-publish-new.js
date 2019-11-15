@@ -257,6 +257,21 @@ editor.once('load', function () {
         var label = new ui.Label({ text: 'Concatenate Scripts' });
         panelOptionsConcat.append(label);
 
+        // generate sourcemaps
+        var panelOptionsSourcemaps = new ui.Panel();
+        panelOptionsSourcemaps.class.add('field');
+        panelOptions.append(panelOptionsSourcemaps);
+        var fieldOptionsSourcemaps = new ui.Checkbox();
+        fieldOptionsSourcemaps.value = false;
+        fieldOptionsSourcemaps.class.add('tick');
+        panelOptionsSourcemaps.append(fieldOptionsSourcemaps);
+        var label = new ui.Label({ text: 'Generate Source Maps' });
+        panelOptionsSourcemaps.append(label);
+
+        fieldOptionsConcat.on('change', value => {
+            panelOptionsSourcemaps.hidden = !value;
+        });
+
         // create preload bundle
         if (editor.call('users:hasFlag', 'hasPreloadBundling')) {
             var panelOptionsPreload = new ui.Panel();
@@ -374,8 +389,13 @@ editor.once('load', function () {
         if (imageS3Key)
             data.image_s3_key = imageS3Key;
 
-        if (fieldOptionsConcat)
+        if (fieldOptionsConcat) {
             data.scripts_concatenate = fieldOptionsConcat.value;
+
+            if (fieldOptionsConcat.value && fieldOptionsSourcemaps.value) {
+                data.scripts_sourcemaps = true;
+            }
+        }
 
         if (fieldOptionsPreload)
             data.preload_bundle = fieldOptionsPreload.value;
@@ -413,6 +433,7 @@ editor.once('load', function () {
             scenes: getSelectedScenes(),
             target: target,
             scripts_concatenate: fieldOptionsConcat ? fieldOptionsConcat.value : false,
+            scripts_sourcemaps: fieldOptionsConcat && fieldOptionsConcat.value && fieldOptionsSourcemaps.value,
             preload_bundle: fieldOptionsPreload ? fieldOptionsPreload.value : false
         };
 

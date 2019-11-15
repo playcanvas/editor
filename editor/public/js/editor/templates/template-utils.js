@@ -32,6 +32,12 @@ editor.once('load', function() {
     const TemplateUtils = {
         stopAndReportAttrTypes: { 'curve' : 1 },
 
+        SCRIPT_NAME_REG: /^components\.script\.scripts\.([^.]+)$/,
+
+        getScriptNameReg: function() {
+            return TemplateUtils.SCRIPT_NAME_REG;
+        },
+
         isIgnoreRootOverride: function(path) {
             return IGNORE_ROOT_PATHS_FOR_OVERRIDES[path];
         },
@@ -217,6 +223,16 @@ editor.once('load', function() {
             return h;
         },
 
+        strArrayToMap: function(a) {
+            const h = {};
+
+            a.forEach(s => {
+                h[s] = 1;
+            });
+
+            return h;
+        },
+
         isStopPathInSchema: function (path) {
             const s = TemplateUtils.pathToStr(path);
 
@@ -305,7 +321,7 @@ editor.once('load', function() {
             return entity;
         },
 
-        addEntObserver(data, parent, childIndex) {
+        addEntObserver: function(data, parent, childIndex) {
             const entity = new Observer(data);
 
             editor.call('entities:addEntity', entity, parent, false, childIndex);
@@ -313,10 +329,65 @@ editor.once('load', function() {
             return entity;
         },
 
-        findIdWithoutParent(ents) {
+        findIdWithoutParent: function(ents) {
             const ids = Object.keys(ents);
 
             return ids.find(id => !ents[id].parent);
+        },
+
+        selectPresentInSecond: function(a1, a2) {
+            const h = TemplateUtils.strArrayToMap(a2);
+
+            return a1.filter(s => h[s]);
+        },
+
+        matchFromRegex: function(s, r) {
+            const match = r.exec(s);
+
+            return match ? match[1] : match;
+        },
+
+        markAddRmScriptConflicts: function(overrides) {
+            overrides.conflicts.forEach(TemplateUtils.setScriptName);
+
+            const a = overrides.conflicts.filter(h => h.script_name);
+
+            a.forEach(h => {
+                if (h.missing_in_dst) {
+                    h.override_type = 'override_add_script';
+
+                } else if (h.missing_in_src) {
+                    h.override_type = 'override_delete_script';
+
+                    TemplateUtils.addScriptIndex(h, overrides);
+                }
+            });
+        },
+
+        setScriptName: function(h) {
+            const s = TemplateUtils.matchFromRegex(h.path, TemplateUtils.getScriptNameReg());
+
+            if (s) {
+                h.script_name = s;
+            }
+        },
+
+        addScriptIndex(h, overrides) {
+            const dstId = overrides.srcToDst[h.resource_id];
+
+            const ent = overrides.typeToInstData.dst.entIdToEntity[dstId];
+
+            const a = TemplateUtils.getNodeAtPath(ent, ['components', 'script', 'order']);
+
+            if (a) {
+                h.order_index_in_asset = a.indexOf(h.script_name);
+            }
+        },
+
+        remapOverrideForRevert(override) {
+            const h = TemplateUtils.invertMap(override.srcToDst);
+
+            return TemplateUtils.remapEntVal(override.dst_value, h);
         }
     };
 });
