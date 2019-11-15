@@ -36,6 +36,10 @@
 
 .template-entity-inspector-container-middle {
     padding-bottom: 5px;
+
+    > .pcui-button {
+        flex-grow: 1;
+    }
 }
 
 .template-entity-inspector-root {

@@ -74,24 +74,21 @@ Object.assign(pcui, (function () {
 
             this._btnViewDiff = new pcui.Button({
                 text: 'VIEW DIFF',
-                size: 'small',
-                flexGrow: 1
+                size: 'small'
             });
             this._btnViewDiff.on('click', this._onViewDiffClick.bind(this));
             containerMiddle.append(this._btnViewDiff);
 
             this._btnRevertAll = new pcui.Button({
                 text: 'REVERT ALL',
-                size: 'small',
-                flexGrow: 1
+                size: 'small'
             });
             this._btnRevertAll.on('click', this._onRevertAllClick.bind(this));
             containerMiddle.append(this._btnRevertAll);
 
             this._btnApplyAll = new pcui.Button({
                 text: 'APPLY ALL',
-                size: 'small',
-                flexGrow: 1
+                size: 'small'
             });
             this._btnApplyAll.on('click', this._onApplyAllClick.bind(this));
             containerMiddle.append(this._btnApplyAll);

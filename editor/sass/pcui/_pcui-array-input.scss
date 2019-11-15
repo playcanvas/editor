@@ -1,6 +1,6 @@
 .pcui-array-input {
     margin: $element-margin;
-    overflow: hidden;
+    min-width: 0; // fix overflow if this is in flex container
 
     .pcui-numeric-input {
         margin: 0 0 $element-margin 0;

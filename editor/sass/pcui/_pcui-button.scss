@@ -18,6 +18,9 @@
     white-space: nowrap;
     cursor: pointer;
     transition: color 100ms, opacity 100ms, box-shadow 100ms;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 
