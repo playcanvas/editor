@@ -140,9 +140,13 @@ editor.once('load', function() {
                 this.attrStopPaths
             );
 
+            this.overrides.typeToInstData = this.typeToInstData;
+
             this.overrides.srcToDst = this.srcToDst;
 
-            this.overrides.typeToInstData = this.typeToInstData;
+            this.overrides.conflicts.forEach(h => {
+                h.srcToDst = this.srcToDst;
+            });
         }
 
         filterInvalidConflicts() {

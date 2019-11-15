@@ -372,8 +372,6 @@ Object.assign(pcui, (function () {
                 this.class.add(CLASS_OVERRIDES_POSITIVE);
                 const entities = {};
                 this._overrides.conflicts.forEach(override => {
-                    override.srcToDst = this._overrides.srcToDst;
-
                     if (!entities[override.resource_id]) {
                         entities[override.resource_id] = [];
                     }
