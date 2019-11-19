@@ -1,7 +1,7 @@
 .pcui-asset-list {
     margin: $element-margin;
     transition: opacity 100ms;
-    overflow: hidden;
+    min-width: 0; // fix overflow if this is in flex container
 
     .pcui-text-input {
         margin: 0;
