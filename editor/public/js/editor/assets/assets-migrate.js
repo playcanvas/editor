@@ -31,13 +31,18 @@ editor.once('load', function() {
 
                     asset.set('meta.compress', {
                         alpha: alpha,
+                        normals: false,
                         dxt: false,
                         pvr: false,
                         pvrBpp: 4,
                         etc1: false,
-                        etc2: false
+                        etc2: false,
+                        basis: false
                     });
                 } else {
+                    if (! asset.has('meta.compress.normals'))
+                        asset.set('meta.compress.normals', false);
+
                     if (! asset.has('meta.compress.pvr'))
                         asset.set('meta.compress.pvr', false);
 
@@ -49,6 +54,9 @@ editor.once('load', function() {
 
                     if (! asset.has('meta.compress.etc2'))
                         asset.set('meta.compress.etc2', false);
+
+                    if (! asset.has('meta.compress.basis'))
+                        asset.set('meta.compress.basis', false);
                 }
             }
             if (asset.get('data')) {

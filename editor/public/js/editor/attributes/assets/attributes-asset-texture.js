@@ -163,7 +163,6 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'asset:texture:alpha', fieldAlpha.parent.innerElement.firstChild.ui);
 
-
         // interlaced
         var fieldInterlaced = editor.call('attributes:addField', {
             parent: panel,
@@ -385,12 +384,13 @@ editor.once('load', function() {
             dxt: { size: 0, vram: 0, timeout: false },
             pvr: { size: 0, vram: 0, timeout: false },
             etc1: { size: 0, vram: 0, timeout: false },
-            etc2: { size: 0, vram: 0, timeout: false }
+            etc2: { size: 0, vram: 0, timeout: false },
+            basis: { size: 0, vram: 0, timeout: false }
         };
 
 
         // compression panel
-        var panelCompression =editor.call('attributes:addPanel', {
+        var panelCompression = editor.call('attributes:addPanel', {
             name: 'Compression',
             foldable: true,
             folded: panelState['compression']
@@ -439,6 +439,26 @@ editor.once('load', function() {
 
         // reference
         editor.call('attributes:reference:attach', 'asset:texture:compress:alpha', labelCompressAlpha);
+
+
+        // compress normals
+        var fieldCompressNormals = editor.call('attributes:addField', {
+            parent: fieldCompressAlpha.parent,
+            type: 'checkbox',
+            name: '',
+            link: assets,
+            path: 'meta.compress.normals'
+        });
+        // label
+        var labelCompressNormals = new ui.Label({ text: 'Normals' });
+        labelCompressNormals.style.verticalAlign = 'top';
+        labelCompressNormals.style.paddingRight = '12px';
+        labelCompressNormals.style.fontSize = '12px';
+        labelCompressNormals.style.lineHeight = '24px';
+        fieldCompressNormals.parent.append(labelCompressNormals);
+
+        // reference
+        editor.call('attributes:reference:attach', 'asset:texture:compress:normals', labelCompressNormals);
 
 
         var originalExt = '';
@@ -497,7 +517,7 @@ editor.once('load', function() {
             }, 0);
         };
 
-        var checkFormats = function() {
+        var checkFormats = function(path) {
             var width = -1;
             var height = -1;
             var rgbm = -1;
@@ -548,6 +568,23 @@ editor.once('load', function() {
                     originalExt = 'various';
                 } else if (originalExt !== 'various') {
                     originalExt = ext;
+                }
+
+                // PVR format only supports square power-of-two textures. If basis is selected then
+                // we also enable PVR variant in order to provide the correct version of the texture
+                // on the platforms supporting PVR.
+                // NOTE: ideally the basis transcoder would optionally resize the compressed image to
+                // be square POT, but this isn't currently possible.
+                if (path === 'meta.compress.basis') {
+                    var thisBasis = assets[i].get('meta.compress.basis');
+                    if (thisBasis) {
+                        var thisWidth = assets[i].get('meta.width');
+                        var thisHeight = assets[i].get('meta.height');
+                        var thisPOT = ((thisWidth & (thisWidth - 1)) === 0) && ((thisHeight & (thisHeight - 1)) === 0);
+                        if (!thisPOT || thisWidth !== thisHeight) {
+                            assets[i].set('meta.compress.pvr', true);
+                        }
+                    }
                 }
             }
 
@@ -725,6 +762,34 @@ editor.once('load', function() {
         if (! formats.etc2.size && ! formats.etc2.vram) labelEtc2Size.text = '-';
         fieldEtc2.parent.append(labelEtc2Size);
 
+        if (editor.call('users:hasFlag', 'hasBasisTextures')) {
+            // basis
+            var fieldBasis = editor.call('attributes:addField', {
+                parent: panelCompression,
+                type: 'checkbox',
+                name: 'BASIS',
+                link: assets,
+                path: 'meta.compress.basis'
+            });
+            // reference
+            editor.call('attributes:reference:attach', 'asset:texture:compress:basis', fieldBasis.parent.innerElement.firstChild.ui);
+
+
+            // add basis module import
+            if (!editor.call('project:module:hasModule', 'basist_')) {
+                editor.call('attributes:appendImportModule', panelCompression, 'basist.js', 'basist_');
+            }
+
+        
+            // label
+            var labelBasisSize = labelSize['basis'] = new ui.Label({
+                text: bytesToHuman(formats.basis.size) + ' [VRAM ' + bytesToHuman(formats.basis.vram) + ']'
+            });
+            labelBasisSize.class.add('size');
+            if (! formats.basis.size && ! formats.basis.vram) labelBasisSize.text = '-';
+            fieldBasis.parent.append(labelBasisSize);
+        }
+
         checkFormats();
 
         var bindSizeCalculate = function(format) {
@@ -808,7 +873,8 @@ editor.once('load', function() {
                         options: {
                             formats: variants,
                             alpha: assets[i].get('meta.compress.alpha') && (assets[i].get('meta.alpha') || assets[i].get('meta.type').toLowerCase() === 'truecoloralpha'),
-                            mipmaps: assets[i].get('data.mipmaps')
+                            mipmaps: assets[i].get('data.mipmaps'),
+                            normals: !!assets[i].get('meta.compress.normals')
                         }
                     };
 
@@ -840,6 +906,7 @@ editor.once('load', function() {
             var data = asset.get('file.variants.' + format);
             var rgbm = asset.get('data.rgbm');
             var alpha = asset.get('meta.compress.alpha') && (asset.get('meta.alpha') || ((asset.get('meta.type') || '').toLowerCase() === 'truecoloralpha')) || rgbm;
+            var normals = !!asset.get('meta.compress.normals');
             var compress = asset.get('meta.compress.' + format);
             var mipmaps = asset.get('data.mipmaps');
 
@@ -870,6 +937,9 @@ editor.once('load', function() {
             if (data && ((data.opt & 4) !== 0) !== ! mipmaps)
                 return true;
 
+            if (format === 'basis' && data && (!!(data.opt & 8) !== normals))
+                return true;
+
             return false;
         };
 
@@ -898,13 +968,18 @@ editor.once('load', function() {
         };
         var queueCheck = false;
         var onAssetChangeCompression = function(path) {
-            if (queueCheck || (path !== 'task' && ! path.startsWith('meta') && ! path.startsWith('file') && ! path.startsWith('data.rgbm') && ! path.startsWith('data.mipmaps')))
+            if (queueCheck ||
+                (path !== 'task' &&
+                ! path.startsWith('meta') &&
+                ! path.startsWith('file') &&
+                ! path.startsWith('data.rgbm') &&
+                ! path.startsWith('data.mipmaps')))
                 return;
 
             queueCheck = true;
             setTimeout(function() {
                 queueCheck = false;
-                checkFormats();
+                checkFormats(path);
                 checkCompression();
                 checkCompressAlpha();
             }, 0);
@@ -970,5 +1045,46 @@ editor.once('load', function() {
             for(var i = 0; i < events.length; i++)
                 events[i].unbind();
         });
+    });
+
+    // append the physics module controls to the provided panel
+    editor.method('attributes:appendImportModule', function(panel, moduleStoreName, wasmFilename) {
+        // button
+        var button = new pcui.Button({
+            text: 'IMPORT BASIS',
+            icon: 'E228'
+        });
+        button.on('click', function() {
+            editor.call('project:module:addModule', moduleStoreName, wasmFilename);
+        });
+
+        // group
+        var group = new pcui.LabelGroup({
+            field: button,
+            text: 'Basis Library'
+        });
+        group.style.margin = '3px';
+        group.label.style.width = '27%';
+        group.label.style.fontSize = '12px';
+        panel.append(group);
+
+        // reference
+        editor.call('attributes:reference:attach', 'settings:basis', group.label);
+
+        // enable state is based on write permissions and state of legacy physics
+        function updateEnableState() {
+            group.enabled = editor.call('permissions:write');
+        }
+        editor.on('permissions:writeState', function (write) {
+            updateEnableState();
+        });
+        editor.on('onModuleImported', function(name) {
+            if (name === 'basist.js') {
+                group.enabled = false;
+            }
+        });
+        updateEnableState();
+
+        return group;
     });
 });

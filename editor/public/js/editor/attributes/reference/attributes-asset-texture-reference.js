@@ -81,6 +81,10 @@ editor.once('load', function() {
         title: 'Compress Alpha',
         description: 'If compressed texture should have alpha.'
     }, {
+        name: 'compress:normals',
+        title: 'Compress Normals',
+        description: 'If the compressed texture should treat pixels as normal data.'
+    }, {
         name: 'compress:original',
         title: 'Original Format',
         description: 'Original file format.'
