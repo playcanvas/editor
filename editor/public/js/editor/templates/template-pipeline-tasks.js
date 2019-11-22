@@ -160,10 +160,9 @@ editor.once('load', function() {
                         noText: ''
                     }
                 );
+
+                return false;
             }
-
-            return false;
-
         }
 
         var taskData = {
