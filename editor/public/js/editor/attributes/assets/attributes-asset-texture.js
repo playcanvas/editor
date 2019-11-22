@@ -762,33 +762,33 @@ editor.once('load', function() {
         if (! formats.etc2.size && ! formats.etc2.vram) labelEtc2Size.text = '-';
         fieldEtc2.parent.append(labelEtc2Size);
 
+        if (editor.call('users:hasFlag', 'hasBasisTextures')) {
+            // basis
+            var fieldBasis = editor.call('attributes:addField', {
+                parent: panelCompression,
+                type: 'checkbox',
+                name: 'BASIS',
+                link: assets,
+                path: 'meta.compress.basis'
+            });
+            // reference
+            editor.call('attributes:reference:attach', 'asset:texture:compress:basis', fieldBasis.parent.innerElement.firstChild.ui);
 
-        // basis
-        var fieldBasis = editor.call('attributes:addField', {
-            parent: panelCompression,
-            type: 'checkbox',
-            name: 'BASIS',
-            link: assets,
-            path: 'meta.compress.basis'
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'asset:texture:compress:basis', fieldBasis.parent.innerElement.firstChild.ui);
 
-
-        // add basis module import
-        if (!editor.call('project:module:hasModule', 'basist_')) {
-            editor.call('attributes:appendImportModule', panelCompression, 'basist.js', 'basist_');
-        }
+            // add basis module import
+            if (!editor.call('project:module:hasModule', 'basist_')) {
+                editor.call('attributes:appendImportModule', panelCompression, 'basist.js', 'basist_');
+            }
 
         
-        // label
-        var labelBasisSize = labelSize['basis'] = new ui.Label({
-            text: bytesToHuman(formats.basis.size) + ' [VRAM ' + bytesToHuman(formats.basis.vram) + ']'
-        });
-        labelBasisSize.class.add('size');
-        if (! formats.basis.size && ! formats.basis.vram) labelBasisSize.text = '-';
-        fieldBasis.parent.append(labelBasisSize);
-
+            // label
+            var labelBasisSize = labelSize['basis'] = new ui.Label({
+                text: bytesToHuman(formats.basis.size) + ' [VRAM ' + bytesToHuman(formats.basis.vram) + ']'
+            });
+            labelBasisSize.class.add('size');
+            if (! formats.basis.size && ! formats.basis.vram) labelBasisSize.text = '-';
+            fieldBasis.parent.append(labelBasisSize);
+        }
 
         checkFormats();
 

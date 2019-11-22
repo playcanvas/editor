@@ -404,15 +404,15 @@ editor.once('load', function() {
         fieldPreserveDrawingBuffer.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:attach', 'settings:project:preserveDrawingBuffer', fieldPreserveDrawingBuffer.parent.innerElement.firstChild.ui);
 
+        if (editor.call('users:hasFlag', 'hasBasisTextures')) {
+            // divider
+            var divider = document.createElement('div');
+            divider.classList.add('fields-divider');
+            panelRendering.append(divider);
 
-        // divider
-        var divider = document.createElement('div');
-        divider.classList.add('fields-divider');
-        panelRendering.append(divider);
-
-        // optional rendering modules
-        editor.call('attributes:appendImportModule', panelRendering, 'basist.js', 'basist_');
-
+            // optional rendering modules
+            editor.call('attributes:appendImportModule', panelRendering, 'basist.js', 'basist_');
+        }
 
         filter();
 
