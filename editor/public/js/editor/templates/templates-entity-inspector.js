@@ -334,7 +334,7 @@ Object.assign(pcui, (function () {
             this._btnApplyAll.enabled = true;
 
             // check if entity is no longer linked to template
-            if (this._entity && !this._entity.get('template_id')) {
+            if (!this._entity || !this._entity.get('template_id')) {
                 this._overrides = null;
                 this.hidden = true;
                 return;
