@@ -1,8 +1,6 @@
 editor.once('load', function () {
     'use strict';
 
-    if (!editor.call('users:hasFlag', 'hasLocalization')) return;
-
     var projectSettings = editor.call('settings:project');
 
     var folded = true;

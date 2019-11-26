@@ -513,7 +513,7 @@ editor.once('load', function() {
             type: 'checkbox'
         });
 
-        fieldLocalized.parent.hidden = (fieldType.value !== 'text' || !editor.call('users:hasFlag', 'hasLocalization'));
+        fieldLocalized.parent.hidden = (fieldType.value !== 'text');
 
         // reference
         editor.call('attributes:reference:attach', 'element:localized', fieldLocalized.parent.innerElement.firstChild.ui);
@@ -1156,7 +1156,7 @@ editor.once('load', function() {
             fieldWrapLines.parent.hidden = value !== 'text';
             fieldMaxLines.parent.hidden = value !== 'text' || !fieldWrapLines.value;
             fieldSpacing.parent.hidden = value !== 'text';
-            fieldLocalized.parent.hidden = (value !== 'text' || !editor.call('users:hasFlag', 'hasLocalization'));
+            fieldLocalized.parent.hidden = (value !== 'text');
             toggleSize();
             toggleMargin();
             toggleFields();

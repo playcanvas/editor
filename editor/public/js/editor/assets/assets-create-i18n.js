@@ -1,8 +1,6 @@
 editor.once('load', function () {
     'use strict';
 
-    if (!editor.call('users:hasFlag', 'hasLocalization')) return;
-
     var content = JSON.stringify({
         "header": {
             "version": 1
