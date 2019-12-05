@@ -283,8 +283,10 @@ Object.assign(pcui, (function () {
                 return;
             }
 
+            const resourceId = this._entity.get('resource_id');
             const overrides = editor.call('templates:computeFilteredOverrides', current);
             overrides.conflicts.forEach(override => {
+                if (override.resource_id !== resourceId) return;
                 const registered = this._registeredElements[override.path];
                 if (registered) {
                     this._addOverride(override, registered.elementDom, registered.containerDom);
