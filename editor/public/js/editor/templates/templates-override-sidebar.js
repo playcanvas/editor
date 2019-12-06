@@ -155,6 +155,8 @@ Object.assign(pcui, (function () {
                 this._markers[key].destroy();
             }
 
+            if (elementDom.ui && elementDom.ui.hidden) return;
+
             const marker = new Marker(override, elementDom, containerDom);
             this._markers[key] = marker;
 
