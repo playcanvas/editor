@@ -776,8 +776,8 @@ editor.once('load', function() {
 
 
             // add basis module import
-            if (!editor.call('project:module:hasModule', 'basist_')) {
-                editor.call('attributes:appendImportModule', panelCompression, 'basist.js', 'basist_');
+            if (!editor.call('project:module:hasModule', 'basis_')) {
+                editor.call('attributes:appendImportModule', panelCompression, 'basis.js', 'basis_');
             }
 
         
@@ -1079,7 +1079,7 @@ editor.once('load', function() {
             updateEnableState();
         });
         editor.on('onModuleImported', function(name) {
-            if (name === 'basist.js') {
+            if (name === 'basis.js') {
                 group.enabled = false;
             }
         });
