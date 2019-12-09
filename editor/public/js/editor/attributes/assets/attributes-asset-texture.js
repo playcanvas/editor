@@ -776,8 +776,8 @@ editor.once('load', function() {
 
 
             // add basis module import
-            if (!editor.call('project:module:hasModule', 'basis_')) {
-                editor.call('attributes:appendImportModule', panelCompression, 'basis.js', 'basis_');
+            if (!editor.call('project:module:hasModule', 'basis')) {
+                editor.call('attributes:appendImportModule', panelCompression, 'basis.js', 'basis');
             }
 
         

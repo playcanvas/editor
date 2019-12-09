@@ -411,7 +411,7 @@ editor.once('load', function() {
             panelRendering.append(divider);
 
             // optional rendering modules
-            editor.call('attributes:appendImportModule', panelRendering, 'basis.js', 'basis_');
+            editor.call('attributes:appendImportModule', panelRendering, 'basis.js', 'basis');
         }
 
         filter();
