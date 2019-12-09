@@ -196,7 +196,7 @@ editor.once('load', function() {
         hidden: true
     });
 
-    var overridesSidebar = editor.call('layout.overridesSidebar');
+    // var overridesSidebar = editor.call('layout.overridesSidebar');
 
     // disable attributes panel when overrides diff is open
     templateOverrides.on('show', () => {
@@ -440,18 +440,18 @@ editor.once('load', function() {
             }
         }
 
-        if (overridesSidebar) {
-            if (selectedEntities.length === 1) {
-                overridesSidebar.entity = selectedEntities[0];
+        // if (overridesSidebar) {
+        //     if (selectedEntities.length === 1) {
+        //         overridesSidebar.entity = selectedEntities[0];
 
-                editor.call('attributes:registerOverridePath', 'enabled', items.fieldEnabled.parent.element);
-                editor.call('attributes:registerOverridePath', 'name', items.fieldName.parent.element);
-                editor.call('attributes:registerOverridePath', 'tags', items.fieldTags.parent.parent.element);
-                editor.call('attributes:registerOverridePath', 'position', items.fieldPosition[0].parent.element);
-                editor.call('attributes:registerOverridePath', 'rotation', items.fieldRotation[0].parent.element);
-                editor.call('attributes:registerOverridePath', 'scale', items.fieldScale[0].parent.element);
-            }
-        }
+        //         editor.call('attributes:registerOverridePath', 'enabled', items.fieldEnabled.parent.element);
+        //         editor.call('attributes:registerOverridePath', 'name', items.fieldName.parent.element);
+        //         editor.call('attributes:registerOverridePath', 'tags', items.fieldTags.parent.parent.element);
+        //         editor.call('attributes:registerOverridePath', 'position', items.fieldPosition[0].parent.element);
+        //         editor.call('attributes:registerOverridePath', 'rotation', items.fieldRotation[0].parent.element);
+        //         editor.call('attributes:registerOverridePath', 'scale', items.fieldScale[0].parent.element);
+        //     }
+        // }
     };
 
     var onInspect = function (entities) {
@@ -493,8 +493,8 @@ editor.once('load', function() {
             items.panelTemplate.entity = null;
         }
 
-        if (overridesSidebar) {
-            overridesSidebar.clearOverrides();
-        }
+        // if (overridesSidebar) {
+        //     overridesSidebar.clearOverrides();
+        // }
     };
 });

@@ -12,11 +12,11 @@ editor.once('load', function() {
         editor.emit('attributes:clear');
     };
 
-    var overridesSidebar = editor.call('layout.overridesSidebar');
+    // var overridesSidebar = editor.call('layout.overridesSidebar');
 
     editor.method('attributes:registerOverridePath', (path, field) => {
-        if (!overridesSidebar) return;
-        overridesSidebar.registerElementForPath(path, field, root.innerElement);
+        // if (!overridesSidebar) return;
+        // overridesSidebar.registerElementForPath(path, field, root.innerElement);
     });
 
     // clearing
@@ -1898,10 +1898,10 @@ editor.once('load', function() {
             }));
         }
 
-        if (overridesSidebar) {
-            overridesSidebar.entity = null;
-            overridesSidebar.hidden = true;
-        }
+        // if (overridesSidebar) {
+        //     overridesSidebar.entity = null;
+        //     overridesSidebar.hidden = true;
+        // }
 
         root.headerText = type;
         editor.emit('attributes:inspect[' + type + ']', items);

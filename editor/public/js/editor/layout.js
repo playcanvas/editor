@@ -164,64 +164,64 @@ editor.on('load', function() {
     });
 
     // overrides sidebar
-    var overridesSidebar = new pcui.TemplateOverrideSidebar({
-        id: 'layout-overrides-sidebar',
-        hidden: true,
-        flex: true
-    });
+    // var overridesSidebar = new pcui.TemplateOverrideSidebar({
+    //     id: 'layout-overrides-sidebar',
+    //     hidden: true,
+    //     flex: true
+    // });
 
-    function hasTemplates() {
-        return editor.call('users:hasFlag', 'hasTemplates') && !editor.call('settings:project').get('useLegacyScripts');
-    }
+    // function hasTemplates() {
+    //     return editor.call('users:hasFlag', 'hasTemplates') && !editor.call('settings:project').get('useLegacyScripts');
+    // }
 
-    editor.on('permissions:writeState', function (state) {
-        overridesSidebar.enabled = state;
-    });
+    // editor.on('permissions:writeState', function (state) {
+    //     overridesSidebar.enabled = state;
+    // });
 
-    attributesPanel.on('collapse', function () {
-        overridesSidebar.hidden = true;
-    });
+    // attributesPanel.on('collapse', function () {
+    //     overridesSidebar.hidden = true;
+    // });
 
-    attributesPanel.on('hide', function () {
-        overridesSidebar.hidden = true;
-    });
+    // attributesPanel.on('hide', function () {
+    //     overridesSidebar.hidden = true;
+    // });
 
-    attributesPanel.on('expand', function () {
-        overridesSidebar.hidden = !hasTemplates() || !overridesSidebar.hasOverrides() || editor.call('selector:type') !== 'entity';
-    });
+    // attributesPanel.on('expand', function () {
+    //     overridesSidebar.hidden = !hasTemplates() || !overridesSidebar.hasOverrides() || editor.call('selector:type') !== 'entity';
+    // });
 
-    attributesPanel.on('show', function () {
-        overridesSidebar.hidden = !hasTemplates() || !overridesSidebar.hasOverrides() || attributesPanel.collapsed || editor.call('selector:type') !== 'entity';
-    });
+    // attributesPanel.on('show', function () {
+    //     overridesSidebar.hidden = !hasTemplates() || !overridesSidebar.hasOverrides() || attributesPanel.collapsed || editor.call('selector:type') !== 'entity';
+    // });
 
-    let sideBarWidth = 0;
-    overridesSidebar.on('show', function () {
-        sideBarWidth = 0;
+    // let sideBarWidth = 0;
+    // overridesSidebar.on('show', function () {
+    //     sideBarWidth = 0;
 
-        if (attributesPanel.collapsed) {
-            // hide the sidebar if the attributes panel is collapsed
-            overridesSidebar.hidden = true;
-            return;
-        }
+    //     if (attributesPanel.collapsed) {
+    //         // hide the sidebar if the attributes panel is collapsed
+    //         overridesSidebar.hidden = true;
+    //         return;
+    //     }
 
-        // adjust the width of the attributes panel to account for the width of the sidebar
-        sideBarWidth = overridesSidebar.width;
-        attributesPanel.resize(-overridesSidebar.width, 0);
-    });
+    //     // adjust the width of the attributes panel to account for the width of the sidebar
+    //     sideBarWidth = overridesSidebar.width;
+    //     attributesPanel.resize(-overridesSidebar.width, 0);
+    // });
 
-    overridesSidebar.on('hide', function () {
-        // adjust the width of the attributes panel to account for the width of the sidebar
-        if (attributesPanel.collapsed) return;
-        attributesPanel.resize(sideBarWidth, 0);
-    });
+    // overridesSidebar.on('hide', function () {
+    //     // adjust the width of the attributes panel to account for the width of the sidebar
+    //     if (attributesPanel.collapsed) return;
+    //     attributesPanel.resize(sideBarWidth, 0);
+    // });
 
-    root.append(overridesSidebar);
+    // root.append(overridesSidebar);
 
-    editor.method('layout.overridesSidebar', function () {
-        if (hasTemplates()) {
-            return overridesSidebar;
-        }
-    });
+    // editor.method('layout.overridesSidebar', function () {
+    //     if (hasTemplates()) {
+    //         return overridesSidebar;
+    //     }
+    // });
 
     // status bar
     var statusBar = new pcui.Container({
