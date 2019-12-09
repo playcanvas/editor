@@ -346,7 +346,6 @@ Object.assign(pcui, (function () {
                 this._overrides = null;
             } else {
                 this._overrides = editor.call('templates:computeFilteredOverrides', this._entity);
-                console.log(this._overrides);
             }
 
             const count = this._getOverrideCount();
