@@ -14,20 +14,25 @@ editor.once('load', function() {
             entities: entities
         });
 
+        const enumType = {
+            '': '...',
+            'box': 'Box',
+            'sphere': 'Sphere',
+            'capsule': 'Capsule',
+            'cylinder': 'Cylinder',
+            'mesh': 'Mesh'
+        };
+
+        if (editor.call('users:hasFlag', 'hasCompoundColliders')) {
+            enumType['compound'] = 'Compound';
+        }
 
         // type
         var fieldType = editor.call('attributes:addField', {
             parent: panel,
             name: 'Type',
             type: 'string',
-            enum: {
-                '': '...',
-                'box': 'Box',
-                'sphere': 'Sphere',
-                'capsule': 'Capsule',
-                'cylinder': 'Cylinder',
-                'mesh': 'Mesh'
-            },
+            enum: enumType,
             link: entities,
             path: 'components.collision.type',
             canOverrideTemplate: true
