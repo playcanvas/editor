@@ -440,26 +440,26 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'asset:texture:compress:alpha', labelCompressAlpha);
 
+        if (editor.call('users:hasFlag', 'hasBasisTextures')) {
+            // compress normals
+            var fieldCompressNormals = editor.call('attributes:addField', {
+                parent: fieldCompressAlpha.parent,
+                type: 'checkbox',
+                name: '',
+                link: assets,
+                path: 'meta.compress.normals'
+            });
+            // label
+            var labelCompressNormals = new ui.Label({ text: 'Normals' });
+            labelCompressNormals.style.verticalAlign = 'top';
+            labelCompressNormals.style.paddingRight = '12px';
+            labelCompressNormals.style.fontSize = '12px';
+            labelCompressNormals.style.lineHeight = '24px';
+            fieldCompressNormals.parent.append(labelCompressNormals);
 
-        // compress normals
-        var fieldCompressNormals = editor.call('attributes:addField', {
-            parent: fieldCompressAlpha.parent,
-            type: 'checkbox',
-            name: '',
-            link: assets,
-            path: 'meta.compress.normals'
-        });
-        // label
-        var labelCompressNormals = new ui.Label({ text: 'Normals' });
-        labelCompressNormals.style.verticalAlign = 'top';
-        labelCompressNormals.style.paddingRight = '12px';
-        labelCompressNormals.style.fontSize = '12px';
-        labelCompressNormals.style.lineHeight = '24px';
-        fieldCompressNormals.parent.append(labelCompressNormals);
-
-        // reference
-        editor.call('attributes:reference:attach', 'asset:texture:compress:normals', labelCompressNormals);
-
+            // reference
+            editor.call('attributes:reference:attach', 'asset:texture:compress:normals', labelCompressNormals);
+        }
 
         var originalExt = '';
         var labelSize = { };
