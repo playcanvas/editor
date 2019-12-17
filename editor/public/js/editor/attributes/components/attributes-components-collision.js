@@ -20,12 +20,9 @@ editor.once('load', function() {
             'sphere': 'Sphere',
             'capsule': 'Capsule',
             'cylinder': 'Cylinder',
-            'mesh': 'Mesh'
+            'mesh': 'Mesh',
+            'compound': 'Compound'
         };
-
-        if (editor.call('users:hasFlag', 'hasCompoundColliders')) {
-            enumType['compound'] = 'Compound';
-        }
 
         // type
         var fieldType = editor.call('attributes:addField', {
