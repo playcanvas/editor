@@ -6,17 +6,13 @@ editor.once('load', function() {
         template_id: 1,
         position: 1,
         rotation: 1,
-        name: 1,
-        tags: 1,
-        enabled: 1
+        name: 1
     };
 
     const IGNORE_ROOT_PATHS_FOR_REVERT = [
         'position',
         'rotation',
-        'name',
-        'tags',
-        'enabled'
+        'name'
     ];
 
     editor.method('template:utils', function () {
