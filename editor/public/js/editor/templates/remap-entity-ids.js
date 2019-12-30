@@ -26,7 +26,7 @@ editor.once('load', function () {
             if (this.entity.template_ent_ids) {
                 this.entity.template_ent_ids = editor.call(
                     'template:utils',
-                    'remapKeys',
+                    'remapOrAssignKeys',
                     this.entity.template_ent_ids,
                     this.srcToDst
                 );
