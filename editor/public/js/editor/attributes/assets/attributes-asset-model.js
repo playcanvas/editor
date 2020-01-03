@@ -43,6 +43,9 @@ editor.once('load', function() {
             assets[0]._nodes = null;
             loading.hidden = false;
 
+            // TODO: this call loads the raw asset model assuming it's JSON
+            // and then extracts the required meshInstance names. With the
+            // addition of glb format we will need a different approach.
             Ajax
             .get('{{url.home}}' + assets[0].get('file.url'))
             .on('load', function(status, data) {

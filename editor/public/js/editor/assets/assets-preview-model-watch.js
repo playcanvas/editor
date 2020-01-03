@@ -61,7 +61,11 @@ editor.once('load', function() {
 
         if (url && (reload || ! asset._editorPreviewModel)) {
             app.assets._loader.load(url, asset.type, function(err, resource, extra) {
-                asset._editorPreviewModel = resource;
+                if (resource instanceof Array) {
+                    asset._editorPreviewModel = resource[0];
+                } else {
+                    asset._editorPreviewModel = resource;
+                }
                 trigger(watch);
             });
         } else if (! url && asset._editorPreviewModel) {

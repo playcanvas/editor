@@ -31,7 +31,8 @@ editor.once('load', function () {
                     overwriteModel: true,
                     overwriteAnimation: true,
                     overwriteMaterial: false,
-                    overwriteTexture: true
+                    overwriteTexture: true,
+                    useGlb: false,
                 }
             },
             branch: config.self.branch.id
@@ -84,6 +85,9 @@ editor.once('load', function () {
             if (! settings.has('editor.locale')) {
                 settings.set('editor.locale', 'en-US');
             }
+
+            if (!settings.has('editor.pipeline.useGlb'))
+                settings.set('editor.pipeline.useGlb', true);
 
             settings.history.enabled = history;
             settings.sync.enabled = sync;

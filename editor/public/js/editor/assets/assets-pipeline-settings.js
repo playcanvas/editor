@@ -78,6 +78,16 @@ editor.once('load', function() {
         fieldModelV2.parent.innerElement.firstChild.style.width = 'auto';
         editor.call('attributes:reference:attach', 'settings:asset-tasks:useModelV2', fieldModelV2.parent.innerElement.firstChild.ui);
 
+        var fieldUseGlb = editor.call('attributes:addField', {
+            parent: panelModelSettings,
+            name: 'Use GLB format',
+            type: 'checkbox',
+            link: settings,
+            path: 'editor.pipeline.useGlb'
+        });
+        fieldUseGlb.parent.innerElement.firstChild.style.width = 'auto';
+        editor.call('attributes:reference:attach', 'settings:asset-tasks:useGlb', fieldUseGlb.parent.innerElement.firstChild.ui);
+
         var fieldOverwriteModel = editor.call('attributes:addField', {
             parent: panelModelSettings,
             name: 'Ovewrite Models',

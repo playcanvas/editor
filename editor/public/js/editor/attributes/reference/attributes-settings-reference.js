@@ -191,6 +191,10 @@ editor.once('load', function() {
         title: 'Force legacy model v2',
         description: 'Create model assets in legacy format (V2). Enable this for compatibility with older model imports.'
     }, {
+        name: 'asset-tasks:useGlb',
+        title: 'Use GLB format',
+        description: 'Create model assets in GLB format.'
+    }, {
         name: 'asset-tasks:overwrite:model',
         title: 'Overwrite models',
         description: 'When a model is imported, overwrite a previously imported model asset.'
