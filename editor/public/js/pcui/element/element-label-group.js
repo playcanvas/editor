@@ -2,16 +2,18 @@ Object.assign(pcui, (function () {
     'use strict';
 
     const CLASS_LABEL_GROUP = 'pcui-label-group';
+    const CLASS_LABEL_TOP = CLASS_LABEL_GROUP + '-align-top';
 
     /**
      * @name pcui.LabelGroup
      * @classdesc Represents a group of a pcui.Label and a pcui.Element. Useful for rows of labeled fields.
-     * @extends pcui.Element
+     * @extends pcui.Container
      * @property {String} text Gets / sets the label text.
      * @property {pcui.Element} field Gets the field. This can only be set through the constructor by passing it in the arguments.
      * @property {pcui.Element} label Gets the label element.
+     * @property {Boolean} labelAlignTop Whether to align the label at the top of the group. Defaults to false which aligns it at the center.
      */
-    class LabelGroup extends pcui.Element {
+    class LabelGroup extends pcui.Container {
         /**
          * Creates a new LabelGroup.
          * @param {Object} args The arguments. Extends the pcui.Element arguments. Any settable property can also be set through the constructor.
@@ -20,7 +22,7 @@ Object.assign(pcui, (function () {
         constructor(args) {
             if (!args) args = {};
 
-            super(document.createElement('div'), args);
+            super(args);
 
             this.class.add(CLASS_LABEL_GROUP);
 
@@ -28,12 +30,14 @@ Object.assign(pcui, (function () {
                 text: args.text || 'Label',
                 nativeTooltip: args.nativeTooltip
             });
-            this.dom.appendChild(this._label.dom);
-            this._label.parent = this;
+            this.append(this._label);
 
             this._field = args.field;
-            this.dom.appendChild(this._field.dom);
-            this._field.parent = this;
+            if (this._field) {
+                this.append(this._field);
+            }
+
+            this.labelAlignTop = args.labelAlignTop || false;
         }
 
         get label() {
@@ -51,7 +55,21 @@ Object.assign(pcui, (function () {
         set text(value) {
             this._label.text = value;
         }
+
+        get labelAlignTop() {
+            return this.class.contains(CLASS_LABEL_TOP);
+        }
+
+        set labelAlignTop(value) {
+            if (value) {
+                this.class.add(CLASS_LABEL_TOP);
+            } else {
+                this.class.remove(CLASS_LABEL_TOP);
+            }
+        }
     }
+
+    pcui.Element.register('labelgroup', LabelGroup);
 
     return {
         LabelGroup: LabelGroup

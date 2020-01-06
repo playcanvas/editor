@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var fields = [{
-        name: 'layoutgroup',
+        name: 'component',
         title: 'pc.LayoutGroupComponent',
         subTitle: '{pc.Component}',
         description: 'The Layout Group Component enables an Entity to position and scale child Element Components according to configurable layout rules.',

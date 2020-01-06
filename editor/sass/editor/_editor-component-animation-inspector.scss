@@ -1,0 +1,20 @@
+.animation-component-inspector-play {
+    background-color: transparent;
+    border: 0;
+    margin-left: auto;
+    display: none;
+}
+
+.animation-component-inspector-play + .pcui-asset-list-btn-remove {
+    // reset auto left margin for delete button next to play button
+    margin-left: 0;
+}
+
+
+.animation-component-inspector:not(.pcui-disabled):not(.pcui-readonly) {
+    .pcui-asset-list-item:hover {
+        .animation-component-inspector-play {
+            display: inline-block;
+        }
+    }
+}

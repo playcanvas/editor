@@ -14,10 +14,10 @@ editor.once('load', function() {
 
     // var overridesSidebar = editor.call('layout.overridesSidebar');
 
-    editor.method('attributes:registerOverridePath', (path, field) => {
-        // if (!overridesSidebar) return;
-        // overridesSidebar.registerElementForPath(path, field, root.innerElement);
-    });
+    // editor.method('attributes:registerOverridePath', (path, field) => {
+    //     if (!overridesSidebar) return;
+    //     overridesSidebar.registerElementForPath(path, field, root.innerElement);
+    // });
 
     // clearing
     editor.method('attributes:clear', clearPanel);

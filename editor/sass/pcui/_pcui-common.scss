@@ -17,7 +17,7 @@ $element-margin: 6px;
 
 $element-shadow-hover: 0 0 2px 1px rgba(255,102,0,0.3);
 $element-shadow-active: 0 0 0 1px rgba(255,102,0,0.3);
-$element-shadow-error: 0 0 0 1px #D34141;
+$element-shadow-error: 0 0 0 1px $error-secondary;
 
 $element-color-placeholder: #829193;
 

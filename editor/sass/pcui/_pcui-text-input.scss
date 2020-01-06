@@ -9,12 +9,12 @@
     vertical-align: top;
     transition: color 100ms, background-color 100ms, box-shadow 100ms;
 
-    color: $text-primary;
+    color: $text-secondary;
 
     > input {
         height: 100%;
         width: calc(100% - 16px);
-        padding: 0 8px;
+        padding: 0 $element-margin;
         line-height: 1;
         color: inherit;
         background: transparent;
@@ -37,19 +37,20 @@
         padding: 0 8px;
         content: '...';
         white-space: nowrap;
+        @extend .fixedFont;
+        top: 5px;
+        font-size: 12px;
     }
 }
 
 // focus / hover states
 .pcui-text-input:not(.pcui-disabled):not(.pcui-readonly) {
-    &.pcui-focus, &:hover {
-        &:after, &:before {
-            display: none;
-        }
-    }
-
     &:hover {
         background-color: $bcg-darker;
+        color: $text-primary;
+    }
+
+    &:not(.pcui-error):hover {
         box-shadow: $element-shadow-hover;
     }
 
@@ -58,9 +59,17 @@
         box-shadow: $element-shadow-active;
     }
 }
+
+.pcui-text-input {
+    &.pcui-focus, &:hover {
+        &:after, &:before {
+            display: none;
+        }
+    }
+}
+
 // readonly state
 .pcui-text-input.pcui-readonly {
-    color: $text-secondary;
     background-color: transparentize($color: $bcg-dark, $amount: 1 - $element-opacity-readonly);
     border-color: transparent;
 }
@@ -82,7 +91,7 @@
 
     &:after {
         content: attr(placeholder);
-        background-color: transparent;
+        background-color: $bcg-dark;
         position: absolute;
         top: 0;
         right: 0;

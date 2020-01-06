@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var fields = [{
-        name: 'sprite',
+        name: 'component',
         title: 'pc.SpriteComponent',
         subTitle: '{pc.Component}',
         description: 'The Sprite Component enables an Entity to render a simple static Sprite or Sprite Animation Clips.',
@@ -47,6 +47,16 @@ editor.once('load', function() {
         subTitle: 'width / height {Number}',
         description: 'The width and height of the Sprite when rendering using 9-Slicing. The width and height are only used when the render mode of the Sprite Asset is Sliced or Tiled.',
         url: 'http://developer.playcanvas.com/api/pc.SpriteComponent.html#width'
+    }, {
+        title: 'width',
+        subTitle: '{Number}',
+        description: 'The width of the Sprite when rendering using 9-Slicing. The width is only used when the render mode of the Sprite Asset is Sliced or Tiled.',
+        url: 'http://developer.playcanvas.com/api/pc.SpriteComponent.html#width'
+    }, {
+        title: 'height',
+        subTitle: '{Number}',
+        description: 'The height of the Sprite when rendering using 9-Slicing. The height is only used when the render mode of the Sprite Asset is Sliced or Tiled.',
+        url: 'http://developer.playcanvas.com/api/pc.SpriteComponent.html#height'
     }, {
         title: 'drawOrder',
         subTitle: '{Number}',

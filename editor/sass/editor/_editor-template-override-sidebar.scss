@@ -1,7 +1,10 @@
 .template-override-sidebar {
+    position: absolute;
+    right: 0;
+    top: 0;
     width: 22px;
     height: 100%;
-    background: $bcg-darkest;
+    background: $bcg-darker;
 }
 
 .template-override-sidebar-marker {
@@ -11,8 +14,6 @@
     position: absolute;
     left: 0;
     top: 0;
-    opacity: 1;
-    transition: opacity 200ms;
 
     &:before {
         content: '\E360';
@@ -25,15 +26,18 @@
     }
 }
 
-.template-override-sidebar-marker-scrolling {
-    // opacity: 0;
-}
-
 .template-override-sidebar-marker:not(.pcui-disabled) {
     &:hover {
         cursor: pointer;
         background: $bcg-darker;
     }
+}
+
+.template-override-sidebar-highlight {
+    background: #00F1FF;
+    opacity: 0.075;
+    position: absolute;
+    z-index: 1;
 }
 
 .template-override-sidebar-dropdown {

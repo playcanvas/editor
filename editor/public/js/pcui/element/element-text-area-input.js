@@ -24,6 +24,8 @@ Object.assign(pcui, (function () {
         }
     }
 
+    pcui.Element.register('text', TextAreaInput, { renderChanges: true });
+
     return {
         TextAreaInput: TextAreaInput
     };

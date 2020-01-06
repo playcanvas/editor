@@ -1,0 +1,24 @@
+.component-inspector {
+    > .pcui-panel-header {
+        &:before {
+            @extend .font-icon;
+            font-size: 14px;
+            width: 24px;
+            margin-right: 4px;
+            text-align: center;
+            color: $text-active;
+            flex-shrink: 0;
+        }
+    }
+
+    > .pcui-panel-content {
+        padding-top: $element-margin;
+    }
+}
+
+.component-inspector-enabled {
+    > .pcui-label:first-child {
+        width: auto;
+        @extend .font-bold;
+    }
+}

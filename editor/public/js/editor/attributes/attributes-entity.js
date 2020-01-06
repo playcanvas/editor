@@ -1,50 +1,59 @@
 editor.once('load', function() {
     'use strict';
 
-    var panelComponents;
+    const useLegacyComponentInspectors = !editor.call('users:hasFlag', 'hasPcuiComponentInspectors');
 
-    editor.method('attributes:entity.panelComponents', function() {
-        return panelComponents;
-    });
+    var panelComponents;
+    const projectSettings = editor.call('settings:project');
 
     // add component menu
-    var menuAddComponent = new ui.Menu();
-    var components = editor.call('components:schema');
-    var list = editor.call('components:list');
-    for(var i = 0; i < list.length; i++) {
-        menuAddComponent.append(new ui.MenuItem({
-            text: components[list[i]].$title,
-            value: list[i]
-        }));
-    }
-    menuAddComponent.on('open', function() {
-        var items = editor.call('selector:items');
-
-        var legacyAudio = editor.call('settings:project').get('useLegacyAudio');
+    if (useLegacyComponentInspectors) {
+        var menuAddComponent = new ui.Menu();
+        var components = editor.call('components:schema');
+        var list = editor.call('components:list');
         for(var i = 0; i < list.length; i++) {
-            var different = false;
-            var disabled = items[0].has('components.' + list[i]);
-
-            for(var n = 1; n < items.length; n++) {
-                if (disabled !== items[n].has('components.' + list[i])) {
-                    var different = true;
-                    break;
-                }
-            }
-            this.findByPath([ list[i] ]).disabled = different ? false : disabled;
-
-            if (list[i] === 'audiosource')
-                this.findByPath([list[i]]).hidden = ! legacyAudio;
+            menuAddComponent.append(new ui.MenuItem({
+                text: components[list[i]].$title,
+                value: list[i]
+            }));
         }
-    });
-    menuAddComponent.on('select', function(path) {
-        var items = editor.call('selector:items');
-        var component = path[0];
-        editor.call('entities:addComponent', items, component);
-    });
-    editor.call('layout.root').append(menuAddComponent);
+        menuAddComponent.on('open', function() {
+            var items = editor.call('selector:items');
 
+            var legacyAudio = editor.call('settings:project').get('useLegacyAudio');
+            for(var i = 0; i < list.length; i++) {
+                var different = false;
+                var disabled = items[0].has('components.' + list[i]);
 
+                for(var n = 1; n < items.length; n++) {
+                    if (disabled !== items[n].has('components.' + list[i])) {
+                        var different = true;
+                        break;
+                    }
+                }
+                this.findByPath([ list[i] ]).disabled = different ? false : disabled;
+
+                if (list[i] === 'audiosource')
+                    this.findByPath([list[i]]).hidden = ! legacyAudio;
+            }
+        });
+        menuAddComponent.on('select', function(path) {
+            var items = editor.call('selector:items');
+            var component = path[0];
+            editor.call('entities:addComponent', items, component);
+        });
+        editor.call('layout.root').append(menuAddComponent);
+
+    }
+
+    // legacy
+    editor.method('attributes:entity.panelComponents', function() {
+        if (useLegacyComponentInspectors) return panelComponents;
+
+        return entityInspector;
+    });
+
+    // legacy
     editor.method('attributes:entity:addComponentPanel', function(args) {
         var title = args.title;
         var name = args.name;
@@ -53,7 +62,7 @@ editor.once('load', function() {
 
         // panel
         var panel = editor.call('attributes:addPanel', {
-            parent: panelComponents,
+            parent: useLegacyComponentInspectors ? panelComponents : entityInspector,
             name: title
         });
         panel.class.add('component', 'entity', name);
@@ -173,11 +182,10 @@ editor.once('load', function() {
         return panel;
     });
 
-
     var items = null;
     var argsList = [ ];
     var argsFieldsChanges = [ ];
-
+    var inspectEvents = [];
 
     var templateOverrides = new pcui.TemplateOverridesView({
         flex: true,
@@ -196,15 +204,68 @@ editor.once('load', function() {
         hidden: true
     });
 
-    // var overridesSidebar = editor.call('layout.overridesSidebar');
+    if (useLegacyComponentInspectors) {
+        // disable attributes panel when overrides diff is open
+        templateOverrides.on('show', () => {
+            editor.call('layout.attributes').enabled = false;
+        });
 
-    // disable attributes panel when overrides diff is open
-    templateOverrides.on('show', () => {
-        editor.call('layout.attributes').enabled = false;
-    });
+        templateOverrides.on('hide', () => {
+            editor.call('layout.attributes').enabled = editor.call('permissions:write');
+        });
 
-    templateOverrides.on('hide', () => {
-        editor.call('layout.attributes').enabled = editor.call('permissions:write');
+    }
+
+    if (!useLegacyComponentInspectors) {
+        var entityInspector = new pcui.EntityInspector({
+            assets: editor.call('assets:raw'),
+            entities: editor.call('entities:raw'),
+            projectSettings: editor.call('settings:project'),
+            history: editor.call('editor:history'),
+            templateOverridesDiffView: templateOverrides
+        });
+    }
+
+
+    // before clearing inspector, preserve elements
+    editor.on('attributes:beforeClear', function() {
+        if (!useLegacyComponentInspectors) {
+            entityInspector.unlink();
+            if (entityInspector.parent) {
+                entityInspector.parent.remove(entityInspector);
+            }
+
+            // destroy legacy script inspector
+            if (projectSettings.get('useLegacyScripts')) {
+                const legacyScriptInspector = entityInspector.dom.querySelector('.ui-panel.script');
+                if (legacyScriptInspector) {
+                    legacyScriptInspector.ui.destroy();
+                }
+            }
+
+            return;
+        }
+
+        if (! items || ! items.panel.parent)
+            return;
+
+        if (items.panelTemplate) {
+            items.panelTemplate.parent.remove(items.panelTemplate);
+        }
+
+        // remove panel from inspector
+        items.panel.parent.remove(items.panel);
+
+        // clear components
+        items.panelComponents.parent.remove(items.panelComponents);
+        items.panelComponents.clear();
+
+        // unlink fields
+        for(var i = 0; i < argsList.length; i++) {
+            argsList[i].link = null;
+            argsList[i].unlinkField();
+        }
+
     });
 
     // initialize fields
@@ -333,31 +394,6 @@ editor.once('load', function() {
         panel.append(btnAddComponent);
     };
 
-    // before clearing inspector, preserve elements
-    editor.on('attributes:beforeClear', function() {
-        if (! items || ! items.panel.parent)
-            return;
-
-        if (items.panelTemplate) {
-            items.panelTemplate.parent.remove(items.panelTemplate);
-        }
-
-        // remove panel from inspector
-        items.panel.parent.remove(items.panel);
-
-        // clear components
-        items.panelComponents.parent.remove(items.panelComponents);
-        items.panelComponents.clear();
-
-        // unlink fields
-        for(var i = 0; i < argsList.length; i++) {
-            argsList[i].link = null;
-            argsList[i].unlinkField();
-        }
-    });
-
-    var inspectEvents = [];
-
     // link data to fields when inspecting
     editor.on('attributes:inspect[entity]', function(entities) {
         if (entities.length > 1) {
@@ -366,10 +402,21 @@ editor.once('load', function() {
             editor.call('attributes:header', 'Entity');
         }
 
+        var root = editor.call('attributes.rootPanel');
+
+        if (!useLegacyComponentInspectors) {
+            if (!entityInspector.parent)
+                root.append(entityInspector);
+
+            entityInspector.link(entities);
+
+            return;
+        }
+
+
+
         if (! items)
             initialize();
-
-        var root = editor.call('attributes.rootPanel');
 
         if (items.panelTemplate && ! items.panelTemplate.parent)
             root.append(items.panelTemplate);
@@ -398,6 +445,11 @@ editor.once('load', function() {
     });
 
     editor.on('attributes:clear', function () {
+        if (!useLegacyComponentInspectors) {
+            entityInspector.unlink();
+            return;
+        }
+
         onUninspect();
     });
 
@@ -434,24 +486,11 @@ editor.once('load', function() {
 
         if (items.panelTemplate) {
             if (selectedEntities.length === 1) {
-                items.panelTemplate.entity = selectedEntities[0];
+                items.panelTemplate.link([selectedEntities[0]]);
             } else {
-                items.panelTemplate.entity = null;
+                items.panelTemplate.unlink();
             }
         }
-
-        // if (overridesSidebar) {
-        //     if (selectedEntities.length === 1) {
-        //         overridesSidebar.entity = selectedEntities[0];
-
-        //         editor.call('attributes:registerOverridePath', 'enabled', items.fieldEnabled.parent.element);
-        //         editor.call('attributes:registerOverridePath', 'name', items.fieldName.parent.element);
-        //         editor.call('attributes:registerOverridePath', 'tags', items.fieldTags.parent.parent.element);
-        //         editor.call('attributes:registerOverridePath', 'position', items.fieldPosition[0].parent.element);
-        //         editor.call('attributes:registerOverridePath', 'rotation', items.fieldRotation[0].parent.element);
-        //         editor.call('attributes:registerOverridePath', 'scale', items.fieldScale[0].parent.element);
-        //     }
-        // }
     };
 
     var onInspect = function (entities) {
@@ -490,11 +529,7 @@ editor.once('load', function() {
         if (items && items.panelTemplate) {
             templateOverrides.hidden = true;
             items.panelTemplate.hidden = true;
-            items.panelTemplate.entity = null;
+            items.panelTemplate.unlink();
         }
-
-        // if (overridesSidebar) {
-        //     overridesSidebar.clearOverrides();
-        // }
     };
 });

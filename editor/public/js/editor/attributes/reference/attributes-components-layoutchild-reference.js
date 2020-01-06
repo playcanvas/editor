@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var fields = [{
-        name: 'layoutchild',
+        name: 'component',
         title: 'pc.LayoutChildComponent',
         subTitle: '{pc.Component}',
         description: 'The Layout Child Component enables an Entity to control the sizing applied to it by its parent Layout Group Component.',

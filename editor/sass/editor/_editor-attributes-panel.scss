@@ -26,7 +26,7 @@
         overflow: visible;
 
         .error {
-            outline: 1px solid #d34141;
+            outline: 1px solid $error-secondary;
         }
 
         .facebook-version {
@@ -296,7 +296,7 @@
                                     background-color: $bcg-dark;
 
                                     &:hover {
-                                        color: #d34141;
+                                        color: $error-secondary;
                                         background-color: $bcg-darkest;
                                         border-left-color: $bcg-darkest;
                                     }
@@ -420,7 +420,7 @@
                                 line-height: 32px;
 
                                 &:hover {
-                                    color: #d34141;
+                                    color: $error-secondary;
 
                                     &.disabled {
                                         color: $text-dark;
@@ -628,7 +628,7 @@
                     text-align: center;
 
                     &:hover {
-                        color: #d34141;
+                        color: $error-secondary;
                         background-color: #20292b;
                     }
                     &:after {
@@ -716,7 +716,7 @@
                     background-color: transparent;
 
                     &:hover {
-                        color: #d34141;
+                        color: $error-secondary;
                         background-color: #20292b;
                     }
                     &:after {
@@ -825,7 +825,7 @@
                     &:not(.hidden) {
                         display: block;
                     }
-                    color: #d34141;
+                    color: $error-secondary;
                     text-align: right;
                     font-size: 12px;
                 }
@@ -1032,7 +1032,7 @@
                                         background-color: #20292b;
                                     }
                                     &.error {
-                                        color: #d34141;
+                                        color: $error-secondary;
                                     }
                                 }
                                 > .remove {
@@ -1049,7 +1049,7 @@
                                     text-align: center;
 
                                     &:hover {
-                                        color: #d34141;
+                                        color: $error-secondary;
                                         background-color: #20292b;
                                     }
                                     &:after {
@@ -1638,7 +1638,7 @@
                 }
                 > .remove {
                     &:hover {
-                        color: #d34141;
+                        color: $error-secondary;
                     }
                     &:after {
                         content: '\E124';
@@ -1888,17 +1888,17 @@
     }
 }
 
-.ui-panel.component.entity.collision, .ui-panel.component.entity.rigidbody {
+.collision-component-inspector, .rigidbody-component-inspector {
     .library-warning {
         background-color: $bcg-darkest;
-        border: 1px solid #D34141;
+        border: 1px solid $error-secondary;
         border-radius: 2px;
         margin: 3px;
         padding: 8px;
     }
 
     .library-warning-text {
-        color: #d34141;
+        color: $error-secondary;
         flex-basis: 50%;
         flex-shrink: 1;
         font-size: 12px;

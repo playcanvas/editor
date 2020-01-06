@@ -1,9 +1,8 @@
 .pcui-label {
     display: inline-block;
-    line-height: 1;
     box-sizing: border-box;
     margin: $element-margin;
-    vertical-align: bottom;
+    vertical-align: middle;
     transition: opacity 100ms;
     color: $text-secondary;
     white-space: nowrap;
@@ -19,5 +18,11 @@
         content: '...';
         color: $text-secondary;
         white-space: nowrap;
+        @extend .fixedFont;
+        font-size: 12px;
     }
+}
+
+.pcui-label.pcui-error {
+    color: $error-secondary;
 }

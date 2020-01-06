@@ -15,6 +15,7 @@ Object.assign(pcui, (function () {
         /**
          * Creates a new Button.
          * @param {Object} args The arguments. Extends the pcui.Element constructor arguments. All settable properties can also be set through the constructor.
+         * @param {Boolean} [args.unsafe] If true then the innerHTML property will be used to set the text. Otherwise textContent will be used instead.
          */
         constructor(args) {
             if (!args) args = {};
@@ -22,6 +23,8 @@ Object.assign(pcui, (function () {
             super(document.createElement('button'), args);
 
             this.class.add(CLASS_BUTTON);
+
+            this._unsafe = args.unsafe || false;
 
             this.text = args.text || '';
             this.size = args.size || null;
@@ -43,6 +46,8 @@ Object.assign(pcui, (function () {
 
         _onClick(evt) {
             this.blur();
+            if (this.readOnly) return;
+
             super._onClick(evt);
         }
 
@@ -68,7 +73,11 @@ Object.assign(pcui, (function () {
         set text(value) {
             if (this._text === value) return;
             this._text = value;
-            this.dom.textContent = value;
+            if (this._unsafe) {
+                this.dom.innerHTML = value;
+            } else {
+                this.dom.textContent = value;
+            }
         }
 
         get icon() {
@@ -106,6 +115,8 @@ Object.assign(pcui, (function () {
     }
 
     utils.implements(Button, pcui.IFocusable);
+
+    pcui.Element.register('button', Button);
 
     return {
         Button: Button

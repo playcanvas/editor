@@ -10,8 +10,9 @@
     padding: 0 8px;
     margin: $element-margin;
     height: 28px;
+    line-height: 28px;
     max-height: 100%;
-    line-height: 1;
+    vertical-align: middle;
     font-size: 12px;
     font-weight: 600;
     text-align: center;
@@ -34,6 +35,7 @@
         font-weight: 100;
         font-size: inherit;
         margin-right: $element-margin;
+        vertical-align: middle;
     }
 
     // remove right margin from icons
@@ -74,5 +76,6 @@
 // small button
 .pcui-button.pcui-small {
     height: 24px;
+    line-height: 24px;
     font-size: 10px;
 }

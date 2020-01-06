@@ -6,7 +6,8 @@ Object.assign(pcui, (function () {
     const CLASS_PANEL_HEADER_TITLE = CLASS_PANEL_HEADER + '-title';
     const CLASS_PANEL_CONTENT = CLASS_PANEL + '-content';
     const CLASS_PANEL_HORIZONTAL = CLASS_PANEL + '-horizontal';
-
+    const CLASS_PANEL_SORTABLE_ICON = CLASS_PANEL + '-sortable-icon';
+    const CLASS_PANEL_REMOVE = CLASS_PANEL + '-remove';
 
     // TODO: document panelType
 
@@ -29,8 +30,10 @@ Object.assign(pcui, (function () {
      * @property {Boolean} flex Gets / sets whether the container supports flex layout. Defaults to false. Cannot co-exist with grid.
      * @property {Boolean} grid Gets / sets whether the container supports grid layout. Defaults to false. Cannot co-exist with flex.
      * @property {Boolean} collapsible Gets / sets whether the panel can be collapsed by clicking on its header or by setting collapsed to true. Defaults to false.
+     * @property {Boolean} sortable Gets / sets whether the panel can be reordered
      * @property {Boolean} collapsed Gets / sets whether the panel is collapsed or expanded. Defaults to false.
      * @property {Boolean} collapseHorizontally Gets / sets whether the panel collapses horizontally - this would be the case for side panels. Defaults to false.
+     * @property {Boolean} removable Gets / sets whether the panel can be removed
      * @property {Number} headerSize The height of the header in pixels. Defaults to 32.
      * @property {String} headerText The header text of the panel. Defaults to the empty string.
      * @property {pcui.Container} header Gets the header conttainer.
@@ -81,6 +84,10 @@ Object.assign(pcui, (function () {
             // header size
             this.headerSize = args.headerSize !== undefined ? args.headerSize : 32;
 
+            this._domEvtDragStart = this._onDragStart.bind(this);
+            this._domEvtDragMove = this._onDragMove.bind(this);
+            this._domEvtDragEnd = this._onDragEnd.bind(this);
+
             // collapse related
             this._reflowTimeout = null;
             this._widthBeforeCollapse = null;
@@ -102,6 +109,12 @@ Object.assign(pcui, (function () {
             this.collapsed = args.collapsed || false;
             this.collapseHorizontally = args.collapseHorizontally || false;
 
+            this._iconSort = null;
+            this.sortable = args.sortable || false;
+
+            this._btnRemove = null;
+            this.removable = args.removable || false;
+
             // set the contents container to be the content DOM element
             // from now on calling append functions on the panel will append themn
             // elements to the contents container
@@ -121,11 +134,11 @@ Object.assign(pcui, (function () {
             });
 
             // header title
-            this._domHeaderTitle = document.createElement('span');
-            this._domHeaderTitle.textContent = args.headerText || '';
-            this._domHeaderTitle.classList.add(CLASS_PANEL_HEADER_TITLE);
-            this._domHeaderTitle.ui = this._containerHeader;
-            this._containerHeader.dom.appendChild(this._domHeaderTitle);
+            this._labelTitle = new pcui.Label({
+                text: args.headerText,
+                class: CLASS_PANEL_HEADER_TITLE
+            });
+            this._containerHeader.append(this._labelTitle);
 
             // use native click listener because the pcui.Element#click event is only fired
             // if the element is enabled. However we still want to catch header click events in order
@@ -137,10 +150,17 @@ Object.assign(pcui, (function () {
 
         _onHeaderClick(evt) {
             if (!this._collapsible) return;
-            if (evt.target !== this.header.dom && evt.target !== this._domHeaderTitle) return;
+            if (evt.target !== this.header.dom && evt.target !== this._labelTitle.dom) return;
 
             // toggle collapsed
             this.collapsed = !this.collapsed;
+        }
+
+        _onClickRemove(evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+
+            this.emit('click:remove');
         }
 
         _initializeContent(args) {
@@ -153,7 +173,7 @@ Object.assign(pcui, (function () {
                 scrollable: args.scrollable
             });
 
-            this.append(this._containerContent, this._containerHeader);
+            this.append(this._containerContent);
         }
 
         _onChildrenChange() {
@@ -231,12 +251,56 @@ Object.assign(pcui, (function () {
             });
         }
 
+        _onDragStart(evt) {
+            if (this.disabled || this.readOnly) return;
+
+            evt.stopPropagation();
+            evt.preventDefault();
+
+            window.addEventListener('mouseup', this._domEvtDragEnd);
+            window.addEventListener('mouseleave', this._domEvtDragEnd);
+            window.addEventListener('mousemove', this._domEvtDragMove);
+
+            this.emit('dragstart');
+            if (this.parent && this.parent._onChildDragStart) {
+                this.parent._onChildDragStart(evt, this);
+            }
+        }
+
+        _onDragMove(evt) {
+            this.emit('dragmove');
+            if (this.parent && this.parent._onChildDragStart) {
+                this.parent._onChildDragMove(evt, this);
+            }
+        }
+
+        _onDragEnd(evt) {
+            window.removeEventListener('mouseup', this._domEvtDragEnd);
+            window.removeEventListener('mouseleave', this._domEvtDragEnd);
+            window.removeEventListener('mousemove', this._domEvtDragMove);
+
+            if (this._draggedChild === this) {
+                this._draggedChild = null;
+            }
+
+            this.emit('dragend');
+            if (this.parent && this.parent._onChildDragStart) {
+                this.parent._onChildDragEnd(evt, this);
+            }
+        }
+
+
+
         destroy() {
             if (this._destroyed) return;
             if (this._reflowTimeout) {
                 cancelAnimationFrame(this._reflowTimeout);
                 this._reflowTimeout = null;
             }
+
+            window.removeEventListener('mouseup', this._domEvtDragEnd);
+            window.removeEventListener('mouseleave', this._domEvtDragEnd);
+            window.removeEventListener('mousemove', this._domEvtDragMove);
 
             super.destroy();
         }
@@ -295,6 +359,49 @@ Object.assign(pcui, (function () {
             }
         }
 
+        get sortable() {
+            return this._sortable;
+        }
+
+        set sortable(value) {
+            if (this._sortable === value) return;
+
+            this._sortable = value;
+
+            if (value) {
+                this._iconSort = new pcui.Label({
+                    class: CLASS_PANEL_SORTABLE_ICON
+                });
+
+                this._iconSort.dom.addEventListener('mousedown', this._domEvtDragStart);
+
+                this.header.prepend(this._iconSort);
+            } else if (this._iconSort) {
+                this._iconSort.destroy();
+                this._iconSort = null;
+            }
+        }
+
+        get removable() {
+            return !!this._btnRemove;
+        }
+
+        set removable(value) {
+            if (this.removable === value) return;
+
+            if (value) {
+                this._btnRemove = new pcui.Button({
+                    icon: 'E289',
+                    class: CLASS_PANEL_REMOVE
+                });
+                this._btnRemove.on('click', this._onClickRemove.bind(this));
+                this.header.append(this._btnRemove);
+            } else {
+                this._btnRemove.destroy();
+                this._btnRemove = null;
+            }
+        }
+
         get collapseHorizontally() {
             return this._collapseHorizontally;
         }
@@ -321,11 +428,11 @@ Object.assign(pcui, (function () {
         }
 
         get headerText() {
-            return this._domHeaderTitle.textContent;
+            return this._labelTitle.text;
         }
 
         set headerText(value) {
-            this._domHeaderTitle.textContent = value;
+            this._labelTitle.text = value;
         }
 
         get headerSize() {
@@ -342,6 +449,8 @@ Object.assign(pcui, (function () {
     }
 
     utils.implements(Panel, pcui.ICollapsible);
+
+    pcui.Element.register('panel', Panel);
 
     return {
         Panel: Panel

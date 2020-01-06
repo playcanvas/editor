@@ -22,6 +22,8 @@
         padding: $element-margin;
         color: inherit;
         font-size: 12px;
+
+        @extend .fixedFont;
     }
 
     > .pcui-button {
@@ -29,6 +31,10 @@
         background: transparent;
         border: 0;
         flex-shrink: 0;
+        padding: 0;
+        height: 24px;
+        width: 24px;
+        line-height: 24px;
     }
 
     &:before {
@@ -55,6 +61,12 @@
         padding: 0 8px;
         content: '...';
         white-space: nowrap;
+        @extend .fixedFont;
+        font-size: 12px;
+    }
+
+    > .pcui-label {
+        display: none;
     }
 }
 

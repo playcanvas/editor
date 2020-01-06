@@ -528,6 +528,38 @@ Object.assign(pcui, (function () {
             this._diffView.showOverrides(this._overrides, this._templateAsset, this._entity);
         }
 
+        link(entities) {
+            this.unlink();
+
+            if (entities.length !== 1) return;
+
+            const entity = entities[0];
+
+            this._entity = entity;
+
+            this.hidden = false;
+            if (this._entity.get('template_id')) {
+                this._templateAsset = this._assets.get(this._entity.get('template_id'));
+                this._labelTemplate.link(this._templateAsset, 'name');
+            }
+            this._bindEntityEventsRecursively(this._entity);
+
+            this._refreshOverrides();
+        }
+
+        unlink() {
+            if (!this._entity) return;
+
+            this._unbindEntityEvents();
+
+            this._entity = null;
+            this.hidden = true;
+            this._labelTemplate.unlink();
+
+            this._overrides = null;
+            this.hidden = true;
+        }
+
         destroy() {
             if (this._destroyed) return;
 
@@ -536,29 +568,6 @@ Object.assign(pcui, (function () {
 
             window.removeEventListener('click', this._domEventClickAnywhere);
             super.destroy();
-        }
-
-        set entity(value) {
-            if (this._entity) {
-                this._unbindEntityEvents();
-            }
-
-            this._entity = value;
-
-            if (this._entity) {
-                this.hidden = false;
-                if (this._entity.get('template_id')) {
-                    this._templateAsset = this._assets.get(this._entity.get('template_id'));
-                    this._labelTemplate.link(this._templateAsset, 'name');
-                }
-                this._bindEntityEventsRecursively(this._entity);
-            } else {
-                this._entity = null;
-                this.hidden = true;
-                this._labelTemplate.unlink();
-            }
-
-            this._refreshOverrides();
         }
     }
 

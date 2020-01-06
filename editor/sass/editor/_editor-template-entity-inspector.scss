@@ -11,9 +11,6 @@
 .template-entity-inspector-header {
     color: $text-primary;
     font-size: 12px;
-    flex-basis: 100%;
-    flex-grow: 1;
-    flex-shrink: 0;
     margin-left: 0;
     margin-bottom: 10px;
 }
@@ -117,8 +114,9 @@
 .template-entity-inspector-entity-list-icon {
     position: absolute;
     left: 16px;
-    top: 0px;
+    top: -2px;
     font-size: 12px;
+    line-height: 1;
     color: #00F1FF;
 }
 
@@ -133,6 +131,7 @@
 .template-entity-inspector-entity-list-btn-dropdown {
     width: 22px;
     height: 22px;
+    line-height: 22px;
     padding: 0;
     margin-right: 5px;
     margin-left: 0;

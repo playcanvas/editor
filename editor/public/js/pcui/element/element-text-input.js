@@ -15,6 +15,8 @@ Object.assign(pcui, (function () {
      * @property {Boolean} blurOnEnter Gets / sets whether pressing Enter will blur (unfocus) the field. Defaults to true.
      * @property {Boolean} blurOnEscape Gets / sets whether pressing Escape will blur (unfocus) the field. Defaults to true.
      * @property {Boolean} keyChange Gets / sets whether any key up event will cause a change event to be fired.} args
+     * @property {Function} onValidate A function that validates the value that is entered into the input and returns true if it is valid or false otherwise.
+     * If false then the input will be set in an error state and the value will not propagate to the binding.
      */
     class TextInput extends pcui.Element {
         /**
@@ -61,6 +63,10 @@ Object.assign(pcui, (function () {
             this.blurOnEscape = (args.blurOnEscape !== undefined ? args.blurOnEscape : true);
             this.keyChange = args.keyChange || false;
 
+            if (args.onValidate) {
+                this.onValidate = args.onValidate;
+            }
+
             this.on('change', () => {
                 if (this.renderChanges) {
                     this.flash();
@@ -76,7 +82,18 @@ Object.assign(pcui, (function () {
         _onInputChange(evt) {
             if (this._suspendInputChangeEvt) return;
 
+            if (this._onValidate) {
+                const error = !this._onValidate(this.value);
+                this.error = error;
+                if (error) {
+                    return;
+                }
+            } else {
+                this.error = false;
+            }
+
             this.emit('change', this.value);
+
             if (this._binding) {
                 this._binding.setValue(this.value);
             }
@@ -84,22 +101,26 @@ Object.assign(pcui, (function () {
 
         _onInputFocus(evt) {
             this.class.add(pcui.CLASS_FOCUS);
-            this.emit('focus');
+            this.emit('focus', evt);
         }
 
         _onInputBlur(evt) {
             this.class.remove(pcui.CLASS_FOCUS);
-            this.emit('blur');
+            this.emit('blur', evt);
         }
 
         _onInputKeyDown(evt) {
             if ((evt.keyCode === 27 && this.blurOnEscape) || (evt.keyCode === 13 && this.blurOnEnter)) {
                 this._domInput.blur();
             }
+
+            this.emit('keydown', evt);
         }
 
         _onInputKeyUp(evt) {
             this._onInputChange(evt);
+
+            this.emit('keyup', evt);
         }
 
         _onInputCtxMenu(evt) {
@@ -116,13 +137,13 @@ Object.assign(pcui, (function () {
         }
 
         _updateValue(value) {
+            this.class.remove(pcui.CLASS_MULTIPLE_VALUES);
+
             if (value === this.value) return false;
 
             this._suspendInputChangeEvt = true;
             this._domInput.value = (value === null || value === undefined) ? '' : value;
             this._suspendInputChangeEvt = false;
-
-            this.class.remove(pcui.CLASS_MULTIPLE_VALUES);
 
             this.emit('change', value);
 
@@ -168,6 +189,11 @@ Object.assign(pcui, (function () {
 
         set value(value) {
             const changed = this._updateValue(value);
+
+            if (changed) {
+                // reset error
+                this.error = false;
+            }
 
             if (changed && this._binding) {
                 this._binding.setValue(value);
@@ -222,10 +248,20 @@ Object.assign(pcui, (function () {
         get input() {
             return this._domInput;
         }
+
+        get onValidate() {
+            return this._onValidate;
+        }
+
+        set onValidate(value) {
+            this._onValidate = value;
+        }
     }
 
     utils.implements(TextInput, pcui.IBindable);
     utils.implements(TextInput, pcui.IFocusable);
+
+    pcui.Element.register('string', TextInput, { renderChanges: true });
 
     return {
         TextInput: TextInput

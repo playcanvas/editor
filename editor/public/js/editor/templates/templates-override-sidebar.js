@@ -3,64 +3,25 @@ Object.assign(pcui, (function () {
 
     const CLASS_ROOT = 'template-override-sidebar';
     const CLASS_MARKER = CLASS_ROOT + '-marker';
-    const CLASS_MARKER_SCROLLING = CLASS_MARKER + '-scrolling';
     const CLASS_DROPDOWN_MENU = CLASS_ROOT + '-dropdown';
+    const CLASS_HIGHLIGHT = CLASS_ROOT + '-highlight';
+
+    const HIGHLIGHT_PADDING = 3;
 
     class Marker extends pcui.Element {
-        constructor(override, elementDom, containerDom) {
+        constructor(override, elementDom) {
             super(document.createElement('div'));
 
             this.class.add(CLASS_MARKER);
 
             this._override = override;
             this._elementDom = elementDom;
-            this._containerDom = containerDom;
-
-            this._evtScroll = this._onContainerScroll.bind(this);
-            this._containerDom.addEventListener('scroll', this._evtScroll);
-
-            this._endScrollTimeout = null;
-
-            this._positionMarker();
-        }
-
-        _onContainerScroll() {
-            this.class.add(CLASS_MARKER_SCROLLING);
-            if (this._endScrollTimeout) {
-                clearTimeout(this._endScrollTimeout);
-                this._endScrollTimeout = null;
-            }
-
-            this._endScrollTimeout = setTimeout(this._endScroll.bind(this), 100);
-
-            this._positionMarker();
-        }
-
-        _endScroll() {
-            if (this._endScrollTimeout) {
-                clearTimeout(this._endScrollTimeout);
-                this._endScrollTimeout = null;
-            }
-
-            this.class.remove(CLASS_MARKER_SCROLLING);
-        }
-
-        _positionMarker() {
-            const rect = this._elementDom.getBoundingClientRect();
-            this.style.top = rect.top + 'px';
         }
 
         destroy() {
             if (this._destroyed) return;
 
-            this._containerDom.removeEventListener('scroll', this._evtScroll);
-
             window.removeEventListener('click', this._evtWindowClick);
-
-            if (this._endScrollTimeout) {
-                clearTimeout(this._endScrollTimeout);
-                this._endScrollTimeout = null;
-            }
 
             if (this._evtMessenger) {
                 this._evtMessenger.unbind();
@@ -83,8 +44,14 @@ Object.assign(pcui, (function () {
             this._hoveredElement = null;
             this._refreshTimeout = null;
 
+            this._elementHighlight = new pcui.Element(null, {
+                class: CLASS_HIGHLIGHT
+            });
+
             this._entityEvents = [];
             this._evtPartOfTemplate = null;
+
+            this.append(this._elementHighlight);
 
             this._evtMessenger = editor.on('messenger:template.apply', this._onTemplateApply.bind(this));
 
@@ -149,7 +116,7 @@ Object.assign(pcui, (function () {
             this._entityEvents.length = 0;
         }
 
-        _addOverride(override, elementDom, containerDom) {
+        _addOverride(override, elementDom) {
             const key = this._getMarkerKey(override);
             if (this._markers[key]) {
                 this._markers[key].destroy();
@@ -157,25 +124,40 @@ Object.assign(pcui, (function () {
 
             if (elementDom.ui && elementDom.ui.hidden) return;
 
-            const marker = new Marker(override, elementDom, containerDom);
+            const marker = new Marker(override, elementDom);
             this._markers[key] = marker;
 
             this.append(marker);
 
+            const parentRect = this.parent.dom.getBoundingClientRect();
+            let elementRect = elementDom.getBoundingClientRect();
+            marker.style.top = (elementRect.top - parentRect.top) + 'px';
+
+            const top = `${elementRect.top - parentRect.top - HIGHLIGHT_PADDING}px`;
+
             marker.on('hover', () => {
                 if (this._hoveredElement === elementDom) return;
-                if (this._hoveredElement) {
-                    this._hoveredElement.style.filter = '';
-                }
 
                 this._hoveredElement = elementDom;
-                this._hoveredElement.style.filter = 'saturate(4)';
+
+                const parentRect = this.parent.dom.getBoundingClientRect();
+                let elementRect = elementDom.getBoundingClientRect();
+
+                const right = `${parentRect.right - elementRect.right - HIGHLIGHT_PADDING}px`;
+                const width = `${elementRect.width + 2 * HIGHLIGHT_PADDING}px`;
+                const height = `${elementRect.height + 2 * HIGHLIGHT_PADDING}px`;
+
+                this._elementHighlight.hidden = false;
+                this._elementHighlight.style.width = width;
+                this._elementHighlight.style.height = height;
+                this._elementHighlight.style.right = right;
+                this._elementHighlight.style.top = top;
             });
 
             marker.on('hoverend', () => {
                 if (this._hoveredElement) {
-                    this._hoveredElement.style.filter = '';
                     this._hoveredElement = null;
+                    this._elementHighlight.hidden = true;
                 }
             });
 
@@ -252,11 +234,14 @@ Object.assign(pcui, (function () {
             return Object.keys(this._markers).length > 0;
         }
 
-        registerElementForPath(path, elementDom, containerDom) {
+        registerElementForPath(path, elementDom) {
             this._registeredElements[path] = {
-                elementDom,
-                containerDom
+                elementDom: elementDom,
             };
+        }
+
+        unregisterElementForPath(path) {
+            delete this._registeredElements[path];
         }
 
         unregisterAllElements() {
@@ -289,9 +274,10 @@ Object.assign(pcui, (function () {
             const overrides = editor.call('templates:computeFilteredOverrides', current);
             overrides.conflicts.forEach(override => {
                 if (override.resource_id !== resourceId) return;
+
                 const registered = this._registeredElements[override.path];
                 if (registered) {
-                    this._addOverride(override, registered.elementDom, registered.containerDom);
+                    this._addOverride(override, registered.elementDom);
                 }
             });
         }
@@ -306,29 +292,19 @@ Object.assign(pcui, (function () {
             this._refreshTimeout = setTimeout(this._refreshOverrides.bind(this), 100);
         }
 
-        get entity() {
-            return this._entity;
-        }
+        link(entities) {
+            this.unlink();
 
-        set entity(value) {
-            if (this._entity === value) return;
-
-            if (this._entity) {
-                if (this._evtPartOfTemplate) {
-                    this._evtPartOfTemplate.unbind();
-                    this._evtPartOfTemplate = null;
-                }
-
-                this._unbindEntityEvents();
-            }
-
-            this._entity = value;
-            this.clearOverrides();
-            this.unregisterAllElements();
-
-            if (!this._entity) {
+            if (entities.length !== 1) {
                 return;
             }
+
+            const entity = entities[0];
+
+            if (this._entity === entity) return;
+
+
+            this._entity = entity;
 
             this._evtPartOfTemplate = this._entity.on('isPartOfTemplate', (partOfTemplate) => {
                 this._unbindEntityEvents();
@@ -348,6 +324,27 @@ Object.assign(pcui, (function () {
             // to any inspectors to be created first and register
             // their elements
             this._deferRefreshOverrides();
+        }
+
+        unlink() {
+            this._entity = null;
+
+            if (this._evtPartOfTemplate) {
+                this._evtPartOfTemplate.unbind();
+                this._evtPartOfTemplate = null;
+            }
+
+            this._unbindEntityEvents();
+
+            this.clearOverrides();
+        }
+
+        destroy() {
+            if (this._destroyed) return;
+
+            this._elementHighlight.destroy();
+
+            super.destroy();
         }
     }
 

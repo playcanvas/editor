@@ -9,6 +9,7 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.AssetThumbnail
      * @classdesc Shows an asset thumbnail. Depending on the asset type that can be an image or a canvas rendering.
+     * @property {Boolean} renderChanges If true the input will flash when changed.
      * @extends pcui.Element
      */
     class AssetThumbnail extends pcui.Element {
@@ -35,6 +36,14 @@ Object.assign(pcui, (function () {
             this._evtThumbnailUnset = null;
 
             this.value = args.value || null;
+
+            this.renderChanges = args.renderChanges || false;
+
+            this.on('change', () => {
+                if (this.renderChanges) {
+                    this.flash();
+                }
+            });
         }
 
         _showImageThumbnail(asset) {
@@ -138,8 +147,8 @@ Object.assign(pcui, (function () {
 
         _destroyCanvas() {
             if (this._renderCanvasTimeout) {
-                clearTimeout(this._renderCanvasThumbnail);
-                this._renderCanvasThumbnail = null;
+                clearTimeout(this._renderCanvasTimeout);
+                this._renderCanvasTimeout = null;
             }
 
             if (!this._domCanvas) return;
@@ -148,13 +157,13 @@ Object.assign(pcui, (function () {
         }
 
         _updateValue(value) {
+            this.class.remove(pcui.CLASS_MULTIPLE_VALUES);
+
             if (this._value === value) return false;
 
             this._value = value;
 
             this._onChange(value);
-
-            this.class.remove(pcui.CLASS_MULTIPLE_VALUES);
 
             this.emit('change', value);
 
@@ -266,7 +275,7 @@ Object.assign(pcui, (function () {
         }
     }
 
-    utils.implements(AssetThumbnail, pcui.IBindable);
+    utils.implements(AssetThumbnail, pcui.IBindable, { renderChanges: true });
 
     return {
         AssetThumbnail: AssetThumbnail

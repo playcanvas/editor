@@ -177,7 +177,7 @@ editor.once('load', function () {
             10,
             10,
             'right',
-            document.querySelector('.ui-panel.sound')
+            document.querySelector('.ui-panel.sound') || document.querySelector('.sound-component-inspector')
         );
 
         return bubble;

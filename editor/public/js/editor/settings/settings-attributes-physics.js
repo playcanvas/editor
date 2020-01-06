@@ -99,18 +99,27 @@ editor.once('load', function() {
             group.enabled = !editor.call('project:settings:hasLegacyPhysics') &&
                              editor.call('permissions:write');
         }
-        editor.on('permissions:writeState', function (write) {
+
+        const events = [];
+
+        events.push(editor.on('permissions:writeState', function (write) {
             updateEnableState();
-        });
-        editor.on('onUse3dPhysicsChanged', function() {
+        }));
+        events.push(editor.on('onUse3dPhysicsChanged', function() {
             updateEnableState();
-        })
-        editor.on('onModuleImported', function(name) {
+        }));
+        events.push(editor.on('onModuleImported', function(name) {
             if (name === 'ammo.js') {
                 group.enabled = false;
             }
-        });
+        }));
+
         updateEnableState();
+
+        group.on('destroy', () => {
+            events.forEach(evt => evt.unbind());
+            events.length = 0;
+        });
 
         return group;
     });

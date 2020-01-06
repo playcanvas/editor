@@ -82,7 +82,9 @@ editor.once('load', function() {
 
             var show = function() {
                 if (! target || target.hidden) return;
-                tooltip.position(targetPanel.getBoundingClientRect().left, element.getBoundingClientRect().top + 16);
+                // fix top offset for new framework
+                const topOffset = (element.ui instanceof pcui.Element ? 6 : 16);
+                tooltip.position(targetPanel.getBoundingClientRect().left, element.getBoundingClientRect().top + topOffset);
                 tooltip.hidden = false;
             };
 

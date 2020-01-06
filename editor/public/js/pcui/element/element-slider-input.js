@@ -23,8 +23,10 @@ Object.assign(pcui, (function () {
      * @name pcui.SliderInput
      * @classdesc The SliderInput shows a pcui.NumericInput and a slider widget next to it. It acts as a proxy
      * of the NumericInput.
-     * @property {Number} min Gets / sets the minimum value this field can take.
-     * @property {Number} max Gets / sets the maximum value this field can take.
+     * @property {Number} min Gets / sets the minimum value that the numeric input field can take.
+     * @property {Number} max Gets / sets the maximum value that the numeric input field can take.
+     * @property {Number} sliderMin Gets / sets the minimum value that the slider field can take.
+     * @property {Number} sliderMax Gets / sets the maximum value that the slider field can take.
      * @property {Number} pre Gets / sets the maximum number of decimals a value can take.
      * @property {Number} step Gets / sets the amount that the value will be increased or decreased when using the arrow keys. Holding Shift will use 10x the step.
      * @property {Boolean} allowNull Gets / sets whether the value can be null. If not then it will be 0 instead of null.
@@ -45,13 +47,7 @@ Object.assign(pcui, (function () {
                 inputArgs[field] = args[field];
             });
 
-            if (!inputArgs.min) {
-                inputArgs.min = 0;
-            }
-            if (!inputArgs.max) {
-                inputArgs.max = 1;
-            }
-            if (!inputArgs.precision) {
+            if (inputArgs.precision === undefined) {
                 inputArgs.precision = 2;
             }
 
@@ -77,6 +73,9 @@ Object.assign(pcui, (function () {
             this._numericInput.on('blur', () => {
                 this.emit('blur');
             });
+
+            this._sliderMin = (args.sliderMin !== undefined ? args.sliderMin : this.min || 0);
+            this._sliderMax = (args.sliderMax !== undefined ? args.sliderMax : this.max || 1);
 
             this.dom.appendChild(this._numericInput.dom);
             this._numericInput.parent = this;
@@ -194,10 +193,18 @@ Object.assign(pcui, (function () {
             this.value += x * this.step;
         }
 
-        _onValueChange(value) {
-            const left = Math.max(0, Math.min(1, ((value || 0) - this.min) / (this.max - this.min))) * 100;
+        _updateHandle(value) {
+            const left = Math.max(0, Math.min(1, ((value || 0) - this._sliderMin) / (this._sliderMax - this._sliderMin))) * 100;
             this._domHandle.style.left = left + '%';
+        }
+
+        _onValueChange(value) {
+            this._updateHandle(value);
             this.emit('change', value);
+
+            if (this._binding) {
+                this._binding.setValue(value);
+            }
         }
 
         _onSlideStart(pageX) {
@@ -224,8 +231,8 @@ Object.assign(pcui, (function () {
             const rect = this._domSlider.getBoundingClientRect();
             const x = Math.max(0, Math.min(1, (pageX - rect.left) / rect.width));
 
-            const range = this.max - this.min;
-            let value = (x * range) + this.min;
+            const range = this._sliderMax - this._sliderMin;
+            let value = (x * range) + this._sliderMin;
             value = parseFloat(value.toFixed(this.precision), 10);
 
             this.value = value;
@@ -273,6 +280,28 @@ Object.assign(pcui, (function () {
             super.destroy();
         }
 
+        get sliderMin() {
+            return this._sliderMin;
+        }
+
+        set sliderMin(value) {
+            if (this._sliderMin === value) return;
+
+            this._sliderMin = value;
+            this._updateHandle(this.value);
+        }
+
+        get sliderMax() {
+            return this._sliderMax;
+        }
+
+        set sliderMax(value) {
+            if (this._sliderMax === value) return;
+
+            this._sliderMax = value;
+            this._updateHandle(this.value);
+        }
+
         get value() {
             return this._numericInput.value;
         }
@@ -299,6 +328,8 @@ Object.assign(pcui, (function () {
     utils.proxy(SliderInput, '_numericInput', PROXY_FIELDS);
     utils.implements(SliderInput, pcui.IBindable);
     utils.implements(SliderInput, pcui.IFocusable);
+
+    pcui.Element.register('slider', SliderInput, { renderChanges: true });
 
     return {
         SliderInput: SliderInput

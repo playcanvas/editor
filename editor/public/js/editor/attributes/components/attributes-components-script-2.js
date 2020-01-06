@@ -4,6 +4,8 @@ editor.once('load', function() {
     if (editor.call('settings:project').get('useLegacyScripts'))
         return;
 
+    if (editor.call('users:hasFlag', 'hasPcuiComponentInspectors')) return;
+
     var attributeTypeToUi = {
         boolean: 'checkbox',
         number: 'number',

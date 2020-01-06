@@ -1,0 +1,65 @@
+.script-component-inspector-scripts {
+    margin: $element-margin;
+}
+
+.script-component-inspector-script {
+    margin-bottom: 2px;
+
+    .pcui-inspector > .pcui-label-group {
+        margin: 3px;
+    }
+
+    > .pcui-panel-header > .pcui-button.pcui-error {
+        color: $error-secondary;
+    }
+}
+
+.script-component-inspector-script-enabled {
+    > .pcui-label:first-child {
+        width: auto;
+        @extend .font-bold;
+    }
+}
+
+.script-component-inspector-script {
+    .script-component-inspector-script-invalid {
+        display: none;
+    }
+
+    &.script-component-inspector-script-invalid {
+        .script-component-inspector-script-invalid {
+            display: inline-block;
+        }
+
+        .script-component-inspector-script-valid {
+            display: none;
+        }
+    }
+
+    &:not(.script-component-inspector-script-invalid) {
+        > .pcui-panel-header > .pcui-panel-header-title {
+            &:hover {
+                text-decoration: underline;
+                color: $text-active;
+                cursor: pointer;
+            }
+        }
+    }
+
+    .pcui-label.script-component-inspector-script-invalid {
+        color: $error-secondary;
+        font-size: 21px;
+        font-weight: bold;
+        margin-left: 0;
+    }
+}
+
+.script-component-inspector-script-remove {
+    flex-shrink: 0;
+    margin: 1px;
+    background-color: transparent;
+    border: 0;
+    &:before {
+        line-height: 30px;
+    }
+}

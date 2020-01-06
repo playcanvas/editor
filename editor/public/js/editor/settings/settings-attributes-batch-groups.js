@@ -288,7 +288,7 @@ editor.once('load', function() {
         });
     });
 
-    editor.method('editorSettings:batchGroups:create', function () {
+    editor.method('editorSettings:batchGroups:create', function (name) {
         var batchGroups = projectSettings.get('batchGroups');
 
         // calculate id of new group and new name
@@ -299,7 +299,7 @@ editor.once('load', function() {
 
         projectSettings.set('batchGroups.' + id, {
             id: id,
-            name: 'New Batch Group',
+            name: name || 'New Batch Group',
             maxAabbSize: 100,
             dynamic: true
         });

@@ -101,6 +101,14 @@ editor.once('load', function() {
         description: 'The width and height of the Element. You can only edit the width or the height if the corresponding anchors of the Element are not split.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#width'
     }, {
+        title: 'width',
+        description: 'The width of the Element. You can only edit the width if the corresponding anchors of the Element are not split.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#width'
+    }, {
+        title: 'height',
+        description: 'The height of the Element. You can only edit the height if the corresponding anchors of the Element are not split.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#height'
+    }, {
         title: 'margin',
         subTitle: 'margin {pc.Vec4}',
         description: 'Controls the spacing between each edge of the Element and the respective anchor. You can only edit the margin if the related anchors are split.',

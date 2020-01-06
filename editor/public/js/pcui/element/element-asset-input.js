@@ -14,6 +14,9 @@ Object.assign(pcui, (function () {
      * @classdesc Represents an asset input field. It shows a thumbnail of the asset and
      * allows picking of an asset using an asset picker.
      * @extends pcui.Element
+     * @property {String} assetType The type of assets that this input can display. Used when picking assets with the asset picker.
+     * @property {pcui.Label} label Gets the label element on the top right of the input.
+     * @property {Boolean} renderChanges If true the input will flash when changed.
      * @mixes pcui.IBindable
      */
     class AssetInput extends pcui.Element {
@@ -23,10 +26,13 @@ Object.assign(pcui, (function () {
          * @param {ObserverList} args.assets The assets observer list.
          * @param {String} [args.text] The text on the top right of the field.
          * @param {String} [args.assetType] The type of assets that this input can display. Used when picking assets with the asset picker.
+         * @param {Boolean} [args.allowDragDrop] If true then this will enable drag and drop of assets on the input
          * @param {Function} [args.pickAssetFn] A function to pick an asset and pass its id to the callback parameter. If none is provided
          * the default Editor asset picker will be used.
          * @param {Function} [args.selectAssetFn] A function that selects the asset id passed as a parameter. If none is provided the default
          * Editor selector will be used.
+         * @param {Function} [args.dragEnterFn] A function that is called when we drag an item over the element.
+         * @param {Function} [args.dragLeaveFn] A function that is called when we stop dragging an item over the element.
          */
         constructor(args) {
             if (!args) args = {};
@@ -54,17 +60,18 @@ Object.assign(pcui, (function () {
             this._label.parent = this;
 
             // container for controls
-            this._domControls = document.createElement('div');
-            this._domControls.classList.add(CLASS_ASSET_INPUT_CONTROLS);
-            this.dom.appendChild(this._domControls);
+            this._containerControls = new pcui.Container({
+                class: CLASS_ASSET_INPUT_CONTROLS
+            });
+            this.dom.appendChild(this._containerControls.dom);
+            this._containerControls.parent = this;
 
             // asset name
             this._labelAsset = new pcui.Label({
                 binding: new pcui.BindingObserversToElement()
             });
             this._labelAsset.class.add(CLASS_ASSET_INPUT_ASSET);
-            this._domControls.appendChild(this._labelAsset.dom);
-            this._labelAsset.parent = this;
+            this._containerControls.append(this._labelAsset);
 
             // only shown when we are displaying multiple different values
             this._labelVarious = new pcui.Label({
@@ -72,16 +79,14 @@ Object.assign(pcui, (function () {
                 hidden: true
             });
             this._labelVarious.class.add(CLASS_ASSET_INPUT_ASSET);
-            this._domControls.appendChild(this._labelVarious.dom);
-            this._labelVarious.parent = this;
+            this._containerControls.append(this._labelVarious);
 
             // select asset button
             this._btnEdit = new pcui.Button({
                 icon: 'E336'
             });
             this._btnEdit.class.add(CLASS_ASSET_INPUT_EDIT);
-            this._domControls.appendChild(this._btnEdit.dom);
-            this._btnEdit.parent = this;
+            this._containerControls.append(this._btnEdit);
             this._btnEdit.on('click', this._onClickEdit.bind(this));
 
             // remove asset button
@@ -89,8 +94,7 @@ Object.assign(pcui, (function () {
                 icon: 'E132'
             });
             this._btnRemove.class.add(CLASS_ASSET_INPUT_REMOVE);
-            this._domControls.appendChild(this._btnRemove.dom);
-            this._btnRemove.parent = this;
+            this._containerControls.append(this._btnRemove);
             this._btnRemove.on('click', this._onClickRemove.bind(this));
 
             this._assets = args.assets;
@@ -98,7 +102,50 @@ Object.assign(pcui, (function () {
             this._pickAssetFn = args.pickAssetFn || this._defaultPickAssetFn.bind(this);
             this._selectAssetFn = args.selectAssetFn || this._defaultSelectAssetFn.bind(this);
 
+            this._dragEnterFn = args.dragEnterFn;
+            this._dragLeaveFn = args.dragLeaveFn;
+
+            if (args.allowDragDrop) {
+                this._initializeDropTarget();
+            }
+
             this.value = args.value || null;
+
+            this.renderChanges = args.renderChanges || false;
+
+            this.on('change', () => {
+                if (this.renderChanges) {
+                    this._containerControls.flash();
+                }
+            });
+        }
+
+        _initializeDropTarget() {
+            editor.call('drop:target', {
+                ref: this,
+                filter: (type, dropData) => {
+                    if (dropData.id && type.startsWith('asset') &&
+                        (!this._assetType || type === `asset.${this._assetType}`) &&
+                        parseInt(dropData.id, 10) !== this.value) {
+
+                        const asset = this._assets.get(dropData.id);
+                        return !!asset && !asset.get('source');
+                    }
+                },
+                drop: (type, dropData) => {
+                    this.value = parseInt(dropData.id, 10);
+                },
+                over: (type, dropData) => {
+                    if (this._dragEnterFn) {
+                        this._dragEnterFn(type, dropData);
+                    }
+                },
+                leave: () => {
+                    if (this._dragLeaveFn) {
+                        this._dragLeaveFn();
+                    }
+                }
+            });
         }
 
         // Fired when edit button is clicked
@@ -164,8 +211,8 @@ Object.assign(pcui, (function () {
             editor.call('assets:panel:currentFolder', folder);
         }
 
-        _updateValue(value) {
-            if (this._value === value) return false;
+        _updateValue(value, force) {
+            if (this._value === value && !force) return false;
 
             this._value = value;
 
@@ -215,12 +262,33 @@ Object.assign(pcui, (function () {
             this._thumbnail.unlink();
         }
 
+        get text() {
+            return this._label.value;
+        }
+
+        set text(value) {
+            this._label.value = value;
+        }
+
+        get label() {
+            return this._label;
+        }
+
         get value() {
             return this._value;
         }
 
+        get assetType() {
+            return this._assetType;
+        }
+
+        set assetType(value) {
+            this._assetType = value;
+        }
+
         set value(value) {
-            const changed = this._updateValue(value);
+            const forceUpdate = !this._labelVarious.hidden && value === null;
+            const changed = this._updateValue(value, forceUpdate);
 
             if (changed && this._binding) {
                 this._binding.setValue(value);
@@ -245,9 +313,20 @@ Object.assign(pcui, (function () {
                 this._updateValue(values[0] || null);
             }
         }
+
+        get renderChanges() {
+            return this._renderChanges;
+        }
+
+        set renderChanges(value) {
+            this._renderChanges = value;
+            this._thumbnail.renderChanges = value;
+        }
     }
 
     utils.implements(AssetInput, pcui.IBindable);
+
+    pcui.Element.register('asset', AssetInput, { allowDragDrop: true, renderChanges: true });
 
     return {
         AssetInput: AssetInput

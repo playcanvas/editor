@@ -1,7 +1,7 @@
 .pcui-asset-list {
     margin: $element-margin;
     transition: opacity 100ms;
-    min-width: 0; // fix overflow if this is in flex container
+    min-width: 0; // this prevents the element from overflowing
 
     .pcui-text-input {
         margin: 0;
@@ -12,15 +12,23 @@
     margin: 0 0 $element-margin 0;
 }
 
+.pcui-asset-list-empty {
+    .pcui-asset-list-btn-selection-mode {
+        margin: 0;
+    }
+}
+
 .pcui-asset-list-selection-mode {
     z-index: 102;
 }
 
 .pcui-asset-list-btn-remove {
     margin-left: auto;
+    margin-right: 0;
     border: 0;
     background-color: transparent;
-    visibility: hidden;
+    display: none;
+    flex-shrink: 0;
 }
 
 .pcui-asset-list-item {
@@ -61,7 +69,7 @@
             cursor: pointer;
 
             .pcui-asset-list-btn-remove {
-                visibility: visible;
+                display: inline-block;
             }
         }
 

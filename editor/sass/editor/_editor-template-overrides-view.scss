@@ -36,6 +36,8 @@
 }
 
 .template-overrides-entity {
+    flex-shrink: 0;
+
     > .pcui-panel-header {
         border-top: 1px solid $border-primary;
     }
@@ -112,12 +114,6 @@
     content: 'REMOVED';
     float: right;
     color: $text-primary;
-}
-
-.template-overrides-label-top {
-    > .pcui-label {
-        align-self: flex-start;
-    }
 }
 
 .template-overrides-override-single-label {
