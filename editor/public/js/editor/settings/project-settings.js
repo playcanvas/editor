@@ -189,16 +189,16 @@ editor.once('load', function () {
             });
         }
 
-        if (settings.has('useKeyboard')) {
+        if (!settings.has('useKeyboard')) {
             settings.set('useKeyboard', true);
         }
-        if (settings.has('useMouse')) {
+        if (!settings.has('useMouse')) {
             settings.set('useMouse', true);
         }
-        if (settings.has('useTouch')) {
+        if (!settings.has('useTouch')) {
             settings.set('useTouch', true);
         }
-        if (settings.has('useGamepads')) {
+        if (!settings.has('useGamepads')) {
             settings.set('useGamepads', !!settings.get('vr'));
         }
 
