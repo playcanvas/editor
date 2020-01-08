@@ -3,6 +3,8 @@ editor.once('load', function () {
 
     var events = [];
 
+    var projectUserSettings = editor.call('settings:projectUser');
+
     var diffMode = false;
 
     var panel = new ui.Panel();
@@ -14,29 +16,48 @@ editor.once('load', function () {
     panel.append(panelCheckpointsTop);
 
     // current branch history
-    var labelBranchHistory = new ui.Label({
-        text: 'CHECKPOINTS'
+    var labelBranchName = new ui.Label({
+        text: 'Branch'
     });
-    labelBranchHistory.renderChanges = false;
-    labelBranchHistory.class.add('branch-history', 'selectable');
-    panelCheckpointsTop.append(labelBranchHistory);
+    labelBranchName.renderChanges = false;
+    labelBranchName.class.add('branch-history', 'selectable');
+    panelCheckpointsTop.append(labelBranchName);
 
-    // new checkpoint button
-    var btnNewCheckpoint = new ui.Button({
-        text: 'NEW CHECKPOINT'
+    var labelBranchCheckpoints = new ui.Label({
+        text: 'Checkpoints'
     });
-    btnNewCheckpoint.class.add('icon', 'create');
-    panelCheckpointsTop.append(btnNewCheckpoint);
+    labelBranchCheckpoints.renderChanges = false;
+    labelBranchCheckpoints.class.add('info');
+    panelCheckpointsTop.append(labelBranchCheckpoints);
+
+    var panelBranchActions = new ui.Panel();
+    panelBranchActions.class.add('branch-actions', 'flex');
+    panel.append(panelBranchActions);
+
+    // add branch to favorites
+    var btnFavorite = new ui.Button({
+        text: 'Favorite'
+    });
+    btnFavorite.class.add('icon', 'favorite');
+    panelBranchActions.append(btnFavorite);
 
     // open diff checkpoints panel
     var btnDiff = new ui.Button({
-        text: 'VIEW DIFF'
+        text: 'View Diff'
     });
     btnDiff.class.add('icon', 'diff');
-    panelCheckpointsTop.append(btnDiff);
+    panelBranchActions.append(btnDiff);
+
+    // new checkpoint button
+    var btnNewCheckpoint = new ui.Button({
+        text: 'Checkpoint'
+    });
+    btnNewCheckpoint.class.add('icon', 'create');
+    panelBranchActions.append(btnNewCheckpoint);
 
     var toggleTopButtons = function () {
-        btnNewCheckpoint.hidden = ! editor.call('permissions:write') || ! panel.branch || panel.branch.id !== config.self.branch.id;
+        btnFavorite.disabled = ! panel.branch || panel.branch.closed;
+        btnNewCheckpoint.disabled = ! editor.call('permissions:write') || ! panel.branch || panel.branch.id !== config.self.branch.id;
     };
 
     toggleTopButtons();
@@ -99,13 +120,20 @@ editor.once('load', function () {
         // make sure we don't have any running checkpoint:list requests
         currentCheckpointListRequest = null;
 
+        labelBranchName.text = branch && branch.name ? branch.name : 'Branch';
         panel.branch = branch;
 
+        panel.updateFavorite();
         panel.setCheckpoints(null);
         panel.toggleLoadMore(false);
 
         toggleTopButtons();
     };
+
+    panel.updateFavorite = function () {
+      panel.branchIsFavorite = panel.branch && panel.branch.id && projectUserSettings.get('favoriteBranches').includes(panel.branch.id);
+      btnFavorite.text = panel.branchIsFavorite ? 'Unfavorite' : 'Favorite';
+    }
 
     // Set the checkpoints to be displayed
     panel.setCheckpoints = function (checkpoints) {
@@ -395,6 +423,17 @@ editor.once('load', function () {
         currentStateListItem.class.add('current-state');
     }
 
+    btnFavorite.on('click', function() {
+      if (!panel.branch) return;
+      if (panel.branchIsFavorite) {
+        var index = projectUserSettings.get('favoriteBranches').indexOf(panel.branch.id);
+        if (index >= 0)
+          projectUserSettings.remove('favoriteBranches', index);
+      } else {
+        projectUserSettings.insert('favoriteBranches', panel.branch.id);
+      }
+    })
+
     // show create checkpoint panel
     btnNewCheckpoint.on('click', function () {
         panel.emit('checkpoint:new');
@@ -456,6 +495,9 @@ editor.once('load', function () {
             toggleTopButtons();
         }));
 
+        events.push(projectUserSettings.on('favoriteBranches:insert', panel.updateFavorite));
+        events.push(projectUserSettings.on('favoriteBranches:remove', panel.updateFavorite));
+
         if (!panelCheckpoints.hidden) {
             // go through all the checkpoint list items and call onAddedToDom() to recalculate
             // whether we need to show read more or not
@@ -489,6 +531,7 @@ editor.once('load', function () {
     // Toggles diff mode for the checkpoint view.
     panel.toggleDiffMode = function (enabled) {
         diffMode = enabled;
+        btnFavorite.disabled = enabled;
         btnNewCheckpoint.disabled = enabled;
         btnDiff.disabled = enabled;
     };

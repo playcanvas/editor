@@ -32,6 +32,10 @@ editor.once('load', function () {
             url += separator + 'closed=true';
         }
 
+        if (args.favorite) {
+          url += separator + 'favorite=true';
+        }
+
         request({
             url: url,
             auth: true

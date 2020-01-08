@@ -34,7 +34,8 @@ editor.once('load', function () {
                     overwriteTexture: true
                 }
             },
-            branch: config.self.branch.id
+            branch: config.self.branch.id,
+            favoriteBranches: []
         },
         userId: config.self.id
     });

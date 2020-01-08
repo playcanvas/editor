@@ -7996,6 +7996,12 @@ strong {
                     @extend .font-bold;
                 }
 
+                .ui-label.info {
+                    color: $text-dark;
+                    font-size: 12px;
+                    margin-left: 6px;
+                }
+
                 .ui-button {
                     width: 147px;
                     float: right;
@@ -8163,6 +8169,10 @@ strong {
                                     font-size: 16px;
                                     color: $text-primary;
                                 }
+                            }
+
+                            + .date {
+                              border-top: none;
                             }
                         }
                     }
@@ -8389,6 +8399,10 @@ strong {
 
                         &.current-state {
                             display: inherit;
+
+                            + .date {
+                              border-top: 1px solid $border-primary;
+                            }
                         }
                     }
 
@@ -8416,6 +8430,10 @@ strong {
         }
     }
 
+    .branch-actions {
+      border-bottom: 1px solid $border-primary;
+    }
+
     .ui-button.icon {
         background-color: $bcg-dark;
 
@@ -8427,25 +8445,33 @@ strong {
             }
         }
 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1 0 0;
         font-size: 12px;
         border: none;
         position: relative;
         height: 26px;
         line-height: 26px;
-        padding-left: 26px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        text-transform: uppercase;
-        text-align: left;
-        margin: auto;
+        margin: 0;
+
+        &.hidden {
+            display: none;
+        }
+
+        &:not(:last-of-type) {
+            border-right: 1px solid $border-primary;
+        }
 
         &:before {
             @extend .font-icon;
             font-size: 14px;
-            text-align: center;
-            margin-left: -18px;
-            margin-right: 9px;
+            line-height: inherit;
+            margin-right: 8px;
             font-weight: 100;
         }
 
@@ -8455,6 +8481,14 @@ strong {
 
         &.diff:before {
             content: '\E236';
+        }
+
+        // TODO: remove unicode star hack once a star has been added to the icon font
+        &.favorite:before {
+            content: '\2605';
+            font-family: none;
+            font-size: 12px;
+            line-height: 1.1;
         }
     }
 }
