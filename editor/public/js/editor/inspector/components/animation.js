@@ -28,6 +28,11 @@ Object.assign(pcui, (function () {
         type: 'boolean'
     }];
 
+    ATTRIBUTES.forEach(attr => {
+        const parts = attr.path.split('.');
+        attr.reference = `animation:${parts[parts.length - 1]}`;
+    });
+
     const CLASS_BUTTON_PLAY = 'animation-component-inspector-play';
 
     class AnimationComponentInspector extends pcui.ComponentInspector {

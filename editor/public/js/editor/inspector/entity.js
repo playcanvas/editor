@@ -51,6 +51,11 @@ Object.assign(pcui, (function () {
         }
     }];
 
+    ATTRIBUTES.forEach(attr => {
+        const parts = attr.path.split('.');
+        attr.reference = `entity:${parts[parts.length - 1]}`;
+    });
+
     class EntityInspector extends pcui.Container {
         constructor(args) {
             if (!args) args = {};
