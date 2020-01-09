@@ -35,7 +35,7 @@ editor.once('load', function () {
                 }
             },
             branch: config.self.branch.id,
-            favoriteBranches: []
+            favoriteBranches: null
         },
         userId: config.self.id
     });
@@ -84,6 +84,14 @@ editor.once('load', function () {
 
             if (! settings.has('editor.locale')) {
                 settings.set('editor.locale', 'en-US');
+            }
+
+            if (!settings.get('favoriteBranches')) {
+                if (config.project.masterBranch) {
+                    settings.set('favoriteBranches', [config.project.masterBranch]);
+                } else {
+                    settings.set('favoriteBranches', []);
+                }
             }
 
             settings.history.enabled = history;
