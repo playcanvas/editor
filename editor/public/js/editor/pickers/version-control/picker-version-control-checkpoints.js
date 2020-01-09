@@ -56,7 +56,7 @@ editor.once('load', function () {
     panelBranchActions.append(btnNewCheckpoint);
 
     var toggleTopButtons = function () {
-        btnFavorite.disabled = ! panel.branch || panel.branch.closed;
+        btnFavorite.disabled = ! panel.branch || panel.branch.closed || ! editor.call('permissions:write');
         btnNewCheckpoint.disabled = ! editor.call('permissions:write') || ! panel.branch || panel.branch.id !== config.self.branch.id;
     };
 

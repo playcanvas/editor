@@ -524,7 +524,7 @@ editor.once('load', function () {
         menuBranchesClose.hidden = !writeAccess || !contextBranch || contextBranch.closed || contextBranch.id === config.project.masterBranch || contextBranch.id === projectUserSettings.get('branch');
         menuBranchesOpen.hidden = !writeAccess || !contextBranch || !contextBranch.closed;
 
-        menuBranchesFavorite.hidden = !contextBranch || contextBranch.id === projectUserSettings.get('branch') || contextBranch.closed;
+        menuBranchesFavorite.hidden = !writeAccess || !contextBranch || contextBranch.id === projectUserSettings.get('branch') || contextBranch.closed;
         menuBranchesSwitchTo.hidden = !contextBranch || contextBranch.id === projectUserSettings.get('branch') || contextBranch.closed;
         menuBranchesMerge.hidden = !writeAccess || !contextBranch || contextBranch.id === projectUserSettings.get('branch') || contextBranch.closed;
     });
