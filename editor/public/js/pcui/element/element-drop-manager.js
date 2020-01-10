@@ -83,7 +83,13 @@ Object.assign(pcui, (function () {
             window.addEventListener('drop', this._domEventDrop);
 
             this._active = false;
-            this._deactiveTimeout = null;
+
+            // Increases on dragenter events
+            // and decreases on dragleave events.
+            // Used to activate or deactivate the manager
+            // because dragenter / dragleave events are also raised
+            // by child elements of the body
+            this._dragEventCounter = 0;
 
             this._dropType = 'files';
             this._dropData = {};
@@ -153,6 +159,8 @@ Object.assign(pcui, (function () {
         }
 
         _onDeactivate() {
+            this._dragEventCounter = 0;
+
             this.class.remove(CLASS_DROP_MANAGER_ACTIVE);
 
             window.removeEventListener('mouseup', this._domEventMouseUp);
@@ -172,26 +180,17 @@ Object.assign(pcui, (function () {
         }
 
         _onDragEnter(evt) {
-            if (this._deactiveTimeout) {
-                clearTimeout(this._deactiveTimeout);
-                this._deactiveTimeout = null;
-            }
-
             if (!this.enabled) return;
 
             evt.preventDefault();
 
             if (this.readOnly) return;
 
+            this._dragEventCounter++;
             this.active = true;
         }
 
         _onDragOver(evt) {
-            if (this._deactiveTimeout) {
-                clearTimeout(this._deactiveTimeout);
-                this._deactiveTimeout = null;
-            }
-
             if (!this.enabled) return;
 
             evt.preventDefault();
@@ -210,12 +209,12 @@ Object.assign(pcui, (function () {
 
             if (this.readOnly) return;
 
-            // deactivate in a timeout because we might
-            // get conflicting dragenter / dragleave events from
-            // children
-            this._deactiveTimeout = setTimeout(() => {
+            this._dragEventCounter--;
+
+            if (this._dragEventCounter <= 0) {
+                this._dragEventCounter = 0; // sanity check
                 this.active = false;
-            });
+            }
         }
 
         _onMouseUp(evt) {
