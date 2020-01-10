@@ -17,20 +17,17 @@ editor.once('load', function() {
         description: '',
         url: 'http://developer.playcanvas.com/api/pc.Entity.html#tags'
     }, {
-        title: 'position',
-        subTitle: '{pc.Vec3}',
-        description: 'Position in Local Space',
-        url: 'http://developer.playcanvas.com/api/pc.Entity.html'
+        name: 'position',
+        title: 'Position',
+        description: 'Position in Local Space'
     }, {
-        title: 'rotation',
-        subTitle: '{pc.Vec3}',
-        description: 'Rotation in Local Space',
-        url: 'http://developer.playcanvas.com/api/pc.Entity.html'
+        name: 'rotation',
+        title: 'Rotation',
+        description: 'Rotation in Local Space'
     }, {
-        title: 'scale',
-        subTitle: '{pc.Vec3}',
-        description: 'Scale in Local Space',
-        url: 'http://developer.playcanvas.com/api/pc.Entity.html'
+        name: 'scale',
+        title: 'Scale',
+        description: 'Scale in Local Space'
     }];
 
     for(var i = 0; i < fields.length; i++) {
