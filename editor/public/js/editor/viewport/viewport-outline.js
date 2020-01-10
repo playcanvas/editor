@@ -20,6 +20,17 @@ editor.once('load', function() {
     var targets = [ ];
     var textures = [ ];
 
+    var createSolidTex = function (name, r, g, b, a) {
+        var result = new pc.Texture(app.graphicsDevice, { width: 1, height: 1, format: pc.PIXELFORMAT_R8_G8_B8_A8 });
+        result.name = name;
+        var pixels = result.lock();
+        pixels.set(new Uint8Array([r, g, b, a]));
+        result.unlock();
+        return result;
+    };
+
+    var whiteTex = createSolidTex('outline-tex', 255, 255, 255, 255);
+
     var SHADER_OUTLINE = 24;
 
     editor.on('selector:change', function(type, items) {
@@ -308,6 +319,7 @@ editor.once('load', function() {
                                 colorUniform[1] = color.g;
                                 colorUniform[2] = color.b;
                                 instance.setParameter("material_emissive", colorUniform, 1<<SHADER_OUTLINE);
+                                instance.setParameter("texture_emissiveMap", whiteTex, 1 << SHADER_OUTLINE);
                                 meshInstances.push(instance);
                             }
                         }
