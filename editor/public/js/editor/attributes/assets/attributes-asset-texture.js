@@ -523,6 +523,7 @@ editor.once('load', function() {
             var rgbm = -1;
             var alpha = -1;
             var alphaValid = -1;
+            var quality = -1;
 
             for(var i = 0; i < assets.length; i++) {
                 if (assets[i].has('meta.width')) {
@@ -584,6 +585,14 @@ editor.once('load', function() {
                         if (!thisPOT || thisWidth !== thisHeight) {
                             assets[i].set('meta.compress.pvr', true);
                         }
+                    }
+                }
+
+                if (quality === -1) {
+                    quality = assets[i].get('meta.compress.quality');
+                } else if (quality !== -2) {
+                    if (quality !== assets[i].get('meta.compress.quality')) {
+                        quality = -2;
                     }
                 }
             }
@@ -774,13 +783,22 @@ editor.once('load', function() {
             // reference
             editor.call('attributes:reference:attach', 'asset:texture:compress:basis', fieldBasis.parent.innerElement.firstChild.ui);
 
+            // quality slider
+            var fieldQualitySlider = editor.call('attributes:addField', {
+                panel: fieldBasis.parent,
+                slider: true,
+                type: 'number',
+                min: 0,
+                max: 1,
+                link: assets,
+                path: 'meta.compress.quality'
+            });
+            fieldQualitySlider.flexGrow = 0;
+            fieldQualitySlider.style.width = '62px';
 
-            // add basis module import
-            if (!editor.call('project:module:hasModule', 'basis')) {
-                editor.call('attributes:appendImportModule', panelCompression, 'basis.js', 'basis');
-            }
+            // reference
+            editor.call('attributes:reference:attach', 'asset:texture:compress:quality', fieldQualitySlider);
 
-        
             // label
             var labelBasisSize = labelSize['basis'] = new ui.Label({
                 text: bytesToHuman(formats.basis.size) + ' [VRAM ' + bytesToHuman(formats.basis.vram) + ']'
@@ -788,6 +806,11 @@ editor.once('load', function() {
             labelBasisSize.class.add('size');
             if (! formats.basis.size && ! formats.basis.vram) labelBasisSize.text = '-';
             fieldBasis.parent.append(labelBasisSize);
+
+            // add basis module import
+            if (!editor.call('project:module:hasModule', 'basis')) {
+                editor.call('attributes:appendImportModule', panelCompression, 'basis.js', 'basis');
+            }
         }
 
         checkFormats();
@@ -881,6 +904,10 @@ editor.once('load', function() {
                     if (variants.indexOf('pvr') !== -1)
                         task.options.pvrBpp = assets[i].get('meta.compress.pvrBpp');
 
+                    if (variants.indexOf('basis') !== -1) {
+                        task.options.quality = assets[i].get('meta.compress.quality');
+                    }
+
                     var sourceId = assets[i].get('source_asset_id');
                     if (sourceId) {
                         var sourceAsset = editor.call('assets:get', sourceId);
@@ -909,6 +936,7 @@ editor.once('load', function() {
             var normals = !!asset.get('meta.compress.normals');
             var compress = asset.get('meta.compress.' + format);
             var mipmaps = asset.get('data.mipmaps');
+            var quality = asset.get('meta.compress.quality');
 
             if (!! data !== compress) {
                 if (format === 'etc1' && alpha)
@@ -937,8 +965,11 @@ editor.once('load', function() {
             if (data && ((data.opt & 4) !== 0) !== ! mipmaps)
                 return true;
 
-            if (format === 'basis' && data && (!!(data.opt & 8) !== normals))
-                return true;
+            if (format === 'basis' && data) {
+                if ((!!(data.opt & 8) !== normals) || (data.quality === undefined) || (data.quality !== quality)) {
+                    return true;
+                }
+            }
 
             return false;
         };
@@ -1047,7 +1078,7 @@ editor.once('load', function() {
         });
     });
 
-    // append the physics module controls to the provided panel
+    // append the basis module controls to the provided panel
     editor.method('attributes:appendImportModule', function(panel, moduleStoreName, wasmFilename) {
         // button
         var button = new pcui.Button({
