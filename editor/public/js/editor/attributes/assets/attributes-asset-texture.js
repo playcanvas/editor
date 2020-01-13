@@ -783,21 +783,25 @@ editor.once('load', function() {
             // reference
             editor.call('attributes:reference:attach', 'asset:texture:compress:basis', fieldBasis.parent.innerElement.firstChild.ui);
 
-            // quality slider
-            var fieldQualitySlider = editor.call('attributes:addField', {
+            // compression quality
+            var fieldQuality = editor.call('attributes:addField', {
                 panel: fieldBasis.parent,
-                slider: true,
                 type: 'number',
-                min: 0,
-                max: 1,
+                enum: [
+                    { v: '', t: '...' },
+                    { v: 0, t: 'Lowest' },
+                    { v: 1, t: 'Low' },
+                    { v: 2, t: 'Default' },
+                    { v: 3, t: 'High' },
+                    { v: 4, t: 'Highest' }
+                ],
                 link: assets,
                 path: 'meta.compress.quality'
             });
-            fieldQualitySlider.flexGrow = 0;
-            fieldQualitySlider.style.width = '62px';
-
+            fieldQuality.flexGrow = 0;
+            fieldQuality.style.width = '62px';
             // reference
-            editor.call('attributes:reference:attach', 'asset:texture:compress:quality', fieldQualitySlider);
+            editor.call('attributes:reference:attach', 'asset:texture:compress:quality', fieldQuality);
 
             // label
             var labelBasisSize = labelSize['basis'] = new ui.Label({

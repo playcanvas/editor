@@ -107,7 +107,7 @@ editor.once('load', function() {
     }, {
         name: 'compress:quality',
         title: 'Compression quality',
-        description: 'Set the compression quality for the texture. A smaller value results in a smaller download but lower quality texture. A larger value results in larger download but higher quality texture.'
+        description: 'Set the compression quality for the texture.'
     }];
 
     for(var i = 0; i < fields.length; i++) {
