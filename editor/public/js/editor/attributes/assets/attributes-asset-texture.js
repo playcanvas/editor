@@ -1106,15 +1106,23 @@ editor.once('load', function() {
         function updateEnableState() {
             group.enabled = editor.call('permissions:write');
         }
-        editor.on('permissions:writeState', function (write) {
+
+        const events = [];
+
+        events.push(editor.on('permissions:writeState', function (write) {
             updateEnableState();
-        });
-        editor.on('onModuleImported', function(name) {
+        }));
+        events.push(editor.on('onModuleImported', function(name) {
             if (name === 'basis.js') {
                 group.enabled = false;
             }
-        });
+        }));
         updateEnableState();
+
+        group.once('destroy', () => {
+            events.forEach(evt => evt.unbind());
+            events.length = 0;
+        });
 
         return group;
     });
