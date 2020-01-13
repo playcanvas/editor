@@ -9,7 +9,7 @@
     border: 1px solid $bcg-darker;
     box-sizing: border-box;
 
-    background-color: $bcg-dark;
+    background-color: $bcg-primary;
     color: #fff;
 
     line-height: 1;
@@ -39,7 +39,6 @@
 // ticked
 .pcui-boolean-input-toggle.pcui-boolean-input-ticked {
     border-color: $bcg-darker;
-    background-color: $bcg-dark;
 
     &:after {
         left: 15px;
@@ -57,7 +56,7 @@
         box-shadow: $element-shadow-hover;
 
         &:after {
-            background-color: #d34141;
+            background-color: $error-secondary;
         }
     }
 

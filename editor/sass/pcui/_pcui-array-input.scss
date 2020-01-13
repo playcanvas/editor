@@ -1,9 +1,15 @@
 .pcui-array-input {
     margin: $element-margin;
-    min-width: 0; // fix overflow if this is in flex container
+    min-width: 0; // this prevents the element from overflowing
 
-    .pcui-numeric-input {
+    > .pcui-numeric-input {
         margin: 0 0 $element-margin 0;
+    }
+}
+
+.pcui-array-input.pcui-array-empty {
+    > .pcui-numeric-input {
+        margin: 0;
     }
 }
 
@@ -24,6 +30,7 @@
 
     > .pcui-button {
         margin-left: - $element-margin / 2;
+        margin-right: 0;
         background-color: transparent;
         border: 0;
     }

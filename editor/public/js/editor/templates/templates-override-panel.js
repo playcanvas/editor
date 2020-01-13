@@ -14,7 +14,6 @@ Object.assign(pcui, (function () {
     const CLASS_COMPONENT_NAME = CLASS_ROOT + '-component-name';
     const CLASS_COMPONENT_NEW = CLASS_ROOT + '-component-new';
     const CLASS_COMPONENT_REMOVED = CLASS_ROOT + '-component-removed';
-    const CLASS_LABEL_TOP = CLASS_ROOT + '-label-top';
     const CLASS_COMPONENT_ICON = 'component-icon-prefix';
     const CLASS_OVERRIDE_MARKER = CLASS_ROOT + '-override-marker';
     const CLASS_OVERRIDE_MARKER_HIDDEN = CLASS_ROOT + '-override-marker-hidden';
@@ -160,7 +159,7 @@ Object.assign(pcui, (function () {
         _createLabelGroup(name, type, value, isArray, entities) {
             let field;
 
-            if (type.startsWith('array:') && type !== 'array:asset') {
+            if (type.startsWith('array:') && type !== 'array:asset' && type !== 'array:layer') {
                 type = type.substring('array:'.length);
                 isArray = true;
             }
@@ -183,16 +182,26 @@ Object.assign(pcui, (function () {
                 }
             }
 
+            let labelAlignTop = false;
+
             if (isArray) {
-                field = new pcui.ArrayInput({
-                    value: value,
-                    type: type === 'curve' ? 'curveset' : type,
-                    readOnly: true,
-                    elementArgs: {
-                        assets: this._assets,
-                        entities: entities || this._entities
-                    }
-                });
+                labelAlignTop = true;
+                if (type === 'string' && name === 'tags') {
+                    field = pcui.Element.create('tags', {
+                        readOnly: true,
+                        value: value
+                    });
+                } else {
+                    field = new pcui.ArrayInput({
+                        value: value,
+                        type: type === 'curve' ? 'curveset' : type,
+                        readOnly: true,
+                        elementArgs: {
+                            assets: this._assets,
+                            entities: entities || this._entities
+                        }
+                    });
+                }
             } else {
 
                 switch (type) {
@@ -205,10 +214,19 @@ Object.assign(pcui, (function () {
                         });
                         break;
                     case 'array:asset':
+                        labelAlignTop = true;
                         field = new pcui.AssetList({
                             value: value,
                             readOnly: true,
                             assets: this._assets
+                        });
+                        break;
+                    case 'array:layer':
+                        labelAlignTop = true;
+                        field = new pcui.LayersInput({
+                            projectSettings: this._projectSettings,
+                            readOnly: true,
+                            value: value
                         });
                         break;
                     case 'curve':
@@ -216,13 +234,11 @@ Object.assign(pcui, (function () {
                         if (name === 'colorGraph') {
                             field = new pcui.GradientInput({
                                 value: value,
-                                text: this._prettifyName(name),
                                 readOnly: true
                             });
                         } else {
                             field = new pcui.CurveInput({
                                 value: value,
-                                text: this._prettifyName(name),
                                 readOnly: true
                             });
                         }
@@ -299,12 +315,9 @@ Object.assign(pcui, (function () {
                 result = new pcui.LabelGroup({
                     text: this._prettifyName(name),
                     field: field,
-                    nativeTooltip: true
+                    nativeTooltip: true,
+                    labelAlignTop: labelAlignTop
                 });
-            }
-
-            if (type === 'array:asset' || isArray) {
-                result.class.add(CLASS_LABEL_TOP);
             }
 
             return result;

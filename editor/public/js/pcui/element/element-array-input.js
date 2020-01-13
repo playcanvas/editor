@@ -2,6 +2,7 @@ Object.assign(pcui, (function () {
     'use strict';
 
     const CLASS_ARRAY_INPUT = 'pcui-array-input';
+    const CLASS_ARRAY_EMPTY = 'pcui-array-empty';
     const CLASS_ARRAY_SIZE = CLASS_ARRAY_INPUT + '-size';
     const CLASS_ARRAY_CONTAINER = CLASS_ARRAY_INPUT + '-items';
     const CLASS_ARRAY_ELEMENT = CLASS_ARRAY_INPUT + '-item';
@@ -23,6 +24,7 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.ArrayInput
      * @classdesc Element that allows editing an array of values.
+     * @property {Boolean} renderChanges If true the input will flash when changed.
      * @extends pcui.Element
      */
     class ArrayInput extends pcui.Element {
@@ -50,14 +52,16 @@ Object.assign(pcui, (function () {
             this._container = container;
             this._container.parent = this;
 
-            this.class.add(CLASS_ARRAY_INPUT);
+            this.class.add(CLASS_ARRAY_INPUT, CLASS_ARRAY_EMPTY);
 
             this._sizeInput = new pcui.NumericInput({
-                class: CLASS_ARRAY_SIZE,
+                class: [CLASS_ARRAY_SIZE],
                 placeholder: 'Array Size',
                 value: 0
             });
             this._sizeInput.on('change', this._onSizeChange.bind(this));
+            this._sizeInput.on('focus', this._onFocus.bind(this));
+            this._sizeInput.on('blur', this._onBlur.bind(this));
             this._suspendSizeChangeEvt = false;
             this._container.append(this._sizeInput);
 
@@ -75,8 +79,8 @@ Object.assign(pcui, (function () {
             this._suspendArrayElementEvts = false;
             this._arrayElementChangeTimeout = null;
 
-            this._type = args.type || 'string';
-            this._elementArgs = args.elementArgs || {};
+            this._type = (DEFAULTS.hasOwnProperty(args.type) ? args.type : 'string');
+            this._elementArgs = args.elementArgs || args;
 
             this._arrayElements = [];
 
@@ -88,9 +92,17 @@ Object.assign(pcui, (function () {
             if (args.value) {
                 this.value = args.value;
             }
+
+            this.renderChanges = args.renderChanges || false;
         }
 
         _onSizeChange(size) {
+            if (!size) {
+                this.class.add(CLASS_ARRAY_EMPTY);
+            } else {
+                this.class.remove(CLASS_ARRAY_EMPTY);
+            }
+
             if (size === null) return;
             if (this._suspendSizeChangeEvt) return;
 
@@ -113,10 +125,22 @@ Object.assign(pcui, (function () {
             this._updateValues(values, true);
         }
 
+        _onFocus() {
+            this.emit('focus');
+        }
+
+        _onBlur() {
+            this.emit('blur');
+        }
+
         _createArrayElement() {
             const args = Object.assign({
                 binding: this._binding && this._binding.clone()
             }, this._elementArgs);
+
+            // set renderChanges after value is set
+            // to prevent flashing on initial value set
+            args.renderChanges = false;
 
             const container = new pcui.Container({
                 flex: true,
@@ -125,51 +149,10 @@ Object.assign(pcui, (function () {
                 class: [CLASS_ARRAY_ELEMENT, CLASS_ARRAY_ELEMENT + '-' + this._type]
             });
 
-            let element = null;
-
-            switch (this._type) {
-                case 'boolean':
-                    element = new pcui.BooleanInput(args);
-                    break;
-                case 'number':
-                    element = new pcui.NumericInput(args);
-                    break;
-                case 'string':
-                    element = new pcui.TextInput(args);
-                    break;
-                case 'asset':
-                    element = new pcui.AssetInput(args);
-                    break;
-                case 'entity':
-                    element = new pcui.EntityInput(args);
-                    break;
-                case 'rgb':
-                    element = new pcui.ColorInput(args);
-                    break;
-                case 'curveset':
-                    element = new pcui.CurveInput(args);
-                    break;
-                case 'vec2':
-                    element = new pcui.VectorInput(Object.assign({
-                        dimensions: 2
-                    }, args));
-                    break;
-                case 'vec3':
-                    element = new pcui.VectorInput(Object.assign({
-                        dimensions: 3
-                    }, args));
-                    break;
-                case 'vec4':
-                    element = new pcui.VectorInput(Object.assign({
-                        dimensions: 4
-                    }, args));
-                    break;
-                default:
-                    element = new pcui.TextInput(args);
-                    break;
-            }
-
+            const element = pcui.Element.create(this._type, args);
             container.append(element);
+
+            element.renderChanges = this.renderChanges;
 
             const entry = {
                 container: container,
@@ -181,9 +164,9 @@ Object.assign(pcui, (function () {
             const btnDelete = new pcui.Button({
                 icon: 'E289',
                 size: 'small',
-                class: CLASS_ARRAY_DELETE
+                class: CLASS_ARRAY_DELETE,
+                tabIndex: -1 // skip buttons on tab
             });
-            btnDelete.dom.tabIndex = -1; // skip buttons on tab
             btnDelete.on('click', () => {
                 this._removeArrayElement(entry);
             });
@@ -331,6 +314,14 @@ Object.assign(pcui, (function () {
             this.emit('change', this.value);
         }
 
+        focus() {
+            this._sizeInput.focus();
+        }
+
+        blur() {
+            this._sizeInput.blur();
+        }
+
         destroy() {
             if (this._destroyed) return;
             this._arrayElements.length = 0;
@@ -369,10 +360,25 @@ Object.assign(pcui, (function () {
             // update values but do not update binding
             this._updateValues(values, false);
         }
+
+        get renderChanges() {
+            return this._renderChanges;
+        }
+
+        set renderChanges(value) {
+            this._renderChanges = value;
+            this._arrayElements.forEach(entry => {
+                entry.element.renderChanges = value;
+            });
+        }
     }
 
     utils.implements(ArrayInput, pcui.IBindable);
     utils.implements(ArrayInput, pcui.IFocusable);
+
+    for (const type in DEFAULTS) {
+        pcui.Element.register(`array:${type}`, ArrayInput, { type: type, renderChanges: true });
+    }
 
     return {
         ArrayInput: ArrayInput

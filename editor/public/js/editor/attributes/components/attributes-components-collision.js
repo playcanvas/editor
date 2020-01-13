@@ -1,6 +1,8 @@
 editor.once('load', function() {
     'use strict';
 
+    if (editor.call('users:hasFlag', 'hasPcuiComponentInspectors')) return;
+
     editor.on('attributes:inspect[entity]', function(entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
@@ -20,12 +22,9 @@ editor.once('load', function() {
             'sphere': 'Sphere',
             'capsule': 'Capsule',
             'cylinder': 'Cylinder',
-            'mesh': 'Mesh'
+            'mesh': 'Mesh',
+            'compound': 'Compound'
         };
-
-        if (editor.call('users:hasFlag', 'hasCompoundColliders')) {
-            enumType['compound'] = 'Compound';
-        }
 
         // type
         var fieldType = editor.call('attributes:addField', {

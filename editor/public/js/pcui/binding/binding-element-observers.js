@@ -78,7 +78,7 @@ Object.assign(pcui, (function () {
         _setValueToObservers(observers, paths, value, isArrayOfValues) {
             // special case for 1 observer with multiple paths (like curves)
             // in that case set each value for each path
-            if (observers.length === 1) {
+            if (observers.length === 1 && paths.length > 1) {
                 for (let i = 0; i < paths.length; i++) {
                     const latest = observers[0].latest();
                     if (!latest) continue;
@@ -176,7 +176,7 @@ Object.assign(pcui, (function () {
                 }
             };
 
-            if (this._history) {
+            if (this._history && records.length) {
                 this._history.add({
                     name: this._getHistoryActionName(paths),
                     redo: execute,
@@ -259,7 +259,7 @@ Object.assign(pcui, (function () {
                 }
             };
 
-            if (this._history) {
+            if (this._history && records.length) {
                 this._history.add({
                     name: this._getHistoryActionName(paths),
                     redo: execute,

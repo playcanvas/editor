@@ -42,6 +42,8 @@ Object.assign(pcui, (function () {
         }
 
         _updateText(value) {
+            this.class.remove(pcui.CLASS_MULTIPLE_VALUES);
+
             if (this._text === value) return false;
 
             this._text = value;
@@ -51,8 +53,6 @@ Object.assign(pcui, (function () {
             } else {
                 this._dom.textContent = value;
             }
-
-            this.class.remove(pcui.CLASS_MULTIPLE_VALUES);
 
             this.emit('change', value);
 
@@ -97,12 +97,14 @@ Object.assign(pcui, (function () {
                 this._updateText('');
                 this.class.add(pcui.CLASS_MULTIPLE_VALUES);
             } else {
-                this._updateText(values[0] || '');
+                this._updateText(values[0]);
             }
         }
     }
 
     utils.implements(Label, pcui.IBindable);
+
+    pcui.Element.register('label', Label);
 
     return {
         Label: Label

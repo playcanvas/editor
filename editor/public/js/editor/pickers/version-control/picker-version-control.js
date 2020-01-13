@@ -51,6 +51,8 @@ editor.once('load', function () {
         options: [{
             v: 'open', t: 'Open Branches'
         }, {
+            v: 'favorite', t: 'Favorite Branches'
+        }, {
             v: 'closed', t: 'Closed Branches'
         }]
     });
@@ -404,6 +406,26 @@ editor.once('load', function () {
 
         if (! open) {
             contextBranch = null;
+            menuBranches.contextBranchIsFavorite = false;
+        }
+    });
+
+    // favorite branch
+    var menuBranchesFavorite = new ui.MenuItem({
+        text: 'Favorite This Branch',
+        value: 'favorite-branch'
+    });
+    menuBranches.append(menuBranchesFavorite);
+
+    // favorite branch
+    menuBranchesFavorite.on('select', function () {
+        if (!contextBranch) return;
+        if (menuBranches.contextBranchIsFavorite) {
+          var index = projectUserSettings.get('favoriteBranches').indexOf(contextBranch.id);
+          if (index >= 0)
+            projectUserSettings.remove('favoriteBranches', index);
+        } else {
+          projectUserSettings.insert('favoriteBranches', contextBranch.id);
         }
     });
 
@@ -497,9 +519,12 @@ editor.once('load', function () {
     menuBranches.on('open', function () {
         var writeAccess = editor.call('permissions:write');
 
+        menuBranchesFavorite.text = (menuBranches.contextBranchIsFavorite ? 'Unf' : 'F') + 'avorite This Branch';
+
         menuBranchesClose.hidden = !writeAccess || !contextBranch || contextBranch.closed || contextBranch.id === config.project.masterBranch || contextBranch.id === projectUserSettings.get('branch');
         menuBranchesOpen.hidden = !writeAccess || !contextBranch || !contextBranch.closed;
 
+        menuBranchesFavorite.hidden = !writeAccess || !contextBranch || contextBranch.id === projectUserSettings.get('branch') || contextBranch.closed;
         menuBranchesSwitchTo.hidden = !contextBranch || contextBranch.id === projectUserSettings.get('branch') || contextBranch.closed;
         menuBranchesMerge.hidden = !writeAccess || !contextBranch || contextBranch.id === projectUserSettings.get('branch') || contextBranch.closed;
     });
@@ -522,6 +547,8 @@ editor.once('load', function () {
             unsafe: true
         });
         labelIcon.class.add('icon');
+        // TODO: should this be a css class? feels bad to made another class just for this fontSize change
+        labelIcon.style.fontSize = '8px';
         panel.append(labelIcon);
 
         var labelName = new ui.Label({
@@ -544,6 +571,21 @@ editor.once('load', function () {
         dropdown.class.add('dropdown');
         panel.append(dropdown);
 
+        Object.defineProperty(item, 'isFavorite', {
+            get: function() {
+                return this._isFavorite;
+            },
+            set: function(value) {
+              if (value !== this._isFavorite) {
+                this._isFavorite = Boolean(value);
+                labelIcon.text = this._isFavorite ? '&#9733;' : '&#58208;'
+                labelIcon.style.fontSize = this._isFavorite ? '10px' : '8px';
+              }
+            }
+        });
+
+        item.isFavorite = projectUserSettings.get('favoriteBranches').includes(branch.id);
+
         dropdown.on('click', function (e) {
             e.stopPropagation();
 
@@ -557,6 +599,7 @@ editor.once('load', function () {
             dropdown.element.innerHTML = '&#57687;';
 
             contextBranch = branch;
+            menuBranches.contextBranchIsFavorite = item.isFavorite;
             menuBranches.open = true;
             var rect = dropdown.element.getBoundingClientRect();
             menuBranches.position(rect.right - menuBranches.innerElement.clientWidth, rect.bottom);
@@ -599,6 +642,12 @@ editor.once('load', function () {
         var item = document.getElementById('branch-' + branchId);
         return item && item.ui;
     };
+
+    var updateBranchFavorite = function (branchId) {
+      const item = getBranchListItem(branchId);
+      if (item)
+        item.isFavorite = projectUserSettings.get('favoriteBranches').includes(item.branch.id);
+    }
 
     // Select specified branch and show its checkpoints
     var selectBranch = function (branch) {
@@ -745,7 +794,8 @@ editor.once('load', function () {
         editor.call('branches:list', {
             limit: 40,
             skip: branchesSkip,
-            closed: fieldBranchesFilter.value === 'closed'
+            closed: fieldBranchesFilter.value === 'closed',
+            favorite: fieldBranchesFilter.value === 'favorite'
         }, function (err, data) {
             if (err) {
                 return console.error(err);
@@ -867,6 +917,37 @@ editor.once('load', function () {
             }
         }));
 
+        // when a branch is unfavorited remove it from the list and select the next one
+        events.push(projectUserSettings.on('favoriteBranches:remove', function (branchId) {
+            // only handle when viewing favorites and when branch isn't current branch
+            if (fieldBranchesFilter.value !== 'favorite' || config.self.branch.id === branchId) {
+                return;
+            }
+
+            // we are seeing the favorite branches view so remove this branch from the list
+            // and select the next branch
+            var item = getBranchListItem(branchId);
+            if (! item) return;
+
+            var nextItem = null;
+            if (item.selected) {
+                if (item.element.nextSibling !== loadMoreListItem.element) {
+                    nextItem = item.element.nextSibling;
+                }
+
+                if (! nextItem) {
+                    nextItem = item.element.previousSibling;
+                }
+            }
+
+            listBranches.remove(item);
+
+            // select next or previous sibling
+            if (nextItem && nextItem !== loadMoreListItem.element) {
+                nextItem.ui.selected = true
+            }
+        }));
+
         // when a branch is closed remove it from the list and select the next one
         events.push(editor.on('messenger:branch.close', function (data) {
             if (fieldBranchesFilter.value === 'closed') {
@@ -954,6 +1035,9 @@ editor.once('load', function () {
             }
 
         }));
+
+        events.push(projectUserSettings.on('favoriteBranches:insert', updateBranchFavorite));
+        events.push(projectUserSettings.on('favoriteBranches:remove', updateBranchFavorite));
 
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', false);

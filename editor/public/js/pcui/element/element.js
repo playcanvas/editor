@@ -31,6 +31,9 @@ Object.assign(pcui, (function () {
         });
     }
 
+    // Stores Element types by name and default arguments
+    const ELEMENT_REGISTRY = {};
+
     /**
      * @event
      * @name pcui.Element#enable
@@ -101,6 +104,7 @@ Object.assign(pcui, (function () {
      * @property {Boolean} readOnly Gets / sets whether the Element is read only.
      * @property {Number} width Gets / sets the width of the Element in pixels. Can also be an empty string to remove it.
      * @property {Number} height Gets / sets the height of the Element in pixels. Can also be an empty string to remove it.
+     * @property {Number} tabIndex Gets / sets the tabIndex of the Element.
      * @property {Boolean} error Gets / sets whether the Element is in an error state.
      * @property {pcui.BindingBase} binding Gets / sets the Binding object for the element.
      * @property {CSSStyleDeclaration} style Shortcut to pcui.Element.dom.style.
@@ -127,7 +131,7 @@ Object.assign(pcui, (function () {
             this._domEventMouseOut = this._onMouseOut.bind(this);
             this._eventsParent = [];
 
-            this._dom = dom;
+            this._dom = dom || document.createElement('div');
 
             if (args.id !== undefined) {
                 this._dom.id = args.id;
@@ -165,6 +169,9 @@ Object.assign(pcui, (function () {
             if (args.height !== undefined) {
                 this.height = args.height;
             }
+            if (args.tabIndex !== undefined) {
+                this.tabIndex = args.tabIndex;
+            }
 
             // copy CSS properties from args
             for (const key in args) {
@@ -179,6 +186,7 @@ Object.assign(pcui, (function () {
                 this.binding = args.binding;
             }
 
+            this._flashTimeout = null;
         }
 
         /**
@@ -207,8 +215,11 @@ Object.assign(pcui, (function () {
          * @description Triggers a flash animation on the Element.
          */
         flash() {
+            if (this._flashTimeout) return;
+
             this.class.add(pcui.CLASS_FLASH);
-            setTimeout(function () {
+            this._flashTimeout = setTimeout(function () {
+                this._flashTimeout = null;
                 this.class.remove(pcui.CLASS_FLASH);
             }.bind(this), 200);
         }
@@ -285,7 +296,11 @@ Object.assign(pcui, (function () {
 
             this._destroyed = true;
 
-            this.binding = null;
+            if (this.binding) {
+                this.binding = null;
+            } else {
+                this.unlink();
+            }
 
             if (this.parent) {
                 const parent = this.parent;
@@ -326,9 +341,60 @@ Object.assign(pcui, (function () {
             this._domEventMouseOver = null;
             this._domEventMouseOut = null;
 
+            if (this._flashTimeout) {
+                clearTimeout(this._flashTimeout);
+            }
+
             this.emit('destroy');
 
             this.unbind();
+        }
+
+        /**
+         * @static
+         * Registers a new Element type
+         * @param {String} type The type we want to reference this Element by
+         * @param {Object} cls The actual class of the Element
+         * @param {Object} [defaultArguments] Default arguments when creating this type
+         */
+        static register(type, cls, defaultArguments) {
+            ELEMENT_REGISTRY[type] = { cls, defaultArguments };
+        }
+
+        /**
+         * @static
+         * Unregisters the specified Element type
+         * @param {String} type The type we want to unregister
+         */
+        static unregister(type) {
+            delete ELEMENT_REGISTRY[type];
+        }
+
+        /**
+         * @static
+         * Creates a new Element by type
+         * @param {String} type The type of the Element (registered by pcui.Element#register)
+         * @param {Object} args Arguments for the Element
+         * @returns {pcui.Element} A new pcui.Element of the desired type
+         */
+        static create(type, args) {
+            const entry = ELEMENT_REGISTRY[type];
+            if (!entry) {
+                console.error('Invalid type passed to pcui.Element#create', type);
+                return;
+            }
+
+            const cls = entry.cls;
+            const clsArgs = {};
+
+            if (entry.defaultArguments) {
+                Object.assign(clsArgs, entry.defaultArguments);
+            }
+            if (args) {
+                Object.assign(clsArgs, args);
+            }
+
+            return new cls(clsArgs);
         }
 
         get enabled() {
@@ -412,7 +478,7 @@ Object.assign(pcui, (function () {
         }
 
         get readOnly() {
-            return this._readOnly || (this._parent && this._parent.readOnly);
+            return this._readOnly || !!(this._parent && this._parent.readOnly);
         }
 
         set readOnly(value) {
@@ -466,6 +532,14 @@ Object.assign(pcui, (function () {
             this.style.height = value;
         }
 
+        get tabIndex() {
+            return this._dom.tabIndex;
+        }
+
+        set tabIndex(value) {
+            this._dom.tabIndex = value;
+        }
+
         get binding() {
             return this._binding;
         }
@@ -495,6 +569,10 @@ Object.assign(pcui, (function () {
             }
         }
 
+        get destroyed() {
+            return this._destroyed;
+        }
+
         /*  Backwards Compatibility */
         // we should remove those after we migrate
         get disabled() {
@@ -520,7 +598,7 @@ Object.assign(pcui, (function () {
         set innerElement(value) {
             this.domContent = value;
         }
-    };
+    }
 
     // expose rest of CSS properties
     SIMPLE_CSS_PROPERTIES.forEach(exposeCssProperty);

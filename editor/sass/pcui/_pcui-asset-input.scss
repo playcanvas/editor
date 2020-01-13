@@ -19,6 +19,7 @@
     height: 100%;
     border: 1px solid $bcg-darker;
     box-sizing: border-box;
+    background-color: $bcg-dark;
 }
 
 // text on the top right
@@ -59,6 +60,7 @@
 .pcui-asset-input-edit, .pcui-asset-input-remove {
     width: 24px;
     height: 24px;
+    line-height: 24px;
     flex-shrink: 0;
     margin: 0;
     padding: 0;

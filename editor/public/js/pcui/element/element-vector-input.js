@@ -76,6 +76,8 @@ Object.assign(pcui, (function () {
         }
 
         _updateValue(value) {
+            this.class.remove(pcui.CLASS_MULTIPLE_VALUES);
+
             if (this.value.equals(value)) return false;
 
             this._applyingChange = true;
@@ -91,13 +93,11 @@ Object.assign(pcui, (function () {
                     applyingChange = binding.applyingChange;
                     binding.applyingChange = true;
                 }
-                this._inputs[i].value = value[i] !== undefined ? value[i] : null;
+                this._inputs[i].value = (value && value[i] !== undefined ? value[i] : null);
                 if (binding) {
                     binding.applyingChange = applyingChange;
                 }
             }
-
-            this.class.remove(pcui.CLASS_MULTIPLE_VALUES);
 
             this.emit('change', this.value);
 
@@ -187,7 +187,7 @@ Object.assign(pcui, (function () {
         set binding(value) {
             super.binding = value;
             for (let i = 0; i < this._inputs.length; i++) {
-                this._inputs[i].binding = value ? value.clone() : null;
+                this._inputs[i].binding = (value ? value.clone() : null);
             }
         }
 
@@ -234,6 +234,11 @@ Object.assign(pcui, (function () {
 
     utils.implements(VectorInput, pcui.IBindable);
     utils.implements(VectorInput, pcui.IFocusable);
+
+    // register with ElementFactory
+    pcui.Element.register('vec2', VectorInput, { dimensions: 2, renderChanges: true });
+    pcui.Element.register('vec3', VectorInput, { dimensions: 3, renderChanges: true });
+    pcui.Element.register('vec4', VectorInput, { dimensions: 4, renderChanges: true });
 
     return {
         VectorInput: VectorInput

@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var fields = [{
-        name: 'scrollview',
+        name: 'component',
         title: 'pc.ScrollViewComponent',
         subTitle: '{pc.Component}',
         description: 'A ScrollViewComponent enables a group of entities to behave like a masked scrolling area, with optional horizontal and vertical scroll bars.',

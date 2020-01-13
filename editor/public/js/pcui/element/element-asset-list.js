@@ -3,6 +3,7 @@ Object.assign(pcui, (function () {
 
     const CLASS_ASSET_LIST = 'pcui-asset-list';
     const CLASS_ASSET_LIST_SELECTION_MODE = CLASS_ASSET_LIST + '-selection-mode';
+    const CLASS_ASSET_LIST_EMPTY = CLASS_ASSET_LIST + '-empty';
     const CLASS_BUTTON_SELECTION_MODE = CLASS_ASSET_LIST + '-btn-selection-mode';
     const CLASS_BUTTON_ADD = CLASS_ASSET_LIST + '-btn-add';
     const CLASS_BUTTON_DONE = CLASS_ASSET_LIST + '-btn-done';
@@ -15,6 +16,7 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.AssetList
      * @classdesc Element that can allows selecting multiple assets.
+     * @property {Boolean} renderChanges If true the input will flash when changed.
      * @extends pcui.Element
      */
     class AssetList extends pcui.Element {
@@ -24,6 +26,7 @@ Object.assign(pcui, (function () {
          * @param {ObserverList} args.assets The assets list
          * @param {String} [args.assetType] An optional filter for a specific asset type.
          * @param {Function} [args.filterFn] An optional filter function when determining which assets to show with the asset picker.
+         * @param {Boolean} [args.allowDragDrop] If true then this will enable drag and drop of assets on the input
          * The function takes an asset observer as an argument and returns true or false.
          */
         constructor(args) {
@@ -35,7 +38,7 @@ Object.assign(pcui, (function () {
 
             super(container.dom, args);
 
-            this.class.add(CLASS_ASSET_LIST);
+            this.class.add(CLASS_ASSET_LIST, CLASS_ASSET_LIST_EMPTY);
 
             this._container = container;
             this._container.parent = this;
@@ -119,11 +122,61 @@ Object.assign(pcui, (function () {
             });
             this._container.append(this._containerAssets);
 
+            this._containerAssets.on('show', () => {
+                this.class.remove(CLASS_ASSET_LIST_EMPTY);
+            });
+
+            this._containerAssets.on('hide', () => {
+                this.class.add(CLASS_ASSET_LIST_EMPTY);
+            });
+
+            if (args.allowDragDrop) {
+                this._initializeDropTarget();
+            }
+
             this._selectedAssets = [];
             this._indexAssets = {};
 
             this._values = [];
             this.value = args.value || null;
+
+            this.renderChanges = args.renderChanges || false;
+
+            this.on('change', () => {
+                if (this.renderChanges) {
+                    this.flash();
+                }
+            });
+        }
+
+        _initializeDropTarget() {
+            editor.call('drop:target', {
+                ref: this,
+                filter: (type, dropData) => {
+                    if (dropData.id && type.startsWith('asset') &&
+                        (!this._assetType || type === `asset.${this._assetType}`) &&
+                        parseInt(dropData.id, 10) !== this.value) {
+
+                        const asset = this._assets.get(dropData.id);
+                        if (!asset || asset.get('source')) {
+                            return false;
+                        }
+
+                        // if asset already added to every observer then
+                        // return false
+                        if (this._indexAssets[dropData.id] && !this._indexAssets[dropData.id].element.class.contains(CLASS_ASSET_NOT_EVERYWHERE)) {
+                            return false;
+                        }
+
+                        return true;
+                    }
+
+                    return false;
+                },
+                drop: (type, dropData) => {
+                    this._addAssets([parseInt(dropData.id, 10)]);
+                }
+            });
         }
 
         _onClickSelectionMode() {
@@ -134,7 +187,12 @@ Object.assign(pcui, (function () {
         _onClickAdd() {
             if (!this._selectedAssets.length) return;
 
-            this._selectedAssets.forEach(assetId => {
+            this._addAssets(this._selectedAssets);
+            this._selectedAssets.length = 0;
+        }
+
+        _addAssets(assets) {
+            assets.forEach(assetId => {
                 const entry = this._indexAssets[assetId] || this._createAssetItem(assetId);
                 entry.count = this._values.length;
                 entry.element.class.remove(CLASS_ASSET_NOT_EVERYWHERE);
@@ -154,10 +212,8 @@ Object.assign(pcui, (function () {
             this.emit('change', this.value);
 
             if (this._binding) {
-                this._binding.addValues(this._selectedAssets.slice());
+                this._binding.addValues(assets.slice());
             }
-
-            this._selectedAssets.length = 0;
         }
 
         // End selection mode
@@ -437,9 +493,25 @@ Object.assign(pcui, (function () {
             if (this._values.equals(values)) return;
             this._updateValues(values);
         }
+
+        // Returns an array of {assetId, element} entries
+        // for each animation asset and list item representing it
+        get listItems() {
+            const result = [];
+            for (const assetId in this._indexAssets) {
+                result.push({
+                    assetId: assetId,
+                    element: this._indexAssets[assetId].element
+                });
+            }
+
+            return result;
+        }
     }
 
     utils.implements(AssetList, pcui.IBindable);
+
+    pcui.Element.register('assets', AssetList, { allowDragDrop: true, renderChanges: true });
 
     return {
         AssetList: AssetList

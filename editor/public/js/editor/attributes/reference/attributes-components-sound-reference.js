@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var fields = [{
-        name: 'sound',
+        name: 'component',
         title: 'pc.SoundComponent',
         subTitle: '{pc.Component}',
         description: 'The Sound Component controls playback of sounds',
@@ -17,6 +17,16 @@ editor.once('load', function() {
         subTitle: '{Number}',
         description: "refDistance - The reference distance for reducing volume as the sound source moves further from the listener. maxDistance - The maximum distance from the listener at which audio falloff stops. Note the volume of the audio is not 0 after this distance, but just doesn't fall off anymore.",
         url: 'http://developer.playcanvas.com/api/pc.SoundComponent.html#refDistance'
+    }, {
+        title: 'refDistance',
+        subTitle: '{Number}',
+        description: "The reference distance for reducing volume as the sound source moves further from the listener.",
+        url: 'http://developer.playcanvas.com/api/pc.SoundComponent.html#refDistance'
+    }, {
+        title: 'maxDistance',
+        subTitle: '{Number}',
+        description: "The maximum distance from the listener at which audio falloff stops. Note the volume of the audio is not 0 after this distance, but just doesn't fall off anymore.",
+        url: 'http://developer.playcanvas.com/api/pc.SoundComponent.html#maxDistance'
     }, {
         title: 'pitch',
         subTitle: '{Number}',

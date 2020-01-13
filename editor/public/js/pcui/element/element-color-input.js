@@ -8,6 +8,7 @@ Object.assign(pcui, (function () {
      * @classdesc Represents a color input. Clicking on the color input will open a color picker.
      * @property {Number[]} value An array of 1 to 4 numbers that range from 0 to 1. The length of the array depends on the number of channels.
      * @property {Number} channels Can be 1 to 4.
+     * @property {Boolean} renderChanges If true the input will flash when changed.
      * @mixes pcui.IBindable
      * @mixes pcui.IFocusable
      */
@@ -17,12 +18,14 @@ Object.assign(pcui, (function () {
          * @param {Object} args The arguments. Extends the pcui.Element arguments. Any settable property can also be set through the constructor.
          */
         constructor(args) {
-            if (!args) args = {};
+            args = Object.assign({
+                tabIndex: 0
+            }, args);
+
             super(document.createElement('div'), args);
 
             this.class.add(CLASS_COLOR_INPUT);
             this.class.add(pcui.CLASS_NOT_FLEXIBLE);
-            this.dom.tabIndex = 0;
 
             // this element shows the actual color. The
             // parent element shows the checkerboard pattern
@@ -47,6 +50,14 @@ Object.assign(pcui, (function () {
             this._setValue(this._value);
 
             this._isColorPickerOpen = false;
+
+            this.renderChanges = args.renderChanges || false;
+
+            this.on('change', () => {
+                if (this.renderChanges) {
+                    this.flash();
+                }
+            });
         }
 
         focus() {
@@ -216,6 +227,9 @@ Object.assign(pcui, (function () {
 
     utils.implements(ColorInput, pcui.IBindable);
     utils.implements(ColorInput, pcui.IFocusable);
+
+    pcui.Element.register('rgb', ColorInput, { channels: 3, renderChanges: true });
+    pcui.Element.register('rgba', ColorInput, { channels: 4, renderChanges: true });
 
     return {
         ColorInput: ColorInput

@@ -18,7 +18,10 @@ Object.assign(pcui, (function () {
          * @param {String} [args.type] The type of checkbox currently can be null or 'toggle'.
          */
         constructor(args) {
-            if (!args) args = {};
+            args = Object.assign({
+                tabIndex: 0
+            }, args);
+
             super(document.createElement('div'), args);
 
             if (args.type === 'toggle') {
@@ -27,8 +30,6 @@ Object.assign(pcui, (function () {
                 this.class.add(CLASS_BOOLEAN_INPUT);
             }
             this.class.add(pcui.CLASS_NOT_FLEXIBLE);
-
-            this.dom.tabIndex = 0;
 
             this._domEventKeyDown = this._onKeyDown.bind(this);
             this._domEventFocus = this._onFocus.bind(this);
@@ -47,9 +48,12 @@ Object.assign(pcui, (function () {
         }
 
         _onClick(evt) {
+            if (this.enabled) {
+                this.focus();
+            }
+
             if (this.enabled && !this.readOnly) {
                 this.value = !this.value;
-                this.blur();
             }
 
             return super._onClick(evt);
@@ -79,6 +83,8 @@ Object.assign(pcui, (function () {
         }
 
         _updateValue(value) {
+            this.class.remove(pcui.CLASS_MULTIPLE_VALUES);
+
             if (value === this.value) return false;
 
             this._value = value;
@@ -92,8 +98,6 @@ Object.assign(pcui, (function () {
             if (this.renderChanges) {
                 this.flash();
             }
-
-            this.class.remove(pcui.CLASS_MULTIPLE_VALUES);
 
             this.emit('change', value);
 
@@ -151,6 +155,8 @@ Object.assign(pcui, (function () {
 
     utils.implements(BooleanInput, pcui.IBindable);
     utils.implements(BooleanInput, pcui.IFocusable);
+
+    pcui.Element.register('boolean', BooleanInput, { renderChanges: true });
 
     return {
         BooleanInput: BooleanInput

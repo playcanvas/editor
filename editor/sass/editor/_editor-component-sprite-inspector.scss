@@ -1,0 +1,11 @@
+.sprite-component-inspector-clip {
+    margin: $element-margin;
+
+    > .pcui-panel-content {
+        padding-top: $element-margin;
+    }
+}
+
+.sprite-component-inspector-clip + .sprite-component-inspector-clip {
+    margin-top: -$element-margin / 2;
+}

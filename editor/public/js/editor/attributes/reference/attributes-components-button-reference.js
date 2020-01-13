@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var fields = [{
-        name: 'button',
+        name: 'component',
         title: 'pc.ButtonComponent',
         subTitle: '{pc.Component}',
         description: 'A ButtonComponent enables a group of entities to behave like a button, with different visual states for hover and press interactions.',
@@ -29,17 +29,17 @@ editor.once('load', function() {
         url: 'http://developer.playcanvas.com/api/pc.ButtonComponent.html#transitionMode'
     }, {
         title: 'hoverTint',
-        subTitle: '{pc.Vec4}',
+        subTitle: '{pc.Color}',
         description: 'Color to be used on the button image when the user hovers over it.',
         url: 'http://developer.playcanvas.com/api/pc.ButtonComponent.html#hoverTint'
     }, {
         title: 'pressedTint',
-        subTitle: '{pc.Vec4}',
+        subTitle: '{pc.Color}',
         description: 'Color to be used on the button image when the user presses it.',
         url: 'http://developer.playcanvas.com/api/pc.ButtonComponent.html#pressedTint'
     }, {
         title: 'inactiveTint',
-        subTitle: '{pc.Vec4}',
+        subTitle: '{pc.Color}',
         description: 'Color to be used on the button image when the button is not interactive.',
         url: 'http://developer.playcanvas.com/api/pc.ButtonComponent.html#inactiveTint'
     }, {

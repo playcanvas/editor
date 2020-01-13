@@ -7,6 +7,7 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.EntityInput
      * @classdesc An input that accepts an Entity.
+     * @property {Boolean} renderChanges If true then the Element will flash when its value changes.
      * @extends pcui.Element
      */
     class EntityInput extends pcui.Element {
@@ -16,9 +17,14 @@ Object.assign(pcui, (function () {
          * @param {ObserverList} args.entities The entities list
          * @param {Function} [args.pickEntityFn] A function with signature (callback) => void. The function should allow the user to pick an Entity and then the functino should call the callback passing the Entity's resource id as the argument.
          * @param {Function} [args.highlightEntityFn] A function that highlights an Entity with signature (string, boolean) => void. The first argument is the resource id of the Entity and the second argument signifies whether we should highlight the entity or not.
+         * @param {Boolean} [args.allowDragDrop] If true then this will enable drag and drop of entities on the input
          */
         constructor(args) {
             const container = new pcui.Container();
+
+            args = Object.assign({
+                tabIndex: 0
+            }, args);
 
             super(container.dom, args);
 
@@ -28,7 +34,6 @@ Object.assign(pcui, (function () {
 
             this._container = container;
             this._container.parent = this;
-            this.dom.tabIndex = 0;
 
             this._domEvtFocus = this._onFocus.bind(this);
             this._domEvtBlur = this._onBlur.bind(this);
@@ -62,8 +67,18 @@ Object.assign(pcui, (function () {
 
             this.value = args.value || null;
 
+            this.renderChanges = args.renderChanges || false;
+
+            this.on('change', () => {
+                if (this.renderChanges) {
+                    this.flash();
+                }
+            });
+
             this.on('click', (evt) => {
                 if (this.readOnly) return;
+
+                this.focus();
 
                 this._pickEntity(resourceId => {
                     this.value = resourceId;
@@ -85,6 +100,22 @@ Object.assign(pcui, (function () {
             this.on('hide', () => {
                 if (this.value) {
                     this._highlightEntityFn(this.value, false);
+                }
+            });
+
+            if (args.allowDragDrop) {
+                this._initializeDropTarget();
+            }
+        }
+
+        _initializeDropTarget() {
+            editor.call('drop:target', {
+                ref: this,
+                filter: (type, dropData) => {
+                    return (dropData.resource_id && dropData.resource_id !== this.value && type === 'entity');
+                },
+                drop: (type, dropData) => {
+                    this.value = dropData.resource_id;
                 }
             });
         }
@@ -217,6 +248,8 @@ Object.assign(pcui, (function () {
 
     utils.implements(EntityInput, pcui.IBindable);
     utils.implements(EntityInput, pcui.IFocusable);
+
+    pcui.Element.register('entity', EntityInput, { allowDragDrop: true, renderChanges: true });
 
     return {
         EntityInput: EntityInput

@@ -23,6 +23,13 @@ editor.once('load', function() {
         description: 'A curve defining how each particle\'s opacity changes over time. If two curves are specified in the curve editor, the opacity will be a random lerp between both curves.',
         url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#alphaGraph'
     }, {
+        name: 'animTiles',
+        title: 'animTilesX / animTilesY',
+        subTitle: '{Number}',
+        description: 'Number of horizontal / vertical tiles in the sprite sheet',
+        url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#animTilesX'
+
+    }, {
         title: 'animTilesX',
         subTitle: '{Number}',
         description: 'Number of horizontal tiles in the sprite sheet',

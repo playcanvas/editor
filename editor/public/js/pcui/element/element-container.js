@@ -15,6 +15,9 @@ Object.assign(pcui, (function () {
     const CLASS_RESIZABLE_HANDLE = 'pcui-resizable-handle';
     const CLASS_CONTAINER = 'pcui-container';
 
+    const CLASS_DRAGGED = CLASS_CONTAINER + '-dragged';
+    const CLASS_DRAGGED_CHILD = CLASS_DRAGGED + '-child';
+
     /**
      * @event
      * @name pcui.Container#append
@@ -116,6 +119,8 @@ Object.assign(pcui, (function () {
             if (args.resizeMax !== undefined) {
                 this.resizeMax = args.resizeMax;
             }
+
+            this._draggedStartIndex = -1;
         }
 
         /**
@@ -142,11 +147,7 @@ Object.assign(pcui, (function () {
             this._domContent.appendChild(dom);
             const referenceDom =  referenceElement && this._getDomFromElement(referenceElement);
 
-            if ((referenceDom)) {
-                this._domContent.insertBefore(dom, referenceDom);
-            } else {
-                this._domContent.appendChild(dom);
-            }
+            this._domContent.insertBefore(dom, referenceDom);
 
             this._onAppendChild(element);
         }
@@ -203,6 +204,33 @@ Object.assign(pcui, (function () {
             this._domContent.removeChild(dom);
 
             this._onRemoveChild(element);
+        }
+
+        /**
+         * @name pcui.Container#move
+         * @description Moves the specified child at the specified index.
+         * @param {pcui.Element} element The element to move.
+         * @param {Number} index The index
+         */
+        move(element, index) {
+            let idx = -1;
+            for (let i = 0; i < this.dom.childNodes.length; i++) {
+                if (this.dom.childNodes[i].ui === element) {
+                    idx = i;
+                    break;
+                }
+            }
+
+            if (idx === -1) {
+                this.appendBefore(element, this.dom.childNodes[index]);
+            } else if (index !== idx) {
+                this.remove(element);
+                if (index < idx) {
+                    this.appendBefore(element, this.dom.childNodes[index]);
+                } else {
+                    this.appendAfter(element, this.dom.childNodes[index - 1]);
+                }
+            }
         }
 
         /**
@@ -402,6 +430,106 @@ Object.assign(pcui, (function () {
             this._resizeEnd();
         }
 
+        _getDraggedChildIndex(draggedChild) {
+            for (let i = 0; i < this.dom.childNodes.length; i++) {
+                if (this.dom.childNodes[i].ui === draggedChild) {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        _onChildDragStart(evt, childPanel) {
+            this.class.add(CLASS_DRAGGED_CHILD);
+
+            this._draggedStartIndex = this._getDraggedChildIndex(childPanel);
+
+            childPanel.class.add(CLASS_DRAGGED);
+
+            this._draggedHeight = childPanel.height;
+
+            this.emit('child:dragstart', childPanel, this._draggedStartIndex);
+        }
+
+        _onChildDragMove(evt, childPanel) {
+            const rect = this.dom.getBoundingClientRect();
+
+            const dragOut = (evt.clientX < rect.left || evt.clientX > rect.right || evt.clientY < rect.top || evt.clientY > rect.bottom);
+
+            const childPanelIndex = this._getDraggedChildIndex(childPanel);
+
+            if (dragOut) {
+                childPanel.class.remove(CLASS_DRAGGED);
+                if (this._draggedStartIndex !== childPanelIndex) {
+                    this.remove(childPanel);
+                    if (this._draggedStartIndex < childPanelIndex) {
+                        this.appendBefore(childPanel, this.dom.childNodes[this._draggedStartIndex]);
+                    } else {
+                        this.appendAfter(childPanel, this.dom.childNodes[this._draggedStartIndex - 1]);
+                    }
+                }
+
+                return;
+            }
+
+            childPanel.class.add(CLASS_DRAGGED);
+
+            const y = evt.clientY - rect.top;
+            let ind = null;
+
+            // hovered script
+            for (let i = 0; i < this.dom.childNodes.length; i++) {
+                const otherPanel = this.dom.childNodes[i].ui;
+                const otherTop = otherPanel.dom.offsetTop;
+                if (i < childPanelIndex) {
+                    if (y <= otherTop + otherPanel.header.height) {
+                        ind = i;
+                        break;
+                    }
+                } else if (i > childPanelIndex) {
+                    if (y + childPanel.height >= otherTop + otherPanel.height) {
+                        ind = i;
+                        break;
+                    }
+                }
+            }
+
+            if (ind !== null && childPanelIndex !== ind) {
+                this.remove(childPanel);
+                if (ind < childPanelIndex) {
+                    this.appendBefore(childPanel, this.dom.childNodes[ind]);
+                } else {
+                    this.appendAfter(childPanel, this.dom.childNodes[ind - 1]);
+                }
+            }
+        }
+
+        _onChildDragEnd(evt, childPanel) {
+            this.class.remove(CLASS_DRAGGED_CHILD);
+
+            childPanel.class.remove(CLASS_DRAGGED);
+
+            const index = this._getDraggedChildIndex(childPanel);
+
+            this.emit('child:dragend', childPanel, index, this._draggedStartIndex);
+
+            this._draggedStartIndex = -1;
+        }
+
+        forEachChild(fn) {
+            for (let i = 0; i < this.dom.childNodes.length; i++) {
+                const node = this.dom.childNodes[i].ui;
+                if (node) {
+                    const result = fn(node);
+                    if (result === false) {
+                        // early out
+                        break;
+                    }
+                }
+            }
+        }
+
         destroy() {
             if (this._destroyed) return;
             this.domContent = null;
@@ -558,6 +686,8 @@ Object.assign(pcui, (function () {
     utils.implements(Container, pcui.IGrid);
     utils.implements(Container, pcui.IScrollable);
     utils.implements(Container, pcui.IResizable);
+
+    pcui.Element.register('container', Container);
 
     return {
         Container: Container

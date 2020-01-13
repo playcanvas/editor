@@ -22,7 +22,7 @@
 }
 
 // hover / focus states
-.pcui-curve:not(.pcui-disabled):not(.pcui-readonly) {
+.pcui-curve:not(.pcui-disabled):not(.pcui-readonly):not(.pcui-multiple-values) {
     &:hover {
         cursor: pointer;
     }

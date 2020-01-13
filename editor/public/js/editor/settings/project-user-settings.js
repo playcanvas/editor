@@ -35,7 +35,8 @@ editor.once('load', function () {
                     useGlb: false,
                 }
             },
-            branch: config.self.branch.id
+            branch: config.self.branch.id,
+            favoriteBranches: null
         },
         userId: config.self.id
     });
@@ -86,8 +87,17 @@ editor.once('load', function () {
                 settings.set('editor.locale', 'en-US');
             }
 
-            if (!settings.has('editor.pipeline.useGlb'))
+            if (!settings.get('favoriteBranches')) {
+                if (config.project.masterBranch) {
+                    settings.set('favoriteBranches', [config.project.masterBranch]);
+                } else {
+                    settings.set('favoriteBranches', []);
+                }
+            }
+
+            if (!settings.has('editor.pipeline.useGlb')) {
                 settings.set('editor.pipeline.useGlb', true);
+            }
 
             settings.history.enabled = history;
             settings.sync.enabled = sync;

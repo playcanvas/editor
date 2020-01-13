@@ -75,7 +75,7 @@
             height: 24px;
             line-height: 24px;
             text-align: center;
-            color: #d34141;
+            color: $error-secondary;
             @extend .font-icon;
             font-size: 18px;
             text-align: center;
@@ -213,7 +213,6 @@
 }
 
 .pcui-container.hierarchy-controls {
-    margin-left: auto;
     background-color: transparent;
 
     > .ui-button {

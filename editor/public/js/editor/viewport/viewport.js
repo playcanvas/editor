@@ -52,6 +52,12 @@ editor.once('load', function() {
         return app;
     });
 
+    function idleTimeout() {
+        if (!canvas.class.contains('viewport-idle')) {
+            canvas.class.add('viewport-idle');
+        }
+    }
+
     // re-render viewport
     editor.method('viewport:render', function () {
         canvas.class.remove('viewport-idle');
@@ -59,11 +65,7 @@ editor.once('load', function() {
         app.redraw = true;
 
         clearTimeout(idleFlagTimeoutId);
-        idleFlagTimeoutId = setTimeout(function() {
-            if (!canvas.class.contains('viewport-idle')) {
-                canvas.class.add('viewport-idle');
-            }
-        }, idleFlagTimeoutDelay);
+        idleFlagTimeoutId = setTimeout(idleTimeout, idleFlagTimeoutDelay);
     });
 
     // returns true if the viewport should continuously render

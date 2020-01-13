@@ -130,7 +130,6 @@
                     font-size: 12px;
                     vertical-align: top;
                     background-color: transparent;
-                    z-index: 2;
 
                     > .value {
                         @extend .font-bold;
@@ -222,7 +221,7 @@
                         height: 32px;
                         line-height: 32px;
                         text-align: center;
-                        color: #d34141;
+                        color: $error-secondary;
                         @extend .font-icon;
                         font-size: 18px;
                         text-align: center;

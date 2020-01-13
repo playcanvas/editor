@@ -93,6 +93,8 @@ editor.once('load', function () {
 
             this.dstRootEnt = this.dstEnts[dstRootId];
 
+            this.dstRootEnt.name = this.asset.get('name');
+
             this.setInstanceRootFields();
         }
 

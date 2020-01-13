@@ -8,10 +8,14 @@ editor.once('load', function() {
         description: 'The rigidbody Component, when combined with a pc.CollisionComponent, allows your Entities to be simulated using realistic physics. A rigidbody Component will fall under gravity and collide with other rigid bodies, using scripts you can apply forces to the body.',
         url: 'http://developer.playcanvas.com/api/pc.RigidBodyComponent.html'
     }, {
-        name: 'damping',
-        title: 'angularDamping / linearDamping',
+        title: 'linearDamping',
         subTitle: '{Number}',
-        description: 'Controls the rate at which a body loses angular/linear velocity over time.',
+        description: 'Controls the rate at which a body loses linear velocity over time.',
+        url: 'http://developer.playcanvas.com/api/pc.RigidBodyComponent.html#linearDamping'
+    }, {
+        title: 'angularDamping',
+        subTitle: '{Number}',
+        description: 'Controls the rate at which a body loses angular velocity over time.',
         url: 'http://developer.playcanvas.com/api/pc.RigidBodyComponent.html#angularDamping'
     }, {
         title: 'angularFactor',

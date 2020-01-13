@@ -6,17 +6,13 @@ editor.once('load', function() {
         template_id: 1,
         position: 1,
         rotation: 1,
-        name: 1,
-        tags: 1,
-        enabled: 1
+        name: 1
     };
 
     const IGNORE_ROOT_PATHS_FOR_REVERT = [
         'position',
         'rotation',
-        'name',
-        'tags',
-        'enabled'
+        'name'
     ];
 
     editor.method('template:utils', function () {
@@ -199,13 +195,13 @@ editor.once('load', function() {
             return srcToDst[v] || null;
         },
 
-        remapKeys: function(h1, srcToDst) {
+        remapOrAssignKeys: function(h1, srcToDst) {
             const h2 = {};
 
             const a = Object.keys(h1);
 
             a.forEach(k1 => {
-                const k2 = srcToDst[k1];
+                const k2 = srcToDst[k1] || pc.guid.create();
 
                 h2[k2] = h1[k1];
             });

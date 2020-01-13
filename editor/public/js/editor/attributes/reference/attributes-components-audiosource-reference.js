@@ -33,6 +33,16 @@ editor.once('load', function() {
         description: 'minDistance - the distance at which the volume of playback begins to fall from its maximum. maxDistance - The distance at which the volume of playback falls to zero.',
         url: 'http://developer.playcanvas.com/api/pc.AudioSourceComponent.html#maxDistance'
     }, {
+        title: 'minDistance',
+        subTitle: '{Number}',
+        description: 'The distance at which the volume of playback begins to fall from its maximum',
+        url: 'http://developer.playcanvas.com/api/pc.AudioSourceComponent.html#minDistance'
+    }, {
+        title: 'maxDistance',
+        subTitle: '{Number}',
+        description: 'The distance at which the volume of playback falls to zero.',
+        url: 'http://developer.playcanvas.com/api/pc.AudioSourceComponent.html#maxDistance'
+    }, {
         title: 'pitch',
         subTitle: '{Number}',
         description: 'The pitch to playback the audio at. A value of 1 means the audio is played back at the original pitch.',

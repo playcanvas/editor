@@ -2,7 +2,7 @@ editor.once('load', function() {
     'use strict';
 
     var fields = [{
-        name: 'scrollbar',
+        name: 'component',
         title: 'pc.ScrollbarComponent',
         subTitle: '{pc.Component}',
         description: 'A ScrollbarComponent enables a group of entities to behave like a scrollbar, with different visual states for hover and press interactions.',

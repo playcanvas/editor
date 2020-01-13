@@ -540,7 +540,9 @@ Tree.prototype._onDragEnd = function() {
         }
     }
 
-    this.emit('reparent', reparentedItems);
+    if (reparentedItems.length) {
+        this.emit('reparent', reparentedItems);
+    }
 
     this._dragItems = [ ];
 

@@ -25,6 +25,8 @@ Object.assign(pcui, (function () {
             // delete value because we want to set it after
             // the other arguments
             delete args.value;
+            const renderChanges = args.renderChanges || false;
+            delete args.renderChanges;
 
             super(args);
 
@@ -32,11 +34,23 @@ Object.assign(pcui, (function () {
 
             this._min = args.min !== undefined ? args.min : null;
             this._max = args.max !== undefined ? args.max : null;
-            this._precision = args.precision !== undefined ? args.precision : null;
             this._allowNull = args.allowNull || false;
-            this._step = args.step !== undefined ? args.step : 1;
+            this._precision = args.precision !== undefined ? args.precision : null;
+
+            if (args.step !== undefined) {
+                this._step = args.step;
+            } else {
+                if (this._precision !== null) {
+                    this._step = 1 / Math.pow(10, this._precision);
+                } else {
+                    this._step  = 1;
+                }
+            }
+
             this._oldValue = undefined;
             this.value = value;
+
+            this.renderChanges = renderChanges;
         }
 
         _onInputChange(evt) {
@@ -86,8 +100,8 @@ Object.assign(pcui, (function () {
             return value;
         }
 
-        _updateValue(value) {
-            const different = (value !== this._oldValue);
+        _updateValue(value, force) {
+            const different = (value !== this._oldValue || force);
 
             // always set the value to the input because
             // we always want it to show an actual number or nothing
@@ -111,7 +125,8 @@ Object.assign(pcui, (function () {
         set value(value) {
             value = this._normalizeValue(value);
 
-            const changed = this._updateValue(value);
+            const forceUpdate = this.class.contains(pcui.CLASS_MULTIPLE_VALUES) && value === null && this._allowNull;
+            const changed = this._updateValue(value, forceUpdate);
 
             if (changed && this._binding) {
                 this._binding.setValue(value);
@@ -186,6 +201,8 @@ Object.assign(pcui, (function () {
             this._step = value;
         }
     }
+
+    pcui.Element.register('number', NumericInput, { renderChanges: true });
 
     return {
         NumericInput: NumericInput

@@ -69,3 +69,19 @@
         }
     }
 }
+
+.pcui-container-dragged {
+    outline: 2px solid $text-primary;
+    box-sizing: border-box;
+    opacity: 0.7;
+    // background: $bcg-darkest !important;
+    // > * {
+    //     transition: none !important;
+    //     visibility: hidden;
+    // }
+}
+
+.pcui-container-dragged-child {
+    outline: 1px dotted $text-active;
+    box-sizing: border-box;
+}

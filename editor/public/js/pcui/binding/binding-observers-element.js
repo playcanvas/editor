@@ -66,7 +66,17 @@ Object.assign(pcui, (function () {
         link(observers, paths) {
             super.link(observers, paths);
 
+            // don't render changes when we link
+            const renderChanges = this._element.renderChanges;
+            if (renderChanges) {
+                this._element.renderChanges = false;
+            }
+
             this._updateElement();
+
+            if (renderChanges) {
+                this._element.renderChanges = renderChanges;
+            }
 
             if (this._observers.length === 1) {
                 if (this._paths.length > 1) {

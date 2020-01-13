@@ -299,4 +299,8 @@ editor.once('load', function () {
     editor.method('assets:scripts:collide', function (script) {
         return collisionStates[script];
     });
+
+    editor.method('assets:scripts:collideList', function () {
+        return Object.keys(collisionStates);
+    });
 });

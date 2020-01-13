@@ -6,6 +6,7 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.CurveInput
      * @classdesc Shows a curve or curveset
+     * @property {Boolean} renderChanges If true the input will flash when changed.
      * @extends pcui.Element
      */
     class CurveInput extends pcui.Element {
@@ -19,11 +20,13 @@ Object.assign(pcui, (function () {
          * @param {Boolean} [args.hideRandomize] Whether to hide the randomize button in the curve picker.
          */
         constructor(args) {
-            if (!args) args = {};
+            args = Object.assign({
+                tabIndex: 0
+            }, args);
+
             super(document.createElement('div'), args);
 
             this.class.add(CLASS_CURVE);
-            this.dom.tabIndex = 0;
 
             this._canvas = new pcui.Canvas();
             this.dom.appendChild(this._canvas.dom);
@@ -75,6 +78,14 @@ Object.assign(pcui, (function () {
             if (args.value) {
                 this.value = args.value;
             }
+
+            this.renderChanges = args.renderChanges || false;
+
+            this.on('change', () => {
+                if (this.renderChanges) {
+                    this.flash();
+                }
+            });
 
             // arguments for the curve picker
             this._pickerArgs = {
@@ -133,7 +144,6 @@ Object.assign(pcui, (function () {
                 this._pickerChanging = true;
 
                 if (this._binding) {
-                    console.log('combine start');
                     this._combineHistory = this._binding.historyCombine;
                     this._historyPostfix = this._binding.historyPostfix;
 
@@ -151,7 +161,6 @@ Object.assign(pcui, (function () {
                 this._pickerChanging = false;
 
                 if (this._binding) {
-                    console.log('combine end');
                     this._binding.historyCombine = this._combineHistory;
                     this._binding.historyPostfix = this._historyPostfix;
 
@@ -197,10 +206,8 @@ Object.assign(pcui, (function () {
                 if (!curve) continue;
 
                 if (parts.length === 3) {
-                    console.log(parts, curve[parts[1]][parseInt(parts[2], 10)].equals(values[i]));
                     curve[parts[1]][parseInt(parts[2], 10)] = values[i];
                 } else {
-                    console.log(parts, curve[parts[1]].equals(values[i]));
                     curve[parts[1]] = values[i];
                 }
             }
@@ -405,6 +412,8 @@ Object.assign(pcui, (function () {
 
     utils.implements(CurveInput, pcui.IBindable);
     utils.implements(CurveInput, pcui.IFocusable);
+
+    pcui.Element.register('curveset', CurveInput, { renderChanges: true });
 
     return {
         CurveInput: CurveInput

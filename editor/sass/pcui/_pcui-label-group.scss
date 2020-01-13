@@ -6,23 +6,21 @@
     margin: $element-margin;
 
     // set width for label and don't let it shrink
-    > .pcui-label {
+    > .pcui-label:first-child {
         width: 100px;
         flex-shrink: 0;
         margin: 0;
     }
 
     // remove top margin from sub elements
-    > .pcui-element {
-        margin-top: 0;
-        margin-bottom: 0;
+    > .pcui-element:not(:first-child) {
+        margin: 0 0 0 $element-margin;
     }
 
     // field should be stretched
     // except for ones marked
     // as specifically not flexible
-    > .pcui-element:last-child {
-        margin: 0 0 0 $element-margin;
+    > .pcui-element:nth-child(2) {
         &:not(.pcui-not-flexible) {
             flex: 1;
         }
@@ -37,8 +35,15 @@
     }
 }
 
+.pcui-label-group-align-top {
+    > .pcui-label:first-child {
+        align-self: flex-start;
+        margin-top: 4px;
+    }
+}
+
 .pcui-label-group.pcui-disabled {
-    > .pcui-label {
+    > .pcui-label:first-child {
         opacity: $element-opacity-disabled;
     }
 }

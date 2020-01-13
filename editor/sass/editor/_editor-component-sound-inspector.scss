@@ -1,0 +1,11 @@
+.sound-component-inspector-slot {
+    margin: $element-margin;
+
+    > .pcui-panel-content {
+        padding-top: $element-margin;
+    }
+}
+
+.sound-component-inspector-slot + .sound-component-inspector-slot {
+    margin-top: -$element-margin / 2;
+}

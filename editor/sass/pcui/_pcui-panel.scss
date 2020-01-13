@@ -20,12 +20,17 @@
     overflow: hidden;
     text-overflow: ellipsis;
     flex-shrink: 1;
+    @extend .font-bold;
+    @extend .font-smooth;
+    color: inherit;
+    font-size: inherit;
+    white-space: inherit;
+    margin: 0 auto 0 0;
 }
 
 // contents of panel
 .pcui-panel-content {
-    flex-grow: 1;
-    flex-basis: 0;
+    flex: 1;
 }
 
 // collapsible panel
@@ -147,6 +152,84 @@
             transition: none;
         }
     }
+}
+
+// sortable panel
+.pcui-panel-header {
+    > .pcui-panel-sortable-icon {
+        color: $text-darkest;
+        transition: color 100ms;
+
+        @extend .pcui-flex;
+        flex-direction: row;
+        align-items: center;
+        margin: 0 10px 0 0;
+        height: 100%;
+
+        // left border
+        &:before {
+            content: ' ';
+            border-left: 1px solid $bcg-primary;
+            margin-right: 10px;
+            height: calc(100% - 14px);
+            flex-shrink: 0;
+        }
+
+        // dots
+        &:after {
+            content: '.. .. ..';
+            white-space: normal;
+            width: 12px;
+            line-height: 5px;
+            overflow: hidden;
+            height: 24px;
+            font-size: 22px;
+            letter-spacing: 1px;
+            flex-shrink: 0;
+        }
+    }
+}
+
+// hover on sortable
+.pcui-panel:not(.pcui-disabled):not(.pcui-readonly) {
+    > .pcui-panel-header {
+        > .pcui-panel-sortable-icon:hover {
+            color: $text-primary;
+            cursor: move;
+        }
+    }
+}
+
+// hide left border of sortable icon if panel is not collapsible
+.pcui-panel:not(.pcui-collapsible) {
+    > .pcui-panel-header {
+        > .pcui-panel-sortable-icon:before {
+            display: none;
+        }
+    }
+}
+
+// remove button
+.pcui-panel-remove {
+    align-self: flex-end;
+    order: 100; // always put remove button last
+    &:before {
+        line-height: 30px;
+    }
+}
+
+// hide remove button if readonly
+.pcui-panel.pcui-readonly {
+    .pcui-panel-remove {
+        display: none;
+    }
+}
+
+.pcui-panel-header > .pcui-button {
+    flex-shrink: 0;
+    margin: 1px;
+    background-color: transparent;
+    border: 0;
 }
 
 // disabled panel

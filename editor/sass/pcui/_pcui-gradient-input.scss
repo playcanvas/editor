@@ -5,7 +5,6 @@
     box-sizing: border-box;
     margin: $element-margin;
     transition: opacity 100ms, box-shadow 100ms;
-    cursor: pointer;
 
     border: 1px solid $bcg-darker;
     background-color: $bcg-dark;
@@ -23,7 +22,7 @@
 }
 
 // hover / focus states
-.pcui-gradient:not(.pcui-disabled):not(.pcui-readonly) {
+.pcui-gradient:not(.pcui-disabled):not(.pcui-readonly):not(.pcui-multiple-values) {
     &:hover, &:focus {
         cursor: pointer;
         box-shadow: $element-shadow-hover;

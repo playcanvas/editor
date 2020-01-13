@@ -29,6 +29,16 @@ editor.once('load', function() {
         description: 'The distance in camera space from the camera\'s eye point to the near and far clip planes.',
         url: 'http://developer.playcanvas.com/api/pc.CameraComponent.html#farClip'
     }, {
+        title: 'nearClip',
+        subTitle: '{Number}',
+        description: 'The distance in camera space from the camera\'s eye point to the near plane.',
+        url: 'http://developer.playcanvas.com/api/pc.CameraComponent.html#nearClip'
+    }, {
+        title: 'farClip',
+        subTitle: '{Number}',
+        description: 'The distance in camera space from the camera\'s eye point to the far plane.',
+        url: 'http://developer.playcanvas.com/api/pc.CameraComponent.html#farClip'
+    }, {
         title: 'fov',
         subTitle: '{Number}',
         description: 'Field of View is the angle between top and bottom clip planes of a perspective camera.',
