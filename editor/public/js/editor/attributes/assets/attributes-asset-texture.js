@@ -908,9 +908,7 @@ editor.once('load', function() {
                     if (variants.indexOf('pvr') !== -1)
                         task.options.pvrBpp = assets[i].get('meta.compress.pvrBpp');
 
-                    if (variants.indexOf('basis') !== -1) {
-                        task.options.quality = assets[i].get('meta.compress.quality');
-                    }
+                    task.options.quality = assets[i].get('meta.compress.quality');
 
                     var sourceId = assets[i].get('source_asset_id');
                     if (sourceId) {
