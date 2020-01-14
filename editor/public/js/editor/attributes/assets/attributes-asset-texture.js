@@ -467,7 +467,6 @@ editor.once('load', function() {
         var calculateSize = function(format) {
             formats[format].size = 0;
             formats[format].vram = 0;
-
             for(var i = 0; i < assets.length; i++) {
                 if (! assets[i].get('file'))
                     continue;
@@ -475,7 +474,17 @@ editor.once('load', function() {
                 var size = assets[i].get('file.variants.' + format + '.size') || 0;
                 var sizeGzip = assets[i].get('file.variants.' + format + '.sizeGzip') || 0;
 
-                if (size) formats[format].vram += size - 128;
+                if (format === 'basis') {
+                    var width = assets[i].get('meta.width');
+                    var height = assets[i].get('meta.height');
+                    var depth = 1;
+                    var pixelFormat = pc.PIXELFORMAT_DXT1;
+                    var mipmaps = assets[i].get('data.mipmaps');
+                    var cubemap = false;
+                    formats['basis'].vram += pc.Texture.calcGpuSize(width, height, depth, pixelFormat, mipmaps, cubemap);
+                } else {
+                    if (size) formats[format].vram += size - 128;
+                }
                 if (sizeGzip || size) formats[format].size += (sizeGzip || size) - 128;
             }
         };
