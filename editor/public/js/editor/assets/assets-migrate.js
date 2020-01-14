@@ -37,7 +37,8 @@ editor.once('load', function() {
                         pvrBpp: 4,
                         etc1: false,
                         etc2: false,
-                        basis: false
+                        basis: false,
+                        quality: 128
                     });
                 } else {
                     if (! asset.has('meta.compress.normals'))
@@ -57,6 +58,9 @@ editor.once('load', function() {
 
                     if (! asset.has('meta.compress.basis'))
                         asset.set('meta.compress.basis', false);
+
+                    if (! asset.has('meta.compress.quality'))
+                        asset.set('meta.compress.quality', 128);
                 }
             }
             if (asset.get('data')) {
