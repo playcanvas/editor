@@ -38,7 +38,7 @@ editor.once('load', function() {
                         etc1: false,
                         etc2: false,
                         basis: false,
-                        quality: 2
+                        quality: 128
                     });
                 } else {
                     if (! asset.has('meta.compress.normals'))
@@ -60,7 +60,7 @@ editor.once('load', function() {
                         asset.set('meta.compress.basis', false);
 
                     if (! asset.has('meta.compress.quality'))
-                        asset.set('meta.compress.quality', 2);
+                        asset.set('meta.compress.quality', 128);
                 }
             }
             if (asset.get('data')) {

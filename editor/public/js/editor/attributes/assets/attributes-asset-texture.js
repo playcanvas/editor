@@ -790,16 +790,16 @@ editor.once('load', function() {
                 enum: [
                     { v: '', t: '...' },
                     { v: 0, t: 'Lowest' },
-                    { v: 1, t: 'Low' },
-                    { v: 2, t: 'Default' },
-                    { v: 3, t: 'High' },
-                    { v: 4, t: 'Highest' }
+                    { v: 64, t: 'Low' },
+                    { v: 128, t: 'Default' },
+                    { v: 192, t: 'High' },
+                    { v: 255, t: 'Highest' }
                 ],
                 link: assets,
                 path: 'meta.compress.quality'
             });
             fieldQuality.flexGrow = 0;
-            fieldQuality.style.width = '62px';
+            fieldQuality.style.width = '72px';
             // reference
             editor.call('attributes:reference:attach', 'asset:texture:compress:quality', fieldQuality);
 
