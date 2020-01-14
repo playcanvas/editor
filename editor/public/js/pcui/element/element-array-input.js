@@ -15,6 +15,7 @@ Object.assign(pcui, (function () {
         asset: null,
         entity: null,
         rgb: [1, 1, 1],
+        rgba: [1, 1, 1, 1],
         vec2: [0, 0],
         vec3: [0, 0, 0],
         vec4: [0, 0, 0, 0],
