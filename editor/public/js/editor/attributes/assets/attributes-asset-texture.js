@@ -467,7 +467,6 @@ editor.once('load', function() {
         var calculateSize = function(format) {
             formats[format].size = 0;
             formats[format].vram = 0;
-
             for(var i = 0; i < assets.length; i++) {
                 if (! assets[i].get('file'))
                     continue;
@@ -475,7 +474,17 @@ editor.once('load', function() {
                 var size = assets[i].get('file.variants.' + format + '.size') || 0;
                 var sizeGzip = assets[i].get('file.variants.' + format + '.sizeGzip') || 0;
 
-                if (size) formats[format].vram += size - 128;
+                if (format === 'basis') {
+                    var width = assets[i].get('meta.width');
+                    var height = assets[i].get('meta.height');
+                    var depth = 1;
+                    var pixelFormat = pc.PIXELFORMAT_DXT1;
+                    var mipmaps = assets[i].get('data.mipmaps');
+                    var cubemap = false;
+                    formats['basis'].vram += pc.Texture.calcGpuSize(width, height, depth, pixelFormat, mipmaps, cubemap);
+                } else {
+                    if (size) formats[format].vram += size - 128;
+                }
                 if (sizeGzip || size) formats[format].size += (sizeGzip || size) - 128;
             }
         };
@@ -774,13 +783,26 @@ editor.once('load', function() {
             // reference
             editor.call('attributes:reference:attach', 'asset:texture:compress:basis', fieldBasis.parent.innerElement.firstChild.ui);
 
+            // compression quality
+            var fieldQuality = editor.call('attributes:addField', {
+                panel: fieldBasis.parent,
+                type: 'number',
+                enum: [
+                    { v: '', t: '...' },
+                    { v: 0, t: 'Lowest' },
+                    { v: 64, t: 'Low' },
+                    { v: 128, t: 'Default' },
+                    { v: 192, t: 'High' },
+                    { v: 255, t: 'Highest' }
+                ],
+                link: assets,
+                path: 'meta.compress.quality'
+            });
+            fieldQuality.flexGrow = 0;
+            fieldQuality.style.width = '72px';
+            // reference
+            editor.call('attributes:reference:attach', 'asset:texture:compress:quality', fieldQuality);
 
-            // add basis module import
-            if (!editor.call('project:module:hasModule', 'basis')) {
-                editor.call('attributes:appendImportModule', panelCompression, 'basis.js', 'basis');
-            }
-
-        
             // label
             var labelBasisSize = labelSize['basis'] = new ui.Label({
                 text: bytesToHuman(formats.basis.size) + ' [VRAM ' + bytesToHuman(formats.basis.vram) + ']'
@@ -788,6 +810,11 @@ editor.once('load', function() {
             labelBasisSize.class.add('size');
             if (! formats.basis.size && ! formats.basis.vram) labelBasisSize.text = '-';
             fieldBasis.parent.append(labelBasisSize);
+
+            // add basis module import
+            if (!editor.call('project:module:hasModule', 'basis')) {
+                editor.call('attributes:appendImportModule', panelCompression, 'basis.js', 'basis');
+            }
         }
 
         checkFormats();
@@ -881,6 +908,9 @@ editor.once('load', function() {
                     if (variants.indexOf('pvr') !== -1)
                         task.options.pvrBpp = assets[i].get('meta.compress.pvrBpp');
 
+                    if (variants.indexOf('basis') !== -1)
+                        task.options.quality = assets[i].get('meta.compress.quality');
+
                     var sourceId = assets[i].get('source_asset_id');
                     if (sourceId) {
                         var sourceAsset = editor.call('assets:get', sourceId);
@@ -909,6 +939,7 @@ editor.once('load', function() {
             var normals = !!asset.get('meta.compress.normals');
             var compress = asset.get('meta.compress.' + format);
             var mipmaps = asset.get('data.mipmaps');
+            var quality = asset.get('meta.compress.quality');
 
             if (!! data !== compress) {
                 if (format === 'etc1' && alpha)
@@ -937,8 +968,11 @@ editor.once('load', function() {
             if (data && ((data.opt & 4) !== 0) !== ! mipmaps)
                 return true;
 
-            if (format === 'basis' && data && (!!(data.opt & 8) !== normals))
-                return true;
+            if (format === 'basis' && data) {
+                if ((!!(data.opt & 8) !== normals) || (data.quality === undefined) || (data.quality !== quality)) {
+                    return true;
+                }
+            }
 
             return false;
         };
@@ -1047,7 +1081,7 @@ editor.once('load', function() {
         });
     });
 
-    // append the physics module controls to the provided panel
+    // append the basis module controls to the provided panel
     editor.method('attributes:appendImportModule', function(panel, moduleStoreName, wasmFilename) {
         // button
         var button = new pcui.Button({
