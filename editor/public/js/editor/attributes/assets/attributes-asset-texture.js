@@ -532,7 +532,6 @@ editor.once('load', function() {
             var rgbm = -1;
             var alpha = -1;
             var alphaValid = -1;
-            var quality = -1;
 
             for(var i = 0; i < assets.length; i++) {
                 if (assets[i].has('meta.width')) {
@@ -594,14 +593,6 @@ editor.once('load', function() {
                         if (!thisPOT || thisWidth !== thisHeight) {
                             assets[i].set('meta.compress.pvr', true);
                         }
-                    }
-                }
-
-                if (quality === -1) {
-                    quality = assets[i].get('meta.compress.quality');
-                } else if (quality !== -2) {
-                    if (quality !== assets[i].get('meta.compress.quality')) {
-                        quality = -2;
                     }
                 }
             }
@@ -917,7 +908,8 @@ editor.once('load', function() {
                     if (variants.indexOf('pvr') !== -1)
                         task.options.pvrBpp = assets[i].get('meta.compress.pvrBpp');
 
-                    task.options.quality = assets[i].get('meta.compress.quality');
+                    if (variants.indexOf('basis') !== -1)
+                        task.options.quality = assets[i].get('meta.compress.quality');
 
                     var sourceId = assets[i].get('source_asset_id');
                     if (sourceId) {
