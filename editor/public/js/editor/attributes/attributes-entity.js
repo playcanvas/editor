@@ -1,7 +1,7 @@
 editor.once('load', function() {
     'use strict';
 
-    const useLegacyComponentInspectors = !editor.call('users:hasFlag', 'hasPcuiComponentInspectors');
+    const useLegacyComponentInspectors = false;
 
     var panelComponents;
     const projectSettings = editor.call('settings:project');
