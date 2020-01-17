@@ -4,75 +4,62 @@ Object.assign(pcui, (function () {
     const CLASS_ROOT = 'asset-inspector';
     const CLASS_DOWNLOAD_ASSET = CLASS_ROOT + '-download-asset';
 
-    const ATTRIBUTES = [
-        {
-            label: 'ID',
-            path: 'id',
-            type: 'label'
-        }, {
-            label: 'Name',
-            path: 'name',
-            type: 'string'
-        }, {
-            label: 'Tags',
-            path: 'tags',
-            type: 'tags',
-            args: {
-                type: 'string',
-                placeholder: 'Add Tags'
-            }
-        }, {
-            label: 'Runtime',
-            path: 'source',
-            type: 'label',
-            args: {
-                formatTextMap: {
-                    'true': 'yes',
-                    'false': 'no'
-                }
-            }
-        }, {
-            label: 'Type',
-            path: 'type',
-            type: 'label',
-            args: {
-                formatTextMap: {
-                    'scene': 'Source scene'
-                }
-            }
-        }, {
-            label: 'Preload',
-            path: 'preload',
-            type: 'boolean'
-        }, {
-            label: 'Size',
-            path: 'file.size',
-            type: 'label',
-            args: {
-                formatText: bytesToHuman
-            }
-        }, {
-            label: 'Source',
-            path: 'source_asset_id',
-            type: 'label',
-            args: {
-                formatText: (source_asset_id) => {
-                    var name = '';
-                    var assets = editor.call('assets:raw').data;
-                    assets.forEach(asset => {
-                        if (asset._data.id == source_asset_id) {
-                            name = asset._data.name;
-                        }
-                    })
-                    return name;
-                }
-            }
+    const ATTRIBUTES = [{
+        label: 'ID',
+        path: 'id',
+        type: 'label'
+    }, {
+        label: 'Name',
+        path: 'name',
+        type: 'string'
+    }, {
+        label: 'Tags',
+        path: 'tags',
+        type: 'tags',
+        args: {
+            type: 'string',
+            placeholder: 'Add Tags'
         }
-    ];
+    }, {
+        label: 'Runtime',
+        alias: 'source',
+        type: 'boolean',
+        args: {
+            renderChanges: false,
+            readOnly: true
+        }
+    }, {
+        label: 'Type',
+        alias: 'type',
+        type: 'label',
+        args: {
+            renderChanges: false
+        }
+    }, {
+        label: 'Preload',
+        path: 'preload',
+        type: 'boolean'
+    }, {
+        label: 'Size',
+        alias: 'size',
+        type: 'label',
+        args: {
+            renderChanges: false
+        }
+    }, {
+        label: 'Source',
+        alias: 'source_asset_id',
+        type: 'label',
+        args: {
+            renderChanges: false
+        }
+    }];
 
     ATTRIBUTES.forEach(attr => {
-        const parts = attr.path.split('.');
-        attr.reference = `entity:${parts[parts.length - 1]}`;
+        const path = attr.alias || attr.path;
+        if (!path) return;
+        const parts = path.split('.');
+        attr.reference = `asset:${parts[parts.length - 1]}`;
     });
 
     class AssetInspector extends pcui.Container {
@@ -95,7 +82,7 @@ Object.assign(pcui, (function () {
 
             // add component button
             this._btnDownloadAsset = new pcui.Button({
-                text: 'Download',
+                text: 'DOWNLOAD',
                 icon: 'E228',
                 flexGrow: 1,
                 class: CLASS_DOWNLOAD_ASSET
@@ -133,6 +120,10 @@ Object.assign(pcui, (function () {
                     this.append(inspector);
                 }
             });
+
+            this._assetsList = args.assets;
+            this._assets = null;
+            this._assetEvents = [];
         }
 
         _onClickDownloadAsset(evt) {
@@ -150,6 +141,14 @@ Object.assign(pcui, (function () {
             }
         }
 
+        _updateFileSize(assets) {
+            if (!this._assets) return;
+
+            this._attributesInspector.getField('size').values = this._assets.map(asset => {
+                return asset.has('file.size') ? bytesToHuman(asset.get('file.size')) : bytesToHuman(0);
+            });
+        }
+
         link(assets) {
             this.unlink();
 
@@ -158,6 +157,27 @@ Object.assign(pcui, (function () {
             this._assets = assets;
 
             this._attributesInspector.link(assets);
+
+            this._attributesInspector.getField('source').values = assets.map(asset => !asset.get('source'));
+            this._attributesInspector.getField('type').values = assets.map(asset => {
+                if (asset.get('type') === 'scene') {
+                    return 'Source Scene';
+                }
+
+                return asset.get('type');
+            });
+            this._updateFileSize();
+            assets.forEach(asset => {
+                this._assetEvents.push(asset.on('file.size:set', this._updateFileSize.bind(this)));
+            })
+
+            this._attributesInspector.getField('source_asset_id').values = assets.map(asset => {
+                const sourceAssetId = asset.get('source_asset_id');
+                if (!sourceAssetId) return null;
+
+                const sourceAsset = this._assetsList.get(sourceAssetId);
+                return sourceAsset ? sourceAsset.get('name') : sourceAssetId;
+            });
 
             this._assetTypes.forEach(assetType => {
                 if (assetType == assets[0]._data.type) {
@@ -171,6 +191,9 @@ Object.assign(pcui, (function () {
             super.unlink();
 
             if (!this._assets) return;
+
+            this._assetEvents.forEach(evt => evt.unbind());
+            this._assetEvents.length = 0;
 
             this._assets = null;
 
