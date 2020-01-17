@@ -39,22 +39,3 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'asset:animation:name', fieldName.parent.innerElement.firstChild.ui);
     });
 });
-
-// link data to fields when inspecting
-//     editor.on('attributes:inspect[entity]', function(entities) {
-//         if (entities.length > 1) {
-//             editor.call('attributes:header', entities.length + ' Entities');
-//         } else {
-//             editor.call('attributes:header', 'Entity');
-//         }
-
-//         var root = editor.call('attributes.rootPanel');
-
-//         if (!useLegacyComponentInspectors) {
-//             if (!entityInspector.parent)
-//                 root.append(entityInspector);
-
-//             entityInspector.link(entities);
-
-//             return;
-//         }
