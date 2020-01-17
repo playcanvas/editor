@@ -2,10 +2,6 @@ Object.assign(pcui, (function () {
     'use strict';
 
     const CLASS_ROOT = 'asset-inspector';
-    // const CLASS_OVERRIDES = CLASS_ROOT + '-overrides';
-    // const CLASS_NO_COMPONENTS = CLASS_ROOT + '-no-components';
-    // const CLASS_ADD_COMPONENT = CLASS_ROOT + '-add-component';
-    const CLASS_DOWNLOAD_ASSET = CLASS_ROOT + '-download-asset';
 
     const ATTRIBUTES = [
         {
@@ -161,38 +157,6 @@ Object.assign(pcui, (function () {
             //     });
             // }/ }
         }
-        _onInspectAsset() {
-
-        }
-        // _onSetComponent(component) {
-        //     if (!this._componentInspectors[component]) return;
-
-        //     this._componentInspectors[component].hidden = false;
-        //     this._componentInspectors[component].link(this._entities);
-
-        //     this.class.remove(CLASS_NO_COMPONENTS);
-        // }
-
-        // _onUnsetComponent(component) {
-        //     if (!this._componentInspectors[component]) return;
-
-        //     this._componentInspectors[component].unlink();
-        //     this._componentInspectors[component].hidden = true;
-
-        //     let hasComponents = false;
-        //     for (const key in this._componentInspectors) {
-        //         if (!this._componentInspectors[key].hidden) {
-        //             hasComponents = true;
-        //             break;
-        //         }
-        //     }
-
-        //     if (hasComponents) {
-        //         this.class.remove(CLASS_NO_COMPONENTS);
-        //     } else {
-        //         this.class.add(CLASS_NO_COMPONENTS);
-        //     }
-        // }
 
         link(assets) {
             this.unlink();

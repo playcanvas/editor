@@ -15,8 +15,6 @@ Object.assign(pcui, (function () {
         },
     ];
 
-    //ETODO
-
     class AssetAnimationInspector extends pcui.Panel {
         constructor(args) {
             args = Object.assign({}, args);
