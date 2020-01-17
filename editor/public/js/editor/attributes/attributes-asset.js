@@ -21,6 +21,21 @@ editor.once('load', function() {
     var assetsPanel = null;
 
     editor.on('attributes:inspect[asset]', function(assets) {
+        var assetInspector = new pcui.AssetInspector({
+            assets: editor.call('assets:raw'),
+            projectSettings: editor.call('settings:project'),
+            history: editor.call('editor:history'),
+        });
+
+        var root = editor.call('attributes.rootPanel');
+
+        if (!assetInspector.parent)
+            root.append(assetInspector);
+
+        assetInspector.link(assets);
+    });
+
+    editor.on('attributes:inspect[asset]old', function(assets) {
         var events = [ ];
 
         // unfold panel
