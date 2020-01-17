@@ -15,7 +15,7 @@ Object.assign(pcui, (function () {
         },
     ];
 
-    class AssetAnimationInspector extends pcui.Panel {
+    class AnimationAssetInspector extends pcui.Panel {
         constructor(args) {
             args = Object.assign({}, args);
             args.headerText = 'ANIMATION';
@@ -42,6 +42,6 @@ Object.assign(pcui, (function () {
     }
 
     return {
-        AssetAnimationInspector: AssetAnimationInspector
+        AnimationAssetInspector: AnimationAssetInspector
     };
 })());

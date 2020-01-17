@@ -103,7 +103,7 @@ Object.assign(pcui, (function () {
             this._btnDownloadAsset.hidden = !editor.call('permissions:read');
             var evtBtnDownloadPermissions = editor.on('permissions:set:' + config.self.id, function() {
                 this._btnDownloadAsset.hidden = ! editor.call('permissions:read');
-            });                
+            });
             this._btnDownloadAsset.once('destroy', function() {
                 evtBtnDownloadPermissions.unbind();
             });
@@ -119,7 +119,7 @@ Object.assign(pcui, (function () {
             this._assetTypes.forEach(assetType => {
 
                 // check if class exists
-                const cls = `Asset${assetType[0].toUpperCase()}${assetType.substring(1)}Inspector`;
+                const cls = `${assetType[0].toUpperCase()}${assetType.substring(1)}AssetInspector`;
                 if (pcui.hasOwnProperty(cls)) {
                     const inspector = new pcui[cls]({
                         hidden: true,
@@ -132,7 +132,7 @@ Object.assign(pcui, (function () {
 
                     this.append(inspector);
                 }
-            }); 
+            });
         }
 
         _onClickDownloadAsset(evt) {
@@ -184,6 +184,6 @@ Object.assign(pcui, (function () {
     }
 
     return {
-        AssetInspector: AssetInspector 
+        AssetInspector: AssetInspector
     };
 })());
