@@ -82,7 +82,6 @@ Object.assign(pcui, (function () {
                 }
             } else if (this.formatText){
                 value = this.formatText(value);
-                console.log(this);
             }
 
             if (value === undefined || value === null) {
