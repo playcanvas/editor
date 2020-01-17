@@ -35,7 +35,7 @@ editor.once('load', function() {
         assetInspector.link(assets);
     });
 
-    editor.on('attributes:inspect[asset]old', function(assets) {
+    editor.on('attributes:inspect[asset]#######OLD', function(assets) {
         var events = [ ];
 
         // unfold panel

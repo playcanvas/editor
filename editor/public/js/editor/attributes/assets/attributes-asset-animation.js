@@ -1,70 +1,42 @@
 editor.once('load', function() {
     'use strict';
 
-    editor.on('attributes:inspect[asset]', function(assets) {
-        if (false) {
-            if (assets.length !== 1 || assets[0].get('type') !== 'animation' || assets[0].get('source'))
-                return;
-
-            var asset = assets[0];
-
-            // panel
-            var panel = editor.call('attributes:addPanel', {
-                name: 'Animation'
-            });
-            panel.class.add('component');
-            // reference
-            editor.call('attributes:reference:attach', 'asset:animation:asset', panel, panel.headerElement);
-
-
-            // duration
-            var fieldDuration = editor.call('attributes:addField', {
-                parent: panel,
-                name: 'Duration',
-                placeholder: 'Seconds',
-                link: asset,
-                path: 'meta.duration'
-            });
-            // reference
-            editor.call('attributes:reference:attach', 'asset:animation:duration', fieldDuration.parent.innerElement.firstChild.ui);
-
-
-            // name
-            var fieldName = editor.call('attributes:addField', {
-                parent: panel,
-                name: 'Name',
-                link: asset,
-                path: 'meta.name'
-            });
-            // reference
-            editor.call('attributes:reference:attach', 'asset:animation:name', fieldName.parent.innerElement.firstChild.ui);
-        } else {
-
-            if (assets.length !== 1 || assets[0].get('type') !== 'animation' || assets[0].get('source')) {
-                if (assetAnimationInspector.parent) {
-                    assetAnimationInspector.parent.remove(assetAnimationInspector);
-                }
-                return;
-            }
-
-            var assetAnimationInspector = new pcui.AssetAnimationInspector({
-                assets: editor.call('assets:raw'),
-                // entities: editor.call('entities:raw'),
-                projectSettings: editor.call('settings:project'),
-                history: editor.call('editor:history'),
-                // templateOverridesDiffView: templateOverrides
-            });
-
-            var root = editor.call('attributes.rootPanel');
-            // if (!useLegacyComponentInspectors) {
-            if (!assetAnimationInspector.parent)
-                root.append(assetAnimationInspector);
-
-            assetAnimationInspector.link(assets);
-
+    editor.on('attributes:inspect[asset]#######OLD', function(assets) {
+        if (assets.length !== 1 || assets[0].get('type') !== 'animation' || assets[0].get('source'))
             return;
-            // }
-        }
+
+        var asset = assets[0];
+
+        // panel
+        var panel = editor.call('attributes:addPanel', {
+            name: 'Animation'
+        });
+        panel.class.add('component');
+        // reference
+        editor.call('attributes:reference:attach', 'asset:animation:asset', panel, panel.headerElement);
+
+
+        // duration
+        var fieldDuration = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Duration',
+            placeholder: 'Seconds',
+            link: asset,
+            path: 'meta.duration'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:animation:duration', fieldDuration.parent.innerElement.firstChild.ui);
+
+
+        // name
+        var fieldName = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Name',
+            link: asset,
+            path: 'meta.name'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'asset:animation:name', fieldName.parent.innerElement.firstChild.ui);
     });
 });
 
