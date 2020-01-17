@@ -2,6 +2,7 @@ Object.assign(pcui, (function () {
     'use strict';
 
     const CLASS_ROOT = 'asset-inspector';
+    const CLASS_DOWNLOAD_ASSET = CLASS_ROOT + '-download-asset';
 
     const ATTRIBUTES = [
         {
@@ -93,15 +94,22 @@ Object.assign(pcui, (function () {
             this.append(this._attributesInspector);
 
             // add component button
-            const btnDownloadAsset = new pcui.Button({
+            this._btnDownloadAsset = new pcui.Button({
                 text: 'Download',
                 icon: 'E228',
                 flexGrow: 1,
                 class: CLASS_DOWNLOAD_ASSET
             });
-            this.append(btnDownloadAsset);
+            this._btnDownloadAsset.hidden = !editor.call('permissions:read');
+            var evtBtnDownloadPermissions = editor.on('permissions:set:' + config.self.id, function() {
+                this._btnDownloadAsset.hidden = ! editor.call('permissions:read');
+            });                
+            this._btnDownloadAsset.once('destroy', function() {
+                evtBtnDownloadPermissions.unbind();
+            });
+            this.append(this._btnDownloadAsset);
 
-            btnDownloadAsset.on('click', this._onClickDownloadAsset.bind(this));
+            this._btnDownloadAsset.on('click', this._onClickDownloadAsset.bind(this));
 
             // add typed asset inspectors
             this._typedAssetInspectors = {};
@@ -128,34 +136,18 @@ Object.assign(pcui, (function () {
         }
 
         _onClickDownloadAsset(evt) {
-            alert('no download setup');
-            // if (assets[0].get('type') !== 'folder' && ! (legacyScripts && assets[0].get('type') === 'script') && assets[0].get('type') !== 'sprite') {
-            //     // download
-            //     var btnDownload = new ui.Button();
+            var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
+            if (this._assets[0].get('type') !== 'folder' && ! (legacyScripts && this._assets[0].get('type') === 'script') && this._assets[0].get('type') !== 'sprite') {
+                // download
+                if (this._btnDownloadAsset.prevent)
+                    return;
 
-            //     btnDownload.hidden = ! editor.call('permissions:read');
-            //     var evtBtnDownloadPermissions = editor.on('permissions:set:' + config.self.id, function() {
-            //         btnDownload.hidden = ! editor.call('permissions:read');
-            //     });
-
-            //     btnDownload.text = 'Download';
-            //     btnDownload.class.add('download-asset', 'large-with-icon');
-            //     btnDownload.element.addEventListener('click', function(evt) {
-            //         if (btnDownload.prevent)
-            //             return;
-
-            //         if (assets[0].get('source') || assets[0].get('type') === 'texture' || assets[0].get('type') === 'audio') {
-            //             window.open(assets[0].get('file.url'));
-            //         } else {
-            //             window.open('/api/assets/' + assets[0].get('id') + '/download?branchId=' + config.self.branch.id);
-            //         }
-            //     });
-            //     panelButtons.append(btnDownload);
-
-            //     btnDownload.once('destroy', function() {
-            //         evtBtnDownloadPermissions.unbind();
-            //     });
-            // }/ }
+                if (this._assets[0].get('source') || this._assets[0].get('type') === 'texture' || this._assets[0].get('type') === 'audio') {
+                    window.open(this._assets[0].get('file.url'));
+                } else {
+                    window.open('/api/assets/' + this._assets[0].get('id') + '/download?branchId=' + config.self.branch.id);
+                }
+            }
         }
 
         link(assets) {
