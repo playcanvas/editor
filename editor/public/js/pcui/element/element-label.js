@@ -8,6 +8,8 @@ Object.assign(pcui, (function () {
      * @classdesc The Label is a simple span element that displays some text.
      * @property {String} text Gets / sets the text of the Label.
      * @property {Boolean} renderChanges If true then the Label will flash when its text changes.
+     * @property {Function} [args.formatText] If this exists, format the label text using this function. 
+     * @property {Object} [args.formatTextMap] If this exists, set the label as a value from this dict using the text string as the key. 
      * @extends pcui.Element
      * @mixes pcui.IBindable
      */
@@ -17,6 +19,8 @@ Object.assign(pcui, (function () {
          * @param {Object} args The arguments. Extends the pcui.Element constructor arguments. All settable properties can also be set through the constructor.
          * @param {Boolean} [args.unsafe] If true then the innerHTML property will be used to set the text. Otherwise textContent will be used instead.
          * @param {Boolean} [args.nativeTooltip] If true then use the text of the label as the native HTML tooltip.
+         * @param {Object} [args.formatText] A function which formats input text.
+         * @param {Object} [args.formatTextMap] A mapping dictonary from the input text or value to a desired formatted output.
          */
         constructor(args) {
             if (!args) args = {};
@@ -30,6 +34,14 @@ Object.assign(pcui, (function () {
 
             if (args.nativeTooltip) {
                 this.dom.title = this.text;
+            }
+
+            if (args.formatTextMap) {
+                this.formatTextMap = args.formatTextMap;
+            }
+
+            if (args.formatText) {
+                this.formatText = args.formatText;
             }
 
             this.renderChanges = args.renderChanges || false;
@@ -64,6 +76,13 @@ Object.assign(pcui, (function () {
         }
 
         set text(value) {
+            if (this.formatTextMap) {
+                value = this.formatTextMap[value];
+            } else if (this.formatText){
+                value = this.formatText(value);
+                console.log(this);
+            }
+
             if (value === undefined || value === null) {
                 value = '';
             }
