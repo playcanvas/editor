@@ -77,7 +77,9 @@ Object.assign(pcui, (function () {
 
         set text(value) {
             if (this.formatTextMap) {
-                value = this.formatTextMap[value];
+                if (this.formatTextMap[value]) {
+                    value = this.formatTextMap[value];
+                }
             } else if (this.formatText){
                 value = this.formatText(value);
                 console.log(this);
