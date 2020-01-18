@@ -44,78 +44,82 @@ Object.assign(pcui, (function () {
         }
 
         addAttribute(attr, index) {
-            const fieldArgs = Object.assign({
-                binding: new pcui.BindingTwoWay({
-                    history: this._history
-                }),
-                assets: this._assets,
-                entities: this._entities,
-                projectSettings: this._projectSettings
-            }, attr.args);
+            try {
+                const fieldArgs = Object.assign({
+                    binding: new pcui.BindingTwoWay({
+                        history: this._history
+                    }),
+                    assets: this._assets,
+                    entities: this._entities,
+                    projectSettings: this._projectSettings
+                }, attr.args);
 
-            const field = pcui.Element.create(attr.type, fieldArgs);
+                const field = pcui.Element.create(attr.type, fieldArgs);
 
-            const key = this._getFieldKey(attr);
-            if (key) {
-                if (this._fields[key]) {
-                    this._fields[key].destroy();
-                }
-
-                this._fields[key] = field;
-                if (attr.path || attr.paths) {
-                    this._fieldAttributes[key] = attr;
-                    if (this._observers) {
-                        field.link(this._observers, attr.path || attr.paths);
-                    }
-                }
-            }
-
-            if (attr.type !== 'asset') {
-                if (attr.label) {
-                    const labelGroup = new pcui.LabelGroup({
-                        text: attr.label,
-                        field: field,
-                        labelAlignTop: attr.type === 'assets' || attr.type.startsWith('array') || attr.type === 'layers'
-                    });
-
-                    this.append(labelGroup);
-                    if (index >= 0) {
-                        this.move(labelGroup, index);
+                const key = this._getFieldKey(attr);
+                if (key) {
+                    if (this._fields[key]) {
+                        this._fields[key].destroy();
                     }
 
-                    if (attr.reference) {
-                        editor.call('attributes:reference:attach', attr.reference, labelGroup.label);
+                    this._fields[key] = field;
+                    if (attr.path || attr.paths) {
+                        this._fieldAttributes[key] = attr;
+                        if (this._observers) {
+                            field.link(this._observers, attr.path || attr.paths);
+                        }
+                    }
+                }
+
+                if (attr.type !== 'asset') {
+                    if (attr.label) {
+                        const labelGroup = new pcui.LabelGroup({
+                            text: attr.label,
+                            field: field,
+                            labelAlignTop: attr.type === 'assets' || attr.type.startsWith('array') || attr.type === 'layers'
+                        });
+
+                        this.append(labelGroup);
+                        if (index >= 0) {
+                            this.move(labelGroup, index);
+                        }
+
+                        if (attr.reference) {
+                            editor.call('attributes:reference:attach', attr.reference, labelGroup.label);
+                        }
+                    } else {
+                        this.append(field);
+                        if (index >= 0) {
+                            this.move(field, index);
+                        }
                     }
                 } else {
+                    field.text = attr.label;
                     this.append(field);
                     if (index >= 0) {
                         this.move(field, index);
                     }
-                }
-            } else {
-                field.text = attr.label;
-                this.append(field);
-                if (index >= 0) {
-                    this.move(field, index);
+
+                    if (attr.reference) {
+                        editor.call('attributes:reference:attach', attr.reference, field._label);
+                    }
                 }
 
-                if (attr.reference) {
-                    editor.call('attributes:reference:attach', attr.reference, field._label);
+                if (this._templateOverridesSidebar) {
+                    if (attr.path) {
+                        const field = this.getField(attr.path);
+                        this._templateOverridesSidebar.registerElementForPath(attr.path, attr.type === 'asset' ? field.dom : field.parent.dom);
+                    } else if (attr.paths) {
+                        attr.paths.forEach(path => {
+                            // use first path to get field as subsequent paths
+                            // are not going to be used to index the field in the attribute inspector
+                            const field = this.getField(attr.paths[0]);
+                            this._templateOverridesSidebar.registerElementForPath(path, attr.type === 'asset' ? field.dom : field.parent.dom);
+                        });
+                    }
                 }
-            }
-
-            if (this._templateOverridesSidebar) {
-                if (attr.path) {
-                    const field = this.getField(attr.path);
-                    this._templateOverridesSidebar.registerElementForPath(attr.path, attr.type === 'asset' ? field.dom : field.parent.dom);
-                } else if (attr.paths) {
-                    attr.paths.forEach(path => {
-                        // use first path to get field as subsequent paths
-                        // are not going to be used to index the field in the attribute inspector
-                        const field = this.getField(attr.paths[0]);
-                        this._templateOverridesSidebar.registerElementForPath(path, attr.type === 'asset' ? field.dom : field.parent.dom);
-                    });
-                }
+            } catch (err) {
+                console.error(err);
             }
         }
 

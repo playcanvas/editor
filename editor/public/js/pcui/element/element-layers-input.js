@@ -26,15 +26,18 @@ Object.assign(pcui, (function () {
             const options = [];
             const layers = this._projectSettings.get('layers');
 
-            this._excludeLayers.forEach(id => {
-                delete layers[id];
-            });
-
-            for (const key in layers) {
-                options.push({
-                    v: parseInt(key, 10), t: layers[key].name
+            if (layers) {
+                this._excludeLayers.forEach(id => {
+                    delete layers[id];
                 });
+
+                for (const key in layers) {
+                    options.push({
+                        v: parseInt(key, 10), t: layers[key].name
+                    });
+                }
             }
+
 
             this.options = options;
         }
