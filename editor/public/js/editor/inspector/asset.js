@@ -75,8 +75,7 @@ Object.assign(pcui, (function () {
 
             this._attributesInspector = new pcui.AttributesInspector({
                 history: args.history,
-                attributes: ATTRIBUTES,
-                // templateOverridesSidebar: this._templateOverridesSidebar
+                attributes: ATTRIBUTES
             });
             this.append(this._attributesInspector);
 
@@ -88,10 +87,10 @@ Object.assign(pcui, (function () {
                 class: CLASS_DOWNLOAD_ASSET
             });
             this._btnDownloadAsset.hidden = !editor.call('permissions:read');
-            var evtBtnDownloadPermissions = editor.on('permissions:set:' + config.self.id, function() {
+            const evtBtnDownloadPermissions = editor.on('permissions:set:' + config.self.id, () => {
                 this._btnDownloadAsset.hidden = ! editor.call('permissions:read');
             });
-            this._btnDownloadAsset.once('destroy', function() {
+            this._btnDownloadAsset.once('destroy', () => {
                 evtBtnDownloadPermissions.unbind();
             });
             this.append(this._btnDownloadAsset);
@@ -100,7 +99,7 @@ Object.assign(pcui, (function () {
 
             // add typed asset inspectors
             this._typedAssetInspectors = {};
-            //#TODO get actual list of asset types
+            // #TODO get actual list of asset types
             // const assetTypes = editor.call(':list');
             this._assetTypes = ['animation'];
             this._assetTypes.forEach(assetType => {
@@ -127,11 +126,8 @@ Object.assign(pcui, (function () {
         }
 
         _onClickDownloadAsset(evt) {
-            var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
+            const legacyScripts = this._projectSettings.get('useLegacyScripts');
             if (this._assets[0].get('type') !== 'folder' && ! (legacyScripts && this._assets[0].get('type') === 'script') && this._assets[0].get('type') !== 'sprite') {
-                // download
-                if (this._btnDownloadAsset.prevent)
-                    return;
 
                 if (this._assets[0].get('source') || this._assets[0].get('type') === 'texture' || this._assets[0].get('type') === 'audio') {
                     window.open(this._assets[0].get('file.url'));
@@ -161,7 +157,7 @@ Object.assign(pcui, (function () {
             this._attributesInspector.getField('source').values = assets.map(asset => !asset.get('source'));
             this._attributesInspector.getField('type').values = assets.map(asset => {
                 if (asset.get('type') === 'scene') {
-                    return 'Source Scene';
+                    return 'source scene';
                 }
 
                 return asset.get('type');
@@ -169,7 +165,7 @@ Object.assign(pcui, (function () {
             this._updateFileSize();
             assets.forEach(asset => {
                 this._assetEvents.push(asset.on('file.size:set', this._updateFileSize.bind(this)));
-            })
+            });
 
             this._attributesInspector.getField('source_asset_id').values = assets.map(asset => {
                 const sourceAssetId = asset.get('source_asset_id');
@@ -180,9 +176,17 @@ Object.assign(pcui, (function () {
             });
 
             this._assetTypes.forEach(assetType => {
-                if (assetType == assets[0]._data.type) {
+                let shouldDisplayTypedInspector = true;
+                assets.forEach(asset => {
+                    if (asset.get('type') !== assetType) {
+                        shouldDisplayTypedInspector = false;
+                    }
+                });
+                if (shouldDisplayTypedInspector) {
                     this._typedAssetInspectors[assetType].link(assets);
                     this._typedAssetInspectors[assetType].hidden = false;
+                } else {
+                    this._typedAssetInspectors[assetType].hidden = true;
                 }
             });
         }
