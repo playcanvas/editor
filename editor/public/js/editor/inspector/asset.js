@@ -273,7 +273,6 @@ Object.assign(pcui, (function () {
                     }
                 });
             });
-            console.log(assets);
         }
 
         unlink() {
