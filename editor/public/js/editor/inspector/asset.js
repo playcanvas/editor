@@ -3,9 +3,11 @@ Object.assign(pcui, (function () {
 
     const CLASS_ROOT = 'asset-inspector';
     const CLASS_DOWNLOAD_ASSET = CLASS_ROOT + '-download-asset';
+    const CLASS_EDIT_ASSET = CLASS_ROOT + '-edit-asset';
 
     const ATTRIBUTES = [{
         label: 'ID',
+        alias: 'id',
         path: 'id',
         type: 'label'
     }, {
@@ -14,6 +16,7 @@ Object.assign(pcui, (function () {
         type: 'string'
     }, {
         label: 'Tags',
+        alias: 'tags',
         path: 'tags',
         type: 'tags',
         args: {
@@ -72,6 +75,7 @@ Object.assign(pcui, (function () {
             this.class.add(CLASS_ROOT);
 
             this._projectSettings = args.projectSettings;
+            this._editableTypes = args.editableTypes;
 
             this._attributesInspector = new pcui.AttributesInspector({
                 history: args.history,
@@ -79,13 +83,20 @@ Object.assign(pcui, (function () {
             });
             this.append(this._attributesInspector);
 
-            // add component button
+            this._btnContainer = new pcui.Container({
+                flex: true,
+                flexDirection: 'row'
+            });
+            this.append(this._btnContainer);
+
+            // add download button
             this._btnDownloadAsset = new pcui.Button({
-                text: 'DOWNLOAD',
+                text: 'Download',
                 icon: 'E228',
                 flexGrow: 1,
                 class: CLASS_DOWNLOAD_ASSET
             });
+
             this._btnDownloadAsset.hidden = !editor.call('permissions:read');
             const evtBtnDownloadPermissions = editor.on('permissions:set:' + config.self.id, () => {
                 this._btnDownloadAsset.hidden = ! editor.call('permissions:read');
@@ -93,9 +104,26 @@ Object.assign(pcui, (function () {
             this._btnDownloadAsset.once('destroy', () => {
                 evtBtnDownloadPermissions.unbind();
             });
-            this.append(this._btnDownloadAsset);
+            this._btnContainer.append(this._btnDownloadAsset);
 
             this._btnDownloadAsset.on('click', this._onClickDownloadAsset.bind(this));
+
+            // add edit button
+
+            this._btnEditAsset = new pcui.Button({
+                text: editor.call('permissions:write') ? 'Edit' : 'View',
+                icon: 'E130',
+                flexGrow: 1,
+                class: CLASS_EDIT_ASSET
+            });
+            const evtBtnEditPermissions = editor.on('permissions:writeState', (state) => {
+                this._btnEditAsset.text = state ? 'Edit' : 'View';
+            });
+            this._btnEditAsset.once('destroy', () => {
+                evtBtnEditPermissions.unbind();
+            });
+            this._btnEditAsset.on('click', this._onClickEditAsset.bind(this));
+            this._btnContainer.append(this._btnEditAsset);
 
             // add typed asset inspectors
             this._typedAssetInspectors = {};
@@ -137,6 +165,10 @@ Object.assign(pcui, (function () {
             }
         }
 
+        _onClickEditAsset(evt) {
+            editor.call('assets:edit', this._assets[0]);
+        }
+
         _updateFileSize(assets) {
             if (!this._assets) return;
 
@@ -169,7 +201,7 @@ Object.assign(pcui, (function () {
 
             this._attributesInspector.getField('source_asset_id').values = assets.map(asset => {
                 const sourceAssetId = asset.get('source_asset_id');
-                if (!sourceAssetId) return null;
+                if (!sourceAssetId) return 'none';
 
                 const sourceAsset = this._assetsList.get(sourceAssetId);
                 return sourceAsset ? sourceAsset.get('name') : sourceAssetId;
@@ -189,6 +221,14 @@ Object.assign(pcui, (function () {
                     this._typedAssetInspectors[assetType].hidden = true;
                 }
             });
+
+            // Determine if the Edit/View button should be displayed
+            this._btnEditAsset.hidden = !this._editableTypes[assets[0].get('type')];
+
+            // Hide tags if type is source scene
+            if (assets[0].get('type') === 'scene') {
+                this._attributesInspector.getField('tags').parent.hidden = true;
+            }
         }
 
         unlink() {

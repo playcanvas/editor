@@ -25,6 +25,7 @@ editor.once('load', function() {
             assets: editor.call('assets:raw'),
             projectSettings: editor.call('settings:project'),
             history: editor.call('editor:history'),
+            editableTypes: editableTypes
         });
 
         var root = editor.call('attributes.rootPanel');
