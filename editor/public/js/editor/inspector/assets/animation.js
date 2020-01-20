@@ -5,14 +5,13 @@ Object.assign(pcui, (function () {
         {
             label: 'Duration',
             path: 'meta.duration',
-            type: 'label',
-            placeholder: 'Seconds',
+            type: 'label'
         },
         {
             label: 'Name',
             path: 'meta.name',
             type: 'label'
-        },
+        }
     ];
 
     class AnimationAssetInspector extends pcui.Panel {

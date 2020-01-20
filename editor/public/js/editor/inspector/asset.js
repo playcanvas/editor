@@ -174,6 +174,21 @@ Object.assign(pcui, (function () {
             });
         }
 
+        _updateDownloadButtonOnCubemapChange() {
+            if (!this._assets || !this._assets[0].get('type') === 'cubemap') return;
+            let hasAllCubemapTextures = true;
+            this._assets[0].get('data.textures').forEach(texture => {
+                if (texture === null) {
+                    hasAllCubemapTextures = false;
+                }
+            });
+            if (!hasAllCubemapTextures) {
+                this._btnDownloadAsset.disabled = true;
+            } else {
+                this._btnDownloadAsset.disabled = false;
+            }
+        }
+
         link(assets) {
             this.unlink();
 
@@ -184,7 +199,7 @@ Object.assign(pcui, (function () {
             this._attributesInspector.link(assets);
 
             this._attributesInspector.getField('source').values = assets.map(asset => {
-                return asset.get('source') ? 'yes' : 'no';
+                return asset.get('source') ? 'no' : 'yes';
             });
             this._attributesInspector.getField('type').values = assets.map(asset => {
                 if (asset.get('type') === 'scene') {
@@ -224,6 +239,18 @@ Object.assign(pcui, (function () {
             // Determine if the Edit/View button should be displayed
             this._btnEditAsset.hidden = !this._editableTypes[assets[0].get('type')];
 
+            // Determine if the Download button should be displayed
+            this._btnDownloadAsset.hidden = assets[0].get('type') === 'folder';
+
+            // Determine if Download button should be disabled
+            this._btnDownloadAsset.disabled = false;
+            if (assets[0].get('type') === 'cubemap') {
+                this._updateDownloadButtonOnCubemapChange.bind(this)();
+                for (let ind = 0; ind < 6; ind++) {
+                    this._assetEvents.push(assets[0].on('data.textures.' + ind + ':set', this._updateDownloadButtonOnCubemapChange.bind(this)));
+                }
+            }
+
             // Hide fields based on current asset type
             const hiddenFields = {
                 'tags': [
@@ -246,6 +273,7 @@ Object.assign(pcui, (function () {
                     }
                 });
             });
+            console.log(assets);
         }
 
         unlink() {
