@@ -166,6 +166,19 @@ Object.assign(pcui, (function () {
             editor.call('assets:edit', this._assets[0]);
         }
 
+        _onClickSourceAsset(evt) {
+            var sourceId = this._assets[0].get('source_asset_id');
+            if (!sourceId)
+                return;
+
+            const asset = editor.call('assets:get', sourceId);
+
+            if (! asset)
+                return;
+
+            editor.call('selector:set', 'asset', [asset]);
+        }
+
         _updateFileSize(assets) {
             if (!this._assets) return;
 
@@ -273,6 +286,12 @@ Object.assign(pcui, (function () {
                     }
                 });
             });
+
+            // Set source asset attribute link
+            this._assetEvents.push(this._attributesInspector.getField('source_asset_id').on(
+                'click',
+                this._onClickSourceAsset.bind(this)
+            ));
         }
 
         unlink() {
