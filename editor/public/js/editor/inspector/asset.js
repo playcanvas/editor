@@ -26,11 +26,7 @@ Object.assign(pcui, (function () {
     }, {
         label: 'Runtime',
         alias: 'source',
-        type: 'boolean',
-        args: {
-            renderChanges: false,
-            readOnly: true
-        }
+        type: 'label'
     }, {
         label: 'Type',
         alias: 'type',
@@ -41,6 +37,7 @@ Object.assign(pcui, (function () {
     }, {
         label: 'Preload',
         path: 'preload',
+        alias: 'preload',
         type: 'boolean'
     }, {
         label: 'Size',
@@ -186,7 +183,9 @@ Object.assign(pcui, (function () {
 
             this._attributesInspector.link(assets);
 
-            this._attributesInspector.getField('source').values = assets.map(asset => !asset.get('source'));
+            this._attributesInspector.getField('source').values = assets.map(asset => {
+                return asset.get('source') ? 'yes' : 'no';
+            });
             this._attributesInspector.getField('type').values = assets.map(asset => {
                 if (asset.get('type') === 'scene') {
                     return 'source scene';
@@ -225,10 +224,28 @@ Object.assign(pcui, (function () {
             // Determine if the Edit/View button should be displayed
             this._btnEditAsset.hidden = !this._editableTypes[assets[0].get('type')];
 
-            // Hide tags if type is source scene
-            if (assets[0].get('type') === 'scene') {
-                this._attributesInspector.getField('tags').parent.hidden = true;
-            }
+            // Hide fields based on current asset type
+            const hiddenFields = {
+                'tags': [
+                    'scene',
+                    'folder'
+                ],
+                'source_asset_id': [
+                    'scene',
+                    'folder'
+                ],
+                'preload': [
+                    'scene',
+                    'folder'
+                ]
+            };
+            Object.keys(hiddenFields).forEach(attribute => {
+                hiddenFields[attribute].forEach(type => {
+                    if (assets[0].get('type') === type) {
+                        this._attributesInspector.getField(attribute).parent.hidden = true;
+                    }
+                });
+            });
         }
 
         unlink() {
