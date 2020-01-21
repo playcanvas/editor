@@ -167,7 +167,7 @@ Object.assign(pcui, (function () {
         }
 
         _onClickSourceAsset(evt) {
-            var sourceId = this._assets[0].get('source_asset_id');
+            const sourceId = this._assets[0].get('source_asset_id');
             if (!sourceId)
                 return;
 
