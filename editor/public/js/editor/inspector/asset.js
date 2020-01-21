@@ -74,6 +74,8 @@ Object.assign(pcui, (function () {
             this._projectSettings = args.projectSettings;
             this._editableTypes = args.editableTypes;
 
+            this._assetTypes = editor.call('assets:list');
+
             this._attributesInspector = new pcui.AttributesInspector({
                 history: args.history,
                 attributes: ATTRIBUTES
@@ -124,9 +126,7 @@ Object.assign(pcui, (function () {
 
             // add typed asset inspectors
             this._typedAssetInspectors = {};
-            // #TODO get actual list of asset types
-            // const assetTypes = editor.call(':list');
-            this._assetTypes = ['animation'];
+
             this._assetTypes.forEach(assetType => {
 
                 // check if class exists
@@ -235,17 +235,21 @@ Object.assign(pcui, (function () {
             });
 
             this._assetTypes.forEach(assetType => {
-                let shouldDisplayTypedInspector = true;
-                assets.forEach(asset => {
-                    if (asset.get('type') !== assetType) {
-                        shouldDisplayTypedInspector = false;
+                // check if class exists
+                const cls = `${assetType[0].toUpperCase()}${assetType.substring(1)}AssetInspector`;
+                if (pcui.hasOwnProperty(cls)) {
+                    let shouldDisplayTypedInspector = true;
+                    assets.forEach(asset => {
+                        if (asset.get('type') !== assetType) {
+                            shouldDisplayTypedInspector = false;
+                        }
+                    });
+                    if (shouldDisplayTypedInspector) {
+                        this._typedAssetInspectors[assetType].link(assets);
+                        this._typedAssetInspectors[assetType].hidden = false;
+                    } else {
+                        this._typedAssetInspectors[assetType].hidden = true;
                     }
-                });
-                if (shouldDisplayTypedInspector) {
-                    this._typedAssetInspectors[assetType].link(assets);
-                    this._typedAssetInspectors[assetType].hidden = false;
-                } else {
-                    this._typedAssetInspectors[assetType].hidden = true;
                 }
             });
 
@@ -292,6 +296,7 @@ Object.assign(pcui, (function () {
                 'click',
                 this._onClickSourceAsset.bind(this)
             ));
+            this._attributesInspector.getField('source_asset_id').class.add('pcui-selectable');
         }
 
         unlink() {
@@ -307,8 +312,11 @@ Object.assign(pcui, (function () {
             this._attributesInspector.unlink();
 
             this._assetTypes.forEach(assetType => {
-                this._typedAssetInspectors[assetType].unlink();
-                this._typedAssetInspectors[assetType].hidden = true;
+                const cls = `${assetType[0].toUpperCase()}${assetType.substring(1)}AssetInspector`;
+                if (pcui.hasOwnProperty(cls)) {
+                    this._typedAssetInspectors[assetType].unlink();
+                    this._typedAssetInspectors[assetType].hidden = true;
+                }
             });
         }
     }
