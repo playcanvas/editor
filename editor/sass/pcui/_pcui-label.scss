@@ -26,3 +26,11 @@
 .pcui-label.pcui-error {
     color: $error-secondary;
 }
+
+.pcui-label.pcui-selectable {
+    &:hover {
+        color: $text-active;
+        text-decoration: underline;
+        @extend .noSelect;
+    }
+}
