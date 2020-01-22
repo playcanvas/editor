@@ -204,17 +204,15 @@ editor.once('load', function() {
         hidden: true
     });
 
-    if (useLegacyComponentInspectors) {
-        // disable attributes panel when overrides diff is open
-        templateOverrides.on('show', () => {
-            editor.call('layout.attributes').enabled = false;
-        });
+    // disable attributes panel when overrides diff is open
+    templateOverrides.on('show', () => {
+        editor.call('layout.attributes').enabled = false;
+    });
 
-        templateOverrides.on('hide', () => {
-            editor.call('layout.attributes').enabled = editor.call('permissions:write');
-        });
+    templateOverrides.on('hide', () => {
+        editor.call('layout.attributes').enabled = editor.call('permissions:write');
+    });
 
-    }
 
     if (!useLegacyComponentInspectors) {
         var entityInspector = new pcui.EntityInspector({
