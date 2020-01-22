@@ -20,20 +20,30 @@ editor.once('load', function() {
 
     var assetsPanel = null;
 
-    editor.on('attributes:inspect[asset]', function(assets) {
-        var assetInspector = new pcui.AssetInspector({
-            assets: editor.call('assets:raw'),
-            projectSettings: editor.call('settings:project'),
-            history: editor.call('editor:history'),
-            editableTypes: editableTypes
-        });
+    var assetInspector = new pcui.AssetInspector({
+        assets: editor.call('assets:raw'),
+        projectSettings: editor.call('settings:project'),
+        history: editor.call('editor:history'),
+        editableTypes: editableTypes
+    });
 
+    editor.on('attributes:inspect[asset]', (assets) => {
         var root = editor.call('attributes.rootPanel');
 
         if (!assetInspector.parent)
             root.append(assetInspector);
-
         assetInspector.link(assets);
+    });
+
+    editor.on('attributes:beforeClear', function() {
+        assetInspector.unlink();
+        if (assetInspector.parent) {
+            assetInspector.parent.remove(assetInspector);
+        }
+    });
+
+    editor.on('attributes:clear', function () {
+        assetInspector.unlink();
     });
 
     editor.on('attributes:inspect[asset]#######OLD', function(assets) {
