@@ -43,6 +43,24 @@ Object.assign(pcui, (function () {
             return null;
         }
 
+        _createTooltip(label, tooltipData) {
+            const tooltip = editor.call('attributes:reference', {
+                element: label.dom,
+                title: tooltipData.title,
+                subTitle: tooltipData.subTitle,
+                description: tooltipData.description
+            });
+
+            tooltip.attach({
+                target: label,
+                element: label.dom
+            });
+
+            label.once('destroy', () => {
+                tooltip.destroy();
+            });
+        }
+
         addAttribute(attr, index) {
             try {
                 const fieldArgs = Object.assign({
@@ -86,6 +104,8 @@ Object.assign(pcui, (function () {
 
                         if (attr.reference) {
                             editor.call('attributes:reference:attach', attr.reference, labelGroup.label);
+                        } else if (attr.tooltip) {
+                            this._createTooltip(labelGroup.label, attr.tooltip);
                         }
                     } else {
                         this.append(field);
@@ -102,6 +122,8 @@ Object.assign(pcui, (function () {
 
                     if (attr.reference) {
                         editor.call('attributes:reference:attach', attr.reference, field._label);
+                    } else if (attr.tooltip) {
+                        this._createTooltip(field._label, attr.tooltip);
                     }
                 }
 
