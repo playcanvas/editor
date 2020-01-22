@@ -84,6 +84,8 @@ Object.assign(pcui, (function () {
             this._labelValue.on('click', this._onValueClick.bind(this));
             this._containerValue.append(this._labelValue);
 
+            this._timeoutLabelValueTabIndex = null;
+
             // dropdown icon
             this._labelIcon = new pcui.Label({
                 class: CLASS_ICON,
@@ -680,10 +682,13 @@ Object.assign(pcui, (function () {
                 // prevent label from being focused
                 // right after input gets unfocused
                 this._labelValue.tabIndex = -1;
-                requestAnimationFrame(() => {
-                    this._labelValue.tabIndex = 0;
-                });
 
+                if (!this._timeoutLabelValueTabIndex) {
+                    this._timeoutLabelValueTabIndex = requestAnimationFrame(() => {
+                        this._timeoutLabelValueTabIndex = null;
+                        this._labelValue.tabIndex = 0;
+                    });
+                }
             }
 
         }
@@ -794,7 +799,9 @@ Object.assign(pcui, (function () {
         unlink() {
             super.unlink();
 
-            this.close();
+            if (!this._containerOptions.hidden) {
+                this.close();
+            }
         }
 
         destroy() {
@@ -807,6 +814,11 @@ Object.assign(pcui, (function () {
 
             window.removeEventListener('keydown', this._domEvtKeyDown);
             window.removeEventListener('mousedown', this._domEvtWindowMouseDown);
+
+            if (this._timeoutLabelValueTabIndex) {
+                cancelAnimationFrame(this._timeoutLabelValueTabIndex);
+                this._timeoutLabelValueTabIndex = null;
+            }
 
             super.destroy();
         }
