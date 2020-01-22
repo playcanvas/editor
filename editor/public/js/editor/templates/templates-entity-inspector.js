@@ -134,6 +134,10 @@ Object.assign(pcui, (function () {
                 this._refreshTimeout = setTimeout(this._refreshOverrides.bind(this), 50);
             };
 
+            this.on('hide', () => {
+                this._diffView.hidden = true;
+            });
+
             this._eventMessenger = editor.on('messenger:template.apply', this._onTemplateApply.bind(this));
         }
 
