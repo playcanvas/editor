@@ -63,7 +63,6 @@ Object.assign(pcui, (function () {
 
             this._assets.forEach(asset => {
                 const assetBundles = editor.call('assets:bundles:listForAsset', asset);
-                console.log(assetBundles);
                 assetBundles.forEach(assetBundle => {
                     if (!selectedBundles.includes(assetBundle.get('id'))) {
                         this._addTag(assetBundle.get('id'));
