@@ -56,6 +56,19 @@ editor.once('load', function() {
             if (!assetInspector.parent)
                 root.append(assetInspector);
             assetInspector.link(assets);
+
+            var events = [ ];
+            var panel = editor.call('attributes:addPanel');
+            panel.class.add('component');
+            assetsPanel = panel;
+            panel.once('destroy', function () {
+                assetsPanel = null;
+
+                for(var i = 0; i < events.length; i++)
+                    events[i].unbind();
+
+                events = null;
+            });
         } else {
             var events = [ ];
 

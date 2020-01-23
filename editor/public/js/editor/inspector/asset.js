@@ -53,6 +53,14 @@ Object.assign(pcui, (function () {
         args: {
             renderChanges: false
         }
+    }, {
+        label: 'Bundles',
+        alias: 'bundles',
+        type: 'bundles',
+        path: 'bundles',
+        args: {
+            type: 'string'
+        }
     }];
 
     ATTRIBUTES.forEach(attr => {
@@ -281,6 +289,9 @@ Object.assign(pcui, (function () {
                 'preload': [
                     'scene',
                     'folder'
+                ],
+                'bundles': [
+                    'bundle'
                 ]
             };
             Object.keys(hiddenFields).forEach(attribute => {
