@@ -1,18 +1,19 @@
 Object.assign(pcui, (function () {
     'use strict';
 
-    const ATTRIBUTES = [
-        {
-            label: 'Duration',
-            path: 'meta.duration',
-            type: 'label'
-        },
-        {
-            label: 'Name',
-            path: 'meta.name',
-            type: 'label'
+    const ATTRIBUTES = [{
+        label: 'Duration',
+        path: 'meta.duration',
+        type: 'label',
+        args: {
+            placeholder: 'Seconds'
         }
-    ];
+    },
+    {
+        label: 'Name',
+        path: 'meta.name',
+        type: 'label'
+    }];
 
     class AnimationAssetInspector extends pcui.Panel {
         constructor(args) {
