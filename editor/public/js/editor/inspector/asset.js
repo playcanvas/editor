@@ -295,11 +295,11 @@ Object.assign(pcui, (function () {
                 ]
             };
             Object.keys(hiddenFields).forEach(attribute => {
-                hiddenFields[attribute].forEach(type => {
-                    if (assets[0].get('type') === type) {
-                        this._attributesInspector.getField(attribute).parent.hidden = true;
-                    }
-                });
+                if (hiddenFields[attribute].includes(assets[0].get('type'))) {
+                    this._attributesInspector.getField(attribute).parent.hidden = true;
+                } else {
+                    this._attributesInspector.getField(attribute).parent.hidden = false;
+                }
             });
 
             // Set source asset attribute link
