@@ -11,6 +11,10 @@ Object.assign(pcui, (function () {
         path: 'id',
         type: 'label'
     }, {
+        label: 'Assets',
+        path: 'assets',
+        type: 'label'
+    }, {
         label: 'Name',
         path: 'name',
         type: 'string'
@@ -190,8 +194,14 @@ Object.assign(pcui, (function () {
         _updateFileSize(assets) {
             if (!this._assets) return;
 
+            const totalSize = this._assets.map(asset => {
+                return asset.has('file.size') ? asset.get('file.size') : 0;
+            }).reduce((total, curr) => {
+                return total + curr;
+            });
+
             this._attributesInspector.getField('size').values = this._assets.map(asset => {
-                return asset.has('file.size') ? bytesToHuman(asset.get('file.size')) : bytesToHuman(0);
+                return bytesToHuman(totalSize);
             });
         }
 
@@ -217,10 +227,14 @@ Object.assign(pcui, (function () {
 
             this._assets = assets;
 
+            console.log(assets);
             this._attributesInspector.link(assets);
 
             this._attributesInspector.getField('source').values = assets.map(asset => {
                 return asset.get('source') ? 'no' : 'yes';
+            });
+            this._attributesInspector.getField('assets').values = assets.map(asset => {
+                return assets.length;
             });
             this._attributesInspector.getField('type').values = assets.map(asset => {
                 if (asset.get('type') === 'scene') {
@@ -265,7 +279,7 @@ Object.assign(pcui, (function () {
             this._btnEditAsset.hidden = !this._editableTypes[assets[0].get('type')];
 
             // Determine if the Download button should be displayed
-            this._btnDownloadAsset.hidden = assets[0].get('type') === 'folder';
+            this._btnDownloadAsset.hidden = assets.length > 1 || assets[0].get('type') === 'folder';
 
             // Determine if Download button should be disabled
             this._btnDownloadAsset.disabled = false;
@@ -291,11 +305,25 @@ Object.assign(pcui, (function () {
                     'folder'
                 ],
                 'bundles': [
-                    'bundle'
+                    'bundle',
+                    'scene'
+                ],
+                'assets': [
+                    'single'
+                ],
+                'id': [
+                    'multi'
+                ],
+                'name': [
+                    'multi'
                 ]
             };
             Object.keys(hiddenFields).forEach(attribute => {
-                if (hiddenFields[attribute].includes(assets[0].get('type'))) {
+                if (
+                    hiddenFields[attribute].includes(assets[0].get('type')) ||
+                    (hiddenFields[attribute].includes('multi') && assets.length > 1) ||
+                    (hiddenFields[attribute].includes('single') && assets.length === 1)
+                ) {
                     this._attributesInspector.getField(attribute).parent.hidden = true;
                 } else {
                     this._attributesInspector.getField(attribute).parent.hidden = false;
