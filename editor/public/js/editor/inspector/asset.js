@@ -276,7 +276,7 @@ Object.assign(pcui, (function () {
             });
 
             // Determine if the Edit/View button should be displayed
-            this._btnEditAsset.hidden = !this._editableTypes[assets[0].get('type')];
+            this._btnEditAsset.hidden = assets.length > 1 || !this._editableTypes[assets[0].get('type')];
 
             // Determine if the Download button should be displayed
             this._btnDownloadAsset.hidden = assets.length > 1 || assets[0].get('type') === 'folder';
