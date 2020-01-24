@@ -319,8 +319,14 @@ Object.assign(pcui, (function () {
                 ]
             };
             Object.keys(hiddenFields).forEach(attribute => {
+                let hiddenForAnyAsset = false;
+                assets.forEach(asset => {
+                    if (hiddenFields[attribute].includes(asset.get('type'))) {
+                        hiddenForAnyAsset = true;
+                    }
+                });
                 if (
-                    hiddenFields[attribute].includes(assets[0].get('type')) ||
+                    hiddenForAnyAsset ||
                     (hiddenFields[attribute].includes('multi') && assets.length > 1) ||
                     (hiddenFields[attribute].includes('single') && assets.length === 1)
                 ) {
