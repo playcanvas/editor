@@ -4,6 +4,7 @@ Object.assign(pcui, (function () {
     const CLASS_ROOT = 'asset-inspector';
     const CLASS_DOWNLOAD_ASSET = CLASS_ROOT + '-download-asset';
     const CLASS_EDIT_ASSET = CLASS_ROOT + '-edit-asset';
+    const CLASS_EDIT_SPRITE = CLASS_ROOT + '-edit-sprite';
 
     const ATTRIBUTES = [{
         label: 'ID',
@@ -136,6 +137,17 @@ Object.assign(pcui, (function () {
             this._btnEditAsset.on('click', this._onClickEditAsset.bind(this));
             this._btnContainer.append(this._btnEditAsset);
 
+            // add edit button
+
+            this._btnEditSprite = new pcui.Button({
+                text: 'Sprite Editor',
+                icon: 'E395',
+                flexGrow: 1,
+                class: CLASS_EDIT_SPRITE
+            });
+            this._btnEditSprite.on('click', this._onClickEditSprite.bind(this));
+            this._btnContainer.append(this._btnEditSprite);
+
             // add typed asset inspectors
             this._typedAssetInspectors = {};
 
@@ -176,6 +188,10 @@ Object.assign(pcui, (function () {
 
         _onClickEditAsset(evt) {
             editor.call('assets:edit', this._assets[0]);
+        }
+
+        _onClickEditSprite(evt) {
+            editor.call('picker:sprites', this._assets[0]);
         }
 
         _onClickSourceAsset(evt) {
@@ -279,7 +295,10 @@ Object.assign(pcui, (function () {
             this._btnEditAsset.hidden = assets.length > 1 || !this._editableTypes[assets[0].get('type')];
 
             // Determine if the Download button should be displayed
-            this._btnDownloadAsset.hidden = assets.length > 1 || assets[0].get('type') === 'folder';
+            this._btnDownloadAsset.hidden = assets.length > 1 ||  ['folder', 'sprite'].includes(assets[0].get('type'));
+
+            // Determine if the Edit sprite button should be displayed
+            this._btnEditSprite.hidden = assets.length > 1 || !['sprite', 'textureatlas'].includes(assets[0].get('type'));
 
             // Determine if Download button should be disabled
             this._btnDownloadAsset.disabled = false;
@@ -293,20 +312,29 @@ Object.assign(pcui, (function () {
             // Hide fields based on current asset type
             const hiddenFields = {
                 'tags': [
-                    'scene',
-                    'folder'
+                    'folder',
+                    'scene.source',
+                    'texture.source',
+                    'font.source'
                 ],
                 'source_asset_id': [
-                    'scene',
-                    'folder'
+                    'folder',
+                    'scene.source',
+                    'texture.source',
+                    'font.source'
                 ],
                 'preload': [
-                    'scene',
-                    'folder'
+                    'folder',
+                    'scene.source',
+                    'texture.source',
+                    'font.source'
                 ],
                 'bundles': [
                     'bundle',
-                    'scene'
+                    'folder',
+                    'scene.source',
+                    'texture.source',
+                    'font.source'
                 ],
                 'assets': [
                     'single'
@@ -321,7 +349,11 @@ Object.assign(pcui, (function () {
             Object.keys(hiddenFields).forEach(attribute => {
                 let hiddenForAnyAsset = false;
                 assets.forEach(asset => {
-                    if (hiddenFields[attribute].includes(asset.get('type'))) {
+                    let assetType = asset.get('type');
+                    if (asset.get('source') === true) {
+                        assetType += '.source';
+                    }
+                    if (hiddenFields[attribute].includes(assetType)) {
                         hiddenForAnyAsset = true;
                     }
                 });

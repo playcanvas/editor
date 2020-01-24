@@ -15,6 +15,13 @@ Object.assign(pcui, (function () {
         type: 'label'
     }];
 
+    ATTRIBUTES.forEach(attr => {
+        const path = attr.alias || attr.path;
+        if (!path) return;
+        const parts = path.split('.');
+        attr.reference = `asset:animation:${parts[parts.length - 1]}`;
+    });
+
     class AnimationAssetInspector extends pcui.Panel {
         constructor(args) {
             args = Object.assign({}, args);
