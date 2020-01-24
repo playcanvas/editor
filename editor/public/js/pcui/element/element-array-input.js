@@ -80,7 +80,13 @@ Object.assign(pcui, (function () {
             this._suspendArrayElementEvts = false;
             this._arrayElementChangeTimeout = null;
 
-            this._type = (DEFAULTS.hasOwnProperty(args.type) ? args.type : 'string');
+            let valueType = args.elementArgs && args.elementArgs.type || args.type;
+            if (!DEFAULTS.hasOwnProperty(valueType)) {
+                valueType = 'string';
+            }
+
+            this._valueType = valueType;
+            this._elementType = args.type;
             this._elementArgs = args.elementArgs || args;
 
             this._arrayElements = [];
@@ -98,7 +104,10 @@ Object.assign(pcui, (function () {
         }
 
         _onSizeChange(size) {
-            if (!size) {
+            // if size is explicitely 0 then add empty class
+            // size can also be null with multi-select so do not
+            // check just !size
+            if (size === 0) {
                 this.class.add(CLASS_ARRAY_EMPTY);
             } else {
                 this.class.remove(CLASS_ARRAY_EMPTY);
@@ -109,18 +118,33 @@ Object.assign(pcui, (function () {
 
             const values = this._values.map(array => {
                 if (!array) {
-                    array = new Array(size).fill(DEFAULTS[this._type]);
+                    array = new Array(size);
+                    for (let i = 0; i < size; i++) {
+                        array[i] = utils.deepCopy(DEFAULTS[this._valueType]);
+                    }
                 } else if (array.length < size) {
-                    array = array.concat(new Array(size - array.length).fill(DEFAULTS[this._type]));
+                    const newArray = new Array(size - array.length);
+                    for (let i = 0; i < newArray.length; i++) {
+                        newArray[i] = utils.deepCopy(DEFAULTS[this._valueType]);
+                    }
+                    array = array.concat(newArray);
                 } else {
-                    array = array.slice(0, size);
+                    const newArray = new Array(size);
+                    for (let i = 0; i < size; i++) {
+                        newArray[i] = utils.deepCopy(array[i]);
+                    }
+                    array = newArray;
                 }
 
                 return array;
             });
 
             if (!values.length) {
-                values.push(new Array(size).fill(DEFAULTS[this._type]));
+                const array = new Array(size);
+                for (let i = 0; i < size; i++) {
+                    array[i] = utils.deepCopy(DEFAULTS[this._valueType]);
+                }
+                values.push(array);
             }
 
             this._updateValues(values, true);
@@ -147,10 +171,10 @@ Object.assign(pcui, (function () {
                 flex: true,
                 flexDirection: 'row',
                 alignItems: 'center',
-                class: [CLASS_ARRAY_ELEMENT, CLASS_ARRAY_ELEMENT + '-' + this._type]
+                class: [CLASS_ARRAY_ELEMENT, CLASS_ARRAY_ELEMENT + '-' + this._elementType]
             });
 
-            const element = pcui.Element.create(this._type, args);
+            const element = pcui.Element.create(this._elementType, args);
             container.append(element);
 
             element.renderChanges = this.renderChanges;
@@ -380,6 +404,7 @@ Object.assign(pcui, (function () {
     for (const type in DEFAULTS) {
         pcui.Element.register(`array:${type}`, ArrayInput, { type: type, renderChanges: true });
     }
+    pcui.Element.register('array:select', ArrayInput, { type: 'select', renderChanges: true });
 
     return {
         ArrayInput: ArrayInput

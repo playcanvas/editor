@@ -576,11 +576,13 @@ Object.assign(pcui, (function () {
             // figure out attribute type
             if (attributeData.enum) {
                 type = 'select';
-                fieldArgs.type = attributeData.type;
-                fieldArgs.options = [];
+                fieldArgs.elementArgs = {
+                    type: attributeData.type,
+                    options: []
+                };
                 for (let i = 0; i < attributeData.enum.order.length; i++) {
                     const key = attributeData.enum.order[i];
-                    fieldArgs.options.push({
+                    fieldArgs.elementArgs.options.push({
                         v: attributeData.enum.options[key],
                         t: key
                     });
