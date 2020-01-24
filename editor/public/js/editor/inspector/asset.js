@@ -243,7 +243,6 @@ Object.assign(pcui, (function () {
 
             this._assets = assets;
 
-            console.log(assets);
             this._attributesInspector.link(assets);
 
             this._attributesInspector.getField('source').values = assets.map(asset => {
