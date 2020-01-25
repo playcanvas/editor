@@ -576,17 +576,25 @@ Object.assign(pcui, (function () {
             // figure out attribute type
             if (attributeData.enum) {
                 type = 'select';
-                fieldArgs.elementArgs = {
+                const selectInputArgs = {
                     type: attributeData.type,
                     options: []
                 };
+
                 for (let i = 0; i < attributeData.enum.order.length; i++) {
                     const key = attributeData.enum.order[i];
-                    fieldArgs.elementArgs.options.push({
+                    selectInputArgs.options.push({
                         v: attributeData.enum.options[key],
                         t: key
                     });
                 }
+
+                if (attributeData.array) {
+                    fieldArgs.elementArgs = selectInputArgs;
+                } else {
+                    fieldArgs = selectInputArgs;
+                }
+
             } else if (attributeData.color) {
                 type = 'gradient';
                 if (attributeData.color.length) {
