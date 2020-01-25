@@ -571,7 +571,7 @@ Object.assign(pcui, (function () {
         _convertAttributeDataToInspectorData(attributeName, attributeData) {
             let type = attributeData.type;
 
-            const fieldArgs = {};
+            let fieldArgs = {};
 
             // figure out attribute type
             if (attributeData.enum) {
