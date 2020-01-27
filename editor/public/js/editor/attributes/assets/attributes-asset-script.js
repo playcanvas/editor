@@ -4,6 +4,8 @@ editor.once('load', function() {
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
 
+    const hasPcuiAssetInspectors = editor.call('users:hasFlag', 'hasPcuiAssetInspectors');
+
     editor.on('attributes:inspect[asset]', function(assets) {
         if (assets.length !== 1 || assets[0].get('type') !== 'script' || assets[0].get('source'))
             return;
@@ -70,6 +72,11 @@ editor.once('load', function() {
             if (preloadField && preloadField.nextSibling) {
                 fieldLoadingType.parent.parent.innerElement.removeChild(fieldLoadingType.parent.element);
                 panel.innerElement.insertBefore(fieldLoadingType.parent.element, preloadField.nextSibling);
+            }
+
+            if (hasPcuiAssetInspectors) {
+                fieldLoadingType.parent.parent.innerElement.removeChild(fieldLoadingType.parent.element);
+                panel.append(fieldLoadingType.parent.element);
             }
 
             // reference
