@@ -225,9 +225,9 @@ Object.assign(pcui, (function () {
                         // link the asset name to the label
                         this._labelAsset.link(asset, 'name');
                     } else {
-                        // if we did not find the asset then just show the asset id
+                        // if we did not find the asset then show Missing
                         this._labelAsset.unlink();
-                        this._labelAsset.text = value;
+                        this._labelAsset.text = 'Missing';
                     }
                 } else {
                     // no assets registry passed so just show the asset id

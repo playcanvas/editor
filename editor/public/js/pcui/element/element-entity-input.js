@@ -156,7 +156,7 @@ Object.assign(pcui, (function () {
                     this._label.link(entity, 'name');
                 } else {
                     this._label.unlink();
-                    this._label.value = value;
+                    this._label.value = 'Missing';
                 }
             } else {
                 this._label.unlink();

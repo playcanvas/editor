@@ -42,6 +42,8 @@ Object.assign(pcui, (function () {
 
             super(args);
 
+            this._assets = args.assets;
+
             this._attributesInspector = new pcui.AttributesInspector({
                 assets: args.assets,
                 history: args.history,
@@ -67,6 +69,8 @@ Object.assign(pcui, (function () {
 
             const label = listItem.dom.querySelector('.pcui-label');
             if (!label) return;
+
+            if (!this._assets.get(assetId)) return;
 
             const btn = new pcui.Button({
                 size: 'small',
@@ -128,12 +132,12 @@ Object.assign(pcui, (function () {
         }
 
         unlink() {
-            super.unlink();
-            this._attributesInspector.unlink();
-
             if (this._entities) {
                 this._stopAnimation(this._entities);
             }
+
+            super.unlink();
+            this._attributesInspector.unlink();
         }
     }
 

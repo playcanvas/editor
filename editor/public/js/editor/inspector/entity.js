@@ -268,11 +268,15 @@ Object.assign(pcui, (function () {
 
             this._entities = entities;
 
-            if (this._templateInspector) {
-                this._templateInspector.link(entities);
-            }
-            if (this._templateOverridesSidebar) {
-                this._templateOverridesSidebar.link(entities);
+            try {
+                if (this._templateInspector) {
+                    this._templateInspector.link(entities);
+                }
+                if (this._templateOverridesSidebar) {
+                    this._templateOverridesSidebar.link(entities);
+                }
+            } catch (err) {
+                console.error(err);
             }
 
             this._attributesInspector.link(entities);
@@ -301,7 +305,12 @@ Object.assign(pcui, (function () {
 
                 if (exists) {
                     this._componentInspectors[component].hidden = false;
-                    this._componentInspectors[component].link(entities);
+                    try {
+                        this._componentInspectors[component].link(entities);
+                    } catch (err) {
+                        this._componentInspectors[component].hidden = true;
+                        console.error(err);
+                    }
                     this.class.remove(CLASS_NO_COMPONENTS);
                 }
             }
