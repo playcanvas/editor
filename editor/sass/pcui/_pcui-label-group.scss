@@ -33,25 +33,6 @@
             margin-bottom: 0;
         }
     }
-    // placeholder
-    .pcui-label[placeholder] {
-        position: relative;
-        line-height: 22px;
-
-        &:after {
-            content: attr(placeholder);
-            position: absolute;
-            top: 0;
-            right: 0;
-            padding: 0 8px;
-            line-height: 22px;
-            font-size: 12px;
-            font-weight: 100;
-            white-space: nowrap;
-            color: #999;
-            pointer-events: none;
-        }
-    }
 }
 
 .pcui-label-group-align-top {

@@ -58,14 +58,6 @@ Object.assign(pcui, (function () {
         args: {
             renderChanges: false
         }
-    }, {
-        label: 'Bundles',
-        alias: 'bundles',
-        type: 'bundles',
-        path: 'bundles',
-        args: {
-            type: 'string'
-        }
     }];
 
     ATTRIBUTES.forEach(attr => {
@@ -323,13 +315,6 @@ Object.assign(pcui, (function () {
                     'font.source'
                 ],
                 'preload': [
-                    'folder',
-                    'scene.source',
-                    'texture.source',
-                    'font.source'
-                ],
-                'bundles': [
-                    'bundle',
                     'folder',
                     'scene.source',
                     'texture.source',

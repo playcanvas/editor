@@ -34,3 +34,18 @@
         @extend .noSelect;
     }
 }
+
+// placeholder
+.pcui-label[placeholder] {
+    position: relative;
+
+    &:after {
+        content: attr(placeholder);
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 0 8px;
+        color: #999;
+        pointer-events: none;
+    }
+}
