@@ -139,7 +139,7 @@ editor.once('viewport:load', function() {
 
         shiftKey = evt.shiftKey;
 
-        var delta = (evt.deltaY > 0) ? 1 : (evt.deltaY < 0) ? -1 : 0;
+        var delta = (evt.deltaY > 0) ? -1 : (evt.deltaY < 0) ? 1 : 0;
 
         if (delta !== 0) {
             editor.call('camera:focus:stop');
