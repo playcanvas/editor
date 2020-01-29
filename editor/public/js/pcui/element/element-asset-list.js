@@ -341,10 +341,11 @@ Object.assign(pcui, (function () {
 
             container.dom.setAttribute('data-asset-id', assetId);
 
-            if (asset) {
-                // add asset type class
-                container.class.add(CLASS_ASSET_ITEM + '-' + asset.get('type'));
+            const type = asset ? asset.get('type') : this._assetType;
+            // add asset type class
+            container.class.add(CLASS_ASSET_ITEM + '-' + type);
 
+            if (asset) {
                 // select asset on click
                 container.on('click', () => {
                     this._selectAsset(asset);
@@ -358,10 +359,12 @@ Object.assign(pcui, (function () {
 
             // asset name - bind it to the asset name
             const label = new pcui.Label({
-                text: asset ? asset.get('name') : assetId,
+                text: asset ? asset.get('name') : 'Missing',
                 binding: new pcui.BindingObserversToElement()
             });
-            label.link(asset, 'name');
+            if (asset) {
+                label.link(asset, 'name');
+            }
             container.append(label);
 
             // button to remove asset from list

@@ -37,11 +37,14 @@ Object.assign(pcui, (function () {
             }];
 
             const batchGroups = this._projectSettings.get('batchGroups');
-            for (const key in batchGroups) {
-                options.push({
-                    v: parseInt(key, 10), t: batchGroups[key].name
-                });
+            if (batchGroups) {
+                for (const key in batchGroups) {
+                    options.push({
+                        v: parseInt(key, 10), t: batchGroups[key].name
+                    });
+                }
             }
+
 
             this.options = options;
         }

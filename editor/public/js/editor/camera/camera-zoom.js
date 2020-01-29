@@ -139,12 +139,7 @@ editor.once('viewport:load', function() {
 
         shiftKey = evt.shiftKey;
 
-        var delta = 0;
-        if (evt.detail) {
-            delta = -1 * evt.detail / 3;
-        } else if (evt.wheelDelta) {
-            delta = evt.wheelDelta / 120;
-        }
+        var delta = (evt.deltaY > 0) ? -1 : (evt.deltaY < 0) ? 1 : 0;
 
         if (delta !== 0) {
             editor.call('camera:focus:stop');
@@ -171,6 +166,5 @@ editor.once('viewport:load', function() {
         mouseCoords.y = tap.y;
     });
 
-    window.addEventListener('mousewheel', onMouseWheel, false);
-    window.addEventListener('DOMMouseScroll', onMouseWheel, false);
+    window.addEventListener('wheel', onMouseWheel, false);
 });

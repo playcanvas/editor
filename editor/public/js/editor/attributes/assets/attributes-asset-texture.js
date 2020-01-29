@@ -799,6 +799,7 @@ editor.once('load', function() {
                 path: 'meta.compress.quality'
             });
             fieldQuality.flexGrow = 0;
+            fieldQuality.flexShrink = 0;
             fieldQuality.style.width = '72px';
             // reference
             editor.call('attributes:reference:attach', 'asset:texture:compress:quality', fieldQuality);

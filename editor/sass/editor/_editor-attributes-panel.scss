@@ -840,6 +840,9 @@
                             flex-grow: 1;
                             -webkit-flex-grow: 1;
                             color: $text-dark;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
                         }
                         > .ui-checkbox {
                             &.disabled {

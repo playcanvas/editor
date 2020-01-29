@@ -7,6 +7,21 @@ Object.assign(pcui, (function () {
     const CLASS_SCRIPT_VALID = CLASS_SCRIPT + '-valid';
     const CLASS_SCRIPT_INVALID = CLASS_SCRIPT + '-invalid';
 
+    const ATTRIBUTE_SUBTITLES = {
+        boolean: '{Boolean}',
+        number: '{Number}',
+        string: '{String}',
+        json: '{Object}',
+        asset: '{pc.Asset}',
+        entity: '{pc.Entity}',
+        rgb: '{pc.Color}',
+        rgba: '{pc.Color}',
+        vec2: '{pc.Vec2}',
+        vec3: '{pc.Vec3}',
+        vec4: '{pc.Vec4}',
+        curve: '{pc.Curve}'
+    };
+
     class ScriptComponentInspector extends pcui.ComponentInspector {
         constructor(args) {
             args = Object.assign({}, args);
@@ -556,20 +571,30 @@ Object.assign(pcui, (function () {
         _convertAttributeDataToInspectorData(attributeName, attributeData) {
             let type = attributeData.type;
 
-            const fieldArgs = {};
+            let fieldArgs = {};
 
             // figure out attribute type
             if (attributeData.enum) {
                 type = 'select';
-                fieldArgs.type = attributeData.type;
-                fieldArgs.options = [];
+                const selectInputArgs = {
+                    type: attributeData.type,
+                    options: []
+                };
+
                 for (let i = 0; i < attributeData.enum.order.length; i++) {
                     const key = attributeData.enum.order[i];
-                    fieldArgs.options.push({
+                    selectInputArgs.options.push({
                         v: attributeData.enum.options[key],
                         t: key
                     });
                 }
+
+                if (attributeData.array) {
+                    fieldArgs.elementArgs = selectInputArgs;
+                } else {
+                    fieldArgs = selectInputArgs;
+                }
+
             } else if (attributeData.color) {
                 type = 'gradient';
                 if (attributeData.color.length) {
@@ -597,6 +622,11 @@ Object.assign(pcui, (function () {
                 label: attributeData.title || attributeName,
                 type: type,
                 path: `components.script.scripts.${this._scriptName}.attributes.${attributeName}`,
+                tooltip: {
+                    title: attributeName,
+                    subTitle: this._getAttributeSubtitle(attributeData),
+                    description: attributeData.description || ''
+                },
                 args: fieldArgs
             };
 
@@ -612,6 +642,26 @@ Object.assign(pcui, (function () {
             });
 
             return data;
+        }
+
+        _getAttributeSubtitle(attributeData) {
+            let subTitle = ATTRIBUTE_SUBTITLES[attributeData.type];
+
+            if (attributeData.type === 'curve') {
+                if (attributeData.color) {
+                    if (attributeData.color.length > 1) {
+                        subTitle = '{pc.CurveSet}';
+                    }
+                } else if (attributeData.curves && attributeData.curves.length > 1) {
+                    subTitle = '{pc.CurveSet}';
+                }
+            }
+
+            if (attributeData.array) {
+                subTitle = '[ ' + subTitle + ' ]';
+            }
+
+            return subTitle;
         }
 
         _onAddAttribute(asset, name, index) {
