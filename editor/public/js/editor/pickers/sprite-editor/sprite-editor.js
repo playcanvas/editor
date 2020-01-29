@@ -1926,6 +1926,11 @@ editor.once('load', function () {
         selectedHandle = null;
         atlasImageData = null;
         atlasImageDataCanvas.getContext('2d').clearRect(0, 0, atlasImageDataCanvas.width, atlasImageDataCanvas.height);
+
+        if (atlasImage) {
+            atlasImage.onload = null;
+        }
+
         atlasImage = new Image();
 
         leftButtonDown = false;
