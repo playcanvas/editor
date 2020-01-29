@@ -50,6 +50,23 @@ editor.once('load', function() {
 
     editor.on('attributes:inspect[asset]', function(assets) {
 
+        // Set panel title
+        var multi = assets.length > 1;
+        var type = ((assets[0].get('source') && assets[0].get('type') !== 'folder') ? 'source ' : '') + assets[0].get('type');
+
+        if (multi) {
+            editor.call('attributes:header', assets.length + ' assets');
+
+            for (let i = 0; i < assets.length; i++) {
+                if (type !== ((assets[0].get('source') && assets[0].get('type') !== 'folder') ? 'source ' : '') + assets[i].get('type')) {
+                    type = null;
+                    break;
+                }
+            }
+        } else {
+            editor.call('attributes:header', type);
+        }
+
         if (hasPcuiAssetInspectors) {
             var root = editor.call('attributes.rootPanel');
 
@@ -77,21 +94,6 @@ editor.once('load', function() {
             if (panel.collapsed)
                 panel.collapsed = false;
 
-            var multi = assets.length > 1;
-            var type = ((assets[0].get('source') && assets[0].get('type') !== 'folder') ? 'source ' : '') + assets[0].get('type');
-
-            if (multi) {
-                editor.call('attributes:header', assets.length + ' assets');
-
-                for(var i = 0; i < assets.length; i++) {
-                    if (type !== ((assets[0].get('source') && assets[0].get('type') !== 'folder') ? 'source ' : '') + assets[i].get('type')) {
-                        type = null;
-                        break;
-                    }
-                }
-            } else {
-                editor.call('attributes:header', type);
-            }
 
             // panel
             var panel = editor.call('attributes:addPanel');
