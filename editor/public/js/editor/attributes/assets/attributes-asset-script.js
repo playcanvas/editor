@@ -23,64 +23,59 @@ editor.once('load', function() {
             });
             panelScripts.class.add('component', 'asset-script');
 
+            if (!hasPcuiAssetInspectors) {
+                // order
+                var fieldOrder = editor.call('attributes:addField', {
+                    parent: panel,
+                    name: 'Loading Order'
+                });
+                var btnOrder = new ui.Button({
+                    text: 'Manage'
+                });
+                btnOrder.class.add('loading-order');
+                var panelOrder = fieldOrder.parent;
+                panelOrder.innerElement.removeChild(fieldOrder.element);
+                panelOrder.append(btnOrder);
+                btnOrder.on('click', function() {
+                    editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+                    setTimeout(function() {
+                        editor.call('editorSettings:panel:unfold', 'scripts-order');
+                    }, 0);
+                });
 
+                var preloadField = panel.innerElement.querySelector('.ui-panel.field-checkbox.preload');
+                if (preloadField && preloadField.nextSibling) {
+                    fieldOrder.parent.parent.innerElement.removeChild(fieldOrder.parent.element);
+                    panel.innerElement.insertBefore(fieldOrder.parent.element, preloadField.nextSibling);
+                }
 
+                // reference
+                editor.call('attributes:reference:attach', 'asset:script:order', fieldOrder.parent.innerElement.firstChild.ui);
 
-            // order
-            var fieldOrder = editor.call('attributes:addField', {
-                parent: panel,
-                name: 'Loading Order'
-            });
-            var btnOrder = new ui.Button({
-                text: 'Manage'
-            });
-            btnOrder.class.add('loading-order');
-            var panelOrder = fieldOrder.parent;
-            panelOrder.innerElement.removeChild(fieldOrder.element);
-            panelOrder.append(btnOrder);
-            btnOrder.on('click', function() {
-                editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
-                setTimeout(function() {
-                    editor.call('editorSettings:panel:unfold', 'scripts-order');
-                }, 0);
-            });
+                // loading type
+                var fieldLoadingType = editor.call('attributes:addField', {
+                    name: 'Loading Type',
+                    type: 'number',
+                    enum: [
+                        { v: '', t: '...' },
+                        { v: LOAD_SCRIPT_AS_ASSET, t: 'Asset' },
+                        { v: LOAD_SCRIPT_BEFORE_ENGINE, t: 'Before Engine' },
+                        { v: LOAD_SCRIPT_AFTER_ENGINE, t: 'After Engine' }
+                    ],
+                    link: assets,
+                    path: 'data.loadingType'
+                });
 
-            var preloadField = panel.innerElement.querySelector('.ui-panel.field-checkbox.preload');
-            if (preloadField && preloadField.nextSibling) {
-                fieldOrder.parent.parent.innerElement.removeChild(fieldOrder.parent.element);
-                panel.innerElement.insertBefore(fieldOrder.parent.element, preloadField.nextSibling);
+                // reparent
+                if (preloadField && preloadField.nextSibling) {
+                    fieldLoadingType.parent.parent.innerElement.removeChild(fieldLoadingType.parent.element);
+                    panel.innerElement.insertBefore(fieldLoadingType.parent.element, preloadField.nextSibling);
+                }
+
+                // reference
+                editor.call('attributes:reference:attach', 'asset:script:loadingType', fieldLoadingType.parent.innerElement.firstChild.ui);
+
             }
-
-            // reference
-            editor.call('attributes:reference:attach', 'asset:script:order', fieldOrder.parent.innerElement.firstChild.ui);
-
-            // loading type
-            var fieldLoadingType = editor.call('attributes:addField', {
-                name: 'Loading Type',
-                type: 'number',
-                enum: [
-                    { v: '', t: '...' },
-                    { v: LOAD_SCRIPT_AS_ASSET, t: 'Asset' },
-                    { v: LOAD_SCRIPT_BEFORE_ENGINE, t: 'Before Engine' },
-                    { v: LOAD_SCRIPT_AFTER_ENGINE, t: 'After Engine' }
-                ],
-                link: assets,
-                path: 'data.loadingType'
-            });
-
-            // reparent
-            if (preloadField && preloadField.nextSibling) {
-                fieldLoadingType.parent.parent.innerElement.removeChild(fieldLoadingType.parent.element);
-                panel.innerElement.insertBefore(fieldLoadingType.parent.element, preloadField.nextSibling);
-            }
-
-            if (hasPcuiAssetInspectors) {
-                fieldLoadingType.parent.parent.innerElement.removeChild(fieldLoadingType.parent.element);
-                panel.append(fieldLoadingType.parent.element);
-            }
-
-            // reference
-            editor.call('attributes:reference:attach', 'asset:script:loadingType', fieldLoadingType.parent.innerElement.firstChild.ui);
 
             // parse
             var btnParse = new ui.Button({

@@ -2,9 +2,6 @@ Object.assign(pcui, (function () {
     'use strict';
 
     const CLASS_ROOT = 'asset-inspector';
-    const CLASS_DOWNLOAD_ASSET = CLASS_ROOT + '-download-asset';
-    const CLASS_EDIT_ASSET = CLASS_ROOT + '-edit-asset';
-    const CLASS_EDIT_SPRITE = CLASS_ROOT + '-edit-sprite';
 
     const ATTRIBUTES = [{
         label: 'ID',
@@ -45,6 +42,27 @@ Object.assign(pcui, (function () {
         alias: 'preload',
         type: 'boolean'
     }, {
+        label: 'Loading Order',
+        alias: 'loadingOrder',
+        type: 'button',
+        reference: 'asset:script:order',
+        args: {
+            text: 'Manage'
+        }
+    }, {
+        label: 'Loading Type',
+        path: 'data.loadingType',
+        type: 'select',
+        reference: 'asset:script:loadingType',
+        args: {
+            type: 'number',
+            options: [
+                { v: LOAD_SCRIPT_AS_ASSET, t: 'Asset' },
+                { v: LOAD_SCRIPT_BEFORE_ENGINE, t: 'Before Engine' },
+                { v: LOAD_SCRIPT_AFTER_ENGINE, t: 'After Engine' }
+            ]
+        }
+    }, {
         label: 'Size',
         alias: 'size',
         type: 'label',
@@ -61,11 +79,44 @@ Object.assign(pcui, (function () {
     }];
 
     ATTRIBUTES.forEach(attr => {
+        if (attr.reference) return;
+
         const path = attr.alias || attr.path;
         if (!path) return;
         const parts = path.split('.');
         attr.reference = `asset:${parts[parts.length - 1]}`;
     });
+
+    // Hide fields based on current asset type
+    const HIDDEN_FIELDS = {
+        'tags': [
+            'folder',
+            'scene.source',
+            'texture.source',
+            'font.source'
+        ],
+        'source_asset_id': [
+            'folder',
+            'scene.source',
+            'texture.source',
+            'font.source'
+        ],
+        'preload': [
+            'folder',
+            'scene.source',
+            'texture.source',
+            'font.source'
+        ],
+        'assets': [
+            'single'
+        ],
+        'id': [
+            'multi'
+        ],
+        'name': [
+            'multi'
+        ]
+    };
 
     class AssetInspector extends pcui.Container {
         constructor(args) {
@@ -96,10 +147,9 @@ Object.assign(pcui, (function () {
             // add download button
             this._btnDownloadAsset = new pcui.Button({
                 text: 'Download',
-                icon: 'E228',
-                flexGrow: 1,
-                class: CLASS_DOWNLOAD_ASSET
+                icon: 'E228'
             });
+            this._btnDownloadAsset.style.flex = 1;
 
             this._btnDownloadAsset.hidden = !editor.call('permissions:read');
             const evtBtnDownloadPermissions = editor.on('permissions:set:' + config.self.id, () => {
@@ -116,10 +166,9 @@ Object.assign(pcui, (function () {
 
             this._btnEditAsset = new pcui.Button({
                 text: editor.call('permissions:write') ? 'Edit' : 'View',
-                icon: 'E130',
-                flexGrow: 1,
-                class: CLASS_EDIT_ASSET
+                icon: 'E130'
             });
+            this._btnEditAsset.style.flex = 1;
             const evtBtnEditPermissions = editor.on('permissions:writeState', (state) => {
                 this._btnEditAsset.text = state ? 'Edit' : 'View';
             });
@@ -130,15 +179,15 @@ Object.assign(pcui, (function () {
             this._btnContainer.append(this._btnEditAsset);
 
             // add edit button
-
             this._btnEditSprite = new pcui.Button({
                 text: 'Sprite Editor',
-                icon: 'E395',
-                flexGrow: 1,
-                class: CLASS_EDIT_SPRITE
+                icon: 'E395'
             });
+            this._btnEditSprite.style.flex = 1;
             this._btnEditSprite.on('click', this._onClickEditSprite.bind(this));
             this._btnContainer.append(this._btnEditSprite);
+
+            this._attributesInspector.getField('loadingOrder').on('click', this._onClickLoadingOrder.bind(this));
 
             // add typed asset inspectors
             this._typedAssetInspectors = {};
@@ -197,6 +246,13 @@ Object.assign(pcui, (function () {
                 return;
 
             editor.call('selector:set', 'asset', [asset]);
+        }
+
+        _onClickLoadingOrder() {
+            editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+            setTimeout(function() {
+                editor.call('editorSettings:panel:unfold', 'scripts-order');
+            }, 0);
         }
 
         _updateFileSize(assets) {
@@ -300,57 +356,11 @@ Object.assign(pcui, (function () {
                 }
             }
 
-            // Hide fields based on current asset type
-            const hiddenFields = {
-                'tags': [
-                    'folder',
-                    'scene.source',
-                    'texture.source',
-                    'font.source'
-                ],
-                'source_asset_id': [
-                    'folder',
-                    'scene.source',
-                    'texture.source',
-                    'font.source'
-                ],
-                'preload': [
-                    'folder',
-                    'scene.source',
-                    'texture.source',
-                    'font.source'
-                ],
-                'assets': [
-                    'single'
-                ],
-                'id': [
-                    'multi'
-                ],
-                'name': [
-                    'multi'
-                ]
-            };
-            Object.keys(hiddenFields).forEach(attribute => {
-                let hiddenForAnyAsset = false;
-                assets.forEach(asset => {
-                    let assetType = asset.get('type');
-                    if (asset.get('source') === true) {
-                        assetType += '.source';
-                    }
-                    if (hiddenFields[attribute].includes(assetType)) {
-                        hiddenForAnyAsset = true;
-                    }
-                });
-                if (
-                    hiddenForAnyAsset ||
-                    (hiddenFields[attribute].includes('multi') && assets.length > 1) ||
-                    (hiddenFields[attribute].includes('single') && assets.length === 1)
-                ) {
-                    this._attributesInspector.getField(attribute).parent.hidden = true;
-                } else {
-                    this._attributesInspector.getField(attribute).parent.hidden = false;
-                }
+            Object.keys(HIDDEN_FIELDS).forEach(attribute => {
+                this._toggleAssetField(attribute);
             });
+            this._toggleAssetField('loadingOrder');
+            this._toggleAssetField('data.loadingType');
 
             // Set source asset attribute link
             this._assetEvents.push(this._attributesInspector.getField('source_asset_id').on(
@@ -358,6 +368,38 @@ Object.assign(pcui, (function () {
                 this._onClickSourceAsset.bind(this)
             ));
             this._attributesInspector.getField('source_asset_id').class.add('pcui-selectable');
+        }
+
+        _toggleAssetField(attribute) {
+            const legacyScripts = this._projectSettings.get('useLegacyScripts');
+
+            const hiddenField = HIDDEN_FIELDS[attribute];
+
+            let hiddenForAnyAsset = false;
+            this._assets.forEach(asset => {
+                let assetType = asset.get('type');
+                if (asset.get('source') === true) {
+                    assetType += '.source';
+                }
+
+                if (hiddenField && hiddenField.includes(assetType)) {
+                    hiddenForAnyAsset = true;
+                } else if (attribute === 'loadingOrder' || attribute === 'data.loadingType') {
+                    if (assetType !== 'script' || legacyScripts) {
+                        hiddenForAnyAsset = true;
+                    }
+                }
+            });
+
+            if (hiddenForAnyAsset ||
+                (hiddenField && hiddenField.includes('multi') && this._assets.length > 1) ||
+                (hiddenField && hiddenField.includes('single') && this._assets.length === 1)
+            ) {
+                this._attributesInspector.getField(attribute).parent.hidden = true;
+            } else {
+                this._attributesInspector.getField(attribute).parent.hidden = false;
+            }
+
         }
 
         unlink() {
