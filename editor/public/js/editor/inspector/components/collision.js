@@ -17,6 +17,8 @@ Object.assign(pcui, (function () {
                 v: 'cylinder', t: 'Cylinder'
             }, {
                 v: 'mesh', t: 'Mesh'
+            }, {
+                v: 'compound', t: 'Compound'
             }]
         }
     }, {

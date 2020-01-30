@@ -136,6 +136,8 @@ Object.assign(pcui, (function () {
                 callback: this._queueRenderHandler
             });
 
+            this._events = [];
+
             this._frame = 0;
             this._animating = false;
 
@@ -264,9 +266,9 @@ Object.assign(pcui, (function () {
                     if (entry.status === 'loaded') {
                         img = entry.value;
                     } else {
-                        entry.once('loaded', entry => {
+                        this._events.push(entry.once('loaded', entry => {
                             editor.call('assets:sprite:watch:trigger', this._asset);
-                        });
+                        }));
                     }
 
                 } else {
@@ -278,9 +280,9 @@ Object.assign(pcui, (function () {
 
                     // insert image into cache which fires an event when the image is loaded
                     entry = imageCache.insert(engineAtlas.file.hash, img);
-                    entry.once('loaded', entry => {
+                    this._events.push(entry.once('loaded', entry => {
                         editor.call('assets:sprite:watch:trigger', this._asset);
-                    });
+                    }));
                 }
             } else {
                 img = atlasTexture.getSource();
@@ -300,6 +302,9 @@ Object.assign(pcui, (function () {
         }
 
         destroy() {
+            this._events.forEach(evt => evt.unbind());
+            this._events.length = 0;
+
             if (this._watch) {
                 editor.call('assets:sprite:unwatch', this._asset, this._watch);
                 this._watch = null;

@@ -26,3 +26,26 @@
 .pcui-label.pcui-error {
     color: $error-secondary;
 }
+
+.pcui-label.pcui-selectable {
+    &:hover {
+        color: $text-active;
+        text-decoration: underline;
+        @extend .noSelect;
+    }
+}
+
+// placeholder
+.pcui-label[placeholder] {
+    position: relative;
+
+    &:after {
+        content: attr(placeholder);
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 0 8px;
+        color: #999;
+        pointer-events: none;
+    }
+}

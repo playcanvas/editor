@@ -9,4 +9,7 @@ editor.once('load', function () {
     editor.method('schema:asset:getType', function (path) {
         return editor.call('schema:getTypeForPath', config.schema.asset, path);
     });
+    editor.method('schema:assets:list', () => {
+        return config.schema.asset.type.$enum;
+    });
 });
