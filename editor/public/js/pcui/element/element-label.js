@@ -6,6 +6,7 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.Label
      * @classdesc The Label is a simple span element that displays some text.
+     * @property {String} placeholder Gets / sets the placeholder label that appears on the right of the label.
      * @property {String} text Gets / sets the text of the Label.
      * @property {Boolean} renderChanges If true then the Label will flash when its text changes.
      * @extends pcui.Element
@@ -31,6 +32,7 @@ Object.assign(pcui, (function () {
             if (args.nativeTooltip) {
                 this.dom.title = this.text;
             }
+            this.placeholder = args.placeholder || null;
 
             this.renderChanges = args.renderChanges || false;
 
@@ -98,6 +100,18 @@ Object.assign(pcui, (function () {
                 this.class.add(pcui.CLASS_MULTIPLE_VALUES);
             } else {
                 this._updateText(values[0]);
+            }
+        }
+
+        get placeholder() {
+            return this.dom.getAttribute('placeholder');
+        }
+
+        set placeholder(value) {
+            if (value) {
+                this.dom.setAttribute('placeholder', value);
+            } else {
+                this.dom.removeAttribute('placeholder');
             }
         }
     }
