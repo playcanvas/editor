@@ -533,7 +533,6 @@ Object.assign(pcui, (function () {
             this._field('opacity').parent.hidden = this._field('color').parent.hidden;
             this._field('rect').parent.hidden = !isImage || sprite;
             this._field('mask').parent.hidden = !isImage;
-            this._field('batchGroupId').parent.hidden = !editor.call('users:hasFlag', 'has2DBatchGroups');
 
             this._field('width').disabled = horizontalSplit || (this._field('autoWidth').value && isText);
             this._field('height').disabled = verticalSplit || (this._field('autoHeight').value && isText);
