@@ -1,0 +1,2 @@
+# editor
+The PlayCanvas Editor
