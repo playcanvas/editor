@@ -614,11 +614,10 @@ editor.once('load', function () {
     var onWheel = function (e) {
         e.preventDefault();
 
-        var factor = 1.1;
-        var wheel = e.deltaY > 0 ? 1.0/factor : (e.deltaY < 0 ? factor : 0);
-        if (wheel) {
-            var zoom = controls.get('zoom');
-            controls.set('zoom', Math.max(0.75, zoom * wheel));
+        var wheel = e.deltaY > 0 ? -0.1 : (e.deltaY < 0 ? 0.1 : 0);
+        if (wheel !== 0) {
+            var newZoom = Math.max(0.7, controls.get('zoom') + wheel);
+            controls.set('zoom', newZoom);
         }
     };
 
