@@ -508,8 +508,7 @@ editor.once('load', function() {
         scrolling = false;
         window.removeEventListener('mouseup', onMouseUp);
         window.removeEventListener('mousemove', onMouseMove);
-        window.removeEventListener('mousewheel', onMouseWheel);
-        window.removeEventListener('DOMMouseScroll', onMouseWheel);
+        window.removeEventListener('wheel', onMouseWheel);
     }
 
     function resetCurve (curve) {
@@ -1549,14 +1548,11 @@ editor.once('load', function() {
 
     // Handle mouse wheel
     var onMouseWheel = function (e) {
-        var delta = 0;
-        if (e.detail)
-            delta = -1 * e.detail * 0.05;
-        else if (e.wheelDelta)
-            delta = e.wheelDelta / 120;
-
-        if (delta !== 0)
-            adjustZoom(delta);
+        if (e.deltaY > 0) {
+            adjustZoom(-0.3);
+        } else if (e.deltaY < 0) {
+            adjustZoom(0.3);
+        }
     };
 
     // call picker
@@ -1575,8 +1571,7 @@ editor.once('load', function() {
 
         window.addEventListener('mouseup', onMouseUp);
         window.addEventListener('mousemove', onMouseMove);
-        window.addEventListener('mousewheel', onMouseWheel);
-        window.addEventListener('DOMMouseScroll', onMouseWheel);
+        window.addEventListener('wheel', onMouseWheel);
     });
 
     editor.method('picker:curve:close', function () {

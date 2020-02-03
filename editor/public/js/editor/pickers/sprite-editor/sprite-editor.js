@@ -314,8 +314,7 @@ editor.once('load', function () {
         window.addEventListener('mouseup', onMouseUp);
         window.addEventListener('mousemove', onMouseMove);
         canvas.element.addEventListener('mousedown', onMouseDown);
-        canvas.element.addEventListener('mousewheel', onWheel); // WekKit
-        canvas.element.addEventListener('DOMMouseScroll', onWheel); // Gecko
+        canvas.element.addEventListener('wheel', onWheel);
 
         // 'F' hotkey to focus canvas
         editor.call('hotkey:register', 'sprite-editor-focus', {
@@ -362,8 +361,7 @@ editor.once('load', function () {
         window.removeEventListener('mouseup', onMouseUp);
         window.removeEventListener('mousemove', onMouseMove);
         canvas.element.removeEventListener('mousedown', onMouseDown);
-        canvas.element.removeEventListener("mousewheel", onWheel);
-        canvas.element.removeEventListener("DOMMouseScroll", onWheel);
+        canvas.element.removeEventListener("wheel", onWheel);
 
         editor.call('hotkey:unregister', 'sprite-editor-focus');
         editor.call('hotkey:unregister', 'sprite-editor-esc');
@@ -616,20 +614,11 @@ editor.once('load', function () {
     var onWheel = function (e) {
         e.preventDefault();
 
-        var wheel = 0;
-
-        // FF uses 'detail' and returns a value in 'no. of lines' to scroll
-        // WebKit and Opera use 'wheelDelta', WebKit goes in multiples of 120 per wheel notch
-        if (e.detail) {
-            wheel = -1 * e.detail;
-        } else if (e.wheelDelta) {
-            wheel = e.wheelDelta / 120;
-        } else {
-            wheel = 0;
+        var wheel = e.deltaY > 0 ? -0.1 : (e.deltaY < 0 ? 0.1 : 0);
+        if (wheel !== 0) {
+            var newZoom = Math.max(0.7, controls.get('zoom') + wheel);
+            controls.set('zoom', newZoom);
         }
-
-        var zoom = controls.get('zoom');
-        controls.set('zoom', Math.max(0.75, zoom + wheel * 0.1));
     };
 
     var clamp = function (value, minValue, maxValue) {
