@@ -77,10 +77,6 @@ Object.assign(pcui, (function () {
             // initialize content container
             this._initializeContent(args);
 
-            // event handlers
-            this._evtAppend = null;
-            this._evtRemove = null;
-
             // header size
             this.headerSize = args.headerSize !== undefined ? args.headerSize : 32;
 
@@ -92,18 +88,6 @@ Object.assign(pcui, (function () {
             this._reflowTimeout = null;
             this._widthBeforeCollapse = null;
             this._heightBeforeCollapse = null;
-
-            // if we initialize the panel collapsed
-            // then use the width / height passed in the arguments
-            // as the size to expand to
-            if (args.collapsed) {
-                if (args.width) {
-                    this._widthBeforeCollapse = args.width;
-                }
-                if (args.height) {
-                    this._heightBeforeCollapse = args.height;
-                }
-            }
 
             this.collapsible = args.collapsible || false;
             this.collapsed = args.collapsed || false;
@@ -176,14 +160,6 @@ Object.assign(pcui, (function () {
             this.append(this._containerContent);
         }
 
-        _onChildrenChange() {
-            if (!this.collapsible || this.collapsed || this._collapseHorizontally || this.hidden) {
-                return;
-            }
-
-            this.height = this.headerSize + this._containerContent.dom.clientHeight;
-        }
-
         // Collapses or expands the panel as needed
         _reflow() {
             if (this._suspendReflow) {
@@ -211,10 +187,10 @@ Object.assign(pcui, (function () {
                 if (this.collapsed) {
                     // remember size before collapse
                     if (!this._widthBeforeCollapse) {
-                        this._widthBeforeCollapse = this.dom.clientWidth;
+                        this._widthBeforeCollapse = this.style.width;
                     }
                     if (!this._heightBeforeCollapse) {
-                        this._heightBeforeCollapse = this.dom.clientHeight;
+                        this._heightBeforeCollapse = this.style.height;
                     }
 
                     if (this._collapseHorizontally) {
@@ -314,22 +290,7 @@ Object.assign(pcui, (function () {
 
             this._collapsible = value;
 
-            if (this._evtAppend) {
-                this._evtAppend.unbind();
-                this._evtAppend = null;
-            }
-
-            if (this._evtRemove) {
-                this._evtRemove.unbind();
-                this._evtRemove = null;
-            }
-
             if (value) {
-                // listen to append / remove events so we can change our height
-                const onChange = this._onChildrenChange.bind(this);
-                this._evtAppend = this._containerContent.on('append', onChange);
-                this._evtRemove = this._containerContent.on('remove', onChange);
-
                 this.class.add(pcui.CLASS_COLLAPSIBLE);
             } else {
                 this.class.remove(pcui.CLASS_COLLAPSIBLE);
