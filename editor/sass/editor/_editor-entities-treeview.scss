@@ -1,0 +1,51 @@
+.entities-treeview {
+    height: 100%;
+
+    // template instance icon
+    .pcui-treeview-item.template-instance {
+        > .pcui-treeview-item-contents {
+            > .pcui-treeview-item-icon:after {
+                content: map-get($asset-icons, 'template');
+            }
+        }
+    }
+
+    // template instance child
+    .pcui-treeview-item.template-instance-child {
+        > .pcui-treeview-item-contents {
+            > .pcui-treeview-item-text:before {
+                content: map-get($asset-icons, 'template');
+                position: absolute;
+                left: -13px;
+                top: -5px;
+                font-size: 12px;
+                color: $text-darkest;
+                text-shadow: -1px 2px 1px $bcg-primary;
+                @extend .font-icon;
+            }
+
+            &.pcui-treeview-item-selected, &:hover {
+                > .pcui-treeview-item-text:before {
+                    color: $text-primary;
+                }
+            }
+        }
+    }
+}
+
+.entities-treeview-highlight {
+    > .pcui-treeview-item-contents > .pcui-treeview-item-text {
+        color: $text-active;
+    }
+}
+
+.entities-treeview-user-marker-container {
+    margin-left: auto;
+}
+
+.entities-treeview-user-marker {
+    display: inline-block;
+    margin-right: 4px;
+    width: 8px;
+    height: 8px;
+}

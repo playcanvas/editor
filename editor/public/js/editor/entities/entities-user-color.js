@@ -1,6 +1,8 @@
 editor.once('load', function() {
     'use strict';
 
+    if (editor.call('users:hasFlag', 'hasPcuiEntities')) return;
+
     var colors = { };
     var items = { };
     var pool = { };

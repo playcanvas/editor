@@ -54,7 +54,7 @@ editor.once('load', function () {
 
         // create new Entity data
         var entity = new Observer(data);
-        editor.call('entities:addEntity', entity, parent, !defaultData.noSelect);
+        editor.call('entities:addEntity', entity, parent, !defaultData.noSelect, defaultData.index);
 
         // history
         if (!defaultData.noHistory) {

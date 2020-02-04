@@ -113,11 +113,11 @@ editor.once('load', function() {
                 queueRender();
             });
 
-            var renderQueued;
+            var renderAnimationFrame;
 
             var renderPreview = function () {
-                if (renderQueued)
-                    renderQueued = false;
+                if (renderAnimationFrame)
+                    renderAnimationFrame = null;
 
                 if (playing) {
                     var now = Date.now();
@@ -146,9 +146,8 @@ editor.once('load', function() {
 
             // queue up the rendering to prevent too oftern renders
             var queueRender = function() {
-                if (renderQueued) return;
-                renderQueued = true;
-                requestAnimationFrame(renderPreview);
+                if (renderAnimationFrame) return;
+                renderAnimationFrame = requestAnimationFrame(renderPreview);
             };
 
             // render on resize
@@ -171,8 +170,15 @@ editor.once('load', function() {
         }
 
         panelProperties.once('destroy', function() {
-            for(var i = 0; i < events.length; i++)
+            if (renderAnimationFrame) {
+                cancelAnimationFrame(renderAnimationFrame);
+                renderAnimationFrame = null;
+            }
+
+            for(var i = 0; i < events.length; i++) {
                 events[i].unbind();
+            }
+            events.length = 0;
         });
     });
 });

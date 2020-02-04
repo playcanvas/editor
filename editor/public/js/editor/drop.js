@@ -69,8 +69,8 @@ editor.once('load', function () {
         return dropManager;
     });
 
-    editor.method('drop:activate', () => {
-        dropManager.active = true;
+    editor.method('drop:activate', (active) => {
+        dropManager.active = active;
     });
     editor.method('drop:active', function () {
         return dropManager.active;

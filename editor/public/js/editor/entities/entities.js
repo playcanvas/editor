@@ -49,6 +49,7 @@ editor.once('load', function() {
     // remove all entities
     editor.method('entities:clear', function () {
         entities.clear();
+        editor.emit('entities:clear');
     });
 
     // get entity

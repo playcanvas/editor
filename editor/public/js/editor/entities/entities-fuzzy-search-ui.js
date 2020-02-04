@@ -6,6 +6,8 @@ editor.once('load', function() {
     var changing = false;
     var itemsIndex = { };
 
+    const hasPcuiEntities = editor.call('users:hasFlag', 'hasPcuiEntities');
+
     var results = new ui.List();
     results.element.tabIndex = 0;
     results.hidden = true;
@@ -178,6 +180,8 @@ editor.once('load', function() {
     panel.prepend(search);
 
     search.element.addEventListener('keydown', function(evt) {
+        if (hasPcuiEntities) return;
+
         if (evt.keyCode === 27) {
             searchClear.click();
 
@@ -315,6 +319,11 @@ editor.once('load', function() {
 
     var performSearch = function() {
         var query = lastSearch;
+
+        if (hasPcuiEntities) {
+            hierarchy.filter = query;
+            return;
+        }
 
         // clear results list
         results.clear();

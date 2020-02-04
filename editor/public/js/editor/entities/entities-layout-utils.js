@@ -26,11 +26,13 @@ editor.once('load', function() {
             var historyEnabled = entity.history.enabled;
             entity.history.enabled = false;
 
-            forceSet(entity, 'components.element.width', entity.entity.element.width);
-            forceSet(entity, 'components.element.height', entity.entity.element.height);
+            if (entity.entity.element) {
+                forceSet(entity, 'components.element.width', entity.entity.element.width);
+                forceSet(entity, 'components.element.height', entity.entity.element.height);
 
-            var anchor = entity.entity.element.anchor;
-            forceSet(entity, 'components.element.anchor', [anchor.x, anchor.y, anchor.z, anchor.w]);
+                var anchor = entity.entity.element.anchor;
+                forceSet(entity, 'components.element.anchor', [anchor.x, anchor.y, anchor.z, anchor.w]);
+            }
 
             var pos = entity.entity.getLocalPosition();
             forceSet(entity, 'position', [pos.x, pos.y, pos.z]);

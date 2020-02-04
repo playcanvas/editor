@@ -8,6 +8,8 @@ editor.once('load', function() {
 
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
+    const usePcuiTreeview = editor.call('users:hasFlag', 'hasPcuiEntities');
+
     // Selenium's moveToObject (http://webdriver.io/api/action/moveToObject.html)
     // doesn't seem to work properly in terms of activating nested submenus in the
     // entities context menu. I spent a while trying various combinations of workarounds
@@ -458,19 +460,22 @@ editor.once('load', function() {
     });
 
     // for each entity added
-    editor.on('entities:add', function(item) {
-        // get tree item
-        var treeItem = editor.call('entities:panel:get', item.get('resource_id'));
-        if (! treeItem) return;
+    if (!usePcuiTreeview) {
+        editor.on('entities:add', function(item) {
+            // get tree item
+            var treeItem = editor.call('entities:panel:get', item.get('resource_id'));
+            if (! treeItem) return;
 
-        // attach contextmenu event
-        treeItem.element.addEventListener('contextmenu', function(evt) {
-            var openned = editor.call('entities:contextmenu:open', item, evt.clientX, evt.clientY);
+            // attach contextmenu event
+            treeItem.element.addEventListener('contextmenu', function(evt) {
+                var openned = editor.call('entities:contextmenu:open', item, evt.clientX, evt.clientY);
 
-            if (openned) {
-                evt.preventDefault();
-                evt.stopPropagation();
-            }
+                if (openned) {
+                    evt.preventDefault();
+                    evt.stopPropagation();
+                }
+            });
         });
-    });
+    }
+
 });
