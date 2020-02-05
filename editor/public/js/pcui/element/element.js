@@ -251,7 +251,6 @@ Object.assign(pcui, (function () {
         }
 
         _onParentDestroy() {
-            if (this._ignoreParent) return;
             this.destroy();
         }
 
