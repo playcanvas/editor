@@ -16,10 +16,12 @@ function Canvas(args) {
     this._ratio = (args.useDevicePixelRatio !== undefined && args.useDevicePixelRatio) ? window.devicePixelRatio : 1;
     this._width = 300;
     this._height = 150;
+    this._firstResize = true;
 
     // Disable I-bar cursor on click+drag
     this._element.onselectstart = this.onselectstart;
 }
+
 Canvas.prototype = Object.create(ui.Element.prototype);
 
 Canvas.prototype.onselectstart = function() {
@@ -27,15 +29,16 @@ Canvas.prototype.onselectstart = function() {
 };
 
 Canvas.prototype.resize = function(width, height) {
-    if (this._width === width && this._height === height)
+    if (!this._firstResize && this._width === width && this._height === height)
         return;
 
+    this._firstResize = false;
     this._width = width;
     this._height = height;
-    this._element.style.width = width + 'px';
-    this._element.style.height = height + 'px';
     this._element.width = width * this._ratio;
     this._element.height = height * this._ratio;
+    this._element.style.width = width + 'px';
+    this._element.style.height = height + 'px';
     this.emit('resize', width, height);
 };
 
@@ -47,8 +50,8 @@ Object.defineProperty(Canvas.prototype, 'width', {
         if (this._width === value)
             return;
 
-        this._element.style.width = value * 'px';
         this._element.width = value * this._ratio;
+        this._element.style.width = value * 'px';
         this.emit('resize', this._width, this._height);
     }
 });
@@ -61,8 +64,8 @@ Object.defineProperty(Canvas.prototype, 'height', {
         if (this._height === value)
             return;
 
-        this._element.style.height = value + 'px';
         this._element.height = value * this._ratio;
+        this._element.style.height = value + 'px';
         this.emit('resize', this._width, this._height);
     }
 });
