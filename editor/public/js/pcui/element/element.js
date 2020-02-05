@@ -270,7 +270,6 @@ Object.assign(pcui, (function () {
         }
 
         _onReadOnlyChange(readOnly) {
-            if (this._ignoreParent) return;
             if (readOnly) {
                 this.class.add(pcui.CLASS_READONLY);
             } else {
