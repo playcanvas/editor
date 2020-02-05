@@ -102,7 +102,7 @@ Object.assign(pcui, (function () {
      * @property {pcui.Element} parent Gets the parent Element.
      * @property {Boolean} hidden Gets / sets whether the Element is hidden.
      * @property {Boolean} readOnly Gets / sets whether the Element is read only.
-     * @property {Boolean} ignoreParent Gets / sets whether the Element should take into account parent events & variable states.
+     * @property {Boolean} ignoreParent Gets / sets whether the Element will ignore parent events & variable states.
      * @property {Number} width Gets / sets the width of the Element in pixels. Can also be an empty string to remove it.
      * @property {Number} height Gets / sets the height of the Element in pixels. Can also be an empty string to remove it.
      * @property {Number} tabIndex Gets / sets the tabIndex of the Element.
