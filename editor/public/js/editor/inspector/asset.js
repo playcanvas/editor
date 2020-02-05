@@ -147,7 +147,8 @@ Object.assign(pcui, (function () {
             // add download button
             this._btnDownloadAsset = new pcui.Button({
                 text: 'Download',
-                icon: 'E228'
+                icon: 'E228',
+                ignoreParent: true
             });
             this._btnDownloadAsset.style.flex = 1;
 
@@ -166,7 +167,8 @@ Object.assign(pcui, (function () {
 
             this._btnEditAsset = new pcui.Button({
                 text: editor.call('permissions:write') ? 'Edit' : 'View',
-                icon: 'E130'
+                icon: 'E130',
+                ignoreParent: true
             });
             this._btnEditAsset.style.flex = 1;
             const evtBtnEditPermissions = editor.on('permissions:writeState', (state) => {
