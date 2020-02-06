@@ -14,9 +14,34 @@ editor.once('load', function() {
     };
 
     editor.on('attributes:inspect[asset]', function(assets) {
+
         for(var i = 0; i < assets.length; i++) {
             if (assets[i].get('type') !== 'model' || assets[i].get('source'))
                 return;
+        }
+
+        const hasPcuiAssetInspectors = editor.call('users:hasFlag', 'hasPcuiAssetInspectors');
+        if (hasPcuiAssetInspectors) {
+            // nodes panel
+            panelNodes = editor.call('attributes:addPanel', {
+                name: 'Mesh Instances'
+            });
+            panelNodes.class.add('component');
+            panelNodes.flex = true;
+            panelNodes.innerElement.style.flexDirection = 'column';
+            panelNodes.foldable = true;
+            panelNodes.folded = panelToggles['nodes'];
+            panelNodes.on('fold', function() {
+                panelToggles['nodes'] = true;
+            });
+            panelNodes.on('unfold', function() {
+                panelToggles['nodes'] = false;
+            });
+            panelNodes.class.add('noHeader');
+
+            // references
+            editor.call('attributes:reference:attach', 'asset:model:meshInstances', panelNodes, panelNodes.headerElement);
+            return;
         }
 
         if (assets.length > 1)

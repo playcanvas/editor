@@ -12,6 +12,8 @@ editor.once('load', function() {
     var currentEntities = null;
     var currentAsset = null;
 
+    const hasPcuiAssetInspectors = editor.call('users:hasFlag', 'hasPcuiAssetInspectors');
+
     // esc to close
     editor.call('hotkey:register', 'picker:node:close', {
         key: 'esc',
@@ -199,6 +201,31 @@ editor.once('load', function() {
             setTimeout(function() {
                 panelNodes.element.focus();
             }, 100);
+
+            if (hasPcuiAssetInspectors) {
+                const modelEntityMaterials = new pcui.ModelAssetInspectorMeshInstances({
+                    assets: editor.call('assets:raw'),
+                    history: editor.call('editor:history'),
+                    mode: 'picker',
+                    isMeshInstanceDisabled: isAlreadyOverriden
+                });
+
+                modelEntityMaterials.on('select', (ind) => {
+                    addMapping(ind, currentAsset.get('data.mapping.' + ind + '.material'));
+                    overlay.hidden = true;
+                });
+
+                modelEntityMaterials.link([currentAsset]);
+                panelNodes.append(modelEntityMaterials);
+
+                const evtModelEntityPermissions = editor.on('permissions:writeState', (state) => {
+                    modelEntityMaterials.readOnly = !state;
+                    modelEntityMaterials.enabled = state;
+                });
+                modelEntityMaterials.once('destroy', () => {
+                    evtModelEntityPermissions.unbind();
+                });
+            }
         });
 
     });

@@ -1,0 +1,41 @@
+.pcui-progress {
+    height: 4px;
+    background-color: $bcg-darkest;
+    transition: opacity 100ms;
+    display: flex;
+    flex-grow: 1;
+
+
+    .pcui-progress-inner {
+        width: 0%;
+        height: inherit;
+
+        $first: rgba($text-active, 1);
+        $second: rgba(darken($text-active, 17%), 1);
+
+        background: $text-active;
+        background: -webkit-gradient(left top, right bottom, color-stop(0%, $first), color-stop(25%, $first), color-stop(26%, $second), color-stop(50%, $second), color-stop(51%, $first), color-stop(75%, $first), color-stop(76%, $second), color-stop(100%, $second));
+        background: -webkit-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+        background: -moz-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+        background: -ms-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+        background: -o-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+        background: linear-gradient(135deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+        background-position: 0px 0px;
+        background-size: 24px 24px;
+        background-repeat: repeat;
+
+        // animate
+        -webkit-animation: pcui-progress-background 1000ms linear infinite;
+        animation: pcui-progress-background 1000ms linear infinite;
+    }
+}
+
+// ui-progress animation
+@-webkit-keyframes pcui-progress-background {
+    from { background-position: 0px 0; }
+    to { background-position: 24px 0; }
+}
+@keyframes pcui-progress-background {
+    from { background-position: 0px 0; }
+    to { background-position: 24px 0; }
+}

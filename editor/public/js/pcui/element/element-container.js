@@ -530,6 +530,68 @@ Object.assign(pcui, (function () {
             }
         }
 
+        /**
+         * If the current node contains a root, recursively append it's children to this node
+         * and return it. Otherwise return the current node. Also add each child to the parent
+         * under its keyed name.
+         *
+         * @param {Object} node - The current element in the dom structure which must be recursively
+         * traversed and appended to it's parent
+         *
+         * @returns {pcui.Element} - The recursively appended element node
+         *
+         */
+        _buildDomNode(node) {
+            const keys = Object.keys(node);
+            let rootNode;
+            if (keys.includes('root')) {
+                rootNode = this._buildDomNode(node.root);
+                node.children.forEach(childNode => {
+                    const childNodeElement = this._buildDomNode(childNode);
+                    if (childNodeElement !== null) {
+                        rootNode.append(childNodeElement);
+                    }
+                });
+            } else {
+                rootNode = node[keys[0]];
+                this[`_${keys[0]}`] = rootNode;
+            }
+            return rootNode;
+        }
+
+        /**
+         * Takes an array of pcui elements, each of which can contain their own child elements, and
+         * appends them to this container. These child elements are traversed recursively using
+         * _buildDomNode.
+         *
+         * @param {array} dom - An array of child pcui elements to append to this container.
+         *
+         * @example
+         *
+         *     buildDom([
+         *          {
+         *              child1: pcui.Label()
+         *          },
+         *          {
+         *              root: {
+         *                  container1: pcui.Container()
+         *              },
+         *              children: {
+         *                  [
+         *                      {child2: pcui.Label()},
+         *                      {child3: pcui.Label()}
+         *                  ]
+         *              }
+         *          }
+         *     ])
+         */
+        buildDom(dom) {
+            dom.forEach(node => {
+                const builtNode = this._buildDomNode(node);
+                this.append(builtNode);
+            });
+        }
+
         destroy() {
             if (this._destroyed) return;
             this.domContent = null;
