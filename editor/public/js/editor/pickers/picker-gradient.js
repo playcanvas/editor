@@ -394,9 +394,11 @@ editor.once('load', function() {
 
     function renderGradient() {
         var ctx = UI.gradient.element.getContext('2d');
-        var w = UI.gradient.pixelWidth;
-        var h = UI.gradient.pixelHeight;
+        var w = UI.gradient.width;
+        var h = UI.gradient.height;
         var r = UI.gradient.pixelRatio;
+
+        ctx.setTransform(r, 0, 0, r, 0, 0);
 
         var s = STATE;
 
@@ -407,7 +409,6 @@ editor.once('load', function() {
         // fill gradient
         var gradient = ctx.createLinearGradient(0, 0, w, 0);
         for (var t=0; t<=w; t+=2) {
-
             var x = t / w;
             gradient.addColorStop(x, Helpers.rgbaStr(evaluateGradient(x), 255));
         }
@@ -421,18 +422,18 @@ editor.once('load', function() {
             var coords = [time * w, h];
 
             ctx.beginPath();
-            ctx.rect(coords[0] - 2 * r,
+            ctx.rect(coords[0] - 2,
                      coords[1],
-                     4 * r,
-                     -6 * r);
+                     4,
+                     -6);
             ctx.fillStyle = 'rgb(255, 255, 255)';
             ctx.fill();
 
             ctx.beginPath();
-            ctx.rect(coords[0] - r,
+            ctx.rect(coords[0] - 1,
                      coords[1],
-                     2 * r,
-                     -6 * r);
+                     2,
+                     -6);
             ctx.fillStyle = 'rgb(0, 0, 0)';
             ctx.fill();
         }
@@ -440,8 +441,11 @@ editor.once('load', function() {
 
     function renderAnchors() {
         var ctx = UI.anchors.element.getContext('2d');
-        var w = UI.anchors.pixelWidth;
-        var h = UI.anchors.pixelHeight;
+        var w = UI.anchors.width;
+        var h = UI.anchors.height;
+        var r = UI.anchors.pixelRatio;
+
+        ctx.setTransform(r, 0, 0, r, 0, 0);
 
         ctx.fillStyle = CONST.bg;
         ctx.fillRect(0, 0, w, h);
@@ -466,26 +470,24 @@ editor.once('load', function() {
     };
 
     function renderAnchor(ctx, time, type) {
-        var coords = [time * UI.anchors.pixelWidth, UI.anchors.pixelHeight / 2];
+        var coords = [time * UI.anchors.width, UI.anchors.height / 2];
         var radius = (type === "selected" ? CONST.selectedRadius : CONST.anchorRadius);
-        var lineWidth = ctx.lineWidth;
-        var r = UI.anchors.pixelRatio;
 
         // render selected arrow
         if (type === "selected") {
             ctx.beginPath();
-            ctx.rect(coords[0] - 2 * r,
+            ctx.rect(coords[0] - 2,
                      coords[1],
-                     4 * r,
-                     -coords[1] * r);
+                     4,
+                     -coords[1]);
             ctx.fillStyle = 'rgb(255, 255, 255)';
             ctx.fill();
 
             ctx.beginPath();
-            ctx.rect(coords[0] - 1 * r,
+            ctx.rect(coords[0] - 1,
                      coords[1],
-                     2 * r,
-                     -coords[1] * r);
+                     2,
+                     -coords[1]);
             ctx.fillStyle = 'rgb(0, 0, 0)';
             ctx.fill();
         }
@@ -493,19 +495,19 @@ editor.once('load', function() {
         // render selection highlight
         if (type === "selected" || type === "hovered") {
             ctx.beginPath();
-            ctx.arc(coords[0], coords[1], (radius + 2) * r, 0, 2 * Math.PI, false);
+            ctx.arc(coords[0], coords[1], (radius + 2), 0, 2 * Math.PI, false);
             ctx.fillStyle = 'rgb(255, 255, 255)';
             ctx.fill();
         }
 
         // render the colour circle and border
         ctx.beginPath();
-        ctx.arc(coords[0], coords[1], (radius + 1) * r, 0, 2 * Math.PI, false);
+        ctx.arc(coords[0], coords[1], (radius + 1), 0, 2 * Math.PI, false);
         ctx.fillStyle = 'rgb(0, 0, 0)';
         ctx.fill();
 
         ctx.beginPath();
-        ctx.arc(coords[0], coords[1], (radius) * r, 0, 2 * Math.PI, false);
+        ctx.arc(coords[0], coords[1], (radius), 0, 2 * Math.PI, false);
         ctx.fillStyle = Helpers.rgbaStr(evaluateGradient(time, 1), 255);
         ctx.fill();
     };

@@ -12,7 +12,7 @@ function CurveField(args) {
     this._element.addEventListener('keydown', this._onKeyDown, false);
 
     // canvas to render mini version of curves
-    this.canvas = new ui.Canvas();
+    this.canvas = new ui.Canvas({ useDevicePixelRatio: true });
     this._element.appendChild(this.canvas.element);
     this.canvas.on('resize', this._render.bind(this));
 
@@ -81,19 +81,10 @@ CurveField.prototype._onKeyDown = function(evt) {
 };
 
 CurveField.prototype._resize = function(width, height) {
-    var changed = false;
-    if (this.canvas.width !== width) {
-        this.canvas.width = width;
-        changed = true;
-    }
-
-    if (this.canvas.height !== height) {
-        this.canvas.height = height;
-        changed = true;
-    }
-
-    if (changed)
+    if (this.canvas.width != width || this.canvas.height != height) {
+        this.canvas.resize(width, height);
         this._render();
+    }
 };
 
 // Override link method to use multiple paths instead of one
@@ -211,8 +202,11 @@ CurveField.prototype._renderCurves = function () {
     var context = canvas.ctx = canvas.ctx || canvas.getContext('2d');
     var value = this.value;
 
+    var width = this.canvas.pixelWidth;
+    var height = this.canvas.pixelHeight;
+
     // draw background
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.clearRect(0, 0, width, height);
 
     var curveColors = ['rgb(255, 0, 0)', 'rgb(0, 255, 0)', 'rgb(133, 133, 252)', 'rgb(255, 255, 255)'];
     var fillColors = ['rgba(255, 0, 0, 0.5)', 'rgba(0, 255, 0, 0.5)', 'rgba(133, 133, 252, 0.5)', 'rgba(255, 255, 255, 0.5)'];
@@ -233,9 +227,6 @@ CurveField.prototype._renderCurves = function () {
 
         context.lineWidth = this._lineWidth;
 
-        var height = canvas.height;
-        var width = canvas.width;
-
         // prevent divide by 0
         if (width === 0) {
             return;
@@ -252,14 +243,14 @@ CurveField.prototype._renderCurves = function () {
 
             var precision = 1;
 
-            for(x = 0; x < Math.floor(canvas.width / precision); x++) {
-                val = primaryCurves[i].value(x * precision / canvas.width);
+            for(x = 0; x < Math.floor(width / precision); x++) {
+                val = primaryCurves[i].value(x * precision / width);
                 context.lineTo(x * precision, this._clampEdge(height * (1 - (val - minValue) / (maxValue - minValue)), 1, height - 1));
             }
 
             if (secondaryCurves) {
-                for(x = Math.floor(canvas.width / precision) ; x >= 0; x--) {
-                    val = secondaryCurves[i].value(x * precision / canvas.width);
+                for(x = Math.floor(width / precision) ; x >= 0; x--) {
+                    val = secondaryCurves[i].value(x * precision / width);
                     context.lineTo(x * precision, this._clampEdge(height * (1 - (val - minValue) / (maxValue - minValue)), 1, height - 1));
                 }
 

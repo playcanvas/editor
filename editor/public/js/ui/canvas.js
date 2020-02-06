@@ -13,9 +13,9 @@ function Canvas(args) {
     if (args.tabindex !== undefined)
         this._element.setAttribute('tabindex', args.tabindex);
 
-    this._ratio = (args.useDevicePixelRatio !== undefined && args.useDevicePixelRatio) ? window.devicePixelRatio : 1;
     this._width = 300;
     this._height = 150;
+    this._ratio = (args.useDevicePixelRatio !== undefined && args.useDevicePixelRatio) ? window.devicePixelRatio : 1;
 
     // Disable I-bar cursor on click+drag
     this._element.onselectstart = this.onselectstart;
@@ -33,8 +33,8 @@ Canvas.prototype.resize = function(width, height) {
 
     this._width = width;
     this._height = height;
-    this._element.width = width * this._ratio;
-    this._element.height = height * this._ratio;
+    this._element.width = this.pixelWidth;
+    this._element.height = this.pixelHeight;
     this._element.style.width = width + 'px';
     this._element.style.height = height + 'px';
     this.emit('resize', width, height);
@@ -49,7 +49,7 @@ Object.defineProperty(Canvas.prototype, 'width', {
             return;
 
         this._width = value;
-        this._element.width = value * this._ratio;
+        this._element.width = this.pixelWidth;
         this._element.style.width = value * 'px';
         this.emit('resize', this._width, this._height);
     }
@@ -64,7 +64,7 @@ Object.defineProperty(Canvas.prototype, 'height', {
             return;
 
         this._height = value;
-        this._element.height = value * this._ratio;
+        this._element.height = this.pixelHeight;
         this._element.style.height = value + 'px';
         this.emit('resize', this._width, this._height);
     }
@@ -72,13 +72,13 @@ Object.defineProperty(Canvas.prototype, 'height', {
 
 Object.defineProperty(Canvas.prototype, 'pixelWidth', {
     get: function() {
-        return this._width * this._ratio;
+        return Math.floor(this._width * this._ratio);
     }
 });
 
 Object.defineProperty(Canvas.prototype, 'pixelHeight', {
     get: function() {
-        return this._height * this._ratio;
+        return Math.floor(this._height * this._ratio);
     }
 });
 

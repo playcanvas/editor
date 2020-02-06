@@ -46,7 +46,7 @@ Object.assign(pcui, (function () {
 
             this.class.add(CLASS_GRADIENT);
 
-            this._canvas = new pcui.Canvas();
+            this._canvas = new pcui.Canvas({useDevicePixelRatio:true});
             this.dom.appendChild(this._canvas.dom);
             this._canvas.parent = this;
             this._canvas.on('resize', this._renderGradient.bind(this));
@@ -172,8 +172,14 @@ Object.assign(pcui, (function () {
             const canvas = this._canvas.dom;
             const context = canvas.getContext('2d');
 
+            const width = this._canvas.width;
+            const height = this._canvas.height;
+            const ratio = this._canvas.pixelRatio;
+
+            context.setTransform(ratio, 0, 0, ratio, 0, 0);
+
             context.fillStyle = this._checkerboardPattern;
-            context.fillRect(0, 0, canvas.width, canvas.height);
+            context.fillRect(0, 0, width, height);
 
             if (!this.value || !this.value.keys || !this.value.keys.length) {
                 return;
@@ -186,21 +192,21 @@ Object.assign(pcui, (function () {
 
             const precision = 2;
 
-            const gradient = context.createLinearGradient(0, 0, canvas.width, 0);
+            const gradient = context.createLinearGradient(0, 0, width, 0);
 
-            for (let t = precision; t < canvas.width; t += precision) {
-                curve.value(t / canvas.width, rgba);
+            for (let t = precision; t < width; t += precision) {
+                curve.value(t / width, rgba);
 
                 const r = Math.round((rgba[0] || 0) * 255);
                 const g = Math.round((rgba[1] || 0) * 255);
                 const b = Math.round((rgba[2] || 0) * 255);
                 const a = this.channels === 4 ? (rgba[3] || 0) : 1;
 
-                gradient.addColorStop(t / canvas.width, `rgba(${r}, ${g}, ${b}, ${a})`);
+                gradient.addColorStop(t / width, `rgba(${r}, ${g}, ${b}, ${a})`);
             }
 
             context.fillStyle = gradient;
-            context.fillRect(0, 0, canvas.width, canvas.height);
+            context.fillRect(0, 0, width, height);
         }
 
         focus() {
