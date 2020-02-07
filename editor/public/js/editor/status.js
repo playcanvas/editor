@@ -40,7 +40,11 @@ editor.once('load', function() {
         status.class.add('error');
     });
 
-
+    // status clear
+    editor.method('status:clear', function () {
+        status.text = '';
+        status.class.remove('error');
+    });
 
     // update jobs
     var updateJobs = function() {

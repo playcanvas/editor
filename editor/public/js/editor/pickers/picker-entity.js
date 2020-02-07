@@ -16,8 +16,9 @@ editor.once('load', function() {
     // elements
     var hierarchy = editor.call('entities:hierarchy');
     var hierarchyPanel = hierarchy.parent;
-    var hierarchyFolded = false;
-    var filter = null;
+    var hierarchyCollapsed = false;
+
+    const usePcuiEntities = editor.call('users:hasFlag', 'hasPcuiEntities');
 
     // esc to close
     editor.call('hotkey:register', 'picker:entity:close', {
@@ -37,7 +38,7 @@ editor.once('load', function() {
 
     // picked entity
     hierarchy.on('select', function (item) {
-        if (overlay.hidden || item.entity === currentEntity || (filter && ! filter(item.entity)))
+        if (overlay.hidden || item.entity === currentEntity)
             return;
 
         // emit event
@@ -52,30 +53,28 @@ editor.once('load', function() {
     // on close entity picker
     overlay.on('hide', function() {
         // fold back hierarchy panel if needed
-        if (hierarchyFolded)
-            hierarchyPanel.folded = true;
+        if (hierarchyCollapsed)
+            hierarchyPanel.collapsed = true;
 
         // disable new selections
         for (var i = 0, len = hierarchy.selected.length; i < len; i++)
             hierarchy.selected[i].selected = false;
 
         // select what was selected
-        hierarchy.selected = initialSelection;
+        if (!usePcuiEntities) {
+            hierarchy.selected = initialSelection;
+        }
+
         for (var i = 0, len = initialSelection.length; i < len; i++)
             initialSelection[i].selected = true;
 
-        if (initialSelection.length)
-            initialSelection[initialSelection.length - 1].elementTitle.focus();
+        if (!usePcuiEntities) {
+            if (initialSelection.length) {
+                initialSelection[initialSelection.length - 1].elementTitle.focus();
+            }
+        }
 
         currentEntity = null;
-
-        var entities = editor.call('entities:list');
-        for(var i = 0; i < entities.length; i++) {
-            var id = entities[i].get('resource_id');
-            var item = editor.call('entities:panel:get', id);
-            if (! item) continue;
-            item.elementTitle.classList.remove('disabled');
-        }
 
         // enable selector
         editor.call('selector:enabled', true);
@@ -109,33 +108,26 @@ editor.once('load', function() {
             var item = editor.call('entities:panel:get', resourceId);
             // select in hierarchy
             if (item) {
-                hierarchy.selected = [ item ];
+                if (!usePcuiEntities) {
+                    hierarchy.selected = [ item ];
+                }
                 item.selected = true;
             }
         } else {
-            hierarchy.selected = [ ];
-        }
-
-        filter = fn || null;
-        var entities = editor.call('entities:list');
-        for(var i = 0; i < entities.length; i++) {
-            var id = entities[i].get('resource_id');
-            var item = editor.call('entities:panel:get', id);
-            if (! item) continue;
-
-            if (filter) {
-                if (! filter(entities[i]))
-                    item.elementTitle.classList.add('disabled');
+            if (usePcuiEntities) {
+                hierarchy.deselect();
+            } else {
+                hierarchy.selected = [ ];
             }
         }
 
         // show hierarchy panel in front
         hierarchyPanel.style.zIndex = 102;
         hierarchyPanel.style.overflow = 'visible';
-        // if panel folded?
-        hierarchyFolded = hierarchyPanel.folded;
-        if (hierarchyFolded)
-            hierarchyPanel.folded = false;
+        // if panel collapsed
+        hierarchyCollapsed = hierarchyPanel.collapsed;
+        if (hierarchyCollapsed)
+            hierarchyPanel.collapsed = false;
 
         // show overlay
         overlay.hidden = false;
@@ -143,8 +135,13 @@ editor.once('load', function() {
         hierarchyPanel.flash();
         // focus on panel
         setTimeout(function() {
-            if (hierarchy.selected.length) {
-                hierarchy.selected[0].elementTitle.focus();
+            const selected = hierarchy.selected;
+            if (selected.length) {
+                if (usePcuiEntities) {
+                    selected[0].focus();
+                } else {
+                    selected[0].elementTitle.focus();
+                }
             } else {
                 hierarchy.element.focus();
             }

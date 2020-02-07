@@ -19,6 +19,7 @@ editor.on('load', function() {
     });
 
     editor.on('scene:raw', function(data) {
+        editor.call('status:clear');
         editor.call('selector:clear');
         editor.call('entities:clear');
         editor.call('attributes:clear');

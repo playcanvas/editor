@@ -1,0 +1,265 @@
+.pcui-treeview {
+    @extend .noSelect;
+    // make sure our width covers the largest visible tree item child
+    // this does not work on Edge
+    min-width: max-content;
+}
+
+.pcui-treeview-item {
+    position: relative;
+    padding-left: 24px;
+
+    // top line
+    &:before {
+        content: '\00a0';
+        position: absolute;
+        background-color: mix($bcg-dark, $bcg-primary, 50%);
+        width: 2px;
+        left: 14px;
+        top: -12px;
+        bottom: 12px;
+    }
+
+    // top line, last item
+    &:last-child:before {
+        height: 25px;
+        bottom: auto;
+    }
+}
+
+.pcui-treeview-item.pcui-disabled {
+    > .pcui-treeview-item-contents {
+        > .pcui-treeview-item-text {
+            opacity: $disabled-opacity;
+        }
+    }
+}
+
+.pcui-treeview-item-contents {
+    position: relative;
+    color: $text-secondary;
+    margin-left: 3px;
+    border: 1px solid transparent;
+    align-items: center;
+    height: 24px;
+    box-sizing: border-box;
+
+    &:hover {
+        cursor: pointer;
+        color: $text-primary;
+        background-color: $bcg-dark;
+
+        > .pcui-treeview-item-icon {
+            color: $text-primary;
+        }
+    }
+}
+
+.pcui-treeview-item-icon {
+    color: $text-darkest;
+    margin: 0 2px 0 0;
+    flex-shrink: 0;
+
+    &:before {
+        content: '\00a0';
+        position: absolute;
+        background-color: mix($bcg-dark, $bcg-primary, 50%);
+        left: -12px;
+        top: 10px;
+        width: 24px;
+        height: 2px;
+    }
+
+    &:after {
+        content: '\E360';
+        @extend .font-icon;
+        display: inline-block;
+        vertical-align: sub;
+        width: 22px;
+        height: 22px;
+        position: relative;
+        z-index: 1;
+        text-align: center;
+    }
+}
+
+.pcui-treeview-item-text {
+    margin: 0;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    transition: opacity 100ms;
+    padding-right: 8px;
+    color: inherit;
+}
+
+.pcui-treeview-item-contents.pcui-treeview-item-selected {
+    background-color: $bcg-darkest;
+    color: $text-primary;
+
+
+    > .pcui-treeview-item-icon {
+        color: $text-primary;
+    }
+}
+
+.pcui-treeview-item:not(.pcui-treeview-item-empty) {
+    > .pcui-treeview-item-contents:before {
+        content: '\E120';
+        @extend .font-icon;
+        position: absolute;
+        font-size: 10px;
+        font-weight: bold;
+        text-align: center;
+        color: $text-secondary;
+        background-color: $bcg-dark;
+        top: 0;
+        left: -24px;
+        width: 16px;
+        height: 16px;
+        line-height: 16px;
+        margin: 3px;
+        cursor: pointer;
+        z-index: 1;
+    }
+
+    &.pcui-treeview-item-open {
+        > .pcui-treeview-item-contents:before {
+            content: '\E121';
+        }
+    }
+}
+
+.pcui-treeview {
+    // direct children of tree
+    > .pcui-treeview-item {
+        padding-left: 0;
+        &:before {
+            content: none;
+        }
+
+        > .pcui-treeview-item-contents {
+            margin-left: 0;
+
+            > .pcui-treeview-item-icon {
+                &:before {
+                    content: none;
+                }
+                &:after {
+                    margin-left: 0;
+                }
+            }
+        }
+
+        > .pcui-treeview-item {
+            padding-left: 21px;
+
+            // top line
+            &:before {
+                left: 11px;
+            }
+        }
+    }
+}
+
+.pcui-treeview:not(.pcui-treeview-filtering) {
+    // direct children of tree
+    > .pcui-treeview-item {
+        .pcui-treeview-item {
+            &:not(.pcui-treeview-item-open):not(.pcui-treeview-item-empty) {
+                > .pcui-treeview-item {
+                    display: none;
+                }
+            }
+        }
+    }
+}
+
+.pcui-treeview-item-dragged > .pcui-treeview-item-contents {
+    background-color: rgba($bcg-dark, .5);
+    color: $text-primary;
+}
+
+.pcui-treeview-drag-handle {
+    position: fixed;
+    width: 32px;
+    height: 20px;
+    top: 0;
+    bottom: 0;
+    z-index: 4;
+    margin-top: -1px;
+    margin-left: -1px;
+
+    &.before {
+        border-top: 4px solid $text-active;
+        padding-right: 8px;
+        height: 24px;
+    }
+
+    &.inside {
+        border: 4px solid $text-active;
+    }
+
+    &.after {
+        border-bottom: 4px solid $text-active;
+        padding-right: 8px;
+        height: 24px;
+    }
+}
+
+.pcui-treeview-item-contents:after {
+    content: ' ';
+    display: block;
+    clear:both;
+}
+
+.pcui-treeview-item.pcui-treeview-item-rename {
+    > .pcui-treeview-item-contents {
+        > .pcui-treeview-item-text {
+            display: none;
+        }
+
+        > .pcui-text-input {
+            margin: 0;
+            flex-grow: 1;
+            box-shadow: none !important;
+            border: 0;
+            background-color: transparent;
+
+            > input {
+                font-size: 14px;
+                padding: 0;
+                @extend .font-regular;
+            }
+        }
+    }
+}
+
+.pcui-treeview.pcui-treeview-filtering {
+    // > .pcui-treeview-item {
+    //     display: none;
+    // }
+    .pcui-treeview-item {
+        padding-left: 0;
+        &::before {
+            display: none;
+        }
+
+        &:not(.pcui-treeview-filtering-result) {
+            > .pcui-treeview-item-contents {
+                display: none;
+            }
+        }
+    }
+
+    .pcui-treeview-item-contents {
+        margin-left: 0;
+    }
+}
+
+.pcui-treeview-filtering-result {
+    .pcui-treeview-item-contents:before,
+    .pcui-treeview-item-icon:before {
+        display: none;
+    }
+}

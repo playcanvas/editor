@@ -1,4 +1,5 @@
 #layout-hierarchy {
+
     border-left: 1px solid $bcg-darker;
 
     &.pcui-collapsed {
@@ -15,6 +16,9 @@
         border: none;
         border-top: 1px solid $bcg-primary;
         background-color: $bcg-darker;
+        position: sticky;
+        position: -webkit-sticky;
+        left: 0;
 
         &.active,
         &:hover,
