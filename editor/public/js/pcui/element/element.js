@@ -427,6 +427,8 @@ Object.assign(pcui, (function () {
 
         set ignoreParent(value) {
             this._ignoreParent = value;
+            this._onEnabledChange(this.enabled);
+            this._onReadOnlyChange(this.readOnly);
         }
 
         get dom() {
