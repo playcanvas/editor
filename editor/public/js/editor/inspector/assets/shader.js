@@ -1,16 +1,16 @@
 Object.assign(pcui, (function () {
     'use strict';
 
-    class TextAssetInspector extends pcui.CodeBlockAssetInspector {
+    class ShaderAssetInspector extends pcui.CodeBlockAssetInspector {
         constructor(args) {
             args = Object.assign({}, args);
-            args.assetType = 'text';
+            args.assetType = 'shader';
 
             super(args);
         }
     }
 
     return {
-        TextAssetInspector: TextAssetInspector
+        ShaderAssetInspector: ShaderAssetInspector
     };
 })());
