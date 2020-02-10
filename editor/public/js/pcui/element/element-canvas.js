@@ -17,7 +17,9 @@ Object.assign(pcui, (function () {
 
             this.class.add(CLASS_CANVAS);
 
-            this._suspendResizeEvt = false;
+            this._pixelWidth = 300;
+            this._pixelHeight = 150;
+            this._pixelRatio = args.useDevicePixelRatio !== undefined && args.useDevicePixelRatio ? window.devicePixelRatio : 1;
         }
 
         /**
@@ -27,37 +29,61 @@ Object.assign(pcui, (function () {
          * @param {Number} height The height
          */
         resize(width, height) {
-            if (this.canvasWidth === width && this.canvasHeight === height) return;
-
-            this._suspendResizeEvt = true;
-            this.canvasWidth = width;
-            this.canvasHeight = height;
-            this._suspendResizeEvt = false;
-            this.emit('resize', this.canvasWidth, this.canvasHeight);
-        }
-
-        get canvasWidth() {
-            return this.dom.width;
-        }
-
-        set canvasWidth(value) {
-            if (value === this.canvasWidth) return;
-            this.dom.width = value;
-            if (!this._suspendResizeEvt) {
-                this.emit('resize', this.canvasWidth, this.canvasHeight);
+            const pixelWidth = Math.floor(this._pixelRatio * width);
+            const pixelHeight = Math.floor(this._pixelRatio * height);
+            if (pixelWidth === this._pixelWidth && pixelHeight === this._pixelHeight) {
+                return;
             }
+            this._pixelWidth = pixelWidth;
+            this._pixelHeight = pixelHeight;
+            this.dom.width = pixelWidth;
+            this.dom.height = pixelHeight;
+            this.width = width;
+            this.height = height;
+
+            this.emit('resize', this.width, this.height);
         }
 
-        get canvasHeight() {
-            return this.dom.height;
+        get width() {
+            return super.width;
         }
 
-        set canvasHeight(value) {
-            if (value === this.canvasHeight) return;
-            this.dom.height = value;
-            if (!this._suspendResizeEvt) {
-                this.emit('resize', this.canvasWidth, this.canvasHeight);
+        set width(value) {
+            const pixelWidth = Math.floor(this._pixelRatio * value);
+            if (pixelWidth === this._pixelWidth) {
+                return;
             }
+            this._pixelWidth = pixelWidth;
+            this.dom.width = pixelWidth;
+            super.width = value;
+            this.emit('resize', this.width, this.height);
+        }
+
+        get height() {
+            return super.height;
+        }
+
+        set height(value) {
+            const pixelHeight = Math.floor(this._pixelRatio * value);
+            if (pixelHeight === this._pixelHeight) {
+                return;
+            }
+            this._pixelHeight = pixelHeight;
+            this.dom.height = pixelHeight;
+            super.height = value;
+            this.emit('resize', this.width, this.height);
+        }
+
+        get pixelWidth() {
+            return this._pixelWidth;
+        }
+
+        get pixelHeight() {
+            return this._pixelHeight;
+        }
+
+        get pixelRatio() {
+            return this._pixelRatio;
         }
     }
 

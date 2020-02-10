@@ -28,7 +28,7 @@ Object.assign(pcui, (function () {
 
             this.class.add(CLASS_CURVE);
 
-            this._canvas = new pcui.Canvas();
+            this._canvas = new pcui.Canvas({useDevicePixelRatio: true});
             this.dom.appendChild(this._canvas.dom);
             this._canvas.parent = this;
             this._canvas.on('resize', this._renderCurves.bind(this));
@@ -304,8 +304,14 @@ Object.assign(pcui, (function () {
             const context = canvas.getContext('2d');
             const value = this.value;
 
+            const width = this._canvas.width;
+            const height = this._canvas.height;
+            const ratio = this._canvas.pixelRatio;
+
+            context.setTransform(ratio, 0, 0, ratio, 0, 0);
+
             // draw background
-            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.clearRect(0, 0, width, height);
 
             const curveColors = ['rgb(255, 0, 0)', 'rgb(0, 255, 0)', 'rgb(133, 133, 252)', 'rgb(255, 255, 255)'];
             const fillColors = ['rgba(255, 0, 0, 0.5)', 'rgba(0, 255, 0, 0.5)', 'rgba(133, 133, 252, 0.5)', 'rgba(255, 255, 255, 0.5)'];
@@ -325,9 +331,6 @@ Object.assign(pcui, (function () {
             const maxValue = minMax[1];
 
             context.lineWidth = this._lineWidth;
-
-            const height = canvas.height;
-            const width = canvas.width;
 
             // prevent divide by 0
             if (width === 0) return;
