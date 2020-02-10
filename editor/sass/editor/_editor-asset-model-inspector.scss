@@ -1,0 +1,40 @@
+.asset-model-inspector {
+    .pcui-inspector {
+        .asset-model-inspector-auto-unwrap-progress  {
+            > .pcui-label {
+                width: 35%;
+            }
+            > .pcui-progress {
+                width: 128px;
+            }
+        }
+        .asset-model-inspector-auto-unwrap-padding  {
+            > .pcui-label {
+                width: 86px;
+            }
+        }
+    }
+}
+
+.asset-model-inspector-mesh-instances-picker-mode {
+    .pcui-asset-input {
+        margin: 0;
+        padding: $element-margin;
+        height: auto;
+
+        * {
+            background-color: transparent !important;
+        }
+
+        .pcui-asset-thumb {
+            border: 0;
+        }
+    }
+
+    .pcui-asset-input:not(.pcui-disabled) {
+        &:hover {
+            cursor: pointer;
+            background-color: $bcg-darkest;
+        }
+    }
+}

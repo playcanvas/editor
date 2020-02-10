@@ -231,7 +231,7 @@ editor.once('load', function() {
     }
 
     // canvas
-    var canvas = new ui.Canvas();
+    var canvas = new ui.Canvas({useDevicePixelRatio: true});
     canvas.resize(panel.clientWidth, 200);
     panel.appendChild(canvas.element);
 
@@ -497,6 +497,7 @@ editor.once('load', function() {
     footer.append(btnPaste);
 
     var context = canvas.element.getContext('2d');
+    context.setTransform(canvas.pixelRatio, 0, 0, canvas.pixelRatio, 0, 0);
 
     function cleanup () {
         selectedCurve = null;

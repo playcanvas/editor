@@ -22,7 +22,8 @@ editor.once('load', function() {
 
     const hasPcuiAssetInspectors = editor.call('users:hasFlag', 'hasPcuiAssetInspectors');
 
-    var assetInspector = null;
+    let assetInspector = null;
+    let assetInspectorEvents = [];
 
     if (hasPcuiAssetInspectors) {
         assetInspector = new pcui.AssetInspector({
@@ -30,6 +31,10 @@ editor.once('load', function() {
             projectSettings: editor.call('settings:project'),
             history: editor.call('editor:history'),
             editableTypes: editableTypes
+        });
+        assetInspector.once('destroy', () => {
+            assetInspectorEvents.forEach(evt => evt.unbind());
+            assetInspectorEvents = [];
         });
     }
 
@@ -86,6 +91,7 @@ editor.once('load', function() {
 
                 events = null;
             });
+            assetInspectorEvents.push(root.on('resize', assetInspector.updatePreview.bind(assetInspector)));
         } else {
             var events = [ ];
 
@@ -668,6 +674,9 @@ editor.once('load', function() {
     editor.on('attributes:assets:toggleInfo', function (enabled) {
         if (assetsPanel) {
             assetsPanel.hidden = !enabled;
+        }
+        if (hasPcuiAssetInspectors) {
+            assetInspector.hidden = !enabled;
         }
     });
 

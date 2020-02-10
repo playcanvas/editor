@@ -287,9 +287,9 @@ editor.once('load', function () {
         var height = canvasPanel.element.clientHeight;
 
         // If it's resolution does not match change it
-        if (canvas.element.width !== width || canvas.element.height !== height) {
-            canvas.element.width = width;
-            canvas.element.height = height;
+        if (canvas.width !== width || canvas.height !== height) {
+            canvas.width = width;
+            canvas.height = height;
             result = true;
         }
 

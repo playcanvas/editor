@@ -190,7 +190,8 @@ Object.assign(pcui, (function () {
             this._attributesInspector.getField('loadingOrder').on('click', this._onClickLoadingOrder.bind(this));
 
             // add typed asset inspectors
-            this._typedAssetInspectors = {};
+            this._typedAssetInspectors = [];
+            this._typedAssetPreviews = [];
 
             this._assetTypes.forEach(assetType => {
 
@@ -207,6 +208,19 @@ Object.assign(pcui, (function () {
                     this._typedAssetInspectors[assetType] = inspector;
 
                     this.append(inspector);
+                }
+                const clsPreview = `${assetType[0].toUpperCase()}${assetType.substring(1)}AssetInspectorPreview`;
+                if (pcui.hasOwnProperty(clsPreview)) {
+                    const inspector = new pcui[clsPreview]({
+                        hidden: true,
+                        assets: args.assets,
+                        projectSettings: args.projectSettings,
+                        history: args.history
+                    });
+
+                    this._typedAssetPreviews[assetType] = inspector;
+
+                    this.prepend(inspector);
                 }
             });
 
@@ -284,6 +298,15 @@ Object.assign(pcui, (function () {
             }
         }
 
+        updatePreview() {
+            Object.keys(this._typedAssetPreviews).forEach(assetPreviewKey => {
+                const assetPreview = this._typedAssetPreviews[assetPreviewKey];
+                if (!assetPreview.hidden) {
+                    assetPreview.updatePreview();
+                }
+            });
+        }
+
         link(assets) {
             this.unlink();
 
@@ -336,13 +359,30 @@ Object.assign(pcui, (function () {
                         this._typedAssetInspectors[assetType].hidden = true;
                     }
                 }
+                if (assets.length === 1) {
+                    const clsPreview = `${assetType[0].toUpperCase()}${assetType.substring(1)}AssetInspectorPreview`;
+                    if (pcui.hasOwnProperty(clsPreview)) {
+                        let shouldDisplayTypedInspector = true;
+                        assets.forEach(asset => {
+                            if (asset.get('type') !== assetType) {
+                                shouldDisplayTypedInspector = false;
+                            }
+                        });
+                        if (shouldDisplayTypedInspector) {
+                            this._typedAssetPreviews[assetType].link(assets);
+                            this._typedAssetPreviews[assetType].hidden = false;
+                        } else {
+                            this._typedAssetPreviews[assetType].hidden = true;
+                        }
+                    }
+                }
             });
 
             // Determine if the Edit/View button should be displayed
             this._btnEditAsset.hidden = assets.length > 1 || !this._editableTypes[assets[0].get('type')];
 
             // Determine if the Download button should be displayed
-            this._btnDownloadAsset.hidden = assets.length > 1 ||  ['folder', 'sprite'].includes(assets[0].get('type'));
+            this._btnDownloadAsset.hidden = assets.length > 1 || ['folder', 'sprite'].includes(assets[0].get('type'));
 
             // Determine if the Edit sprite button should be displayed
             this._btnEditSprite.hidden = assets.length > 1 || !['sprite', 'textureatlas'].includes(assets[0].get('type'));
@@ -368,6 +408,8 @@ Object.assign(pcui, (function () {
                 this._onClickSourceAsset.bind(this)
             ));
             this._attributesInspector.getField('source_asset_id').class.add('pcui-selectable');
+
+            this.hidden = false;
         }
 
         _toggleAssetField(attribute) {
@@ -419,6 +461,11 @@ Object.assign(pcui, (function () {
                 if (pcui.hasOwnProperty(cls)) {
                     this._typedAssetInspectors[assetType].unlink();
                     this._typedAssetInspectors[assetType].hidden = true;
+                }
+                const clsPreview = `${assetType[0].toUpperCase()}${assetType.substring(1)}AssetInspectorPreview`;
+                if (pcui.hasOwnProperty(clsPreview)) {
+                    this._typedAssetPreviews[assetType].unlink();
+                    this._typedAssetPreviews[assetType].hidden = true;
                 }
             });
         }
