@@ -142,6 +142,18 @@ Object.assign(pcui, (function () {
 
             // add component menu
             this._menuAddComponent = this._createAddComponentMenu();
+
+            // focus name input on F2
+            editor.call('hotkey:register', 'entities:rename:f2', {
+                key: 'f2',
+                callback: this._onHotkeyF2.bind(this)
+            });
+        }
+
+        _onHotkeyF2() {
+            if (editor.call('picker:isOpen')) return;
+            this._attributesInspector.getField('name').flash();
+            this._attributesInspector.getField('name').focus();
         }
 
         _createAddComponentMenu() {
@@ -345,6 +357,14 @@ Object.assign(pcui, (function () {
             }
 
             this.class.add(CLASS_NO_COMPONENTS);
+        }
+
+        destroy() {
+            if (this._destroyed) return;
+
+            editor.call('hotkey:unregister', 'entities:rename:f2');
+
+            super.destroy();
         }
     }
 
