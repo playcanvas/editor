@@ -2,6 +2,9 @@ editor.once('load', function() {
     'use strict';
 
     editor.on('attributes:inspect[asset]', function(assets) {
+        const hasPcuiAssetInspectors = editor.call('users:hasFlag', 'hasPcuiAssetInspectors');
+        if (hasPcuiAssetInspectors)
+            return;
         if (assets.length !== 1 || assets[0].get('type') !== 'text' || assets[0].get('source'))
             return;
 
