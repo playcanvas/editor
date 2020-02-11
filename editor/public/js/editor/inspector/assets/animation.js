@@ -3,7 +3,7 @@ Object.assign(pcui, (function () {
 
     const ATTRIBUTES = [{
         label: 'Duration',
-        path: 'meta.duration',
+        path: 'meta.0.duration',
         type: 'label',
         args: {
             placeholder: 'Seconds'
@@ -11,7 +11,7 @@ Object.assign(pcui, (function () {
     },
     {
         label: 'Name',
-        path: 'meta.name',
+        path: 'meta.0.name',
         type: 'label'
     }];
 
