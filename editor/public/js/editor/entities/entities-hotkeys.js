@@ -122,48 +122,4 @@ editor.once('load', function() {
                 editor.call('entities:paste', items[0]);
         }
     });
-
-    // rename
-    var onRename = function() {
-        if (! editor.call('permissions:write'))
-            return;
-
-        var type = editor.call('selector:type');
-        if (type !== 'entity')
-            return;
-
-        var items = editor.call('selector:items');
-        if (! items.length)
-            return;
-
-        var root = editor.call('attributes.rootPanel');
-        if (! root)
-            return;
-
-        var input = root.dom.querySelector('.ui-text-field.entity-name');
-
-        if (! input || ! input.ui)
-            return;
-
-        input.ui.flash();
-        input.ui.elementInput.select();
-    };
-
-    editor.method('entities:rename', onRename);
-
-    editor.call('hotkey:register', 'entities:rename', {
-        key: 'n',
-        callback: function () {
-            if (editor.call('picker:isOpen')) return;
-            onRename();
-        }
-    });
-
-    editor.call('hotkey:register', 'entities:rename:f2', {
-        key: 'f2',
-        callback: function () {
-            if (editor.call('picker:isOpen')) return;
-            onRename();
-        }
-    });
 });

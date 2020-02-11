@@ -102,6 +102,7 @@ Object.assign(pcui, (function () {
      * @property {pcui.Element} parent Gets the parent Element.
      * @property {Boolean} hidden Gets / sets whether the Element is hidden.
      * @property {Boolean} readOnly Gets / sets whether the Element is read only.
+     * @property {Boolean} ignoreParent Gets / sets whether the Element will ignore parent events & variable states.
      * @property {Number} width Gets / sets the width of the Element in pixels. Can also be an empty string to remove it.
      * @property {Number} height Gets / sets the height of the Element in pixels. Can also be an empty string to remove it.
      * @property {Number} tabIndex Gets / sets the tabIndex of the Element.
@@ -162,6 +163,7 @@ Object.assign(pcui, (function () {
             this.enabled = args.enabled !== undefined ? args.enabled : true;
             this.hidden = args.hidden || false;
             this.readOnly = args.readOnly || false;
+            this.ignoreParent = args.ignoreParent || false;
 
             if (args.width !== undefined) {
                 this.width = args.width;
@@ -253,12 +255,14 @@ Object.assign(pcui, (function () {
         }
 
         _onParentDisable() {
+            if (this._ignoreParent) return;
             if (this._enabled) {
                 this._onEnabledChange(false);
             }
         }
 
         _onParentEnable() {
+            if (this._ignoreParent) return;
             if (this._enabled) {
                 this._onEnabledChange(true);
             }
@@ -275,6 +279,7 @@ Object.assign(pcui, (function () {
         }
 
         _onParentReadOnlyChange(readOnly) {
+            if (this._ignoreParent) return;
             if (readOnly) {
                 if (!this._readOnly) {
                     this._onReadOnlyChange(true);
@@ -398,6 +403,7 @@ Object.assign(pcui, (function () {
         }
 
         get enabled() {
+            if (this._ignoreParent) return this._enabled;
             return this._enabled && (!this._parent || this._parent.enabled);
         }
 
@@ -413,6 +419,16 @@ Object.assign(pcui, (function () {
             if (enabled !== value) {
                 this._onEnabledChange(value);
             }
+        }
+
+        get ignoreParent() {
+            return this._ignoreParent;
+        }
+
+        set ignoreParent(value) {
+            this._ignoreParent = value;
+            this._onEnabledChange(this.enabled);
+            this._onReadOnlyChange(this.readOnly);
         }
 
         get dom() {
@@ -478,6 +494,7 @@ Object.assign(pcui, (function () {
         }
 
         get readOnly() {
+            if (this._ignoreParent) return this._readOnly;
             return this._readOnly || !!(this._parent && this._parent.readOnly);
         }
 
