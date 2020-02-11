@@ -4,6 +4,9 @@ editor.once('load', function() {
     editor.on('attributes:inspect[asset]', function(assets) {
         if (assets.length !== 1 || assets[0].get('type') !== 'json' || assets[0].get('source'))
             return;
+        const hasPcuiAssetInspectors = editor.call('users:hasFlag', 'hasPcuiAssetInspectors');
+        if (hasPcuiAssetInspectors)
+            return;
 
         var asset = assets[0];
 
