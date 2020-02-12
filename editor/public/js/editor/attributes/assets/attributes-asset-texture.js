@@ -481,7 +481,13 @@ editor.once('load', function() {
                     var pixelFormat = pc.PIXELFORMAT_DXT1;
                     var mipmaps = assets[i].get('data.mipmaps');
                     var cubemap = false;
-                    formats['basis'].vram += pc.Texture.calcGpuSize(width, height, depth, pixelFormat, mipmaps, cubemap);
+
+                    var size = 0;
+                    if (width !== undefined && height !== undefined) {
+                        size = pc.Texture.calcGpuSize(width, height, depth, pixelFormat, mipmaps, cubemap);
+                    }
+
+                    formats['basis'].vram += size;
                 } else {
                     if (size) formats[format].vram += size - 128;
                 }
