@@ -12,10 +12,11 @@ Object.assign(pcui, (function () {
 
             this.class.add(CLASS_CONTAINER);
 
-            this._preview = new pcui.Canvas();
-            this._preview.dom.width = 320;
-            this._preview.dom.height = 144;
-            this._preview.class.add(CLASS_CANVAS);
+            this._preview = new pcui.Canvas({
+                canvasWidth: 320,
+                canvasHeight: 144,
+                class: CLASS_CANVAS
+            });
 
             this.append(this._preview);
 

@@ -350,7 +350,7 @@ Object.assign(pcui, (function () {
                 if (pcui.hasOwnProperty(cls)) {
                     let shouldDisplayTypedInspector = true;
                     assets.forEach(asset => {
-                        if (asset.get('type') !== assetType) {
+                        if (asset.get('type') !== assetType || !asset.get('source_asset_id')) {
                             shouldDisplayTypedInspector = false;
                         }
                     });

@@ -1,6 +1,13 @@
 Object.assign(pcui, (function () {
     'use strict';
 
+    const CLASS_ROOT = 'asset-font-inspector';
+    const CLASS_LOCALE_PANEL = CLASS_ROOT + '-locale-panel';
+    const CLASS_LOCALE_REMOVE_BUTTON = CLASS_ROOT + '-locale-remove-button';
+    const CLASS_CHARACTER_RANGE = CLASS_ROOT + '-character-range';
+    const CLASS_CHARACTER_RANGE_LABEL = CLASS_CHARACTER_RANGE + '-label';
+    const CLASS_CHARACTER_RANGE_BUTTON = CLASS_CHARACTER_RANGE + '-button';
+
     const PROPERTIES_ATTRIBUTES = [{
         label: 'Intensity',
         path: 'data.intensity',
@@ -83,12 +90,14 @@ Object.assign(pcui, (function () {
                         flex: true,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        flexDirection: 'row'
+                        flexDirection: 'row',
+                        class: CLASS_CHARACTER_RANGE
                     })
                 },
                 children: [{
                     characterRangeLabel: new pcui.Label({
-                        text: 'Range (hex)'
+                        text: 'Range (hex)',
+                        class: CLASS_CHARACTER_RANGE_LABEL
                     })
                 }, {
                     characterRangeStart: new pcui.TextInput({
@@ -102,7 +111,8 @@ Object.assign(pcui, (function () {
                     })
                 }, {
                     characterRangeButton: new pcui.Button({
-                        icon: 'E287'
+                        icon: 'E287',
+                        class: CLASS_CHARACTER_RANGE_BUTTON
                     })
                 }]
             }]
@@ -110,7 +120,8 @@ Object.assign(pcui, (function () {
         {
             root: {
                 fontPanel: new pcui.Panel({
-                    headerText: 'FONT'
+                    headerText: 'FONT',
+                    flex: true
                 })
             },
             children: [{
@@ -122,7 +133,7 @@ Object.assign(pcui, (function () {
             }, {
                 processFontButton: new pcui.Button({
                     text: 'Process Font',
-                    width: 'calc(100% - 12px)'
+                    flexGrow: 1
                 })
             }]
         },
@@ -158,6 +169,7 @@ Object.assign(pcui, (function () {
             this._args = args;
             this._assets = null;
             this._assetEvents = [];
+            this._localizations = {};
 
             this.buildDom(DOM(this));
 
@@ -229,21 +241,95 @@ Object.assign(pcui, (function () {
             this._processFontButton.disabled = asset.get('task') === 'running';
         }
 
+        _refreshLocalizationsForAsset() {
+            Object.keys(this._localizations).forEach(locale => {
+                this._removeLocalization(locale);
+
+            });
+            Object.keys(this._assets[0].get('i18n'))
+            .sort((a, b) => {
+                if (a > b)
+                    return 1;
+                else if (b > a)
+                    return -1;
+                return 0;
+            })
+            .forEach(locale => {
+                const localizationAssetPanel = new pcui.Panel({
+                    headerText: locale
+                });
+                localizationAssetPanel.class.add(CLASS_LOCALE_PANEL);
+                localizationAssetPanel._removeLocalizationButton = new pcui.Button({
+                    icon: 'E389'
+                });
+                localizationAssetPanel._removeLocalizationButton.class.add(CLASS_LOCALE_REMOVE_BUTTON);
+                this._assetEvents.push(
+                    localizationAssetPanel._removeLocalizationButton.on('click', () => this._assets[0].unset(`i18n.${locale}`))
+                );
+                localizationAssetPanel._localizationAsset = new pcui.AssetInput({
+                    assetType: 'font',
+                    assets: this._args.assets,
+                    flexGrow: 1,
+                    text: 'Asset',
+                    binding: new pcui.BindingTwoWay({
+                        history: this._args.history
+                    }),
+                    allowDragDrop: true
+                });
+                localizationAssetPanel._localizationAsset.link(this._assets, `i18n.${locale}`);
+                localizationAssetPanel.append(localizationAssetPanel._localizationAsset);
+                localizationAssetPanel.header.append(localizationAssetPanel._removeLocalizationButton);
+                this._localizationPanel.append(localizationAssetPanel);
+                this._localizations[locale] = localizationAssetPanel;
+            });
+        }
+
+        _addLocalization(locale) {
+            if (locale === '') {
+                this._localizationAttributes.getField('localization').class.remove(pcui.CLASS_ERROR);
+                return;
+            }
+            if (!Object.keys(this._assets[0].get(`i18n`)).includes(locale)) {
+                this._assets[0].set('i18n.' + locale, null);
+                this._localizationAttributes.getField('localization').value = '';
+                this._localizationAttributes.getField('localization').class.remove(pcui.CLASS_ERROR);
+            } else {
+                this._localizationAttributes.getField('localization').class.add(pcui.CLASS_ERROR);
+            }
+        }
+
+        _removeLocalization(locale) {
+            const localizationAssetPanel = this._localizations[locale];
+            localizationAssetPanel._localizationAsset.unlink();
+            this._localizationPanel.remove(localizationAssetPanel);
+            delete this._localizations[locale];
+        }
+
         link(assets) {
             this.unlink();
             this._assets = assets;
+
+            // Linking
             this._propertiesAttributes.link(assets);
             this._fontAttributes.link(assets);
             this._localizationAttributes.link(assets);
+            this._refreshLocalizationsForAsset();
+
+            // Events
             this._assetEvents.push(this._latinButton.on('click', () => this._onClickPresetButton(CHARACTER_PRESETS.LATIN)));
             this._assetEvents.push(this._latinSupplementButton.on('click', () => this._onClickPresetButton(CHARACTER_PRESETS.LATIN_SUPPLEMENT)));
             this._assetEvents.push(this._cyrillicButton.on('click', () => this._onClickPresetButton(CHARACTER_PRESETS.CYRILLIC)));
             this._assetEvents.push(this._greekButton.on('click', () => this._onClickPresetButton(CHARACTER_PRESETS.GREEK)));
             this._assetEvents.push(this._characterRangeButton.on('click', this._onClickCharacterRangeButton.bind(this)));
             this._assetEvents.push(this._processFontButton.on('click', this._onClickProcessFontButton.bind(this)));
+            this._assetEvents.push(this._localizationAttributes.getField('localization').on('change', this._addLocalization.bind(this)));
             assets.forEach((asset) => {
                 this._assetEvents.push(asset.on('task:set', () => this._toggleProcessFontButton(asset)));
+                this._assetEvents.push(asset.on('*:set', this._refreshLocalizationsForAsset.bind(this)));
+                this._assetEvents.push(asset.on('*:unset', this._refreshLocalizationsForAsset.bind(this)));
             });
+
+            // View adjustments
             this._characterRangePanel.hidden = assets.length > 1;
             this._characterPresetsPanel.hidden = assets.length > 1;
             this._fontPanel.hidden = assets.length > 1;
@@ -258,7 +344,12 @@ Object.assign(pcui, (function () {
             this._propertiesAttributes.unlink();
             this._fontAttributes.unlink();
             this._localizationAttributes.unlink();
+            Object.keys(this._localizations).forEach(localization => {
+                this._removeLocalization(localization);
+            });
             this._assetEvents.forEach(evt => evt.unbind());
+            this._localizationAttributes.getField('localization').value = '';
+            this._localizationAttributes.getField('localization').class.remove(pcui.CLASS_ERROR);
         }
     }
 
