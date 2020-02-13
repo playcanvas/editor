@@ -9,7 +9,7 @@ editor.once('viewport:load', function() {
     var renderer = app.renderer;
     var device = renderer.device;
     var rendered = false;
-
+    var canvas = editor.call('viewport:canvas');
 
     editor.on('viewport:preUpdate', function() {
         rendered = false;
@@ -103,6 +103,9 @@ editor.once('viewport:load', function() {
     editor.method('camera:depth:pixelAt', function(camera, x, y) {
         if (! depthTarget || ! rendered)
             editor.call('camera:depth:render', camera);
+
+        x *= canvas.pixelRatio;
+        y *= canvas.pixelRatio;
 
         var prevRenderTarget = device.renderTarget;
 
