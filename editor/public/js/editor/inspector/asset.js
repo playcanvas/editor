@@ -211,6 +211,19 @@ Object.assign(pcui, (function () {
 
                     this.append(inspector);
                 }
+                const clsSource = `${assetType[0].toUpperCase()}${assetType.substring(1)}SourceAssetInspector`;
+                if (pcui.hasOwnProperty(clsSource)) {
+                    const inspector = new pcui[clsSource]({
+                        hidden: true,
+                        assets: args.assets,
+                        projectSettings: args.projectSettings,
+                        history: args.history
+                    });
+
+                    this._typedAssetInspectors[`${assetType}-source`] = inspector;
+
+                    this.append(inspector);
+                }
                 const clsPreview = `${assetType[0].toUpperCase()}${assetType.substring(1)}AssetInspectorPreview`;
                 if (pcui.hasOwnProperty(clsPreview)) {
                     const inspector = new pcui[clsPreview]({
@@ -350,7 +363,7 @@ Object.assign(pcui, (function () {
                 if (pcui.hasOwnProperty(cls)) {
                     let shouldDisplayTypedInspector = true;
                     assets.forEach(asset => {
-                        if (asset.get('type') !== assetType) {
+                        if (asset.get('type') !== assetType || asset.get('source')) {
                             shouldDisplayTypedInspector = false;
                         }
                     });
@@ -362,11 +375,26 @@ Object.assign(pcui, (function () {
                     }
                 }
                 if (assets.length === 1) {
+                    const clsSource = `${assetType[0].toUpperCase()}${assetType.substring(1)}SourceAssetInspector`;
+                    if (pcui.hasOwnProperty(clsSource)) {
+                        let shouldDisplayTypedInspector = true;
+                        assets.forEach(asset => {
+                            if (asset.get('type') !== assetType || !asset.get('source') || !asset.get('type') === 'scene') {
+                                shouldDisplayTypedInspector = false;
+                            }
+                        });
+                        if (shouldDisplayTypedInspector) {
+                            this._typedAssetInspectors[`${assetType}-source`].link(assets);
+                            this._typedAssetInspectors[`${assetType}-source`].hidden = false;
+                        } else {
+                            this._typedAssetInspectors[`${assetType}-source`].hidden = true;
+                        }
+                    }
                     const clsPreview = `${assetType[0].toUpperCase()}${assetType.substring(1)}AssetInspectorPreview`;
                     if (pcui.hasOwnProperty(clsPreview)) {
                         let shouldDisplayTypedInspector = true;
                         assets.forEach(asset => {
-                            if (asset.get('type') !== assetType) {
+                            if (asset.get('type') !== assetType || asset.get('source')) {
                                 shouldDisplayTypedInspector = false;
                             }
                         });
@@ -412,6 +440,7 @@ Object.assign(pcui, (function () {
             this._attributesInspector.getField('source_asset_id').class.add('pcui-selectable');
 
             this.hidden = false;
+            window._v = assets[0];
         }
 
         _toggleAssetField(attribute) {
@@ -463,6 +492,11 @@ Object.assign(pcui, (function () {
                 if (pcui.hasOwnProperty(cls)) {
                     this._typedAssetInspectors[assetType].unlink();
                     this._typedAssetInspectors[assetType].hidden = true;
+                }
+                const clsSource = `${assetType[0].toUpperCase()}${assetType.substring(1)}SourceAssetInspector`;
+                if (pcui.hasOwnProperty(clsSource)) {
+                    this._typedAssetInspectors[`${assetType}-source`].unlink();
+                    this._typedAssetInspectors[`${assetType}-source`].hidden = true;
                 }
                 const clsPreview = `${assetType[0].toUpperCase()}${assetType.substring(1)}AssetInspectorPreview`;
                 if (pcui.hasOwnProperty(clsPreview)) {
