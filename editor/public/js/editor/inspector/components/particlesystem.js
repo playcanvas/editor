@@ -210,6 +210,13 @@ Object.assign(pcui, (function () {
             min: 1
         }
     }, {
+        label: 'Start Frame',
+        path: 'components.particlesystem.animStartFrame',
+        type: 'number',
+        args: {
+            min: 0
+        }
+    }, {
         label: 'Frame Count',
         path: 'components.particlesystem.animNumFrames',
         type: 'number',

@@ -40,6 +40,11 @@ editor.once('load', function() {
         description: 'Number of vertical tiles in the sprite sheet',
         url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#animTilesY'
     }, {
+        title: 'animStartFrame',
+        subTitle: '{Number}',
+        description: 'Sprite sheet frame to begin animation from',
+        url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#animStartFrame'
+    }, {
         title: 'animNumFrames',
         subTitle: '{Number}',
         description: 'Number of sprite sheet frames to play',
