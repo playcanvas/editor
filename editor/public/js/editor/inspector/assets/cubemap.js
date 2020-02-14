@@ -285,8 +285,6 @@ Object.assign(pcui, (function () {
 
             // Layout
             this._updateLayout();
-
-            window._v = assets[0];
         }
 
         unlink() {
