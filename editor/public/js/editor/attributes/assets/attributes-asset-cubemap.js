@@ -7,6 +7,10 @@ editor.once('load', function() {
             if (assets[i].get('type') !== 'cubemap')
                 return;
         }
+        const hasPcuiAssetInspectors = editor.call('users:hasFlag', 'hasPcuiAssetInspectors');
+        if (hasPcuiAssetInspectors) {
+            return;
+        }
 
         if (assets.length > 1)
             editor.call('attributes:header', assets.length + ' CubeMaps');
