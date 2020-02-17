@@ -113,22 +113,23 @@ Object.assign(pcui, (function () {
             this._animationCheck(assets[0].get('meta.animation.available'));
             this._assetEvents.push(assets[0].on('meta.animation.available:set', this._animationCheck.bind(this)));
             this._addTextures(assets[0].get('meta.textures'));
+            this._addMaterials(assets[0].get('meta.materials'));
             this._assetEvents.push(assets[0].on('meta.textures:set', () => {
                 this._removeTextures();
                 this.addTextures(assets[0].get('meta.textures'));
             }));
             this._assetEvents.push(assets[0].on('meta.textures:unset', () => {
                 this._removeTextures();
-                this.addTextures(assets[0].get('meta.textures'));
+                this._addTextures(assets[0].get('meta.textures'));
             }));
             this._addMaterials(assets[0].get('meta.materials'));
             this._assetEvents.push(assets[0].on('meta.materials:set', () => {
                 this._removeMaterials();
-                this.addMaterials(assets[0].get('meta.materials'));
+                this._addMaterials(assets[0].get('meta.materials'));
             }));
             this._assetEvents.push(assets[0].on('meta.materials:unset', () => {
                 this._removeMaterials();
-                this.addMaterials(assets[0].get('meta.materials'));
+                this._addMaterials(assets[0].get('meta.materials'));
             }));
         }
 
