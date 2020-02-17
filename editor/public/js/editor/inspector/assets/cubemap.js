@@ -137,6 +137,29 @@ Object.assign(pcui, (function () {
             }
         }
 
+        _onClickFace() {
+            if (! editor.call('permissions:write'))
+                return;
+
+            const texture = editor.call('assets:get', this._asset.get(`data.textures.${this._args.face}`));
+            editor.call('picker:asset', {
+                type: 'texture',
+                currentAsset: texture
+            });
+
+            let evtPick = editor.once('picker:asset', (texture) => {
+                this._asset.set(`data.textures.${this._args.face}`, texture.get('id'));
+                evtPick = null;
+            });
+
+            editor.once('picker:asset:close', () => {
+                if (evtPick) {
+                    evtPick.unbind();
+                    evtPick = null;
+                }
+            });
+        }
+
         _onClickDeleteFace() {
             this._asset.set(`data.textures.${this._args.face}`, null);
         }
@@ -165,6 +188,7 @@ Object.assign(pcui, (function () {
             this._thumbnail.link(asset, path);
             this._initialiseDropTarget();
             this._assetEvents.push(this._deleteButton.on('click', this._onClickDeleteFace.bind(this)));
+            this._assetEvents.push(this.on('click', this._onClickFace.bind(this)));
             this._assetEvents.push(this._asset.on('*:set', () => {
                 this._deleteButton.hidden = !this._asset.get(`data.textures.${this._args.face}`);
             }));
