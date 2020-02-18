@@ -1,11 +1,4 @@
-.script-asset-inspector-container {
-    display: flex;
-    flex-direction: column;
-    border: 1px solid #293538;
-    margin: 6px;
-}
-
-.script-asset-inspector-error-container {
+.script-asset-inspector-container, .script-asset-inspector-error-container {
     display: flex;
     flex-direction: column;
     border: 1px solid #293538;
