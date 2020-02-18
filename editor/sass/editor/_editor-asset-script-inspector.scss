@@ -1,0 +1,45 @@
+.script-asset-inspector-container {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #293538;
+    margin: 6px;
+}
+
+.script-asset-inspector-error-container {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #293538;
+    margin: 6px;
+}
+
+.script-asset-inspector-error-container.pcui-hidden {
+    display: none;
+}
+
+.script-asset-inspector-script {
+    flex-grow: 1;
+    color: #fff;
+    font-size: 12px;
+    font-family: 'Proxima Nova Bold', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-style: normal;
+    background-color: #2c393c;
+    padding: 6px;
+    margin: 0;
+}
+
+.script-asset-inspector-attribute {
+    flex-grow: 1;
+    color: #b1b8ba;
+    font-size: 12px;
+    font-family: 'Proxima Nova Regular', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    font-style: normal;
+    line-height: 26px;
+    padding: 0 6px;
+    margin: 0;
+}
+
+.script-asset-inspector-attribute:hover {
+    background-color: #313e41;
+}
