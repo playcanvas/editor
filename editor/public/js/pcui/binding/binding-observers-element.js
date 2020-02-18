@@ -12,9 +12,10 @@ Object.assign(pcui, (function () {
          * Creates a new BindingObserversToElement instance.
          * @param {Object} args The arguments.
          */
-        constructor(args) {
+        constructor({ customUpdate, ...args } = {}) {
             super(args);
 
+            this._customUpdate = customUpdate;
             this._events = [];
             this._updateElementHandler = this._updateElement.bind(this);
             this._updateTimeout = null;
@@ -43,7 +44,9 @@ Object.assign(pcui, (function () {
             this._updateTimeout = null;
             this.applyingChange = true;
 
-            if (this._observers.length === 1) {
+            if (typeof this._customUpdate === 'function') {
+                this._customUpdate(this._element, this._observers, this._paths);
+            } else if (this._observers.length === 1) {
                 if (this._paths.length > 1) {
                     // if using multiple paths for the single observer (e.g. curves)
                     // then return an array of values for each path
