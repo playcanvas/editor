@@ -299,6 +299,9 @@ editor.once('load', function() {
                 if (! entity.has('components.particlesystem.localSpace')) {
                     entity.set('components.particlesystem.localSpace', false);
                 }
+                if (! entity.has('components.particlesystem.animStartFrame')) {
+                    entity.set('components.particlesystem.animStartFrame', 0);
+                }
             }
 
             entity.history.enabled = true;

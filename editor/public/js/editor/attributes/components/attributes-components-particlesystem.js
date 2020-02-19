@@ -784,6 +784,21 @@ editor.once('load', function() {
 
         panelFrames.hidden = !fieldColorMap.value && !fieldNormalMap.value;
 
+        // frame to play from
+        var fieldAnimatedTextureStartFrame = editor.call('attributes:addField', {
+            parent: panel,
+            type: 'number',
+            name: 'Start Frame',
+            min: 0,
+            link: entities,
+            path: 'components.particlesystem.animStartFrame',
+            canOverrideTemplate: true
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'particlesystem:animStartFrame', fieldAnimatedTextureStartFrame.parent.innerElement.firstChild.nextSibling.ui);
+
+        fieldAnimatedTextureStartFrame.parent.hidden = !fieldColorMap.value && !fieldNormalMap.value;
+
         // frames to play
         var fieldAnimatedTextureNumFrames = editor.call('attributes:addField', {
             parent: panel,

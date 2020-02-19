@@ -4,6 +4,9 @@ editor.once('load', function() {
     var panelsStates = { };
 
     editor.on('attributes:inspect[asset]', function(assets) {
+        if (editor.call('users:hasFlag', 'hasPcuiAssetInspectors'))
+            return;
+
         for(var i = 0; i < assets.length; i++) {
             if (assets[i].get('type') !== 'texture' && assets[i].get('type') !== 'textureatlas' || assets[i].get('source'))
                 return;
@@ -481,7 +484,13 @@ editor.once('load', function() {
                     var pixelFormat = pc.PIXELFORMAT_DXT1;
                     var mipmaps = assets[i].get('data.mipmaps');
                     var cubemap = false;
-                    formats['basis'].vram += pc.Texture.calcGpuSize(width, height, depth, pixelFormat, mipmaps, cubemap);
+
+                    var size = 0;
+                    if (width !== undefined && height !== undefined) {
+                        size = pc.Texture.calcGpuSize(width, height, depth, pixelFormat, mipmaps, cubemap);
+                    }
+
+                    formats['basis'].vram += size;
                 } else {
                     if (size) formats[format].vram += size - 128;
                 }

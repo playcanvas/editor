@@ -1,22 +1,16 @@
 Object.assign(pcui, (function () {
     'use strict';
 
-    const CLASS_ROOT = 'asset-model-preview';
-    const CLASS_CONTAINER = CLASS_ROOT + '-container';
-    const CLASS_CONTAINER_LARGE = CLASS_CONTAINER + '-large';
-    const CLASS_CANVAS = CLASS_ROOT + '-canvas';
+    const CLASS_CANVAS = 'pcui-asset-preview-canvas';
 
-    class ModelAssetInspectorPreview extends pcui.Container {
+    class ModelAssetInspectorPreview extends pcui.AssetInspectorPreviewBase {
         constructor(args) {
             super(args);
-
-            this.class.add(CLASS_CONTAINER);
 
             this._preview = new pcui.Canvas();
             this._preview.dom.width = 320;
             this._preview.dom.height = 144;
             this._preview.class.add(CLASS_CANVAS);
-
             this.append(this._preview);
 
             this._renderQueued = false;
@@ -39,7 +33,6 @@ Object.assign(pcui, (function () {
             this._renderQueued = true;
             this._requestedAnimationFrameID = requestAnimationFrame(this._renderPreview.bind(this));
         }
-
 
         _renderPreview() {
             if (this._renderQueued)
@@ -83,11 +76,6 @@ Object.assign(pcui, (function () {
                 return;
 
             if ((Math.abs(this._sx - this._x) + Math.abs(this._sy - this._y)) < 8) {
-                if (this.class.contains(CLASS_CONTAINER_LARGE)) {
-                    this.class.remove(CLASS_CONTAINER_LARGE);
-                } else {
-                    this.class.add(CLASS_CONTAINER_LARGE);
-                }
                 this._preview.dom.height = this.height;
             }
 
@@ -106,6 +94,8 @@ Object.assign(pcui, (function () {
 
         link(assets) {
             this.unlink();
+            super.link();
+
             this._previewRenderer = new pcui.ModelThumbnailRenderer(assets[0], this._preview.dom);
             this._preview.dom.addEventListener('mousedown', this._domEvtMouseDown, false);
             window.addEventListener('mousemove', this._domEvtMouseMove, false);
@@ -115,6 +105,7 @@ Object.assign(pcui, (function () {
 
         unlink() {
             super.unlink();
+
             if (this._previewRenderer) {
                 this._previewRenderer.destroy();
             }
