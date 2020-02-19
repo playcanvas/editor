@@ -1,0 +1,44 @@
+.asset-sprite-preview-container{
+    position: relative;
+    background-color: #293538;
+    height: 0;
+    padding-top: 45%;
+}
+
+.asset-sprite-preview-container-large {
+    padding-top: 100%;
+}
+
+.asset-sprite-preview-canvas {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 8px solid #293538;
+    border-top: 0;
+    box-sizing: border-box;
+    margin: auto;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.asset-sprite-preview-button {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    display: none;
+}
+
+.asset-sprite-preview-container:hover{
+    .asset-sprite-preview-button {
+        display: block;
+    }
+}
+
+.asset-sprite-preview-button-playing {
+    color: #f60;
+    display: block !important;
+}
