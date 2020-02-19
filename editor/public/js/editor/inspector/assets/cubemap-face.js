@@ -30,6 +30,7 @@ Object.assign(pcui, (function () {
             this._args = args;
             this._asset = null;
             this._assetEvents = [];
+            this._dropTarget = null;
 
             this.buildDom(DOM_CUBEMAP_FACE(args));
             this.class.add(CLASS_FACE);
@@ -78,8 +79,8 @@ Object.assign(pcui, (function () {
             this._asset.set(`data.textures.${this._args.face}`, null);
         }
 
-        _initialiseDropTarget() {
-            editor.call('drop:target', {
+        _initializeDropTarget() {
+            this._dropTarget = editor.call('drop:target', {
                 ref: this._thumbnail,
                 filter: (type, dropData) => {
                     if (dropData.id && type.startsWith('asset') &&
@@ -100,7 +101,7 @@ Object.assign(pcui, (function () {
             this._asset = asset;
             this.unlink();
             this._thumbnail.link(asset, path);
-            this._initialiseDropTarget();
+            this._initializeDropTarget();
             this._assetEvents.push(this._deleteButton.on('click', this._onClickDeleteFace.bind(this)));
             this._assetEvents.push(this.on('click', this._onClickFace.bind(this)));
             this._assetEvents.push(this._asset.on('*:set', () => {
@@ -117,6 +118,11 @@ Object.assign(pcui, (function () {
             if (!this._asset) return;
             this._thumbnail.unlink();
             this._assetEvents.forEach(evt => evt.unbind());
+            this._assetEvents = [];
+            if (this._dropTarget) {
+                this._dropTarget.destroy();
+                this._dropTarget = null;
+            }
         }
     }
 

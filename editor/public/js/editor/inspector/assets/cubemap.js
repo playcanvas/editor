@@ -34,6 +34,17 @@ Object.assign(pcui, (function () {
         5: 'Back'
     };
 
+    const FILTERS = {
+        'nearest': {
+            minFilter: 2,
+            magFilter: 0
+        },
+        'linear': {
+            minFilter: 5,
+            magFilter: 1
+        }
+    };
+
     const DOM = (parent, args) => [
         {
             root: {
@@ -119,17 +130,55 @@ Object.assign(pcui, (function () {
             });
         }
 
-        _onFilteringSelectChange(value) {
-            if (value === 'nearest') {
+        _updateFilteringForAssets(filterValue) {
+            const currFilterValues = this._assets.map(asset => {
+                return {
+                    minFilter: asset.get('data.minFilter'),
+                    magFilter: asset.get('data.magFilter')
+                };
+            });
+            this._assets.forEach(asset => {
+                asset.history.enabled = false;
+                asset.set('data.minFilter', FILTERS[filterValue].minFilter);
+                asset.set('data.magFilter', FILTERS[filterValue].magFilter);
+                asset.history.enabled = true;
+            });
+            this._args.history.add({
+                name: 'assets.filtering',
+                undo: () => {
+                    this._assets.forEach((asset, i) => {
+                        asset.history.enabled = false;
+                        asset.set('data.minFilter', currFilterValues[i].minFilter);
+                        asset.set('data.magFilter', currFilterValues[i].magFilter);
+                        asset.history.enabled = true;
+                    });
+                },
+                redo: () => {
+                    this._assets.forEach((asset) => {
+                        asset.history.enabled = false;
+                        asset.set('data.minFilter', FILTERS[filterValue].minFilter);
+                        asset.set('data.magFilter', FILTERS[filterValue].magFilter);
+                        asset.history.enabled = true;
+                    });
+                }
+            });
+        }
+
+        _onFilteringSelectChange(filterValue) {
+            if (['nearest', 'linear'].includes(filterValue)) {
+                let hasDiveredFromAssets = false;
                 this._assets.forEach(asset => {
-                    asset.set('data.minFilter', 2);
-                    asset.set('data.magFilter', 0);
+                    if (asset.get('data.minFilter') !== FILTERS[filterValue].minFilter) {
+                        hasDiveredFromAssets = true;
+                    }
                 });
-            } else if (value === 'linear') {
-                this._assets.forEach(asset => {
-                    asset.set('data.minFilter', 5);
-                    asset.set('data.magFilter', 1);
-                });
+                if (hasDiveredFromAssets) {
+                    if (filterValue === 'nearest') {
+                        this._updateFilteringForAssets(filterValue);
+                    } else if (filterValue === 'linear') {
+                        this._updateFilteringForAssets(filterValue);
+                    }
+                }
             }
         }
 
