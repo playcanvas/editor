@@ -1,15 +1,15 @@
-.asset-model-preview-container{
+.asset-font-preview-container{
     position: relative;
     background-color: #293538;
     height: 0;
     padding-top: 45%;
 }
 
-.asset-model-preview-container-large {
+.asset-font-preview-container-large {
     padding-top: 100%;
 }
 
-.asset-model-preview-canvas {
+.asset-font-preview-canvas {
     transform: scale(1, -1);
     display: block;
     position: absolute;

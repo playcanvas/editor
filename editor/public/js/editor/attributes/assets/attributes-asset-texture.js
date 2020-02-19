@@ -4,6 +4,9 @@ editor.once('load', function() {
     var panelsStates = { };
 
     editor.on('attributes:inspect[asset]', function(assets) {
+        if (editor.call('users:hasFlag', 'hasPcuiAssetInspectors'))
+            return;
+
         for(var i = 0; i < assets.length; i++) {
             if (assets[i].get('type') !== 'texture' && assets[i].get('type') !== 'textureatlas' || assets[i].get('source'))
                 return;
