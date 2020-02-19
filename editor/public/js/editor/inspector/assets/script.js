@@ -23,6 +23,7 @@ Object.assign(pcui, (function () {
             super(args);
             this._asset = null;
             this._assetEvents = [];
+            this._tooltips = [];
 
             this.buildDom(DOM(this));
 
@@ -55,6 +56,7 @@ Object.assign(pcui, (function () {
                         target: attributeLabel,
                         element: attributeLabel.dom
                     });
+                    this._tooltips.push(tooltip);
                     this._scriptAttributeContainer[`_${scriptName}Container`].append(attributeLabel);
                 });
                 this._scriptAttributeContainer.append(this._scriptAttributeContainer[`_${scriptName}Container`]);
@@ -94,7 +96,8 @@ Object.assign(pcui, (function () {
         }
 
         link(assets) {
-            this.unlink(); this._asset = assets[0];
+            this.unlink();
+            this._asset = assets[0];
             this._displayScriptAttributes();
             this._errorContainer.hidden = true;
         }
@@ -104,8 +107,15 @@ Object.assign(pcui, (function () {
                 return;
             this._assetEvents.forEach(evt => evt.unbind());
             this._assetEvents = [];
+            this._tooltips.forEach(tooltip => tooltip.destroy());
+            this._tooltips = [];
             if (this._scriptAttributeContainer)
                 this.remove(this._scriptAttributeContainer);
+        }
+
+        destroy() {
+            super.destroy();
+            this.unlink();
         }
     }
 
