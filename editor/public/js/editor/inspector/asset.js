@@ -316,7 +316,7 @@ Object.assign(pcui, (function () {
         updatePreview() {
             Object.keys(this._typedAssetPreviews).forEach(assetPreviewKey => {
                 const assetPreview = this._typedAssetPreviews[assetPreviewKey];
-                if (!assetPreview.hidden) {
+                if (!assetPreview.hidden && typeof assetPreview.updatePreview === 'function') {
                     assetPreview.updatePreview();
                 }
             });

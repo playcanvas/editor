@@ -1,29 +1,28 @@
 Object.assign(pcui, (function () {
     'use strict';
 
-    const CLASS_CANVAS = 'pcui-asset-preview-canvas';
+    const CLASS_ROOT = 'asset-font-preview';
+    const CLASS_CONTAINER = CLASS_ROOT + '-container';
+    const CLASS_CONTAINER_LARGE = CLASS_CONTAINER + '-large';
+    const CLASS_CANVAS = CLASS_ROOT + '-canvas';
 
-    class ModelAssetInspectorPreview extends pcui.AssetInspectorPreviewBase {
+    class FontAssetInspectorPreview extends pcui.Container {
         constructor(args) {
             super(args);
 
-            this._preview = new pcui.Canvas();
-            this._preview.dom.width = 320;
-            this._preview.dom.height = 144;
-            this._preview.class.add(CLASS_CANVAS);
+            this.class.add(CLASS_CONTAINER);
+
+            this._preview = new pcui.Canvas({
+                canvasWidth: 320,
+                canvasHeight: 144,
+                class: CLASS_CANVAS
+            });
+
             this.append(this._preview);
 
             this._renderQueued = false;
-            this._previewRotation = [-15, 45];
-            this._sx = 0;
-            this._sy = 0;
-            this._x = 0;
-            this._y = 0;
-            this._nx = 0;
-            this._ny = 0;
 
             this._domEvtMouseDown = this._onMouseDown.bind(this);
-            this._domEvtMouseMove = this._onMouseMove.bind(this);
             this._domEvtMouseUp = this._onMouseUp.bind(this);
         }
 
@@ -34,6 +33,7 @@ Object.assign(pcui, (function () {
             this._requestedAnimationFrameID = requestAnimationFrame(this._renderPreview.bind(this));
         }
 
+
         _renderPreview() {
             if (this._renderQueued)
                 this._renderQueued = false;
@@ -41,10 +41,7 @@ Object.assign(pcui, (function () {
                 this._preview.dom.width = this.dom.offsetWidth;
                 this._preview.dom.height = this.dom.offsetHeight;
             }
-            this._previewRenderer.render(
-                Math.max(-90, Math.min(90, this._previewRotation[0] + (this._sy - this._y) * 0.3)),
-                this._previewRotation[1] + (this._sx - this._x) * 0.3
-            );
+            this._previewRenderer.render();
         }
 
         _onMouseDown(evt) {
@@ -59,29 +56,15 @@ Object.assign(pcui, (function () {
             this._dragging = true;
         }
 
-        _onMouseMove(evt) {
-            if (! this._dragging)
-                return;
-
-            this._nx = this._x - evt.clientX;
-            this._ny = this._y - evt.clientY;
-            this._x = evt.clientX;
-            this._y = evt.clientY;
-
-            this._queueRender();
-        }
-
         _onMouseUp(evt) {
             if (!this._dragging)
                 return;
 
-            if ((Math.abs(this._sx - this._x) + Math.abs(this._sy - this._y)) < 8) {
-                this._preview.dom.height = this.height;
+            if (this.class.contains(CLASS_CONTAINER_LARGE)) {
+                this.class.remove(CLASS_CONTAINER_LARGE);
+            } else {
+                this.class.add(CLASS_CONTAINER_LARGE);
             }
-
-            this._previewRotation[0] = Math.max(-90, Math.min(90, this._previewRotation[0] + ((this._sy - this._y) * 0.3)));
-            this._previewRotation[1] += (this._sx - this._x) * 0.3;
-            this._sx = this._sy = this._x = this._y = 0;
 
             this._dragging = false;
 
@@ -94,18 +77,14 @@ Object.assign(pcui, (function () {
 
         link(assets) {
             this.unlink();
-            super.link();
-
-            this._previewRenderer = new pcui.ModelThumbnailRenderer(assets[0], this._preview.dom);
+            this._previewRenderer = new pcui.FontThumbnailRenderer(assets[0], this._preview.dom);
             this._preview.dom.addEventListener('mousedown', this._domEvtMouseDown, false);
-            window.addEventListener('mousemove', this._domEvtMouseMove, false);
             window.addEventListener('mouseup', this._domEvtMouseUp, false);
             this._renderPreview();
         }
 
         unlink() {
             super.unlink();
-
             if (this._previewRenderer) {
                 this._previewRenderer.destroy();
             }
@@ -113,12 +92,11 @@ Object.assign(pcui, (function () {
                 cancelAnimationFrame(this._requestedAnimationFrameID);
             }
             this._preview.dom.removeEventListener('mousedown', this._domEvtMouseDown, false);
-            window.removeEventListener('mousemove', this._domEvtMouseMove, false);
             window.removeEventListener('mouseup', this._domEvtMouseUp, false);
         }
     }
 
     return {
-        ModelAssetInspectorPreview: ModelAssetInspectorPreview
+        FontAssetInspectorPreview: FontAssetInspectorPreview
     };
 })());
