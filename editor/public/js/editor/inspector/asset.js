@@ -130,7 +130,7 @@ Object.assign(pcui, (function () {
             this._projectSettings = args.projectSettings;
             this._editableTypes = args.editableTypes;
 
-            this._assetTypes = [...editor.call('schema:assets:list'), 'bundle'];
+            this._assetTypes = editor.call('schema:assets:list');
 
             this._attributesInspector = new pcui.AttributesInspector({
                 history: args.history,
