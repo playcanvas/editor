@@ -440,7 +440,6 @@ Object.assign(pcui, (function () {
             this._attributesInspector.getField('source_asset_id').class.add('pcui-selectable');
 
             this.hidden = false;
-            window._v = assets[0];
         }
 
         _toggleAssetField(attribute) {
