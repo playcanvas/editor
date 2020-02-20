@@ -5,6 +5,14 @@ Object.assign(pcui, (function () {
         label: 'Name',
         path: 'data.moduleName',
         type: 'string'
+    }, {
+        label: 'Glue script',
+        path: 'data.glueScriptId',
+        type: 'asset'
+    }, {
+        label: 'Fallback script',
+        path: 'data.fallbackScriptId',
+        type: 'asset'
     }];
 
     const DOM = parent => [
@@ -13,28 +21,6 @@ Object.assign(pcui, (function () {
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: ATTRIBUTES
-            })
-        }, {
-            glueInput: new pcui.AssetInput({
-                assetType: 'script',
-                assets: parent._args.assets,
-                text: 'Glue script',
-                flexGrow: 1,
-                binding: new pcui.BindingTwoWay({
-                    history: parent._args.history
-                }),
-                allowDragDrop: true
-            })
-        }, {
-            fallbackInput: new pcui.AssetInput({
-                assetType: 'script',
-                assets: parent._args.assets,
-                text: 'Fallback script',
-                flexGrow: 1,
-                binding: new pcui.BindingTwoWay({
-                    history: parent._args.history
-                }),
-                allowDragDrop: true
             })
         }
     ];
@@ -52,15 +38,10 @@ Object.assign(pcui, (function () {
         link(assets) {
             this.unlink();
             this._attributesInspector.link(assets);
-            window._v = assets[0];
-            this._glueInput.link(assets, 'data.glueScriptId');
-            this._fallbackInput.link(assets, 'data.fallbackScriptId');
         }
 
         unlink() {
             this._attributesInspector.unlink();
-            this._glueInput.unlink();
-            this._fallbackInput.unlink();
         }
     }
 
