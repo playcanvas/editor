@@ -18,6 +18,9 @@ editor.once('load', function() {
     var GREEK = characterRange(0x370, 0x3FF);
 
     editor.on('attributes:inspect[asset]', function(assets) {
+        const hasPcuiAssetInspectors = editor.call('users:hasFlag', 'hasPcuiAssetInspectors');
+        if (hasPcuiAssetInspectors)
+            return;
         var root = editor.call('attributes.rootPanel');
 
         for(var i = 0; i < assets.length; i++) {

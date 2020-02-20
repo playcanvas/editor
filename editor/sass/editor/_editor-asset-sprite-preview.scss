@@ -1,16 +1,15 @@
-.asset-model-preview-container{
+.asset-sprite-preview-container{
     position: relative;
     background-color: #293538;
     height: 0;
     padding-top: 45%;
 }
 
-.asset-model-preview-container-large {
+.asset-sprite-preview-container-large {
     padding-top: 100%;
 }
 
-.asset-model-preview-canvas {
-    transform: scale(1, -1);
+.asset-sprite-preview-canvas {
     display: block;
     position: absolute;
     top: 0;
@@ -26,3 +25,20 @@
     background-repeat: no-repeat;
 }
 
+.asset-sprite-preview-button {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    display: none;
+}
+
+.asset-sprite-preview-container:hover{
+    .asset-sprite-preview-button {
+        display: block;
+    }
+}
+
+.asset-sprite-preview-button-playing {
+    color: #f60;
+    display: block !important;
+}
