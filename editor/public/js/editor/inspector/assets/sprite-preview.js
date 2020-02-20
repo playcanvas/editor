@@ -132,7 +132,10 @@ Object.assign(pcui, (function () {
             this._preview.dom.removeEventListener('mousedown', this._domEvtMouseDown, false);
             window.removeEventListener('mousemove', this._domEvtMouseMove, false);
             window.removeEventListener('mouseup', this._domEvtMouseUp, false);
-            this._playStartTime = null;
+            if (this._playStartTime) {
+                this._playStartTime = null;
+                this._playButton.class.remove(CLASS_BUTTON_PLAYING);
+            }
         }
     }
 
