@@ -31,6 +31,7 @@ Object.assign(pcui, (function () {
             this._domEvtMouseDown = this._onMouseDown.bind(this);
             this._domEvtMouseMove = this._onMouseMove.bind(this);
             this._domEvtMouseUp = this._onMouseUp.bind(this);
+            this._playButton.on('click', this._onClickPlay.bind(this));
         }
 
         // queue up the rendering to prevent too often renders
@@ -117,7 +118,6 @@ Object.assign(pcui, (function () {
             this._preview.dom.addEventListener('mousedown', this._domEvtMouseDown, false);
             window.addEventListener('mousemove', this._domEvtMouseMove, false);
             window.addEventListener('mouseup', this._domEvtMouseUp, false);
-            this._playButton.on('click', this._onClickPlay.bind(this));
             this._renderPreview();
         }
 
@@ -132,6 +132,7 @@ Object.assign(pcui, (function () {
             this._preview.dom.removeEventListener('mousedown', this._domEvtMouseDown, false);
             window.removeEventListener('mousemove', this._domEvtMouseMove, false);
             window.removeEventListener('mouseup', this._domEvtMouseUp, false);
+            this._playStartTime = null;
         }
     }
 
