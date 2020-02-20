@@ -138,10 +138,11 @@ Object.assign(pcui, (function () {
     ];
     COMPRESSION_BASIS_ATTRIBUTES.forEach(makeRefAssigner('asset:texture:compress:'));
 
+    const LEGACY_COMPRESSION_PARAMS = ['dxt', 'pvr', 'etc1', 'etc2'];
     const COMPRESSION_LEGACY_ATTRIBUTES = [
         {
             label: "Legacy",
-            type: 'label',
+            type: 'boolean',
             alias: 'compress.legacy'
         },
         {
@@ -505,6 +506,7 @@ Object.assign(pcui, (function () {
             this._compressionChangeTicking = false;
             this._compressionChangeTimeout = null;
             this._hasBasis = editor.call('users:hasFlag', 'hasBasisTextures');
+            this._hasLegacy = false;
 
             this._compressionFormats = {
                 original: { size: 0, vram: 0 },
@@ -521,6 +523,7 @@ Object.assign(pcui, (function () {
             this._handleBtnCompressBasisClick = this._handleBtnCompressBasisClick.bind(this);
             this._handleBtnCompressLegacyClick = this._handleBtnCompressLegacyClick.bind(this);
             this._handleBtnGetMetaClick = this._handleBtnGetMetaClick.bind(this);
+            this._showHideLegacyUi = this._showHideLegacyUi.bind(this);
             this._updatePvrWarning = this._updatePvrWarning.bind(this);
 
             this.buildDom(DOM(this, this._hasBasis));
@@ -704,6 +707,7 @@ Object.assign(pcui, (function () {
             let displayExt = '';
             let showBasisPvrWarning = false;
             let basisSelected = false;
+            let hasLegacy = false;
 
             for(let i = 0; i < assets.length; i++) {
                 if (assets[i].has('meta.width')) {
@@ -749,6 +753,13 @@ Object.assign(pcui, (function () {
                     displayExt = displayExt && displayExt !== ext ? 'various' : ext;
                 }
 
+                if (!hasLegacy) {
+                    for (let j = 0; j < LEGACY_COMPRESSION_PARAMS.length; j++) {
+                        hasLegacy = assets[i].get(`meta.compress.${LEGACY_COMPRESSION_PARAMS[j]}`);
+                        if (hasLegacy) break;
+                    }
+                }
+
                 const thisBasis = assets[i].get('meta.compress.basis');
                 basisSelected = basisSelected || thisBasis;
 
@@ -763,6 +774,9 @@ Object.assign(pcui, (function () {
                     showBasisPvrWarning = thisBasis && (!thisPOT || thisWidth !== thisHeight);
                 }
             }
+
+            this._hasLegacy = hasLegacy;
+            this._compressionLegacyAttributesInspector.getField('compress.legacy').disabled = hasLegacy;
 
             // enable/disable basis controls based on whether basis is enabled
             const basisUiDisabled = !writeAccess || !basisSelected;
@@ -1054,6 +1068,14 @@ Object.assign(pcui, (function () {
             })
         }
 
+        _setupLegacy() {
+            if (!this._hasBasis) return;
+            const fieldLegacy = this._compressionLegacyAttributesInspector.getField('compress.legacy');
+            this._showHideLegacyUi(this._hasLegacy);
+            fieldLegacy.value = this._hasLegacy;
+            this._assetEvents.push(fieldLegacy.on('change', this._showHideLegacyUi));
+        }
+
         _setupPanelReferences() {
             editor.call('attributes:reference:attach', 'asset:texture:asset', this._texturePanel._containerHeader);
             editor.call('attributes:reference:attach', 'asset:texture:compression', this._compressionPanel._containerHeader);
@@ -1070,7 +1092,7 @@ Object.assign(pcui, (function () {
             this._pvrWarningLabel.hidden = true;
 
             fieldPvr.parent.parent.appendAfter(this._pvrWarningLabel, fieldPvrBpp.parent);
-            fieldPvr.on('change', this._updatePvrWarning);
+            this._assetEvents.push(fieldPvr.on('change', this._updatePvrWarning));
         }
 
         _setupSizeLabels() {
@@ -1098,6 +1120,17 @@ Object.assign(pcui, (function () {
                     field.parent.append(sizeLabel);
                 }
             }
+        }
+
+        _showHideLegacyUi(show) {
+            this._compressionLegacyAttributesInspector.getField(`meta.compress.alpha`).parent.hidden = !show;
+            this._compressionLegacyAttributesInspector.getField(`meta.compress.dxt`).parent.hidden = !show;
+            this._compressionLegacyAttributesInspector.getField(`meta.compress.etc1`).parent.hidden = !show;
+            this._compressionLegacyAttributesInspector.getField(`meta.compress.etc2`).parent.hidden = !show;
+            this._compressionLegacyAttributesInspector.getField(`compress.original`).parent.hidden = !show;
+            this._compressionLegacyAttributesInspector.getField(`meta.compress.pvr`).parent.hidden = !show;
+            this._compressionLegacyAttributesInspector.getField(`meta.compress.pvrBpp`).parent.hidden = !show;
+            this._btnCompressLegacy.hidden = !show;
         }
 
         _updatePvrWarning() {
@@ -1140,6 +1173,9 @@ Object.assign(pcui, (function () {
             }
             this._checkFormats();
             this._checkCompression();
+
+            // needs to be called after this._checkFormats to determine this._hasLegacy
+            this._setupLegacy();
 
             // setup addiional listeners
             this._assetEvents.push(editor.on('permissions:writeState', () => this._handleAssetChangeCompression('meta')));
