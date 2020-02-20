@@ -1,0 +1,35 @@
+.pcui-texture-asset-preview {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-height: 500px;
+    margin: auto;
+    border: 8px solid #293538;
+    border-top: 0;
+    box-sizing: border-box;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.pcui-size-label {
+    vertical-align: top;
+    font-size: 10px;
+    line-height: 24px;
+    text-align: right;
+    flex-grow: 1;
+    -webkit-flex-grow: 1;
+    color: $text-dark;
+}
+
+.pcui-pvr-warning {
+    &:not(.pcui-hidden) {
+        display: block;
+    }
+    color: $error-secondary;
+    text-align: right;
+    font-size: 12px;
+}

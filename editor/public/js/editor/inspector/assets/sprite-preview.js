@@ -1,26 +1,32 @@
 Object.assign(pcui, (function () {
     'use strict';
 
-    const CLASS_CANVAS = 'pcui-asset-preview-canvas';
+    const CLASS_ROOT = 'asset-sprite-preview';
+    const CLASS_CONTAINER = CLASS_ROOT + '-container';
+    const CLASS_CONTAINER_LARGE = CLASS_CONTAINER + '-large';
+    const CLASS_CANVAS = CLASS_ROOT + '-canvas';
+    const CLASS_BUTTON = CLASS_ROOT + '-button';
+    const CLASS_BUTTON_PLAYING = CLASS_ROOT + '-button-playing';
 
-    class ModelAssetInspectorPreview extends pcui.AssetInspectorPreviewBase {
+    class SpriteAssetInspectorPreview extends pcui.Container {
         constructor(args) {
             super(args);
 
-            this._preview = new pcui.Canvas();
-            this._preview.dom.width = 320;
-            this._preview.dom.height = 144;
-            this._preview.class.add(CLASS_CANVAS);
+            this.class.add(CLASS_CONTAINER);
+
+            this._preview = new pcui.Canvas({
+                class: CLASS_CANVAS,
+                useDevicePixelRatio: true
+            });
             this.append(this._preview);
 
+            this._playButton = new pcui.Button({ icon: 'E286', class: CLASS_BUTTON });
+            this.append(this._playButton);
+
             this._renderQueued = false;
-            this._previewRotation = [-15, 45];
-            this._sx = 0;
-            this._sy = 0;
-            this._x = 0;
-            this._y = 0;
-            this._nx = 0;
-            this._ny = 0;
+            this._fps = 10;
+            this._playStartTime = null;
+            this._spriteFrames = null;
 
             this._domEvtMouseDown = this._onMouseDown.bind(this);
             this._domEvtMouseMove = this._onMouseMove.bind(this);
@@ -34,17 +40,26 @@ Object.assign(pcui, (function () {
             this._requestedAnimationFrameID = requestAnimationFrame(this._renderPreview.bind(this));
         }
 
+
         _renderPreview() {
             if (this._renderQueued)
                 this._renderQueued = false;
             if (this.dom.offsetWidth !== 0 && this.dom.offsetHeight !== 0) {
                 this._preview.dom.width = this.dom.offsetWidth;
                 this._preview.dom.height = this.dom.offsetHeight;
+            } else {
+                this._preview.dom.width = 320;
+                this._preview.dom.height = 144;
             }
-            this._previewRenderer.render(
-                Math.max(-90, Math.min(90, this._previewRotation[0] + (this._sy - this._y) * 0.3)),
-                this._previewRotation[1] + (this._sx - this._x) * 0.3
-            );
+            if (this._playStartTime !== null) {
+                const lapsedTime = Date.now() - this._playStartTime;
+                const frameTimeMs = 1000 / this._fps;
+                const currentFrame = Math.floor((lapsedTime / frameTimeMs) % this._spriteFrames) + 1;
+                this._previewRenderer.render(currentFrame, true);
+                this._queueRender();
+            } else {
+                this._previewRenderer.render();
+            }
         }
 
         _onMouseDown(evt) {
@@ -54,19 +69,12 @@ Object.assign(pcui, (function () {
             evt.preventDefault();
             evt.stopPropagation();
 
-            this._sx = this._x = evt.clientX;
-            this._sy = this._y = evt.clientY;
             this._dragging = true;
         }
 
         _onMouseMove(evt) {
             if (! this._dragging)
                 return;
-
-            this._nx = this._x - evt.clientX;
-            this._ny = this._y - evt.clientY;
-            this._x = evt.clientX;
-            this._y = evt.clientY;
 
             this._queueRender();
         }
@@ -75,13 +83,12 @@ Object.assign(pcui, (function () {
             if (!this._dragging)
                 return;
 
-            if ((Math.abs(this._sx - this._x) + Math.abs(this._sy - this._y)) < 8) {
-                this._preview.dom.height = this.height;
+            if (this.class.contains(CLASS_CONTAINER_LARGE)) {
+                this.class.remove(CLASS_CONTAINER_LARGE);
+            } else {
+                this.class.add(CLASS_CONTAINER_LARGE);
             }
-
-            this._previewRotation[0] = Math.max(-90, Math.min(90, this._previewRotation[0] + ((this._sy - this._y) * 0.3)));
-            this._previewRotation[1] += (this._sx - this._x) * 0.3;
-            this._sx = this._sy = this._x = this._y = 0;
+            this._preview.dom.height = this.height;
 
             this._dragging = false;
 
@@ -92,20 +99,30 @@ Object.assign(pcui, (function () {
             this._queueRender();
         }
 
+        _onClickPlay() {
+            if (this._playStartTime === null) {
+                this._playStartTime = Date.now();
+                this._queueRender();
+                this._playButton.class.add(CLASS_BUTTON_PLAYING);
+            } else {
+                this._playStartTime = null;
+                this._playButton.class.remove(CLASS_BUTTON_PLAYING);
+            }
+        }
+
         link(assets) {
             this.unlink();
-            super.link();
-
-            this._previewRenderer = new pcui.ModelThumbnailRenderer(assets[0], this._preview.dom);
+            this._previewRenderer = new pcui.SpriteThumbnailRenderer(assets[0], this._preview.dom, editor.call('assets:raw'));
+            this._spriteFrames = assets[0].get('data.frameKeys').length;
             this._preview.dom.addEventListener('mousedown', this._domEvtMouseDown, false);
             window.addEventListener('mousemove', this._domEvtMouseMove, false);
             window.addEventListener('mouseup', this._domEvtMouseUp, false);
+            this._playButton.on('click', this._onClickPlay.bind(this));
             this._renderPreview();
         }
 
         unlink() {
             super.unlink();
-
             if (this._previewRenderer) {
                 this._previewRenderer.destroy();
             }
@@ -119,6 +136,6 @@ Object.assign(pcui, (function () {
     }
 
     return {
-        ModelAssetInspectorPreview: ModelAssetInspectorPreview
+        SpriteAssetInspectorPreview: SpriteAssetInspectorPreview
     };
 })());
