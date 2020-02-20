@@ -196,7 +196,6 @@ Object.assign(pcui, (function () {
             this._typedAssetPreviews = [];
 
             this._assetTypes.forEach(assetType => {
-
                 // check if class exists
                 const cls = `${assetType[0].toUpperCase()}${assetType.substring(1)}AssetInspector`;
                 if (pcui.hasOwnProperty(cls)) {
@@ -363,7 +362,7 @@ Object.assign(pcui, (function () {
                 if (pcui.hasOwnProperty(cls)) {
                     let shouldDisplayTypedInspector = true;
                     assets.forEach(asset => {
-                        if (asset.get('type') !== assetType || asset.get('source')) {
+                        if (asset.get('type') !== assetType.toLowerCase() || asset.get('source')) {
                             shouldDisplayTypedInspector = false;
                         }
                     });
@@ -379,7 +378,7 @@ Object.assign(pcui, (function () {
                     if (pcui.hasOwnProperty(clsSource)) {
                         let shouldDisplayTypedInspector = true;
                         assets.forEach(asset => {
-                            if (asset.get('type') !== assetType || !asset.get('source') || !asset.get('type') === 'scene') {
+                            if (asset.get('type') !== assetType.toLowerCase() || !asset.get('source') || !asset.get('type') === 'scene') {
                                 shouldDisplayTypedInspector = false;
                             }
                         });
@@ -394,7 +393,7 @@ Object.assign(pcui, (function () {
                     if (pcui.hasOwnProperty(clsPreview)) {
                         let shouldDisplayTypedInspector = true;
                         assets.forEach(asset => {
-                            if (asset.get('type') !== assetType || asset.get('source')) {
+                            if (asset.get('type') !== assetType.toLowerCase() || asset.get('source')) {
                                 shouldDisplayTypedInspector = false;
                             }
                         });

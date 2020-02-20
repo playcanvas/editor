@@ -1,19 +1,27 @@
 Object.assign(pcui, (function () {
     'use strict';
 
-    const CLASS_CANVAS = 'pcui-asset-preview-canvas';
+    const CLASS_ROOT = 'asset-cubemap-preview';
+    const CLASS_CONTAINER = CLASS_ROOT + '-container';
+    const CLASS_CONTAINER_LARGE = CLASS_CONTAINER + '-large';
+    const CLASS_CANVAS = CLASS_ROOT + '-canvas';
 
-    class ModelAssetInspectorPreview extends pcui.AssetInspectorPreviewBase {
+    class CubemapAssetInspectorPreview extends pcui.Container {
         constructor(args) {
             super(args);
 
-            this._preview = new pcui.Canvas({ useDevicePixelRatio: true });
-            this._preview.resize(320, 144);
-            this._preview.class.add(CLASS_CANVAS);
+            this.class.add(CLASS_CONTAINER);
+
+            this._preview = new pcui.Canvas({
+                canvasWidth: 320,
+                canvasHeight: 144,
+                class: CLASS_CANVAS
+            });
+
             this.append(this._preview);
 
             this._renderQueued = false;
-            this._previewRotation = [-15, 45];
+            this._previewRotation = [0, 0];
             this._sx = 0;
             this._sy = 0;
             this._x = 0;
@@ -33,11 +41,13 @@ Object.assign(pcui, (function () {
             this._requestedAnimationFrameID = requestAnimationFrame(this._renderPreview.bind(this));
         }
 
+
         _renderPreview() {
             if (this._renderQueued)
                 this._renderQueued = false;
             if (this.dom.offsetWidth !== 0 && this.dom.offsetHeight !== 0) {
-                this._preview.resize(this.dom.offsetWidth, this.dom.offsetHeight);
+                this._preview.dom.width = this.dom.offsetWidth;
+                this._preview.dom.height = this.dom.offsetHeight;
             }
             this._previewRenderer.render(
                 Math.max(-90, Math.min(90, this._previewRotation[0] + (this._sy - this._y) * 0.3)),
@@ -74,6 +84,11 @@ Object.assign(pcui, (function () {
                 return;
 
             if ((Math.abs(this._sx - this._x) + Math.abs(this._sy - this._y)) < 8) {
+                if (this.class.contains(CLASS_CONTAINER_LARGE)) {
+                    this.class.remove(CLASS_CONTAINER_LARGE);
+                } else {
+                    this.class.add(CLASS_CONTAINER_LARGE);
+                }
                 this._preview.dom.height = this.height;
             }
 
@@ -92,9 +107,7 @@ Object.assign(pcui, (function () {
 
         link(assets) {
             this.unlink();
-            super.link();
-
-            this._previewRenderer = new pcui.ModelThumbnailRenderer(assets[0], this._preview.dom);
+            this._previewRenderer = new pcui.Cubemap3dThumbnailRenderer(assets[0], this._preview.dom);
             this._preview.dom.addEventListener('mousedown', this._domEvtMouseDown, false);
             window.addEventListener('mousemove', this._domEvtMouseMove, false);
             window.addEventListener('mouseup', this._domEvtMouseUp, false);
@@ -103,7 +116,6 @@ Object.assign(pcui, (function () {
 
         unlink() {
             super.unlink();
-
             if (this._previewRenderer) {
                 this._previewRenderer.destroy();
             }
@@ -117,6 +129,6 @@ Object.assign(pcui, (function () {
     }
 
     return {
-        ModelAssetInspectorPreview: ModelAssetInspectorPreview
+        CubemapAssetInspectorPreview: CubemapAssetInspectorPreview
     };
 })());

@@ -15,7 +15,8 @@ Object.assign(pcui, (function () {
             this._preview = new pcui.Canvas({
                 canvasWidth: 320,
                 canvasHeight: 144,
-                class: CLASS_CANVAS
+                class: CLASS_CANVAS,
+                useDevicePixelRatio: true
             });
 
             this.append(this._preview);
