@@ -81,14 +81,13 @@ Object.assign(pcui, (function () {
             },
             {
                 root: {
-                    setFaceTextureErrorContainer: new pcui.Container({
+                    errorContainer: new pcui.Container({
                         flex: true,
                         alignItems: 'center'
                     })
                 },
                 children: [{
-                    setFaceTexturesError: new pcui.Label({
-                        text: 'set face textures',
+                    errorLabel: new pcui.Label({
                         class: pcui.CLASS_ERROR
                     })
                 }]
@@ -128,6 +127,49 @@ Object.assign(pcui, (function () {
                 }
                 return '';
             });
+        }
+
+        _checkFacesValid() {
+            const faces = this._assets[0].get('data.textures');
+
+            if (!(faces instanceof Array))
+                return 'missing faces information';
+
+            for (let i = 0; i < 6; i++) {
+                if (!faces[i])
+                    return 'set face textures';
+            }
+
+            let width = 0;
+            let height = 0;
+
+            for (let i = 0; i < 6; i++) {
+                const asset = editor.call('assets:get', faces[i]);
+                if (!asset)
+                    return 'missing face asset';
+
+                if (!asset.has('meta.width') || ! asset.has('meta.height'))
+                    return 'no texture resolution data available';
+
+                const w = asset.get('meta.width');
+                const h = asset.get('meta.height');
+
+                if ((w & (w - 1)) !== 0 || (h & (h - 1)) !== 0)
+                    return 'face textures should have power of two resolution';
+
+                if (w !== h)
+                    return 'face textures should have square resolution';
+
+                if (i === 0) {
+                    width = w;
+                    height = h;
+                } else {
+                    if (width !== w || height !== h)
+                        return 'face textures should have same resolution';
+                }
+            }
+
+            return false;
         }
 
         _updateFilteringForAssets(filterValue) {
@@ -189,16 +231,6 @@ Object.assign(pcui, (function () {
             }
         }
 
-        _hasAllTextures() {
-            let hasAllCubemapTextures = true;
-            this._assets[0].get('data.textures').forEach(texture => {
-                if (texture === null) {
-                    hasAllCubemapTextures = false;
-                }
-            });
-            return hasAllCubemapTextures;
-        }
-
         _isPrefiltered() {
             return !!this._assets[0].get('file');
         }
@@ -216,8 +248,10 @@ Object.assign(pcui, (function () {
 
         _updateLayout() {
             this._updateFilteringSelect();
-            this._prefilteringPanel.hidden = !this._hasAllTextures();
-            this._setFaceTexturesError.hidden = this._hasAllTextures();
+            const validationError = this._checkFacesValid();
+            this._errorLabel.text = validationError;
+            this._errorLabel.hidden = !validationError;
+            this._prefilteringPanel.hidden = !!validationError;
             this._prefilterButton.hidden = this._isPrefiltered();
             this._deletePrefilterButton.hidden = !this._isPrefiltered();
             this._facesPanel.hidden = this._assets.length > 1;
