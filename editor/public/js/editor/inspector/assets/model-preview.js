@@ -7,9 +7,8 @@ Object.assign(pcui, (function () {
         constructor(args) {
             super(args);
 
-            this._preview = new pcui.Canvas();
-            this._preview.dom.width = 320;
-            this._preview.dom.height = 144;
+            this._preview = new pcui.Canvas({ useDevicePixelRatio: true });
+            this._preview.resize(320, 144);
             this._preview.class.add(CLASS_CANVAS);
             this.append(this._preview);
 
@@ -38,8 +37,7 @@ Object.assign(pcui, (function () {
             if (this._renderQueued)
                 this._renderQueued = false;
             if (this.dom.offsetWidth !== 0 && this.dom.offsetHeight !== 0) {
-                this._preview.dom.width = this.dom.offsetWidth;
-                this._preview.dom.height = this.dom.offsetHeight;
+                this._preview.resize(this.dom.offsetWidth, this.dom.offsetHeight);
             }
             this._previewRenderer.render(
                 Math.max(-90, Math.min(90, this._previewRotation[0] + (this._sy - this._y) * 0.3)),
