@@ -1,0 +1,85 @@
+.pcui-cubemap-asset-inspector-faces-container {
+    display: flex;
+    flex-wrap: wrap;
+    background-color: #2c393c;
+    padding: 8px 6px;
+}
+
+.pcui-cubemap-asset-inspector-face {
+    position: relative;
+    width: 25%;
+    overflow: hidden;
+    background-image: url('/editor/scene/img/asset-placeholder-texture.png');
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-color: #07f;
+    .pcui-asset-thumb {
+        padding-top: 100%;
+    }
+}
+
+.pcui-cubemap-asset-inspector-face.pcui-disabled {
+    opacity: 50%;
+}
+
+.pcui-cubemap-asset-inspector-face.Top {
+    order: 1;
+    margin-left: 25%;
+    margin-right: 50%;
+}
+
+.pcui-cubemap-asset-inspector-face.Left {
+    order: 2;
+}
+
+.pcui-cubemap-asset-inspector-face.Front {
+    order: 3;
+}
+
+.pcui-cubemap-asset-inspector-face.Right {
+    order: 4;
+}
+
+.pcui-cubemap-asset-inspector-face.Back {
+    order: 5;
+}
+
+.pcui-cubemap-asset-inspector-face.Bottom {
+    order: 6;
+    margin-left: 25%;
+}
+
+.pcui-cubemap-asset-inspector-face-label {
+    position: absolute;
+    z-index: 1;
+    top: -7px;
+    left: -7px;
+    color: #b1b8ba;
+    padding: 2px 4px;
+    background-color: rgba(44,57,60,0.8);
+    font-size: 12px;
+}
+
+.pcui-cubemap-asset-inspector-face-button {
+    position: absolute;
+    z-index: 1;
+    width: 22px;
+    height: 0px;
+    top: -8px;
+    right: -7px;
+}
+
+
+.pcui-cubemap-asset-inspector-face-button::before {
+    display: flex;
+    align-items: center;
+    height: 12px;
+    margin-left: -4px;
+}
+
+.pcui-cubemap-asset-inspector-face:hover {
+    .pcui-cubemap-asset-inspector-face-button {
+        height: 22px;
+    }
+}
