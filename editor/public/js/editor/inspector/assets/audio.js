@@ -65,7 +65,12 @@ Object.assign(pcui, (function () {
 
             this.buildDom(DOM(this));
             this._playing = null;
-            this._events = [];
+            this._assetEvents = {
+                canplay: this._audioCanPlay.bind(this),
+                play: this._audioPlayed.bind(this),
+                pause: this._audioPaused.bind(this),
+                durationchange: this._audioDurationChange.bind(this)
+            };
         }
 
         _onClickAudioButton(evt) {
@@ -114,28 +119,35 @@ Object.assign(pcui, (function () {
             this._audioButton.disabled = true;
             this._audioTimeline.value = 100;
 
-            this._events.push(this._audioButton.on('click', this._onClickAudioButton.bind(this)));
+            this._assetEvents.click = (this._audioButton.on('click', this._onClickAudioButton.bind(this)));
 
             this._attributesInspector.link(assets);
             this._audio = new Audio();
             this._audioContainer.prepend(this._audio);
             this._audio.src = config.url.home + assets[0].get('file.url');
 
-            this._audio.addEventListener('canplay', this._audioCanPlay.bind(this), false);
-            this._audio.addEventListener('play', this._audioPlayed.bind(this), false);
-            this._audio.addEventListener('pause', this._audioPaused.bind(this), false);
-            this._audio.addEventListener('durationchange', this._audioDurationChange.bind(this), false);
+            this._audio.addEventListener('canplay', this._assetEvents.canplay, false);
+            this._audio.addEventListener('play', this._assetEvents.play, false);
+            this._audio.addEventListener('pause', this._assetEvents.pause, false);
+            this._audio.addEventListener('durationchange', this._assetEvents.durationchange, false);
         }
 
         unlink() {
+            if (!this._audio)
+                return;
+
             this._attributesInspector.unlink();
-            clearInterval(this._playing);
-            if (this._audio) {
-                this._audio.pause();
-            }
+            this._audioPaused();
+
+            Object.keys(this._assetEvents).forEach(event => {
+                if (event === 'click')
+                    this._assetEvents[event].unbind();
+                else
+                    this._audio.removeEventListener(event, this._assetEvents[event]);
+            });
+
             this._audio = null;
-            this._events.forEach(evt => evt.unbind());
-            this._events = [];
+
             this._attributesInspector.getField('duration').value = '...';
         }
     }
