@@ -13,6 +13,7 @@ Object.assign(pcui, (function () {
     };
 
     const CLASS_ROOT = 'asset-texture-inspector';
+    const CLASS_COMPRESS_BUTTON = CLASS_ROOT + '-compress-button';
 
     const TEXTURE_ATTRIBUTES = [
         {
@@ -116,6 +117,11 @@ Object.assign(pcui, (function () {
             type: "boolean"
         },
         {
+            label: "Normals",
+            path: "meta.compress.normals",
+            type: "boolean"
+        },
+        {
             label: "Quality",
             path: "meta.compress.quality",
             type: "select",
@@ -129,11 +135,6 @@ Object.assign(pcui, (function () {
                     { v: 255, t: "Highest" }
                 ]
             }
-        },
-        {
-            label: "Normals",
-            path: "meta.compress.normals",
-            type: "boolean"
         }
     ];
     COMPRESSION_BASIS_ATTRIBUTES.forEach(makeRefAssigner('asset:texture:compress:'));
@@ -266,11 +267,15 @@ Object.assign(pcui, (function () {
                             children: [
                                 {
                                     btnCompressBasis: new pcui.Button({
-                                        text: 'Compress Basis',
+                                        text: 'COMPRESS BASIS',
                                         flexGrow: 1,
+                                        class: CLASS_COMPRESS_BUTTON
                                     })
                                 }
                             ]
+                        },
+                        {
+                            basisDivider: new pcui.Divider()
                         }
                     ]
                 }
@@ -298,8 +303,9 @@ Object.assign(pcui, (function () {
                             children: [
                                 {
                                     btnCompressLegacy: new pcui.Button({
-                                        text: `Compress${hasBasis ? ' Legacy' : ''}`,
+                                        text: `COMPRESS${hasBasis ? ' LEGACY' : ''}`,
                                         flexGrow: 1,
+                                        class: CLASS_COMPRESS_BUTTON
                                     })
                                 }
                             ]
@@ -679,9 +685,6 @@ Object.assign(pcui, (function () {
                             break;
                     }
                 }
-
-                if (differentBasis && differentLegacy)
-                    break;
             }
 
             if (this._btnCompressBasis) {
@@ -776,7 +779,6 @@ Object.assign(pcui, (function () {
             }
 
             this._hasLegacy = hasLegacy;
-            this._compressionLegacyAttributesInspector.getField('compress.legacy').disabled = hasLegacy;
 
             // enable/disable basis controls based on whether basis is enabled
             const basisUiDisabled = !writeAccess || !basisSelected;
@@ -837,6 +839,7 @@ Object.assign(pcui, (function () {
                 this._checkFormats();
                 this._checkCompression();
                 this._checkCompressAlpha();
+                this._updateLegacy();
             }, 0);
         };
 
@@ -1071,9 +1074,18 @@ Object.assign(pcui, (function () {
         _setupLegacy() {
             if (!this._hasBasis) return;
             const fieldLegacy = this._compressionLegacyAttributesInspector.getField('compress.legacy');
-            this._showHideLegacyUi(this._hasLegacy);
-            fieldLegacy.value = this._hasLegacy;
+            var dirty = !this._btnCompressLegacy.disabled;
+            this._showHideLegacyUi(this._hasLegacy || dirty);
+            fieldLegacy.value = this._hasLegacy || dirty;
+            fieldLegacy.disabled = this._hasLegacy || dirty;
             this._assetEvents.push(fieldLegacy.on('change', this._showHideLegacyUi));
+        }
+
+        _updateLegacy() {
+            if (!this._hasBasis) return;
+            const fieldLegacy = this._compressionLegacyAttributesInspector.getField('compress.legacy');
+            var dirty = !this._btnCompressLegacy.disabled;
+            fieldLegacy.disabled = this._hasLegacy || dirty;
         }
 
         _setupPanelReferences() {
@@ -1165,7 +1177,6 @@ Object.assign(pcui, (function () {
 
             // initial checks
             this._btnGetMetaVisibility();
-            this._checkCompressAlpha();
             for(let key in this._compressionFormats) {
                 if (key === 'basis' && !this._hasBasis)
                     continue;
@@ -1173,11 +1184,12 @@ Object.assign(pcui, (function () {
             }
             this._checkFormats();
             this._checkCompression();
+            this._checkCompressAlpha();
 
             // needs to be called after this._checkFormats to determine this._hasLegacy
             this._setupLegacy();
 
-            // setup addiional listeners
+            // setup additional listeners
             this._assetEvents.push(editor.on('permissions:writeState', () => this._handleAssetChangeCompression('meta')));
             assets.forEach(asset => {
                 // retriggers checkCompressAlpha, checkFormats, checkCompression
