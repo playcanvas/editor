@@ -66,6 +66,11 @@ Object.assign(pcui, (function () {
                 currentAsset: texture
             });
 
+            let evtPick = editor.once('picker:asset', (texture) => {
+                this._asset.set(`data.textures.${this._args.face}`, parseInt(texture.get('id'), 10));
+                this._setRgbmIfNeeded();
+                evtPick = null;
+            });
 
             editor.once('picker:asset:close', () => {
                 if (evtPick) {
@@ -75,7 +80,10 @@ Object.assign(pcui, (function () {
             });
         }
 
-        _onClickDeleteFace() {
+        _onClickDeleteFace(evt) {
+            if (!editor.call('permissions:write'))
+                return;
+            evt.stopPropagation();
             this._asset.set(`data.textures.${this._args.face}`, null);
         }
 
