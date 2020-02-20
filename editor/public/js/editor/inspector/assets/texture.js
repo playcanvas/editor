@@ -647,7 +647,7 @@ Object.assign(pcui, (function () {
 
         _checkCompression() {
             const assets = this._assets;
-            if (!Array.isArray(assets) || !assets.length) {
+            if (!editor.call('permissions:write') || !Array.isArray(assets) || !assets.length) {
                 if (this._btnCompressBasis) {
                     this._btnCompressBasis.disabled = true;
                 }
@@ -689,6 +689,7 @@ Object.assign(pcui, (function () {
 
         _checkFormats() {
             const assets = this._assets;
+            const writeAccess = editor.call('permissions:write');
             const fieldDxt = this._compressionLegacyAttributesInspector.getField(`meta.compress.dxt`);
             const fieldEtc1 = this._compressionLegacyAttributesInspector.getField(`meta.compress.etc1`);
             const fieldOriginal = this._compressionLegacyAttributesInspector.getField(`compress.original`);
@@ -701,6 +702,8 @@ Object.assign(pcui, (function () {
             let alpha = -1;
             let alphaValid = -1;
             let displayExt = '';
+            let showBasisPvrWarning = false;
+            let basisSelected = false;
 
             for(let i = 0; i < assets.length; i++) {
                 if (assets[i].has('meta.width')) {
@@ -746,10 +749,8 @@ Object.assign(pcui, (function () {
                     displayExt = displayExt && displayExt !== ext ? 'various' : ext;
                 }
 
-                // enable/disable basis controls based on whether basis is enabled
                 const thisBasis = assets[i].get('meta.compress.basis');
-                this._compressionBasisAttributesInspector.getField('meta.compress.quality').disabled = !thisBasis;
-                this._compressionBasisAttributesInspector.getField('meta.compress.normals').disabled = !thisBasis;
+                basisSelected = basisSelected || thisBasis;
 
                 // PVR format only supports square power-of-two textures. If basis is selected then
                 // we display a warning
@@ -758,8 +759,24 @@ Object.assign(pcui, (function () {
                 const thisWidth = assets[i].get('meta.width');
                 const thisHeight = assets[i].get('meta.height');
                 const thisPOT = ((thisWidth & (thisWidth - 1)) === 0) && ((thisHeight & (thisHeight - 1)) === 0);
-                const showWarning = thisBasis && (!thisPOT || thisWidth !== thisHeight);
-                this._compressionBasisPvrWarning.hidden = !showWarning;
+                if (!showBasisPvrWarning) {
+                    showBasisPvrWarning = thisBasis && (!thisPOT || thisWidth !== thisHeight);
+                }
+            }
+
+            // enable/disable basis controls based on whether basis is enabled
+            const basisUiDisabled = !writeAccess || !basisSelected;
+            if (this._compressionBasisAttributesInspector) {
+                this._compressionBasisAttributesInspector.getField('meta.compress.quality').disabled = basisUiDisabled;
+                this._compressionBasisAttributesInspector.getField('meta.compress.normals').disabled = basisUiDisabled;
+            }
+
+            if (this._containerImportBasis) {
+                this._containerImportBasis.disabled = basisUiDisabled;
+            }
+
+            if (this._compressionBasisPvrWarning) {
+                this._compressionBasisPvrWarning.hidden = !showBasisPvrWarning;
             }
 
             fieldOriginal.value = displayExt;
@@ -937,8 +954,6 @@ Object.assign(pcui, (function () {
 
             this._compressionLegacyAttributesInspector.getField('compress.legacy').parent.hidden = false;
             if (!editor.call('project:module:hasModule', BASIS_WASM_FILENAME)) {
-                this._compressionBasisAttributesInspector.hidden = true;
-                this._compressBasisBtnContainer.hidden = true;
                 this._setupImportButton(this._compressionBasisContainer, BASIS_STORE_NAME, BASIS_WASM_FILENAME);
             }
         }
@@ -960,6 +975,12 @@ Object.assign(pcui, (function () {
                    flexDirection: 'row',
                    alignItems: 'center'
                });
+               this._containerImportBasis.class.add('pcui-subpanel');
+
+               this._labelImportBasis = new pcui.Label({
+                   text: 'Basis Not Found'
+               });
+               this._containerImportBasis.append(this._labelImportBasis);
 
                 this._btnImportBasis = new pcui.Button({
                     text: 'IMPORT BASIS',
@@ -969,27 +990,18 @@ Object.assign(pcui, (function () {
                 this._btnImportBasis.on('click', () => {
                     editor.call('project:module:addModule', moduleStoreName, wasmFilename);
                 });
-
                 this._containerImportBasis.append(this._btnImportBasis);
-                panel.append(this._containerImportBasis);
+
+                panel.appendAfter(this._containerImportBasis, this._compressionBasisAttributesInspector);
+                this._containerImportBasis.disabled = true;
 
                 const events = [];
-
-                const handleWritePermsChange = () => {
-                    this._containerImportBasis.enabled = editor.call('permissions:write');
-                }
-
                 const handleModuleImported = name => {
                     if (name === moduleStoreName) {
                         this._containerImportBasis.hidden = true;
-                        this._compressionBasisAttributesInspector.hidden = false;
-                        this._compressBasisBtnContainer.hidden = false;
                     }
                 }
-
-                events.push(editor.on('permissions:writeState', handleWritePermsChange));
                 events.push(editor.on('onModuleImported', handleModuleImported));
-                handleWritePermsChange();
 
                 this._containerImportBasis.once('destroy', () => {
                     events.forEach(evt => evt.unbind());
@@ -1130,6 +1142,7 @@ Object.assign(pcui, (function () {
             this._checkCompression();
 
             // setup addiional listeners
+            this._assetEvents.push(editor.on('permissions:writeState', () => this._handleAssetChangeCompression('meta')));
             assets.forEach(asset => {
                 // retriggers checkCompressAlpha, checkFormats, checkCompression
                 this._assetEvents.push(asset.on('*:set', this._handleAssetChangeCompression));

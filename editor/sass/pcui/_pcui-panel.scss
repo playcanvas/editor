@@ -239,3 +239,28 @@
         color: #999;
     }
 }
+
+.pcui-subpanel {
+    box-sizing: border-box;
+    margin: $element-margin;
+    border: 1px solid $bcg-darker;
+    border-radius: 2px;
+    background-color: $bcg-dark;
+    color: $text-secondary;
+    font-size: 12px;
+
+    .pcui-button {
+        background-color: $bcg-primary;
+        border-color: $bcg-darker;
+
+        &:not(.pcui-disabled):not(.pcui-readonly) {
+            &:hover, &:focus {
+                background-color: $bcg-primary;
+            }
+
+            &:active {
+                background-color: $bcg-dark;
+            }
+        }
+    }
+}
