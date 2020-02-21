@@ -148,6 +148,10 @@ Object.assign(pcui, (function () {
         _getDropdownScripts() {
             if (!this._entities) return [];
 
+            const unparsed = this._findUnparsedScripts();
+
+            this._parseUnparsedScritps(unparsed);
+
             const scripts = editor.call('assets:scripts:list');
 
             // do not allow scripts that already exist to be created
@@ -189,6 +193,24 @@ Object.assign(pcui, (function () {
             });
 
             return result;
+        }
+
+        _findUnparsedScripts() {
+            let assets = editor.call('assets:list');
+
+            assets = assets.filter(a => a.get('type') === 'script');
+
+            return assets.filter(a => {
+                const lastHash = a.get('data').lastParsedHash;
+
+                return lastHash && lastHash === '0';
+            });
+        }
+
+        _parseUnparsedScritps(assets) {
+            assets.forEach(a => editor.call('scripts:parse', a, err => {
+                a.set('data.lastParsedHash', a.get('file').hash);
+            }));
         }
 
         _onSelectScript(script) {
