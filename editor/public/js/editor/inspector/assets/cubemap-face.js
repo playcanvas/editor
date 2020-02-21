@@ -207,12 +207,12 @@ Object.assign(pcui, (function () {
                                     for (let i = 0; i < faceAssets.length; i++)
                                         this._asset.set(`data.textures.${i}`, parseInt(faceAssets[i].asset.get('id'), 10));
                                     this._asset.history.enabled = true;
-                                    const assetId = this._asset.get('id');
+                                    const currentAsset = this._asset;
                                     const faceAssetIds = faceAssets.map(faceAsset => faceAsset.asset.get('id'));
                                     this._args.history.add({
                                         name: 'cubemap.autofill',
                                         undo: () => {
-                                            const currentAsset = editor.call('assets:get', assetId);
+                                            currentAsset.latest();
                                             if (!currentAsset) return;
                                             currentAsset.history.enabled = false;
                                             for (let i = 0; i < faceAssets.length; i++)
@@ -220,7 +220,7 @@ Object.assign(pcui, (function () {
                                             currentAsset.history.enabled = true;
                                         },
                                         redo: () => {
-                                            const currentAsset = editor.call('assets:get', assetId);
+                                            currentAsset.latest();
                                             if (!currentAsset) return;
                                             currentAsset.history.enabled = false;
                                             for (let i = 0; i < faceAssets.length; i++)

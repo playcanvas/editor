@@ -179,18 +179,18 @@ Object.assign(pcui, (function () {
                     magFilter: asset.get('data.magFilter')
                 };
             });
-            const assetIds = this._assets.map(asset => {
+            const assets = this._assets.map(asset => {
                 asset.history.enabled = false;
                 asset.set('data.minFilter', FILTERS[filterValue].minFilter);
                 asset.set('data.magFilter', FILTERS[filterValue].magFilter);
                 asset.history.enabled = true;
-                return asset.get('id');
+                return asset;
             });
             this._args.history.add({
                 name: 'assets.filtering',
                 undo: () => {
-                    assetIds.forEach((id, i) => {
-                        const asset = editor.call('assets:get', id);
+                    assets.forEach((asset, i) => {
+                        asset.latest();
                         if (!asset)
                             return;
                         asset.history.enabled = false;
@@ -200,8 +200,8 @@ Object.assign(pcui, (function () {
                     });
                 },
                 redo: () => {
-                    assetIds.forEach((id, i) => {
-                        const asset = editor.call('assets:get', id);
+                    assets.forEach((asset) => {
+                        asset.latest();
                         if (!asset)
                             return;
                         asset.history.enabled = false;
