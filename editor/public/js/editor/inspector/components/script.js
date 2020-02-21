@@ -196,20 +196,19 @@ Object.assign(pcui, (function () {
         }
 
         _findUnparsedScripts() {
-            let assets = editor.call('assets:list');
+            let assets = this._argsAssets.array();
 
             assets = assets.filter(a => a.get('type') === 'script');
 
             return assets.filter(a => {
-                const lastHash = a.get('data').lastParsedHash;
-
-                return lastHash && lastHash === '0';
+                return a.get('data.lastParsedHash') === null &&
+                    a.get('file.hash');
             });
         }
 
         _parseUnparsedScritps(assets) {
             assets.forEach(a => editor.call('scripts:parse', a, err => {
-                a.set('data.lastParsedHash', a.get('file').hash);
+                a.set('data.lastParsedHash', a.get('file.hash'));
             }));
         }
 
