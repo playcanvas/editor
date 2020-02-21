@@ -299,7 +299,8 @@ editor.once('load', function() {
                 if (! entity.has('components.particlesystem.localSpace')) {
                     entity.set('components.particlesystem.localSpace', false);
                 }
-                if (! entity.has('components.particlesystem.animStartFrame')) {
+
+                if (editor.call('users:hasFlag', 'hasParticleSystemAnimStartFrame') && ! entity.has('components.particlesystem.animStartFrame')) {
                     entity.set('components.particlesystem.animStartFrame', 0);
                 }
             }

@@ -237,7 +237,9 @@ editor.once('load', function() {
         url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#layers'
     }];
 
-    for(var i = 0; i < fields.length; i++) {
+    for (var i = 0; i < fields.length; i++) {
+        if (fields[i].title === 'animStartFrame' && !editor.call('users:hasFlag', 'hasParticleSystemAnimStartFrame'))
+            continue;
         fields[i].name = 'particlesystem:' + (fields[i].name || fields[i].title);
         editor.call('attributes:reference:add', fields[i]);
     }
