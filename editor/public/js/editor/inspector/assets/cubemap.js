@@ -236,7 +236,9 @@ Object.assign(pcui, (function () {
         }
 
         _onClickPrefilterButton() {
+            this._prefilterButton.enabled = false;
             editor.call('assets:cubemaps:prefilter', this._assets[0], (err) => {
+                this._prefilterButton.enabled = true;
                 if (err)
                     return editor.call('status:error', err);
             });
