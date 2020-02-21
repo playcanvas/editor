@@ -49,7 +49,7 @@ editor.once('load', function() {
         if (! hoverEntity)
             return;
 
-        if (hoverEntity.model.type === 'asset') {
+        if (hoverEntity.model.type === 'asset' && hoverEntity.model.model) {
 
             if (hoverAsset) {
                 hoverAsset.data.mapping[hoverAsset._materialIndHover].material = hoverAsset._materialBeforeHover;
@@ -63,7 +63,7 @@ editor.once('load', function() {
                     mapping[hoverEntity._materialIndHover] = hoverEntity._materialBeforeHover;
                 hoverEntity.model.mapping = mapping;
             }
-        } else if (hoverEntity._materialBeforeHover) {
+        } else if (hoverEntity._materialBeforeHover && hoverEntity.model.model) {
             hoverEntity.model.material = hoverEntity._materialBeforeHover;
         }
 
@@ -84,7 +84,7 @@ editor.once('load', function() {
         hoverMeshInstance = meshInstance;
 
         if (hoverEntity) {
-            if (hoverEntity.model.type === 'asset') {
+            if (hoverEntity.model.type === 'asset' && hoverEntity.model.model) {
                 var ind = hoverEntity.model.model.meshInstances.indexOf(hoverMeshInstance);
                 if (ind !== -1) {
                     var mapping = hoverEntity.model.mapping;

@@ -132,7 +132,7 @@ Object.assign(pcui, (function () {
                 })
             }, {
                 processFontButton: new pcui.Button({
-                    text: 'Process Font',
+                    text: 'PROCESS FONT',
                     flexGrow: 1
                 })
             }]
@@ -334,9 +334,13 @@ Object.assign(pcui, (function () {
             this._characterPresetsPanel.hidden = assets.length > 1;
             this._fontPanel.hidden = assets.length > 1;
             this._localizationPanel.hidden = assets.length > 1;
-            this._fontAttributes.getField('characters').values = assets.map(asset => {
+
+            const charactersField = this._fontAttributes.getField('characters');
+            charactersField.renderChanges = false;
+            charactersField.values = assets.map(asset => {
                 return asset.get('meta.chars');
             });
+            charactersField.renderChanges = true;
         }
 
         unlink() {
