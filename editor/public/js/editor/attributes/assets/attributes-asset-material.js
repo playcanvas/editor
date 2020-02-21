@@ -51,6 +51,10 @@ editor.once('load', function () {
     });
 
     editor.on('attributes:inspect[asset]', function (assets) {
+        if (editor.call('users:hasFlag', 'hasPcuiAssetInspectors')) {
+            return;
+        }
+
         var i, key;
         for (i = 0; i < assets.length; i++) {
             if (assets[i].get('type') !== 'material') {

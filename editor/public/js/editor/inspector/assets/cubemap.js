@@ -71,12 +71,12 @@ Object.assign(pcui, (function () {
             },
             children: [{
                 root: {
-                    prefilteringPanel: new pcui.Panel({ headerText: 'PREFILTERING' })
+                    prefilteringPanel: new pcui.Panel({ headerText: 'PREFILTERING', flex: true })
                 },
                 children: [{
-                    prefilterButton: new pcui.Button({ text: 'Prefilter' })
+                    prefilterButton: new pcui.Button({ text: 'PREFILTER CUBEMAP'})
                 }, {
-                    deletePrefilterButton: new pcui.Button({ text: 'Delete Prefiltered Data' })
+                    deletePrefilterButton: new pcui.Button({ text: 'DELETE PREFILTERED DATA' })
                 }]
             },
             {

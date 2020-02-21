@@ -47,7 +47,7 @@ Object.assign(pcui, (function () {
         type: 'button',
         reference: 'asset:script:order',
         args: {
-            text: 'Manage'
+            text: 'MANAGE'
         }
     }, {
         label: 'Loading Type',
@@ -146,7 +146,7 @@ Object.assign(pcui, (function () {
 
             // add download button
             this._btnDownloadAsset = new pcui.Button({
-                text: 'Download',
+                text: 'DOWNLOAD',
                 icon: 'E228',
                 ignoreParent: true
             });
@@ -166,13 +166,13 @@ Object.assign(pcui, (function () {
             // add edit button
 
             this._btnEditAsset = new pcui.Button({
-                text: editor.call('permissions:write') ? 'Edit' : 'View',
+                text: editor.call('permissions:write') ? 'EDIT' : 'VIEW',
                 icon: 'E130',
                 ignoreParent: true
             });
             this._btnEditAsset.style.flex = 1;
             const evtBtnEditPermissions = editor.on('permissions:writeState', (state) => {
-                this._btnEditAsset.text = state ? 'Edit' : 'View';
+                this._btnEditAsset.text = state ? 'EDIT' : 'VIEW';
             });
             this._btnEditAsset.once('destroy', () => {
                 evtBtnEditPermissions.unbind();
@@ -182,7 +182,7 @@ Object.assign(pcui, (function () {
 
             // add edit button
             this._btnEditSprite = new pcui.Button({
-                text: 'Sprite Editor',
+                text: 'SPRITE EDITOR',
                 icon: 'E395'
             });
             this._btnEditSprite.style.flex = 1;

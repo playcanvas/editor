@@ -213,7 +213,7 @@ Object.assign(pcui, (function () {
                     children: [
                         {
                             btnGetMeta: new pcui.Button({
-                                text: 'Calculate Meta',
+                                text: 'CALCULATE META',
                                 icon: 'E131',
                                 flexGrow: 1,
                             })

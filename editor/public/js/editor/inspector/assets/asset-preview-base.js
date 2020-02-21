@@ -9,10 +9,42 @@ Object.assign(pcui, (function () {
         constructor(args) {
             super(args);
             this.class.add(CLASS_CONTAINER);
-            this._handleClick = this._handleClick.bind(this);
+
+            this._mouseDown = false;
+            this._dragging = false;
+
+            this._domEvtMouseDown = this._onMouseDown.bind(this);
+            this._domEvtMouseMove = this._onMouseMove.bind(this);
+            this._domEvtMouseUp = this._onMouseUp.bind(this);
         }
 
-        _handleClick() {
+        _onMouseDown(evt) {
+            if (evt.button !== 0) return;
+
+            evt.preventDefault();
+            evt.stopPropagation();
+
+            this._mouseDown = true;
+        }
+
+        _onMouseMove(evt) {
+            if (!this._mouseDown) return;
+
+            this._dragging = true;
+        }
+
+        _onMouseUp(evt) {
+            if (evt.button !== 0) return;
+
+            if (this._mouseDown && !this._dragging && this.dom.contains(evt.target) && !(evt.target.ui instanceof pcui.Button)) {
+                this._toggleSize();
+            }
+
+            this._mouseDown = false;
+            this._dragging = false;
+        }
+
+        _toggleSize() {
             if (this.class.contains(CLASS_CONTAINER_LARGE)) {
                 this.class.remove(CLASS_CONTAINER_LARGE);
             } else {
@@ -22,12 +54,22 @@ Object.assign(pcui, (function () {
 
         link() {
             this.unlink();
-            this._dom.addEventListener('click', this._handleClick);
+
+            this.dom.addEventListener('click', this._handleClick);
+
+            this.dom.addEventListener('mousedown', this._domEvtMouseDown);
+            window.addEventListener('mousemove', this._domEvtMouseMove);
+            window.addEventListener('mouseup', this._domEvtMouseUp);
         }
 
         unlink() {
             super.unlink();
-            this._dom.removeEventListener('click', this._handleClick);
+
+            this.dom.removeEventListener('click', this._handleClick);
+
+            this.dom.removeEventListener('mousedown', this._domEvtMouseDown);
+            window.removeEventListener('mousemove', this._domEvtMouseMove);
+            window.removeEventListener('mouseup', this._domEvtMouseUp);
         }
     }
 

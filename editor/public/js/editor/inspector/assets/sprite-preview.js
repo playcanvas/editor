@@ -2,17 +2,15 @@ Object.assign(pcui, (function () {
     'use strict';
 
     const CLASS_ROOT = 'asset-sprite-preview';
-    const CLASS_CONTAINER = CLASS_ROOT + '-container';
-    const CLASS_CONTAINER_LARGE = CLASS_CONTAINER + '-large';
-    const CLASS_CANVAS = CLASS_ROOT + '-canvas';
     const CLASS_BUTTON = CLASS_ROOT + '-button';
     const CLASS_BUTTON_PLAYING = CLASS_ROOT + '-button-playing';
+    const CLASS_CANVAS = 'pcui-asset-preview-canvas';
 
-    class SpriteAssetInspectorPreview extends pcui.Container {
+    class SpriteAssetInspectorPreview extends pcui.AssetInspectorPreviewBase {
         constructor(args) {
             super(args);
 
-            this.class.add(CLASS_CONTAINER);
+            this.class.add(CLASS_ROOT);
 
             this._preview = new pcui.Canvas({
                 class: CLASS_CANVAS,
@@ -23,28 +21,27 @@ Object.assign(pcui, (function () {
             this._playButton = new pcui.Button({ icon: 'E286', class: CLASS_BUTTON });
             this.append(this._playButton);
 
-            this._renderQueued = false;
+            this._renderFrame = false;
             this._fps = 10;
             this._playStartTime = null;
             this._spriteFrames = null;
 
-            this._domEvtMouseDown = this._onMouseDown.bind(this);
-            this._domEvtMouseMove = this._onMouseMove.bind(this);
-            this._domEvtMouseUp = this._onMouseUp.bind(this);
             this._playButton.on('click', this._onClickPlay.bind(this));
         }
 
         // queue up the rendering to prevent too often renders
         _queueRender() {
-            if (this._renderQueued) return;
-            this._renderQueued = true;
-            this._requestedAnimationFrameID = requestAnimationFrame(this._renderPreview.bind(this));
+            if (this._renderFrame) return;
+            this._renderFrame = requestAnimationFrame(this._renderPreview.bind(this));
         }
 
 
         _renderPreview() {
-            if (this._renderQueued)
-                this._renderQueued = false;
+            if (this._renderFrame) {
+                cancelAnimationFrame(this._renderFrame);
+                this._renderFrame = null;
+            }
+
             if (this.dom.offsetWidth !== 0 && this.dom.offsetHeight !== 0) {
                 this._preview.dom.width = this.dom.offsetWidth;
                 this._preview.dom.height = this.dom.offsetHeight;
@@ -55,7 +52,7 @@ Object.assign(pcui, (function () {
             if (this._playStartTime !== null) {
                 const lapsedTime = Date.now() - this._playStartTime;
                 const frameTimeMs = 1000 / this._fps;
-                const currentFrame = Math.floor((lapsedTime / frameTimeMs) % this._spriteFrames) + 1;
+                const currentFrame = Math.floor((lapsedTime / frameTimeMs) % this._spriteFrames);
                 this._previewRenderer.render(currentFrame, true);
                 this._queueRender();
             } else {
@@ -63,36 +60,8 @@ Object.assign(pcui, (function () {
             }
         }
 
-        _onMouseDown(evt) {
-            if (evt.button !== 0)
-                return;
-
-            evt.preventDefault();
-            evt.stopPropagation();
-
-            this._dragging = true;
-        }
-
-        _onMouseMove(evt) {
-            if (! this._dragging)
-                return;
-
-            this._queueRender();
-        }
-
-        _onMouseUp(evt) {
-            if (!this._dragging)
-                return;
-
-            if (this.class.contains(CLASS_CONTAINER_LARGE)) {
-                this.class.remove(CLASS_CONTAINER_LARGE);
-            } else {
-                this.class.add(CLASS_CONTAINER_LARGE);
-            }
-            this._preview.dom.height = this.height;
-
-            this._dragging = false;
-
+        _toggleSize() {
+            super._toggleSize();
             this._queueRender();
         }
 
@@ -112,30 +81,27 @@ Object.assign(pcui, (function () {
         }
 
         link(assets) {
-            this.unlink();
+            super.link(assets);
             this._previewRenderer = new pcui.SpriteThumbnailRenderer(assets[0], this._preview.dom, editor.call('assets:raw'));
             this._spriteFrames = assets[0].get('data.frameKeys').length;
-            this._preview.dom.addEventListener('mousedown', this._domEvtMouseDown, false);
-            window.addEventListener('mousemove', this._domEvtMouseMove, false);
-            window.addEventListener('mouseup', this._domEvtMouseUp, false);
-            this._renderPreview();
+            this._queueRender();
         }
 
         unlink() {
             super.unlink();
+
             if (this._previewRenderer) {
                 this._previewRenderer.destroy();
+                this._previewRenderer = null;
             }
-            if (this._requestedAnimationFrameID) {
-                cancelAnimationFrame(this._requestedAnimationFrameID);
+
+            if (this._renderFrame) {
+                cancelAnimationFrame(this._renderFrame);
+                this._renderFrame = null;
             }
-            this._preview.dom.removeEventListener('mousedown', this._domEvtMouseDown, false);
-            window.removeEventListener('mousemove', this._domEvtMouseMove, false);
-            window.removeEventListener('mouseup', this._domEvtMouseUp, false);
-            if (this._playStartTime) {
-                this._playStartTime = null;
-                this._playButton.class.remove(CLASS_BUTTON_PLAYING);
-            }
+
+            this._playStartTime = null;
+            this._playButton.class.remove(CLASS_BUTTON_PLAYING);
         }
     }
 
