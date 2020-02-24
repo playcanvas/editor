@@ -17,6 +17,8 @@ Object.assign(pcui, (function () {
      * @property {String} assetType The type of assets that this input can display. Used when picking assets with the asset picker.
      * @property {pcui.Label} label Gets the label element on the top right of the input.
      * @property {Boolean} renderChanges If true the input will flash when changed.
+     * @property {Function} dragEnterFn A function that is called when we drag an item over the element.
+     * @property {Function} dragLeaveFn A function that is called when we stop dragging an item over the element.
      * @mixes pcui.IBindable
      */
     class AssetInput extends pcui.Element {
@@ -31,8 +33,6 @@ Object.assign(pcui, (function () {
          * the default Editor asset picker will be used.
          * @param {Function} [args.selectAssetFn] A function that selects the asset id passed as a parameter. If none is provided the default
          * Editor selector will be used.
-         * @param {Function} [args.dragEnterFn] A function that is called when we drag an item over the element.
-         * @param {Function} [args.dragLeaveFn] A function that is called when we stop dragging an item over the element.
          */
         constructor(args) {
             if (!args) args = {};
@@ -102,8 +102,8 @@ Object.assign(pcui, (function () {
             this._pickAssetFn = args.pickAssetFn || this._defaultPickAssetFn.bind(this);
             this._selectAssetFn = args.selectAssetFn || this._defaultSelectAssetFn.bind(this);
 
-            this._dragEnterFn = args.dragEnterFn;
-            this._dragLeaveFn = args.dragLeaveFn;
+            this.dragEnterFn = args.dragEnterFn;
+            this.dragLeaveFn = args.dragLeaveFn;
 
             if (args.allowDragDrop) {
                 this._initializeDropTarget();
@@ -284,6 +284,22 @@ Object.assign(pcui, (function () {
 
         set assetType(value) {
             this._assetType = value;
+        }
+
+        get dragEnterFn() {
+            return this._dragEnterFn;
+        }
+
+        set dragEnterFn(value) {
+            this._dragEnterFn = value;
+        }
+
+        get dragLeaveFn() {
+            return this._dragLeaveFn;
+        }
+
+        set dragLeaveFn(value) {
+            this._dragLeaveFn = value;
         }
 
         set value(value) {

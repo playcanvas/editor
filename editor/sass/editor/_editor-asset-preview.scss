@@ -1,16 +1,15 @@
-.asset-font-preview-container{
+.pcui-asset-preview-container {
     position: relative;
-    background-color: #293538;
+    background-color: $bcg-darker;
     height: 0;
     padding-top: 45%;
 }
 
-.asset-font-preview-container-large {
+.pcui-asset-preview-container-large {
     padding-top: 100%;
 }
 
-.asset-font-preview-canvas {
-    transform: scale(1, -1);
+.pcui-asset-preview-canvas {
     display: block;
     position: absolute;
     top: 0;
@@ -26,3 +25,6 @@
     background-repeat: no-repeat;
 }
 
+.pcui-asset-preview-canvas-flip {
+    transform: scale(1, -1);
+}

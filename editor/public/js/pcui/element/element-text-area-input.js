@@ -22,6 +22,14 @@ Object.assign(pcui, (function () {
 
             this.class.add(CLASS_TEXT_AREA_INPUT);
         }
+
+        _onInputKeyDown(evt) {
+            if ((evt.keyCode === 27 && this.blurOnEscape) || (evt.keyCode === 13 && this.blurOnEnter && !evt.shiftKey)) {
+                this._domInput.blur();
+            }
+
+            this.emit('keydown', evt);
+        }
     }
 
     pcui.Element.register('text', TextAreaInput, { renderChanges: true });

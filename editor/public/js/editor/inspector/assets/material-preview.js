@@ -4,14 +4,18 @@ Object.assign(pcui, (function () {
     const CLASS_CANVAS = 'pcui-asset-preview-canvas';
     const CLASS_CANVAS_FLIP = 'pcui-asset-preview-canvas-flip';
 
-    class ModelAssetInspectorPreview extends pcui.AssetInspectorPreviewBase {
+    class MaterialAssetInspectorPreview extends pcui.AssetInspectorPreviewBase {
         constructor(args) {
             super(args);
 
-            this._preview = new pcui.Canvas({ useDevicePixelRatio: true });
-            this._preview.resize(320, 144);
+            this._preview = new pcui.Canvas();
+            this._preview.dom.width = 320;
+            this._preview.dom.height = 144;
             this._preview.class.add(CLASS_CANVAS, CLASS_CANVAS_FLIP);
             this.append(this._preview);
+
+            this._previewModel = 'sphere';
+            this._previewRenderer = null;
 
             this._renderFrame = null;
             this._previewRotation = [-15, 45];
@@ -26,7 +30,6 @@ Object.assign(pcui, (function () {
         // queue up the rendering to prevent too often renders
         _queueRender() {
             if (this._renderFrame) return;
-
             this._renderFrame = requestAnimationFrame(this._renderPreview.bind(this));
         }
 
@@ -37,11 +40,14 @@ Object.assign(pcui, (function () {
             }
 
             if (this.dom.offsetWidth !== 0 && this.dom.offsetHeight !== 0) {
-                this._preview.resize(this.dom.offsetWidth, this.dom.offsetHeight);
+                this._preview.dom.width = this.dom.offsetWidth;
+                this._preview.dom.height = this.dom.offsetHeight;
             }
+
             this._previewRenderer.render(
                 Math.max(-90, Math.min(90, this._previewRotation[0] + (this._sy - this._y) * 0.3)),
-                this._previewRotation[1] + (this._sx - this._x) * 0.3
+                this._previewRotation[1] + (this._sx - this._x) * 0.3,
+                this._previewModel
             );
         }
 
@@ -96,7 +102,7 @@ Object.assign(pcui, (function () {
             this.unlink();
             super.link();
 
-            this._previewRenderer = new pcui.ModelThumbnailRenderer(assets[0], this._preview.dom);
+            this._previewRenderer = new pcui.MaterialThumbnailRenderer(assets[0], this._preview.dom);
             this._queueRender();
         }
 
@@ -105,6 +111,7 @@ Object.assign(pcui, (function () {
 
             if (this._previewRenderer) {
                 this._previewRenderer.destroy();
+                this._previewRenderer = null;
             }
             if (this._renderFrame) {
                 cancelAnimationFrame(this._renderFrame);
@@ -114,6 +121,6 @@ Object.assign(pcui, (function () {
     }
 
     return {
-        ModelAssetInspectorPreview: ModelAssetInspectorPreview
+        MaterialAssetInspectorPreview: MaterialAssetInspectorPreview
     };
 })());
