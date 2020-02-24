@@ -312,7 +312,8 @@ Object.assign(pcui, (function () {
                 assets: args.assets,
                 projectSettings: args.projectSettings,
                 history: args.history,
-                attributes: ATTRIBUTES,
+                attributes: !editor.call('users:hasFlag', 'hasParticleSystemAnimStartFrame') ?
+                    ATTRIBUTES.filter(attr => attr.path !== 'components.particlesystem.animStartFrame') : ATTRIBUTES,
                 templateOverridesSidebar: this._templateOverridesSidebar
             });
             this.append(this._attributesInspector);
