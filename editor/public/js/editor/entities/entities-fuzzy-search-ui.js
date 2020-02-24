@@ -6,8 +6,6 @@ editor.once('load', function() {
     var changing = false;
     var itemsIndex = { };
 
-    const hasPcuiEntities = editor.call('users:hasFlag', 'hasPcuiEntities');
-
     var results = new ui.List();
     results.element.tabIndex = 0;
     results.hidden = true;
@@ -179,46 +177,6 @@ editor.once('load', function() {
     search.renderChanges = false;
     panel.prepend(search);
 
-    search.element.addEventListener('keydown', function(evt) {
-        if (hasPcuiEntities) return;
-
-        if (evt.keyCode === 27) {
-            searchClear.click();
-
-        } else if (evt.keyCode === 13) {
-            if (! results.selected.length) {
-                var firstElement = results.element.firstChild;
-                if (firstElement && firstElement.ui && firstElement.ui.entity)
-                    editor.call('selector:set', 'entity', [ firstElement.ui.entity ]);
-            }
-            search.value = '';
-
-        } else if (evt.keyCode === 40) { // down
-            editor.call('hotkey:updateModifierKeys', evt);
-            selectNext();
-            evt.stopPropagation();
-            evt.preventDefault();
-
-        } else if (evt.keyCode === 38) { // up
-            editor.call('hotkey:updateModifierKeys', evt);
-            selectPrev();
-            evt.stopPropagation();
-            evt.preventDefault();
-
-        } else if (evt.keyCode === 65 && evt.ctrlKey) { // ctrl + a
-            var toSelect = [ ];
-
-            var items = results.element.querySelectorAll('.ui-list-item');
-            for(var i = 0; i < items.length; i++)
-                toSelect.push(items[i].ui);
-
-            results.selected = toSelect;
-
-            evt.stopPropagation();
-            evt.preventDefault();
-        }
-    }, false);
-
     var searchClear = document.createElement('div');
     searchClear.innerHTML = '&#57650;';
     searchClear.classList.add('clear');
@@ -320,10 +278,7 @@ editor.once('load', function() {
     var performSearch = function() {
         var query = lastSearch;
 
-        if (hasPcuiEntities) {
-            hierarchy.filter = query;
-            return;
-        }
+        hierarchy.filter = query;
 
         // clear results list
         results.clear();
