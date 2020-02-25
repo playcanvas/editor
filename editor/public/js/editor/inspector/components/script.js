@@ -150,7 +150,7 @@ Object.assign(pcui, (function () {
 
             const unparsed = this._findUnparsedScripts();
 
-            this._parseUnparsedScritps(unparsed);
+            this._parseUnparsedScripts(unparsed);
 
             const scripts = editor.call('assets:scripts:list');
 
@@ -206,7 +206,7 @@ Object.assign(pcui, (function () {
             });
         }
 
-        _parseUnparsedScritps(assets) {
+        _parseUnparsedScripts(assets) {
             assets.forEach(a => editor.call('scripts:parse', a, err => {
                 a.set('data.lastParsedHash', a.get('file.hash'));
             }));
