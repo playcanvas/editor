@@ -256,16 +256,13 @@ Object.assign(pcui, (function () {
             })
             .forEach(locale => {
                 const localizationAssetPanel = new pcui.Panel({
-                    headerText: locale
+                    headerText: locale,
+                    removable: true
                 });
                 localizationAssetPanel.class.add(CLASS_LOCALE_PANEL);
-                localizationAssetPanel._removeLocalizationButton = new pcui.Button({
-                    icon: 'E389'
-                });
-                localizationAssetPanel._removeLocalizationButton.class.add(CLASS_LOCALE_REMOVE_BUTTON);
-                this._assetEvents.push(
-                    localizationAssetPanel._removeLocalizationButton.on('click', () => this._assets[0].unset(`i18n.${locale}`))
-                );
+                this._assetEvents.push(localizationAssetPanel.on('click:remove', () => {
+                    this._assets[0].unset(`i18n.${locale}`);
+                }));
                 localizationAssetPanel._localizationAsset = new pcui.AssetInput({
                     assetType: 'font',
                     assets: this._args.assets,
@@ -278,7 +275,6 @@ Object.assign(pcui, (function () {
                 });
                 localizationAssetPanel._localizationAsset.link(this._assets, `i18n.${locale}`);
                 localizationAssetPanel.append(localizationAssetPanel._localizationAsset);
-                localizationAssetPanel.header.append(localizationAssetPanel._removeLocalizationButton);
                 this._localizationPanel.append(localizationAssetPanel);
                 this._localizations[locale] = localizationAssetPanel;
             });
