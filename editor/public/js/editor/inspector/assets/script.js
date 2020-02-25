@@ -12,6 +12,14 @@ Object.assign(pcui, (function () {
             errorContainer: new pcui.Container({
                 class: CLASS_ERROR_CONTAINER
             })
+        },
+        {
+            root: {
+                noScriptsMessageContainer: new pcui.Container({ flex: true, alignItems: 'center' })
+            },
+            children: [{
+                noScriptsMessageLabel: new pcui.Label({ text: 'No Script Objects found' })
+            }]
         }
     ];
 
@@ -35,7 +43,9 @@ Object.assign(pcui, (function () {
         _displayScriptAttributes() {
             this._scriptAttributeContainer = new pcui.Container({ class: CLASS_CONTAINER });
             const scripts = this._asset.get('data.scripts');
+            let hasScripts = false;
             Object.keys(scripts).forEach(scriptName => {
+                hasScripts = true;
                 this._scriptAttributeContainer[`_${scriptName}Container`] = new pcui.Container({ flex: true });
                 this._scriptAttributeContainer[`_${scriptName}Container`]._scriptLabel = new pcui.Label({ text: scriptName, class: CLASS_SCRIPT });
                 this._scriptAttributeContainer[`_${scriptName}Container`].append(this._scriptAttributeContainer[`_${scriptName}Container`]._scriptLabel);
@@ -62,6 +72,8 @@ Object.assign(pcui, (function () {
                 this._scriptAttributeContainer.append(this._scriptAttributeContainer[`_${scriptName}Container`]);
             });
             this.append(this._scriptAttributeContainer);
+            this._noScriptsMessageContainer.hidden = hasScripts;
+            this._scriptAttributeContainer.hidden = !hasScripts;
         }
 
         _onClickParse() {

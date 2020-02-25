@@ -22,6 +22,38 @@ Object.assign(pcui, (function () {
         }
     ];
 
+    const FACE_SORT = {
+        '0': 0,
+        'posx': 0,
+        'right': 0,
+
+        '1': 1,
+        'negx': 1,
+        'left': 1,
+
+        '2': 2,
+        'posy': 2,
+        'top': 2,
+        'up': 2,
+
+        '3': 3,
+        'negy': 3,
+        'bottom': 3,
+        'down': 3,
+
+        '4': 4,
+        'posz': 4,
+        'front': 4,
+        'forward': 4,
+
+        '5': 5,
+        'negz': 5,
+        'back': 5,
+        'backward': 5,
+
+        '6': 6
+    };
+
     class CubemapFace extends pcui.Container {
         constructor(args) {
             args = Object.assign({}, args);
@@ -99,6 +131,112 @@ Object.assign(pcui, (function () {
                     }
                 },
                 drop: (type, dropData) => {
+                    var asset = editor.call('assets:get', parseInt(dropData.id, 10));
+
+                    // try matching patterns of texture names
+                    // to autoset  all 6 faces for empty cubemaps
+                    try {
+                        var empty = true;
+                        var faces = this._asset.get('data.textures');
+                        for (let i = 0; i < faces.length; i++) {
+                            if (faces[i]) {
+                                empty = false;
+                                break;
+                            }
+                        }
+
+                        if (empty) {
+                            var name = asset.get('name');
+                            var check = /((neg|pos)(x|y|z)|(right|left|top|up|bottom|down|front|forward|back|backward)|[0-6])(\.|$)/i;
+                            var match = name.match(check);
+
+                            if (match != null) {
+                                match = match.index;
+
+                                let part = '';
+                                if (match) part = name.slice(0, match).toLowerCase();
+                                const i = name.indexOf('.', match);
+                                if (i > 0) part += name.slice(i);
+
+                                const faceAssets = editor.call('assets:find', (a) => {
+                                    if (a.get('source') || a.get('type') !== 'texture')
+                                        return;
+
+                                    if (! a.get('path').equals(asset.get('path')))
+                                        return;
+
+                                    if (a.get('meta.width') !== asset.get('meta.width') || a.get('meta.height') !== asset.get('meta.height'))
+                                        return;
+
+                                    const name = a.get('name').toLowerCase();
+                                    let m = name.match(check);
+
+                                    if (m === null)
+                                        return;
+
+                                    m = m.index;
+
+                                    let p = '';
+                                    if (m) p = name.slice(0, m).toLowerCase();
+                                    const i = name.indexOf('.', m);
+                                    if (i > 0) p += name.slice(i);
+
+                                    return p === part;
+                                });
+
+                                if (faceAssets.length === 6) {
+
+                                    for (let i = 0; i < faceAssets.length; i++) {
+                                        let p = faceAssets[i][1].get('name').toLowerCase();
+                                        if (match) p = p.slice(match);
+                                        const m = p.indexOf('.');
+                                        if (m > 0) p = p.slice(0, m);
+
+                                        faceAssets[i] = {
+                                            asset: faceAssets[i][1],
+                                            face: FACE_SORT[p]
+                                        };
+                                    }
+
+                                    faceAssets.sort((a, b) => {
+                                        return a.face - b.face;
+                                    });
+
+
+                                    this._asset.history.enabled = false;
+                                    for (let i = 0; i < faceAssets.length; i++)
+                                        this._asset.set(`data.textures.${i}`, parseInt(faceAssets[i].asset.get('id'), 10));
+                                    this._asset.history.enabled = true;
+                                    const currentAsset = this._asset;
+                                    const faceAssetIds = faceAssets.map(faceAsset => faceAsset.asset.get('id'));
+                                    this._args.history.add({
+                                        name: 'cubemap.autofill',
+                                        undo: () => {
+                                            currentAsset.latest();
+                                            if (!currentAsset) return;
+                                            currentAsset.history.enabled = false;
+                                            for (let i = 0; i < faceAssets.length; i++)
+                                                currentAsset.set(`data.textures.${i}`, null);
+                                            currentAsset.history.enabled = true;
+                                        },
+                                        redo: () => {
+                                            currentAsset.latest();
+                                            if (!currentAsset) return;
+                                            currentAsset.history.enabled = false;
+                                            for (let i = 0; i < faceAssets.length; i++)
+                                                currentAsset.set(`data.textures.${i}`, parseInt(faceAssetIds[i], 10));
+                                            currentAsset.history.enabled = true;
+
+                                        }
+                                    });
+                                    return;
+                                }
+                            }
+                        }
+                    } catch (ex) {
+                        console.error(ex.message);
+                        console.error(ex.stack);
+                    }
                     this._asset.set(`data.textures.${this._args.face}`, parseInt(dropData.id, 10));
                     this._setRgbmIfNeeded();
                 }

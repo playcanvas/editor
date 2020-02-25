@@ -1,0 +1,51 @@
+Object.assign(pcui, (function () {
+    'use strict';
+
+    const ATTRIBUTES = [{
+        label: 'Name',
+        path: 'data.moduleName',
+        type: 'string'
+    }, {
+        label: 'Glue script',
+        path: 'data.glueScriptId',
+        type: 'asset'
+    }, {
+        label: 'Fallback script',
+        path: 'data.fallbackScriptId',
+        type: 'asset'
+    }];
+
+    const DOM = parent => [
+        {
+            attributesInspector: new pcui.AttributesInspector({
+                assets: parent._args.assets,
+                history: parent._args.history,
+                attributes: ATTRIBUTES
+            })
+        }
+    ];
+
+    class WasmAssetInspector extends pcui.Panel {
+        constructor(args) {
+            args = Object.assign({}, args);
+            args.headerText = 'WASM MODULE';
+
+            super(args);
+            this._args = args;
+            this.buildDom(DOM(this));
+        }
+
+        link(assets) {
+            this.unlink();
+            this._attributesInspector.link(assets);
+        }
+
+        unlink() {
+            this._attributesInspector.unlink();
+        }
+    }
+
+    return {
+        WasmAssetInspector: WasmAssetInspector
+    };
+})());
