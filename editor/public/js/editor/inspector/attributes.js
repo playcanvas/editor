@@ -84,7 +84,7 @@ Object.assign(pcui, (function () {
                     if (attr.path || attr.paths) {
                         this._fieldAttributes[key] = attr;
                         if (this._observers) {
-                            field.link(this._observers, attr.path || attr.paths);
+                            this._linkObservers(key);
                         }
                     }
                 }
@@ -169,15 +169,27 @@ Object.assign(pcui, (function () {
             this.move(field, index);
         }
 
+        _linkObservers(key) {
+            const field = this.getField(key);
+            const attr = this._fieldAttributes[key];
+            if (this._observers instanceof Array) {
+                field.link(this._observers, attr.path || attr.paths);
+            } else if (this._observers instanceof Object){
+                const observer = this._observers[attr.observer];
+                if (observer)
+                    field.link(observer, attr.path || attr.paths);
+                else
+                    console.error(`this._observers does not contain a valid observer for attr: "${key}". attr.observer is currently: "${attr.observer}".`);
+            }
+        }
+
         link(observers) {
             this.unlink();
 
             this._observers = observers;
 
             for (const key in this._fieldAttributes) {
-                const attr = this._fieldAttributes[key];
-                const field = this.getField(key);
-                field.link(observers, attr.path || attr.paths);
+                this._linkObservers(key);
             }
         }
 

@@ -1,0 +1,166 @@
+Object.assign(pcui, (function () {
+    'use strict';
+
+    const ATTRIBUTES = [
+        {
+            observer: 'settings',
+            label: 'Grid',
+            paths: ['editor.gridDivisions', 'editor.gridDivisionSize'],
+            alias: 'grid',
+            type: 'vec2',
+            args: {
+                min: 0,
+                max: 100,
+                placeholder: ['Divisions', 'Size'],
+                multiplePathVariables: true
+            }
+        },
+        {
+            observer: 'settings',
+            label: 'Snap',
+            path: 'editor.snapIncrement',
+            alias: 'snap',
+            type: 'number',
+            args: {
+                min: 0,
+                max: 100,
+                placeholder: 'Increment'
+            }
+        },
+        {
+            observer: 'settings',
+            label: 'Camera Clip',
+            alias: 'cameraClip',
+            paths: ['editor.cameraNearClip', 'editor.cameraFarClip'],
+            type: 'vec2',
+            args: {
+                min: 0,
+                placeholder: ['Near', 'Far'],
+                multiplePathVariables: true
+            }
+        },
+        {
+            observer: 'settings',
+            label: 'Clear Color',
+            path: 'editor.cameraClearColor',
+            alias: 'clearColor',
+            type: 'rgba'
+        },
+        {
+            observer: 'userSettings',
+            label: 'Icons Size',
+            path: 'editor.iconSize',
+            alias: 'iconsSize',
+            type: 'number',
+            args: {
+                min: 0,
+                max: 100
+            }
+        },
+        {
+            observer: 'settings',
+            label: 'Local Server',
+            path: 'editor.localServer',
+            type: 'string',
+            args: {
+                onValidate: value => /^http(s)?:\/\/\S+/.test(value)
+            }
+        },
+        {
+            observer: 'settings',
+            label: 'Locale',
+            path: 'editor.locale',
+            type: 'string'
+        },
+        {
+            alias: 'chatNotification',
+            label: 'Chat Notification',
+            type: 'boolean'
+        }
+    ];
+
+    ATTRIBUTES.forEach(attr => {
+        const path = attr.alias || attr.path;
+        if (!path) return;
+        const parts = path.split('.');
+        attr.reference = `settings:${parts[parts.length - 1]}`;
+    });
+
+    class EditorSettingsPanel extends pcui.Panel {
+        constructor(args) {
+            args = Object.assign({}, args);
+            args.headerText = 'EDITOR';
+            args.collapsible = true;
+
+            super(args);
+
+            this._attributesInspector = new pcui.AttributesInspector({
+                attributes: ATTRIBUTES
+            });
+            this.append(this._attributesInspector);
+
+            const evtPermission = editor.on('notify:permission', this._checkChatNotificationState.bind(this));
+            const evtChatNofityState = editor.on('chat:notify', this._checkChatNotificationState.bind(this));
+            const fieldChatNotification = this._attributesInspector.getField('chatNotification');
+            this._checkChatNotificationState();
+            fieldChatNotification.on('change', (value) => {
+                if (editor.call('notify:state') !== 'granted') {
+                    editor.call('notify:permission');
+                } else {
+                    editor.call('localStorage:set', 'editor:notifications:chat', value);
+                    editor.emit('chat:notify', value);
+                    this._checkChatNotificationState();
+                }
+            });
+            this.once('destroy', () => {
+                evtPermission.unbind();
+                evtChatNofityState.unbind();
+                evtPermission = null;
+                evtChatNofityState = null;
+            });
+        }
+
+        _checkChatNotificationState() {
+            const permission = editor.call('notify:state');
+            const fieldChatNotification = this._attributesInspector.getField('chatNotification');
+
+            fieldChatNotification.enabled = permission !== 'denied';
+
+            if (permission !== 'granted' && permission !== 'denied')
+                fieldChatNotification.value = null;
+
+            if (permission === 'granted') {
+                // restore localstorage state
+                const granted = editor.call('localStorage:get', 'editor:notifications:chat');
+                if (granted === null) {
+                    fieldChatNotification.value = true;
+                } else {
+                    fieldChatNotification.value = granted;
+                }
+            }
+        }
+
+        link(settings, projectSettings, userSettings) {
+            this.unlink();
+            if (!this._hasVisited) {
+                this._hasVisited = true;
+                this.collapsed = true;
+            }
+            this._attributesInspector.link({ settings, projectSettings, userSettings });
+            ATTRIBUTES.forEach((attr, i) => {
+                if (attr.reference && !attr.tooltip) {
+                    const attributeLabel = this._attributesInspector.getField(attr.path || attr.alias).parent.label;
+                    ATTRIBUTES[i].tooltip = editor.call('attributes:reference:attach', attr.reference, attributeLabel);
+                }
+            });
+        }
+
+        unlink() {
+            this._attributesInspector.unlink();
+        }
+    }
+
+    return {
+        EditorSettingsPanel: EditorSettingsPanel
+    };
+})());

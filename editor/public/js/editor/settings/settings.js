@@ -120,4 +120,30 @@ editor.once('load', function () {
         return settings;
     });
 
+    const hasPcuiSettings = editor.call('users:hasFlag', 'hasPcuiSettings');
+    if (!hasPcuiSettings)
+        return;
+
+    const settingsContainer = new pcui.Settings();
+
+    editor.on('attributes:beforeClear', () => {
+        settingsContainer.unlink();
+        if (settingsContainer.parent) {
+            settingsContainer.parent.remove(settingsContainer);
+        }
+    });
+
+    editor.on('attributes:inspect[editorSettings]', () => {
+        const root = editor.call('attributes.rootPanel');
+
+        if (!settingsContainer.parent)
+            root.append(settingsContainer);
+
+        const settings = editor.call('settings:projectUser');
+        const projectSettings = editor.call('settings:project');
+        const userSettings = editor.call('settings:user');
+
+        settingsContainer.link(settings, projectSettings, userSettings);
+    });
+
 });
