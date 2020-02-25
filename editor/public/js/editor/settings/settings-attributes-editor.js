@@ -155,7 +155,7 @@ editor.once('load', function() {
 
 
         // icons size
-        var fieldIconsSize = editor.call('attributes:addField', {
+        var fieldIconSize = editor.call('attributes:addField', {
             parent: panel,
             name: 'Icons Size',
             type: 'number',
@@ -166,8 +166,17 @@ editor.once('load', function() {
             path: 'editor.iconSize'
         });
         // reference
-        editor.call('attributes:reference:attach', 'settings:iconsSize', fieldIconsSize.parent.innerElement.firstChild.ui);
+        editor.call('attributes:reference:attach', 'settings:iconSize', fieldIconSize.parent.innerElement.firstChild.ui);
 
+        var fieldShowSkeleton = editor.call('attributes:addField', {
+            parent: panel,
+            name: 'Show Skeleton',
+            type: 'checkbox',
+            link: userSettings,
+            path: 'editor.showSkeleton'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'settings:showSkeleton', fieldShowSkeleton.parent.innerElement.firstChild.ui);
 
         // local server
         var fieldLocalServer = editor.call('attributes:addField', {

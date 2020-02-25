@@ -21,8 +21,11 @@ editor.once('load', function() {
         name: 'clearColor',
         description: 'Set the Camera Clear Color of your preference to affect Editor. This color will not affect the game.'
     }, {
-        name: 'iconsSize',
+        name: 'iconSize',
         description: 'Size of icons displayed in Editor viewport',
+    }, {
+        name: 'showSkeleton',
+        description: 'Set whether to render the bone structure of selected entity skeleton in the viewport',
     }, {
         name: 'localServer',
         description: 'Set a URL to use as the local server. When you click on "Launch Local" all your scripts will be loaded from this URL.'
