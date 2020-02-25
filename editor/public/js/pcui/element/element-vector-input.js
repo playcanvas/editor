@@ -18,7 +18,7 @@ Object.assign(pcui, (function () {
          * @param {Number} [args.precision] The decimal precision for each vector element.
          * @param {Number} [args.step] The incremental step when using arrow keys for each vector element.
          * @param {Boolean} [args.renderChanges] If true each vector element will flash on changes.
-         * @param {Boolean} [args.multiplePathVariables] If true & paths length is greater than 1, each vector element will be linked to a unique path.
+         * @param {Boolean} [args.vectorElementsHaveOwnPath] If true and linked paths.length is equal to this._inputs.length, each vector element will be linked to its own path.
          * @param {String[]|String} [args.placeholder] The placeholder string for each vector element.
          */
         constructor(args) {
@@ -68,7 +68,7 @@ Object.assign(pcui, (function () {
                 this.value = args.value;
             }
 
-            this._multiplePathVariables = args.multiplePathVariables;
+            this._vectorElementsHaveOwnPath = args.vectorElementsHaveOwnPath;
         }
 
         _onInputChange() {
@@ -109,7 +109,7 @@ Object.assign(pcui, (function () {
         }
 
         link(observers, paths) {
-            if (this._multiplePathVariables && paths.length > 1) {
+            if (this._vectorElementsHaveOwnPath && paths.length === this._inputs.length) {
                 for (let i = 0; i < this._inputs.length; i++) {
                     // link observers to path for each dimension
                     this._inputs[i].link(observers, paths[i]);

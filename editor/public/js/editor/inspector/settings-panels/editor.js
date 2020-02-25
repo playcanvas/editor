@@ -12,7 +12,7 @@ Object.assign(pcui, (function () {
                 min: 0,
                 max: 100,
                 placeholder: ['Divisions', 'Size'],
-                multiplePathVariables: true
+                vectorElementsHaveOwnPath: true
             }
         },
         {
@@ -36,7 +36,7 @@ Object.assign(pcui, (function () {
             args: {
                 min: 0,
                 placeholder: ['Near', 'Far'],
-                multiplePathVariables: true
+                vectorElementsHaveOwnPath: true
             }
         },
         {
