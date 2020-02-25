@@ -95,6 +95,7 @@ Object.assign(pcui, (function () {
             super(args);
 
             this._attributesInspector = new pcui.AttributesInspector({
+                history: args.history,
                 attributes: ATTRIBUTES
             });
             this.append(this._attributesInspector);

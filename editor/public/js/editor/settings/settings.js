@@ -124,7 +124,9 @@ editor.once('load', function () {
     if (!hasPcuiSettings)
         return;
 
-    const settingsContainer = new pcui.Settings();
+    const settingsContainer = new pcui.Settings({
+        history: editor.call('editor:history')
+    });
 
     editor.on('attributes:beforeClear', () => {
         settingsContainer.unlink();

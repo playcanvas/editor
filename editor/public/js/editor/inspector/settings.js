@@ -59,7 +59,9 @@ Object.assign(pcui, (function () {
 
             SETTING_TYPES.forEach(setting => {
                 const cls = `${setting[0].toUpperCase()}${setting.substring(1)}SettingsPanel`;
-                const panel = new pcui[cls]();
+                const panel = new pcui[cls]({
+                    history: args.history
+                });
                 this._settingsPanels[setting] = panel;
 
                 this.append(panel);
