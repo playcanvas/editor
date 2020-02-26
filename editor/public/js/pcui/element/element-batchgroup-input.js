@@ -51,6 +51,7 @@ Object.assign(pcui, (function () {
 
         _createGroup(name) {
             const group = editor.call('editorSettings:batchGroups:create', name);
+            this._refreshOptions();
             this.value = group;
             editor.call('selector:set', 'editorSettings', [this._projectSettings]);
             setTimeout(() => {
