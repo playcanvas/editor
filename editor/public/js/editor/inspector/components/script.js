@@ -34,13 +34,15 @@ Object.assign(pcui, (function () {
             this._argsAssets = args.assets;
             this._argsEntities = args.entities;
 
+            this._editorEvents = [];
+
             this._selectScript = new pcui.SelectInput({
                 placeholder: '+ ADD SCRIPT',
                 allowInput: true,
                 allowCreate: true,
                 createLabelText: 'Create Script',
                 createFn: this._onCreateScript.bind(this),
-                optionsFn: this._getDropdownScripts.bind(this)
+                optionsFn: this._updateDropDown.bind(this)
             });
             this.append(this._selectScript);
 
@@ -57,6 +59,8 @@ Object.assign(pcui, (function () {
 
             this._dirtyScripts = new Set();
             this._dirtyScriptsTimeout = null;
+
+            this._updateScriptsTimeout = null;
         }
 
         _createScriptPanel(scriptName) {
@@ -145,13 +149,34 @@ Object.assign(pcui, (function () {
             }
         }
 
-        _getDropdownScripts() {
+        _updateDropDown() {
             if (!this._entities) return [];
 
             const unparsed = this._findUnparsedScripts();
 
             this._parseUnparsedScripts(unparsed);
 
+            return this._findDropdownScripts();
+        }
+
+        _findUnparsedScripts() {
+            let assets = this._argsAssets.array();
+
+            assets = assets.filter(a => a.get('type') === 'script');
+
+            return assets.filter(a => {
+                return a.get('data.lastParsedHash') === null &&
+                    a.get('file.hash');
+            });
+        }
+
+        _parseUnparsedScripts(assets) {
+            assets.forEach(a => editor.call('scripts:parse', a, err => {
+                a.set('data.lastParsedHash', a.get('file.hash'));
+            }));
+        }
+
+        _findDropdownScripts() {
             const scripts = editor.call('assets:scripts:list');
 
             // do not allow scripts that already exist to be created
@@ -193,23 +218,6 @@ Object.assign(pcui, (function () {
             });
 
             return result;
-        }
-
-        _findUnparsedScripts() {
-            let assets = this._argsAssets.array();
-
-            assets = assets.filter(a => a.get('type') === 'script');
-
-            return assets.filter(a => {
-                return a.get('data.lastParsedHash') === null &&
-                    a.get('file.hash');
-            });
-        }
-
-        _parseUnparsedScripts(assets) {
-            assets.forEach(a => editor.call('scripts:parse', a, err => {
-                a.set('data.lastParsedHash', a.get('file.hash'));
-            }));
         }
 
         _onSelectScript(script) {
@@ -304,6 +312,15 @@ Object.assign(pcui, (function () {
             this._entities[0].move('components.script.order', oldIndex, newIndex);
         }
 
+        _onScriptAddOrRemove() {
+            if (this._updateScriptsTimeout) return;
+
+            this._updateScriptsTimeout = setTimeout(() => {
+                this._updateScriptsTimeout = null;
+                this._selectScript.options = this._findDropdownScripts();
+            });
+        }
+
         link(entities) {
             super.link(entities);
 
@@ -334,10 +351,16 @@ Object.assign(pcui, (function () {
                     this._deferUpdateDirtyScripts();
                 }));
             });
+
+            this._editorEvents.push(editor.on('assets:scripts:add', this._onScriptAddOrRemove.bind(this)));
+            this._editorEvents.push(editor.on('assets:scripts:remove', this._onScriptAddOrRemove.bind(this)));
         }
 
         unlink() {
             super.unlink();
+
+            this._editorEvents.forEach(evt => evt.unbind());
+            this._editorEvents.length = 0;
 
             this._selectScript.close();
             this._selectScript.value = '';
@@ -347,6 +370,11 @@ Object.assign(pcui, (function () {
 
             if (this._dirtyScriptsTimeout) {
                 cancelAnimationFrame(this._dirtyScriptsTimeout);
+            }
+
+            if (this._updateScriptsTimeout) {
+                clearTimeout(this._updateScriptsTimeout);
+                this._updateScriptsTimeout = null;
             }
         }
     }

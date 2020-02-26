@@ -215,13 +215,15 @@ Object.assign(pcui, (function () {
             container.on('click', (e) => {
                 e.stopPropagation();
 
+                const text = label.text;
+
                 this.focus();
                 this.close();
 
                 if (this._createFn) {
-                    this._createFn(label.text);
-                } else if (label.text) {
-                    this._onSelectValue(label.text);
+                    this._createFn(text);
+                } else if (text) {
+                    this._onSelectValue(text);
                 }
             });
 
@@ -491,14 +493,18 @@ Object.assign(pcui, (function () {
 
             this._lastInputValue = value;
 
+            this._filterOptions(value);
+        }
+
+        _filterOptions(filter) {
             const searchIndex = {};
 
-            if (value) {
+            if (filter) {
                 const searchItems = this.options.map(option => {
                     return [option.t, option.v];
                 });
 
-                const searchResults = editor.call('search:items', searchItems, value);
+                const searchResults = editor.call('search:items', searchItems, filter);
                 searchResults.forEach(result => {
                     searchIndex[result] = true;
                 });
@@ -506,7 +512,7 @@ Object.assign(pcui, (function () {
 
             let highlighted = false;
             this._containerOptions.forEachChild(label => {
-                label.hidden = !!value && !searchIndex[label._optionValue] && !label.class.contains(CLASS_CREATE_NEW);
+                label.hidden = !!filter && !searchIndex[label._optionValue] && !label.class.contains(CLASS_CREATE_NEW);
                 if (!highlighted && !label.hidden) {
                     this._highlightLabel(label);
                     highlighted = true;
@@ -868,6 +874,10 @@ Object.assign(pcui, (function () {
                 this._onMultipleValuesChange(this._values);
             } else {
                 this._onValueChange(this.value);
+            }
+
+            if (this._lastInputValue) {
+                this._filterOptions(this._lastInputValue);
             }
         }
 
