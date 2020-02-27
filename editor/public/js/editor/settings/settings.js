@@ -125,6 +125,7 @@ editor.once('load', function () {
         return;
 
     const settingsContainer = new pcui.Settings({
+        assets: editor.call('assets:raw'),
         history: editor.call('editor:history')
     });
 
@@ -144,8 +145,9 @@ editor.once('load', function () {
         const settings = editor.call('settings:projectUser');
         const projectSettings = editor.call('settings:project');
         const userSettings = editor.call('settings:user');
+        const sceneSettings = editor.call('sceneSettings');
 
-        settingsContainer.link(settings, projectSettings, userSettings);
+        settingsContainer.link(settings, projectSettings, userSettings, sceneSettings);
     });
 
 });

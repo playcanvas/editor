@@ -86,19 +86,13 @@ Object.assign(pcui, (function () {
         attr.reference = `settings:${parts[parts.length - 1]}`;
     });
 
-    class EditorSettingsPanel extends pcui.Panel {
+    class EditorSettingsPanel extends pcui.BaseSettingsPanel {
         constructor(args) {
             args = Object.assign({}, args);
             args.headerText = 'EDITOR';
-            args.collapsible = true;
+            args.attributes = ATTRIBUTES;
 
             super(args);
-
-            this._attributesInspector = new pcui.AttributesInspector({
-                history: args.history,
-                attributes: ATTRIBUTES
-            });
-            this.append(this._attributesInspector);
 
             const evtPermission = editor.on('notify:permission', this._checkChatNotificationState.bind(this));
             const evtChatNofityState = editor.on('chat:notify', this._checkChatNotificationState.bind(this));
@@ -116,8 +110,6 @@ Object.assign(pcui, (function () {
             this.once('destroy', () => {
                 evtPermission.unbind();
                 evtChatNofityState.unbind();
-                evtPermission = null;
-                evtChatNofityState = null;
             });
         }
 
@@ -139,25 +131,6 @@ Object.assign(pcui, (function () {
                     fieldChatNotification.value = granted;
                 }
             }
-        }
-
-        link(settings, projectSettings, userSettings) {
-            this.unlink();
-            if (!this._hasVisited) {
-                this._hasVisited = true;
-                this.collapsed = true;
-            }
-            this._attributesInspector.link({ settings, projectSettings, userSettings });
-            ATTRIBUTES.forEach((attr, i) => {
-                if (attr.reference && !attr.tooltip) {
-                    const attributeLabel = this._attributesInspector.getField(attr.path || attr.alias).parent.label;
-                    ATTRIBUTES[i].tooltip = editor.call('attributes:reference:attach', attr.reference, attributeLabel);
-                }
-            });
-        }
-
-        unlink() {
-            this._attributesInspector.unlink();
         }
     }
 

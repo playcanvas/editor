@@ -1,6 +1,10 @@
 editor.once('load', function() {
     'use strict';
 
+    const hasPcuiSettings = editor.call('users:hasFlag', 'hasPcuiSettings');
+    if (hasPcuiSettings)
+        return;
+
     var sceneSettings = editor.call('sceneSettings');
     var projectSettings = editor.call('settings:project');
 

@@ -4,7 +4,9 @@ Object.assign(pcui, (function () {
     const CLASS_ROOT = 'settings';
 
     const SETTING_TYPES = [
-        'editor'
+        'editor',
+        'physics',
+        'rendering'
     ];
 
     const SCENE_ATTRIBUTES = [
@@ -60,7 +62,8 @@ Object.assign(pcui, (function () {
             SETTING_TYPES.forEach(setting => {
                 const cls = `${setting[0].toUpperCase()}${setting.substring(1)}SettingsPanel`;
                 const panel = new pcui[cls]({
-                    history: args.history
+                    history: args.history,
+                    assets: args.assets
                 });
                 this._settingsPanels[setting] = panel;
 
@@ -82,13 +85,13 @@ Object.assign(pcui, (function () {
             }));
         }
 
-        link(settings, projectSettings, userSettings) {
+        link(settings, projectSettings, userSettings, sceneSettings) {
             this.unlink();
 
             this._linkSceneNameField();
 
             SETTING_TYPES.forEach(setting => {
-                this._settingsPanels[setting].link(settings, projectSettings, userSettings);
+                this._settingsPanels[setting].link(settings, projectSettings, userSettings, sceneSettings);
             });
 
             SCENE_ATTRIBUTES.forEach((attr, i) => {
@@ -102,6 +105,7 @@ Object.assign(pcui, (function () {
             window._settings = settings;
             window._projectSettings = projectSettings;
             window._userSettings = userSettings;
+            window._sceneSettings = sceneSettings;
         }
 
         unlink() {
