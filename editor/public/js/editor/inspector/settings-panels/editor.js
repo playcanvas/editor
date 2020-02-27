@@ -79,13 +79,6 @@ Object.assign(pcui, (function () {
         }
     ];
 
-    ATTRIBUTES.forEach(attr => {
-        const path = attr.alias || attr.path;
-        if (!path) return;
-        const parts = path.split('.');
-        attr.reference = `settings:${parts[parts.length - 1]}`;
-    });
-
     class EditorSettingsPanel extends pcui.BaseSettingsPanel {
         constructor(args) {
             args = Object.assign({}, args);

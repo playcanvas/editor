@@ -12,10 +12,22 @@ Object.assign(pcui, (function () {
             this._attributesInspector = new pcui.AttributesInspector({
                 history: args.history,
                 assets: args.assets,
-                attributes: args.attributes
+                attributes: this._generateAttributeReferences(args.attributes)
             });
             this.append(this._attributesInspector);
         }
+
+
+        _generateAttributeReferences(attributes) {
+            return attributes.map(attr => {
+                const path = attr.alias || attr.path;
+                if (!path) return attr;
+                const parts = path.split('.');
+                attr.reference = `settings:${parts[parts.length - 1]}`;
+                return attr;
+            });
+        }
+
 
         link(settings, projectSettings, userSettings, sceneSettings) {
             this.unlink();
