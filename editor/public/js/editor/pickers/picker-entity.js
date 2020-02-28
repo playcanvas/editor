@@ -18,8 +18,6 @@ editor.once('load', function() {
     var hierarchyPanel = hierarchy.parent;
     var hierarchyCollapsed = false;
 
-    const usePcuiEntities = editor.call('users:hasFlag', 'hasPcuiEntities');
-
     // esc to close
     editor.call('hotkey:register', 'picker:entity:close', {
         key: 'esc',
@@ -60,19 +58,8 @@ editor.once('load', function() {
         for (var i = 0, len = hierarchy.selected.length; i < len; i++)
             hierarchy.selected[i].selected = false;
 
-        // select what was selected
-        if (!usePcuiEntities) {
-            hierarchy.selected = initialSelection;
-        }
-
         for (var i = 0, len = initialSelection.length; i < len; i++)
             initialSelection[i].selected = true;
-
-        if (!usePcuiEntities) {
-            if (initialSelection.length) {
-                initialSelection[initialSelection.length - 1].elementTitle.focus();
-            }
-        }
 
         currentEntity = null;
 
@@ -108,17 +95,10 @@ editor.once('load', function() {
             var item = editor.call('entities:panel:get', resourceId);
             // select in hierarchy
             if (item) {
-                if (!usePcuiEntities) {
-                    hierarchy.selected = [ item ];
-                }
                 item.selected = true;
             }
         } else {
-            if (usePcuiEntities) {
-                hierarchy.deselect();
-            } else {
-                hierarchy.selected = [ ];
-            }
+            hierarchy.deselect();
         }
 
         // show hierarchy panel in front
@@ -137,11 +117,7 @@ editor.once('load', function() {
         setTimeout(function() {
             const selected = hierarchy.selected;
             if (selected.length) {
-                if (usePcuiEntities) {
-                    selected[0].focus();
-                } else {
-                    selected[0].elementTitle.focus();
-                }
+                selected[0].focus();
             } else {
                 hierarchy.element.focus();
             }

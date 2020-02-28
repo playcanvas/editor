@@ -122,7 +122,7 @@ editor.once('load', function () {
                 // var MyScript = pc.createScript('myScript');
                 // into this:
                 // var MyScript = ScriptType
-                code = code.replace(/var (\w+).*?=.*?pc.createScript\(.*?\)/g, 'var $1 = ScriptType');
+                code = code.replace(/var (\w+).*?=.*?pc.createScript\(.*?\)/g, 'var $1 = pc.ScriptType');
 
                 return code;
 
