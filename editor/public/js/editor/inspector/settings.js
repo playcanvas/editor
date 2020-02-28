@@ -7,7 +7,8 @@ Object.assign(pcui, (function () {
         'editor',
         'physics',
         'rendering',
-        'layers'
+        'layers',
+        'lightmapping'
     ];
 
     const SCENE_ATTRIBUTES = [
