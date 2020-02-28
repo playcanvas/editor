@@ -1,10 +1,10 @@
 editor.once('load', function() {
     'use strict';
 
-    // const hasPcuiSettings = editor.call('users:hasFlag', 'hasPcuiSettings');
-    // if (hasPcuiSettings) {
-    //     return;
-    // }
+    const hasPcuiSettings = editor.call('users:hasFlag', 'hasPcuiSettings');
+    if (hasPcuiSettings) {
+        return;
+    }
 
     var projectSettings = editor.call('settings:project');
 
