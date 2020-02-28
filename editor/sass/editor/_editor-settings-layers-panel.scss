@@ -1,9 +1,35 @@
-.layers-settings-panel-layers-container, .layers-settings-panel-render-order-panel {
+.layers-settings-panel-render-order-panel, .layers-settings-panel-render-order-list-container {
     margin: 6px;
 }
 
-.layers-settings-panel-layer-panel {
+.layers-settings-panel-layers-container {
+    margin: 3px 10px;
+}
+
+.layers-settings-panel-render-order-panel {
+    border: 1px solid #20292b;
+}
+
+.layers-settings-panel-render-order-list-item, .layers-settings-panel-layer-panel {
     border-top: 1px solid #20292b;
     border-left: 1px solid #20292b;
     border-right: 1px solid #20292b;
+}
+
+.layers-settings-panel-render-order-list-item:last-child, .layers-settings-panel-layer-panel:last-child {
+    border-bottom: 1px solid #20292b;
+}
+
+.layers-settings-panel-render-order-list-item {
+    background: #2c393c;
+
+    .pcui-panel-header {
+        background: transparent;
+    }
+}
+
+.layers-settings-panel-render-order-list-item-transparent {
+    background-size: 20px 20px;
+    background-position: 0 -13px, 10px -3px;
+    background-image: linear-gradient(45deg, #293538 25%, transparent 25%, transparent 75%, #293538 75%, #293538 100%),linear-gradient(45deg, #293538 25%, transparent 25%, transparent 75%, #293538 75%, #293538 100%);
 }

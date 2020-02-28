@@ -79,7 +79,7 @@ Object.assign(pcui, (function () {
                 });
             }
 
-            this.on('destroy', () => {
+            this.once('destroy', () => {
                 nameChangeEvt.unbind();
                 removeLayerEvt.unbind();
                 if (deleteTooltip) deleteTooltip.destroy();
@@ -88,20 +88,21 @@ Object.assign(pcui, (function () {
 
         _removeLayer() {
             let prev = null;
-            const prevSublayers = [];
+            let prevSublayers = [];
             const projectSettings = this._projectSettings;
 
             const redo = () => {
                 projectSettings.latest();
-                const history = projectSettings.history.enabled;
+                const history = projectSettings.history;
                 projectSettings.history.enabled = false;
                 prev = projectSettings.get('layers.' + this._args.layerKey);
                 projectSettings.unset('layers.' + this._args.layerKey);
 
+                prevSublayers = [];
                 const order = projectSettings.get('layerOrder');
                 let i = order.length;
                 while (i--) {
-                    if (order[i].layer === this._args.layerKey) {
+                    if (!projectSettings.get('layers')[order[i].layer]) {
                         projectSettings.remove('layerOrder', i);
                         prevSublayers.unshift({
                             index: i,
@@ -116,7 +117,7 @@ Object.assign(pcui, (function () {
 
             const undo = () => {
                 projectSettings.latest();
-                const history = projectSettings.history.enabled;
+                const history = projectSettings.history;
                 projectSettings.history.enabled = false;
                 projectSettings.set('layers.' + this._args.layerKey, prev);
 
@@ -127,13 +128,13 @@ Object.assign(pcui, (function () {
                     const transparent = prevSublayers[i].transparent;
                     const enabled = prevSublayers[i].enabled;
                     projectSettings.insert('layerOrder', {
-                        layer: this._args.layerKey,
+                        layer: parseInt(this._args.layerKey, 10),
                         transparent: transparent,
                         enabled: enabled
                     },  Math.min(idx, layerOrder.length));
                 }
 
-                prevSublayers.length = 0;
+                prevSublayers = [];
                 prev = null;
 
                 projectSettings.history.enabled = history;

@@ -40,6 +40,9 @@ Object.assign(pcui, (function () {
 
             this.class.add(CLASS_RENDER_ORDER_PANEL);
 
+            this._renderOrderList = new pcui.LayersSettingsPanelRenderOrderList();
+            this.append(this._renderOrderList);
+
             this._addSubLayerButton = this._attributesInspector.getField('addSubLayerButton');
             this._addSubLayerSelect = this._attributesInspector.getField('addSubLayerSelect');
 
@@ -82,7 +85,9 @@ Object.assign(pcui, (function () {
         }
 
         _updateAddSublayerOptions() {
-            const options = Object.keys(this._projectSettings.get('layers')).map(layerKey => {
+            this._projectSettings.latest();
+            const options = Object.keys(this._projectSettings.get('layers'))
+            .map(layerKey => {
                 return [{
                     v: layerKey + '.transparent',
                     t: this._projectSettings.get('layers')[layerKey].name + ' Transparent',
@@ -94,9 +99,12 @@ Object.assign(pcui, (function () {
                     layerKey,
                     transparent: false
                 }];
-            }).filter(layer => {
+            })
+            .filter(layer => {
                 return layer[0].layerKey >= 1000;
-            }).flat().filter(layer => {
+            })
+            .flat()
+            .filter(layer => {
                 const layerIsInLayerOrder = this._projectSettings.get('layerOrder').find(option => {
                     return option.layer === parseInt(layer.layerKey, 10) && option.transparent === layer.transparent;
                 });
@@ -108,13 +116,23 @@ Object.assign(pcui, (function () {
         link(observers) {
             super.link(observers);
             this._updateAddSublayerOptions();
-            this._projectSettings.on('layerOrder:remove', () => {
-                this._updateAddSublayerOptions();
+
+            this._layerUpdateEvts = [];
+            const events = ['*:set', '*:unset', 'layerOrder:remove', 'layerOrder:insert', 'layerOrder:move'];
+            events.forEach(evt => {
+                this._layerUpdateEvts.push(this._projectSettings.on(evt, () => {
+                    this._updateAddSublayerOptions();
+                }));
             });
+            this._renderOrderList.link(this._projectSettings);
+            this.collapsed = false;
         }
 
         unlink() {
+            if (!this._layerUpdateEvts) return;
             super.unlink();
+            this._renderOrderList.unlink();
+            this._layerUpdateEvts.forEach(evt => evt.unbind());
         }
     }
 
