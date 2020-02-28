@@ -10,6 +10,34 @@ Object.assign(pcui, (function () {
             args: {
                 min: 0
             }
+        },
+        {
+            observer: 'sceneSettings',
+            label: 'Max Resolution',
+            path: 'render.lightmapMaxResolution',
+            type: 'number',
+            args: {
+                min: 2
+            }
+        },
+        {
+            observer: 'sceneSettings',
+            label: 'Mode',
+            path: 'render.lightmapMode',
+            type: 'select',
+            args: {
+                type: 'number',
+                options: [
+                    {
+                        v: 0,
+                        t: "Color Only"
+                    },
+                    {
+                        v: 1,
+                        t: "Color and Direction"
+                    }
+                ]
+            }
         }
     ];
 
