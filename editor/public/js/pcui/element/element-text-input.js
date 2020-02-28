@@ -2,6 +2,8 @@ Object.assign(pcui, (function () {
     'use strict';
 
     const CLASS_TEXT_INPUT = 'pcui-text-input';
+    const CLASS_TEXT_INPUT_SUGGESTION = CLASS_TEXT_INPUT + '-suggestion';
+    const CLASS_TEXT_INPUT_SUGGESTION_CONTAINER = CLASS_TEXT_INPUT + '-suggestion-container';
 
     /**
      * @name pcui.TextInput
@@ -16,6 +18,7 @@ Object.assign(pcui, (function () {
      * @property {Boolean} blurOnEscape Gets / sets whether pressing Escape will blur (unfocus) the field. Defaults to true.
      * @property {Boolean} keyChange Gets / sets whether any key up event will cause a change event to be fired.} args
      * @property {Function} onValidate A function that validates the value that is entered into the input and returns true if it is valid or false otherwise.
+     * @property {Array} autoCompleteSuggestions A list that will display as a dropdown of autocomplete suggestions. If one is clicked the text input value to change to the selected value.
      * If false then the input will be set in an error state and the value will not propagate to the binding.
      */
     class TextInput extends pcui.Element {
@@ -62,6 +65,47 @@ Object.assign(pcui, (function () {
             this.blurOnEnter = (args.blurOnEnter !== undefined ? args.blurOnEnter : true);
             this.blurOnEscape = (args.blurOnEscape !== undefined ? args.blurOnEscape : true);
             this.keyChange = args.keyChange || false;
+
+            this._autoCompleteSuggestions = args.autoCompleteSuggestions || [];
+            this._autoCompleteSuggestionsContainer = new pcui.Container({ class: CLASS_TEXT_INPUT_SUGGESTION_CONTAINER });
+            this._autoCompleteSuggestionsContainer.hidden = true;
+            this._suggestionLabels = [];
+            this._autoCompleteSuggestions.forEach((suggestion, i) => {
+                const suggestionLabel = new pcui.Label({ text: suggestion, class: CLASS_TEXT_INPUT_SUGGESTION });
+                suggestionLabel.on('click', () => {
+                    this.value = suggestion;
+                    this._autoCompleteSuggestionsContainer.hidden = true;
+                });
+                this._suggestionLabels.push(suggestionLabel);
+                this._autoCompleteSuggestionsContainer.append(suggestionLabel);
+            });
+
+            this.dom.appendChild(this._autoCompleteSuggestionsContainer.dom);
+
+            this.on('focus', () => {
+                this._autoCompleteSuggestionsContainer.hidden = false;
+                const results = editor.call('search:items', this._autoCompleteSuggestions.map(a => [a, a]), this.value);
+                this._suggestionLabels.forEach(label => {
+                    label.hidden = !results.includes(label.text) && this.value !== '';
+                });
+            });
+
+            this.on('blur', () => {
+                let shouldClose = true;
+                this._suggestionLabels.forEach(label => {
+                    if (label.dom.parentElement.querySelector(':hover') === label.dom) shouldClose = false;
+                });
+                if (shouldClose)
+                    this._autoCompleteSuggestionsContainer.hidden = true;
+            });
+
+            this.on('keydown', evt => {
+                const testValue = evt.keyCode === 8 ? this.value.substring(0, this.value.length - 1) : this.value + evt.key;
+                const results = editor.call('search:items', this._autoCompleteSuggestions.map(a => [a, a]), testValue);
+                this._suggestionLabels.forEach(label => {
+                    label.hidden = !results.includes(label.text) && testValue !== '';
+                });
+            });
 
             if (args.onValidate) {
                 this.onValidate = args.onValidate;

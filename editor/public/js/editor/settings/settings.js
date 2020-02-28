@@ -147,7 +147,7 @@ editor.once('load', function () {
         const userSettings = editor.call('settings:user');
         const sceneSettings = editor.call('sceneSettings');
 
-        settingsContainer.link(settings, projectSettings, userSettings, sceneSettings);
+        settingsContainer.link({ settings, projectSettings, userSettings, sceneSettings });
     });
 
 });

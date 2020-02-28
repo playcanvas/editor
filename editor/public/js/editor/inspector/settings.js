@@ -6,7 +6,8 @@ Object.assign(pcui, (function () {
     const SETTING_TYPES = [
         'editor',
         'physics',
-        'rendering'
+        'rendering',
+        'layers'
     ];
 
     const SCENE_ATTRIBUTES = [
@@ -85,13 +86,13 @@ Object.assign(pcui, (function () {
             }));
         }
 
-        link(settings, projectSettings, userSettings, sceneSettings) {
+        link(observers) {
             this.unlink();
 
             this._linkSceneNameField();
 
             SETTING_TYPES.forEach(setting => {
-                this._settingsPanels[setting].link(settings, projectSettings, userSettings, sceneSettings);
+                this._settingsPanels[setting].link(observers);
             });
 
             SCENE_ATTRIBUTES.forEach((attr, i) => {
@@ -102,10 +103,10 @@ Object.assign(pcui, (function () {
             });
 
             /* TODO: Remove these */
-            window._settings = settings;
-            window._projectSettings = projectSettings;
-            window._userSettings = userSettings;
-            window._sceneSettings = sceneSettings;
+            window._settings = observers.settings;
+            window._projectSettings = observers.projectSettings;
+            window._userSettings = observers.userSettings;
+            window._sceneSettings = observers.sceneSettings;
         }
 
         unlink() {

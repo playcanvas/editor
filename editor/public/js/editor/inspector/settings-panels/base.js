@@ -29,7 +29,7 @@ Object.assign(pcui, (function () {
         }
 
 
-        link(settings, projectSettings, userSettings, sceneSettings) {
+        link({ settings, projectSettings, userSettings, sceneSettings }) {
             this.unlink();
             this._settings = settings;
             this._projectSettings = projectSettings;
