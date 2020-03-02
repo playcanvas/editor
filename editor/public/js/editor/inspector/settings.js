@@ -8,7 +8,8 @@ Object.assign(pcui, (function () {
         'physics',
         'rendering',
         'layers',
-        'lightmapping'
+        'lightmapping',
+        'batchgroups'
     ];
 
     const SCENE_ATTRIBUTES = [
