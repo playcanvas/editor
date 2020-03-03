@@ -8,13 +8,15 @@ Object.assign(pcui, (function () {
 
             super(args);
             this._args = args;
+            if (args.attributes) {
+                this._attributesInspector = new pcui.AttributesInspector({
+                    history: args.history,
+                    assets: args.assets,
+                    attributes: this._generateAttributeReferences(args.attributes, args.splitReferencePath)
+                });
+                this.append(this._attributesInspector);
+            }
 
-            this._attributesInspector = new pcui.AttributesInspector({
-                history: args.history,
-                assets: args.assets,
-                attributes: this._generateAttributeReferences(args.attributes, args.splitReferencePath)
-            });
-            this.append(this._attributesInspector);
         }
 
 
@@ -44,18 +46,20 @@ Object.assign(pcui, (function () {
                 this._hasVisited = true;
                 this.collapsed = true;
             }
-            this._attributesInspector.link({ settings, projectSettings, userSettings, sceneSettings });
-            this._args.attributes.forEach((attr, i) => {
-                if (attr.reference && !attr.tooltip) {
-                    if (attr.type === 'asset') {
-                        const attributeElement = this._attributesInspector.getField(attr.path || attr.alias);
-                        this._args.attributes[i].tooltip = editor.call('attributes:reference:attach', attr.reference, attributeElement.label);
-                    } else {
-                        const attributeLabel = this._attributesInspector.getField(attr.path || attr.alias).parent.label;
-                        this._args.attributes[i].tooltip = editor.call('attributes:reference:attach', attr.reference, attributeLabel);
+            if (this._attributesInspector) {
+                this._attributesInspector.link({ settings, projectSettings, userSettings, sceneSettings });
+                this._args.attributes.forEach((attr, i) => {
+                    if (attr.reference && !attr.tooltip) {
+                        if (attr.type === 'asset') {
+                            const attributeElement = this._attributesInspector.getField(attr.path || attr.alias);
+                            this._args.attributes[i].tooltip = editor.call('attributes:reference:attach', attr.reference, attributeElement.label);
+                        } else {
+                            const attributeLabel = this._attributesInspector.getField(attr.path || attr.alias).parent.label;
+                            this._args.attributes[i].tooltip = editor.call('attributes:reference:attach', attr.reference, attributeLabel);
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
         unlink() {
@@ -67,7 +71,9 @@ Object.assign(pcui, (function () {
             this._userSettings = null;
             this._sceneSettings = null;
 
-            this._attributesInspector.unlink();
+            if (this._attributesInspector) {
+                this._attributesInspector.unlink();
+            }
         }
     }
 

@@ -13,7 +13,9 @@ Object.assign(pcui, (function () {
         'loadingscreen',
         'externalscripts',
         'input',
-        'localization'
+        'localization',
+        'assettasks',
+        'scripts'
     ];
 
     const SCENE_ATTRIBUTES = [
