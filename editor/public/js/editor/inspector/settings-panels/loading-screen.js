@@ -65,10 +65,27 @@ Object.assign(pcui, (function () {
                 }
             });
 
+
+            this._selectExistingTooltip = Tooltip.attach({
+                target: this._selectExistingButton.element,
+                text: 'Select an existing loading screen script',
+                align: 'bottom',
+                root: editor.call('layout.root')
+            });
+
+            this._createDefaultTooltip = Tooltip.attach({
+                target: this._createDefaultButton.element,
+                text: 'Create a default loading script',
+                align: 'bottom',
+                root: editor.call('layout.root')
+            });
+
             this.once('destroy', () => {
                 selectExistingEvt.unbind();
                 createDefaultEvt.unbind();
                 updateAssetEvt.unbind();
+                this._selectExistingTooltip.destroy();
+                this._createDefaultTooltip.destroy();
             });
         }
 

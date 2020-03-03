@@ -85,12 +85,20 @@ Object.assign(pcui, (function () {
             // add sections
             this._appendSection('Texture Import Settings', this._attributesInspector.getField('editor.pipeline.searchRelatedAssets'));
             this._appendSection('Model Import Settings', this._attributesInspector.getField('editor.pipeline.textureDefaultToAtlas'));
-
         }
 
         _appendSection(title, attributeElement) {
             const section = new pcui.Panel({ headerText: title, class: CLASS_SECTION });
             attributeElement.parent.parent.appendAfter(section, attributeElement.parent);
+        }
+
+        link(observers) {
+            super.link(observers);
+
+            // reference
+            if (!this._panelTooltip) {
+                this._panelTooltip = editor.call('attributes:reference:attach', 'settings:asset-tasks', this.header, this.header.dom);
+            }
         }
     }
 

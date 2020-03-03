@@ -21,6 +21,8 @@ Object.assign(pcui, (function () {
 
 
         _generateAttributeReferences(attributes, split = true) {
+            if (this._args.noReferences)
+                return attributes;
             return attributes.map(attr => {
                 const path = attr.alias || attr.path;
                 if (!path) return attr;

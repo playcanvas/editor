@@ -52,6 +52,7 @@ Object.assign(pcui, (function () {
             args = Object.assign({}, args);
             args.attributes = ATTRIBUTES(args);
             args.removable = true;
+            args.noReferences = true;
 
             super(args);
 
@@ -152,6 +153,18 @@ Object.assign(pcui, (function () {
         link(observers) {
             super.link(observers);
             this.headerText = this._projectSettings.get('layers')[this._args.layerKey].name;
+
+            this._nameLabel = this._attributesInspector.getField(`layers.${this._args.layerKey}.name`).parent.label;
+            if (!this._nameLabelTooltip)
+                this._nameLabelTooltip = editor.call('attributes:reference:attach', `settings:layers:name`, this._nameLabel);
+
+            this._opaqueSortLabel = this._attributesInspector.getField(`layers.${this._args.layerKey}.opaqueSortMode`).parent.label;
+            if (!this._opaqueSortLabelTooltip)
+                this._opaqueSortLabelTooltip = editor.call('attributes:reference:attach', `settings:layers:opaqueSort`, this._opaqueSortLabel);
+
+            this._tansparentSortModeLabel = this._attributesInspector.getField(`layers.${this._args.layerKey}.transparentSortMode`).parent.label;
+            if (!this._tansparentSortModeLabelTooltip)
+                this._tansparentSortModeLabelTooltip = editor.call('attributes:reference:attach', 'settings:layers:transparentSort', this._tansparentSortModeLabel);
         }
 
         unlink() {

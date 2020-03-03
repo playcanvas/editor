@@ -44,7 +44,8 @@ Object.assign(pcui, (function () {
 
         link(observers) {
             super.link(observers);
-            editor.call('attributes:reference:attach', 'settings:localization:createAsset', this._attributesInspector.getField('createAsset'));
+            if (!this._createAssetTooltip)
+                this._createAssetTooltip = editor.call('attributes:reference:attach', 'settings:localization:createAsset', this._attributesInspector.getField('createAsset'));
         }
     }
 

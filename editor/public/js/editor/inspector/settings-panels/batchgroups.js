@@ -173,6 +173,11 @@ Object.assign(pcui, (function () {
             });
             this._evts.push(evtNewBatchGroup);
             this._evts.push(evtDeleteBatchGroup);
+
+            // reference
+            if (!this._panelTooltip) {
+                this._panelTooltip = editor.call('attributes:reference:attach', 'settings:batchGroups', this.header, this.header.dom);
+            }
         }
 
         unlink() {

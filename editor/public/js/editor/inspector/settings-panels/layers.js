@@ -125,6 +125,7 @@ Object.assign(pcui, (function () {
         _removeLayers() {
             this._layerPanels.forEach(layerPanel => {
                 layerPanel.unlink();
+                layerPanel.destroy();
                 this._layersContainer.remove(layerPanel);
             });
             this._layerPanels = [];
@@ -144,6 +145,11 @@ Object.assign(pcui, (function () {
             }));
 
             this._layersRenderOrderPanel.link(observers);
+
+            // reference
+            if (!this._panelTooltip) {
+                this._panelTooltip = editor.call('attributes:reference:attach', 'settings:layers', this.header, this.header.dom);
+            }
         }
 
         unlink() {
