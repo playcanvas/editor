@@ -109,12 +109,6 @@ Object.assign(pcui, (function () {
                     SCENE_ATTRIBUTES[i].tooltip = editor.call('attributes:reference:attach', attr.reference, attributeLabel);
                 }
             });
-
-            /* TODO: Remove these */
-            window._settings = observers.settings;
-            window._projectSettings = observers.projectSettings;
-            window._userSettings = observers.userSettings;
-            window._sceneSettings = observers.sceneSettings;
         }
 
         unlink() {
