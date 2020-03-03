@@ -12,7 +12,8 @@ Object.assign(pcui, (function () {
         'batchgroups',
         'loadingscreen',
         'externalscripts',
-        'input'
+        'input',
+        'localization'
     ];
 
     const SCENE_ATTRIBUTES = [

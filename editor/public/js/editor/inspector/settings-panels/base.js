@@ -26,7 +26,7 @@ Object.assign(pcui, (function () {
                     const parts = path.split('.');
                     attr.reference = `settings:${parts[parts.length - 1]}`;
                 } else {
-                    attr.reference = `settings:${path}`.replace('.', ':');
+                    attr.reference = `settings:${path}`.split('.').join(':');
                 }
                 return attr;
             });
