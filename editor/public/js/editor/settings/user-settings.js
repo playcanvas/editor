@@ -7,7 +7,8 @@ editor.once('load', function () {
         data: {
             editor: {
                 howdoi: true,
-                iconSize: 0.2
+                iconSize: 0.2,
+                showSkeleton: true,
             }
         }
     });
@@ -18,4 +19,16 @@ editor.once('load', function () {
         history: editor.call('editor:history')
     });
 
+    // migrations
+    editor.on('settings:user:load', function () {
+        setTimeout(function () {
+            var history = settings.history.enabled;
+            settings.history.enabled = false;
+
+            if (! settings.has('editor.showSkeleton'))
+                settings.set('editor.showSkeleton', true);
+
+            settings.history.enabled = history;
+        });
+    });
 });

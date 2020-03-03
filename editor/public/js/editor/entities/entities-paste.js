@@ -268,23 +268,18 @@ editor.once('load', function () {
         }
 
         // remap entity references in components
-        var components = entity.get('components');
-        for (var componentName in components) {
-            var component = components[componentName];
-            var entityFields = editor.call('components:getFieldsOfType', componentName, 'entity');
+        const components = entity.get('components');
+        Object.entries(components).forEach(([componentName, component]) => {
+            const entityFields = editor.call('components:getFieldsOfType', componentName, 'entity');
 
-            for (j = 0; j < entityFields; j++) {
-                var fieldName = entityFields[j];
-                var oldEntityId = component[fieldName];
-                if (mapping[oldEntityId]) {
-                    var newEntityId = mapping[oldEntityId];
-
-                    if (newEntityId) {
-                        entity.set('components.' + componentName + '.' + fieldName, newEntityId);
-                    }
+            entityFields.forEach(fieldName => {
+                const oldEntityId = component[fieldName];
+                const newEntityId = mapping[oldEntityId];
+                if (newEntityId) {
+                    entity.set('components.' + componentName + '.' + fieldName, newEntityId);
                 }
-            }
-        }
+            });
+        });
     };
 
     /**
