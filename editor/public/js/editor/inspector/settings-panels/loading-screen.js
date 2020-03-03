@@ -1,6 +1,9 @@
 Object.assign(pcui, (function () {
     'use strict';
 
+    const CLASS_ROOT = 'settings-loading-screen';
+    const CLASS_FEATURE_LOCKED = CLASS_ROOT + '-feature-locked';
+
     const ATTRIBUTES = [
         {
             observer: 'projectSettings',
@@ -34,6 +37,13 @@ Object.assign(pcui, (function () {
                     })
                 }
             ]
+        },
+        {
+            featureLockedLabel: new pcui.Label({
+                text: `This is an ORGANIZATION account feature. <a href="/upgrade?plan=organization&account=${config.owner.username}" target="_blank">UPGRADE</a> to create custom loading screens.`,
+                unsafe: true,
+                class: CLASS_FEATURE_LOCKED
+            })
         }
     ];
 
@@ -63,6 +73,15 @@ Object.assign(pcui, (function () {
         }
 
         _loadLayout() {
+            if (!editor.call("users:isSuperUser") && config.owner.plan.type !== 'org' && config.owner.plan.type !== 'organization') {
+                this._featureLockedLabel.hidden = false;
+                this._attributesInspector.destroy();
+                this._buttonContainer.destroy();
+                return;
+            }
+
+            this._featureLockedLabel.hidden = true;
+
             const scriptId = this._projectSettings.get('loadingScreenScript');
             const asset = this._args.assets.get(scriptId);
             if (scriptId && asset) {

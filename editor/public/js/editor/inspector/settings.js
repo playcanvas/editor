@@ -10,7 +10,8 @@ Object.assign(pcui, (function () {
         'layers',
         'lightmapping',
         'batchgroups',
-        'loadingscreen'
+        'loadingscreen',
+        'externalscripts'
     ];
 
     const SCENE_ATTRIBUTES = [
