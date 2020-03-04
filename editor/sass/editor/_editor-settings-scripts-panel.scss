@@ -1,22 +1,22 @@
 .scripts-settings-panel-scripts-list-item {
-    background-color: #2c393c;
-    border-left: 1px solid #293538;
-    border-top: 1px solid #293538;
-    border-right: 1px solid #293538;
+    background-color: $bcg-dark;
+    border-left: 1px solid $bcg-darker;
+    border-top: 1px solid $bcg-darker;
+    border-right: 1px solid $bcg-darker;
     .pcui-panel-header {
         color: #f60;
         background-color: transparent;
     }
 }
 .scripts-settings-panel-scripts-list-item:last-child {
-    border-bottom: 1px solid #293538;
+    border-bottom: 1px solid $bcg-darker;
 }
 
 .scripts-settings-panel-scripts-list-item:hover {
     cursor: pointer;
-    background-color: #20292b;
+    background-color: $bcg-darkest;
 }
 
 .scripts-settings-panel-scripts-list-container {
-    margin: 6px;
+    margin: $element-margin;
 }
