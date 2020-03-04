@@ -224,7 +224,7 @@
         border: none;
         padding: 0;
         margin: 0;
-        color: #9ba1a3;
+        color: $text-dark;
         @extend .font-icon;
         font-size: 14px;
         text-align: center;
@@ -236,17 +236,17 @@
         }
         &.disabled {
             opacity: 1;
-            color: mix(#9ba1a3, #364346, 30%);
+            color: mix($text-dark, $bcg-primary, 30%);
 
             &:hover,
             &:focus {
-                color: mix(#9ba1a3, #364346, 30%);
+                color: mix($text-dark, $bcg-primary, 30%);
                 background-color: transparent;
             }
         }
         &:hover,
         &:focus {
-            color: #fff;
+            color: $text-primary;
             background-color: $bcg-darkest;
         }
     }

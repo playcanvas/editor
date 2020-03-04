@@ -25,10 +25,10 @@
             }
         }
         &.icon, &.pc-icon {
-            color: #9ba1a3;
+            color: $text-dark;
             line-height: 43px;
             text-align: center;
-            background-color: #364346;
+            background-color: $bcg-primary;
 
             &.active {
                 color: $text-primary;
@@ -40,7 +40,7 @@
                 }
             }
             &.light-mapper.active {
-                background-color: #364346;
+                background-color: $bcg-primary;
                 color: $text-active;
 
                 &:hover,
@@ -51,12 +51,12 @@
             }
             &.disabled {
                 opacity: 1;
-                color: mix(#9ba1a3, #364346, 30%);
+                color: mix($text-dark, $bcg-primary, 30%);
 
                 &:hover,
                 &:focus {
-                    color: mix(#9ba1a3, #364346, 30%);
-                    background-color: #364346;
+                    color: mix($text-dark, $bcg-primary, 30%);
+                    background-color: $bcg-primary;
                 }
             }
             &:hover,
