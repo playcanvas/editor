@@ -96,13 +96,13 @@ Object.assign(pcui, (function () {
         }
 
         removeItem(groupId) {
-            const projectSettings = this._projectSettings;
+            let projectSettings = this._projectSettings;
             const oldValue = projectSettings.get('batchGroups.' + groupId);
             const affectedModels = [];
             const affectedElements = [];
 
             const redo = () => {
-                projectSettings.latest();
+                projectSettings = projectSettings.latest();
                 const settingsHistory = projectSettings.history.enabled;
                 projectSettings.history.enabled = false;
                 projectSettings.unset('batchGroups.' + groupId);
@@ -131,7 +131,7 @@ Object.assign(pcui, (function () {
             };
 
             const undo = () => {
-                projectSettings.latest();
+                projectSettings = projectSettings.latest();
                 var settingsHistory = projectSettings.history.enabled;
                 projectSettings.history.enabled = false;
                 projectSettings.set('batchGroups.' + groupId, oldValue);
@@ -160,11 +160,13 @@ Object.assign(pcui, (function () {
                 affectedElements.length = 0;
             };
 
-            this._args.history.add({
-                name: `remove projectSettings.batchGroups.${groupId}`,
-                undo,
-                redo
-            });
+            if (this._args.history) {
+                this._args.history.add({
+                    name: `remove projectSettings.batchGroups.${groupId}`,
+                    undo,
+                    redo
+                });
+            }
 
             redo();
         }
