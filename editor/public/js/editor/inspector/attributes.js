@@ -18,7 +18,10 @@ Object.assign(pcui, (function () {
             this._history = args.history;
             this._assets = args.assets;
             this._entities = args.entities;
+            this._settings = args.settings;
             this._projectSettings = args.projectSettings;
+            this._userSettings = args.userSettings;
+            this._sceneSettings = args.sceneSettings;
 
             this._fields = {};
             this._fieldAttributes = {};
@@ -172,14 +175,14 @@ Object.assign(pcui, (function () {
         _linkObservers(key) {
             const field = this.getField(key);
             const attr = this._fieldAttributes[key];
-            if (this._observers instanceof Array) {
-                field.link(this._observers, attr.path || attr.paths);
-            } else if (this._observers instanceof Object){
-                const observer = this._observers[attr.observer];
+            if (attr.observer) {
+                const observer = this[`_${attr.observer}`];
                 if (observer)
-                    field.link(observer, attr.path || attr.paths);
+                    field.link([observer], attr.path || attr.paths);
                 else
-                    console.error(`this._observers does not contain a valid observer for attr: "${key}". attr.observer is currently: "${attr.observer}".`);
+                    console.error(`This attributes inspector does not contain a valid observer for attr: "${key}". attr.observer is currently: "${attr.observer}".`);
+            } else {
+                field.link(this._observers, attr.path || attr.paths);
             }
         }
 

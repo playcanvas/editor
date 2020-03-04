@@ -31,6 +31,27 @@ Object.assign(pcui, (function () {
             this._attributesInspector.getField('addGroupButton').on('click', () => {
                 this._addItem();
             });
+
+            this._loadItems(true);
+
+            const evtNewBatchGroup = this._projectSettings.on('*:set', (path, value) => {
+                if (/^batchGroups\.\d+$/.test(path)) {
+                    this._loadItems();
+                }
+            });
+
+            const evtDeleteBatchGroup = this._projectSettings.on('*:unset', (path, value) => {
+                if (/^batchGroups\.\d+$/.test(path)) {
+                    this._loadItems();
+                }
+            });
+            this._evts.push(evtNewBatchGroup);
+            this._evts.push(evtDeleteBatchGroup);
+
+            // reference
+            if (!this._panelTooltip) {
+                this._panelTooltip = editor.call('attributes:reference:attach', 'settings:batchGroups', this.header, this.header.dom);
+            }
         }
 
         _addItem() {
@@ -144,52 +165,12 @@ Object.assign(pcui, (function () {
                 let item = this._items.find(item => item.id === batchGroupId);
                 if (!item) {
                     // load new batch groups into this panel
-                    item = new pcui.BatchgroupsSettingsPanelItem({ history: this._args.history, id: batchGroupId, class: CLASS_ITEM, onRemove: () => this.removeItem(batchGroupId) });
+                    item = new pcui.BatchgroupsSettingsPanelItem({ history: this._args.history, projectSettings: this._args.projectSettings, id: batchGroupId, class: CLASS_ITEM, onRemove: () => this.removeItem(batchGroupId) });
                     item.id = batchGroupId;
                     this._items.push(item);
-                    item.link({ projectSettings: this._projectSettings }, initialLoad);
                     this._itemsContainer.append(item);
-                } else {
-                    // relink old batchgroups
-                    item.link({ projectSettings: this._projectSettings });
                 }
             });
-        }
-
-        link(observers) {
-            super.link(observers);
-            this._loadItems(true);
-
-            const evtNewBatchGroup = this._projectSettings.on('*:set', (path, value) => {
-                if (/^batchGroups\.\d+$/.test(path)) {
-                    this._loadItems();
-                }
-            });
-
-            const evtDeleteBatchGroup = this._projectSettings.on('*:unset', (path, value) => {
-                if (/^batchGroups\.\d+$/.test(path)) {
-                    this._loadItems();
-                }
-            });
-            this._evts.push(evtNewBatchGroup);
-            this._evts.push(evtDeleteBatchGroup);
-
-            // reference
-            if (!this._panelTooltip) {
-                this._panelTooltip = editor.call('attributes:reference:attach', 'settings:batchGroups', this.header, this.header.dom);
-            }
-        }
-
-        unlink() {
-            super.unlink();
-
-            if (this._items.length > 0) {
-                this._removeItems();
-            }
-            if (this._evts.length > 0) {
-                this._evts.forEach(evt => evt.unbind());
-                this._evts = [];
-            }
         }
     }
 

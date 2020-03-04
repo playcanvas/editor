@@ -1,3 +1,38 @@
+editor.once('load', function () {
+    'use strict';
+
+    const hasPcuiSettings = editor.call('users:hasFlag', 'hasPcuiSettings');
+    if (!hasPcuiSettings)
+        return;
+
+    const settingsArgs = {
+        assets: editor.call('assets:raw'),
+        history: editor.call('editor:history'),
+        settings: editor.call('settings:projectUser'),
+        projectSettings: editor.call('settings:project'),
+        userSettings: editor.call('settings:user'),
+        sceneSettings: editor.call('sceneSettings')
+    };
+
+    const settingsContainer = new pcui.Settings(settingsArgs);
+
+    editor.on('attributes:beforeClear', () => {
+        settingsContainer.unlink();
+        if (settingsContainer.parent) {
+            settingsContainer.parent.remove(settingsContainer);
+        }
+    });
+
+    editor.on('attributes:inspect[editorSettings]', () => {
+        const root = editor.call('attributes.rootPanel');
+
+        if (!settingsContainer.parent)
+            root.append(settingsContainer);
+        // settingsContainer.link([]);
+    });
+
+});
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -37,7 +72,11 @@ Object.assign(pcui, (function () {
     const DOM = parent => [
         {
             sceneAttributes: new pcui.AttributesInspector({
-                attributes: SCENE_ATTRIBUTES
+                attributes: SCENE_ATTRIBUTES,
+                settings: parent._args.settings,
+                projectSettings: parent._args.projectSettings,
+                userSettings: parent._args.userSettings,
+                sceneSettings: parent._args.sceneSettings
             })
         }
     ];
@@ -60,6 +99,8 @@ Object.assign(pcui, (function () {
             editor.on('scene:raw', (data) => {
                 editor.emit('scene:name', data.name);
                 this._sceneName = data.name;
+                const sceneNameField = this._sceneAttributes.getField('name');
+                sceneNameField.value = this._sceneName;
             });
             editor.on('realtime:scene:op:name', (op) => {
                 editor.emit('scene:name', op.oi);
@@ -72,11 +113,24 @@ Object.assign(pcui, (function () {
                 const cls = `${setting[0].toUpperCase()}${setting.substring(1)}SettingsPanel`;
                 const panel = new pcui[cls]({
                     history: args.history,
-                    assets: args.assets
+                    assets: args.assets,
+                    settings: args.settings,
+                    projectSettings: args.projectSettings,
+                    userSettings: args.userSettings,
+                    sceneSettings: args.sceneSettings
                 });
                 this._settingsPanels[setting] = panel;
 
                 this.append(panel);
+            });
+
+            this._linkSceneNameField();
+
+            SCENE_ATTRIBUTES.forEach((attr, i) => {
+                if (attr.reference && !attr.tooltip) {
+                    const attributeLabel = this._sceneAttributes.getField(attr.path || attr.alias).parent.label;
+                    SCENE_ATTRIBUTES[i].tooltip = editor.call('attributes:reference:attach', attr.reference, attributeLabel);
+                }
             });
         }
 
@@ -92,32 +146,6 @@ Object.assign(pcui, (function () {
                 this._sceneName = newSceneName;
                 editor.emit('scene:name', newSceneName);
             }));
-        }
-
-        link(observers) {
-            this.unlink();
-
-            this._linkSceneNameField();
-
-            SETTING_TYPES.forEach(setting => {
-                this._settingsPanels[setting].link(observers);
-            });
-
-            SCENE_ATTRIBUTES.forEach((attr, i) => {
-                if (attr.reference && !attr.tooltip) {
-                    const attributeLabel = this._sceneAttributes.getField(attr.path || attr.alias).parent.label;
-                    SCENE_ATTRIBUTES[i].tooltip = editor.call('attributes:reference:attach', attr.reference, attributeLabel);
-                }
-            });
-        }
-
-        unlink() {
-            this._settingsEvents.forEach(evt => evt.unbind());
-            this._settingsEvents = [];
-
-            SETTING_TYPES.forEach(setting => {
-                this._settingsPanels[setting].unlink();
-            });
         }
     }
 

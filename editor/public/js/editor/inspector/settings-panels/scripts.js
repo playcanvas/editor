@@ -24,8 +24,20 @@ Object.assign(pcui, (function () {
             const dragEndEvt = this._scriptListContainer.on('child:dragend', (_, newIndex, oldIndex) => {
                 this._projectSettings.move('scripts', oldIndex, newIndex);
             });
+            editor.once('assets:load', () => {
+                this._loadedInitialScripts = true;
+                this._updateScriptList();
+                const events = ['*:set', '*:unset', 'scripts:remove', 'scripts:move', 'scripts:insert'];
+                events.forEach(evt => {
+                    this._scriptEvents.push(this._projectSettings.on(evt, () => {
+                        this._clearScriptList();
+                        this._updateScriptList();
+                    }));
+                });
+            });
 
             this.once('destroy', () => {
+
                 dragEndEvt.unbind();
             });
         }
@@ -47,8 +59,8 @@ Object.assign(pcui, (function () {
                 this._scriptList.push(scriptPanel);
                 this._scriptListContainer.append(scriptPanel);
             });
-
         }
+
 
         _clearScriptList() {
             this._scriptList.forEach(scriptPanel => {
@@ -56,26 +68,6 @@ Object.assign(pcui, (function () {
                 scriptPanel.destroy();
             });
             this._scriptList = [];
-        }
-
-        link(observers) {
-            super.link(observers);
-            this._updateScriptList();
-            const events = ['*:set', '*:unset', 'scripts:remove', 'scripts:move', 'scripts:insert'];
-            events.forEach(evt => {
-                this._scriptEvents.push(this._projectSettings.on(evt, () => {
-                    this._clearScriptList();
-                    this._updateScriptList();
-                }));
-            });
-        }
-
-        unlink() {
-            if (this._scriptList.length < 1) return;
-            super.unlink();
-            this._clearScriptList();
-            this._scriptEvents.forEach(evt => evt.unbind());
-            this._scriptEvents = [];
         }
     }
 

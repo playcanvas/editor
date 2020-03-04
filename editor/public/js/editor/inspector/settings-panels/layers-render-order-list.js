@@ -14,6 +14,10 @@ Object.assign(pcui, (function () {
             super(args);
 
             this._args = args;
+            this._settings = args.settings;
+            this._projectSettings = args.projectSettings;
+            this._userSettings = args.userSettings;
+            this._sceneSettings = args.sceneSettings;
             this._layerEvents = [];
 
             this._layerListContainer = new pcui.Container();
@@ -30,6 +34,16 @@ Object.assign(pcui, (function () {
             this._layerList = [];
 
             this.class.add(CLASS_RENDER_ORDER_LIST_CONTAINER);
+
+            this._updateLayerList();
+            this._layerUpdateEvts = [];
+            const events = ['*:set', '*:unset', 'layerOrder:remove', 'layerOrder:insert', 'layerOrder:move'];
+            events.forEach(evt => {
+                this._layerUpdateEvts.push(this._projectSettings.on(evt, () => {
+                    this._clearLayerList();
+                    this._updateLayerList();
+                }));
+            });
         }
 
         _updateLayerList() {
@@ -111,27 +125,6 @@ Object.assign(pcui, (function () {
             });
             this._layerList = [];
             this._layerEvents.forEach(evt => evt.unbind());
-        }
-
-        link(projectSettings) {
-            this.unlink();
-            this._projectSettings = projectSettings;
-            this._updateLayerList();
-            this._layerUpdateEvts = [];
-            const events = ['*:set', '*:unset', 'layerOrder:remove', 'layerOrder:insert', 'layerOrder:move'];
-            events.forEach(evt => {
-                this._layerUpdateEvts.push(this._projectSettings.on(evt, () => {
-                    this._clearLayerList();
-                    this._updateLayerList();
-                }));
-            });
-        }
-
-        unlink() {
-            if (!this._layerUpdateEvts) return;
-            super.unlink();
-            this._clearLayerList();
-            this._layerUpdateEvts.forEach(evt => evt.unbind());
         }
     }
 

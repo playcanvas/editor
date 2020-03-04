@@ -8,12 +8,24 @@ Object.assign(pcui, (function () {
 
             super(args);
             this._args = args;
+            this._settings = args.settings;
+            this._projectSettings = args.projectSettings;
+            this._userSettings = args.userSettings;
+            this._sceneSettings = args.sceneSettings;
+
+            this.collapsed = true;
+
             if (args.attributes) {
                 this._attributesInspector = new pcui.AttributesInspector({
                     history: args.history,
                     assets: args.assets,
+                    settings: args.settings,
+                    projectSettings: args.projectSettings,
+                    userSettings: args.userSettings,
+                    sceneSettings: args.sceneSettings,
                     attributes: this._generateAttributeReferences(args.attributes, args.splitReferencePath)
                 });
+                this._attributesInspector.link([]);
                 this.append(this._attributesInspector);
             }
 
@@ -34,48 +46,6 @@ Object.assign(pcui, (function () {
                 }
                 return attr;
             });
-        }
-
-
-        link({ settings, projectSettings, userSettings, sceneSettings }) {
-            this.unlink();
-            this._settings = settings;
-            this._projectSettings = projectSettings;
-            this._userSettings = userSettings;
-            this._sceneSettings = sceneSettings;
-
-            if (!this._hasVisited) {
-                this._hasVisited = true;
-                this.collapsed = true;
-            }
-            if (this._attributesInspector) {
-                this._attributesInspector.link({ settings, projectSettings, userSettings, sceneSettings });
-                this._args.attributes.forEach((attr, i) => {
-                    if (attr.reference && !attr.tooltip) {
-                        if (attr.type === 'asset') {
-                            const attributeElement = this._attributesInspector.getField(attr.path || attr.alias);
-                            this._args.attributes[i].tooltip = editor.call('attributes:reference:attach', attr.reference, attributeElement.label);
-                        } else {
-                            const attributeLabel = this._attributesInspector.getField(attr.path || attr.alias).parent.label;
-                            this._args.attributes[i].tooltip = editor.call('attributes:reference:attach', attr.reference, attributeLabel);
-                        }
-                    }
-                });
-            }
-        }
-
-        unlink() {
-            if (!this._settings)
-                return;
-
-            this._settings = null;
-            this._projectSettings = null;
-            this._userSettings = null;
-            this._sceneSettings = null;
-
-            if (this._attributesInspector) {
-                this._attributesInspector.unlink();
-            }
         }
     }
 

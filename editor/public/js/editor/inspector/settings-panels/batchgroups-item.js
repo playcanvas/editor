@@ -49,6 +49,7 @@ Object.assign(pcui, (function () {
 
             super(args);
             this._args = args;
+            this._projectSettings = this._args.projectSettings;
 
             const evtRemove = this.on('click:remove', args.onRemove);
             this._evts = [];
@@ -57,17 +58,9 @@ Object.assign(pcui, (function () {
                 evtRemove.unbind();
                 evtName.unbind();
             });
-        }
 
-        link(observers, oldItem = true) {
-            super.link(observers);
             const batchGroup = this._projectSettings.get(`batchGroups.${this._args.id}`);
             this.headerText = batchGroup.name;
-            this.collapsed = oldItem;
-
-            if (!oldItem) {
-                this._attributesInspector.getField(`batchGroups.${this._args.id}.name`).focus();
-            }
 
             const layerOptions = [];
             for (const key in this._projectSettings.get('layers')) {
@@ -83,14 +76,6 @@ Object.assign(pcui, (function () {
             this._evts.push(this._projectSettings.on('batchGroups.' + this._args.id + '.name:set', (value) => {
                 this.headerText = value;
             }));
-        }
-
-        unlink() {
-            super.unlink();
-            if (this._evts.length > 0) {
-                this._evts.forEach(evt => evt.unbind());
-            }
-            this._evts = [];
         }
     }
 

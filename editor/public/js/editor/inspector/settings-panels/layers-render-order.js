@@ -37,10 +37,14 @@ Object.assign(pcui, (function () {
             super(args);
 
             this._args = args;
+            this._settings = args.settings;
+            this._projectSettings = args.projectSettings;
+            this._userSettings = args.userSettings;
+            this._sceneSettings = args.sceneSettings;
 
             this.class.add(CLASS_RENDER_ORDER_PANEL);
 
-            this._renderOrderList = new pcui.LayersSettingsPanelRenderOrderList();
+            this._renderOrderList = new pcui.LayersSettingsPanelRenderOrderList(args);
             this.append(this._renderOrderList);
 
             this._addSubLayerButton = this._attributesInspector.getField('addSubLayerButton');
@@ -82,6 +86,17 @@ Object.assign(pcui, (function () {
                     this._addSubLayerSelect.hidden = true;
                 }
             });
+
+            this._updateAddSublayerOptions();
+
+            this._layerUpdateEvts = [];
+            const events = ['*:set', '*:unset', 'layerOrder:remove', 'layerOrder:insert', 'layerOrder:move'];
+            events.forEach(evt => {
+                this._layerUpdateEvts.push(this._projectSettings.on(evt, () => {
+                    this._updateAddSublayerOptions();
+                }));
+            });
+            this.collapsed = false;
         }
 
         _updateAddSublayerOptions() {
@@ -111,28 +126,6 @@ Object.assign(pcui, (function () {
                 return !layerIsInLayerOrder;
             });
             this._addSubLayerSelect.options = options;
-        }
-
-        link(observers) {
-            super.link(observers);
-            this._updateAddSublayerOptions();
-
-            this._layerUpdateEvts = [];
-            const events = ['*:set', '*:unset', 'layerOrder:remove', 'layerOrder:insert', 'layerOrder:move'];
-            events.forEach(evt => {
-                this._layerUpdateEvts.push(this._projectSettings.on(evt, () => {
-                    this._updateAddSublayerOptions();
-                }));
-            });
-            this._renderOrderList.link(this._projectSettings);
-            this.collapsed = false;
-        }
-
-        unlink() {
-            if (!this._layerUpdateEvts) return;
-            super.unlink();
-            this._renderOrderList.unlink();
-            this._layerUpdateEvts.forEach(evt => evt.unbind());
         }
     }
 

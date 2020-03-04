@@ -25,14 +25,19 @@ Object.assign(pcui, (function () {
         }
     ];
 
-    const DOM = () => [
+    const DOM = args => [
         {
             layersContainer: new pcui.Container({
                 class: CLASS_LAYERS_CONTAINER
             })
         },
         {
-            layersRenderOrderPanel: new pcui.LayersSettingsPanelRenderOrderPanel()
+            layersRenderOrderPanel: new pcui.LayersSettingsPanelRenderOrderPanel({
+                settings: args.settings,
+                projectSettings: args.projectSettings,
+                userSettings: args.userSettings,
+                sceneSettings: args.sceneSettings
+            })
         }
     ];
 
@@ -44,7 +49,7 @@ Object.assign(pcui, (function () {
 
             super(args);
 
-            this.buildDom(DOM());
+            this.buildDom(DOM(args));
 
             this._layerPanels = [];
             this._layerEvents = [];
@@ -53,6 +58,22 @@ Object.assign(pcui, (function () {
             this.once('destroy', () => {
                 clickAddLayerEvt.unbind();
             });
+
+            this._loadLayers();
+
+            this._layerEvents.push(this._projectSettings.on('*:set', () => {
+                this._removeLayers();
+                this._loadLayers();
+            }));
+            this._layerEvents.push(this._projectSettings.on('*:unset', () => {
+                this._removeLayers();
+                this._loadLayers();
+            }));
+
+            // reference
+            if (!this._panelTooltip) {
+                this._panelTooltip = editor.call('attributes:reference:attach', 'settings:layers', this.header, this.header.dom);
+            }
         }
 
         _addLayer() {
@@ -113,10 +134,16 @@ Object.assign(pcui, (function () {
             layerNameField.class.remove(pcui.CLASS_ERROR);
         }
 
-        _loadLayers(observers) {
+        _loadLayers() {
             Object.keys(this._projectSettings.get('layers')).forEach(layerKey => {
-                const layerPanel = new pcui.LayersSettingsPanelLayerPanel({ history: this._args.history, layerKey });
-                layerPanel.link(observers);
+                const layerPanel = new pcui.LayersSettingsPanelLayerPanel({
+                    history: this._args.history,
+                    settings: this._args.settings,
+                    projectSettings: this._args.projectSettings,
+                    userSettings: this._args.userSettings,
+                    sceneSettings: this._args.sceneSettings,
+                    layerKey
+                });
                 this._layerPanels.push(layerPanel);
                 this._layersContainer.append(layerPanel);
             });
@@ -129,35 +156,6 @@ Object.assign(pcui, (function () {
                 this._layersContainer.remove(layerPanel);
             });
             this._layerPanels = [];
-        }
-
-        link(observers) {
-            super.link(observers);
-            this._loadLayers(observers);
-
-            this._layerEvents.push(this._projectSettings.on('*:set', () => {
-                this._removeLayers();
-                this._loadLayers(observers);
-            }));
-            this._layerEvents.push(this._projectSettings.on('*:unset', () => {
-                this._removeLayers();
-                this._loadLayers(observers);
-            }));
-
-            this._layersRenderOrderPanel.link(observers);
-
-            // reference
-            if (!this._panelTooltip) {
-                this._panelTooltip = editor.call('attributes:reference:attach', 'settings:layers', this.header, this.header.dom);
-            }
-        }
-
-        unlink() {
-            super.unlink();
-            this._removeLayers();
-            this._layerEvents.forEach(evt => evt.unbind());
-            this._layerEvents = [];
-            this._layersRenderOrderPanel.unlink();
         }
     }
 

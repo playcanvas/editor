@@ -57,6 +57,10 @@ Object.assign(pcui, (function () {
             super(args);
 
             this._args = args;
+            this._settings = args.settings;
+            this._projectSettings = args.projectSettings;
+            this._userSettings = args.userSettings;
+            this._sceneSettings = args.sceneSettings;
 
             this.class.add(CLASS_LAYER_PANEL);
 
@@ -85,6 +89,17 @@ Object.assign(pcui, (function () {
                 removeLayerEvt.unbind();
                 if (deleteTooltip) deleteTooltip.destroy();
             });
+
+            this.headerText = this._projectSettings.get('layers')[this._args.layerKey].name;
+
+            this._nameLabel = this._attributesInspector.getField(`layers.${this._args.layerKey}.name`).parent.label;
+            this._nameLabelTooltip = editor.call('attributes:reference:attach', `settings:layers:name`, this._nameLabel);
+
+            this._opaqueSortLabel = this._attributesInspector.getField(`layers.${this._args.layerKey}.opaqueSortMode`).parent.label;
+            this._opaqueSortLabelTooltip = editor.call('attributes:reference:attach', `settings:layers:opaqueSort`, this._opaqueSortLabel);
+
+            this._tansparentSortModeLabel = this._attributesInspector.getField(`layers.${this._args.layerKey}.transparentSortMode`).parent.label;
+            this._tansparentSortModeLabelTooltip = editor.call('attributes:reference:attach', 'settings:layers:transparentSort', this._tansparentSortModeLabel);
         }
 
         _removeLayer() {
@@ -148,27 +163,6 @@ Object.assign(pcui, (function () {
             });
 
             redo();
-        }
-
-        link(observers) {
-            super.link(observers);
-            this.headerText = this._projectSettings.get('layers')[this._args.layerKey].name;
-
-            this._nameLabel = this._attributesInspector.getField(`layers.${this._args.layerKey}.name`).parent.label;
-            if (!this._nameLabelTooltip)
-                this._nameLabelTooltip = editor.call('attributes:reference:attach', `settings:layers:name`, this._nameLabel);
-
-            this._opaqueSortLabel = this._attributesInspector.getField(`layers.${this._args.layerKey}.opaqueSortMode`).parent.label;
-            if (!this._opaqueSortLabelTooltip)
-                this._opaqueSortLabelTooltip = editor.call('attributes:reference:attach', `settings:layers:opaqueSort`, this._opaqueSortLabel);
-
-            this._tansparentSortModeLabel = this._attributesInspector.getField(`layers.${this._args.layerKey}.transparentSortMode`).parent.label;
-            if (!this._tansparentSortModeLabelTooltip)
-                this._tansparentSortModeLabelTooltip = editor.call('attributes:reference:attach', 'settings:layers:transparentSort', this._tansparentSortModeLabel);
-        }
-
-        unlink() {
-            super.unlink();
         }
     }
 

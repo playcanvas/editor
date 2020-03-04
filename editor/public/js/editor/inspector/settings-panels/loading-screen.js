@@ -87,6 +87,15 @@ Object.assign(pcui, (function () {
                 this._selectExistingTooltip.destroy();
                 this._createDefaultTooltip.destroy();
             });
+
+            editor.once('assets:load', () => {
+                this._loadLayout();
+            });
+            this._projectSettings.on('*:set', path => {
+                if (path === 'loadingScreenScript') {
+                    this._loadLayout();
+                }
+            });
         }
 
         _loadLayout() {
@@ -143,20 +152,6 @@ Object.assign(pcui, (function () {
                     }
                 });
             });
-        }
-
-        link(observers) {
-            super.link(observers);
-            this._loadLayout();
-            this._projectSettings.on('*:set', path => {
-                if (path === 'loadingScreenScript') {
-                    this._loadLayout();
-                }
-            });
-        }
-
-        unlink() {
-            // always stay linked to the same settings attribute
         }
     }
 
