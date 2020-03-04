@@ -62,6 +62,26 @@ Object.assign(pcui, (function () {
             const batchGroup = this._projectSettings.get(`batchGroups.${this._args.id}`);
             this.headerText = batchGroup.name;
 
+            this._updateLayerOptions();
+
+            this._evts.push(this._projectSettings.on('batchGroups.' + this._args.id + '.name:set', (value) => {
+                this.headerText = value;
+            }));
+
+            this._evts.push(this._projectSettings.on('*:set', (path) => {
+                if (path.includes('layers')) {
+                    this._updateLayerOptions();
+                }
+            }));
+
+            this._evts.push(this._projectSettings.on('*:unset', (path) => {
+                if (path.includes('layers')) {
+                    this._updateLayerOptions();
+                }
+            }));
+        }
+
+        _updateLayerOptions() {
             const layerOptions = [];
             for (const key in this._projectSettings.get('layers')) {
                 if (![LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE].includes(parseInt(key, 10))) {
@@ -72,10 +92,6 @@ Object.assign(pcui, (function () {
                 }
             }
             this._attributesInspector.getField(`batchGroups.${this._args.id}.layers`).options = layerOptions;
-
-            this._evts.push(this._projectSettings.on('batchGroups.' + this._args.id + '.name:set', (value) => {
-                this.headerText = value;
-            }));
         }
     }
 

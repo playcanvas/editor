@@ -166,6 +166,9 @@ Object.assign(pcui, (function () {
                 if (!item) {
                     // load new batch groups into this panel
                     item = new pcui.BatchgroupsSettingsPanelItem({ history: this._args.history, projectSettings: this._args.projectSettings, id: batchGroupId, class: CLASS_ITEM, onRemove: () => this.removeItem(batchGroupId) });
+                    if (!initialLoad) {
+                        item.collapsed = false;
+                    }
                     item.id = batchGroupId;
                     this._items.push(item);
                     this._itemsContainer.append(item);

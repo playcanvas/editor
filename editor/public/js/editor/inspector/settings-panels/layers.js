@@ -59,11 +59,9 @@ Object.assign(pcui, (function () {
             this._loadLayers();
 
             this._layerEvents.push(this._projectSettings.on('*:set', () => {
-                this._removeLayers();
                 this._loadLayers();
             }));
             this._layerEvents.push(this._projectSettings.on('*:unset', () => {
-                this._removeLayers();
                 this._loadLayers();
             }));
 
@@ -134,27 +132,32 @@ Object.assign(pcui, (function () {
         }
 
         _loadLayers() {
-            Object.keys(this._projectSettings.get('layers')).forEach(layerKey => {
-                const layerPanel = new pcui.LayersSettingsPanelLayerPanel({
-                    history: this._args.history,
-                    settings: this._args.settings,
-                    projectSettings: this._args.projectSettings,
-                    userSettings: this._args.userSettings,
-                    sceneSettings: this._args.sceneSettings,
-                    layerKey
-                });
-                this._layerPanels.push(layerPanel);
-                this._layersContainer.append(layerPanel);
-            });
-        }
-
-        _removeLayers() {
+            const keepLayerPanels = [];
             this._layerPanels.forEach(layerPanel => {
-                layerPanel.unlink();
-                layerPanel.destroy();
-                this._layersContainer.remove(layerPanel);
+                if (this._projectSettings.get('layers')[layerPanel.layerKey]) {
+                    keepLayerPanels.push(layerPanel);
+                } else {
+                    this._layersContainer.remove(layerPanel);
+                }
             });
-            this._layerPanels = [];
+            this._layerPanels = keepLayerPanels;
+
+            Object.keys(this._projectSettings.get('layers')).forEach(layerKey => {
+                let layerPanel = this._layerPanels.find(layerPanel => layerPanel.layerKey === layerKey);
+                if (!layerPanel) {
+                    layerPanel = new pcui.LayersSettingsPanelLayerPanel({
+                        history: this._args.history,
+                        settings: this._args.settings,
+                        projectSettings: this._args.projectSettings,
+                        userSettings: this._args.userSettings,
+                        sceneSettings: this._args.sceneSettings,
+                        layerKey
+                    });
+                    layerPanel.layerKey = layerKey;
+                    this._layerPanels.push(layerPanel);
+                    this._layersContainer.append(layerPanel);
+                }
+            });
         }
     }
 
