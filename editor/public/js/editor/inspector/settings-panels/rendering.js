@@ -149,14 +149,22 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'sceneSettings',
-            label: 'Distance',
+            label: 'Distance Start',
             alias: 'fogDistance',
-            paths: ['render.fog_start', 'render.fog_end'],
-            type: 'vec2',
+            path: 'render.fog_start',
+            type: 'number',
             args: {
-                min: 0,
-                placeholder: ['Start', 'End'],
-                vectorElementsHaveOwnPath: true
+                min: 0
+            }
+        },
+        {
+            observer: 'sceneSettings',
+            label: 'Distance End',
+            alias: 'fogDistance',
+            path: 'render.fog_end',
+            type: 'number',
+            args: {
+                min: 0
             }
         },
         {
@@ -178,13 +186,20 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'projectSettings',
-            label: 'Resolution',
-            paths: ['width', 'height'],
-            type: 'vec2',
+            label: 'Resolution Width',
+            path: 'width',
+            type: 'number',
             args: {
-                min: 1,
-                placeholder: ['w', 'h'],
-                vectorElementsHaveOwnPath: true
+                min: 1
+            }
+        },
+        {
+            observer: 'projectSettings',
+            label: 'Resolution Height',
+            paths: 'height',
+            type: 'number',
+            args: {
+                min: 1
             }
         },
         {
@@ -288,22 +303,26 @@ Object.assign(pcui, (function () {
             const fogChangeEvt = fogAttribute.on('change', value => {
                 switch (value) {
                     case 'none':
-                        this._attributesInspector.getField('fogDistance').parent.hidden = true;
+                        this._attributesInspector.getField('render.fog_start').parent.hidden = true;
+                        this._attributesInspector.getField('render.fog_end').parent.hidden = true;
                         this._attributesInspector.getField('render.fog_density').parent.hidden = true;
                         this._attributesInspector.getField('render.fog_color').parent.hidden = true;
                         break;
                     case 'linear':
-                        this._attributesInspector.getField('fogDistance').parent.hidden = false;
+                        this._attributesInspector.getField('render.fog_start').parent.hidden = false;
+                        this._attributesInspector.getField('render.fog_end').parent.hidden = false;
                         this._attributesInspector.getField('render.fog_density').parent.hidden = true;
                         this._attributesInspector.getField('render.fog_color').parent.hidden = false;
                         break;
                     case 'exp':
-                        this._attributesInspector.getField('fogDistance').parent.hidden = true;
+                        this._attributesInspector.getField('render.fog_start').parent.hidden = true;
+                        this._attributesInspector.getField('render.fog_end').parent.hidden = true;
                         this._attributesInspector.getField('render.fog_density').parent.hidden = false;
                         this._attributesInspector.getField('render.fog_color').parent.hidden = false;
                         break;
                     case 'exp2':
-                        this._attributesInspector.getField('fogDistance').parent.hidden = true;
+                        this._attributesInspector.getField('render.fog_start').parent.hidden = true;
+                        this._attributesInspector.getField('render.fog_end').parent.hidden = true;
                         this._attributesInspector.getField('render.fog_density').parent.hidden = false;
                         this._attributesInspector.getField('render.fog_color').parent.hidden = false;
                         break;

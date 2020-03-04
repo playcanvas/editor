@@ -4,15 +4,24 @@ Object.assign(pcui, (function () {
     const ATTRIBUTES = [
         {
             observer: 'settings',
-            label: 'Grid',
-            paths: ['editor.gridDivisions', 'editor.gridDivisionSize'],
+            label: 'Grid Divisions',
+            path: 'editor.gridDivisions',
             alias: 'grid',
-            type: 'vec2',
+            type: 'number',
             args: {
                 min: 0,
-                max: 100,
-                placeholder: ['Divisions', 'Size'],
-                vectorElementsHaveOwnPath: true
+                max: 100
+            }
+        },
+        {
+            observer: 'settings',
+            label: 'Grid Division Size',
+            path: 'editor.gridDivisionSize',
+            alias: 'grid',
+            type: 'number',
+            args: {
+                min: 0,
+                max: 100
             }
         },
         {
@@ -29,14 +38,22 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'settings',
-            label: 'Camera Clip',
+            label: 'Camera Clip Near',
             alias: 'cameraClip',
-            paths: ['editor.cameraNearClip', 'editor.cameraFarClip'],
-            type: 'vec2',
+            paths: 'editor.cameraNearClip',
+            type: 'number',
             args: {
-                min: 0,
-                placeholder: ['Near', 'Far'],
-                vectorElementsHaveOwnPath: true
+                min: 0
+            }
+        },
+        {
+            observer: 'settings',
+            label: 'Camera Clip Far',
+            alias: 'cameraClip',
+            path: 'editor.cameraFarClip',
+            type: 'number',
+            args: {
+                min: 0
             }
         },
         {
@@ -50,7 +67,7 @@ Object.assign(pcui, (function () {
             observer: 'userSettings',
             label: 'Icons Size',
             path: 'editor.iconSize',
-            alias: 'iconsSize',
+            alias: 'iconSize',
             type: 'number',
             args: {
                 min: 0,
