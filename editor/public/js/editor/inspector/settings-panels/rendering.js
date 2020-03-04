@@ -63,6 +63,9 @@ Object.assign(pcui, (function () {
             }
         },
         {
+            type: 'divider'
+        },
+        {
             observer: 'sceneSettings',
             label: 'Tonemapping',
             alias: 'toneMapping',
@@ -119,6 +122,9 @@ Object.assign(pcui, (function () {
                     }
                 ]
             }
+        },
+        {
+            type: 'divider'
         },
         {
             observer: 'sceneSettings',
@@ -183,6 +189,9 @@ Object.assign(pcui, (function () {
             alias: 'fogColor',
             path: 'render.fog_color',
             type: 'rgb'
+        },
+        {
+            type: 'divider'
         },
         {
             observer: 'projectSettings',
@@ -282,6 +291,9 @@ Object.assign(pcui, (function () {
             path: 'preserveDrawingBuffer'
         },
         {
+            type: 'divider'
+        },
+        {
             label: 'Basis Library',
             alias: 'basis',
             type: 'button',
@@ -345,18 +357,6 @@ Object.assign(pcui, (function () {
             } else {
                 this._attributesInspector.getField('basis').parent.hidden = true;
             }
-
-            // add dividers
-            this._appendDivider(this._attributesInspector.getField('render.skyboxMip'));
-            this._appendDivider(this._attributesInspector.getField('render.gamma_correction'));
-            this._appendDivider(this._attributesInspector.getField('render.fog_color'));
-            this._appendDivider(this._attributesInspector.getField('preserveDrawingBuffer'));
-        }
-
-        _appendDivider(attributeElement) {
-            const divider = document.createElement('div');
-            divider.classList.add(CLASS_DIVIDER);
-            attributeElement.parent.parent.appendAfter(divider, attributeElement.parent);
         }
     }
 
