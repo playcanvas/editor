@@ -3,8 +3,11 @@ editor.once('load', function() {
     const hasPcuiSettings = editor.call('users:hasFlag', 'hasPcuiSettings');
     if (!hasPcuiSettings)
         return;
+
+    var projectSettings = editor.call('settings:project');
+
     editor.method('editorSettings:batchGroups:create', (name) => {
-        const batchGroups = this._projectSettings.get('batchGroups');
+        const batchGroups = projectSettings.get('batchGroups');
 
         // calculate id of new group and new name
         let id = 100000;
@@ -12,7 +15,7 @@ editor.once('load', function() {
             id = Math.max(parseInt(key, 10) + 1, id);
         }
 
-        this._projectSettings.set('batchGroups.' + id, {
+        projectSettings.set('batchGroups.' + id, {
             id: id,
             name: name || 'New Batch Group',
             maxAabbSize: 100,
@@ -20,13 +23,6 @@ editor.once('load', function() {
         });
 
         return id;
-    });
-
-    editor.method('editorSettings:batchGroups:focus', (groupId) => {
-        this.collapsed = false;
-        const item = this._items.find(item => item.id === groupId.toString());
-        item.collapsed = false;
-        item._attributesInspector.getField(`batchGroups.${groupId}.name`).focus();
     });
 });
 
@@ -204,6 +200,8 @@ Object.assign(pcui, (function () {
                     item = new pcui.BatchgroupsSettingsPanelItem({ history: this._args.history, projectSettings: this._args.projectSettings, id: batchGroupId, class: CLASS_ITEM, onRemove: () => this.removeItem(batchGroupId) });
                     if (!initialLoad) {
                         item.collapsed = false;
+                        this.collapsed = false;
+                        item._attributesInspector.getField(`batchGroups.${batchGroupId}.name`).focus();
                     }
                     item.id = batchGroupId;
                     this._items.push(item);
