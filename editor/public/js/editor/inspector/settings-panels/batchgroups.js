@@ -82,14 +82,14 @@ Object.assign(pcui, (function () {
                 projectSettings.unset('batchGroups.' + groupId);
                 projectSettings.history.enabled = settingsHistory;
 
-                const entities = editor.call('entities:list');
+                const entities = this._entities;
                 for (let i = 0, len = entities.length; i < len; i++) {
                     const entity = entities[i];
 
                     if (entity.get('components.model.batchGroupId') === groupId) {
                         const history = entity.history.enabled;
                         entity.history.enabled = false;
-                        affectedModels.push(entity.get('resource_id'));
+                        affectedModels.push(entity);
                         entity.set('components.model.batchGroupId', null);
                         entity.history.enabled = history;
                     }
@@ -97,7 +97,7 @@ Object.assign(pcui, (function () {
                     if (entity.get('components.element.batchGroupId') === groupId) {
                         const history = entity.history.enabled;
                         entity.history.enabled = false;
-                        affectedElements.push(entity.get('resource_id'));
+                        affectedElements.push(entity);
                         entity.set('components.element.batchGroupId', null);
                         entity.history.enabled = history;
                     }
@@ -112,7 +112,7 @@ Object.assign(pcui, (function () {
                 projectSettings.history.enabled = settingsHistory;
 
                 for (let i = 0, len = affectedModels.length; i < len; i++) {
-                    const entity = editor.call('entities:get', affectedModels[i]);
+                    const entity = affectedModels[i].latest();
                     if (! entity) continue;
 
                     const history = entity.history.enabled;
@@ -123,7 +123,7 @@ Object.assign(pcui, (function () {
                 affectedModels.length = 0;
 
                 for (let i = 0, len = affectedElements.length; i < len; i++) {
-                    const entity = editor.call('entities:get', affectedElements[i]);
+                    const entity = affectedElements[i].latest();
                     if (! entity) continue;
 
                     const history = entity.history.enabled;

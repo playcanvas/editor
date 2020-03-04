@@ -8,6 +8,7 @@ Object.assign(pcui, (function () {
 
             super(args);
             this._args = args;
+            this._entities = args.entities;
             this._settings = args.settings;
             this._projectSettings = args.projectSettings;
             this._userSettings = args.userSettings;

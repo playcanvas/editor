@@ -105,10 +105,10 @@ Object.assign(pcui, (function () {
         _removeLayer() {
             let prev = null;
             let prevSublayers = [];
-            const projectSettings = this._projectSettings;
+            let projectSettings = this._projectSettings;
 
             const redo = () => {
-                projectSettings.latest();
+                projectSettings = projectSettings.latest();
                 const history = projectSettings.history;
                 projectSettings.history.enabled = false;
                 prev = projectSettings.get('layers.' + this._args.layerKey);
@@ -132,7 +132,7 @@ Object.assign(pcui, (function () {
             };
 
             const undo = () => {
-                projectSettings.latest();
+                projectSettings = projectSettings.latest();
                 const history = projectSettings.history;
                 projectSettings.history.enabled = false;
                 projectSettings.set('layers.' + this._args.layerKey, prev);
@@ -156,11 +156,13 @@ Object.assign(pcui, (function () {
                 projectSettings.history.enabled = history;
             };
 
-            this._args.history.add({
-                name: 'delete layer',
-                undo,
-                redo
-            });
+            if (this._args.history) {
+                this._args.history.add({
+                    name: 'delete layer',
+                    undo,
+                    redo
+                });
+            }
 
             redo();
         }

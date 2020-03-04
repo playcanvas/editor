@@ -54,10 +54,7 @@ Object.assign(pcui, (function () {
             this._layerPanels = [];
             this._layerEvents = [];
 
-            const clickAddLayerEvt = this._attributesInspector.getField('addLayer').on('click', this._addLayer.bind(this));
-            this.once('destroy', () => {
-                clickAddLayerEvt.unbind();
-            });
+            this._attributesInspector.getField('addLayer').on('click', this._addLayer.bind(this));
 
             this._loadLayers();
 
@@ -90,10 +87,10 @@ Object.assign(pcui, (function () {
             };
 
             let newLayerKey = null;
-            const projectSettings = this._projectSettings;
+            let projectSettings = this._projectSettings;
 
             const redo = () => {
-                projectSettings.latest();
+                projectSettings = projectSettings.latest();
                 projectSettings.history.enabled = false;
                 // find max key to insert new layer
                 var maxKey = 1000; // start at 1000 for user layers
@@ -108,7 +105,7 @@ Object.assign(pcui, (function () {
             };
 
             const undo = () => {
-                projectSettings.latest();
+                projectSettings = projectSettings.latest();
                 projectSettings.history.enabled = false;
                 // remove any sublayers that might have
                 // been created by another user
@@ -124,11 +121,13 @@ Object.assign(pcui, (function () {
                 projectSettings.history.enabled = true;
             };
 
-            this._args.history.add({
-                name: 'new layer',
-                undo,
-                redo
-            });
+            if (this._args.history) {
+                this._args.history.add({
+                    name: 'new layer',
+                    undo,
+                    redo
+                });
+            }
 
             redo();
             layerNameField.class.remove(pcui.CLASS_ERROR);

@@ -80,14 +80,6 @@ Object.assign(pcui, (function () {
                 root: editor.call('layout.root')
             });
 
-            this.once('destroy', () => {
-                selectExistingEvt.unbind();
-                createDefaultEvt.unbind();
-                updateAssetEvt.unbind();
-                this._selectExistingTooltip.destroy();
-                this._createDefaultTooltip.destroy();
-            });
-
             editor.once('assets:load', () => {
                 this._loadLayout();
             });

@@ -70,11 +70,11 @@ Object.assign(pcui, (function () {
                 layerPanel.header.append(new pcui.Label({ text: transparent ? 'Transparent' : 'Opaque' }));
                 const enabledCheckbox = new pcui.BooleanInput();
                 this._layerEvents.push(enabledCheckbox.on('change', value => {
-                    this._projectSettings.latest();
-                    const order = this._projectSettings.get('layerOrder');
+                    const projectSettings = this._projectSettings.latest();
+                    const order = projectSettings.get('layerOrder');
                     for (let i = 0; i < order.length; i++) {
                         if (order[i].layer === layer.layer && order[i].transparent === layer.transparent) {
-                            this._projectSettings.set('layerOrder.' + i + '.enabled', value);
+                            projectSettings.set('layerOrder.' + i + '.enabled', value);
                             break;
                         }
                     }
@@ -83,8 +83,8 @@ Object.assign(pcui, (function () {
                 layerPanel.header.append(enabledCheckbox);
 
                 this._layerEvents.push(layerPanel.on('click:remove', () => {
-                    this._projectSettings.latest();
-                    const order = this._projectSettings.get('layerOrder');
+                    const projectSettings = this._projectSettings.latest();
+                    const order = projectSettings.get('layerOrder');
                     let index = null;
                     for (let i = 0, len = order.length; i < len; i++) {
                         if (order[i].layer === layer.layer && order[i].transparent === layer.transparent) {
@@ -93,7 +93,7 @@ Object.assign(pcui, (function () {
                         }
                     }
                     if (index !== null) {
-                        this._projectSettings.remove('layerOrder', index);
+                        projectSettings.remove('layerOrder', index);
                     }
                 }));
 

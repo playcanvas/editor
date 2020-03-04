@@ -7,6 +7,7 @@ editor.once('load', function () {
 
     const settingsArgs = {
         assets: editor.call('assets:raw'),
+        entities: editor.call('entities:list'),
         history: editor.call('editor:history'),
         settings: editor.call('settings:projectUser'),
         projectSettings: editor.call('settings:project'),
@@ -114,6 +115,7 @@ Object.assign(pcui, (function () {
                 const panel = new pcui[cls]({
                     history: args.history,
                     assets: args.assets,
+                    entities: args.entities,
                     settings: args.settings,
                     projectSettings: args.projectSettings,
                     userSettings: args.userSettings,
