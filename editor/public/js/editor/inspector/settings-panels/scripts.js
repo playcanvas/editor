@@ -44,9 +44,11 @@ Object.assign(pcui, (function () {
 
         _updateScriptList() {
             const scripts = this._projectSettings.get('scripts');
+            const assets = this._args.assets;
+            assets.json();
 
             scripts.forEach((script, i) => {
-                const asset = this._args.assets.get(script);
+                const asset = assets.get(script);
                 const scriptPanel = new pcui.Panel({
                     headerText: asset.get('name'),
                     sortable: true,
