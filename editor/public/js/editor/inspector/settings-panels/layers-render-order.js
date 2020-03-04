@@ -100,17 +100,17 @@ Object.assign(pcui, (function () {
         }
 
         _updateAddSublayerOptions() {
-            this._projectSettings.latest();
-            const options = Object.keys(this._projectSettings.get('layers'))
+            const projectSettings = this._projectSettings.latest();
+            const options = Object.keys(projectSettings.get('layers'))
             .map(layerKey => {
                 return [{
                     v: layerKey + '.transparent',
-                    t: this._projectSettings.get('layers')[layerKey].name + ' Transparent',
+                    t: projectSettings.get('layers')[layerKey].name + ' Transparent',
                     layerKey,
                     transparent: true
                 }, {
                     v: layerKey + '.opaque',
-                    t: this._projectSettings.get('layers')[layerKey].name + ' Opaque',
+                    t: projectSettings.get('layers')[layerKey].name + ' Opaque',
                     layerKey,
                     transparent: false
                 }];
@@ -120,7 +120,7 @@ Object.assign(pcui, (function () {
             })
             .flat()
             .filter(layer => {
-                const layerIsInLayerOrder = this._projectSettings.get('layerOrder').find(option => {
+                const layerIsInLayerOrder = projectSettings.get('layerOrder').find(option => {
                     return option.layer === parseInt(layer.layerKey, 10) && option.transparent === layer.transparent;
                 });
                 return !layerIsInLayerOrder;

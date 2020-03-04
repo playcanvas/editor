@@ -1,3 +1,35 @@
+editor.once('load', function() {
+    'use strict';
+    const hasPcuiSettings = editor.call('users:hasFlag', 'hasPcuiSettings');
+    if (!hasPcuiSettings)
+        return;
+    editor.method('editorSettings:batchGroups:create', (name) => {
+        const batchGroups = this._projectSettings.get('batchGroups');
+
+        // calculate id of new group and new name
+        let id = 100000;
+        for (const key in batchGroups) {
+            id = Math.max(parseInt(key, 10) + 1, id);
+        }
+
+        this._projectSettings.set('batchGroups.' + id, {
+            id: id,
+            name: name || 'New Batch Group',
+            maxAabbSize: 100,
+            dynamic: true
+        });
+
+        return id;
+    });
+
+    editor.method('editorSettings:batchGroups:focus', (groupId) => {
+        this.collapsed = false;
+        const item = this._items.find(item => item.id === groupId.toString());
+        item.collapsed = false;
+        item._attributesInspector.getField(`batchGroups.${groupId}.name`).focus();
+    });
+});
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -53,31 +85,7 @@ Object.assign(pcui, (function () {
                 this._panelTooltip = editor.call('attributes:reference:attach', 'settings:batchGroups', this.header, this.header.dom);
             }
 
-            editor.method('editorSettings:batchGroups:create', (name) => {
-                const batchGroups = this._projectSettings.get('batchGroups');
 
-                // calculate id of new group and new name
-                let id = 100000;
-                for (const key in batchGroups) {
-                    id = Math.max(parseInt(key, 10) + 1, id);
-                }
-
-                this._projectSettings.set('batchGroups.' + id, {
-                    id: id,
-                    name: name || 'New Batch Group',
-                    maxAabbSize: 100,
-                    dynamic: true
-                });
-
-                return id;
-            });
-
-            editor.method('editorSettings:batchGroups:focus', (groupId) => {
-                this.collapsed = false;
-                const item = this._items.find(item => item.id === groupId.toString());
-                item.collapsed = false;
-                item._attributesInspector.getField(`batchGroups.${groupId}.name`).focus();
-            });
         }
 
         _addItem() {
