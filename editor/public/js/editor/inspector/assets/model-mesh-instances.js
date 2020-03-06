@@ -3,10 +3,18 @@ Object.assign(pcui, (function () {
 
     const CLASS_ROOT = 'asset-model-inspector-mesh-instances';
     const CLASS_PICKER_MODE = CLASS_ROOT + '-picker-mode';
+    const CLASS_PICKER_LABEL = CLASS_ROOT + '-picker-label';
 
     const DOM = (parent) => [
         {
             progress: new pcui.Progress({ width: '100%' })
+        },
+        {
+            pickerLabel: new pcui.Label({
+                text: '<h5>SELECT MESH INSTANCE</h5>Choose a mesh instance to customize the material for these Entities.',
+                unsafe: true,
+                class: CLASS_PICKER_LABEL
+            })
         },
         {
             meshInstancesContainer: new pcui.Container()
@@ -158,6 +166,10 @@ Object.assign(pcui, (function () {
 
             if (this._args.mode === 'picker') {
                 this._progress.hidden = true;
+                this._pickerLabel.hidden = false;
+                this._pickerLabel.text = '<h5>SELECT MESH INSTANCE</h5>Choose a mesh instance to customize the material for ' + (this._args.entities.length > 1 ? 'these Entities.' : 'this Entity.');
+            } else {
+                this._pickerLabel.hidden = true;
             }
         }
 

@@ -161,46 +161,11 @@ editor.once('load', function() {
             // hide asset info
             editor.emit('attributes:assets:toggleInfo', false);
 
-            // get mesh instances panel
-            var panelNodes = editor.call('attributes:asset:model:nodesPanel');
-            if (! panelNodes)
-                return;
-
-            panelNodes.style.overflow = 'visible';
-
             var root = editor.call('attributes.rootPanel');
             root.style.zIndex = 102;
 
-            // flash panel
-            panelNodes.flash();
-
-            // add special class
-            panelNodes.class.add('picker-node', 'noHeader');
-
-            // add help
-            var help = new ui.Label({
-                text: '<h5>SELECT MESH INSTANCE</h5>Choose a mesh instance to customize the material for ' + (currentEntities.length > 1 ? 'these Entities.' : 'this Entity.'),
-                unsafe: true
-            });
-            help.class.add('help');
-            panelNodes.prepend(help);
-
-            // add click events for each mesh instance field
-            var fields = panelNodes.element.getElementsByClassName('field-asset');
-            for (var i = 0, len = fields.length; i < len; i++) {
-                if (isAlreadyOverriden(i)) {
-                    fields[i].classList.add('disabled');
-                } else {
-                    addClickEvent(fields[i], i);
-                }
-            }
-
-            // focus panel
-            setTimeout(function() {
-                panelNodes.element.focus();
-            }, 100);
-
             const modelEntityMaterials = new pcui.ModelAssetInspectorMeshInstances({
+                entities: currentEntities,
                 assets: editor.call('assets:raw'),
                 history: editor.call('editor:history'),
                 mode: 'picker',
@@ -213,7 +178,7 @@ editor.once('load', function() {
             });
 
             modelEntityMaterials.link([currentAsset]);
-            panelNodes.append(modelEntityMaterials);
+            root.append(modelEntityMaterials);
 
             const evtModelEntityPermissions = editor.on('permissions:writeState', (state) => {
                 modelEntityMaterials.readOnly = !state;
