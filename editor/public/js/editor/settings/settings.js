@@ -119,5 +119,4 @@ editor.once('load', function () {
 
         return settings;
     });
-
 });

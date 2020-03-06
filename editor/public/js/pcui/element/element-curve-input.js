@@ -28,7 +28,7 @@ Object.assign(pcui, (function () {
 
             this.class.add(CLASS_CURVE);
 
-            this._canvas = new pcui.Canvas({useDevicePixelRatio: true});
+            this._canvas = new pcui.Canvas({ useDevicePixelRatio: true });
             this.dom.appendChild(this._canvas.dom);
             this._canvas.parent = this;
             this._canvas.on('resize', this._renderCurves.bind(this));

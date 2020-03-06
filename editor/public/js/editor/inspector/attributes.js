@@ -18,7 +18,10 @@ Object.assign(pcui, (function () {
             this._history = args.history;
             this._assets = args.assets;
             this._entities = args.entities;
+            this._settings = args.settings;
             this._projectSettings = args.projectSettings;
+            this._userSettings = args.userSettings;
+            this._sceneSettings = args.sceneSettings;
 
             this._fields = {};
             this._fieldAttributes = {};
@@ -84,7 +87,7 @@ Object.assign(pcui, (function () {
                     if (attr.path || attr.paths) {
                         this._fieldAttributes[key] = attr;
                         if (this._observers) {
-                            field.link(this._observers, attr.path || attr.paths);
+                            this._linkObservers(key);
                         }
                     }
                 }
@@ -169,15 +172,27 @@ Object.assign(pcui, (function () {
             this.move(field, index);
         }
 
+        _linkObservers(key) {
+            const field = this.getField(key);
+            const attr = this._fieldAttributes[key];
+            if (attr.observer) {
+                const observer = this[`_${attr.observer}`];
+                if (observer)
+                    field.link([observer], attr.path || attr.paths);
+                else
+                    console.error(`This attributes inspector does not contain a valid observer for attr: "${key}". attr.observer is currently: "${attr.observer}".`);
+            } else {
+                field.link(this._observers, attr.path || attr.paths);
+            }
+        }
+
         link(observers) {
             this.unlink();
 
             this._observers = observers;
 
             for (const key in this._fieldAttributes) {
-                const attr = this._fieldAttributes[key];
-                const field = this.getField(key);
-                field.link(observers, attr.path || attr.paths);
+                this._linkObservers(key);
             }
         }
 
