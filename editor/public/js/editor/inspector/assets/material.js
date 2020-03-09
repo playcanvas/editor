@@ -1347,9 +1347,9 @@ Object.assign(pcui, (function () {
                 }
             }
 
-            this._toggleFields();
-
             this._suppressToggleFields = suppressToggleFields;
+
+            this._toggleFields();
         }
 
         _updateAllOffsetsOrTilings(value, isOffset) {
@@ -1760,7 +1760,7 @@ Object.assign(pcui, (function () {
             });
 
             this._texturesBeforeHover = {};
-            this._hoverEvents.forEach(evt => {console.log('off'); evt.asset.off('load', evt.fn)});
+            this._hoverEvents.forEach(evt => { evt.asset.off('load', evt.fn); });
             this._hoverEvents.length = 0;
 
             editor.call('viewport:render');
