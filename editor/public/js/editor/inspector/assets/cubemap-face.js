@@ -202,33 +202,38 @@ Object.assign(pcui, (function () {
                                         return a.face - b.face;
                                     });
 
-
-                                    this._asset.history.enabled = false;
-                                    for (let i = 0; i < faceAssets.length; i++)
-                                        this._asset.set(`data.textures.${i}`, parseInt(faceAssets[i].asset.get('id'), 10));
-                                    this._asset.history.enabled = true;
                                     const currentAsset = this._asset;
                                     const faceAssetIds = faceAssets.map(faceAsset => faceAsset.asset.get('id'));
-                                    this._args.history.add({
-                                        name: 'cubemap.autofill',
-                                        undo: () => {
-                                            currentAsset.latest();
-                                            if (!currentAsset) return;
-                                            currentAsset.history.enabled = false;
-                                            for (let i = 0; i < faceAssets.length; i++)
-                                                currentAsset.set(`data.textures.${i}`, null);
-                                            currentAsset.history.enabled = true;
-                                        },
-                                        redo: () => {
-                                            currentAsset.latest();
-                                            if (!currentAsset) return;
-                                            currentAsset.history.enabled = false;
-                                            for (let i = 0; i < faceAssets.length; i++)
-                                                currentAsset.set(`data.textures.${i}`, parseInt(faceAssetIds[i], 10));
-                                            currentAsset.history.enabled = true;
 
-                                        }
-                                    });
+                                    const undo = () => {
+                                        currentAsset.latest();
+                                        if (!currentAsset) return;
+                                        currentAsset.history.enabled = false;
+                                        for (let i = 0; i < faceAssets.length; i++)
+                                            currentAsset.set(`data.textures.${i}`, null);
+                                        this._setRgbmIfNeeded();
+                                        currentAsset.history.enabled = true;
+                                    };
+                                    const redo = () => {
+                                        currentAsset.latest();
+                                        if (!currentAsset) return;
+                                        currentAsset.history.enabled = false;
+                                        for (let i = 0; i < faceAssets.length; i++)
+                                            currentAsset.set(`data.textures.${i}`, parseInt(faceAssetIds[i], 10));
+                                        this._setRgbmIfNeeded();
+                                        currentAsset.history.enabled = true;
+                                    };
+
+                                    if (this._args.history) {
+                                        this._args.history.add({
+                                            name: 'cubemap.autofill',
+                                            undo,
+                                            redo
+                                        });
+                                    }
+
+                                    redo();
+
                                     return;
                                 }
                             }
