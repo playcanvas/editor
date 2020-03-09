@@ -117,6 +117,7 @@ Object.assign(pcui, (function () {
                 return;
             evt.stopPropagation();
             this._asset.set(`data.textures.${this._args.face}`, null);
+            this._setRgbmIfNeeded();
         }
 
         _initializeDropTarget() {
