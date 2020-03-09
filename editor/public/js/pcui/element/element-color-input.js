@@ -45,6 +45,9 @@ Object.assign(pcui, (function () {
                 this._openColorPicker();
             });
 
+            this._historyCombine = false;
+            this._historyPostfix = null;
+
             this._value = args.value || [0, 0, 0, 1];
             this._channels = args.channels || 3;
             this._setValue(this._value);
@@ -106,6 +109,32 @@ Object.assign(pcui, (function () {
                 this.value = color.map(c => c / 255);
             });
 
+            let evtColorPickStart = editor.on('picker:color:start', () => {
+                if (this.binding) {
+                    this._historyCombine = this.binding.historyCombine;
+                    this._historyPostfix = this.binding.historyPostfix;
+
+                    this.binding.historyCombine = true;
+
+                    // assign a history postfix which will limit how far back
+                    // the history will be combined. We only want to combine
+                    // history between this picker:color:start and picker:color:end events
+                    // not further back
+                    this._binding.historyPostfix = `(${Date.now()})`;
+
+                } else {
+                    this._historyCombine = false;
+                    this._historyPostfix = null;
+                }
+            });
+
+            let evtColorPickEnd = editor.on('picker:color:end', () => {
+                if (this.binding) {
+                    this.binding.historyCombine = this._historyCombine;
+                    this.binding.historyPostfix = this._historyPostfix;
+                }
+            });
+
             // position picker
             const rectPicker = editor.call('picker:color:rect');
             const rectElement = this.dom.getBoundingClientRect();
@@ -120,8 +149,16 @@ Object.assign(pcui, (function () {
             editor.once('picker:color:close', () => {
                 evtColorPick.unbind();
                 evtColorPick = null;
+
                 evtColorToPicker.unbind();
                 evtColorToPicker = null;
+
+                evtColorPickStart.unbind();
+                evtColorPickStart = null;
+
+                evtColorPickEnd.unbind();
+                evtColorPickEnd = null;
+
                 this._isColorPickerOpen = false;
                 this.focus();
             });

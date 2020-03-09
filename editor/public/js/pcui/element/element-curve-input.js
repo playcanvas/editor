@@ -41,7 +41,7 @@ Object.assign(pcui, (function () {
 
             this._pickerChanging = false;
             this._combineHistory = false;
-            this._historyPostfix = false;
+            this._historyPostfix = null;
 
             this._domEventKeyDown = this._onKeyDown.bind(this);
             this._domEventFocus = this._onFocus.bind(this);

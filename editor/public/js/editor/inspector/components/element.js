@@ -308,6 +308,7 @@ Object.assign(pcui, (function () {
             return new TextureAssetElementToObserversBinding(this._assets, {
                 history: this._history,
                 historyPrefix: this._historyPrefix,
+                historyPostfix: this._historyPostfix,
                 historyName: this._historyName,
                 historyCombine: this._historyCombine
             });
