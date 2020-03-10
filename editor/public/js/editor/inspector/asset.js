@@ -321,6 +321,11 @@ Object.assign(pcui, (function () {
             });
         }
 
+        _updateAssetName(value) {
+            if (value === '') return;
+            editor.call('assets:rename', this._assets[0], value);
+        }
+
         link(assets) {
             this.unlink();
 
@@ -435,6 +440,11 @@ Object.assign(pcui, (function () {
             this._assetEvents.push(this._attributesInspector.getField('source_asset_id').on(
                 'click',
                 this._onClickSourceAsset.bind(this)
+            ));
+            // Set name in S3 on change
+            this._assetEvents.push(this._attributesInspector.getField('name').on(
+                'change',
+                this._updateAssetName.bind(this)
             ));
             this._attributesInspector.getField('source_asset_id').class.add('pcui-selectable');
 

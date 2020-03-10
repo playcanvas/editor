@@ -4,57 +4,6 @@ editor.once('load', function() {
     var sceneSettings = editor.call('sceneSettings');
     var projectSettings = editor.call('settings:project');
 
-    var folded = true;
-
-    editor.on('attributes:inspect[editorSettings]', function() {
-        // physics
-        var physicsPanel = editor.call('attributes:addPanel', {
-            name: 'Physics'
-        });
-        physicsPanel.foldable = true;
-        physicsPanel.folded = folded;
-        physicsPanel.on('fold', function() { folded = true; });
-        physicsPanel.on('unfold', function() { folded = false; });
-        physicsPanel.class.add('component');
-
-        // TODO: remove superuser clause once useLegacyAmmoPhysics has been deployed
-        var enableLegacyAmmoPhysics = !!projectSettings.get('useLegacyAmmoPhysics');
-
-        if (enableLegacyAmmoPhysics) {
-            // enable 3d physics checkbox
-            var fieldPhysics = editor.call('attributes:addField', {
-                parent: physicsPanel,
-                name: 'Enable Physics',
-                type: 'checkbox',
-                link: projectSettings,
-                path: 'use3dPhysics'
-            });
-            editor.call('attributes:reference:attach',
-                        'settings:project:physics',
-                        fieldPhysics.parent.innerElement.firstChild.ui);
-            fieldPhysics.on('change', function(value) {
-                editor.emit('onUse3dPhysicsChanged', value);
-            });
-        }
-
-        // add import ammo button
-        editor.call('attributes:appendImportAmmo', physicsPanel);
-
-        // gravity
-        var fieldGravity = editor.call('attributes:addField', {
-            parent: physicsPanel,
-            name: 'Gravity',
-            placeholder: [ 'X', 'Y', 'Z' ],
-            precision: 2,
-            step: .1,
-            type: 'vec3',
-            link: sceneSettings,
-            path: 'physics.gravity'
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'settings:gravity', fieldGravity[0].parent.innerElement.firstChild.ui);
-    });
-
     // check legacy physics include flag
     editor.method('project:settings:hasLegacyPhysics', function() {
         return projectSettings.get('useLegacyAmmoPhysics') &&
@@ -122,5 +71,61 @@ editor.once('load', function() {
         });
 
         return group;
+    });
+
+    const hasPcuiSettings = editor.call('users:hasFlag', 'hasPcuiSettings');
+    if (hasPcuiSettings) {
+        return;
+    }
+
+    var folded = true;
+
+    editor.on('attributes:inspect[editorSettings]', function() {
+        // physics
+        var physicsPanel = editor.call('attributes:addPanel', {
+            name: 'Physics'
+        });
+        physicsPanel.foldable = true;
+        physicsPanel.folded = folded;
+        physicsPanel.on('fold', function() { folded = true; });
+        physicsPanel.on('unfold', function() { folded = false; });
+        physicsPanel.class.add('component');
+
+        // TODO: remove superuser clause once useLegacyAmmoPhysics has been deployed
+        var enableLegacyAmmoPhysics = !!projectSettings.get('useLegacyAmmoPhysics');
+
+        if (enableLegacyAmmoPhysics) {
+            // enable 3d physics checkbox
+            var fieldPhysics = editor.call('attributes:addField', {
+                parent: physicsPanel,
+                name: 'Enable Physics',
+                type: 'checkbox',
+                link: projectSettings,
+                path: 'use3dPhysics'
+            });
+            editor.call('attributes:reference:attach',
+                        'settings:project:physics',
+                        fieldPhysics.parent.innerElement.firstChild.ui);
+            fieldPhysics.on('change', function(value) {
+                editor.emit('onUse3dPhysicsChanged', value);
+            });
+        }
+
+        // add import ammo button
+        editor.call('attributes:appendImportAmmo', physicsPanel);
+
+        // gravity
+        var fieldGravity = editor.call('attributes:addField', {
+            parent: physicsPanel,
+            name: 'Gravity',
+            placeholder: [ 'X', 'Y', 'Z' ],
+            precision: 2,
+            step: .1,
+            type: 'vec3',
+            link: sceneSettings,
+            path: 'physics.gravity'
+        });
+        // reference
+        editor.call('attributes:reference:attach', 'settings:gravity', fieldGravity[0].parent.innerElement.firstChild.ui);
     });
 });

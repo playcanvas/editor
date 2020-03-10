@@ -28,7 +28,7 @@ Object.assign(pcui, (function () {
 
             this.class.add(CLASS_CURVE);
 
-            this._canvas = new pcui.Canvas({useDevicePixelRatio: true});
+            this._canvas = new pcui.Canvas({ useDevicePixelRatio: true });
             this.dom.appendChild(this._canvas.dom);
             this._canvas.parent = this;
             this._canvas.on('resize', this._renderCurves.bind(this));
@@ -41,7 +41,7 @@ Object.assign(pcui, (function () {
 
             this._pickerChanging = false;
             this._combineHistory = false;
-            this._historyPostfix = false;
+            this._historyPostfix = null;
 
             this._domEventKeyDown = this._onKeyDown.bind(this);
             this._domEventFocus = this._onFocus.bind(this);
