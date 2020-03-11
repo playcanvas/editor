@@ -38,3 +38,19 @@
         }
     }
 }
+
+.asset-model-inspector-mesh-instances-picker-label {
+    background-color: $bcg-dark;
+    width: 100%;
+    color: $text-primary;
+    font-size: 12px;
+    padding: 8px 20px;
+    margin: 0;
+    h5 {
+        color: $text-active;
+        font-family: 'Proxima Nova Bold', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        font-weight: bold;
+        font-style: normal;
+        margin: 0 0 6px 0;
+    }
+}
