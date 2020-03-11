@@ -191,6 +191,12 @@ Object.assign(pcui, (function () {
 
             this._attributesInspector.getField('loadingOrder').on('click', this._onClickLoadingOrder.bind(this));
 
+            // one way binding from observers to element for name field
+            // because the other way is handled by calling assets:rename
+            this._attributesInspector.getField('name').binding = new pcui.BindingObserversToElement({
+                history: args.history
+            });
+
             // add typed asset inspectors
             this._typedAssetInspectors = [];
             this._typedAssetPreviews = [];
