@@ -51,12 +51,9 @@ editor.once('load', function() {
 
                     // highlight selected node
                     setTimeout(function() {
-                        var node = editor.call('attributes.rootPanel').dom.querySelector('.field-asset.node-' + index);
+                        var node = editor.call('attributes.rootPanel').dom.querySelector('.pcui-asset-input.node-' + index);
                         if (node) {
                             node.classList.add('active');
-                            var field = node.querySelector('.ui-image-field');
-                            field.focus();
-                            field.blur();
                         }
                     }, 200);
 

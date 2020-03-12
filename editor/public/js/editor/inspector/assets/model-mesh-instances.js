@@ -129,6 +129,7 @@ Object.assign(pcui, (function () {
                 const assetElement = new pcui.AssetInput({
                     assetType: 'material',
                     assets: this._args.assets,
+                    class: `node-${ind}`,
                     text: `[${ind}] node`,
                     flexGrow: 1,
                     binding: new pcui.BindingTwoWay({

@@ -14,6 +14,19 @@
             }
         }
     }
+
+    .pcui-asset-input.active {
+        border: 1px solid $text-active;
+        margin: 12px 6px;
+        padding: 6px;
+        overflow: hidden;
+        height: 100%;
+        background-color: $bcg-darkest;
+        
+        .pcui-label {
+            color: $text-active;
+        }
+    }
 }
 
 .asset-model-inspector-mesh-instances-picker-mode {
