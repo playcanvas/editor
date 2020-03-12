@@ -43,7 +43,7 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'settings',
-            label: 'Ovewrite Models',
+            label: 'Overwrite Models',
             type: 'boolean',
             alias: 'asset-tasks:overwrite.model',
             path: 'editor.pipeline.overwriteModel'
@@ -68,6 +68,13 @@ Object.assign(pcui, (function () {
             type: 'boolean',
             alias: 'asset-tasks:overwrite.texture',
             path: 'editor.pipeline.overwriteTexture'
+        },
+        {
+            observer: 'settings',
+            label: 'Convert to GLB',
+            type: 'boolean',
+            alias: 'asset-tasks:useGlb',
+            path: 'editor.pipeline.useGlb'
         }
     ];
 

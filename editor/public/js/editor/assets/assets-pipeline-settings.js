@@ -95,7 +95,7 @@ editor.once('load', function() {
 
         var fieldOverwriteModel = editor.call('attributes:addField', {
             parent: panelModelSettings,
-            name: 'Ovewrite Models',
+            name: 'Overwrite Models',
             type: 'checkbox',
             link: settings,
             path: 'editor.pipeline.overwriteModel'
