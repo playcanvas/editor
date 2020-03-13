@@ -1,0 +1,27 @@
+.template-inspector-override {
+    $override-color: #0DFCED;
+
+    // label group
+    &.pcui-label-group {
+        > .pcui-label:first-child {
+            color: $override-color;
+            @extend .font-bold;
+        }
+    }
+
+    // asset input
+    &.pcui-asset-input {
+        .pcui-asset-input-label {
+            color: $override-color;
+            @extend .font-bold;
+        }
+    }
+
+    // panel
+    &.pcui-panel {
+        > .pcui-panel-header > .pcui-panel-header-title {
+            color: $override-color;
+            @extend .font-bold;
+        }
+    }
+}

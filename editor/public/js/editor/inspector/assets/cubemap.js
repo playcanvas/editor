@@ -115,7 +115,14 @@ Object.assign(pcui, (function () {
 
             this._facesPanel.content.class.add(CLASS_FACES_CONTAINER);
 
-            editor.call('attributes:reference:attach', 'asset:cubemap:asset', this._cubemapPanel, this._cubemapPanel.header.dom);
+            const ref = editor.call('attributes:reference:get', 'asset:cubemap:asset');
+            if (ref) {
+                (new pcui.TooltipReference({
+                    reference: ref
+                })).attach({
+                    target: this._cubemapPanel.header
+                });
+            }
         }
 
         _updateFilteringSelect() {

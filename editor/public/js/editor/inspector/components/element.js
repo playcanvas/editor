@@ -438,7 +438,7 @@ Object.assign(pcui, (function () {
                 projectSettings: args.projectSettings,
                 history: args.history,
                 attributes: ATTRIBUTES,
-                templateOverridesSidebar: this._templateOverridesSidebar
+                templateOverridesInspector: this._templateOverridesInspector
             });
             this.append(this._attributesInspector);
 

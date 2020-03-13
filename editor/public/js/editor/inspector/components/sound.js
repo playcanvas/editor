@@ -160,7 +160,7 @@ Object.assign(pcui, (function () {
                 history: args.history,
                 assets: args.assets,
                 attributes: COMPONENT_ATTRIBUTES,
-                templateOverridesSidebar: this._templateOverridesSidebar
+                templateOverridesInspector: this._templateOverridesInspector
             });
             this.append(this._attributesInspector);
 
@@ -236,7 +236,7 @@ Object.assign(pcui, (function () {
                 history: this._history,
                 assets: this._assets,
                 removable: true,
-                templateOverridesSidebar: this._templateOverridesSidebar
+                templateOverridesInspector: this._templateOverridesInspector
             });
 
             this._containerSlots.append(inspector);
@@ -319,7 +319,7 @@ Object.assign(pcui, (function () {
             this._entities = null;
             this._slotEvents = [];
 
-            this._templateOverridesSidebar = args.templateOverridesSidebar;
+            this._templateOverridesInspector = args.templateOverridesInspector;
 
             this._slotKey = args.slotKey;
 
@@ -333,13 +333,13 @@ Object.assign(pcui, (function () {
                 attributes: this._attrs,
                 assets: args.assets,
                 history: args.history,
-                templateOverridesSidebar: this._templateOverridesSidebar
+                templateOverridesInspector: this._templateOverridesInspector
             });
 
             this.append(this._inspector);
 
-            if (this._templateOverridesSidebar) {
-                this._templateOverridesSidebar.registerElementForPath(`components.sound.slots.${this._slotKey}`, this.dom);
+            if (this._templateOverridesInspector) {
+                this._templateOverridesInspector.registerElementForPath(`components.sound.slots.${this._slotKey}`, this);
             }
 
             const fieldName = this._inspector.getField(this._getPathTo('name'));
@@ -397,8 +397,8 @@ Object.assign(pcui, (function () {
         destroy() {
             if (this._destroyed) return;
 
-            if (this._templateOverridesSidebar) {
-                this._templateOverridesSidebar.unregisterElementForPath(`components.sound.slots.${this._slotKey}`);
+            if (this._templateOverridesInspector) {
+                this._templateOverridesInspector.unregisterElementForPath(`components.sound.slots.${this._slotKey}`);
             }
 
             super.destroy();

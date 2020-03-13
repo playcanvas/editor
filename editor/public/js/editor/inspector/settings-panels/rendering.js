@@ -200,7 +200,8 @@ Object.assign(pcui, (function () {
             type: 'number',
             args: {
                 min: 1
-            }
+            },
+            reference: 'settings:project:width'
         },
         {
             observer: 'projectSettings',
@@ -209,7 +210,8 @@ Object.assign(pcui, (function () {
             type: 'number',
             args: {
                 min: 1
-            }
+            },
+            reference: 'settings:project:height'
         },
         {
             observer: 'projectSettings',

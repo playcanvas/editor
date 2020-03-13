@@ -51,7 +51,17 @@ Object.assign(pcui, (function () {
             // child element adjustments
             this._errorLoadingDataContainer.hidden = true;
             this._errorLoadingDataLabel.class.add(pcui.CLASS_ERROR);
-            editor.call('attributes:reference:attach', `asset:${this._assetType}:asset`, this._panel, this._panel.header.dom);
+
+            // reference
+            const ref = editor.call('attributes:reference:get', `asset:${this._assetType}:asset`);
+            if (ref) {
+                (new pcui.TooltipReference({
+                    reference: ref
+                })).attach({
+                    target: this._panel.header
+                });
+            }
+
             this._progress.value = 100;
         }
 

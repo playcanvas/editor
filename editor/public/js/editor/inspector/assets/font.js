@@ -173,10 +173,41 @@ Object.assign(pcui, (function () {
 
             this.buildDom(DOM(this));
 
-            editor.call('attributes:reference:attach', `asset:font:presets`, this._characterPresetsPanel, this._characterPresetsPanel.header.dom);
-            editor.call('attributes:reference:attach', `asset:font:customRange`, this._characterRangePanel, this._characterRangePanel.header.dom);
-            editor.call('attributes:reference:attach', `asset:font:asset`, this._fontPanel, this._fontPanel.header.dom);
-            editor.call('attributes:reference:attach', `asset:localization`, this._localizationPanel, this._localizationPanel.header.dom);
+            let ref = editor.call('attributes:reference:get', 'asset:font:presets');
+            if (ref) {
+                (new pcui.TooltipReference({
+                    reference: ref
+                })).attach({
+                    target: this._characterPresetsPanel.header
+                });
+            }
+
+            ref = editor.call('attributes:reference:get', 'asset:font:customRange');
+            if (ref) {
+                (new pcui.TooltipReference({
+                    reference: ref
+                })).attach({
+                    target: this._characterRangePanel.header
+                });
+            }
+
+            ref = editor.call('attributes:reference:get', 'asset:font:asset');
+            if (ref) {
+                (new pcui.TooltipReference({
+                    reference: ref
+                })).attach({
+                    target: this._fontPanel.header
+                });
+            }
+
+            ref = editor.call('attributes:reference:get', 'asset:localization');
+            if (ref) {
+                (new pcui.TooltipReference({
+                    reference: ref
+                })).attach({
+                    target: this._localizationPanel.header
+                });
+            }
         }
 
         _getCharacterRange(range) {

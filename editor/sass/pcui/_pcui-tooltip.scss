@@ -1,0 +1,57 @@
+.pcui-tooltip {
+    padding: 24px;
+    background: $bcg-darkest;
+    position: absolute;
+    z-index: 1;
+    max-width: 300px;
+
+    > .pcui-label {
+        white-space: normal;
+    }
+
+    > .pcui-button {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
+.pcui-tooltip-title {
+    display: block;
+    color: $text-primary;
+    font-size: 14px;
+    margin: 0;
+    @extend .font-bold;
+}
+
+.pcui-tooltip-subtitle {
+    display: block;
+    color: $text-secondary;
+    font-size: 11px;
+    margin: 0;
+}
+
+.pcui-tooltip-desc {
+    display: block;
+    color: $text-primary;
+    font-size: 12px;
+    margin: 10px 0;
+}
+
+.pcui-tooltip-group {
+    @extend .pcui-flex;
+    padding: 0;
+    flex-direction: row;
+    align-items: flex-start;
+    background: transparent;
+    max-width: none;
+
+    > .pcui-tooltip {
+        position: static;
+        margin-right: 10px;
+        flex-shrink: 0;
+
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+}

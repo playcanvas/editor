@@ -56,17 +56,23 @@ Object.assign(pcui, (function () {
                 attributes.attributesOrder.forEach(attributeName => {
                     const attributeLabel = new pcui.Label({ text: attributeName, class: CLASS_ATTRIBUTE });
                     const attributeData = attributes.attributes[attributeName];
-                    var tooltip = editor.call('attributes:reference', {
-                        title: attributeName,
-                        subTitle: editor.call('assets:scripts:typeToSubTitle', attributeData),
-                        description: (attributeData.description || attributeData.title || ''),
-                        code: JSON.stringify(attributeData, null, 4)
+
+                    const tooltip = new pcui.TooltipReference({
+                        reference: {
+                            title: attributeName,
+                            subTitle: editor.call('assets:scripts:typeToSubTitle', attributeData),
+                            description: (attributeData.description || attributeData.title || ''),
+                            code: JSON.stringify(attributeData, null, 4)
+                        }
                     });
+
                     tooltip.attach({
                         target: attributeLabel,
-                        element: attributeLabel.dom
+                        elementForHorizontalAlign: this
                     });
+
                     this._tooltips.push(tooltip);
+
                     this._scriptAttributeContainer[`_${scriptName}Container`].append(attributeLabel);
                 });
                 this._scriptAttributeContainer.append(this._scriptAttributeContainer[`_${scriptName}Container`]);
@@ -81,7 +87,10 @@ Object.assign(pcui, (function () {
             this._errorContainer.hidden = true;
             this._errorContainer.clear();
             editor.call('scripts:parse', this._asset, (error, result) => {
-                this.remove(this._scriptAttributeContainer);
+                if (this._scriptAttributeContainer) {
+                    this._scriptAttributeContainer.destroy();
+                }
+
                 this._displayScriptAttributes();
                 this._parseButton.disabled = false;
                 if (error) {
@@ -121,8 +130,10 @@ Object.assign(pcui, (function () {
             this._assetEvents = [];
             this._tooltips.forEach(tooltip => tooltip.destroy());
             this._tooltips = [];
-            if (this._scriptAttributeContainer)
-                this.remove(this._scriptAttributeContainer);
+            if (this._scriptAttributeContainer) {
+                this._scriptAttributeContainer.destroy();
+                this._scriptAttributeContainer = null;
+            }
         }
 
         destroy() {

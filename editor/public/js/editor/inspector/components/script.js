@@ -60,6 +60,10 @@ Object.assign(pcui, (function () {
             this._dirtyScripts = new Set();
             this._dirtyScriptsTimeout = null;
 
+            if (this._templateOverridesInspector) {
+                this._templateOverridesInspector.registerElementForPath(`components.script.order`, this, this._tooltipGroup);
+            }
+
             this._updateScriptsTimeout = null;
         }
 
@@ -71,11 +75,19 @@ Object.assign(pcui, (function () {
                 removable: true,
                 assets: this._argsAssets,
                 entities: this._argsEntities,
+                templateOverridesInspector: this._templateOverridesInspector,
                 history: this._history,
                 class: CLASS_SCRIPT
             });
 
             this._scriptPanels[scriptName] = panel;
+
+            if (this._templateOverridesInspector) {
+                this._templateOverridesInspector.registerElementForPath(`components.script.scripts.${scriptName}`, panel);
+                panel.once('destroy', () => {
+                    this._templateOverridesInspector.unregisterElementForPath(`components.script.scripts.${scriptName}`);
+                });
+            }
 
             this._containerScripts.append(panel);
 
@@ -377,6 +389,16 @@ Object.assign(pcui, (function () {
                 this._updateScriptsTimeout = null;
             }
         }
+
+        destroy() {
+            if (this._destroyed) return;
+
+            if (this._templateOverridesInspector) {
+                this._templateOverridesInspector.unregisterElementForPath(`components.script.order`);
+            }
+
+            super.destroy();
+        }
     }
 
     class ScriptInspector extends pcui.Panel {
@@ -389,6 +411,7 @@ Object.assign(pcui, (function () {
             this._history = args.history;
             this._argsAssets = args.assets;
             this._argsEntities = args.entities;
+            this._templateOverridesInspector = args.templateOverridesInspector;
 
             this._asset = editor.call('assets:scripts:assetByScript', this._scriptName);
 
@@ -461,23 +484,27 @@ Object.assign(pcui, (function () {
                 enableGroup.text = value ? 'On' : 'Off';
             });
 
+            if (this._templateOverridesInspector) {
+                this._templateOverridesInspector.registerElementForPath(`components.script.scripts.${this._scriptName}.enabled`, enableGroup);
+
+                enableGroup.once('destroy', () => {
+                    this._templateOverridesInspector.unregisterElementForPath(`components.script.scripts.${this._scriptName}.enabled`);
+                });
+            }
+
             this._labelInvalid = new pcui.Label({
                 text: '!',
                 class: CLASS_SCRIPT_INVALID
             });
             this.header.appendBefore(this._labelInvalid, this._labelTitle);
 
-            this._tooltipInvalid = editor.call('attributes:reference', {
+            this._tooltipInvalid = new pcui.TooltipReference({
                 title: 'Invalid',
                 description: this._getInvalidTooltipText()
             });
             this._tooltipInvalid.attach({
-                target: this,
-                element: this._labelInvalid.dom
-            });
-
-            this._labelInvalid.on('destroy', () => {
-                this._tooltipInvalid.destroy();
+                target: this._labelInvalid,
+                elementForHorizontalAlign: this
             });
 
             this._entities = null;
@@ -511,7 +538,8 @@ Object.assign(pcui, (function () {
                 attributes: inspectorAttributes,
                 history: this._history,
                 assets: this._argsAssets,
-                entities: this._argsEntities
+                entities: this._argsEntities,
+                templateOverridesInspector: this._templateOverridesInspector
             });
 
             if (this._entities) {
@@ -759,10 +787,7 @@ Object.assign(pcui, (function () {
                 this._attributesInspector = null;
             }
 
-            this._tooltipInvalid.html = editor.call('attributes:reference:template', {
-                title: 'Invalid',
-                description: this._getInvalidTooltipText()
-            });
+            this._tooltipInvalid.description = this._getInvalidTooltipText();
         }
 
         link(entities) {

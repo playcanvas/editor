@@ -9,12 +9,12 @@ editor.once('load', function() {
     }, {
         title: 'name',
         subTitle: '{String}',
-        description: 'Human-readable name for this graph node.',
+        description: 'Human-readable name for this Entity.',
         url: 'http://developer.playcanvas.com/api/pc.Entity.html#name'
     }, {
         title: 'tags',
         subTitle: '{pc.Tags}',
-        description: '',
+        description: 'Interface for tagging Entities. Tag based searches can be performed using the entity.findByTag function.',
         url: 'http://developer.playcanvas.com/api/pc.Entity.html#tags'
     }, {
         name: 'position',
