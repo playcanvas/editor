@@ -92,11 +92,13 @@ Object.assign(pcui, (function () {
 
             const horizontalAlignRect = this._elementForHorizontalAlign.dom.getBoundingClientRect();
             const verticalAlignRect = this._elementForVerticalAlign.dom.getBoundingClientRect();
-            const rect = this.dom.getBoundingClientRect();
+
             this.style.left = '';
             this.style.right = '';
             this.style.bottom = '';
             this.style.top = '';
+
+            const rect = this.dom.getBoundingClientRect();
 
             if (this.align !== 'left' && this.align !== 'right') {
                 const left = Math.max(0, horizontalAlignRect.left + (horizontalAlignRect.width - rect.width) / 2);
