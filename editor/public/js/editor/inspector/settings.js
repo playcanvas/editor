@@ -1,10 +1,6 @@
 editor.once('load', function () {
     'use strict';
 
-    const hasPcuiSettings = editor.call('users:hasFlag', 'hasPcuiSettings');
-    if (!hasPcuiSettings)
-        return;
-
     const settingsArgs = {
         assets: editor.call('assets:raw'),
         entities: editor.call('entities:list'),
