@@ -338,10 +338,6 @@ Object.assign(pcui, (function () {
                 }
             }
 
-            if (!editor.call('permissions:read')) {
-                hidden = true;
-            }
-
             const legacyScripts = this._projectSettings.get('useLegacyScripts');
             if (this._assets && this._assets[0].get('type') === 'script' && legacyScripts) {
                 hidden = true;
