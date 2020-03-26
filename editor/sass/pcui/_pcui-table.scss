@@ -1,0 +1,115 @@
+.pcui-table {
+    background-color: $bcg-primary;
+}
+
+.pcui-table > table {
+    width: max-content;
+    min-width: 100%;
+    border-spacing: 0;
+    table-layout: fixed;
+
+    > thead {
+        > tr {
+            > th {
+                background-color: $bcg-dark;
+                position: sticky;
+                top: 0;
+                z-index: 1;
+                line-height: 26px;
+                font-size: 13px;
+
+                border-top: 1px solid $bcg-darkest;
+                border-bottom: 1px solid $bcg-darkest;
+                border-right: 1px solid $bcg-darkest;
+
+                &:first-child {
+                    border-left: 1px solid $bcg-darkest;
+                }
+
+                &:hover {
+                    color: $text-primary;
+                }
+            }
+        }
+    }
+
+    > tbody {
+        > tr:hover {
+            background-color: $bcg-dark;
+            color: $text-primary;
+        }
+    }
+}
+
+.pcui-table:not(.pcui-table-resizing) {
+    > table > thead > tr > th {
+        cursor: pointer;
+    }
+
+    > table > tbody > tr {
+        cursor: pointer;
+    }
+}
+
+.pcui-table-cell {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+    text-align: left;
+    box-sizing: border-box;
+    font-size: 12px;
+
+    .pcui-element {
+        color: inherit;
+    }
+}
+
+.pcui-table-cell-sort {
+    color: $text-primary;
+
+    &:after {
+        @extend .font-icon;
+        vertical-align: middle;
+        content: '\E168';
+    }
+
+    &.pcui-table-cell-sort-descending:after {
+        content: '\E167';
+    }
+}
+
+.pcui-table-resizing:hover {
+    cursor: col-resize;
+}
+
+.pcui-table-cell-active {
+    cursor: col-resize !important;
+
+    &:before {
+        content: ' ';
+        display: block;
+        position: absolute;
+        top: 0;
+        height: 100%;
+        right: 0px;
+        width: 2px;
+        background-color: $bcg-darkest;
+        pointer-events: none;
+        z-index: 1;
+    }
+}
+
+th.pcui-table-cell-active:before {
+    right: -1px;
+}
+
+.pcui-table-cell-handle {
+    position: absolute;
+    top: 0;
+    right: 0px;
+    height: 100%;
+    width: 2px;
+    background-color: transparent;
+    z-index: 1;
+}

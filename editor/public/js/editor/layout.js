@@ -99,21 +99,36 @@ editor.on('load', function() {
     editor.method('layout.viewport', function () { return viewport; });
 
     // assets
-    var assetsPanel = new pcui.Panel({
-        id: 'layout-assets',
-        class: 'assets',
-        headerText: 'ASSETS',
-        flex: true,
-        flexDirection: 'row',
-        panelType: 'normal',
-        collapsible: true,
-        collapsed: editor.call('localStorage:get', 'editor:layout:assets:collapse') || window.innerHeight <= 480,
-        height: editor.call('localStorage:get', 'editor:layout:assets:height') || 212,
-        scrollable: true,
-        resizable: 'top',
-        resizeMin: 106,
-        resizeMax: 106 * 6
-    });
+    var assetsPanel;
+    // if (editor.call('users:hasFlag', 'hasPcuiAssetsPanel')) {
+        assetsPanel = new pcui.AssetPanel({
+            id: 'layout-assets',
+            class: 'assets',
+            collapsible: true,
+            collapsed: editor.call('localStorage:get', 'editor:layout:assets:collapse') || window.innerHeight <= 480,
+            height: editor.call('localStorage:get', 'editor:layout:assets:height') || 212,
+            scrollable: true,
+            resizable: 'top',
+            resizeMin: 106,
+            resizeMax: 106 * 6
+        });
+    // } else {
+    //     assetsPanel = new pcui.Panel({
+    //         id: 'layout-assets',
+    //         class: 'assets',
+    //         headerText: 'ASSETS',
+    //         flex: true,
+    //         flexDirection: 'row',
+    //         panelType: 'normal',
+    //         collapsible: true,
+    //         collapsed: editor.call('localStorage:get', 'editor:layout:assets:collapse') || window.innerHeight <= 480,
+    //         height: editor.call('localStorage:get', 'editor:layout:assets:height') || 212,
+    //         scrollable: true,
+    //         resizable: 'top',
+    //         resizeMin: 106,
+    //         resizeMax: 106 * 6
+    //     });
+    // }
 
     assetsPanel.on('resize', function () {
         editor.call('localStorage:set', 'editor:layout:assets:height', assetsPanel.height);

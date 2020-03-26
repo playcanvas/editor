@@ -294,3 +294,28 @@
         }
     }
 }
+
+#layout-assets.pcui-asset-panel {
+    .pcui-table {
+        min-width: max-content; // fixes width not covering whole horizontal scroll width
+        background-color: $bcg-dark;
+
+        tr:hover, tr.selected {
+            background-color: $bcg-darker;
+        }
+
+        th {
+            background-color: $bcg-darker;
+        }
+
+        .pcui-asset-thumb {
+            margin-left: $element-margin;
+            width: 18px;
+            height: 18px;
+
+            &:hover {
+                box-shadow: none !important;
+            }
+        }
+    }
+}

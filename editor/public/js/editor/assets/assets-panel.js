@@ -1,8 +1,15 @@
+editor.on('assets:load', () => {
+    var assetsPanel = editor.call('layout.assets');
+    assetsPanel.assets = editor.call('assets:raw');
+});
+
 editor.once('load', function() {
     'use strict';
 
-    var root = editor.call('layout.root');
-    var assetsPanel = editor.call('layout.assets');
+
+
+    return;
+
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
     var dragging = false;
