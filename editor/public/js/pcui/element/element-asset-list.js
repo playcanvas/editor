@@ -330,7 +330,7 @@ Object.assign(pcui, (function () {
 
         // Creates a new element for the specified asset id
         _createAssetItem(assetId) {
-            const asset = this._assets.get(assetId);
+            let asset = this._assets.get(assetId);
 
             const container = new pcui.Container({
                 flex: true,
@@ -345,16 +345,11 @@ Object.assign(pcui, (function () {
             // add asset type class
             container.class.add(CLASS_ASSET_ITEM + '-' + type);
 
-            if (asset) {
-                // select asset on click
-                container.on('click', () => {
+            // select asset on click
+            container.on('click', () => {
+                if (asset) {
                     this._selectAsset(asset);
-                });
-            }
-
-            // clean the index when the element is destroyed
-            container.on('destroy', () => {
-                delete this._indexAssets[assetId];
+                }
             });
 
             // asset name - bind it to the asset name
@@ -386,6 +381,39 @@ Object.assign(pcui, (function () {
             };
 
             this._indexAssets[assetId] = entry;
+
+            let evtAssetAdd = null;
+            if (!asset) {
+                evtAssetAdd = this._assets.on('add', item => {
+                    if (item.get('id') !== assetId) return;
+
+                    evtAssetAdd.unbind();
+                    evtAssetAdd = null;
+
+                    asset = item;
+
+                    container.class.remove(CLASS_ASSET_ITEM + '-' + this._assetType);
+                    container.class.add(CLASS_ASSET_ITEM + '-' + item.get('type'));
+
+                    label.text = asset.get('name');
+                    label.link(asset, 'name');
+
+                    // select asset on click
+                    container.on('click', () => {
+                        this._selectAsset(asset);
+                    });
+                });
+            }
+
+            // clean the index when the element is destroyed
+            container.on('destroy', () => {
+                if (evtAssetAdd) {
+                    evtAssetAdd.unbind();
+                    evtAssetAdd = null;
+                }
+
+                delete this._indexAssets[assetId];
+            });
 
             return entry;
         }
