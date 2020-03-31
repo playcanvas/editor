@@ -300,8 +300,20 @@ editor.once('load', function() {
                     entity.set('components.particlesystem.localSpace', false);
                 }
 
-                if (editor.call('users:hasFlag', 'hasParticleSystemAnimStartFrame') && ! entity.has('components.particlesystem.animStartFrame')) {
+                if (editor.call('users:hasFlag', 'hasParticleSystemSpriteAnimationUpdates') && ! entity.has('components.particlesystem.animStartFrame')) {
                     entity.set('components.particlesystem.animStartFrame', 0);
+                }
+
+                if (editor.call('users:hasFlag', 'hasParticleSystemSpriteAnimationUpdates') && ! entity.has('components.particlesystem.animNumAnimations')) {
+                    entity.set('components.particlesystem.animNumAnimations', 1);
+                }
+
+                if (editor.call('users:hasFlag', 'hasParticleSystemSpriteAnimationUpdates') && ! entity.has('components.particlesystem.animIndex')) {
+                    entity.set('components.particlesystem.animIndex', 0);
+                }
+
+                if (editor.call('users:hasFlag', 'hasParticleSystemSpriteAnimationUpdates') && ! entity.has('components.particlesystem.randomizeAnimIndex')) {
+                    entity.set('components.particlesystem.randomizeAnimIndex', false);
                 }
             }
 
