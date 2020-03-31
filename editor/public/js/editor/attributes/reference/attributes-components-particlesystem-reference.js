@@ -62,7 +62,7 @@ editor.once('load', function() {
     }, {
         title: 'randomizeAnimIndex',
         subTitle: '{Number}',
-        description: 'If true then each particle will play a randomly selected animation from the sprite sheet',
+        description: 'If true then each particle will play a randomly selected animation from the sprite sheet, otherwise it always use the animation specified by animIndex',
         url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#randomizeAnimIndex'
     }, {
         title: 'animSpeed',
