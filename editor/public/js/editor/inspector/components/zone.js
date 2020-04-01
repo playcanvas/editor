@@ -24,7 +24,7 @@ Object.assign(pcui, (function () {
                 assets: args.assets,
                 history: args.history,
                 attributes: ATTRIBUTES,
-                templateOverridesSidebar: this._templateOverridesSidebar
+                templateOverridesInspector: this._templateOverridesInspector
             });
             this.append(this._attributesInspector);
         }

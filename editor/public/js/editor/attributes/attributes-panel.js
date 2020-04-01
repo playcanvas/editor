@@ -12,13 +12,6 @@ editor.once('load', function() {
         editor.emit('attributes:clear');
     };
 
-    // var overridesSidebar = editor.call('layout.overridesSidebar');
-
-    // editor.method('attributes:registerOverridePath', (path, field) => {
-    //     if (!overridesSidebar) return;
-    //     overridesSidebar.registerElementForPath(path, field, root.innerElement);
-    // });
-
     // clearing
     editor.method('attributes:clear', clearPanel);
 
@@ -1897,11 +1890,6 @@ editor.once('load', function() {
                 editor.call('attributes:clear');
             }));
         }
-
-        // if (overridesSidebar) {
-        //     overridesSidebar.entity = null;
-        //     overridesSidebar.hidden = true;
-        // }
 
         root.headerText = type;
         editor.emit('attributes:inspect[' + type + ']', items);

@@ -26,7 +26,7 @@ Object.assign(pcui, (function () {
             this._fields = {};
             this._fieldAttributes = {};
 
-            this._templateOverridesSidebar = args.templateOverridesSidebar;
+            this._templateOverridesInspector = args.templateOverridesInspector;
 
             // entity attributes
             args.attributes.forEach(attr => {
@@ -46,22 +46,31 @@ Object.assign(pcui, (function () {
             return null;
         }
 
-        _createTooltip(label, tooltipData) {
-            const tooltip = editor.call('attributes:reference', {
-                element: label.dom,
-                title: tooltipData.title,
-                subTitle: tooltipData.subTitle,
-                description: tooltipData.description
+        _createTooltipGroup(target, tooltipData) {
+            const group = new pcui.TooltipGroup();
+
+            if (tooltipData) {
+                const tooltip = new pcui.TooltipReference({
+                    reference: tooltipData,
+                    hidden: false
+                });
+
+                group.append(tooltip);
+            }
+
+            let actualTarget = target;
+            if (target instanceof pcui.LabelGroup) {
+                actualTarget = target.label;
+            } else if (target instanceof pcui.AssetInput) {
+                actualTarget = target._label;
+            }
+
+            group.attach({
+                target: actualTarget,
+                elementForHorizontalAlign: this
             });
 
-            tooltip.attach({
-                target: label,
-                element: label.dom
-            });
-
-            label.once('destroy', () => {
-                tooltip.destroy();
-            });
+            return group;
         }
 
         addAttribute(attr, index) {
@@ -92,6 +101,8 @@ Object.assign(pcui, (function () {
                     }
                 }
 
+                let tooltipGroup;
+
                 if (attr.type !== 'asset') {
                     if (attr.label) {
                         const labelGroup = new pcui.LabelGroup({
@@ -105,11 +116,14 @@ Object.assign(pcui, (function () {
                             this.move(labelGroup, index);
                         }
 
+                        let tooltipData;
                         if (attr.reference) {
-                            editor.call('attributes:reference:attach', attr.reference, labelGroup.label);
+                            tooltipData = editor.call('attributes:reference:get', attr.reference);
                         } else if (attr.tooltip) {
-                            this._createTooltip(labelGroup.label, attr.tooltip);
+                            tooltipData = attr.tooltip;
                         }
+
+                        tooltipGroup = this._createTooltipGroup(labelGroup, tooltipData);
                     } else {
                         this.append(field);
                         if (index >= 0) {
@@ -123,23 +137,25 @@ Object.assign(pcui, (function () {
                         this.move(field, index);
                     }
 
+                    let tooltipData;
                     if (attr.reference) {
-                        editor.call('attributes:reference:attach', attr.reference, field._label);
+                        tooltipData = editor.call('attributes:reference:get', attr.reference);
                     } else if (attr.tooltip) {
-                        this._createTooltip(field._label, attr.tooltip);
+                        tooltipData = attr.tooltip;
                     }
+                    tooltipGroup = this._createTooltipGroup(field, tooltipData);
                 }
 
-                if (this._templateOverridesSidebar) {
+                if (this._templateOverridesInspector) {
                     if (attr.path) {
                         const field = this.getField(attr.path);
-                        this._templateOverridesSidebar.registerElementForPath(attr.path, attr.type === 'asset' ? field.dom : field.parent.dom);
+                        this._templateOverridesInspector.registerElementForPath(attr.path, attr.type === 'asset' ? field : field.parent, tooltipGroup);
                     } else if (attr.paths) {
                         attr.paths.forEach(path => {
                             // use first path to get field as subsequent paths
                             // are not going to be used to index the field in the attribute inspector
                             const field = this.getField(attr.paths[0]);
-                            this._templateOverridesSidebar.registerElementForPath(path, attr.type === 'asset' ? field.dom : field.parent.dom);
+                            this._templateOverridesInspector.registerElementForPath(path, attr.type === 'asset' ? field : field.parent, tooltipGroup);
                         });
                     }
                 }
@@ -214,16 +230,16 @@ Object.assign(pcui, (function () {
         destroy() {
             if (this._destroyed) return;
 
-            if (this._templateOverridesSidebar) {
+            if (this._templateOverridesInspector) {
                 for (const key in this._fieldAttributes) {
                     const attr = this._fieldAttributes[key];
                     if (attr.path) {
-                        this._templateOverridesSidebar.unregisterElementForPath(attr.path);
+                        this._templateOverridesInspector.unregisterElementForPath(attr.path);
                     } else if (attr.paths) {
                         attr.paths.forEach(path => {
                             // use first path to get field as subsequent paths
                             // are not going to be used to index the field in the attribute inspector
-                            this._templateOverridesSidebar.unregisterElementForPath(path);
+                            this._templateOverridesInspector.unregisterElementForPath(path);
                         });
                     }
                 }

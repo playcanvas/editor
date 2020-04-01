@@ -51,7 +51,7 @@ Object.assign(pcui, (function () {
             }]
         }
     }, {
-        label: 'Cone Angles',
+        label: 'Inner Cone Angle',
         path: 'components.light.innerConeAngle',
         type: 'number',
         args: {
@@ -314,7 +314,7 @@ Object.assign(pcui, (function () {
                 projectSettings: args.projectSettings,
                 history: args.history,
                 attributes: ATTRIBUTES,
-                templateOverridesSidebar: this._templateOverridesSidebar
+                templateOverridesInspector: this._templateOverridesInspector
             });
             this.append(this._attributesInspector);
 

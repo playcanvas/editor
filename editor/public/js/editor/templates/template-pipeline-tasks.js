@@ -76,6 +76,7 @@ editor.once('load', function() {
             url: '{{url.api}}/templates/apply',
             auth: true,
             method: 'POST',
+            notJson: true,
             data: taskData
         };
 

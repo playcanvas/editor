@@ -204,9 +204,14 @@ editor.once('load', function() {
         subTitle: '{pc.Vec2}',
         description: 'Controls the horizontal and vertical shift of the text shadow cast effect. The rage of both components is form -1 to 1. To disable effect set both to 0.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#shadowOffset'
+    }, {
+        title: 'enableMarkup',
+        subTitle: '{Boolean}',
+        description: 'Flag for enabling markup processing. Only works for text types.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#enableMarkup'
     }];
 
-    for(var i = 0; i < fields.length; i++) {
+    for (var i = 0; i < fields.length; i++) {
         fields[i].name = 'element:' + (fields[i].name || fields[i].title);
         editor.call('attributes:reference:add', fields[i]);
     }

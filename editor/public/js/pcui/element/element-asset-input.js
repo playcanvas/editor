@@ -44,7 +44,8 @@ Object.assign(pcui, (function () {
             // asset thumbnail on the left
             this._thumbnail = new pcui.AssetThumbnail({
                 binding: new pcui.BindingObserversToElement(),
-                assets: args.assets
+                assets: args.assets,
+                ignoreParent: true
             });
             this._thumbnail.class.add(CLASS_ASSET_INPUT_THUMB);
             this.dom.appendChild(this._thumbnail.dom);

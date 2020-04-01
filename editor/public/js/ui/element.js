@@ -298,6 +298,13 @@ Object.assign(ui, (function () {
         setTimeout(this._onFlashDelay, 200);
     };
 
+    // compatibility with pcui
+    Object.defineProperty(Element.prototype, 'dom', {
+        get: function () {
+            return this._element;
+        }
+    });
+
     return {
         Element: Element
     };

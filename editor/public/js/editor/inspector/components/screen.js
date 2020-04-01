@@ -58,7 +58,7 @@ Object.assign(pcui, (function () {
             this._attributesInspector = new pcui.AttributesInspector({
                 history: args.history,
                 attributes: utils.deepCopy(ATTRIBUTES),
-                templateOverridesSidebar: this._templateOverridesSidebar
+                templateOverridesInspector: this._templateOverridesInspector
             });
             this.append(this._attributesInspector);
 

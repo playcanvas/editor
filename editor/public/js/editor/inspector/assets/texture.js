@@ -1090,8 +1090,23 @@ Object.assign(pcui, (function () {
         }
 
         _setupPanelReferences() {
-            editor.call('attributes:reference:attach', 'asset:texture:asset', this._texturePanel._containerHeader);
-            editor.call('attributes:reference:attach', 'asset:texture:compression', this._compressionPanel._containerHeader);
+            let ref = editor.call('attributes:reference:get', 'asset:texture:asset');
+            if (ref) {
+                (new pcui.TooltipReference({
+                    reference: ref
+                })).attach({
+                    target: this._texturePanel.header
+                })
+            }
+
+            ref = editor.call('attributes:reference:get', 'asset:texture:compression');
+            if (ref) {
+                (new pcui.TooltipReference({
+                    reference: ref
+                })).attach({
+                    target: this._compressionPanel.header
+                })
+            }
         }
 
         _setupPvrWarning() {

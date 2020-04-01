@@ -25,8 +25,24 @@ Object.assign(pcui, (function () {
 
             this._history = args.history;
 
+            // tooltips
+            this._tooltipGroup = new pcui.TooltipGroup();
+
             // reference
-            editor.call('attributes:reference:attach', `${args.component}:component`, this.header, this._labelTitle.dom);
+            const ref = editor.call('attributes:reference:get', `${args.component}:component`);
+            if (ref) {
+                const tooltip = new pcui.TooltipReference({
+                    reference: ref,
+                    hidden: false
+                });
+
+                this._tooltipGroup.append(tooltip);
+            }
+
+            this._tooltipGroup.attach({
+                target: this._labelTitle,
+                elementForHorizontalAlign: this.header
+            });
 
             this._fieldEnable = new pcui.BooleanInput({
                 type: 'toggle',
@@ -46,10 +62,10 @@ Object.assign(pcui, (function () {
                 enableGroup.text = value ? 'ON' : 'OFF';
             });
 
-            this._templateOverridesSidebar = args.templateOverridesSidebar;
-            if (this._templateOverridesSidebar) {
-                this._templateOverridesSidebar.registerElementForPath(`components.${this._component}`, this.dom);
-                this._templateOverridesSidebar.registerElementForPath(`components.${this._component}.enabled`, this._fieldEnable.dom);
+            this._templateOverridesInspector = args.templateOverridesInspector;
+            if (this._templateOverridesInspector) {
+                this._templateOverridesInspector.registerElementForPath(`components.${this._component}`, this, this._tooltipGroup);
+                this._templateOverridesInspector.registerElementForPath(`components.${this._component}.enabled`, enableGroup);
             }
 
             this._entities = null;
@@ -128,9 +144,9 @@ Object.assign(pcui, (function () {
         destroy() {
             if (this._destroyed) return;
 
-            if (this._templateOverridesSidebar) {
-                this._templateOverridesSidebar.unregisterElementForPath(`components.${this._component}`);
-                this._templateOverridesSidebar.unregisterElementForPath(`components.${this._component}.enabled`);
+            if (this._templateOverridesInspector) {
+                this._templateOverridesInspector.unregisterElementForPath(`components.${this._component}`);
+                this._templateOverridesInspector.unregisterElementForPath(`components.${this._component}.enabled`);
             }
 
             super.destroy();

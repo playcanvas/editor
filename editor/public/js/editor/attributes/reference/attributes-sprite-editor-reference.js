@@ -107,6 +107,6 @@ editor.once('load', function() {
 
     for(var i = 0; i < fields.length; i++) {
         fields[i].name = 'spriteeditor:' + (fields[i].name || fields[i].title);
-        editor.call('attributes:reference:add', fields[i]);
+        editor.call('attributes:reference:addLegacy', fields[i]);
     }
 });

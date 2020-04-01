@@ -5,14 +5,25 @@ editor.once('load', function() {
     var panel = editor.call('layout.attributes');
     var index = { };
     var missing = { };
-
+    var referenceIndex = {};
 
     var sanitize = function(str) {
         return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
     };
 
+    editor.method('attributes:reference:add', args => {
+        referenceIndex[args.name] = args;
+    });
 
-    editor.method('attributes:reference:add', function(args) {
+    editor.method('attributes:reference:get', name => {
+        if (!referenceIndex[name]) {
+            console.warn('Cannot find reference ' + name);
+        } else {
+            return referenceIndex[name];
+        }
+    });
+
+    editor.method('attributes:reference:addLegacy', function(args) {
         index[args.name] = editor.call('attributes:reference', args);
     });
 

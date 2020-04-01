@@ -63,7 +63,7 @@ Object.assign(pcui, (function () {
                 history: args.history,
                 entities: args.entities,
                 attributes: attrs,
-                templateOverridesSidebar: this._templateOverridesSidebar
+                templateOverridesInspector: this._templateOverridesInspector
             });
             this.append(this._attributesInspector);
         }

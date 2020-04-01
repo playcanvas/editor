@@ -181,7 +181,7 @@ Object.assign(pcui, (function () {
                 assets: args.assets,
                 projectSettings: args.projectSettings,
                 attributes: COMPONENT_ATTRIBUTES,
-                templateOverridesSidebar: this._templateOverridesSidebar
+                templateOverridesInspector: this._templateOverridesInspector
             });
             this.append(this._attributesInspector);
 
@@ -303,7 +303,7 @@ Object.assign(pcui, (function () {
                 removable: true,
                 history: this._history,
                 assets: this._assets,
-                templateOverridesSidebar: this._templateOverridesSidebar
+                templateOverridesInspector: this._templateOverridesInspector
             });
 
             if (insertBeforeElement) {
@@ -512,7 +512,7 @@ Object.assign(pcui, (function () {
             this._entities = null;
 
             this._spriteInspector = args.spriteInspector;
-            this._templateOverridesSidebar = args.templateOverridesSidebar;
+            this._templateOverridesInspector = args.templateOverridesInspector;
 
             this._clipKeys = args.clipKeys;
 
@@ -527,13 +527,13 @@ Object.assign(pcui, (function () {
                 attributes: this._attrs,
                 assets: args.assets,
                 history: args.history,
-                templateOverridesSidebar: this._templateOverridesSidebar
+                templateOverridesInspector: this._templateOverridesInspector
             });
 
             this.append(this._inspector);
 
-            if (this._templateOverridesSidebar) {
-                this._templateOverridesSidebar.registerElementForPath(`components.sprite.clips.${args.clipKeys[0]}`, this.dom);
+            if (this._templateOverridesInspector) {
+                this._templateOverridesInspector.registerElementForPath(`components.sprite.clips.${args.clipKeys[0]}`, this);
             }
 
             const fieldName = this._inspector.getField(this._getPathTo('name'));
@@ -644,8 +644,8 @@ Object.assign(pcui, (function () {
         destroy() {
             if (this._destroyed) return;
 
-            if (this._templateOverridesSidebar) {
-                this._templateOverridesSidebar.registerElementForPath(`components.sprite.clips.${this._clipKeys[0]}`);
+            if (this._templateOverridesInspector) {
+                this._templateOverridesInspector.unregisterElementForPath(`components.sprite.clips.${this._clipKeys[0]}`);
             }
 
             super.destroy();

@@ -14,6 +14,19 @@
             }
         }
     }
+
+    .pcui-asset-input.active {
+        border: 1px solid $text-active;
+        margin: 12px 6px;
+        padding: 6px;
+        overflow: hidden;
+        height: 100%;
+        background-color: $bcg-darkest;
+        
+        .pcui-label {
+            color: $text-active;
+        }
+    }
 }
 
 .asset-model-inspector-mesh-instances-picker-mode {
@@ -36,5 +49,22 @@
             cursor: pointer;
             background-color: $bcg-darkest;
         }
+    }
+}
+
+.asset-model-inspector-mesh-instances-picker-label {
+    background-color: $bcg-dark;
+    width: 100%;
+    color: $text-primary;
+    font-size: 12px;
+    padding: 8px 20px;
+    margin: 0;
+    white-space: inherit;
+    h5 {
+        color: $text-active;
+        font-family: 'Proxima Nova Bold', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        font-weight: bold;
+        font-style: normal;
+        margin: 0 0 6px 0;
     }
 }

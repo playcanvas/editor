@@ -18,19 +18,36 @@ Object.assign(pcui, (function () {
         }
     }, {
         label: 'Emission Rate',
-        alias: 'components.particlesystem.emissionRate',
-        type: 'vec2',
+        path: 'components.particlesystem.rate',
+        type: 'number',
         args: {
-            placeholder: ['From', 'To']
+            placeholder: 'From'
+        },
+        reference: 'particlesystem:rate'
+    }, {
+        label: 'Emission Rate 2',
+        path: 'components.particlesystem.rate2',
+        type: 'number',
+        args: {
+            placeholder: 'To'
         },
         reference: 'particlesystem:rate'
     }, {
         label: 'Start Angle',
-        alias: 'components.particlesystem.startAngle',
-        type: 'vec2',
+        path: 'components.particlesystem.startAngle',
+        type: 'number',
         args: {
-            placeholder: ['From', 'To']
-        }
+            placeholder: ['From']
+        },
+        reference: 'particlesystem:startAngle'
+    }, {
+        label: 'Start Angle 2',
+        path: 'components.particlesystem.startAngle2',
+        type: 'number',
+        args: {
+            placeholder: ['To']
+        },
+        reference: 'particlesystem:startAngle'
     }, {
         label: 'Loop',
         path: 'components.particlesystem.loop',
@@ -314,7 +331,7 @@ Object.assign(pcui, (function () {
                 history: args.history,
                 attributes: !editor.call('users:hasFlag', 'hasParticleSystemAnimStartFrame') ?
                     ATTRIBUTES.filter(attr => attr.path !== 'components.particlesystem.animStartFrame') : ATTRIBUTES,
-                templateOverridesSidebar: this._templateOverridesSidebar
+                templateOverridesInspector: this._templateOverridesInspector
             });
             this.append(this._attributesInspector);
 
@@ -380,16 +397,6 @@ Object.assign(pcui, (function () {
             controls.append(btnReset);
 
             this._attributesInspector.prepend(controls);
-
-            if (this._templateOverridesSidebar) {
-                const emissionRate = this._field('emissionRate').inputs;
-                this._templateOverridesSidebar.registerElementForPath(`components.particlesystem.rate`, emissionRate[0].dom);
-                this._templateOverridesSidebar.registerElementForPath(`components.particlesystem.rate2`, emissionRate[1].dom);
-
-                const startAngle = this._field('startAngle').inputs;
-                this._templateOverridesSidebar.registerElementForPath(`components.particlesystem.startAngle`, startAngle[0].dom);
-                this._templateOverridesSidebar.registerElementForPath(`components.particlesystem.startAngle2`, startAngle[1].dom);
-            }
         }
 
         _field(name) {
@@ -482,15 +489,6 @@ Object.assign(pcui, (function () {
             this._suppressToggleFields = true;
             this._attributesInspector.link(entities);
 
-            // link dummy vector fields to actual paths
-            const emissionRate = this._field('emissionRate').inputs;
-            emissionRate[0].link(entities, 'components.particlesystem.rate');
-            emissionRate[1].link(entities, 'components.particlesystem.rate2');
-
-            const startAngle = this._field('startAngle').inputs;
-            startAngle[0].link(entities, 'components.particlesystem.startAngle');
-            startAngle[1].link(entities, 'components.particlesystem.startAngle2');
-
             this._suppressToggleFields = false;
             this._toggleFields();
 
@@ -501,26 +499,6 @@ Object.assign(pcui, (function () {
         unlink() {
             super.unlink();
             this._attributesInspector.unlink();
-
-            ['emissionRate', 'startAngle'].forEach(field => {
-                const inputs = this._field(field).inputs;
-                for (let i = 0; i < inputs.length; i++) {
-                    inputs[i].unlink();
-                }
-            });
-        }
-
-        destroy() {
-            if (this._destroyed) return;
-
-            if (this._templateOverridesSidebar) {
-                this._templateOverridesSidebar.unregisterElementForPath(`components.particlesystem.rate`);
-                this._templateOverridesSidebar.unregisterElementForPath(`components.particlesystem.rate2`);
-                this._templateOverridesSidebar.unregisterElementForPath(`components.particlesystem.startAngle`);
-                this._templateOverridesSidebar.unregisterElementForPath(`components.particlesystem.startAngle2`);
-            }
-
-            super.destroy();
         }
     }
 

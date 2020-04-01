@@ -32,8 +32,7 @@ Object.assign(pcui, (function () {
             this._attributesInspector = new pcui.AttributesInspector({
                 assets: args.assets,
                 history: args.history,
-                attributes: ATTRIBUTES,
-                templateOverridesSidebar: this._templateOverridesSidebar
+                attributes: ATTRIBUTES
             });
             this.append(this._attributesInspector);
         }

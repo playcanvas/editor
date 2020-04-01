@@ -9,7 +9,8 @@ Object.assign(pcui, (function () {
             observer: 'projectSettings',
             label: 'Name',
             path: `layers.${args.layerKey}.name`,
-            type: 'string'
+            type: 'string',
+            reference: 'settings:layers:name'
         },
         {
             observer: 'projectSettings',
@@ -26,7 +27,8 @@ Object.assign(pcui, (function () {
                     { v: 3, t: 'Back To Front' },
                     { v: 4, t: 'Front To Back' }
                 ]
-            }
+            },
+            reference: 'settings:layers:opaqueSort'
         },
         {
             observer: 'projectSettings',
@@ -43,7 +45,8 @@ Object.assign(pcui, (function () {
                     { v: 3, t: 'Back To Front' },
                     { v: 4, t: 'Front To Back' }
                 ]
-            }
+            },
+            reference: 'settings:layers:transparentSort'
         }
     ];
 
@@ -91,15 +94,6 @@ Object.assign(pcui, (function () {
             });
 
             this.headerText = this._projectSettings.get('layers')[this._args.layerKey].name;
-
-            this._nameLabel = this._attributesInspector.getField(`layers.${this._args.layerKey}.name`).parent.label;
-            this._nameLabelTooltip = editor.call('attributes:reference:attach', `settings:layers:name`, this._nameLabel);
-
-            this._opaqueSortLabel = this._attributesInspector.getField(`layers.${this._args.layerKey}.opaqueSortMode`).parent.label;
-            this._opaqueSortLabelTooltip = editor.call('attributes:reference:attach', `settings:layers:opaqueSort`, this._opaqueSortLabel);
-
-            this._tansparentSortModeLabel = this._attributesInspector.getField(`layers.${this._args.layerKey}.transparentSortMode`).parent.label;
-            this._tansparentSortModeLabelTooltip = editor.call('attributes:reference:attach', 'settings:layers:transparentSort', this._tansparentSortModeLabel);
         }
 
         _removeLayer() {

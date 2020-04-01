@@ -13,7 +13,7 @@
 @import "editor-entity-inspector";
 @import "editor-template-overrides-view";
 @import "editor-template-entity-inspector";
-@import "editor-template-override-sidebar";
+@import "editor-template-override-inspector";
 @import "editor-component-inspector";
 @import "editor-component-model-inspector";
 @import "editor-component-script-inspector";
@@ -38,3 +38,4 @@
 @import "editor-settings-loading-screen";
 @import "editor-settings-asset-tasks";
 @import "editor-settings-scripts-panel";
+@import "editor-tooltip-reference";

@@ -28,10 +28,15 @@ editor.once('load', function() {
         description: 'Controls the rate at which a light attentuates from its position.',
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#falloffMode'
     }, {
-        title: 'coneAngles',
+        title: 'innerConeAngle',
         subTitle: '{Number}',
-        description: 'The angles from the spotlight\'s direction at which light begins to fall from its maximum (innerConeAngle) and zero value (outerConeAngle).',
+        description: 'The angle at which the spotlight cone starts to fade off. The angle is specified in degrees. Affects spot lights only.',
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#innerConeAngle'
+    }, {
+        title: 'outerConeAngle',
+        subTitle: '{Number}',
+        description: 'The angle at which the spotlight cone has faded to nothing. The angle is specified in degrees. Affects spot lights only.',
+        url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#outerConeAngle'
     }, {
         title: 'intensity',
         subTitle: '{Number}',

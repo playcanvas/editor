@@ -1,10 +1,6 @@
 editor.once('load', function () {
     'use strict';
 
-    const hasPcuiSettings = editor.call('users:hasFlag', 'hasPcuiSettings');
-    if (!hasPcuiSettings)
-        return;
-
     const settingsArgs = {
         assets: editor.call('assets:raw'),
         entities: editor.call('entities:list'),
@@ -111,6 +107,9 @@ Object.assign(pcui, (function () {
             this._settingsPanels = [];
 
             SETTING_TYPES.forEach(setting => {
+                if (['externalscripts', 'scripts'].includes(setting) && this._args.projectSettings.get('useLegacyScripts'))
+                    return;
+
                 const cls = `${setting[0].toUpperCase()}${setting.substring(1)}SettingsPanel`;
                 const panel = new pcui[cls]({
                     history: args.history,

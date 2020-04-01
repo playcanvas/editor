@@ -2,7 +2,6 @@ Object.assign(pcui, (function () {
     'use strict';
 
     const CLASS_ROOT = 'entity-inspector';
-    const CLASS_OVERRIDES = CLASS_ROOT + '-overrides';
     const CLASS_NO_COMPONENTS = CLASS_ROOT + '-no-components';
     const CLASS_ADD_COMPONENT = CLASS_ROOT + '-add-component';
 
@@ -78,27 +77,15 @@ Object.assign(pcui, (function () {
 
                 this.append(this._templateInspector);
 
-                // TODO: disable until we find a better solution
-                this._templateOverridesSidebar = null;//new pcui.TemplateOverrideSidebar({
-                //     hidden: true,
-                //     flex: true
-                // });
-
-                // this.append(this._templateOverridesSidebar);
-
-                // this._templateOverridesSidebar.on('hide', () => {
-                //     this.class.remove(CLASS_OVERRIDES);
-                // });
-
-                // this._templateOverridesSidebar.on('show', () => {
-                //     this.class.add(CLASS_OVERRIDES);
-                // });
+                this._templateOverridesInspector = new pcui.TemplateOverrideInspector({
+                    entities: args.entities
+                });
             }
 
             this._attributesInspector = new pcui.AttributesInspector({
                 history: args.history,
                 attributes: ATTRIBUTES,
-                templateOverridesSidebar: this._templateOverridesSidebar
+                templateOverridesInspector: this._templateOverridesInspector
             });
             this.append(this._attributesInspector);
 
@@ -127,7 +114,7 @@ Object.assign(pcui, (function () {
                         assets: args.assets,
                         entities: args.entities,
                         projectSettings: args.projectSettings,
-                        templateOverridesSidebar: this._templateOverridesSidebar,
+                        templateOverridesInspector: this._templateOverridesInspector,
                         history: args.history
                     });
 
@@ -284,9 +271,6 @@ Object.assign(pcui, (function () {
                 if (this._templateInspector) {
                     this._templateInspector.link(entities);
                 }
-                if (this._templateOverridesSidebar) {
-                    this._templateOverridesSidebar.link(entities);
-                }
             } catch (err) {
                 console.error(err);
             }
@@ -328,6 +312,15 @@ Object.assign(pcui, (function () {
             }
 
             this._disableUiFields();
+
+
+            try {
+                if (this._templateOverridesInspector) {
+                    this._templateOverridesInspector.entity = entities.length === 1 ? entities[0] : null;
+                }
+            } catch (err) {
+                console.error(err);
+            }
         }
 
         unlink() {
@@ -339,9 +332,10 @@ Object.assign(pcui, (function () {
 
             this._attributesInspector.unlink();
 
-            if (this._templateOverridesSidebar) {
-                this._templateOverridesSidebar.unlink();
+            if (this._templateOverridesInspector) {
+                this._templateOverridesInspector.entity = null;
             }
+
             if (this._templateInspector) {
                 this._templateInspector.unlink();
             }
