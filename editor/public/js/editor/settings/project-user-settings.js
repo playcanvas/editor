@@ -96,7 +96,7 @@ editor.once('load', function () {
             }
 
             if (!settings.has('editor.pipeline.useGlb')) {
-                settings.set('editor.pipeline.useGlb', true);
+                settings.set('editor.pipeline.useGlb', false);
             }
 
             settings.history.enabled = history;

@@ -95,6 +95,10 @@ Object.assign(pcui, (function () {
 
             // reference
             this._panelTooltip = editor.call('attributes:reference:attach', 'settings:asset-tasks', this.header, this.header.dom);
+
+            if (editor.call('users:hasFlag', 'hasConvertGlb')) {
+                this._attributesInspector.getField('editor.pipeline.useGlb').parent.hidden = true;
+            }
         }
 
         _appendSection(title, attributeElement) {
