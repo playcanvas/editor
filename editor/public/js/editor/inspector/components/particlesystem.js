@@ -370,7 +370,9 @@ Object.assign(pcui, (function () {
                 'normalMapAsset',
                 'randomizeAnimIndex'
             ].forEach(field => {
-                this._field(field).on('change', this._toggleFields.bind(this));
+                const fieldAttribute = this._field(field);
+                if (fieldAttribute)
+                    fieldAttribute.on('change', this._toggleFields.bind(this));
             });
 
             // add control buttons
