@@ -39,14 +39,6 @@ Object.assign(pcui, (function () {
             this.once('destroy', () => {
                 createNewAssetEvt.unbind();
             });
-
-            editor.once('assets:load', () => {
-                const i18nAssets = this._attributesInspector.getField('i18nAssets');
-                const value = i18nAssets.value;
-                i18nAssets.value = [];
-                i18nAssets.value = value;
-            });
-
         }
 
         link(observers) {
