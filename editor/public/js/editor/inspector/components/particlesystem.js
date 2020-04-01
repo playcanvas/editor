@@ -449,12 +449,15 @@ Object.assign(pcui, (function () {
             this._field('animNumFrames').parent.hidden = hideAnimTiles;
             this._field('animSpeed').parent.hidden = hideAnimTiles;
             this._field('animLoop').parent.hidden = hideAnimTiles;
-            this._field('animStartFrame').parent.hidden = hideAnimTiles;
-            this._field('animNumAnimations').parent.hidden = hideAnimTiles;
-            this._field('animIndex').parent.hidden = hideAnimTiles;
-            this._field('randomizeAnimIndex').parent.hidden = hideAnimTiles;
+            const hasParticleSystemSpriteAnimationUpdates = editor.call('users:hasFlag', 'hasParticleSystemSpriteAnimationUpdates');
+            if (hasParticleSystemSpriteAnimationUpdates) {
+                this._field('animStartFrame').parent.hidden = hideAnimTiles;
+                this._field('animNumAnimations').parent.hidden = hideAnimTiles;
+                this._field('animIndex').parent.hidden = hideAnimTiles;
+                this._field('randomizeAnimIndex').parent.hidden = hideAnimTiles;
 
-            this._field('animIndex').disabled = this._field('randomizeAnimIndex').value;
+                this._field('animIndex').disabled = this._field('randomizeAnimIndex').value;
+            }
         }
 
         _onClickPlay() {
