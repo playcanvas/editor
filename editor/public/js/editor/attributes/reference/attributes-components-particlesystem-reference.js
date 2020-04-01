@@ -42,13 +42,28 @@ editor.once('load', function() {
     }, {
         title: 'animStartFrame',
         subTitle: '{Number}',
-        description: 'Sprite sheet frame to begin animation from',
+        description: 'Sprite sheet frame in animation to begin animating from',
         url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#animStartFrame'
     }, {
         title: 'animNumFrames',
         subTitle: '{Number}',
-        description: 'Number of sprite sheet frames to play',
+        description: 'Number of sprite sheet frames in each animation',
         url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#animNumFrames'
+    }, {
+        title: 'animNumAnimations',
+        subTitle: '{Number}',
+        description: 'Number of animations contained in the sprite sheet',
+        url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#animNumAnimations'
+    }, {
+        title: 'animIndex',
+        subTitle: '{Number}',
+        description: 'The animation from the sprite sheet to play for each particle in the system',
+        url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#animIndex'
+    }, {
+        title: 'randomizeAnimIndex',
+        subTitle: '{Number}',
+        description: 'If true then each particle will play a randomly selected animation from the sprite sheet, otherwise it always use the animation specified by animIndex',
+        url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#randomizeAnimIndex'
     }, {
         title: 'animSpeed',
         subTitle: '{Number}',
@@ -238,7 +253,7 @@ editor.once('load', function() {
     }];
 
     for (var i = 0; i < fields.length; i++) {
-        if (fields[i].title === 'animStartFrame' && !editor.call('users:hasFlag', 'hasParticleSystemAnimStartFrame'))
+        if (['animStartFrame', 'animNumAnimations', 'animIndex', 'randomizeAnimIndex'].includes(fields[i].title) && !editor.call('users:hasFlag', 'hasParticleSystemAnimStartFrame'))
             continue;
         fields[i].name = 'particlesystem:' + (fields[i].name || fields[i].title);
         editor.call('attributes:reference:add', fields[i]);
