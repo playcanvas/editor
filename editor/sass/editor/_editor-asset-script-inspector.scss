@@ -5,6 +5,10 @@
     margin: 6px;
 }
 
+.script-asset-inspector-error-container > .pcui-label {
+    white-space: normal;
+}
+
 .script-asset-inspector-container.pcui-hidden, .script-asset-inspector-error-container.pcui-hidden {
     display: none;
 }

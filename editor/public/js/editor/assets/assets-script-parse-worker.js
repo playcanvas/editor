@@ -27,23 +27,41 @@ var parseScript = function(id, url, engine) {
     };
 
     // implement pc.createScript
-    pc.createScript = function(name) {
+    pc.createScript = function(name, app, script) {
         var valid = true;
 
-        if (! name) {
-            __results.scriptsInvalid.push('script name must be defined');
-            valid = false;
-            name = 'script';
-        } else if (typeof(name) !== 'string') {
-            __results.scriptsInvalid.push('script name must be a string');
-            valid = false;
-            name = 'script';
-        } else if (name.indexOf('.') !== -1) {
-            __results.scriptsInvalid.push('script name cannot contain dots');
-            valid = false;
-        } else if (__results.scripts[name]) {
-            __results.scriptsInvalid.push('script `' + name + '` is defined more than once');
-            valid = false;
+        if (script) {
+            if (typeof script !== 'function') {
+                if (!name) {
+                    name = 'script';
+                }
+                valid = false;
+                __results.scriptsInvalid.push('script class: \'' + name + '\' must be a constructor function (i.e. class).');
+            } else if (!(script.prototype instanceof pc.ScriptType)) {
+                if (!name) {
+                    name = 'script';
+                }
+                valid = false;
+                __results.scriptsInvalid.push('script class: \'' + name + '\' does not extend pc.ScriptType.');
+            }
+        }
+
+        if (valid) {
+            if (! name) {
+                __results.scriptsInvalid.push('script name must be defined');
+                valid = false;
+                name = 'script';
+            } else if (typeof(name) !== 'string') {
+                __results.scriptsInvalid.push('script name must be a string');
+                valid = false;
+                name = 'script';
+            } else if (name.indexOf('.') !== -1) {
+                __results.scriptsInvalid.push('script name cannot contain dots');
+                valid = false;
+            } else if (__results.scripts[name]) {
+                __results.scriptsInvalid.push('script `' + name + '` is defined more than once');
+                valid = false;
+            }
         }
 
         var obj = { };
@@ -201,6 +219,11 @@ var parseScript = function(id, url, engine) {
             }
         };
 
+        if (script && script.attributes) {
+            // override pc.ScriptType.attributes.add
+            script.attributes.add = obj[name].attributes.add;
+        }
+
         defaultValidators = {
             vec2: function (value) {
                 if (! (value instanceof Array) || value.length !== 2) {
@@ -272,6 +295,22 @@ var parseScript = function(id, url, engine) {
         }
 
         return obj[name];
+    };
+
+    // implement pc.registerScript
+    pc.registerScript = function (script, name, app) {
+        if (typeof script === 'function' && script.prototype instanceof pc.ScriptType) {
+            name = name || script.__name || pc.ScriptType.__getScriptName(script);
+        }
+
+        return pc.createScript(name, app, script);
+    };
+
+    // override ScriptAttributes#add to throw an error
+    // which will happen if users try to call this method before calling
+    // registerScript
+    pc.ScriptAttributes.prototype.add = function (name) {
+        __results.scriptsInvalid.push('script `' + this.scriptType.name + '` you have to call pc.registerScript or pc.createScript before declaring script attributes.');
     };
 
     // import script
