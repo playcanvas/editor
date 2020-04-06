@@ -107,7 +107,6 @@ editor.on('load', function() {
             collapsible: true,
             collapsed: editor.call('localStorage:get', 'editor:layout:assets:collapse') || window.innerHeight <= 480,
             height: editor.call('localStorage:get', 'editor:layout:assets:height') || 212,
-            scrollable: true,
             resizable: 'top',
             resizeMin: 106,
             resizeMax: 106 * 6

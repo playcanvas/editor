@@ -1,0 +1,117 @@
+Object.assign(pcui, (function () {
+    'use strict';
+
+    const CLASS_ROW = 'pcui-table-row';
+    const CLASS_SELECTED_ROW = CLASS_ROW + '-selected';
+
+    class TableRow extends pcui.Container {
+        constructor(args) {
+            args = Object.assign({
+                tabIndex: args && args.header ? -1 : 0,
+                dom: document.createElement('tr')
+            }, args);
+
+            super(args);
+
+            this.class.add(CLASS_ROW);
+
+            if (args.header) {
+                this._header = true;
+            }
+
+            this._selected = false;
+
+            if (!this._header) {
+                this._domEvtFocus = this._onFocus.bind(this);
+                this._domEvtBlur = this._onBlur.bind(this);
+
+                this.dom.addEventListener('focus', this._domEvtFocus);
+                this.dom.addEventListener('blur', this._domEvtBlur);
+            }
+        }
+
+        _onFocus() {
+            this.emit('focus', this);
+        }
+
+        _onBlur() {
+            this.emit('blur', this);
+        }
+
+        focus() {
+            if (this._header) return;
+            this.dom.focus();
+        }
+
+        blur() {
+            if (this._header) return;
+            this.dom.blur();
+        }
+
+        destroy() {
+            if (this._destroyed) return;
+
+            this.dom.removeEventListener('focus', this._domEvtFocus);
+            this.dom.removeEventListener('blur', this._domEvtBlur);
+
+            super.destroy();
+        }
+
+        get selected() {
+            return this._selected;
+        }
+
+        set selected(value) {
+            if (this._header) return;
+
+            if (value) {
+                this.focus();
+            }
+
+            if (this.selected === value) return;
+
+            this._selected = value;
+
+            if (value) {
+                this.class.add(CLASS_SELECTED_ROW);
+                this.emit('select', this);
+            } else {
+                this.class.remove(CLASS_SELECTED_ROW);
+                this.emit('deselect', this);
+            }
+        }
+
+        get nextSibling() {
+            let next = this.dom.nextSibling;
+            while (next) {
+                if (next.ui instanceof pcui.TableRow) {
+                    return next.ui;
+                }
+
+                next = next.nextSibling;
+            }
+
+            return null;
+        }
+
+        get previousSibling() {
+            let prev = this.dom.previousSibling;
+            while (prev) {
+                if (prev.ui instanceof pcui.TableRow) {
+                    return prev.ui;
+                }
+
+                prev = prev.previousSibling;
+            }
+
+            return null;
+        }
+    }
+
+    utils.implements(TableRow, pcui.IFocusable);
+
+    return {
+        TableRow: TableRow
+    };
+
+})());

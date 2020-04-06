@@ -296,25 +296,45 @@
 }
 
 #layout-assets.pcui-asset-panel {
-    .pcui-table {
-        min-width: max-content; // fixes width not covering whole horizontal scroll width
-        background-color: $bcg-dark;
+    > .pcui-panel-content {
+        height: 100%;
 
-        tr:hover, tr.selected {
-            background-color: $bcg-darker;
+        > .pcui-treeview {
+            flex-shrink: 0;
+            border-top: 1px solid $border-primary;
+
+            .pcui-treeview-item-icon:after {
+                content: '\E139';
+            }
         }
 
-        th {
-            background-color: $bcg-darker;
-        }
+        > .pcui-table {
+            flex: 1;
+            border-left: 1px solid $border-primary;
 
-        .pcui-asset-thumb {
-            margin-left: $element-margin;
-            width: 18px;
-            height: 18px;
+            background-color: $bcg-dark;
 
-            &:hover {
-                box-shadow: none !important;
+            .pcui-table-row:not(.pcui-table-row-selected) {
+                &:hover, &:focus {
+                    background-color: $bcg-darker;
+                }
+            }
+
+            th {
+                background-color: $bcg-darker;
+                &:first-child {
+                    border-left: 0;
+                }
+            }
+
+            .pcui-asset-thumb {
+                margin-left: $element-margin;
+                width: 18px;
+                height: 18px;
+
+                &:hover {
+                    box-shadow: none !important;
+                }
             }
         }
     }

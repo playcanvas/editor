@@ -34,22 +34,39 @@ Object.assign(pcui, (function () {
                 headerText: 'ASSETS'
             }, args);
 
+            args.flex = true;
+            args.flexDirection = 'row';
+
             super(args);
 
             this.class.add(CLASS_ROOT);
 
+            // folders tree view
+            this._foldersView = new pcui.TreeView({
+                resizable: 'right',
+                resizeMin: 100,
+                resizeMax: 300,
+                width: 200,
+                scrollable: true
+            });
+
+            // root element
+            this._foldersViewRoot = new pcui.TreeViewItem({
+                text: '/'
+            });
+            this._foldersView.append(this._foldersViewRoot);
+
+            this.append(this._foldersView);
+
+            // table view
             this._detailsView = new pcui.Table({
+                scrollable: true,
                 columns: [{
                     title: 'Name',
                     sortKey: 'name'
                 }, {
                     title: 'Type',
                     sortKey: 'type'
-                // }, {
-                //     title: 'ID',
-                //     sortFn: (a, b) => {
-                //         return parseInt(a.get('id'), 10) - parseInt(b.get('id'), 10);
-                //     }
                 }, {
                     title: 'Size',
                     sortKey: 'file.size'
@@ -57,6 +74,15 @@ Object.assign(pcui, (function () {
                 createRowFn: this._createDetailsViewRow.bind(this)
             });
             this.append(this._detailsView);
+
+            this._rowsIndex = {};
+
+            this._suspendSelectEvents = false;
+            this._detailsView.on('select', this._onSelectRow.bind(this));
+            this._detailsView.on('deselect', this._onDeselectRow.bind(this));
+
+            this._eventsEditor = [];
+            this._eventsEditor.push(editor.on('selector:change', this._onSelectorChange.bind(this)));
 
             this._assetEvents = [];
 
@@ -76,6 +102,14 @@ Object.assign(pcui, (function () {
         _createDetailsViewRow(asset) {
             const row = new pcui.TableRow();
 
+            row.asset = asset;
+
+            this._rowsIndex[asset.get('id')] = row;
+
+            row.on('destroy', () => {
+                delete this._rowsIndex[asset.get('id')];
+            });
+
             // name
             let cell = new pcui.TableCell({
                 flex: true,
@@ -90,6 +124,11 @@ Object.assign(pcui, (function () {
                 value: asset.get('id'),
                 flexShrink: 0
             });
+
+            if (asset.get('type') === 'folder') {
+                thumb.style.filter = "invert(46%) sepia(5%) saturate(1283%) hue-rotate(139deg) brightness(90%) contrast(90%)";
+            }
+
             cell.append(thumb);
 
             const labelName = new pcui.Label({
@@ -150,6 +189,29 @@ Object.assign(pcui, (function () {
             return row;
         }
 
+        _onSelectRow(row) {
+            if (this._suspendSelectEvents) return;
+            editor.call('selector:add', 'asset', row.asset);
+        }
+
+        _onDeselectRow(row) {
+            if (this._suspendSelectEvents) return;
+            editor.call('selector:remove', row.asset);
+        }
+
+        _onSelectorChange(type, assets) {
+            this._suspendSelectEvents = true;
+            this._detailsView.deselect();
+            assets.forEach(asset => {
+                const row = this._rowsIndex[asset.get('id')];
+                if (row) {
+                    row.selected = true;
+                }
+            });
+
+            this._suspendSelectEvents = false;
+        }
+
         _onAssetAdd(asset) {
             this._detailsView.link(this._assets.array());
         }
@@ -160,6 +222,9 @@ Object.assign(pcui, (function () {
 
         destroy() {
             if (this._destroyed) return;
+
+            this._eventsEditor.forEach(e => e.unbind());
+            this._eventsEditor.length = 0;
 
             this._assetEvents.forEach(e => e.unbind());
             this._assetEvents.length = 0;

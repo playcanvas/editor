@@ -2,45 +2,14 @@ Object.assign(pcui, (function () {
     'use strict';
 
     const CLASS_TABLE = 'pcui-table';
-    const CLASS_ROW = 'pcui-table-row';
+
     const CLASS_CELL = 'pcui-table-cell';
     const CLASS_CELL_ACTIVE = CLASS_CELL + '-active';
     const CLASS_SORT_CELL = CLASS_CELL + '-sort';
     const CLASS_SORT_CELL_DESCENDING = CLASS_SORT_CELL + '-descending';
     const CLASS_CELL_HANDLE = CLASS_CELL + '-handle';
+
     const CLASS_RESIZING = CLASS_TABLE + '-resizing';
-
-    class TableRow extends pcui.Container {
-        constructor(args) {
-            args = Object.assign({
-                dom: document.createElement('tr')
-            }, args);
-
-            super(args);
-
-            this.class.add(CLASS_ROW);
-        }
-    }
-
-    class TableCell extends pcui.Container {
-        constructor(args) {
-            let dom;
-            if (args && args.header) {
-                dom = document.createElement('th');
-                dom.setAttribute('scope', 'col');
-            } else {
-                dom = document.createElement('td');
-            }
-
-            args = Object.assign({
-                dom: dom
-            }, args);
-
-            super(args);
-
-            this.class.add(CLASS_CELL);
-        }
-    }
 
     class Table extends pcui.Container {
         constructor(args) {
@@ -86,25 +55,32 @@ Object.assign(pcui, (function () {
                 this.columns = args.columns;
             }
 
-            this._selectedRows = [];
+            this._lastRowSelected = null;
+            this._lastRowFocused = null;
 
             this._observers = null;
         }
 
         _refreshLayout() {
+            this.deselect();
+
             this._containerHead.clear();
             this._containerBody.clear();
 
             // create header
             if (this._columns.length) {
-                const headRow = new pcui.TableRow();
+                const headRow = new pcui.TableRow({
+                    header: true
+                });
 
                 this._columns.forEach((column, colIndex) => {
                     const cell = new pcui.TableCell({
                         header: true
                     });
 
-                    this._addResizeHandle(cell, colIndex);
+                    if (colIndex < this._columns.length - 1) {
+                        this._addResizeHandle(cell, colIndex);
+                    }
 
                     // set preferred width
                     if (column.width !== undefined) {
@@ -160,21 +136,118 @@ Object.assign(pcui, (function () {
 
             this._sortObservers(this._observers);
 
+            const onRowSelect = this._onRowSelect.bind(this);
+            const onRowDeselect = this._onRowDeselect.bind(this);
+            const onRowFocus = this._onRowFocus.bind(this);
+            const onRowBlur = this._onRowBlur.bind(this);
+            const onRowKeyDown = this._onRowKeyDown.bind(this);
+
             this._observers.forEach(observer => {
                 const row = this._createRowFn(observer);
                 row.on('click', evt => this._onRowClick(evt, row));
+                row.on('select', onRowSelect);
+                row.on('deselect', onRowDeselect);
+                row.on('focus', onRowFocus);
+                row.on('blur', onRowBlur);
+                row.dom.addEventListener('keydown', onRowKeyDown);
                 this.body.append(row);
             });
         }
 
         _onRowClick(evt, row) {
             if (evt.ctrlKey || evt.metaKey)  {
-
+                // toggle selection
+                row.selected = !row.selected;
             } else if (evt.shiftKey) {
+                if (this._lastRowSelected) {
+                    if (this._lastRowSelected === row) return;
 
+                    // select everything between the last
+                    // row selected and this row
+                    const comparePosition = this._lastRowSelected.dom.compareDocumentPosition(row.dom);
+                    if (comparePosition & Node.DOCUMENT_POSITION_FOLLOWING) {
+                        let next = this._lastRowSelected.nextSibling;
+                        while (next) {
+                            next.selected = true;
+
+                            if (next === row) break;
+
+                            next = next.nextSibling;
+                        }
+                    } else {
+                        let prev = this._lastRowSelected.previousSibling;
+                        while (prev) {
+                            prev.selected = true;
+
+                            if (prev === row) break;
+
+                            prev = prev.previousSibling;
+                        }
+                    }
+                } else {
+                    // no other row selected so just select this
+                    row.selected = !row.selected;
+                }
             } else {
-                this.selectedRows = [row];
+                // deselect others
+                this._containerBody.forEachChild(otherRow => {
+                    if (otherRow !== row) {
+                        otherRow.selected = false;
+                    }
+                });
+
+                // select this row
+                row.selected = true;
             }
+        }
+
+        _onRowSelect(row) {
+            this._lastRowSelected = row;
+            this.emit('select', row);
+        }
+
+        _onRowDeselect(row) {
+            if (this._lastRowSelected === row) {
+                this._lastRowSelected = null;
+            }
+            this.emit('deselect', row);
+        }
+
+        _onRowFocus(row) {
+            this._lastRowFocused = row;
+        }
+
+        _onRowBlur(row) {
+            if (this._lastRowFocused === row) {
+                this._lastRowFocused = null;
+            }
+        }
+
+        _onRowKeyDown(evt) {
+            if (!this._lastRowSelected) return;
+
+            if (evt.target.tagName.toLowerCase() === 'input') return;
+
+            if ([38, 40].indexOf(evt.keyCode) === -1) return;
+
+            evt.preventDefault();
+            evt.stopPropagation();
+
+            const lastRow = this._lastRowFocused || this._lastRowSelected;
+
+            const next = evt.keyCode === 40 ? lastRow.nextSibling : lastRow.previousSibling;
+            if (!next) return;
+
+            if (!evt.ctrlKey && !evt.metaKey && !evt.shiftKey) {
+                // deselect others
+                this._containerBody.forEachChild(otherRow => {
+                    if (otherRow !== next) {
+                        otherRow.selected = false;
+                    }
+                });
+            }
+
+            next.selected = true;
         }
 
         _forEachColumnCell(colIndex, fn, container) {
@@ -203,19 +276,22 @@ Object.assign(pcui, (function () {
         }
 
         _freezeColumnWidth() {
-            return;
+            this._containerTable.width = this._containerTable.width;
+            this._containerTable.minWidth = 'initial';
             const rows = this._containerHead.dom.childNodes;
             rows.forEach(row => {
+                const len = row.childNodes.length;
                 row.childNodes.forEach((child, index) => {
                     if (child.ui instanceof pcui.TableCell) {
-                        // if (index === len - 1) {
-                            // child.ui.style.width = '';
-                            // child.ui.style.minWidth = child.ui.width + 'px';
-                        // } else {
-                            child.ui.width = child.ui.width;
-
-                        // }
-                        this._columns[index].width = child.ui.width;
+                        if (index < len - 1) {
+                            if (!child.style.width) {
+                                child.ui.width = child.ui.width;
+                                this._columns[index].width = child.ui.width;
+                            }
+                        } else {
+                            child.ui.width = '100%';
+                            this._columns[index].width = '100%';
+                        }
                     }
                 });
             });
@@ -318,7 +394,7 @@ Object.assign(pcui, (function () {
                     cell.width = newWidth;
                 }
 
-                this._freezeColumnWidth();
+                // this._freezeColumnWidth();
 
                 // Determine if we need to scroll if we are dragging towards the edges
                 const rect = this.dom.getBoundingClientRect();
@@ -394,11 +470,18 @@ Object.assign(pcui, (function () {
         unlink() {
             if (!this._observers) return;
 
+            this.deselect();
+
             this._observers = null;
 
-            this._containerColumns.clear();
             this.head.clear();
             this.body.clear();
+        }
+
+        deselect() {
+            this.selected.forEach(row => {
+                row.selected = false;
+            });
         }
 
         get columns() {
@@ -422,84 +505,19 @@ Object.assign(pcui, (function () {
             return this._containerBody;
         }
 
-        get selectedRows() {
-            return this._selectedRows.slice();
-        }
-
-        set selectedRows(value) {
-            this._selectedRows.forEach(row => row.class.remove(CLASS_SELECTED_ROW));
-
-            this._selectedRows = (value || []).slice();
-
-            this._selectedRows.forEach(row => row.class.add(CLASS_SELECTED_ROW));
+        get selected() {
+            const selected = [];
+            this._containerBody.forEachChild(child => {
+                if (child.selected) {
+                    selected.push(child);
+                }
+            });
+            return selected;
         }
     }
 
     return {
-        Table: Table,
-        TableCell: TableCell,
-        TableRow: TableRow
+        Table: Table
     };
 
 })());
-
-// const table = new pcui.Table({
-//     scrollable: true,
-//     width: 500,
-//     columns: [{
-//         title: 'Name',
-//         sortKey: 'name'
-//     }, {
-//         title: 'ID',
-//         sortKey: 'id',
-//         width: 10
-//     }, {
-//         title: 'Runtime',
-//         width: 20
-//     }, {
-//         title: 'Type',
-//         sortKey: 'type'
-//     }, {
-//         title: 'Preload',
-//         sortKey: 'preload',
-//         width: 10
-//     }, {
-//         title: 'Size',
-//         sortKey: 'file.size'
-//     }],
-//     createRowFn: (observer) => {
-//         const row = new pcui.TableRow();
-
-//         ['name', 'id', 'runtime', 'type', 'preload', 'file.size'].forEach(field => {
-//             const cell = new pcui.TableCell();
-//             const label = new pcui.Label({
-//                 binding: new pcui.BindingObserversToElement()
-//             });
-//             label.link(observer, field);
-//             cell.append(label);
-//             row.append(cell);
-//         });
-
-//         return row;
-//     }
-// });
-
-// table.style.position = 'absolute';
-// table.style.backgroundColor = '#364346';
-// table.style.top = '0';
-// table.style.left = '0';
-// table.style.zIndex = '1';
-// table.style.height = '400px';
-
-// var myInterval = setInterval(() => {
-//     if (!window.editor) return;
-//     if (!editor.call('layout.root')) return;
-
-//     clearInterval(myInterval);
-
-//     editor.call('layout.root').append(table);
-
-//     editor.on('assets:load', () => {
-//         table.link(editor.call('assets:list').slice());
-//     });
-// });

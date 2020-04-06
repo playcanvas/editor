@@ -6,9 +6,7 @@ editor.on('assets:load', () => {
 editor.once('load', function() {
     'use strict';
 
-
-
-    return;
+    if (editor.call('users:hasFlag', 'hasPcuiAssetsPanel')) return;
 
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
