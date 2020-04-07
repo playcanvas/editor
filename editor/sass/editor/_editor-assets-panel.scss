@@ -296,10 +296,17 @@
 }
 
 .pcui-asset-panel {
+    > .pcui-resizable-handle {
+        // make z-index higher than the
+        // details view z-index otherwise part
+        // of the handle will be hidden by the table
+        z-index: 2 !important;
+    }
+
     > .pcui-panel-content {
         height: 100%;
 
-        > .pcui-treeview {
+        > .pcui-asset-panel-folders {
             flex-shrink: 0;
             border-top: 1px solid $border-primary;
 

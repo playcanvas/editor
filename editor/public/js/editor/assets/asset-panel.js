@@ -2,6 +2,7 @@ Object.assign(pcui, (function () {
     'use strict';
 
     const CLASS_ROOT = 'pcui-asset-panel';
+    const CLASS_FOLDERS = CLASS_ROOT + '-folders';
     const CLASS_CURRENT_FOLDER = CLASS_ROOT + '-current-folder';
 
     const TYPES = {
@@ -43,13 +44,20 @@ Object.assign(pcui, (function () {
             this.class.add(CLASS_ROOT);
 
             // folders tree view
-            this._foldersView = new pcui.TreeView({
+            this._containerFolders = new pcui.Container({
+                class: CLASS_FOLDERS,
                 resizable: 'right',
                 resizeMin: 100,
                 resizeMax: 300,
                 width: 200,
                 scrollable: true
             });
+            this.append(this._containerFolders);
+
+            this._foldersView = new pcui.TreeView({
+                allowReordering: false
+            });
+            this._containerFolders.append(this._foldersView);
 
             this._foldersView.on('select', this._onFolderTreeSelect.bind(this));
             this._foldersView.on('deselect', this._onFolderTreeDeselect.bind(this));
@@ -61,9 +69,8 @@ Object.assign(pcui, (function () {
             this._foldersViewRoot.open = true;
             this._foldersView.append(this._foldersViewRoot);
 
-            this.append(this._foldersView);
-
             this._foldersIndex = {};
+            this._foldersWaitingParent = {};
 
             // table view
             this._detailsView = new pcui.Table({
@@ -98,6 +105,13 @@ Object.assign(pcui, (function () {
 
             this.currentFolder = null;
 
+            this._selector = {
+                type: null,
+                items: null,
+                prevType: null,
+                prevItems: null
+            };
+
             if (args.assets) {
                 this.assets = args.assets;
             }
@@ -117,6 +131,22 @@ Object.assign(pcui, (function () {
             row.asset = asset;
 
             this._rowsIndex[asset.get('id')] = row;
+
+            // folder dbl click
+            if (asset.get('type') === 'folder') {
+                row.dom.addEventListener('dblclick', (evt) => {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+
+                    this.currentFolder = asset;
+
+                    // restore previous selection after
+                    // double clicking into a folder
+                    if (this._selector.prevItems) {
+                        editor.call('selector:set', this._selector.prevType, this._selector.prevItems);
+                    }
+                });
+            }
 
             row.on('destroy', () => {
                 delete this._rowsIndex[asset.get('id')];
@@ -212,14 +242,34 @@ Object.assign(pcui, (function () {
         }
 
         _onSelectorChange(type, assets) {
+            this._selector.prevType = this._selector.type;
+            this._selector.prevItems = this._selector.items;
+
+            this._selector.type = type;
+            this._selector.items = assets;
+
             this._suspendSelectEvents = true;
             this._detailsView.deselect();
-            assets.forEach(asset => {
-                const row = this._rowsIndex[asset.get('id')];
-                if (row) {
-                    row.selected = true;
-                }
-            });
+
+            for (const id in this._foldersIndex) {
+                this._foldersIndex[id].selected = false;
+            }
+
+            if (type === 'asset') {
+                assets.forEach(asset => {
+                    const row = this._rowsIndex[asset.get('id')];
+                    if (row) {
+                        row.selected = true;
+                    }
+
+                    if (asset.get('type') === 'folder') {
+                        const folder = this._foldersIndex[asset.get('id')];
+                        if (folder) {
+                            folder.selected = true;
+                        }
+                    }
+                });
+            }
 
             this._suspendSelectEvents = false;
         }
@@ -242,6 +292,30 @@ Object.assign(pcui, (function () {
 
         _addFolder(asset) {
             const id = asset.get('id');
+
+            // find parent
+            let parent;
+            const path = asset.get('path');
+            let parentId;
+            if (path && path.length) {
+                parentId = path[path.length - 1];
+                parent = this._foldersIndex[path[path.length - 1]];
+            } else {
+                parentId = '';
+                parent = this._foldersViewRoot;
+            }
+
+            // if we can't find the parent skip this folder
+            // it will be added later when its parent is added
+            if (!parent) {
+                if (!this._foldersWaitingParent[parentId]) {
+                    this._foldersWaitingParent[parentId] = new Set();
+                }
+
+                this._foldersWaitingParent[parentId].add(id);
+                return;
+            }
+
             if (this._foldersIndex[id]) return;
 
             const treeItem = new pcui.TreeViewItem({
@@ -260,7 +334,30 @@ Object.assign(pcui, (function () {
                 treeItem.text = value;
             }));
 
-            this._foldersViewRoot.append(treeItem);
+            // find the right spot to insert the tree item based on alphabetical order
+            const text = treeItem.text.toLowerCase();
+            for (let i = 0; i < this.dom.childNodes.length; i++) {
+                const sibling = this.dom.childNodes[i].ui;
+                if (sibling instanceof pcui.TreeViewItem && sibling.text.toLowerCase() > text) {
+                    parent.appendBefore(treeItem, sibling);
+                }
+            }
+
+            if (!treeItem.parent) {
+                parent.append(treeItem);
+            }
+
+            // add child folders
+            if (this._foldersWaitingParent[id]) {
+                this._foldersWaitingParent[id].forEach(childId => {
+                    const childAsset = this._assets.get(childId);
+                    if (childAsset) {
+                        this._addFolder(childAsset);
+                    }
+                });
+
+                delete this._foldersWaitingParent[id];
+            }
         }
 
         _removeFolder(asset) {
@@ -274,12 +371,18 @@ Object.assign(pcui, (function () {
                 this._foldersIndex[id].destroy();
                 delete this._foldersIndex[id];
             }
+
+            if (this._foldersWaitingParent[id]) {
+                delete this._foldersWaitingParent[id];
+            }
         }
 
         _onFolderTreeSelect(item) {
+            if (this._suspendSelectEvents) return;
+
             if (item.asset) {
                 if (item.asset === this.currentFolder) {
-                    editor.call('selector:add', 'asset', item.asset);
+                    editor.call('selector:set', 'asset', [item.asset]);
                 } else {
                     item.selected = false;
                     this.currentFolder = item.asset;
@@ -291,6 +394,8 @@ Object.assign(pcui, (function () {
         }
 
         _onFolderTreeDeselect(item) {
+            if (this._suspendSelectEvents) return;
+
             if (item.asset) {
                 editor.call('selector:remove', item.asset);
             }
@@ -329,6 +434,11 @@ Object.assign(pcui, (function () {
         }
 
         set assets(value) {
+            this._selector.type = null;
+            this._selector.items = null;
+            this._selector.prevType = null;
+            this._selector.prevItems = null;
+
             this._assetListEvents.forEach(e => e.unbind());
             this._assetListEvents.length = 0;
 
@@ -338,6 +448,8 @@ Object.assign(pcui, (function () {
                 this._foldersIndex[id].destroy();
             }
             this._foldersIndex = {};
+
+            this._foldersWaitingParent = {};
 
             this._assets = value;
             if (!this._assets) return;
