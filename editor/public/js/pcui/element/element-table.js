@@ -36,6 +36,7 @@ Object.assign(pcui, (function () {
             this._containerTable.append(this._containerBody);
 
             this._createRowFn = args.createRowFn;
+            this._filterFn = args.filterFn;
 
             this._sort = {
                 ascending: true,
@@ -134,7 +135,7 @@ Object.assign(pcui, (function () {
 
             if (!this._observers) return;
 
-            this._sortObservers(this._observers);
+            this._sortObservers();
 
             const onRowSelect = this._onRowSelect.bind(this);
             const onRowDeselect = this._onRowDeselect.bind(this);
@@ -150,6 +151,11 @@ Object.assign(pcui, (function () {
                 row.on('focus', onRowFocus);
                 row.on('blur', onRowBlur);
                 row.dom.addEventListener('keydown', onRowKeyDown);
+
+                if (this._filterFn) {
+                    row.hidden = !this._filterFn(row);
+                }
+
                 this.body.append(row);
             });
         }
@@ -419,7 +425,8 @@ Object.assign(pcui, (function () {
             this.dom.scrollLeft += this._dragScroll * 8;
         }
 
-        _sortObservers(observers) {
+        _sortObservers() {
+            const observers = this._observers;
             if (this._sort.fn) {
                 observers.sort((a, b) => {
                     let result = this._sort.fn(a, b);
@@ -457,13 +464,20 @@ Object.assign(pcui, (function () {
             }
         }
 
+        filter() {
+            this._containerBody.forEachChild(row => {
+                if (row instanceof pcui.TableRow) {
+                    row.hidden = this._filterFn && !this._filterFn(row);
+                }
+            });
+        }
+
         link(observers) {
             this.unlink();
 
             this._observers = observers;
             if (!this._observers) return;
 
-            this._sortObservers();
             this._refreshLayout();
         }
 
@@ -513,6 +527,18 @@ Object.assign(pcui, (function () {
                 }
             });
             return selected;
+        }
+
+        get filterFn() {
+            return this._filterFn;
+        }
+
+        set filterFn(value) {
+            if (this._filterFn === value) return;
+
+            this._filterFn = value;
+
+            this._refreshLayout();
         }
     }
 

@@ -84,7 +84,7 @@ Object.assign(pcui, (function () {
         get nextSibling() {
             let next = this.dom.nextSibling;
             while (next) {
-                if (next.ui instanceof pcui.TableRow) {
+                if (next.ui instanceof pcui.TableRow && !next.ui.hidden) {
                     return next.ui;
                 }
 
@@ -97,7 +97,7 @@ Object.assign(pcui, (function () {
         get previousSibling() {
             let prev = this.dom.previousSibling;
             while (prev) {
-                if (prev.ui instanceof pcui.TableRow) {
+                if (prev.ui instanceof pcui.TableRow && !prev.ui.hidden) {
                     return prev.ui;
                 }
 

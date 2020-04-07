@@ -2,6 +2,7 @@ Object.assign(pcui, (function () {
     'use strict';
 
     const CLASS_ROOT = 'pcui-asset-panel';
+    const CLASS_CURRENT_FOLDER = CLASS_ROOT + '-current-folder';
 
     const TYPES = {
         animation: 'Animation',
@@ -50,13 +51,19 @@ Object.assign(pcui, (function () {
                 scrollable: true
             });
 
+            this._foldersView.on('select', this._onFolderTreeSelect.bind(this));
+            this._foldersView.on('deselect', this._onFolderTreeDeselect.bind(this));
+
             // root element
             this._foldersViewRoot = new pcui.TreeViewItem({
                 text: '/'
             });
+            this._foldersViewRoot.open = true;
             this._foldersView.append(this._foldersViewRoot);
 
             this.append(this._foldersView);
+
+            this._foldersIndex = {};
 
             // table view
             this._detailsView = new pcui.Table({
@@ -71,7 +78,8 @@ Object.assign(pcui, (function () {
                     title: 'Size',
                     sortKey: 'file.size'
                 }],
-                createRowFn: this._createDetailsViewRow.bind(this)
+                createRowFn: this._createDetailsViewRow.bind(this),
+                filterFn: this._filterAssetRow.bind(this)
             });
             this.append(this._detailsView);
 
@@ -84,7 +92,11 @@ Object.assign(pcui, (function () {
             this._eventsEditor = [];
             this._eventsEditor.push(editor.on('selector:change', this._onSelectorChange.bind(this)));
 
-            this._assetEvents = [];
+            this._assetListEvents = [];
+
+            this._assetEvents = {};
+
+            this.currentFolder = null;
 
             if (args.assets) {
                 this.assets = args.assets;
@@ -213,11 +225,92 @@ Object.assign(pcui, (function () {
         }
 
         _onAssetAdd(asset) {
+            if (asset.get('type') === 'folder') {
+                this._addFolder(asset);
+            }
+
             this._detailsView.link(this._assets.array());
         }
 
         _onAssetRemove(asset) {
+            if (asset.get('type') === 'folder') {
+                this._removeFolder(asset);
+            }
+
             this._detailsView.link(this._assets.array());
+        }
+
+        _addFolder(asset) {
+            const id = asset.get('id');
+            if (this._foldersIndex[id]) return;
+
+            const treeItem = new pcui.TreeViewItem({
+                text: asset.get('name')
+            });
+
+            treeItem.asset = asset;
+
+            this._foldersIndex[id] = treeItem;
+
+            if (!this._assetEvents[id]) {
+                this._assetEvents[id] = [];
+            }
+
+            this._assetEvents[id].push(asset.on('name:set', (value) => {
+                treeItem.text = value;
+            }));
+
+            this._foldersViewRoot.append(treeItem);
+        }
+
+        _removeFolder(asset) {
+            const id = asset.get('id');
+            if (this._assetEvents[id]) {
+                this._assetEvents[id].forEach(evt => evt.unbind());
+                delete this._assetEvents[id];
+            }
+
+            if (this._foldersIndex[id]) {
+                this._foldersIndex[id].destroy();
+                delete this._foldersIndex[id];
+            }
+        }
+
+        _onFolderTreeSelect(item) {
+            if (item.asset) {
+                if (item.asset === this.currentFolder) {
+                    editor.call('selector:add', 'asset', item.asset);
+                } else {
+                    item.selected = false;
+                    this.currentFolder = item.asset;
+                }
+            } else {
+                item.selected = false;
+                this.currentFolder = null;
+            }
+        }
+
+        _onFolderTreeDeselect(item) {
+            if (item.asset) {
+                editor.call('selector:remove', item.asset);
+            }
+        }
+
+        _filterAssetRow(row) {
+            if (!row.asset) return false;
+
+            const path = row.asset.get('path');
+            if (this._currentFolder === null) {
+                return path.length === 0;
+            }
+
+            if (path && path.length) {
+                if (parseInt(this._currentFolder.get('id'), 10) === path[path.length - 1]) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         destroy() {
@@ -226,8 +319,7 @@ Object.assign(pcui, (function () {
             this._eventsEditor.forEach(e => e.unbind());
             this._eventsEditor.length = 0;
 
-            this._assetEvents.forEach(e => e.unbind());
-            this._assetEvents.length = 0;
+            this.assets = null;
 
             super.destroy();
         }
@@ -237,20 +329,64 @@ Object.assign(pcui, (function () {
         }
 
         set assets(value) {
-            this._assetEvents.forEach(e => e.unbind());
-            this._assetEvents.length = 0;
+            this._assetListEvents.forEach(e => e.unbind());
+            this._assetListEvents.length = 0;
 
             this._detailsView.unlink();
+
+            for (const id in this._foldersIndex) {
+                this._foldersIndex[id].destroy();
+            }
+            this._foldersIndex = {};
 
             this._assets = value;
             if (!this._assets) return;
 
-            this._detailsView.link(this._assets.array());
+            const assets = this._assets.array();
+            assets.forEach(asset => {
+                if (asset.get('type') === 'folder') {
+                    this._addFolder(asset);
+                }
+            });
 
-            this._assetEvents.push(this._assets.on('add', this._onAssetAdd.bind(this)));
-            this._assetEvents.push(this._assets.on('remove', this._onAssetRemove.bind(this)));
+            this._detailsView.link(assets);
+
+            this._assetListEvents.push(this._assets.on('add', this._onAssetAdd.bind(this)));
+            this._assetListEvents.push(this._assets.on('remove', this._onAssetRemove.bind(this)));
         }
 
+        get currentFolder() {
+            return this._currentFolder;
+        }
+
+        set currentFolder(value) {
+            if (this._currentFolder === value) return;
+
+            let id;
+            if (this._currentFolder) {
+                id = this._currentFolder.get('id');
+                if (this._foldersIndex[id]) {
+                    this._foldersIndex[id].class.remove(CLASS_CURRENT_FOLDER);
+                }
+            } else {
+                this._foldersViewRoot.class.remove(CLASS_CURRENT_FOLDER);
+            }
+
+            this._currentFolder = value;
+
+            if (this._currentFolder) {
+                id = this._currentFolder.get('id');
+                if (this._foldersIndex[id]) {
+                    this._foldersIndex[id].class.add(CLASS_CURRENT_FOLDER);
+                }
+            } else {
+                this._foldersViewRoot.class.add(CLASS_CURRENT_FOLDER);
+            }
+
+            this._detailsView.filter();
+
+            this.emit('currentFolder', value);
+        }
     }
 
     return {

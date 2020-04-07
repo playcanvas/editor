@@ -295,7 +295,7 @@
     }
 }
 
-#layout-assets.pcui-asset-panel {
+.pcui-asset-panel {
     > .pcui-panel-content {
         height: 100%;
 
@@ -336,6 +336,16 @@
                     box-shadow: none !important;
                 }
             }
+        }
+    }
+}
+
+.pcui-asset-panel-current-folder {
+    > .pcui-treeview-item-contents {
+        color: $text-active;
+
+        .pcui-treeview-item-icon {
+            color: $text-active;
         }
     }
 }
