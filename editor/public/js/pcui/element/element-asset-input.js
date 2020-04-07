@@ -217,6 +217,8 @@ Object.assign(pcui, (function () {
 
             this._value = value;
 
+            this.class.remove(pcui.CLASS_MULTIPLE_VALUES);
+
             if (value) {
                 let asset;
                 if (this._assets) {
@@ -324,6 +326,7 @@ Object.assign(pcui, (function () {
 
             if (different) {
                 this._updateValue(null);
+                this.class.add(pcui.CLASS_MULTIPLE_VALUES);
                 this._labelAsset.hidden = true;
                 this._labelVarious.hidden = false;
             } else {
