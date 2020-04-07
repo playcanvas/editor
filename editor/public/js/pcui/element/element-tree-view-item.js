@@ -166,6 +166,7 @@ Object.assign(pcui, (function () {
         _onMouseDown(evt) {
             if (!this._treeView || !this._treeView.allowDrag) return;
 
+            this._treeView._updateModifierKeys(evt);
             evt.stopPropagation();
         }
 

@@ -117,13 +117,8 @@ Object.assign(pcui, (function () {
         }
 
         _updateModifierKeys(evt) {
-            if (this._pressedCtrl !== (evt.ctrlKey || evt.metaKey)) {
-                this._pressedCtrl = evt.ctrlKey || evt.metaKey;
-            }
-
-            if (this._pressedShift !== evt.shiftKey) {
-                this._pressedShift = evt.shiftKey;
-            }
+            this._pressedCtrl = evt.ctrlKey || evt.metaKey;
+            this._pressedShift = evt.shiftKey;
         }
 
         /**
