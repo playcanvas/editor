@@ -30,6 +30,18 @@ Object.assign(pcui, (function () {
         textureatlasSource: 'Texture Atlas (source)'
     };
 
+    const DBL_CLICKABLES = {
+        folder: true,
+        css: true,
+        json: true,
+        html: true,
+        script: true,
+        shader: true,
+        sprite: true,
+        text: true,
+        textureatlas: true
+    };
+
     class AssetPanel extends pcui.Panel {
         constructor(args) {
             args = Object.assign({
@@ -125,6 +137,39 @@ Object.assign(pcui, (function () {
             // });
         }
 
+        _onAssetDblClick(evt, asset) {
+            evt.stopPropagation();
+            evt.preventDefault();
+
+            const type = asset.get('type');
+            if (type === 'folder') {
+                this.currentFolder = asset;
+
+                // restore previous selection after
+                // double clicking into a folder
+                if (this._selector.prevItems) {
+                    editor.call('selector:set', this._selector.prevType, this._selector.prevItems);
+                }
+            } else if (type === 'sprite' || type === 'textureatlas') {
+                editor.call('picker:sprites', asset);
+            } else if (type === 'css' ||
+                       type === 'html' ||
+                       type === 'json' ||
+                       type === 'script' ||
+                       type === 'shader' ||
+                       type === 'text') {
+
+                if (type === 'script' && config.project.settings.useLegacyScripts) {
+                    window.open('/editor/code/' + config.project.id + '/' + asset.get('filename'));
+                } else if (!config.project.settings.useLegacyScripts) {
+                    editor.call('picker:codeeditor', asset);
+                } else {
+                    window.open('/editor/asset/' + asset.get('id'), asset.get('id')).focus();
+                }
+            }
+
+        }
+
         _createDetailsViewRow(asset) {
             const row = new pcui.TableRow();
 
@@ -133,18 +178,9 @@ Object.assign(pcui, (function () {
             this._rowsIndex[asset.get('id')] = row;
 
             // folder dbl click
-            if (asset.get('type') === 'folder') {
+            if (DBL_CLICKABLES[asset.get('type')]) {
                 row.dom.addEventListener('dblclick', (evt) => {
-                    evt.stopPropagation();
-                    evt.preventDefault();
-
-                    this.currentFolder = asset;
-
-                    // restore previous selection after
-                    // double clicking into a folder
-                    if (this._selector.prevItems) {
-                        editor.call('selector:set', this._selector.prevType, this._selector.prevItems);
-                    }
+                    this._onAssetDblClick(evt, asset);
                 });
             }
 
