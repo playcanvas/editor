@@ -31,7 +31,8 @@ editor.once('load', function () {
                     overwriteModel: true,
                     overwriteAnimation: true,
                     overwriteMaterial: false,
-                    overwriteTexture: true
+                    overwriteTexture: true,
+                    useGlb: false,
                 }
             },
             branch: config.self.branch.id,
@@ -92,6 +93,10 @@ editor.once('load', function () {
                 } else {
                     settings.set('favoriteBranches', []);
                 }
+            }
+
+            if (!settings.has('editor.pipeline.useGlb')) {
+                settings.set('editor.pipeline.useGlb', false);
             }
 
             settings.history.enabled = history;
