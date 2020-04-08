@@ -421,13 +421,6 @@ editor.once('load', function() {
                         editor.call('help:controls');
                     }
                 },
-                'reference': {
-                    title: 'Reference',
-                    icon: '&#57906;',
-                    select: function() {
-                        window.open('http://developer.playcanvas.com/en/engine/api/stable/');
-                    }
-                },
                 'learn': {
                     title: 'Learn',
                     icon: '&#57906;',
@@ -442,11 +435,11 @@ editor.once('load', function() {
                         window.open('http://forum.playcanvas.com/');
                     }
                 },
-                'answers': {
-                    title: 'Answers',
-                    icon: '&#57656;',
+                'issue': {
+                    title: 'Log Issue',
+                    icon: '&#57945;',
                     select: function() {
-                        window.open('http://answers.playcanvas.com/');
+                        window.open('https://github.com/playcanvas/editor');
                     }
                 },
                 'howdoi': {
@@ -515,14 +508,6 @@ editor.once('load', function() {
             },
             select: function() {
                 editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
-            }
-        },
-        'priorityScripts': null,
-        'feedback': {
-            title: 'Feedback',
-            icon: '&#57625;',
-            select: function() {
-                window.open('http://forum.playcanvas.com/t/playcanvas-editor-feedback/616');
             }
         }
     };
