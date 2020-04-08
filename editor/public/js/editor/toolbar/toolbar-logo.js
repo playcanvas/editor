@@ -509,7 +509,8 @@ editor.once('load', function() {
             select: function() {
                 editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
             }
-        }
+        },
+        'priorityScripts': null
     };
 
     if (editor.call('users:hasFlag', 'hasTemplates') && !legacyScripts) {
@@ -561,19 +562,7 @@ editor.once('load', function() {
         // TODO scripts2
         // add built-in-scripts for new system
 
-        menuData['priorityScripts'] = {
-            title: 'Scripts Loading Order',
-            icon: '&#57652;',
-            filter: function() {
-                return editor.call('permissions:write');
-            },
-            select: function() {
-                editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
-                setTimeout(function() {
-                    editor.call('editorSettings:panel:unfold', 'scripts-order');
-                }, 0);
-            }
-        };
+        delete menuData['priorityScripts'];
     }
 
     if (legacyScripts) {
