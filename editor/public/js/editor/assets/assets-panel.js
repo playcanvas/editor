@@ -1,5 +1,6 @@
 editor.on('assets:load', () => {
     var assetsPanel = editor.call('layout.assets');
+    assetsPanel.dropManager = editor.call('editor:dropManager');
     assetsPanel.assets = editor.call('assets:raw');
 });
 

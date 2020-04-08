@@ -42,6 +42,11 @@ Object.assign(pcui, (function () {
         textureatlas: true
     };
 
+    const HOVERABLES = {
+        folder: true,
+        bundle: true
+    };
+
     class AssetPanel extends pcui.Panel {
         constructor(args) {
             args = Object.assign({
@@ -84,6 +89,12 @@ Object.assign(pcui, (function () {
             this._foldersIndex = {};
             this._foldersWaitingParent = {};
 
+            this._hoveredAsset = null;
+            this._eventsDropManager = [];
+            if (args.dropManager) {
+                this.dropManager = args.dropManager;
+            }
+
             // table view
             this._detailsView = new pcui.Table({
                 scrollable: true,
@@ -119,9 +130,9 @@ Object.assign(pcui, (function () {
 
             this._selector = {
                 type: null,
-                items: null,
+                items: [],
                 prevType: null,
-                prevItems: null
+                prevItems: []
             };
 
             if (args.assets) {
@@ -170,6 +181,139 @@ Object.assign(pcui, (function () {
 
         }
 
+        _onDeactivateDropManager() {
+            this._hoveredAsset = null;
+        }
+
+        _onAssetDropFilter(type) {
+            return type.startsWith('asset');
+        }
+
+        _onAssetDrop(type, data) {
+            if (!this._hoveredAsset || ! type || ! type.startsWith('asset'))
+                return;
+
+            const items = editor.call('selector:items');
+            var assets = [];
+
+            const addAsset = (id) => {
+                const asset = this._assets.get(id);
+
+                // deselect moved asset
+                if (items.indexOf(asset) !== -1)
+                    editor.call('selector:remove', asset);
+
+                assets.push(asset);
+            };
+
+            if (data.ids) {
+                data.ids.forEach(addAsset);
+            } else {
+                addAsset(data.id);
+            }
+
+            console.log('onDrop', assets.map(a => a.get('id')), this._hoveredAsset.get('id'));
+
+            // editor.call('assets:fs:move', assets, grid.dragOver);
+        }
+
+        _onAssetDragStart(evt, asset) {
+            evt.preventDefault();
+            evt.stopPropagation();
+
+            if (! editor.call('permissions:write') || !this._dropManager) return;
+
+            let type = 'asset.' + asset.get('type');
+            let data = {
+                id: asset.get('id')
+            };
+
+            const selectorType = editor.call('selector:type');
+            const selectorItems = editor.call('selector:items');
+
+            if (selectorType === 'asset' && selectorItems.length > 1) {
+                const path = selectorItems[0].get('path');
+
+                if (selectorItems.indexOf(asset) !== -1) {
+                    const ids = [];
+                    for (let i = 0; i < selectorItems.length; i++) {
+                        // don't allow multi-path dragging
+                        const curPath = selectorItems[i].get('path');
+                        if (path.length !== curPath.length || path[path.length - 1] !== curPath[path.length - 1]) {
+                            return;
+                        }
+
+                        ids.push(parseInt(selectorItems[i].get('id'), 10));
+                    }
+
+                    type = 'assets';
+                    data = {
+                        ids: ids
+                    };
+                }
+            }
+
+            this._dropManager.dropType = type;
+            this._dropManager.dropData = data;
+            this._dropManager.active = true;
+        }
+
+        _onAssetHover(asset) {
+            if (this._hoveredAsset === asset) return;
+            if (!this._dropManager || !this._dropManager.active || !this._dropManager.dropData) return;
+
+            const hoveredType = asset.get('type');
+            if (!HOVERABLES[hoveredType]) return;
+
+            const hoveredAssetId = parseInt(asset.get('id'), 10);
+            const dropData = this._dropManager.dropData;
+
+            if (dropData.ids) {
+                // do not allow dragging on itself
+                if (dropData.ids.indexOf(hoveredAssetId) !== -1) {
+                    return;
+                }
+            } else if (dropData.id) {
+                // do not allow dragging on itself
+                if (parseInt(dropData.id, 10) === hoveredAssetId) {
+                    return;
+                }
+            } else {
+                return;
+            }
+
+            // check if dragged assets are already in this folder
+            const draggedAsset = this._assets.get(dropData.id || dropData.ids[0]);
+            if (draggedAsset) {
+                const path = draggedAsset.get('path');
+                if (path.length && path[path.length - 1] === hoveredAssetId) {
+                    return;
+                }
+            }
+
+            // do not allow dragging a folder into one of its child folders
+            const hoveredPath = asset.get('path');
+            if (dropData.ids) {
+                for (let i = 0; i < dropData.ids.length; i++) {
+                    if (hoveredPath.indexOf(dropData.ids[i]) !== -1) {
+                        return;
+                    }
+                }
+            } else {
+                if (hoveredPath.indexOf(parseInt(dropData.id, 10)) !== -1) {
+                    return;
+                }
+            }
+
+            this._hoveredAsset = asset;
+        }
+
+        _onAssetHoverEnd(asset) {
+            if (this._hoveredAsset === asset) {
+                this._hoveredAsset = null;
+            }
+        }
+
         _createDetailsViewRow(asset) {
             const row = new pcui.TableRow();
 
@@ -183,6 +327,22 @@ Object.assign(pcui, (function () {
                     this._onAssetDblClick(evt, asset);
                 });
             }
+
+            row.on('hover', () => {
+                this._onAssetHover(asset);
+            });
+            row.on('hoverend', () => {
+                this._onAssetHoverEnd(asset);
+            });
+
+            row.dom.draggable = true;
+            row.dom.addEventListener('mousedown', evt => {
+                // this allows dragging that gets disabled by layout.js
+                evt.stopPropagation();
+            });
+            row.dom.addEventListener('dragstart', evt => {
+                this._onAssetDragStart(evt, asset);
+            });
 
             row.on('destroy', () => {
                 delete this._rowsIndex[asset.get('id')];
@@ -460,6 +620,8 @@ Object.assign(pcui, (function () {
             this._eventsEditor.forEach(e => e.unbind());
             this._eventsEditor.length = 0;
 
+            this.dropManager = null;
+
             this.assets = null;
 
             super.destroy();
@@ -470,10 +632,12 @@ Object.assign(pcui, (function () {
         }
 
         set assets(value) {
+            this._hoveredAsset = null;
+
             this._selector.type = null;
-            this._selector.items = null;
+            this._selector.items = [];
             this._selector.prevType = null;
-            this._selector.prevItems = null;
+            this._selector.prevItems = [];
 
             this._assetListEvents.forEach(e => e.unbind());
             this._assetListEvents.length = 0;
@@ -534,6 +698,51 @@ Object.assign(pcui, (function () {
             this._detailsView.filter();
 
             this.emit('currentFolder', value);
+        }
+
+        get dropManager() {
+            return this._dropManager;
+        }
+
+        set dropManager(value) {
+            if (this._dropManager === value) return;
+
+            if (this._foldersDropTarget) {
+                this._foldersDropTarget.destroy();
+                this._foldersDropTarget = null;
+            }
+
+            if (this._tableDropTarget) {
+                this._tableDropTarget.destroy();
+                this._tableDropTarget = null;
+            }
+
+            this._eventsDropManager.forEach(e => e.unbind());
+            this._eventsDropManager.length = 0;
+
+            this._dropManager = value;
+
+            if (this._dropManager) {
+                this._eventsDropManager.push(this._dropManager.on('deactivate', this._onDeactivateDropManager.bind(this)));
+
+                this._foldersDropTarget = new pcui.DropTarget(this._containerFolders, {
+                    class: 'foldersDropTarget',
+                    hole: true,
+                    passThrough: true,
+                    onFilter: this._onAssetDropFilter.bind(this),
+                    onDrop: this._onAssetDrop.bind(this)
+                });
+                this._dropManager.append(this._foldersDropTarget);
+
+                this._tableDropTarget = new pcui.DropTarget(this._detailsView, {
+                    class: 'tableDropTarget',
+                    hole: true,
+                    passThrough: true,
+                    onFilter: this._onAssetDropFilter.bind(this),
+                    onDrop: this._onAssetDrop.bind(this)
+                });
+                this._dropManager.append(this._tableDropTarget);
+            }
         }
     }
 
