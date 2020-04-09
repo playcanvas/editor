@@ -71,6 +71,16 @@ Object.assign(pcui, (function () {
             });
             this.append(this._containerFolders);
 
+            this._containerFolders.dom.addEventListener('mouseenter', () => {
+                this._foldersView.isDragging = this._dropManager.active;
+                console.log('mouseenter');
+            });
+
+            this._containerFolders.dom.addEventListener('mouseleave', () => {
+                this._foldersView.isDragging = false;
+                console.log('mouseleave');
+            });
+
             this._foldersView = new pcui.TreeView({
                 allowReordering: false
             });
@@ -83,13 +93,19 @@ Object.assign(pcui, (function () {
             this._foldersViewRoot = new pcui.TreeViewItem({
                 text: '/'
             });
+            this._foldersViewRoot.on('hover', this._onRootFolderHover.bind(this));
+            this._foldersViewRoot.on('hoverend', this._onRootFolderHoverEnd.bind(this));
             this._foldersViewRoot.open = true;
             this._foldersView.append(this._foldersViewRoot);
 
             this._foldersIndex = {};
             this._foldersWaitingParent = {};
 
-            this._hoveredAsset = null;
+            // the asset we are currently hovering over
+            // undefined means nothing
+            // null means root folder
+            // otherwise this will be an asset
+            this._hoveredAsset = undefined;
             this._eventsDropManager = [];
             if (args.dropManager) {
                 this.dropManager = args.dropManager;
@@ -182,7 +198,7 @@ Object.assign(pcui, (function () {
         }
 
         _onDeactivateDropManager() {
-            this._hoveredAsset = null;
+            this._hoveredAsset = undefined;
         }
 
         _onAssetDropFilter(type) {
@@ -190,7 +206,7 @@ Object.assign(pcui, (function () {
         }
 
         _onAssetDrop(type, data) {
-            if (!this._hoveredAsset || ! type || ! type.startsWith('asset'))
+            if (this._hoveredAsset === undefined || ! type || ! type.startsWith('asset'))
                 return;
 
             const items = editor.call('selector:items');
@@ -212,9 +228,12 @@ Object.assign(pcui, (function () {
                 addAsset(data.id);
             }
 
-            console.log('onDrop', assets.map(a => a.get('id')), this._hoveredAsset.get('id'));
-
-            // editor.call('assets:fs:move', assets, grid.dragOver);
+            const hoveredType = this._hoveredAsset ? this._hoveredAsset.get('type') : 'folder';
+            if (hoveredType === 'folder') {
+                editor.call('assets:fs:move', assets, this._hoveredAsset);
+            } else if (hoveredType === 'bundle') {
+                editor.call('assets:bundles:addAssets', assets, this._hoveredAsset);
+            }
         }
 
         _onAssetDragStart(evt, asset) {
@@ -256,6 +275,29 @@ Object.assign(pcui, (function () {
             this._dropManager.dropType = type;
             this._dropManager.dropData = data;
             this._dropManager.active = true;
+        }
+
+        _onRootFolderHover() {
+            if (this._hoveredAsset === null) return;
+            if (!this._dropManager || !this._dropManager.active || !this._dropManager.dropData) return;
+
+            const dropData = this._dropManager.dropData;
+
+            // check if dragged assets are already in root folder
+            const draggedAsset = this._assets.get(dropData.id || dropData.ids[0]);
+            if (draggedAsset) {
+                if (draggedAsset.get('path').length === 0) {
+                    return;
+                }
+            }
+
+            this._hoveredAsset = null;
+        }
+
+        _onRootFolderHoverEnd() {
+            if (this._hoveredAsset === null) {
+                this._hoveredAsset = undefined;
+            }
         }
 
         _onAssetHover(asset) {
@@ -310,7 +352,7 @@ Object.assign(pcui, (function () {
 
         _onAssetHoverEnd(asset) {
             if (this._hoveredAsset === asset) {
-                this._hoveredAsset = null;
+                this._hoveredAsset = undefined;
             }
         }
 
@@ -470,20 +512,35 @@ Object.assign(pcui, (function () {
             this._suspendSelectEvents = false;
         }
 
-        _onAssetAdd(asset) {
+        _addAsset(asset) {
+            const id = asset.get('id');
+
             if (asset.get('type') === 'folder') {
                 this._addFolder(asset);
             }
 
-            this._detailsView.link(this._assets.array());
+            if (!this._assetEvents[id]) {
+                this._assetEvents[id] = [];
+            }
+            this._assetEvents[id].push(asset.on('path:set', (path, oldPath) => {
+                this._onAssetMove(asset, path, oldPath);
+            }));
         }
 
-        _onAssetRemove(asset) {
+        _removeAsset(asset) {
             if (asset.get('type') === 'folder') {
                 this._removeFolder(asset);
             }
+        }
 
-            this._detailsView.link(this._assets.array());
+        _onAssetMove(asset, path, oldPath) {
+            // show or hide based on filters
+            const row = this._rowsIndex[asset.get('id')];
+            if (row) {
+                row.hidden = !this._filterAssetRow(row);
+            }
+
+
         }
 
         _addFolder(asset) {
@@ -516,6 +573,22 @@ Object.assign(pcui, (function () {
 
             const treeItem = new pcui.TreeViewItem({
                 text: asset.get('name')
+            });
+
+            treeItem.on('hover', () => {
+                this._onAssetHover(asset);
+            });
+            treeItem.on('hoverend', () => {
+                this._onAssetHoverEnd(asset);
+            });
+
+            treeItem.dom.draggable = true;
+            treeItem.dom.addEventListener('mousedown', evt => {
+                // this allows dragging that gets disabled by layout.js
+                evt.stopPropagation();
+            });
+            treeItem.dom.addEventListener('dragstart', (evt) => {
+                this._onAssetDragStart(evt, asset);
             });
 
             treeItem.asset = asset;
@@ -632,7 +705,7 @@ Object.assign(pcui, (function () {
         }
 
         set assets(value) {
-            this._hoveredAsset = null;
+            this._hoveredAsset = undefined;
 
             this._selector.type = null;
             this._selector.items = [];
@@ -656,15 +729,19 @@ Object.assign(pcui, (function () {
 
             const assets = this._assets.array();
             assets.forEach(asset => {
-                if (asset.get('type') === 'folder') {
-                    this._addFolder(asset);
-                }
+                this._addAsset(asset);
             });
 
             this._detailsView.link(assets);
 
-            this._assetListEvents.push(this._assets.on('add', this._onAssetAdd.bind(this)));
-            this._assetListEvents.push(this._assets.on('remove', this._onAssetRemove.bind(this)));
+            this._assetListEvents.push(this._assets.on('add', asset => {
+                this._addAsset(asset);
+                this._detailsView.link(this._assets.array());
+            }));
+            this._assetListEvents.push(this._assets.on('remove', asset => {
+                this._removeAsset(asset);
+                this._detailsView.link(this._assets.array());
+            }));
         }
 
         get currentFolder() {
@@ -732,6 +809,7 @@ Object.assign(pcui, (function () {
                     onFilter: this._onAssetDropFilter.bind(this),
                     onDrop: this._onAssetDrop.bind(this)
                 });
+                this._foldersDropTarget.style.outline = 'none';
                 this._dropManager.append(this._foldersDropTarget);
 
                 this._tableDropTarget = new pcui.DropTarget(this._detailsView, {
@@ -741,6 +819,7 @@ Object.assign(pcui, (function () {
                     onFilter: this._onAssetDropFilter.bind(this),
                     onDrop: this._onAssetDrop.bind(this)
                 });
+                this._tableDropTarget.style.outline = 'none';
                 this._dropManager.append(this._tableDropTarget);
             }
         }

@@ -1,7 +1,7 @@
 editor.on('load', function() {
     'use strict';
 
-    var ignoreClasses = /(ui-list-item)|(ui-button)|(ui-text-field)|(ui-number-field)/i;
+    var ignoreClasses = /(ui-list-item)|(ui-button)|(ui-text)|(ui-number-field)/i;
     var ignoreElements = /(input)|(textarea)/i;
 
     // prevent drag'n'select
