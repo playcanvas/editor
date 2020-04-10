@@ -1,13 +1,20 @@
-editor.on('assets:load', () => {
-    var assetsPanel = editor.call('layout.assets');
-    assetsPanel.dropManager = editor.call('editor:dropManager');
-    assetsPanel.assets = editor.call('assets:raw');
-});
-
 editor.once('load', function() {
     'use strict';
 
-    if (editor.call('users:hasFlag', 'hasPcuiAssetsPanel')) return;
+
+    if (editor.call('users:hasFlag', 'hasPcuiAssetsPanel')) {
+        var assetsPanel = editor.call('layout.assets');
+        editor.on('assets:load', () => {
+            assetsPanel.dropManager = editor.call('editor:dropManager');
+            assetsPanel.assets = editor.call('assets:raw');
+        });
+
+        editor.on('assets:clear', () => {
+            assetsPanel.assets = null;
+        });
+
+        return;
+    }
 
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 

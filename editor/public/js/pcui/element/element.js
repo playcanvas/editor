@@ -309,25 +309,31 @@ Object.assign(pcui, (function () {
 
             if (this.parent) {
                 const parent = this.parent;
-                this._parent = null;
 
                 for (let i = 0; i < this._eventsParent.length; i++) {
                     this._eventsParent[i].unbind();
                 }
                 this._eventsParent.length = 0;
 
-                if (this._dom && this._dom.parentElement) {
-                    this._dom.parentElement.removeChild(this._dom);
-                }
 
-                // emit remove event on parent
+                // remove element from parent
                 // check if parent has been destroyed already
                 // because we do not want to be emitting events
                 // on a destroyed parent after it's been destroyed
                 // as it is easy to lead to null exceptions
                 if (parent.remove && !parent._destroyed) {
-                    parent.emit('remove', this);
+                    parent.remove(this);
                 }
+
+                // set parent to null and remove from
+                // parent dom just in case parent.remove above
+                // didn't work because of an override or other condition
+                this._parent = null;
+
+                if (this._dom && this._dom.parentElement) {
+                    this._dom.parentElement.removeChild(this._dom);
+                }
+
             }
 
             if (this._dom) {

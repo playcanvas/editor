@@ -45,6 +45,7 @@ Object.assign(pcui, (function () {
       * @property {Boolean} selected Whether the item is selected.
       * @property {Boolean} selectable Whether the item can be selected.
       * @property {Boolean} open Whether the item is open meaning showing its children.
+      * @property {Boolean} parentsOpen Whether the parents of the item are open or closed.
       * @property {Boolean} allowDrop Whether dropping is allowed on the tree item.
       * @property {String} text The text shown by the TreeViewItem.
       * @property {Number} The number of direct children.
@@ -377,6 +378,24 @@ Object.assign(pcui, (function () {
             } else {
                 this.class.remove(CLASS_OPEN);
                 this.emit('close', this);
+            }
+        }
+
+        get parentsOpen() {
+            let parent = this.parent;
+            while (parent && parent instanceof pcui.TreeViewItem) {
+                if (!parent.open) return false;
+                parent = parent.parent;
+            }
+
+            return true;
+        }
+
+        set parentsOpen(value) {
+            let parent = this.parent;
+            while (parent && parent instanceof pcui.TreeViewItem) {
+                parent.open = value;
+                parent = parent.parent;
             }
         }
 

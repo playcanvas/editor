@@ -70,6 +70,8 @@ Object.assign(pcui, (function () {
          * Creates a new TreeView.
          * @param {Object} [args] The arguments. All properties can be set through the arguments as well.
          * @param {Function} [args.onContextMenu] A function to be called when we right click on a TreeViewItem.
+         * @param {Function} [args.onReparent] A function to be called when we try to reparent tree items. If a function is provided then the
+         * tree items will not be reparented by the TreeView but instead will rely on the function to reparent them as it sees fit.
          */
         constructor(args) {
             if (!args) args = {};
@@ -94,6 +96,7 @@ Object.assign(pcui, (function () {
             this.append(this._dragHandle);
 
             this._onContextMenu = args.onContextMenu;
+            this._onReparentFn = args.onReparent;
 
             this._pressedCtrl = false;
             this._pressedShift = false;
@@ -159,7 +162,7 @@ Object.assign(pcui, (function () {
             if (!currentItem.numChildren || !currentItem.open) return null;
 
             let lastChild = currentItem.lastChild;
-            while (lastChild.numChildren && lastChild.open) {
+            while (lastChild && lastChild.numChildren && lastChild.open) {
                 lastChild = lastChild.lastChild;
             }
 
@@ -474,21 +477,29 @@ Object.assign(pcui, (function () {
                             const oldParent = item.parent;
                             let newParent = null;
 
-                            item.parent.remove(item);
+                            if (!this._onReparentFn) {
+                                item.parent.remove(item);
+                            }
 
                             if (this._dragArea === DRAG_AREA_BEFORE) {
                                 // If dragged before a TreeViewItem...
                                 newParent = this._dragOverItem.parent;
-                                this._dragOverItem.parent.appendBefore(item, this._dragOverItem);
+                                if (!this._onReparentFn) {
+                                    this._dragOverItem.parent.appendBefore(item, this._dragOverItem);
+                                }
                             } else if (this._dragArea === DRAG_AREA_INSIDE) {
                                 // If dragged inside a TreeViewItem...
                                 newParent = this._dragOverItem;
-                                this._dragOverItem.append(item);
-                                this._dragOverItem.open = true;
+                                if (!this._onReparentFn) {
+                                    this._dragOverItem.append(item);
+                                    this._dragOverItem.open = true;
+                                }
                             } else if (this._dragArea === DRAG_AREA_AFTER) {
                                 // If dragged after a TreeViewItem...
                                 newParent = this._dragOverItem.parent;
-                                this._dragOverItem.parent.appendAfter(item, lastDraggedItem);
+                                if (!this._onReparentFn) {
+                                    this._dragOverItem.parent.appendAfter(item, lastDraggedItem);
+                                }
                                 lastDraggedItem = item;
                             }
 
@@ -499,6 +510,10 @@ Object.assign(pcui, (function () {
                     });
 
                     if (reparented.length) {
+                        if (this._onReparentFn) {
+                            this._onReparentFn(reparented);
+                        }
+
                         this.emit('reparent', reparented);
                     }
                 }
@@ -634,13 +649,17 @@ Object.assign(pcui, (function () {
         /**
          * Updates the drag handle position and size
          */
-        _updateDragHandle() {
-            if (!this._allowDrag || !this._dragging) return;
+        _updateDragHandle(dragOverItem, force) {
+            if (!force && (!this._allowDrag || !this._dragging)) return;
 
-            if (!this._dragOverItem) {
+            if (!dragOverItem) {
+                dragOverItem = this._dragOverItem;
+            }
+
+            if (!dragOverItem || dragOverItem.hidden || !dragOverItem.parentsOpen) {
                 this._dragHandle.hidden = true;
             } else {
-                const rect = this._dragOverItem._containerContents.dom.getBoundingClientRect();
+                const rect = dragOverItem._containerContents.dom.getBoundingClientRect();
 
                 this._dragHandle.hidden = false;
                 this._dragHandle.class.remove(DRAG_AREA_AFTER, DRAG_AREA_BEFORE, DRAG_AREA_INSIDE);
@@ -666,11 +685,7 @@ Object.assign(pcui, (function () {
          * @param {pcui.TreeViewItem} endItem The end tree view item
          */
         _openHierarchy(endItem) {
-            let parent = endItem.parent;
-            while (parent && parent instanceof pcui.TreeViewItem) {
-                parent.open = true;
-                parent = parent.parent;
-            }
+            endItem.parentsOpen = true;
         }
 
         /**
@@ -785,6 +800,10 @@ Object.assign(pcui, (function () {
             this.class.remove(CLASS_FILTERING);
 
             this._allowDrag = this._wasDraggingAllowedBeforeFiltering;
+        }
+
+        showDragHandle(treeItem) {
+            this._updateDragHandle(treeItem, true);
         }
 
         /**
@@ -916,6 +935,13 @@ Object.assign(pcui, (function () {
             }
         }
 
+        get pressedCtrl() {
+            return this._pressedCtrl;
+        }
+
+        get pressedShift() {
+            return this._pressedShift;
+        }
     }
 
     return {
