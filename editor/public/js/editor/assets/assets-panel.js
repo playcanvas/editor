@@ -13,6 +13,15 @@ editor.once('load', function() {
             assetsPanel.assets = null;
         });
 
+
+        editor.method('assets:panel:currentFolder', function (asset) {
+            if (asset === undefined) {
+                return assetsPanel.currentFolder;
+            }
+
+            assetsPanel.currentFolder = asset;
+        });
+
         return;
     }
 
