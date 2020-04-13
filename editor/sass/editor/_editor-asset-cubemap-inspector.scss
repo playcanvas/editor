@@ -16,6 +16,12 @@
     background-color: #07f;
     .pcui-asset-thumb {
         padding-top: 100%;
+        display: block;
+        > img {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
     }
 }
 

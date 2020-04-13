@@ -333,16 +333,6 @@
                     border-left: 0;
                 }
             }
-
-            .pcui-asset-thumb {
-                margin-left: $element-margin;
-                width: 18px;
-                height: 18px;
-
-                &:hover {
-                    box-shadow: none !important;
-                }
-            }
         }
     }
 }
@@ -350,7 +340,32 @@
 .pcui-asset-panel-details-name {
     border: 4px solid transparent;
 
+    > .pcui-asset-thumb {
+        vertical-align: middle;
+        margin-left: $element-margin;
+        width: 16px;
+        height: auto;
+
+        &:not(.asset-icon-prefix) {
+            height: 16px;
+        }
+
+        > canvas {
+            background-color: transparent;
+        }
+
+        &:before {
+            font-size: 14px;
+            color: $text-darkest;
+        }
+
+        &:hover {
+            box-shadow: none !important;
+        }
+    }
+
     > .pcui-label {
+        vertical-align: middle;
         margin: 0px;
         margin-left: $element-margin;
     }

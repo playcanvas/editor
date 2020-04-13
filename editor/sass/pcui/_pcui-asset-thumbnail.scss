@@ -2,18 +2,38 @@
 .pcui-asset-thumb {
     position: relative;
 
+    display: -webkit-inline-flex;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    &.asset-icon-prefix {
+        &:before {
+            @extend .font-icon;
+            margin: auto;
+        }
+
+        > img {
+            display: none;
+        }
+
+        // fix some misaligned font icons
+        &.type-bundle:before {
+            margin-top: 3px;
+        }
+
+        &.type-template:before {
+            margin-top: 4px; // fix misaligned font icon
+        }
+    }
+
+
     > img {
-        position: absolute;
-        left: 0;
-        top: 0;
         width: 100%;
         height: 100%;
     }
 
     > canvas {
-        position: absolute;
-        left: 0;
-        top: 0;
         width: 100%;
         height: 100%;
         background-color: $bcg-dark;

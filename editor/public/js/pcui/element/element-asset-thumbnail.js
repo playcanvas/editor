@@ -4,6 +4,7 @@ Object.assign(pcui, (function () {
     const CLASS_ASSET_THUMB = 'pcui-asset-thumb';
     const CLASS_ASSET_THUMB_EMPTY = 'pcui-asset-thumb-empty';
     const CLASS_ASSET_THUMB_MISSING = 'pcui-asset-thumb-missing';
+    const CLASS_ASSET_PREFIX = 'asset-icon-prefix';
     const CLASS_FLIP_Y = 'flip-y';
 
     /**
@@ -20,7 +21,7 @@ Object.assign(pcui, (function () {
          */
         constructor(args) {
             if (!args) args = {};
-            super(document.createElement('div'), args);
+            super(document.createElement('span'), args);
 
             this.class.add(CLASS_ASSET_THUMB, CLASS_ASSET_THUMB_EMPTY);
 
@@ -36,6 +37,7 @@ Object.assign(pcui, (function () {
             this._evtThumbnailUnset = null;
 
             this.value = args.value || null;
+            this._previousAssetType = null;
 
             this.renderChanges = args.renderChanges || false;
 
@@ -50,21 +52,32 @@ Object.assign(pcui, (function () {
             this._destroyCanvas();
             this._createImage();
 
-            let src;
-            if (!asset) {
-                src = `${config.url.home}/editor/scene/img/asset-placeholder-texture.png`;
-            } else {
-                if (asset.has('thumbnails.m')) {
-                    src = asset.get('thumbnails.m');
-                    if (!src.startsWith('data:image/png;base64')) {
-                        src = config.url.home + src.appendQuery('t=' + asset.get('file.hash'));
-                    }
-                } else {
-                    src = `${config.url.home}/editor/scene/img/asset-placeholder-${asset.get('type')}.png`;
-                }
+            if (this._previousAssetType) {
+                this.class.remove(CLASS_ASSET_PREFIX);
+                this.class.remove(this._previousAssetType);
+                this._previousAssetType = null;
             }
 
-            this._domImage.src = src;
+            let src;
+            if (asset && asset.has('thumbnails.m')) {
+                src = asset.get('thumbnails.m');
+                if (!src.startsWith('data:image/png;base64')) {
+                    src = config.url.home + src.appendQuery('t=' + asset.get('file.hash'));
+                }
+            } else if (!asset) {
+                src = `${config.url.home}/editor/scene/img/asset-placeholder-texture.png`;
+            }
+
+            if (src) {
+                this._domImage.src = src;
+                return;
+            }
+
+            this._domImage.src = '';
+
+            this._previousAssetType = 'type-' + asset.get('type');
+            this.class.add(CLASS_ASSET_PREFIX);
+            this.class.add(this._previousAssetType);
         }
 
         // Wait until the element is displayed and has a valid width and height
@@ -132,7 +145,15 @@ Object.assign(pcui, (function () {
 
         _destroyImage() {
             if (!this._domImage) return;
+
+            if (this._previousAssetType) {
+                this.class.remove(CLASS_ASSET_PREFIX);
+                this.class.remove(this._previousAssetType);
+                this._previousAssetType = null;
+            }
+
             this.dom.removeChild(this._domImage);
+
             this._domImage = null;
         }
 

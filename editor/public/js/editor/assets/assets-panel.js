@@ -1,9 +1,9 @@
 editor.once('load', function() {
     'use strict';
 
+    var assetsPanel = editor.call('layout.assets');
 
     if (editor.call('users:hasFlag', 'hasPcuiAssetsPanel')) {
-        var assetsPanel = editor.call('layout.assets');
 
         editor.once('assets:load', () => {
             // attach contextmenu in assets:load so that
@@ -35,6 +35,7 @@ editor.once('load', function() {
         return;
     }
 
+    var root = editor.call('layout.root');
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
     var dragging = false;

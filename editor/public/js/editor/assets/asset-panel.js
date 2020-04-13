@@ -428,8 +428,6 @@ Object.assign(pcui, (function () {
             // name
             let cell = new pcui.TableCell({
                 class: CLASS_DETAILS_NAME,
-                flex: true,
-                flexDirection: 'row',
                 alignItems: 'center'
             });
             row.append(cell);
@@ -437,19 +435,13 @@ Object.assign(pcui, (function () {
             // thumb
             const thumb = new pcui.AssetThumbnail({
                 assets: this._assets,
-                value: asset.get('id'),
-                flexShrink: 0
+                value: asset.get('id')
             });
-
-            if (asset.get('type') === 'folder') {
-                thumb.style.filter = "invert(46%) sepia(5%) saturate(1283%) hue-rotate(139deg) brightness(90%) contrast(90%)";
-            }
 
             cell.append(thumb);
 
             const labelName = new pcui.Label({
-                binding: new pcui.BindingObserversToElement(),
-                flexShrink: 0
+                binding: new pcui.BindingObserversToElement()
             });
             labelName.link(asset, 'name');
             cell.append(labelName);
