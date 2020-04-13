@@ -418,6 +418,9 @@ Object.assign(pcui, (function () {
                 this._onAssetDragStart(evt, asset);
             });
 
+            // context menu (TODO: change this when the context menu becomes a PCUI element)
+            editor.call('assets:contextmenu:attach', row, asset);
+
             row.on('destroy', () => {
                 delete this._rowsIndex[asset.get('id')];
             });
@@ -645,6 +648,8 @@ Object.assign(pcui, (function () {
             treeItem.on('hoverend', () => {
                 this._onAssetHoverEnd(asset);
             });
+
+            editor.call('assets:contextmenu:attach', treeItem, asset);
 
             treeItem.asset = asset;
 
@@ -923,6 +928,14 @@ Object.assign(pcui, (function () {
                 this._tableDropTarget.style.outline = 'none';
                 this._dropManager.append(this._tableDropTarget);
             }
+        }
+
+        get detailsView() {
+            return this._detailsView;
+        }
+
+        get foldersView() {
+            return this._containerFolders;
         }
     }
 

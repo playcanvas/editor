@@ -4,6 +4,16 @@ editor.once('load', function() {
 
     if (editor.call('users:hasFlag', 'hasPcuiAssetsPanel')) {
         var assetsPanel = editor.call('layout.assets');
+
+        editor.once('assets:load', () => {
+            // attach contextmenu in assets:load so that
+            // we make sure that the context menu code has been
+            // executed first. This should be fixed once we make the
+            // context menu a PCUI class
+            editor.call('assets:contextmenu:attach', assetsPanel.foldersView);
+            editor.call('assets:contextmenu:attach', assetsPanel.detailsView, assetsPanel.currentFolder);
+        });
+
         editor.on('assets:load', () => {
             assetsPanel.dropManager = editor.call('editor:dropManager');
             assetsPanel.assets = editor.call('assets:raw');

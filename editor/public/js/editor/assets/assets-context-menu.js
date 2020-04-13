@@ -605,6 +605,20 @@ editor.once('load', function() {
             item.tree.elementTitle.addEventListener('contextmenu', contextMenuHandler, false);
     });
 
+    editor.method('assets:contextmenu:attach', function (element, asset) {
+        element.dom.addEventListener('contextmenu', evt => {
+            evt.stopPropagation();
+            evt.preventDefault();
+
+            if (! editor.call('permissions:write'))
+                return;
+
+            currentAsset = asset;
+            menu.open = true;
+            menu.position(evt.clientX + 1, evt.clientY);
+        });
+    });
+
     editor.on('sourcefiles:add', function(asset) {
         // get grid item
         var item = editor.call('assets:panel:get', asset.get('filename'));
@@ -624,9 +638,7 @@ editor.once('load', function() {
         });
     });
 
-
-    // folders
-    editor.call('assets:panel:folders').innerElement.addEventListener('contextmenu', function(evt) {
+    function onContextMenu(evt) {
         evt.preventDefault();
         evt.stopPropagation();
 
@@ -636,20 +648,16 @@ editor.once('load', function() {
         currentAsset = undefined;
         menu.open = true;
         menu.position(evt.clientX + 1, evt.clientY);
-    }, false);
+    }
 
-    // files
-    editor.call('assets:panel:files').innerElement.addEventListener('contextmenu', function(evt) {
-        evt.preventDefault();
-        evt.stopPropagation();
+    if (!editor.call('users:hasFlag', 'hasPcuiAssetsPanel')) {
+        // folders
+        editor.call('assets:panel:folders').innerElement.addEventListener('contextmenu', onContextMenu, false);
 
-        if (! editor.call('permissions:write'))
-            return;
+        // files
+        editor.call('assets:panel:files').innerElement.addEventListener('contextmenu', onContextMenu, false);
+    }
 
-        currentAsset = null;
-        menu.open = true;
-        menu.position(evt.clientX + 1, evt.clientY);
-    }, false);
 
     editor.method('assets:contextmenu:add', function(data) {
         var item = new ui.MenuItem({
