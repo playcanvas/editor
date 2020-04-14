@@ -94,6 +94,21 @@ Object.assign(pcui, (function () {
      */
 
     /**
+     * @event
+     * @name pcui.Element#destroy
+     * @description Fired after the element has been destroyed.
+     * @param {HTMLElement} dom The DOM element
+     * @param {pcui.Element} element The element
+     */
+
+    /**
+     * @event
+     * @name pcui.Element#hoverend
+     * @description Fired when the mouse stops hovering on the Element
+     * @param {Event} evt The native mouse event.
+     */
+
+    /**
      * @name pcui.Element
      * @classdesc The base class for all UI elements.
      * @extends Events
@@ -336,14 +351,15 @@ Object.assign(pcui, (function () {
 
             }
 
-            if (this._dom) {
+            const dom = this._dom;
+            if (dom) {
                 // remove event listeners
-                this._dom.removeEventListener('click', this._domEventClick);
-                this._dom.removeEventListener('mouseover', this._domEventMouseOver);
-                this._dom.removeEventListener('mouseout', this._domEventMouseOut);
+                dom.removeEventListener('click', this._domEventClick);
+                dom.removeEventListener('mouseover', this._domEventMouseOver);
+                dom.removeEventListener('mouseout', this._domEventMouseOut);
 
                 // remove ui reference
-                delete this._dom.ui;
+                delete dom.ui;
 
                 this._dom = null;
             }
@@ -356,7 +372,7 @@ Object.assign(pcui, (function () {
                 clearTimeout(this._flashTimeout);
             }
 
-            this.emit('destroy');
+            this.emit('destroy', dom, this);
 
             this.unbind();
         }
