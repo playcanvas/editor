@@ -60,6 +60,12 @@ Object.assign(pcui, (function () {
             this._lastRowFocused = null;
 
             this._observers = null;
+
+            this._onRowSelectHandler = this._onRowSelect.bind(this);
+            this._onRowDeselectHandler = this._onRowDeselect.bind(this);
+            this._onRowFocusHandler = this._onRowFocus.bind(this);
+            this._onRowBlurHandler = this._onRowBlur.bind(this);
+            this._onRowKeyDownHandler = this._onRowKeyDown.bind(this);
         }
 
         _refreshLayout() {
@@ -137,27 +143,31 @@ Object.assign(pcui, (function () {
 
             this._sortObservers();
 
-            const onRowSelect = this._onRowSelect.bind(this);
-            const onRowDeselect = this._onRowDeselect.bind(this);
-            const onRowFocus = this._onRowFocus.bind(this);
-            const onRowBlur = this._onRowBlur.bind(this);
-            const onRowKeyDown = this._onRowKeyDown.bind(this);
-
             this._observers.forEach(observer => {
-                const row = this._createRowFn(observer);
-                row.on('click', evt => this._onRowClick(evt, row));
-                row.on('select', onRowSelect);
-                row.on('deselect', onRowDeselect);
-                row.on('focus', onRowFocus);
-                row.on('blur', onRowBlur);
-                row.dom.addEventListener('keydown', onRowKeyDown);
-
-                if (this._filterFn) {
-                    row.hidden = !this._filterFn(row);
-                }
-
+                const row = this._createRow(observer);
                 this.body.append(row);
             });
+        }
+
+        _createRow(observer) {
+            const row = this._createRowFn(observer);
+            row.on('click', evt => this._onRowClick(evt, row));
+            row.on('select', this._onRowSelectHandler);
+            row.on('deselect', this._onRowDeselectHandler);
+            row.on('focus', this._onRowFocusHandler);
+            row.on('blur', this._onRowBlurHandler);
+
+            row.dom.addEventListener('keydown', this._onRowKeyDownHandler);
+
+            row.on('destroy', dom => {
+                dom.removeEventListener('keydown', this._onRowKeyDownHandler);
+            });
+
+            if (this._filterFn) {
+                row.hidden = !this._filterFn(row);
+            }
+
+            return row;
         }
 
         _onRowClick(evt, row) {
@@ -492,6 +502,55 @@ Object.assign(pcui, (function () {
             this.body.clear();
         }
 
+        addObserver(observer) {
+            if (!this._observers) {
+                this._observers = [];
+            }
+
+            this._observers.push(observer);
+
+            this._sortObservers();
+
+            const index = this._observers.indexOf(observer);
+            const row = this._createRow(observer);
+            this.body.appendBefore(row, this.body.dom.childNodes[index]);
+        }
+
+        removeObserver(observer) {
+            if (!this._observers) return;
+
+            const index = this._observers.indexOf(observer);
+            if (index === -1) return;
+
+            this._observers.splice(index, 1);
+
+            const row = this.body.dom.childNodes[index];
+            if (row && row.ui) {
+                row.ui.selected = false;
+                row.ui.destroy();
+            }
+        }
+
+        sortObserver(observer) {
+            if (!this._observers) return;
+
+            const index = this._observers.indexOf(observer);
+            if (index === -1) return;
+
+            let row = this.body.dom.childNodes[index];
+            if (!row || !row.ui) return;
+
+            row = row.ui;
+
+            this._sortObservers();
+
+            const newIndex = this._observers.indexOf(observer);
+            if (newIndex === index) return;
+
+            this.body.remove(row);
+            this.body.appendBefore(row, this.body.dom.childNodes[newIndex]);
+        }
+
         deselect() {
             this.selected.forEach(row => {
                 row.selected = false;
@@ -539,6 +598,18 @@ Object.assign(pcui, (function () {
             this._filterFn = value;
 
             this._refreshLayout();
+        }
+
+        get sortKey() {
+            return this._sort.key;
+        }
+
+        get sortFn() {
+            return this._sort.fn;
+        }
+
+        get isAscending() {
+            return this._sort.ascending;
         }
     }
 

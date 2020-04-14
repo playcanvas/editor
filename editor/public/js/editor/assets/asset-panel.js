@@ -395,11 +395,12 @@ Object.assign(pcui, (function () {
 
             this._rowsIndex[asset.get('id')] = row;
 
+            let domDblClick;
+
             // folder dbl click
             if (DBL_CLICKABLES[asset.get('type')]) {
-                row.dom.addEventListener('dblclick', (evt) => {
-                    this._onAssetDblClick(evt, asset);
-                });
+                domDblClick = (evt) => this._onAssetDblClick(evt, asset);
+                row.dom.addEventListener('dblclick', domDblClick);
             }
 
             row.on('hover', () => {
@@ -410,19 +411,24 @@ Object.assign(pcui, (function () {
             });
 
             row.dom.draggable = true;
-            row.dom.addEventListener('mousedown', evt => {
-                // this allows dragging that gets disabled by layout.js
-                evt.stopPropagation();
-            });
-            row.dom.addEventListener('dragstart', evt => {
-                this._onAssetDragStart(evt, asset);
-            });
+
+            // this allows dragging that gets disabled by layout.js
+            const onMouseDown = (evt) => evt.stopPropagation();
+            row.dom.addEventListener('mousedown', onMouseDown);
+
+            const onDragStart = (evt) => this._onAssetDragStart(evt, asset);
+            row.dom.addEventListener('dragstart', onDragStart);
 
             // context menu (TODO: change this when the context menu becomes a PCUI element)
             editor.call('assets:contextmenu:attach', row, asset);
 
-            row.on('destroy', () => {
+            row.on('destroy', dom => {
                 delete this._rowsIndex[asset.get('id')];
+                dom.removeEventListener('mousedown', onMouseDown);
+                dom.removeEventListener('dragstart', onDragStart);
+                if (domDblClick) {
+                    dom.removeEventListener('dblclick', domDblClick);
+                }
             });
 
             // name
@@ -444,6 +450,11 @@ Object.assign(pcui, (function () {
                 binding: new pcui.BindingObserversToElement()
             });
             labelName.link(asset, 'name');
+            labelName.on('change', () => {
+                if (this._detailsView.sortKey === 'name') {
+                    this._detailsView.sortObserver(asset);
+                }
+            });
             cell.append(labelName);
 
 
@@ -492,6 +503,11 @@ Object.assign(pcui, (function () {
                 })
             });
             labelSize.link(asset, 'file.size');
+            labelSize.on('change', () => {
+                if (this._detailsView.sortKey === 'file.size') {
+                    this._detailsView.sortObserver(asset);
+                }
+            });
             cell.append(labelSize);
 
             return row;
@@ -834,11 +850,11 @@ Object.assign(pcui, (function () {
 
             this._assetListEvents.push(this._assets.on('add', asset => {
                 this._addAsset(asset);
-                this._detailsView.link(this._assets.array());
+                this._detailsView.addObserver(asset);
             }));
             this._assetListEvents.push(this._assets.on('remove', asset => {
                 this._removeAsset(asset);
-                this._detailsView.link(this._assets.array());
+                this._detailsView.removeObserver(asset);
             }));
         }
 
