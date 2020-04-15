@@ -407,6 +407,11 @@
         &:before {
             font-size: 48px;
             font-weight: 100;
+            color: $text-darkest;
         }
+    }
+
+    .pcui-gridview-item-text {
+        color: $text-primary;
     }
 }
