@@ -96,9 +96,23 @@ Object.assign(pcui, (function () {
             // reference
             this._panelTooltip = editor.call('attributes:reference:attach', 'settings:asset-tasks', this.header, this.header.dom);
 
-            if (!editor.call('users:hasFlag', 'hasConvertGlb')) {
-                this._attributesInspector.getField('editor.pipeline.useGlb').parent.hidden = true;
+            const fieldUseGlb = this._attributesInspector.getField('editor.pipeline.useGlb');
+            if (!editor.call('users:hasFlag', 'hasConvertGlb') && !fieldUseGlb.value) {
+                fieldUseGlb.parent.hidden = true;
             }
+
+            let evtUseGlb = args.settings.on('editor.pipeline.useGlb:set', value => {
+                if (value) {
+                    fieldUseGlb.parent.hidden = false;
+                } else if (!editor.call('users:hasFlag', 'hasConvertGlb')) {
+                    fieldUseGlb.parent.hidden = true;
+                }
+            });
+
+            fieldUseGlb.on('destroy', () => {
+                evtUseGlb.unbind();
+                evtUseGlb = null;
+            });
         }
 
         _appendSection(title, attributeElement) {
