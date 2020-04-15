@@ -22,9 +22,9 @@ Object.assign(pcui, (function () {
         _onAppendGridViewItem(item) {
             if (!(item instanceof pcui.GridViewItem)) return;
 
-            const evtClick = item.on('click', (evt) => this._onClickItem(evt, item));
-            const evtSelect = item.on('select', () => this._onSelectItem(item));
-            const evtDeselect = item.on('deselect', () => this._onDeselectItem(item));
+            let evtClick = item.on('click', (evt) => this._onClickItem(evt, item));
+            let evtSelect = item.on('select', () => this._onSelectItem(item));
+            let evtDeselect = item.on('deselect', () => this._onDeselectItem(item));
 
             if (this._filterFn && !this._filterFn(item)) {
                 item.hidden = true;
