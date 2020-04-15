@@ -399,6 +399,8 @@
         flex-shrink: 0;
         width: 64px;
         height: 64px;
+        margin: $element-margin;
+        margin-bottom: 0;
 
         > canvas {
             background-color: transparent;
@@ -409,9 +411,31 @@
             font-weight: 100;
             color: $text-darkest;
         }
+
+        &.type-folder:before {
+            font-size: 58px;
+        }
+
+        &:hover {
+            box-shadow: none !important;
+        }
+    }
+
+    &:not(.pcui-disabled) {
+        &:hover, &.pcui-gridview-item-selected {
+            > .pcui-asset-thumb:before {
+                color: $text-primary;
+            }
+        }
     }
 
     .pcui-gridview-item-text {
         color: $text-primary;
+    }
+}
+
+.pcui-asset-grid-view-item-source {
+    > .pcui-asset-thumb:not(.type-folder) {
+        border: 1px dashed rgba($text-darkest, 0.5);
     }
 }

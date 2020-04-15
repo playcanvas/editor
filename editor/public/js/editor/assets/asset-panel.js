@@ -7,6 +7,7 @@ Object.assign(pcui, (function () {
     const CLASS_ASSET_HIGHLIGHTED = CLASS_ROOT + '-highlighted-asset';
     const CLASS_DETAILS_NAME = CLASS_ROOT + '-details-name';
     const CLASS_ASSET_GRID_ITEM = 'pcui-asset-grid-view-item';
+    const CLASS_ASSET_SOURCE = CLASS_ASSET_GRID_ITEM + '-source';
 
     const TYPES = {
         animation: 'Animation',
@@ -127,6 +128,7 @@ Object.assign(pcui, (function () {
 
             // grid view
             this._gridView = new pcui.GridView({
+                scrollable: true,
                 filterFn: this._filterAssetElement.bind(this)
             });
             this.append(this._gridView);
@@ -136,8 +138,11 @@ Object.assign(pcui, (function () {
             this._gridIndex = {};
 
             this._suspendSelectEvents = false;
-            this._detailsView.on('select', this._onSelectRow.bind(this));
-            this._detailsView.on('deselect', this._onDeselectRow.bind(this));
+            this._detailsView.on('select', this._onSelectAssetElement.bind(this));
+            this._detailsView.on('deselect', this._onDeselectAssetElement.bind(this));
+
+            this._gridView.on('select', this._onSelectAssetElement.bind(this));
+            this._gridView.on('deselect', this._onDeselectAssetElement.bind(this));
 
             this._eventsEditor = [];
             this._eventsEditor.push(editor.on('selector:change', this._onSelectorChange.bind(this)));
@@ -523,14 +528,14 @@ Object.assign(pcui, (function () {
             return row;
         }
 
-        _onSelectRow(row) {
+        _onSelectAssetElement(element) {
             if (this._suspendSelectEvents) return;
-            editor.call('selector:add', 'asset', row.asset);
+            editor.call('selector:add', 'asset', element.asset);
         }
 
-        _onDeselectRow(row) {
+        _onDeselectAssetElement(element) {
             if (this._suspendSelectEvents) return;
-            editor.call('selector:remove', row.asset);
+            editor.call('selector:remove', element.asset);
         }
 
         _onSelectorChange(type, assets) {
@@ -552,6 +557,11 @@ Object.assign(pcui, (function () {
                     const row = this._rowsIndex[asset.get('id')];
                     if (row) {
                         row.selected = true;
+                    }
+
+                    const gridItem = this._gridIndex[asset.get('id')];
+                    if (gridItem) {
+                        gridItem.selected = true;
                     }
 
                     if (asset.get('type') === 'folder') {
@@ -603,7 +613,19 @@ Object.assign(pcui, (function () {
 
             this._gridIndex[asset.get('id')] = item;
 
-            item.on('destroy', () => {
+            let domDblClick;
+
+            // folder dbl click
+            if (DBL_CLICKABLES[asset.get('type')]) {
+                domDblClick = (evt) => this._onAssetDblClick(evt, asset);
+                item.dom.addEventListener('dblclick', domDblClick);
+            }
+
+            item.on('destroy', dom => {
+                if (domDblClick) {
+                    dom.removeEventListener('dblclick', domDblClick);
+                }
+
                 delete this._gridIndex[asset.get('id')];
             });
 
@@ -849,9 +871,9 @@ Object.assign(pcui, (function () {
             return false;
         }
 
-        toggleDetailsView(toggle) {
-            this._detailsView.hidden = !toggle;
-            this._gridView.hidden = toggle;
+        toggleDetailsView() {
+            this._detailsView.hidden = !this._detailsView.hidden;
+            this._gridView.hidden = !this._detailsView.hidden;
         }
 
         destroy() {
@@ -1021,11 +1043,15 @@ Object.assign(pcui, (function () {
         link(asset) {
             super.link(asset, 'name');
             this._thumbnail.value = asset.get('id');
+            if (asset.get('source')) {
+                this.class.add(CLASS_ASSET_SOURCE);
+            }
         }
 
         unlink() {
             super.unlink();
             this._thumbnail.value = null;
+            this.class.remove(CLASS_ASSET_SOURCE);
         }
     }
 

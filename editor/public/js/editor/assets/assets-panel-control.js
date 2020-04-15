@@ -165,6 +165,16 @@ editor.once('load', function() {
     });
     tooltipDelete.class.add('innactive');
 
+    if (editor.call('users:hasFlag', 'hasPcuiAssetsPanel')) {
+        var btnDetailsView = new ui.Button({
+            text: '&#58375;'
+        });
+        btnDetailsView.style.fontWeight = 200;
+        btnDetailsView.on('click', function () {
+            editor.call('layout.assets').toggleDetailsView();
+        });
+        controls.append(btnDetailsView);
+    }
 
     editor.on('permissions:writeState', function(state) {
         btnNew.hidden = ! state;

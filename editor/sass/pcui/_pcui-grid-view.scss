@@ -13,9 +13,17 @@
     width: 104px;
     height: 104px;
 
-    &:not(.pcui-disabled):hover {
-        background-color: $bcg-darker;
+    &:not(.pcui-disabled) {
+        cursor: pointer;
+
+        &:not(.pcui-gridview-item-selected):hover {
+            background-color: mix($bcg-darker, $bcg-darkest, 50%);
+        }
     }
+}
+
+.pcui-gridview-item-selected {
+    background-color: $bcg-darkest;
 }
 
 .pcui-gridview-item-text {
@@ -23,4 +31,6 @@
     font-size: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin: 0;
+    padding: $element-margin;
 }

@@ -19,11 +19,15 @@
 
         // fix some misaligned font icons
         &.type-bundle:before {
-            margin-top: 3px;
+            padding-top: 3px;
         }
 
         &.type-template:before {
-            margin-top: 4px; // fix misaligned font icon
+            padding-top: 4px; // fix misaligned font icon
+        }
+
+        &.type-font-source:before {
+            padding-top: 4px; // fix misaligned font icon
         }
     }
 

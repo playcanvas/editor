@@ -55,6 +55,7 @@ Object.assign(pcui, (function () {
             if (this._previousAssetType) {
                 this.class.remove(CLASS_ASSET_PREFIX);
                 this.class.remove(this._previousAssetType);
+                this.class.remove(this._previousAssetType + '-source');
                 this._previousAssetType = null;
             }
 
@@ -78,6 +79,9 @@ Object.assign(pcui, (function () {
             this._previousAssetType = 'type-' + asset.get('type');
             this.class.add(CLASS_ASSET_PREFIX);
             this.class.add(this._previousAssetType);
+            if (asset.get('source')) {
+                this.class.add(this._previousAssetType + '-source');
+            }
         }
 
         // Wait until the element is displayed and has a valid width and height
@@ -149,6 +153,7 @@ Object.assign(pcui, (function () {
             if (this._previousAssetType) {
                 this.class.remove(CLASS_ASSET_PREFIX);
                 this.class.remove(this._previousAssetType);
+                this.class.remove(this._previousAssetType + '-source');
                 this._previousAssetType = null;
             }
 
@@ -232,7 +237,7 @@ Object.assign(pcui, (function () {
 
             var type = asset.get('type');
 
-            if (type === 'cubemap' || type === 'font' || type === 'material' || type === 'model' || type === 'sprite') {
+            if (type === 'cubemap' || (type === 'font' && !asset.get('source')) || type === 'material' || type === 'model' || type === 'sprite') {
                 this._renderCanvasThumbnailWhenReady(asset);
             } else {
                 this._showImageThumbnail(asset);
