@@ -6,6 +6,7 @@ Object.assign(pcui, (function () {
     const CLASS_CURRENT_FOLDER = CLASS_ROOT + '-current-folder';
     const CLASS_ASSET_HIGHLIGHTED = CLASS_ROOT + '-highlighted-asset';
     const CLASS_DETAILS_NAME = CLASS_ROOT + '-details-name';
+    const CLASS_ASSET_GRID_ITEM = 'pcui-asset-grid-view-item';
 
     const TYPES = {
         animation: 'Animation',
@@ -108,6 +109,7 @@ Object.assign(pcui, (function () {
             // table view
             this._detailsView = new pcui.Table({
                 scrollable: true,
+                hidden: true,
                 columns: [{
                     title: 'Name',
                     sortKey: 'name'
@@ -119,11 +121,19 @@ Object.assign(pcui, (function () {
                     sortKey: 'file.size'
                 }],
                 createRowFn: this._createDetailsViewRow.bind(this),
-                filterFn: this._filterAssetRow.bind(this)
+                filterFn: this._filterAssetElement.bind(this)
             });
             this.append(this._detailsView);
 
+            // grid view
+            this._gridView = new pcui.GridView({
+                filterFn: this._filterAssetElement.bind(this)
+            });
+            this.append(this._gridView);
+
             this._rowsIndex = {};
+
+            this._gridIndex = {};
 
             this._suspendSelectEvents = false;
             this._detailsView.on('select', this._onSelectRow.bind(this));
@@ -556,19 +566,50 @@ Object.assign(pcui, (function () {
             this._suspendSelectEvents = false;
         }
 
-        _addAsset(asset) {
+        _addAsset(asset, addToDetailsView) {
             const id = asset.get('id');
 
+            // init events
+            if (!this._assetEvents[id]) {
+                this._assetEvents[id] = [];
+            }
+
+            // if it's a folder add it to the folder view
             if (asset.get('type') === 'folder') {
                 this._addFolder(asset);
             }
 
-            if (!this._assetEvents[id]) {
-                this._assetEvents[id] = [];
-            }
+            // on asset move event
             this._assetEvents[id].push(asset.on('path:set', (path, oldPath) => {
                 this._onAssetMove(asset, path, oldPath);
             }));
+
+            // add to grid view
+            this._addGridItem(asset);
+
+            // add to details view
+            if (addToDetailsView) {
+                this._detailsView.addObserver(asset);
+            }
+        }
+
+        _addGridItem(asset) {
+            const item = new pcui.AssetGridViewItem({
+                assets: this._assets
+            });
+
+            item.link(asset);
+            item.asset = asset;
+
+            this._gridIndex[asset.get('id')] = item;
+
+            item.on('destroy', () => {
+                delete this._gridIndex[asset.get('id')];
+            });
+
+            this._gridView.append(item);
+
+            return item;
         }
 
         _removeAsset(asset) {
@@ -581,13 +622,20 @@ Object.assign(pcui, (function () {
             if (asset.get('type') === 'folder') {
                 this._removeFolder(asset);
             }
+
+            this._detailsView.removeObserver(asset);
         }
 
         _onAssetMove(asset, path, oldPath) {
             // show or hide based on filters
             const row = this._rowsIndex[asset.get('id')];
             if (row) {
-                row.hidden = !this._filterAssetRow(row);
+                row.hidden = !this._filterAssetElement(row);
+            }
+
+            const gridItem = this._gridIndex[asset.get('id')];
+            if (gridItem) {
+                gridItem.hidden = !this._filterAssetElement(gridItem);
             }
 
             if (asset.get('type') === 'folder') {
@@ -784,10 +832,10 @@ Object.assign(pcui, (function () {
             this._onAssetDragStart(null, items[0].asset);
         }
 
-        _filterAssetRow(row) {
-            if (!row.asset) return false;
+        _filterAssetElement(element) {
+            if (!element.asset) return false;
 
-            const path = row.asset.get('path');
+            const path = element.asset.get('path');
             if (this._currentFolder === null) {
                 return path.length === 0;
             }
@@ -799,6 +847,11 @@ Object.assign(pcui, (function () {
             }
 
             return false;
+        }
+
+        toggleDetailsView(toggle) {
+            this._detailsView.hidden = !toggle;
+            this._gridView.hidden = toggle;
         }
 
         destroy() {
@@ -830,6 +883,7 @@ Object.assign(pcui, (function () {
             this._assetListEvents.length = 0;
 
             this._detailsView.unlink();
+            this._gridView.clear();
 
             for (const id in this._foldersIndex) {
                 this._foldersIndex[id].destroy();
@@ -849,12 +903,10 @@ Object.assign(pcui, (function () {
             this._detailsView.link(assets);
 
             this._assetListEvents.push(this._assets.on('add', asset => {
-                this._addAsset(asset);
-                this._detailsView.addObserver(asset);
+                this._addAsset(asset, true);
             }));
             this._assetListEvents.push(this._assets.on('remove', asset => {
                 this._removeAsset(asset);
-                this._detailsView.removeObserver(asset);
             }));
         }
 
@@ -887,6 +939,7 @@ Object.assign(pcui, (function () {
             }
 
             this._detailsView.filter();
+            this._gridView.filter();
 
             this.emit('currentFolder', value);
         }
@@ -945,9 +998,39 @@ Object.assign(pcui, (function () {
         get foldersView() {
             return this._containerFolders;
         }
+
+        get gridView() {
+            return this._gridView;
+        }
+
+    }
+
+    class AssetGridViewItem extends pcui.GridViewItem {
+        constructor(args) {
+            super(args);
+
+            this.class.add(CLASS_ASSET_GRID_ITEM);
+
+            this._thumbnail = new pcui.AssetThumbnail({
+                assets: args.assets
+            });
+
+            this.prepend(this._thumbnail);
+        }
+
+        link(asset) {
+            super.link(asset, 'name');
+            this._thumbnail.value = asset.get('id');
+        }
+
+        unlink() {
+            super.unlink();
+            this._thumbnail.value = null;
+        }
     }
 
     return {
+        AssetGridViewItem: AssetGridViewItem,
         AssetPanel: AssetPanel
     };
 })());

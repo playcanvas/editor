@@ -424,7 +424,8 @@ Object.assign(pcui, (function () {
 
             handle.dom.addEventListener('mousedown', onMouseDown, true);
 
-            handle.on('destroy', () => {
+            handle.on('destroy', dom => {
+                dom.removeEventListener('mousedown', onMouseDown, true);
                 cleanUp();
             });
         }

@@ -1,0 +1,21 @@
+.pcui-gridview {
+    @extend .pcui-flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+}
+
+.pcui-gridview-item {
+    @extend .pcui-flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    width: 104px;
+    height: 104px;
+}
+
+.pcui-gridview-item-text {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

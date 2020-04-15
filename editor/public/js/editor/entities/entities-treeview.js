@@ -449,7 +449,7 @@ Object.assign(pcui, (function () {
 
             // new tree item for entity
             const treeViewItem = new pcui.TreeViewItem({
-                selectable: true,
+                allowSelect: true,
                 allowDrop: true,
                 text: entity.get('name'),
                 enabled: entity.get('enabled')

@@ -393,3 +393,20 @@
         }
     }
 }
+
+.pcui-asset-grid-view-item {
+    > .pcui-asset-thumb {
+        flex-shrink: 0;
+        width: 64px;
+        height: 64px;
+
+        > canvas {
+            background-color: transparent;
+        }
+
+        &:before {
+            font-size: 48px;
+            font-weight: 100;
+        }
+    }
+}

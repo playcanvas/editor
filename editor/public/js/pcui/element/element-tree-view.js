@@ -321,7 +321,7 @@ Object.assign(pcui, (function () {
          */
         _onChildClick(evt, element) {
             if (evt.button !== 0) return;
-            if (!element.selectable) return;
+            if (!element.allowSelect) return;
 
             if (this._pressedCtrl) {
                 // toggle selection when Ctrl is pressed
@@ -338,7 +338,7 @@ Object.assign(pcui, (function () {
 
                 const children = this._getChildrenRange(selected, element);
                 children.forEach(child => {
-                    if (child.selectable) {
+                    if (child.allowSelect) {
                         child.selected = true;
                     }
                 });

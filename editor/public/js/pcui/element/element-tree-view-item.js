@@ -43,7 +43,7 @@ Object.assign(pcui, (function () {
       * @classdesc Represents a Tree View Item to be added to a pcui.TreeView.
       * @mixes pcui.IFocusable
       * @property {Boolean} selected Whether the item is selected.
-      * @property {Boolean} selectable Whether the item can be selected.
+      * @property {Boolean} allowSelect Whether the item can be selected.
       * @property {Boolean} open Whether the item is open meaning showing its children.
       * @property {Boolean} parentsOpen Whether the parents of the item are open or closed.
       * @property {Boolean} allowDrop Whether dropping is allowed on the tree item.
@@ -93,7 +93,7 @@ Object.assign(pcui, (function () {
             });
             this._containerContents.append(this._labelText);
 
-            this.selectable = (args.selectable !== undefined ? args.selectable : true);
+            this.allowSelect = (args.allowSelect !== undefined ? args.allowSelect : true);
             this.allowDrop = (args.allowDrop !== undefined ? args.allowDrop : true);
             if (args.text) {
                 this.text = args.text;
@@ -157,7 +157,7 @@ Object.assign(pcui, (function () {
         _onContentKeyDown(evt) {
             if (evt.target.tagName.toLowerCase() === 'input') return;
 
-            if (!this.selectable) return;
+            if (!this.allowSelect) return;
 
             if (this._treeView) {
                 this._treeView._onChildKeyDown(evt, this);
@@ -206,7 +206,7 @@ Object.assign(pcui, (function () {
         }
 
         _onContentClick(evt) {
-            if (!this.selectable || evt.button !== 0) return;
+            if (!this.allowSelect || evt.button !== 0) return;
             if (evt.target.tagName.toLowerCase() === 'input') return;
 
             evt.stopPropagation();
@@ -230,7 +230,7 @@ Object.assign(pcui, (function () {
                 return;
             }
 
-            if (this.selectable) {
+            if (this.allowSelect) {
                 this._treeView.deselect();
                 this._treeView._onChildClick(evt, this);
             }
@@ -407,12 +407,12 @@ Object.assign(pcui, (function () {
             this._allowDrop = value;
         }
 
-        get selectable() {
-            return this._selectable;
+        get allowSelect() {
+            return this._allowSelect;
         }
 
-        set selectable(value) {
-            this._selectable = value;
+        set allowSelect(value) {
+            this._allowSelect = value;
         }
 
         get treeView() {
@@ -420,8 +420,6 @@ Object.assign(pcui, (function () {
         }
 
         set treeView(value) {
-            if (this._treeView === value) return;
-
             this._treeView = value;
         }
 
