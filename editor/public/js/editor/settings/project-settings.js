@@ -23,7 +23,6 @@ editor.once('load', function () {
         'loadingScreenScript',
         'externalScripts',
         'plugins',
-        'useModelV2',
         'layers',
         'layerOrder',
         'i18nAssets',
