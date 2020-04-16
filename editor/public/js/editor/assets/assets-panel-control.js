@@ -170,6 +170,7 @@ editor.once('load', function() {
             text: '&#58375;'
         });
         btnDetailsView.style.fontWeight = 200;
+        btnDetailsView.style.lineHeight = '35px';
         btnDetailsView.on('click', function () {
             editor.call('layout.assets').toggleDetailsView();
         });
