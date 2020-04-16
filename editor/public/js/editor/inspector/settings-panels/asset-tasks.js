@@ -36,13 +36,6 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'settings',
-            label: 'Force legacy model v2',
-            type: 'boolean',
-            alias: 'asset-tasks:useModelV2',
-            path: 'useModelV2'
-        },
-        {
-            observer: 'settings',
             label: 'Overwrite Models',
             type: 'boolean',
             alias: 'asset-tasks:overwrite.model',
