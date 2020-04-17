@@ -11,7 +11,10 @@ editor.once('load', function() {
             // executed first. This should be fixed once we make the
             // context menu a PCUI class
             editor.call('assets:contextmenu:attach', assetsPanel.foldersView);
-            editor.call('assets:contextmenu:attach', assetsPanel.detailsView, assetsPanel.currentFolder);
+            // last parameter must be null or context menu will use the root folder
+            // TODO: fix that when the context menu becomes a pcui class
+            editor.call('assets:contextmenu:attach', assetsPanel.detailsView, null);
+            editor.call('assets:contextmenu:attach', assetsPanel.gridView, null);
         });
 
         editor.on('assets:load', () => {

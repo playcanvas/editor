@@ -17,7 +17,7 @@
         cursor: pointer;
 
         &:not(.pcui-gridview-item-selected):hover {
-            background-color: mix($bcg-darker, $bcg-darkest, 50%);
+            background-color: $bcg-darker;
         }
     }
 }

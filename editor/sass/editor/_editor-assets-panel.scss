@@ -334,6 +334,13 @@
                 }
             }
         }
+
+        > .pcui-gridview {
+            width: 100%;
+            background-color: $bcg-dark;
+            border-left: 1px solid $border-primary;
+            border-top: 1px solid $border-primary;
+        }
     }
 }
 

@@ -547,6 +547,7 @@ Object.assign(pcui, (function () {
 
             this._suspendSelectEvents = true;
             this._detailsView.deselect();
+            this._gridView.deselect();
 
             for (const id in this._foldersIndex) {
                 this._foldersIndex[id].selected = false;
@@ -621,6 +622,8 @@ Object.assign(pcui, (function () {
                 item.dom.addEventListener('dblclick', domDblClick);
             }
 
+            editor.call('assets:contextmenu:attach', item, asset);
+
             item.on('destroy', dom => {
                 if (domDblClick) {
                     dom.removeEventListener('dblclick', domDblClick);
@@ -646,6 +649,11 @@ Object.assign(pcui, (function () {
             }
 
             this._detailsView.removeObserver(asset);
+
+            const gridItem = this._gridIndex[id];
+            if (gridItem) {
+                gridItem.destroy();
+            }
         }
 
         _onAssetMove(asset, path, oldPath) {

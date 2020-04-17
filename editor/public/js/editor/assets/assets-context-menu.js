@@ -606,7 +606,7 @@ editor.once('load', function() {
     });
 
     editor.method('assets:contextmenu:attach', function (element, asset) {
-        element.dom.addEventListener('contextmenu', evt => {
+        var contextMenuHandler = function (evt) {
             evt.stopPropagation();
             evt.preventDefault();
 
@@ -616,6 +616,12 @@ editor.once('load', function() {
             currentAsset = asset;
             menu.open = true;
             menu.position(evt.clientX + 1, evt.clientY);
+        };
+
+        element.dom.addEventListener('contextmenu', contextMenuHandler);
+
+        element.on('destroy', dom => {
+            dom.removeEventListener('contextmenu', contextMenuHandler);
         });
     });
 
