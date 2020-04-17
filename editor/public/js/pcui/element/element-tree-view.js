@@ -117,6 +117,9 @@ Object.assign(pcui, (function () {
             this.dom.addEventListener('mouseleave', this._domEvtMouseLeave);
 
             this._dragHandle.dom.addEventListener('mousemove', this._domEvtDragMove);
+            this._dragHandle.on('destroy', dom => {
+                dom.removeEventListener('mousemove', this._domEvtDragMove);
+            });
         }
 
         _updateModifierKeys(evt) {
@@ -844,8 +847,6 @@ Object.assign(pcui, (function () {
             window.removeEventListener('mousemove', this._domEvtMouseMove);
 
             this.dom.removeEventListener('mouseleave', this._domEvtMouseLeave);
-
-            this._dragHandle.removeEventListener('mousemove', this._domEvtDragMove);
 
             if (this._dragScrollInterval) {
                 clearInterval(this._dragScrollInterval);
