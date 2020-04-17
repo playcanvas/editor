@@ -184,13 +184,19 @@ Object.assign(pcui, (function () {
 
             const type = asset.get('type');
             if (type === 'folder') {
-                this.currentFolder = asset;
+                // go into the folder but after 1 frame
+                // otherwise the asset inside the folder that
+                // is under the cursor will be selected when you
+                // release the cursor
+                requestAnimationFrame(() => {
+                    this.currentFolder = asset;
 
-                // restore previous selection after
-                // double clicking into a folder
-                if (this._selector.prevItems) {
-                    editor.call('selector:set', this._selector.prevType, this._selector.prevItems);
-                }
+                    // restore previous selection after
+                    // double clicking into a folder
+                    if (this._selector.prevItems) {
+                        editor.call('selector:set', this._selector.prevType, this._selector.prevItems);
+                    }
+                });
             } else if (type === 'sprite' || type === 'textureatlas') {
                 editor.call('picker:sprites', asset);
             } else if (type === 'css' ||
