@@ -7,6 +7,8 @@
 
 .pcui-gridview-item {
     @extend .pcui-flex;
+
+    box-sizing: border-box;
     justify-content: center;
     align-items: center;
     flex-shrink: 0;

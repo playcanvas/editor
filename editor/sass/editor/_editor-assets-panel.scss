@@ -389,6 +389,10 @@
         color: $text-primary;
         border-color: $text-active;
     }
+
+    &.pcui-gridview-item {
+        border: 4px solid $text-active;
+    }
 }
 
 .pcui-asset-panel-current-folder {

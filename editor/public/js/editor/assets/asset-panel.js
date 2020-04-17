@@ -103,6 +103,11 @@ Object.assign(pcui, (function () {
             // otherwise this will be an asset
             this._hoveredAsset = undefined;
             this._eventsDropManager = [];
+
+            this._foldersDropTarget = null;
+            this._tableDropTarget = null;
+            this._gridViewDropTarget = null;
+
             if (args.dropManager) {
                 this.dropManager = args.dropManager;
             }
@@ -208,6 +213,20 @@ Object.assign(pcui, (function () {
 
         _onDeactivateDropManager() {
             this._setHoveredAsset(undefined);
+        }
+
+        _createDropTarget(target) {
+            const dropTarget = new pcui.DropTarget(target, {
+                hole: true,
+                passThrough: true,
+                onFilter: this._onAssetDropFilter.bind(this),
+                onDrop: this._onAssetDrop.bind(this)
+            });
+            dropTarget.style.outline = 'none';
+
+            this._dropManager.append(dropTarget);
+
+            return dropTarget;
         }
 
         _onAssetDropFilter(type) {
@@ -370,6 +389,11 @@ Object.assign(pcui, (function () {
                     if (row) {
                         row.class.remove(CLASS_ASSET_HIGHLIGHTED);
                     }
+
+                    const gridItem = this._gridIndex[this._hoveredAsset.get('id')];
+                    if (gridItem) {
+                        gridItem.class.remove(CLASS_ASSET_HIGHLIGHTED);
+                    }
                 }
 
                 const folder = this._hoveredAsset ? this._foldersIndex[this._hoveredAsset.get('id')] : this._foldersViewRoot;
@@ -386,6 +410,11 @@ Object.assign(pcui, (function () {
                     const row = this._rowsIndex[this._hoveredAsset.get('id')];
                     if (row) {
                         row.class.add(CLASS_ASSET_HIGHLIGHTED);
+                    }
+
+                    const gridItem = this._gridIndex[this._hoveredAsset.get('id')];
+                    if (gridItem) {
+                        gridItem.class.add(CLASS_ASSET_HIGHLIGHTED);
                     }
                 }
 
@@ -622,12 +651,37 @@ Object.assign(pcui, (function () {
                 item.dom.addEventListener('dblclick', domDblClick);
             }
 
+            // context menu
             editor.call('assets:contextmenu:attach', item, asset);
+
+            // drag
+            item.dom.draggable = true;
+
+            // hover
+            item.on('hover', () => {
+                this._onAssetHover(asset);
+            });
+            item.on('hoverend', () => {
+                this._onAssetHoverEnd(asset);
+            });
+
+            // this allows dragging that gets disabled by layout.js
+            const onMouseDown = (evt) => {
+                evt.stopPropagation();
+            };
+
+            item.dom.addEventListener('mousedown', onMouseDown);
+
+            const onDragStart = (evt) => this._onAssetDragStart(evt, asset);
+            item.dom.addEventListener('dragstart', onDragStart);
 
             item.on('destroy', dom => {
                 if (domDblClick) {
                     dom.removeEventListener('dblclick', domDblClick);
                 }
+
+                dom.removeEventListener('mousedown', onMouseDown);
+                dom.removeEventListener('dragStart', onDragStart);
 
                 delete this._gridIndex[asset.get('id')];
             });
@@ -991,6 +1045,11 @@ Object.assign(pcui, (function () {
                 this._tableDropTarget = null;
             }
 
+            if (this._gridViewDropTarget) {
+                this._gridViewDropTarget.destroy();
+                this._gridViewDropTarget = null;
+            }
+
             this._eventsDropManager.forEach(e => e.unbind());
             this._eventsDropManager.length = 0;
 
@@ -999,25 +1058,9 @@ Object.assign(pcui, (function () {
             if (this._dropManager) {
                 this._eventsDropManager.push(this._dropManager.on('deactivate', this._onDeactivateDropManager.bind(this)));
 
-                this._foldersDropTarget = new pcui.DropTarget(this._containerFolders, {
-                    class: 'foldersDropTarget',
-                    hole: true,
-                    passThrough: true,
-                    onFilter: this._onAssetDropFilter.bind(this),
-                    onDrop: this._onAssetDrop.bind(this)
-                });
-                this._foldersDropTarget.style.outline = 'none';
-                this._dropManager.append(this._foldersDropTarget);
-
-                this._tableDropTarget = new pcui.DropTarget(this._detailsView, {
-                    class: 'tableDropTarget',
-                    hole: true,
-                    passThrough: true,
-                    onFilter: this._onAssetDropFilter.bind(this),
-                    onDrop: this._onAssetDrop.bind(this)
-                });
-                this._tableDropTarget.style.outline = 'none';
-                this._dropManager.append(this._tableDropTarget);
+                this._foldersDropTarget = this._createDropTarget(this._containerFolders);
+                this._tableDropTarget = this._createDropTarget(this._detailsView);
+                this._gridViewDropTarget = this._createDropTarget(this._gridView);
             }
         }
 
