@@ -205,15 +205,21 @@ Object.assign(pcui, (function () {
                     row.selected = !row.selected;
                 }
             } else {
+                let othersSelected = false;
+
                 // deselect others
                 this._containerBody.forEachChild(otherRow => {
-                    if (otherRow !== row) {
+                    if (otherRow !== row && otherRow.selected) {
                         otherRow.selected = false;
+                        othersSelected = true;
                     }
                 });
 
-                // select this row
-                row.selected = true;
+                if (othersSelected) {
+                    row.selected = true;
+                } else {
+                    row.selected = !row.selected;
+                }
             }
         }
 

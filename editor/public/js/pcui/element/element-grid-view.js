@@ -79,13 +79,17 @@ Object.assign(pcui, (function () {
                     item.selected = true;
                 }
             } else {
-                if (this._selected.length > 1) {
-                    let i = this._selected.length;
-                    while (i--) {
-                        if (this._selected[i] !== item) {
-                            this._selected[i].selected = false;
-                        }
+                let othersSelected = false;
+                let i = this._selected.length;
+                while (i--) {
+                    if (this._selected[i] !== item) {
+                        this._selected[i].selected = false;
+                        othersSelected = true;
                     }
+                }
+
+                if (othersSelected) {
+                    item.selected = true;
                 } else {
                     item.selected = !item.selected;
                 }
