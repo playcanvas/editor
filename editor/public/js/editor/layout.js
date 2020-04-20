@@ -1,21 +1,28 @@
 editor.on('load', function() {
     'use strict';
 
-    var ignoreClasses = /(ui-list-item)|(ui-button)|(ui-text-field)|(ui-number-field)/i;
+    var ignoreMouseDownClasses = /(default-mousedown)|(ui-list-item)|(ui-button)|(ui-text)|(ui-number-field)/i;
+    var ignoreContextMenuClasses = /(default-mousedown)/i;
     var ignoreElements = /(input)|(textarea)/i;
+
+    // don't prevent for certain cases
+    function shouldNotPrevent(ignoreClasses, evt) {
+        if (evt.target) {
+            if (ignoreClasses.test(evt.target.className)) {
+                return true;
+            } else if (ignoreElements.test(evt.target.tagName)) {
+                return true;
+            } else if (evt.target.classList.contains('selectable')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     // prevent drag'n'select
     window.addEventListener('mousedown', function(evt) {
-        // don't prevent for certain cases
-        if (evt.target) {
-            if (ignoreClasses.test(evt.target.className)) {
-                return;
-            } else if (ignoreElements.test(evt.target.tagName)) {
-                return;
-            } else if (evt.target.classList.contains('selectable')) {
-                return;
-            }
-        }
+        if (shouldNotPrevent(ignoreMouseDownClasses, evt)) return;
 
         // blur inputs
         if (window.getSelection) {
@@ -33,6 +40,13 @@ editor.on('load', function() {
         evt.preventDefault();
     }, false);
 
+
+    // prevent default context menu
+    window.addEventListener('contextmenu', function(evt) {
+        if (shouldNotPrevent(ignoreContextMenuClasses, evt)) return;
+
+        evt.preventDefault();
+    }, false);
 
     // main container
     var root = new pcui.Container({

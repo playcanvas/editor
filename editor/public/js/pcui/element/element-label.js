@@ -18,6 +18,7 @@ Object.assign(pcui, (function () {
          * @param {Object} args The arguments. Extends the pcui.Element constructor arguments. All settable properties can also be set through the constructor.
          * @param {Boolean} [args.unsafe] If true then the innerHTML property will be used to set the text. Otherwise textContent will be used instead.
          * @param {Boolean} [args.nativeTooltip] If true then use the text of the label as the native HTML tooltip.
+         * @param {Boolean} [args.allowTextSelection] If true then the label can be clicked to select text.
          */
         constructor(args) {
             if (!args) args = {};
@@ -28,6 +29,10 @@ Object.assign(pcui, (function () {
 
             this._unsafe = args.unsafe || false;
             this.text = args.text || args.value || '';
+
+            if (args.allowTextSelection) {
+                this.class.add(pcui.CLASS_DEFAULT_MOUSEDOWN);
+            }
 
             if (args.nativeTooltip) {
                 this.dom.title = this.text;

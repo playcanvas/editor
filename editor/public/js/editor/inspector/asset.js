@@ -7,7 +7,10 @@ Object.assign(pcui, (function () {
         label: 'ID',
         alias: 'id',
         path: 'id',
-        type: 'label'
+        type: 'label',
+        args: {
+            allowTextSelection: true
+        }
     }, {
         label: 'Assets',
         path: 'assets',
