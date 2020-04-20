@@ -426,12 +426,13 @@
 }
 
 .pcui-asset-grid-view-item {
+    height: 104px;
+
     > .pcui-asset-thumb {
         flex-shrink: 0;
         width: 64px;
         height: 64px;
-        margin: $element-margin;
-        margin-bottom: 0;
+        margin: $element-margin 0;
 
         > canvas {
             background-color: transparent;
@@ -445,6 +446,7 @@
 
         &.type-folder:before {
             font-size: 58px;
+            margin-top: -6px;
         }
 
         &:hover {
@@ -465,9 +467,41 @@
     }
 }
 
+.pcui-asset-panel-grid-view-small {
+    .pcui-asset-grid-view-item {
+        width: 64px;
+        height: 68px;
+
+        > .pcui-asset-thumb {
+            width: 40px;
+            height: 40px;
+            margin: 4px;
+
+            &:before {
+                font-size: 32px;
+            }
+
+            &.type-folder:before {
+                font-size: 38px;
+            }
+        }
+
+        > .pcui-gridview-item-text {
+            max-width: 60px;
+        }
+
+    }
+
+    .pcui-asset-panel-highlighted-asset {
+        &.pcui-gridview-item {
+            border: 2px solid $text-active;
+        }
+    }
+}
+
 .pcui-asset-grid-view-item-source {
     > .pcui-asset-thumb:not(.type-folder) {
-        border: 1px dashed rgba($text-darkest, 0.5);
+        outline: 1px dashed rgba($text-darkest, 0.5);
     }
 }
 
@@ -500,6 +534,7 @@
         .pcui-asset-panel-btn-small {
             padding: 0;
             width: 24px;
+            font-size: 15px;
             margin-left: 0;
         }
 

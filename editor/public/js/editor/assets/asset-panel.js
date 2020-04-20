@@ -9,11 +9,14 @@ Object.assign(pcui, (function () {
     const CLASS_ASSET_GRID_ITEM = 'pcui-asset-grid-view-item';
     const CLASS_ASSET_SOURCE = CLASS_ASSET_GRID_ITEM + '-source';
 
+    const CLASS_GRID_SMALL = CLASS_ROOT + '-grid-view-small';
+
     const CLASS_HIDE_ON_COLLAPSE = CLASS_ROOT + '-hide-on-collapse';
     const CLASS_BTN_SMALL = CLASS_ROOT + '-btn-small';
     const CLASS_BTN_STORE = CLASS_ROOT + '-btn-store';
     const CLASS_BTN_CONTAINER = CLASS_ROOT + '-btn-container';
     const CLASS_BTN_ACTIVE = CLASS_ROOT + '-btn-active';
+
 
     const TYPES = {
         animation: 'Animation',
@@ -202,6 +205,7 @@ Object.assign(pcui, (function () {
             });
             this.append(this._gridView);
 
+            this._refreshViewButtonsTimeout = null;
             this._detailsView.on('show', this._refreshViewButtons.bind(this));
             this._detailsView.on('hide', this._refreshViewButtons.bind(this));
             this._gridView.on('show', this._refreshViewButtons.bind(this));
@@ -279,12 +283,17 @@ Object.assign(pcui, (function () {
         }
 
         _onClickLargeGrid() {
-            this._gridView.hidden = false;
             this._detailsView.hidden = true;
+            this._gridView.hidden = false;
+            this.class.remove(CLASS_GRID_SMALL);
+            this._refreshViewButtons();
         }
 
         _onClickSmallGrid() {
-            // TODO
+            this._detailsView.hidden = true;
+            this._gridView.hidden = false;
+            this.class.add(CLASS_GRID_SMALL);
+            this._refreshViewButtons();
         }
 
         _onClickDetailsView() {
@@ -293,17 +302,27 @@ Object.assign(pcui, (function () {
         }
 
         _refreshViewButtons() {
-            this._btnLargeGrid.class.remove(CLASS_BTN_ACTIVE);
-            this._btnSmallGrid.class.remove(CLASS_BTN_ACTIVE);
-            this._btnDetailsView.class.remove(CLASS_BTN_ACTIVE);
+            if (this._refreshViewButtonsTimeout) return;
 
-            if (!this._detailsView.hidden) {
-                this._btnDetailsView.class.add(CLASS_BTN_ACTIVE);
-            }
+            this._refreshViewButtonsTimeout = requestAnimationFrame(() => {
+                this._refreshViewButtonsTimeout = null;
 
-            if (!this._gridView.hidden) {
-                this._btnLargeGrid.class.add(CLASS_BTN_ACTIVE);
-            }
+                this._btnLargeGrid.class.remove(CLASS_BTN_ACTIVE);
+                this._btnSmallGrid.class.remove(CLASS_BTN_ACTIVE);
+                this._btnDetailsView.class.remove(CLASS_BTN_ACTIVE);
+
+                if (!this._detailsView.hidden) {
+                    this._btnDetailsView.class.add(CLASS_BTN_ACTIVE);
+                }
+
+                if (!this._gridView.hidden) {
+                    if (this.class.contains(CLASS_GRID_SMALL)) {
+                        this._btnSmallGrid.class.add(CLASS_BTN_ACTIVE);
+                    } else {
+                        this._btnLargeGrid.class.add(CLASS_BTN_ACTIVE);
+                    }
+                }
+            });
         }
 
         _onAssetDblClick(evt, asset) {
@@ -1074,6 +1093,11 @@ Object.assign(pcui, (function () {
 
         destroy() {
             if (this._destroyed) return;
+
+            if (this._refreshViewButtonsTimeout) {
+                cancelAnimationFrame(this._refreshViewButtonsTimeout);
+                this._refreshViewButtonsTimeout = null;
+            }
 
             this._eventsEditor.forEach(e => e.unbind());
             this._eventsEditor.length = 0;

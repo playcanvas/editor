@@ -13,7 +13,6 @@
     align-items: center;
     flex-shrink: 0;
     width: 104px;
-    height: 104px;
 
     &:not(.pcui-disabled) {
         cursor: pointer;
@@ -34,5 +33,5 @@
     overflow: hidden;
     text-overflow: ellipsis;
     margin: 0;
-    padding: $element-margin;
+    padding: 0 2px;
 }
