@@ -104,6 +104,7 @@ editor.on('load', function() {
         assetsPanel = new pcui.AssetPanel({
             id: 'layout-assets',
             class: 'assets',
+            panelType: 'normal',
             collapsible: true,
             collapsed: editor.call('localStorage:get', 'editor:layout:assets:collapse') || window.innerHeight <= 480,
             height: editor.call('localStorage:get', 'editor:layout:assets:height') || 212,

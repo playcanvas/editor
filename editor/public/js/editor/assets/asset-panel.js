@@ -9,6 +9,12 @@ Object.assign(pcui, (function () {
     const CLASS_ASSET_GRID_ITEM = 'pcui-asset-grid-view-item';
     const CLASS_ASSET_SOURCE = CLASS_ASSET_GRID_ITEM + '-source';
 
+    const CLASS_HIDE_ON_COLLAPSE = CLASS_ROOT + '-hide-on-collapse';
+    const CLASS_BTN_SMALL = CLASS_ROOT + '-btn-small';
+    const CLASS_BTN_STORE = CLASS_ROOT + '-btn-store';
+    const CLASS_BTN_CONTAINER = CLASS_ROOT + '-btn-container';
+    const CLASS_BTN_ACTIVE = CLASS_ROOT + '-btn-active';
+
     const TYPES = {
         animation: 'Animation',
         audio: 'Audio',
@@ -63,6 +69,64 @@ Object.assign(pcui, (function () {
             super(args);
 
             this.class.add(CLASS_ROOT);
+
+            // header controls
+            const btnNew = new pcui.Button({
+                icon: 'E120',
+                class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
+            });
+            btnNew.on('click', this._onClickNew.bind(this));
+            this.header.append(btnNew);
+
+            const btnDelete = new pcui.Button({
+                icon: 'E124',
+                class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
+            });
+            btnDelete.on('click', this._onClickDelete.bind(this));
+            this.header.append(btnDelete);
+
+            const btnBack = new pcui.Button({
+                icon: 'E114',
+                class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
+            });
+            btnBack.on('click', this._onClickBack.bind(this));
+            this.header.append(btnBack);
+
+            const containerBtn = new pcui.Container({
+                flex: true,
+                flexDirection: 'row',
+                class: [CLASS_BTN_CONTAINER, CLASS_HIDE_ON_COLLAPSE]
+            });
+            this.header.append(containerBtn);
+
+            this._btnLargeGrid = new pcui.Button({
+                icon: 'E143',
+                class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
+            });
+            this._btnLargeGrid.on('click', this._onClickLargeGrid.bind(this));
+            containerBtn.append(this._btnLargeGrid);
+
+            this._btnSmallGrid = new pcui.Button({
+                icon: 'E145',
+                class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
+            });
+            this._btnSmallGrid.on('click', this._onClickSmallGrid.bind(this));
+            containerBtn.append(this._btnSmallGrid);
+
+            this._btnDetailsView = new pcui.Button({
+                icon: 'E146',
+                class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
+            });
+            this._btnDetailsView.on('click', this._onClickDetailsView.bind(this));
+            containerBtn.append(this._btnDetailsView);
+
+            const btnStore = new pcui.Button({
+                text: 'STORE',
+                icon: 'E238',
+                class: [CLASS_BTN_STORE, CLASS_HIDE_ON_COLLAPSE]
+            });
+            btnStore.on('click', this._onClickStore.bind(this));
+            this.header.append(btnStore);
 
             // folders tree view
             this._containerFolders = new pcui.Container({
@@ -138,6 +202,13 @@ Object.assign(pcui, (function () {
             });
             this.append(this._gridView);
 
+            this._detailsView.on('show', this._refreshViewButtons.bind(this));
+            this._detailsView.on('hide', this._refreshViewButtons.bind(this));
+            this._gridView.on('show', this._refreshViewButtons.bind(this));
+            this._gridView.on('hide', this._refreshViewButtons.bind(this));
+
+            this._refreshViewButtons();
+
             this._rowsIndex = {};
 
             this._gridIndex = {};
@@ -176,6 +247,63 @@ Object.assign(pcui, (function () {
                     // this._detailsView.table.width = this.width;
                 // }
             // });
+        }
+
+        _onClickStore() {
+            window.open('https://store.playcanvas.com/', '_blank');
+        }
+
+        _onClickNew() {
+            // TODO
+            return;
+            var rect = btnNew.element.getBoundingClientRect();
+            menu.position(rect.right, rect.top);
+            menu.open = true;
+        }
+
+        _onClickDelete() {
+            // TODO
+            return;
+            if (! editor.call('permissions:write'))
+                return;
+
+            var type = editor.call('selector:type');
+            if (type !== 'asset')
+                return;
+
+            editor.call('assets:delete:picker', editor.call('selector:items'));
+        }
+
+        _onClickBack() {
+            // TODO
+        }
+
+        _onClickLargeGrid() {
+            this._gridView.hidden = false;
+            this._detailsView.hidden = true;
+        }
+
+        _onClickSmallGrid() {
+            // TODO
+        }
+
+        _onClickDetailsView() {
+            this._gridView.hidden = true;
+            this._detailsView.hidden = false;
+        }
+
+        _refreshViewButtons() {
+            this._btnLargeGrid.class.remove(CLASS_BTN_ACTIVE);
+            this._btnSmallGrid.class.remove(CLASS_BTN_ACTIVE);
+            this._btnDetailsView.class.remove(CLASS_BTN_ACTIVE);
+
+            if (!this._detailsView.hidden) {
+                this._btnDetailsView.class.add(CLASS_BTN_ACTIVE);
+            }
+
+            if (!this._gridView.hidden) {
+                this._btnLargeGrid.class.add(CLASS_BTN_ACTIVE);
+            }
         }
 
         _onAssetDblClick(evt, asset) {
