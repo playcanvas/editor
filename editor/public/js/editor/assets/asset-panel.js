@@ -335,6 +335,7 @@ Object.assign(pcui, (function () {
                 // otherwise the asset inside the folder that
                 // is under the cursor will be selected when you
                 // release the cursor
+
                 requestAnimationFrame(() => {
                     this.currentFolder = asset;
 
@@ -759,7 +760,7 @@ Object.assign(pcui, (function () {
             this._suspendSelectEvents = false;
         }
 
-        _addAsset(asset, addToDetailsView) {
+        _addAsset(asset, index, addToDetailsView) {
             const id = asset.get('id');
 
             // init events
@@ -772,13 +773,13 @@ Object.assign(pcui, (function () {
                 this._addFolder(asset);
             }
 
-            // on asset move event
+            // change asset path
             this._assetEvents[id].push(asset.on('path:set', (path, oldPath) => {
-                this._onAssetMove(asset, path, oldPath);
+                this._onAssetPathChange(asset, path, oldPath);
             }));
 
             // add to grid view
-            this._addGridItem(asset);
+            this._addGridItem(asset, index);
 
             // add to details view
             if (addToDetailsView) {
@@ -786,7 +787,7 @@ Object.assign(pcui, (function () {
             }
         }
 
-        _addGridItem(asset) {
+        _addGridItem(asset, index) {
             const item = new pcui.AssetGridViewItem({
                 assets: this._assets
             });
@@ -839,7 +840,11 @@ Object.assign(pcui, (function () {
                 delete this._gridIndex[asset.get('id')];
             });
 
-            this._gridView.append(item);
+            let appendBefore = null;
+            if (index >= 0 && this._assets.data[index + 1]) {
+                appendBefore = this._gridIndex[this._assets.data[index + 1].get('id')];
+            }
+            this._gridView.appendBefore(item, appendBefore);
 
             return item;
         }
@@ -863,7 +868,37 @@ Object.assign(pcui, (function () {
             }
         }
 
-        _onAssetMove(asset, path, oldPath) {
+        _moveAsset(asset, index) {
+            const suspendEvents = this._suspendSelectEvents;
+            this._suspendSelectEvents = true;
+
+            const folder = this._foldersIndex[asset.get('id')];
+            // move folder alphabetically
+            if (folder) {
+                const selected = folder.selected;
+                const parent = folder.parent;
+                parent.remove(folder);
+                this._insertTreeItemAlphabetically(parent, folder);
+                folder.selected = selected;
+            }
+
+            // reorder grid item
+            const gridItem = this._gridIndex[asset.get('id')];
+            if (gridItem) {
+                const selected = gridItem.selected;
+                this._gridView.remove(gridItem);
+                if (this._assets.data[index + 1]) {
+                    this._gridView.appendBefore(gridItem, this._gridIndex[this._assets.data[index + 1].get('id')]);
+                } else {
+                    this._gridView.append(gridItem);
+                }
+                gridItem.selected = selected;
+            }
+
+            this._suspendSelectEvents = suspendEvents;
+        }
+
+        _onAssetPathChange(asset, path, oldPath) {
             // show or hide based on filters
             const row = this._rowsIndex[asset.get('id')];
             if (row) {
@@ -988,10 +1023,10 @@ Object.assign(pcui, (function () {
 
         _insertTreeItemAlphabetically(parentTreeItem, treeItem) {
             // find the right spot to insert the tree item based on alphabetical order
-            const text = treeItem.text.toLowerCase();
+            const text = treeItem.asset.get('name').toLowerCase();
             let sibling = parentTreeItem.firstChild;
             while (sibling) {
-                if (sibling !== treeItem && sibling.text.toLowerCase() > text) {
+                if (sibling !== treeItem && sibling.asset.get('name').toLowerCase() > text) {
                     if (!treeItem.parent) {
                         parentTreeItem.appendBefore(treeItem, sibling);
                     } else {
@@ -1144,11 +1179,14 @@ Object.assign(pcui, (function () {
 
             this._detailsView.link(assets);
 
-            this._assetListEvents.push(this._assets.on('add', asset => {
-                this._addAsset(asset, true);
+            this._assetListEvents.push(this._assets.on('add', (asset, _, index) => {
+                this._addAsset(asset, index, true);
             }));
             this._assetListEvents.push(this._assets.on('remove', asset => {
                 this._removeAsset(asset);
+            }));
+            this._assetListEvents.push(this._assets.on('move', (asset, index) => {
+                this._moveAsset(asset, index);
             }));
         }
 
