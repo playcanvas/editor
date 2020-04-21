@@ -205,13 +205,10 @@ Object.assign(pcui, (function () {
             });
             this.append(this._gridView);
 
-            this._refreshViewButtonsTimeout = null;
-            this._detailsView.on('show', this._refreshViewButtons.bind(this));
-            this._detailsView.on('hide', this._refreshViewButtons.bind(this));
-            this._gridView.on('show', this._refreshViewButtons.bind(this));
-            this._gridView.on('hide', this._refreshViewButtons.bind(this));
 
-            this._refreshViewButtons();
+            this._refreshViewButtonsTimeout = null;
+
+            this.viewMode = args.viewMode || AssetPanel.VIEW_LARGE_GRID;
 
             this._rowsIndex = {};
 
@@ -283,22 +280,15 @@ Object.assign(pcui, (function () {
         }
 
         _onClickLargeGrid() {
-            this._detailsView.hidden = true;
-            this._gridView.hidden = false;
-            this.class.remove(CLASS_GRID_SMALL);
-            this._refreshViewButtons();
+            this.viewMode = AssetPanel.VIEW_LARGE_GRID;
         }
 
         _onClickSmallGrid() {
-            this._detailsView.hidden = true;
-            this._gridView.hidden = false;
-            this.class.add(CLASS_GRID_SMALL);
-            this._refreshViewButtons();
+            this.viewMode = AssetPanel.VIEW_SMALL_GRID;
         }
 
         _onClickDetailsView() {
-            this._gridView.hidden = true;
-            this._detailsView.hidden = false;
+            this.viewMode = AssetPanel.VIEW_DETAILS;
         }
 
         _refreshViewButtons() {
@@ -311,16 +301,12 @@ Object.assign(pcui, (function () {
                 this._btnSmallGrid.class.remove(CLASS_BTN_ACTIVE);
                 this._btnDetailsView.class.remove(CLASS_BTN_ACTIVE);
 
-                if (!this._detailsView.hidden) {
+                if (this._viewMode === AssetPanel.VIEW_DETAILS) {
                     this._btnDetailsView.class.add(CLASS_BTN_ACTIVE);
-                }
-
-                if (!this._gridView.hidden) {
-                    if (this.class.contains(CLASS_GRID_SMALL)) {
-                        this._btnSmallGrid.class.add(CLASS_BTN_ACTIVE);
-                    } else {
-                        this._btnLargeGrid.class.add(CLASS_BTN_ACTIVE);
-                    }
+                } else if (this._viewMode === AssetPanel.VIEW_SMALL_GRID) {
+                    this._btnSmallGrid.class.add(CLASS_BTN_ACTIVE);
+                } else {
+                    this._btnLargeGrid.class.add(CLASS_BTN_ACTIVE);
                 }
             });
         }
@@ -1272,7 +1258,34 @@ Object.assign(pcui, (function () {
             return this._gridView;
         }
 
+        get viewMode() {
+            return this._viewMode;
+        }
+
+        set viewMode(value) {
+            if (this._viewMode === value) return;
+
+            this._viewMode = value;
+
+            this._detailsView.hidden = (value !== AssetPanel.VIEW_DETAILS);
+            this._gridView.hidden = !this._detailsView.hidden;
+            if (!this._gridView.hidden) {
+                if (value === AssetPanel.VIEW_SMALL_GRID) {
+                    this._gridView.class.add(CLASS_GRID_SMALL);
+                } else {
+                    this._gridView.class.remove(CLASS_GRID_SMALL);
+                }
+            }
+
+            this._refreshViewButtons();
+
+            this.emit('viewMode', value);
+        }
     }
+
+    AssetPanel.VIEW_LARGE_GRID = 'lgrid';
+    AssetPanel.VIEW_SMALL_GRID = 'sgrid';
+    AssetPanel.VIEW_DETAILS = 'details';
 
     class AssetGridViewItem extends pcui.GridViewItem {
         constructor(args) {

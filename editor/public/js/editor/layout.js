@@ -110,7 +110,13 @@ editor.on('load', function() {
             height: editor.call('localStorage:get', 'editor:layout:assets:height') || 212,
             resizable: 'top',
             resizeMin: 106,
-            resizeMax: 106 * 6
+            resizeMax: 106 * 6,
+            viewMode: editor.call('localStorage:get', 'editor:assets:viewMode')
+        });
+
+        // save changes to viewmode to localStorage
+        assetsPanel.on('viewMode', value => {
+            editor.call('localStorage:set', 'editor:assets:viewMode', value);
         });
     } else {
         assetsPanel = new pcui.Panel({
