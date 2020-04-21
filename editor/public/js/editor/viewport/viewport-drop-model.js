@@ -125,8 +125,11 @@ editor.once('load', function() {
                 component.asset = parseInt(assets[i].get('id'), 10);
 
                 var name = assets[i].get('name');
-                if (/\.json$/i.test(name))
+                if (/\.json$/i.test(name)) {
                     name = name.slice(0, -5) || 'Untitled';
+                } else if (/\.glb$/i.test(name)) {
+                    name = name.slice(0, -4) || 'Untitled';
+                }
 
                 // new entity
                 var entity = editor.call('entities:new', {

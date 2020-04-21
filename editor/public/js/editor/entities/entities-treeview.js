@@ -366,6 +366,8 @@ Object.assign(pcui, (function () {
             let name = asset.get('name');
             if (/\.json$/i.test(name)) {
                 name = name.slice(0, -5) || 'Untitled';
+            } else if (/\.glb$/i.test(name)) {
+                name = name.slice(0, -4) || 'Untitled';
             }
 
             // new entity
