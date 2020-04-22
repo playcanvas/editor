@@ -308,6 +308,7 @@
 
         > .pcui-asset-panel-folders {
             flex-shrink: 0;
+            max-width: 100%;
             border-top: 1px solid $border-primary;
 
             .pcui-treeview-item-icon:after {
@@ -518,8 +519,14 @@
     }
 
     > .pcui-panel-header {
+        background-color: $bcg-darker;
         > .pcui-panel-header-title {
             margin-right: 2 * $element-margin;
+        }
+
+        .pcui-asset-panel-controls {
+            flex-direction: row;
+            flex-grow: 1;
         }
 
         .pcui-button {
@@ -528,6 +535,7 @@
             border: 1px solid $bcg-darkest;
             background-color: $bcg-dark;
             margin: $element-margin;
+            flex-shrink: 0;
         }
 
 
@@ -549,10 +557,33 @@
             margin-left: 2 * $element-margin;
             padding-left: 3 * $element-margin;
             border-left: 1px solid $bcg-darkest;
+            flex-shrink: 0;
 
             margin-right: 2 * $element-margin;
             padding-right: 2 * $element-margin;
             border-right: 1px solid $bcg-darkest;
+        }
+
+        .pcui-select-input {
+            width: 230px;
+
+            &.pcui-open {
+                z-index: 2;
+            }
+
+            .pcui-label {
+                font-weight: bold;
+            }
+
+            .pcui-select-input-list {
+                max-height: initial;
+            }
+        }
+
+        .pcui-text-input {
+            width: 230px;
+            font-weight: bold;
+            line-height: 24px;
         }
 
         .pcui-asset-panel-btn-store {

@@ -9,6 +9,8 @@ Object.assign(pcui, (function () {
     const CLASS_ASSET_GRID_ITEM = 'pcui-asset-grid-view-item';
     const CLASS_ASSET_SOURCE = CLASS_ASSET_GRID_ITEM + '-source';
 
+    const CLASS_CONTROLS = CLASS_ROOT + '-controls';
+
     const CLASS_GRID_SMALL = CLASS_ROOT + '-grid-view-small';
 
     const CLASS_HIDE_ON_COLLAPSE = CLASS_ROOT + '-hide-on-collapse';
@@ -17,8 +19,8 @@ Object.assign(pcui, (function () {
     const CLASS_BTN_CONTAINER = CLASS_ROOT + '-btn-container';
     const CLASS_BTN_ACTIVE = CLASS_ROOT + '-btn-active';
 
-
     const TYPES = {
+        all: 'All',
         animation: 'Animation',
         audio: 'Audio',
         bundle: 'Asset Bundle',
@@ -26,6 +28,7 @@ Object.assign(pcui, (function () {
         cubemap: 'Cubemap',
         css: 'Css',
         font: 'Font',
+        fontSource: 'Font (source)',
         folderSource: 'Folder',
         json: 'Json',
         html: 'Html',
@@ -60,6 +63,9 @@ Object.assign(pcui, (function () {
         bundle: true
     };
 
+    const REGEX_TAGS = /^\[(.*)\]$/;
+    const REGEX_SUB_TAGS = /\[(.*?)\]/g;
+
     class AssetPanel extends pcui.Panel {
         constructor(args) {
             args = Object.assign({
@@ -73,34 +79,47 @@ Object.assign(pcui, (function () {
 
             this.class.add(CLASS_ROOT);
 
+            // append container for all controls
+            this._containerControls = new pcui.Container({
+                class: [CLASS_CONTROLS, CLASS_HIDE_ON_COLLAPSE],
+                flex: true
+            });
+            this.header.append(this._containerControls);
+            // stop click events so that the asset panel is only collapsed when you
+            // click on the title
+            this._containerControls.on('click', evt => evt.stopPropagation());
+
             // header controls
-            const btnNew = new pcui.Button({
+            this._btnNew = new pcui.Button({
                 icon: 'E120',
+                enabled: false,
                 class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
             });
-            btnNew.on('click', this._onClickNew.bind(this));
-            this.header.append(btnNew);
+            this._btnNew.on('click', this._onClickNew.bind(this));
+            this._containerControls.append(this._btnNew);
 
-            const btnDelete = new pcui.Button({
+            this._btnDelete = new pcui.Button({
                 icon: 'E124',
+                enabled: false,
                 class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
             });
-            btnDelete.on('click', this._onClickDelete.bind(this));
-            this.header.append(btnDelete);
+            this._btnDelete.on('click', this._onClickDelete.bind(this));
+            this._containerControls.append(this._btnDelete);
 
-            const btnBack = new pcui.Button({
+            this._btnBack = new pcui.Button({
                 icon: 'E114',
+                enabled: false,
                 class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
             });
-            btnBack.on('click', this._onClickBack.bind(this));
-            this.header.append(btnBack);
+            this._btnBack.on('click', this._onClickBack.bind(this));
+            this._containerControls.append(this._btnBack);
 
             const containerBtn = new pcui.Container({
                 flex: true,
                 flexDirection: 'row',
                 class: [CLASS_BTN_CONTAINER, CLASS_HIDE_ON_COLLAPSE]
             });
-            this.header.append(containerBtn);
+            this._containerControls.append(containerBtn);
 
             this._btnLargeGrid = new pcui.Button({
                 icon: 'E143',
@@ -123,13 +142,39 @@ Object.assign(pcui, (function () {
             this._btnDetailsView.on('click', this._onClickDetailsView.bind(this));
             containerBtn.append(this._btnDetailsView);
 
+            // asset type filter
+            const dropdownTypeOptions = Object.keys(TYPES)
+            .filter(type => type !== 'bundle' || editor.call('users:hasFlag', 'hasBundles'))
+            .map(type => {
+                return {
+                    v: type,
+                    t: TYPES[type]
+                };
+            });
+            this._dropdownType = new pcui.SelectInput({
+                options: dropdownTypeOptions,
+                value: 'all',
+                class: CLASS_HIDE_ON_COLLAPSE
+            });
+            this._containerControls.append(this._dropdownType);
+            this._dropdownType.on('change', this._onDropDownTypeChange.bind(this));
+
+            this._searchInput = new pcui.TextInput({
+                class: CLASS_HIDE_ON_COLLAPSE,
+                keyChange: true,
+                placeholder: 'Search'
+            });
+            this._containerControls.append(this._searchInput);
+            this._searchInput.on('change', this._onSearchInputChange.bind(this));
+            this._searchTags = null;
+
             const btnStore = new pcui.Button({
                 text: 'STORE',
                 icon: 'E238',
                 class: [CLASS_BTN_STORE, CLASS_HIDE_ON_COLLAPSE]
             });
             btnStore.on('click', this._onClickStore.bind(this));
-            this.header.append(btnStore);
+            this._containerControls.append(btnStore);
 
             // folders tree view
             this._containerFolders = new pcui.Container({
@@ -237,6 +282,8 @@ Object.assign(pcui, (function () {
                 prevItems: []
             };
 
+            this.writePermissions = !!args.writePermissions;
+
             if (args.assets) {
                 this.assets = args.assets;
             }
@@ -263,20 +310,29 @@ Object.assign(pcui, (function () {
         }
 
         _onClickDelete() {
-            // TODO
-            return;
             if (! editor.call('permissions:write'))
                 return;
 
-            var type = editor.call('selector:type');
-            if (type !== 'asset')
-                return;
-
-            editor.call('assets:delete:picker', editor.call('selector:items'));
+            const type = editor.call('selector:type');
+            if (type === 'asset') {
+                editor.call('assets:delete:picker', editor.call('selector:items'));
+            }
         }
 
         _onClickBack() {
-            // TODO
+            if (!this.currentFolder) return;
+
+            // if (folder === 'scripts') {
+            //     editor.call('assets:panel:currentFolder', null);
+            // } else {
+            const path = this.currentFolder.get('path');
+            let folder = null;
+            if (path.length) {
+                folder = this._assets.get(path[path.length - 1]);
+            }
+
+            this.currentFolder = folder;
+            // }
         }
 
         _onClickLargeGrid() {
@@ -289,6 +345,41 @@ Object.assign(pcui, (function () {
 
         _onClickDetailsView() {
             this.viewMode = AssetPanel.VIEW_DETAILS;
+        }
+
+        _onDropDownTypeChange(value) {
+            this._detailsView.filter();
+            this._gridView.filter();
+        }
+
+        // Convert string in form "tag1, tag2" to an array
+        // of strings like so: "tag1", "tag2"
+        _processTagsString(str) {
+            return str.trim().split(',').map(s => s.trim());
+        }
+
+        _onSearchInputChange(value) {
+            this._searchTags = null;
+            value = value.trim();
+
+            let tags = value.match(REGEX_TAGS);
+            if (tags) {
+                tags = tags[1].trim();
+                if (tags.length) {
+                    let subTags;
+                    while ((subTags = REGEX_SUB_TAGS.exec(tags)) !== null) {
+                        if (!this._searchTags) this._searchTags = [];
+                        this._searchTags.push(this._processTagsString(subTags[1]));
+                    }
+
+                    if (!this._searchTags) {
+                        this._searchTags = this._processTagsString(tags);
+                    }
+                }
+            }
+
+            this._detailsView.filter();
+            this._gridView.filter();
         }
 
         _refreshViewButtons() {
@@ -723,6 +814,8 @@ Object.assign(pcui, (function () {
             }
 
             if (type === 'asset') {
+                this._btnDelete.enabled = this.writePermissions && assets.length;
+
                 assets.forEach(asset => {
                     const row = this._rowsIndex[asset.get('id')];
                     if (row) {
@@ -741,6 +834,8 @@ Object.assign(pcui, (function () {
                         }
                     }
                 });
+            } else {
+                this._btnDelete.enabled = false;
             }
 
             this._suspendSelectEvents = false;
@@ -1090,21 +1185,91 @@ Object.assign(pcui, (function () {
             this._onAssetDragStart(null, items[0].asset);
         }
 
-        _filterAssetElement(element) {
-            if (!element.asset) return false;
-
-            const path = element.asset.get('path');
-            if (this._currentFolder === null) {
-                return path.length === 0;
+        _tagsAND(tagGroup, assetTags) {
+            for (let i = 0; i < tagGroup.length; i++) {
+                if (assetTags.indexOf(tagGroup[i]) === -1) {
+                    return false;
+                }
             }
 
-            if (path && path.length) {
-                if (parseInt(this._currentFolder.get('id'), 10) === path[path.length - 1]) {
+            return true;
+        }
+
+        _tagsOR(tagGroup, assetTags) {
+            for (let i = 0; i < tagGroup.length; i++) {
+                if (Array.isArray(tagGroup[i])) {
+                    if (this._tagsAND(tagGroup[i], assetTags)) {
+                        return true;
+                    }
+                } else if (assetTags.indexOf(tagGroup[i]) !== -1) {
                     return true;
                 }
             }
 
             return false;
+        }
+
+        _filterAssetElement(element) {
+            if (!element.asset) return false;
+
+            if (this._dropdownType.value !== 'all') {
+                if (this._dropdownType.value !== (element.asset.get('source') ? element.asset.get('type') + 'Source' : element.asset.get('type'))) {
+                    return false;
+                }
+            }
+
+            const name = element.asset.get('name');
+
+            const searchQuery = this._searchInput.value;
+
+            if (searchQuery) {
+                if (this._searchTags) {
+                    // check for tags
+                    const tags = element.asset.getRaw('tags');
+                    if (tags.length === 0) {
+                        return false;
+                    }
+
+                    return this._tagsOR(this._searchTags, tags);
+
+                } else if (searchQuery[0] === '*' && searchQuery.length > 1) {
+                    // check for regular expression first if the query starts with '*'
+                    try {
+                        if (new RegExp(searchQuery.slice(1), 'i').test(name)) {
+                            return true;
+                        }
+                    } catch (ex) {} // swallow exception and continue
+                }
+
+                // check if name includes search query
+                if (!name.toLowerCase().includes(searchQuery.toLowerCase())) {
+
+                    // if id matches then return true immediately
+                    const id = parseInt(searchQuery, 10);
+                    if (id && element.asset.get('id') === id)  {
+                        return true;
+                    }
+
+                    return false;
+                }
+            }
+
+            const path = element.asset.get('path');
+            if (this._currentFolder === null && path.length) {
+                return false;
+            }
+
+            if (this._currentFolder && !path.length) {
+                return false;
+            }
+
+            if (this._currentFolder) {
+                if (parseInt(this._currentFolder.get('id'), 10) !== path[path.length - 1]) {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         toggleDetailsView() {
@@ -1196,11 +1361,13 @@ Object.assign(pcui, (function () {
             this._currentFolder = value;
 
             if (this._currentFolder) {
+                this._btnBack.enabled = true;
                 id = this._currentFolder.get('id');
                 if (this._foldersIndex[id]) {
                     this._foldersIndex[id].class.add(CLASS_CURRENT_FOLDER);
                 }
             } else {
+                this._btnBack.enabled = false;
                 this._foldersViewRoot.class.add(CLASS_CURRENT_FOLDER);
             }
 
@@ -1280,6 +1447,24 @@ Object.assign(pcui, (function () {
             this._refreshViewButtons();
 
             this.emit('viewMode', value);
+        }
+
+        get writePermissions() {
+            return this._writePermissions;
+        }
+
+        set writePermissions(value) {
+            if (this._writePermissions === value) return;
+
+            this._writePermissions = value;
+
+            if (!value) {
+                this._btnNew.enabled = false;
+                this._btnDelete.enabled = false;
+            } else {
+                this._btnNew.enabled = true;
+                this._btnDelete.enabled = this._selector.items.length && this._selector.type === 'asset';
+            }
         }
     }
 

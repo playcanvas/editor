@@ -17,9 +17,14 @@ editor.once('load', function() {
             editor.call('assets:contextmenu:attach', assetsPanel.gridView, null);
         });
 
+        editor.on('permissions:writeState', value => {
+            assetsPanel.writePermissions = value;
+        });
+
         editor.on('assets:load', () => {
             assetsPanel.dropManager = editor.call('editor:dropManager');
             assetsPanel.assets = editor.call('assets:raw');
+            assetsPanel.writePermissions = editor.call('permissions:write');
         });
 
         editor.on('assets:clear', () => {
