@@ -483,7 +483,7 @@ Object.assign(pcui, (function () {
                        type === 'text') {
 
                 if (type === 'script' && config.project.settings.useLegacyScripts) {
-                    window.open('/editor/code/' + config.project.id + '/' + asset.get('filename'));
+                    window.open('/editor/code/' + config.project.id + '/' + asset.legacyScript.get('filename'));
                 } else if (!config.project.settings.useLegacyScripts) {
                     editor.call('picker:codeeditor', asset);
                 } else {
@@ -760,7 +760,7 @@ Object.assign(pcui, (function () {
 
 
             // context menu (TODO: change this when the context menu becomes a PCUI element)
-            editor.call('assets:contextmenu:attach', row, asset);
+            editor.call('assets:contextmenu:attach', row, asset.legacyScript || asset);
 
             row.on('destroy', dom => {
                 delete this._rowsIndex[asset.get('id')];
@@ -864,30 +864,33 @@ Object.assign(pcui, (function () {
             this._selector.items = assets;
 
             this._suspendSelectEvents = true;
+
             this._detailsView.deselect();
             this._gridView.deselect();
+            this._foldersView.deselect();
 
-            for (const id in this._foldersIndex) {
-                this._foldersIndex[id].selected = false;
-            }
-
-            console.log('selector:change', type);
             if (type === 'asset') {
                 this._btnDelete.enabled = this.writePermissions && assets.length;
 
                 assets.forEach(asset => {
-                    const row = this._rowsIndex[asset.get('id')];
+                    let id = asset.get('id');
+                    if (!parseInt(id, 10)) {
+                        // probably a legacy script
+                        id = asset.get('filename');
+                    }
+
+                    const row = this._rowsIndex[id];
                     if (row) {
                         row.selected = true;
                     }
 
-                    const gridItem = this._gridIndex[asset.get('id')];
+                    const gridItem = this._gridIndex[id];
                     if (gridItem) {
                         gridItem.selected = true;
                     }
 
                     if (asset.get('type') === 'folder') {
-                        const folder = this._foldersIndex[asset.get('id')];
+                        const folder = this._foldersIndex[id];
                         if (folder) {
                             folder.selected = true;
                         }
@@ -978,7 +981,7 @@ Object.assign(pcui, (function () {
             }
 
             // context menu
-            editor.call('assets:contextmenu:attach', item, asset);
+            editor.call('assets:contextmenu:attach', item, asset.legacyScript || asset);
 
             let onMouseDown;
             let onDragStart;
@@ -1170,7 +1173,7 @@ Object.assign(pcui, (function () {
                 treeItem.class.add(CLASS_LEGACY_SCRIPTS_FOLDER);
             }
 
-            editor.call('assets:contextmenu:attach', treeItem, asset);
+            editor.call('assets:contextmenu:attach', treeItem, asset.legacyScript || asset);
 
             treeItem.asset = asset;
 
@@ -1280,6 +1283,12 @@ Object.assign(pcui, (function () {
         _onFolderTreeSelect(item) {
             if (this._suspendSelectEvents) return;
 
+            if (item.asset === LEGACY_SCRIPTS_FOLDER_ASSET) {
+                item.selected = false;
+                this.currentFolder = item.asset;
+                return;
+            }
+
             if (item.asset) {
                 if (this._foldersView.pressedCtrl || this._foldersView.pressedShift) {
                     editor.call('selector:add', 'asset', item.asset);
@@ -1300,7 +1309,7 @@ Object.assign(pcui, (function () {
         _onFolderTreeDeselect(item) {
             if (this._suspendSelectEvents) return;
 
-            if (item.asset) {
+            if (item.asset && item.asset !== LEGACY_SCRIPTS_FOLDER_ASSET) {
                 editor.call('selector:remove', item.asset);
             }
         }
