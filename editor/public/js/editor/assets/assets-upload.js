@@ -107,6 +107,7 @@ editor.once('load', function () {
                 form.append('overwriteTexture', settings.get('editor.pipeline.overwriteTexture'));
                 form.append('pow2', settings.get('editor.pipeline.texturePot'));
                 form.append('preserveMapping', settings.get('editor.pipeline.preserveMapping'));
+                form.append('useGlb', settings.get('editor.pipeline.useGlb'));
                 break;
             case 'font':
                 break;

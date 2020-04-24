@@ -16,7 +16,7 @@ editor.once('load', function () {
                 data.overwriteAnimation = settings.get('editor.pipeline.overwriteAnimation');
                 data.overwriteMaterial = settings.get('editor.pipeline.overwriteMaterial');
                 data.overwriteTexture = settings.get('editor.pipeline.overwriteTexture');
-                data.preserveMappping = settings.get('editor.pipeline.preserveMapping');
+                data.preserveMapping = settings.get('editor.pipeline.preserveMapping');
             }
         }
 

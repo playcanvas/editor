@@ -1225,9 +1225,10 @@ Object.assign(pcui, (function () {
             const blendType = this._opacityInspector.getField('data.blendType').value;
             this._opacityInspector.getField('data.opacity').parent.hidden = ([2, 4, 6].indexOf(blendType) === -1);
 
-            const opacityMap = this._opacityInspector.getField('data.opacityMap').value;
-            const opacityVertexColor = this._opacityInspector.getField('data.opacityMapVertexColor').value;
-            this._opacityInspector.getField('data.alphaTest').parent.hidden = !opacityMap || opacityVertexColor;
+            const opacityMapField = this._opacityInspector.getField('data.opacityMap');
+            const opacityVertexColorField = this._opacityInspector.getField('data.opacityMapVertexColor');
+
+            this._opacityInspector.getField('data.alphaTest').parent.hidden = !(opacityMapField.class.contains(pcui.CLASS_MULTIPLE_VALUES) || opacityMapField.value) && !(opacityVertexColorField.value || opacityVertexColorField.class.contains(pcui.CLASS_MULTIPLE_VALUES));
 
             const normalMap = this._normalsInspector.getField('data.normalMap').value;
             this._normalsInspector.getField('data.bumpMapFactor').parent.hidden = !normalMap;

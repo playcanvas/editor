@@ -39,7 +39,6 @@ Object.assign(pcui, (function () {
             this.once('destroy', () => {
                 createNewAssetEvt.unbind();
             });
-
         }
 
         link(observers) {

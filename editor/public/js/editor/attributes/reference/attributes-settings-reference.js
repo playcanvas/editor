@@ -190,9 +190,9 @@ editor.once('load', function() {
         title: 'Preserve model material mappings',
         description: 'If enabled, after importing an existing source model we will try to preserve the material mappings that were set by the user on the existing model.'
     }, {
-        name: 'asset-tasks:useModelV2',
-        title: 'Force legacy model v2',
-        description: 'Create model assets in legacy format (V2). Enable this for compatibility with older model imports.'
+        name: 'asset-tasks:useGlb',
+        title: 'Use GLB format',
+        description: 'Create model assets in GLB format.'
     }, {
         name: 'asset-tasks:overwrite:model',
         title: 'Overwrite models',

@@ -177,7 +177,7 @@ Object.assign(pcui, (function () {
             assets = assets.filter(a => a.get('type') === 'script');
 
             return assets.filter(a => {
-                return a.get('data.lastParsedHash') === null &&
+                return a.get('data.lastParsedHash') === '0' &&
                     a.get('file.hash');
             });
         }

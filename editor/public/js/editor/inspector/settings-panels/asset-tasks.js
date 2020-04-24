@@ -36,14 +36,7 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'settings',
-            label: 'Force legacy model v2',
-            type: 'boolean',
-            alias: 'asset-tasks:useModelV2',
-            path: 'useModelV2'
-        },
-        {
-            observer: 'settings',
-            label: 'Ovewrite Models',
+            label: 'Overwrite Models',
             type: 'boolean',
             alias: 'asset-tasks:overwrite.model',
             path: 'editor.pipeline.overwriteModel'
@@ -69,6 +62,13 @@ Object.assign(pcui, (function () {
             alias: 'asset-tasks:overwrite.texture',
             path: 'editor.pipeline.overwriteTexture'
         }
+        ,{
+            observer: 'settings',
+            label: 'Convert to GLB',
+            type: 'boolean',
+            alias: 'asset-tasks:useGlb',
+            path: 'editor.pipeline.useGlb'
+        }
     ];
 
     class AssettasksSettingsPanel extends pcui.BaseSettingsPanel {
@@ -88,6 +88,24 @@ Object.assign(pcui, (function () {
 
             // reference
             this._panelTooltip = editor.call('attributes:reference:attach', 'settings:asset-tasks', this.header, this.header.dom);
+
+            const fieldUseGlb = this._attributesInspector.getField('editor.pipeline.useGlb');
+            if (!editor.call('users:hasFlag', 'hasConvertGlb') && !fieldUseGlb.value) {
+                fieldUseGlb.parent.hidden = true;
+            }
+
+            let evtUseGlb = args.settings.on('editor.pipeline.useGlb:set', value => {
+                if (value) {
+                    fieldUseGlb.parent.hidden = false;
+                } else if (!editor.call('users:hasFlag', 'hasConvertGlb')) {
+                    fieldUseGlb.parent.hidden = true;
+                }
+            });
+
+            fieldUseGlb.on('destroy', () => {
+                evtUseGlb.unbind();
+                evtUseGlb = null;
+            });
         }
 
         _appendSection(title, attributeElement) {

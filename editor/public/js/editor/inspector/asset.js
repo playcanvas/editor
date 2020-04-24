@@ -7,7 +7,10 @@ Object.assign(pcui, (function () {
         label: 'ID',
         alias: 'id',
         path: 'id',
-        type: 'label'
+        type: 'label',
+        args: {
+            allowTextSelection: true
+        }
     }, {
         label: 'Assets',
         path: 'assets',
@@ -16,6 +19,10 @@ Object.assign(pcui, (function () {
         label: 'Name',
         path: 'name',
         type: 'string'
+    }, {
+        label: 'Filename',
+        path: 'filename',
+        type: 'label'
     }, {
         label: 'Tags',
         alias: 'tags',
@@ -93,28 +100,43 @@ Object.assign(pcui, (function () {
             'folder',
             'scene.source',
             'texture.source',
-            'font.source'
+            'font.source',
+            'legacyScripts'
         ],
         'source_asset_id': [
             'folder',
             'scene.source',
             'texture.source',
-            'font.source'
+            'font.source',
+            'legacyScripts'
         ],
         'preload': [
             'folder',
             'scene.source',
             'texture.source',
-            'font.source'
+            'font.source',
+            'legacyScripts'
         ],
         'assets': [
-            'single'
+            'single',
+            'legacyScripts'
         ],
         'id': [
-            'multi'
+            'multi',
+            'legacyScripts'
+        ],
+        'size': [
+            'legacyScripts'
+        ],
+        'source': [
+            'legacyScripts'
         ],
         'name': [
-            'multi'
+            'multi',
+            'legacyScripts'
+        ],
+        'filename': [
+            'notLegacyScripts'
         ]
     };
 
@@ -154,7 +176,7 @@ Object.assign(pcui, (function () {
 
             this._btnDownloadAsset.hidden = !editor.call('permissions:read');
             const evtBtnDownloadPermissions = editor.on('permissions:set:' + config.self.id, () => {
-                this._btnDownloadAsset.hidden = ! editor.call('permissions:read');
+                this._updateDownloadButton();
             });
             this._btnDownloadAsset.once('destroy', () => {
                 evtBtnDownloadPermissions.unbind();
@@ -303,19 +325,33 @@ Object.assign(pcui, (function () {
             });
         }
 
-        _updateDownloadButtonOnCubemapChange() {
-            if (!this._assets || !this._assets[0].get('type') === 'cubemap') return;
-            let hasAllCubemapTextures = true;
-            this._assets[0].get('data.textures').forEach(texture => {
-                if (texture === null) {
-                    hasAllCubemapTextures = false;
+        _updateDownloadButton() {
+            let disabled = false;
+            let hidden = false;
+
+            if (this._assets && this._assets[0].get('type') === 'cubemap') {
+                let hasAllCubemapTextures = true;
+                this._assets[0].get('data.textures').forEach(texture => {
+                    if (texture === null) {
+                        hasAllCubemapTextures = false;
+                    }
+                });
+                if (!hasAllCubemapTextures) {
+                    disabled = true;
                 }
-            });
-            if (!hasAllCubemapTextures) {
-                this._btnDownloadAsset.disabled = true;
-            } else {
-                this._btnDownloadAsset.disabled = false;
             }
+
+            const legacyScripts = this._projectSettings.get('useLegacyScripts');
+            if (this._assets && this._assets[0].get('type') === 'script' && legacyScripts) {
+                hidden = true;
+            }
+
+            if (this._assets.length > 1 || ['folder', 'sprite'].includes(this._assets[0].get('type'))) {
+                hidden = true;
+            }
+
+            this._btnDownloadAsset.disabled = disabled;
+            this._btnDownloadAsset.hidden = hidden;
         }
 
         updatePreview() {
@@ -338,6 +374,8 @@ Object.assign(pcui, (function () {
             if (!assets || !assets.length) return;
 
             this._assets = assets;
+
+            const legacyScripts = this._projectSettings.get('useLegacyScripts');
 
             this._attributesInspector.link(assets);
 
@@ -374,6 +412,8 @@ Object.assign(pcui, (function () {
                     let shouldDisplayTypedInspector = true;
                     assets.forEach(asset => {
                         if (asset.get('type') !== assetType.toLowerCase() || asset.get('source')) {
+                            shouldDisplayTypedInspector = false;
+                        } else if (assetType === 'script' && legacyScripts) {
                             shouldDisplayTypedInspector = false;
                         }
                     });
@@ -421,20 +461,18 @@ Object.assign(pcui, (function () {
             // Determine if the Edit/View button should be displayed
             this._btnEditAsset.hidden = assets.length > 1 || !this._editableTypes[assets[0].get('type')];
 
-            // Determine if the Download button should be displayed
-            this._btnDownloadAsset.hidden = assets.length > 1 || ['folder', 'sprite'].includes(assets[0].get('type'));
+            // Determine the Download button state
+            this._updateDownloadButton();
+
+            if (assets[0].get('type') === 'cubemap') {
+                this._updateDownloadButton.bind(this)();
+                for (let ind = 0; ind < 6; ind++) {
+                    this._assetEvents.push(assets[0].on('data.textures.' + ind + ':set', this._updateDownloadButton.bind(this)));
+                }
+            }
 
             // Determine if the Edit sprite button should be displayed
             this._btnEditSprite.hidden = assets.length > 1 || !['sprite', 'textureatlas'].includes(assets[0].get('type'));
-
-            // Determine if Download button should be disabled
-            this._btnDownloadAsset.disabled = false;
-            if (assets[0].get('type') === 'cubemap') {
-                this._updateDownloadButtonOnCubemapChange.bind(this)();
-                for (let ind = 0; ind < 6; ind++) {
-                    this._assetEvents.push(assets[0].on('data.textures.' + ind + ':set', this._updateDownloadButtonOnCubemapChange.bind(this)));
-                }
-            }
 
             Object.keys(HIDDEN_FIELDS).forEach(attribute => {
                 this._toggleAssetField(attribute);
@@ -467,6 +505,14 @@ Object.assign(pcui, (function () {
                 let assetType = asset.get('type');
                 if (asset.get('source') === true) {
                     assetType += '.source';
+                }
+
+                if (legacyScripts && hiddenField && hiddenField.includes('legacyScripts') && asset.get('type') === 'script') {
+                    hiddenForAnyAsset = true;
+                }
+
+                if (hiddenField && hiddenField.includes('notLegacyScripts') && (asset.get('type') !== 'script' || !legacyScripts)) {
+                    hiddenForAnyAsset = true;
                 }
 
                 if (hiddenField && hiddenField.includes(assetType)) {

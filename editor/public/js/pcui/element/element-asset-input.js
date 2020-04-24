@@ -44,7 +44,8 @@ Object.assign(pcui, (function () {
             // asset thumbnail on the left
             this._thumbnail = new pcui.AssetThumbnail({
                 binding: new pcui.BindingObserversToElement(),
-                assets: args.assets
+                assets: args.assets,
+                ignoreParent: true
             });
             this._thumbnail.class.add(CLASS_ASSET_INPUT_THUMB);
             this.dom.appendChild(this._thumbnail.dom);
@@ -216,6 +217,8 @@ Object.assign(pcui, (function () {
 
             this._value = value;
 
+            this.class.remove(pcui.CLASS_MULTIPLE_VALUES);
+
             if (value) {
                 let asset;
                 if (this._assets) {
@@ -323,6 +326,7 @@ Object.assign(pcui, (function () {
 
             if (different) {
                 this._updateValue(null);
+                this.class.add(pcui.CLASS_MULTIPLE_VALUES);
                 this._labelAsset.hidden = true;
                 this._labelVarious.hidden = false;
             } else {

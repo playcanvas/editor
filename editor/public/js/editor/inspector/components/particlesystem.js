@@ -227,18 +227,36 @@ Object.assign(pcui, (function () {
             min: 1
         }
     }, {
-        label: 'Start Frame',
-        path: 'components.particlesystem.animStartFrame',
+        label: 'Animation Count',
+        path: 'components.particlesystem.animNumAnimations',
+        type: 'number',
+        args: {
+            min: 1
+        }
+    }, {
+        label: 'Animation Index',
+        path: 'components.particlesystem.animIndex',
         type: 'number',
         args: {
             min: 0
         }
+    }, {
+        label: 'Randomize Index',
+        path: 'components.particlesystem.randomizeAnimIndex',
+        type: 'boolean'
     }, {
         label: 'Frame Count',
         path: 'components.particlesystem.animNumFrames',
         type: 'number',
         args: {
             min: 1
+        }
+    }, {
+        label: 'Start Frame',
+        path: 'components.particlesystem.animStartFrame',
+        type: 'number',
+        args: {
+            min: 0
         }
     }, {
         label: 'Animation Speed',
@@ -329,8 +347,13 @@ Object.assign(pcui, (function () {
                 assets: args.assets,
                 projectSettings: args.projectSettings,
                 history: args.history,
-                attributes: !editor.call('users:hasFlag', 'hasParticleSystemAnimStartFrame') ?
-                    ATTRIBUTES.filter(attr => attr.path !== 'components.particlesystem.animStartFrame') : ATTRIBUTES,
+                attributes: !editor.call('users:hasFlag', 'hasParticleSystemSpriteAnimationUpdates') ?
+                    ATTRIBUTES.filter(attr => ![
+                        'components.particlesystem.animStartFrame',
+                        'components.particlesystem.animNumAnimations',
+                        'components.particlesystem.animIndex',
+                        'components.particlesystem.randomizeAnimIndex'
+                    ].includes(attr.path)) : ATTRIBUTES,
                 templateOverridesInspector: this._templateOverridesInspector
             });
             this.append(this._attributesInspector);
@@ -344,9 +367,12 @@ Object.assign(pcui, (function () {
                 'wrap',
                 'orientation',
                 'colorMapAsset',
-                'normalMapAsset'
+                'normalMapAsset',
+                'randomizeAnimIndex'
             ].forEach(field => {
-                this._field(field).on('change', this._toggleFields.bind(this));
+                const fieldAttribute = this._field(field);
+                if (fieldAttribute)
+                    fieldAttribute.on('change', this._toggleFields.bind(this));
             });
 
             // add control buttons
@@ -423,6 +449,15 @@ Object.assign(pcui, (function () {
             this._field('animNumFrames').parent.hidden = hideAnimTiles;
             this._field('animSpeed').parent.hidden = hideAnimTiles;
             this._field('animLoop').parent.hidden = hideAnimTiles;
+            const hasParticleSystemSpriteAnimationUpdates = editor.call('users:hasFlag', 'hasParticleSystemSpriteAnimationUpdates');
+            if (hasParticleSystemSpriteAnimationUpdates) {
+                this._field('animStartFrame').parent.hidden = hideAnimTiles;
+                this._field('animNumAnimations').parent.hidden = hideAnimTiles;
+                this._field('animIndex').parent.hidden = hideAnimTiles;
+                this._field('randomizeAnimIndex').parent.hidden = hideAnimTiles;
+
+                this._field('animIndex').disabled = this._field('randomizeAnimIndex').value;
+            }
         }
 
         _onClickPlay() {

@@ -15,5 +15,6 @@ Object.assign(pcui, {
     CLASS_MULTIPLE_VALUES: 'pcui-multiple-values',
     CLASS_ERROR: 'pcui-error',
     CLASS_FLASH: 'flash',
-    CLASS_NOT_FLEXIBLE: 'pcui-not-flexible'
+    CLASS_NOT_FLEXIBLE: 'pcui-not-flexible',
+    CLASS_DEFAULT_MOUSEDOWN: 'pcui-default-mousedown'
 });

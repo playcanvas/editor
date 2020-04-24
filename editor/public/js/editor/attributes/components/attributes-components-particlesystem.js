@@ -784,7 +784,7 @@ editor.once('load', function() {
 
         panelFrames.hidden = !fieldColorMap.value && !fieldNormalMap.value;
 
-        if (editor.call('users:hasFlag', 'hasParticleSystemAnimStartFrame')) {
+        if (editor.call('users:hasFlag', 'hasParticleSystemSpriteAnimationUpdates')) {
             // frame to play from
             var fieldAnimatedTextureStartFrame = editor.call('attributes:addField', {
                 parent: panel,
