@@ -19,6 +19,8 @@ Object.assign(pcui, (function () {
     const CLASS_BTN_CONTAINER = CLASS_ROOT + '-btn-container';
     const CLASS_BTN_ACTIVE = CLASS_ROOT + '-btn-active';
 
+    const CLASS_LEGACY_SCRIPTS_FOLDER = CLASS_ROOT + '-legacy-scripts';
+
     const TYPES = {
         all: 'All',
         animation: 'Animation',
@@ -65,6 +67,16 @@ Object.assign(pcui, (function () {
 
     const REGEX_TAGS = /^\[(.*)\]$/;
     const REGEX_SUB_TAGS = /\[(.*?)\]/g;
+
+    const LEGACY_SCRIPT_ID = 'legacyScripts';
+
+    const LEGACY_SCRIPTS_FOLDER_ASSET = new Observer({
+        id: LEGACY_SCRIPT_ID,
+        type: 'folder',
+        source: true,
+        name: 'scripts',
+        path: []
+    });
 
     class AssetPanel extends pcui.Panel {
         constructor(args) {
@@ -209,6 +221,8 @@ Object.assign(pcui, (function () {
             this._foldersIndex = {};
             this._foldersWaitingParent = {};
 
+            this._legacyScriptsIndex = {};
+
             // the asset we are currently hovering over
             // undefined means nothing
             // null means root folder
@@ -230,13 +244,48 @@ Object.assign(pcui, (function () {
                 hidden: true,
                 columns: [{
                     title: 'Name',
-                    sortKey: 'name'
+                    sortFn: (a, b, ascending) => {
+                        // keep legacy script folder on top
+                        if (a === LEGACY_SCRIPTS_FOLDER_ASSET) return -1;
+                        if (b === LEGACY_SCRIPTS_FOLDER_ASSET) return 1;
+
+                        const nameA = a.get('name').toLowerCase();
+                        const nameB = b.get('name').toLowerCase();
+                        if (nameA < nameB) return ascending ? -1 : 1;
+                        if (nameA > nameB) return ascending ? 1 : -1;
+                        return 0;
+                    }
                 }, {
                     title: 'Type',
-                    sortKey: 'type'
+                    sortFn: (a, b, ascending) => {
+                        // keep legacy script folder on top
+                        if (a === LEGACY_SCRIPTS_FOLDER_ASSET) return -1;
+                        if (b === LEGACY_SCRIPTS_FOLDER_ASSET) return 1;
+
+                        const typeA = a.get('type');
+                        const typeB = b.get('type');
+                        if (typeA < typeB) return ascending ? -1 : 1;
+                        if (typeA > typeB) return ascending ? 1 : -1;
+                        return 0;
+                    }
                 }, {
                     title: 'Size',
-                    sortKey: 'file.size'
+                    sortFn: (a, b, ascending) => {
+                        // keep legacy script folder on top
+                        if (a === LEGACY_SCRIPTS_FOLDER_ASSET) return -1;
+                        if (b === LEGACY_SCRIPTS_FOLDER_ASSET) return 1;
+
+                        const sizeA = parseInt(a.get('file.size'), 10);
+                        const sizeB = parseInt(b.get('file.size'), 10);
+
+                        if (isNaN(sizeA) && !isNaN(sizeB)) {
+                            return 1;
+                        } else if (!isNaN(sizeA) && isNaN(sizeB)) {
+                            return -1;
+                        }
+
+                        return ascending ? sizeA - sizeB : sizeB - sizeA;
+                    }
                 }],
                 createRowFn: this._createDetailsViewRow.bind(this),
                 filterFn: this._filterAssetElement.bind(this)
@@ -268,6 +317,8 @@ Object.assign(pcui, (function () {
 
             this._eventsEditor = [];
             this._eventsEditor.push(editor.on('selector:change', this._onSelectorChange.bind(this)));
+            this._eventsEditor.push(editor.on('sourcefiles:add', this._onAddLegacyScript.bind(this)));
+            this._eventsEditor.push(editor.on('sourcefiles:remove', this._onRemoveLegacyScript.bind(this)));
 
             this._assetListEvents = [];
 
@@ -460,8 +511,9 @@ Object.assign(pcui, (function () {
             return dropTarget;
         }
 
-        _onAssetDropFilter(type) {
-            return type.startsWith('asset');
+        _onAssetDropFilter(type, data) {
+            // check if type is asset and if it's a valid int id (legacy scripts have string ids)
+            return type.startsWith('asset') && parseInt(data.id, 10);
         }
 
         _onAssetDrop(type, data) {
@@ -472,6 +524,8 @@ Object.assign(pcui, (function () {
             var assets = [];
 
             const addAsset = (id) => {
+                if (!parseInt(id, 10)) return; // this can happen for legacy scripts
+
                 const asset = this._assets.get(id);
 
                 // deselect moved asset
@@ -670,6 +724,11 @@ Object.assign(pcui, (function () {
 
             this._rowsIndex[asset.get('id')] = row;
 
+            const isLegacyScriptFolder = (asset === LEGACY_SCRIPTS_FOLDER_ASSET);
+            if (isLegacyScriptFolder) {
+                row.class.add(CLASS_LEGACY_SCRIPTS_FOLDER);
+            }
+
             let domDblClick;
 
             // folder dbl click
@@ -678,29 +737,39 @@ Object.assign(pcui, (function () {
                 row.dom.addEventListener('dblclick', domDblClick);
             }
 
-            row.on('hover', () => {
-                this._onAssetHover(asset);
-            });
-            row.on('hoverend', () => {
-                this._onAssetHoverEnd(asset);
-            });
+            let onMouseDown;
+            let onDragStart;
 
-            row.dom.draggable = true;
+            if (!isLegacyScriptFolder) {
+                row.on('hover', () => {
+                    this._onAssetHover(asset);
+                });
+                row.on('hoverend', () => {
+                    this._onAssetHoverEnd(asset);
+                });
 
-            // this allows dragging that gets disabled by layout.js
-            const onMouseDown = (evt) => evt.stopPropagation();
-            row.dom.addEventListener('mousedown', onMouseDown);
+                row.dom.draggable = true;
 
-            const onDragStart = (evt) => this._onAssetDragStart(evt, asset);
-            row.dom.addEventListener('dragstart', onDragStart);
+                // this allows dragging that gets disabled by layout.js
+                onMouseDown = (evt) => evt.stopPropagation();
+                row.dom.addEventListener('mousedown', onMouseDown);
+
+                onDragStart = (evt) => this._onAssetDragStart(evt, asset);
+                row.dom.addEventListener('dragstart', onDragStart);
+            }
+
 
             // context menu (TODO: change this when the context menu becomes a PCUI element)
             editor.call('assets:contextmenu:attach', row, asset);
 
             row.on('destroy', dom => {
                 delete this._rowsIndex[asset.get('id')];
-                dom.removeEventListener('mousedown', onMouseDown);
-                dom.removeEventListener('dragstart', onDragStart);
+                if (onMouseDown) {
+                    dom.removeEventListener('mousedown', onMouseDown);
+                }
+                if (onDragStart) {
+                    dom.removeEventListener('dragstart', onDragStart);
+                }
                 if (domDblClick) {
                     dom.removeEventListener('dblclick', domDblClick);
                 }
@@ -716,7 +785,7 @@ Object.assign(pcui, (function () {
             // thumb
             const thumb = new pcui.AssetThumbnail({
                 assets: this._assets,
-                value: asset.get('id')
+                value: asset
             });
 
             cell.append(thumb);
@@ -731,17 +800,6 @@ Object.assign(pcui, (function () {
                 }
             });
             cell.append(labelName);
-
-
-
-            // // id
-            // cell = new pcui.TableCell();
-            // row.append(cell);
-
-            // const labelId = new pcui.Label({
-            //     text: asset.get('id')
-            // });
-            // cell.append(labelId);
 
             // type
             cell = new pcui.TableCell();
@@ -790,12 +848,12 @@ Object.assign(pcui, (function () {
 
         _onSelectAssetElement(element) {
             if (this._suspendSelectEvents) return;
-            editor.call('selector:add', 'asset', element.asset);
+            editor.call('selector:add', 'asset', element.asset.legacyScript || element.asset);
         }
 
         _onDeselectAssetElement(element) {
             if (this._suspendSelectEvents) return;
-            editor.call('selector:remove', element.asset);
+            editor.call('selector:remove', element.asset.legacyScript || element.asset);
         }
 
         _onSelectorChange(type, assets) {
@@ -813,6 +871,7 @@ Object.assign(pcui, (function () {
                 this._foldersIndex[id].selected = false;
             }
 
+            console.log('selector:change', type);
             if (type === 'asset') {
                 this._btnDelete.enabled = this.writePermissions && assets.length;
 
@@ -841,6 +900,33 @@ Object.assign(pcui, (function () {
             this._suspendSelectEvents = false;
         }
 
+        _onAddLegacyScript(script) {
+            script.set('type', 'script'); // this seems to be needed for the inspector to work
+
+            let fakeAsset = this._legacyScriptsIndex[script.get('filename')];
+            if (!fakeAsset) {
+                fakeAsset = new Observer({
+                    id: script.get('filename'),
+                    name: script.get('filename'),
+                    type: 'script',
+                    path: [LEGACY_SCRIPT_ID]
+                });
+
+                fakeAsset.legacyScript = script;
+
+                this._legacyScriptsIndex[script.get('filename')] = fakeAsset;
+            }
+
+            this._addAsset(fakeAsset, -1, true);
+        }
+
+        _onRemoveLegacyScript(script) {
+            const asset = this._legacyScriptsIndex[script.get('filename')];
+            if (asset) {
+                this._removeAsset(asset);
+            }
+        }
+
         _addAsset(asset, index, addToDetailsView) {
             const id = asset.get('id');
 
@@ -864,7 +950,7 @@ Object.assign(pcui, (function () {
 
             // add to details view
             if (addToDetailsView) {
-                this._detailsView.addObserver(asset);
+                this._detailsView.addObserver(asset, index);
             }
         }
 
@@ -875,6 +961,11 @@ Object.assign(pcui, (function () {
 
             item.link(asset);
             item.asset = asset;
+
+            const isLegacyScriptFolder = (asset === LEGACY_SCRIPTS_FOLDER_ASSET);
+            if (isLegacyScriptFolder) {
+                item.class.add(CLASS_LEGACY_SCRIPTS_FOLDER);
+            }
 
             this._gridIndex[asset.get('id')] = item;
 
@@ -889,43 +980,56 @@ Object.assign(pcui, (function () {
             // context menu
             editor.call('assets:contextmenu:attach', item, asset);
 
+            let onMouseDown;
+            let onDragStart;
+
             // drag
-            item.dom.draggable = true;
+            if (!isLegacyScriptFolder) {
+                item.dom.draggable = true;
 
-            // hover
-            item.on('hover', () => {
-                this._onAssetHover(asset);
-            });
-            item.on('hoverend', () => {
-                this._onAssetHoverEnd(asset);
-            });
+                // hover
+                item.on('hover', () => {
+                    this._onAssetHover(asset);
+                });
+                item.on('hoverend', () => {
+                    this._onAssetHoverEnd(asset);
+                });
 
-            // this allows dragging that gets disabled by layout.js
-            const onMouseDown = (evt) => {
-                evt.stopPropagation();
-            };
+                // this allows dragging that gets disabled by layout.js
+                onMouseDown = (evt) => {
+                    evt.stopPropagation();
+                };
 
-            item.dom.addEventListener('mousedown', onMouseDown);
+                item.dom.addEventListener('mousedown', onMouseDown);
 
-            const onDragStart = (evt) => this._onAssetDragStart(evt, asset);
-            item.dom.addEventListener('dragstart', onDragStart);
+                onDragStart = (evt) => this._onAssetDragStart(evt, asset);
+                item.dom.addEventListener('dragstart', onDragStart);
+            }
 
             item.on('destroy', dom => {
                 if (domDblClick) {
                     dom.removeEventListener('dblclick', domDblClick);
                 }
 
-                dom.removeEventListener('mousedown', onMouseDown);
-                dom.removeEventListener('dragStart', onDragStart);
+                if (onMouseDown) {
+                    dom.removeEventListener('mousedown', onMouseDown);
+                }
+                if (onDragStart) {
+                    dom.removeEventListener('dragStart', onDragStart);
+                }
 
                 delete this._gridIndex[asset.get('id')];
             });
 
-            let appendBefore = null;
-            if (index >= 0 && this._assets.data[index + 1]) {
-                appendBefore = this._gridIndex[this._assets.data[index + 1].get('id')];
+            if (!isLegacyScriptFolder) {
+                let appendBefore = null;
+                if (index >= 0 && this._assets.data[index + 1]) {
+                    appendBefore = this._gridIndex[this._assets.data[index + 1].get('id')];
+                }
+                this._gridView.appendBefore(item, appendBefore);
+            } else {
+                this._gridView.prepend(item);
             }
-            this._gridView.appendBefore(item, appendBefore);
 
             return item;
         }
@@ -1047,16 +1151,24 @@ Object.assign(pcui, (function () {
 
             if (this._foldersIndex[id]) return;
 
+            const isLegacyScriptFolder = (asset === LEGACY_SCRIPTS_FOLDER_ASSET);
+
             const treeItem = new pcui.TreeViewItem({
-                text: asset.get('name')
+                text: asset.get('name'),
+                allowDrop: !isLegacyScriptFolder,
+                allowDrag: !isLegacyScriptFolder
             });
 
-            treeItem.on('hover', () => {
-                this._onAssetHover(asset);
-            });
-            treeItem.on('hoverend', () => {
-                this._onAssetHoverEnd(asset);
-            });
+            if (!isLegacyScriptFolder) {
+                treeItem.on('hover', () => {
+                    this._onAssetHover(asset);
+                });
+                treeItem.on('hoverend', () => {
+                    this._onAssetHoverEnd(asset);
+                });
+            } else {
+                treeItem.class.add(CLASS_LEGACY_SCRIPTS_FOLDER);
+            }
 
             editor.call('assets:contextmenu:attach', treeItem, asset);
 
@@ -1092,6 +1204,8 @@ Object.assign(pcui, (function () {
 
                 delete this._foldersWaitingParent[id];
             }
+
+            return treeItem;
         }
 
         _queueAssetToWaitForParent(assetId, parentId) {
@@ -1103,11 +1217,14 @@ Object.assign(pcui, (function () {
         }
 
         _insertTreeItemAlphabetically(parentTreeItem, treeItem) {
+            // ensure the legacy scripts folder remains at the top
+            const legacyFolder = this._foldersIndex[LEGACY_SCRIPT_ID];
+
             // find the right spot to insert the tree item based on alphabetical order
             const text = treeItem.asset.get('name').toLowerCase();
             let sibling = parentTreeItem.firstChild;
             while (sibling) {
-                if (sibling !== treeItem && sibling.asset.get('name').toLowerCase() > text) {
+                if (sibling !== treeItem && sibling !== legacyFolder && sibling.asset.get('name').toLowerCase() > text) {
                     if (!treeItem.parent) {
                         parentTreeItem.appendBefore(treeItem, sibling);
                     } else {
@@ -1129,6 +1246,13 @@ Object.assign(pcui, (function () {
 
             if (!treeItem.parent) {
                 parentTreeItem.append(treeItem);
+            }
+
+            if (legacyFolder) {
+                if (this._foldersViewRoot.firstChild !== legacyFolder) {
+                    this._foldersViewRoot.remove(legacyFolder);
+                    this._foldersViewRoot.appendBefore(legacyFolder, this._foldersViewRoot.firstChild);
+                }
             }
         }
 
@@ -1264,7 +1388,11 @@ Object.assign(pcui, (function () {
             }
 
             if (this._currentFolder) {
-                if (parseInt(this._currentFolder.get('id'), 10) !== path[path.length - 1]) {
+                if (this._currentFolder === LEGACY_SCRIPTS_FOLDER_ASSET) {
+                    if (!element.asset.legacyScript) {
+                        return false;
+                    }
+                } else if (parseInt(this._currentFolder.get('id'), 10) !== path[path.length - 1]) {
                     return false;
                 }
             }
@@ -1284,6 +1412,8 @@ Object.assign(pcui, (function () {
                 cancelAnimationFrame(this._refreshViewButtonsTimeout);
                 this._refreshViewButtonsTimeout = null;
             }
+
+            this._legacyScriptsIndex = {};
 
             this._eventsEditor.forEach(e => e.unbind());
             this._eventsEditor.length = 0;
@@ -1324,6 +1454,15 @@ Object.assign(pcui, (function () {
             if (!this._assets) return;
 
             const assets = this._assets.array();
+
+            // add legacy scripts too
+            if (config.project.settings.useLegacyScripts) {
+                assets.unshift(LEGACY_SCRIPTS_FOLDER_ASSET); // keep legacy scripts folder on top
+                for (const id in this._legacyScriptsIndex) {
+                    assets.push(this._legacyScriptsIndex[id]);
+                }
+            }
+
             assets.forEach(asset => {
                 this._addAsset(asset);
             });
@@ -1346,6 +1485,11 @@ Object.assign(pcui, (function () {
         }
 
         set currentFolder(value) {
+            // legacy
+            if (value === 'scripts') {
+                value = LEGACY_SCRIPTS_FOLDER_ASSET;
+            }
+
             if (this._currentFolder === value) return;
 
             let id;
@@ -1487,7 +1631,13 @@ Object.assign(pcui, (function () {
 
         link(asset) {
             super.link(asset, 'name');
-            this._thumbnail.value = asset.get('id');
+            // pass the whole asset observer as the value
+            // because we do not want the thumbnail to search the
+            // asset list for the asset (e.g. this might be a dummy
+            // asset like the script folder for legacy scripts). Also
+            // if the asset is missing from the asset list for some reason
+            // we still want to show a valid icon for it and not a 'missing' icon.
+            this._thumbnail.value = asset;
             if (asset.get('source')) {
                 this.class.add(CLASS_ASSET_SOURCE);
             }

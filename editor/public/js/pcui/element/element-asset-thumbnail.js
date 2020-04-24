@@ -191,6 +191,10 @@ Object.assign(pcui, (function () {
 
             this._onChange(value);
 
+            if (value instanceof Observer) {
+                value = value.get('id');
+            }
+
             this.emit('change', value);
 
             return true;
@@ -228,7 +232,7 @@ Object.assign(pcui, (function () {
             }
 
             // show placeholder image on missing asset
-            const asset = this._assets.get(value);
+            const asset = value instanceof Observer ? value : this._assets.get(value);
             if (!asset) {
                 this.class.add(CLASS_ASSET_THUMB_MISSING);
                 this._showImageThumbnail(null);
@@ -278,6 +282,9 @@ Object.assign(pcui, (function () {
             const changed = this._updateValue(value);
 
             if (changed && this._binding) {
+                if (value instanceof Observer) {
+                    value = value.get('id');
+                }
                 this._binding.setValue(value);
             }
         }

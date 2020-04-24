@@ -446,12 +446,7 @@ Object.assign(pcui, (function () {
             const observers = this._observers;
             if (this._sort.fn) {
                 observers.sort((a, b) => {
-                    let result = this._sort.fn(a, b);
-                    if (!this._sort.ascending) {
-                        result *= -1;
-                    }
-
-                    return result;
+                    return this._sort.fn(a, b, this._sort.ascending);
                 });
             } else if (this._sort.key) {
                 observers.sort((a, b) => {

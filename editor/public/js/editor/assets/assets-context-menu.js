@@ -7,6 +7,8 @@ editor.once('load', function() {
 
     var customMenuItems = [ ];
 
+    const LEGACY_SCRIPTS_ID = 'legacyScripts';
+
     // menu
     var menu = new ui.Menu();
     root.append(menu);
@@ -102,6 +104,11 @@ editor.once('load', function() {
 
     if (editor.call('users:hasFlag', 'hasBundles')) {
         assets.bundle = 'Asset Bundle';
+    }
+
+    function isCurrentFolderLegacyScripts() {
+        const curr = editor.call('assets:panel:currentFolder');
+        return curr && (curr === 'scripts' || curr.get('id') === LEGACY_SCRIPTS_ID);
     }
 
     var addNewMenuItem = function(key, title) {
@@ -389,7 +396,11 @@ editor.once('load', function() {
 
     // filter buttons
     menu.on('open', function() {
-        menuItemNewScript.hidden = ! ((currentAsset === null || (currentAsset && currentAsset.get('type') === 'script')) && editor.call('assets:panel:currentFolder') === 'scripts');
+        if (currentAsset && currentAsset.get('id') === LEGACY_SCRIPTS_ID) {
+            menuItemNewScript.hidden = false;
+        } else {
+            menuItemNewScript.hidden = ! ((currentAsset === null || (currentAsset && currentAsset.get('type') === 'script')) && isCurrentFolderLegacyScripts());
+        }
         menuItemNew.hidden = ! menuItemNewScript.hidden;
 
         if (currentAsset) {
@@ -429,7 +440,7 @@ editor.once('load', function() {
             menuItemCreateSlicedSprite.hidden = menuItemCreateSprite.hidden;
 
             // delete
-            menuItemDelete.hidden = false;
+            menuItemDelete.hidden = (currentAsset && currentAsset.get('id') === LEGACY_SCRIPTS_ID);
 
             if (! currentAsset.get('source')) {
                 menuItemExtract.hidden = true;
@@ -552,7 +563,7 @@ editor.once('load', function() {
             }
 
             // move-to-store
-            menuItemMoveToStore.hidden = !editor.call("users:isSuperUser");
+            menuItemMoveToStore.hidden = !editor.call("users:isSuperUser") || !currentAsset || currentAsset.get('id') === LEGACY_SCRIPTS_ID;
         } else {
             // no asset
             menuItemExtract.hidden = true;

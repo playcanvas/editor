@@ -46,6 +46,7 @@ Object.assign(pcui, (function () {
       * @property {Boolean} allowSelect Whether the item can be selected.
       * @property {Boolean} open Whether the item is open meaning showing its children.
       * @property {Boolean} parentsOpen Whether the parents of the item are open or closed.
+      * @property {Boolean} allowDrag Whether this tree item can be dragged. Only considered if the parent treeview has allowDrag true.
       * @property {Boolean} allowDrop Whether dropping is allowed on the tree item.
       * @property {String} text The text shown by the TreeViewItem.
       * @property {Number} The number of direct children.
@@ -95,6 +96,7 @@ Object.assign(pcui, (function () {
 
             this.allowSelect = (args.allowSelect !== undefined ? args.allowSelect : true);
             this.allowDrop = (args.allowDrop !== undefined ? args.allowDrop : true);
+            this.allowDrag = (args.allowDrag !== undefined ? args.allowDrag : true);
             if (args.text) {
                 this.text = args.text;
             }
@@ -165,7 +167,7 @@ Object.assign(pcui, (function () {
         }
 
         _onContentMouseDown(evt) {
-            if (!this._treeView || !this._treeView.allowDrag) return;
+            if (!this._treeView || !this._treeView.allowDrag || !this._allowDrag) return;
 
             this._treeView._updateModifierKeys(evt);
             evt.stopPropagation();
@@ -405,6 +407,14 @@ Object.assign(pcui, (function () {
 
         set allowDrop(value) {
             this._allowDrop = value;
+        }
+
+        get allowDrag() {
+            return this._allowDrag;
+        }
+
+        set allowDrag(value) {
+            this._allowDrag = value;
         }
 
         get allowSelect() {
