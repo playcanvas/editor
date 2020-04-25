@@ -928,6 +928,8 @@ Object.assign(pcui, (function () {
             if (asset) {
                 this._removeAsset(asset);
             }
+
+            delete this._legacyScriptsIndex[script.get('filename')];
         }
 
         _addAsset(asset, index, addToDetailsView) {
