@@ -23,16 +23,30 @@ editor.once('load', function() {
                 var engineAtlas = app.assets.get(atlas);
                 engineAtlas.on('change', onChange);
                 watch.events.onAtlasChange = onChange;
-                engineAtlas.on('load', onChange);
-                watch.events.onAtlasLoad = onChange;
+
+                var onAtlasLoad = function () {
+                    if (engineAtlas.resource) {
+                        engineAtlas.resource.off('set:frame', onChange);
+                        engineAtlas.resource.on('set:frame', onChange);
+
+                        engineAtlas.resource.off('set:frames', onChange);
+                        engineAtlas.resource.on('set:frames', onChange);
+                    }
+
+                    onChange();
+                };
+
+                engineAtlas.on('load', onAtlasLoad);
+                watch.events.onAtlasLoad = onAtlasLoad;
 
                 watch.events.onAtlasRemove = atlasAsset.once('destroy', function () {
                     unwatchAtlas(watch, currentAtlas);
                     onChange();
                 });
 
-                if (! engineAtlas.resource)
+                if (! engineAtlas.resource) {
                     app.assets.load(engineAtlas);
+                }
 
             } else {
                 app.assets.once('assets:add[' + atlas + ']', watchAtlas);
@@ -69,6 +83,11 @@ editor.once('load', function() {
         if (watch.events.onAtlasLoad) {
             if (engineAtlas) {
                 engineAtlas.off('load', watch.events.onAtlasLoad);
+
+                if (engineAtlas.resource) {
+                    engineAtlas.resource.off('set:frame', watch.events.onAtlasChange);
+                    engineAtlas.resource.off('set:frames', watch.events.onAtlasChange);
+                }
             }
             delete watch.events.onAtlasLoad;
         }
