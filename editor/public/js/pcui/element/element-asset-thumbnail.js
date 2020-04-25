@@ -36,8 +36,9 @@ Object.assign(pcui, (function () {
             this._evtThumbnailSet = null;
             this._evtThumbnailUnset = null;
 
-            this.value = args.value || null;
             this._previousAssetType = null;
+
+            this.value = args.value || null;
 
             this.renderChanges = args.renderChanges || false;
 
@@ -48,16 +49,29 @@ Object.assign(pcui, (function () {
             });
         }
 
-        _showImageThumbnail(asset) {
-            this._destroyCanvas();
-            this._createImage();
+        _enableFontIcons(asset) {
+            this._previousAssetType = 'type-' + asset.get('type');
+            this.class.add(CLASS_ASSET_PREFIX);
+            this.class.add(this._previousAssetType);
+            if (asset.get('source')) {
+                this.class.add(this._previousAssetType + '-source');
+            }
+        }
 
+        _disableFontIcons() {
             if (this._previousAssetType) {
                 this.class.remove(CLASS_ASSET_PREFIX);
                 this.class.remove(this._previousAssetType);
                 this.class.remove(this._previousAssetType + '-source');
                 this._previousAssetType = null;
             }
+        }
+
+        _showImageThumbnail(asset) {
+            this._destroyCanvas();
+            this._createImage();
+
+            this._disableFontIcons();
 
             let src;
             if (asset && asset.has('thumbnails.m')) {
@@ -74,14 +88,7 @@ Object.assign(pcui, (function () {
                 return;
             }
 
-            this._domImage.src = '';
-
-            this._previousAssetType = 'type-' + asset.get('type');
-            this.class.add(CLASS_ASSET_PREFIX);
-            this.class.add(this._previousAssetType);
-            if (asset.get('source')) {
-                this.class.add(this._previousAssetType + '-source');
-            }
+            this._enableFontIcons(asset);
         }
 
         // Wait until the element is displayed and has a valid width and height
@@ -150,12 +157,7 @@ Object.assign(pcui, (function () {
         _destroyImage() {
             if (!this._domImage) return;
 
-            if (this._previousAssetType) {
-                this.class.remove(CLASS_ASSET_PREFIX);
-                this.class.remove(this._previousAssetType);
-                this.class.remove(this._previousAssetType + '-source');
-                this._previousAssetType = null;
-            }
+            this._disableFontIcons();
 
             this.dom.removeChild(this._domImage);
 
