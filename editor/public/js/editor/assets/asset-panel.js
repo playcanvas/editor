@@ -244,48 +244,19 @@ Object.assign(pcui, (function () {
                 hidden: true,
                 columns: [{
                     title: 'Name',
-                    sortFn: (a, b, ascending) => {
-                        // keep legacy script folder on top
-                        if (a === LEGACY_SCRIPTS_FOLDER_ASSET) return -1;
-                        if (b === LEGACY_SCRIPTS_FOLDER_ASSET) return 1;
-
-                        const nameA = a.get('name').toLowerCase();
-                        const nameB = b.get('name').toLowerCase();
-                        if (nameA < nameB) return ascending ? -1 : 1;
-                        if (nameA > nameB) return ascending ? 1 : -1;
-                        return 0;
-                    }
+                    width: '60%',
+                    minWidth: 100,
+                    sortFn: this._sortByName.bind(this)
                 }, {
                     title: 'Type',
-                    sortFn: (a, b, ascending) => {
-                        // keep legacy script folder on top
-                        if (a === LEGACY_SCRIPTS_FOLDER_ASSET) return -1;
-                        if (b === LEGACY_SCRIPTS_FOLDER_ASSET) return 1;
-
-                        const typeA = a.get('type');
-                        const typeB = b.get('type');
-                        if (typeA < typeB) return ascending ? -1 : 1;
-                        if (typeA > typeB) return ascending ? 1 : -1;
-                        return 0;
-                    }
+                    width: '20%',
+                    minWidth: 70,
+                    sortFn: this._sortByType.bind(this)
                 }, {
                     title: 'Size',
-                    sortFn: (a, b, ascending) => {
-                        // keep legacy script folder on top
-                        if (a === LEGACY_SCRIPTS_FOLDER_ASSET) return -1;
-                        if (b === LEGACY_SCRIPTS_FOLDER_ASSET) return 1;
-
-                        const sizeA = parseInt(a.get('file.size'), 10);
-                        const sizeB = parseInt(b.get('file.size'), 10);
-
-                        if (isNaN(sizeA) && !isNaN(sizeB)) {
-                            return 1;
-                        } else if (!isNaN(sizeA) && isNaN(sizeB)) {
-                            return -1;
-                        }
-
-                        return ascending ? sizeA - sizeB : sizeB - sizeA;
-                    }
+                    width: '20%',
+                    minWidth: 60,
+                    sortFn: this._sortByFileSize.bind(this)
                 }],
                 createRowFn: this._createDetailsViewRow.bind(this),
                 filterFn: this._filterAssetElement.bind(this)
@@ -338,14 +309,47 @@ Object.assign(pcui, (function () {
             if (args.assets) {
                 this.assets = args.assets;
             }
+        }
 
-            // freeze initial width
-            // this.on('parent', parent => {
-            //     if (parent && this.width) {
-            //         console.log(this.width);
-                    // this._detailsView.table.width = this.width;
-                // }
-            // });
+        _sortByName(a, b, ascending) {
+            // keep legacy script folder on top
+            if (a === LEGACY_SCRIPTS_FOLDER_ASSET) return -1;
+            if (b === LEGACY_SCRIPTS_FOLDER_ASSET) return 1;
+
+            const nameA = a.get('name').toLowerCase();
+            const nameB = b.get('name').toLowerCase();
+            if (nameA < nameB) return ascending ? -1 : 1;
+            if (nameA > nameB) return ascending ? 1 : -1;
+            return 0;
+        }
+
+        _sortByType(a, b, ascending) {
+            // keep legacy script folder on top
+            if (a === LEGACY_SCRIPTS_FOLDER_ASSET) return -1;
+            if (b === LEGACY_SCRIPTS_FOLDER_ASSET) return 1;
+
+            const typeA = a.get('type');
+            const typeB = b.get('type');
+            if (typeA < typeB) return ascending ? -1 : 1;
+            if (typeA > typeB) return ascending ? 1 : -1;
+            return 0;
+        }
+
+        _sortByFileSize(a, b, ascending) {
+            // keep legacy script folder on top
+            if (a === LEGACY_SCRIPTS_FOLDER_ASSET) return -1;
+            if (b === LEGACY_SCRIPTS_FOLDER_ASSET) return 1;
+
+            const sizeA = parseInt(a.get('file.size'), 10);
+            const sizeB = parseInt(b.get('file.size'), 10);
+
+            if (isNaN(sizeA) && !isNaN(sizeB)) {
+                return 1;
+            } else if (!isNaN(sizeA) && isNaN(sizeB)) {
+                return -1;
+            }
+
+            return ascending ? sizeA - sizeB : sizeB - sizeA;
         }
 
         _onClickStore() {
@@ -793,6 +797,8 @@ Object.assign(pcui, (function () {
             const labelName = new pcui.Label({
                 binding: new pcui.BindingObserversToElement()
             });
+            labelName.style.display = 'inline';
+            labelName.style.lineHeight = '24px';
             labelName.link(asset, 'name');
             labelName.on('change', () => {
                 if (this._detailsView.sortKey === 'name') {
@@ -818,6 +824,8 @@ Object.assign(pcui, (function () {
             const labelType = new pcui.Label({
                 text: type
             });
+            labelType.style.lineHeight = '24px';
+            labelType.style.display = 'inline';
             cell.append(labelType);
 
             // size
@@ -835,6 +843,8 @@ Object.assign(pcui, (function () {
                     }
                 })
             });
+            labelSize.style.display = 'inline';
+            labelSize.style.lineHeight = '24px';
             labelSize.link(asset, 'file.size');
             labelSize.on('change', () => {
                 if (this._detailsView.sortKey === 'file.size') {

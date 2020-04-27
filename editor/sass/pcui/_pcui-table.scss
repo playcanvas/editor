@@ -3,20 +3,40 @@
 }
 
 .pcui-table > table {
-    width: max-content;
-    min-width: 100%;
+    width: 100%;
     border-spacing: 0;
     table-layout: fixed;
 
     > thead {
         > tr {
+            // This is a fake cell at the end of the header row
+            // which serves as a flexible column that helps when resizing
+            // the columns before it. It covers the remaining space between
+            // the table's actual columns and the table's container. That way
+            // when the table is at 100% width the user can resize these columns
+            // below the visible width of the table and this fake column covers
+            // the rest of the space.
+            &:after {
+                content: ' ';
+                display: table-cell;
+                width: auto;
+                background-color: $bcg-darker;
+
+                position: sticky;
+                top: 0;
+                z-index: 1;
+                border-top: 1px solid $bcg-darkest;
+                border-bottom: 1px solid $bcg-darkest;
+                border-right: 1px solid $bcg-darkest;
+            }
+
             > th {
-                background-color: $bcg-dark;
                 position: sticky;
                 top: 0;
                 z-index: 1;
                 line-height: 26px;
                 font-size: 13px;
+                background-color: $bcg-darker;
 
                 border-top: 1px solid $bcg-darkest;
                 border-bottom: 1px solid $bcg-darkest;
@@ -30,8 +50,18 @@
                     color: $text-primary;
                 }
             }
+
+
         }
     }
+}
+
+// fake cell at the end of each row - see fake cell for the header
+// row above
+.pcui-table > table > tbody > tr:after {
+    content: ' ';
+    display: table-cell;
+    width: auto;
 }
 
 .pcui-table:not(.pcui-table-resizing) {
@@ -44,6 +74,7 @@
     }
 }
 
+.pcui-table > table > tbody >
 .pcui-table-row:not(.pcui-table-row-selected) {
     &:hover, &:focus {
         background-color: $bcg-dark;

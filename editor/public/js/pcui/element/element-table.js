@@ -45,10 +45,9 @@ Object.assign(pcui, (function () {
             };
 
             this._draggedColumn = null;
+            this._frozeColumnWidth = false;
             this._handleStartWidth = null;
             this._handleStartX = null;
-
-            this._dragScroll = 0;
 
             this._columns = [];
 
@@ -85,9 +84,7 @@ Object.assign(pcui, (function () {
                         header: true
                     });
 
-                    if (colIndex < this._columns.length - 1) {
-                        this._addResizeHandle(cell, colIndex);
-                    }
+                    this._addResizeHandle(cell, colIndex);
 
                     // set preferred width
                     if (column.width !== undefined) {
@@ -111,27 +108,7 @@ Object.assign(pcui, (function () {
                     cell.append(label);
 
                     // sort observers when clicking on header cell
-                    cell.on('click', () => {
-                        if (!column.sortKey && !column.sortFn) return;
-
-                        if (column.sortKey) {
-                            this._sort.fn = null;
-                            if (this._sort.key === column.sortKey) {
-                                this._sort.ascending = !this._sort.ascending;
-                            } else {
-                                this._sort.key = column.sortKey;
-                            }
-                        } else if (column.sortFn) {
-                            this._sort.key = null;
-                            if (this._sort.fn === column.sortFn) {
-                                this._sort.ascending = !this._sort.ascending;
-                            } else {
-                                this._sort.fn = column.sortFn;
-                            }
-                        }
-
-                        this._refreshLayout();
-                    });
+                    cell.on('click', () => this._onColumnHeaderClick(column));
 
                     headRow.append(cell);
                 });
@@ -147,6 +124,34 @@ Object.assign(pcui, (function () {
                 const row = this._createRow(observer);
                 this.body.append(row);
             });
+        }
+
+        _onColumnHeaderClick(column) {
+            if (this._draggedColumn !== null) {
+                return;
+            }
+
+            if (!column.sortKey && !column.sortFn) {
+                return;
+            }
+
+            if (column.sortKey) {
+                this._sort.fn = null;
+                if (this._sort.key === column.sortKey) {
+                    this._sort.ascending = !this._sort.ascending;
+                } else {
+                    this._sort.key = column.sortKey;
+                }
+            } else if (column.sortFn) {
+                this._sort.key = null;
+                if (this._sort.fn === column.sortFn) {
+                    this._sort.ascending = !this._sort.ascending;
+                } else {
+                    this._sort.fn = column.sortFn;
+                }
+            }
+
+            this._refreshLayout();
         }
 
         _createRow(observer) {
@@ -272,23 +277,17 @@ Object.assign(pcui, (function () {
             next.selected = true;
         }
 
-        _forEachColumnCell(colIndex, fn, container) {
-            if (!container) {
-                this._forEachColumnCell(colIndex, fn, this._containerHead);
-                this._forEachColumnCell(colIndex, fn, this._containerBody);
-                return;
-            }
-
+        _forEachColumnCell(container, columnIndex, fn) {
             container.forEachChild(row => {
                 if (row instanceof pcui.TableRow) {
-                    let highlightIndex = colIndex + 1;
+                    let index = columnIndex + 1;
                     for (let i = 0; i < row.dom.childNodes.length; i++) {
                         const rowCell = row.dom.childNodes[i];
                         if (rowCell.ui && rowCell.ui instanceof pcui.TableCell) {
-                            highlightIndex -= (rowCell.ui.colSpan || 1);
-                            if (highlightIndex === 0) {
+                            index -= (rowCell.ui.colSpan || 1);
+                            if (index === 0) {
                                 fn(rowCell.ui);
-                            } else if (highlightIndex < 0) {
+                            } else if (index < 0) {
                                 break;
                             }
                         }
@@ -297,25 +296,27 @@ Object.assign(pcui, (function () {
             });
         }
 
-        _freezeColumnWidth() {
-            this._containerTable.width = this._containerTable.width;
-            this._containerTable.minWidth = 'initial';
-            const rows = this._containerHead.dom.childNodes;
-            rows.forEach(row => {
-                const len = row.childNodes.length;
-                row.childNodes.forEach((child, index) => {
+        _forEachRowCell(container, rowIndex, fn) {
+            const row = container.dom.childNodes[rowIndex];
+            if (row.ui instanceof pcui.TableRow) {
+                let index = -1;
+                row.childNodes.forEach(child => {
                     if (child.ui instanceof pcui.TableCell) {
-                        if (index < len - 1) {
-                            if (!child.style.width) {
-                                child.ui.width = child.ui.width;
-                                this._columns[index].width = child.ui.width;
-                            }
-                        } else {
-                            child.ui.width = '100%';
-                            this._columns[index].width = '100%';
-                        }
+                        index++;
+                        fn(child.ui, index);
                     }
                 });
+            }
+        }
+
+        _freezeColumnWidth() {
+            const len = this._columns.length;
+            this._forEachRowCell(this._containerHead, 0, (cell, columnIndex) => {
+                if (columnIndex < len) {
+                    const width = cell.width;
+                    cell.width = width;
+                    this._columns[columnIndex].width = cell.width; // fetch real width again and store it
+                }
             });
         }
 
@@ -328,7 +329,11 @@ Object.assign(pcui, (function () {
 
             handle.on('hover', () => {
                 if (this._draggedColumn === null) {
-                    this._forEachColumnCell(colIndex, cell => {
+                    this._forEachColumnCell(this._containerHead, colIndex, cell => {
+                        cell.class.add(CLASS_CELL_ACTIVE);
+                    });
+
+                    this._forEachColumnCell(this._containerBody, colIndex, cell => {
                         cell.class.add(CLASS_CELL_ACTIVE);
                     });
                 }
@@ -336,7 +341,11 @@ Object.assign(pcui, (function () {
 
             handle.on('hoverend', () => {
                 if (this._draggedColumn === null) {
-                    this._forEachColumnCell(colIndex, cell => {
+                    this._forEachColumnCell(this._containerHead, colIndex, cell => {
+                        cell.class.remove(CLASS_CELL_ACTIVE);
+                    });
+
+                    this._forEachColumnCell(this._containerBody, colIndex, cell => {
                         cell.class.remove(CLASS_CELL_ACTIVE);
                     });
                 }
@@ -344,56 +353,6 @@ Object.assign(pcui, (function () {
 
             let pageX;
             let width;
-
-            const onMouseDown = (evt) => {
-                if (evt.button !== 0) return;
-                if (this._draggedColumn !== null) return;
-
-                this._draggedColumn = colIndex;
-                this.class.add(CLASS_RESIZING);
-
-                // freeze table width
-                // this._containerTable.width = this._containerTable.width;
-
-                // freeze width on all columns
-                this._freezeColumnWidth();
-                // let col = cell.parent.dom.lastChild;
-                // let prevColIndex = this._columns.length - 1;
-                // while (col) {
-                //     if (col.ui instanceof pcui.TableCell) {
-                //         this._columns[prevColIndex--].width = col.ui.width;
-                //         col.ui.width = col.ui.width;
-                //     }
-
-                //     col = col.previousSibling;
-                // }
-
-                pageX = evt.pageX;
-                width = cell.width;
-
-                window.addEventListener('mouseup', onMouseUp, true);
-                window.addEventListener('mousemove', onMouseMove, true);
-
-                if (this.scrollable) {
-                    this._dragScroll = 0;
-                    this._dragScrollInterval = setInterval(this._scrollWhileDragging.bind(this), 1000 / 60);
-                }
-            };
-
-            const cleanUp = () => {
-                this.class.remove(CLASS_RESIZING);
-                this._forEachColumnCell(colIndex, cell => {
-                    cell.class.remove(CLASS_CELL_ACTIVE);
-                });
-
-                this._draggedColumn = null;
-
-                clearInterval(this._dragScrollInterval);
-                this._dragScrollInterval = null;
-
-                window.removeEventListener('mouseup', onMouseUp, true);
-                window.removeEventListener('mousemove', onMouseMove, true);
-            };
 
             const onMouseUp = (evt) => {
                 if (evt.button !== 0) return;
@@ -403,7 +362,8 @@ Object.assign(pcui, (function () {
             };
 
             const onMouseMove = (evt) => {
-                const newWidth = Math.max(width + evt.pageX - pageX, 2);
+                const column = this._columns[colIndex];
+                const newWidth = Math.max(width + evt.pageX - pageX, column.minWidth || 2);
                 this._columns[colIndex].width = newWidth;
 
                 if (colIndex === this._columns.length - 1) {
@@ -415,17 +375,48 @@ Object.assign(pcui, (function () {
                 } else {
                     cell.width = newWidth;
                 }
+            };
 
-                // this._freezeColumnWidth();
+            const onMouseDown = (evt) => {
+                if (evt.button !== 0) return;
+                if (this._draggedColumn !== null) return;
 
-                // Determine if we need to scroll if we are dragging towards the edges
-                const rect = this.dom.getBoundingClientRect();
-                this._dragScroll = 0;
-                if (evt.clientX - rect.right < 32 && this.dom.scrollLeft > 0) {
-                    this._dragScroll = 1;
-                } else if (rect.left - evt.clientX < 32 && this.dom.scrollWidth - (rect.width + this.dom.scrollLeft) > 0) {
-                    this._dragScroll = -1;
+                this._draggedColumn = colIndex;
+                this.class.add(CLASS_RESIZING);
+
+                // freeze width on all columns
+                // the first time the user tries to resize
+                // so that from now on the table width and the columns
+                // width will be controlled by the user instead of the
+                // table layout.
+                if (!this._frozeColumnWidth) {
+                    this._freezeColumnWidth();
+                    this._frozeColumnWidth = true;
                 }
+
+                pageX = evt.pageX;
+                width = cell.width;
+
+                window.addEventListener('mouseup', onMouseUp, true);
+                window.addEventListener('mousemove', onMouseMove, true);
+            };
+
+            const cleanUp = () => {
+                this.class.remove(CLASS_RESIZING);
+                this._forEachColumnCell(this._containerHead, colIndex, cell => {
+                    cell.class.remove(CLASS_CELL_ACTIVE);
+                });
+
+                this._forEachColumnCell(this._containerBody, colIndex, cell => {
+                    cell.class.remove(CLASS_CELL_ACTIVE);
+                });
+
+                requestAnimationFrame(() => {
+                    this._draggedColumn = null;
+                });
+
+                window.removeEventListener('mouseup', onMouseUp, true);
+                window.removeEventListener('mousemove', onMouseMove, true);
             };
 
             handle.dom.addEventListener('mousedown', onMouseDown, true);
@@ -434,12 +425,6 @@ Object.assign(pcui, (function () {
                 dom.removeEventListener('mousedown', onMouseDown, true);
                 cleanUp();
             });
-        }
-
-        _scrollWhileDragging() {
-            if (this._dragScroll === 0) return;
-
-            this.dom.scrollLeft += this._dragScroll * 8;
         }
 
         _sortObservers() {

@@ -322,20 +322,25 @@
 
             background-color: $bcg-dark;
 
-            .pcui-table-row:not(.pcui-table-row-selected) {
-                &:hover, &:focus {
-                    background-color: $bcg-darker;
+            > table > tbody {
+                .pcui-table-row:not(.pcui-table-row-selected) {
+                    &:hover, &:focus {
+                        background-color: $bcg-darker;
+                    }
                 }
             }
 
-            th {
-                background-color: $bcg-darker;
-                &:first-child {
+            > thead > tr {
+                > th, &:after {
+                    background-color: $bcg-darker;
+                }
+
+                & > th:first-child {
                     border-left: 0;
                 }
             }
 
-            tbody {
+            > tbody {
                 > .pcui-table-row > .pcui-table-cell {
                     > .pcui-label {
                         margin-top: 4px;
