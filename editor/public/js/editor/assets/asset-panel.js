@@ -270,7 +270,6 @@ Object.assign(pcui, (function () {
             });
             this.append(this._gridView);
 
-
             this._refreshViewButtonsTimeout = null;
 
             this.viewMode = args.viewMode || AssetPanel.VIEW_LARGE_GRID;
@@ -278,6 +277,8 @@ Object.assign(pcui, (function () {
             this._rowsIndex = {};
 
             this._gridIndex = {};
+
+            this._suspendFiltering = false;
 
             this._suspendSelectEvents = false;
             this._detailsView.on('select', this._onSelectAssetElement.bind(this));
@@ -296,6 +297,8 @@ Object.assign(pcui, (function () {
             this._assetEvents = {};
 
             this.currentFolder = null;
+
+            this._showSourceAssets = true;
 
             this._selector = {
                 type: null,
@@ -403,8 +406,8 @@ Object.assign(pcui, (function () {
         }
 
         _onDropDownTypeChange(value) {
-            this._detailsView.filter();
-            this._gridView.filter();
+            if (this._suspendFiltering) return;
+            this.filter();
         }
 
         // Convert string in form "tag1, tag2" to an array
@@ -433,8 +436,9 @@ Object.assign(pcui, (function () {
                 }
             }
 
-            this._detailsView.filter();
-            this._gridView.filter();
+            if (!this._suspendFiltering) {
+                this.filter();
+            }
         }
 
         _refreshViewButtons() {
@@ -517,7 +521,15 @@ Object.assign(pcui, (function () {
 
         _onAssetDropFilter(type, data) {
             // check if type is asset and if it's a valid int id (legacy scripts have string ids)
-            return type.startsWith('asset') && parseInt(data.id, 10);
+            if (type.startsWith('asset')) {
+                if (data.id) {
+                    return !!parseInt(data.id, 10);
+                } else if (data.ids) {
+                    return data.ids.filter(id => parseInt(id, 10)).length === data.ids.length;
+                }
+            }
+
+            return false;
         }
 
         _onAssetDrop(type, data) {
@@ -562,9 +574,13 @@ Object.assign(pcui, (function () {
             if (! editor.call('permissions:write') || !this._dropManager) return;
 
             let type = 'asset.' + asset.get('type');
-            let data = {
-                id: asset.get('id')
-            };
+            let data = {};
+
+            if (asset.legacyScript) {
+                data.filename = asset.legacyScript.get('filename');
+            } else {
+                data.id = asset.get('id');
+            }
 
             const selectorType = editor.call('selector:type');
             const selectorItems = editor.call('selector:items');
@@ -634,10 +650,28 @@ Object.assign(pcui, (function () {
                 if (dropData.ids.indexOf(hoveredAssetId) !== -1) {
                     return;
                 }
+
+                // do not allow source assets in bundle
+                if (hoveredType === 'bundle') {
+                    const sourceAssets = dropData.ids
+                    .map(id => this._assets.get(id))
+                    .filter(asset => asset && asset.get('source'));
+
+                    if (sourceAssets.length) {
+                        return;
+                    }
+                }
             } else if (dropData.id) {
                 // do not allow dragging on itself
                 if (parseInt(dropData.id, 10) === hoveredAssetId) {
                     return;
+                }
+
+                if (hoveredType === 'bundle') {
+                    const sourceAsset = this._assets.get(dropData.id);
+                    if (sourceAsset && sourceAsset.get('source')) {
+                        return;
+                    }
                 }
             } else {
                 return;
@@ -856,14 +890,36 @@ Object.assign(pcui, (function () {
             return row;
         }
 
+        _setAssetSelected(asset, selected) {
+            const id = asset.get('id');
+            let element = this._gridIndex[id];
+            if (element) {
+                element.selected = selected;
+            }
+
+            element = this._rowsIndex[id];
+            if (element) {
+                element.selected = selected;
+            }
+
+            element = this._foldersIndex[id];
+            if (element) {
+                element.selected = selected;
+            }
+        }
+
         _onSelectAssetElement(element) {
             if (this._suspendSelectEvents) return;
             editor.call('selector:add', 'asset', element.asset.legacyScript || element.asset);
+
+            this.emit('select', element.asset.legacyScript || element.asset);
         }
 
         _onDeselectAssetElement(element) {
             if (this._suspendSelectEvents) return;
             editor.call('selector:remove', element.asset.legacyScript || element.asset);
+
+            this.emit('deselect', element.asset.legacyScript || element.asset);
         }
 
         _onSelectorChange(type, assets) {
@@ -875,9 +931,7 @@ Object.assign(pcui, (function () {
 
             this._suspendSelectEvents = true;
 
-            this._detailsView.deselect();
-            this._gridView.deselect();
-            this._foldersView.deselect();
+            this.deselect();
 
             if (type === 'asset') {
                 this._btnDelete.enabled = this.writePermissions && assets.length;
@@ -1363,6 +1417,11 @@ Object.assign(pcui, (function () {
                 }
             }
 
+            // do not show source assets if flag disabled (except for folders)
+            if (!this._showSourceAssets && element.asset.get('source') && element.asset.get('type') !== 'folder') {
+                return false;
+            }
+
             const name = element.asset.get('name');
 
             const searchQuery = this._searchInput.value;
@@ -1424,6 +1483,17 @@ Object.assign(pcui, (function () {
         toggleDetailsView() {
             this._detailsView.hidden = !this._detailsView.hidden;
             this._gridView.hidden = !this._detailsView.hidden;
+        }
+
+        filter() {
+            this._detailsView.filter();
+            this._gridView.filter();
+        }
+
+        deselect() {
+            this._detailsView.deselect();
+            this._gridView.deselect();
+            this._foldersView.deselect();
         }
 
         destroy() {
@@ -1536,8 +1606,9 @@ Object.assign(pcui, (function () {
                 this._foldersViewRoot.class.add(CLASS_CURRENT_FOLDER);
             }
 
-            this._detailsView.filter();
-            this._gridView.filter();
+            if (!this._suspendFiltering) {
+                this.filter();
+            }
 
             this.emit('currentFolder', value);
         }
@@ -1612,6 +1683,81 @@ Object.assign(pcui, (function () {
             this._refreshViewButtons();
 
             this.emit('viewMode', value);
+        }
+
+        get activeView() {
+            return this.viewMode === AssetPanel.VIEW_DETAILS ? this.detailsView : this.gridView;
+        }
+
+        get dropdownType() {
+            return this._dropdownType;
+        }
+
+        get searchInput() {
+            return this._searchInput;
+        }
+
+        get selectedAssets() {
+            return this.activeView.selected.map(item => item.asset);
+        }
+
+        set selectedAssets(value) {
+            // early exit check
+            if (!value || !value.length) {
+                this.deselect();
+                return;
+            }
+
+            const selectedIndex = {};
+
+            // build index of selected assets
+            value.forEach(asset => {
+                selectedIndex[asset.get('id')] = true;
+            });
+
+            // deselect selected assets except the ones in the index
+            const selected = this.selectedAssets;
+            let i = selected.length;
+            while (i--) {
+                if (selectedIndex[selected[i].get('id')]) continue;
+                this._setAssetSelected(selected[i], false);
+            }
+
+            value.forEach(asset => {
+                this._setAssetSelected(asset, true);
+            });
+        }
+
+        get showSourceAssets() {
+            return this._showSourceAssets;
+        }
+
+        set showSourceAssets(value) {
+            if (this._showSourceAssets === value) {
+                return;
+            }
+
+            this._showSourceAssets = value;
+
+            if (!this._suspendFiltering) {
+                this.filter();
+            }
+        }
+
+        get suspendSelectionEvents() {
+            return this._suspendSelectEvents;
+        }
+
+        set suspendSelectionEvents(value) {
+            this._suspendSelectEvents = value;
+        }
+
+        get suspendFiltering() {
+            return this._suspendFiltering;
+        }
+
+        set suspendFiltering(value) {
+            this._suspendFiltering = value;
         }
 
         get writePermissions() {

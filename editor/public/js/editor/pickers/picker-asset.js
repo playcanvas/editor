@@ -23,8 +23,13 @@ editor.once('load', function () {
     var assetsPanelSearch = '';
     var assetsPanelFolder = null;
     // elements
-    var assetsGrid = editor.call('assets:grid');
     var assetsPanel = editor.call('layout.assets');
+    var assetsGrid = editor.call('assets:grid');
+
+    const hasPcuiAssetsPanel = editor.call('users:hasFlag', 'hasPcuiAssetsPanel');
+    if (hasPcuiAssetsPanel) {
+        assetsGrid = assetsPanel;
+    }
 
     var pluralize = function (word) {
         return word + ' assets';
@@ -62,78 +67,140 @@ editor.once('load', function () {
         }
     });
 
-    assetsGrid.on('deselect', function (item) {
-        if (overlay.hidden || !item.asset)
-            return;
-
-        if (item.asset === currentAsset) {
-            this.selected = [item];
-        } else {
-            if (allowMultiSelection) {
-                var idx = assetSelection.indexOf(item.asset);
-                if (idx !== -1) {
-                    assetSelection.splice(idx, 1);
-                    editor.emit('picker:assets', assetSelection);
-                }
-            }
-        }
-    });
-
     // picked asset
-    assetsGrid.on('select', function (item) {
-        if (item.asset) {
-            if (overlay.hidden ||
-                (currentType !== '*' && item.asset.get('type') !== currentType) ||
-                item.asset === currentAsset) {
+    if (hasPcuiAssetsPanel) {
+        assetsPanel.on('select', asset => {
+            if (overlay.hidden) return;
+
+            // do not allow selecting source assets
+            if (asset.get('source')) return;
+
+            if (!parseInt(asset.get('id'), 10)) {
+                // probably a legacy script
+                if (overlay.hidden ||
+                    (currentType !== '*' && currentType !== "script")) {
+                    return;
+                }
+            } else if ((currentType !== '*' && asset.get('type') !== currentType) || asset === currentAsset) {
                 return;
             }
 
-            // emit event
-            if (item.asset) {
+            if (allowMultiSelection) {
+                assetSelection.push(asset);
+                editor.emit('picker:assets', assetSelection);
+            } else {
+                editor.emit('picker:asset', asset);
+            }
+
+            if (!allowMultiSelection) {
+                // hide picker
+                overlay.hidden = true;
+            }
+        });
+
+        assetsPanel.on('deselect', asset => {
+            if (overlay.hidden || !asset) return;
+
+            if (asset === currentAsset) {
+                assetsPanel.selectedAssets = [asset];
+            } else {
                 if (allowMultiSelection) {
-                    assetSelection.push(item.asset);
-                    editor.emit('picker:assets', assetSelection);
-                } else {
-                    editor.emit('picker:asset', item.asset);
+                    var idx = assetSelection.indexOf(asset);
+                    if (idx !== -1) {
+                        assetSelection.splice(idx, 1);
+                        editor.emit('picker:assets', assetSelection);
+                    }
                 }
             }
-        } else if (item.script) {
-            if (overlay.hidden ||
-                (currentType !== '*' && currentType !== "script")) {
+        });
+    } else {
+        assetsGrid.on('deselect', function (item) {
+            if (overlay.hidden || !item.asset)
                 return;
-            }
 
+            if (item.asset === currentAsset) {
+                this.selected = [item];
+            } else {
+                if (allowMultiSelection) {
+                    var idx = assetSelection.indexOf(item.asset);
+                    if (idx !== -1) {
+                        assetSelection.splice(idx, 1);
+                        editor.emit('picker:assets', assetSelection);
+                    }
+                }
+            }
+        });
+
+        assetsGrid.on('select', function (item) {
             if (item.script) {
+                if (overlay.hidden ||
+                    (currentType !== '*' && currentType !== "script")) {
+                    return;
+                }
+
                 if (allowMultiSelection) {
                     assetSelection.push(item.script);
                     editor.emit('picker:assets', assetSelection);
                 } else {
                     editor.emit('picker:asset', item.script);
                 }
+            } else if (item.asset) {
+                if (overlay.hidden ||
+                    (currentType !== '*' && item.asset.get('type') !== currentType) ||
+                    item.asset === currentAsset) {
+                    return;
+                }
+
+                // emit event
+                if (item.asset) {
+                    if (allowMultiSelection) {
+                        assetSelection.push(item.asset);
+                        editor.emit('picker:assets', assetSelection);
+                    } else {
+                        editor.emit('picker:asset', item.asset);
+                    }
+                }
             }
-        }
 
-        if (!allowMultiSelection) {
-            // hide picker
-            overlay.hidden = true;
-        }
-    });
-
+            if (!allowMultiSelection) {
+                // hide picker
+                overlay.hidden = true;
+            }
+        });
+    }
 
     // on close asset picker
     overlay.on('hide', function () {
         // show all assets back
-        editor.call('assets:filter:type:disabled', false);
-        editor.call('assets:filter:type', assetsPanelFilter);
-        editor.call('assets:filter:search', assetsPanelSearch);
-        editor.call('assets:panel:currentFolder', assetsPanelFolder);
+        if (hasPcuiAssetsPanel) {
+            assetsPanel.suspendFiltering = true;
+            assetsPanel.showSourceAssets = true;
+            assetsPanel.dropdownType.enabled = true;
+            assetsPanel.dropdownType.value = assetsPanelFilter;
+            assetsPanel.searchInput.value = assetsPanelSearch;
+            assetsPanel.currentFolder = assetsPanelFolder;
+            assetsPanel.suspendFiltering = false;
+            assetsPanel.filter();
+        } else {
+            editor.call('assets:filter:type:disabled', false);
+            editor.call('assets:filter:type', assetsPanelFilter);
+            editor.call('assets:filter:search', assetsPanelSearch);
+            editor.call('assets:panel:currentFolder', assetsPanelFolder);
+        }
+
         // fold back assets panel if needed
         if (assetsPanelFolded)
             assetsPanel.collapsed = true;
         // enable selector
         editor.call('selector:enabled', true);
         // select what was selected
-        assetsGrid.selected = gridSelected;
+        if (hasPcuiAssetsPanel) {
+            assetsPanel.suspendSelectionEvents = true;
+            assetsPanel.selectedAssets = gridSelected;
+            assetsPanel.suspendSelectionEvents = false;
+        } else {
+            assetsGrid.selected = gridSelected;
+        }
 
         if (allowMultiSelection) {
             editor.emit('picker:assets', assetSelection);
@@ -161,6 +228,73 @@ editor.once('load', function () {
         allowMultiSelection = !!args.multi;
         assetSelection.length = 0;
 
+        currentType = type;
+        currentAsset = args.currentAsset;
+
+        if (hasPcuiAssetsPanel) {
+            // remember previous settings
+            assetsPanelFilter = assetsPanel.dropdownType.value;
+            assetsPanelSearch = assetsPanel.searchInput.value;
+            assetsPanelFolder = assetsPanel.currentFolder;
+
+            assetsPanel.suspendFiltering = true;
+
+            // navigate to scripts folder
+            if (legacyScripts && type === 'script') {
+                assetsPanel.currentFolder = 'scripts';
+            }
+
+            // remember selected
+            assetsPanel.suspendSelectionEvents = true;
+            gridSelected = assetsPanel.selectedAssets;
+            assetsPanel.deselect();
+
+            // filters
+            var pickerType = type;
+            if (pickerType === '*') {
+                pickerType = 'all';
+                assetsPanel.dropdownType.value = pickerType;
+                assetsPanel.dropdownType.enabled = true;
+            } else {
+                assetsPanel.dropdownType.value = pickerType;
+                assetsPanel.dropdownType.enabled = false;
+            }
+
+            // disable selector
+            editor.call('selector:enabled', false);
+
+            // disable showing source assets
+            assetsPanel.showSourceAssets = false;
+
+            // set current folder to currentAsset
+            if (currentAsset) {
+                assetsPanel.selectedAssets = [currentAsset];
+                let currentFolder = null;
+                const path = currentAsset.get('path');
+                if (path.length) {
+                    currentFolder = editor.call('assets:get', path[path.length - 1]);
+                }
+                assetsPanel.currentFolder = currentFolder;
+            }
+
+            assetsPanel.suspendFiltering = false;
+            assetsPanel.filter();
+
+            // show asset panel in front
+            assetsPanel.style.zIndex = 102;
+            assetsPanel.style.overflow = 'visible';
+            // if panel folded?
+            assetsPanelFolded = assetsPanel.collapsed;
+            if (assetsPanelFolded)
+                assetsPanel.collapsed = false;
+            // show overlay
+            overlay.hidden = false;
+
+            assetsPanel.suspendSelectionEvents = false;
+
+            return;
+        }
+
         // show only asset assets
         assetsPanelFilter = editor.call('assets:filter:type');
         assetsPanelSearch = editor.call('assets:filter:search');
@@ -187,8 +321,6 @@ editor.once('load', function () {
         // disable selector
         editor.call('selector:enabled', false);
         // find current asset
-        currentType = type;
-        currentAsset = args.currentAsset;
         if (currentAsset) {
             var gridItem = assetsGrid.assetsIndex[currentAsset.get('id')];
             // select in grid
