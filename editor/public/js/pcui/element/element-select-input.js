@@ -751,18 +751,26 @@ Object.assign(pcui, (function () {
             // register mousedown on entire window
             window.addEventListener('mousedown', this._domEvtWindowMouseDown);
 
-            // resize the outer shadow to fit the element and the dropdown list
-            // we need this because the dropdown list is position: absolute
-            this._resizeShadow();
-
             // if the dropdown list goes below the window show it above the field
             const startField = this._allowInput ? this._input.dom : this._labelValue.dom;
             const rect = startField.getBoundingClientRect();
-            if (rect.bottom + this._containerOptions.height + DEFAULT_BOTTOM_OFFSET >= window.innerHeight) {
+            let fitHeight = (rect.bottom + this._containerOptions.height + DEFAULT_BOTTOM_OFFSET >= window.innerHeight);
+            if (fitHeight && rect.top - this._containerOptions.height < 0) {
+                // if showing it above the field means that some of it will not be visible
+                // then show it below instead and adjust the max height to the maximum available space
+                fitHeight = false;
+                this._containerOptions.style.maxHeight = (window.innerHeight - rect.bottom - DEFAULT_BOTTOM_OFFSET) + 'px';
+            }
+
+            if (fitHeight) {
                 this.class.add(CLASS_FIT_HEIGHT);
             } else {
                 this.class.remove(CLASS_FIT_HEIGHT);
             }
+
+            // resize the outer shadow to fit the element and the dropdown list
+            // we need this because the dropdown list is position: absolute
+            this._resizeShadow();
         }
 
         /**
@@ -770,6 +778,10 @@ Object.assign(pcui, (function () {
          * @description Closes the dropdown menu
          */
         close() {
+            // there is a potential bug here if the user has set a max height
+            // themselves then this will be overriden
+            this._containerOptions.style.maxHeight = '';
+
             this._highlightLabel(null);
 
             this._updateInputFieldsVisibility(false);
