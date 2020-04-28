@@ -68,10 +68,10 @@ Object.assign(pcui, (function () {
     const REGEX_TAGS = /^\[(.*)\]$/;
     const REGEX_SUB_TAGS = /\[(.*?)\]/g;
 
-    const LEGACY_SCRIPT_ID = 'legacyScripts';
+    const LEGACY_SCRIPTS_ID = 'legacyScripts';
 
     const LEGACY_SCRIPTS_FOLDER_ASSET = new Observer({
-        id: LEGACY_SCRIPT_ID,
+        id: LEGACY_SCRIPTS_ID,
         type: 'folder',
         source: true,
         name: 'scripts',
@@ -360,9 +360,10 @@ Object.assign(pcui, (function () {
         }
 
         _onClickNew() {
-            // TODO
-            return;
-            var rect = btnNew.element.getBoundingClientRect();
+            // TODO: This needs to be refactored so that the menu
+            // is created by the panel or passed in.
+            const menu = editor.call('assets:contextmenu:create');
+            const rect = this._btnNew.dom.getBoundingClientRect();
             menu.position(rect.right, rect.top);
             menu.open = true;
         }
@@ -910,15 +911,17 @@ Object.assign(pcui, (function () {
 
         _onSelectAssetElement(element) {
             if (this._suspendSelectEvents) return;
-            editor.call('selector:add', 'asset', element.asset.legacyScript || element.asset);
+            if (element.asset === LEGACY_SCRIPTS_FOLDER_ASSET) return;
 
+            editor.call('selector:add', 'asset', element.asset.legacyScript || element.asset);
             this.emit('select', element.asset.legacyScript || element.asset);
         }
 
         _onDeselectAssetElement(element) {
             if (this._suspendSelectEvents) return;
-            editor.call('selector:remove', element.asset.legacyScript || element.asset);
+            if (element.asset === LEGACY_SCRIPTS_FOLDER_ASSET) return;
 
+            editor.call('selector:remove', element.asset.legacyScript || element.asset);
             this.emit('deselect', element.asset.legacyScript || element.asset);
         }
 
@@ -976,7 +979,7 @@ Object.assign(pcui, (function () {
                     id: script.get('filename'),
                     name: script.get('filename'),
                     type: 'script',
-                    path: [LEGACY_SCRIPT_ID]
+                    path: [LEGACY_SCRIPTS_ID]
                 });
 
                 fakeAsset.legacyScript = script;
@@ -1287,7 +1290,7 @@ Object.assign(pcui, (function () {
 
         _insertTreeItemAlphabetically(parentTreeItem, treeItem) {
             // ensure the legacy scripts folder remains at the top
-            const legacyFolder = this._foldersIndex[LEGACY_SCRIPT_ID];
+            const legacyFolder = this._foldersIndex[LEGACY_SCRIPTS_ID];
 
             // find the right spot to insert the tree item based on alphabetical order
             const text = treeItem.asset.get('name').toLowerCase();
@@ -1782,6 +1785,7 @@ Object.assign(pcui, (function () {
     AssetPanel.VIEW_LARGE_GRID = 'lgrid';
     AssetPanel.VIEW_SMALL_GRID = 'sgrid';
     AssetPanel.VIEW_DETAILS = 'details';
+    AssetPanel.LEGACY_SCRIPTS_ID = LEGACY_SCRIPTS_ID;
 
     class AssetGridViewItem extends pcui.GridViewItem {
         constructor(args) {

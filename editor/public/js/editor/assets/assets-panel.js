@@ -34,6 +34,11 @@ editor.once('load', function() {
 
         editor.method('assets:panel:currentFolder', function (asset) {
             if (asset === undefined) {
+                // special case for legacy scripts
+                if (config.project.settings.useLegacyScripts && assetsPanel.currentFolder && assetsPanel.currentFolder.get('id') === pcui.AssetPanel.LEGACY_SCRIPTS_ID) {
+                    return 'scripts';
+                }
+
                 return assetsPanel.currentFolder;
             }
 

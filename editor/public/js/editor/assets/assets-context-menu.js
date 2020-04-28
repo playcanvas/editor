@@ -13,6 +13,9 @@ editor.once('load', function() {
     var menu = new ui.Menu();
     root.append(menu);
 
+    // menu related only to creating assets
+    var menuCreate = new ui.Menu();
+    root.append(menuCreate);
 
     // edit
     var menuItemNewScript = new ui.MenuItem({
@@ -107,11 +110,10 @@ editor.once('load', function() {
     }
 
     function isCurrentFolderLegacyScripts() {
-        const curr = editor.call('assets:panel:currentFolder');
-        return curr && (curr === 'scripts' || curr.get('id') === LEGACY_SCRIPTS_ID);
+        return editor.call('assets:panel:currentFolder') === 'scripts';
     }
 
-    var addNewMenuItem = function(key, title) {
+    var addNewMenuItem = function(menu, key, title) {
         // new folder
         var item = new ui.MenuItem({
             text: title,
@@ -144,7 +146,7 @@ editor.once('load', function() {
                 editor.call('assets:create:' + key, args)
             }
         });
-        menuItemNew.append(item);
+        menu.append(item);
 
         if (key === 'script') {
             editor.on('repositories:load', function (repositories) {
@@ -159,7 +161,8 @@ editor.once('load', function() {
         if (! assets.hasOwnProperty(keys[i]))
             continue;
 
-        addNewMenuItem(keys[i], assets[keys[i]]);
+        addNewMenuItem(menuItemNew, keys[i], assets[keys[i]]);
+        addNewMenuItem(menuCreate, keys[i], assets[keys[i]]);
     }
 
 
@@ -634,6 +637,10 @@ editor.once('load', function() {
         element.on('destroy', dom => {
             dom.removeEventListener('contextmenu', contextMenuHandler);
         });
+    });
+
+    editor.method('assets:contextmenu:create', function () {
+        return menuCreate;
     });
 
     editor.on('sourcefiles:add', function(asset) {
