@@ -2,9 +2,7 @@
     height: 4px;
     background-color: $bcg-darkest;
     transition: opacity 100ms;
-    display: flex;
-    flex-grow: 1;
-
+    width: 100%;
 
     .pcui-progress-inner {
         width: 0%;

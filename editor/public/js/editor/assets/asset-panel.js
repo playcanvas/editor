@@ -13,6 +13,9 @@ Object.assign(pcui, (function () {
 
     const CLASS_GRID_SMALL = CLASS_ROOT + '-grid-view-small';
 
+    const CLASS_TASK_FAILED = CLASS_ROOT + '-task-failed';
+    const CLASS_TASK_RUNNING = CLASS_ROOT + '-task-running';
+
     const CLASS_HIDE_ON_COLLAPSE = CLASS_ROOT + '-hide-on-collapse';
     const CLASS_BTN_SMALL = CLASS_ROOT + '-btn-small';
     const CLASS_BTN_STORE = CLASS_ROOT + '-btn-store';
@@ -244,17 +247,17 @@ Object.assign(pcui, (function () {
                 hidden: true,
                 columns: [{
                     title: 'Name',
-                    width: '60%',
+                    width: '40%',
                     minWidth: 100,
                     sortFn: this._sortByName.bind(this)
                 }, {
                     title: 'Type',
-                    width: '20%',
+                    width: '25%',
                     minWidth: 70,
                     sortFn: this._sortByType.bind(this)
                 }, {
                     title: 'Size',
-                    width: '20%',
+                    width: '10%',
                     minWidth: 60,
                     sortFn: this._sortByFileSize.bind(this)
                 }],
@@ -829,6 +832,13 @@ Object.assign(pcui, (function () {
 
             cell.append(thumb);
 
+            // spinner for running task
+            const spinner = new pcui.Spinner({
+                type: pcui.Spinner.TYPE_SMALL_THICK,
+                size: 16
+            });
+            cell.append(spinner);
+
             const labelName = new pcui.Label({
                 binding: new pcui.BindingObserversToElement()
             });
@@ -888,25 +898,31 @@ Object.assign(pcui, (function () {
             });
             cell.append(labelSize);
 
+
+
             return row;
         }
 
-        _setAssetSelected(asset, selected) {
+        _applyFnToAssetElements(asset, fn) {
             const id = asset.get('id');
             let element = this._gridIndex[id];
             if (element) {
-                element.selected = selected;
+                fn(element);
             }
 
             element = this._rowsIndex[id];
             if (element) {
-                element.selected = selected;
+                fn(element);
             }
 
             element = this._foldersIndex[id];
             if (element) {
-                element.selected = selected;
+                fn(element);
             }
+        }
+
+        _setAssetSelected(asset, selected) {
+            this._applyFnToAssetElements(asset, element => { element.selected = selected; });
         }
 
         _onSelectAssetElement(element) {
@@ -1017,6 +1033,10 @@ Object.assign(pcui, (function () {
                 this._onAssetPathChange(asset, path, oldPath);
             }));
 
+            this._assetEvents[id].push(asset.on('task:set', (value) => {
+                this._onAssetTaskChange(asset, value);
+            }));
+
             // add to grid view
             this._addGridItem(asset, index);
 
@@ -1024,6 +1044,8 @@ Object.assign(pcui, (function () {
             if (addToDetailsView) {
                 this._detailsView.addObserver(asset, index);
             }
+
+            this._onAssetTaskChange(asset, asset.get('task'));
         }
 
         _addGridItem(asset, index) {
@@ -1197,6 +1219,21 @@ Object.assign(pcui, (function () {
                     }
                 }
             }
+        }
+
+        _onAssetTaskChange(asset, status) {
+            this._applyFnToAssetElements(asset, element => {
+                if (status === 'failed') {
+                    element.class.remove(CLASS_TASK_RUNNING);
+                    element.class.add(CLASS_TASK_FAILED);
+                } else if (status === 'running') {
+                    element.class.remove(CLASS_TASK_FAILED);
+                    element.class.add(CLASS_TASK_RUNNING);
+                } else {
+                    element.class.remove(CLASS_TASK_FAILED);
+                    element.class.remove(CLASS_TASK_RUNNING);
+                }
+            });
         }
 
         _addFolder(asset) {
@@ -1798,6 +1835,12 @@ Object.assign(pcui, (function () {
             });
 
             this.prepend(this._thumbnail);
+
+            this._progress = new pcui.Progress({
+                value: 100,
+                hidden: Math.random() < 0.3
+            });
+            this.append(this._progress);
         }
 
         link(asset) {

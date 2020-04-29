@@ -389,6 +389,12 @@
         margin: 0px;
         margin-left: $element-margin;
     }
+
+    .pcui-spinner {
+        margin: 0;
+        margin-left: $element-margin;
+        display: none;
+    }
 }
 
 .pcui-asset-panel-highlighted-asset {
@@ -470,6 +476,29 @@
 
     .pcui-gridview-item-text {
         color: $text-primary;
+    }
+
+    .pcui-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        display: none;
+    }
+}
+
+.pcui-asset-panel-task-running {
+    .pcui-spinner {
+        display: inline-block;
+    }
+
+    .pcui-progress {
+        display: block;
+    }
+
+    &.pcui-table-row {
+        .pcui-asset-thumb {
+            display: none;
+        }
     }
 }
 
