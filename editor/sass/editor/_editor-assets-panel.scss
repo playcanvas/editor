@@ -675,3 +675,15 @@
         }
     }
 }
+
+.pcui-asset-panel-progress {
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    background-color: $bcg-dark;
+
+    .pcui-progress {
+        flex-basis: 128px;
+    }
+}

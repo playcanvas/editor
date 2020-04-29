@@ -20,8 +20,11 @@ Object.assign(pcui, (function () {
         }
 
         set value(val) {
+            if (this._value === val) return;
+
             this._value = val;
             this._inner.width = `${this._value}%`;
+            this.emit('change', val);
         }
 
         get value() {

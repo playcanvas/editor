@@ -45,6 +45,10 @@ editor.once('load', function() {
             assetsPanel.currentFolder = asset;
         });
 
+        editor.method('assets:progress', function (progress) {
+            assetsPanel.progressBar.value = progress * 100;
+        });
+
         return;
     }
 

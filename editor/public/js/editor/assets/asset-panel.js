@@ -10,7 +10,7 @@ Object.assign(pcui, (function () {
     const CLASS_ASSET_SOURCE = CLASS_ASSET_GRID_ITEM + '-source';
 
     const CLASS_CONTROLS = CLASS_ROOT + '-controls';
-
+    const CLASS_PROGRESS = CLASS_ROOT + '-progress';
     const CLASS_GRID_SMALL = CLASS_ROOT + '-grid-view-small';
 
     const CLASS_TASK_FAILED = CLASS_ROOT + '-task-failed';
@@ -241,6 +241,29 @@ Object.assign(pcui, (function () {
                 this.dropManager = args.dropManager;
             }
 
+            // initial progress container
+            this._containerProgress = new pcui.Container({
+                class: CLASS_PROGRESS,
+                flex: true
+            });
+            this._progressBar = new pcui.Progress();
+            this._progressBar.on('change', value => {
+                if (value >= 100) {
+                    // update view mode to show
+                    // the appropriate panels and hide the
+                    // progress container
+                    const viewMode = this.viewMode;
+                    this._viewMode = null;
+                    this.viewMode = viewMode;
+                } else {
+                    this._containerProgress.hidden = false;
+                    this._detailsView.hidden = true;
+                    this._gridView.hidden = true;
+                }
+            });
+            this._containerProgress.append(this._progressBar);
+            this.append(this._containerProgress);
+
             // table view
             this._detailsView = new pcui.Table({
                 scrollable: true,
@@ -269,6 +292,7 @@ Object.assign(pcui, (function () {
             // grid view
             this._gridView = new pcui.GridView({
                 scrollable: true,
+                hidden: true,
                 filterFn: this._filterAssetElement.bind(this)
             });
             this.append(this._gridView);
@@ -1721,13 +1745,20 @@ Object.assign(pcui, (function () {
 
             this._viewMode = value;
 
-            this._detailsView.hidden = (value !== AssetPanel.VIEW_DETAILS);
-            this._gridView.hidden = !this._detailsView.hidden;
-            if (!this._gridView.hidden) {
-                if (value === AssetPanel.VIEW_SMALL_GRID) {
-                    this._gridView.class.add(CLASS_GRID_SMALL);
-                } else {
-                    this._gridView.class.remove(CLASS_GRID_SMALL);
+            if (this._progressBar.value < 100) {
+                this._containerProgress.hidden = false;
+                this._detailsView.hidden = true;
+                this._gridView.hidden = true;
+            } else {
+                this._containerProgress.hidden = true;
+                this._detailsView.hidden = (value !== AssetPanel.VIEW_DETAILS);
+                this._gridView.hidden = !this._detailsView.hidden;
+                if (!this._gridView.hidden) {
+                    if (value === AssetPanel.VIEW_SMALL_GRID) {
+                        this._gridView.class.add(CLASS_GRID_SMALL);
+                    } else {
+                        this._gridView.class.remove(CLASS_GRID_SMALL);
+                    }
                 }
             }
 
@@ -1738,6 +1769,10 @@ Object.assign(pcui, (function () {
 
         get activeView() {
             return this.viewMode === AssetPanel.VIEW_DETAILS ? this.detailsView : this.gridView;
+        }
+
+        get progressBar() {
+            return this._progressBar;
         }
 
         get dropdownType() {
