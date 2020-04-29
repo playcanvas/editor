@@ -314,6 +314,12 @@
             .pcui-treeview-item-icon:after {
                 content: '\E139';
             }
+
+            // this is to prevent flashing when we drag assets
+            // from the right panel into the folder view
+            .pcui-treeview-drag-handle {
+                pointer-events: none;
+            }
         }
 
         > .pcui-table {
