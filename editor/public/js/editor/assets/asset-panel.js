@@ -837,6 +837,7 @@ Object.assign(pcui, (function () {
                 type: pcui.Spinner.TYPE_SMALL_THICK,
                 size: 16
             });
+            row.spinner = spinner;
             cell.append(spinner);
 
             const labelName = new pcui.Label({
@@ -898,7 +899,7 @@ Object.assign(pcui, (function () {
             });
             cell.append(labelSize);
 
-
+            this._setElementTaskStatus(row, asset);
 
             return row;
         }
@@ -923,6 +924,25 @@ Object.assign(pcui, (function () {
 
         _setAssetSelected(asset, selected) {
             this._applyFnToAssetElements(asset, element => { element.selected = selected; });
+        }
+
+        _setElementTaskStatus(element, asset) {
+            element.class.remove(CLASS_TASK_RUNNING);
+            element.class.remove(CLASS_TASK_FAILED);
+            const progress = element.progress || element.spinner;
+            if (progress) {
+                progress.class.remove(pcui.CLASS_ERROR);
+            }
+
+            const task = asset.get('task');
+            if (task === 'failed') {
+                element.class.add(CLASS_TASK_FAILED);
+                if (progress) {
+                    progress.class.add(pcui.CLASS_ERROR);
+                }
+            } else if (task === 'running') {
+                element.class.add(CLASS_TASK_RUNNING);
+            }
         }
 
         _onSelectAssetElement(element) {
@@ -1044,8 +1064,6 @@ Object.assign(pcui, (function () {
             if (addToDetailsView) {
                 this._detailsView.addObserver(asset, index);
             }
-
-            this._onAssetTaskChange(asset, asset.get('task'));
         }
 
         _addGridItem(asset, index) {
@@ -1055,6 +1073,8 @@ Object.assign(pcui, (function () {
 
             item.link(asset);
             item.asset = asset;
+
+            this._setElementTaskStatus(item, asset);
 
             const isLegacyScriptFolder = (asset === LEGACY_SCRIPTS_FOLDER_ASSET);
             if (isLegacyScriptFolder) {
@@ -1221,18 +1241,9 @@ Object.assign(pcui, (function () {
             }
         }
 
-        _onAssetTaskChange(asset, status) {
+        _onAssetTaskChange(asset) {
             this._applyFnToAssetElements(asset, element => {
-                if (status === 'failed') {
-                    element.class.remove(CLASS_TASK_RUNNING);
-                    element.class.add(CLASS_TASK_FAILED);
-                } else if (status === 'running') {
-                    element.class.remove(CLASS_TASK_FAILED);
-                    element.class.add(CLASS_TASK_RUNNING);
-                } else {
-                    element.class.remove(CLASS_TASK_FAILED);
-                    element.class.remove(CLASS_TASK_RUNNING);
-                }
+                this._setElementTaskStatus(element, asset);
             });
         }
 
@@ -1836,11 +1847,11 @@ Object.assign(pcui, (function () {
 
             this.prepend(this._thumbnail);
 
-            this._progress = new pcui.Progress({
+            this.progress = new pcui.Progress({
                 value: 100,
                 hidden: Math.random() < 0.3
             });
-            this.append(this._progress);
+            this.append(this.progress);
         }
 
         link(asset) {

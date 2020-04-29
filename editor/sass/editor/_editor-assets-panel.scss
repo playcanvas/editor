@@ -486,7 +486,7 @@
     }
 }
 
-.pcui-asset-panel-task-running {
+.pcui-asset-panel-task-running, .pcui-asset-panel-task-failed {
     .pcui-spinner {
         display: inline-block;
     }

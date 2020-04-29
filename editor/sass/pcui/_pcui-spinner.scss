@@ -10,4 +10,17 @@
         animation-timing-function: linear;
         transform-origin: center;
     }
+
+    &.pcui-error {
+        g {
+            animation: none;
+
+            > path {
+                fill: $error;
+                &.spin {
+                    fill: $error-secondary;
+                }
+            }
+        }
+    }
 }
