@@ -1756,6 +1756,11 @@ Object.assign(pcui, (function () {
                     } else {
                         this._gridView.class.remove(CLASS_GRID_SMALL);
                     }
+
+                    // re-render grid view thumbnails because their size changed
+                    for (const key in this._gridIndex) {
+                        this._gridIndex[key].onResize();
+                    }
                 }
             }
 
@@ -1884,6 +1889,10 @@ Object.assign(pcui, (function () {
                 hidden: Math.random() < 0.3
             });
             this.append(this.progress);
+        }
+
+        onResize() {
+            this._thumbnail.onResize();
         }
 
         link(asset) {

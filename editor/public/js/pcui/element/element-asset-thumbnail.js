@@ -7,6 +7,14 @@ Object.assign(pcui, (function () {
     const CLASS_ASSET_PREFIX = 'asset-icon-prefix';
     const CLASS_FLIP_Y = 'flip-y';
 
+    const CANVAS_TYPES = {
+        'cubemap': pcui.CubemapThumbnailRenderer,
+        'font': pcui.FontThumbnailRenderer,
+        'material': pcui.MaterialThumbnailRenderer,
+        'model': pcui.ModelThumbnailRenderer,
+        'sprite': pcui.SpriteThumbnailRenderer
+    };
+
     /**
      * @name pcui.AssetThumbnail
      * @classdesc Shows an asset thumbnail. Depending on the asset type that can be an image or a canvas rendering.
@@ -106,7 +114,7 @@ Object.assign(pcui, (function () {
             if (!this.width || !this.height) {
                 this._renderCanvasTimeout = setTimeout(() => {
                     this._renderCanvasThumbnailWhenReady(asset);
-                });
+                }, 200);
                 return;
             }
 
@@ -118,27 +126,13 @@ Object.assign(pcui, (function () {
             this._createCanvas();
 
             var type = asset.get('type');
-            var renderer;
-            switch (type) {
-                case 'cubemap':
-                    renderer = new pcui.CubemapThumbnailRenderer(asset, this._domCanvas, this._assets);
-                    break;
-                case 'font':
-                    renderer = new pcui.FontThumbnailRenderer(asset, this._domCanvas);
-                    break;
-                case 'material':
-                    renderer = new pcui.MaterialThumbnailRenderer(asset, this._domCanvas);
-                    break;
-                case 'model':
-                    renderer = new pcui.ModelThumbnailRenderer(asset, this._domCanvas);
-                    break;
-                case 'sprite':
-                    renderer = new pcui.SpriteThumbnailRenderer(asset, this._domCanvas, this._assets);
-                    break;
+
+            if (this._canvasRenderer) {
+                this._canvasRenderer.destroy();
+                this._canvasRenderer = null;
             }
 
-            this._canvasRenderer = renderer;
-
+            this._canvasRenderer = new CANVAS_TYPES[type](asset, this._domCanvas, this._assets);
             this._canvasRenderer.render();
 
             if (type !== 'sprite' && type !== 'cubemap') {
@@ -165,12 +159,19 @@ Object.assign(pcui, (function () {
         }
 
         _createCanvas() {
-            if (this._domCanvas) return;
+            let dirtyCanvas = false;
 
-            this._domCanvas = document.createElement('canvas');
+            if (!this._domCanvas) {
+                this._domCanvas = document.createElement('canvas');
+                dirtyCanvas = true;
+            }
+
             this._domCanvas.width = this.width;
             this._domCanvas.height = this.height;
-            this.dom.appendChild(this._domCanvas);
+
+            if (dirtyCanvas) {
+                this.dom.appendChild(this._domCanvas);
+            }
         }
 
         _destroyCanvas() {
@@ -243,7 +244,7 @@ Object.assign(pcui, (function () {
 
             var type = asset.get('type');
 
-            if (type === 'cubemap' || (type === 'font' && !asset.get('source')) || type === 'material' || type === 'model' || type === 'sprite') {
+            if (!asset.get('source') && CANVAS_TYPES[type]) {
                 this._renderCanvasThumbnailWhenReady(asset);
             } else {
                 this._showImageThumbnail(asset);
@@ -254,6 +255,14 @@ Object.assign(pcui, (function () {
                 this._evtThumbnailUnset = asset.on('thumbnails.m:unset', () => {
                     this._showImageThumbnail(asset);
                 });
+            }
+        }
+
+        onResize() {
+            const value = this.value;
+            const asset = value instanceof Observer ? value : this._assets.get(value);
+            if (asset && !asset.get('source') && CANVAS_TYPES[asset.get('type')]) {
+                this._renderCanvasThumbnailWhenReady(asset);
             }
         }
 
