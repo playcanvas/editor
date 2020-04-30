@@ -284,6 +284,7 @@ Object.assign(pcui, (function () {
                     minWidth: 60,
                     sortFn: this._sortByFileSize.bind(this)
                 }],
+                defaultSortColumn: 0,
                 createRowFn: this._createDetailsViewRow.bind(this),
                 filterFn: this._filterAssetElement.bind(this)
             });

@@ -53,6 +53,9 @@ Object.assign(pcui, (function () {
 
             if (args.columns) {
                 this.columns = args.columns;
+                if (args.defaultSortColumn !== undefined) {
+                    this.sortByColumnIndex(args.defaultSortColumn);
+                }
             }
 
             this._lastRowSelected = null;
@@ -536,6 +539,13 @@ Object.assign(pcui, (function () {
 
             this.body.remove(row);
             this.body.appendBefore(row, this.body.dom.childNodes[newIndex]);
+        }
+
+        sortByColumnIndex(index) {
+            const col = this._columns[index];
+            if (col) {
+                this._onColumnHeaderClick(col);
+            }
         }
 
         deselect() {
