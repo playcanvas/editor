@@ -110,8 +110,8 @@ Object.assign(pcui, (function () {
             SETTING_TYPES.forEach(setting => {
                 if (['externalscripts', 'scripts'].includes(setting) && this._args.projectSettings.get('useLegacyScripts'))
                     return;
-                // else if (setting === 'audio' && this._args.projectSettings.get('useLegacyAudio') === null)
-                //     return;
+                else if (setting === 'audio' && this._args.projectSettings.get('useLegacyAudio') === null)
+                    return;
 
                 const cls = `${setting[0].toUpperCase()}${setting.substring(1)}SettingsPanel`;
                 const panel = new pcui[cls]({
