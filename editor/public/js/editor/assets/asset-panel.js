@@ -408,9 +408,6 @@ Object.assign(pcui, (function () {
         _onClickBack() {
             if (!this.currentFolder) return;
 
-            // if (folder === 'scripts') {
-            //     editor.call('assets:panel:currentFolder', null);
-            // } else {
             const path = this.currentFolder.get('path');
             let folder = null;
             if (path.length) {
@@ -418,7 +415,6 @@ Object.assign(pcui, (function () {
             }
 
             this.currentFolder = folder;
-            // }
         }
 
         _onClickLargeGrid() {
