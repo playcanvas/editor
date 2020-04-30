@@ -3,8 +3,8 @@
     margin: $element-margin;
     vertical-align: middle;
 
-    g {
-        animation-name: spin;
+    > path {
+        animation-name: animation-spin;
         animation-duration: 750ms;
         animation-iteration-count: infinite;
         animation-timing-function: linear;
@@ -12,14 +12,13 @@
     }
 
     &.pcui-error {
-        g {
+        > path {
             animation: none;
 
-            > path {
-                fill: $error;
-                &.spin {
-                    fill: $error-secondary;
-                }
+            fill: rgba(darken(#f77, 17%), 1);
+
+            &.pcui-spinner-highlight {
+                fill: rgba(#f77, 1);
             }
         }
     }

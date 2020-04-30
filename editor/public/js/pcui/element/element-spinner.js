@@ -3,20 +3,15 @@ Object.assign(pcui, (function () {
 
     const CLASS_ROOT = 'pcui-spinner';
 
-    function createSpinnerTemplate(size) {
+
+    function createSmallThick(size) {
         const spinner = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         spinner.classList.add('spin');
         spinner.setAttribute('width', size);
         spinner.setAttribute('height', size);
-        spinner.setAttribute('x', 0);
-        spinner.setAttribute('y', 0);
-        spinner.setAttribute('viewBox', '0 0 64 64');
-        return spinner;
-    }
-
-    function createSmallThick(size) {
-        const spinner = createSpinnerTemplate(size);
-        spinner.innerHTML = '<g width="65" height="65"><path fill="#773417" d="M31,62A31,31,0,1,1,62,31,31,31,0,0,1,31,62Zm0-52A21,21,0,1,0,52,31,21,21,0,0,0,31,10Z"/><path class="spin" fill="#f60" d="M31,62V52A21,21,0,0,0,52,31H62A31,31,0,0,1,31,62Z"/></g>';
+        spinner.setAttribute('viewBox', '0 0 14 14');
+        spinner.setAttribute('fill', 'none');
+        spinner.innerHTML = '<path d="M7 14C3.13871 14 0 10.8613 0 7C0 3.13871 3.13871 0 7 0C10.8613 0 14 3.13871 14 7C14 10.8613 10.8613 14 7 14ZM7 2.25806C4.38064 2.25806 2.25806 4.38064 2.25806 7C2.25806 9.61935 4.38064 11.7419 7 11.7419C9.61935 11.7419 11.7419 9.61935 11.7419 7C11.7419 4.38064 9.61935 2.25806 7 2.25806Z" fill="#773417"/><path class="pcui-spinner-highlight" d="M7 14V11.7419C9.61935 11.7419 11.7419 9.61935 11.7419 7H14C14 10.8613 10.8613 14 7 14Z" fill="#FF6600"/>';
         return spinner;
     }
 
