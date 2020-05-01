@@ -139,11 +139,14 @@ Object.assign(pcui, (function () {
             this._domEvtBlur = this._onBlur.bind(this);
             this._domEvtMouseDown = this._onMouseDown.bind(this);
             this._domEvtWindowMouseDown = this._onWindowMouseDown.bind(this);
+            this._domEvtWheel = this._onWheel.bind(this);
 
             this._labelValue.dom.addEventListener('keydown', this._domEvtKeyDown);
             this._labelValue.dom.addEventListener('focus', this._domEvtFocus);
             this._labelValue.dom.addEventListener('blur', this._domEvtBlur);
             this._labelValue.dom.addEventListener('mousedown', this._domEvtMouseDown);
+
+            this._containerOptions.dom.addEventListener('wheel', this._domEvtWheel);
 
             this.on('hide', this.close.bind(this));
 
@@ -663,6 +666,12 @@ Object.assign(pcui, (function () {
             this.emit('blur');
         }
 
+        _onWheel(evt) {
+            // prevent scrolling on other stuff like the viewport
+            // when we are scrolling on the select input
+            evt.stopPropagation();
+        }
+
         _updateInputFieldsVisibility(focused) {
             let showInput = false;
             let focusInput = false;
@@ -829,6 +838,8 @@ Object.assign(pcui, (function () {
             this._labelValue.dom.removeEventListener('mousedown', this._domEvtMouseDown);
             this._labelValue.dom.removeEventListener('focus', this._domEvtFocus);
             this._labelValue.dom.removeEventListener('blur', this._domEvtBlur);
+
+            this._containerOptions.dom.removeEventListener('wheel', this._domEvtWheel);
 
             window.removeEventListener('keydown', this._domEvtKeyDown);
             window.removeEventListener('mousedown', this._domEvtWindowMouseDown);
