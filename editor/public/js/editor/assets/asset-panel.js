@@ -1046,20 +1046,32 @@ Object.assign(pcui, (function () {
             this._suspendSelectEvents = false;
         }
 
-        _createUserIndicator(userEntry, container) {
+        _createUserIndicator(userId, userEntry, container) {
             const indicator = new pcui.Element(document.createElement('div'), {
                 class: CLASS_USER_INDICATOR
             });
             indicator.style.backgroundColor = userEntry.color;
             container.append(indicator);
             userEntry.elements.push(indicator);
+
+            indicator.once('destroy', () => {
+                const index = userEntry.elements.indexOf(indicator);
+                if (index >= 0) {
+                    userEntry.elements.splice(index, 1);
+                    if (userEntry.elements.length === 0) {
+                        delete this._usersIndex[userId];
+                    }
+                }
+            });
         }
 
         _onSelectorSync(userId, data) {
             let userEntry = this._usersIndex[userId];
             if (userEntry) {
-                userEntry.elements.forEach(el => el.destroy());
-                delete this._usersIndex[userId];
+                let i = userEntry.elements.length;
+                while (i--) {
+                    userEntry.elements[i].destroy();
+                }
             }
 
             if (data.type !== 'asset') return;
@@ -1073,12 +1085,12 @@ Object.assign(pcui, (function () {
             data.ids.forEach(assetId => {
                 const gridItem = this._gridIndex[assetId];
                 if (gridItem) {
-                    this._createUserIndicator(userEntry, gridItem.containerUsers);
+                    this._createUserIndicator(userId, userEntry, gridItem.containerUsers);
                 }
 
                 const row = this._rowsIndex[assetId];
                 if (row) {
-                    this._createUserIndicator(userEntry, row.containerUsers);
+                    this._createUserIndicator(userId, userEntry, row.containerUsers);
                 }
             });
         }
@@ -1609,13 +1621,15 @@ Object.assign(pcui, (function () {
         }
 
         _onWhoIsOnlineRemove(userId) {
-            const userItem = this._usersIndex[userId];
-            if (!userItem) {
+            const userEntry = this._usersIndex[userId];
+            if (!userEntry) {
                 return;
             }
 
-            userItem.elements.forEach(el => el.destroy());
-            delete this._usersIndex[userId];
+            let i = userEntry.elements.length;
+            while (i--) {
+                userEntry.elements[i].destroy();
+            }
         }
 
         toggleDetailsView() {
