@@ -324,9 +324,11 @@ Object.assign(pcui, (function () {
             this._suspendSelectEvents = false;
             this._detailsView.on('select', this._onSelectAssetElement.bind(this));
             this._detailsView.on('deselect', this._onDeselectAssetElement.bind(this));
+            this._detailsView.on('show', this._onShowDetailsView.bind(this));
 
             this._gridView.on('select', this._onSelectAssetElement.bind(this));
             this._gridView.on('deselect', this._onDeselectAssetElement.bind(this));
+            this._gridView.on('show', this._onShowGridView.bind(this));
 
             this._eventsEditor = [];
             this._eventsEditor.push(editor.on('selector:change', this._onSelectorChange.bind(this)));
@@ -1632,14 +1634,29 @@ Object.assign(pcui, (function () {
             }
         }
 
+        _onShowGridView() {
+            this.filter();
+        }
+
+        _onShowDetailsView() {
+            this.filter();
+        }
+
         toggleDetailsView() {
             this._detailsView.hidden = !this._detailsView.hidden;
             this._gridView.hidden = !this._detailsView.hidden;
         }
 
         filter() {
-            this._detailsView.filter();
-            this._gridView.filter();
+            if (!this._assets) return;
+
+            if (!this._detailsView.hidden) {
+                this._detailsView.filter();
+            }
+
+            if (!this._gridView.hidden) {
+                this._gridView.filter();
+            }
         }
 
         deselect() {
