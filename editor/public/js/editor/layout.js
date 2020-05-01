@@ -51,7 +51,8 @@ editor.on('load', function() {
     // main container
     var root = new pcui.Container({
         id: 'layout-root',
-        grid: true
+        grid: true,
+        isRoot: true
     });
     document.body.appendChild(root.dom);
     // expose

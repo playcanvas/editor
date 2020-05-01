@@ -77,7 +77,7 @@ Object.assign(pcui, (function () {
             this._asset = asset;
             this._canvas = canvas;
 
-            this._queueRenderHandler = this._queueRender.bind(this);
+            this._queueRenderHandler = this.queueRender.bind(this);
 
             this._watch = editor.call('assets:model:watch', {
                 asset: asset,
@@ -93,7 +93,7 @@ Object.assign(pcui, (function () {
             this._frameRequest = null;
         }
 
-        _queueRender() {
+        queueRender() {
             if (this._queuedRender) return;
             this._queuedRender = true;
             this._frameRequest = requestAnimationFrame(() => {

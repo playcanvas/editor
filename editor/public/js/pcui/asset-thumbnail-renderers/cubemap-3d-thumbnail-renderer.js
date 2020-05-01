@@ -56,7 +56,7 @@ Object.assign(pcui, (function () {
             this._asset = asset;
             this._canvas = canvas;
 
-            this._queueRenderHandler = this._queueRender.bind(this);
+            this._queueRenderHandler = this.queueRender.bind(this);
 
             this._rotationX = 0;
             this._rotationY = 0;
@@ -75,7 +75,7 @@ Object.assign(pcui, (function () {
             this._frameRequest = null;
         }
 
-        _queueRender() {
+        queueRender() {
             if (this._queuedRender) return;
             this._queuedRender = true;
             this._frameRequest = requestAnimationFrame(() => {

@@ -157,6 +157,8 @@ Object.assign(pcui, (function () {
             this._btnDetailsView.on('click', this._onClickDetailsView.bind(this));
             containerBtn.append(this._btnDetailsView);
 
+            this._domEvtStopPropagation = (evt) => evt.stopPropagation();
+
             // asset type filter
             const dropdownTypeOptions = Object.keys(TYPES)
             .filter(type => type !== 'bundle' || editor.call('users:hasFlag', 'hasBundles'))
@@ -171,6 +173,10 @@ Object.assign(pcui, (function () {
                 value: 'all',
                 class: CLASS_HIDE_ON_COLLAPSE
             });
+            this._dropdownType.on('blur', () => {
+                this._dropdownType.close();
+            });
+
             this._containerControls.append(this._dropdownType);
             this._dropdownType.on('change', this._onDropDownTypeChange.bind(this));
 

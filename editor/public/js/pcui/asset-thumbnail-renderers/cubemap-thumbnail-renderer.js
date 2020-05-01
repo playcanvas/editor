@@ -20,7 +20,7 @@ Object.assign(pcui, (function () {
 
             this._images = [null, null, null, null, null, null];
 
-            this._queueRenderHandler = this._queueRender.bind(this);
+            this._queueRenderHandler = this.queueRender.bind(this);
             this._onImageLoadHandler = this._onImageLoad.bind(this)
 
             this._watch = editor.call('assets:cubemap:watch', {
@@ -37,10 +37,10 @@ Object.assign(pcui, (function () {
             // if the renderer is destroyed before the image is loaded
             // the canvas will be null so check here...
             if (!this._canvas) return;
-            this._queueRender();
+            this.queueRender();
         }
 
-        _queueRender() {
+        queueRender() {
             if (this._queuedRender) return;
             this._queuedRender = true;
             this._frameRequest = requestAnimationFrame(this.render.bind(this));
