@@ -693,3 +693,32 @@
         flex-basis: 128px;
     }
 }
+
+.pcui-asset-panel-users {
+    flex-direction: row;
+    position: absolute;
+    top: 0;
+    right: 0;
+    max-height: 65%;
+    overflow: hidden;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    pointer-events: none;
+}
+
+.pcui-asset-panel-users-indicator {
+    margin: $element-margin / 2;
+    width: 8px;
+    height: 8px;
+}
+
+.pcui-asset-panel .pcui-table {
+    .pcui-asset-panel-users {
+        max-height: initial;
+    }
+
+    .pcui-asset-panel-users-indicator {
+        width: 6px;
+        height: 6px;
+    }
+}

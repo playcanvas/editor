@@ -9,6 +9,9 @@ Object.assign(pcui, (function () {
     const CLASS_ASSET_GRID_ITEM = 'pcui-asset-grid-view-item';
     const CLASS_ASSET_SOURCE = CLASS_ASSET_GRID_ITEM + '-source';
 
+    const CLASS_USERS_CONTAINER = CLASS_ROOT + '-users';
+    const CLASS_USER_INDICATOR = CLASS_USERS_CONTAINER + '-indicator';
+
     const CLASS_CONTROLS = CLASS_ROOT + '-controls';
     const CLASS_PROGRESS = CLASS_ROOT + '-progress';
     const CLASS_GRID_SMALL = CLASS_ROOT + '-grid-view-small';
@@ -80,6 +83,10 @@ Object.assign(pcui, (function () {
         name: 'scripts',
         path: []
     });
+
+    function randomColor() {
+        return Math.floor(Math.random() * 16777215).toString(16);
+    }
 
     class AssetPanel extends pcui.Panel {
         constructor(args) {
@@ -309,8 +316,8 @@ Object.assign(pcui, (function () {
             this.viewMode = args.viewMode || AssetPanel.VIEW_LARGE_GRID;
 
             this._rowsIndex = {};
-
             this._gridIndex = {};
+            this._usersIndex = {};
 
             this._suspendFiltering = false;
 
@@ -325,6 +332,8 @@ Object.assign(pcui, (function () {
             this._eventsEditor.push(editor.on('selector:change', this._onSelectorChange.bind(this)));
             this._eventsEditor.push(editor.on('sourcefiles:add', this._onAddLegacyScript.bind(this)));
             this._eventsEditor.push(editor.on('sourcefiles:remove', this._onRemoveLegacyScript.bind(this)));
+            this._eventsEditor.push(editor.on('selector:sync', this._onSelectorSync.bind(this)));
+            this._eventsEditor.push(editor.on('whoisonline:remove', this._onWhoIsOnlineRemove.bind(this)));
 
             this._assetListEvents = [];
 
@@ -880,6 +889,22 @@ Object.assign(pcui, (function () {
             });
             cell.append(labelName);
 
+            const containerUsers = new pcui.Container({
+                class: CLASS_USERS_CONTAINER,
+                flex: true,
+                hidden: true
+            });
+            cell.append(containerUsers);
+            row.containerUsers = containerUsers;
+            containerUsers.on('append', () => {
+                containerUsers.hidden = false;
+            });
+            containerUsers.on('remove', () => {
+                if (containerUsers.dom.childNodes.length === 0) {
+                    containerUsers.hidden = true;
+                }
+            });
+
             // type
             cell = new pcui.TableCell();
             row.append(cell);
@@ -933,17 +958,20 @@ Object.assign(pcui, (function () {
 
         _applyFnToAssetElements(asset, fn) {
             const id = asset.get('id');
-            let element = this._gridIndex[id];
+
+            // do folders first so that they will not be focused
+            // when clicking the arrows in the grid view
+            let element = this._foldersIndex[id];
+            if (element) {
+                fn(element);
+            }
+
+            element = this._gridIndex[id];
             if (element) {
                 fn(element);
             }
 
             element = this._rowsIndex[id];
-            if (element) {
-                fn(element);
-            }
-
-            element = this._foldersIndex[id];
             if (element) {
                 fn(element);
             }
@@ -1009,28 +1037,50 @@ Object.assign(pcui, (function () {
                         id = asset.get('filename');
                     }
 
-                    const row = this._rowsIndex[id];
-                    if (row) {
-                        row.selected = true;
-                    }
-
-                    const gridItem = this._gridIndex[id];
-                    if (gridItem) {
-                        gridItem.selected = true;
-                    }
-
-                    if (asset.get('type') === 'folder') {
-                        const folder = this._foldersIndex[id];
-                        if (folder) {
-                            folder.selected = true;
-                        }
-                    }
+                    this._setAssetSelected(asset, true);
                 });
             } else {
                 this._btnDelete.enabled = false;
             }
 
             this._suspendSelectEvents = false;
+        }
+
+        _createUserIndicator(userEntry, container) {
+            const indicator = new pcui.Element(document.createElement('div'), {
+                class: CLASS_USER_INDICATOR
+            });
+            indicator.style.backgroundColor = userEntry.color;
+            container.append(indicator);
+            userEntry.elements.push(indicator);
+        }
+
+        _onSelectorSync(userId, data) {
+            let userEntry = this._usersIndex[userId];
+            if (userEntry) {
+                userEntry.elements.forEach(el => el.destroy());
+                delete this._usersIndex[userId];
+            }
+
+            if (data.type !== 'asset') return;
+
+            userEntry = {
+                elements: [],
+                color: editor.call('whoisonline:color', userId, 'hex') || randomColor()
+            };
+            this._usersIndex[userId] = userEntry;
+
+            data.ids.forEach(assetId => {
+                const gridItem = this._gridIndex[assetId];
+                if (gridItem) {
+                    this._createUserIndicator(userEntry, gridItem.containerUsers);
+                }
+
+                const row = this._rowsIndex[assetId];
+                if (row) {
+                    this._createUserIndicator(userEntry, row.containerUsers);
+                }
+            });
         }
 
         _onAddLegacyScript(script) {
@@ -1558,6 +1608,16 @@ Object.assign(pcui, (function () {
             return true;
         }
 
+        _onWhoIsOnlineRemove(userId) {
+            const userItem = this._usersIndex[userId];
+            if (!userItem) {
+                return;
+            }
+
+            userItem.elements.forEach(el => el.destroy());
+            delete this._usersIndex[userId];
+        }
+
         toggleDetailsView() {
             this._detailsView.hidden = !this._detailsView.hidden;
             this._gridView.hidden = !this._detailsView.hidden;
@@ -1884,11 +1944,26 @@ Object.assign(pcui, (function () {
 
             this.class.add(CLASS_ASSET_GRID_ITEM);
 
-            this._thumbnail = new pcui.AssetThumbnail({
+            this.thumbnail = new pcui.AssetThumbnail({
                 assets: args.assets
             });
 
-            this.prepend(this._thumbnail);
+            this.prepend(this.thumbnail);
+
+            this.containerUsers = new pcui.Container({
+                flex: true,
+                class: CLASS_USERS_CONTAINER,
+                hidden: true
+            });
+            this.append(this.containerUsers);
+            this.containerUsers.on('append', () => {
+                this.containerUsers.hidden = false;
+            });
+            this.containerUsers.on('remove', () => {
+                if (this.containerUsers.dom.childNodes.length === 0) {
+                    this.containerUsers.hidden = true;
+                }
+            });
 
             this.progress = new pcui.Progress({
                 value: 100,
@@ -1898,7 +1973,7 @@ Object.assign(pcui, (function () {
         }
 
         onResize() {
-            this._thumbnail.onResize();
+            this.thumbnail.onResize();
         }
 
         link(asset) {
@@ -1909,7 +1984,7 @@ Object.assign(pcui, (function () {
             // asset like the script folder for legacy scripts). Also
             // if the asset is missing from the asset list for some reason
             // we still want to show a valid icon for it and not a 'missing' icon.
-            this._thumbnail.value = asset;
+            this.thumbnail.value = asset;
             if (asset.get('source')) {
                 this.class.add(CLASS_ASSET_SOURCE);
             }
@@ -1917,7 +1992,7 @@ Object.assign(pcui, (function () {
 
         unlink() {
             super.unlink();
-            this._thumbnail.value = null;
+            this.thumbnail.value = null;
             this.class.remove(CLASS_ASSET_SOURCE);
         }
     }
