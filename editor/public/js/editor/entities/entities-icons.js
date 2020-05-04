@@ -99,6 +99,7 @@ editor.once('load', function() {
         this.behind.model.model.meshInstances[0].pick = false;
 
         iconsEntity.addChild(this.entity);
+        console.log(this);
     };
 
     Icon.prototype.entityDelete = function() {
@@ -111,7 +112,7 @@ editor.once('load', function() {
         this.behind = null;
     };
 
-    Icon.prototype.update = function() {
+    Icon.prototype.update = function(dt) {
         if (! this._link || ! this._link.entity)
             return;
 
@@ -137,6 +138,13 @@ editor.once('load', function() {
 
         // hide icon if model is set
         if (this._link.has('components.model') && this._link.get('components.model.enabled') && (this._link.get('components.model.type') !== 'asset' || this._link.get('components.model.asset'))) {
+            if (this.entity)
+                this.entityDelete();
+            return;
+        }
+
+        // hide icon if element is set
+        if (this._link.has('components.element') && this._link.get('components.element.enabled')) {
             if (this.entity)
                 this.entityDelete();
             return;
