@@ -111,7 +111,7 @@ editor.once('load', function() {
         this.behind = null;
     };
 
-    Icon.prototype.update = function(dt) {
+    Icon.prototype.update = function() {
         if (! this._link || ! this._link.entity)
             return;
 
