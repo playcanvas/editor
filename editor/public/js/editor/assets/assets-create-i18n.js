@@ -24,7 +24,7 @@ editor.once('load', function () {
 
         var filename = 'Localization.json';
 
-        var defaultAssetPreload = editor.call('settings:project').get('defaultAssetPreload');
+        var defaultAssetPreload = editor.call('settings:projectUser').get('editor.pipeline.defaultAssetPreload');;
 
         var asset = {
             name: filename,

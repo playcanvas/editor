@@ -7,7 +7,7 @@ editor.once('load', function() {
 
         args = args || { };
 
-        var defaultAssetPreload = editor.call('settings:project').get('defaultAssetPreload');
+        var defaultAssetPreload = editor.call('settings:projectUser').get('editor.pipeline.defaultAssetPreload');;
 
         var asset = {
             name: 'New Json',

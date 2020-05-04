@@ -9,7 +9,7 @@ editor.once('load', function() {
 
         var data = editor.call('schema:material:getDefaultData');
 
-        var defaultAssetPreload = editor.call('settings:project').get('defaultAssetPreload');
+        var defaultAssetPreload = editor.call('settings:projectUser').get('editor.pipeline.defaultAssetPreload');;
 
         var asset = {
             name: 'New Material',

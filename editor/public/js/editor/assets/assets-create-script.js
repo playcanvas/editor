@@ -60,7 +60,7 @@ editor.once('load', function() {
             args.content = scriptBoilerplate.replace(/\{className\}/g, className).replace(/\{scriptName\}/g, scriptName);
         }
 
-        var defaultAssetPreload = editor.call('settings:project').get('defaultAssetPreload');
+        var defaultAssetPreload = editor.call('settings:projectUser').get('editor.pipeline.defaultAssetPreload');;
 
         var asset = {
             name: filename,

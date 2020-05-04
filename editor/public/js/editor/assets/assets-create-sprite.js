@@ -14,7 +14,7 @@ editor.once('load', function() {
             renderMode: args.renderMode !== undefined ? args.renderMode : 0
         };
 
-        var defaultAssetPreload = editor.call('settings:project').get('defaultAssetPreload');
+        var defaultAssetPreload = editor.call('settings:projectUser').get('editor.pipeline.defaultAssetPreload');;
 
         var asset = {
             name: args.name !== undefined ? args.name : 'New Sprite',

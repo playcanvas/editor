@@ -70,11 +70,11 @@ Object.assign(pcui, (function () {
             path: 'editor.pipeline.useGlb'
         },
         {
-            observer: 'projectSettings',
+            observer: 'settings',
             label: 'Assets default to preload',
             type: 'boolean',
             alias: 'asset-tasks:defaultAssetPreload',
-            path: 'defaultAssetPreload'
+            path: 'editor.pipeline.defaultAssetPreload'
         }
     ];
 
