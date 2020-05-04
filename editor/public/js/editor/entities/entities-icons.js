@@ -99,7 +99,6 @@ editor.once('load', function() {
         this.behind.model.model.meshInstances[0].pick = false;
 
         iconsEntity.addChild(this.entity);
-        console.log(this);
     };
 
     Icon.prototype.entityDelete = function() {
