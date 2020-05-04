@@ -61,13 +61,20 @@ Object.assign(pcui, (function () {
             type: 'boolean',
             alias: 'asset-tasks:overwrite.texture',
             path: 'editor.pipeline.overwriteTexture'
-        }
-        ,{
+        },
+        {
             observer: 'settings',
             label: 'Convert to GLB',
             type: 'boolean',
             alias: 'asset-tasks:useGlb',
             path: 'editor.pipeline.useGlb'
+        },
+        {
+            observer: 'projectSettings',
+            label: 'Assets default to preload',
+            type: 'boolean',
+            alias: 'asset-tasks:defaultAssetPreload',
+            path: 'defaultAssetPreload'
         }
     ];
 

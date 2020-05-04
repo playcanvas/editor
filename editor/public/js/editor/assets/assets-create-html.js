@@ -7,11 +7,13 @@ editor.once('load', function() {
 
         args = args || { };
 
+        var defaultAssetPreload = editor.call('settings:project').get('defaultAssetPreload');
+
         var asset = {
             name: 'New Html',
             type: 'html',
             source: false,
-            preload: true,
+            preload: defaultAssetPreload,
             parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             filename: 'asset.html',
             file: new Blob([ '\n' ], { type: 'text/html' }),

@@ -14,11 +14,13 @@ editor.once('load', function() {
             renderMode: args.renderMode !== undefined ? args.renderMode : 0
         };
 
+        var defaultAssetPreload = editor.call('settings:project').get('defaultAssetPreload');
+
         var asset = {
             name: args.name !== undefined ? args.name : 'New Sprite',
             type: 'sprite',
             source: false,
-            preload: true,
+            preload: defaultAssetPreload,
             data: data,
             parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             scope: {
