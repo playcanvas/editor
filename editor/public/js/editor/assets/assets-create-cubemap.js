@@ -7,11 +7,13 @@ editor.once('load', function() {
 
         args = args || { };
 
+        var defaultAssetPreload = editor.call('settings:projectUser').get('editor.pipeline.defaultAssetPreload');;
+
         var asset = {
             name: 'New Cubemap',
             type: 'cubemap',
             source: false,
-            preload: true,
+            preload: defaultAssetPreload,
             parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             data: {
                 name: 'New Cubemap',

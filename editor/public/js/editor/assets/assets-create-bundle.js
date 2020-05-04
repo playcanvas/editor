@@ -7,11 +7,13 @@ editor.once('load', function() {
 
         args = args || { };
 
+        var defaultAssetPreload = editor.call('settings:projectUser').get('editor.pipeline.defaultAssetPreload');
+
         var asset = {
             name: 'New Bundle',
             type: 'bundle',
             source: false,
-            preload: true,
+            preload: defaultAssetPreload,
             data: {
                 assets: []
             },
