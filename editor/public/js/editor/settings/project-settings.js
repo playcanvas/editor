@@ -26,8 +26,7 @@ editor.once('load', function () {
         'layers',
         'layerOrder',
         'i18nAssets',
-        'useLegacyAmmoPhysics',
-        'defaultAssetPreload'
+        'useLegacyAmmoPhysics'
     ];
 
     var data = {};
@@ -208,10 +207,6 @@ editor.once('load', function () {
 
         if (!settings.get('externalScripts')) {
             settings.set('externalScripts', []);
-        }
-
-        if (settings.get('defaultAssetPreload') === null) {
-            settings.set('defaultAssetPreload', true);
         }
 
         settings.history.enabled = history;

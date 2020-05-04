@@ -33,6 +33,7 @@ editor.once('load', function () {
                     overwriteMaterial: false,
                     overwriteTexture: true,
                     useGlb: false,
+                    defaultAssetPreload: true
                 }
             },
             branch: config.self.branch.id,
@@ -97,6 +98,10 @@ editor.once('load', function () {
 
             if (!settings.has('editor.pipeline.useGlb')) {
                 settings.set('editor.pipeline.useGlb', false);
+            }
+
+            if (!settings.has('editor.pipeline.defaultAssetPreload')) {
+                settings.set('editor.pipeline.defaultAssetPreload', true);
             }
 
             settings.history.enabled = history;
