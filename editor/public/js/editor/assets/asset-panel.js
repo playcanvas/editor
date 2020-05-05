@@ -285,20 +285,24 @@ Object.assign(pcui, (function () {
                     title: 'Name',
                     width: '40%',
                     minWidth: 100,
+                    sortKey: 'name',
                     sortFn: this._sortByName.bind(this)
                 }, {
                     title: 'Type',
                     width: '25%',
                     minWidth: 70,
+                    sortKey: 'type',
                     sortFn: this._sortByType.bind(this)
                 }, {
                     title: 'Size',
                     width: '10%',
                     minWidth: 60,
+                    sortKey: 'file.size',
                     sortFn: this._sortByFileSize.bind(this)
                 }],
                 defaultSortColumn: 0,
                 createRowFn: this._createDetailsViewRow.bind(this),
+                getRowFn: this._getDetailsViewRow.bind(this),
                 filterFn: this._filterAssetElement.bind(this)
             });
             this.append(this._detailsView);
@@ -947,6 +951,10 @@ Object.assign(pcui, (function () {
             this._setElementTaskStatus(row, asset);
 
             return row;
+        }
+
+        _getDetailsViewRow(asset) {
+            return this._rowsIndex[asset.get('id')];
         }
 
         _applyFnToAssetElements(asset, fn) {

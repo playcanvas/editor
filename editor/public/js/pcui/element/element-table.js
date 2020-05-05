@@ -36,6 +36,7 @@ Object.assign(pcui, (function () {
             this._containerTable.append(this._containerBody);
 
             this._createRowFn = args.createRowFn;
+            this._getRowFn = args.getRowFn;
             this._filterFn = args.filterFn;
             this._filterCanceled = false;
             this._filterAnimationFrame = null;
@@ -113,7 +114,7 @@ Object.assign(pcui, (function () {
                     cell.append(label);
 
                     // sort observers when clicking on header cell
-                    cell.on('click', () => this._onColumnHeaderClick(column));
+                    cell.on('click', () => this.sortByColumnIndex(colIndex));
 
                     headRow.append(cell);
                 });
@@ -129,34 +130,6 @@ Object.assign(pcui, (function () {
                 const row = this._createRow(observer);
                 this.body.append(row);
             });
-        }
-
-        _onColumnHeaderClick(column) {
-            if (this._draggedColumn !== null) {
-                return;
-            }
-
-            if (!column.sortKey && !column.sortFn) {
-                return;
-            }
-
-            if (column.sortKey) {
-                this._sort.fn = null;
-                if (this._sort.key === column.sortKey) {
-                    this._sort.ascending = !this._sort.ascending;
-                } else {
-                    this._sort.key = column.sortKey;
-                }
-            } else if (column.sortFn) {
-                this._sort.key = null;
-                if (this._sort.fn === column.sortFn) {
-                    this._sort.ascending = !this._sort.ascending;
-                } else {
-                    this._sort.fn = column.sortFn;
-                }
-            }
-
-            this._refreshLayout();
         }
 
         _createRow(observer) {
@@ -338,9 +311,9 @@ Object.assign(pcui, (function () {
                         cell.class.add(CLASS_CELL_ACTIVE);
                     });
 
-                    this._forEachColumnCell(this._containerBody, colIndex, cell => {
-                        cell.class.add(CLASS_CELL_ACTIVE);
-                    });
+                    // this._forEachColumnCell(this._containerBody, colIndex, cell => {
+                    //     cell.class.add(CLASS_CELL_ACTIVE);
+                    // });
                 }
             });
 
@@ -350,9 +323,9 @@ Object.assign(pcui, (function () {
                         cell.class.remove(CLASS_CELL_ACTIVE);
                     });
 
-                    this._forEachColumnCell(this._containerBody, colIndex, cell => {
-                        cell.class.remove(CLASS_CELL_ACTIVE);
-                    });
+                    // this._forEachColumnCell(this._containerBody, colIndex, cell => {
+                    //     cell.class.remove(CLASS_CELL_ACTIVE);
+                    // });
                 }
             });
 
@@ -367,19 +340,12 @@ Object.assign(pcui, (function () {
             };
 
             const onMouseMove = (evt) => {
+                evt.stopPropagation();
+
                 const column = this._columns[colIndex];
                 const newWidth = Math.max(width + evt.pageX - pageX, column.minWidth || 2);
                 this._columns[colIndex].width = newWidth;
-
-                if (colIndex === this._columns.length - 1) {
-                    if (this._containerTable.width < 914 && newWidth < cell.width) {
-                        cell.width = '100%';
-                    } else {
-                        cell.width = newWidth;
-                    }
-                } else {
-                    cell.width = newWidth;
-                }
+                cell.width = newWidth;
             };
 
             const onMouseDown = (evt) => {
@@ -400,7 +366,8 @@ Object.assign(pcui, (function () {
                 }
 
                 pageX = evt.pageX;
-                width = cell.width;
+                // width = cell.width;
+                width = this._columns[colIndex].width;
 
                 window.addEventListener('mouseup', onMouseUp, true);
                 window.addEventListener('mousemove', onMouseMove, true);
@@ -412,9 +379,9 @@ Object.assign(pcui, (function () {
                     cell.class.remove(CLASS_CELL_ACTIVE);
                 });
 
-                this._forEachColumnCell(this._containerBody, colIndex, cell => {
-                    cell.class.remove(CLASS_CELL_ACTIVE);
-                });
+                // this._forEachColumnCell(this._containerBody, colIndex, cell => {
+                //     cell.class.remove(CLASS_CELL_ACTIVE);
+                // });
 
                 requestAnimationFrame(() => {
                     this._draggedColumn = null;
@@ -588,24 +555,81 @@ Object.assign(pcui, (function () {
             const index = this._observers.indexOf(observer);
             if (index === -1) return;
 
-            let row = this.body.dom.childNodes[index];
-            if (!row || !row.ui) return;
+            let row = null;
+            if (this._getRowFn) {
+                row = this._getRowFn(observer);
+            } else {
+                row = this.body.dom.childNodes[index];
+                if (row) {
+                    row = row.ui;
+                }
+            }
 
-            row = row.ui;
+            if (!row) return;
 
             this._sortObservers();
 
             const newIndex = this._observers.indexOf(observer);
             if (newIndex === index) return;
 
-            this.body.remove(row);
-            this.body.appendBefore(row, this.body.dom.childNodes[newIndex]);
+            this.body.dom.insertBefore(row.dom, this.body.dom.childNodes[newIndex]);
         }
 
         sortByColumnIndex(index) {
-            const col = this._columns[index];
-            if (col) {
-                this._onColumnHeaderClick(col);
+            const column = this._columns[index];
+            if (!column) return;
+
+            if (this._draggedColumn !== null) {
+                return;
+            }
+
+            if (!column.sortKey && !column.sortFn) {
+                return;
+            }
+
+            // toggle ascending
+            if (column.sortKey && this._sort.sortKey === column.sortKey ||
+                column.sortFn && this._sort.fn === column.sortFn) {
+                this._sort.ascending = !this._sort.ascending;
+            }
+
+            this._sort.key = column.sortKey;
+            this._sort.fn = column.sortFn;
+
+            if (this._getRowFn && this._observers) {
+                const colIndex = this._columns.indexOf(column);
+                this._forEachRowCell(this._containerHead, 0, (cell, index) => {
+                    if (index === colIndex) {
+                        cell.class.add(CLASS_SORT_CELL);
+                        if (!this._sort.ascending) {
+                            cell.class.add(CLASS_SORT_CELL_DESCENDING);
+                        } else {
+                            cell.class.remove(CLASS_SORT_CELL_DESCENDING);
+                        }
+                    } else {
+                        cell.class.remove(CLASS_SORT_CELL);
+                        cell.class.remove(CLASS_SORT_CELL_DESCENDING);
+                    }
+                });
+
+                requestAnimationFrame(() => {
+                    this._sortObservers();
+
+                    this._observers.forEach((observer, index) => {
+                        const row = this._getRowFn(observer);
+                        if (row) {
+                            const rowSiblings = row.parent.dom.childNodes;
+                            if (rowSiblings[index] !== row.dom) {
+                                row.parent.dom.insertBefore(row.dom, rowSiblings[index]);
+                            }
+                        }
+                    });
+                });
+
+            } else {
+                requestAnimationFrame(() => {
+                    this._refreshLayout();
+                });
             }
         }
 
