@@ -37,6 +37,8 @@ Object.assign(pcui, (function () {
 
             this._createRowFn = args.createRowFn;
             this._filterFn = args.filterFn;
+            this._filterCanceled = false;
+            this._filterAnimationFrame = null;
 
             this._sort = {
                 ascending: true,
@@ -465,11 +467,65 @@ Object.assign(pcui, (function () {
         }
 
         filter() {
-            this._containerBody.forEachChild(row => {
+            const children = this._containerBody.dom.childNodes;
+            const len = children.length;
+
+            for (let i = 0; i < len; i++) {
+                const row = children[i].ui;
                 if (row instanceof pcui.TableRow) {
                     row.hidden = this._filterFn && !this._filterFn(row);
                 }
-            });
+            }
+        }
+
+        filterAsync() {
+            let i = 0;
+            const children = this._containerBody.dom.childNodes;
+            const len = children.length;
+
+            this._filterCanceled = false;
+
+            this.emit('filter:start');
+
+            const next = () => {
+                this._filterAnimationFrame = null;
+                let visible = 0;
+                for (; i < len && visible < 100; i++) {
+                    if (this._filterCanceled) {
+                        this._filterCanceled = false;
+                        this.emit('filter:cancel');
+                        return;
+                    }
+
+                    const row = children[i].ui;
+                    if (row instanceof pcui.TableRow) {
+                        if (this._filterFn && !this._filterFn(row)) {
+                            row.hidden = true;
+                        } else {
+                            row.hidden = false;
+                            visible++;
+                        }
+                    }
+                }
+
+                if (i < len) {
+                    this.emit('filter:delay');
+                    this._filterAnimationFrame = requestAnimationFrame(next);
+                } else {
+                    this.emit('filter:end');
+                }
+            };
+
+            next();
+        }
+
+        filterAsyncCancel() {
+            if (this._filterAnimationFrame) {
+                cancelAnimationFrame(this._filterAnimationFrame);
+                this._filterAnimationFrame = null;
+            } else {
+                this._filterCanceled = true;
+            }
         }
 
         link(observers) {
@@ -487,6 +543,11 @@ Object.assign(pcui, (function () {
             this.deselect();
 
             this._observers = null;
+
+            if (this._filterAnimationFrame) {
+                cancelAnimationFrame(this._filterAnimationFrame);
+                this._filterAnimationFrame = null;
+            }
 
             this.head.clear();
             this.body.clear();
@@ -583,18 +644,6 @@ Object.assign(pcui, (function () {
                 }
             });
             return selected;
-        }
-
-        get filterFn() {
-            return this._filterFn;
-        }
-
-        set filterFn(value) {
-            if (this._filterFn === value) return;
-
-            this._filterFn = value;
-
-            this._refreshLayout();
         }
 
         get sortKey() {

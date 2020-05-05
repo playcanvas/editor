@@ -357,7 +357,7 @@
         }
 
         > .pcui-gridview {
-            width: 100%;
+            flex: 1;
             background-color: $bcg-dark;
             border-left: 1px solid $border-primary;
             border-top: 1px solid $border-primary;
@@ -528,7 +528,7 @@
         }
 
         > .pcui-gridview-item-text {
-            max-width: 60px;
+            max-width: 100%;
         }
 
     }
@@ -684,6 +684,7 @@
 
 .pcui-asset-panel-progress {
     flex: 1;
+    flex-basis: 100%;
     align-items: center;
     justify-content: center;
     flex-direction: row;

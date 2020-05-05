@@ -26,6 +26,9 @@ Object.assign(pcui, (function () {
          * Creates a new pcui.AssetThumbnail.
          * @param {Object} args The arguments
          * @param {ObserverList} args.assets The assets list
+         * @param {Observer} [args.sceneSettings] The scene settings
+         * @param {Number} [args.canvasWidth] Fixed width for the canvas. Increases performance but uses same canvas resolution every time.
+         * @param {Number} [args.canvasHeight] Fixed height for the canvas. Increases performance but uses same canvas resolution every time.
          */
         constructor(args) {
             if (!args) args = {};
@@ -48,6 +51,12 @@ Object.assign(pcui, (function () {
 
             this._previousAssetType = null;
 
+            if (args.canvasWidth) {
+                this._canvasWidth = args.canvasWidth;
+            }
+            if (args.canvasHeight) {
+                this._canvasHeight = args.canvasHeight;
+            }
             this.value = args.value || null;
 
             this.renderChanges = args.renderChanges || false;
@@ -122,9 +131,12 @@ Object.assign(pcui, (function () {
                 this._renderCanvasTimeout = null;
             }
 
+            this._destroyImage();
+            this._createCanvas();
+
             if (this.hiddenToRoot || this._destroyed) return;
 
-            if (!this.width || !this.height) {
+            if (!this._canvasWidth && !this.width || !this._canvasHeight && !this.height) {
                 this._renderCanvasTimeout = setTimeout(() => {
                     this._renderCanvasThumbnailWhenReady(asset);
                 });
@@ -135,6 +147,11 @@ Object.assign(pcui, (function () {
         }
 
         _renderCanvasThumbnail(asset) {
+            if (this._renderCanvasTimeout) {
+                clearTimeout(this._renderCanvasTimeout);
+                this._renderCanvasTimeout = null;
+            }
+
             this._destroyImage();
             this._createCanvas();
 
@@ -162,6 +179,7 @@ Object.assign(pcui, (function () {
                     this._canvasRenderer = new pcui.SpriteThumbnailRenderer(asset, this._domCanvas, this._assets);
                     break;
             }
+
 
             this._canvasRenderer.queueRender();
 
@@ -191,17 +209,24 @@ Object.assign(pcui, (function () {
         }
 
         _createCanvas() {
-            let dirtyCanvas = false;
+            let appendCanvas = false;
+
+            const width = this._canvasWidth || this.width || 64;
+            const height = this._canvasHeight || this.height || 64;
 
             if (!this._domCanvas) {
                 this._domCanvas = document.createElement('canvas');
-                dirtyCanvas = true;
+                appendCanvas = true;
             }
 
-            this._domCanvas.width = this.width;
-            this._domCanvas.height = this.height;
+            if (this._domCanvas.width !== width) {
+                this._domCanvas.width = width;
+            }
+            if (this._domCanvas.height !== height) {
+                this._domCanvas.height = height;
+            }
 
-            if (dirtyCanvas) {
+            if (appendCanvas) {
                 this.dom.appendChild(this._domCanvas);
             }
         }

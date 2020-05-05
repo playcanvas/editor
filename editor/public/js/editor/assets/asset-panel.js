@@ -311,8 +311,6 @@ Object.assign(pcui, (function () {
             });
             this.append(this._gridView);
 
-            this._refreshViewButtonsTimeout = null;
-
             this.viewMode = args.viewMode || AssetPanel.VIEW_LARGE_GRID;
 
             this._rowsIndex = {};
@@ -324,11 +322,9 @@ Object.assign(pcui, (function () {
             this._suspendSelectEvents = false;
             this._detailsView.on('select', this._onSelectAssetElement.bind(this));
             this._detailsView.on('deselect', this._onDeselectAssetElement.bind(this));
-            this._detailsView.on('show', this._onShowDetailsView.bind(this));
 
             this._gridView.on('select', this._onSelectAssetElement.bind(this));
             this._gridView.on('deselect', this._onDeselectAssetElement.bind(this));
-            this._gridView.on('show', this._onShowGridView.bind(this));
 
             this._eventsEditor = [];
             this._eventsEditor.push(editor.on('selector:change', this._onSelectorChange.bind(this)));
@@ -484,23 +480,17 @@ Object.assign(pcui, (function () {
         }
 
         _refreshViewButtons() {
-            if (this._refreshViewButtonsTimeout) return;
+            this._btnLargeGrid.class.remove(CLASS_BTN_ACTIVE);
+            this._btnSmallGrid.class.remove(CLASS_BTN_ACTIVE);
+            this._btnDetailsView.class.remove(CLASS_BTN_ACTIVE);
 
-            this._refreshViewButtonsTimeout = requestAnimationFrame(() => {
-                this._refreshViewButtonsTimeout = null;
-
-                this._btnLargeGrid.class.remove(CLASS_BTN_ACTIVE);
-                this._btnSmallGrid.class.remove(CLASS_BTN_ACTIVE);
-                this._btnDetailsView.class.remove(CLASS_BTN_ACTIVE);
-
-                if (this._viewMode === AssetPanel.VIEW_DETAILS) {
-                    this._btnDetailsView.class.add(CLASS_BTN_ACTIVE);
-                } else if (this._viewMode === AssetPanel.VIEW_SMALL_GRID) {
-                    this._btnSmallGrid.class.add(CLASS_BTN_ACTIVE);
-                } else {
-                    this._btnLargeGrid.class.add(CLASS_BTN_ACTIVE);
-                }
-            });
+            if (this._viewMode === AssetPanel.VIEW_DETAILS) {
+                this._btnDetailsView.class.add(CLASS_BTN_ACTIVE);
+            } else if (this._viewMode === AssetPanel.VIEW_SMALL_GRID) {
+                this._btnSmallGrid.class.add(CLASS_BTN_ACTIVE);
+            } else {
+                this._btnLargeGrid.class.add(CLASS_BTN_ACTIVE);
+            }
         }
 
         _onAssetDblClick(evt, asset) {
@@ -865,9 +855,10 @@ Object.assign(pcui, (function () {
             // thumb
             const thumb = new pcui.AssetThumbnail({
                 assets: this._assets,
-                value: asset
+                value: asset,
+                canvasWidth: 16,
+                canvasHeight: 16
             });
-
             cell.append(thumb);
 
             // spinner for running task
@@ -1634,28 +1625,66 @@ Object.assign(pcui, (function () {
             }
         }
 
-        _onShowGridView() {
-            this.filter();
-        }
-
-        _onShowDetailsView() {
-            this.filter();
-        }
-
         toggleDetailsView() {
             this._detailsView.hidden = !this._detailsView.hidden;
             this._gridView.hidden = !this._detailsView.hidden;
         }
 
+        _filterView(view) {
+            view.hidden = false;
+            this._containerProgress.hidden = true;
+
+            view.filterAsyncCancel();
+
+            let evtDelay, evtCancel, evtEnd;
+
+            evtDelay = view.once('filter:delay', () => {
+                evtDelay = null;
+                this._containerProgress.hidden = false;
+            });
+
+            evtEnd = view.once('filter:end', () => {
+                if (evtDelay) {
+                    evtDelay.unbind();
+                    evtDelay = null;
+                }
+
+                if (evtCancel) {
+                    evtCancel.unbind();
+                    evtCancel = null;
+                }
+
+                this._containerProgress.hidden = true;
+            });
+
+            evtCancel = view.once('filter:cancel', () => {
+                if (evtDelay) {
+                    evtDelay.unbind();
+                    evtDelay = null;
+                }
+
+                if (evtEnd) {
+                    evtEnd.unbind();
+                    evtEnd = null;
+                }
+            });
+
+            view.filterAsync();
+        }
+
         filter() {
             if (!this._assets) return;
 
-            if (!this._detailsView.hidden) {
-                this._detailsView.filter();
-            }
+            if (this.viewMode === AssetPanel.VIEW_DETAILS) {
+                this._gridView.hidden = true;
+                this._gridView.filterAsyncCancel();
 
-            if (!this._gridView.hidden) {
-                this._gridView.filter();
+                this._filterView(this._detailsView);
+            } else {
+                this._detailsView.hidden = true;
+                this._detailsView.filterAsyncCancel();
+
+                this._filterView(this._gridView);
             }
         }
 
@@ -1667,11 +1696,6 @@ Object.assign(pcui, (function () {
 
         destroy() {
             if (this._destroyed) return;
-
-            if (this._refreshViewButtonsTimeout) {
-                cancelAnimationFrame(this._refreshViewButtonsTimeout);
-                this._refreshViewButtonsTimeout = null;
-            }
 
             this._legacyScriptsIndex = {};
 
@@ -1738,6 +1762,8 @@ Object.assign(pcui, (function () {
             this._assetListEvents.push(this._assets.on('move', (asset, index) => {
                 this._moveAsset(asset, index);
             }));
+
+            this.filter();
         }
 
         get currentFolder() {
@@ -1839,29 +1865,25 @@ Object.assign(pcui, (function () {
 
             this._viewMode = value;
 
+            this._refreshViewButtons();
+
             if (this._progressBar.value < 100) {
                 this._containerProgress.hidden = false;
                 this._detailsView.hidden = true;
                 this._gridView.hidden = true;
             } else {
-                this._containerProgress.hidden = true;
-                this._detailsView.hidden = (value !== AssetPanel.VIEW_DETAILS);
-                this._gridView.hidden = !this._detailsView.hidden;
-                if (!this._gridView.hidden) {
-                    if (value === AssetPanel.VIEW_SMALL_GRID) {
-                        this._gridView.class.add(CLASS_GRID_SMALL);
-                    } else {
-                        this._gridView.class.remove(CLASS_GRID_SMALL);
-                    }
+                this.filter();
 
-                    // re-render grid view thumbnails because their size changed
-                    for (const key in this._gridIndex) {
-                        this._gridIndex[key].onResize();
+                if (value === AssetPanel.VIEW_SMALL_GRID) {
+                    if (!this._gridView.class.contains(CLASS_GRID_SMALL)) {
+                        this._gridView.class.add(CLASS_GRID_SMALL);
+                    }
+                } else {
+                    if (this._gridView.class.contains(CLASS_GRID_SMALL)) {
+                        this._gridView.class.remove(CLASS_GRID_SMALL);
                     }
                 }
             }
-
-            this._refreshViewButtons();
 
             this.emit('viewMode', value);
         }
@@ -1976,7 +1998,9 @@ Object.assign(pcui, (function () {
             this.class.add(CLASS_ASSET_GRID_ITEM);
 
             this.thumbnail = new pcui.AssetThumbnail({
-                assets: args.assets
+                assets: args.assets,
+                canvasWidth: 64,
+                canvasHeight: 64
             });
 
             this.prepend(this.thumbnail);
@@ -2001,10 +2025,6 @@ Object.assign(pcui, (function () {
                 hidden: Math.random() < 0.3
             });
             this.append(this.progress);
-        }
-
-        onResize() {
-            this.thumbnail.onResize();
         }
 
         link(asset) {

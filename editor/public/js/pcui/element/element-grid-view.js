@@ -14,7 +14,9 @@ Object.assign(pcui, (function () {
             this.on('append', this._onAppendGridViewItem.bind(this));
             this.on('remove', this._onRemoveGridViewItem.bind(this));
 
-            this.filterFn = args.filterFn;
+            this._filterFn = args.filterFn;
+            this._filterAnimationFrame = null;
+            this._filterCanceled = false;
 
             this._selected = [];
         }
@@ -124,20 +126,69 @@ Object.assign(pcui, (function () {
             });
         }
 
+        filterAsync() {
+            let i = 0;
+            const children = this.dom.childNodes;
+            const len = children.length;
+
+            this.emit('filter:start');
+
+            this._filterCanceled = false;
+
+            const next = () => {
+                this._filterAnimationFrame = null;
+                let visible = 0;
+                for (; i < len && visible < 100; i++) {
+                    if (this._filterCanceled) {
+                        this._filterCanceled = false;
+                        this.emit('filter:cancel');
+                        return;
+                    }
+
+                    const child = children[i].ui;
+                    if (child instanceof pcui.GridViewItem) {
+                        if (this._filterFn && !this._filterFn(child)) {
+                            child.hidden = true;
+                        } else {
+                            child.hidden = false;
+                            visible++;
+                        }
+                    }
+                }
+
+                if (i < len) {
+                    this.emit('filter:delay');
+                    this._filterAnimationFrame = requestAnimationFrame(next);
+                } else {
+                    this.emit('filter:end');
+                }
+            };
+
+            next();
+        }
+
+        filterAsyncCancel() {
+            if (this._filterAnimationFrame) {
+                cancelAnimationFrame(this._filterAnimationFrame);
+                this._filterAnimationFrame = null;
+            } else {
+                this._filterCanceled = true;
+            }
+        }
+
+        destroy() {
+            if (this._destroyed) return;
+
+            if (this._filterAnimationFrame) {
+                cancelAnimationFrame(this._filterAnimationFrame);
+                this._filterAnimationFrame = null;
+            }
+
+            super.destroy();
+        }
+
         get selected() {
             return this._selected.slice();
-        }
-
-        get filterFn() {
-            return this._filterFn;
-        }
-
-        set filterFn(value) {
-            if (this._filterFn === value) return;
-
-            this._filterFn = value;
-
-            this.filter();
         }
     }
 
