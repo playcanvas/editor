@@ -35,9 +35,14 @@ Object.assign(pcui, (function () {
 
             // make sure canvas is the same size as the container element
             // 20 times a second
-            this._resizeInterval = setInterval(() => {
-                this._canvas.resize(this.width, this.height);
-            }, 1000 / 20);
+            this.on('showToRoot', () => {
+                this._clearResizeInterval();
+                this._createResizeInterval();
+            });
+
+            this.on('hideToRoot', () => {
+                this._clearResizeInterval();
+            });
 
             this._pickerChanging = false;
             this._combineHistory = false;
@@ -95,6 +100,19 @@ Object.assign(pcui, (function () {
                 curves: args.curves,
                 hideRandomize: args.hideRandomize
             };
+        }
+
+        _createResizeInterval() {
+            this._resizeInterval = setInterval(() => {
+                this._canvas.resize(this.width, this.height);
+            }, 1000 / 20);
+        }
+
+        _clearResizeInterval() {
+            if (this._resizeInterval) {
+                clearInterval(this._resizeInterval);
+                this._resizeInterval = null;
+            }
         }
 
         _onKeyDown(evt) {
@@ -377,8 +395,7 @@ Object.assign(pcui, (function () {
             this.dom.removeEventListener('focus', this._domEventFocus);
             this.dom.removeEventListener('blur', this._domEventBlur);
 
-            clearInterval(this._resizeInterval);
-            this._resizeInterval = null;
+            this._clearResizeInterval();
 
             super.destroy();
         }
