@@ -27,6 +27,7 @@ Object.assign(pcui, (function () {
 
     const CLASS_LEGACY_SCRIPTS_FOLDER = CLASS_ROOT + '-legacy-scripts';
 
+    // asset types (used for filtering)
     const TYPES = {
         all: 'All',
         animation: 'Animation',
@@ -54,6 +55,7 @@ Object.assign(pcui, (function () {
         textureatlasSource: 'Texture Atlas (source)'
     };
 
+    // types of assets that can be double clicked
     const DBL_CLICKABLES = {
         folder: true,
         css: true,
@@ -66,16 +68,21 @@ Object.assign(pcui, (function () {
         textureatlas: true
     };
 
+    // types of assets that we can drop stuff over
     const HOVERABLES = {
         folder: true,
         bundle: true
     };
 
+    // regex to parse asset tags in search input
     const REGEX_TAGS = /^\[(.*)\]$/;
+    // regex to parse asset sub-tags in search input
     const REGEX_SUB_TAGS = /\[(.*?)\]/g;
 
+    // id of fake asset for legacy scripts folder
     const LEGACY_SCRIPTS_ID = 'legacyScripts';
 
+    // used as a fake asset to represent the legacy scripts folder
     const LEGACY_SCRIPTS_FOLDER_ASSET = new Observer({
         id: LEGACY_SCRIPTS_ID,
         type: 'folder',
@@ -84,10 +91,18 @@ Object.assign(pcui, (function () {
         path: []
     });
 
+    // returns a random hex color
     function randomColor() {
         return Math.floor(Math.random() * 16777215).toString(16);
     }
 
+    /**
+     * @name pcui.AssetPanel
+     * @classdesc Shows assets in various ways. Supports a grid view with large or
+     * small thumbnails and a details view. Also shows the project's folders in a treeview
+     * on the left. Allows filtering of assets by type and by searching in various ways. Allows
+     * creating new assets and moving assets to different folders.
+     */
     class AssetPanel extends pcui.Panel {
         constructor(args) {
             args = Object.assign({
@@ -112,6 +127,8 @@ Object.assign(pcui, (function () {
             this._containerControls.on('click', evt => evt.stopPropagation());
 
             // header controls
+
+            // button to create new asset
             this._btnNew = new pcui.Button({
                 icon: 'E120',
                 enabled: false,
@@ -120,6 +137,7 @@ Object.assign(pcui, (function () {
             this._btnNew.on('click', this._onClickNew.bind(this));
             this._containerControls.append(this._btnNew);
 
+            // button to delete asset
             this._btnDelete = new pcui.Button({
                 icon: 'E124',
                 enabled: false,
@@ -128,6 +146,7 @@ Object.assign(pcui, (function () {
             this._btnDelete.on('click', this._onClickDelete.bind(this));
             this._containerControls.append(this._btnDelete);
 
+            // button to go up on folder
             this._btnBack = new pcui.Button({
                 icon: 'E114',
                 enabled: false,
@@ -136,6 +155,7 @@ Object.assign(pcui, (function () {
             this._btnBack.on('click', this._onClickBack.bind(this));
             this._containerControls.append(this._btnBack);
 
+            // contains view mode buttons
             const containerBtn = new pcui.Container({
                 flex: true,
                 flexDirection: 'row',
@@ -143,6 +163,7 @@ Object.assign(pcui, (function () {
             });
             this._containerControls.append(containerBtn);
 
+            // show large grid view mode
             this._btnLargeGrid = new pcui.Button({
                 icon: 'E143',
                 class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
@@ -150,6 +171,7 @@ Object.assign(pcui, (function () {
             this._btnLargeGrid.on('click', this._onClickLargeGrid.bind(this));
             containerBtn.append(this._btnLargeGrid);
 
+            // show small grid view mode
             this._btnSmallGrid = new pcui.Button({
                 icon: 'E145',
                 class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
@@ -157,6 +179,7 @@ Object.assign(pcui, (function () {
             this._btnSmallGrid.on('click', this._onClickSmallGrid.bind(this));
             containerBtn.append(this._btnSmallGrid);
 
+            // show details view mode
             this._btnDetailsView = new pcui.Button({
                 icon: 'E146',
                 class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
@@ -164,9 +187,7 @@ Object.assign(pcui, (function () {
             this._btnDetailsView.on('click', this._onClickDetailsView.bind(this));
             containerBtn.append(this._btnDetailsView);
 
-            this._domEvtStopPropagation = (evt) => evt.stopPropagation();
-
-            // asset type filter
+            // asset type dropdown filter
             const dropdownTypeOptions = Object.keys(TYPES)
             .filter(type => type !== 'bundle' || editor.call('users:hasFlag', 'hasBundles'))
             .map(type => {
@@ -187,6 +208,7 @@ Object.assign(pcui, (function () {
             this._containerControls.append(this._dropdownType);
             this._dropdownType.on('change', this._onDropDownTypeChange.bind(this));
 
+            // search input filter
             this._searchInput = new pcui.TextInput({
                 class: CLASS_HIDE_ON_COLLAPSE,
                 keyChange: true,
@@ -196,6 +218,7 @@ Object.assign(pcui, (function () {
             this._searchInput.on('change', this._onSearchInputChange.bind(this));
             this._searchTags = null;
 
+            // Show asset store
             const btnStore = new pcui.Button({
                 text: 'STORE',
                 icon: 'E238',
@@ -225,7 +248,7 @@ Object.assign(pcui, (function () {
             this._foldersView.on('deselect', this._onFolderTreeDeselect.bind(this));
             this._foldersView.on('dragstart', this._onFolderTreeDragStart.bind(this));
 
-            // root element
+            // root folder element
             this._foldersViewRoot = new pcui.TreeViewItem({
                 text: '/'
             });
@@ -234,9 +257,11 @@ Object.assign(pcui, (function () {
             this._foldersViewRoot.open = true;
             this._foldersView.append(this._foldersViewRoot);
 
+            // index of id->folder treeview item
             this._foldersIndex = {};
+            // index of id->folder treeview item whose parent hasn't been added yet
             this._foldersWaitingParent = {};
-
+            // index of filename->fake asset for legacy script
             this._legacyScriptsIndex = {};
 
             // the asset we are currently hovering over
@@ -244,8 +269,9 @@ Object.assign(pcui, (function () {
             // null means root folder
             // otherwise this will be an asset
             this._hoveredAsset = undefined;
-            this._eventsDropManager = [];
 
+            // drag drop related
+            this._eventsDropManager = [];
             this._foldersDropTarget = null;
             this._tableDropTarget = null;
             this._gridViewDropTarget = null;
@@ -277,7 +303,7 @@ Object.assign(pcui, (function () {
             this._containerProgress.append(this._progressBar);
             this.append(this._containerProgress);
 
-            // table view
+            // details view
             this._detailsView = new pcui.Table({
                 scrollable: true,
                 hidden: true,
@@ -315,15 +341,21 @@ Object.assign(pcui, (function () {
             });
             this.append(this._gridView);
 
+            // set initial view mode
             this.viewMode = args.viewMode || AssetPanel.VIEW_LARGE_GRID;
 
+            // index of asset id-> row element
             this._rowsIndex = {};
+            // index of asset id-> grid item
             this._gridIndex = {};
+            // idnex of user id-> user indicator element
             this._usersIndex = {};
 
+            // do not filter asset panel if true
             this._suspendFiltering = false;
-
+            // do not emit selector events if true
             this._suspendSelectEvents = false;
+
             this._detailsView.on('select', this._onSelectAssetElement.bind(this));
             this._detailsView.on('deselect', this._onDeselectAssetElement.bind(this));
 
@@ -359,6 +391,7 @@ Object.assign(pcui, (function () {
             }
         }
 
+        // Sorts assets by name (case insensitive). Keeps legacy scripts folder on top always.
         _sortByName(a, b, ascending) {
             // keep legacy script folder on top
             if (a === LEGACY_SCRIPTS_FOLDER_ASSET) return -1;
@@ -371,6 +404,8 @@ Object.assign(pcui, (function () {
             return 0;
         }
 
+
+        // Sorts assets by type. Keeps legacy scripts folder on top always.
         _sortByType(a, b, ascending) {
             // keep legacy script folder on top
             if (a === LEGACY_SCRIPTS_FOLDER_ASSET) return -1;
@@ -383,6 +418,7 @@ Object.assign(pcui, (function () {
             return 0;
         }
 
+        // Sorts assets by file size. Keeps legacy scripts folder on top always.
         _sortByFileSize(a, b, ascending) {
             // keep legacy script folder on top
             if (a === LEGACY_SCRIPTS_FOLDER_ASSET) return -1;
@@ -404,6 +440,7 @@ Object.assign(pcui, (function () {
             window.open('https://store.playcanvas.com/', '_blank');
         }
 
+        // Shows new asset context menu
         _onClickNew() {
             // TODO: This needs to be refactored so that the menu
             // is created by the panel or passed in.
@@ -413,6 +450,7 @@ Object.assign(pcui, (function () {
             menu.open = true;
         }
 
+        // Shows asset delete picker
         _onClickDelete() {
             if (!this._writePermissions)
                 return;
@@ -423,6 +461,7 @@ Object.assign(pcui, (function () {
             }
         }
 
+        // Goes up on folder
         _onClickBack() {
             if (!this.currentFolder) return;
 
@@ -435,19 +474,23 @@ Object.assign(pcui, (function () {
             this.currentFolder = folder;
         }
 
+        // Sets view mode to large grid
         _onClickLargeGrid() {
             this.viewMode = AssetPanel.VIEW_LARGE_GRID;
         }
 
+        // Sets view mode to small grid
         _onClickSmallGrid() {
             this.viewMode = AssetPanel.VIEW_SMALL_GRID;
         }
 
+        // Sets view mode to details view
         _onClickDetailsView() {
             this.viewMode = AssetPanel.VIEW_DETAILS;
         }
 
-        _onDropDownTypeChange(value) {
+        // Filter by type
+        _onDropDownTypeChange() {
             if (this._suspendFiltering) return;
             this.filter();
         }
@@ -458,6 +501,7 @@ Object.assign(pcui, (function () {
             return str.trim().split(',').map(s => s.trim());
         }
 
+        // Analyzes tags first and then re-filters assets
         _onSearchInputChange(value) {
             this._searchTags = null;
             value = value.trim();
@@ -483,7 +527,7 @@ Object.assign(pcui, (function () {
             }
         }
 
-        _refreshViewButtons() {
+        _refreshViewModeButtons() {
             this._btnLargeGrid.class.remove(CLASS_BTN_ACTIVE);
             this._btnSmallGrid.class.remove(CLASS_BTN_ACTIVE);
             this._btnDetailsView.class.remove(CLASS_BTN_ACTIVE);
@@ -497,6 +541,7 @@ Object.assign(pcui, (function () {
             }
         }
 
+        // Handle double click of asset element
         _onAssetDblClick(evt, asset) {
             evt.stopPropagation();
             evt.preventDefault();
@@ -507,7 +552,6 @@ Object.assign(pcui, (function () {
                 // otherwise the asset inside the folder that
                 // is under the cursor will be selected when you
                 // release the cursor
-
                 requestAnimationFrame(() => {
                     this.currentFolder = asset;
 
@@ -518,6 +562,7 @@ Object.assign(pcui, (function () {
                     }
                 });
             } else if (type === 'sprite' || type === 'textureatlas') {
+                // show sprite editor
                 editor.call('picker:sprites', asset);
             } else if (type === 'css' ||
                        type === 'html' ||
@@ -526,6 +571,7 @@ Object.assign(pcui, (function () {
                        type === 'shader' ||
                        type === 'text') {
 
+                // show code editor
                 if (type === 'script' && config.project.settings.useLegacyScripts) {
                     window.open('/editor/code/' + config.project.id + '/' + asset.legacyScript.get('filename'));
                 } else if (!config.project.settings.useLegacyScripts) {
@@ -537,10 +583,12 @@ Object.assign(pcui, (function () {
 
         }
 
+        // Reset hovered asset
         _onDeactivateDropManager() {
             this._setHoveredAsset(undefined);
         }
 
+        // Creates drop target for one asset dropped upon another
         _createAssetDropTarget(target) {
             const dropTarget = new pcui.DropTarget(target, {
                 hole: true,
@@ -555,6 +603,7 @@ Object.assign(pcui, (function () {
             return dropTarget;
         }
 
+        // Returns true if the dragged type and data are valid assets
         _onAssetDropFilter(type, data) {
             // check if type is asset and if it's a valid int id (legacy scripts have string ids)
             if (type.startsWith('asset') && this._writePermissions) {
@@ -568,6 +617,7 @@ Object.assign(pcui, (function () {
             return false;
         }
 
+        // Called when we drop an asset on a drop target.
         _onAssetDrop(type, data) {
             if (this._hoveredAsset === undefined || ! type || ! type.startsWith('asset') || !this._writePermissions) {
                 return;
@@ -596,12 +646,15 @@ Object.assign(pcui, (function () {
 
             const hoveredType = this._hoveredAsset ? this._hoveredAsset.get('type') : 'folder';
             if (hoveredType === 'folder') {
+                // if we are dropping on a folder then move assets to that folder
                 editor.call('assets:fs:move', assets, this._hoveredAsset);
             } else if (hoveredType === 'bundle') {
+                // if we are dropping on a bundle then update asset bundle
                 editor.call('assets:bundles:addAssets', assets, this._hoveredAsset);
             }
         }
 
+        // Called when we start dragging an asset element
         _onAssetDragStart(evt, asset) {
             if (evt) {
                 evt.preventDefault();
@@ -644,6 +697,7 @@ Object.assign(pcui, (function () {
                 }
             }
 
+            // Activate drop manager
             this._dropManager.dropType = type;
             this._dropManager.dropData = data;
             this._dropManager.active = true;
@@ -676,6 +730,7 @@ Object.assign(pcui, (function () {
             if (this._hoveredAsset === asset) return;
             if (!this._dropManager || !this._dropManager.active || !this._dropManager.dropData) return;
 
+            // check if asset type is hoverable
             const hoveredType = asset.get('type');
             if (!HOVERABLES[hoveredType]) return;
 
@@ -704,6 +759,7 @@ Object.assign(pcui, (function () {
                     return;
                 }
 
+                // do not allow source assets in bundle
                 if (hoveredType === 'bundle') {
                     const sourceAsset = this._assets.get(dropData.id);
                     if (sourceAsset && sourceAsset.get('source')) {
@@ -740,10 +796,12 @@ Object.assign(pcui, (function () {
             this._setHoveredAsset(asset);
         }
 
+        // Update the hovered asset
         _setHoveredAsset(asset) {
             if (this._hoveredAsset === asset) return;
 
             if (this._hoveredAsset !== undefined) {
+                // clear previous hovered asset
                 if (this._hoveredAsset) {
                     const row = this._rowsIndex[this._hoveredAsset.get('id')];
                     if (row) {
@@ -766,6 +824,7 @@ Object.assign(pcui, (function () {
             this._hoveredAsset = asset;
 
             if (this._hoveredAsset !== undefined) {
+                // highlight all asset elements
                 if (this._hoveredAsset) {
                     const row = this._rowsIndex[this._hoveredAsset.get('id')];
                     if (row) {
@@ -792,11 +851,14 @@ Object.assign(pcui, (function () {
             }
         }
 
+        // Creates a table row for the details view for the specified asset.
         _createDetailsViewRow(asset) {
             const row = new pcui.TableRow();
 
+            // store asset in row for reference
             row.asset = asset;
 
+            // store row in index
             this._rowsIndex[asset.get('id')] = row;
 
             const isLegacyScriptFolder = (asset === LEGACY_SCRIPTS_FOLDER_ASSET);
@@ -815,6 +877,8 @@ Object.assign(pcui, (function () {
             let onMouseDown;
             let onDragStart;
 
+            // if this is not the legacy script folder
+            // make it draggable
             if (!isLegacyScriptFolder) {
                 row.on('hover', () => {
                     this._onAssetHover(asset);
@@ -837,6 +901,7 @@ Object.assign(pcui, (function () {
             // context menu (TODO: change this when the context menu becomes a PCUI element)
             editor.call('assets:contextmenu:attach', row, asset.legacyScript || asset);
 
+            // clean up
             row.on('destroy', dom => {
                 delete this._rowsIndex[asset.get('id')];
                 if (onMouseDown) {
@@ -850,7 +915,7 @@ Object.assign(pcui, (function () {
                 }
             });
 
-            // name
+            // thumb + name cell
             let cell = new pcui.TableCell({
                 class: CLASS_DETAILS_NAME,
                 alignItems: 'center'
@@ -874,9 +939,11 @@ Object.assign(pcui, (function () {
             row.spinner = spinner;
             cell.append(spinner);
 
+            // asset name
             const labelName = new pcui.Label({
                 binding: new pcui.BindingObserversToElement()
             });
+            // make inline so that text-overflow will work
             labelName.style.display = 'inline';
             labelName.style.lineHeight = '24px';
             labelName.link(asset, 'name');
@@ -887,6 +954,7 @@ Object.assign(pcui, (function () {
             });
             cell.append(labelName);
 
+            // user indicators for remote users who select this asset
             const containerUsers = new pcui.Container({
                 class: CLASS_USERS_CONTAINER,
                 flex: true,
@@ -894,6 +962,8 @@ Object.assign(pcui, (function () {
             });
             cell.append(containerUsers);
             row.containerUsers = containerUsers;
+
+            // only show users container when non empty
             containerUsers.on('append', () => {
                 containerUsers.hidden = false;
             });
@@ -903,7 +973,7 @@ Object.assign(pcui, (function () {
                 }
             });
 
-            // type
+            // type cell
             cell = new pcui.TableCell();
             row.append(cell);
 
@@ -921,10 +991,11 @@ Object.assign(pcui, (function () {
                 text: type
             });
             labelType.style.lineHeight = '24px';
+            // make inline so that text-overflow will work
             labelType.style.display = 'inline';
             cell.append(labelType);
 
-            // size
+            // file size cell
             cell = new pcui.TableCell();
             row.append(cell);
 
@@ -934,11 +1005,13 @@ Object.assign(pcui, (function () {
                         if (!observers[0].has(paths[0])) {
                             element.value = '';
                         } else {
+                            // convert value to bytes
                             element.value = bytesToHuman(observers[0].get(paths[0]));
                         }
                     }
                 })
             });
+            // make inline so that text-overflow will work
             labelSize.style.display = 'inline';
             labelSize.style.lineHeight = '24px';
             labelSize.link(asset, 'file.size');
@@ -954,10 +1027,12 @@ Object.assign(pcui, (function () {
             return row;
         }
 
+        // Returns row in details view for this asset
         _getDetailsViewRow(asset) {
             return this._rowsIndex[asset.get('id')];
         }
 
+        // Applies specified function to all elements for that asset
         _applyFnToAssetElements(asset, fn) {
             const id = asset.get('id');
 
@@ -983,6 +1058,7 @@ Object.assign(pcui, (function () {
             this._applyFnToAssetElements(asset, element => { element.selected = selected; });
         }
 
+        // update element based on asset task status
         _setElementTaskStatus(element, asset) {
             element.class.remove(CLASS_TASK_RUNNING);
             element.class.remove(CLASS_TASK_FAILED);
@@ -1067,6 +1143,7 @@ Object.assign(pcui, (function () {
             });
         }
 
+        // Called when we receive remote users' selector state
         _onSelectorSync(userId, data) {
             let userEntry = this._usersIndex[userId];
             if (userEntry) {
@@ -1158,7 +1235,7 @@ Object.assign(pcui, (function () {
         }
 
         _addGridItem(asset, index) {
-            const item = new pcui.AssetGridViewItem({
+            const item = new AssetGridViewItem({
                 assets: this._assets
             });
 
@@ -1526,6 +1603,7 @@ Object.assign(pcui, (function () {
             this._onAssetDragStart(null, items[0].asset);
         }
 
+        // Perform AND operation between tags
         _tagsAND(tagGroup, assetTags) {
             for (let i = 0; i < tagGroup.length; i++) {
                 if (assetTags.indexOf(tagGroup[i]) === -1) {
@@ -1536,6 +1614,7 @@ Object.assign(pcui, (function () {
             return true;
         }
 
+        // Perform OR operation between tags or groups of subtags
         _tagsOR(tagGroup, assetTags) {
             for (let i = 0; i < tagGroup.length; i++) {
                 if (Array.isArray(tagGroup[i])) {
@@ -1550,6 +1629,7 @@ Object.assign(pcui, (function () {
             return false;
         }
 
+        // Show or hide an element based on the current filters
         _filterAssetElement(element) {
             if (!element.asset) return false;
 
@@ -1643,15 +1723,18 @@ Object.assign(pcui, (function () {
             view.hidden = false;
             this._containerProgress.hidden = true;
 
+            // cancel any filtering currently in progress
             view.filterAsyncCancel();
 
             let evtDelay, evtCancel, evtEnd;
 
+            // show progress if filtering takes longer
             evtDelay = view.once('filter:delay', () => {
                 evtDelay = null;
                 this._containerProgress.hidden = false;
             });
 
+            // hide progress when filtering ends
             evtEnd = view.once('filter:end', () => {
                 if (evtDelay) {
                     evtDelay.unbind();
@@ -1678,6 +1761,7 @@ Object.assign(pcui, (function () {
                 }
             });
 
+            // filter current view
             view.filterAsync();
         }
 
@@ -1874,7 +1958,7 @@ Object.assign(pcui, (function () {
 
             this._viewMode = value;
 
-            this._refreshViewButtons();
+            this._refreshViewModeButtons();
 
             if (this._progressBar.value < 100) {
                 this._containerProgress.hidden = false;
@@ -2002,6 +2086,8 @@ Object.assign(pcui, (function () {
     AssetPanel.VIEW_DETAILS = 'details';
     AssetPanel.LEGACY_SCRIPTS_ID = LEGACY_SCRIPTS_ID;
 
+
+    // Helper class for asset grid view item
     class AssetGridViewItem extends pcui.GridViewItem {
         constructor(args) {
             super(args);
@@ -2060,7 +2146,6 @@ Object.assign(pcui, (function () {
     }
 
     return {
-        AssetGridViewItem: AssetGridViewItem,
         AssetPanel: AssetPanel
     };
 })());
