@@ -3,7 +3,6 @@ Object.assign(pcui, (function () {
 
     const CLASS_ROOT = 'pcui-spinner';
 
-
     function createSmallThick(size) {
         const spinner = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         spinner.classList.add('spin');
@@ -14,8 +13,19 @@ Object.assign(pcui, (function () {
         spinner.innerHTML = '<path d="M7 14C3.13871 14 0 10.8613 0 7C0 3.13871 3.13871 0 7 0C10.8613 0 14 3.13871 14 7C14 10.8613 10.8613 14 7 14ZM7 2.25806C4.38064 2.25806 2.25806 4.38064 2.25806 7C2.25806 9.61935 4.38064 11.7419 7 11.7419C9.61935 11.7419 11.7419 9.61935 11.7419 7C11.7419 4.38064 9.61935 2.25806 7 2.25806Z" fill="#773417"/><path class="pcui-spinner-highlight" d="M7 14V11.7419C9.61935 11.7419 11.7419 9.61935 11.7419 7H14C14 10.8613 10.8613 14 7 14Z" fill="#FF6600"/>';
         return spinner;
     }
-
+    /**
+     * @name pcui.Spinner
+     * @extends pcui.Element
+     * @classdesc Represents a spinning icon
+     */
     class Spinner extends pcui.Element {
+        /**
+         * Creates a new spinner.
+         * @param {Object} [args] The arguments
+         * @param {String} [args.type] The spinner type. Can be one of:
+         * pcui.Spinner.TYPE_SMALL_THICK
+         * TODO: add more types
+         */
         constructor(args) {
             args = Object.assign({
                 type: Spinner.TYPE_SMALL_THICK
