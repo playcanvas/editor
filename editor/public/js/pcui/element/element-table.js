@@ -11,6 +11,10 @@ Object.assign(pcui, (function () {
 
     const CLASS_RESIZING = CLASS_TABLE + '-resizing';
 
+    /**
+     * @name pcui.Table
+     * @classdesc Represents a table view with optional resizable and sortable columns
+     */
     class Table extends pcui.Container {
         constructor(args) {
             args = Object.assign({}, args);
