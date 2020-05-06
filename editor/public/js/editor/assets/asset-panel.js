@@ -102,8 +102,32 @@ Object.assign(pcui, (function () {
      * small thumbnails and a details view. Also shows the project's folders in a treeview
      * on the left. Allows filtering of assets by type and by searching in various ways. Allows
      * creating new assets and moving assets to different folders.
+     * @extends pcui.Panel
+     * @property {pcui.DropManager} The drop manager to support drag and drop.
+     * @property {ObserverList} assets The asset list to display.
+     * @property {Observer} currentFolder The current folder.
+     * @property {pcui.Table} detailsView The details view.
+     * @property {pcui.TreeView} foldersView The folders view.
+     * @property {pcui.GridView} gridView The grid view.
+     * @property {String} viewMode The current view mode. Can be one of:
+     * pcui.AssetPanel.VIEW_LARGE_GRID,
+     * pcui.AssetPanel.VIEW_SMALL_GRID,
+     * pcui.AssetPanel.VIEW_DETAILS
+     * @property {pcui.Element} activeView The current active view (details or gridview)
+     * @property {pcui.Progress} progressBar The progress bar
+     * @property {pcui.SelectInput} dropdownType The type dropdown
+     * @property {pcui.TextInput} searchInput The search filter text input
+     * @property {Observer[]} selectedAssets The selected assets
+     * @property {Boolean} showSourceAssets If false source assets will not be displayed
+     * @property {Boolean} suspendSelectionEvents If true selection events will not the editor's selector to be affected
+     * @property {Boolean} suspendFiltering If true changes to filters will not re-filter the asset panel.
+     * @property {Boolean} writePermissions If false then only a read-only view will be shown
      */
     class AssetPanel extends pcui.Panel {
+        /**
+         * Creates new AssetPanel.
+         * @param {Object} args The arguments
+         */
         constructor(args) {
             args = Object.assign({
                 headerText: 'ASSETS'
@@ -1765,6 +1789,10 @@ Object.assign(pcui, (function () {
             view.filterAsync();
         }
 
+        /**
+         * @name pcui.AssetPanel#filter
+         * @description Filters the asset panel based on the current filters active.
+         */
         filter() {
             if (!this._assets) return;
 
@@ -1781,6 +1809,10 @@ Object.assign(pcui, (function () {
             }
         }
 
+        /**
+         * @name pcui.AssetPanel#deselect
+         * @description Deselects all the selected assets.
+         */
         deselect() {
             this._detailsView.deselect();
             this._gridView.deselect();

@@ -13,9 +13,32 @@ Object.assign(pcui, (function () {
 
     /**
      * @name pcui.Table
-     * @classdesc Represents a table view with optional resizable and sortable columns
+     * @classdesc Represents a table view with optional resizable and sortable columns.
+     * @extends pcui.Container
+     * @property {Object[]} columns The columns of the table. Each column has the following format:
+     * {
+     *   title: String - the title displayed on the column,
+     *   width: CSS width of the initial column width,
+     *   minWidth: Number - the minimum width of the column,
+     *   sortKey: The observer field with which to sort the table when the column table is clicked. Also serves as an identifier for the column.
+     *   sortFn: Overrides the sortKey method to sort the observers using this function instead.
+     * }
+     * @property {pcui.Container} table The internal <table> container
+     * @property {pcui.Container} head The internal <thead> container
+     * @property {pcui.Container} body The internal <tbody> container
+     * @property {pcui.TableRow[]} selected Gets the selected rows
+     * @property {String} sortKey Gets the current sort key
+     * @property {Function} sortFn Gets the current sort function
+     * @property {Boolean} isAscending Gets whether the current sort order is ascending (or descending)
      */
     class Table extends pcui.Container {
+        /**
+         * Creates a new Table.
+         * @param {Object} [args] The arguments
+         * @param {Function} [args.createRowFn] A function like (observer) => pcui.TableRow that creates a pcui.TableRow from an observer.
+         * @param {Function} [args.getRowFn] A function like (observer) => pcui.TableRow that returns an existing row from an observer. Used for faster sorting.
+         * @param {Function} [args.filterFn] A function like (pcui.TableRow) => boolean that hides the row if it returns false.
+         */
         constructor(args) {
             args = Object.assign({}, args);
 
@@ -52,9 +75,7 @@ Object.assign(pcui, (function () {
             };
 
             this._draggedColumn = null;
-            this._frozeColumnWidth = false;
-            this._handleStartWidth = null;
-            this._handleStartX = null;
+            this._didFreezeColumnWidth = false;
 
             this._columns = [];
 
@@ -77,6 +98,7 @@ Object.assign(pcui, (function () {
             this._onRowKeyDownHandler = this._onRowKeyDown.bind(this);
         }
 
+        // Recreates the table rows
         _refreshLayout() {
             this.deselect();
 
@@ -237,6 +259,7 @@ Object.assign(pcui, (function () {
 
             if (evt.target.tagName.toLowerCase() === 'input') return;
 
+            // handle up and down arrow keys
             if ([38, 40].indexOf(evt.keyCode) === -1) return;
 
             evt.preventDefault();
@@ -259,6 +282,9 @@ Object.assign(pcui, (function () {
             next.selected = true;
         }
 
+        // Executes specified function for each cell in the
+        // specified column index for the specified pcui.TableRow container
+        // The function has a signature of (pcui.Element) => {}
         _forEachColumnCell(container, columnIndex, fn) {
             container.forEachChild(row => {
                 if (row instanceof pcui.TableRow) {
@@ -278,6 +304,9 @@ Object.assign(pcui, (function () {
             });
         }
 
+        // Executes specified function for each cell in the
+        // specified row index for the specified pcui.TableRow container
+        // The function has a signature of (pcui.Element, cellIndex) => {}
         _forEachRowCell(container, rowIndex, fn) {
             const row = container.dom.childNodes[rowIndex];
             if (row.ui instanceof pcui.TableRow) {
@@ -291,17 +320,16 @@ Object.assign(pcui, (function () {
             }
         }
 
+        // Set the current width of each column to its style.width property
         _freezeColumnWidth() {
-            const len = this._columns.length;
             this._forEachRowCell(this._containerHead, 0, (cell, columnIndex) => {
-                if (columnIndex < len) {
-                    const width = cell.width;
-                    cell.width = width;
-                    this._columns[columnIndex].width = cell.width; // fetch real width again and store it
-                }
+                const width = cell.width; // get current numeric width
+                cell.width = width; // set width to style.width
+                this._columns[columnIndex].width = cell.width; // fetch real width again and store it
             });
         }
 
+        // Adds handle to resize column
         _addResizeHandle(cell, colIndex) {
             // add resize handle
             const handle = new pcui.Element(document.createElement('div'), {
@@ -314,10 +342,6 @@ Object.assign(pcui, (function () {
                     this._forEachColumnCell(this._containerHead, colIndex, cell => {
                         cell.class.add(CLASS_CELL_ACTIVE);
                     });
-
-                    // this._forEachColumnCell(this._containerBody, colIndex, cell => {
-                    //     cell.class.add(CLASS_CELL_ACTIVE);
-                    // });
                 }
             });
 
@@ -326,10 +350,6 @@ Object.assign(pcui, (function () {
                     this._forEachColumnCell(this._containerHead, colIndex, cell => {
                         cell.class.remove(CLASS_CELL_ACTIVE);
                     });
-
-                    // this._forEachColumnCell(this._containerBody, colIndex, cell => {
-                    //     cell.class.remove(CLASS_CELL_ACTIVE);
-                    // });
                 }
             });
 
@@ -364,9 +384,9 @@ Object.assign(pcui, (function () {
                 // so that from now on the table width and the columns
                 // width will be controlled by the user instead of the
                 // table layout.
-                if (!this._frozeColumnWidth) {
+                if (!this._didFreezeColumnWidth) {
                     this._freezeColumnWidth();
-                    this._frozeColumnWidth = true;
+                    this._didFreezeColumnWidth = true;
                 }
 
                 pageX = evt.pageX;
@@ -382,10 +402,6 @@ Object.assign(pcui, (function () {
                 this._forEachColumnCell(this._containerHead, colIndex, cell => {
                     cell.class.remove(CLASS_CELL_ACTIVE);
                 });
-
-                // this._forEachColumnCell(this._containerBody, colIndex, cell => {
-                //     cell.class.remove(CLASS_CELL_ACTIVE);
-                // });
 
                 requestAnimationFrame(() => {
                     this._draggedColumn = null;
@@ -405,11 +421,13 @@ Object.assign(pcui, (function () {
 
         _sortObservers() {
             const observers = this._observers;
+            // sort.fn is provided sort with that
             if (this._sort.fn) {
                 observers.sort((a, b) => {
                     return this._sort.fn(a, b, this._sort.ascending);
                 });
             } else if (this._sort.key) {
+                // if sort.key provided sort with that
                 observers.sort((a, b) => {
                     let result = 0;
                     if (!a.has(this._sort.key)) {
@@ -437,6 +455,10 @@ Object.assign(pcui, (function () {
             }
         }
 
+        /**
+         * @name pcui.Table#filter
+         * @description Filters rows based on current filter function
+         */
         filter() {
             const children = this._containerBody.dom.childNodes;
             const len = children.length;
@@ -449,8 +471,20 @@ Object.assign(pcui, (function () {
             }
         }
 
-        filterAsync() {
+        /**
+         * @name pcui.Table#filterAsync
+         * @description Filters rows asynchronously by batching
+         * up to the specified number of row operations. Fires the following events:
+         * filter:start - When filtering starts
+         * filter:end - When filtering ends
+         * filter:delay - When an animation frame is requested to process another batch.
+         * filter:cancel - When filtering is canceled.
+         * @param {Number} batchLimit The maximum number of rows to show
+         * before requesting another animation frame.
+         */
+        filterAsync(batchLimit) {
             let i = 0;
+            batchLimit = batchLimit || 100;
             const children = this._containerBody.dom.childNodes;
             const len = children.length;
 
@@ -461,7 +495,7 @@ Object.assign(pcui, (function () {
             const next = () => {
                 this._filterAnimationFrame = null;
                 let visible = 0;
-                for (; i < len && visible < 100; i++) {
+                for (; i < len && visible < batchLimit; i++) {
                     if (this._filterCanceled) {
                         this._filterCanceled = false;
                         this.emit('filter:cancel');
@@ -490,6 +524,10 @@ Object.assign(pcui, (function () {
             next();
         }
 
+        /**
+         * @name pcui.Table#filterAsyncCancel
+         * @description Cancels asynchronous filtering.
+         */
         filterAsyncCancel() {
             if (this._filterAnimationFrame) {
                 cancelAnimationFrame(this._filterAnimationFrame);
@@ -524,6 +562,13 @@ Object.assign(pcui, (function () {
             this.body.clear();
         }
 
+        /**
+         * @name pcui.Table#addObserver
+         * @description Adds a single observer to display. Note that
+         * if you are adding multiple observers you should use
+         * pcui.Table#link instead.
+         * @param {Observer} observer The observer
+         */
         addObserver(observer) {
             if (!this._observers) {
                 this._observers = [];
@@ -538,6 +583,11 @@ Object.assign(pcui, (function () {
             this.body.appendBefore(row, this.body.dom.childNodes[index]);
         }
 
+        /**
+         * @name pcui.Table#removeObserver
+         * @description Removes a single observer.
+         * @param {Observer} observer The observer
+         */
         removeObserver(observer) {
             if (!this._observers) return;
 
@@ -553,6 +603,12 @@ Object.assign(pcui, (function () {
             }
         }
 
+        /**
+         * @name pcui.Table#sortObserver
+         * @description Sorts the observers again but only moves the row that
+         * corresponds to the specified observer.
+         * @param {Observer} observer The observer
+         */
         sortObserver(observer) {
             if (!this._observers) return;
 
@@ -579,6 +635,11 @@ Object.assign(pcui, (function () {
             this.body.dom.insertBefore(row.dom, this.body.dom.childNodes[newIndex]);
         }
 
+        /**
+         * @name pcui.Table#sortByColumnIndex
+         * @description Sort table entries by the column at the specified index
+         * @param {Number} index The column index.
+         */
         sortByColumnIndex(index) {
             const column = this._columns[index];
             if (!column) return;
@@ -637,6 +698,10 @@ Object.assign(pcui, (function () {
             }
         }
 
+        /**
+         * @name pcui.Table#deselect
+         * @description Deselects selected rows.
+         */
         deselect() {
             this.selected.forEach(row => {
                 row.selected = false;
