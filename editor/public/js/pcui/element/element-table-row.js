@@ -4,7 +4,21 @@ Object.assign(pcui, (function () {
     const CLASS_ROW = 'pcui-table-row';
     const CLASS_SELECTED_ROW = CLASS_ROW + '-selected';
 
+    /**
+     * @name pcui.TableRow
+     * @classdesc Represents the row of a pcui.Table
+     * @extends pcui.Container
+     * @mixes pcui.IFocusable
+     * @property {Boolean} selected Whether the row is selected
+     * @property {pcui.TableRow} previousSibling Returns the previous visible sibling row
+     * @property {pcui.TableRow} nextSibling Returns the next visible sibling row
+     */
     class TableRow extends pcui.Container {
+        /**
+         * Creates new TableRow.
+         * @param {Object} [args] The arguments
+         * @param {Boolean} [args.header] If true then this is a header row
+         */
         constructor(args) {
             args = Object.assign({
                 tabIndex: args && args.header ? -1 : 0,
