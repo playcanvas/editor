@@ -6,9 +6,17 @@ editor.once('load', function() {
     var dropRef = editor.call('drop:target', {
         ref: assetsPanel,
         type: 'files',
-        drop: function (type, data) {
-            if (type !== 'files')
+        filter: (type) => {
+            if (type !== 'files' || !editor.call('permissions:write')) {
+                return false;
+            }
+
+            return true;
+        },
+        drop: (type, data) => {
+            if (type !== 'files' || !editor.call('permissions:write')) {
                 return;
+            }
 
             editor.call('assets:upload:files', data);
         }

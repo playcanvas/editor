@@ -414,7 +414,7 @@ Object.assign(pcui, (function () {
         }
 
         _onClickDelete() {
-            if (! editor.call('permissions:write'))
+            if (!this._writePermissions)
                 return;
 
             const type = editor.call('selector:type');
@@ -541,7 +541,7 @@ Object.assign(pcui, (function () {
             this._setHoveredAsset(undefined);
         }
 
-        _createDropTarget(target) {
+        _createAssetDropTarget(target) {
             const dropTarget = new pcui.DropTarget(target, {
                 hole: true,
                 passThrough: true,
@@ -557,7 +557,7 @@ Object.assign(pcui, (function () {
 
         _onAssetDropFilter(type, data) {
             // check if type is asset and if it's a valid int id (legacy scripts have string ids)
-            if (type.startsWith('asset')) {
+            if (type.startsWith('asset') && this._writePermissions) {
                 if (data.id) {
                     return !!parseInt(data.id, 10);
                 } else if (data.ids) {
@@ -569,8 +569,9 @@ Object.assign(pcui, (function () {
         }
 
         _onAssetDrop(type, data) {
-            if (this._hoveredAsset === undefined || ! type || ! type.startsWith('asset'))
+            if (this._hoveredAsset === undefined || ! type || ! type.startsWith('asset') || !this._writePermissions) {
                 return;
+            }
 
             const items = editor.call('selector:items');
             var assets = [];
@@ -607,7 +608,7 @@ Object.assign(pcui, (function () {
                 evt.stopPropagation();
             }
 
-            if (! editor.call('permissions:write') || !this._dropManager) return;
+            if (!this._writePermissions || !this._dropManager) return;
 
             let type = 'asset.' + asset.get('type');
             let data = {};
@@ -1846,9 +1847,9 @@ Object.assign(pcui, (function () {
             if (this._dropManager) {
                 this._eventsDropManager.push(this._dropManager.on('deactivate', this._onDeactivateDropManager.bind(this)));
 
-                this._foldersDropTarget = this._createDropTarget(this._containerFolders);
-                this._tableDropTarget = this._createDropTarget(this._detailsView);
-                this._gridViewDropTarget = this._createDropTarget(this._gridView);
+                this._foldersDropTarget = this._createAssetDropTarget(this._containerFolders);
+                this._tableDropTarget = this._createAssetDropTarget(this._detailsView);
+                this._gridViewDropTarget = this._createAssetDropTarget(this._gridView);
             }
         }
 
@@ -1987,9 +1988,11 @@ Object.assign(pcui, (function () {
             if (!value) {
                 this._btnNew.enabled = false;
                 this._btnDelete.enabled = false;
+                this._foldersView.allowDrag = false;
             } else {
                 this._btnNew.enabled = true;
                 this._btnDelete.enabled = this._selector.items.length && this._selector.type === 'asset';
+                this._foldersView.allowDrag = true;
             }
         }
     }
