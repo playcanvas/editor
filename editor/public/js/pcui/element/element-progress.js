@@ -13,11 +13,18 @@ Object.assign(pcui, (function () {
             this._inner = new pcui.Element();
             this.append(this._inner);
             this._inner.class.add(CLASS_INNER);
+
+            if (args.value !== undefined) {
+                this.value = args.value;
+            }
         }
 
         set value(val) {
+            if (this._value === val) return;
+
             this._value = val;
             this._inner.width = `${this._value}%`;
+            this.emit('change', val);
         }
 
         get value() {

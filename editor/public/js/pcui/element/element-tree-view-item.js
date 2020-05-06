@@ -43,8 +43,10 @@ Object.assign(pcui, (function () {
       * @classdesc Represents a Tree View Item to be added to a pcui.TreeView.
       * @mixes pcui.IFocusable
       * @property {Boolean} selected Whether the item is selected.
-      * @property {Boolean} selectable Whether the item can be selected.
+      * @property {Boolean} allowSelect Whether the item can be selected.
       * @property {Boolean} open Whether the item is open meaning showing its children.
+      * @property {Boolean} parentsOpen Whether the parents of the item are open or closed.
+      * @property {Boolean} allowDrag Whether this tree item can be dragged. Only considered if the parent treeview has allowDrag true.
       * @property {Boolean} allowDrop Whether dropping is allowed on the tree item.
       * @property {String} text The text shown by the TreeViewItem.
       * @property {Number} The number of direct children.
@@ -92,8 +94,9 @@ Object.assign(pcui, (function () {
             });
             this._containerContents.append(this._labelText);
 
-            this.selectable = (args.selectable !== undefined ? args.selectable : true);
+            this.allowSelect = (args.allowSelect !== undefined ? args.allowSelect : true);
             this.allowDrop = (args.allowDrop !== undefined ? args.allowDrop : true);
+            this.allowDrag = (args.allowDrag !== undefined ? args.allowDrag : true);
             if (args.text) {
                 this.text = args.text;
             }
@@ -103,16 +106,16 @@ Object.assign(pcui, (function () {
             // used the the parent treeview
             this._treeOrder = -1;
 
-            this._domEvtFocus = this._onFocus.bind(this);
-            this._domEvtBlur = this._onBlur.bind(this);
-            this._domEvtKeyDown = this._onKeyDown.bind(this);
-            this._domEvtDragStart = this._onDragStart.bind(this);
-            this._domEvtMouseDown = this._onMouseDown.bind(this);
-            this._domEvtMouseUp = this._onMouseUp.bind(this);
-            this._domEvtMouseOver = this._onMouseOver.bind(this);
-            this._domEvtClick = this._onClickContents.bind(this);
-            this._domEvtDblClick = this._onDblClickContents.bind(this);
-            this._domEvtContextMenu = this._onContextMenu.bind(this);
+            this._domEvtFocus = this._onContentFocus.bind(this);
+            this._domEvtBlur = this._onContentBlur.bind(this);
+            this._domEvtKeyDown = this._onContentKeyDown.bind(this);
+            this._domEvtDragStart = this._onContentDragStart.bind(this);
+            this._domEvtMouseDown = this._onContentMouseDown.bind(this);
+            this._domEvtMouseUp = this._onContentMouseUp.bind(this);
+            this._domEvtMouseOver = this._onContentMouseOver.bind(this);
+            this._domEvtClick = this._onContentClick.bind(this);
+            this._domEvtDblClick = this._onContentDblClick.bind(this);
+            this._domEvtContextMenu = this._onContentContextMenu.bind(this);
 
             this._containerContents.dom.addEventListener('focus', this._domEvtFocus);
             this._containerContents.dom.addEventListener('blur', this._domEvtBlur);
@@ -153,23 +156,24 @@ Object.assign(pcui, (function () {
             super._onRemoveChild(element);
         }
 
-        _onKeyDown(evt) {
+        _onContentKeyDown(evt) {
             if (evt.target.tagName.toLowerCase() === 'input') return;
 
-            if (!this.selectable) return;
+            if (!this.allowSelect) return;
 
             if (this._treeView) {
                 this._treeView._onChildKeyDown(evt, this);
             }
         }
 
-        _onMouseDown(evt) {
-            if (!this._treeView || !this._treeView.allowDrag) return;
+        _onContentMouseDown(evt) {
+            if (!this._treeView || !this._treeView.allowDrag || !this._allowDrag) return;
 
+            this._treeView._updateModifierKeys(evt);
             evt.stopPropagation();
         }
 
-        _onMouseUp(evt) {
+        _onContentMouseUp(evt) {
             evt.stopPropagation();
             evt.preventDefault();
 
@@ -179,15 +183,18 @@ Object.assign(pcui, (function () {
             }
         }
 
-        _onMouseOver(evt) {
+        _onContentMouseOver(evt) {
             evt.stopPropagation();
 
             if (this._treeView) {
-                this._treeView._onChildDragOver(evt, this)
+                this._treeView._onChildDragOver(evt, this);
             }
+
+            // allow hover event
+            super._onMouseOver(evt);
         }
 
-        _onDragStart(evt) {
+        _onContentDragStart(evt) {
             evt.stopPropagation();
             evt.preventDefault();
 
@@ -200,8 +207,8 @@ Object.assign(pcui, (function () {
             window.addEventListener('mouseup', this._domEvtMouseUp);
         }
 
-        _onClickContents(evt) {
-            if (!this.selectable || evt.button !== 0) return;
+        _onContentClick(evt) {
+            if (!this.allowSelect || evt.button !== 0) return;
             if (evt.target.tagName.toLowerCase() === 'input') return;
 
             evt.stopPropagation();
@@ -215,7 +222,7 @@ Object.assign(pcui, (function () {
             }
         }
 
-        _onDblClickContents(evt) {
+        _onContentDblClick(evt) {
             if (!this._treeView || !this._treeView.allowRenaming || evt.button !== 0) return;
             if (evt.target.tagName.toLowerCase() === 'input') return;
 
@@ -225,7 +232,7 @@ Object.assign(pcui, (function () {
                 return;
             }
 
-            if (this.selectable) {
+            if (this.allowSelect) {
                 this._treeView.deselect();
                 this._treeView._onChildClick(evt, this);
             }
@@ -233,17 +240,17 @@ Object.assign(pcui, (function () {
             this.rename();
         }
 
-        _onContextMenu(evt) {
+        _onContentContextMenu(evt) {
             if (this._treeView && this._treeView._onContextMenu) {
                 this._treeView._onContextMenu(evt, this);
             }
         }
 
-        _onFocus(evt) {
+        _onContentFocus(evt) {
             this.emit('focus');
         }
 
-        _onBlur(evt) {
+        _onContentBlur(evt) {
             this.emit('blur');
         }
 
@@ -376,6 +383,24 @@ Object.assign(pcui, (function () {
             }
         }
 
+        get parentsOpen() {
+            let parent = this.parent;
+            while (parent && parent instanceof pcui.TreeViewItem) {
+                if (!parent.open) return false;
+                parent = parent.parent;
+            }
+
+            return true;
+        }
+
+        set parentsOpen(value) {
+            let parent = this.parent;
+            while (parent && parent instanceof pcui.TreeViewItem) {
+                parent.open = value;
+                parent = parent.parent;
+            }
+        }
+
         get allowDrop() {
             return this._allowDrop;
         }
@@ -384,12 +409,20 @@ Object.assign(pcui, (function () {
             this._allowDrop = value;
         }
 
-        get selectable() {
-            return this._selectable;
+        get allowDrag() {
+            return this._allowDrag;
         }
 
-        set selectable(value) {
-            this._selectable = value;
+        set allowDrag(value) {
+            this._allowDrag = value;
+        }
+
+        get allowSelect() {
+            return this._allowSelect;
+        }
+
+        set allowSelect(value) {
+            this._allowSelect = value;
         }
 
         get treeView() {
@@ -397,8 +430,6 @@ Object.assign(pcui, (function () {
         }
 
         set treeView(value) {
-            if (this._treeView === value) return;
-
             this._treeView = value;
         }
 

@@ -51,7 +51,8 @@ editor.on('load', function() {
     // main container
     var root = new pcui.Container({
         id: 'layout-root',
-        grid: true
+        grid: true,
+        isRoot: true
     });
     document.body.appendChild(root.dom);
     // expose
@@ -113,21 +114,42 @@ editor.on('load', function() {
     editor.method('layout.viewport', function () { return viewport; });
 
     // assets
-    var assetsPanel = new pcui.Panel({
-        id: 'layout-assets',
-        class: 'assets',
-        headerText: 'ASSETS',
-        flex: true,
-        flexDirection: 'row',
-        panelType: 'normal',
-        collapsible: true,
-        collapsed: editor.call('localStorage:get', 'editor:layout:assets:collapse') || window.innerHeight <= 480,
-        height: editor.call('localStorage:get', 'editor:layout:assets:height') || 212,
-        scrollable: true,
-        resizable: 'top',
-        resizeMin: 106,
-        resizeMax: 106 * 6
-    });
+    var assetsPanel;
+    if (editor.call('users:hasFlag', 'hasPcuiAssetsPanel')) {
+        assetsPanel = new pcui.AssetPanel({
+            id: 'layout-assets',
+            class: 'assets',
+            panelType: 'normal',
+            collapsible: true,
+            collapsed: editor.call('localStorage:get', 'editor:layout:assets:collapse') || window.innerHeight <= 480,
+            height: editor.call('localStorage:get', 'editor:layout:assets:height') || 212,
+            resizable: 'top',
+            resizeMin: 106,
+            resizeMax: 106 * 6,
+            viewMode: editor.call('localStorage:get', 'editor:assets:viewMode')
+        });
+
+        // save changes to viewmode to localStorage
+        assetsPanel.on('viewMode', value => {
+            editor.call('localStorage:set', 'editor:assets:viewMode', value);
+        });
+    } else {
+        assetsPanel = new pcui.Panel({
+            id: 'layout-assets',
+            class: 'assets',
+            headerText: 'ASSETS',
+            flex: true,
+            flexDirection: 'row',
+            panelType: 'normal',
+            collapsible: true,
+            collapsed: editor.call('localStorage:get', 'editor:layout:assets:collapse') || window.innerHeight <= 480,
+            height: editor.call('localStorage:get', 'editor:layout:assets:height') || 212,
+            scrollable: true,
+            resizable: 'top',
+            resizeMin: 106,
+            resizeMax: 106 * 6
+        });
+    }
 
     assetsPanel.on('resize', function () {
         editor.call('localStorage:set', 'editor:layout:assets:height', assetsPanel.height);

@@ -76,3 +76,12 @@ $icons: (
     background-position: 0 0, $size $size;
 
 }
+
+@keyframes animation-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}

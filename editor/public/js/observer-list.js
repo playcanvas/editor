@@ -149,7 +149,7 @@ ObserverList.prototype.add = function(item) {
         pos = this.data.length - 1;
     }
 
-    this.emit('add', item, index);
+    this.emit('add', item, index, pos);
 
     return pos;
 };
@@ -163,6 +163,8 @@ ObserverList.prototype.move = function(item, pos) {
     } else {
         this.data.splice(pos, 0, item);
     }
+
+    this.emit('move', item, pos);
 };
 
 

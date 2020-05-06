@@ -54,8 +54,20 @@ Object.assign(pcui, (function () {
 
     /**
      * @event
+     * @name pcui.Element#hideToRoot
+     * @description Fired when the Element or any of its parent get hidden
+     */
+
+    /**
+     * @event
      * @name pcui.Element#show
      * @description Fired when the Element stops being hidden
+     */
+
+    /**
+     * @event
+     * @name pcui.Element#showToRoot
+     * @description Fired when the Element and all of its parents become visible
      */
 
     /**
@@ -94,6 +106,21 @@ Object.assign(pcui, (function () {
      */
 
     /**
+     * @event
+     * @name pcui.Element#destroy
+     * @description Fired after the element has been destroyed.
+     * @param {HTMLElement} dom The DOM element
+     * @param {pcui.Element} element The element
+     */
+
+    /**
+     * @event
+     * @name pcui.Element#hoverend
+     * @description Fired when the mouse stops hovering on the Element
+     * @param {Event} evt The native mouse event.
+     */
+
+    /**
      * @name pcui.Element
      * @classdesc The base class for all UI elements.
      * @extends Events
@@ -101,6 +128,7 @@ Object.assign(pcui, (function () {
      * @property {HTMLElement} dom Gets the root DOM node for this Element.
      * @property {pcui.Element} parent Gets the parent Element.
      * @property {Boolean} hidden Gets / sets whether the Element is hidden.
+     * @property {Boolean} hiddenToRoot Gets whether the Element is hidden all the way up to the root. If the Element itself or any of its parents are hidden then this is true.
      * @property {Boolean} readOnly Gets / sets whether the Element is read only.
      * @property {Boolean} ignoreParent Gets / sets whether the Element will ignore parent events & variable states.
      * @property {Number} width Gets / sets the width of the Element in pixels. Can also be an empty string to remove it.
@@ -118,6 +146,7 @@ Object.assign(pcui, (function () {
          * @param {Object} args The arguments. All settable properties can also be set through the constructor.
          * @param {String} [args.id] The desired id for the Element HTML node.
          * @param {String|String[]} [args.class] The CSS class or classes we want to add to the element.
+         * @param {Boolean} [args.isRoot] If true then this is the root element. Set this to true for the topmost Element in your page.
          */
         constructor(dom, args) {
             super();
@@ -161,6 +190,7 @@ Object.assign(pcui, (function () {
             }
 
             this.enabled = args.enabled !== undefined ? args.enabled : true;
+            this._hiddenParents = !args.isRoot;
             this.hidden = args.hidden || false;
             this.readOnly = args.readOnly || false;
             this.ignoreParent = args.ignoreParent || false;
@@ -240,6 +270,14 @@ Object.assign(pcui, (function () {
             this.emit('hoverend', evt);
         }
 
+        _onHiddenToRootChange(hiddenToRoot) {
+            if (hiddenToRoot) {
+                this.emit('hideToRoot');
+            } else {
+                this.emit('showToRoot');
+            }
+        }
+
         _onEnabledChange(enabled) {
             if (enabled) {
                 this.class.remove(pcui.CLASS_DISABLED);
@@ -265,6 +303,22 @@ Object.assign(pcui, (function () {
             if (this._ignoreParent) return;
             if (this._enabled) {
                 this._onEnabledChange(true);
+            }
+        }
+
+        _onParentShowToRoot() {
+            const oldHiddenToRoot = this.hiddenToRoot;
+            this._hiddenParents = false;
+            if (oldHiddenToRoot !== this.hiddenToRoot) {
+                this._onHiddenToRootChange(this.hiddenToRoot);
+            }
+        }
+
+        _onParentHideToRoot() {
+            const oldHiddenToRoot = this.hiddenToRoot;
+            this._hiddenParents = true;
+            if (oldHiddenToRoot !== this.hiddenToRoot) {
+                this._onHiddenToRootChange(this.hiddenToRoot);
             }
         }
 
@@ -309,35 +363,42 @@ Object.assign(pcui, (function () {
 
             if (this.parent) {
                 const parent = this.parent;
-                this._parent = null;
 
                 for (let i = 0; i < this._eventsParent.length; i++) {
                     this._eventsParent[i].unbind();
                 }
                 this._eventsParent.length = 0;
 
-                if (this._dom && this._dom.parentElement) {
-                    this._dom.parentElement.removeChild(this._dom);
-                }
 
-                // emit remove event on parent
+                // remove element from parent
                 // check if parent has been destroyed already
                 // because we do not want to be emitting events
                 // on a destroyed parent after it's been destroyed
                 // as it is easy to lead to null exceptions
                 if (parent.remove && !parent._destroyed) {
-                    parent.emit('remove', this);
+                    parent.remove(this);
                 }
+
+                // set parent to null and remove from
+                // parent dom just in case parent.remove above
+                // didn't work because of an override or other condition
+                this._parent = null;
+
+                if (this._dom && this._dom.parentElement) {
+                    this._dom.parentElement.removeChild(this._dom);
+                }
+
             }
 
-            if (this._dom) {
+            const dom = this._dom;
+            if (dom) {
                 // remove event listeners
-                this._dom.removeEventListener('click', this._domEventClick);
-                this._dom.removeEventListener('mouseover', this._domEventMouseOver);
-                this._dom.removeEventListener('mouseout', this._domEventMouseOut);
+                dom.removeEventListener('click', this._domEventClick);
+                dom.removeEventListener('mouseover', this._domEventMouseOver);
+                dom.removeEventListener('mouseout', this._domEventMouseOut);
 
                 // remove ui reference
-                delete this._dom.ui;
+                delete dom.ui;
 
                 this._dom = null;
             }
@@ -350,7 +411,7 @@ Object.assign(pcui, (function () {
                 clearTimeout(this._flashTimeout);
             }
 
-            this.emit('destroy');
+            this.emit('destroy', dom, this);
 
             this.unbind();
         }
@@ -444,6 +505,7 @@ Object.assign(pcui, (function () {
 
             const oldEnabled = this.enabled;
             const oldReadonly = this.readOnly;
+            const oldHiddenToRoot = this.hiddenToRoot;
 
             if (this._parent) {
                 for (let i = 0; i < this._eventsParent.length; i++) {
@@ -459,6 +521,12 @@ Object.assign(pcui, (function () {
                 this._eventsParent.push(this._parent.on('disable', this._onParentDisable.bind(this)));
                 this._eventsParent.push(this._parent.on('enable', this._onParentEnable.bind(this)));
                 this._eventsParent.push(this._parent.on('readOnly', this._onParentReadOnlyChange.bind(this)));
+                this._eventsParent.push(this._parent.on('showToRoot', this._onParentShowToRoot.bind(this)));
+                this._eventsParent.push(this._parent.on('hideToRoot', this._onParentHideToRoot.bind(this)));
+
+                this._hiddenParents = this._parent.hiddenToRoot;
+            } else {
+                this._hiddenParents = true;
             }
 
             this.emit('parent', this._parent);
@@ -473,6 +541,10 @@ Object.assign(pcui, (function () {
                 this._onReadOnlyChange(newReadonly);
             }
 
+            const hiddenToRoot = this.hiddenToRoot;
+            if (hiddenToRoot !== oldHiddenToRoot) {
+                this._onHiddenToRootChange(hiddenToRoot);
+            }
         }
 
         get hidden() {
@@ -481,6 +553,8 @@ Object.assign(pcui, (function () {
 
         set hidden(value) {
             if (value === this._hidden) return;
+
+            const oldHiddenToRoot = this.hiddenToRoot;
 
             this._hidden = value;
 
@@ -491,6 +565,14 @@ Object.assign(pcui, (function () {
             }
 
             this.emit(value ? 'hide' : 'show');
+
+            if (this.hiddenToRoot !== oldHiddenToRoot) {
+                this._onHiddenToRootChange(this.hiddenToRoot);
+            }
+        }
+
+        get hiddenToRoot() {
+            return this._hidden || this._hiddenParents;
         }
 
         get readOnly() {

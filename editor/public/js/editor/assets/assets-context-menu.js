@@ -7,10 +7,15 @@ editor.once('load', function() {
 
     var customMenuItems = [ ];
 
+    const LEGACY_SCRIPTS_ID = 'legacyScripts';
+
     // menu
     var menu = new ui.Menu();
     root.append(menu);
 
+    // menu related only to creating assets
+    var menuCreate = new ui.Menu();
+    root.append(menuCreate);
 
     // edit
     var menuItemNewScript = new ui.MenuItem({
@@ -104,7 +109,11 @@ editor.once('load', function() {
         assets.bundle = 'Asset Bundle';
     }
 
-    var addNewMenuItem = function(key, title) {
+    function isCurrentFolderLegacyScripts() {
+        return editor.call('assets:panel:currentFolder') === 'scripts';
+    }
+
+    var addNewMenuItem = function(menu, key, title) {
         // new folder
         var item = new ui.MenuItem({
             text: title,
@@ -137,7 +146,7 @@ editor.once('load', function() {
                 editor.call('assets:create:' + key, args)
             }
         });
-        menuItemNew.append(item);
+        menu.append(item);
 
         if (key === 'script') {
             editor.on('repositories:load', function (repositories) {
@@ -152,7 +161,8 @@ editor.once('load', function() {
         if (! assets.hasOwnProperty(keys[i]))
             continue;
 
-        addNewMenuItem(keys[i], assets[keys[i]]);
+        addNewMenuItem(menuItemNew, keys[i], assets[keys[i]]);
+        addNewMenuItem(menuCreate, keys[i], assets[keys[i]]);
     }
 
 
@@ -389,7 +399,11 @@ editor.once('load', function() {
 
     // filter buttons
     menu.on('open', function() {
-        menuItemNewScript.hidden = ! ((currentAsset === null || (currentAsset && currentAsset.get('type') === 'script')) && editor.call('assets:panel:currentFolder') === 'scripts');
+        if (currentAsset && currentAsset.get('id') === LEGACY_SCRIPTS_ID) {
+            menuItemNewScript.hidden = false;
+        } else {
+            menuItemNewScript.hidden = ! ((currentAsset === null || (currentAsset && currentAsset.get('type') === 'script')) && isCurrentFolderLegacyScripts());
+        }
         menuItemNew.hidden = ! menuItemNewScript.hidden;
 
         if (currentAsset) {
@@ -429,7 +443,7 @@ editor.once('load', function() {
             menuItemCreateSlicedSprite.hidden = menuItemCreateSprite.hidden;
 
             // delete
-            menuItemDelete.hidden = false;
+            menuItemDelete.hidden = (currentAsset && currentAsset.get('id') === LEGACY_SCRIPTS_ID);
 
             if (! currentAsset.get('source')) {
                 menuItemExtract.hidden = true;
@@ -552,7 +566,7 @@ editor.once('load', function() {
             }
 
             // move-to-store
-            menuItemMoveToStore.hidden = !editor.call("users:isSuperUser");
+            menuItemMoveToStore.hidden = !editor.call("users:isSuperUser") || !currentAsset || currentAsset.get('id') === LEGACY_SCRIPTS_ID;
         } else {
             // no asset
             menuItemExtract.hidden = true;
@@ -605,6 +619,30 @@ editor.once('load', function() {
             item.tree.elementTitle.addEventListener('contextmenu', contextMenuHandler, false);
     });
 
+    editor.method('assets:contextmenu:attach', function (element, asset) {
+        var contextMenuHandler = function (evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+
+            if (! editor.call('permissions:write'))
+                return;
+
+            currentAsset = asset;
+            menu.open = true;
+            menu.position(evt.clientX + 1, evt.clientY);
+        };
+
+        element.dom.addEventListener('contextmenu', contextMenuHandler);
+
+        element.on('destroy', dom => {
+            dom.removeEventListener('contextmenu', contextMenuHandler);
+        });
+    });
+
+    editor.method('assets:contextmenu:create', function () {
+        return menuCreate;
+    });
+
     editor.on('sourcefiles:add', function(asset) {
         // get grid item
         var item = editor.call('assets:panel:get', asset.get('filename'));
@@ -624,9 +662,7 @@ editor.once('load', function() {
         });
     });
 
-
-    // folders
-    editor.call('assets:panel:folders').innerElement.addEventListener('contextmenu', function(evt) {
+    function onContextMenu(evt) {
         evt.preventDefault();
         evt.stopPropagation();
 
@@ -636,20 +672,16 @@ editor.once('load', function() {
         currentAsset = undefined;
         menu.open = true;
         menu.position(evt.clientX + 1, evt.clientY);
-    }, false);
+    }
 
-    // files
-    editor.call('assets:panel:files').innerElement.addEventListener('contextmenu', function(evt) {
-        evt.preventDefault();
-        evt.stopPropagation();
+    if (!editor.call('users:hasFlag', 'hasPcuiAssetsPanel')) {
+        // folders
+        editor.call('assets:panel:folders').innerElement.addEventListener('contextmenu', onContextMenu, false);
 
-        if (! editor.call('permissions:write'))
-            return;
+        // files
+        editor.call('assets:panel:files').innerElement.addEventListener('contextmenu', onContextMenu, false);
+    }
 
-        currentAsset = null;
-        menu.open = true;
-        menu.position(evt.clientX + 1, evt.clientY);
-    }, false);
 
     editor.method('assets:contextmenu:add', function(data) {
         var item = new ui.MenuItem({

@@ -1,0 +1,25 @@
+.pcui-spinner {
+    display: inline-block;
+    margin: $element-margin;
+    vertical-align: middle;
+
+    > path {
+        animation-name: animation-spin;
+        animation-duration: 750ms;
+        animation-iteration-count: infinite;
+        animation-timing-function: linear;
+        transform-origin: center;
+    }
+
+    &.pcui-error {
+        > path {
+            animation: none;
+
+            fill: rgba(darken(#f77, 17%), 1);
+
+            &.pcui-spinner-highlight {
+                fill: rgba(#f77, 1);
+            }
+        }
+    }
+}

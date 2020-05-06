@@ -1,8 +1,58 @@
 editor.once('load', function() {
     'use strict';
 
-    var root = editor.call('layout.root');
     var assetsPanel = editor.call('layout.assets');
+
+    if (editor.call('users:hasFlag', 'hasPcuiAssetsPanel')) {
+
+        editor.once('assets:load', () => {
+            // attach contextmenu in assets:load so that
+            // we make sure that the context menu code has been
+            // executed first. This should be fixed once we make the
+            // context menu a PCUI class
+            editor.call('assets:contextmenu:attach', assetsPanel.foldersView);
+            // last parameter must be null or context menu will use the root folder
+            // TODO: fix that when the context menu becomes a pcui class
+            editor.call('assets:contextmenu:attach', assetsPanel.detailsView, null);
+            editor.call('assets:contextmenu:attach', assetsPanel.gridView, null);
+        });
+
+        editor.on('permissions:writeState', value => {
+            assetsPanel.writePermissions = value;
+        });
+
+        editor.on('assets:load', () => {
+            assetsPanel.dropManager = editor.call('editor:dropManager');
+            assetsPanel.assets = editor.call('assets:raw');
+            assetsPanel.writePermissions = editor.call('permissions:write');
+        });
+
+        editor.on('assets:clear', () => {
+            assetsPanel.assets = null;
+        });
+
+
+        editor.method('assets:panel:currentFolder', function (asset) {
+            if (asset === undefined) {
+                // special case for legacy scripts
+                if (config.project.settings.useLegacyScripts && assetsPanel.currentFolder && assetsPanel.currentFolder.get('id') === pcui.AssetPanel.LEGACY_SCRIPTS_ID) {
+                    return 'scripts';
+                }
+
+                return assetsPanel.currentFolder;
+            }
+
+            assetsPanel.currentFolder = asset;
+        });
+
+        editor.method('assets:progress', function (progress) {
+            assetsPanel.progressBar.value = progress * 100;
+        });
+
+        return;
+    }
+
+    var root = editor.call('layout.root');
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
     var dragging = false;

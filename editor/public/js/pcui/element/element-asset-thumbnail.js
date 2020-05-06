@@ -4,7 +4,16 @@ Object.assign(pcui, (function () {
     const CLASS_ASSET_THUMB = 'pcui-asset-thumb';
     const CLASS_ASSET_THUMB_EMPTY = 'pcui-asset-thumb-empty';
     const CLASS_ASSET_THUMB_MISSING = 'pcui-asset-thumb-missing';
+    const CLASS_ASSET_PREFIX = 'asset-icon-prefix';
     const CLASS_FLIP_Y = 'flip-y';
+
+    const CANVAS_TYPES = {
+        'cubemap': true,
+        'font': true,
+        'material': true,
+        'model': true,
+        'sprite': true
+    };
 
     /**
      * @name pcui.AssetThumbnail
@@ -17,24 +26,37 @@ Object.assign(pcui, (function () {
          * Creates a new pcui.AssetThumbnail.
          * @param {Object} args The arguments
          * @param {ObserverList} args.assets The assets list
+         * @param {Observer} [args.sceneSettings] The scene settings
+         * @param {Number} [args.canvasWidth] Fixed width for the canvas. Increases performance but uses same canvas resolution every time.
+         * @param {Number} [args.canvasHeight] Fixed height for the canvas. Increases performance but uses same canvas resolution every time.
          */
         constructor(args) {
             if (!args) args = {};
-            super(document.createElement('div'), args);
+            super(document.createElement('span'), args);
 
             this.class.add(CLASS_ASSET_THUMB, CLASS_ASSET_THUMB_EMPTY);
 
             this._assets = args.assets;
+            this._sceneSettings = args.sceneSettings;
 
             this._domImage = null;
             this._domCanvas = null;
 
             this._canvasRenderer = null;
+            this._canvasDirty = false;
             this._renderCanvasTimeout = null;
 
             this._evtThumbnailSet = null;
             this._evtThumbnailUnset = null;
 
+            this._previousAssetType = null;
+
+            if (args.canvasWidth) {
+                this._canvasWidth = args.canvasWidth;
+            }
+            if (args.canvasHeight) {
+                this._canvasHeight = args.canvasHeight;
+            }
             this.value = args.value || null;
 
             this.renderChanges = args.renderChanges || false;
@@ -44,27 +66,57 @@ Object.assign(pcui, (function () {
                     this.flash();
                 }
             });
+
+            this.on('showToRoot', () => {
+                if (!this._canvasDirty || !this.value) return;
+
+                const asset = this._getAsset(this.value);
+                if (this._shouldRenderCanvasThumbnailForAsset(asset)) {
+                    this._renderCanvasThumbnailWhenReady(asset);
+                }
+            });
+        }
+
+        _enableFontIcons(asset) {
+            this._previousAssetType = 'type-' + asset.get('type');
+            this.class.add(CLASS_ASSET_PREFIX);
+            this.class.add(this._previousAssetType);
+            if (asset.get('source')) {
+                this.class.add(this._previousAssetType + '-source');
+            }
+        }
+
+        _disableFontIcons() {
+            if (this._previousAssetType) {
+                this.class.remove(CLASS_ASSET_PREFIX);
+                this.class.remove(this._previousAssetType);
+                this.class.remove(this._previousAssetType + '-source');
+                this._previousAssetType = null;
+            }
         }
 
         _showImageThumbnail(asset) {
             this._destroyCanvas();
             this._createImage();
 
+            this._disableFontIcons();
+
             let src;
-            if (!asset) {
-                src = `${config.url.home}/editor/scene/img/asset-placeholder-texture.png`;
-            } else {
-                if (asset.has('thumbnails.m')) {
-                    src = asset.get('thumbnails.m');
-                    if (!src.startsWith('data:image/png;base64')) {
-                        src = config.url.home + src.appendQuery('t=' + asset.get('file.hash'));
-                    }
-                } else {
-                    src = `${config.url.home}/editor/scene/img/asset-placeholder-${asset.get('type')}.png`;
+            if (asset && asset.has('thumbnails.m')) {
+                src = asset.get('thumbnails.m');
+                if (!src.startsWith('data:image/png;base64')) {
+                    src = config.url.home + src.appendQuery('t=' + asset.get('file.hash'));
                 }
+            } else if (!asset) {
+                src = `${config.url.home}/editor/scene/img/asset-placeholder-texture.png`;
             }
 
-            this._domImage.src = src;
+            if (src) {
+                this._domImage.src = src;
+                return;
+            }
+
+            this._enableFontIcons(asset);
         }
 
         // Wait until the element is displayed and has a valid width and height
@@ -72,14 +124,19 @@ Object.assign(pcui, (function () {
         // an exception will be raised because we will be trying to create a canvas
         // with 0 width / height.
         _renderCanvasThumbnailWhenReady(asset) {
+            this._canvasDirty = true;
+
             if (this._renderCanvasTimeout) {
                 clearTimeout(this._renderCanvasTimeout);
                 this._renderCanvasTimeout = null;
             }
 
-            if (this.hidden || this._destroyed) return;
+            this._destroyImage();
+            this._createCanvas();
 
-            if (!this.width || !this.height) {
+            if (this.hiddenToRoot || this._destroyed) return;
+
+            if (!this._canvasWidth && !this.width || !this._canvasHeight && !this.height) {
                 this._renderCanvasTimeout = setTimeout(() => {
                     this._renderCanvasThumbnailWhenReady(asset);
                 });
@@ -90,38 +147,49 @@ Object.assign(pcui, (function () {
         }
 
         _renderCanvasThumbnail(asset) {
+            if (this._renderCanvasTimeout) {
+                clearTimeout(this._renderCanvasTimeout);
+                this._renderCanvasTimeout = null;
+            }
+
             this._destroyImage();
             this._createCanvas();
 
             var type = asset.get('type');
-            var renderer;
+
+            if (this._canvasRenderer) {
+                this._canvasRenderer.destroy();
+                this._canvasRenderer = null;
+            }
+
             switch (type) {
                 case 'cubemap':
-                    renderer = new pcui.CubemapThumbnailRenderer(asset, this._domCanvas, this._assets);
+                    this._canvasRenderer = new pcui.CubemapThumbnailRenderer(asset, this._domCanvas, this._assets);
                     break;
                 case 'font':
-                    renderer = new pcui.FontThumbnailRenderer(asset, this._domCanvas);
+                    this._canvasRenderer = new pcui.FontThumbnailRenderer(asset, this._domCanvas);
                     break;
                 case 'material':
-                    renderer = new pcui.MaterialThumbnailRenderer(asset, this._domCanvas);
+                    this._canvasRenderer = new pcui.MaterialThumbnailRenderer(asset, this._domCanvas, this._sceneSettings);
                     break;
                 case 'model':
-                    renderer = new pcui.ModelThumbnailRenderer(asset, this._domCanvas);
+                    this._canvasRenderer = new pcui.ModelThumbnailRenderer(asset, this._domCanvas);
                     break;
                 case 'sprite':
-                    renderer = new pcui.SpriteThumbnailRenderer(asset, this._domCanvas, this._assets);
+                    this._canvasRenderer = new pcui.SpriteThumbnailRenderer(asset, this._domCanvas, this._assets);
                     break;
             }
 
-            this._canvasRenderer = renderer;
 
-            this._canvasRenderer.render();
+            this._canvasRenderer.queueRender();
 
             if (type !== 'sprite' && type !== 'cubemap') {
                 this._domCanvas.classList.add(CLASS_FLIP_Y);
             } else {
                 this._domCanvas.classList.remove(CLASS_FLIP_Y);
             }
+
+            this._canvasDirty = false;
         }
 
         _createImage() {
@@ -132,17 +200,35 @@ Object.assign(pcui, (function () {
 
         _destroyImage() {
             if (!this._domImage) return;
+
+            this._disableFontIcons();
+
             this.dom.removeChild(this._domImage);
+
             this._domImage = null;
         }
 
         _createCanvas() {
-            if (this._domCanvas) return;
+            let appendCanvas = false;
 
-            this._domCanvas = document.createElement('canvas');
-            this._domCanvas.width = this.width;
-            this._domCanvas.height = this.height;
-            this.dom.appendChild(this._domCanvas);
+            const width = this._canvasWidth || this.width || 64;
+            const height = this._canvasHeight || this.height || 64;
+
+            if (!this._domCanvas) {
+                this._domCanvas = document.createElement('canvas');
+                appendCanvas = true;
+            }
+
+            if (this._domCanvas.width !== width) {
+                this._domCanvas.width = width;
+            }
+            if (this._domCanvas.height !== height) {
+                this._domCanvas.height = height;
+            }
+
+            if (appendCanvas) {
+                this.dom.appendChild(this._domCanvas);
+            }
         }
 
         _destroyCanvas() {
@@ -165,6 +251,10 @@ Object.assign(pcui, (function () {
 
             this._onChange(value);
 
+            if (value instanceof Observer) {
+                value = value.get('id');
+            }
+
             this.emit('change', value);
 
             return true;
@@ -184,6 +274,7 @@ Object.assign(pcui, (function () {
             if (this._canvasRenderer) {
                 this._canvasRenderer.destroy();
                 this._canvasRenderer = null;
+                this._canvasDirty = false;
             }
 
             this.class.remove(CLASS_ASSET_THUMB_MISSING);
@@ -202,16 +293,14 @@ Object.assign(pcui, (function () {
             }
 
             // show placeholder image on missing asset
-            const asset = this._assets.get(value);
+            const asset = this._getAsset(value);
             if (!asset) {
                 this.class.add(CLASS_ASSET_THUMB_MISSING);
                 this._showImageThumbnail(null);
                 return;
             }
 
-            var type = asset.get('type');
-
-            if (type === 'cubemap' || type === 'font' || type === 'material' || type === 'model' || type === 'sprite') {
+            if (this._shouldRenderCanvasThumbnailForAsset(asset)) {
                 this._renderCanvasThumbnailWhenReady(asset);
             } else {
                 this._showImageThumbnail(asset);
@@ -222,6 +311,21 @@ Object.assign(pcui, (function () {
                 this._evtThumbnailUnset = asset.on('thumbnails.m:unset', () => {
                     this._showImageThumbnail(asset);
                 });
+            }
+        }
+
+        _getAsset(value) {
+            return value instanceof Observer ? value : this._assets.get(value);
+        }
+
+        _shouldRenderCanvasThumbnailForAsset(asset) {
+            return asset && !asset.get('source') && CANVAS_TYPES[asset.get('type')];
+        }
+
+        onResize() {
+            const asset = this._getAsset(this.value);
+            if (this._shouldRenderCanvasThumbnailForAsset(asset)) {
+                this._renderCanvasThumbnailWhenReady(asset);
             }
         }
 
@@ -252,6 +356,9 @@ Object.assign(pcui, (function () {
             const changed = this._updateValue(value);
 
             if (changed && this._binding) {
+                if (value instanceof Observer) {
+                    value = value.get('id');
+                }
                 this._binding.setValue(value);
             }
         }
