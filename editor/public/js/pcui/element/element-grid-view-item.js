@@ -5,6 +5,17 @@ Object.assign(pcui, (function () {
     const CLASS_SELECTED = CLASS_ROOT + '-selected';
     const CLASS_TEXT = CLASS_ROOT + '-text';
 
+    /**
+     * @name pcui.GridViewItem
+     * @extends pcui.Container
+     * @mixes pcui.IFocusable
+     * @classdesc Represents a grid view item used in pcui.GridView.
+     * @property {Boolean} allowSelect If true allow selecting the item. Defaults to true.
+     * @property {Boolean} selected Whether the item is selected.
+     * @property {String} text The text of the item.
+     * @property {pcui.GridViewItem} previousSibling Returns the previous visible sibling grid view item.
+     * @property {pcui.GridViewItem} nextSibling Returns the next visible sibling grid view item.
+     */
     class GridViewItem extends pcui.Container {
         constructor(args) {
             args = Object.assign({
@@ -107,7 +118,7 @@ Object.assign(pcui, (function () {
         get nextSibling() {
             let sibling = this.dom.nextSibling;
             while (sibling) {
-                if (sibling.ui instanceof pcui.GridViewItem) {
+                if (sibling.ui instanceof pcui.GridViewItem && !sibling.ui.hidden) {
                     return sibling.ui;
                 }
 
@@ -120,7 +131,7 @@ Object.assign(pcui, (function () {
         get previousSibling() {
             let sibling = this.dom.previousSibling;
             while (sibling) {
-                if (sibling.ui instanceof pcui.GridViewItem) {
+                if (sibling.ui instanceof pcui.GridViewItem && !sibling.ui.hidden) {
                     return sibling.ui;
                 }
 
@@ -130,8 +141,9 @@ Object.assign(pcui, (function () {
             return null;
         }
 
-
     }
+
+    utils.implements(GridViewItem, pcui.IFocusable);
 
     return {
         GridViewItem: GridViewItem

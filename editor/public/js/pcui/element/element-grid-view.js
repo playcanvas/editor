@@ -3,7 +3,19 @@ Object.assign(pcui, (function () {
 
     const CLASS_ROOT = 'pcui-gridview';
 
+    /**
+     * @name pcui.GridView
+     * @extends pcui.Container
+     * @classdesc Represents a container that shows a flexible wrappable
+     * list of items that looks like a grid. Contains pcui.GridViewItem's.
+     * @property {pcui.GridViewItem[]} selected Gets the selected grid view items.
+     */
     class GridView extends pcui.Container {
+        /**
+         * Creates new GridView.
+         * @param {Object} [args] The arguments
+         * @param {Function} [args.filterFn] A filter function to filter gridview items with signature (pcui.GridViewItem) => Boolean.
+         */
         constructor(args) {
             if (!args) args = {};
 
@@ -111,6 +123,10 @@ Object.assign(pcui, (function () {
             }
         }
 
+        /**
+         * @name pcui.GridView#deselect
+         * @description Deselects all selected grid view items.
+         */
         deselect() {
             let i = this._selected.length;
             while (i--) {
@@ -118,6 +134,10 @@ Object.assign(pcui, (function () {
             }
         }
 
+        /**
+         * @name pcui.GridView#filter
+         * @description Filters grid view items with the filter function provided in the constructor.
+         */
         filter() {
             this.forEachChild(child => {
                 if (child instanceof pcui.GridViewItem) {
@@ -126,8 +146,20 @@ Object.assign(pcui, (function () {
             });
         }
 
-        filterAsync() {
+        /**
+         * @name pcui.GridView#filterAsync
+         * @description Filters grid view items asynchronously by only allowing up to the specified
+         * number of grid view item operations. Fires following events:
+         * filter:start - When filtering starts
+         * filter:end - When filtering ends
+         * filter:delay - When an animation frame is requested to process another batch.
+         * filter:cancel - When filtering is canceled.
+         * @param {Number} batchLimit The maximum number of items to show
+         * before requesting another animation frame.
+         */
+        filterAsync(batchLimit) {
             let i = 0;
+            batchLimit = batchLimit || 100;
             const children = this.dom.childNodes;
             const len = children.length;
 
@@ -138,7 +170,7 @@ Object.assign(pcui, (function () {
             const next = () => {
                 this._filterAnimationFrame = null;
                 let visible = 0;
-                for (; i < len && visible < 100; i++) {
+                for (; i < len && visible < batchLimit; i++) {
                     if (this._filterCanceled) {
                         this._filterCanceled = false;
                         this.emit('filter:cancel');
@@ -167,6 +199,10 @@ Object.assign(pcui, (function () {
             next();
         }
 
+        /**
+         * @name pcui.GridView#filterAsyncCancel
+         * @description Cancels asynchronous filtering.
+         */
         filterAsyncCancel() {
             if (this._filterAnimationFrame) {
                 cancelAnimationFrame(this._filterAnimationFrame);
