@@ -624,6 +624,30 @@
             width: 230px;
             font-weight: bold;
             line-height: 24px;
+
+            > input {
+                max-width: calc(100% - 24px);
+                text-overflow: ellipsis;
+            }
+
+            .pcui-button {
+                position: absolute;
+                right: 0;
+                background: transparent;
+                margin: 0;
+                border: 0;
+                box-shadow: none;
+                &:hover {
+                    color: $error;
+                }
+            }
+
+            // placeholder left
+            &:after {
+                left: 0;
+                right: initial;
+                font-size: 12px;
+            }
         }
 
         .pcui-asset-panel-btn-store {

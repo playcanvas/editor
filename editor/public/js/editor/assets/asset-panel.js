@@ -24,6 +24,7 @@ Object.assign(pcui, (function () {
     const CLASS_BTN_STORE = CLASS_ROOT + '-btn-store';
     const CLASS_BTN_CONTAINER = CLASS_ROOT + '-btn-container';
     const CLASS_BTN_ACTIVE = CLASS_ROOT + '-btn-active';
+    const CLASS_BTN_CLEAR_SEARCH = CLASS_ROOT + '-btn-clear-search';
 
     const CLASS_LEGACY_SCRIPTS_FOLDER = CLASS_ROOT + '-legacy-scripts';
 
@@ -242,6 +243,17 @@ Object.assign(pcui, (function () {
             this._containerControls.append(this._searchInput);
             this._searchInput.on('change', this._onSearchInputChange.bind(this));
             this._searchTags = null;
+            this._searchPreviousValue = '';
+
+            // clear search input
+            this._btnClearSearch = new pcui.Button({
+                icon: 'E132',
+                hidden: true,
+                class: CLASS_BTN_CLEAR_SEARCH
+            });
+            this._searchInput.dom.appendChild(this._btnClearSearch.dom);
+            this._btnClearSearch.parent = this._searchInput;
+            this._btnClearSearch.on('click', this._onClickClearSearch.bind(this));
 
             // Show asset store
             const btnStore = new pcui.Button({
@@ -526,30 +538,67 @@ Object.assign(pcui, (function () {
             return str.trim().split(',').map(s => s.trim());
         }
 
+        // switch folder to selected asset
+        // if we do not have selected assets in different folders
+        _setCurrentFolderFromSelectedAssets() {
+            if (this._selector.type !== 'asset') return;
+
+            const path = this._selector.items[0].get('path');
+            for (let i = 1; i < this._selector.items.length; i++) {
+                if (!path.equals(this._selector.items[i].get('path'))) {
+                    return;
+                }
+            }
+
+            const suspendFiltering = this._suspendFiltering;
+            this._suspendFiltering = true;
+            this.currentFolder = (path.length ? this._assets.get(path[path.length - 1]) : null);
+            this._suspendFiltering = suspendFiltering;
+        }
+
+        _parseSearchTags(searchQuery) {
+            let tags = searchQuery.match(REGEX_TAGS);
+            if (!tags) return;
+            tags = tags[1].trim();
+            if (!tags.length) return;
+
+            let subTags;
+            while ((subTags = REGEX_SUB_TAGS.exec(tags)) !== null) {
+                if (!this._searchTags) this._searchTags = [];
+                this._searchTags.push(this._processTagsString(subTags[1]));
+            }
+
+            if (!this._searchTags) {
+                this._searchTags = this._processTagsString(tags);
+            }
+        }
+
         // Analyzes tags first and then re-filters assets
         _onSearchInputChange(value) {
             this._searchTags = null;
             value = value.trim();
 
-            let tags = value.match(REGEX_TAGS);
-            if (tags) {
-                tags = tags[1].trim();
-                if (tags.length) {
-                    let subTags;
-                    while ((subTags = REGEX_SUB_TAGS.exec(tags)) !== null) {
-                        if (!this._searchTags) this._searchTags = [];
-                        this._searchTags.push(this._processTagsString(subTags[1]));
-                    }
+            if (this._searchPreviousValue === value) return;
 
-                    if (!this._searchTags) {
-                        this._searchTags = this._processTagsString(tags);
-                    }
-                }
+            this._searchPreviousValue = value;
+
+            if (!value) {
+                this._setCurrentFolderFromSelectedAssets();
+                this._btnClearSearch.hidden = true;
+                this._searchInput.placeholder = 'Search';
+            } else {
+                this._parseSearchTags(value);
+                this._btnClearSearch.hidden = false;
+                this._searchInput.placeholder = '';
             }
 
             if (!this._suspendFiltering) {
                 this.filter();
             }
+        }
+
+        _onClickClearSearch() {
+            this._searchInput.value = '';
         }
 
         _refreshViewModeButtons() {
@@ -1705,26 +1754,26 @@ Object.assign(pcui, (function () {
                 }
             }
 
+            if (this._currentFolder === LEGACY_SCRIPTS_FOLDER_ASSET) {
+                return !!element.asset.legacyScript;
+            }
+
+            // if we have a search query then show results from this folder and subfolders too
             const path = element.asset.get('path');
-            if (this._currentFolder === null && path.length) {
-                return false;
-            }
-
-            if (this._currentFolder && !path.length) {
-                return false;
-            }
-
-            if (this._currentFolder) {
-                if (this._currentFolder === LEGACY_SCRIPTS_FOLDER_ASSET) {
-                    if (!element.asset.legacyScript) {
-                        return false;
-                    }
-                } else if (parseInt(this._currentFolder.get('id'), 10) !== path[path.length - 1]) {
-                    return false;
+            if (searchQuery) {
+                if (!this._currentFolder) {
+                    return true;
                 }
+
+                return path.includes(parseInt(this._currentFolder.get('id'), 10));
             }
 
-            return true;
+            // at this stage only return true if the asset is in the current folder
+            if (!this._currentFolder) {
+                return !path.length;
+            }
+
+            return path[path.length - 1] === parseInt(this._currentFolder.get('id'), 10);
         }
 
         _onWhoIsOnlineRemove(userId) {

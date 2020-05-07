@@ -8,6 +8,7 @@
     background-color: $bcg-dark;
     vertical-align: top;
     transition: color 100ms, background-color 100ms, box-shadow 100ms;
+    position: relative;
 
     color: $text-secondary;
 
@@ -30,8 +31,6 @@
 }
 
 .pcui-text-input.pcui-multiple-values {
-    position: relative;
-
     &:before {
         position: absolute;
         padding: 0 8px;
