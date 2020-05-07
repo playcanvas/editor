@@ -69,12 +69,15 @@ editor.on('load', function() {
     // expose
     editor.method('layout.toolbar', function () { return toolbar; });
 
+
+    var hasPcuiAssetsPanel = editor.call('users:hasFlag', 'hasPcuiAssetsPanel');
+
     // hierarchy
     var hierarchyPanel = new pcui.Panel({
         headerText: 'HIERARCHY',
         id: 'layout-hierarchy',
         flex: true,
-        enabled: false,
+        enabled: hasPcuiAssetsPanel,
         width: editor.call('localStorage:get', 'editor:layout:hierarchy:width') || 256,
         panelType: 'normal',
         collapsible: true,
@@ -100,9 +103,11 @@ editor.on('load', function() {
     // expose
     editor.method('layout.hierarchy', function () { return hierarchyPanel; });
 
-    editor.on('permissions:writeState', function (state) {
-        hierarchyPanel.enabled = state;
-    });
+    if (!hasPcuiAssetsPanel) {
+        editor.on('permissions:writeState', function (state) {
+            hierarchyPanel.enabled = state;
+        });
+    }
 
     // viewport
     var viewport = new pcui.Container({
@@ -115,7 +120,7 @@ editor.on('load', function() {
 
     // assets
     var assetsPanel;
-    if (editor.call('users:hasFlag', 'hasPcuiAssetsPanel')) {
+    if (hasPcuiAssetsPanel) {
         assetsPanel = new pcui.AssetPanel({
             id: 'layout-assets',
             class: 'assets',

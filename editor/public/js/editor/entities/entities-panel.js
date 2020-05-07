@@ -23,8 +23,7 @@ editor.once('load', function() {
     treeView.createDropTarget(panel.content);
 
     editor.on('permissions:writeState', function(state) {
-        treeView.allowDrag = state;
-        treeView.allowRenaming = state;
+        treeView.writePermissions = state;
     });
 
     // return hirarchy

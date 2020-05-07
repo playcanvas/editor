@@ -65,6 +65,8 @@ Object.assign(pcui, (function () {
                 this._eventsEditor.push(this._dropManager.on('activate', this._onActivateDropManager.bind(this)));
                 this._eventsEditor.push(this._dropManager.on('deactivate', this._onDeactivateDropManager.bind(this)));
             }
+
+            this.writePermissions = !!args.writePermissions;
         }
 
         _onRename(item, name) {
@@ -214,7 +216,7 @@ Object.assign(pcui, (function () {
         }
 
         _onActivateDropManager() {
-            if (!this.allowDrag) return;
+            if (!this._writePermissions) return;
 
             // remove event listeners just in case
             this.dom.removeEventListener('mouseenter', this._domEvtEntitiesMouseEnter);
@@ -428,7 +430,7 @@ Object.assign(pcui, (function () {
         }
 
         _isDraggingValidAssetType(dropType, dropData) {
-            if (!this.allowDrag) return false;
+            if (!this._writePermissions) return false;
 
             if (dropType === 'assets') {
                 let assets = dropData.ids.map(id => this._assets.get(id));
@@ -787,6 +789,19 @@ Object.assign(pcui, (function () {
             }
         }
 
+        get writePermissions() {
+            return this._writePermissions;
+        }
+
+        set writePermissions(value) {
+            if (this._writePermissions === value) return;
+
+            this._writePermissions = value;
+
+            this.allowDrag = value;
+            this.allowRenaming = value;
+
+        }
     }
 
     return {
