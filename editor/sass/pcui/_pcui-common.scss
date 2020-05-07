@@ -44,7 +44,8 @@ $assets: 'animation',
          'sprite',
          'text',
          'texture',
-         'textureatlas';
+         'textureatlas'
+         'wasm';
 
 $icons: (
     'asset-animation': '\E213',
@@ -65,7 +66,8 @@ $icons: (
     'asset-sprite': '\E395',
     'asset-text': '\E209',
     'asset-texture': '\E201',
-    'asset-textureatlas': '\E201'
+    'asset-textureatlas': '\E201',
+    'asset-wasm': '\E392'
 );
 
 @mixin checkerboard($color1, $color2, $size) {

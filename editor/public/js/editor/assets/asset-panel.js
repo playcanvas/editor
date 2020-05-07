@@ -52,7 +52,8 @@ Object.assign(pcui, (function () {
         texture: 'Texture',
         textureSource: 'Texture (source)',
         textureatlas: 'Texture Atlas',
-        textureatlasSource: 'Texture Atlas (source)'
+        textureatlasSource: 'Texture Atlas (source)',
+        wasm: 'Wasm'
     };
 
     // types of assets that can be double clicked
