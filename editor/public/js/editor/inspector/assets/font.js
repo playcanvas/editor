@@ -229,7 +229,7 @@ Object.assign(pcui, (function () {
         _onClickCharacterRangeButton() {
             const from = this._characterRangeStart.value;
             const to = this._characterRangeEnd.value;
-            this._fontAttributes.getField('meta.chars').values = this._assets.map(() => {
+            this._fontAttributes.getField('characters').values = this._assets.map(() => {
                 return this._fontAttributes.getField('characters').value + this._getCharacterRange({ from, to });
             });
         }
