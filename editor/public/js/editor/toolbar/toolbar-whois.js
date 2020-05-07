@@ -16,6 +16,18 @@ editor.once('load', function() {
         }
     });
 
+    if (editor.call('users:hasFlag', 'hasPcuiAssetsPanel')) {
+        var assetPanel = editor.call('layout.assets');
+
+        const adjustPosition = () => {
+            panel.style.bottom = assetPanel.collapsed ? '34px' : '4px';
+        };
+
+        adjustPosition();
+        assetPanel.on('collapse', adjustPosition);
+        assetPanel.on('expand', adjustPosition);
+    }
+
 
     editor.on('whoisonline:add', function (id) {
         for(var i = 0; i < panel.innerElement.childNodes.length; i++) {

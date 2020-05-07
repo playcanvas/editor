@@ -551,6 +551,7 @@
         > .pcui-panel-header {
             position: absolute;
             top: -32px;
+            left: 4px;
 
             .pcui-asset-panel-hide-on-collapse {
                 display: none;
@@ -562,6 +563,7 @@
         background-color: $bcg-darker;
         > .pcui-panel-header-title {
             margin-right: 2 * $element-margin;
+            flex-shrink: 0;
         }
 
         .pcui-asset-panel-controls {
