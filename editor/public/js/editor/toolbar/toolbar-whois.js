@@ -20,7 +20,7 @@ editor.once('load', function() {
         var assetPanel = editor.call('layout.assets');
 
         const adjustPosition = () => {
-            panel.style.bottom = assetPanel.collapsed ? '34px' : '4px';
+            panel.style.bottom = assetPanel.collapsed ? '34px' : '2px';
         };
 
         adjustPosition();
