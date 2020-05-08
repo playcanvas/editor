@@ -11,6 +11,11 @@ Object.assign(pcui, (function () {
 
     const CLASS_RESIZING = CLASS_TABLE + '-resizing';
 
+    const CLASS_RESIZING_VISIBLE = CLASS_RESIZING + '-visible';
+
+    const CSS_PROPERTY_HEIGHT_BEFORE = '--resizing-before';
+    const CSS_PROPERTY_HEIGHT_AFTER = '--resizing-after';
+
     /**
      * @name pcui.Table
      * @classdesc Represents a table view with optional resizable and sortable columns.
@@ -75,6 +80,7 @@ Object.assign(pcui, (function () {
             };
 
             this._draggedColumn = null;
+            this._resizingVisibleRows = [];
             this._didFreezeColumnWidth = false;
 
             this._columns = [];
@@ -96,6 +102,8 @@ Object.assign(pcui, (function () {
             this._onRowFocusHandler = this._onRowFocus.bind(this);
             this._onRowBlurHandler = this._onRowBlur.bind(this);
             this._onRowKeyDownHandler = this._onRowKeyDown.bind(this);
+
+            this._domEvtWheel = this._onWheelWhileResizing.bind(this);
         }
 
         // Recreates the table rows
@@ -282,6 +290,13 @@ Object.assign(pcui, (function () {
             next.selected = true;
         }
 
+        // prevent scroll wheel while resizing
+        // to avoid showing our 'clever' hacks
+        _onWheelWhileResizing(evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+        }
+
         // Executes specified function for each cell in the
         // specified column index for the specified pcui.TableRow container
         // The function has a signature of (pcui.Element) => {}
@@ -327,6 +342,74 @@ Object.assign(pcui, (function () {
                 cell.width = width; // set width to style.width
                 this._columns[columnIndex].width = cell.width; // fetch real width again and store it
             });
+        }
+
+        // Hides rows that are not visible in the scroll view
+        // and adds filler space above and below the visible rows to
+        // keep the scroll view the same height.
+        _hideRowsOutOfView() {
+            const rect = this.dom.getBoundingClientRect();
+            const scrollTop = this.dom.scrollTop;
+            this._prevScrollTop = scrollTop;
+
+            this._resizingVisibleRows.length = 0;
+            const visible = this._resizingVisibleRows;
+
+            // Find all the rows that are inside the scroll view
+            // and store them in _resizingVisibleRows.
+            // We will hide the rest.
+            let foundFirst = false;
+            let row = this.body.dom.childNodes[0];
+            while (row) {
+                if (row.ui instanceof pcui.TableRow && !row.ui.hidden) {
+                    const rowRect = row.getBoundingClientRect();
+
+                    if (rowRect.bottom >= rect.top && rowRect.top <= rect.bottom) {
+                        visible.push(row);
+                        foundFirst = true;
+                    } else if (foundFirst) {
+                        // early break as if this rect is not visible
+                        // but we have already added one this means we are
+                        // beyond the bottom bounds of the scroll view.
+                        break;
+                    }
+                }
+
+                row = row.nextSibling;
+            }
+
+            if (visible.length) {
+                // calculate the height before the first visible row
+                // and the height after the last visible row.
+                const bodyRect = this.body.dom.getBoundingClientRect();
+                const firstRect = visible[0].getBoundingClientRect();
+                const lastRect = visible[visible.length - 1].getBoundingClientRect();
+                const beforeHeight = firstRect.top - bodyRect.top;
+                const afterHeight = bodyRect.bottom - lastRect.bottom;
+
+                requestAnimationFrame(() => {
+                    if (!visible.length) return;
+
+                    // Set custom CSS properties for before and after heights so that we fill
+                    // the table with a pseudo-element row before the first visible row and one
+                    // after the last visible row. This will ensure that our scrollview remains
+                    // the same height and the scroll position remains at the same place. The user
+                    // should not see any movement or changes to the scrollview that way.
+                    this.body.style.setProperty(CSS_PROPERTY_HEIGHT_BEFORE, beforeHeight + 'px');
+                    this.body.style.setProperty(CSS_PROPERTY_HEIGHT_AFTER, afterHeight + 'px');
+                    visible.forEach(dom => dom.classList.add(CLASS_RESIZING_VISIBLE));
+                    this.dom.scrollTop = scrollTop;
+                });
+            }
+        }
+
+        // Restore state of rows before we started resizing
+        _restoreRowsOutOfView() {
+            this.body.style.removeProperty(CSS_PROPERTY_HEIGHT_BEFORE);
+            this.body.style.removeProperty(CSS_PROPERTY_HEIGHT_AFTER);
+            this._resizingVisibleRows.forEach(dom => dom.classList.remove(CLASS_RESIZING_VISIBLE));
+            this._resizingVisibleRows.length = 0;
+            this.dom.scrollTop = this._prevScrollTop;
         }
 
         // Adds handle to resize column
@@ -377,7 +460,6 @@ Object.assign(pcui, (function () {
                 if (this._draggedColumn !== null) return;
 
                 this._draggedColumn = colIndex;
-                this.class.add(CLASS_RESIZING);
 
                 // freeze width on all columns
                 // the first time the user tries to resize
@@ -389,9 +471,16 @@ Object.assign(pcui, (function () {
                     this._didFreezeColumnWidth = true;
                 }
 
+                this._hideRowsOutOfView();
+
+                this.dom.removeEventListener('wheel', this._domEvtWheel);
+                this.dom.addEventListener('wheel', this._domEvtWheel);
+
                 pageX = evt.pageX;
                 // width = cell.width;
                 width = this._columns[colIndex].width;
+
+                this.class.add(CLASS_RESIZING);
 
                 window.addEventListener('mouseup', onMouseUp, true);
                 window.addEventListener('mousemove', onMouseMove, true);
@@ -406,6 +495,10 @@ Object.assign(pcui, (function () {
                 requestAnimationFrame(() => {
                     this._draggedColumn = null;
                 });
+
+                this._restoreRowsOutOfView();
+
+                this.dom.removeEventListener('wheel', this._domEvtWheel);
 
                 window.removeEventListener('mouseup', onMouseUp, true);
                 window.removeEventListener('mousemove', onMouseMove, true);
@@ -706,6 +799,15 @@ Object.assign(pcui, (function () {
             this.selected.forEach(row => {
                 row.selected = false;
             });
+        }
+
+        destroy() {
+            if (this._destroyed) return;
+
+            this._resizingVisibleRows.length = 0;
+            this.dom.addEventListener('wheel', this._domEvtWheel);
+
+            super.destroy();
         }
 
         get columns() {

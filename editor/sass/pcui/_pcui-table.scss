@@ -82,6 +82,34 @@
     }
 }
 
+.pcui-table-resizing {
+    > table > tbody {
+        // add fake row before all visible
+        // resized elements
+        &:before {
+            content: ' ';
+            display: table-row;
+            // get height from custom CSS property set in JS
+            height: var(--resizing-before);
+        }
+
+        // add fake row after all visible
+        // resized elements
+        &:after {
+            content: ' ';
+            display: table-row;
+            // get height from custom CSS property set in JS
+            height: var(--resizing-after);
+        }
+    }
+
+    // hide all rows except the ones that have .pcui-table-resizing-visible
+    > table > tbody > .pcui-table-row:not(.pcui-table-resizing-visible) {
+        display: none;
+    }
+}
+
+
 .pcui-table-row-selected {
     background-color: $bcg-darkest;
     color: $text-primary;
