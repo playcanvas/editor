@@ -15,6 +15,13 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'settings',
+            label: 'Assets default to preload',
+            type: 'boolean',
+            alias: 'asset-tasks:defaultAssetPreload',
+            path: 'editor.pipeline.defaultAssetPreload'
+        },
+        {
+            observer: 'settings',
             label: 'Textures POT',
             type: 'boolean',
             alias: 'asset-tasks:texturePot',
@@ -68,13 +75,6 @@ Object.assign(pcui, (function () {
             type: 'boolean',
             alias: 'asset-tasks:useGlb',
             path: 'editor.pipeline.useGlb'
-        },
-        {
-            observer: 'settings',
-            label: 'Assets default to preload',
-            type: 'boolean',
-            alias: 'asset-tasks:defaultAssetPreload',
-            path: 'editor.pipeline.defaultAssetPreload'
         }
     ];
 
@@ -90,7 +90,7 @@ Object.assign(pcui, (function () {
             this._attributesInspector.class.add(CLASS_ATTRIBUTES);
 
             // add sections
-            this._appendSection('Texture Import Settings', this._attributesInspector.getField('editor.pipeline.searchRelatedAssets'));
+            this._appendSection('Texture Import Settings', this._attributesInspector.getField('editor.pipeline.defaultAssetPreload'));
             this._appendSection('Model Import Settings', this._attributesInspector.getField('editor.pipeline.textureDefaultToAtlas'));
 
             // reference
