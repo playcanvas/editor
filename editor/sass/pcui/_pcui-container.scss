@@ -2,6 +2,8 @@
 .pcui-container {
     // containers should be relative to each other
     position: relative;
+    min-width: 0; // this fixes a lot of flex / grid issues
+    min-height: 0; // this fixes a lot of flex / grid issues
 }
 
 // resizable content

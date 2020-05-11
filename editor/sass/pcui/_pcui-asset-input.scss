@@ -20,6 +20,11 @@
     border: 1px solid $bcg-darker;
     box-sizing: border-box;
     background-color: $bcg-dark;
+
+
+    &.asset-icon-prefix:before {
+        font-size: 50px;
+    }
 }
 
 // text on the top right

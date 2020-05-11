@@ -27,7 +27,7 @@
         }
     }
 
-    > .pcui-panel-header {
+    &:not(.pcui-asset-panel) > .pcui-panel-header {
         position: absolute;
         top: -32px;
         left: 4px;
@@ -292,5 +292,460 @@
             flex-basis: 128px;
             height: 4px;
         }
+    }
+}
+
+.pcui-asset-panel {
+    > .pcui-resizable-handle {
+        // make z-index higher than the
+        // details view z-index otherwise part
+        // of the handle will be hidden by the table
+        z-index: 2 !important;
+    }
+
+    > .pcui-panel-content {
+        height: 100%;
+
+        > .pcui-asset-panel-folders {
+            flex-shrink: 0;
+            max-width: 100%;
+            border-top: 1px solid $border-primary;
+
+            .pcui-treeview-item-icon:after {
+                content: '\E139';
+            }
+
+            // this is to prevent flashing when we drag assets
+            // from the right panel into the folder view
+            .pcui-treeview-drag-handle {
+                pointer-events: none;
+            }
+        }
+
+        > .pcui-table {
+            flex: 1;
+            border-left: 1px solid $border-primary;
+
+            background-color: $bcg-dark;
+
+            > table > tbody {
+                .pcui-table-row:not(.pcui-table-row-selected) {
+                    &:hover, &:focus {
+                        background-color: $bcg-darker;
+                    }
+                }
+            }
+
+            > thead > tr {
+                > th, &:after {
+                    background-color: $bcg-darker;
+                }
+
+                & > th:first-child {
+                    border-left: 0;
+                }
+            }
+
+            > tbody {
+                > .pcui-table-row > .pcui-table-cell {
+                    > .pcui-label {
+                        margin-top: 4px;
+                        margin-bottom: 4px;
+                    }
+                }
+            }
+        }
+
+        > .pcui-gridview {
+            flex: 1;
+            background-color: $bcg-dark;
+            border-left: 1px solid $border-primary;
+            border-top: 1px solid $border-primary;
+        }
+    }
+}
+
+.pcui-asset-panel-details-name {
+    > .pcui-asset-thumb {
+        vertical-align: middle;
+        margin-left: $element-margin;
+        width: 16px;
+        height: auto;
+
+        &:not(.asset-icon-prefix) {
+            height: 16px;
+        }
+
+        > canvas {
+            background-color: transparent;
+        }
+
+        &:before {
+            font-size: 14px;
+            color: $text-darkest;
+        }
+
+        &:hover {
+            box-shadow: none !important;
+        }
+    }
+
+    > .pcui-label {
+        vertical-align: middle;
+        margin: 0px;
+        margin-left: $element-margin;
+    }
+
+    .pcui-spinner {
+        margin: 0;
+        margin-left: $element-margin;
+        display: none;
+    }
+}
+
+.pcui-asset-panel-highlighted-asset {
+    &.pcui-treeview-item > .pcui-treeview-item-contents {
+        .pcui-treeview-item-icon, .pcui-treeview-item-text {
+            color: $text-primary;
+        }
+    }
+
+    .pcui-asset-panel-details-name {
+        color: $text-primary;
+        position: relative;
+
+        &:after {
+            content: ' ';
+            display: block;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            border: 3px solid $text-active;
+            pointer-events: none;
+        }
+    }
+
+    &.pcui-gridview-item {
+        border: 4px solid $text-active;
+    }
+}
+
+.pcui-asset-panel-current-folder {
+    > .pcui-treeview-item-contents {
+        color: $text-active;
+
+        .pcui-treeview-item-icon {
+            color: $text-active;
+        }
+    }
+}
+
+.pcui-asset-grid-view-item {
+    height: 104px;
+
+    > .pcui-asset-thumb {
+        flex-shrink: 0;
+        width: 64px;
+        height: 64px;
+        margin: $element-margin 0;
+
+        > canvas {
+            background-color: transparent;
+        }
+
+        &:before {
+            font-size: 48px;
+            font-weight: 100;
+            color: $text-darkest;
+        }
+
+        &.type-folder:before {
+            font-size: 58px;
+            margin-top: -6px;
+        }
+
+        &:hover {
+            box-shadow: none !important;
+        }
+    }
+
+    &:not(.pcui-disabled) {
+        &:hover, &.pcui-gridview-item-selected {
+            > .pcui-asset-thumb:before {
+                color: $text-primary;
+            }
+        }
+    }
+
+    .pcui-gridview-item-text {
+        color: $text-primary;
+    }
+
+    .pcui-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        display: none;
+    }
+}
+
+.pcui-asset-panel-task-running, .pcui-asset-panel-task-failed {
+    .pcui-spinner {
+        display: inline-block;
+    }
+
+    .pcui-progress {
+        display: block;
+    }
+
+    &.pcui-table-row {
+        .pcui-asset-thumb {
+            display: none;
+        }
+    }
+}
+
+.pcui-asset-panel-grid-view-small {
+    .pcui-asset-grid-view-item {
+        width: 64px;
+        height: 68px;
+
+        > .pcui-asset-thumb {
+            width: 40px;
+            height: 40px;
+            margin: 4px;
+
+            &:before {
+                font-size: 32px;
+            }
+
+            &.type-folder:before {
+                font-size: 38px;
+            }
+        }
+
+        > .pcui-gridview-item-text {
+            max-width: 100%;
+        }
+
+    }
+
+    .pcui-asset-panel-highlighted-asset {
+        &.pcui-gridview-item {
+            border: 2px solid $text-active;
+        }
+    }
+}
+
+.pcui-asset-grid-view-item-source {
+    > .pcui-asset-thumb:not(.type-folder) {
+        outline: 1px dashed rgba($text-darkest, 0.5);
+    }
+}
+
+.pcui-asset-panel {
+    &.pcui-collapsed {
+        > .pcui-panel-header {
+            position: absolute;
+            top: -32px;
+            left: 4px;
+
+            .pcui-asset-panel-hide-on-collapse {
+                display: none;
+            }
+        }
+    }
+
+    > .pcui-panel-header {
+        background-color: $bcg-darker;
+        > .pcui-panel-header-title {
+            margin-right: 2 * $element-margin;
+            flex-shrink: 0;
+        }
+
+        .pcui-asset-panel-controls {
+            flex-direction: row;
+            flex-grow: 1;
+        }
+
+        .pcui-button {
+            height: 24px;
+            line-height: 24px;
+            border: 1px solid $bcg-darkest;
+            background-color: $bcg-dark;
+            margin: $element-margin;
+            flex-shrink: 0;
+        }
+
+
+        .pcui-asset-panel-btn-small {
+            padding: 0;
+            width: 24px;
+            font-size: 15px;
+            margin-left: 0;
+        }
+
+        .pcui-asset-panel-btn-active {
+            background-color: $bcg-darkest !important;
+            color: $text-primary;
+        }
+
+        .pcui-asset-panel-btn-container {
+            height: 100%;
+            align-items: center;
+            margin-left: 2 * $element-margin;
+            padding-left: 3 * $element-margin;
+            border-left: 1px solid $bcg-darkest;
+            flex-shrink: 0;
+
+            margin-right: 2 * $element-margin;
+            padding-right: 2 * $element-margin;
+            border-right: 1px solid $bcg-darkest;
+        }
+
+        .pcui-select-input {
+            width: 230px;
+
+            &.pcui-open {
+                z-index: 2;
+            }
+
+            .pcui-label {
+                font-weight: bold;
+            }
+
+            .pcui-select-input-list {
+                max-height: 430px;
+            }
+        }
+
+        .pcui-text-input {
+            width: 230px;
+            font-weight: bold;
+            line-height: 24px;
+
+            > input {
+                max-width: calc(100% - 24px);
+                text-overflow: ellipsis;
+            }
+
+            .pcui-button {
+                position: absolute;
+                right: 0;
+                background: transparent;
+                margin: 0;
+                border: 0;
+                box-shadow: none;
+                &:hover {
+                    color: $error;
+                }
+            }
+
+            // placeholder left
+            &:after {
+                left: 0;
+                right: initial;
+                font-size: 12px;
+            }
+        }
+
+        .pcui-asset-panel-btn-store {
+            margin-left: auto;
+        }
+    }
+}
+
+.pcui-asset-panel-legacy-scripts {
+    &.pcui-gridview-item {
+        &:after {
+            content: 's';
+            position: absolute;
+            left: 46px;
+            top: 29px;
+            font-size: 31px;
+            color: $bcg-darker;
+        }
+    }
+
+    &.pcui-treeview-item {
+        &:after {
+            content: 's';
+            position: absolute;
+            left: 34px;
+            top: 5px;
+            font-size: 11px;
+            color: $bcg-darker;
+            z-index: 1;
+        }
+    }
+
+    &.pcui-table-row {
+        .pcui-asset-thumb {
+            &:after {
+                content: 's';
+                position: absolute;
+                left: 6px;
+                top: 3px;
+                font-size: 11px;
+                color: $bcg-darker;
+            }
+        }
+    }
+}
+
+.pcui-asset-panel-grid-view-small {
+    .pcui-asset-panel-legacy-scripts {
+        &.pcui-gridview-item {
+            &:after {
+                left: 27px;
+                top: 14px;
+                font-size: 23px;
+            }
+        }
+    }
+}
+
+.pcui-asset-panel-progress {
+    flex: 1;
+    flex-basis: 100%;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    background-color: $bcg-dark;
+
+    .pcui-progress {
+        flex-basis: 128px;
+    }
+}
+
+.pcui-asset-panel-users {
+    flex-direction: row;
+    position: absolute;
+    top: 0;
+    right: 0;
+    max-height: 65%;
+    overflow: hidden;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    pointer-events: none;
+}
+
+.pcui-asset-panel-users-indicator {
+    margin: $element-margin / 2;
+    width: 8px;
+    height: 8px;
+}
+
+.pcui-asset-panel .pcui-table {
+    .pcui-asset-panel-users {
+        max-height: initial;
+    }
+
+    .pcui-asset-panel-users-indicator {
+        width: 6px;
+        height: 6px;
     }
 }

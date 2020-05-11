@@ -364,7 +364,7 @@ Object.assign(pcui, (function () {
         }
 
         _updateAssetName(value) {
-            if (value === '') return;
+            if (!value) return;
             editor.call('assets:rename', this._assets[0], value);
         }
 

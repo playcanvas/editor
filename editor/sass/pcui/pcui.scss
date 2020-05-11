@@ -1,5 +1,5 @@
-@import 'variables';
-@import 'fonts';
+@import '../variables';
+@import '../fonts';
 @import 'pcui-common';
 @import 'pcui-flex';
 @import 'pcui-grid';
@@ -29,11 +29,14 @@
 @import 'pcui-array-input';
 @import 'pcui-select-input';
 @import 'pcui-tree-view';
+@import 'pcui-grid-view';
 @import 'pcui-drop-manager';
 @import 'pcui-drop-target';
 @import 'pcui-inspector';
 @import 'pcui-progress';
+@import 'pcui-spinner';
 @import 'pcui-infobox';
 @import 'pcui-code';
 @import 'pcui-tooltip';
+@import 'pcui-table';
 @import 'pcui-hidden'; // this should be last

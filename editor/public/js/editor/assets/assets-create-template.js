@@ -20,11 +20,13 @@ editor.once('load', function () {
 
         const data = editor.call('template:newTemplateData', root, sceneEnts);
 
+        var defaultAssetPreload = editor.call('settings:projectUser').get('editor.pipeline.defaultAssetPreload');;
+
         const asset = {
             name: root.get('name'),
             type: 'template',
             source: false,
-            preload: true,
+            preload: defaultAssetPreload,
             parent: parent,
             data:  data.assetData,
             scope: {

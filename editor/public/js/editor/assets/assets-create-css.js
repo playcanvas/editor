@@ -7,11 +7,13 @@ editor.once('load', function() {
 
         args = args || { };
 
+        var defaultAssetPreload = editor.call('settings:projectUser').get('editor.pipeline.defaultAssetPreload');;
+
         var asset = {
             name: 'New Css',
             type: 'css',
             source: false,
-            preload: true,
+            preload: defaultAssetPreload,
             parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             filename: 'asset.css',
             file: new Blob([ '\n' ], { type: 'text/css' }),

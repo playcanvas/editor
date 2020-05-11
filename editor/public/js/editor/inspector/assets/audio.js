@@ -41,7 +41,8 @@ Object.assign(pcui, (function () {
                 },
                 {
                     audioButton: new pcui.Button({
-                        icon: 'E286'
+                        icon: 'E286',
+                        flexShrink: 0
                     })
                 },
                 {

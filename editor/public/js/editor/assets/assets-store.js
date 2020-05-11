@@ -1,6 +1,8 @@
 editor.once('load', function () {
     'use strict';
 
+    if (editor.call('users:hasFlag', 'hasPcuiAssetsPanel')) return;
+
     var assetsPanel = editor.call('layout.assets');
 
     var btnStore = new ui.Button({

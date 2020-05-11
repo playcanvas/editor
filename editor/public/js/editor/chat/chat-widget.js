@@ -16,6 +16,19 @@ editor.once('load', function() {
         panel.hidden = ! level || editor.call('viewport:expand:state');
     });
     viewport.append(panel);
+
+    if (editor.call('users:hasFlag', 'hasPcuiAssetsPanel')) {
+        var assetPanel = editor.call('layout.assets');
+
+        const adjustPosition = () => {
+            panel.style.bottom = assetPanel.collapsed ? '36px' : '4px';
+        };
+
+        adjustPosition();
+        assetPanel.on('collapse', adjustPosition);
+        assetPanel.on('expand', adjustPosition);
+    }
+
     editor.method('chat:panel', function() {
         return panel;
     });
@@ -27,6 +40,7 @@ editor.once('load', function() {
             panel.class.remove('expanded');
         }
     });
+
 
     panel.element.addEventListener('mouseover', function() {
         editor.emit('viewport:hover', false);

@@ -194,6 +194,10 @@ editor.once('load', function() {
         title: 'Use GLB format',
         description: 'Create model assets in GLB format.'
     }, {
+        name: 'asset-tasks:defaultAssetPreload',
+        title: 'Preload new assets',
+        description: 'Create new assets with the preload option selected.'
+    }, {
         name: 'asset-tasks:overwrite:model',
         title: 'Overwrite models',
         description: 'When a model is imported, overwrite a previously imported model asset.'

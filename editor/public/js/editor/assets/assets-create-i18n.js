@@ -24,11 +24,13 @@ editor.once('load', function () {
 
         var filename = 'Localization.json';
 
+        var defaultAssetPreload = editor.call('settings:projectUser').get('editor.pipeline.defaultAssetPreload');;
+
         var asset = {
             name: filename,
             type: 'json',
             source: false,
-            preload: true,
+            preload: defaultAssetPreload,
             parent: editor.call('assets:panel:currentFolder'),
             filename: filename,
             file: new Blob([content], { type: 'application/json' }),

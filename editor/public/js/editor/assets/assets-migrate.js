@@ -27,10 +27,16 @@ editor.once('load', function() {
         if ((asset.get('type') === 'texture' || asset.get('type') === 'textureatlas') && ! asset.get('source')) {
             if (asset.get('meta')) {
                 if (! asset.has('meta.compress')) {
-                    var alpha = asset.get('meta.alpha') || (asset.get('meta.type').toLowerCase() || '') === 'truecoloralpha' || false;
+                    var alpha = asset.get('meta.alpha');
+                    if (!alpha) {
+                        var metaType = asset.get('meta.type');
+                        if ((metaType && metaType.toLowerCase() || '') === 'truecoloralpha') {
+                            alpha = true;
+                        }
+                    }
 
                     asset.set('meta.compress', {
-                        alpha: alpha,
+                        alpha: alpha || false,
                         normals: false,
                         dxt: false,
                         pvr: false,

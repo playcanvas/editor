@@ -142,6 +142,13 @@ editor.once('load', function() {
             return;
         }
 
+        // hide icon if element is set
+        if (this._link.has('components.element') && this._link.get('components.element.enabled')) {
+            if (this.entity)
+                this.entityDelete();
+            return;
+        }
+
         var component = '';
         for(var i = 0; i < components.length; i++) {
             if (! this._link.has('components.' + components[i]))

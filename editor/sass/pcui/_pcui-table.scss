@@ -1,0 +1,179 @@
+.pcui-table {
+    background-color: $bcg-primary;
+}
+
+.pcui-table > table {
+    width: 100%;
+    border-spacing: 0;
+    table-layout: fixed;
+
+    > thead {
+        > tr {
+            // This is a fake cell at the end of the header row
+            // which serves as a flexible column that helps when resizing
+            // the columns before it. It covers the remaining space between
+            // the table's actual columns and the table's container. That way
+            // when the table is at 100% width the user can resize these columns
+            // below the visible width of the table and this fake column covers
+            // the rest of the space.
+            &:after {
+                content: ' ';
+                display: table-cell;
+                width: auto;
+                background-color: $bcg-darker;
+
+                position: sticky;
+                top: 0;
+                z-index: 1;
+                border-top: 1px solid $bcg-darkest;
+                border-bottom: 1px solid $bcg-darkest;
+                border-right: 1px solid $bcg-darkest;
+            }
+
+            > th {
+                position: sticky;
+                top: 0;
+                z-index: 1;
+                line-height: 26px;
+                font-size: 13px;
+                background-color: $bcg-darker;
+
+                border-top: 1px solid $bcg-darkest;
+                border-bottom: 1px solid $bcg-darkest;
+                border-right: 1px solid $bcg-darkest;
+
+                &:first-child {
+                    border-left: 1px solid $bcg-darkest;
+                }
+
+                &:hover {
+                    color: $text-primary;
+                }
+            }
+
+
+        }
+    }
+}
+
+// fake cell at the end of each row - see fake cell for the header
+// row above
+.pcui-table > table > tbody > tr:after {
+    content: ' ';
+    display: table-cell;
+    width: auto;
+}
+
+.pcui-table:not(.pcui-table-resizing) {
+    > table > thead > tr > th {
+        cursor: pointer;
+    }
+
+    > table > tbody > tr {
+        cursor: pointer;
+    }
+}
+
+.pcui-table > table > tbody >
+.pcui-table-row:not(.pcui-table-row-selected) {
+    &:hover, &:focus {
+        background-color: $bcg-dark;
+        color: $text-primary;
+    }
+}
+
+.pcui-table-resizing {
+    > table > tbody {
+        // add fake row before all visible
+        // resized elements
+        &:before {
+            content: ' ';
+            display: table-row;
+            // get height from custom CSS property set in JS
+            height: var(--resizing-before);
+        }
+
+        // add fake row after all visible
+        // resized elements
+        &:after {
+            content: ' ';
+            display: table-row;
+            // get height from custom CSS property set in JS
+            height: var(--resizing-after);
+        }
+    }
+
+    // hide all rows except the ones that have .pcui-table-resizing-visible
+    > table > tbody > .pcui-table-row:not(.pcui-table-resizing-visible) {
+        display: none;
+    }
+}
+
+
+.pcui-table-row-selected {
+    background-color: $bcg-darkest;
+    color: $text-primary;
+}
+
+.pcui-table-cell {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+    text-align: left;
+    font-size: 13px;
+    padding: 0;
+
+    .pcui-element {
+        color: inherit;
+    }
+}
+
+.pcui-table-cell-sort {
+    color: $text-primary;
+
+    &:after {
+        @extend .font-icon;
+        vertical-align: middle;
+        content: '\E167';
+    }
+
+    &.pcui-table-cell-sort-descending:after {
+        content: '\E168';
+    }
+}
+
+.pcui-table-resizing:hover {
+    cursor: col-resize;
+}
+
+.pcui-table-cell-active {
+    cursor: col-resize !important;
+
+    &:before {
+        content: ' ';
+        display: block;
+        position: absolute;
+        top: 0;
+        height: 100%;
+        right: 0px;
+        width: 4px;
+        background-color: $bcg-darkest;
+        pointer-events: none;
+        z-index: 1;
+    }
+}
+
+th.pcui-table-cell-active:before {
+    right: -1px;
+}
+
+.pcui-table-cell-handle {
+    position: absolute;
+    top: 0;
+    right: 0px;
+    height: 100%;
+    width: 6px;
+    background-color: transparent;
+    z-index: 1;
+}

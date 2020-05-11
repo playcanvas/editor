@@ -78,18 +78,16 @@ Object.assign(pcui, (function () {
                 text: 'ADD SELECTION',
                 enabled: false,
                 class: CLASS_BUTTON_ADD,
-                icon: 'E120',
-                flexGrow: 1
+                icon: 'E120'
             });
             this._btnAdd.on('click', this._onClickAdd.bind(this));
             this._containerButtons.append(this._btnAdd);
 
             // button to exit selection mode
             this._btnDone = new pcui.Button({
-                text: 'DONE',
+                text: 'CANCEL',
                 class: CLASS_BUTTON_DONE,
-                icon: 'E133',
-                flexGrow: 1
+                icon: 'E133'
             });
             this._btnDone.on('click', this._onClickDone.bind(this));
             this._containerButtons.append(this._btnDone);
@@ -192,6 +190,8 @@ Object.assign(pcui, (function () {
         }
 
         _addAssets(assets) {
+            this._btnDone.text = 'DONE';
+
             assets.forEach(assetId => {
                 const entry = this._indexAssets[assetId] || this._createAssetItem(assetId);
                 entry.count = this._values.length;
@@ -225,6 +225,7 @@ Object.assign(pcui, (function () {
         _startSelectionMode() {
             this.class.add(CLASS_ASSET_LIST_SELECTION_MODE);
 
+            this._btnDone.text = 'CANCEL';
             this._btnSelectionMode.hidden = true;
             this._labelAddAssets.hidden = false;
             this._containerButtons.hidden = false;
@@ -422,6 +423,8 @@ Object.assign(pcui, (function () {
             const entry = this._indexAssets[assetId];
             if (!entry) return;
             entry.element.destroy();
+
+            this._btnDone.text = 'DONE';
 
             // remove from all values
             this._values.forEach(array => {
