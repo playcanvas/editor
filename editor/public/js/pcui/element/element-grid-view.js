@@ -96,7 +96,7 @@ Object.assign(pcui, (function () {
                 let othersSelected = false;
                 let i = this._selected.length;
                 while (i--) {
-                    if (this._selected[i] !== item) {
+                    if (this._selected[i] && this._selected[i] !== item) {
                         this._selected[i].selected = false;
                         othersSelected = true;
                     }
@@ -130,7 +130,9 @@ Object.assign(pcui, (function () {
         deselect() {
             let i = this._selected.length;
             while (i--) {
-                this._selected[i].selected = false;
+                if (this._selected[i]) {
+                    this._selected[i].selected = false;
+                }
             }
         }
 

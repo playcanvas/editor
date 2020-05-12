@@ -247,7 +247,7 @@ editor.once('load', function () {
             // remember selected
             assetsPanel.suspendSelectionEvents = true;
             gridSelected = assetsPanel.selectedAssets;
-            assetsPanel.deselect();
+            assetsPanel.selectedAssets = [];
 
             // filters
             var pickerType = type;

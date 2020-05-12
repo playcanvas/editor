@@ -83,6 +83,9 @@ Object.assign(pcui, (function () {
             this._resizingVisibleRows = [];
             this._didFreezeColumnWidth = false;
 
+            this._selectedRows = [];
+            this._lastRowFocused = null;
+
             this._columns = [];
 
             if (args.columns) {
@@ -91,9 +94,6 @@ Object.assign(pcui, (function () {
                     this.sortByColumnIndex(args.defaultSortColumn);
                 }
             }
-
-            this._lastRowSelected = null;
-            this._lastRowFocused = null;
 
             this._observers = null;
 
@@ -177,6 +177,10 @@ Object.assign(pcui, (function () {
             row.dom.addEventListener('keydown', this._onRowKeyDownHandler);
 
             row.on('destroy', dom => {
+                const idx = this._selectedRows.indexOf(row);
+                if (idx !== -1) {
+                    this._selectedRows.splice(idx, 1);
+                }
                 dom.removeEventListener('keydown', this._onRowKeyDownHandler);
             });
 
@@ -192,14 +196,15 @@ Object.assign(pcui, (function () {
                 // toggle selection
                 row.selected = !row.selected;
             } else if (evt.shiftKey) {
-                if (this._lastRowSelected) {
-                    if (this._lastRowSelected === row) return;
+                const lastRowSelected = this._selectedRows[this._selectedRows.length - 1];
+                if (lastRowSelected) {
+                    if (lastRowSelected === row) return;
 
                     // select everything between the last
                     // row selected and this row
-                    const comparePosition = this._lastRowSelected.dom.compareDocumentPosition(row.dom);
+                    const comparePosition = lastRowSelected.dom.compareDocumentPosition(row.dom);
                     if (comparePosition & Node.DOCUMENT_POSITION_FOLLOWING) {
-                        let next = this._lastRowSelected.nextSibling;
+                        let next = lastRowSelected.nextSibling;
                         while (next) {
                             next.selected = true;
 
@@ -208,7 +213,7 @@ Object.assign(pcui, (function () {
                             next = next.nextSibling;
                         }
                     } else {
-                        let prev = this._lastRowSelected.previousSibling;
+                        let prev = lastRowSelected.previousSibling;
                         while (prev) {
                             prev.selected = true;
 
@@ -241,14 +246,16 @@ Object.assign(pcui, (function () {
         }
 
         _onRowSelect(row) {
-            this._lastRowSelected = row;
+            this._selectedRows.push(row);
             this.emit('select', row);
         }
 
         _onRowDeselect(row) {
-            if (this._lastRowSelected === row) {
-                this._lastRowSelected = null;
+            const idx = this._selectedRows.indexOf(row);
+            if (idx !== -1) {
+                this._selectedRows.splice(idx, 1);
             }
+
             this.emit('deselect', row);
         }
 
@@ -263,7 +270,7 @@ Object.assign(pcui, (function () {
         }
 
         _onRowKeyDown(evt) {
-            if (!this._lastRowSelected) return;
+            if (!this._selectedRows.length) return;
 
             if (evt.target.tagName.toLowerCase() === 'input') return;
 
@@ -273,7 +280,7 @@ Object.assign(pcui, (function () {
             evt.preventDefault();
             evt.stopPropagation();
 
-            const lastRow = this._lastRowFocused || this._lastRowSelected;
+            const lastRow = this._lastRowFocused || this._selectedRows[this._selectedRows.length - 1];
 
             const next = evt.keyCode === 40 ? lastRow.nextSibling : lastRow.previousSibling;
             if (!next) return;
@@ -796,9 +803,14 @@ Object.assign(pcui, (function () {
          * @description Deselects selected rows.
          */
         deselect() {
-            this.selected.forEach(row => {
-                row.selected = false;
-            });
+            let i = this._selectedRows.length;
+            while (i--) {
+                if (this._selectedRows[i]) {
+                    this._selectedRows[i].selected = false;
+                }
+            }
+            // sanity check
+            this._selectedRows.length = 0;
         }
 
         destroy() {
@@ -832,13 +844,7 @@ Object.assign(pcui, (function () {
         }
 
         get selected() {
-            const selected = [];
-            this._containerBody.forEachChild(child => {
-                if (child.selected) {
-                    selected.push(child);
-                }
-            });
-            return selected;
+            return this._selectedRows.slice();
         }
 
         get sortKey() {

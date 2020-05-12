@@ -49,6 +49,30 @@ editor.once('load', function() {
             assetsPanel.progressBar.value = progress * 100;
         });
 
+        // // select all hotkey
+        // // ctrl + a
+        editor.call('hotkey:register', 'asset:select-all', {
+            ctrl: true,
+            key: 'a',
+            callback: () => {
+                const assets = assetsPanel.visibleAssets;
+
+                if (assets.length) {
+                    editor.call('selector:set', 'asset', assets);
+                } else {
+                    editor.call('selector:clear');
+                }
+            }
+        });
+
+        // up on folder on backspace
+        editor.call('hotkey:register', 'assets:fs:up', {
+            key: 'backspace',
+            callback: () => {
+                assetsPanel.navigateBack();
+            }
+        });
+
         return;
     }
 

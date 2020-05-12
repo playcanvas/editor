@@ -120,6 +120,7 @@ Object.assign(pcui, (function () {
      * @property {pcui.SelectInput} dropdownType The type dropdown
      * @property {pcui.TextInput} searchInput The search filter text input
      * @property {Observer[]} selectedAssets The selected assets
+     * @property {Observer[]} visibleAssets The assets that are currently visible in the asset panel.
      * @property {Boolean} showSourceAssets If false source assets will not be displayed
      * @property {Boolean} suspendSelectionEvents If true selection events will not the editor's selector to be affected
      * @property {Boolean} suspendFiltering If true changes to filters will not re-filter the asset panel.
@@ -414,12 +415,11 @@ Object.assign(pcui, (function () {
 
             this._showSourceAssets = true;
 
-            this._selector = {
-                type: null,
-                items: [],
-                prevType: null,
-                prevItems: []
-            };
+            this._prevSelectorItems = [];
+            this._prevSelectorType = null;
+            this._selectorItems = [];
+            this._selectorType = null;
+            this._selectedAssets = [];
 
             this.writePermissions = !!args.writePermissions;
 
@@ -500,15 +500,7 @@ Object.assign(pcui, (function () {
 
         // Goes up on folder
         _onClickBack() {
-            if (!this.currentFolder) return;
-
-            const path = this.currentFolder.get('path');
-            let folder = null;
-            if (path.length) {
-                folder = this._assets.get(path[path.length - 1]);
-            }
-
-            this.currentFolder = folder;
+            this.navigateBack();
         }
 
         // Sets view mode to large grid
@@ -541,11 +533,11 @@ Object.assign(pcui, (function () {
         // switch folder to selected asset
         // if we do not have selected assets in different folders
         _setCurrentFolderFromSelectedAssets() {
-            if (this._selector.type !== 'asset') return;
+            if (!this._selectedAssets.length) return;
 
-            const path = this._selector.items[0].get('path');
-            for (let i = 1; i < this._selector.items.length; i++) {
-                if (!path.equals(this._selector.items[i].get('path'))) {
+            const path = this._selectedAssets[0].get('path');
+            for (let i = 1; i < this._selectedAssets.length; i++) {
+                if (!path.equals(this._selectedAssets[i].get('path'))) {
                     return;
                 }
             }
@@ -622,19 +614,13 @@ Object.assign(pcui, (function () {
 
             const type = asset.get('type');
             if (type === 'folder') {
-                // go into the folder but after 1 frame
-                // otherwise the asset inside the folder that
-                // is under the cursor will be selected when you
-                // release the cursor
-                requestAnimationFrame(() => {
-                    this.currentFolder = asset;
+                this.currentFolder = asset;
 
-                    // restore previous selection after
-                    // double clicking into a folder
-                    if (this._selector.prevItems) {
-                        editor.call('selector:set', this._selector.prevType, this._selector.prevItems);
-                    }
-                });
+                // restore previous selection after
+                // double clicking into a folder
+                if (this._prevSelectorItems) {
+                    editor.call('selector:set', this._prevSelectorType, this._prevSelectorItems);
+                }
             } else if (type === 'sprite' || type === 'textureatlas') {
                 // show sprite editor
                 editor.call('picker:sprites', asset);
@@ -1129,7 +1115,11 @@ Object.assign(pcui, (function () {
         }
 
         _setAssetSelected(asset, selected) {
-            this._applyFnToAssetElements(asset, element => { element.selected = selected; });
+            this._applyFnToAssetElements(asset, element => {
+                if (element.selected !== selected) {
+                    element.selected = selected;
+                }
+            });
         }
 
         // update element based on asset task status
@@ -1169,32 +1159,13 @@ Object.assign(pcui, (function () {
         }
 
         _onSelectorChange(type, assets) {
-            this._selector.prevType = this._selector.type;
-            this._selector.prevItems = this._selector.items;
-
-            this._selector.type = type;
-            this._selector.items = assets;
+            this._prevSelectorType = this._selectorType;
+            this._prevSelectorItems = this._selectorItems;
+            this._selectorType = type;
+            this._selectorItems = assets;
 
             this._suspendSelectEvents = true;
-
-            this.deselect();
-
-            if (type === 'asset') {
-                this._btnDelete.enabled = this.writePermissions && assets.length;
-
-                assets.forEach(asset => {
-                    let id = asset.get('id');
-                    if (!parseInt(id, 10)) {
-                        // probably a legacy script
-                        id = asset.get('filename');
-                    }
-
-                    this._setAssetSelected(asset, true);
-                });
-            } else {
-                this._btnDelete.enabled = false;
-            }
-
+            this.selectedAssets = (type === 'asset' ? assets : []);
             this._suspendSelectEvents = false;
         }
 
@@ -1668,7 +1639,15 @@ Object.assign(pcui, (function () {
         _onFolderTreeDeselect(item) {
             if (this._suspendSelectEvents) return;
 
-            if (item.asset && item.asset !== LEGACY_SCRIPTS_FOLDER_ASSET) {
+            if (this._foldersView.selected.length === 1 && !this._foldersView.pressedCtrl && !this._foldersView.pressedShift) {
+                // if we deselected all folders but one then this probably means we
+                // just clicked on an already selected folder so clear the current selection completely
+                // and switch to that folder as this feels more like what would be expected by the user.
+                this._suspendSelectEvents = true;
+                this._foldersView.deselect();
+                editor.call('selector:clear');
+                this._suspendSelectEvents = false;
+            } else if (item.asset && item.asset !== LEGACY_SCRIPTS_FOLDER_ASSET) {
                 editor.call('selector:remove', item.asset);
             }
         }
@@ -1860,13 +1839,19 @@ Object.assign(pcui, (function () {
         }
 
         /**
-         * @name pcui.AssetPanel#deselect
-         * @description Deselects all the selected assets.
+         * @name pcui.AssetPanel#navigateBack
+         * @description Navigates one folder back from the current folder
          */
-        deselect() {
-            this._detailsView.deselect();
-            this._gridView.deselect();
-            this._foldersView.deselect();
+        navigateBack() {
+            if (!this.currentFolder) return;
+
+            const path = this.currentFolder.get('path');
+            let folder = null;
+            if (path.length) {
+                folder = this._assets.get(path[path.length - 1]);
+            }
+
+            this.currentFolder = folder;
         }
 
         destroy() {
@@ -1891,10 +1876,11 @@ Object.assign(pcui, (function () {
         set assets(value) {
             this._setHoveredAsset(undefined);
 
-            this._selector.type = null;
-            this._selector.items = [];
-            this._selector.prevType = null;
-            this._selector.prevItems = [];
+            this._prevSelectorType = null;
+            this._prevSelectorItems = [];
+            this._selectorType = null;
+            this._selectorItems = [];
+            this._selectedAssets = [];
 
             this._assetListEvents.forEach(e => e.unbind());
             this._assetListEvents.length = 0;
@@ -2080,15 +2066,13 @@ Object.assign(pcui, (function () {
         }
 
         get selectedAssets() {
-            return this.activeView.selected.map(item => item.asset);
+            return this._selectedAssets.slice();
         }
 
         set selectedAssets(value) {
-            // early exit check
-            if (!value || !value.length) {
-                this.deselect();
-                return;
-            }
+            if (!value) value = [];
+
+            this._btnDelete.enabled = this.writePermissions && value.length;
 
             const selectedIndex = {};
 
@@ -2098,16 +2082,32 @@ Object.assign(pcui, (function () {
             });
 
             // deselect selected assets except the ones in the index
-            const selected = this.selectedAssets;
+            const selected = this._selectedAssets;
             let i = selected.length;
             while (i--) {
                 if (selectedIndex[selected[i].get('id')]) continue;
                 this._setAssetSelected(selected[i], false);
             }
 
+            this._selectedAssets = value.slice();
+
             value.forEach(asset => {
                 this._setAssetSelected(asset, true);
             });
+        }
+
+        get visibleAssets() {
+            const result = [];
+
+            const dict = (this._viewMode === AssetPanel.VIEW_DETAILS ? this._rowsIndex : this._gridIndex);
+            for (const key in dict) {
+                const item = dict[key];
+                if (!item.hidden) {
+                    result.push(item.asset.legacyScript || item.asset);
+                }
+            }
+
+            return result;
         }
 
         get showSourceAssets() {
@@ -2157,7 +2157,7 @@ Object.assign(pcui, (function () {
                 this._foldersView.allowDrag = false;
             } else {
                 this._btnNew.enabled = true;
-                this._btnDelete.enabled = this._selector.items.length && this._selector.type === 'asset';
+                this._btnDelete.enabled = !!this._selectedAssets.length;
                 this._foldersView.allowDrag = true;
             }
         }

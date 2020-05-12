@@ -32,6 +32,8 @@ Object.assign(pcui, (function () {
 
             this._componentList = editor.call('components:list');
 
+            this._suspendSelectionEvents = false;
+
             if (args.entities) {
                 this.entities = args.entities;
             }
@@ -52,8 +54,7 @@ Object.assign(pcui, (function () {
             this.on('select', this._onSelectEntityItem.bind(this));
             this.on('deselect', this._onDeselectEntityItem.bind(this));
 
-            this._eventsEditor.push(editor.on('selector:add', this._onSelectorAdd.bind(this)));
-            this._eventsEditor.push(editor.on('selector:remove', this._onSelectorRemove.bind(this)));
+            this._eventsEditor.push(editor.on('selector:change', this._onSelectorChange.bind(this)));
             this._eventsEditor.push(editor.on('selector:sync', this._onSelectorSync.bind(this)));
             this._eventsEditor.push(editor.on('whoisonline:remove', this._onUserOffline.bind(this)));
 
@@ -114,53 +115,54 @@ Object.assign(pcui, (function () {
         }
 
         _onSelectEntityItem(item) {
+            if (this._suspendSelectionEvents) return;
+
             // add to selection
             editor.call('selector:add', 'entity', item.entity);
         }
 
         _onDeselectEntityItem(item) {
+            if (this._suspendSelectionEvents) return;
+
             // remove from selection
             editor.call('selector:remove', item.entity);
         }
 
-        _onSelectorAdd(entity, type) {
-            // Select the treeview item when the entity is selected
-            if (type === 'entity') {
-                const item = this._treeItemIndex[entity.get('resource_id')];
-                if (item) {
-                    item.selected = true;
-                }
-            }
-        }
-
-        _onSelectorRemove(entity, type) {
-            // Deselect the treeview item when the entity is deselected
-            if (type === 'entity') {
-                const item = this._treeItemIndex[entity.get('resource_id')];
-                if (item) {
-                    item.selected = false;
-                }
-            }
-        }
-
         _onSelectorChange(type, entities) {
             if (type !== 'entity') {
+                this._suspendSelectionEvents = true;
                 this.deselect();
+                this._suspendSelectionEvents = false;
                 return;
             }
 
+            this._suspendSelectionEvents = true;
+
+            // build index of new selection
             const index = {};
             entities.forEach(entity => {
                 index[entity.get('resource_id')] = true;
             });
 
-            const selected = this.selected;
+            // deselect entities no longer in the new selection
+            const selected = this._selectedItems;
             let i = selected.length;
             while (i--) {
+                if (!selected[i]) continue;
                 if (!index[selected[i].entity.get('resource_id')]) {
                     selected[i].selected = false;
                 }
             }
+
+            // select entities in the new selection
+            entities.forEach(entity => {
+                const item = this._treeItemIndex[entity.get('resource_id')];
+                if (item && !item.selected) {
+                    item.selected = true;
+                }
+            });
+
+            this._suspendSelectionEvents = false;
         }
 
         // Called when we receive the selection of a remote user

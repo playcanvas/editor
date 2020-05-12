@@ -153,6 +153,11 @@ Object.assign(pcui, (function () {
             this._deferToggle(false);
         }
 
+        _onTargetHide() {
+            this._cancelToggle();
+            this.hidden = true;
+        }
+
         _onTargetDestroy() {
             if (!this._target) return;
 
@@ -198,6 +203,7 @@ Object.assign(pcui, (function () {
 
             this._targetEvents.push(this._target.on('hover', this._onTargetHover.bind(this)));
             this._targetEvents.push(this._target.on('hoverend', this._onTargetHoverEnd.bind(this)));
+            this._targetEvents.push(this._target.on('hideToRoot', this._onTargetHide.bind(this)));
             this._targetEvents.push(this._target.on('destroy', this._onTargetDestroy.bind(this)));
 
             if (!this.hidden) {

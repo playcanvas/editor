@@ -699,7 +699,7 @@ Object.assign(pcui, (function () {
             let i = this._selectedItems.length;
             let othersSelected = false;
             while (i--) {
-                if (this._selectedItems[i] !== item) {
+                if (this._selectedItems[i] && this._selectedItems[i] !== item) {
                     this._selectedItems[i].selected = false;
                     othersSelected = true;
                 }
@@ -816,7 +816,9 @@ Object.assign(pcui, (function () {
         deselect() {
             let i = this._selectedItems.length;
             while (i--) {
-                this._selectedItems[i].selected = false;
+                if (this._selectedItems[i]) {
+                    this._selectedItems[i].selected = false;
+                }
             }
         }
 
@@ -827,7 +829,9 @@ Object.assign(pcui, (function () {
         clearTreeItems() {
             let i = this.dom.childNodes.length;
             while (i--) {
-                const ui = this.dom.childNodes[i].ui;
+                const dom = this.dom.childNodes[i];
+                if (!dom) continue;
+                const ui = dom.ui;
                 if (ui instanceof pcui.TreeViewItem) {
                     ui.destroy();
                 }

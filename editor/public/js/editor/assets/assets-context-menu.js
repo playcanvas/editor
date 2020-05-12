@@ -511,12 +511,14 @@ editor.once('load', function() {
                         menuItem.on('select', function() {
                             editor.call('selector:set', type, [ item ]);
 
-                            var folder = null;
-                            var path = item.get('path') || [ ];
-                            if (path.length)
-                                folder = editor.call('assets:get', path[path.length - 1]);
+                            if (type === 'asset') {
+                                var folder = null;
+                                var path = item.get('path') || [ ];
+                                if (path.length)
+                                    folder = editor.call('assets:get', path[path.length - 1]);
 
-                            editor.call('assets:panel:currentFolder', folder);
+                                editor.call('assets:panel:currentFolder', folder);
+                            }
 
                             // unfold rendering tab
                             if (type === 'editorSettings') {
@@ -662,24 +664,24 @@ editor.once('load', function() {
         });
     });
 
-    function onContextMenu(evt) {
+    function onContextMenu(evt, newCurrentAsset) {
         evt.preventDefault();
         evt.stopPropagation();
 
         if (! editor.call('permissions:write'))
             return;
 
-        currentAsset = undefined;
+        currentAsset = newCurrentAsset;
         menu.open = true;
         menu.position(evt.clientX + 1, evt.clientY);
     }
 
     if (!editor.call('users:hasFlag', 'hasPcuiAssetsPanel')) {
         // folders
-        editor.call('assets:panel:folders').innerElement.addEventListener('contextmenu', onContextMenu, false);
+        editor.call('assets:panel:folders').innerElement.addEventListener('contextmenu', (evt) => onContextMenu(evt), false);
 
         // files
-        editor.call('assets:panel:files').innerElement.addEventListener('contextmenu', onContextMenu, false);
+        editor.call('assets:panel:files').innerElement.addEventListener('contextmenu', (evt) => onContextMenu(evt, null), false);
     }
 
 
