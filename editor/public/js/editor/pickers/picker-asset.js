@@ -370,7 +370,11 @@ editor.once('load', function () {
 
     // Deselects all picked assets
     editor.method('picker:asset:deselect', function () {
-        assetsGrid.selected = currentAsset ? [currentAsset] : [];
+        if (hasPcuiAssetsPanel) {
+            assetsPanel.selectedAssets = currentAsset ? [currentAsset] : [];
+        } else {
+            assetsGrid.selected = currentAsset ? [currentAsset] : [];
+        }
     });
 
     // close asset picker
