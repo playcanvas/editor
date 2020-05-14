@@ -8,6 +8,7 @@ Object.assign(pcui, (function () {
     const CLASS_DETAILS_NAME = CLASS_ROOT + '-details-name';
     const CLASS_ASSET_GRID_ITEM = 'pcui-asset-grid-view-item';
     const CLASS_ASSET_SOURCE = CLASS_ASSET_GRID_ITEM + '-source';
+    const CLASS_ASSET_NOT_REFERENCED = CLASS_ROOT + '-unreferenced-asset';
 
     const CLASS_USERS_CONTAINER = CLASS_ROOT + '-users';
     const CLASS_USER_INDICATOR = CLASS_USERS_CONTAINER + '-indicator';
@@ -926,6 +927,10 @@ Object.assign(pcui, (function () {
                 row.class.add(CLASS_LEGACY_SCRIPTS_FOLDER);
             }
 
+            if (!asset.get('source') && !editor.call('assets:used:get', asset.get('id'))) {
+                row.class.add(CLASS_ASSET_NOT_REFERENCED);
+            }
+
             let domDblClick;
 
             // folder dbl click
@@ -1259,6 +1264,14 @@ Object.assign(pcui, (function () {
             // if it's a folder add it to the folder view
             if (asset.get('type') === 'folder') {
                 this._addFolder(asset);
+            }
+
+            // if it's a target asset then update it if its references
+            // change
+            if (!asset.get('source')) {
+                this._assetEvents[id].push(editor.on(`assets:used:${id}`, (used) => {
+                    this._onAssetUsedChange(asset, used);
+                }));
             }
 
             // change asset path
@@ -1767,6 +1780,16 @@ Object.assign(pcui, (function () {
             }
         }
 
+        _onAssetUsedChange(asset, used) {
+            this._applyFnToAssetElements(asset, element => {
+                if (used) {
+                    element.class.remove(CLASS_ASSET_NOT_REFERENCED);
+                } else {
+                    element.class.add(CLASS_ASSET_NOT_REFERENCED);
+                }
+            });
+        }
+
         toggleDetailsView() {
             this._detailsView.hidden = !this._detailsView.hidden;
             this._gridView.hidden = !this._detailsView.hidden;
@@ -2217,6 +2240,10 @@ Object.assign(pcui, (function () {
             this.thumbnail.value = asset;
             if (asset.get('source')) {
                 this.class.add(CLASS_ASSET_SOURCE);
+            } else {
+                if (!editor.call('assets:used:get', asset.get('id'))) {
+                    this.class.add(CLASS_ASSET_NOT_REFERENCED);
+                }
             }
         }
 
@@ -2224,6 +2251,7 @@ Object.assign(pcui, (function () {
             super.unlink();
             this.thumbnail.value = null;
             this.class.remove(CLASS_ASSET_SOURCE);
+            this.class.remove(CLASS_ASSET_NOT_REFERENCED);
         }
     }
 

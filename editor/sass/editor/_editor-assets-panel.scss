@@ -749,3 +749,32 @@
         height: 6px;
     }
 }
+
+.pcui-asset-panel-unreferenced-asset {
+    .pcui-gridview-item-text:before {
+        @extend .font-icon;
+        content: '\E186';
+        font-size: 10px;
+        margin-right: 2px;
+        vertical-align: middle;
+        color: $text-darkest;
+    }
+
+    .pcui-asset-panel-details-name .pcui-label:after {
+        @extend .font-icon;
+        content: '\E186';
+        font-size: 10px;
+        vertical-align: middle;
+        color: $text-darkest;
+        margin-left: 2px;
+    }
+}
+
+.pcui-asset-panel-grid-view-small {
+    .pcui-asset-panel-unreferenced-asset {
+        .pcui-gridview-item-text:before {
+            font-size: 8px;
+            margin-right: 1px;
+        }
+    }
+}
