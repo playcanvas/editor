@@ -996,13 +996,26 @@ Object.assign(pcui, (function () {
             });
             cell.append(thumb);
 
-            // spinner for running task
-            const spinner = new pcui.Spinner({
-                type: pcui.Spinner.TYPE_SMALL_THICK,
-                size: 16
-            });
-            row.spinner = spinner;
-            cell.append(spinner);
+            row.showProgress = function () {
+                if (!row.spinner) {
+                    // spinner for running task
+                    const spinner = new pcui.Spinner({
+                        type: pcui.Spinner.TYPE_SMALL_THICK,
+                        size: 16
+                    });
+                    row.spinner = spinner;
+                    thumb.parent.appendAfter(spinner, thumb);
+                }
+
+                return row.spinner;
+            };
+
+            row.hideProgress = function () {
+                if (row.spinner) {
+                    row.spinner.destroy();
+                    row.spinner = null;
+                }
+            };
 
             // asset name
             const labelName = new pcui.Label({
@@ -1131,19 +1144,29 @@ Object.assign(pcui, (function () {
         _setElementTaskStatus(element, asset) {
             element.class.remove(CLASS_TASK_RUNNING);
             element.class.remove(CLASS_TASK_FAILED);
-            const progress = element.progress || element.spinner;
-            if (progress) {
-                progress.class.remove(pcui.CLASS_ERROR);
-            }
 
             const task = asset.get('task');
             if (task === 'failed') {
                 element.class.add(CLASS_TASK_FAILED);
-                if (progress) {
-                    progress.class.add(pcui.CLASS_ERROR);
+                if (element.showProgress) {
+                    const progress = element.showProgress();
+                    if (progress) {
+                        progress.class.add(pcui.CLASS_ERROR);
+                    }
                 }
+
             } else if (task === 'running') {
                 element.class.add(CLASS_TASK_RUNNING);
+                if (element.showProgress) {
+                    const progress = element.showProgress();
+                    if (progress) {
+                        progress.class.remove(pcui.CLASS_ERROR);
+                    }
+                }
+            } else {
+                if (element.hideProgress) {
+                    element.hideProgress();
+                }
             }
         }
 
@@ -2221,12 +2244,26 @@ Object.assign(pcui, (function () {
                     this.containerUsers.hidden = true;
                 }
             });
+        }
 
-            this.progress = new pcui.Progress({
-                value: 100,
-                hidden: Math.random() < 0.3
-            });
-            this.append(this.progress);
+        showProgress() {
+            if (!this.progress) {
+                this.progress = new pcui.Progress({
+                    value: 100,
+                    hidden: true
+                });
+
+                this.appendAfter(this.progress, this.thumbnail);
+            }
+
+            return this.progress;
+        }
+
+        hideProgress() {
+            if (this.progress) {
+                this.progress.destroy();
+                this.progress = null;
+            }
         }
 
         link(asset) {

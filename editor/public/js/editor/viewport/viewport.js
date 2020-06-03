@@ -10,8 +10,8 @@ editor.once('load', function() {
     var editorSettings = editor.call('settings:projectUser');
     var Application = editor.call('viewport:application');
 
-    var idleFlagTimeoutId = null;
-    var idleFlagTimeoutDelay = 250;
+    // var idleFlagTimeoutId = null;
+    // var idleFlagTimeoutDelay = 250;
 
     // Allow anti-aliasing to be forcibly disabled - this is useful for Selenium tests in
     // order to ensure that the generated screenshots are consistent across different GPUs.
@@ -53,20 +53,20 @@ editor.once('load', function() {
         return app;
     });
 
-    function idleTimeout() {
-        if (!canvas.class.contains('viewport-idle')) {
-            canvas.class.add('viewport-idle');
-        }
-    }
+    // function idleTimeout() {
+    //     if (!canvas.class.contains('viewport-idle')) {
+    //         canvas.class.add('viewport-idle');
+    //     }
+    // }
 
     // re-render viewport
     editor.method('viewport:render', function () {
-        canvas.class.remove('viewport-idle');
+        // canvas.class.remove('viewport-idle');
 
         app.redraw = true;
 
-        clearTimeout(idleFlagTimeoutId);
-        idleFlagTimeoutId = setTimeout(idleTimeout, idleFlagTimeoutDelay);
+        // clearTimeout(idleFlagTimeoutId);
+        // idleFlagTimeoutId = setTimeout(idleTimeout, idleFlagTimeoutDelay);
     });
 
     // returns true if the viewport should continuously render

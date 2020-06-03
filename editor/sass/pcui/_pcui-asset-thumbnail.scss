@@ -41,10 +41,10 @@
         width: 100%;
         height: 100%;
         background-color: $bcg-dark;
+    }
 
-        &.flip-y {
-            transform: scale(1, -1);
-        }
+    > .flip-y {
+        transform: scale(1, -1);
     }
 
     &.pcui-asset-thumb-empty:before {
