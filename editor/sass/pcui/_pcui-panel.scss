@@ -19,7 +19,7 @@
 .pcui-panel-header-title {
     overflow: hidden;
     text-overflow: ellipsis;
-    flex-shrink: 1;
+    flex: 1;
     @extend .font-bold;
     @extend .font-smooth;
     color: inherit;

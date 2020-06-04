@@ -296,6 +296,11 @@
 }
 
 .pcui-asset-panel {
+    > .pcui-panel-header > .pcui-panel-header-title {
+        flex-grow: 0;
+        flex-basis: auto;
+    }
+
     > .pcui-resizable-handle {
         // make z-index higher than the
         // details view z-index otherwise part

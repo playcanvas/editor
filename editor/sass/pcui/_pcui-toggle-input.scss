@@ -5,6 +5,7 @@
     width: 30px;
     height: 16px;
     border-radius: 8px;
+    flex-shrink: 0;
 
     border: 1px solid $bcg-darker;
     box-sizing: border-box;
