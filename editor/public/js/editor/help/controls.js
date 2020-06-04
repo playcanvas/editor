@@ -11,7 +11,7 @@ editor.once('load', function () {
 
     overlay.element.addEventListener('mousewheel', function (evt) {
         evt.stopPropagation();
-    });
+    }, { passive: true });
 
     // header
     var header = new ui.Label({

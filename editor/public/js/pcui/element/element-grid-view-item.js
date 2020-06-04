@@ -99,10 +99,10 @@ Object.assign(pcui, (function () {
             this._selected = value;
 
             if (value) {
-                this.class.add(CLASS_SELECTED);
+                this.classAdd(CLASS_SELECTED);
                 this.emit('select', this);
             } else {
-                this.class.remove(CLASS_SELECTED);
+                this.classRemove(CLASS_SELECTED);
                 this.emit('deselect', this);
             }
         }

@@ -134,7 +134,7 @@ Object.assign(pcui, (function () {
             if (!(element instanceof pcui.TreeViewItem)) return;
 
             this._numChildren++;
-            this.class.remove(CLASS_EMPTY);
+            this.classRemove(CLASS_EMPTY);
 
             if (this._treeView) {
                 this._treeView._onAppendTreeViewItem(element);
@@ -145,7 +145,7 @@ Object.assign(pcui, (function () {
             if (element instanceof pcui.TreeViewItem) {
                 this._numChildren--;
                 if (this._numChildren === 0) {
-                    this.class.add(CLASS_EMPTY);
+                    this.classAdd(CLASS_EMPTY);
                 }
 
                 if (this._treeView) {
@@ -255,7 +255,7 @@ Object.assign(pcui, (function () {
         }
 
         rename() {
-            this.class.add(CLASS_RENAME);
+            this.classAdd(CLASS_RENAME);
 
             // show text input to enter new text
             const textInput = new pcui.TextInput({
@@ -268,7 +268,7 @@ Object.assign(pcui, (function () {
             });
 
             textInput.on('destroy', () => {
-                this.class.remove(CLASS_RENAME);
+                this.classRemove(CLASS_RENAME);
                 this.focus();
             });
 
@@ -329,13 +329,13 @@ Object.assign(pcui, (function () {
             if (value === this.selected) return;
 
             if (value) {
-                this._containerContents.class.add(CLASS_SELECTED);
+                this._containerContents.classAdd(CLASS_SELECTED);
                 this.emit('select', this);
                 if (this._treeView) {
                     this._treeView._onChildSelected(this);
                 }
             } else {
-                this._containerContents.class.remove(CLASS_SELECTED);
+                this._containerContents.classRemove(CLASS_SELECTED);
                 this.blur();
                 this.emit('deselect', this);
                 if (this._treeView) {
@@ -375,10 +375,10 @@ Object.assign(pcui, (function () {
             if (value) {
                 if (!this.numChildren) return;
 
-                this.class.add(CLASS_OPEN);
+                this.classAdd(CLASS_OPEN);
                 this.emit('open', this);
             } else {
-                this.class.remove(CLASS_OPEN);
+                this.classRemove(CLASS_OPEN);
                 this.emit('close', this);
             }
         }

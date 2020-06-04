@@ -70,7 +70,7 @@ function SelectField(args) {
     };
 
     this.elementValue.addEventListener('mousedown', this._onMouseDown, false);
-    this.elementValue.addEventListener('touchstart', this._onTouchStart, false);
+    this.elementValue.addEventListener('touchstart', this._onTouchStart, { passive: false });
 
     this.elementOptions = document.createElement('ul');
     this._element.appendChild(this.elementOptions);
@@ -341,7 +341,7 @@ SelectField.prototype._updateOptions = function(options) {
         element.textContent = this.options[this.optionsKeys[i]];
         element.uiElement = this;
         element.uiValue = this.optionsKeys[i];
-        element.addEventListener('touchstart', this._onOptionSelect);
+        element.addEventListener('touchstart', this._onOptionSelect, { passive: true });
         element.addEventListener('mouseover', this._onOptionHover);
         element.addEventListener('mouseout', this._onOptionOut);
 

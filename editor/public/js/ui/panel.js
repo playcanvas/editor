@@ -277,7 +277,7 @@ Object.defineProperty(Panel.prototype, 'resizable', {
                 this._handleElement.ui = this;
                 this._handleElement.classList.add('handle');
                 this._handleElement.addEventListener('mousedown', this._resizeStart, false);
-                this._handleElement.addEventListener('touchstart', this._resizeStart, false);
+                this._handleElement.addEventListener('touchstart', this._resizeStart, { passive: false });
             }
 
             if (this._handleElement.parentNode)

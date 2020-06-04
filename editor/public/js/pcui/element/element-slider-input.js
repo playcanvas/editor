@@ -106,7 +106,7 @@ Object.assign(pcui, (function () {
             this._touchId = null;
 
             this._domBar.addEventListener('mousedown', this._domMouseDown);
-            this._domBar.addEventListener('touchstart', this._domTouchStart);
+            this._domBar.addEventListener('touchstart', this._domTouchStart, { passive: true });
             this._domHandle.addEventListener('keydown', this._domKeyDown);
         }
 

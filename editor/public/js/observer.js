@@ -65,7 +65,26 @@ function Observer(data, options) {
     this.on('*:remove', propagate('remove'));
     this.on('*:move', propagate('move'));
 }
+
+// cache calls to path.split(path, '.')
+// as they take considerable time especially during loading
+// if there are a lot of observers like entities, assets etc.
+Observer._splitPathsCache = {};
+Observer._splitPath = function (path) {
+    var cache = Observer._splitPathsCache;
+    var result = cache[path];
+    if (!result) {
+        result = path.split('.');
+        cache[path] = result;
+    } else {
+        result = result.slice();
+    }
+
+    return result;
+};
+
 Observer.prototype = Object.create(Events.prototype);
+
 
 Observer.prototype.silence = function() {
     this._silent = true;
@@ -187,7 +206,7 @@ Observer.prototype._prepare = function(target, key, value, silent, remote) {
 
 
 Observer.prototype.set = function(path, value, silent, remote, force) {
-    var keys = path.split('.');
+    var keys = Observer._splitPath(path);
     var length = keys.length;
     var key = keys[length - 1];
     var node = this;
@@ -436,7 +455,7 @@ Observer.prototype.set = function(path, value, silent, remote, force) {
 
 
 Observer.prototype.has = function(path) {
-    var keys = path.split('.');
+    var keys = Observer._splitPath(path);
     var node = this;
     for (var i = 0, len = keys.length; i < len; i++) {
         if (node == undefined)
@@ -454,7 +473,7 @@ Observer.prototype.has = function(path) {
 
 
 Observer.prototype.get = function(path, raw) {
-    var keys = path.split('.');
+    var keys = Observer._splitPath(path);
     var node = this;
     for (var i = 0; i < keys.length; i++) {
         if (node == undefined)
@@ -495,7 +514,7 @@ Observer.prototype._equals = function(a, b) {
 
 
 Observer.prototype.unset = function(path, silent, remote) {
-    var keys = path.split('.');
+    var keys = Observer._splitPath(path);
     var key = keys[keys.length - 1];
     var node = this;
     var obj = this;
@@ -546,7 +565,7 @@ Observer.prototype.unset = function(path, silent, remote) {
 
 
 Observer.prototype.remove = function(path, ind, silent, remote) {
-    var keys = path.split('.');
+    var keys = Observer._splitPath(path);
     var key = keys[keys.length - 1];
     var node = this;
     var obj = this;
@@ -596,7 +615,7 @@ Observer.prototype.remove = function(path, ind, silent, remote) {
 
 
 Observer.prototype.removeValue = function(path, value, silent, remote) {
-    var keys = path.split('.');
+    var keys = Observer._splitPath(path);
     var key = keys[keys.length - 1];
     var node = this;
     var obj = this;
@@ -652,7 +671,7 @@ Observer.prototype.removeValue = function(path, value, silent, remote) {
 
 
 Observer.prototype.insert = function(path, value, ind, silent, remote) {
-    var keys = path.split('.');
+    var keys = Observer._splitPath(path);
     var key = keys[keys.length - 1];
     var node = this;
     var obj = this;
@@ -721,7 +740,7 @@ Observer.prototype.insert = function(path, value, ind, silent, remote) {
 
 
 Observer.prototype.move = function(path, indOld, indNew, silent, remote) {
-    var keys = path.split('.');
+    var keys = Observer._splitPath(path);
     var key = keys[keys.length - 1];
     var node = this;
     var obj = this;

@@ -595,9 +595,9 @@ Object.assign(pcui, (function () {
         }
 
         _refreshViewModeButtons() {
-            this._btnLargeGrid.class.remove(CLASS_BTN_ACTIVE);
-            this._btnSmallGrid.class.remove(CLASS_BTN_ACTIVE);
-            this._btnDetailsView.class.remove(CLASS_BTN_ACTIVE);
+            this._btnLargeGrid.classRemove(CLASS_BTN_ACTIVE);
+            this._btnSmallGrid.classRemove(CLASS_BTN_ACTIVE);
+            this._btnDetailsView.classRemove(CLASS_BTN_ACTIVE);
 
             if (this._viewMode === AssetPanel.VIEW_DETAILS) {
                 this._btnDetailsView.class.add(CLASS_BTN_ACTIVE);
@@ -866,18 +866,18 @@ Object.assign(pcui, (function () {
                 if (this._hoveredAsset) {
                     const row = this._rowsIndex[this._hoveredAsset.get('id')];
                     if (row) {
-                        row.class.remove(CLASS_ASSET_HIGHLIGHTED);
+                        row.classRemove(CLASS_ASSET_HIGHLIGHTED);
                     }
 
                     const gridItem = this._gridIndex[this._hoveredAsset.get('id')];
                     if (gridItem) {
-                        gridItem.class.remove(CLASS_ASSET_HIGHLIGHTED);
+                        gridItem.classRemove(CLASS_ASSET_HIGHLIGHTED);
                     }
                 }
 
                 const folder = this._hoveredAsset ? this._foldersIndex[this._hoveredAsset.get('id')] : this._foldersViewRoot;
                 if (folder) {
-                    folder.class.remove(CLASS_ASSET_HIGHLIGHTED);
+                    folder.classRemove(CLASS_ASSET_HIGHLIGHTED);
                     this._foldersView.showDragHandle(null);
                 }
             }
@@ -1142,8 +1142,8 @@ Object.assign(pcui, (function () {
 
         // update element based on asset task status
         _setElementTaskStatus(element, asset) {
-            element.class.remove(CLASS_TASK_RUNNING);
-            element.class.remove(CLASS_TASK_FAILED);
+            element.classRemove(CLASS_TASK_RUNNING);
+            element.classRemove(CLASS_TASK_FAILED);
 
             const task = asset.get('task');
             if (task === 'failed') {
@@ -1160,7 +1160,7 @@ Object.assign(pcui, (function () {
                 if (element.showProgress) {
                     const progress = element.showProgress();
                     if (progress) {
-                        progress.class.remove(pcui.CLASS_ERROR);
+                        progress.classRemove(pcui.CLASS_ERROR);
                     }
                 }
             } else {
@@ -1806,9 +1806,9 @@ Object.assign(pcui, (function () {
         _onAssetUsedChange(asset, used) {
             this._applyFnToAssetElements(asset, element => {
                 if (used) {
-                    element.class.remove(CLASS_ASSET_NOT_REFERENCED);
+                    element.classRemove(CLASS_ASSET_NOT_REFERENCED);
                 } else {
-                    element.class.add(CLASS_ASSET_NOT_REFERENCED);
+                    element.classAdd(CLASS_ASSET_NOT_REFERENCED);
                 }
             });
         }
@@ -1989,10 +1989,10 @@ Object.assign(pcui, (function () {
             if (this._currentFolder) {
                 id = this._currentFolder.get('id');
                 if (this._foldersIndex[id]) {
-                    this._foldersIndex[id].class.remove(CLASS_CURRENT_FOLDER);
+                    this._foldersIndex[id].classRemove(CLASS_CURRENT_FOLDER);
                 }
             } else {
-                this._foldersViewRoot.class.remove(CLASS_CURRENT_FOLDER);
+                this._foldersViewRoot.classRemove(CLASS_CURRENT_FOLDER);
             }
 
             this._currentFolder = value;
@@ -2083,11 +2083,11 @@ Object.assign(pcui, (function () {
 
                 if (value === AssetPanel.VIEW_SMALL_GRID) {
                     if (!this._gridView.class.contains(CLASS_GRID_SMALL)) {
-                        this._gridView.class.add(CLASS_GRID_SMALL);
+                        this._gridView.classAdd(CLASS_GRID_SMALL);
                     }
                 } else {
                     if (this._gridView.class.contains(CLASS_GRID_SMALL)) {
-                        this._gridView.class.remove(CLASS_GRID_SMALL);
+                        this._gridView.classRemove(CLASS_GRID_SMALL);
                     }
                 }
             }
@@ -2287,8 +2287,8 @@ Object.assign(pcui, (function () {
         unlink() {
             super.unlink();
             this.thumbnail.value = null;
-            this.class.remove(CLASS_ASSET_SOURCE);
-            this.class.remove(CLASS_ASSET_NOT_REFERENCED);
+            this.classRemove(CLASS_ASSET_SOURCE);
+            this.classRemove(CLASS_ASSET_NOT_REFERENCED);
         }
     }
 

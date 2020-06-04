@@ -38,7 +38,7 @@ function MenuItem(args) {
     this._container = false;
 
     this.elementTitle.addEventListener('mouseenter', this._onMouseEnter, false);
-    this.elementTitle.addEventListener('touchstart', this._onTouchStart, false);
+    this.elementTitle.addEventListener('touchstart', this._onTouchStart, { passive: true });
     this.elementTitle.addEventListener('touchend', this._onTouchEnd, false);
     this.elementTitle.addEventListener('click', this._onClick, false);
 

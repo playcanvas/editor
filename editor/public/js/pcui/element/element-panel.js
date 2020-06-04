@@ -291,9 +291,9 @@ Object.assign(pcui, (function () {
             this._collapsible = value;
 
             if (value) {
-                this.class.add(pcui.CLASS_COLLAPSIBLE);
+                this.classAdd(pcui.CLASS_COLLAPSIBLE);
             } else {
-                this.class.remove(pcui.CLASS_COLLAPSIBLE);
+                this.classRemove(pcui.CLASS_COLLAPSIBLE);
             }
 
             this._reflow();
@@ -372,9 +372,9 @@ Object.assign(pcui, (function () {
 
             this._collapseHorizontally = value;
             if (value) {
-                this.class.add(CLASS_PANEL_HORIZONTAL);
+                this.classAdd(CLASS_PANEL_HORIZONTAL);
             } else {
-                this.class.remove(CLASS_PANEL_HORIZONTAL);
+                this.classRemove(CLASS_PANEL_HORIZONTAL);
             }
 
             this._reflow();

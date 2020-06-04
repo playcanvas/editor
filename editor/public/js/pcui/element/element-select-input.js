@@ -146,7 +146,7 @@ Object.assign(pcui, (function () {
             this._labelValue.dom.addEventListener('blur', this._domEvtBlur);
             this._labelValue.dom.addEventListener('mousedown', this._domEvtMouseDown);
 
-            this._containerOptions.dom.addEventListener('wheel', this._domEvtWheel);
+            this._containerOptions.dom.addEventListener('wheel', this._domEvtWheel, { passive: true });
 
             this.on('hide', this.close.bind(this));
 

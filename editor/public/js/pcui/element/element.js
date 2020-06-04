@@ -249,10 +249,10 @@ Object.assign(pcui, (function () {
         flash() {
             if (this._flashTimeout) return;
 
-            this.class.add(pcui.CLASS_FLASH);
+            this.classAdd(pcui.CLASS_FLASH);
             this._flashTimeout = setTimeout(function () {
                 this._flashTimeout = null;
-                this.class.remove(pcui.CLASS_FLASH);
+                this.classRemove(pcui.CLASS_FLASH);
             }.bind(this), 200);
         }
 
@@ -280,9 +280,9 @@ Object.assign(pcui, (function () {
 
         _onEnabledChange(enabled) {
             if (enabled) {
-                this.class.remove(pcui.CLASS_DISABLED);
+                this.classRemove(pcui.CLASS_DISABLED);
             } else {
-                this.class.add(pcui.CLASS_DISABLED);
+                this.classAdd(pcui.CLASS_DISABLED);
             }
 
             this.emit(enabled ? 'enable' : 'disable');
@@ -324,9 +324,9 @@ Object.assign(pcui, (function () {
 
         _onReadOnlyChange(readOnly) {
             if (readOnly) {
-                this.class.add(pcui.CLASS_READONLY);
+                this.classAdd(pcui.CLASS_READONLY);
             } else {
-                this.class.remove(pcui.CLASS_READONLY);
+                this.classRemove(pcui.CLASS_READONLY);
             }
 
             this.emit('readOnly', readOnly);
@@ -344,6 +344,30 @@ Object.assign(pcui, (function () {
                 }
             }
 
+        }
+
+        /**
+         * @name pcui.Element#classAdd
+         * @description Adds the specified class to the DOM element but checks if the classList contains it first.
+         * @param {String} cls The class to add
+         */
+        classAdd(cls) {
+            var classList = this._dom.classList;
+            if (!classList.contains(cls)) {
+                classList.add(cls);
+            }
+        }
+
+        /**
+         * @name pcui.Element#classRemove
+         * @description Removes the specified class from the DOM element but checks if the classList contains it first.
+         * @param {String} cls The class to remove
+         */
+        classRemove(cls) {
+            var classList = this._dom.classList;
+            if (classList.contains(cls)) {
+                classList.remove(cls);
+            }
         }
 
         /**
@@ -559,9 +583,9 @@ Object.assign(pcui, (function () {
             this._hidden = value;
 
             if (value) {
-                this.class.add(pcui.CLASS_HIDDEN);
+                this.classAdd(pcui.CLASS_HIDDEN);
             } else {
-                this.class.remove(pcui.CLASS_HIDDEN);
+                this.classRemove(pcui.CLASS_HIDDEN);
             }
 
             this.emit(value ? 'hide' : 'show');
@@ -595,9 +619,9 @@ Object.assign(pcui, (function () {
             if (this._hasError === value) return;
             this._hasError = value;
             if (value) {
-                this.class.add(pcui.CLASS_ERROR);
+                this.classAdd(pcui.CLASS_ERROR);
             } else {
-                this.class.remove(pcui.CLASS_ERROR);
+                this.classRemove(pcui.CLASS_ERROR);
             }
         }
 

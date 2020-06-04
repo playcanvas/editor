@@ -26,6 +26,7 @@ Object.assign(pcui, (function () {
             this._eventsObserverList = [];
             this._eventsEntity = {};
 
+            this._rootItem = null;
             this._treeItemIndex = {};
 
             this._userSelectionMarkers = {};
@@ -570,8 +571,10 @@ Object.assign(pcui, (function () {
 
             const parent = entity.get('parent');
             if (!parent) {
-                // root
-                this.append(treeViewItem);
+                // root - wait for this and append it later
+                // once we're done with all the children
+                // to avoid multiple DOM operations
+                this._rootItem = treeViewItem;
             }
 
             // add children
@@ -778,6 +781,7 @@ Object.assign(pcui, (function () {
         set entities(value) {
             this.clearTreeItems();
 
+            this._rootItem = null;
             this._treeItemIndex = {};
             this._unbindEntityEvents();
             this._unbindObserverListEvents();
@@ -787,7 +791,12 @@ Object.assign(pcui, (function () {
             if (this._entities) {
                 this._eventsObserverList.push(this._entities.on('add', this._onAddEntity.bind(this)));
                 this._eventsObserverList.push(this._entities.on('remove', this._onRemoveEntity.bind(this)));
-                this._entities.array().forEach(entity => this._onAddEntity(entity));
+                this._entities.forEach(entity => this._onAddEntity(entity));
+
+                // append root in the end to avoid multiple DOM operations
+                if (this._rootItem) {
+                    this.append(this._rootItem);
+                }
             }
         }
 

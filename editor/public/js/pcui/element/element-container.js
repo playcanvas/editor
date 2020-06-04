@@ -284,7 +284,7 @@ Object.assign(pcui, (function () {
             handle.ui = this;
 
             handle.addEventListener('mousedown', this._domEventResizeStart);
-            handle.addEventListener('touchstart', this._domEventResizeTouchStart);
+            handle.addEventListener('touchstart', this._domEventResizeTouchStart, { passive: false });
 
             this._domResizeHandle = handle;
         }
@@ -628,9 +628,9 @@ Object.assign(pcui, (function () {
             this._flex = value;
 
             if (value) {
-                this.class.add(pcui.CLASS_FLEX);
+                this.classAdd(pcui.CLASS_FLEX);
             } else {
-                this.class.remove(pcui.CLASS_FLEX);
+                this.classRemove(pcui.CLASS_FLEX);
             }
         }
 
@@ -644,9 +644,9 @@ Object.assign(pcui, (function () {
             this._grid = value;
 
             if (value) {
-                this.class.add(pcui.CLASS_GRID);
+                this.classAdd(pcui.CLASS_GRID);
             } else {
-                this.class.remove(pcui.CLASS_GRID);
+                this.classRemove(pcui.CLASS_GRID);
             }
         }
 
@@ -660,9 +660,9 @@ Object.assign(pcui, (function () {
             this._scrollable = value;
 
             if (value) {
-                this.class.add(pcui.CLASS_SCROLLABLE);
+                this.classAdd(pcui.CLASS_SCROLLABLE);
             } else {
-                this.class.remove(pcui.CLASS_SCROLLABLE);
+                this.classRemove(pcui.CLASS_SCROLLABLE);
             }
 
         }
@@ -681,7 +681,7 @@ Object.assign(pcui, (function () {
 
             // remove old class
             if (this._resizable) {
-                this.class.remove(`${pcui.CLASS_RESIZABLE}-${this._resizable}`);
+                this.classRemove(`${pcui.CLASS_RESIZABLE}-${this._resizable}`);
             }
 
             this._resizable = value;
@@ -689,8 +689,8 @@ Object.assign(pcui, (function () {
 
             if (value) {
                 // add resize class and create / append resize handle
-                this.class.add(pcui.CLASS_RESIZABLE);
-                this.class.add(`${pcui.CLASS_RESIZABLE}-${value}`);
+                this.classAdd(pcui.CLASS_RESIZABLE);
+                this.classAdd(`${pcui.CLASS_RESIZABLE}-${value}`);
 
                 if (!this._domResizeHandle) {
                     this._createResizeHandle();
@@ -698,7 +698,7 @@ Object.assign(pcui, (function () {
                 this._dom.appendChild(this._domResizeHandle);
             } else {
                 // remove resize class and resize handle
-                this.class.remove(pcui.CLASS_RESIZABLE);
+                this.classRemove(pcui.CLASS_RESIZABLE);
                 if (this._domResizeHandle) {
                     this._dom.removeChild(this._domResizeHandle);
                 }
