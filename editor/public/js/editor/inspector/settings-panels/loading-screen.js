@@ -1,9 +1,6 @@
 Object.assign(pcui, (function () {
     'use strict';
 
-    const CLASS_ROOT = 'settings-loading-screen';
-    const CLASS_FEATURE_LOCKED = CLASS_ROOT + '-feature-locked';
-
     const ATTRIBUTES = [
         {
             observer: 'projectSettings',
@@ -37,13 +34,6 @@ Object.assign(pcui, (function () {
                     })
                 }
             ]
-        },
-        {
-            featureLockedLabel: new pcui.Label({
-                text: `This is an ORGANIZATION account feature. <a href="/upgrade?plan=organization&account=${config.owner.username}" target="_blank">UPGRADE</a> to create custom loading screens.`,
-                unsafe: true,
-                class: CLASS_FEATURE_LOCKED
-            })
         }
     ];
 
@@ -57,9 +47,9 @@ Object.assign(pcui, (function () {
 
             this.buildDom(DOM());
 
-            const selectExistingEvt = this._selectExistingButton.on('click', this._clickSelectExisting.bind(this));
-            const createDefaultEvt = this._createDefaultButton.on('click', this._clickCreateDefault.bind(this));
-            const updateAssetEvt = this._attributesInspector.getField('loadingScreenScript').on('change', value => {
+            this._selectExistingButton.on('click', this._clickSelectExisting.bind(this));
+            this._createDefaultButton.on('click', this._clickCreateDefault.bind(this));
+            this._attributesInspector.getField('loadingScreenScript').on('change', value => {
                 if (this._projectSettings) {
                     this._projectSettings.set('loadingScreenScript', value ? value.toString() : null);
                 }
@@ -91,15 +81,6 @@ Object.assign(pcui, (function () {
         }
 
         _loadLayout() {
-            if (!editor.call("users:isSuperUser") && config.owner.plan.type !== 'org' && config.owner.plan.type !== 'organization') {
-                this._featureLockedLabel.hidden = false;
-                this._attributesInspector.destroy();
-                this._buttonContainer.destroy();
-                return;
-            }
-
-            this._featureLockedLabel.hidden = true;
-
             const scriptId = this._projectSettings.get('loadingScreenScript');
             const asset = this._args.assets.get(scriptId);
             if (scriptId && asset) {

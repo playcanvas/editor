@@ -25,28 +25,13 @@ editor.once('load', function () {
         mode = 'publish';
         editor.call('picker:project', 'publish-new');
         panel.class.remove('download-mode');
-        panel.class.remove('upgrade');
     });
 
     editor.method('picker:publish:download', function () {
         mode = 'download';
         editor.call('picker:project', 'publish-download');
         panel.class.add('download-mode');
-
-        if (config.owner.plan.type === 'free') {
-            panel.class.add('upgrade');
-        } else {
-            panel.class.remove('upgrade');
-        }
     });
-
-    // upgrade notice
-    var labelUpgrade = new ui.Label({
-        text: 'This is a premium feature. <a href="/upgrade?account=' + config.owner.username + '" target="_blank">UPGRADE</a> to be able to download your project.',
-        unsafe: true
-    });
-    labelUpgrade.class.add('upgrade');
-    panel.append(labelUpgrade);
 
     // info panel
     var panelInfo = new ui.Panel();
@@ -412,15 +397,15 @@ editor.once('load', function () {
 
     // web download button
     var btnWebDownload = new ui.Button({
-        text: 'Web Download'
+        text: 'Download'
     });
     btnWebDownload.class.add('web-download');
     panel.append(btnWebDownload);
 
     var urlToDownload = null;
 
-    // download app for specified target (web or ios)
-    var download = function (target) {
+    // download app
+    var download = function () {
         jobInProgress = true;
 
         refreshButtonsState();
@@ -431,7 +416,6 @@ editor.once('load', function () {
             project_id: config.project.id,
             branch_id: config.self.branch.id,
             scenes: getSelectedScenes(),
-            target: target,
             scripts_concatenate: fieldOptionsConcat ? fieldOptionsConcat.value : false,
             scripts_sourcemaps: fieldOptionsConcat && fieldOptionsConcat.value && fieldOptionsSourcemaps.value,
             preload_bundle: fieldOptionsPreload ? fieldOptionsPreload.value : false
@@ -506,28 +490,7 @@ editor.once('load', function () {
         if (jobInProgress)
             return;
 
-        download('web');
-    });
-
-    // ios download button
-    var btnIosDownload = new ui.Button({
-        text: 'iOS Download'
-    });
-    btnIosDownload.class.add('ios-download');
-    panel.append(btnIosDownload);
-
-    btnIosDownload.on('click', function () {
-        if (jobInProgress)
-            return;
-
-        if (config.owner.plan.type !== 'org' && config.owner.plan.type !== 'organization') {
-            editor.call('picker:confirm', 'You need an Organization account to be able to download for iOS. Would you like to upgrade?', function () {
-                window.open('/upgrade');
-            });
-
-            return;
-        }
-        download('ios');
+        download();
     });
 
     // download progress
@@ -580,7 +543,6 @@ editor.once('load', function () {
 
         btnPublish.disabled = disabled;
         btnWebDownload.disabled = disabled;
-        btnIosDownload.disabled = disabled;
     };
 
     var createSceneItem = function (scene) {
