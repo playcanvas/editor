@@ -7,13 +7,10 @@ editor.once('load', function() {
 
         args = args || { };
 
-        var defaultAssetPreload = editor.call('settings:projectUser').get('editor.pipeline.defaultAssetPreload');;
-
         var asset = {
             name: 'New Json',
             type: 'json',
             source: false,
-            preload: defaultAssetPreload,
             parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             filename: 'asset.json',
             file: new Blob([ '{ }' ], { type: 'application/json' }),

@@ -364,7 +364,19 @@ editor.once('load', function () {
     });
 
     editor.on('viewport:gizmoUpdate', function(dt) {
-        for(var key in entities)
+        for(var key in entities) {
+
+            // set inTools to true on emitter when running inside Editor - allows is to render screenspace particles in world space
+            var entity = app.root.findByGuid(key);
+            if (entity && entity.particlesystem && entity.particlesystem.emitter) {
+                var emitter = entity.particlesystem.emitter;
+                if (!emitter.inTools) {
+                    emitter.inTools = true;
+                    emitter.regenShader();
+                }
+            }
+
             entities[key].update();
+        }
     });
 });

@@ -60,13 +60,10 @@ editor.once('load', function() {
             args.content = scriptBoilerplate.replace(/\{className\}/g, className).replace(/\{scriptName\}/g, scriptName);
         }
 
-        var defaultAssetPreload = editor.call('settings:projectUser').get('editor.pipeline.defaultAssetPreload');;
-
         var asset = {
             name: filename,
             type: 'script',
             source: false,
-            preload: defaultAssetPreload,
             parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             filename: filename,
             file: new Blob([ args.content || '' ], { type: 'text/javascript' }),

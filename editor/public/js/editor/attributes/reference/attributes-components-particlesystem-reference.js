@@ -200,6 +200,11 @@ editor.once('load', function() {
         description: 'Binds particles to emitter node transformation.',
         url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#localSpace'
     }, {
+        title: 'screenSpace',
+        subTitle: '{Boolean}',
+        description: 'Renders particles in 2D screen space. This needs to be set when particle system is part of hierarchy with ScreenComponent at its root, and allows particle system to integrate with the rendering of the ElementComponents.',
+        url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#screenSpace'
+    }, {
         title: 'rotationSpeedGraph',
         subTitle: '{pc.Curve}',
         description: 'A curve defining how each particle\'s angular velocity changes over time. If two curves are specified in the curve editor, the angular velocity will be a random lerp between both curves.',

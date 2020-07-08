@@ -158,6 +158,10 @@ Object.assign(pcui, (function () {
         path: 'components.particlesystem.localSpace',
         type: 'boolean'
     }, {
+        label: 'Screen Space',
+        path: 'components.particlesystem.screenSpace',
+        type: 'boolean'
+    }, {
         label: 'Layers',
         path: 'components.particlesystem.layers',
         type: 'layers',
