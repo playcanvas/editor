@@ -60,6 +60,13 @@ editor.once('load', function() {
         };
     }
 
+    if (editor.call('users:hasFlag', 'hasAnimComponent')) {
+        assets.animstategraph = {
+            title: 'Anim State Graph',
+            icon: '&#57754;'
+        };
+    }
+
     var addNewMenuItem = function(key, data) {
         // new folder
         var item = new ui.MenuItem({
