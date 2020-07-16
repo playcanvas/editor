@@ -76,7 +76,8 @@ editor.once('load', function() {
         'scene': '&#57735;',
         'animation': '&#57875;',
         'audio': '&#57872;',
-        'bundle': '&#58384;'
+        'bundle': '&#58384;',
+        'animstategraph': '&#57753;'
     };
 
     var ICONS = {
@@ -107,6 +108,10 @@ editor.once('load', function() {
 
     if (editor.call('users:hasFlag', 'hasBundles')) {
         assets.bundle = 'Asset Bundle';
+    }
+
+    if (editor.call('users:hasFlag', 'hasAnimComponent')) {
+        assets.animstategraph = 'Anim State Graph';
     }
 
     function isCurrentFolderLegacyScripts() {
@@ -229,7 +234,8 @@ editor.once('load', function() {
         'shader': true,
         'sprite': true,
         'json': true,
-        'text': true
+        'text': true,
+        'animstategraph': true
     };
     var menuItemReplace = new ui.MenuItem({
         text: 'Replace',

@@ -1,0 +1,31 @@
+.asset-animstategraph-inspector-parameter,.asset-animstategraph-inspector-layer, .asset-animstategraph-inspector-state, .asset-animstategraph-inspector-transition {
+    margin: 6px;
+    border: 1px solid #293538;
+}
+
+.asset-animstategraph-inspector-container {
+    margin: 6px;
+}
+
+.pcui-animstategraph-condition {
+    display: flex;
+    align-items: center;
+    > .pcui-select-input {
+        width: 30%;
+        margin-right: 0;
+    }
+    > .pcui-numeric-input {
+        width: 20%;
+        flex-grow: 1;
+        margin-right: 46px;
+    }
+    > .pcui-button {
+        min-width: 30px;
+        margin-right: 10px;
+        border: none;
+        background: inherit;
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+}

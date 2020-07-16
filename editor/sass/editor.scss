@@ -72,6 +72,9 @@ strong {
     &.type-animation:before {
         content: '\E213';
     }
+    &.type-animstategraph:before {
+        content: '\E199';
+    }
     &.type-audio:before {
         content: '\E210';
     }

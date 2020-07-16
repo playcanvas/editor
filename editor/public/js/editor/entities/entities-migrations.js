@@ -300,6 +300,10 @@ editor.once('load', function() {
                     entity.set('components.particlesystem.localSpace', false);
                 }
 
+                if (! entity.has('components.particlesystem.screenSpace')) {
+                    entity.set('components.particlesystem.screenSpace', false);
+                }
+
                 const hasParticleSystemSpriteAnimationUpdates = editor.call('users:hasFlag', 'hasParticleSystemSpriteAnimationUpdates');
                 if (hasParticleSystemSpriteAnimationUpdates) {
                     if (! entity.has('components.particlesystem.animStartFrame')) {
