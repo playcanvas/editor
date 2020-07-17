@@ -23,7 +23,7 @@ Object.assign(pcui, (function () {
         },
         {
             label: 'State Graph',
-            alias: 'stateGraphAsset',
+            path: 'components.anim.stateGraphAsset',
             type: 'asset',
             args: {
                 assetType: 'animstategraph'
@@ -51,6 +51,7 @@ Object.assign(pcui, (function () {
             this._args = args;
             this._assets = args.assets;
 
+            this._stateGraphAssetId = null;
             this._stateGraphAsset = null;
             this._entities = null;
 
@@ -67,7 +68,7 @@ Object.assign(pcui, (function () {
             if (this._layersContainer) {
                 this.remove(this._layersContainer);
             }
-            const stateGraph = this._assets.get(this._stateGraphAsset);
+            const stateGraph = this._assets.get(this._stateGraphAssetId);
             if (!stateGraph) return;
             const layers = stateGraph.get('data.layers');
             this._layersContainer = new pcui.Container();
@@ -85,11 +86,15 @@ Object.assign(pcui, (function () {
                 layerPanel.header.append(layerPlayAll);
                 layer.states.forEach(stateId => {
                     const state = stateGraph.get(`data.states.${stateId}`);
+                    if (!state) return;
                     if (!['START', 'END'].includes(state.name)) {
                         if (!this._entities[0].get(`components.anim.animationAssets.${layer.name}:${state.name}`)) {
+                            const prevHistoryEnabled = this._entities[0].history.enabled;
+                            this._entities[0].history.enabled = false;
                             this._entities[0].set(`components.anim.animationAssets.${layer.name}:${state.name}`, {
                                 asset: null
                             });
+                            this._entities[0].history.enabled = prevHistoryEnabled;
                         }
                         const stateAsset = new pcui.AssetInput({
                             text: state.name,
@@ -121,32 +126,43 @@ Object.assign(pcui, (function () {
 
         link(entities) {
             super.link(entities);
-
-            this._attributesInspector.link(entities);
-            const stateGraphField = this._attributesInspector.getField('stateGraphAsset');
-            stateGraphField.on('change', value => {
-                if (!value) {
-                    this._entities[0].set('components.anim.animationAssets', {});
-                }
-                this._entities[0].set('components.anim.stateGraphAsset', value);
-            });
-            stateGraphField.value = this._entities[0].get('components.anim.stateGraphAsset');
             this._entities = entities;
 
-            this._stateGraphAsset = entities[0].get('components.anim.stateGraphAsset');
-            if (this._stateGraphAsset) {
+            this._attributesInspector.link(entities);
+            const stateGraphField = this._attributesInspector.getField('components.anim.stateGraphAsset');
+            stateGraphField.on('change', value => {
+                if (!value) {
+                    const prevHistoryEnabled = this._entities[0].history.enabled;
+                    this._entities[0].history.enabled = false;
+                    this._entities[0].set('components.anim.animationAssets', {});
+                    this._entities[0].history.enabled = prevHistoryEnabled;
+                }
+            });
+
+            this._stateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
+            if (this._stateGraphAssetId) {
+                this._stateGraphAsset = this._args.assets.get(this._stateGraphAssetId);
+                this._stateGraphAsset.on('*:set', (path) => {
+                    this._addAnimationAssetSlots();
+                });
                 this._addAnimationAssetSlots();
             }
-            entities[0].on('components.anim.stateGraphAsset:set', () => {
-                this._stateGraphAsset = entities[0].get('components.anim.stateGraphAsset');
+            this._entities[0].on('components.anim.stateGraphAsset:set', () => {
+                this._stateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
                 this._addAnimationAssetSlots();
             })
         }
 
         unlink() {
             super.unlink();
-            if (this._layersContainer) {
-                this.remove(this._layersContainer);
+            if (this._entities) {
+                this._entities = null;
+                this._stateGraphAssetId = null;
+                this._stateGraphAsset = null;
+                if (this._layersContainer) {
+                    this.remove(this._layersContainer);
+                }
+                this._attributesInspector.unlink();
             }
         }
     }

@@ -57,6 +57,7 @@ Object.assign(pcui, (function () {
             const states = this._assets[0].get(`data.layers.${this._args.id}.states`);
             states.forEach((stateId) => {
                 const state = this._assets[0].get(`data.states.${stateId}`);
+                if (!state) return;
                 const enabled = !['START', 'END'].includes(state.name);
 
                 if (!this._statePanels[stateId]) {
@@ -123,8 +124,17 @@ Object.assign(pcui, (function () {
 
             const states = this._assets[0].get('data.states');
             const transitions = this._assets[0].get(`data.layers.${this._args.id}.transitions`);
+
+            let options = this._assets[0].get(`data.layers.${this._args.id}.states`).map(stateId => {
+                const state = this._assets[0].get(`data.states.${stateId}`);
+                if (!state) return;
+                return {v: Number(stateId), t: state.name };
+            });
+            options = options.filter(o => !!o);
+
             transitions.forEach((transitionId) => {
                 const transition = this._assets[0].get(`data.transitions.${transitionId}`);
+                if (!transition) return;
                 const from = states[transition.from] ? states[transition.from].name : '';
                 const to = states[transition.to] ? states[transition.to].name : '';
                 let parameters = this._assets[0].get(`data.parameters`);
@@ -149,10 +159,7 @@ Object.assign(pcui, (function () {
                             type: 'select',
                             args: {
                                 type: 'number',
-                                options: this._assets[0].get(`data.layers.${this._args.id}.states`).map(stateId => {
-                                    const state = this._assets[0].get(`data.states.${stateId}`);
-                                    return {v: Number(stateId), t: state.name };
-                                })
+                                options: options
                             }
                         },
                         {
@@ -162,10 +169,7 @@ Object.assign(pcui, (function () {
                             type: 'select',
                             args: {
                                 type: 'number',
-                                options: this._assets[0].get(`data.layers.${this._args.id}.states`).map(stateId => {
-                                    const state = this._assets[0].get(`data.states.${stateId}`);
-                                    return {v: Number(stateId), t: state.name };
-                                })
+                                options: options
                             }
                         },
                         {
@@ -268,7 +272,7 @@ Object.assign(pcui, (function () {
                 } else {
                     this._transitionPanels[transitionId].headerText = `${from} > ${to}`;
                 }
-                if (!path || path.includes('parameters') || path.includes(`transitions.${transitionId}`)) {
+                if (!path || path.includes('parameters') || path.includes(`transitions.${transitionId}`) && transition.conditions) {
                     if (this._transitionPanels[transitionId]._conditionsContainer) {
                         this._transitionPanels[transitionId].remove(this._transitionPanels[transitionId]._conditionsContainer);
                     }
@@ -288,17 +292,20 @@ Object.assign(pcui, (function () {
                     }
                 }
                 if (path && path.includes('states') && path.includes('name')) {
-                    const options = this._assets[0].get(`data.layers.${this._args.id}.states`).map(stateId => {
-                        const state = this._assets[0].get(`data.states.${stateId}`);
-                        return {v: Number(stateId), t: state.name };
-                    });
-                    this._transitionPanels[transitionId]._transitionInspector.getField(`data.transitions.${transitionId}.to`).options = options;
-                    this._transitionPanels[transitionId]._transitionInspector.getField(`data.transitions.${transitionId}.from`).options = options;
+                    const fromField = this._transitionPanels[transitionId]._transitionInspector.getField(`data.transitions.${transitionId}.from`);
+                    if (fromField) {
+                        fromField.options = options;
+                    }
+                    const toField = this._transitionPanels[transitionId]._transitionInspector.getField(`data.transitions.${transitionId}.to`);
+                    if (toField) {
+                        toField.options = options;
+                    }
                 }
             });
         }
 
         _deleteState(id) {
+            delete this._statePanels[id];
             const data = this._assets[0].get('data');
             delete data.states[id];
             const layerStates = data.layers[this._args.id].states;
@@ -326,6 +333,7 @@ Object.assign(pcui, (function () {
         }
 
         _deleteTransition(id) {
+            delete this._transitionPanels[id];
             const data = this._assets[0].get('data');
             const transition = data.transitions[id];
             for (let i = 0; i < transition.conditions.length; i++) {
@@ -359,8 +367,10 @@ Object.assign(pcui, (function () {
                 speed: 1.0
             };
             layerStates.push(key);
-            this._assets[0].set(`data.states`, states);
-            this._assets[0].set(`data.layers.${this._args.id}.states`, layerStates);
+            const data = this._assets[0].get('data');
+            data.states = states;
+            data.layers[this._args.id].states = layerStates;
+            this._assets[0].set('data', data);
         }
 
         _addNewTransition() {
@@ -379,8 +389,10 @@ Object.assign(pcui, (function () {
                 conditions: {}
             };
             layerTransitions.push(key);
-            this._assets[0].set(`data.transitions`, transitions);
-            this._assets[0].set(`data.layers.${this._args.id}.transitions`, layerTransitions);
+            const data = this._assets[0].get('data');
+            data.transitions = transitions;
+            data.layers[this._args.id].transitions = layerTransitions;
+            this._assets[0].set('data', data);
         }
 
         _addNewCondition(transitionId) {

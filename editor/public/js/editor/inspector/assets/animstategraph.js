@@ -25,12 +25,6 @@ Object.assign(pcui, (function () {
             this._panelCollapseStates = {};
 
             this.buildDom(DOM(this));
-
-            this._addNewParameterButton = new pcui.Button({text: 'PARAMETER', icon: 'E120'});
-            this._addNewParameterButton.on('click', () => {
-                this._addNewParameter();
-            });
-            this._parametersPanel.header.append(this._addNewParameterButton);
         }
 
         _refreshParameterList() {
@@ -41,6 +35,12 @@ Object.assign(pcui, (function () {
                 headerText: 'PARAMETERS',
                 collapsible: true
             });
+
+            this._addNewParameterButton = new pcui.Button({text: 'PARAMETER', icon: 'E120'});
+            this._addNewParameterButton.on('click', () => {
+                this._addNewParameter();
+            });
+            this._parametersPanel.header.append(this._addNewParameterButton);
             const parameters = this._assets[0].get('data.parameters');
             for (let paramId in parameters) {
                 const paramPanel = new pcui.Panel({
@@ -128,7 +128,7 @@ Object.assign(pcui, (function () {
                 paramPanel.append(attributesInspector);
                 this._parametersPanel.content.append(paramPanel);
             }
-            this.append(this._parametersPanel);
+            this.prepend(this._parametersPanel);
         }
 
         _deleteParameter(paramId) {
