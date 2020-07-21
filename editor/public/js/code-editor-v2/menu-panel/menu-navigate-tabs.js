@@ -80,34 +80,6 @@ editor.once('load', function () {
         editor.call('files:select', next.id);
     });
 
-    var createSelectTabByNumber = function (number) {
-        var item = menu.createItem('goto-tab-' + number, {
-            title: 'Tab ' + number,
-            filter: function () {
-                return editor.call('tabs:list').length >= number;
-            },
-            select: function () {
-                editor.call('editor:command:selectTab', number-1);
-            }
-        });
-
-        if (number < 10)
-            item.class.add('noBorder');
-
-        editor.call('menu:item:setShortcut', item, 'Alt+Shift+' + (number%10));
-        menu.append(item);
-
-        // hotkey
-        editor.call('hotkey:register', 'goto-tab-' + number, {
-            key: (number%10) + '',
-            alt: true,
-            shift: true,
-            callback: function () {
-                editor.call('editor:command:selectTab', number-1);
-            }
-        });
-    };
-
     // Number tabs
     for (var i = 1; i <= 10; i++) {
         createSelectTabByNumber(i);
