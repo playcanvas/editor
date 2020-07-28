@@ -13,5 +13,45 @@
         &:last-child {
             margin-right: 0;
         }
+
+        .pcui-numeric-input-slider-control {
+            display: none;
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            right: 3px;
+            border: 2px solid $bcg-darkest;
+            background-color: $bcg-darker;
+            border-radius: 100px;
+            z-index: 9999;
+            transform: translateY(-50%);
+            top: 50%;
+            cursor: ew-resize;
+        }
+        .pcui-numeric-input-slider-control:after {
+            content: '\E408';
+            font-size: 15px;
+            font-family: 'pc-icon';
+            position: absolute;
+            left: -5px;
+            top: -5px;
+            transform: rotateZ(90deg);
+        }
+        .pcui-numeric-input-slider-control:hover {
+            opacity: 50%;
+            color: $text-secondary;
+        }
+        .pcui-numeric-input-slider-control-active {
+            opacity: 100% !important;
+            color: #7f7 !important;
+        }
+        .pcui-numeric-input-slider-control-hidden {
+            display: none !important;
+        }
+    }
+    > .pcui-numeric-input:hover {
+        .pcui-numeric-input-slider-control {
+            display: block;
+        }
     }
 }

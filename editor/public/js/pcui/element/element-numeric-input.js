@@ -2,6 +2,9 @@ Object.assign(pcui, (function () {
     'use strict';
 
     const CLASS_NUMERIC_INPUT = 'pcui-numeric-input';
+    const CLASS_NUMERIC_INPUT_SLIDER_CONTROL = CLASS_NUMERIC_INPUT + '-slider-control'; 
+    const CLASS_NUMERIC_INPUT_SLIDER_CONTROL_ACTIVE = CLASS_NUMERIC_INPUT_SLIDER_CONTROL + '-active'; 
+    const CLASS_NUMERIC_INPUT_SLIDER_CONTROL_HIDDEN = CLASS_NUMERIC_INPUT_SLIDER_CONTROL + '-hidden'; 
 
     /**
      * @name pcui.NumericInput
@@ -49,8 +52,61 @@ Object.assign(pcui, (function () {
 
             this._oldValue = undefined;
             this.value = value;
+            this._sliderPrevValue = value;
 
             this.renderChanges = renderChanges;
+
+            this._sliderControl = new pcui.Element();
+            this._sliderControl.class.add(CLASS_NUMERIC_INPUT_SLIDER_CONTROL);
+            this._dom.append(this._sliderControl._dom);
+
+            this._sliderControl._dom.addEventListener('mousedown', () => {
+                this._sliderControl._dom.requestPointerLock();
+                this._sliderPrevValue = this.value;
+            });
+
+            this._sliderControl._dom.addEventListener('mouseup', () => {
+                document.exitPointerLock();
+                if (this._binding) {
+                    const undoValue = this._sliderPrevValue;
+                    const redoValue = this.value;
+                    const undo = () => {
+                        var history = this._binding._bindingElementToObservers._history;
+                        this._binding._bindingElementToObservers._history = null;
+                        this.value = undoValue;
+                        this._binding._bindingElementToObservers._history = history;
+                    };
+                    const redo = () => {
+                        var history = this._binding._bindingElementToObservers._history;
+                        this._binding._bindingElementToObservers._history = null;
+                        this.value = redoValue;
+                        this._binding._bindingElementToObservers._history = history;
+                    };
+
+                    this._binding._bindingElementToObservers._history.add({
+                        name: this._binding.paths[0],
+                        undo,
+                        redo
+                    });
+                    redo();
+                }
+            });
+            this._updatePosition = this._updatePosition.bind(this);
+
+            document.addEventListener('pointerlockchange', this._pointerLockChangeAlert.bind(this), false);
+            document.addEventListener('mozpointerlockchange', this._pointerLockChangeAlert.bind(this), false);
+        }
+
+        _updatePosition (evt) {
+            let movement = 0;
+            if (evt.constructor === WheelEvent) {
+                movement = evt.deltaY;
+            } else if (evt.constructor === MouseEvent) {
+                movement = evt.movementX;
+            }
+            // move one step every 100 pixels
+            movement = movement / 100 * this._step;
+            this.value = this.value + movement;
         }
 
         _onInputChange(evt) {
@@ -72,12 +128,36 @@ Object.assign(pcui, (function () {
             super._onInputKeyDown(evt);
         }
 
+        _isScrolling () {
+            if (!this._sliderControl) return false;
+            return (document.pointerLockElement === this._sliderControl._dom ||
+                document.mozPointerLockElement === this._sliderControl._dom);
+        }
+
+        _pointerLockChangeAlert() {
+            if (this._isScrolling()) {
+                this._sliderControl._dom.addEventListener("mousemove", this._updatePosition, false);
+                this._sliderControl._dom.addEventListener("wheel", this._updatePosition, false);
+                this._sliderControl.class.add(CLASS_NUMERIC_INPUT_SLIDER_CONTROL_ACTIVE);
+            } else {
+                this._sliderControl._dom.removeEventListener("mousemove", this._updatePosition, false);
+                this._sliderControl._dom.removeEventListener("wheel", this._updatePosition, false);
+                this._sliderControl.class.remove(CLASS_NUMERIC_INPUT_SLIDER_CONTROL_ACTIVE);
+            }
+        }
+
         _normalizeValue(value) {
-            if (value === undefined) {
+            try {
+                if (typeof value === 'string') {
+                    // sanitize input to only allow short mathmatical expressions to be evaluated
+                    value = value.match(/^[*/+\-0-9().]+$/);
+                    if (value !== null && value[0].length < 20) {
+                        value = Function('"use strict";return (' + value[0] + ')')();
+                    }
+                }
+            } catch(error) {
                 value = null;
             }
-
-            value = parseFloat(value, 10);
             if (!isNaN(value)) {
                 // clamp between min max
                 if (this.min !== null && value < this.min) {
@@ -89,7 +169,7 @@ Object.assign(pcui, (function () {
 
                 // fix precision
                 if (this.precision !== null) {
-                    value = parseFloat(value.toFixed(this.precision), 10);
+                    value = parseFloat(Number(value).toFixed(this.precision), 10);
                 }
             } else if (this._allowNull) {
                 value = null;
@@ -129,7 +209,15 @@ Object.assign(pcui, (function () {
             const changed = this._updateValue(value, forceUpdate);
 
             if (changed && this._binding) {
+                var history = this._binding._bindingElementToObservers._history;
+                if (this._isScrolling()) {
+                    this._binding._bindingElementToObservers._history = null;
+                }
                 this._binding.setValue(value);
+                this._binding._bindingElementToObservers._history = history;
+            }
+            if (this._sliderControl) {
+                this._sliderControl.class.remove(CLASS_NUMERIC_INPUT_SLIDER_CONTROL_HIDDEN);
             }
         }
 
@@ -146,8 +234,14 @@ Object.assign(pcui, (function () {
             if (different) {
                 this._updateValue(null);
                 this.class.add(pcui.CLASS_MULTIPLE_VALUES);
+                if (this._sliderControl) {
+                    this._sliderControl.class.add(CLASS_NUMERIC_INPUT_SLIDER_CONTROL_HIDDEN);
+                }
             } else {
                 this._updateValue(values[0]);
+                if (this._sliderControl) {
+                    this._sliderControl.class.remove(CLASS_NUMERIC_INPUT_SLIDER_CONTROL_HIDDEN);
+                }
             }
         }
 
@@ -199,6 +293,13 @@ Object.assign(pcui, (function () {
 
         set step(value) {
             this._step = value;
+        }
+
+        destroy() {
+            super.destroy();
+            document.removeEventListener('pointerlockchange', this._pointerLockChangeAlert, false);
+            document.removeEventListener('mozpointerlockchange', this._pointerLockChangeAlert, false);
+
         }
     }
 

@@ -93,7 +93,15 @@ Object.assign(pcui, (function () {
                     applyingChange = binding.applyingChange;
                     binding.applyingChange = true;
                 }
-                this._inputs[i].value = (value && value[i] !== undefined ? value[i] : null);
+                if (value && value[i] !== undefined) {
+                    if(Array.isArray(value[i])) {
+                        this._inputs[i].values = value[i];
+                    } else {
+                        this._inputs[i].value = value[i];
+                    }
+                } else {
+                    this._inputs[i].value = null;
+                }
                 if (binding) {
                     binding.applyingChange = applyingChange;
                 }
@@ -165,21 +173,18 @@ Object.assign(pcui, (function () {
         }
 
         set values(values) {
-            let different = false;
-            const value = values[0] || [];
+            const value = values[0];
             for (let i = 1; i < values.length; i++) {
-                if (!value.equals(values[i])) {
-                    different = true;
-                    break;
+                for (var j = 0; j < value.length; j++) {
+                    if (Array.isArray(value[j])) {
+                        value[j].push(values[i][j]);
+                    }
+                    else if (value[j] !== values[i][j]) {
+                        value[j] = [value[j], values[i][j]];
+                    }
                 }
             }
-
-            if (different) {
-                this._updateValue(null);
-                this.class.add(pcui.CLASS_MULTIPLE_VALUES);
-            } else {
-                this._updateValue(values[0]);
-            }
+            this._updateValue(value);
         }
 
         // override binding setter to set a binding clone to
