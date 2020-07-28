@@ -295,23 +295,51 @@ Object.assign(pcui, (function () {
         attr.reference = `element:${parts[parts.length - 1]}`;
     });
 
-
-    // Custom binding from element -> observers for texture asset which
-    // resizes an Image Element when a texture asset is first assigned
-    class TextureAssetElementToObserversBinding extends pcui.BindingElementToObservers {
+    // Custom binding from element -> observers for texture and sprite assets which
+    // resizes an Image Element when the asset is first assigned
+    class ImageAssetElementToObserversBinding extends pcui.BindingElementToObservers {
         constructor(assets, args) {
             super(args);
             this._assets = assets;
         }
 
         clone() {
-            return new TextureAssetElementToObserversBinding(this._assets, {
+            return new ImageAssetElementToObserversBinding(this._assets, {
                 history: this._history,
                 historyPrefix: this._historyPrefix,
                 historyPostfix: this._historyPostfix,
                 historyName: this._historyName,
                 historyCombine: this._historyCombine
             });
+        }
+
+        _getSpriteDimensions(value, entity) {
+            const spriteAsset = this._assets.get(value);
+            const spriteFrame = entity.get('components.element.spriteFrame');
+            let frameKey = spriteAsset.get(`data.frameKeys.${spriteFrame}`);
+            if (!frameKey) {
+                const frameKeys = spriteAsset.get('data.frameKeys');
+                frameKey = frameKeys[frameKeys.length - 1];
+            }
+
+            const textureAtlasAsset = this._assets.get(spriteAsset.get('data.textureAtlasAsset'));
+            const spriteRect = textureAtlasAsset.get(`data.frames.${frameKey}.rect`);
+            const width = spriteRect[2];
+            const height = spriteRect[3];
+            return {
+                width,
+                height
+            };
+        }
+
+        _getTextureDimensions(value) {
+            const asset = this._assets.get(value);
+            const width = asset && asset.get('meta.width') || 0;
+            const height = asset && asset.get('meta.height') || 0;
+            return {
+                width,
+                height
+            };
         }
 
         _hasSplitAnchor(entity) {
@@ -368,12 +396,25 @@ Object.assign(pcui, (function () {
                 previous = {};
 
                 const asset = this._assets.get(value);
-                const width = asset && asset.get('meta.width') || 0;
-                const height = asset && asset.get('meta.height') || 0;
 
                 for (let i = 0; i < observers.length; i++) {
                     const latest = observers[i].latest();
                     if (!latest || !latest.has('components.element')) continue;
+
+                    let width = 0;
+                    let height = 0;
+                    if (asset && asset.get('type') === 'sprite') {
+                        const dimensions = this._getSpriteDimensions(value, latest);
+                        if (!dimensions) {
+                            continue;
+                        }
+                        width = dimensions.width;
+                        height = dimensions.height;
+                    } else if (asset && asset.get('type') === 'texture') {
+                        const dimensions = this._getTextureDimensions(value);
+                        width = dimensions.width;
+                        height = dimensions.height;
+                    }
 
                     let history = false;
                     if (latest.history) {
@@ -401,6 +442,103 @@ Object.assign(pcui, (function () {
                             const margin = latest.entity.element.margin;
                             latest.set('components.element.margin', [margin.x, margin.y, margin.z, margin.w]);
                         }
+                    }
+
+                    previous[latest.get('resource_id')] = prevEntry;
+
+                    if (history) {
+                        latest.history.enabled = true;
+                    }
+                }
+            };
+
+            if (this._history) {
+                this._history.add({
+                    name: this._getHistoryActionName(paths),
+                    redo: redo,
+                    undo: undo
+                });
+
+            }
+
+            redo();
+
+            this.applyingChange = false;
+        }
+    }
+    class SpriteFrameElementToObserversBinding extends ImageAssetElementToObserversBinding {
+
+        // Override setValue to set additional fields
+        setValue(value) {
+            if (this.applyingChange) return;
+            if (!this._observers) return;
+
+            this.applyingChange = true;
+
+            // make copy of observers if we are using history
+            // so that we can undo on the same observers in the future
+            const observers = this._observers.slice();
+            const paths = this._paths.slice();
+
+            let previous = {};
+
+            const undo = () => {
+                for (let i = 0; i < observers.length; i++) {
+                    const latest = observers[i].latest();
+                    if (!latest || !latest.has('components.element')) continue;
+
+                    let history = false;
+                    if (latest.history) {
+                        history = latest.history.enabled;
+                        latest.history.enabled = false;
+                    }
+
+                    const path = this._pathAt(paths, i);
+
+                    const prevEntry = previous[latest.get('resource_id')];
+
+                    latest.set(path, prevEntry.value);
+
+                    if (prevEntry.hasOwnProperty('width')) {
+                        latest.set('components.element.width', prevEntry.width);
+                        latest.set('components.element.height', prevEntry.height);
+                    }
+
+                    if (history) {
+                        latest.history.enabled = true;
+                    }
+                }
+            };
+
+            const redo = () => {
+                previous = {};
+
+                for (let i = 0; i < observers.length; i++) {
+                    const latest = observers[i].latest();
+                    if (!latest || !latest.has('components.element')) continue;
+
+                    let history = false;
+                    if (latest.history) {
+                        history = latest.history.enabled;
+                        latest.history.enabled = false;
+                    }
+
+                    const path = this._pathAt(paths, i);
+
+                    const prevEntry = {
+                        value: latest.get(path)
+                    };
+
+                    latest.set('components.element.spriteFrame', value);
+
+                    const dimensions = this._getSpriteDimensions(latest.get('components.element.spriteAsset'), latest);
+                    if (dimensions) {
+                        const width = dimensions.width;
+                        const height = dimensions.height;
+                        prevEntry.width = latest.get('components.element.width');
+                        prevEntry.height = latest.get('components.element.height');
+                        latest.set('components.element.width', width);
+                        latest.set('components.element.height', height);
                     }
 
                     previous[latest.get('resource_id')] = prevEntry;
@@ -473,9 +611,27 @@ Object.assign(pcui, (function () {
             // update binding of textureAsset field
             this._field('textureAsset').binding = new pcui.BindingTwoWay({
                 history: args.history,
-                bindingElementToObservers: new TextureAssetElementToObserversBinding(args.assets, {
+                bindingElementToObservers: new ImageAssetElementToObserversBinding(args.assets, {
                     history: args.history
                 })
+            });
+            // update binding of spriteAsset field
+            this._field('spriteAsset').binding = new pcui.BindingTwoWay({
+                history: args.history,
+                bindingElementToObservers: new ImageAssetElementToObserversBinding(args.assets, {
+                    history: args.history
+                },
+                this.entities
+                ),
+            });
+            // update binding of spriteFrame field
+            this._field('spriteFrame').binding = new pcui.BindingTwoWay({
+                history: args.history,
+                bindingElementToObservers: new SpriteFrameElementToObserversBinding(args.assets, {
+                    history: args.history
+                },
+                this.entities
+                ),
             });
 
             this._suppressLocalizedEvents = false;
