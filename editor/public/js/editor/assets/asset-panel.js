@@ -1997,15 +1997,28 @@ Object.assign(pcui, (function () {
 
             this._currentFolder = value;
 
+            const focused = document.activeElement;
+
             if (this._currentFolder) {
                 this._btnBack.enabled = true;
                 id = this._currentFolder.get('id');
                 if (this._foldersIndex[id]) {
                     this._foldersIndex[id].class.add(CLASS_CURRENT_FOLDER);
+                    this._foldersIndex[id].parentsOpen = true;
+
+                    // focus folder in order to scroll it into view
+                    this._foldersIndex[id].focus();
                 }
+
             } else {
                 this._btnBack.enabled = false;
                 this._foldersViewRoot.class.add(CLASS_CURRENT_FOLDER);
+                this._foldersViewRoot.focus();
+            }
+
+            // restore focus
+            if (focused) {
+                focused.focus();
             }
 
             if (!this._suspendFiltering) {
