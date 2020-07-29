@@ -315,6 +315,7 @@ Object.assign(pcui, (function () {
 
         _getSpriteDimensions(value, entity) {
             const spriteAsset = this._assets.get(value);
+            if (!spriteAsset || spriteAsset.get('data.renderMode') !== 0) return null;
             const spriteFrame = entity.get('components.element.spriteFrame');
             let frameKey = spriteAsset.get(`data.frameKeys.${spriteFrame}`);
             if (!frameKey) {
@@ -323,6 +324,7 @@ Object.assign(pcui, (function () {
             }
 
             const textureAtlasAsset = this._assets.get(spriteAsset.get('data.textureAtlasAsset'));
+            if (!textureAtlasAsset) return null;
             const spriteRect = textureAtlasAsset.get(`data.frames.${frameKey}.rect`);
             const width = spriteRect[2];
             const height = spriteRect[3];
@@ -405,11 +407,10 @@ Object.assign(pcui, (function () {
                     let height = 0;
                     if (asset && asset.get('type') === 'sprite') {
                         const dimensions = this._getSpriteDimensions(value, latest);
-                        if (!dimensions) {
-                            continue;
+                        if (dimensions) {
+                            width = dimensions.width;
+                            height = dimensions.height;
                         }
-                        width = dimensions.width;
-                        height = dimensions.height;
                     } else if (asset && asset.get('type') === 'texture') {
                         const dimensions = this._getTextureDimensions(value);
                         width = dimensions.width;
