@@ -80,11 +80,6 @@ editor.once('load', function () {
         editor.call('files:select', next.id);
     });
 
-    // Number tabs
-    for (var i = 1; i <= 10; i++) {
-        createSelectTabByNumber(i);
-    }
-
     editor.method('editor:command:selectTab', function (index) {
         var tabs = editor.call('tabs:list');
         var select = tabs[index];
