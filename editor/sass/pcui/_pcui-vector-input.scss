@@ -15,7 +15,6 @@
         }
 
         .pcui-numeric-input-slider-control {
-            display: none;
             position: absolute;
             width: 10px;
             height: 10px;
@@ -29,9 +28,9 @@
             cursor: ew-resize;
         }
         .pcui-numeric-input-slider-control:after {
+            @extend .font-icon;
             content: '\E408';
             font-size: 15px;
-            font-family: 'pc-icon';
             position: absolute;
             left: -5px;
             top: -5px;
@@ -45,13 +44,10 @@
             opacity: 100% !important;
             color: #7f7 !important;
         }
-        .pcui-numeric-input-slider-control-hidden {
-            display: none !important;
-        }
     }
-    > .pcui-numeric-input:hover {
+    > .pcui-numeric-input:not(:hover) {
         .pcui-numeric-input-slider-control {
-            display: block;
+            display: none;
         }
     }
 }
