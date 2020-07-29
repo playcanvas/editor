@@ -315,6 +315,7 @@ Object.assign(pcui, (function () {
 
         _getSpriteDimensions(value, entity) {
             const spriteAsset = this._assets.get(value);
+            // renderMode has three states: 0 = Simple, 1 = Slices, 2 = Tiled. Only Simple should set the element width / height.
             if (!spriteAsset || spriteAsset.get('data.renderMode') !== 0) return null;
             const spriteFrame = entity.get('components.element.spriteFrame');
             let frameKey = spriteAsset.get(`data.frameKeys.${spriteFrame}`);
