@@ -58,11 +58,19 @@ editor.once('load', function () {
                 if (local) return;
 
                 for (var i = 0; i < ops.length; i++) {
-                    asset.sync.write(ops[i]);
+                    let dirty = true;
 
                     // When the file changes this means that the
                     // save operation has finished
                     if (ops[i].p.length === 1 && ops[i].p[0] === 'file') {
+                        if (ops[i].oi && ops[i].oi.hash !== asset.get('file.hash')) {
+                            dirty = false;
+                        }
+                    }
+
+                    asset.sync.write(ops[i]);
+
+                    if (!dirty) {
                         editor.emit('documents:dirty', data.id, false);
                     }
                 }
