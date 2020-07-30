@@ -50,7 +50,7 @@ editor.once('load', function () {
 
     var models = { };
     var materials = { };
-    var poolModels = { 'box': [ ], 'sphere': [ ], 'capsule-x': [ ], 'capsule-y': [ ], 'capsule-z': [ ], 'cylinder-x': [ ], 'cylinder-y': [ ], 'cylinder-z': [ ] };
+    var poolModels = { 'box': [ ], 'sphere': [ ], 'capsule-x': [ ], 'capsule-y': [ ], 'capsule-z': [ ], 'cylinder-x': [ ], 'cylinder-y': [ ], 'cylinder-z': [ ], 'cone-x': [ ], 'cone-y': [ ], 'cone-z': [ ] };
     var axesNames = { 0: 'x', 1: 'y', 2: 'z' };
     var shaderCapsule = { };
 
@@ -107,7 +107,7 @@ editor.once('load', function () {
 
         var type = collision.type;
 
-        if (type === 'cylinder' || type === 'capsule') {
+        if (type === 'cylinder' || type === 'capsule' || type === 'cone') {
             type += '-' + axesNames[collision.axis];
         }
 
@@ -231,21 +231,19 @@ editor.once('load', function () {
                 this.entity.setLocalScale(collision.halfExtents.x || .00001, collision.halfExtents.y || .00001, collision.halfExtents.z || .00001);
                 break;
             case 'cylinder-x':
+            case 'cone-x':
+            case 'capsule-x':
                 this.entity.setLocalScale(height, radius, radius);
                 break;
             case 'cylinder-y':
+            case 'cone-y':
+            case 'capsule-y':
                 this.entity.setLocalScale(radius, height, radius);
                 break;
             case 'cylinder-z':
-                this.entity.setLocalScale(radius, radius, height);
-                break;
-            case 'capsule-x':
-            case 'capsule-y':
+            case 'cone-z':
             case 'capsule-z':
-                for(var i = 0; i < this.entity.model.meshInstances.length; i++) {
-                    this.entity.model.meshInstances[i].setParameter('radius', collision.radius || 0.5);
-                    this.entity.model.meshInstances[i].setParameter('height', collision.height || 2);
-                }
+                this.entity.setLocalScale(radius, radius, height);
                 break;
             case 'mesh':
                 this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
@@ -605,7 +603,9 @@ editor.once('load', function () {
         var createModel = function(args) {
             var mesh;
 
-            if (args.vertices) {
+            if (args.mesh) {
+                mesh = args.mesh;
+            } else if (args.vertices) {
                 // mesh
                 mesh = new pc.Mesh();
                 mesh.vertexBuffer = args.vertices;
@@ -740,6 +740,31 @@ editor.once('load', function () {
             matOccluder: materialOccluder
         });
 
+        // ================
+        //cones 
+        models['cone-x'] = createModel({
+            mesh: pc.scene.procedural.createCone(pc.app.graphicsDevice),
+            matDefault: materialDefault,
+            matBehind: materialBehind,
+            matOccluder: materialOccluder
+        });
+        models['cone-x'].graph.setLocalEulerAngles(0, 0, -90);
+        models['cone-x'].graph.setLocalScale(2, 1, 2);
+        models['cone-y'] = createModel({
+            mesh: pc.scene.procedural.createCone(pc.app.graphicsDevice),
+            matDefault: materialDefault,
+            matBehind: materialBehind,
+            matOccluder: materialOccluder
+        });
+        models['cone-y'].graph.setLocalScale(2, 1, 2);
+        models['cone-z'] = createModel({
+            mesh: pc.scene.procedural.createCone(pc.app.graphicsDevice),
+            matDefault: materialDefault,
+            matBehind: materialBehind,
+            matOccluder: materialOccluder
+        });
+        models['cone-z'].graph.setLocalEulerAngles(90, 0, 0);
+        models['cone-z'].graph.setLocalScale(2, 1, 2);
 
         // ================
         // cylinders
@@ -807,79 +832,43 @@ editor.once('load', function () {
             });
         }
 
-
         // ================
-        // capsules
-        for(var a in axes) {
-            positions = [ ];
-            indices = [ ];
-            var segments = 32;
+        // capsules 
 
-            for(var y = 1; y < segments / 2 + 1; y++) {
-                for(var i = 0; i < segments; i++) {
-                    var k = y;
-                    if (y === Math.floor(segments / 4) || y === Math.floor(segments / 4) + 1)
-                        k = Math.floor(segments / 4);
-                    var l = Math.sin((k * (180 / (segments / 2)) + 90) * rad);
-                    var c = Math.cos((k * (180 / (segments / 2)) + 90) * rad);
-                    vecA[axes[a][0]] = Math.sin(360 / segments * i * rad) * Math.abs(c);
-                    vecA[axes[a][1]] = Math.cos(360 / segments * i * rad) * Math.abs(c);
-                    vecA[axes[a][2]] = l;
-                    positions.push(vecA.x, vecA.y, vecA.z);
-                    vecA.normalize();
-                    positions.push(vecA.x, vecA.y, vecA.z);
-                    positions.push(y < segments / 4 ? 1 : -1);
-                }
-            }
+        models['capsule-x'] = createModel({
+            mesh: pc.scene.procedural.createCapsule(pc.app.graphicsDevice, {
+                height: 2.0,
+                radius: 0.5
+            }),
+            matDefault: materialDefault,
+            matBehind: materialBehind,
+            matOccluder: materialOccluder
+        });
+        models['capsule-x'].graph.setLocalEulerAngles(0.0, 0.0, -90.0);
+        models['capsule-x'].graph.setLocalScale(2.0, 1.0, 2.0);
 
-            vecA.set(0, 0, 0);
-            vecA[axes[a][2]] = 1;
-            // top
-            positions.push(vecA.x, vecA.y, vecA.z);
-            positions.push(vecA.x, vecA.y, vecA.z);
-            positions.push(1);
-            // bottom
-            vecA.scale(-1);
-            positions.push(vecA.x, vecA.y, vecA.z);
-            positions.push(vecA.x, vecA.y, vecA.z);
-            positions.push(-1);
+        models['capsule-y'] = createModel({
+            mesh: pc.scene.procedural.createCapsule(pc.app.graphicsDevice, {
+                height: 2.0,
+                radius: 0.5
+            }),
+            matDefault: materialDefault,
+            matBehind: materialBehind,
+            matOccluder: materialOccluder
+        });
+        models['capsule-y'].graph.setLocalScale(2.0, 1.0, 2.0);
 
-            // sides
-            for(var y = 0; y < segments / 2 - 1; y++) {
-                for(var i = 0; i < segments; i++) {
-                    indices.push(y * segments + i, (y + 1) * segments + i, y * segments + (i + 1) % segments);
-                    indices.push((y + 1) * segments + i, (y + 1) * segments + (i + 1) % segments, y * segments + (i + 1) % segments);
-                }
-            }
-
-            // lids
-            for(var i = 0; i < segments; i++) {
-                indices.push(i, (i + 1) % segments, (segments / 2) * segments);
-                indices.push((segments / 2 - 1) * segments + i, (segments / 2) * segments + 1, (segments / 2 - 1) * segments + (i + 1) % segments);
-            }
-
-            var bufferVertex = new pc.VertexBuffer(app.graphicsDevice, vertexFormatAttr0, positions.length / 7);
-            var dst = new Float32Array(bufferVertex.lock());
-            dst.set(positions);
-            bufferVertex.unlock();
-
-            var bufferIndex = new pc.IndexBuffer(app.graphicsDevice, pc.INDEXFORMAT_UINT16, indices.length);
-            var dst = new Uint16Array(bufferIndex.lock());
-            dst.set(indices);
-            bufferIndex.unlock();
-
-            models['capsule-' + a] = createModel({
-                vertices: bufferVertex,
-                indices: bufferIndex,
-                count: indices.length,
-                matDefault: materials['capsule-' + a],
-                matBehind: materials['capsuleBehind-' + a],
-                matOccluder: materials['capsuleOcclude-' + a]
-            });
-
-            var meshInstance = models['capsule-' + a].meshInstances[0];
-            // TODO
-        }
+        models['capsule-z'] = createModel({
+            mesh: pc.scene.procedural.createCapsule(pc.app.graphicsDevice, {
+                height: 2.0,
+                radius: 0.5
+            }),
+            matDefault: materialDefault,
+            matBehind: materialBehind,
+            matOccluder: materialOccluder
+        });
+        models['capsule-z'].graph.setLocalEulerAngles(90.0, 0.0, 0.0);
+        models['capsule-z'].graph.setLocalScale(2.0, 1.0, 2.0);
     });
 
     var createModelCopy = function(resource, color) {
