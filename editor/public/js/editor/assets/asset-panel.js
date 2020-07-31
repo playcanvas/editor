@@ -2257,6 +2257,8 @@ Object.assign(pcui, (function () {
                     this.containerUsers.hidden = true;
                 }
             });
+
+            this._asset = null;
         }
 
         showProgress() {
@@ -2281,6 +2283,11 @@ Object.assign(pcui, (function () {
 
         link(asset) {
             super.link(asset, 'name');
+
+            this._asset = asset;
+
+            this.class.add('type-' + this._asset.get('type'));
+
             // pass the whole asset observer as the value
             // because we do not want the thumbnail to search the
             // asset list for the asset (e.g. this might be a dummy
@@ -2298,10 +2305,16 @@ Object.assign(pcui, (function () {
         }
 
         unlink() {
+            if (!this._asset) return;
+
             super.unlink();
-            this.thumbnail.value = null;
+
             this.classRemove(CLASS_ASSET_SOURCE);
             this.classRemove(CLASS_ASSET_NOT_REFERENCED);
+            this.class.remove('type-' + this._asset.get('type'));
+
+            this._asset = null;
+            this.thumbnail.value = null;
         }
     }
 
