@@ -2,8 +2,8 @@ Object.assign(pcui, (function () {
     'use strict';
 
     const CLASS_NUMERIC_INPUT = 'pcui-numeric-input';
-    const CLASS_NUMERIC_INPUT_SLIDER_CONTROL = CLASS_NUMERIC_INPUT + '-slider-control'; 
-    const CLASS_NUMERIC_INPUT_SLIDER_CONTROL_ACTIVE = CLASS_NUMERIC_INPUT_SLIDER_CONTROL + '-active'; 
+    const CLASS_NUMERIC_INPUT_SLIDER_CONTROL = CLASS_NUMERIC_INPUT + '-slider-control';
+    const CLASS_NUMERIC_INPUT_SLIDER_CONTROL_ACTIVE = CLASS_NUMERIC_INPUT_SLIDER_CONTROL + '-active';
 
     /**
      * @name pcui.NumericInput
@@ -51,7 +51,6 @@ Object.assign(pcui, (function () {
 
             this._oldValue = undefined;
             this.value = value;
-            this._sliderPrevValue = value;
 
             this.renderChanges = renderChanges;
 
@@ -59,36 +58,36 @@ Object.assign(pcui, (function () {
             this._sliderControl.class.add(CLASS_NUMERIC_INPUT_SLIDER_CONTROL);
             this.dom.append(this._sliderControl.dom);
 
+            this._historyCombine = false;
+            this._historyPostfix = null;
+
+
+
             this._sliderControlMouseDownEvent = () => {
                 this._sliderControl.dom.requestPointerLock();
-                this._sliderPrevValue = this.value;
+                if (this.binding) {
+                    this._historyCombine = this.binding.historyCombine;
+                    this._historyPostfix = this.binding.historyPostfix;
+
+                    // assign a history postfix which will limit how far back
+                    // the history will be combined. We only want to combine
+                    // history between the mousedown and mouseup events
+                    // not further back
+                    this.binding.historyCombine = true;
+                    this.binding.historyPostfix = `(${Date.now()})`;
+                } else {
+                    this._historyCombine = false;
+                    this._historyPostfix = null;
+                }
             };
             this._sliderControl.dom.addEventListener('mousedown', this._sliderControlMouseDownEvent);
 
             this._sliderControlMouseUpEvent = () => {
                 document.exitPointerLock();
-                if (this._binding) {
-                    const undoValue = this._sliderPrevValue;
-                    const redoValue = this.value;
-                    const undo = () => {
-                        var history = this._binding._bindingElementToObservers._history;
-                        this._binding._bindingElementToObservers._history = null;
-                        this.value = undoValue;
-                        this._binding._bindingElementToObservers._history = history;
-                    };
-                    const redo = () => {
-                        var history = this._binding._bindingElementToObservers._history;
-                        this._binding._bindingElementToObservers._history = null;
-                        this.value = redoValue;
-                        this._binding._bindingElementToObservers._history = history;
-                    };
-
-                    this._binding._bindingElementToObservers._history.add({
-                        name: this._binding.paths[0],
-                        undo,
-                        redo
-                    });
-                    redo();
+                // restore combine history and postfix
+                if (this.binding) {
+                    this.binding.historyCombine = this._historyCombine;
+                    this.binding.historyPostfix = this._historyPostfix;
                 }
             };
             this._sliderControl.dom.addEventListener('mouseup', this._sliderControlMouseUpEvent);
@@ -212,13 +211,9 @@ Object.assign(pcui, (function () {
             const changed = this._updateValue(value, forceUpdate);
 
             if (changed && this._binding) {
-                var history = this._binding._bindingElementToObservers._history;
-                if (this._isScrolling()) {
-                    this._binding._bindingElementToObservers._history = null;
-                }
                 this._binding.setValue(value);
-                this._binding._bindingElementToObservers._history = history;
             }
+
             if (this._sliderControl) {
                 this._sliderControl.hidden = false;
             }

@@ -9,6 +9,7 @@ Object.assign(pcui, (function () {
      * @property {String[]} paths The linked paths
      * @property {Boolean} applyingChange Whether the binding is currently applying a change either to the observers or the element.
      * @property {Boolean} linked Whether the binding is linked to observers.
+     * @property {Boolean} historyEnabled Whether history is enabled for the binding. A valid history object must have been provided first.
      * @property {Boolean} historyCombine If a history module is used whether to combine history actions when applying changes to observers.
      * @property {String} historyName The name of the history action when applying changes to observers.
      * @property {String} historyPrefix A string to prefix the historyName with.
@@ -193,6 +194,16 @@ Object.assign(pcui, (function () {
 
         set historyPostfix(value) {
             this._historyPostfix = value;
+        }
+
+        get historyEnabled() {
+            return this._history && this._history.enabled;
+        }
+
+        set historyEnabled(value) {
+            if (this._history) {
+                this._history.enabled = value;
+            }
         }
 
         get observers() {

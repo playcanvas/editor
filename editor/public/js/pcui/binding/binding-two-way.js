@@ -119,6 +119,14 @@ Object.assign(pcui, (function () {
         set historyPostfix(value) {
             this._bindingElementToObservers.historyPostfix = value;
         }
+
+        get historyEnabled() {
+            return this._bindingElementToObservers.historyEnabled;
+        }
+
+        set historyEnabled(value) {
+            this._bindingElementToObservers.historyEnabled = value;
+        }
     }
 
     return {
