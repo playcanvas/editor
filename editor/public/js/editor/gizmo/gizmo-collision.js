@@ -551,7 +551,7 @@ editor.once('load', function () {
                             attributes: {
                                 aPosition: pc.SEMANTIC_POSITION,
                                 aNormal: pc.SEMANTIC_NORMAL,
-                                aSide: pc.SEMANTIC_ATTR0
+                                aSide: pc.SEMANTIC_ATTR15
                             },
                             vshader: capsuleVShader.replace('{axis}', a),
                             fshader: capsuleFShader,
@@ -565,7 +565,7 @@ editor.once('load', function () {
                             attributes: {
                                 aPosition: pc.SEMANTIC_POSITION,
                                 aNormal: pc.SEMANTIC_NORMAL,
-                                aSide: pc.SEMANTIC_ATTR0
+                                aSide: pc.SEMANTIC_ATTR15
                             },
                             vshader: capsuleVShaderPick.replace('{axis}', a),
                             fshader: capsuleFShaderPick,
@@ -595,10 +595,10 @@ editor.once('load', function () {
         var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [
             { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.ELEMENTTYPE_FLOAT32 }
         ]);
-        var vertexFormatAttr0 = new pc.VertexFormat(app.graphicsDevice, [
+        var vertexFormatAttr15 = new pc.VertexFormat(app.graphicsDevice, [
             { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.ELEMENTTYPE_FLOAT32 },
             { semantic: pc.SEMANTIC_NORMAL, components: 3, type: pc.ELEMENTTYPE_FLOAT32 },
-            { semantic: pc.SEMANTIC_ATTR0, components: 1, type: pc.ELEMENTTYPE_FLOAT32 }
+            { semantic: pc.SEMANTIC_ATTR15, components: 1, type: pc.ELEMENTTYPE_FLOAT32 }
         ]);
         var rad = Math.PI / 180;
 
@@ -858,7 +858,7 @@ editor.once('load', function () {
                 indices.push((segments / 2 - 1) * segments + i, (segments / 2) * segments + 1, (segments / 2 - 1) * segments + (i + 1) % segments);
             }
 
-            var bufferVertex = new pc.VertexBuffer(app.graphicsDevice, vertexFormatAttr0, positions.length / 7);
+            var bufferVertex = new pc.VertexBuffer(app.graphicsDevice, vertexFormatAttr15, positions.length / 7);
             var dst = new Float32Array(bufferVertex.lock());
             dst.set(positions);
             bufferVertex.unlock();

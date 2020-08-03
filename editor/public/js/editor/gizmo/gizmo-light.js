@@ -267,7 +267,7 @@ editor.once('load', function () {
                 shaderSpot = new pc.Shader(device, {
                     attributes: {
                         vertex_position: 'POSITION',
-                        outer: 'ATTR0'
+                        outer: 'ATTR15'
                     },
                     vshader: ' \
                         attribute vec3 vertex_position;\n \
@@ -317,7 +317,7 @@ editor.once('load', function () {
         ]);
         var vertexFormatSpot = new pc.VertexFormat(app.graphicsDevice, [
             { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 },
-            { semantic: pc.SEMANTIC_ATTR0, components: 1, type: pc.TYPE_FLOAT32 }
+            { semantic: pc.SEMANTIC_ATTR15, components: 1, type: pc.TYPE_FLOAT32 }
         ]);
         var rad = Math.PI / 180;
 
@@ -484,33 +484,33 @@ editor.once('load', function () {
         // lines
         //      left
         iterator.element[pc.SEMANTIC_POSITION].set(0, 0, 0);
-        iterator.element[pc.SEMANTIC_ATTR0].set(1);
+        iterator.element[pc.SEMANTIC_ATTR15].set(1);
         iterator.next();
         iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(0 * rad), -1, Math.cos(0 * rad));
-        iterator.element[pc.SEMANTIC_ATTR0].set(1);
+        iterator.element[pc.SEMANTIC_ATTR15].set(1);
         iterator.next();
         //      right
         iterator.element[pc.SEMANTIC_POSITION].set(0, 0, 0);
-        iterator.element[pc.SEMANTIC_ATTR0].set(1);
+        iterator.element[pc.SEMANTIC_ATTR15].set(1);
         iterator.next();
         iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(180 * rad), -1, Math.cos(180 * rad));
-        iterator.element[pc.SEMANTIC_ATTR0].set(1);
+        iterator.element[pc.SEMANTIC_ATTR15].set(1);
         iterator.next();
         // circles
         for(var i = 0; i < segments; i++) {
             // inner
             iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), -1, Math.cos(360 / segments * i * rad));
-            iterator.element[pc.SEMANTIC_ATTR0].set(0);
+            iterator.element[pc.SEMANTIC_ATTR15].set(0);
             iterator.next();
             iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * (i + 1) * rad), -1, Math.cos(360 / segments * (i + 1) * rad));
-            iterator.element[pc.SEMANTIC_ATTR0].set(0);
+            iterator.element[pc.SEMANTIC_ATTR15].set(0);
             iterator.next();
             // outer
             iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), -1, Math.cos(360 / segments * i * rad));
-            iterator.element[pc.SEMANTIC_ATTR0].set(1);
+            iterator.element[pc.SEMANTIC_ATTR15].set(1);
             iterator.next();
             iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * (i + 1) * rad), -1, Math.cos(360 / segments * (i + 1) * rad));
-            iterator.element[pc.SEMANTIC_ATTR0].set(1);
+            iterator.element[pc.SEMANTIC_ATTR15].set(1);
             iterator.next();
         }
         iterator.end();

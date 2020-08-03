@@ -229,10 +229,6 @@ editor.once('load', function () {
         var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [
             { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 }
         ]);
-        var vertexFormatAttr0 = new pc.VertexFormat(app.graphicsDevice, [
-            { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 },
-            { semantic: pc.SEMANTIC_ATTR0, components: 1, type: pc.TYPE_FLOAT32 }
-        ]);
         var rad = Math.PI / 180;
 
 
