@@ -19,6 +19,8 @@ Object.assign(pcui, (function () {
                 v: 'mesh', t: 'Mesh'
             }, {
                 v: 'compound', t: 'Compound'
+            }, {
+                v: 'cone', t: 'Cone'
             }]
         }
     }, {
@@ -117,9 +119,9 @@ Object.assign(pcui, (function () {
 
             const fieldType = this._field('type');
             this._field('halfExtents').parent.hidden = fieldType.value !== 'box';
-            this._field('radius').parent.hidden = ['sphere', 'capsule', 'cylinder'].indexOf(fieldType.value) === -1;
-            this._field('height').parent.hidden = ['capsule', 'cylinder'].indexOf(fieldType.value) === -1;
-            this._field('axis').parent.hidden = ['capsule', 'cylinder'].indexOf(fieldType.value) === -1;
+            this._field('radius').parent.hidden = ['sphere', 'capsule', 'cylinder', 'cone'].indexOf(fieldType.value) === -1;
+            this._field('height').parent.hidden = ['capsule', 'cylinder', 'cone'].indexOf(fieldType.value) === -1;
+            this._field('axis').parent.hidden = ['capsule', 'cylinder', 'cone'].indexOf(fieldType.value) === -1;
             this._field('asset').hidden = fieldType.value !== 'mesh';
         }
 
