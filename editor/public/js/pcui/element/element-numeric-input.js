@@ -61,8 +61,6 @@ Object.assign(pcui, (function () {
             this._historyCombine = false;
             this._historyPostfix = null;
 
-
-
             this._sliderControlMouseDownEvent = () => {
                 this._sliderControl.dom.requestPointerLock();
                 if (this.binding) {
