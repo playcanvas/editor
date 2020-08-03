@@ -74,7 +74,7 @@ Object.assign(pcui, (function () {
                     // history between the mousedown and mouseup events
                     // not further back
                     this.binding.historyCombine = true;
-                    this.binding.historyPostfix = `(${Date.now()})`;
+                    this.binding.historyPostfix = ` (${Date.now()})`;
                 } else {
                     this._historyCombine = false;
                     this._historyPostfix = null;
