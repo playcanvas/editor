@@ -2,6 +2,8 @@ Object.assign(pcui, (function () {
     'use strict';
 
     const CLASS_NUMERIC_INPUT = 'pcui-numeric-input';
+    const CLASS_NUMERIC_INPUT_SLIDER_CONTROL = CLASS_NUMERIC_INPUT + '-slider-control';
+    const CLASS_NUMERIC_INPUT_SLIDER_CONTROL_ACTIVE = CLASS_NUMERIC_INPUT_SLIDER_CONTROL + '-active';
 
     /**
      * @name pcui.NumericInput
@@ -51,6 +53,60 @@ Object.assign(pcui, (function () {
             this.value = value;
 
             this.renderChanges = renderChanges;
+
+            this._sliderControl = new pcui.Element();
+            this._sliderControl.class.add(CLASS_NUMERIC_INPUT_SLIDER_CONTROL);
+            this.dom.append(this._sliderControl.dom);
+
+            this._historyCombine = false;
+            this._historyPostfix = null;
+
+            this._sliderControlMouseDownEvent = () => {
+                this._sliderControl.dom.requestPointerLock();
+                if (this.binding) {
+                    this._historyCombine = this.binding.historyCombine;
+                    this._historyPostfix = this.binding.historyPostfix;
+
+                    // assign a history postfix which will limit how far back
+                    // the history will be combined. We only want to combine
+                    // history between the mousedown and mouseup events
+                    // not further back
+                    this.binding.historyCombine = true;
+                    this.binding.historyPostfix = ` (${Date.now()})`;
+                } else {
+                    this._historyCombine = false;
+                    this._historyPostfix = null;
+                }
+            };
+            this._sliderControl.dom.addEventListener('mousedown', this._sliderControlMouseDownEvent);
+
+            this._sliderControlMouseUpEvent = () => {
+                document.exitPointerLock();
+                // restore combine history and postfix
+                if (this.binding) {
+                    this.binding.historyCombine = this._historyCombine;
+                    this.binding.historyPostfix = this._historyPostfix;
+                }
+            };
+            this._sliderControl.dom.addEventListener('mouseup', this._sliderControlMouseUpEvent);
+
+            this._updatePositionBound = this._updatePosition.bind(this);
+            this._pointerLockChangeAlertBound = this._pointerLockChangeAlert.bind(this);
+
+            document.addEventListener('pointerlockchange', this._pointerLockChangeAlertBound, false);
+            document.addEventListener('mozpointerlockchange', this._pointerLockChangeAlertBound, false);
+        }
+
+        _updatePosition (evt) {
+            let movement = 0;
+            if (evt.constructor === WheelEvent) {
+                movement = evt.deltaY;
+            } else if (evt.constructor === MouseEvent) {
+                movement = evt.movementX;
+            }
+            // move one step every 100 pixels
+            movement = movement / 100 * this._step;
+            this.value = this.value + movement;
         }
 
         _onInputChange(evt) {
@@ -72,12 +128,36 @@ Object.assign(pcui, (function () {
             super._onInputKeyDown(evt);
         }
 
+        _isScrolling () {
+            if (!this._sliderControl) return false;
+            return (document.pointerLockElement === this._sliderControl._dom ||
+                document.mozPointerLockElement === this._sliderControl._dom);
+        }
+
+        _pointerLockChangeAlert() {
+            if (this._isScrolling()) {
+                this._sliderControl._dom.addEventListener("mousemove", this._updatePositionBound, false);
+                this._sliderControl._dom.addEventListener("wheel", this._updatePositionBound, false);
+                this._sliderControl.class.add(CLASS_NUMERIC_INPUT_SLIDER_CONTROL_ACTIVE);
+            } else {
+                this._sliderControl._dom.removeEventListener("mousemove", this._updatePositionBound, false);
+                this._sliderControl._dom.removeEventListener("wheel", this._updatePositionBound, false);
+                this._sliderControl.class.remove(CLASS_NUMERIC_INPUT_SLIDER_CONTROL_ACTIVE);
+            }
+        }
+
         _normalizeValue(value) {
-            if (value === undefined) {
+            try {
+                if (typeof value === 'string') {
+                    // sanitize input to only allow short mathmatical expressions to be evaluated
+                    value = value.match(/^[*/+\-0-9().]+$/);
+                    if (value !== null && value[0].length < 20) {
+                        value = Function('"use strict";return (' + value[0] + ')')();
+                    }
+                }
+            } catch(error) {
                 value = null;
             }
-
-            value = parseFloat(value, 10);
             if (!isNaN(value)) {
                 // clamp between min max
                 if (this.min !== null && value < this.min) {
@@ -89,7 +169,7 @@ Object.assign(pcui, (function () {
 
                 // fix precision
                 if (this.precision !== null) {
-                    value = parseFloat(value.toFixed(this.precision), 10);
+                    value = parseFloat(Number(value).toFixed(this.precision), 10);
                 }
             } else if (this._allowNull) {
                 value = null;
@@ -131,6 +211,10 @@ Object.assign(pcui, (function () {
             if (changed && this._binding) {
                 this._binding.setValue(value);
             }
+
+            if (this._sliderControl) {
+                this._sliderControl.hidden = false;
+            }
         }
 
         set values(values) {
@@ -146,8 +230,14 @@ Object.assign(pcui, (function () {
             if (different) {
                 this._updateValue(null);
                 this.class.add(pcui.CLASS_MULTIPLE_VALUES);
+                if (this._sliderControl) {
+                    this._sliderControl.hidden = true;
+                }
             } else {
                 this._updateValue(values[0]);
+                if (this._sliderControl) {
+                    this._sliderControl.hidden = false;
+                }
             }
         }
 
@@ -199,6 +289,14 @@ Object.assign(pcui, (function () {
 
         set step(value) {
             this._step = value;
+        }
+
+        destroy() {
+            super.destroy();
+            document.removeEventListener('pointerlockchange', this._pointerLockChangeAlertBound, false);
+            document.removeEventListener('mozpointerlockchange', this._pointerLockChangeAlertBound, false);
+            this._sliderControl.dom.removeEventListener('mousedown', this._sliderControlMouseDownEvent);
+            this._sliderControl.dom.removeEventListener('mouseup', this._sliderControlMouseUpEvent);
         }
     }
 

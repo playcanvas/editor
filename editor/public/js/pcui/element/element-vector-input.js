@@ -72,6 +72,22 @@ Object.assign(pcui, (function () {
         _onInputChange() {
             if (this._applyingChange) return;
 
+            // check if any of our inputs have the multiple_values class
+            // and if so inherit it for us as well
+            let showingMultipleValues = false;
+            for (let i = 0; i < this._inputs.length; i++) {
+                if (this._inputs[i].class.contains(pcui.CLASS_MULTIPLE_VALUES)) {
+                    showingMultipleValues = true;
+                    break;
+                }
+            }
+
+            if (showingMultipleValues) {
+                this.class.add(pcui.CLASS_MULTIPLE_VALUES);
+            } else {
+                this.class.remove(pcui.CLASS_MULTIPLE_VALUES);
+            }
+
             this.emit('change', this.value);
         }
 
@@ -165,21 +181,10 @@ Object.assign(pcui, (function () {
         }
 
         set values(values) {
-            let different = false;
-            const value = values[0] || [];
-            for (let i = 1; i < values.length; i++) {
-                if (!value.equals(values[i])) {
-                    different = true;
-                    break;
-                }
-            }
+            // create an array for each dimension (e.g. one array for x one for y one for z)
+            values = this._inputs.map((_, i) => values.map(arr => arr[i]));
 
-            if (different) {
-                this._updateValue(null);
-                this.class.add(pcui.CLASS_MULTIPLE_VALUES);
-            } else {
-                this._updateValue(values[0]);
-            }
+            this._inputs.forEach((input, i) => input.values = values[i]);
         }
 
         // override binding setter to set a binding clone to
