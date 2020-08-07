@@ -262,6 +262,52 @@ editor.once('load', function () {
         });
     });
 
+    // Create sprite assets for each selected frame
+    editor.method('picker:sprites:spritesFromFrames', function (args) {
+        var frameCounter = 0;
+        for (var i = 0; i < highlightedFrames.length; i++) {
+            var name = atlasAsset.get('data.frames.' + highlightedFrames[i] + '.name');
+            if (!name) {
+                name = 'New Sprite ' + i;
+            }
+            // rendermode: 0 - simple
+            editor.call('assets:create:sprite', {
+                name: name,
+                pixelsPerUnit: 100,
+                renderMode: 0,
+                frameKeys: [highlightedFrames[i]],
+                textureAtlasAsset: atlasAsset.get('id'),
+                noSelect: true,
+                fn: function (err, id) {
+                    var asset = editor.call('assets:get', id);
+                    if (asset) {
+                        frameCounter++;
+                        if (frameCounter === highlightedFrames.length) {
+                            selectSprite(asset);
+                            if (args && args.callback) {
+                                args.callback(asset);
+                            }
+                        }
+                    } else {
+                        editor.once('assets:add[' + id + ']', function (asset) {
+                            // do this in a timeout in order to wait for
+                            // assets:add to be raised first
+                            requestAnimationFrame(function () {
+                                frameCounter++;
+                                if (frameCounter === highlightedFrames.length) {
+                                    selectSprite(asset);
+                                    if (args && args.callback) {
+                                        args.callback(asset);
+                                    }
+                                }
+                            });
+                        });
+                    }
+                }
+            });
+        }
+    });
+
     var startSpriteEditMode = function () {
         spriteEditMode = true;
         editor.emit('picker:sprites:pickFrames:start');

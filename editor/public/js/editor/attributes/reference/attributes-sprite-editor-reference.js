@@ -89,6 +89,10 @@ editor.once('load', function() {
         title: 'New Sprite',
         description: 'Create a new Sprite Asset with the selected frames.'
     }, {
+        name: 'frame:newspritesfromframes',
+        title: 'New Sprites',
+        description: 'Create a new Sprite Asset for each selected frame.'
+    }, {
         name: 'frame:focus',
         title: 'Focus',
         subTitle: 'Shortcut: F',
