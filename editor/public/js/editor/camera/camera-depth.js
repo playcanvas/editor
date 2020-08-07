@@ -17,8 +17,10 @@ editor.once('viewport:load', function() {
 
     editor.method('camera:depth:render', function(camera) {
         var rect = camera.camera._rect;
-        var width = Math.floor(rect.z * device.width);
-        var height = Math.floor(rect.w * device.height);
+        var rectWidth = rect.width || rect.z;
+        var rectHeight = rect.height || rect.w;
+        var width = Math.floor(rectWidth * device.width);
+        var height = Math.floor(rectHeight * device.height);
 
         if (depthTarget && (depthTarget.width !== width || depthTarget.height !== height)) {
             depthTarget.destroy();
