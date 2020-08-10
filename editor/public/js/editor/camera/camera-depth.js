@@ -45,7 +45,7 @@ editor.once('viewport:load', function() {
 
         var cam = camera.camera;
         renderer.setCamera(cam);
-        renderer.clearView(camera, depthTarget)
+        renderer.clearView(cam, depthTarget, true);
 
         var oldBlending = device.getBlending();
         device.setBlending(false);
