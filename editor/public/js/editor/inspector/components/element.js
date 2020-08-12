@@ -432,7 +432,7 @@ Object.assign(pcui, (function () {
 
                     latest.set(path, value);
 
-                    if (!prevEntry.value && width && height && !this._hasSplitAnchor(latest)) {
+                    if (prevEntry.value && width && height && !this._hasSplitAnchor(latest)) {
                         prevEntry.width = latest.get('components.element.width');
                         prevEntry.height = latest.get('components.element.height');
                         prevEntry.margin = latest.get('components.element.margin');
