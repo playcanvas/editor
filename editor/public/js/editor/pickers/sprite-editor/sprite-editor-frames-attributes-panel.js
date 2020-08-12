@@ -543,26 +543,24 @@ editor.once('load', function() {
             });
         });
 
-        if (numFrames > 1) {
-            // new sprites from frames
-            var btnCreateSpritesFromFrames = new ui.Button({
-                text: 'New Sprite Per Selected Frame'
-            });
-            btnCreateSpritesFromFrames.class.add('icon', 'wide', 'create');
-            panelButtons.append(btnCreateSpritesFromFrames);
+        // new sprites from frames
+        var btnCreateSpritesFromFrames = new ui.Button({
+            text: 'New Sprite Per Selected Frame'
+        });
+        btnCreateSpritesFromFrames.class.add('icon', 'wide', 'create');
+        panelButtons.append(btnCreateSpritesFromFrames);
 
-            // reference
-            editor.call('attributes:reference:attach', 'spriteeditor:frame:newspritesfromframes', btnCreateSpritesFromFrames, null, panel);
+        // reference
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:newspritesfromframes', btnCreateSpritesFromFrames, null, panel);
 
-            btnCreateSpritesFromFrames.on('click', function () {
-                btnCreateSpritesFromFrames.disabled = true;
-                editor.call('picker:sprites:spritesFromFrames', {
-                    callback: function () {
-                        btnCreateSpritesFromFrames.disabled = false;
-                    }
-                });
+        btnCreateSpritesFromFrames.on('click', function () {
+            btnCreateSpritesFromFrames.disabled = true;
+            editor.call('picker:sprites:spritesFromFrames', {
+                callback: function () {
+                    btnCreateSpritesFromFrames.disabled = false;
+                }
             });
-        }
+        });
 
         // focus frame
         var btnFocus = new ui.Button({
