@@ -845,7 +845,7 @@ editor.once('load', function () {
             matOccluder: materialOccluder
         });
         models['capsule-x'].graph.setLocalEulerAngles(0.0, 0.0, -90.0);
-        models['capsule-x'].graph.setLocalScale(2.0, 1.0, 2.0);
+        models['capsule-x'].graph.setLocalScale(2.0, 0.5, 2.0);
 
         models['capsule-y'] = createModel({
             mesh: pc.scene.procedural.createCapsule(app.graphicsDevice, {
@@ -856,7 +856,7 @@ editor.once('load', function () {
             matBehind: materialBehind,
             matOccluder: materialOccluder
         });
-        models['capsule-y'].graph.setLocalScale(2.0, 1.0, 2.0);
+        models['capsule-y'].graph.setLocalScale(2.0, 0.5, 2.0);
 
         models['capsule-z'] = createModel({
             mesh: pc.scene.procedural.createCapsule(app.graphicsDevice, {
@@ -868,7 +868,7 @@ editor.once('load', function () {
             matOccluder: materialOccluder
         });
         models['capsule-z'].graph.setLocalEulerAngles(90.0, 0.0, 0.0);
-        models['capsule-z'].graph.setLocalScale(2.0, 1.0, 2.0);
+        models['capsule-z'].graph.setLocalScale(2.0, 0.5, 2.0);
     });
 
     var createModelCopy = function(resource, color) {
