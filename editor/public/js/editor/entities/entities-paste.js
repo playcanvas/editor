@@ -233,30 +233,33 @@ editor.once('load', function () {
                                 for (key in attrs) {
                                     var attrData = asset.get('data.scripts.' + script + '.attributes.' + key);
                                     if (attrData) {
-                                        if (attrData.type === 'asset' && data.project !== config.project.id) {
-                                            // remap asset ids
+                                        // handle json script attributes
+                                        if (attrData.type === 'json' && Array.isArray(attrData.schema)) {
+                                            // json attribute array
                                             if (attrData.array) {
-                                                for (j = 0; j < attrs[key].length; j++) {
-                                                    entity.set('components.script.scripts.' + script + '.attributes.' + key + '.' + j, data.assets[attrs[key][j]]);
-                                                }
-                                            } else {
-                                                entity.set('components.script.scripts.' + script + '.attributes.' + key, data.assets[attrs[key]]);
-                                            }
-                                        } else if (attrData.type === 'entity') {
-                                            // try to remap entities
-                                            if (attrData.array) {
-                                                for (j = 0; j < attrs[key].length; j++) {
-                                                    if (attrs[key][j] && mapping[attrs[key][j]]) {
-                                                        entity.set('components.script.scripts.' + script + '.attributes.' + key + '.' + j, mapping[attrs[key][j]]);
+                                                for (let j = 0; j < attrs[key].length; j++) {
+                                                    if (!attrs[key][j]) continue;
+
+                                                    for (let k = 0; k < attrData.schema.length; k++) {
+                                                        const field = attrData.schema[k];
+                                                        if (attrs[key][j][field.name]) {
+                                                            remapScriptAttribute(field, attrs[key][j][field.name], entity, `components.script.scripts.${script}.attributes.${key}.${j}.${field.name}`, data, mapping);
+                                                        }
                                                     }
                                                 }
                                             } else {
-                                                if (mapping[attrs[key]]) {
-                                                    entity.set('components.script.scripts.' + script + '.attributes.' + key, mapping[attrs[key]]);
+                                                // regular json attribute
+                                                for (let k = 0; k < attrData.schema.length; k++) {
+                                                    const field = attrData.schema[k];
+                                                    if (attrs[key][field.name]) {
+                                                        remapScriptAttribute(field, attrs[key][field.name], entity, `components.script.scripts.${script}.attributes.${key}.${field.name}`, data, mapping);
+                                                    }
                                                 }
                                             }
+                                        } else {
+                                            // non json attribute
+                                            remapScriptAttribute(attrData, attrs[key], entity, `components.script.scripts.${script}.attributes.${key}`, data, mapping);
                                         }
-
                                     }
                                 }
                             }
@@ -281,6 +284,34 @@ editor.once('load', function () {
             });
         });
     };
+
+    var remapScriptAttribute = function (assetAttr, componentAttr, entity, path, localStorageData, entityMapping) {
+        if (assetAttr.type === 'asset') {
+            if (localStorageData.project === config.project.id) return;
+
+            // remap asset ids
+            if (assetAttr.array) {
+                for (let i = 0; i < componentAttr.length; i++) {
+                    entity.set(`${path}.${i}`, localStorageData.assets[componentAttr[i]]);
+                }
+            } else {
+                entity.set(path, localStorageData.assets[componentAttr]);
+            }
+        } else if (assetAttr.type === 'entity') {
+            // try to remap entities
+            if (assetAttr.array) {
+                for (let i = 0; i < componentAttr.length; i++) {
+                    if (componentAttr[i] && entityMapping[componentAttr[i]]) {
+                        entity.set(`${path}.${i}`, entityMapping[componentAttr[i]]);
+                    }
+                }
+            } else {
+                if (entityMapping[componentAttr]) {
+                    entity.set(path, entityMapping[componentAttr]);
+                }
+            }
+        }
+    }
 
     /**
      * Pastes entities in localStore under the specified parent

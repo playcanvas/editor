@@ -93,7 +93,7 @@ Object.assign(pcui, (function () {
                     const path = paths[i];
                     const val = value[i];
                     if (value !== undefined) {
-                        latest.set(path, val);
+                        this._observerSet(latest, path, val);
                     } else {
                         latest.unset(path);
                     }
@@ -118,7 +118,7 @@ Object.assign(pcui, (function () {
                 const path = this._pathAt(paths, i);
                 const val = isArrayOfValues ? value[i] : value;
                 if (value !== undefined) {
-                    latest.set(path, val);
+                    this._observerSet(latest, path, val);
                 } else {
                     latest.unset(path);
                 }
@@ -127,6 +127,24 @@ Object.assign(pcui, (function () {
                     latest.history.enabled = true;
                 }
             }
+        }
+
+        // Handles setting a value to an observer
+        // in case that value is an array
+        _observerSet(observer, path, value) {
+            // check if the parent of the last field in the path
+            // exists in the observer because if it doesn't
+            // an error is most likely going to be raised by C3
+            const lastIndexDot = path.lastIndexOf('.');
+            if (lastIndexDot > 0 && !observer.has(path.substring(0, lastIndexDot))) {
+                return;
+            }
+
+            const isArray = Array.isArray(value);
+            // we need to slice an array value before passing it to the 'set'
+            // method otherwise there are cases where the Observer will be modifying
+            // the same array instance
+            observer.set(path, isArray && value ? value.slice() : value);
         }
 
         _addValues(values) {

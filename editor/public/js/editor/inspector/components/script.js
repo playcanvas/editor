@@ -69,6 +69,7 @@ Object.assign(pcui, (function () {
 
         _createScriptPanel(scriptName) {
             const panel = new ScriptInspector({
+                componentInspector: this,
                 scriptName: scriptName,
                 flex: true,
                 collapsible: true,
@@ -333,6 +334,25 @@ Object.assign(pcui, (function () {
             });
         }
 
+        clearParseErrors() {
+            for (const key in this._scriptPanels) {
+                this._scriptPanels[key].containerErrors.clear();
+                this._scriptPanels[key].containerErrors.hidden = true;
+            }
+        }
+
+        onParseError(error, scriptName) {
+            if (!this._scriptPanels[scriptName]) return;
+
+            const label = new pcui.Label({
+                class: pcui.CLASS_ERROR,
+                text: error
+            });
+
+            this._scriptPanels[scriptName].containerErrors.append(label);
+            this._scriptPanels[scriptName].containerErrors.hidden = false;
+        }
+
         link(entities) {
             super.link(entities);
 
@@ -404,7 +424,15 @@ Object.assign(pcui, (function () {
     class ScriptInspector extends pcui.Panel {
         constructor(args) {
             super(args);
+
+            this._componentInspector = args.componentInspector;
             this._scriptName = args.scriptName;
+
+            this.containerErrors = new pcui.Container({
+                hidden: true,
+                class: pcui.CLASS_ERROR
+            });
+            this.append(this.containerErrors);
 
             this._attributesInspector = null;
 
@@ -511,6 +539,8 @@ Object.assign(pcui, (function () {
             this._entityEvents = [];
             this._editorEvents = [];
 
+            this._timeoutChangeAttribute = null;
+
             this._editorEvents.push(editor.on(`assets:scripts[${this._scriptName}]:attribute:set`, this._onAddAttribute.bind(this)));
             this._editorEvents.push(editor.on(`assets:scripts[${this._scriptName}]:attribute:unset`, this._onRemoveAttribute.bind(this)));
             this._editorEvents.push(editor.on(`assets:scripts[${this._scriptName}]:attribute:change`, this._onChangeAttribute.bind(this)));
@@ -527,7 +557,7 @@ Object.assign(pcui, (function () {
 
             // script attributes inspector
             const inspectorAttributes = order.map(attribute => {
-                return this._convertAttributeDataToInspectorData(attribute, attributes[attribute]);
+                return this._convertAttributeDataToInspectorData(attribute, attribute, attributes[attribute]);
             });
 
             if (this._attributesInspector) {
@@ -577,13 +607,31 @@ Object.assign(pcui, (function () {
         _onClickParse(evt) {
             if (!this._asset) return;
 
+            this._componentInspector.clearParseErrors();
+            this.containerErrors.hidden = true;
+            this.containerErrors.clear();
+
             this._btnParse.enabled = false;
-            editor.call('scripts:parse', this._asset, err => {
+            this._btnParse.class.remove(pcui.CLASS_ERROR);
+
+            editor.call('scripts:parse', this._asset, (error, result) => {
                 this._btnParse.enabled = true;
-                if (err) {
+
+                if (error) {
                     this._btnParse.class.add(pcui.CLASS_ERROR);
+
+                    this._componentInspector.onParseError(error.message, this._scriptName);
                 } else {
-                    this._btnParse.class.remove(pcui.CLASS_ERROR);
+                    result.scriptsInvalid.forEach(invalidScript => {
+                        this._componentInspector.onParseError(invalidScript, this._scriptName);
+                    });
+
+                    for (const scriptName in result.scripts) {
+                        var attrInvalid = result.scripts[scriptName].attributesInvalid;
+                        attrInvalid.forEach(err => {
+                            this._componentInspector.onParseError(err, scriptName);
+                        })
+                    }
                 }
             });
         }
@@ -645,7 +693,7 @@ Object.assign(pcui, (function () {
             }
         }
 
-        _convertAttributeDataToInspectorData(attributeName, attributeData) {
+        _convertAttributeDataToInspectorData(attributeName, attributePath, attributeData) {
             let type = attributeData.type;
 
             let fieldArgs = {};
@@ -689,6 +737,63 @@ Object.assign(pcui, (function () {
                 if (typeof(attributeData.min) === 'number' && typeof(attributeData.max) === 'number') {
                     type = 'slider';
                 }
+            } else if (type === 'json') {
+                if (attributeData.array) {
+                    // array attributes
+                    fieldArgs.usePanels = true;
+
+                    // create default value from schema
+                    fieldArgs.getDefaultFn = () => {
+                        const result = {};
+
+                        if (attributeData.schema) {
+                            attributeData.schema.forEach(field => {
+                                if (field.hasOwnProperty('default')) {
+                                    result[field.name] = utils.deepCopy(field.default);
+                                } else {
+                                    if (field.array) {
+                                        result[field.name] = [];
+                                    } else {
+                                        const value = utils.deepCopy(pcui.DEFAULTS[field.type]);
+                                        if (field.type === 'curve') {
+                                            if (field.color || field.curves) {
+                                                var len = field.color ? field.color.length : field.curves.length;
+                                                var v = field.color ? 1 : 0;
+                                                value.keys = [];
+                                                for (var c = 0; c < len; c++) {
+                                                    value.keys.push([0, v]);
+                                                }
+                                            }
+                                        }
+                                        result[field.name] = value;
+                                    }
+                                }
+                            });
+                        }
+                        return result;
+                    };
+
+                    // attribute inspector attributes for each array element
+                    if (!fieldArgs.elementArgs) {
+                        fieldArgs.elementArgs = {};
+                    }
+                    fieldArgs.elementArgs.attributes = attributeData.schema.map(field => {
+                        return this._convertAttributeDataToInspectorData(field.name, `${attributePath}.${field.name}`, field);
+                    });
+                    fieldArgs.elementArgs.history = this._history;
+                    fieldArgs.elementArgs.assets = this._argsAssets;
+                    fieldArgs.elementArgs.entities = this._argsEntities;
+                    fieldArgs.elementArgs.templateOverridesInspector = this._templateOverridesInspector;
+
+                } else {
+                    fieldArgs.attributes = attributeData.schema.map(field => {
+                        return this._convertAttributeDataToInspectorData(field.name, `${attributePath}.${field.name}`, field);
+                    });
+                    fieldArgs.history = this._history;
+                    fieldArgs.assets = this._argsAssets;
+                    fieldArgs.entities = this._argsEntities;
+                    fieldArgs.templateOverridesInspector = this._templateOverridesInspector;
+                }
             }
 
             if (attributeData.array) {
@@ -698,7 +803,7 @@ Object.assign(pcui, (function () {
             const data = {
                 label: attributeData.title || attributeName,
                 type: type,
-                path: `components.script.scripts.${this._scriptName}.attributes.${attributeName}`,
+                path: `components.script.scripts.${this._scriptName}.attributes.${attributePath}`,
                 tooltip: {
                     title: attributeName,
                     subTitle: this._getAttributeSubtitle(attributeData),
@@ -747,24 +852,35 @@ Object.assign(pcui, (function () {
             const data = this._asset.get(`data.scripts.${this._scriptName}.attributes.${name}`);
             if (!data) return;
 
-            const inspectorData = this._convertAttributeDataToInspectorData(name, data);
+            const inspectorData = this._convertAttributeDataToInspectorData(name, name, data);
             this._attributesInspector.addAttribute(inspectorData, index);
         }
 
         _onRemoveAttribute(asset, name) {
             if (this._asset !== asset || !this._asset) return;
+
             this._attributesInspector.removeAttribute(`components.script.scripts.${this._scriptName}.attributes.${name}`);
         }
 
         _onChangeAttribute(asset, name) {
             if (this._asset !== asset || !this._asset) return;
 
-            const order = this._asset.get(`data.scripts.${this._scriptName}.attributesOrder`);
-            const index = order.indexOf(name);
-            if (index >= 0) {
-                this._onRemoveAttribute(asset, name);
-                this._onAddAttribute(asset, name, index);
+            if (this._timeoutChangeAttribute) {
+                clearTimeout(this._timeoutChangeAttribute);
+                this._timeoutChangeAttribute = null;
             }
+
+            this._timeoutChangeAttribute = setTimeout(() => {
+                this._timeoutChangeAttribute = null;
+                if (this._asset !== asset || !this._asset) return;
+
+                const order = this._asset.get(`data.scripts.${this._scriptName}.attributesOrder`);
+                const index = order.indexOf(name);
+                if (index >= 0) {
+                    this._onRemoveAttribute(asset, name);
+                    this._onAddAttribute(asset, name, index);
+                }
+            });
         }
 
         _onMoveAttribute(asset, name, index) {
@@ -810,6 +926,11 @@ Object.assign(pcui, (function () {
                 this._attributesInspector.unlink();
             }
             this._fieldEnable.unlink();
+
+            if (this._timeoutChangeAttribute) {
+                clearTimeout(this._timeoutChangeAttribute);
+                this._timeoutChangeAttribute = null;
+            }
         }
 
         destroy() {

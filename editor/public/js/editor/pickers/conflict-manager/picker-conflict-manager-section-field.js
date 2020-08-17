@@ -28,6 +28,8 @@ editor.once('load', function () {
             case 'rgb':
             case 'rgba':
                 return new ConflictFieldColor(value);
+            case 'json':
+                return new ConflictFieldJson(value);
             case 'object':
                 return new ConflictFieldNotRenderable();
             default:
@@ -164,6 +166,21 @@ editor.once('load', function () {
     };
     ConflictFieldSublayer.prototype = Object.create(ConflictField.prototype);
 
+    // for JSON just stringify and show value
+    var ConflictFieldJson = function (value){
+        this.element = new pcui.TextAreaInput({
+            readOnly: true,
+            value: JSON.stringify(value, null, 2),
+            height: 100
+        });
+        this.element.input.style.lineHeight = 1.1;
+        this.element.on('click', (evt) => {
+            evt.stopPropagation();
+        });
+        this.element.class.add('field-json', 'selectable');
+    };
+
+    ConflictFieldJson.prototype = Object.create(ConflictField.prototype);
 
     // A field saying that the object was deleted in one branch
     var ConflictFieldDeleted = function () {

@@ -86,6 +86,10 @@
         }
 
         > .pcui-panel-header {
+            // this fixes the height of the header
+            // because it's trying to cover half the space of its parent
+            // and the panel content (which has visibility: hidden)
+            min-height: auto;
             // collapsed icon
             &:before {
                 content: '\E180';

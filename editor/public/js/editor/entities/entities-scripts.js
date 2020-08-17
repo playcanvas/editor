@@ -2,27 +2,14 @@ editor.once('load', function () {
     'use strict';
 
     // Default values per script attribute type
-    var DEFAULTS = {
-        boolean: false,
-        number: 0,
-        string: '',
-        json: '{ }',
-        asset: null,
-        entity: null,
-        rgb: [1, 1, 1],
-        rgba: [1, 1, 1, 1],
-        vec2: [0, 0],
-        vec3: [0, 0, 0],
-        vec4: [0, 0, 0, 0],
-        curve: { keys: [0, 0], type: CURVE_SPLINE }
-    };
+    var DEFAULTS = utils.deepCopy(pcui.DEFAULTS);
 
     // The expected typeof value for each script attribute type
     var TYPES = {
         boolean: 'boolean',
         number: 'number',
         string: 'string',
-        json: 'string',
+        json: 'object',
         asset: 'number',
         entity: 'string',
         rgb: 'object',
@@ -30,7 +17,8 @@ editor.once('load', function () {
         vec2: 'object',
         vec3: 'object',
         vec4: 'object',
-        curve: 'object'
+        curve: 'object',
+        gradient: 'object'
     };
 
     // Indexes all entities with scripts
@@ -88,8 +76,10 @@ editor.once('load', function () {
             item.events[i].unbind();
 
         delete index[script][entity.get('resource_id')];
-        if (Object.keys(index[script]).length === 0)
+        if (Object.keys(index[script]).length === 0) {
             delete index[script];
+        }
+
     };
 
     EntitiesScriptsIndex.prototype._updateAllAttributes =  function (entity, script) {
@@ -154,63 +144,156 @@ editor.once('load', function () {
         }));
     };
 
+    EntitiesScriptsIndex.prototype._isNewDefaultValueRequired = function (attribute, oldAttribute, currentValue) {
+        var result = false;
+
+        if (attribute.type !== oldAttribute.type || (!!attribute.array !== !!oldAttribute.array)) {
+            result = true;
+        } else if (currentValue === undefined) {
+            result = true;
+        } else if (attribute.type === 'json' && !this._areEqual(attribute.schema, oldAttribute.schema, 'json')) {
+            result = true;
+        } else {
+            var oldDefaultValue = this._getDefaultAttributeValue(oldAttribute);
+
+            result = this._areEqual(currentValue, oldDefaultValue, attribute.type);
+
+            // curve types
+            if (!result && attribute.type === 'curve') {
+                if (attribute.color || attribute.curves) {
+                    var len = attribute.color ? attribute.color.length : attribute.curves.length;
+                    if (attribute.array) {
+                        if (!currentValue || (!(currentValue instanceof Array))) {
+                            result = true;
+                        } else {
+                            for (var j = 0; j < currentValue.length && !result; j++) {
+                                var val = currentValue[j];
+                                if (len !== 1 && (!(val.keys[0] instanceof Array) || val.keys.length !== len)) {
+                                    result = true;
+                                } else if (len === 1 && (val.keys[0] instanceof Array)) {
+                                    result = true;
+                                }
+                            }
+                        }
+                    } else {
+                        if (len !== 1 && (!(currentValue.keys[0] instanceof Array) || currentValue.keys.length !== len)) {
+                            result = true;
+                        } else if (len === 1 && (currentValue.keys[0] instanceof Array)) {
+                            result = true;
+                        }
+                    }
+
+                } else if (!currentValue || !currentValue.keys || currentValue.keys[0] instanceof Array) {
+                    result = true;
+                }
+            }
+        }
+
+        return result;
+    };
+
+    // Checks if the specified value equals the default attribute value
+    EntitiesScriptsIndex.prototype._areEqual = function (value, defaultValue, type) {
+        if (typeof value !== typeof defaultValue && defaultValue !== null) {
+            return false;
+        }
+
+        if (type === 'json') {
+            try {
+                return JSON.stringify(value) === JSON.stringify(defaultValue);
+            } catch (err) {
+            }
+
+            return false;
+        }
+
+        if ((defaultValue instanceof Array) && (value instanceof Array) && defaultValue.equals(value)) {
+            // was default array value
+            return true;
+        } else if ((defaultValue instanceof Object) && (value instanceof Object) && defaultValue.type === value.type && (defaultValue.keys instanceof Array) && (value.keys instanceof Array) && defaultValue.keys.length === value.keys.length) {
+            if ((defaultValue.keys[0] instanceof Array) && (value.keys[0] instanceof Array)) {
+                for (var k = 0; k < defaultValue.keys.length; k++) {
+                    if (!defaultValue.keys[k].equals(value.keys[k])) {
+                        // was curveset default value
+                        return false;
+                    }
+                }
+                return true;
+            } else if (defaultValue.keys.equals(value.keys)) {
+                // was curve default value
+                return true;
+            }
+        } else if (defaultValue === value) {
+            // was default value
+            return true;
+        }
+        return false;
+    };
+
+    EntitiesScriptsIndex.prototype._getNewDefaultValueForJsonFieldIfNeeded = function (attribute, oldAttribute, currentValue) {
+        const result = this._getDefaultAttributeValue(attribute);
+
+        const newSchemaIndex = {};
+        attribute.schema.forEach(field => {
+            newSchemaIndex[field.name] = field;
+        });
+
+        // go through all fields from the old schema and if they exist
+        // in the new value update those values to the new values
+        oldAttribute.schema.forEach(field => {
+            if (newSchemaIndex.hasOwnProperty(field.name) && currentValue.hasOwnProperty(field.name)) {
+                if (!this._isNewDefaultValueRequired(newSchemaIndex[field.name], field, currentValue[field.name])) {
+                    result[field.name] = utils.deepCopy(currentValue[field.name]);
+                }
+            }
+        });
+
+        return result;
+    };
+
     EntitiesScriptsIndex.prototype._setNewDefaultAttributeValueIfNeeded = function (entity, script, name, attribute, oldAttribute) {
         if (! oldAttribute) {
             oldAttribute = attribute;
         }
 
-        var setNewDefaultValue = false;
-        var oldDefaultValue = this._getDefaultAttributeValue(oldAttribute);
+        var path = `components.script.scripts.${script}.attributes.${name}`;
+        var currentValue = entity.has(path) ? entity.get(path) : undefined;
 
-        if (entity.has('components.script.scripts.' + script + '.attributes.' + name)) {
-            // update attribute
-            var value = entity.get('components.script.scripts.' + script + '.attributes.' + name);
-            setNewDefaultValue = this._isValueEqualToOldDefault(value, oldDefaultValue);
+        let newDefaultValue;
 
-            // value type
-            if (!setNewDefaultValue && ((typeof (value) !== typeof (oldDefaultValue) && oldDefaultValue !== null) || attribute.type !== oldAttribute.type || attribute.array !== oldAttribute.array)) {
-                setNewDefaultValue = true;
-            }
+        if (this._isNewDefaultValueRequired(attribute, oldAttribute, currentValue)) {
+            // in case of json attributes if there was a previous json value we want to
+            // avoid resetting the whole value but instead add / remove / update existing fields
+            if (attribute.type === 'json' && oldAttribute.type === 'json' && attribute.array === oldAttribute.array && currentValue) {
+                if (oldAttribute.array) {
+                    if (currentValue.length) {
+                        newDefaultValue = [];
 
-            // curve types
-            if (!setNewDefaultValue && attribute.type === 'curve') {
-                if (attribute.color || attribute.curves) {
-                    var len = attribute.color ? attribute.color.length : attribute.curves.length;
-                    if (attribute.array) {
-                        if (!value || (!(value instanceof Array))) {
-                            setNewDefaultValue = true;
-                        } else {
-                            for (var j = 0; j < value.length && !setNewDefaultValue; j++) {
-                                var val = value[j];
-                                if (len !== 1 && (!(val.keys[0] instanceof Array) || val.keys.length !== len)) {
-                                    setNewDefaultValue = true;
-                                } else if (len === 1 && (val.keys[0] instanceof Array)) {
-                                    setNewDefaultValue = true;
-                                }
+                        var attributeCopy = Object.assign({}, attribute);
+                        attributeCopy.array = false;
+                        var oldAttributeCopy = Object.assign({}, oldAttribute);
+                        oldAttributeCopy.array = false;
+                        for (let i = 0; i < currentValue.length; i++) {
+                            if (!currentValue[i]) {
+                                newDefaultValue.push(currentValue[i]);
+                                continue;
                             }
-                        }
-                    } else {
-                        if (len !== 1 && (!(value.keys[0] instanceof Array) || value.keys.length !== len)) {
-                            setNewDefaultValue = true;
-                        } else if (len === 1 && (value.keys[0] instanceof Array)) {
-                            setNewDefaultValue = true;
+
+
+                            newDefaultValue.push(this._getNewDefaultValueForJsonFieldIfNeeded(attributeCopy, oldAttributeCopy, currentValue[i]));
                         }
                     }
-
-                } else if (value.keys[0] instanceof Array) {
-                    setNewDefaultValue = true;
+                } else {
+                    newDefaultValue = this._getNewDefaultValueForJsonFieldIfNeeded(attribute, oldAttribute, currentValue);
                 }
             }
-        } else {
-            // set new attribute
-            setNewDefaultValue = true;
-        }
 
-        if (setNewDefaultValue) {
-            var newDefaultValue = this._getDefaultAttributeValue(attribute);
             var history = entity.history.enabled;
             entity.history.enabled = false;
-            entity.set('components.script.scripts.' + script + '.attributes.' + name, newDefaultValue);
+            if (newDefaultValue === undefined) {
+                newDefaultValue = this._getDefaultAttributeValue(attribute);
+            }
+            entity.set(path, newDefaultValue);
             entity.history.enabled = history;
         }
     };
@@ -239,13 +322,14 @@ editor.once('load', function () {
             value = DEFAULTS[attribute.type];
             if (value instanceof Array) {
                 value = value.slice(0);
+            } else if (typeof value === 'object') {
+                value = utils.deepCopy(value);
             }
 
             if (attribute.type === 'curve') {
                 if (attribute.array) {
                     value = [];
                 } else {
-                    value = utils.deepCopy(value);
                     if (attribute.color || attribute.curves) {
                         var len = attribute.color ? attribute.color.length : attribute.curves.length;
                         var v = attribute.color ? 1 : 0;
@@ -255,36 +339,25 @@ editor.once('load', function () {
                         }
                     }
                 }
+            } else if (attribute.type === 'json') {
+                if (attribute.array) {
+                    value = [];
+                } else {
+                    // handle json attribute by creating a default instance of the schema
+                    if (attribute.schema) {
+                        value = {};
+                        attribute.schema.forEach(field => {
+                            value[field.name] = this._getDefaultAttributeValue(field);
+                        });
+                    }
+                }
             }
         }
 
         return value;
     };
 
-    // Checks if the specified value equals the default attribute value
-    EntitiesScriptsIndex.prototype._isValueEqualToOldDefault = function (value, defaultValue) {
-        if ((defaultValue instanceof Array) && (value instanceof Array) && defaultValue.equals(value)) {
-            // was default array value
-            return true;
-        } else if ((defaultValue instanceof Object) && (value instanceof Object) && defaultValue.type === value.type && (defaultValue.keys instanceof Array) && (value.keys instanceof Array) && defaultValue.keys.length === value.keys.length) {
-            if ((defaultValue.keys[0] instanceof Array) && (value.keys[0] instanceof Array)) {
-                for (var k = 0; k < defaultValue.keys.length; k++) {
-                    if (!defaultValue.keys[k].equals(value.keys[k])) {
-                        // was curveset default value
-                        return false;
-                    }
-                }
-                return true;
-            } else if (defaultValue.keys.equals(value.keys)) {
-                // was curve default value
-                return true;
-            }
-        } else if (defaultValue === value) {
-            // was default value
-            return true;
-        }
-        return false;
-    };
+
 
     // Called when a new entity is added. Adds the entity to the index
     // and subscribes to component script events

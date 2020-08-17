@@ -286,9 +286,12 @@ editor.once('load', function () {
                     // }
 
                 } else if (srcType === 'array:' + type) {
-                    src = src.map(function (id) {
-                        return self._convertIdToName(id, indexes[type][0]);
-                    });
+                    if (Array.isArray(src)) {
+                        src = src.map(function (id) {
+                            return self._convertIdToName(id, indexes[type][0]);
+                        });
+                    }
+
                     handled = true;
                     break;
                 }

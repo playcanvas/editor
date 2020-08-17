@@ -5,8 +5,10 @@
 .script-component-inspector-script {
     margin-bottom: 2px;
 
-    .pcui-inspector > .pcui-label-group, .pcui-inspector > .pcui-asset-input {
-        margin: 3px;
+    .pcui-inspector {
+        > .pcui-label-group, > .pcui-asset-input, > .pcui-panel {
+            margin: 3px;
+        }
     }
 
     > .pcui-panel-header > .pcui-button.pcui-error {
@@ -61,5 +63,18 @@
     border: 0;
     &:before {
         line-height: 30px;
+    }
+}
+
+.script-component-inspector-script {
+    .pcui-container.pcui-error {
+        padding: $element-margin;
+        margin: $element-margin 0;
+        background: $bcg-darkest;
+
+        > .pcui-label {
+            font-size: 12px;
+            white-space: normal;
+        }
     }
 }

@@ -50,7 +50,7 @@ Object.assign(pcui, (function () {
                 btnApply.on('click', () => {
                     btnApply.enabled = false;
                     if (!editor.call('templates:applyOverride', template, this._override, function () {
-                        console.log(arguments);
+                        btnApply.enabled = true;
                     })) {
                         btnApply.enabled = true;
                     }

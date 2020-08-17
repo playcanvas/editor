@@ -28,6 +28,9 @@ Object.assign(pcui, (function () {
 
             this._templateOverridesInspector = args.templateOverridesInspector;
 
+            this._suspendChangeEvt = false;
+            this._onAttributeChangeHandler = this._onAttributeChange.bind(this);
+
             // entity attributes
             args.attributes.forEach(attr => {
                 this.addAttribute(attr);
@@ -73,6 +76,12 @@ Object.assign(pcui, (function () {
             return group;
         }
 
+        _onAttributeChange() {
+            if (!this._suspendChangeEvt && this._events.change) {
+                this.emit('change', this.value);
+            }
+        }
+
         addAttribute(attr, index) {
             try {
                 const fieldArgs = Object.assign({
@@ -85,6 +94,13 @@ Object.assign(pcui, (function () {
                 }, attr.args);
 
                 const field = pcui.Element.create(attr.type, fieldArgs);
+                let evtChange = field.on('change', this._onAttributeChangeHandler);
+                field.once('destroy', () => {
+                    if (!evtChange) return;
+                    evtChange.unbind();
+                    evtChange = null;
+                });
+
 
                 const key = this._getFieldKey(attr);
                 if (key) {
@@ -103,12 +119,13 @@ Object.assign(pcui, (function () {
 
                 let tooltipGroup;
 
-                if (attr.type !== 'asset') {
+                if (attr.type !== 'asset' && attr.type !== 'json' && attr.type !== 'array:json') {
                     if (attr.label) {
                         const labelGroup = new pcui.LabelGroup({
                             text: attr.label,
                             field: field,
-                            labelAlignTop: attr.type === 'assets' || attr.type.startsWith('array') || attr.type === 'layers'
+                            nativeTooltip: attr.nativeTooltip,
+                            labelAlignTop: attr.type === 'assets' || attr.type.startsWith('array') || attr.type === 'layers' || attr.type === 'json'
                         });
 
                         this.append(labelGroup);
@@ -130,7 +147,7 @@ Object.assign(pcui, (function () {
                             this.move(field, index);
                         }
                     }
-                } else {
+                } else if (attr.type === 'asset') {
                     field.text = attr.label;
                     this.append(field);
                     if (index >= 0) {
@@ -144,6 +161,28 @@ Object.assign(pcui, (function () {
                         tooltipData = attr.tooltip;
                     }
                     tooltipGroup = this._createTooltipGroup(field, tooltipData);
+                } else {
+                    const panel = new pcui.Panel({
+                        headerText: attr.label,
+                        collapsible: true,
+                        flex: true
+                    });
+
+                    panel.append(field);
+
+                    this.append(panel);
+                    if (index >= 0) {
+                        this.move(panel, index);
+                    }
+
+                    let tooltipData;
+                    if (attr.reference) {
+                        tooltipData = editor.call('attributes:reference:get', attr.reference);
+                    } else if (attr.tooltip) {
+                        tooltipData = attr.tooltip;
+                    }
+
+                    tooltipGroup = this._createTooltipGroup(panel.header, tooltipData);
                 }
 
                 if (this._templateOverridesInspector) {
@@ -247,7 +286,54 @@ Object.assign(pcui, (function () {
 
             super.destroy();
         }
+
+        get value() {
+            const result = {};
+            for (var key in this._fields) {
+                const field = this._fields[key];
+                const parts = key.split('.');
+                result[parts[parts.length - 1]] = field.value;
+            }
+
+            return result;
+        }
+
+        set value(value) {
+            if (!value) return;
+
+            const suspend = this._suspendChangeEvt;
+            this._suspendChangeEvt = false;
+
+            for (const key in this._fields) {
+                const parts = key.split('.');
+                const valuePath = parts[parts.length - 1];
+                if (value.hasOwnProperty(valuePath)) {
+                    this._fields[key].value = value[valuePath];
+                }
+            }
+
+            this._suspendChangeEvt = suspend;
+
+            this._onAttributeChange();
+        }
+
+        set values(values) {
+            const suspend = this._suspendChangeEvt;
+            this._suspendChangeEvt = false;
+
+            for (const key in this._fields) {
+                const parts = key.split('.');
+                const valuePath = parts[parts.length - 1];
+                this._fields[key].values = values.map(val => val[valuePath]);
+            }
+
+            this._suspendChangeEvt = suspend;
+
+            this._onAttributeChange();
+        }
     }
+
+    pcui.Element.register('json', AttributesInspector, {});
 
     return {
         AttributesInspector: AttributesInspector

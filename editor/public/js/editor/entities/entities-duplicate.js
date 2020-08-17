@@ -85,34 +85,49 @@ editor.once('load', function () {
                     // early out if the value is null
                     if (!previousValue || (Array.isArray(previousValue) && !previousValue.length)) continue;
 
-                    // get the attribute definition from the asset and make sure it's an entity type
-                    var attributeDef = scriptAsset.get('data.scripts.' + scriptName + '.attributes.' + attributeName);
-                    if (!attributeDef || attributeDef.type !== 'entity') continue;
+                    var attributeDef = scriptAsset.get(`data.scripts.${scriptName}.attributes.${attributeName}`);
+                    if (!attributeDef) continue;
 
-                    var newValue = null;
-                    var dirty = false;
+                    var componentAttributePath = `components.script.scripts.${scriptName}.attributes.${attributeName}`;
 
-                    if (attributeDef.array) {
-                        // remap entity array
-                        newValue = previousValue.slice();
-                        for (var i = 0; i < newValue.length; i++) {
-                            if (!newValue[i] || !duplicatedIdsMap[newValue[i]]) continue;
-                            newValue[i] = duplicatedIdsMap[newValue[i]];
-                            dirty = true;
+                    if (attributeDef.type === 'json') {
+                        if (!Array.isArray(attributeDef.schema)) continue;
+
+                        if (attributeDef.array) {
+                            for (let i = 0; i < previousValue.length; i++) {
+                                attributeDef.schema.forEach(field => {
+                                    if (field.type !== 'entity') return;
+
+                                    resolveEntityScriptAttribute(
+                                        newEntity,
+                                        field, 
+                                        `${componentAttributePath}.${i}.${field.name}`,
+                                        previousValue[i] ? previousValue[i][field.name] : null,
+                                        duplicatedIdsMap
+                                    );
+                                });
+                            }
+                        } else {
+                            attributeDef.schema.forEach(field => {
+                                if (field.type !== 'entity') return;
+
+                                resolveEntityScriptAttribute(
+                                    newEntity,
+                                    field, 
+                                    `${componentAttributePath}.${field.name}`,
+                                    previousValue[field.name],
+                                    duplicatedIdsMap
+                                );
+                            });
                         }
-                    } else {
-                        // remap entity
-                        if (!duplicatedIdsMap[previousValue]) continue;
-                        newValue = duplicatedIdsMap[previousValue];
-                        dirty = true;
-                    }
-
-                    // save changes
-                    if (dirty) {
-                        var prevHistory = newEntity.history.enabled;
-                        newEntity.history.enabled = false;
-                        newEntity.set('components.script.scripts.' + scriptName + '.attributes.' + attributeName, newValue);
-                        newEntity.history.enabled = prevHistory;
+                    } else if (attributeDef.type === 'entity') {
+                        resolveEntityScriptAttribute(
+                            newEntity, 
+                            attributeDef,
+                            componentAttributePath, 
+                            previousValue, 
+                            duplicatedIdsMap
+                        );
                     }
                 }
             }
@@ -132,6 +147,34 @@ editor.once('load', function () {
 
                 resolveDuplicatedEntityReferenceProperties(oldSubtreeRoot, oldChild, newChild, duplicatedIdsMap);
             });
+        }
+    };
+
+    var resolveEntityScriptAttribute = function (newEntity, attributeDef, path, previousValue, duplicatedIdsMap) {
+        var newValue = null;
+        var dirty = false;
+
+        if (attributeDef.array) {
+            // remap entity array
+            newValue = previousValue.slice();
+            for (var i = 0; i < newValue.length; i++) {
+                if (!newValue[i] || !duplicatedIdsMap[newValue[i]]) continue;
+                newValue[i] = duplicatedIdsMap[newValue[i]];
+                dirty = true;
+            }
+        } else {
+            // remap entity
+            if (!duplicatedIdsMap[previousValue]) return;
+            newValue = duplicatedIdsMap[previousValue];
+            dirty = true;
+        }
+
+        // save changes
+        if (dirty) {
+            var prevHistory = newEntity.history.enabled;
+            newEntity.history.enabled = false;
+            newEntity.set(path, newValue);
+            newEntity.history.enabled = prevHistory;
         }
     };
 

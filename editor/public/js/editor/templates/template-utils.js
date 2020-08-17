@@ -18,17 +18,32 @@ editor.once('load', function() {
     editor.method('template:utils', function () {
         const a = Array.from(arguments);
 
-        const method = a[0];
-
-        const args = a.slice(1);
-
-        return TemplateUtils[method].apply(null, args);
+        return callUtilMethod(TemplateUtils, a);
     });
 
+    editor.method('template:attrUtils', function () {
+        const a = Array.from(arguments);
+
+        return callUtilMethod(AttrUtils, a);
+    });
+
+    const callUtilMethod = function (klass, args) {
+        const method = args[0];
+
+        const rest = args.slice(1);
+
+        return klass[method].apply(null, rest);
+    };
+
     const TemplateUtils = {
-        stopAndReportAttrTypes: { 'curve' : 1 },
+        STOP_TEMPL_ATTR_TYPES: {
+            curve: 1,
+            json: 1
+        },
 
         SCRIPT_NAME_REG: /^components\.script\.scripts\.([^.]+)$/,
+
+        ALL_DIGITS_REG: /^\d+$/,
 
         getScriptNameReg: function() {
             return TemplateUtils.SCRIPT_NAME_REG;
@@ -85,9 +100,12 @@ editor.once('load', function() {
         },
 
         getNodeAtPath(node, path) {
-            path.forEach(key => {
-                if (TemplateUtils.isMapObj(node)) {
-                    node = node[key];
+            path.forEach(k => {
+                const useKey = TemplateUtils.isMapObj(node) ||
+                    TemplateUtils.isArIndex(node, k);
+
+                if (useKey) {
+                    node = node[k];
                 } else {
                     node = undefined;
                 }
@@ -112,6 +130,11 @@ editor.once('load', function() {
             node[lastKey] = val;
         },
 
+        isArIndex: function (node, k) {
+            return Array.isArray(node) &&
+                TemplateUtils.ALL_DIGITS_REG.test(k);
+        },
+
         isMapObj: function (obj) {
             const isObj = typeof obj === "object";
 
@@ -129,7 +152,7 @@ editor.once('load', function() {
         },
 
         setEntReferenceIfNeeded: function (conflict, scriptAttrs) {
-            const entity = TemplateUtils.makeTmpEntity(conflict);
+            const entity = TemplateUtils.makeTmpEntity(conflict, 'src_value');
 
             const entPaths = editor.call(
                 'template:allEntityPaths',
@@ -137,18 +160,26 @@ editor.once('load', function() {
                 scriptAttrs
             );
 
-            conflict.is_entity_reference = entPaths.length &&
-                !TemplateUtils.isMapObj(conflict.src_value); // if path is components.script
+            conflict.entity_ref_paths = entPaths.length && entPaths;
         },
 
-        makeTmpEntity: function (conflict) {
+        isValidEntRef: function (v) {
+            return TemplateUtils.isSimpleValidEntRef(v) ||
+                (Array.isArray(v) && v.every(TemplateUtils.isSimpleValidEntRef));
+        },
+
+        isSimpleValidEntRef: function (v) {
+            return v === null || v === undefined || typeof v === 'string';
+        },
+
+        makeTmpEntity: function (conflict, field) {
             const entity = {
                 components: {}
             };
 
             const p = TemplateUtils.strToPath(conflict.path);
 
-            TemplateUtils.insertAtPath(entity, p, conflict.src_value);
+            TemplateUtils.insertAtPath(entity, p, conflict[field]);
 
             return entity;
         },
@@ -246,7 +277,7 @@ editor.once('load', function() {
                 Object.keys(attrs).forEach(attr => {
                     const type = attrs[attr].type;
 
-                    if (TemplateUtils.stopAndReportAttrTypes[type]) {
+                    if (TemplateUtils.STOP_TEMPL_ATTR_TYPES[type]) {
                         h[`components.script.scripts.${script}.attributes.${attr}`] = 1;
                     }
                 });
@@ -258,7 +289,7 @@ editor.once('load', function() {
         deepClone: function (obj) {
             return JSON.parse(JSON.stringify(obj));
         },
-        
+
         cloneWithId: function (ent, id) {
             const h = TemplateUtils.deepClone(ent);
 
@@ -378,12 +409,86 @@ editor.once('load', function() {
             if (a) {
                 h.order_index_in_asset = a.indexOf(h.script_name);
             }
+        }
+    };
+
+    const AttrUtils = {
+        isJsonScriptAttr: function (attrObj) {
+            return attrObj.type === 'json' &&
+                attrObj.schema;
         },
 
-        remapOverrideForRevert(override) {
-            const h = TemplateUtils.invertMap(override.srcToDst);
+        isArrayAttr: function(h) {
+            return h.array === true;
+        },
 
-            return TemplateUtils.remapEntVal(override.dst_value, h);
+        arrayToIndexStrs: function (a) {
+            return a.map((elt, ind) => ind.toString());
+        },
+
+        addAllJsonEntPaths: function(dst, attrObj, pref, attrInEnt) {
+            const names = AttrUtils.allJsonEntNames(attrObj.schema);
+
+            AttrUtils.isArrayAttr(attrObj) ?
+                AttrUtils.addPathsForJsonAr(dst, names, pref, attrInEnt) :
+                AttrUtils.addEntNamePaths(dst, names, pref, null);
+        },
+
+        addPathsForJsonAr: function (dst, names, pref, attrInEnt) {
+            const inds = AttrUtils.arrayToIndexStrs(attrInEnt);
+
+            inds.forEach(i => {
+                AttrUtils.addEntNamePaths(dst, names, pref, i);
+            });
+        },
+
+        addEntNamePaths: function (dst, names, pref, index) {
+            names.forEach(n => {
+                const a = index === null ? [n] : [index, n];
+
+                const p = pref.concat(a);
+
+                dst.push(p);
+            });
+        },
+
+        allJsonEntNames: function(schema) {
+            const a = schema.filter(h => h.type === 'entity');
+
+            return a.map(h => h.name);
+        },
+
+        valsEqualAfterRemap: function (h, srcToDst, scriptAttrs) {
+            let srcEnt = TemplateUtils.makeTmpEntity(h, 'src_value');
+
+            srcEnt = TemplateUtils.deepClone(srcEnt);
+
+            editor.call(
+                'template:remapEntityIds',
+                srcEnt,
+                scriptAttrs,
+                srcToDst
+            );
+
+            const dstEnt = TemplateUtils.makeTmpEntity(h, 'dst_value');
+
+            return editor.call('assets:isDeepEqual', srcEnt, dstEnt);
+        },
+
+        remapDstForRevert: function(h) { // conflict
+            const dstToSrc = TemplateUtils.invertMap(h.srcToDst);
+
+            let dstEnt = TemplateUtils.makeTmpEntity(h, 'dst_value');
+
+            dstEnt = TemplateUtils.deepClone(dstEnt);
+
+            h.entity_ref_paths.forEach(p => {
+                TemplateUtils.remapEntAtPath(dstEnt, p, dstToSrc);
+            });
+
+            const path = TemplateUtils.strToPath(h.path);
+
+            return TemplateUtils.getNodeAtPath(dstEnt, path);
         }
     };
 });

@@ -157,7 +157,8 @@ editor.once('load', function() {
                     'template:isValidTemplateConflict',
                     h,
                     this.instRootId,
-                    this.srcToDst
+                    this.srcToDst,
+                    this.scriptAttrs
                 );
             });
         }

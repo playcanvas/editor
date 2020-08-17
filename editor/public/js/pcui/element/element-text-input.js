@@ -139,6 +139,22 @@ Object.assign(pcui, (function () {
         _updateValue(value) {
             this.class.remove(pcui.CLASS_MULTIPLE_VALUES);
 
+            if (value && typeof(value) === 'object') {
+                if (Array.isArray(value)) {
+                    let isObject = false;
+                    for (let i = 0; i < value.length; i++) {
+                        if (value[i] && typeof value[i] === 'object') {
+                            isObject = true;
+                            break;
+                        }
+                    }
+
+                    value = isObject ? '[Not available]' : value.map(val => val === null ? 'null' : val).join(',');
+                } else {
+                    value = '[Not available]';
+                }
+            }
+
             if (value === this.value) return false;
 
             this._suspendInputChangeEvt = true;

@@ -129,8 +129,30 @@ editor.once('load', function () {
                         if (!assetData) continue;
 
                         for (name in assetData) {
-                            if (assetData[name].type === 'asset' && scriptData.attributes[name]) {
-                                storeAssetPaths(scriptData.attributes[name], data.assets);
+                            const componentAttribute = scriptData.attributes[name];
+                            if (!componentAttribute) continue;
+
+                            if (assetData[name].type === 'asset') {
+                                storeAssetPaths(componentAttribute, data.assets);
+                            } else if (assetData[name].type === 'json') {
+                                const schema = assetData[name].schema;
+                                if (Array.isArray(schema)) {
+                                    for (let i = 0; i < schema.length; i++) {
+                                        const field = schema[i];
+                                        if (field.type === 'asset') {
+                                            if (Array.isArray(componentAttribute)) {
+                                                for (let j = 0; j < componentAttribute.length; j++) {
+                                                    if (componentAttribute[j] && componentAttribute[j][field.name]) {
+                                                        storeAssetPaths(componentAttribute[j][field.name], data.assets);
+                                                    }
+                                                }
+                                            } else if (componentAttribute[field.name]) {
+                                                storeAssetPaths(componentAttribute[field.name], data.assets);
+                                            }
+                                        }
+                                    }
+                                }
+
                             }
                         }
                     }

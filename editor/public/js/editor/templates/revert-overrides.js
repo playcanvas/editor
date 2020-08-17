@@ -405,8 +405,8 @@ editor.once('load', function () {
                 if (match) {
                     revertDeletedScript(entity, override, match[1]);
                 } else {
-                    const val = override.is_entity_reference ?
-                      editor.call('template:utils', 'remapOverrideForRevert', override) :
+                    const val = override.entity_ref_paths ?
+                      editor.call('template:attrUtils', 'remapDstForRevert', override) :
                       override.dst_value;
 
                     entity.set(override.path, val);

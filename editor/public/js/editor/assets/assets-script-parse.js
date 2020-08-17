@@ -10,6 +10,8 @@ editor.once('load', function() {
 
 
     editor.method('scripts:parse', function(asset, fn) {
+        editor.call('status:text', `Parsing script asset '${asset.get('name')}'...`);
+
         var worker = new Worker('/editor/scene/js/editor/assets/assets-script-parse-worker.js');
         worker.asset = asset;
         worker.progress = 0;
@@ -22,6 +24,21 @@ editor.once('load', function() {
                 case 'results':
                     worker.terminate();
                     var result = evt.data.data;
+
+                    // early exit if there are parsing errors. user has to fix
+                    // errors and reparse
+                    if (result.scriptsInvalid && result.scriptsInvalid.length) {
+                        editor.call('status:error', `There was an error while parsing script asset '${asset.get('name')}'`);
+                        fn(null, result);
+                        return;
+                    }
+                    for (const key in result.scripts)  {
+                        if (result.scripts[key].attributesInvalid && result.scripts[key].attributesInvalid.length) {
+                            editor.call('status:error', `There was an error while parsing script asset '${asset.get('name')}'`);
+                            fn(null, result);
+                            return;
+                        }
+                    }
 
                     var scripts = asset.get('data.scripts');
 
@@ -113,12 +130,14 @@ editor.once('load', function() {
 
                     asset.history.enabled = true;
 
+                    editor.call('status:clear');
                     if (fn) fn(null, result);
                     break;
             }
         };
 
         worker.onerror = function(err) {
+            editor.call('status:error', 'There was an error while parsing a script');
             console.log('worker onerror', err);
             if (fn) fn(err);
         };

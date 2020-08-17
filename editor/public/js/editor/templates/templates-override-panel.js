@@ -106,8 +106,12 @@ Object.assign(pcui, (function () {
 
             this._dropdownMarker = null;
 
+            this.on('show', () => {
+                editor.call('picker:open', 'templates-override-panel');
+            });
             this.on('hide', () => {
                 this._overrides = null;
+                editor.call('picker:close', 'templates-override-panel');
             });
 
             this._evtWindowClick = this._onWindowClick.bind(this);
@@ -192,14 +196,35 @@ Object.assign(pcui, (function () {
                         value: value
                     });
                 } else {
+                    const elementArgs = {
+                        assets: this._assets,
+                        entities: entities || this._entities,
+                        readOnly: true
+                    };
+
+                    if (type === 'json' && value[0]) {
+                        elementArgs.attributes = Object.keys(value[0]).map(key => {
+                            return {
+                                label: key,
+                                type: 'string',
+                                path: key,
+                                nativeTooltip: true,
+                                args: {
+                                    readOnly: true,
+                                    renderChanges: false
+                                }
+                            }
+                        });
+                        elementArgs.attributes.push({
+                            type: 'divider'
+                        });
+                    }
+
                     field = new pcui.ArrayInput({
                         value: value,
                         type: type === 'curve' ? 'curveset' : type,
                         readOnly: true,
-                        elementArgs: {
-                            assets: this._assets,
-                            entities: entities || this._entities
-                        }
+                        elementArgs: elementArgs
                     });
                 }
             } else {
@@ -298,6 +323,24 @@ Object.assign(pcui, (function () {
                             readOnly: true
                         });
                         break;
+                    case 'json':
+                        field = new pcui.AttributesInspector({
+                            attributes: Object.keys(value).map(key => {
+                                return {
+                                    label: key,
+                                    type: 'string',
+                                    path: key,
+                                    nativeTooltip: true,
+                                    args: {
+                                        readOnly: true,
+                                        value: value[key],
+                                        renderChanges: false
+                                    }
+                                }
+                            })
+                        });
+                        labelAlignTop = true;
+                        break;
                     case 'sublayer': // todo
                     case 'object': // todo
                     default:
@@ -318,6 +361,10 @@ Object.assign(pcui, (function () {
                     nativeTooltip: true,
                     labelAlignTop: labelAlignTop
                 });
+
+                if (type === 'json') {
+                    result.label.width = 60;
+                }
             }
 
             return result;

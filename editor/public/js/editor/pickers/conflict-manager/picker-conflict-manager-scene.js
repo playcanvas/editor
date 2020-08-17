@@ -3,6 +3,29 @@ editor.once('load', function () {
 
     var componentSchema = config.schema.scene.entities.$of.components;
 
+    function appendScriptAttribute(attribute, attributeName, section) {
+        // if id and mergeId fields exist then this is probably
+        // the data of a script attribute conflict, otherwise
+        // this is probably a JSON script attribute
+        if (attribute.id && attribute.mergeId) {
+            section.appendField({
+                name: attributeName,
+                baseType: attribute.baseType,
+                sourceType: attribute.srcType,
+                destType: attribute.dstType,
+                conflict: attribute
+            });
+        } else {
+            // get deeper into the attribute
+            for (var key in attribute) {
+                if (!attribute[key]) continue;
+
+                appendScriptAttribute(attribute[key], `${attributeName}.${key}`, section);
+            }
+        }
+
+    }
+
     // Shows conflicts for a scene
     editor.method('picker:conflictManager:showSceneConflicts', function (parent, conflicts, mergeObject) {
         // create resolver
@@ -116,7 +139,7 @@ editor.once('load', function () {
                                 for (var scriptName in scripts) {
                                     if (! scripts[scriptName]) continue;
 
-                                    sectionEntity.appendTitle(scriptName, true);
+                                    sectionEntity.appendTitle(`script: '${scriptName}'`, true);
 
                                     // check if script was deleted in one of the branches
                                     if (scripts[scriptName].missingInSrc || scripts[scriptName].missingInDst) {
@@ -142,13 +165,7 @@ editor.once('load', function () {
                                         var attribute = attributes[attributeName];
                                         if (! attribute) continue;
 
-                                        sectionEntity.appendField({
-                                            name: attributeName,
-                                            baseType: attribute.baseType,
-                                            sourceType: attribute.srcType,
-                                            destType: attribute.dstType,
-                                            conflict: attribute
-                                        });
+                                        appendScriptAttribute(attribute, attributeName, sectionEntity);
                                     }
                                 }
                             }

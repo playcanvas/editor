@@ -303,9 +303,14 @@ Observer.prototype.set = function(path, value, silent, remote, force) {
             if (node._data[key] && node._data[key].length === value.length) {
                 state = obj.silence();
 
+                // handle new array instance
+                if (value.length === 0) {
+                    node._data[key] = value;
+                }
+
                 for(var i = 0; i < node._data[key].length; i++) {
                     if (node._data[key][i] instanceof Observer) {
-                        node._data[key][i].patch(value[i]);
+                        node._data[key][i].patch(value[i], true);
                     } else if (node._data[key][i] !== value[i]) {
                         node._data[key][i] = value[i];
                         obj.emit(path + '.' + i + ':set', node._data[key][i], valueOld && valueOld[i] || null, remote);
@@ -315,9 +320,13 @@ Observer.prototype.set = function(path, value, silent, remote, force) {
 
                 obj.silenceRestore(state);
             } else {
-                node._data[key] = value;
+                node._data[key] = [];
+                value.forEach(val => {
+                    this._doInsert(node, key, val);
+                });
 
                 state = obj.silence();
+
                 for(var i = 0; i < node._data[key].length; i++) {
                     obj.emit(path + '.' + i + ':set', node._data[key][i], valueOld && valueOld[i] || null, remote);
                     obj.emit('*:set', path + '.' + i, node._data[key][i], valueOld && valueOld[i] || null, remote);
@@ -695,34 +704,10 @@ Observer.prototype.insert = function(path, value, ind, silent, remote) {
 
     var arr = node._data[key];
 
-    if (typeof(value) === 'object' && ! (value instanceof Observer)) {
-        if (value instanceof Array) {
-            value = value.slice(0);
-        } else {
-            value = new Observer(value);
-        }
-    }
-
-    if (! this._pathsWithDuplicates || ! this._pathsWithDuplicates[path]) {
-        if (arr.indexOf(value) !== -1) {
-            return;
-        }
-    }
+    value = obj._doInsert(node, key, value, ind);
 
     if (ind === undefined) {
-        arr.push(value);
         ind = arr.length - 1;
-    } else {
-        arr.splice(ind, 0, value);
-    }
-
-    if (value instanceof Observer) {
-        value._parent = obj;
-        value._parentPath = (node._path ? node._path + '.' + key : key);
-        value._parentField = arr;
-        value._parentKey = null;
-    } else {
-        value = obj.json(value);
     }
 
     var state;
@@ -738,6 +723,41 @@ Observer.prototype.insert = function(path, value, ind, silent, remote) {
     return true;
 };
 
+Observer.prototype._doInsert = function(node, key, value, ind) {
+    const arr = node._data[key];
+
+    if (typeof(value) === 'object' && ! (value instanceof Observer) && value !== null) {
+        if (value instanceof Array) {
+            value = value.slice(0);
+        } else {
+            value = new Observer(value);
+        }
+    }
+
+    const path = node._path ? `${node._path}.${key}` : key;
+    if (value !== null && (!this._pathsWithDuplicates || !this._pathsWithDuplicates[path])) {
+        if (arr.indexOf(value) !== -1) {
+            return;
+        }
+    }
+
+    if (ind === undefined) {
+        arr.push(value);
+    } else {
+        arr.splice(ind, 0, value);
+    }
+
+    if (value instanceof Observer) {
+        value._parent = this;
+        value._parentPath = path;
+        value._parentField = arr;
+        value._parentKey = null;
+    } else {
+        value = this.json(value);
+    }
+
+    return value;
+};
 
 Observer.prototype.move = function(path, indOld, indNew, silent, remote) {
     var keys = Observer._splitPath(path);
@@ -793,7 +813,7 @@ Observer.prototype.move = function(path, indOld, indNew, silent, remote) {
 };
 
 
-Observer.prototype.patch = function(data) {
+Observer.prototype.patch = function(data, removeMIssingKeys) {
     if (typeof(data) !== 'object')
         return;
 
@@ -802,6 +822,14 @@ Observer.prototype.patch = function(data) {
             this._prepare(this, key, data[key]);
         } else if (this._data[key] !== data[key]) {
             this.set(key, data[key]);
+        }
+    }
+
+    if (removeMIssingKeys) {
+        for (var key in this._data) {
+            if (!data.hasOwnProperty(key)) {
+                this.unset(key);
+            }
         }
     }
 };

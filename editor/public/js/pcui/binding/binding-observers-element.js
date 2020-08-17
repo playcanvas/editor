@@ -110,7 +110,9 @@ Object.assign(pcui, (function () {
         }
 
         clone() {
-            return new pcui.BindingObserversToElement();
+            return new pcui.BindingObserversToElement({
+                customUpdate: this._customUpdate
+            });
         }
     }
 

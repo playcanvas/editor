@@ -15,9 +15,9 @@ editor.once('load', function() {
      * @returns {Boolean} True if the conflict should be reported as an override
      */
     editor.method('template:isValidTemplateConflict',
-        function (conflict, rootId, srcToDst) {
+        function (conflict, rootId, srcToDst, scriptAttrs) {
 
-            return new IsValidTemplateConflict(conflict, rootId, srcToDst).run();
+            return new IsValidTemplateConflict(conflict, rootId, srcToDst, scriptAttrs).run();
     });
 
     const ignorePathsForAll = {
@@ -27,12 +27,14 @@ editor.once('load', function() {
     const templIdsReg = /^template_ent_ids/;
 
     class IsValidTemplateConflict {
-        constructor(conflict, rootId, srcToDst) {
+        constructor(conflict, rootId, srcToDst, scriptAttrs) {
             this.conflict = conflict;
 
             this.isRoot = conflict.resource_id === rootId;
 
             this.srcToDst = srcToDst;
+
+            this.scriptAttrs = scriptAttrs;
 
             this.path = conflict.path;
 
@@ -45,8 +47,14 @@ editor.once('load', function() {
             if (this.ignorePath()) {
                 return false;
 
-            } else if (this.conflict.is_entity_reference) {
-                return this.handleEntityPathConflict();
+            } else if (this.conflict.entity_ref_paths) {
+                return ! editor.call(
+                    'template:attrUtils',
+                    'valsEqualAfterRemap',
+                    this.conflict,
+                    this.srcToDst,
+                    this.scriptAttrs
+                );
 
             } else {
                 return true;

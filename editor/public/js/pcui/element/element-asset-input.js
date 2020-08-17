@@ -35,7 +35,7 @@ Object.assign(pcui, (function () {
          * Editor selector will be used.
          */
         constructor(args) {
-            if (!args) args = {};
+            args = Object.assign({}, args);
 
             super(document.createElement('div'), args);
 
@@ -110,7 +110,10 @@ Object.assign(pcui, (function () {
                 this._initializeDropTarget();
             }
 
-            this.value = args.value || null;
+            this._updateValue(null);
+            if (args.value) {
+                this.value = args.value;
+            }
 
             this.renderChanges = args.renderChanges || false;
 

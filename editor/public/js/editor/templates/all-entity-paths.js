@@ -116,21 +116,43 @@ editor.once('load', function() {
 
             const attrNames = Object.keys(attrs);
 
-            attrNames.forEach(attrName => this.handleAttr(attrName, scrName));
+            attrNames.forEach(attrName => this.handleAttr(attrName, scrName, attrs[attrName]));
         }
 
-        handleAttr(attrName, scrName) {
+        handleAttr(attrName, scrName, attrInEnt) {
             let h = this.scriptAttrs[scrName] || {};
 
             h = h[attrName] || {};
 
             if (h.type === 'entity') {
-                this.addPathToRes(scrName, attrName);
+                this.addRegularPath(scrName, attrName);
+
+            } else if (editor.call('template:attrUtils', 'isJsonScriptAttr', h)) {
+                this.addJsonPaths(scrName, attrName, h, attrInEnt);
             }
         }
 
-        addPathToRes(scrName, attrName) {
-            const path = [
+        addRegularPath(scrName, attrName) {
+            const a = this.makeRegularPath(scrName, attrName);
+
+            this.result.push(a);
+        }
+
+        addJsonPaths(scrName, attrName, attrObj, attrInEnt) {
+            const pref = this.makeRegularPath(scrName, attrName);
+
+            editor.call(
+                'template:attrUtils',
+                'addAllJsonEntPaths',
+                this.result,
+                attrObj,
+                pref,
+                attrInEnt
+            );
+        }
+
+        makeRegularPath(scrName, attrName) {
+            return [
                 'components',
                 'script',
                 'scripts',
@@ -138,8 +160,6 @@ editor.once('load', function() {
                 'attributes',
                 attrName
             ];
-
-            this.result.push(path);
         }
     }
 });
