@@ -75,7 +75,7 @@ Object.assign(pcui, (function () {
             }
         },
         {
-            label: "Anistropy",
+            label: "Anisotropy",
             path: "data.anisotropy",
             type: "number"
         },
