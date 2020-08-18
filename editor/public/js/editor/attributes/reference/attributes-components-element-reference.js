@@ -209,6 +209,11 @@ editor.once('load', function() {
         subTitle: '{Boolean}',
         description: 'Flag for enabling markup processing. Only works for text types.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#enableMarkup'
+    }, {
+        title: 'mask',
+        subTitle: '{Boolean}',
+        description: 'Switch Image Element into a mask. Masks do not render into the scene, but instead limit child elements to only be rendered where this element is rendered.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#mask'
     }];
 
     for (var i = 0; i < fields.length; i++) {

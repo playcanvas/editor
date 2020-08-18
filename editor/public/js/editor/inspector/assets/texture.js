@@ -114,7 +114,8 @@ Object.assign(pcui, (function () {
         {
             label: "Basis",
             path: "meta.compress.basis",
-            type: "boolean"
+            type: "boolean",
+            reference: null
         },
         {
             label: "Normals",
@@ -144,7 +145,8 @@ Object.assign(pcui, (function () {
         {
             label: "Legacy",
             type: 'boolean',
-            alias: 'compress.legacy'
+            alias: 'compress.legacy',
+            reference: null
         },
         {
             label: "Alpha",

@@ -55,8 +55,7 @@ Object.assign(pcui, (function () {
         {
             label: 'Scene Name',
             alias: 'name',
-            type: 'string',
-            reference: 'settings:name'
+            type: 'string'
         }
     ];
 
@@ -129,13 +128,6 @@ Object.assign(pcui, (function () {
             });
 
             this._linkSceneNameField();
-
-            SCENE_ATTRIBUTES.forEach((attr, i) => {
-                if (attr.reference && !attr.tooltip) {
-                    const attributeLabel = this._sceneAttributes.getField(attr.path || attr.alias).parent.label;
-                    SCENE_ATTRIBUTES[i].tooltip = editor.call('attributes:reference:attach', attr.reference, attributeLabel);
-                }
-            });
         }
 
         _linkSceneNameField() {

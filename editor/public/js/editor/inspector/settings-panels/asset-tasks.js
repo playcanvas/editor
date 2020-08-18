@@ -94,7 +94,23 @@ Object.assign(pcui, (function () {
             this._appendSection('Model Import Settings', this._attributesInspector.getField('editor.pipeline.textureDefaultToAtlas'));
 
             // reference
-            this._panelTooltip = editor.call('attributes:reference:attach', 'settings:asset-tasks', this.header, this.header.dom);
+            if (!this._panelTooltip) {
+                const ref = editor.call('attributes:reference:get', 'settings:asset-tasks');
+                if (ref) {
+                    this._panelTooltip = new pcui.TooltipReference({
+                        reference: ref
+                    });
+
+                    this._panelTooltip.attach({
+                        target: this.header
+                    });
+
+                    this.once('destroy', () => {
+                        this._panelTooltip.destroy();
+                        this._panelTooltip = null;
+                    });
+                }
+            }
 
             const fieldUseGlb = this._attributesInspector.getField('editor.pipeline.useGlb');
             if (!editor.call('users:hasFlag', 'hasConvertGlb') && !fieldUseGlb.value) {

@@ -14,7 +14,8 @@ Object.assign(pcui, (function () {
     }, {
         label: 'Assets',
         path: 'assets',
-        type: 'label'
+        type: 'label',
+        noReference: true
     }, {
         label: 'Name',
         path: 'name',
@@ -22,7 +23,8 @@ Object.assign(pcui, (function () {
     }, {
         label: 'Filename',
         path: 'filename',
-        type: 'label'
+        type: 'label',
+        noReference: true
     }, {
         label: 'Tags',
         alias: 'tags',
@@ -35,7 +37,8 @@ Object.assign(pcui, (function () {
     }, {
         label: 'Runtime',
         alias: 'source',
-        type: 'label'
+        type: 'label',
+        reference: 'asset:runtime',
     }, {
         label: 'Type',
         alias: 'type',
@@ -80,13 +83,14 @@ Object.assign(pcui, (function () {
         label: 'Source',
         alias: 'source_asset_id',
         type: 'label',
+        reference: 'asset:source',
         args: {
             renderChanges: false
         }
     }];
 
     ATTRIBUTES.forEach(attr => {
-        if (attr.reference) return;
+        if (attr.reference || attr.noReference) return;
 
         const path = attr.alias || attr.path;
         if (!path) return;

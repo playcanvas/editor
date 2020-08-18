@@ -46,6 +46,7 @@ Object.assign(pcui, (function () {
             args = Object.assign({}, args);
             args.headerText = 'LAYERS';
             args.attributes = ATTRIBUTES;
+            args.noReferences = true;
 
             super(args);
 
@@ -67,7 +68,23 @@ Object.assign(pcui, (function () {
 
             // reference
             if (!this._panelTooltip) {
-                this._panelTooltip = editor.call('attributes:reference:attach', 'settings:layers', this.header, this.header.dom);
+                const ref = editor.call('attributes:reference:get', 'settings:layers');
+                if (ref) {
+                    this._panelTooltip = new pcui.TooltipReference({
+                        reference: ref
+                    });
+
+                    this._panelTooltip.attach({
+                        target: this.header
+                    });
+
+                    this.once('destroy', () => {
+                        this._panelTooltip.destroy();
+                        this._panelTooltip = null;
+                    });
+
+                }
+
             }
         }
 

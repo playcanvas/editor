@@ -39,9 +39,6 @@ editor.once('load', function() {
         group.label.style.fontSize = '12px';
         panel.append(group);
 
-        // reference
-        editor.call('attributes:reference:attach', 'settings:ammo', group.label);
-
         // enable state is based on write permissions and state of legacy physics
         function updateEnableState() {
             group.enabled = !editor.call('project:settings:hasLegacyPhysics') &&

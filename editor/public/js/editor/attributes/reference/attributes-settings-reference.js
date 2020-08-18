@@ -33,6 +33,9 @@ editor.once('load', function() {
         name: 'locale',
         description: 'The locale that you can preview in the Editor and when you Launch your application. This is only visible to you not other members of your team.'
     }, {
+        name: 'chatNotification',
+        description: 'Get notified for in-editor chat messages'
+    }, {
         title: 'gravity',
         subTitle: '{pc.Vec3}',
         description: 'Gravity is the acceleration applied every frame to all rigid bodies in your scene. By default, it is set to -9.8 meters per second per second, which essentially approximates Earth\'s gravity. If you are making a game in space, you might want to set this to 0, 0, 0 (zero g).',
@@ -41,6 +44,10 @@ editor.once('load', function() {
         name: 'ammo',
         title: 'Physics Library',
         description: 'Add the Ammo asm.js and wasm modules to this project from the Playcanvas Store'
+    }, {
+        name: 'basis',
+        title: 'Basis Library',
+        description: 'Add the necessary libraries to support Basis compression'
     }, {
         title: 'ambientColor',
         subTitle: '{pc.Color}',

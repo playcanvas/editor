@@ -75,10 +75,22 @@ Object.assign(pcui, (function () {
 
             // reference
             if (!this._panelTooltip) {
-                this._panelTooltip = editor.call('attributes:reference:attach', 'settings:batchGroups', this.header, this.header.dom);
+                const ref = editor.call('attributes:reference:get', 'settings:batchGroups');
+                if (ref) {
+                    this._panelTooltip = new pcui.TooltipReference({
+                        reference: ref
+                    });
+
+                    this._panelTooltip.attach({
+                        target: this.header
+                    });
+
+                    this.once('destroy', () => {
+                        this._panelTooltip.destroy();
+                        this._panelTooltip = null;
+                    });
+                }
             }
-
-
         }
 
         _addItem() {
