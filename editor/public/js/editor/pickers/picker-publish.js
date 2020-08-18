@@ -7,7 +7,17 @@ editor.once('load', function () {
     panel.flex = true;
 
     // register panel with project popup
-    editor.call('picker:project:registerMenu', 'publish', 'Publish', panel);
+    var panelButton = editor.call('picker:project:registerMenu', 'publish', 'Publish', panel);
+
+    // hide button if the user doesn't have the right permissions
+    if (! editor.call('permissions:read')) {
+        editor.call('picker:project:toggleMenu', 'publish', false);
+    }
+
+    // if the user permissions change, then change the visibilty of the button
+    editor.on('permissions:set', function () {
+        editor.call('picker:project:toggleMenu', 'publish', editor.call('permissions:read'));
+    });
 
     // disables / enables field depending on permissions
     var handlePermissions = function (field) {
@@ -52,6 +62,7 @@ editor.once('load', function () {
     handlePermissions(btnPublish);
     panelPlaycanvas.append(btnPublish);
 
+    handlePermissions(panelPlaycanvas);
     panelPlaycanvas.on('click', function () {
         editor.call('picker:publish:new');
     });
@@ -81,6 +92,7 @@ editor.once('load', function () {
     handlePermissions(btnDownload);
     panelSelfHost.append(btnDownload);
 
+    handlePermissions(panelSelfHost);
     panelSelfHost.on('click', function () {
         editor.call('picker:publish:download');
     });

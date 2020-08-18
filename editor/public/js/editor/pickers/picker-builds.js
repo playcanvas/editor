@@ -97,6 +97,16 @@ editor.once('load', function () {
     // register panel with project popup
     editor.call('picker:project:registerMenu', 'builds', 'Builds', panel);
 
+    // hide button if the user doesn't have the right permissions
+    if (!editor.call('permissions:read')) {
+        editor.call('picker:project:toggleMenu', 'builds', false);
+    }
+
+    // if the user permissions change, then change the visibilty of the button
+    editor.on('permissions:set', function () {
+        editor.call('picker:project:toggleMenu', 'builds', editor.call('permissions:read'));
+    });
+
     // open publishing popup
     editor.method('picker:builds', function () {
         editor.call('picker:project', 'builds');
