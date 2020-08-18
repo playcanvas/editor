@@ -55,7 +55,7 @@ editor.once('load', function () {
     };
 
     DiffEditor.prototype.createOverlays = function () {
-        var content = this.cm.getValue();
+        var content = this.content;
         var match;
 
         var hunk;
@@ -132,6 +132,24 @@ editor.once('load', function () {
         setTimeout(function () {
             this.cm.focus();
         }.bind(this));
+
+        // Subscribe to font size changes so that we can resize the red/green widgets
+        var settings = editor.call('editor:settings');
+        settings.on('ide.fontSize:set', function (value) {
+            // As we want to wait for the font size to be set in the CM editor
+            // wait for the next frame before adding the overlays
+            setTimeout(function () {
+                // Clear the line caches so we don't use the old measurements
+                // for line heights etc
+                this.cm.refresh();
+                var rootDom = this.cm.display.sizer;
+                var overlays = rootDom.getElementsByClassName('conflict-overlay');
+                for (var i = overlays.length - 1; i >= 0; --i) {
+                    rootDom.removeChild(overlays[i]);
+                }
+                this.createOverlays();
+            }.bind(this));
+        }.bind(this));
     };
 
     DiffEditor.prototype.run = function () {
@@ -147,6 +165,7 @@ editor.once('load', function () {
                 }
 
                 this.doc = CodeMirror.Doc(contents, MODES[this.type]);
+                this.content = contents;
                 this.renderDocument();
             }.bind(this)
         );
