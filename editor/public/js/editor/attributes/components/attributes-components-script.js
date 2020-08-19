@@ -410,8 +410,8 @@ editor.once('load', function() {
                         });
                     }
                 } catch(ex) {
-                    console.log(ex)
-                    console.log('could not recreate enumeration for script attribute, ' + script.get('url'));
+                    console.info('could not recreate enumeration for script attribute, ' + script.get('url'));
+                    console.error(ex)
                 }
             }
 

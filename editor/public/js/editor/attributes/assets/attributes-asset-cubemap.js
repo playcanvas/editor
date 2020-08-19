@@ -657,8 +657,7 @@ editor.once('load', function() {
                                 }
                             }
                         } catch(ex) {
-                            console.error(ex.message);
-                            console.error(ex.stack);
+                            console.error(ex);
                         }
 
                         setAssetFace(ind, asset);
