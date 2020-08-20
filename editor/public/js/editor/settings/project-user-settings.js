@@ -33,7 +33,10 @@ editor.once('load', function () {
                     overwriteMaterial: false,
                     overwriteTexture: true,
                     useGlb: false,
-                    defaultAssetPreload: true
+                    defaultAssetPreload: true,
+                    animSampleInterval: 0.1,
+                    animCurveTolerance: 0,
+                    animEnableCubic: false
                 }
             },
             branch: config.self.branch.id,
@@ -102,6 +105,18 @@ editor.once('load', function () {
 
             if (!settings.has('editor.pipeline.defaultAssetPreload')) {
                 settings.set('editor.pipeline.defaultAssetPreload', true);
+            }
+
+            if (!settings.has('editor.pipeline.animSampleInterval')) {
+                settings.set('editor.pipeline.animSampleInterval', 0.1);
+            }
+
+            if (!settings.has('editor.pipeline.animCurveTolerance')) {
+                settings.set('editor.pipeline.animCurveTolerance', 0);
+            }
+
+            if (!settings.has('editor.pipeline.animEnableCubic')) {
+                settings.set('editor.pipeline.animEnableCubic', false);
             }
 
             settings.history.enabled = history;

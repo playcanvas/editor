@@ -201,6 +201,18 @@ editor.once('load', function() {
         title: 'Use GLB format',
         description: 'Create model assets in GLB format.'
     }, {
+        name: 'asset-tasks:animSampleInterval',
+        title: 'Animation sample interval',
+        description: 'Interval at which to sample animation curves.'
+    }, {
+        name: 'asset-tasks:animCurveTolerance',
+        title: 'Animation curve tolerance',
+        description: 'Tolerance to use when optimizing linear animation curve segments.'
+    }, {
+        name: 'asset-tasks:animEnableCubic',
+        title: 'Animation cubic curves',
+        description: 'Enable converting cubic animation curves. Disable to convert use linear segments.'
+    }, {
         name: 'asset-tasks:defaultAssetPreload',
         title: 'Preload new assets',
         description: 'Create new assets with the preload option selected.'

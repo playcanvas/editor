@@ -75,6 +75,27 @@ Object.assign(pcui, (function () {
             type: 'boolean',
             alias: 'asset-tasks:useGlb',
             path: 'editor.pipeline.useGlb'
+        },
+        {
+            observer: 'settings',
+            label: 'Anim curve sample interval',
+            type: 'number',
+            alias: 'asset-tasks:animSampleInterval',
+            path: 'editor.pipeline.animSampleInterval'
+        },
+        {
+            observer: 'settings',
+            label: 'Anim curve tolerance',
+            type: 'number',
+            alias: 'asset-tasks:animCurveTolerance',
+            path: 'editor.pipeline.animCurveTolerance'
+        },
+        {
+            observer: 'settings',
+            label: 'Anim enable cubic curves',
+            type: 'boolean',
+            alias: 'asset-tasks:animEnableCubic',
+            path: 'editor.pipeline.animEnableCubic'
         }
     ];
 
@@ -112,15 +133,17 @@ Object.assign(pcui, (function () {
                 }
             }
 
+            const hasUseGlb = editor.call('users:hasFlag', 'hasConvertGlb');
+
             const fieldUseGlb = this._attributesInspector.getField('editor.pipeline.useGlb');
-            if (!editor.call('users:hasFlag', 'hasConvertGlb') && !fieldUseGlb.value) {
+            if (!hasUseGlb && !fieldUseGlb.value) {
                 fieldUseGlb.parent.hidden = true;
             }
 
             let evtUseGlb = args.settings.on('editor.pipeline.useGlb:set', value => {
                 if (value) {
                     fieldUseGlb.parent.hidden = false;
-                } else if (!editor.call('users:hasFlag', 'hasConvertGlb')) {
+                } else if (!hasUseGlb) {
                     fieldUseGlb.parent.hidden = true;
                 }
             });
@@ -129,6 +152,13 @@ Object.assign(pcui, (function () {
                 evtUseGlb.unbind();
                 evtUseGlb = null;
             });
+
+            if (!hasUseGlb) {
+                // use the useGlb flag to hide animation options
+                this._attributesInspector.getField('editor.pipeline.animSampleInterval').parent.hidden = true;
+                this._attributesInspector.getField('editor.pipeline.animCurveTolerance').parent.hidden = true;
+                this._attributesInspector.getField('editor.pipeline.animEnableCubic').parent.hidden = true;
+            }
         }
 
         _appendSection(title, attributeElement) {

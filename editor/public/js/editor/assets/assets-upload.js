@@ -108,6 +108,9 @@ editor.once('load', function () {
                 form.append('pow2', settings.get('editor.pipeline.texturePot'));
                 form.append('preserveMapping', settings.get('editor.pipeline.preserveMapping'));
                 form.append('useGlb', settings.get('editor.pipeline.useGlb'));
+                form.append('animSampleInterval', settings.get('editor.pipeline.animSampleInterval'));
+                form.append('animCurveTolerance', settings.get('editor.pipeline.animCurveTolerance'));
+                form.append('animEnableCubic', settings.get('editor.pipeline.animEnableCubic'));
                 break;
             case 'font':
                 break;
