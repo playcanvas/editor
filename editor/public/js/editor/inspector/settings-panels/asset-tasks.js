@@ -78,10 +78,10 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'settings',
-            label: 'Anim curve sample interval',
+            label: 'Anim curve sample rate',
             type: 'number',
-            alias: 'asset-tasks:animSampleInterval',
-            path: 'editor.pipeline.animSampleInterval'
+            alias: 'asset-tasks:animSampleRate',
+            path: 'editor.pipeline.animSampleRate'
         },
         {
             observer: 'settings',
@@ -155,7 +155,7 @@ Object.assign(pcui, (function () {
 
             if (!hasUseGlb) {
                 // use the useGlb flag to hide animation options
-                this._attributesInspector.getField('editor.pipeline.animSampleInterval').parent.hidden = true;
+                this._attributesInspector.getField('editor.pipeline.animSampleRate').parent.hidden = true;
                 this._attributesInspector.getField('editor.pipeline.animCurveTolerance').parent.hidden = true;
                 this._attributesInspector.getField('editor.pipeline.animEnableCubic').parent.hidden = true;
             }

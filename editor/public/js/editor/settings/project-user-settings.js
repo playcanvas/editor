@@ -34,7 +34,7 @@ editor.once('load', function () {
                     overwriteTexture: true,
                     useGlb: false,
                     defaultAssetPreload: true,
-                    animSampleInterval: 0.1,
+                    animSampleRate: 10,
                     animCurveTolerance: 0,
                     animEnableCubic: false
                 }
@@ -107,8 +107,8 @@ editor.once('load', function () {
                 settings.set('editor.pipeline.defaultAssetPreload', true);
             }
 
-            if (!settings.has('editor.pipeline.animSampleInterval')) {
-                settings.set('editor.pipeline.animSampleInterval', 0.1);
+            if (!settings.has('editor.pipeline.animSampleRate')) {
+                settings.set('editor.pipeline.animSampleRate', 10);
             }
 
             if (!settings.has('editor.pipeline.animCurveTolerance')) {
