@@ -228,6 +228,10 @@ editor.once('load', function () {
         app.enableBundles = false;
     }
 
+    if (queryParams.ministats) {
+        var miniStats = new pcx.MiniStats(app);
+    }
+
     if (canvas.classList) {
         canvas.classList.add('fill-mode-' + config.project.settings.fillMode);
     }

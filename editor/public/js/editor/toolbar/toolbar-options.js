@@ -1,8 +1,6 @@
 editor.once('load', function() {
     'use strict';
 
-    var root = editor.call('layout.root');
-    var viewport = editor.call('layout.viewport');
     var controls = editor.call('layout.toolbar.launch');
 
     var panel = new ui.Panel();
