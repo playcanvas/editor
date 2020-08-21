@@ -502,7 +502,7 @@ Object.assign(pcui, (function () {
             // Determine the Download button state
             this._updateDownloadButton();
 
-            // Determine the Download button state
+            // Determine the open in viewer button state
             this._updateOpenInViewerButton();
 
             if (assets[0].get('type') === 'cubemap') {
