@@ -75,6 +75,41 @@ Object.assign(pcui, (function () {
             type: 'boolean',
             alias: 'asset-tasks:useGlb',
             path: 'editor.pipeline.useGlb'
+        },
+        {
+            observer: 'settings',
+            label: 'Sample rate',
+            alias: 'asset-tasks:animSampleRate',
+            path: 'editor.pipeline.animSampleRate',
+            type: 'select',
+            args: {
+                type: 'number',
+                options: [
+                    { v: 0, t: 'Disabled (use keys)' },
+                    { v: 1, t: '1' },
+                    { v: 10, t: '10' },
+                    { v: 20, t: '20' },
+                    { v: 30, t: '30' },
+                    { v: 40, t: '40' },
+                    { v: 50, t: '50' },
+                    { v: 60, t: '60' },
+                    { v: 100, t: '100' }
+                ]
+            }
+        },
+        {
+            observer: 'settings',
+            label: 'Curve tolerance',
+            type: 'number',
+            alias: 'asset-tasks:animCurveTolerance',
+            path: 'editor.pipeline.animCurveTolerance'
+        },
+        {
+            observer: 'settings',
+            label: 'Cubic curves',
+            type: 'boolean',
+            alias: 'asset-tasks:animEnableCubic',
+            path: 'editor.pipeline.animEnableCubic'
         }
     ];
 
@@ -92,6 +127,7 @@ Object.assign(pcui, (function () {
             // add sections
             this._appendSection('Texture Import Settings', this._attributesInspector.getField('editor.pipeline.defaultAssetPreload'));
             this._appendSection('Model Import Settings', this._attributesInspector.getField('editor.pipeline.textureDefaultToAtlas'));
+            this._appendSection('Animation Import Settings', this._attributesInspector.getField('editor.pipeline.useGlb'));
 
             // reference
             if (!this._panelTooltip) {
@@ -112,15 +148,17 @@ Object.assign(pcui, (function () {
                 }
             }
 
+            const hasUseGlb = editor.call('users:hasFlag', 'hasConvertGlb');
+
             const fieldUseGlb = this._attributesInspector.getField('editor.pipeline.useGlb');
-            if (!editor.call('users:hasFlag', 'hasConvertGlb') && !fieldUseGlb.value) {
+            if (!hasUseGlb && !fieldUseGlb.value) {
                 fieldUseGlb.parent.hidden = true;
             }
 
             let evtUseGlb = args.settings.on('editor.pipeline.useGlb:set', value => {
                 if (value) {
                     fieldUseGlb.parent.hidden = false;
-                } else if (!editor.call('users:hasFlag', 'hasConvertGlb')) {
+                } else if (!hasUseGlb) {
                     fieldUseGlb.parent.hidden = true;
                 }
             });
@@ -129,6 +167,13 @@ Object.assign(pcui, (function () {
                 evtUseGlb.unbind();
                 evtUseGlb = null;
             });
+
+            if (!hasUseGlb) {
+                // use the useGlb flag to hide animation options
+                this._attributesInspector.getField('editor.pipeline.animSampleRate').parent.hidden = true;
+                this._attributesInspector.getField('editor.pipeline.animCurveTolerance').parent.hidden = true;
+                this._attributesInspector.getField('editor.pipeline.animEnableCubic').parent.hidden = true;
+            }
         }
 
         _appendSection(title, attributeElement) {
