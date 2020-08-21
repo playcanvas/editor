@@ -203,15 +203,15 @@ editor.once('load', function() {
     }, {
         name: 'asset-tasks:animSampleRate',
         title: 'Animation sample rate',
-        description: 'Rate at which to sample animation curves in samples per second.'
+        description: 'Rate at which to sample animation curves in samples per second. Specify 0 disable sampling and use input keys instead.'
     }, {
         name: 'asset-tasks:animCurveTolerance',
         title: 'Animation curve tolerance',
-        description: 'Tolerance to use when optimizing linear animation curve segments.'
+        description: 'Tolerance to use when optimizing linear animation curve segments. Specify 0 to disable curve optimization.'
     }, {
         name: 'asset-tasks:animEnableCubic',
         title: 'Animation cubic curves',
-        description: 'Enable converting cubic animation curves. Disable to convert use linear segments.'
+        description: 'Output cubic curves when they are encountered. Disable to convert all curves to linear segments.'
     }, {
         name: 'asset-tasks:defaultAssetPreload',
         title: 'Preload new assets',

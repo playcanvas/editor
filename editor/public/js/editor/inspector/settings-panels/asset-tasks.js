@@ -78,21 +78,35 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'settings',
-            label: 'Anim curve sample rate',
-            type: 'number',
+            label: 'Sample rate',
             alias: 'asset-tasks:animSampleRate',
-            path: 'editor.pipeline.animSampleRate'
+            path: 'editor.pipeline.animSampleRate',
+            type: 'select',
+            args: {
+                type: 'number',
+                options: [
+                    { v: 0, t: 'Disabled (use keys)' },
+                    { v: 1, t: '1' },
+                    { v: 10, t: '10' },
+                    { v: 20, t: '20' },
+                    { v: 30, t: '30' },
+                    { v: 40, t: '40' },
+                    { v: 50, t: '50' },
+                    { v: 60, t: '60' },
+                    { v: 100, t: '100' }
+                ]
+            }
         },
         {
             observer: 'settings',
-            label: 'Anim curve tolerance',
+            label: 'Curve tolerance',
             type: 'number',
             alias: 'asset-tasks:animCurveTolerance',
             path: 'editor.pipeline.animCurveTolerance'
         },
         {
             observer: 'settings',
-            label: 'Anim enable cubic curves',
+            label: 'Cubic curves',
             type: 'boolean',
             alias: 'asset-tasks:animEnableCubic',
             path: 'editor.pipeline.animEnableCubic'
@@ -113,6 +127,7 @@ Object.assign(pcui, (function () {
             // add sections
             this._appendSection('Texture Import Settings', this._attributesInspector.getField('editor.pipeline.defaultAssetPreload'));
             this._appendSection('Model Import Settings', this._attributesInspector.getField('editor.pipeline.textureDefaultToAtlas'));
+            this._appendSection('Animation Import Settings', this._attributesInspector.getField('editor.pipeline.useGlb'));
 
             // reference
             if (!this._panelTooltip) {
