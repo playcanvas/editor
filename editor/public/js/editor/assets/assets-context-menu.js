@@ -90,7 +90,8 @@ editor.once('load', function() {
         EDIT: '&#57648;',
         DUPLICATE: '&#57638;',
         DELETE: '&#57636;',
-        SCENE_SETTINGS: '&#57652;'
+        SCENE_SETTINGS: '&#57652;',
+        OPEN_IN_VIEWER: '&#57623;'
     };
 
     var assets = {
@@ -403,6 +404,17 @@ editor.once('load', function() {
     });
     menu.append(menuItemMoveToStore);
 
+    // open-in-viewer
+    var menuItemOpenInViewer = new ui.MenuItem({
+        text: 'Open In Viewer',
+        icon: ICONS.OPEN_IN_VIEWER,
+        value: 'open_in_viewer'
+    });
+    menuItemOpenInViewer.on('select', function() {
+        window.open(encodeURI(`/viewer?load=https://${window.location.hostname}${currentAsset.get('file.url')}`));
+    });
+    menu.append(menuItemOpenInViewer);
+
     // filter buttons
     menu.on('open', function() {
         if (currentAsset && currentAsset.get('id') === LEGACY_SCRIPTS_ID) {
@@ -575,6 +587,13 @@ editor.once('load', function() {
 
             // move-to-store
             menuItemMoveToStore.hidden = !editor.call("users:isSuperUser") || !currentAsset || currentAsset.get('id') === LEGACY_SCRIPTS_ID;
+
+            // open-in-viewer
+            if (currentAsset && currentAsset.get('file.filename') && (currentAsset.get('file.filename').match(/\.glb$/) !== null)) {
+                menuItemOpenInViewer.hidden = false;
+            } else {
+                menuItemOpenInViewer.hidden = true;
+            }
         } else {
             // no asset
             menuItemExtract.hidden = true;
@@ -590,6 +609,7 @@ editor.once('load', function() {
             menuItemCreateSprite.hidden = true;
             menuItemCreateSlicedSprite.hidden = true;
             menuItemMoveToStore.hidden = true;
+            menuItemOpenInViewer.hidden = true;
         }
 
         for(var i = 0; i < customMenuItems.length; i++) {

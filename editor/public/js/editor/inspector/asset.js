@@ -189,6 +189,18 @@ Object.assign(pcui, (function () {
 
             this._btnDownloadAsset.on('click', this._onClickDownloadAsset.bind(this));
 
+            // open in viewer button
+            this._btnOpenInViewer = new pcui.Button({
+                text: 'OPEN IN VIEWER',
+                icon: 'E117',
+                ignoreParent: true
+            });
+            this._btnOpenInViewer.style.flex = 1;
+
+            this._btnContainer.append(this._btnOpenInViewer);
+
+            this._btnOpenInViewer.on('click', this._onClickOpenInViewer.bind(this));
+
             // add edit button
 
             this._btnEditAsset = new pcui.Button({
@@ -287,6 +299,11 @@ Object.assign(pcui, (function () {
             }
         }
 
+        _onClickOpenInViewer(evt) {
+            const glbUrls = this._assets.map(asset => `https://${window.location.hostname}${asset.get('file.url')}`).join('&load=');
+            window.open(encodeURI(`/viewer?load=${glbUrls}`));
+        }
+
         _onClickEditAsset(evt) {
             editor.call('assets:edit', this._assets[0]);
         }
@@ -327,6 +344,23 @@ Object.assign(pcui, (function () {
             this._attributesInspector.getField('size').values = this._assets.map(asset => {
                 return bytesToHuman(totalSize);
             });
+        }
+
+        _updateOpenInViewerButton() {
+            const assetFilenames = this._assets.map(asset => {
+                return asset.get('file.filename');
+            });
+            let allGlb = true;
+            for (let i = 0; i < assetFilenames.length; i++) {
+                if (String(assetFilenames[i]).match(/\.glb$/) === null) {
+                    allGlb = false;
+                }
+            }
+            if (allGlb) {
+                this._btnOpenInViewer.hidden = false;
+            } else {
+                this._btnOpenInViewer.hidden = true;
+            }
         }
 
         _updateDownloadButton() {
@@ -467,6 +501,9 @@ Object.assign(pcui, (function () {
 
             // Determine the Download button state
             this._updateDownloadButton();
+
+            // Determine the open in viewer button state
+            this._updateOpenInViewerButton();
 
             if (assets[0].get('type') === 'cubemap') {
                 this._updateDownloadButton.bind(this)();
