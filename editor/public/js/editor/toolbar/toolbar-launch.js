@@ -234,6 +234,12 @@ editor.once('load', function() {
     optionMiniStats.on('change', function (value) {
         settings.set('editor.launchMinistats', value);
     });
+    Tooltip.attach({
+        target: optionMiniStats.parent.element,
+        text: 'Show the MiniStats in the launched application.',
+        align: 'right',
+        root: root
+    }).class.add('launch-tooltip');
 
     editor.method('launch', launchApp);
 
