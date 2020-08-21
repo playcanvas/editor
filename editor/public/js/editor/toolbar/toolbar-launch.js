@@ -66,6 +66,10 @@ editor.once('load', function() {
             query.push('useBundles=false');
         }
 
+        if (launchOptions.ministats) {
+            query.push('ministats=true');
+        }
+
         if (query.length)
             url += '?' + query.join('&');
 
@@ -218,6 +222,24 @@ editor.once('load', function() {
     editor.call('settings:project').on('preferWebGl2:set', function(value) {
         preferWebGl1.parent.disabled = ! value;
     });
+
+    // mini-stats
+    var optionMiniStats = createOption('ministats', 'Mini stats');
+    optionMiniStats.value = settings.get('editor.launchMinistats');
+    settings.on('editor.launchMinistats:set', function (value) {
+        if (value !== optionMiniStats.value) {
+            optionMiniStats.value = value;
+        }
+    });
+    optionMiniStats.on('change', function (value) {
+        settings.set('editor.launchMinistats', value);
+    });
+    Tooltip.attach({
+        target: optionMiniStats.parent.element,
+        text: 'Show the MiniStats in the launched application.',
+        align: 'right',
+        root: root
+    }).class.add('launch-tooltip');
 
     editor.method('launch', launchApp);
 
