@@ -225,7 +225,7 @@ editor.once('load', function() {
 
     // mini-stats
     var optionMiniStats = createOption('ministats', 'Mini stats');
-    optionMiniStats.value = settings.get('editor.ministats');
+    optionMiniStats.value = settings.get('editor.launchMinistats');
     settings.on('editor.launchMinistats:set', function (value) {
         if (value !== optionMiniStats.value) {
             optionMiniStats.value = value;
