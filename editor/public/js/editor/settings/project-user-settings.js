@@ -22,6 +22,7 @@ editor.once('load', function () {
                 snapIncrement: 1,
                 localServer: 'http://localhost:51000',
                 launchDebug: true,
+                launchMinistats: false,
                 locale: 'en-US',
                 pipeline: {
                     texturePot: true,
@@ -59,6 +60,10 @@ editor.once('load', function () {
 
             var sync = settings.sync.enabled;
             settings.sync.enabled = editor.call('permissions:read'); // read permissions enough for project user settings
+
+            if (!settings.has('editor.launchMinistats')) {
+                settings.set('editor.launchMinistats', false);
+            }
 
             if (! settings.has('editor.pipeline'))
                 settings.set('editor.pipeline', {});
