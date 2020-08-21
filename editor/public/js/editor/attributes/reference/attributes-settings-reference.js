@@ -203,7 +203,7 @@ editor.once('load', function() {
     }, {
         name: 'asset-tasks:animSampleRate',
         title: 'Animation sample rate',
-        description: 'Rate at which to sample animation curves in samples per second. Specify 0 disable sampling and use input keys instead.'
+        description: 'Rate at which to sample animation curves in samples per second. Specify 0 to disable sampling and use input keys instead.'
     }, {
         name: 'asset-tasks:animCurveTolerance',
         title: 'Animation curve tolerance',
