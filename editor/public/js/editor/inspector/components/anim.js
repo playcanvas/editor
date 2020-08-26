@@ -68,6 +68,8 @@ Object.assign(pcui, (function () {
             if (this._layersContainer) {
                 this.remove(this._layersContainer);
             }
+            if (!this._entities) return;
+
             const stateGraph = this._assets.get(this._stateGraphAssetId);
             if (!stateGraph) return;
             const layers = stateGraph.get('data.layers');

@@ -87,6 +87,11 @@ Object.assign(pcui, (function () {
                             path: `data.states.${stateId}.speed`,
                             type: 'number'
                         });
+                        attributes.push({
+                            label: 'Loop',
+                            path: `data.states.${stateId}.loop`,
+                            type: 'boolean'
+                        });
                     }
                     const stateInspector = new pcui.AttributesInspector({
                         assets: this._args.assets,
@@ -364,7 +369,8 @@ Object.assign(pcui, (function () {
             const key = Number.isFinite(maxKey) ? maxKey + 1 : 0;
             states[key] = {
                 name: 'New State',
-                speed: 1.0
+                speed: 1.0,
+                loop: true
             };
             layerStates.push(key);
             const data = this._assets[0].get('data');
