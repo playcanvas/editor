@@ -269,6 +269,18 @@ editor.once('load', function () {
             var labelPreload = new ui.Label({ text: 'Create Preload Bundles' });
             panelOptionsPreload.append(labelPreload);
         }
+
+        if (editor.call('users:hasFlag', 'hasOptimizeSceneFormat')) {
+            var panelOptionsOptimizeFormat = new ui.Panel();
+            panelOptionsOptimizeFormat.class.add('field');
+            panelOptions.append(panelOptionsOptimizeFormat);
+            var fieldOptionsOptimizeSceneFormat = new ui.Checkbox();
+            fieldOptionsOptimizeSceneFormat.value = false;
+            fieldOptionsOptimizeSceneFormat.class.add('tick');
+            panelOptionsOptimizeFormat.append(fieldOptionsOptimizeSceneFormat);
+            var labelPreload = new ui.Label({ text: 'Optimize Scene Format' });
+            panelOptionsOptimizeFormat.append(labelPreload);
+        }
     }
 
 
@@ -385,6 +397,9 @@ editor.once('load', function () {
         if (fieldOptionsPreload)
             data.preload_bundle = fieldOptionsPreload.value;
 
+        if (fieldOptionsOptimizeSceneFormat)
+            data.optimize_scene_format = fieldOptionsOptimizeSceneFormat.value;
+
         editor.call('apps:new', data, function () {
             jobInProgress = false;
             editor.call('picker:builds');
@@ -418,7 +433,8 @@ editor.once('load', function () {
             scenes: getSelectedScenes(),
             scripts_concatenate: fieldOptionsConcat ? fieldOptionsConcat.value : false,
             scripts_sourcemaps: fieldOptionsConcat && fieldOptionsConcat.value && fieldOptionsSourcemaps.value,
-            preload_bundle: fieldOptionsPreload ? fieldOptionsPreload.value : false
+            preload_bundle: fieldOptionsPreload ? fieldOptionsPreload.value : false,
+            optimize_scene_format: fieldOptionsOptimizeSceneFormat ? fieldOptionsOptimizeSceneFormat.value : false
         };
 
         // ajax call
