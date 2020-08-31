@@ -429,7 +429,7 @@ editor.once('load', function() {
         addAllJsonEntPaths: function(dst, attrObj, pref, attrInEnt) {
             const names = AttrUtils.allJsonEntNames(attrObj.schema);
 
-            AttrUtils.isArrayAttr(attrObj) ?
+            Array.isArray(attrInEnt) ?
                 AttrUtils.addPathsForJsonAr(dst, names, pref, attrInEnt) :
                 AttrUtils.addEntNamePaths(dst, names, pref, null);
         },
