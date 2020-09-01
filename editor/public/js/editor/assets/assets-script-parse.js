@@ -88,7 +88,21 @@ editor.once('load', function() {
                                 if (! attributes.hasOwnProperty(attr) || ! script.attributes.hasOwnProperty(attr))
                                     continue;
 
-                                asset.set('data.scripts.' + key + '.attributes.' + attr, attributes[attr]);
+                                // if the attributes have a schema then do a deep equal check
+                                // first because the Observer class does not do a deep equal check
+                                // for arrays of Objects. Normally the Observer should handle this case
+                                // but adding this fix here for now because changing that in the Observer
+                                // might have unexpected consequences.
+                                let setAttribute = true;
+                                if (attributes[attr] && attributes[attr].schema && script.attributes[attr] && script.attributes[attr].schema) {
+                                    if (JSON.stringify(attributes[attr]) === JSON.stringify(script.attributes[attr])) {
+                                        setAttribute = false;
+                                    }
+                                }
+
+                                if (setAttribute) {
+                                    asset.set('data.scripts.' + key + '.attributes.' + attr, attributes[attr]);
+                                }
                             }
 
                             // remove attributes

@@ -539,7 +539,8 @@ Object.assign(pcui, (function () {
             this._entityEvents = [];
             this._editorEvents = [];
 
-            this._timeoutChangeAttribute = null;
+            this._timeoutChangeAttributes = null;
+            this._changedAttributes = {};
 
             this._editorEvents.push(editor.on(`assets:scripts[${this._scriptName}]:attribute:set`, this._onAddAttribute.bind(this)));
             this._editorEvents.push(editor.on(`assets:scripts[${this._scriptName}]:attribute:unset`, this._onRemoveAttribute.bind(this)));
@@ -615,6 +616,7 @@ Object.assign(pcui, (function () {
             this._btnParse.class.remove(pcui.CLASS_ERROR);
 
             editor.call('scripts:parse', this._asset, (error, result) => {
+                if (this.destroyed) return; // inspector might have been destroyed while waiting for parse results
                 this._btnParse.enabled = true;
 
                 if (error) {
@@ -865,21 +867,28 @@ Object.assign(pcui, (function () {
         _onChangeAttribute(asset, name) {
             if (this._asset !== asset || !this._asset) return;
 
-            if (this._timeoutChangeAttribute) {
-                clearTimeout(this._timeoutChangeAttribute);
-                this._timeoutChangeAttribute = null;
+            this._changedAttributes[name] = true;
+
+            if (this._timeoutChangeAttributes) {
+                clearTimeout(this._timeoutChangeAttributes);
+                this._timeoutChangeAttributes = null;
             }
 
-            this._timeoutChangeAttribute = setTimeout(() => {
-                this._timeoutChangeAttribute = null;
+            this._timeoutChangeAttributes = setTimeout(() => {
+                this._timeoutChangeAttributes = null;
                 if (this._asset !== asset || !this._asset) return;
 
                 const order = this._asset.get(`data.scripts.${this._scriptName}.attributesOrder`);
-                const index = order.indexOf(name);
-                if (index >= 0) {
-                    this._onRemoveAttribute(asset, name);
-                    this._onAddAttribute(asset, name, index);
+
+                for (const attr in this._changedAttributes) {
+                    const index = order.indexOf(attr);
+                    if (index >= 0) {
+                        this._onRemoveAttribute(asset, attr);
+                        this._onAddAttribute(asset, attr, index);
+                    }
                 }
+
+                this._changedAttributes = {};
             });
         }
 
@@ -927,10 +936,12 @@ Object.assign(pcui, (function () {
             }
             this._fieldEnable.unlink();
 
-            if (this._timeoutChangeAttribute) {
-                clearTimeout(this._timeoutChangeAttribute);
-                this._timeoutChangeAttribute = null;
+            if (this._timeoutChangeAttributes) {
+                clearTimeout(this._timeoutChangeAttributes);
+                this._timeoutChangeAttributes = null;
             }
+
+            this._changedAttributes = {};
         }
 
         destroy() {
