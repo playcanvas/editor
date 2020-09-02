@@ -2,15 +2,24 @@ Object.assign(pcui, (function () {
     'use strict';
 
     const PRESETS = {
-        '0,1,0,1/0,1': 'Top Left',
-        '0.5,1,0.5,1/0.5,1': 'Top',
-        '1,1,1,1/1,1': 'Top Right',
-        '0,0.5,0,0.5/0,0.5': 'Left',
-        '0.5,0.5,0.5,0.5/0.5,0.5': 'Center',
-        '1,0.5,1,0.5/1,0.5': 'Right',
-        '0,0,0,0/0,0': 'Bottom Left',
-        '0.5,0,0.5,0/0.5,0': 'Bottom',
-        '1,0,1,0/1,0': 'Bottom Right',
+        '0,1,0,1': 'Top Left Anchor',
+        '0,1,0,1/0,1': 'Top Left Anchor & Pivot',
+        '0.5,1,0.5,1': 'Top Anchor',
+        '0.5,1,0.5,1/0.5,1': 'Top Anchor & Pivot',
+        '1,1,1,1': 'Top Right Anchor',
+        '1,1,1,1/1,1': 'Top Right Anchor & Pivot',
+        '0,0.5,0,0.5': 'Left Anchor',
+        '0,0.5,0,0.5/0,0.5': 'Left Anchor & Pivot',
+        '0.5,0.5,0.5,0.5': 'Center Anchor',
+        '0.5,0.5,0.5,0.5/0.5,0.5': 'Center Anchor & Pivot',
+        '1,0.5,1,0.5': 'Right Anchor',
+        '1,0.5,1,0.5/1,0.5': 'Right Anchor & Pivot',
+        '0,0,0,0': 'Bottom Left Anchor',
+        '0,0,0,0/0,0': 'Bottom Left Anchor & Pivot',
+        '0.5,0,0.5,0': 'Bottom Anchor',
+        '0.5,0,0.5,0/0.5,0': 'Bottom Anchor & Pivot',
+        '1,0,1,0': 'Bottom Right Anchor',
+        '1,0,1,0/1,0': 'Bottom Right Anchor & Pivot',
         'custom': 'Custom'
     };
 
@@ -723,7 +732,7 @@ Object.assign(pcui, (function () {
 
             const fields = value.split('/');
             const anchor = fields[0].split(',').map(v => parseFloat(v));
-            const pivot = fields[1].split(',').map(v => parseFloat(v));
+            const pivot = fields.length === 2 ? fields[1].split(',').map(v => parseFloat(v)) : null;
 
             const prev = {};
 
@@ -745,7 +754,9 @@ Object.assign(pcui, (function () {
                     entity.history.enabled = false;
                     const prevRecord = prev[entity.get('resource_id')];
                     entity.set('components.element.anchor', prevRecord.anchor);
-                    entity.set('components.element.pivot', prevRecord.pivot);
+                    if (pivot) {
+                        entity.set('components.element.pivot', prevRecord.pivot);
+                    }
                     if (entity.entity && entity.entity.element) {
                         entity.entity.element.width = prevRecord.width;
                         entity.entity.element.height = prevRecord.height;
@@ -762,7 +773,9 @@ Object.assign(pcui, (function () {
                     const history = entity.history.enabled;
                     entity.history.enabled = false;
                     entity.set('components.element.anchor', anchor);
-                    entity.set('components.element.pivot', pivot);
+                    if (pivot) {
+                        entity.set('components.element.pivot', pivot);
+                    }
 
                     const prevRecord = prev[entity.get('resource_id')];
 
@@ -891,15 +904,26 @@ Object.assign(pcui, (function () {
             }
         }
 
-        _updatePreset() {
+        _getCurrentPresetValue() {
             const anchor = this._field('anchor').value;
-            if (!anchor) {
-                this._field('preset').value = 'custom';
-            } else {
-                const pivot = this._field('pivot').value || [];
-                const preset = `${anchor.join(',')}/${pivot.join(',')}`;
-                this._field('preset').value = (PRESETS[preset] ? preset : 'custom');
+            if (anchor) {
+                const anchorKey = anchor.join(',');
+                if (PRESETS[anchorKey]) {
+                    const pivot = this._field('pivot').value || [];
+                    const pivotKey = anchorKey + '/' + pivot.join(',');
+                    if (PRESETS[pivotKey]) {
+                        return pivotKey;
+                    }
+
+                    return anchorKey;
+                }
             }
+
+            return 'custom';
+        }
+
+        _updatePreset() {
+            this._field('preset').value = this._getCurrentPresetValue();
         }
 
         link(entities) {
