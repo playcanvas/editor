@@ -110,6 +110,7 @@ Object.assign(pcui, (function () {
                 this._initializeDropTarget();
             }
 
+            this._evtAdd = null;
             this._updateValue(null);
             if (args.value) {
                 this.value = args.value;
@@ -218,6 +219,11 @@ Object.assign(pcui, (function () {
         _updateValue(value, force) {
             if (this._value === value && !force) return false;
 
+            if (this._evtAdd) {
+                this._evtAdd.unbind();
+                this._evtAdd = null;
+            }
+
             this._value = value;
 
             this.class.remove(pcui.CLASS_MULTIPLE_VALUES);
@@ -234,6 +240,11 @@ Object.assign(pcui, (function () {
                         // if we did not find the asset then show Missing
                         this._labelAsset.unlink();
                         this._labelAsset.text = 'Missing';
+
+                        this._evtAdd = this._assets.once(`add[${value}]`, asset => {
+                            this._evtAdd = null;
+                            this._labelAsset.link(asset, 'name');
+                        });
                     }
                 } else {
                     // no assets registry passed so just show the asset id
@@ -265,6 +276,12 @@ Object.assign(pcui, (function () {
 
         unlink() {
             super.unlink();
+
+            if (this._evtAdd) {
+                this._evtAdd.unbind();
+                this._evtAdd = null;
+            }
+
             this._thumbnail.unlink();
         }
 

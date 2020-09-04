@@ -150,6 +150,12 @@ ObserverList.prototype.add = function(item) {
     }
 
     this.emit('add', item, index, pos);
+    if (this.index) {
+        const id = item.get(this.index);
+        if (id) {
+            this.emit(`add[${id}]`, item, index, pos)
+        }
+    }
 
     return pos;
 };

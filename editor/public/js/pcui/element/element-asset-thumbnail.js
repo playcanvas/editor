@@ -57,9 +57,13 @@ Object.assign(pcui, (function () {
             if (args.canvasHeight) {
                 this._canvasHeight = args.canvasHeight;
             }
+
+            this._evtAdd = null;
+
             this.value = args.value || null;
 
             this.renderChanges = args.renderChanges || false;
+
 
             this.on('change', () => {
                 if (this.renderChanges) {
@@ -277,6 +281,11 @@ Object.assign(pcui, (function () {
                 this._canvasDirty = false;
             }
 
+            if (this._evtAdd) {
+                this._evtAdd.unbind();
+                this._evtAdd = null;
+            }
+
             this.class.remove(CLASS_ASSET_THUMB_MISSING);
 
             if (value) {
@@ -297,6 +306,12 @@ Object.assign(pcui, (function () {
             if (!asset) {
                 this.class.add(CLASS_ASSET_THUMB_MISSING);
                 this._showImageThumbnail(null);
+
+                const id = (value instanceof Observer ? value.get('id') : value);
+                this._evtAdd = this._assets.once(`add[${id}]`, (asset) => {
+                    this._onChange(asset);
+                });
+
                 return;
             }
 
@@ -334,6 +349,11 @@ Object.assign(pcui, (function () {
 
             this._destroyImage();
             this._destroyCanvas();
+
+            if (this._evtAdd) {
+                this._evtAdd.unbind();
+                this._evtAdd = null;
+            }
 
             if (this._evtThumbnailSet) {
                 this._evtThumbnailSet.unbind();
