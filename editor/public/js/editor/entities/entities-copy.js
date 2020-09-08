@@ -175,7 +175,8 @@ editor.once('load', function () {
             project: config.project.id,
             legacy_scripts: settings.get('useLegacyScripts'),
             hierarchy: {},
-            assets: {}
+            assets: {},
+            type: 'entity'
         };
 
         var i, len;
@@ -246,6 +247,6 @@ editor.once('load', function () {
         }
 
         // save to local storage
-        editor.call('entities:clipboard:set', data);
+        editor.call('clipboard:set', data);
     });
 });

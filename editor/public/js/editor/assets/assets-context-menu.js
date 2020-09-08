@@ -84,6 +84,8 @@ editor.once('load', function() {
         REFERENCES: '&#57622;',
         TEXTURE_ATLAS: '&#58162;',
         SPRITE_ASSET: '&#58261;',
+        COPY: '&#58193;',
+        PASTE: '&#58184;',
         REPLACE: '&#57640;',
         REIMPORT: '&#57889;',
         DOWNLOAD: '&#57896;',
@@ -220,6 +222,68 @@ editor.once('load', function() {
             sliced: true
         });
     });
+
+    // copy
+    if (editor.call('users:hasFlag', 'hasCopyPasteAssets')) {
+        var menuItemCopy = new ui.MenuItem({
+            text: 'Copy',
+            icon: ICONS.COPY,
+            value: 'copy'
+        });
+        menuItemCopy.on('select', function() {
+            var id = parseInt(currentAsset.get('id'), 10);
+
+            var asset = currentAsset;
+            var multiple = false;
+
+            if (asset) {
+                var assetType = asset.get('type');
+                var type = editor.call('selector:type');
+                var items;
+
+                if (type === 'asset') {
+                    items = editor.call('selector:items');
+                    for (var i = 0; i < items.length; i++) {
+                        // if the asset that was right-clicked is in the selection
+                        // then include all the other selected items
+                        // otherwise only copy the right-clicked item
+                        if (items[i].get('id') === asset.get('id')) {
+                            multiple = true;
+                            break;
+                        }
+                    }
+                }
+
+                editor.call('assets:copy', multiple ? items : [asset]);
+            }
+
+        });
+        menu.append(menuItemCopy);
+
+        // paste
+        // copy
+        var menuItemPaste = new ui.MenuItem({
+            text: 'Paste',
+            icon: ICONS.PASTE,
+            value: 'paste'
+        });
+        menuItemPaste.on('select', function(value, hasChildren, mouseEvt) {
+            if (currentAsset && currentAsset.get('type') !== 'folder') return;
+
+            const keepFolderStructure = mouseEvt && mouseEvt.shiftKey;
+            editor.call('assets:paste', currentAsset === null ? editor.call('assets:panel:currentFolder') : currentAsset, keepFolderStructure);
+
+        });
+        menu.append(menuItemPaste);
+
+        let evtShift = editor.on('hotkey:shift', (shift) => {
+            menuItemPaste.text = (shift ? 'Paste (keep folders)' : 'Paste');
+        });
+        menuItemPaste.once('destroy', () => {
+            evtShift.unbind();
+            evtShift = null;
+        });
+    }
 
     // replace
     var replaceAvailable = {
@@ -419,12 +483,40 @@ editor.once('load', function() {
     menu.on('open', function() {
         if (currentAsset && currentAsset.get('id') === LEGACY_SCRIPTS_ID) {
             menuItemNewScript.hidden = false;
+            if (menuItemPaste) {
+                menuItemPaste.hidden = true;
+                menuItemCopy.hidden = true;
+            }
         } else {
             menuItemNewScript.hidden = ! ((currentAsset === null || (currentAsset && currentAsset.get('type') === 'script')) && isCurrentFolderLegacyScripts());
+
+            if (menuItemPaste) {
+                menuItemPaste.hidden = false;
+                menuItemCopy.hidden = false;
+            }
         }
         menuItemNew.hidden = ! menuItemNewScript.hidden;
 
+        if (menuItemPaste && isCurrentFolderLegacyScripts()) {
+            menuItemPaste.hidden = true;
+            menuItemCopy.hidden = true;
+        }
+
+        if (menuItemPaste) {
+            if (!editor.call('permissions:write')) {
+                menuItemPaste.disabled = true;
+            } else if (currentAsset && currentAsset.get('type') !== 'folder') {
+                menuItemPaste.disabled = true;
+            } else {
+                const clipboard = editor.call('clipboard:get');
+                menuItemPaste.disabled = !clipboard || clipboard.type !== 'asset';
+            }
+
+            menuItemCopy.disabled = !currentAsset;
+        }
+
         if (currentAsset) {
+
             // download
             menuItemDownload.hidden = ! ((! config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read'))) && currentAsset.get('type') !== 'folder' && (currentAsset.get('source') || downloadable[currentAsset.get('type')] || (! legacyScripts && currentAsset.get('type') === 'script')) && currentAsset.get('file.url'));
 

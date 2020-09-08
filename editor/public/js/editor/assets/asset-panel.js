@@ -427,6 +427,62 @@ Object.assign(pcui, (function () {
             if (args.assets) {
                 this.assets = args.assets;
             }
+
+            if (editor.call('users:hasFlag', 'hasCopyPasteAssets')) {
+                this.on('showToRoot', () => {
+                    // register hotkeys
+
+                    // copy
+                    editor.call('hotkey:register', 'asset:copy', {
+                        key: 'c',
+                        ctrl: true,
+                        skipPreventDefault: true,
+                        callback: this._onCopyAssets.bind(this)
+                    });
+
+                    // paste
+                    editor.call('hotkey:register', 'asset:paste', {
+                        key: 'v',
+                        ctrl: true,
+                        callback: () => this._onPasteAssets()
+                    });
+
+                    // paste (keep folder structure)
+                    editor.call('hotkey:register', 'asset:paste:keepFolderStructure', {
+                        key: 'v',
+                        ctrl: true,
+                        shift: true,
+                        callback: () => this._onPasteAssets(true)
+                    });
+
+                })
+
+                this.on('hideToRoot', () => {
+                    // unregister hotkeys
+                    editor.call('hotkey:unregister', 'asset:copy');
+                    editor.call('hotkey:unregister', 'asset:paste');
+                    editor.call('hotkey:unregister', 'asset:paste:keepFolderStructure');
+                })
+            }
+        }
+
+        _onCopyAssets() {
+            if (this._currentFolder === LEGACY_SCRIPTS_FOLDER_ASSET) return;
+
+            const selectedAssets = this.selectedAssets;
+            if (!selectedAssets.length) return;
+
+            editor.call('assets:copy', selectedAssets);
+        }
+
+        _onPasteAssets(keepFolderStructure) {
+            if (!this._writePermissions) return;
+            if (this._currentFolder === LEGACY_SCRIPTS_FOLDER_ASSET) return;
+
+            const clipboard = editor.call('clipboard:get');
+            if (!clipboard || clipboard.type !== 'asset') return;
+
+            editor.call('assets:paste', this.currentFolder, keepFolderStructure);
         }
 
         // Sorts assets by name (case insensitive). Keeps legacy scripts folder on top always.
@@ -1413,6 +1469,33 @@ Object.assign(pcui, (function () {
             const gridItem = this._gridIndex[id];
             if (gridItem) {
                 gridItem.destroy();
+            }
+
+            // if the removed asset is the current folder or a parent of
+            // the current folder then reset the current folder
+            if (this.currentFolder) {
+                // get parent folders of current folder
+                const path = this.currentFolder.get('path');
+                // add current folder at end of path
+                path.push(parseInt(this.currentFolder.get('id'), 10));
+
+                // get index of removed asset in full path
+                const index = path.indexOf(parseInt(asset.get('id'), 10));
+
+                if (index !== -1) {
+                    let current = null;
+
+                    if (index > 0) {
+                        for (let i = index - 1; i >= 0; i--) {
+                            current = this._assets.get(path[i]);
+                            if (current) {
+                                break;
+                            }
+                        }
+                    }
+
+                    this.currentFolder = current;
+                }
             }
         }
 

@@ -11,12 +11,26 @@ editor.once('load', function() {
             id: id,
             fn: function() {
                 trigger(watch, slot);
+            },
+            addFn: function () {
+                var asset = app.assets.get(id);
+                if (asset) {
+                    asset.on('change', watch.textures[slot].fn);
+
+                    if (watch.autoLoad && !asset.resource) {
+                        app.assets.load(asset);
+                    }
+                }
             }
         };
         app.assets.on('load:' + id, watch.textures[slot].fn);
 
         var asset = app.assets.get(id);
-        if (asset) asset.on('change', watch.textures[slot].fn);
+        if (asset) {
+            asset.on('change', watch.textures[slot].fn);
+        } else {
+            app.assets.on('add:' + id, watch.textures[slot].addFn);
+        }
 
         var obj = editor.call('assets:get', id);
         if (obj) obj.on('thumbnails.s:set', watch.textures[slot].fn);
@@ -41,6 +55,7 @@ editor.once('load', function() {
         var id = watch.textures[slot].id;
 
         app.assets.off('load:' + id, watch.textures[slot].fn);
+        app.assets.off('add:' + id, watch.textures[slot].addFn);
 
         var asset = app.assets.get(id);
         if (asset) asset.off('change', watch.textures[slot].fn);
@@ -95,6 +110,9 @@ editor.once('load', function() {
         for(var i = 0; i < 6; i++)
             addSlotWatch(watch, i);
 
+        watch.retryTimeout = null;
+        var retries = 5;
+
         watch.onAdd = function(asset) {
             if (! watch.autoLoad)
                 return;
@@ -107,8 +125,28 @@ editor.once('load', function() {
             trigger(watch);
         };
 
+        // onError will also be called when a texture
+        // face has not been added yet. When this happens
+        // we retry after a while to see if the cubemap can load
+        // then
+        watch.onError = function(err, asset) {
+            if (watch.retryTimeout) {
+                clearTimeout(watch.retryTimeout);
+                watch.retryTimeout = null;
+            }
+
+            watch.retryTimeout = setTimeout(() => {
+                retries--;
+                if (retries < 0) return;
+
+                asset.loaded = false;
+                watch.onAdd(asset);
+            }, 1000);
+        }
+
         app.assets.on('add:' + watch.asset.get('id'), watch.onAdd);
         app.assets.on('load:' + watch.asset.get('id'), watch.onLoad);
+        app.assets.on('error:' + watch.asset.get('id'), watch.onError);
     };
 
     var unsubscribe = function(watch) {
@@ -118,8 +156,14 @@ editor.once('load', function() {
         for(var key in watch.watching)
             watch.watching[key].unbind();
 
+        if (watch.retryTimeout) {
+            clearTimeout(watch.retryTimeout);
+            watch.retryTimeout = null;
+        }
+
         app.assets.off('add:' + watch.asset.get('id'), watch.onAdd);
         app.assets.off('load:' + watch.asset.get('id'), watch.onLoad);
+        app.assets.off('error:' + watch.asset.get('id'), watch.onError);
     };
 
     var trigger = function(watch, slot) {
@@ -140,7 +184,9 @@ editor.once('load', function() {
                 ind: 0,
                 callbacks: { },
                 onLoad: null,
-                onAdd: null
+                onAdd: null,
+                onError: null,
+                retryTimeout: null
             };
             subscribe(watch);
         }

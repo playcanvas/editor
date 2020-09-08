@@ -279,7 +279,14 @@ editor.once('load', function() {
             className: 'menu-item-paste',
             icon: '&#58184;',
             filter: function () {
-                return items.length <= 1 && ! editor.call('entities:clipboard:empty');
+                if (items.length <= 1) {
+                    const clipboard = editor.call('clipboard:get');
+                    if (clipboard && clipboard.type === 'entity') {
+                        return true;
+                    }
+                }
+
+                return false;
             },
             select: function() {
                 editor.call('entities:paste', entity);

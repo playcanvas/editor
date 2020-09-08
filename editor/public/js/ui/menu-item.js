@@ -68,12 +68,12 @@ MenuItem.prototype._onOver = function(path) {
     this.parent.emit('over', path);
 };
 
-MenuItem.prototype._onClick = function() {
+MenuItem.prototype._onClick = function(evt) {
     if (! this.ui.parent || this.ui.disabled)
         return;
 
-    this.ui.emit('select', this.ui._value, this.ui._hasChildren);
-    this.ui.parent.emit('select-propagate', [ this.ui._value ], this.ui._hasChildren);
+    this.ui.emit('select', this.ui._value, this.ui._hasChildren, evt);
+    this.ui.parent.emit('select-propagate', [ this.ui._value ], this.ui._hasChildren, evt);
 
     if (!this.ui._clickableSubmenus || !this.ui._hasChildren) {
         this.ui.class.remove('hover');
@@ -85,8 +85,8 @@ MenuItem.prototype._onTouchStart = function(evt) {
         return;
 
     if (! this.ui._container || this.ui.class.contains('hover')) {
-        this.ui.emit('select', this.ui._value, this.ui._hasChildren);
-        this.ui.parent.emit('select-propagate', [ this.ui._value ], this.ui._hasChildren);
+        this.ui.emit('select', this.ui._value, this.ui._hasChildren, evt);
+        this.ui.parent.emit('select-propagate', [ this.ui._value ], this.ui._hasChildren, evt);
         this.ui.class.remove('hover');
     } else {
         this.ui.parent.emit('over', [ this.ui._value ]);
@@ -101,13 +101,13 @@ MenuItem.prototype._onTouchEnd = function(evt) {
     evt.stopPropagation();
 };
 
-MenuItem.prototype._onSelectPropagate = function(path, selectedItemHasChildren) {
+MenuItem.prototype._onSelectPropagate = function(path, selectedItemHasChildren, mouseEvent) {
     if (! this.parent)
         return;
 
     path.splice(0, 0, this._value);
 
-    this.parent.emit('select-propagate', path, selectedItemHasChildren);
+    this.parent.emit('select-propagate', path, selectedItemHasChildren, mouseEvent);
 
     if (!this._clickableSubmenus || !selectedItemHasChildren) {
         this.class.remove('hover');

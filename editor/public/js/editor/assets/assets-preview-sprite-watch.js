@@ -49,7 +49,7 @@ editor.once('load', function() {
                 }
 
             } else {
-                app.assets.once('assets:add[' + atlas + ']', watchAtlas);
+                app.assets.once('add:' + atlas, watchAtlas);
                 watch.events.onAtlasAdd = watchAtlas;
             }
         };
@@ -98,7 +98,7 @@ editor.once('load', function() {
         }
 
         if (watch.events.onAtlasAdd) {
-            app.assets.off('assets:add[' + atlas + ']', watch.events.onAtlasAdd);
+            app.assets.off('add:' + atlas, watch.events.onAtlasAdd);
             delete watch.events.onAtlasAdd;
         }
     };

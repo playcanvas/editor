@@ -271,35 +271,74 @@ editor.once('load', function() {
                     title: 'Copy',
                     icon: '&#58193;',
                     filter: function () {
-                        if (! editor.call('permissions:write'))
+                        const selector = editor.call('selector:type');
+                        if (selector === 'asset' && editor.call('assets:panel:currentFolder') === 'scripts') {
                             return false;
+                        }
 
-                        return editor.call('selector:type') === 'entity' && editor.call('selector:items').length;
-                    },
-                    select: function () {
-                        var items = editor.call('selector:items');
-                        editor.call('entities:copy', items);
-                    }
-                },
-                'paste': {
-                    title: 'Paste',
-                    icon: '&#58184;',
-                    filter: function () {
-                        if (! editor.call('permissions:write'))
-                            return false;
+                        if (selector === 'entity') {
+                            return editor.call('selector:items').length;
+                        }
 
-                        if (! editor.call('entities:clipboard:empty')) {
-                            var items = editor.call('selector:items');
-                            if (items.length === 0 || items.length === 1 && editor.call('selector:type') === 'entity') {
-                                return true;
-                            }
+                        if (selector === 'asset' && editor.call('users:hasFlag', 'hasCopyPasteAssets')) {
+                            return editor.call('selector:items').length;
                         }
 
                         return false;
                     },
                     select: function () {
                         var items = editor.call('selector:items');
-                        editor.call('entities:paste', items[0]);
+                        const selector = editor.call('selector:type');
+                        if (selector === 'entity') {
+                            editor.call('entities:copy', items);
+                        } else if (selector === 'asset' && editor.call('users:hasFlag', 'hasCopyPasteAssets')) {
+                            editor.call('assets:copy', items);
+                        }
+                    }
+                },
+                'paste': {
+                    title: 'Paste',
+                    icon: '&#58184;',
+                    filter: function () {
+                        if (! editor.call('permissions:write')) {
+                            return false;
+                        }
+
+                        const clipboard = editor.call('clipboard');
+                        const value = clipboard.value;
+                        if (value) {
+                            var items = editor.call('selector:items');
+                            if (items.length === 0 || items.length === 1) {
+                                const selector = editor.call('selector:type');
+                                if (selector === value.type) {
+                                    if (selector === 'asset') {
+                                        if (!editor.call('users:hasFlag', 'hasCopyPasteAssets')) {
+                                            return false;
+                                        }
+                                        if (editor.call('assets:panel:currentFolder') === 'scripts') {
+                                            return false;
+                                        }
+                                        if (!items[0] || items[0].get('type') === 'folder') {
+                                            return true;
+                                        }
+
+                                    } else {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+
+                        return false;
+                    },
+                    select: function (value, hasChildren, mouseEvt) {
+                        var items = editor.call('selector:items');
+                        if (editor.call('selector:type') === 'entity') {
+                            editor.call('entities:paste', items[0]);
+                        } else if (editor.call('selector:type') === 'asset' && editor.call('users:hasFlag', 'hasCopyPasteAssets')) {
+                            const keepFolderStructure = mouseEvt && mouseEvt.shiftKey;
+                            editor.call('assets:paste', items[0], keepFolderStructure);
+                        }
                     }
                 },
                 'edit': {

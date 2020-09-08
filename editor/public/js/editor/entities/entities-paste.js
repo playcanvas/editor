@@ -319,9 +319,11 @@ editor.once('load', function () {
      */
     editor.method('entities:paste', function (parent) {
         // parse data from local storage
-        var data = editor.call('entities:clipboard:get');
+        var data = editor.call('clipboard:get');
         if (!data)
             return;
+
+        if (data.type !== 'entity') return;
 
         // paste on root if no parent specified
         if (!parent)

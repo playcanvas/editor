@@ -46,13 +46,13 @@ Menu.prototype._onKeyDown = function(evt) {
         this.ui.open = false;
 };
 
-Menu.prototype._onSelectPropagate = function(path, selectedItemHasChildren) {
+Menu.prototype._onSelectPropagate = function(path, selectedItemHasChildren, mouseEvent) {
     if (this._clickableSubmenus && selectedItemHasChildren) {
         this._updatePath(path);
     } else {
         this.open = false;
-        this.emit(path.join('.') + ':select', path);
-        this.emit('select', path);
+        this.emit(path.join('.') + ':select', path, mouseEvent);
+        this.emit('select', path, mouseEvent);
     }
 };
 

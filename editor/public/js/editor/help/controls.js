@@ -42,6 +42,7 @@ editor.once('load', function () {
     overlay.append(container);
 
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
+    var copyPasteAssets = editor.call('users:hasFlag', 'hasCopyPasteAssets');
 
     var items = [
         {
@@ -54,11 +55,11 @@ editor.once('load', function () {
             icons: ['&#57632;']
         }, {
             buttons: ['Ctrl', '$+', 'C'],
-            title: 'Copy Entity',
+            title: copyPasteAssets ? 'Copy Entity / Asset' : 'Copy Entity',
             icons: ['&#58193;']
         }, {
             buttons: ['Ctrl', '$+', 'V'],
-            title: 'Paste Entity',
+            title: copyPasteAssets ? 'Paste Entity / Asset' : 'Paste Entity',
             icons: ['&#58184;']
         }, {
             buttons: ['Delete', '$/', 'Ctrl', '$+', 'Backspace'],
@@ -118,6 +119,14 @@ editor.once('load', function () {
             icons: ['&#57656;']
         }
     ];
+
+    if (editor.call('users:hasFlag', 'hasCopyPasteAssets')) {
+        items.splice(4, 0, {
+            buttons: ['Ctrl', '$+', 'Shift', '$+', 'V'],
+            title: 'Paste Assets (keep folder structure)',
+            icons: ['&#58184;']
+        });
+    }
 
     if (!legacyScripts) {
         items.push({

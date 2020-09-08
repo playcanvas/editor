@@ -87,6 +87,8 @@ Object.assign(pcui, (function () {
                 callback: this._queueRenderHandler
             });
 
+            this._skyboxWatchHandle = null;
+
             this._queuedRender = false;
 
             this._rotationX = 0;
@@ -95,20 +97,68 @@ Object.assign(pcui, (function () {
 
             this._evtSceneSettingsSet = null;
 
+            this._skybox = null;
+            this._evtAddSkybox = null;
+            this._evtChangeSkybox = null;
+
             if (!sceneSettings) {
                 sceneSettings = editor.call('sceneSettings');
             }
 
             if (sceneSettings) {
+                this._evtChangeSkybox = sceneSettings.on('render.skybox:set', (value) => {
+                    this._unwatchSkybox();
+
+                    if (value) {
+                        this._watchSkybox(value);
+                    }
+                });
+
+                const skybox = sceneSettings.get('render.skybox');
+                if (skybox) {
+                    this._watchSkybox(skybox);
+                }
+
                 this._evtSceneSettingsSet = sceneSettings.on('*:set', this._queueRenderHandler);
             }
 
             this._frameRequest = null;
         }
 
+        _unwatchSkybox() {
+            if (this._skybox) {
+                editor.call('assets:cubemap:unwatch', this._skybox, this._skyboxWatchHandle);
+                this._skybox = null;
+                this._skyboxWatchHandle = null;
+            }
+
+            if (this._evtAddSkybox) {
+                this._evtAddSkybox.unbind();
+                this._evtAddSkybox = null;
+            }
+        }
+
+        _watchSkybox(id) {
+            const asset = editor.call('assets:get', id);
+            if (asset) {
+                this._skybox = asset;
+
+                this._skyboxWatchHandle = editor.call('assets:cubemap:watch', {
+                    asset: asset,
+                    autoLoad: true,
+                    callback: this._queueRenderHandler
+                });
+            } else {
+                this._evtAddSkybox = editor.once(`assets:add[${id}]`, () => {
+                    this._watchSkybox(id);
+                });
+            }
+        }
+
         queueRender() {
             if (this._queuedRender) return;
             this._queuedRender = true;
+
             this._frameRequest = requestAnimationFrame(() => {
                 this.render(this._rotationX, this._rotationY, this._model);
             });
@@ -244,6 +294,8 @@ Object.assign(pcui, (function () {
                 this._evtSceneSettingsSet.unbind();
                 this._evtSceneSettingsSet = null;
             }
+
+            this._unwatchSkybox();
 
             if (this._frameRequest) {
                 cancelAnimationFrame(this._frameRequest);

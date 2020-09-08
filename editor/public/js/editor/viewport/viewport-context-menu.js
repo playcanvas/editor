@@ -54,7 +54,7 @@ editor.once('load', function() {
         //     title: 'Paste',
         //     icon: '&#57892;',
         //     filter: function () {
-        //         return !editor.call('entities:clipboard:empty');
+        //         return !editor.call('clipboard:empty');
         //     },
         //     select: function() {
         //         editor.call('entities:paste', currentEntity);

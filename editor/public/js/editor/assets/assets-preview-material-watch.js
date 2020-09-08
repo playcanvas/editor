@@ -12,12 +12,25 @@ editor.once('load', function() {
             id: id,
             fn: function() {
                 trigger(watch, slot);
+            },
+            addFn: function () {
+                const asset = app.assets.get(id);
+                if (asset) {
+                    asset.on('change', watch.textures[slot].fn);
+                    if (watch.autoLoad && !asset.resource) {
+                        app.assets.load(asset);
+                    }
+                }
             }
         };
         app.assets.on('load:' + id, watch.textures[slot].fn);
 
         var asset = app.assets.get(id);
-        if (asset) asset.on('change', watch.textures[slot].fn);
+        if (asset) {
+            asset.on('change', watch.textures[slot].fn);
+        } else {
+            app.assets.on('add:' + id, watch.textures[slot].addFn);
+        }
 
         if (watch.autoLoad) {
             var asset = app.assets.get(id);
@@ -31,6 +44,7 @@ editor.once('load', function() {
             return;
 
         app.assets.off('load:' + watch.textures[slot].id, watch.textures[slot].fn);
+        app.assets.off('add:' + watch.textures[slot].id, watch.textures[slot].addFn);
 
         var asset = app.assets.get(watch.textures[slot].id);
         if (asset) asset.off('change', watch.textures[slot].fn);
