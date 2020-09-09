@@ -36,27 +36,27 @@ Object.assign(pcui, (function () {
                 options: [
                     {
                         v: ANIM_EQUAL_TO,
-                        t: 'Equal To (=)',
+                        t: '=',
                     },
                     {
                         v: ANIM_NOT_EQUAL_TO,
-                        t: 'Not Equal To (!=)',
+                        t: '!=',
                     },
                     {
                         v: ANIM_LESS_THAN,
-                        t: 'Less Than (<)',
+                        t: '<',
                     },
                     {
                         v: ANIM_LESS_THAN_EQUAL_TO,
-                        t: 'Less Than Equal To (<=)',
+                        t: '<=',
                     },
                     {
                         v: ANIM_GREATER_THAN,
-                        t: 'Greater Than (>)',
+                        t: '>',
                     },
                     {
                         v: ANIM_GREATER_THAN_EQUAL_TO,
-                        t: 'Greater Than Equal To (>=)',
+                        t: '>=',
                     },
                 ],
                 value: assets[0].get(path).predicate

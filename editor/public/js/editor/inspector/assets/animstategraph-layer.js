@@ -164,7 +164,7 @@ Object.assign(pcui, (function () {
                             type: 'select',
                             args: {
                                 type: 'number',
-                                options: options
+                                options: [{v: -1, t: 'ANY'}, ...options]
                             }
                         },
                         {
