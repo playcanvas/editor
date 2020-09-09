@@ -36,7 +36,7 @@ Object.assign(pcui, (function () {
                 options: [
                     {
                         v: ANIM_EQUAL_TO,
-                        t: '=',
+                        t: '==',
                     },
                     {
                         v: ANIM_NOT_EQUAL_TO,
