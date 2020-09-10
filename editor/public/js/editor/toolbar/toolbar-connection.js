@@ -85,7 +85,7 @@ editor.once('load', function() {
 
     editor.on('viewport:error', function(err) {
         viewportError = true;
-        console.error(err);
+        log.error(err);
         console.trace();
         content.innerHTML = 'Failed creating WebGL Context.<br />Please check <a href="http://webglreport.com/" target="_blank">WebGL Report</a> and report to <a href="http://forum.playcanvas.com/" target="_blank">Forum</a>.';
         overlay.hidden = false;
@@ -94,7 +94,7 @@ editor.once('load', function() {
     editor.on('realtime:error', onError);
     editor.on('realtime:scene:error', onError);
     editor.on('realtime:userdata:error', function (err) {
-        console.error(err);
+        log.error(err);
     });
     editor.on('realtime:assets:error', onError);
 

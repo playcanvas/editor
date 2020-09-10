@@ -172,7 +172,7 @@ editor.once('load', function () {
             this._toggleButtons(true);
             this._btnMarkResolved.disabled = false;
             if (err) {
-                console.error(err);
+                log.error(err);
                 return;
             }
 

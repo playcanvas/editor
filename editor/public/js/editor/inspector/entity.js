@@ -272,7 +272,7 @@ Object.assign(pcui, (function () {
                     this._templateInspector.link(entities);
                 }
             } catch (err) {
-                console.error(err);
+                log.error(err);
             }
 
             this._attributesInspector.link(entities);
@@ -305,7 +305,7 @@ Object.assign(pcui, (function () {
                         this._componentInspectors[component].link(entities);
                     } catch (err) {
                         this._componentInspectors[component].hidden = true;
-                        console.error(err);
+                        log.error(err);
                     }
                     this.class.remove(CLASS_NO_COMPONENTS);
                 }
@@ -319,7 +319,7 @@ Object.assign(pcui, (function () {
                     this._templateOverridesInspector.entity = entities.length === 1 ? entities[0] : null;
                 }
             } catch (err) {
-                console.error(err);
+                log.error(err);
             }
         }
 

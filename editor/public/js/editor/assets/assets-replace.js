@@ -577,7 +577,7 @@ editor.once('load', function () {
         var dstType = this.replacement.get('type');
 
         if (srcType !== 'texture' || dstType !== 'sprite') {
-            console.error('replaceTextureToSprite must take texture and replace with sprite');
+            log.error('replaceTextureToSprite must take texture and replace with sprite');
         }
 
         this.handleTextureToSprite();

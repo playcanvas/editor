@@ -798,7 +798,7 @@ editor.once('load', function () {
             favorite: fieldBranchesFilter.value === 'favorite'
         }, function (err, data) {
             if (err) {
-                return console.error(err);
+                return log.error(err);
             }
 
             // change status of loading button

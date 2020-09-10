@@ -13,7 +13,7 @@ editor.once('load', function() {
             ignoreContentType: true,
             notJson: true
         }).on('error', function (err, data) {
-            console.error(err + data);
+            log.error(err + data);
             editor.call('status:error', 'Couldn\'t update the name: ' + data);
         });
     }

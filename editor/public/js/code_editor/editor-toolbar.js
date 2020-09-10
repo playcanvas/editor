@@ -67,7 +67,7 @@ editor.once('load', function () {
     refreshButtons();
 
     var showError = function (error) {
-        console.error('There was an error: ' + error);
+        log.error('There was an error: ' + error);
     };
 
     editor.on('editor:save:start', function () {

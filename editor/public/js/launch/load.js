@@ -35,7 +35,7 @@ editor.once('load', function() {
                     shareDbMessage(msg);
                 }
             } catch (e) {
-                console.error(e);
+                log.error(e);
             }
 
         };

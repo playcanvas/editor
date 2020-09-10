@@ -23,7 +23,7 @@ ObserverSync.prototype._initialize = function() {
 
         // if this happens it's a bug
         if (item.sync !== self) {
-            console.error('Garbage Observer Sync still pointing to item', item);
+            log.error('Garbage Observer Sync still pointing to item', item);
         }
 
         // check if path is allowed

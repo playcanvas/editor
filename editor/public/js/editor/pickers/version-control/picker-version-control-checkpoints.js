@@ -199,7 +199,7 @@ editor.once('load', function () {
             currentCheckpointListRequest = null;
 
             if (err) {
-                return console.error(err);
+                return log.error(err);
             }
 
             if (params.skip) {

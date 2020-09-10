@@ -380,7 +380,7 @@ editor.once('load', function () {
             config.self.branch.merge.conflict.mergedFilePath,
             function (err, contents) {
                 if (err) {
-                    console.error(err);
+                    log.error(err);
                     editor.call('status:error', err);
                     return;
                 }

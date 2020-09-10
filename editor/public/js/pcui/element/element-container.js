@@ -91,7 +91,7 @@ Object.assign(pcui, (function () {
             let grid = !!args.grid;
             if (grid) {
                 if (this.flex) {
-                    console.error('Invalid pcui.Container arguments: "grid" and "flex" cannot both be true.');
+                    log.error('Invalid pcui.Container arguments: "grid" and "flex" cannot both be true.');
                     grid = false;
                 }
             }
@@ -675,7 +675,7 @@ Object.assign(pcui, (function () {
             if (value === this._resizable) return;
 
             if (VALID_RESIZABLE_VALUES.indexOf(value) === -1) {
-                console.error('Invalid resizable value: must be one of ' + VALID_RESIZABLE_VALUES.join(','));
+                log.error('Invalid resizable value: must be one of ' + VALID_RESIZABLE_VALUES.join(','));
                 return;
             }
 

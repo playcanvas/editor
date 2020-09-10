@@ -1636,7 +1636,7 @@ Object.assign(pcui, (function () {
                     }
                 }
             } catch (err) {
-                console.error(err);
+                log.error(err);
             } finally {
                 if (prev.length) {
                     // if we have set other textures

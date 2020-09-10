@@ -30,7 +30,7 @@
                 return this._hooks[name].apply(null, args);
             } catch(ex) {
                 console.info('%c%s %c(editor.method error)', 'color: #06f', name, 'color: #f00');
-                console.error(ex);
+                log.error(ex);
             }
         }
         return null;

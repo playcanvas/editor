@@ -40,17 +40,17 @@ Object.assign(pcui, (function () {
          */
         add(action) {
             if (!action.name) {
-                console.error('Trying to add history action without name');
+                log.error('Trying to add history action without name');
                 return;
             }
 
             if (!action.undo) {
-                console.error('Trying to add history action without undo method', action.name);
+                log.error('Trying to add history action without undo method', action.name);
                 return;
             }
 
             if (!action.redo) {
-                console.error('Trying to add history action without redo method', action.name);
+                log.error('Trying to add history action without redo method', action.name);
                 return;
             }
 

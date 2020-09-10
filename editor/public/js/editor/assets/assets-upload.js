@@ -139,7 +139,7 @@ editor.once('load', function () {
 
         // type
         if (!args.type) {
-            console.error('\"type\" required for upload request');
+            log.error('\"type\" required for upload request');
         }
         form.append('type', args.type);
 

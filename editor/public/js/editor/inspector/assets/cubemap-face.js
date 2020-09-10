@@ -240,8 +240,7 @@ Object.assign(pcui, (function () {
                             }
                         }
                     } catch (ex) {
-                        console.error(ex.message);
-                        console.error(ex.stack);
+                        log.error(ex);
                     }
                     this._asset.set(`data.textures.${this._args.face}`, parseInt(dropData.id, 10));
                     this._setRgbmIfNeeded();

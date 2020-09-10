@@ -327,7 +327,7 @@ Object.assign(pcui, (function () {
                             newEntities.push(this._instantiateDraggedSpriteAsset(asset, parent, childIndex));
                         }
                     } catch (err) {
-                        console.error(err);
+                        log.error(err);
                     }
                 });
 
@@ -587,7 +587,7 @@ Object.assign(pcui, (function () {
                         treeViewItem.append(this._onAddEntity(child));
                     } else {
                         const err = `Cannot find child entity ${childId} of parent "${entity.get('name')}" (${resourceId})`;
-                        console.error(err);
+                        log.error(err);
                         editor.call('status:error', err);
                     }
                 }

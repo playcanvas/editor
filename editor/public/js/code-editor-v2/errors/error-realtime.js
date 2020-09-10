@@ -10,7 +10,7 @@ editor.once('load', function () {
     // from socket errors to sharedb errors
     editor.on('realtime:error', function (err) {
         hasError = true;
-        console.error(err);
+        log.error(err);
         editor.call('status:permanentError', 'There was a realtime error that the Code Editor could not recover from. Please refresh the Code Editor.');
         editor.emit('permissions:writeState', false);
     });

@@ -392,7 +392,7 @@ editor.once('load', function () {
                 };
             } catch (e) {
                 hasErrors = true;
-                console.error(e);
+                log.error(e);
             }
         });
 

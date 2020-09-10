@@ -14,14 +14,14 @@ editor.once('load', function() {
             // client > server
             userdata.sync.on('op', function(op) {
                 if (op.oi === null) {
-                    console.error('Tried to send invalid userdata op', op);
+                    log.error('Tried to send invalid userdata op', op);
                     return;
                 }
 
                 editor.call('realtime:userdata:op', op);
             });
         }
-        
+
         userdata.sync.enabled = false;
         userdata.patch(data);
         userdata.sync.enabled = true;

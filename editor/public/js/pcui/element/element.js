@@ -470,7 +470,7 @@ Object.assign(pcui, (function () {
         static create(type, args) {
             const entry = ELEMENT_REGISTRY[type];
             if (!entry) {
-                console.error('Invalid type passed to pcui.Element#create', type);
+                log.error('Invalid type passed to pcui.Element#create', type);
                 return;
             }
 

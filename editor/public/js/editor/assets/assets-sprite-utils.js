@@ -26,7 +26,7 @@ editor.once('load', function() {
             if (callback) {
                 callback(status);
             } else {
-                console.error('error', status, res);
+                log.error('error', status, res);
             }
         });
     });

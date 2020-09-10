@@ -23,7 +23,7 @@ editor.once('load', function () {
 
         // handle errors
         assetDoc.on('error', function (err) {
-            console.error(err);
+            log.error(err);
             editor.emit('assets:error', err);
             editor.call('status:error', 'Realtime error for asset "' + (asset ? asset.get('name') : uniqueId) + '": ' + err);
         });

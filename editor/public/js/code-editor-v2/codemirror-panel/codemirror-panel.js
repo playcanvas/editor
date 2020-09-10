@@ -305,7 +305,7 @@ editor.once('load', function () {
 
         } catch (ex) {
             editor.call('status:error', 'Could not initialize auto-complete');
-            console.error(ex);
+            log.error(ex);
         }
     });
 

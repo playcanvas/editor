@@ -1918,7 +1918,7 @@ var makeAppend = function(op) {
   return function(component) {
     if (!component || component.d === 0) {
       // The component is a no-op. Ignore!
- 
+
     } else if (op.length === 0) {
       return op.push(component);
 
@@ -2124,11 +2124,11 @@ exports.transform = function(op, otherOp, side) {
         break;
     }
   }
-  
+
   // Append any extra data in op1.
   while ((component = take(-1)))
     append(component);
-  
+
   return trim(newOp);
 };
 
@@ -2758,7 +2758,7 @@ Connection.prototype._handleBulkMessage = function(message, method) {
       if (doc) doc[method](message.error);
     }
   } else {
-    console.error('Invalid bulk message', message);
+    log.error('Invalid bulk message', message);
   }
 };
 

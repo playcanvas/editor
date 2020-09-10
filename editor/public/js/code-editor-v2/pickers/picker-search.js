@@ -397,7 +397,7 @@ editor.once('load', function () {
             );
             error.hidden = true;
         } catch (e) {
-            console.error(e);
+            log.error(e);
             regexp = null;
             error.text = 'Invalid Regular Expression';
             error.hidden = false;

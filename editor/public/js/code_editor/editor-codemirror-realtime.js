@@ -351,7 +351,7 @@ editor.once('load', function () {
     var applyCustomOp = function (op) {
         share._doc.submitOp(op, function (err) {
             if (err) {
-                console.error(err);
+                log.error(err);
                 editor.emit('realtime:error', err);
                 return;
             }

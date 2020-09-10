@@ -199,7 +199,7 @@ Object.assign(pcui, (function () {
                     }
                 }
             } catch (err) {
-                console.error(err);
+                log.error(err);
             }
         }
 
@@ -235,7 +235,7 @@ Object.assign(pcui, (function () {
                 if (observer)
                     field.link([observer], attr.path || attr.paths);
                 else
-                    console.error(`This attributes inspector does not contain a valid observer for attr: "${key}". attr.observer is currently: "${attr.observer}".`);
+                    log.error(`This attributes inspector does not contain a valid observer for attr: "${key}". attr.observer is currently: "${attr.observer}".`);
             } else {
                 field.link(this._observers, attr.path || attr.paths);
             }

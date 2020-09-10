@@ -657,7 +657,7 @@ editor.once('load', function() {
                                 }
                             }
                         } catch(ex) {
-                            console.error(ex);
+                            log.error(ex);
                         }
 
                         setAssetFace(ind, asset);

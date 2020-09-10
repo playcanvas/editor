@@ -498,7 +498,7 @@ editor.once('load', function () {
             refreshButtonsState();
 
             // error
-            console.error(arguments);
+            log.error(arguments);
         });
     };
 

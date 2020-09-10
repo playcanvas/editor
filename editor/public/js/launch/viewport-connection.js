@@ -26,6 +26,6 @@ editor.once('load', function() {
     });
 
     editor.on('realtime:error', function (err) {
-        console.error(err);
+        log.error(err);
     })
 });

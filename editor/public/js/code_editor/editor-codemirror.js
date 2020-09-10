@@ -213,7 +213,7 @@ editor.once('load', function () {
                 extraKeys['Ctrl-.'] = function (cm) {server.selectName(cm);};
             } catch (ex) {
                 console.error('Could not initialize auto complete');
-                console.error(ex);
+                log.error(ex);
             }
         }
 

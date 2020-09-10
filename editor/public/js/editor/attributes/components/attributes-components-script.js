@@ -411,7 +411,7 @@ editor.once('load', function() {
                     }
                 } catch(ex) {
                     console.info('could not recreate enumeration for script attribute, ' + script.get('url'));
-                    console.error(ex)
+                    log.error(ex)
                 }
             }
 

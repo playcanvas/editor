@@ -437,7 +437,7 @@ editor.once('load', function() {
 
         // unknown key
         if (! args.key) {
-            console.error('unknown key: ' + name + ', ' + args.key);
+            log.error('unknown key: ' + name + ', ' + args.key);
             return;
         }
 

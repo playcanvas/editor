@@ -20,6 +20,6 @@ editor.once('load', function () {
         editor.emit('help:howdoi:load');
     })
     .on('error', function(status, data) {
-        console.error(status);
+        log.error(status);
     });
 });

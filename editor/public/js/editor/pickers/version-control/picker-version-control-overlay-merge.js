@@ -84,7 +84,7 @@ editor.once('load', function () {
         }
         editor.call('branches:list', params, function (err, data) {
             if (err) {
-                console.error(err);
+                log.error(err);
                 return;
             }
 

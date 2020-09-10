@@ -84,7 +84,7 @@ editor.once('load', function() {
                         shareDbMessage(msg);
                     }
                 } catch (e) {
-                    console.error(e);
+                    log.error(e);
                 }
 
             };
@@ -198,7 +198,7 @@ editor.once('load', function() {
             try {
                 scene.submitOp([ op ]);
             } catch (e) {
-                console.error(e);
+                log.error(e);
                 editor.emit('realtime:scene:error', e);
             }
         });

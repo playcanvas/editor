@@ -23,7 +23,7 @@ editor.once('load', function () {
 
             // handle errors
             doc.on('error', function (err) {
-                console.error(err);
+                log.error(err);
                 editor.emit('settings:' + args.name + ':error', err);
             });
 

@@ -35,7 +35,7 @@ editor.once('load', function () {
         doc.on('load', function () {
             var assetData = doc.data;
             if (! assetData) {
-                console.error('Could not load asset: ' + uniqueId);
+                log.error('Could not load asset: ' + uniqueId);
                 doc.unsubscribe();
                 doc.destroy();
                 return callback && callback();
@@ -418,7 +418,7 @@ editor.once('load', function () {
         if (asset) {
             asset.sync.write(op);
         } else {
-            console.error('realtime operation on missing asset: ' + op.p[1]);
+            log.error('realtime operation on missing asset: ' + op.p[1]);
         }
     });
 });

@@ -146,7 +146,7 @@ editor.once('load', function () {
 
     // Document error
     editor.on('documents:error', function (id, err) {
-        console.error(err);
+        log.error(err);
 
         var entry = documentsIndex[id];
         if (! entry) return;

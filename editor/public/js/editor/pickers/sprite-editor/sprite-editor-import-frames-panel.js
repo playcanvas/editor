@@ -96,7 +96,7 @@ editor.once('load', function () {
                     data = JSON.parse(text);
                     importFramesFromTexturePacker(data);
                 } catch (err) {
-                    console.error(err);
+                    log.error(err);
                     panelError.hidden = false;
                     return;
                 } finally {

@@ -58,7 +58,7 @@ editor.once('load', function () {
             app.preload(function (err) {
                 // load scripts that are in the scene data
                 app._preloadScripts(sceneData, function (err) {
-                    if (err) console.error(err);
+                    if (err) log.error(err);
 
                     // create scene
                     app.scene = app.loader.open("scene", sceneData);
@@ -72,7 +72,7 @@ editor.once('load', function () {
                     sceneSettings = null;
                     scriptList = null;
 
-                    if (err) console.error(err);
+                    if (err) log.error(err);
 
                     app.start();
                 });
@@ -144,7 +144,7 @@ editor.once('load', function () {
             };
 
             loadingScript.onerror = function () {
-                console.error("Could not load loading screen script: " + config.project.settings.loadingScreenScript);
+                log.error("Could not load loading screen script: " + config.project.settings.loadingScreenScript);
                 defaultLoadingScreen();
             };
 
@@ -291,7 +291,7 @@ editor.once('load', function () {
     editor.call('editor:loadModules', config.wasmModules, "", function() {
         app._loadLibraries(libraryUrls, function (err) {
             libraries = true;
-            if (err) console.error(err);
+            if (err) log.error(err);
             init();
         });
     });
