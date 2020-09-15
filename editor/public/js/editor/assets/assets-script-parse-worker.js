@@ -106,19 +106,6 @@ var parseScript = function(id, url, engine) {
 
                 enumIndex[key] = true;
             }
-
-            // parse enum to different format
-            const obj = {
-                order: [],
-                options: {}
-            };
-
-            for (let i = 0; i < args.enum.length; i++) {
-                const key = Object.keys(args.enum[i])[0];
-                obj.order.push(key);
-                obj.options[key] = args.enum[i][key];
-            }
-            args.enum = obj;
         }
 
         function validateDefaultValue(args) {

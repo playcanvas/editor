@@ -1,9 +1,25 @@
 editor.once('load', function() {
     'use strict';
 
-    if (editor.call('settings:project').get('useLegacyScripts'))
+    if (editor.call('settings:project').get('useLegacyScripts')) {
         return;
+    }
 
+    function convertEnum(enumData) {
+        // parse enum to different format
+        const result = {
+            order: [],
+            options: {}
+        };
+
+        for (let i = 0; i < enumData.length; i++) {
+            const key = Object.keys(enumData[i])[0];
+            result.order.push(key);
+            result.options[key] = enumData[i][key];
+        }
+
+        return result;
+    }
 
     // parse script file and its attributes
     // update attributes accordingly
@@ -70,7 +86,27 @@ editor.once('load', function() {
                             if (! result.scripts[key].attributes.hasOwnProperty(attr))
                                 continue;
 
-                            attributes[attr] = result.scripts[key].attributes[attr];
+                            attributes[attr] = Object.assign({}, result.scripts[key].attributes[attr]);
+
+                            if (attributes[attr].enum) {
+                                attributes[attr].enum = convertEnum(attributes[attr].enum);
+                            }
+
+                            if (Array.isArray(attributes[attr].schema)) {
+                                let schemaCopy = null;
+                                attributes[attr].schema.forEach((field, index) => {
+                                    if (field.enum) {
+                                        if (!schemaCopy) {
+                                            schemaCopy = attributes[attr].schema.slice();
+                                        }
+                                        schemaCopy[index] = Object.assign({}, schemaCopy[index]);
+                                        schemaCopy[index].enum = convertEnum(field.enum);
+                                    }
+                                });
+                                if (schemaCopy) {
+                                    attributes[attr].schema = schemaCopy;
+                                }
+                            }
                         }
 
                         var script = asset.get('data.scripts.' + key);

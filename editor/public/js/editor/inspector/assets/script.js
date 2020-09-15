@@ -110,7 +110,10 @@ Object.assign(pcui, (function () {
                     var attrInvalid = result.scripts[scriptName].attributesInvalid;
                     if (attrInvalid.length > 0) {
                         const label = new pcui.Label({ text: attrInvalid, class: [pcui.CLASS_ERROR, CLASS_SCRIPT] });
-                        this._scriptAttributeContainer[`_${scriptName}Container`].appendAfter(label, this._scriptAttributeContainer[`_${scriptName}Container`]._scriptLabel);
+                        const container = this._scriptAttributeContainer[`_${scriptName}Container`];
+                        if (container) {
+                            container.appendAfter(label, container._scriptLabel);
+                        }
                     }
                 }
             });
