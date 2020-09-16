@@ -273,7 +273,7 @@ editor.once('load', function() {
         var root = editor.call('attributes.rootPanel');
 
         // template panel
-        if (editor.call('users:hasFlag', 'hasTemplates') && !editor.call('settings:project').get('useLegacyScripts')) {
+        if (!editor.call('settings:project').get('useLegacyScripts')) {
             items.panelTemplate = templateInspector;
             root.append(items.panelTemplate);
         }

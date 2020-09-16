@@ -183,7 +183,7 @@ editor.once('load', function() {
             items: editor.call('menu:entities:add-component')
         };
 
-        if (editor.call('users:hasFlag', 'hasTemplates') && !legacyScripts) {
+        if (!legacyScripts) {
             menuData['template'] = {
                 title: 'Template',
                 className: 'menu-item-templates',

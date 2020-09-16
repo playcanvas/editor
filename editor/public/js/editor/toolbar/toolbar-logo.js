@@ -552,7 +552,7 @@ editor.once('load', function() {
         'priorityScripts': null
     };
 
-    if (editor.call('users:hasFlag', 'hasTemplates') && !legacyScripts) {
+    if (!legacyScripts) {
         menuData.entity.items.template = {
             title: 'Template',
             filter: () => {

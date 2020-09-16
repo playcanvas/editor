@@ -66,7 +66,7 @@ Object.assign(pcui, (function () {
 
             this._projectSettings = args.projectSettings;
 
-            if (editor.call('users:hasFlag', 'hasTemplates') && !editor.call('settings:project').get('useLegacyScripts')) {
+            if (!editor.call('settings:project').get('useLegacyScripts')) {
                 this._templateInspector = new pcui.TemplatesEntityInspector({
                     flex: true,
                     assets: args.assets,

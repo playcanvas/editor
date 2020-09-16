@@ -264,7 +264,7 @@ editor.once('load', function() {
         };
     }
 
-    if (!editor.call('users:hasFlag', 'hasTemplates') || legacyScripts) {
+    if (legacyScripts) {
         delete filterOptions.options.template;
     }
 
