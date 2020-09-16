@@ -267,6 +267,11 @@ editor.once('load', function() {
         subTitle: '{Number}',
         description: 'The maximum size of any dimension of a bounding box around batched objects. A larger size will batch more objects generating less draw calls but the batched objects will be larger and harder for the camera to cull. A smaller size will generate more draw calls (but less than without batching) but the resulting objects will be easier for the camera to cull.'
     }, {
+        name: 'batchGroups:layers',
+        title: 'layers',
+        subTitle: '{Number[]}',
+        description: 'The layers that this batch group belongs to.'
+    }, {
         name: 'layers',
         title: 'Layers',
         description: 'Manage rendering Layers and their render order.'
