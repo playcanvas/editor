@@ -117,7 +117,7 @@ Object.assign(pcui, (function () {
             if (this._nodes) {
                 this.parent.headerText = `MESH INSTANCES [${this._nodes.length}]`;
                 this._assetElements.forEach((assetElement, ind) => {
-                    assetElement.text = `[0] ${this._nodes[ind]}`;
+                    assetElement.text = `[${ind}] ${this._nodes[ind]}`;
                 });
             }
         }
