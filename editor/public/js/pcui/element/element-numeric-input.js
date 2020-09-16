@@ -158,23 +158,26 @@ Object.assign(pcui, (function () {
             } catch(error) {
                 value = null;
             }
-            if (!isNaN(value)) {
-                // clamp between min max
-                if (this.min !== null && value < this.min) {
-                    value = this.min;
-                }
-                if (this.max !== null && value > this.max) {
-                    value = this.max;
+
+            if (value === null || isNaN(value)) {
+                if (this._allowNull) {
+                    return null;
                 }
 
-                // fix precision
-                if (this.precision !== null) {
-                    value = parseFloat(Number(value).toFixed(this.precision), 10);
-                }
-            } else if (this._allowNull) {
-                value = null;
-            } else {
                 value = 0;
+            }
+
+            // clamp between min max
+            if (this.min !== null && value < this.min) {
+                value = this.min;
+            }
+            if (this.max !== null && value > this.max) {
+                value = this.max;
+            }
+
+            // fix precision
+            if (this.precision !== null) {
+                value = parseFloat(Number(value).toFixed(this.precision), 10);
             }
 
             return value;
