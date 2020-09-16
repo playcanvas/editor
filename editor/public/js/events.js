@@ -57,7 +57,7 @@ Events.prototype.emit = function(name, arg0, arg1, arg2, arg3, arg4, arg5, arg6,
             events[i].call(this, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
         } catch(ex) {
             console.info('%c%s %c(event error)', 'color: #06f', name, 'color: #f00');
-            console.error(ex);
+            log.error(ex);
         }
     }
 
