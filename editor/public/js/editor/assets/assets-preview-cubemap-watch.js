@@ -76,6 +76,8 @@ editor.once('load', function() {
             } else if (value) {
                 addTextureWatch(watch, slot, value);
             }
+
+            trigger(watch, slot);
         });
     };
 
@@ -105,6 +107,8 @@ editor.once('load', function() {
                         removeTextureWatch(watch, i);
                 }
             }
+
+            trigger(watch);
         });
 
         for(var i = 0; i < 6; i++)
