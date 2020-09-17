@@ -258,6 +258,7 @@ Object.assign(pcui, (function () {
             // re-initialize material with migrated properties
             material.reset();
             materialParser.initialize(material, migrated);
+            material.useFog = false;
 
             // set up layer
             layer.addCamera(cameraEntity.camera);

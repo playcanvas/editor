@@ -19,6 +19,7 @@ Object.assign(pcui, (function () {
         // material
         scene.material = new pc.StandardMaterial();
         scene.material.useSkybox = false;
+        scene.material.useFog = false;
 
         scene.aabb = new pc.BoundingBox();
 
