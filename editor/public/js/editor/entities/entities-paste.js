@@ -90,22 +90,23 @@ editor.once('load', function () {
 
     /**
      * Remaps the resource ids of the entities and their entity references in localStorage
-     * with new resource ids
+     * with new resource ids, also remaps asset ids.
      * @param {Observer} entity The entity we are remapping
      * @param {Observer} parent The parent of the pasted entity
      * @param {Object} data The data in localStorage
-     * @param {Object} mapping An index that maps old resource ids to new resource ids
+     * @param {Object} entityMapping An index that maps old resource ids to new resource ids
+     * @param {Object} assetMapping An index that maps old asset ids to new asset ids
      */
-    var remapResourceIds = function (entity, parent, data, mapping) {
+    var remapEntitiesAndAssets = function (entity, parent, data, entityMapping, assetMapping) {
         var resourceId = entity.get('resource_id');
 
-        var newResourceId = mapping[resourceId];
+        var newResourceId = entityMapping[resourceId];
         entity.set('resource_id', newResourceId);
 
         // set new resource id for parent
         var parentId = entity.get('parent');
         if (parentId) {
-            entity.set('parent', mapping[parentId]);
+            entity.set('parent', entityMapping[parentId]);
         } else {
             entity.set('parent', parent.get('resource_id'));
         }
@@ -115,8 +116,8 @@ editor.once('load', function () {
         if (templateEntIds) {
             const newTemplateEntIds = {};
             for (const oldId in templateEntIds) {
-                if (mapping[oldId]) {
-                    newTemplateEntIds[mapping[oldId]] = templateEntIds[oldId];
+                if (entityMapping[oldId]) {
+                    newTemplateEntIds[entityMapping[oldId]] = templateEntIds[oldId];
                 }
             }
             entity.set('template_ent_ids', newTemplateEntIds);
@@ -150,11 +151,11 @@ editor.once('load', function () {
 
                         if (assets instanceof Array) {
                             for (j = 0; j < assets.length; j++) {
-                                assets[j] = data.assets[assets[j]];
+                                assets[j] = assetMapping[assets[j]];
                             }
                             entity.set(fullKey, assets);
                         } else {
-                            entity.set(fullKey, data.assets[assets]);
+                            entity.set(fullKey, assetMapping[assets]);
                         }
                     }
                 }
@@ -164,11 +165,11 @@ editor.once('load', function () {
 
                     if (assets instanceof Array) {
                         for (j = 0; j < assets.length; j++) {
-                            assets[j] = data.assets[assets[j]];
+                            assets[j] = assetMapping[assets[j]];
                         }
                         entity.set(path, assets);
                     } else {
-                        entity.set(path, data.assets[assets]);
+                        entity.set(path, assetMapping[assets]);
                     }
                 }
             }
@@ -196,27 +197,27 @@ editor.once('load', function () {
                                     if (attr.value) {
                                         if (attr.value instanceof Array) {
                                             for (j = 0; j < attr.value.length; j++) {
-                                                entity.set('components.script.scripts.' + i + '.attributes.' + name + '.value.' + j, data.assets[attr.value[j]])
+                                                entity.set('components.script.scripts.' + i + '.attributes.' + name + '.value.' + j, assetMapping[attr.value[j]])
                                             }
                                         } else {
-                                            entity.set('components.script.scripts.' + i + '.attributes.' + name + '.value', data.assets[attr.value]);
+                                            entity.set('components.script.scripts.' + i + '.attributes.' + name + '.value', assetMapping[attr.value]);
                                         }
                                     }
 
                                     if (attr.defaultValue) {
                                         if (attr.defaultValue instanceof Array) {
                                             for (j = 0; j < attr.defaultValue.length; j++) {
-                                                entity.set('components.script.scripts.' + i + '.attributes.' + name + '.defaultValue.' + j, data.assets[attr.value[j]])
+                                                entity.set('components.script.scripts.' + i + '.attributes.' + name + '.defaultValue.' + j, assetMapping[attr.value[j]])
                                             }
                                         } else {
-                                            entity.set('components.script.scripts.' + i + '.attributes.' + name + '.defaultValue', data.assets[attr.value]);
+                                            entity.set('components.script.scripts.' + i + '.attributes.' + name + '.defaultValue', assetMapping[attr.value]);
                                         }
                                     }
                                 } else if (attr.type === 'entity') {
-                                    if (mapping[attr.value])
-                                        entity.set('components.script.scripts.' + i + '.attributes.' + name + '.value', mapping[attr.value]);
-                                    if (mapping[attr.defaultValue])
-                                        entity.set('components.script.scripts.' + i + '.attributes.' + name + '.defaultValue', mapping[attr.defaultValue]);
+                                    if (entityMapping[attr.value])
+                                        entity.set('components.script.scripts.' + i + '.attributes.' + name + '.value', entityMapping[attr.value]);
+                                    if (entityMapping[attr.defaultValue])
+                                        entity.set('components.script.scripts.' + i + '.attributes.' + name + '.defaultValue', entityMapping[attr.defaultValue]);
                                 }
                             }
                         }
@@ -243,7 +244,7 @@ editor.once('load', function () {
                                                     for (let k = 0; k < attrData.schema.length; k++) {
                                                         const field = attrData.schema[k];
                                                         if (attrs[key][j][field.name]) {
-                                                            remapScriptAttribute(field, attrs[key][j][field.name], entity, `components.script.scripts.${script}.attributes.${key}.${j}.${field.name}`, data, mapping);
+                                                            remapScriptAttribute(field, attrs[key][j][field.name], entity, `components.script.scripts.${script}.attributes.${key}.${j}.${field.name}`, data, entityMapping);
                                                         }
                                                     }
                                                 }
@@ -252,13 +253,13 @@ editor.once('load', function () {
                                                 for (let k = 0; k < attrData.schema.length; k++) {
                                                     const field = attrData.schema[k];
                                                     if (attrs[key][field.name]) {
-                                                        remapScriptAttribute(field, attrs[key][field.name], entity, `components.script.scripts.${script}.attributes.${key}.${field.name}`, data, mapping);
+                                                        remapScriptAttribute(field, attrs[key][field.name], entity, `components.script.scripts.${script}.attributes.${key}.${field.name}`, data, entityMapping);
                                                     }
                                                 }
                                             }
                                         } else {
                                             // non json attribute
-                                            remapScriptAttribute(attrData, attrs[key], entity, `components.script.scripts.${script}.attributes.${key}`, data, mapping);
+                                            remapScriptAttribute(attrData, attrs[key], entity, `components.script.scripts.${script}.attributes.${key}`, data, entityMapping);
                                         }
                                     }
                                 }
@@ -277,7 +278,7 @@ editor.once('load', function () {
 
             entityFields.forEach(fieldName => {
                 const oldEntityId = component[fieldName];
-                const newEntityId = mapping[oldEntityId];
+                const newEntityId = entityMapping[oldEntityId];
                 if (newEntityId) {
                     entity.set('components.' + componentName + '.' + fieldName, newEntityId);
                 }
@@ -331,9 +332,10 @@ editor.once('load', function () {
 
 
         // remap assets
+        let remappedAssets = {};
         if (data.assets) {
             for (var key in data.assets) {
-                data.assets[key] = remapAsset(key, data.assets);
+                remappedAssets[key] = remapAsset(key, data.assets);
             }
         }
 
@@ -357,7 +359,7 @@ editor.once('load', function () {
             var select = !data.hierarchy[entity.get('parent')];
 
             // change resource ids
-            remapResourceIds(entity, parent, data, mapping);
+            remapEntitiesAndAssets(entity, parent, data, mapping, remappedAssets);
 
             // sharedb
             editor.call('realtime:scene:op', {
