@@ -30,7 +30,7 @@ editor.once('load', function() {
         {
             name: 'transitionOffset',
             title: 'Transition Offset',
-            description: 'If provided, the destination state will begin playing its animation at this time. Given in seconds.'
+            description: 'If provided, the destination state will begin playing its animation at this time. Given in normalised time based on the destinations states duration. Must be between 0 and 1.'
         },
         {
             name: 'interruptionSource',
