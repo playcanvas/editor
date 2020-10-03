@@ -67,7 +67,7 @@ editor.once('load', function () {
         return editor.call(
             'guide:bubble',
             'Scene Hierarchy',
-            'This is your <strong>Scene Hierarchy</strong> made up of <strong>Entities</strong>, which can be given new behaviours by adding Components.<br/><br/> <span class="font-icon">&#57632;</span> Add, <span class="font-icon">&#57638;</span> Duplicate and <span class="font-icon">&#57636;</span> Delete Entities using the controls in this panel.',
+            'This is your <strong>Scene Hierarchy</strong> made up of <strong>Entities</strong>, which can be given new behaviors by adding Components.<br/><br/> <span class="font-icon">&#57632;</span> Add, <span class="font-icon">&#57638;</span> Duplicate and <span class="font-icon">&#57636;</span> Delete Entities using the controls in this panel.',
             295,
             60,
             'left'
@@ -113,10 +113,10 @@ editor.once('load', function () {
     var bubbleStore = function () {
         var bubble = editor.call(
             'guide:bubble',
-            'Asset Library',
-            '<img width="424" height="133" src="https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/instructions/asset_library.jpg"/><br/><br/>Click the <strong>Library</strong> button to open the Asset Library. Add free 3D models and assets from the library into your scene with a single click.',
-            560,
-            -36,
+            'Store',
+            '<img width="424" height="133" src="https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/instructions/asset_library.jpg"/><br/><br/>Click the <strong>STORE</strong> button to open the Store. Add free 3D models and assets from the Store into your scene with a single click.',
+            900,
+            -10,
             'bottom-right',
             editor.call('layout.assets').dom
         );
@@ -155,8 +155,8 @@ editor.once('load', function () {
     var bubbleEntity = function () {
         var bubble = editor.call(
             'guide:bubble',
-            'Entity Inspector',
-            'This is the <strong>Entity Inspector</strong>. Here you can enable or disable an Entity, edit its name or its position / rotation and scale. <br/><br/>If you want to add behaviours to your Entity click on Add Component.',
+            'Inspector',
+            'This is the <strong>Inspector</strong>. Here you can enable or disable an Entity, edit its name or its position / rotation and scale. <br/><br/>If you want to add behaviors to your Entity click on Add Component.',
             0,
             100,
             'right',
