@@ -1,8 +1,12 @@
 editor.once('load', function() {
     'use strict';
 
-    if (! editor.call('settings:project').get('useLegacyScripts'))
+    if (! editor.call('settings:project').get('useLegacyScripts')){
         return;
+    }
+
+    var projectId = config.project.id;
+    metrics.increment({ metricsName: 'editor.script.count.by_type.legacy_script.with_project_id.' + projectId });
 
     var repositories = new Observer();
 
