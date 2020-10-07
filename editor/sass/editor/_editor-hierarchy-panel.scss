@@ -92,6 +92,7 @@
             margin: 2px;
             border: none;
             background-color: $bcg-primary;
+            overflow-y: auto;
 
             &:focus {
                 outline: none;
