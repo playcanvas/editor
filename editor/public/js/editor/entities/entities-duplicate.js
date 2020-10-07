@@ -183,6 +183,58 @@ editor.once('load', function () {
         return editor.call('entities:getParentResourceId', childResourceId);
     };
 
+    var splitEntityNameAndNumber = function (entityName) {
+        var name = '';
+        var number = 1;
+
+        //step from end of string character by character checking to see if we have a trailing number
+        //stopping when the string we are constructing is no longer a valid number
+        var numberString = '';
+        var foundNumber = true;
+        for (var i = entityName.length - 1; i >= 0; i--) {
+            var char = entityName.charAt(i);
+            if (foundNumber) {
+                numberString = char + numberString;
+                foundNumber = /^\d+$/.test(numberString);
+                if (foundNumber) {
+                    number = parseInt(numberString);
+                }
+            }
+            if (foundNumber === false) {
+                name = char + name;
+            }
+        }
+
+        return {
+            name,
+            number
+        };
+    }
+
+    var isEntityNameTaken = function (name, entities) {
+        for (var j = 0; j < entities.length; j++) {
+            const entity = entities[j];
+            const entityName = entities[j].name;
+            if (entity && entityName === name) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    var getUniqueNameForDuplicatedEntity = function (entityName, entities) {
+        var entityNameAndNumber = splitEntityNameAndNumber(entityName); //if entityName === '1box23' then name === '1box' and number === 23,  if entityName === '1' then name === '' and number === 1
+        var name = entityNameAndNumber.name;
+        var number = entityNameAndNumber.number;
+
+        var startIndex = number + 1;
+        var newUniqueName = name + startIndex;
+        while (isEntityNameTaken(newUniqueName, entities)) {
+            newUniqueName = name + startIndex++;
+        }
+        return newUniqueName;
+    }
+
     /**
      * Duplicates an entity in the scene
      * @param {Observer} entity The entity
@@ -197,6 +249,7 @@ editor.once('load', function () {
         var children = data.children;
 
         data.children = [];
+        data.name = getUniqueNameForDuplicatedEntity(data.name, parent.entity.children);
         data.resource_id = pc.guid.create();
         data.parent = parent.get('resource_id');
 
