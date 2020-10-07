@@ -1,3 +1,5 @@
+window.pcuiExternal = window.pcui;
+delete window.pcui;
 window.pcui = {};
 
 // constants
