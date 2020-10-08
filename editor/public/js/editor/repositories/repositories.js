@@ -5,8 +5,10 @@ editor.once('load', function() {
         return;
     }
 
-    var projectId = config.project.id;
-    metrics.increment({ metricsName: 'editor.script.count.by_type.legacy_script.with_project_id.' + projectId });
+    // keep metrics on number of writeable projects 
+    metrics.increment({ metricsName: 'editor.script.count.by_type.legacy_script' +
+                                        (editor.call('editor:isReadonly') ? '.read_only' : '.writable') +
+                                        '.with_project_id.' + config.project.id });
 
     var repositories = new Observer();
 
