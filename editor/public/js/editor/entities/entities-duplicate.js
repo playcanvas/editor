@@ -2,6 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var settings = editor.call('settings:project');
+    var projectUserSettings = editor.call('settings:projectUser');
 
     /**
      * When an entity that has properties that contain references to some entities
@@ -243,13 +244,15 @@ editor.once('load', function () {
      * @param {Object} duplicatedIdsMap A guid->guid map that contains references from the source resource ids to the new resource ids
      * @returns {Observer} The new entity
      */
-    var duplicateEntity = function (entity, parent, ind, duplicatedIdsMap) {
+    var duplicateEntity = function (entity, parent, ind, duplicatedIdsMap, useUniqueName) {
         var originalResourceId = entity.get('resource_id');
         var data = entity.json();
         var children = data.children;
 
         data.children = [];
-        data.name = getUniqueNameForDuplicatedEntity(data.name, parent.entity.children);
+        if (useUniqueName) {
+            data.name = getUniqueNameForDuplicatedEntity(data.name, parent.entity.children);
+        }
         data.resource_id = pc.guid.create();
         data.parent = parent.get('resource_id');
 
@@ -359,7 +362,7 @@ editor.once('load', function () {
             id = entity.get('resource_id');
             var parent = editor.call('entities:get', getParent(id));
             var duplicatedIdsMap = {};
-            var entityNew = duplicateEntity(entity, parent, ids[id].ind + 1, duplicatedIdsMap);
+            var entityNew = duplicateEntity(entity, parent, ids[id].ind + 1, duplicatedIdsMap, projectUserSettings.get('editor.renameDuplicatedEntities'));
             resolveDuplicatedEntityReferenceProperties(entity, entity, entityNew, duplicatedIdsMap);
             entitiesNew.push(entityNew);
             entitiesNewData.push(entityNew.json());

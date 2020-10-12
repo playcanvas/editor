@@ -93,6 +93,12 @@ Object.assign(pcui, (function () {
             alias: 'chatNotification',
             label: 'Chat Notification',
             type: 'boolean'
+        },
+        {
+            observer: 'settings',
+            path: 'editor.renameDuplicatedEntities',
+            label: 'Rename Duplicated Entities',
+            type: 'boolean'
         }
     ];
 

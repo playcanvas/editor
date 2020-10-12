@@ -96,6 +96,10 @@ editor.once('load', function () {
                 settings.set('editor.locale', 'en-US');
             }
 
+            if (! settings.has('editor.renameDuplicatedEntities')) {
+                settings.set('editor.renameDuplicatedEntities', false);
+            }
+
             if (!settings.get('favoriteBranches')) {
                 if (config.project.masterBranch) {
                     settings.set('favoriteBranches', [config.project.masterBranch]);
