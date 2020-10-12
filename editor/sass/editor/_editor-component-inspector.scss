@@ -18,7 +18,7 @@
 
 .component-inspector-enabled {
     > .pcui-label:first-child {
-        width: auto;
+        width: auto !important;
         @extend .font-bold;
     }
 }
