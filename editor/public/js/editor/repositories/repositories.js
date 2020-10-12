@@ -7,7 +7,7 @@ editor.once('load', function() {
 
     // keep metrics on number of writeable projects 
     metrics.increment({ metricsName: 'editor.script.count.by_type.legacy_script' +
-                                        (editor.call('editor:isReadonly') ? '.read_only' : '.writable') +
+                                        (editor.call('permissions:write') ? '.writable' : '.read_only') +
                                         '.with_project_id.' + config.project.id });
 
     var repositories = new Observer();
