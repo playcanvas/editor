@@ -36,6 +36,9 @@ editor.once('load', function() {
         name: 'chatNotification',
         description: 'Get notified for in-editor chat messages'
     }, {
+        name: 'renameDuplicatedEntities',
+        description: "If ticked, duplicated entity names get an incremental number added to the end for a unique name from the original. E.g. 'Box' becomes 'Box2'."
+    }, {
         title: 'gravity',
         subTitle: '{pc.Vec3}',
         description: 'Gravity is the acceleration applied every frame to all rigid bodies in your scene. By default, it is set to -9.8 meters per second per second, which essentially approximates Earth\'s gravity. If you are making a game in space, you might want to set this to 0, 0, 0 (zero g).',
