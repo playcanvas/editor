@@ -147,13 +147,6 @@ Object.assign(pcui, (function () {
                     });
                 }
             }
-
-            const fieldUseGlb = this._attributesInspector.getField('editor.pipeline.useGlb');
-
-            fieldUseGlb.on('destroy', () => {
-                evtUseGlb.unbind();
-                evtUseGlb = null;
-            });
         }
 
         _appendSection(title, attributeElement) {
