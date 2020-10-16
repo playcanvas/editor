@@ -148,32 +148,12 @@ Object.assign(pcui, (function () {
                 }
             }
 
-            const hasUseGlb = editor.call('users:hasFlag', 'hasConvertGlb');
-
             const fieldUseGlb = this._attributesInspector.getField('editor.pipeline.useGlb');
-            if (!hasUseGlb && !fieldUseGlb.value) {
-                fieldUseGlb.parent.hidden = true;
-            }
-
-            let evtUseGlb = args.settings.on('editor.pipeline.useGlb:set', value => {
-                if (value) {
-                    fieldUseGlb.parent.hidden = false;
-                } else if (!hasUseGlb) {
-                    fieldUseGlb.parent.hidden = true;
-                }
-            });
 
             fieldUseGlb.on('destroy', () => {
                 evtUseGlb.unbind();
                 evtUseGlb = null;
             });
-
-            if (!hasUseGlb) {
-                // use the useGlb flag to hide animation options
-                this._attributesInspector.getField('editor.pipeline.animSampleRate').parent.hidden = true;
-                this._attributesInspector.getField('editor.pipeline.animCurveTolerance').parent.hidden = true;
-                this._attributesInspector.getField('editor.pipeline.animEnableCubic').parent.hidden = true;
-            }
         }
 
         _appendSection(title, attributeElement) {
