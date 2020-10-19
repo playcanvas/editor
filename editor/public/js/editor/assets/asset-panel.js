@@ -2070,7 +2070,7 @@ Object.assign(pcui, (function () {
             let id;
             if (this._currentFolder) {
                 id = this._currentFolder.get('id');
-                if (this._foldersIndex[id]) {
+                if (this._foldersIndex[id] && !this._foldersIndex[id].destroyed) {
                     this._foldersIndex[id].classRemove(CLASS_CURRENT_FOLDER);
                 }
             } else {
