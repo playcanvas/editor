@@ -322,7 +322,8 @@ Object.assign(pcui, (function () {
             // initial progress container
             this._containerProgress = new pcui.Container({
                 class: CLASS_PROGRESS,
-                flex: true
+                flex: true,
+                flexDirection: 'row'
             });
             this._progressBar = new pcui.Progress();
             this._progressBar.on('change', value => {
