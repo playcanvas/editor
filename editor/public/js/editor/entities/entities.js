@@ -32,8 +32,15 @@ editor.once('load', function() {
 
     // allow adding entity
     editor.method('entities:add', function(entity) {
-        if (! entity.get('parent'))
+        if (! entity.get('parent')) {
+            if (entityRoot) {
+                // this is a bad scene it has more than one entities
+                // with a null parent.. Check for a bad scene merge.
+                editor.call('status:error', `More than one root entities in Scene. Current root is Entity "${entityRoot.get('name')}" [${entity.get('resource_id')}] but Entity "${entity.get('name')}" [${entity.get('resource_id')}] also has a null parent`);
+            }
+
             entityRoot = entity;
+        }
 
         entities.add(entity);
 
