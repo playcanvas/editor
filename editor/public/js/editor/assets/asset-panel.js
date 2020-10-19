@@ -429,42 +429,40 @@ Object.assign(pcui, (function () {
                 this.assets = args.assets;
             }
 
-            if (editor.call('users:hasFlag', 'hasCopyPasteAssets')) {
-                this.on('showToRoot', () => {
-                    // register hotkeys
+            this.on('showToRoot', () => {
+                // register hotkeys
 
-                    // copy
-                    editor.call('hotkey:register', 'asset:copy', {
-                        key: 'c',
-                        ctrl: true,
-                        skipPreventDefault: true,
-                        callback: this._onCopyAssets.bind(this)
-                    });
+                // copy
+                editor.call('hotkey:register', 'asset:copy', {
+                    key: 'c',
+                    ctrl: true,
+                    skipPreventDefault: true,
+                    callback: this._onCopyAssets.bind(this)
+                });
 
-                    // paste
-                    editor.call('hotkey:register', 'asset:paste', {
-                        key: 'v',
-                        ctrl: true,
-                        callback: () => this._onPasteAssets()
-                    });
+                // paste
+                editor.call('hotkey:register', 'asset:paste', {
+                    key: 'v',
+                    ctrl: true,
+                    callback: () => this._onPasteAssets()
+                });
 
-                    // paste (keep folder structure)
-                    editor.call('hotkey:register', 'asset:paste:keepFolderStructure', {
-                        key: 'v',
-                        ctrl: true,
-                        shift: true,
-                        callback: () => this._onPasteAssets(true)
-                    });
+                // paste (keep folder structure)
+                editor.call('hotkey:register', 'asset:paste:keepFolderStructure', {
+                    key: 'v',
+                    ctrl: true,
+                    shift: true,
+                    callback: () => this._onPasteAssets(true)
+                });
 
-                })
+            })
 
-                this.on('hideToRoot', () => {
-                    // unregister hotkeys
-                    editor.call('hotkey:unregister', 'asset:copy');
-                    editor.call('hotkey:unregister', 'asset:paste');
-                    editor.call('hotkey:unregister', 'asset:paste:keepFolderStructure');
-                })
-            }
+            this.on('hideToRoot', () => {
+                // unregister hotkeys
+                editor.call('hotkey:unregister', 'asset:copy');
+                editor.call('hotkey:unregister', 'asset:paste');
+                editor.call('hotkey:unregister', 'asset:paste:keepFolderStructure');
+            })
         }
 
         _onCopyAssets() {

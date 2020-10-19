@@ -224,66 +224,64 @@ editor.once('load', function() {
     });
 
     // copy
-    if (editor.call('users:hasFlag', 'hasCopyPasteAssets')) {
-        var menuItemCopy = new ui.MenuItem({
-            text: 'Copy',
-            icon: ICONS.COPY,
-            value: 'copy'
-        });
-        menuItemCopy.on('select', function() {
-            var id = parseInt(currentAsset.get('id'), 10);
+    var menuItemCopy = new ui.MenuItem({
+        text: 'Copy',
+        icon: ICONS.COPY,
+        value: 'copy'
+    });
+    menuItemCopy.on('select', function() {
+        var id = parseInt(currentAsset.get('id'), 10);
 
-            var asset = currentAsset;
-            var multiple = false;
+        var asset = currentAsset;
+        var multiple = false;
 
-            if (asset) {
-                var assetType = asset.get('type');
-                var type = editor.call('selector:type');
-                var items;
+        if (asset) {
+            var assetType = asset.get('type');
+            var type = editor.call('selector:type');
+            var items;
 
-                if (type === 'asset') {
-                    items = editor.call('selector:items');
-                    for (var i = 0; i < items.length; i++) {
-                        // if the asset that was right-clicked is in the selection
-                        // then include all the other selected items
-                        // otherwise only copy the right-clicked item
-                        if (items[i].get('id') === asset.get('id')) {
-                            multiple = true;
-                            break;
-                        }
+            if (type === 'asset') {
+                items = editor.call('selector:items');
+                for (var i = 0; i < items.length; i++) {
+                    // if the asset that was right-clicked is in the selection
+                    // then include all the other selected items
+                    // otherwise only copy the right-clicked item
+                    if (items[i].get('id') === asset.get('id')) {
+                        multiple = true;
+                        break;
                     }
                 }
-
-                editor.call('assets:copy', multiple ? items : [asset]);
             }
 
-        });
-        menu.append(menuItemCopy);
+            editor.call('assets:copy', multiple ? items : [asset]);
+        }
 
-        // paste
-        // copy
-        var menuItemPaste = new ui.MenuItem({
-            text: 'Paste',
-            icon: ICONS.PASTE,
-            value: 'paste'
-        });
-        menuItemPaste.on('select', function(value, hasChildren, mouseEvt) {
-            if (currentAsset && currentAsset.get('type') !== 'folder') return;
+    });
+    menu.append(menuItemCopy);
 
-            const keepFolderStructure = mouseEvt && mouseEvt.shiftKey;
-            editor.call('assets:paste', currentAsset === null ? editor.call('assets:panel:currentFolder') : currentAsset, keepFolderStructure);
+    // paste
+    // copy
+    var menuItemPaste = new ui.MenuItem({
+        text: 'Paste',
+        icon: ICONS.PASTE,
+        value: 'paste'
+    });
+    menuItemPaste.on('select', function(value, hasChildren, mouseEvt) {
+        if (currentAsset && currentAsset.get('type') !== 'folder') return;
 
-        });
-        menu.append(menuItemPaste);
+        const keepFolderStructure = mouseEvt && mouseEvt.shiftKey;
+        editor.call('assets:paste', currentAsset === null ? editor.call('assets:panel:currentFolder') : currentAsset, keepFolderStructure);
 
-        let evtShift = editor.on('hotkey:shift', (shift) => {
-            menuItemPaste.text = (shift ? 'Paste (keep folders)' : 'Paste');
-        });
-        menuItemPaste.once('destroy', () => {
-            evtShift.unbind();
-            evtShift = null;
-        });
-    }
+    });
+    menu.append(menuItemPaste);
+
+    let evtShift = editor.on('hotkey:shift', (shift) => {
+        menuItemPaste.text = (shift ? 'Paste (keep folders)' : 'Paste');
+    });
+    menuItemPaste.once('destroy', () => {
+        evtShift.unbind();
+        evtShift = null;
+    });
 
     // replace
     var replaceAvailable = {
