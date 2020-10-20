@@ -55,8 +55,6 @@ Object.assign(pcui, (function () {
         link() {
             this.unlink();
 
-            this.dom.addEventListener('click', this._handleClick);
-
             this.dom.addEventListener('mousedown', this._domEvtMouseDown);
             window.addEventListener('mousemove', this._domEvtMouseMove);
             window.addEventListener('mouseup', this._domEvtMouseUp);
@@ -64,8 +62,6 @@ Object.assign(pcui, (function () {
 
         unlink() {
             super.unlink();
-
-            this.dom.removeEventListener('click', this._handleClick);
 
             this.dom.removeEventListener('mousedown', this._domEvtMouseDown);
             window.removeEventListener('mousemove', this._domEvtMouseMove);
