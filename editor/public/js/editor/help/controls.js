@@ -42,7 +42,6 @@ editor.once('load', function () {
     overlay.append(container);
 
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
-    var copyPasteAssets = editor.call('users:hasFlag', 'hasCopyPasteAssets');
 
     var items = [
         {
@@ -55,11 +54,15 @@ editor.once('load', function () {
             icons: ['&#57632;']
         }, {
             buttons: ['Ctrl', '$+', 'C'],
-            title: copyPasteAssets ? 'Copy Entity / Asset' : 'Copy Entity',
+            title: 'Copy Entity / Asset',
             icons: ['&#58193;']
         }, {
             buttons: ['Ctrl', '$+', 'V'],
-            title: copyPasteAssets ? 'Paste Entity / Asset' : 'Paste Entity',
+            title: 'Paste Entity / Asset',
+            icons: ['&#58184;']
+        }, {
+            buttons: ['Ctrl', '$+', 'Shift', '$+', 'V'],
+            title: 'Paste Assets (keep folder structure)',
             icons: ['&#58184;']
         }, {
             buttons: ['Delete', '$/', 'Ctrl', '$+', 'Backspace'],
@@ -119,14 +122,6 @@ editor.once('load', function () {
             icons: ['&#57656;']
         }
     ];
-
-    if (editor.call('users:hasFlag', 'hasCopyPasteAssets')) {
-        items.splice(4, 0, {
-            buttons: ['Ctrl', '$+', 'Shift', '$+', 'V'],
-            title: 'Paste Assets (keep folder structure)',
-            icons: ['&#58184;']
-        });
-    }
 
     if (!legacyScripts) {
         items.push({

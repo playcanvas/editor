@@ -48,7 +48,11 @@ Object.assign(pcui, (function () {
             this._sizeInput = new pcui.NumericInput({
                 class: [CLASS_ARRAY_SIZE],
                 placeholder: 'Array Size',
-                value: 0
+                value: 0,
+                hideSlider: true,
+                step: 1,
+                precision: 0,
+                min: 0
             });
             this._sizeInput.on('change', this._onSizeChange.bind(this));
             this._sizeInput.on('focus', this._onFocus.bind(this));

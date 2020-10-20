@@ -280,7 +280,7 @@ editor.once('load', function() {
                             return editor.call('selector:items').length;
                         }
 
-                        if (selector === 'asset' && editor.call('users:hasFlag', 'hasCopyPasteAssets')) {
+                        if (selector === 'asset') {
                             return editor.call('selector:items').length;
                         }
 
@@ -291,7 +291,7 @@ editor.once('load', function() {
                         const selector = editor.call('selector:type');
                         if (selector === 'entity') {
                             editor.call('entities:copy', items);
-                        } else if (selector === 'asset' && editor.call('users:hasFlag', 'hasCopyPasteAssets')) {
+                        } else if (selector === 'asset') {
                             editor.call('assets:copy', items);
                         }
                     }
@@ -312,9 +312,6 @@ editor.once('load', function() {
                                 const selector = editor.call('selector:type');
                                 if (selector === value.type) {
                                     if (selector === 'asset') {
-                                        if (!editor.call('users:hasFlag', 'hasCopyPasteAssets')) {
-                                            return false;
-                                        }
                                         if (editor.call('assets:panel:currentFolder') === 'scripts') {
                                             return false;
                                         }
@@ -335,7 +332,7 @@ editor.once('load', function() {
                         var items = editor.call('selector:items');
                         if (editor.call('selector:type') === 'entity') {
                             editor.call('entities:paste', items[0]);
-                        } else if (editor.call('selector:type') === 'asset' && editor.call('users:hasFlag', 'hasCopyPasteAssets')) {
+                        } else if (editor.call('selector:type') === 'asset') {
                             const keepFolderStructure = mouseEvt && mouseEvt.shiftKey;
                             editor.call('assets:paste', items[0], keepFolderStructure);
                         }

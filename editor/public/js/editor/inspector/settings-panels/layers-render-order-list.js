@@ -49,6 +49,8 @@ Object.assign(pcui, (function () {
         _updateLayerList() {
             const layers = this._projectSettings.get('layers');
             const order = this._projectSettings.get('layerOrder');
+            if (!order) return;
+
             order.forEach(layer => {
                 if (!layers[layer.layer]) return;
 
