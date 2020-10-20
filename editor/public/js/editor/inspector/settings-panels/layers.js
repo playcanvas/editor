@@ -149,9 +149,12 @@ Object.assign(pcui, (function () {
         }
 
         _loadLayers() {
+            const layers = this._projectSettings.get('layers');
+            if (!layers) return;
+
             const keepLayerPanels = [];
             this._layerPanels.forEach(layerPanel => {
-                if (this._projectSettings.get('layers')[layerPanel.layerKey]) {
+                if (layers[layerPanel.layerKey]) {
                     keepLayerPanels.push(layerPanel);
                 } else {
                     this._layersContainer.remove(layerPanel);
@@ -159,7 +162,7 @@ Object.assign(pcui, (function () {
             });
             this._layerPanels = keepLayerPanels;
 
-            Object.keys(this._projectSettings.get('layers')).forEach(layerKey => {
+            Object.keys(layers).forEach(layerKey => {
                 let layerPanel = this._layerPanels.find(layerPanel => layerPanel.layerKey === layerKey);
                 if (!layerPanel) {
                     layerPanel = new pcui.LayersSettingsPanelLayerPanel({
