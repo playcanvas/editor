@@ -200,29 +200,60 @@ Object.assign(pcui, (function () {
          * @returns {pcui.TreeViewItem[]} The tree items.
          */
         _getChildrenRange(startChild, endChild) {
-            const rectStart = startChild.dom.getBoundingClientRect();
-            const rectEnd = endChild.dom.getBoundingClientRect();
-            const result = [];
+            let result = [];
 
-            if (rectStart.top < rectEnd.top) {
-                let current = startChild;
-                while (current && current !== endChild) {
-                    current = this._findNextVisibleTreeItem(current);
-                    if (current && current !== endChild) {
-                        result.push(current);
+            // select search results if we are currently filtering tree view items
+            if (this._filterResults.length) {
+                const filterResults = this.dom.querySelectorAll(`.${CLASS_ROOT}-item.${CLASS_FILTER_RESULT}`);
+
+                let startIndex = -1;
+                let endIndex = -1;
+
+                for (let i = 0; i < filterResults.length; i++) {
+                    const item = filterResults[i].ui;
+
+                    if (item === startChild) {
+                        startIndex = i;
+                    } else if (item === endChild) {
+                        endIndex = i;
+                    }
+
+                    if (startIndex !== -1 && endIndex !== -1) {
+                        const start = (startIndex < endIndex ? startIndex : endIndex);
+                        const end = (startIndex < endIndex ? endIndex : startIndex);
+                        for (let j = start; j <= end; j++) {
+                            result.push(filterResults[j].ui);
+                        }
+
+                        break;
                     }
                 }
             } else {
+                // if we are not filtering the tree view then find the next visible tree item
                 let current = startChild;
-                while (current && current !== endChild) {
-                    current = this._findPreviousVisibleTreeItem(current);
-                    if (current && current !== endChild) {
-                        result.push(current);
+
+                const rectStart = startChild.dom.getBoundingClientRect();
+                const rectEnd = endChild.dom.getBoundingClientRect();
+
+                if (rectStart.top < rectEnd.top) {
+                    while (current && current !== endChild) {
+                        current = this._findNextVisibleTreeItem(current);
+                        if (current && current !== endChild) {
+                            result.push(current);
+                        }
+                    }
+                } else {
+                    while (current && current !== endChild) {
+                        current = this._findPreviousVisibleTreeItem(current);
+                        if (current && current !== endChild) {
+                            result.push(current);
+                        }
                     }
                 }
-            }
 
-            result.push(endChild);
+                result.push(endChild);
+
+            }
 
             return result;
         }
