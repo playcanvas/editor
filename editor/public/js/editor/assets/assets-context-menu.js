@@ -473,7 +473,8 @@ editor.once('load', function() {
         value: 'open_in_viewer'
     });
     menuItemOpenInViewer.on('select', function() {
-        window.open(encodeURI(`/viewer?load=https://${window.location.hostname}${currentAsset.get('file.url')}`));
+        const url = encodeURIComponent(`https://${window.location.hostname}${currentAsset.get('file.url')}`);
+        window.open(`/viewer?load=${url}`);
     });
     menu.append(menuItemOpenInViewer);
 
