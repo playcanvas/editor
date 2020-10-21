@@ -101,16 +101,19 @@ Object.assign(pcui, (function () {
 
         _updateAddSublayerOptions() {
             const projectSettings = this._projectSettings.latest();
-            const options = Object.keys(projectSettings.get('layers'))
+            const layers = projectSettings.get('layers');
+            if (!layers) return;
+
+            const options = Object.keys(layers)
             .map(layerKey => {
                 return [{
                     v: layerKey + '.transparent',
-                    t: projectSettings.get('layers')[layerKey].name + ' Transparent',
+                    t: layers[layerKey].name + ' Transparent',
                     layerKey,
                     transparent: true
                 }, {
                     v: layerKey + '.opaque',
-                    t: projectSettings.get('layers')[layerKey].name + ' Opaque',
+                    t: layers[layerKey].name + ' Opaque',
                     layerKey,
                     transparent: false
                 }];

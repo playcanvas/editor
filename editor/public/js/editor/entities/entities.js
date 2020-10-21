@@ -20,6 +20,10 @@ editor.once('load', function() {
 
     // on removing
     entities.on('remove', function(entity) {
+        if (entity === entityRoot) {
+            entityRoot = null;
+        }
+
         editor.emit('entities:remove', entity);
         entity.destroy();
         entity.entity = null;
