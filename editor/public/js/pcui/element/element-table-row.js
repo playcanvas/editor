@@ -65,8 +65,12 @@ Object.assign(pcui, (function () {
         destroy() {
             if (this._destroyed) return;
 
-            this.dom.removeEventListener('focus', this._domEvtFocus);
-            this.dom.removeEventListener('blur', this._domEvtBlur);
+            if (this._domEvtFocus) {
+                this.dom.removeEventListener('focus', this._domEvtFocus);
+            }
+            if (this._domEvtBlur) {
+                this.dom.removeEventListener('blur', this._domEvtBlur);
+            }
 
             super.destroy();
         }
