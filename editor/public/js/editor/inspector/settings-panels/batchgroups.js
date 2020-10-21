@@ -190,10 +190,11 @@ Object.assign(pcui, (function () {
         }
 
         _loadItems(initialLoad = false) {
+            const batchGroups = this._projectSettings.get('batchGroups') || {};
             // remove batch group panel items that are no longer in project settings
             const keepItems = [];
             this._items.forEach(item => {
-                if (this._projectSettings.get('batchGroups')[item.id]) {
+                if (batchGroups[item.id]) {
                     keepItems.push(item);
                 } else {
                     this._itemsContainer.remove(item);
@@ -201,7 +202,7 @@ Object.assign(pcui, (function () {
             });
             this._items = keepItems;
 
-            Object.keys(this._projectSettings.get('batchGroups')).forEach(batchGroupId => {
+            Object.keys(batchGroups).forEach(batchGroupId => {
 
                 let item = this._items.find(item => item.id === batchGroupId);
                 if (!item) {
