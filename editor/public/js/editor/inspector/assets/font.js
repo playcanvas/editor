@@ -243,15 +243,16 @@ Object.assign(pcui, (function () {
                 const source = editor.call('assets:get', sourceId);
                 if (!source) return;
 
-                // remove duplicate chars
                 // remove duplicate chars but keep same order
-                let unique = '';
+                var unique = '';
                 const chars = {};
+                const arr = Array.from(characterValues);
 
-                for (let i = 0, len = characterValues.length; i < len; i++) {
-                    if (chars[characterValues[i]]) continue;
-                    chars[characterValues[i]] = true;
-                    unique += characterValues[i];
+                for (let i = 0; i < arr.length; i++) {
+                    if (!chars.hasOwnProperty(arr[i])) {
+                        chars[arr[i]] = true;
+                        unique += arr[i];
+                    }
                 }
 
                 const task = {
@@ -275,7 +276,6 @@ Object.assign(pcui, (function () {
         _refreshLocalizationsForAsset() {
             Object.keys(this._localizations).forEach(locale => {
                 this._removeLocalization(locale);
-
             });
             Object.keys(this._assets[0].get('i18n'))
             .sort((a, b) => {
