@@ -194,6 +194,7 @@ editor.once('load', function () {
             layerFront.removeMeshInstances(model.meshInstances);
             this.entity.removeChild(model.getGraph());
             poolModels[model._type].push(model);
+            this.entity.model.model = null;
         }
 
         this.entity.destroy();
