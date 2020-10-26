@@ -256,7 +256,8 @@ editor.once('load', function () {
             oldAttribute = attribute;
         }
 
-        var path = `components.script.scripts.${script}.attributes.${name}`;
+        const attributesPath = `components.script.scripts.${script}.attributes`;
+        var path = `${attributesPath}.${name}`;
         var currentValue = entity.has(path) ? entity.get(path) : undefined;
 
         let newDefaultValue;
@@ -292,6 +293,13 @@ editor.once('load', function () {
             entity.history.enabled = false;
             if (newDefaultValue === undefined) {
                 newDefaultValue = this._getDefaultAttributeValue(attribute);
+            }
+            // fix undefined attributes - if entity has undefined
+            // attributes (not sure how that happens yet) then setting
+            // an attribute will just cause an error. So set attributes to
+            // an empty object first.
+            if (!entity.has(attributesPath)) {
+                entity.set(attributesPath, {});
             }
             entity.set(path, newDefaultValue);
             entity.history.enabled = history;
