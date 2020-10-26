@@ -1,8 +1,0 @@
-// flex container
-.pcui-flex {
-    &:not(.pcui-hidden) {
-        display: -webkit-flex;
-        display: flex;
-    }
-    flex-direction: column;
-}

@@ -3,23 +3,36 @@ Object.assign(pcui, (function () {
 
     const CLASS_ROOT = 'scene-asset-inspector';
     const CLASS_ASSET = CLASS_ROOT + '-asset';
-    const CLASS_NO_ASSET = CLASS_ROOT + '-no-asset';
-    const CLASS_ASSET_CONTAINER = CLASS_ROOT + '-asset-container';
 
     const ATTRIBUTES = [{
         label: 'Animation',
         alias: 'animation',
-        type: 'label'
-    },
+        type: 'container',
+        args: {
+                flex: true,
+                flexDirection: 'row',
+                flexWrap: 'wrap'
+            }
+        },
     {
         label: 'Textures',
         alias: 'textures',
-        type: 'label'
+        type: 'container',
+        args: {
+            flex: true,
+            flexDirection: 'row',
+            flexWrap: 'wrap'
+        }
     },
     {
         label: 'Materials',
         alias: 'materials',
-        type: 'label'
+        type: 'container',
+        args: {
+            flex: true,
+            flexDirection: 'row',
+            flexWrap: 'wrap'
+        }
     }];
 
     const DOM = args => [
@@ -50,60 +63,61 @@ Object.assign(pcui, (function () {
 
             super(args);
             this._assetEvents = [];
-            this._textures = [];
-            this._materials = [];
 
             this.buildDom(DOM(args));
 
-            this._contentAttributes.getField('textures').parent.class.add(CLASS_ASSET_CONTAINER);
-            this._contentAttributes.getField('textures').class.add(CLASS_NO_ASSET);
-            this._contentAttributes.getField('materials').parent.class.add(CLASS_ASSET_CONTAINER);
-            this._contentAttributes.getField('materials').class.add(CLASS_NO_ASSET);
+            this._contentAttributes.getField('textures').parent.labelAlignTop = true;
+            this._contentAttributes.getField('materials').parent.labelAlignTop = true;
+            this._contentAttributes.getField('animation').parent.labelAlignTop = true;
         }
 
+        _getContainer(name) {
+            return this._contentAttributes.getField(name).parent.field;
+        }
+
+        _createSmallLabel(text) {
+            const label = new pcui.Label({
+                text: text
+            });
+            label.style.marginTop = '0';
+            label.style.marginBottom = '0';
+            label.style.fontSize = '11px';
+            return label;
+        }
 
         _animationCheck(available) {
-            this._contentAttributes.getField('animation').value = available ? 'yes' : 'no';
+            this._getContainer('animation').clear();
+            this._getContainer('animation').append(this._createSmallLabel(available ? 'yes' : 'no'));
         }
 
         _addTextures(textures) {
             if (textures && textures.length > 0) {
                 textures.forEach(texture => {
                     const textureLabel = new pcui.Label({ text: texture.name, class: CLASS_ASSET });
-                    this._contentAttributes.getField('textures').parent.append(textureLabel);
-                    this._textures.push(textureLabel);
-                    this._contentAttributes.getField('textures').hidden = true;
+                    this._getContainer('textures').append(textureLabel);
                 });
             } else {
-                this._contentAttributes.getField('textures').value = 'no';
-                this._contentAttributes.getField('textures').hidden = false;
+                this._getContainer('textures').append(this._createSmallLabel('no'));
             }
         }
 
         _removeTextures() {
-            this._textures.forEach(texture => {
-                this._contentAttributes.getField('textures').parent.remove(texture);
-            });
+            this._getContainer('textures').clear();
         }
 
         _addMaterials(materials) {
             if (materials && materials.length > 0) {
                 materials.forEach(material => {
                     const materialLabel = new pcui.Label({ text: material.name, class: CLASS_ASSET });
-                    this._contentAttributes.getField('materials').parent.append(materialLabel);
-                    this._materials.push(materialLabel);
-                    this._contentAttributes.getField('materials').hidden = true;
+                    this._getContainer('materials').append(materialLabel);
                 });
             } else {
-                this._contentAttributes.getField('materials').value = 'no';
-                this._contentAttributes.getField('materials').hidden = false;
+                this._getContainer('materials').append(this._createSmallLabel('no'));
             }
         }
 
         _removeMaterials() {
-            this._materials.forEach(material => {
-                this._contentAttributes.getField('materials').parent.remove(material);
-            });
+            this._getContainer('materials').clear();
         }
 
         link(assets) {
