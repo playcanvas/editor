@@ -7,7 +7,7 @@ editor.once('load', function () {
     // pool of gizmos
     var pool = [ ];
     // colors
-    var colorBehind = new pc.Color(1, 1, 1, .15);
+    var colorBehind = new pc.Color(1, 1, 1, .8);
     var colorPrimary = new pc.Color(1, 1, 1);
     var container;
     var vec = new pc.Vec3();
