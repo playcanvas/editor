@@ -1,42 +1,50 @@
+// variables
 @import '../variables';
+
+// fonts
 @import '../fonts';
+
+// pcui controls
+@import '../../node_modules/@playcanvas/pcui/src/scss/pcui-common';
+@import '../../node_modules/@playcanvas/pcui/src/components/Element/style';
+@import '../../node_modules/@playcanvas/pcui/src/components/TextAreaInput/style';
+@import '../../node_modules/@playcanvas/pcui/src/components/TextInput/style';
+@import '../../node_modules/@playcanvas/pcui/src/components/NumericInput/style';
+@import '../../node_modules/@playcanvas/pcui/src/components/SliderInput/style';
+@import '../../node_modules/@playcanvas/pcui/src/components/VectorInput/style';
+@import '../../node_modules/@playcanvas/pcui/src/components/BooleanInput/style';
+@import '../../node_modules/@playcanvas/pcui/src/components/BooleanInput/toggle-style';
+@import '../../node_modules/@playcanvas/pcui/src/components/Label/style';
+@import '../../node_modules/@playcanvas/pcui/src/components/Button/style';
+@import '../../node_modules/@playcanvas/pcui/src/components/Code/style';
+@import '../../node_modules/@playcanvas/pcui/src/components/Container/style';
+@import '../../node_modules/@playcanvas/pcui/src/components/Panel/style';
+@import '../../node_modules/@playcanvas/pcui/src/components/Overlay/style';
+@import '../../node_modules/@playcanvas/pcui/src/components/Divider/style';
+@import '../../node_modules/@playcanvas/pcui/src/components/InfoBox/style';
+@import '../../node_modules/@playcanvas/pcui/src/components/SelectInput/style';
+@import '../../node_modules/@playcanvas/pcui/src/components/Spinner/style';
+@import '../../node_modules/@playcanvas/pcui/src/components/Progress/style';
+
+// editor specific pcui controls
 @import 'pcui-common';
-@import 'pcui-flex';
-@import 'pcui-grid';
-@import 'pcui-scrollable';
-@import 'pcui-element';
 @import 'pcui-canvas';
-@import 'pcui-label';
-@import 'pcui-button';
-@import 'pcui-container';
-@import 'pcui-panel';
-@import 'pcui-overlay';
 @import 'pcui-label-group';
-@import 'pcui-divider';
-@import 'pcui-text-input';
-@import 'pcui-text-area-input';
-@import 'pcui-slider-input';
 @import 'pcui-color-input';
-@import 'pcui-gradient-input';
 @import 'pcui-curve-input';
+@import 'pcui-gradient-input';
 @import 'pcui-asset-input';
 @import 'pcui-asset-list';
 @import 'pcui-entity-input';
-@import 'pcui-vector-input';
-@import 'pcui-boolean-input';
-@import 'pcui-toggle-input';
 @import 'pcui-asset-thumbnail';
 @import 'pcui-array-input';
-@import 'pcui-select-input';
 @import 'pcui-tree-view';
 @import 'pcui-grid-view';
 @import 'pcui-drop-manager';
 @import 'pcui-drop-target';
 @import 'pcui-inspector';
-@import 'pcui-progress';
-@import 'pcui-spinner';
-@import 'pcui-infobox';
-@import 'pcui-code';
 @import 'pcui-tooltip';
 @import 'pcui-table';
-@import 'pcui-hidden'; // this should be last
+
+// this should always be last
+@import '../../node_modules/@playcanvas/pcui/src/scss/pcui-hidden';

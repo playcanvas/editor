@@ -1,31 +1,3 @@
-.noSelect {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-.fixedFont {
-    font-family: inconsolatamedium, Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
-    font-weight: normal;
-    font-size: 12px;
-}
-
-$element-margin: 6px;
-
-$element-shadow-hover: 0 0 2px 1px rgba(255,102,0,0.3);
-$element-shadow-active: 0 0 0 1px rgba(255,102,0,0.3);
-$element-shadow-error: 0 0 0 1px $error-secondary;
-
-$element-color-placeholder: #829193;
-
-$element-opacity-disabled: 0.4;
-$element-opacity-readonly: 0.7;
-
-
-
 $assets: 'animation',
          'audio',
          'binary',

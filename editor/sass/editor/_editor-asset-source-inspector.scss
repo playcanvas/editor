@@ -1,30 +1,15 @@
+
 .scene-asset-inspector-asset {
     font-family: inconsolatamedium, Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
     font-weight: normal;
-    margin-left: 31% !important;
-    width: 70%;
-    margin: 4px;
-    padding: 4px;
     font-size: 11px;
     overflow: hidden;
-    border-left: 1px solid #293538;
-    border-right: 1px solid #293538;
-    border-top: 1px solid #293538;
-    color: #b1b8ba;
-    background-color: #2c393c;
-}
-.scene-asset-inspector-no-asset {
-    margin-left: 32% !important;
-}
-
-.scene-asset-inspector-asset-container {
-    flex-direction: column;
-    align-items: flex-start;
-    margin-bottom: 7px !important;
-}
-
-.scene-asset-inspector-asset-container > .pcui-label:first-child {
-    left: 0px;
-    top: 2px;
-    position: absolute;
+    text-overflow: ellipsis;
+    border-left: 1px solid $bcg-darker;
+    border-right: 1px solid $bcg-darker;
+    border-top: 1px solid $bcg-darker;
+    color: $text-secondary;
+    background-color: $bcg-dark;
+    padding: 3px 6px;
+    margin: 3px;
 }
