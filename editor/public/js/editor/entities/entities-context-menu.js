@@ -403,6 +403,14 @@ editor.once('load', function() {
             // built-in scripts
         }
 
+        // filter menuData for read only projects
+        menuData = Object.keys(menuData)
+        .filter(key => editor.call('permissions:write') || ['copy'].includes(key))
+        .reduce((obj, key) => {
+            obj[key] = menuData[key];
+            return obj;
+        }, {});
+
         // menu
         menu = ui.Menu.fromData(menuData, { clickableSubmenus: clickableSubmenus });
         root.append(menu);
@@ -444,7 +452,7 @@ editor.once('load', function() {
     });
 
     editor.method('entities:contextmenu:open', function(item, x, y, ignoreSelection) {
-        if (! menu || ! editor.call('permissions:write')) return;
+        if (! menu ) return;
 
         entity = item;
 

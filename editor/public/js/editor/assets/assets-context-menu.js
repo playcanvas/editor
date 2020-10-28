@@ -15,7 +15,7 @@ editor.once('load', function() {
 
     // menu related only to creating assets
     var menuCreate = new ui.Menu();
-    root.append(menuCreate);
+    if (editor.call('permissions:write')) root.append(menuCreate);
 
     // edit
     var menuItemNewScript = new ui.MenuItem({
@@ -35,7 +35,7 @@ editor.once('load', function() {
             });
         }
     });
-    menu.append(menuItemNewScript);
+    if (editor.call('permissions:write')) menu.append(menuItemNewScript);
 
 
     // new asset
@@ -44,7 +44,7 @@ editor.once('load', function() {
         icon: '&#57632;',
         value: 'new'
     });
-    menu.append(menuItemNew);
+    if (editor.call('permissions:write')) menu.append(menuItemNew);
 
     var downloadable = {
         'texture': 1,
@@ -188,7 +188,7 @@ editor.once('load', function() {
         icon: ICONS.TEXTURE_ATLAS,
         value: 'texture-to-atlas'
     });
-    menu.append(menuItemTextureToAtlas);
+    if (editor.call('permissions:write')) menu.append(menuItemTextureToAtlas);
 
     menuItemTextureToAtlas.on('select', function () {
         editor.call('assets:textureToAtlas', currentAsset);
@@ -200,7 +200,7 @@ editor.once('load', function() {
         icon: ICONS.SPRITE_ASSET,
         value: 'atlas-to-sprite'
     });
-    menu.append(menuItemCreateSprite);
+    if (editor.call('permissions:write')) menu.append(menuItemCreateSprite);
 
     menuItemCreateSprite.on('select', function () {
         editor.call('assets:atlasToSprite', {
@@ -214,7 +214,7 @@ editor.once('load', function() {
         icon: ICONS.SPRITE_ASSET,
         value: 'atlas-to-sliced-sprite'
     });
-    menu.append(menuItemCreateSlicedSprite);
+    if (editor.call('permissions:write')) menu.append(menuItemCreateSlicedSprite);
 
     menuItemCreateSlicedSprite.on('select', function () {
         editor.call('assets:atlasToSprite', {
@@ -325,7 +325,7 @@ editor.once('load', function() {
             }
         });
     });
-    menu.append(menuItemReplace);
+    if (editor.call('permissions:write')) menu.append(menuItemReplace);
 
     var menuItemReplaceTextureToSprite = new ui.MenuItem({
         text: 'Convert Texture To Sprite',
@@ -352,7 +352,7 @@ editor.once('load', function() {
             }
         });
     });
-    menu.append(menuItemReplaceTextureToSprite);
+    if (editor.call('permissions:write')) menu.append(menuItemReplaceTextureToSprite);
 
     // todo: xdu.
     // todo: merge these 2 items.
@@ -366,7 +366,7 @@ editor.once('load', function() {
     menuItemExtract.on('select', function() {
         editor.call('assets:reimport', currentAsset.get('id'), currentAsset.get('type'));
     });
-    menu.append(menuItemExtract);
+    if (editor.call('permissions:write')) menu.append(menuItemExtract);
 
 
     // re-import. Used for target assets.
@@ -378,7 +378,7 @@ editor.once('load', function() {
     menuItemReImport.on('select', function() {
         editor.call('assets:reimport', currentAsset.get('id'), currentAsset.get('type'));
     });
-    menu.append(menuItemReImport);
+    if (editor.call('permissions:write')) menu.append(menuItemReImport);
 
     // download
     var menuItemDownload = new ui.MenuItem({
@@ -394,7 +394,7 @@ editor.once('load', function() {
 
     // edit
     var menuItemEdit = new ui.MenuItem({
-        text: 'Edit',
+        text: editor.call('permissions:write') ? 'Edit' : 'View',
         icon: ICONS.EDIT,
         value: 'edit'
     });
@@ -413,7 +413,7 @@ editor.once('load', function() {
     menuItemDuplicate.on('select', function() {
         editor.call('assets:duplicate', currentAsset);
     });
-    menu.append(menuItemDuplicate);
+    if (editor.call('permissions:write')) menu.append(menuItemDuplicate);
 
 
     // delete
@@ -453,7 +453,7 @@ editor.once('load', function() {
             editor.call('assets:delete:picker', multiple ? items : [asset]);
         }
     });
-    menu.append(menuItemDelete);
+    if (editor.call('permissions:write')) menu.append(menuItemDelete);
 
     // move-to-store
     var menuItemMoveToStore = new ui.MenuItem({
@@ -464,7 +464,7 @@ editor.once('load', function() {
     menuItemMoveToStore.on('select', function() {
         editor.call('assets:move-to-store', currentAsset);
     });
-    menu.append(menuItemMoveToStore);
+    if (editor.call('permissions:write')) menu.append(menuItemMoveToStore);
 
     // open-in-viewer
     var menuItemOpenInViewer = new ui.MenuItem({
@@ -722,9 +722,6 @@ editor.once('load', function() {
             evt.stopPropagation();
             evt.preventDefault();
 
-            if (! editor.call('permissions:write'))
-                return;
-
             currentAsset = asset;
             menu.open = true;
             menu.position(evt.clientX + 1, evt.clientY);
@@ -742,9 +739,6 @@ editor.once('load', function() {
         var contextMenuHandler = function (evt) {
             evt.stopPropagation();
             evt.preventDefault();
-
-            if (! editor.call('permissions:write'))
-                return;
 
             currentAsset = asset;
             menu.open = true;
@@ -772,9 +766,6 @@ editor.once('load', function() {
             evt.stopPropagation();
             evt.preventDefault();
 
-            if (! editor.call('permissions:write'))
-                return;
-
             currentAsset = asset;
             menu.open = true;
             menu.position(evt.clientX + 1, evt.clientY);
@@ -784,9 +775,6 @@ editor.once('load', function() {
     function onContextMenu(evt, newCurrentAsset) {
         evt.preventDefault();
         evt.stopPropagation();
-
-        if (! editor.call('permissions:write'))
-            return;
 
         currentAsset = newCurrentAsset;
         menu.open = true;
