@@ -17,3 +17,21 @@
 .asset-font-inspector-character-range-button {
         width: 50px;
 }
+
+.asset-font-inspector-process-font-warning-message {
+    white-space: normal !important;
+}
+
+.asset-font-inspector-process-font-warning-items {
+    margin: 6px;
+    border: 1px solid #2c393c !important;
+    span {
+        user-select: text !important;
+    }
+}
+
+.asset-font-inspector-font {
+    .pcui-text-area-input {
+        height: 96px !important;
+    }
+}

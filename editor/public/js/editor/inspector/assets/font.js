@@ -7,6 +7,9 @@ Object.assign(pcui, (function () {
     const CLASS_CHARACTER_RANGE = CLASS_ROOT + '-character-range';
     const CLASS_CHARACTER_RANGE_LABEL = CLASS_CHARACTER_RANGE + '-label';
     const CLASS_CHARACTER_RANGE_BUTTON = CLASS_CHARACTER_RANGE + '-button';
+    const CLASS_FONT = CLASS_ROOT + '-font';
+    const CLASS_PROCESS_FONT_WARNING_MESSAGE = CLASS_ROOT + '-process-font-warning-message';
+    const CLASS_PROCESS_FONT_WARNING_ITEMS = CLASS_ROOT + '-process-font-warning-items';
 
     const PROPERTIES_ATTRIBUTES = [{
         label: 'Intensity',
@@ -17,7 +20,7 @@ Object.assign(pcui, (function () {
     const FONT_ATTRIBUTES = [{
         label: 'Characters',
         alias: 'characters',
-        type: 'string'
+        type: 'text'
     }, {
         label: 'Invert',
         path: 'meta.invert',
@@ -121,7 +124,8 @@ Object.assign(pcui, (function () {
             root: {
                 fontPanel: new pcui.Panel({
                     headerText: 'FONT',
-                    flex: true
+                    flex: true,
+                    class: CLASS_FONT
                 })
             },
             children: [{
@@ -135,6 +139,90 @@ Object.assign(pcui, (function () {
                     text: 'PROCESS FONT',
                     flexGrow: 1
                 })
+            }, {
+                root: {
+                    processFontWarningContainer: new pcui.Container({
+                        flex: true,
+                        hidden: true
+                    })
+                },
+                children: [
+                    {
+                        processFontWarningMessage: new pcui.Label({
+                            text: 'Warning. The following characters were not found in the font file:',
+                            flexGrow: 1,
+                            class: [ pcui.CLASS_ERROR, CLASS_PROCESS_FONT_WARNING_MESSAGE ]
+                        })
+                    },
+                    {
+                        processFontWarningItems: new pcui.Table({
+                            class: [ CLASS_PROCESS_FONT_WARNING_ITEMS ],
+                            scrollable: true,
+                            columns: [{
+                                title: 'Character',
+                                width: '50%',
+                            }, {
+                                title: 'Unicode',
+                                width: '50%',
+                            }],
+                            defaultSortColumn: 0,
+                            createRowFn: (observer) => {
+                                const copyToClipboard = str => {
+                                    const el = document.createElement('textarea');
+                                    el.value = str;
+                                    document.body.appendChild(el);
+                                    el.select();
+                                    document.execCommand('copy');
+                                    document.body.removeChild(el);
+                                };
+
+                                const character = observer.get('character');
+
+                                const row = new pcui.TableRow();
+
+                                const characterCell = new pcui.TableCell({
+                                    alignItems: 'center'
+                                });
+                                const characterLabel = new pcui.Label({text: character});
+                                characterCell.append(characterLabel);
+                                row.append(characterCell);
+
+                                const unicodeCell = new pcui.TableCell({
+                                    alignItems: 'center'
+                                });
+                                const unicodeLabel = new pcui.Label({text: character.charCodeAt()});
+                                unicodeCell.append(unicodeLabel);
+                                row.append(unicodeCell);
+
+                                const characterContextMenuDom = document.createElement('div');
+                                characterCell.dom.appendChild(characterContextMenuDom);
+                                new pcui.ContextMenu({
+                                    dom: characterContextMenuDom,
+                                    items: [
+                                        {
+                                            text: 'Copy character',
+                                            onClick: () => copyToClipboard(character)
+                                        },
+                                    ]
+                                });
+
+                                const unicodeContextMenuDom = document.createElement('div');
+                                unicodeCell.dom.appendChild(unicodeContextMenuDom);
+                                new pcui.ContextMenu({
+                                    dom: unicodeContextMenuDom,
+                                    items: [
+                                        {
+                                            text: 'Copy unicode',
+                                            onClick: () => copyToClipboard(character.charCodeAt())
+                                        },
+                                    ]
+                                });
+
+                                return row;
+                            }
+                        })
+                    }
+                ]
             }]
         },
         {
@@ -244,7 +332,7 @@ Object.assign(pcui, (function () {
                 if (!source) return;
 
                 // remove duplicate chars but keep same order
-                var unique = '';
+                let unique = '';
                 const chars = {};
                 const arr = Array.from(characterValues);
 
@@ -351,7 +439,22 @@ Object.assign(pcui, (function () {
             this._assetEvents.push(this._processFontButton.on('click', this._onClickProcessFontButton.bind(this)));
             this._assetEvents.push(this._localizationAttributes.getField('localization').on('change', this._addLocalization.bind(this)));
             assets.forEach((asset) => {
-                this._assetEvents.push(asset.on('task:set', () => this._toggleProcessFontButton(asset)));
+                this._assetEvents.push(asset.on('task:set', (v) => {
+                    // process font complete
+                    this._processFontWarningContainer.hidden = true;
+                    if (v === null) {
+                        const availableCharacters = asset.get('data.chars');
+                        const unavailableCharacters = [];
+                        this._fontAttributes.getField('characters').value.split("").forEach(character => {
+                            if (!availableCharacters[character.charCodeAt()]) unavailableCharacters.push(character);
+                        });
+                        if (unavailableCharacters.length > 0) {
+                            this._processFontWarningContainer.hidden = false;
+                            this._processFontWarningItems.link(unavailableCharacters.map(char => new Observer({character: char})));
+                        }
+                    }
+                    this._toggleProcessFontButton(asset);
+                }));
                 this._assetEvents.push(asset.on('*:set', this._refreshLocalizationsForAsset.bind(this)));
                 this._assetEvents.push(asset.on('*:unset', this._refreshLocalizationsForAsset.bind(this)));
             });
