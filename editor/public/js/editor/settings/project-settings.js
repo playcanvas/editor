@@ -10,6 +10,7 @@ editor.once('load', function () {
         'width',
         'use3dPhysics',
         'preferWebGl2',
+        'preferWebGlHighPerformance',
         'preserveDrawingBuffer',
         'scripts',
         'transparentCanvas',

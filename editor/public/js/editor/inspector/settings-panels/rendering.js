@@ -266,6 +266,13 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'projectSettings',
+            label: 'Prefer WebGL High Performance',
+            type: 'boolean',
+            alias: 'project:preferWebGlHighPerformance',
+            path: 'preferWebGlHighPerformance'
+        },
+        {
+            observer: 'projectSettings',
             label: 'Anti-Alias',
             type: 'boolean',
             alias: 'project:antiAlias',

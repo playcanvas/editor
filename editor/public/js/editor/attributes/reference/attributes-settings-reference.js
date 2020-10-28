@@ -148,6 +148,10 @@ editor.once('load', function() {
         title: 'Prefer WebGL 2.0',
         description: 'When enabled (default) application will use WebGL 2.0 if platform supports it.'
     }, {
+        name: 'project:preferWebGlHighPerformance',
+        title: 'Prefer WebGL High Performance Mode',
+        description: 'When enabled the application will use the WebGL high performance mode if the platform supports it.'
+    }, {
         name: 'project:antiAlias',
         title: 'Anti-Alias',
         description: 'When disabled, anti-aliasing will be disabled for back-buffer.'
