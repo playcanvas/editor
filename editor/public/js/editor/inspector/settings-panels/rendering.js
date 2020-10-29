@@ -266,10 +266,27 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'projectSettings',
-            label: 'Prefer WebGL High Performance',
-            type: 'boolean',
-            alias: 'project:preferWebGlHighPerformance',
-            path: 'preferWebGlHighPerformance'
+            label: 'Power Preference',
+            type: 'select',
+            alias: 'project:powerPreference',
+            path: 'powerPreference',
+            args: {
+                type: 'string',
+                options: [
+                    {
+                        v: 'default',
+                        t: 'Default'
+                    },
+                    {
+                        v: 'low-power',
+                        t: 'Low Power'
+                    },
+                    {
+                        v: 'high-performance',
+                        t: 'High Performance'
+                    }
+                ]
+            }
         },
         {
             observer: 'projectSettings',

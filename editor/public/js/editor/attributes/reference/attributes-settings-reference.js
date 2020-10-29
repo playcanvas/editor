@@ -148,9 +148,9 @@ editor.once('load', function() {
         title: 'Prefer WebGL 2.0',
         description: 'When enabled (default) application will use WebGL 2.0 if platform supports it.'
     }, {
-        name: 'project:preferWebGlHighPerformance',
-        title: 'Prefer WebGL High Performance Mode',
-        description: 'When enabled the application will use the WebGL high performance mode if the platform supports it.'
+        name: 'project:powerPreference',
+        title: 'Power Preference',
+        description: 'Provides a hint to WebGL regarding the preferred power preference mode. When set to Default, the browser decides which GPU configuration is most suitable. When set to High Performance, a GPU configuration that prioritizes rendering performance over power consumption is selected. When set to Low Power, a GPU configuration that prioritizes power saving over rendering performance is selected.'
     }, {
         name: 'project:antiAlias',
         title: 'Anti-Alias',

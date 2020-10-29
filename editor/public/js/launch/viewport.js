@@ -191,7 +191,7 @@ editor.once('load', function () {
         } catch (ex) { }
     }
 
-    var preferWebGlHighPerformance = config.project.settings.preferWebGlHighPerformance;
+    var powerPreference = config.project.settings.powerPreference;
 
     // listen for project setting changes
     var projectSettings = editor.call('settings:project');
@@ -220,7 +220,7 @@ editor.once('load', function () {
         assetPrefix: '/api/',
         graphicsDeviceOptions: {
             preferWebGl2: preferWebGl2,
-            powerPreference: preferWebGlHighPerformance ? 'high-performance' : 'default',
+            powerPreference: powerPreference,
             antialias: config.project.settings.antiAlias === false ? false : true,
             alpha: config.project.settings.transparentCanvas === false ? false : true,
             preserveDrawingBuffer: !!config.project.settings.preserveDrawingBuffer
@@ -366,8 +366,8 @@ editor.once('load', function () {
         config.project.settings.preferWebGl2 = value;
     });
 
-    projectSettings.on('preferWebGlHighPerformance:set', function (value) {
-        config.project.settings.preferWebGlHighPerformance = value;
+    projectSettings.on('powerPreference:set', function (value) {
+        config.project.settings.powerPreference = value;
     });
 
     projectSettings.on('i18nAssets:set', function (value) {

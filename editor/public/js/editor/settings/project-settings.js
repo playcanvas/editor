@@ -10,7 +10,7 @@ editor.once('load', function () {
         'width',
         'use3dPhysics',
         'preferWebGl2',
-        'preferWebGlHighPerformance',
+        'powerPreference',
         'preserveDrawingBuffer',
         'scripts',
         'transparentCanvas',
@@ -209,6 +209,10 @@ editor.once('load', function () {
 
         if (!settings.get('externalScripts')) {
             settings.set('externalScripts', []);
+        }
+
+        if (settings.get('powerPreference') === null) {
+            settings.set('powerPreference', 'default');
         }
 
         settings.history.enabled = history;
