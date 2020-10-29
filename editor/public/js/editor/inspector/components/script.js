@@ -457,7 +457,9 @@ Object.assign(pcui, (function () {
 
             this._btnEdit = new pcui.Button({
                 icon: 'E130',
-                class: CLASS_SCRIPT_VALID
+                class: CLASS_SCRIPT_VALID,
+                enabled: true,
+                ignoreParent: true
             });
             this._btnEdit.dom.tabIndex = -1;
             this._btnEdit.style.fontSize = '15px';
@@ -466,7 +468,7 @@ Object.assign(pcui, (function () {
 
             const tooltipEdit = Tooltip.attach({
                 target: this._btnEdit.dom,
-                text: 'Edit',
+                text: editor.call('permissions:write') ? 'Edit' : 'View',
                 align: 'bottom',
                 root: editor.call('layout.root')
             });

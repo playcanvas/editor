@@ -266,6 +266,30 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'projectSettings',
+            label: 'Power Preference',
+            type: 'select',
+            alias: 'project:powerPreference',
+            path: 'powerPreference',
+            args: {
+                type: 'string',
+                options: [
+                    {
+                        v: 'default',
+                        t: 'Default'
+                    },
+                    {
+                        v: 'low-power',
+                        t: 'Low Power'
+                    },
+                    {
+                        v: 'high-performance',
+                        t: 'High Performance'
+                    }
+                ]
+            }
+        },
+        {
+            observer: 'projectSettings',
             label: 'Anti-Alias',
             type: 'boolean',
             alias: 'project:antiAlias',
