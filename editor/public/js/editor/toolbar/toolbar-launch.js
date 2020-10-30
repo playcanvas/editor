@@ -260,7 +260,7 @@ editor.once('load', function() {
         if (! editor.call('permissions:read') || launch.disabled)
             return;
 
-        tooltip.align = (layoutRight && (layoutRight.hidden || layoutRight.folded)) ? 'right' : 'left';
+        tooltip.align = (layoutRight && (layoutRight.hidden || layoutRight.collapsed)) ? 'right' : 'left';
 
         panelOptions.hidden = false;
         if (timeout)
