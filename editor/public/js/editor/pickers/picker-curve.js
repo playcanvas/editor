@@ -509,7 +509,7 @@ editor.once('load', function() {
         scrolling = false;
         window.removeEventListener('mouseup', onMouseUp);
         window.removeEventListener('mousemove', onMouseMove);
-        window.removeEventListener('wheel', onMouseWheel);
+        canvas.element.removeEventListener('wheel', onMouseWheel);
     }
 
     function resetCurve (curve) {
@@ -1549,6 +1549,7 @@ editor.once('load', function() {
 
     // Handle mouse wheel
     var onMouseWheel = function (e) {
+        e.stopPropagation();
         if (e.deltaY > 0) {
             adjustZoom(-0.3);
         } else if (e.deltaY < 0) {
@@ -1572,7 +1573,7 @@ editor.once('load', function() {
 
         window.addEventListener('mouseup', onMouseUp);
         window.addEventListener('mousemove', onMouseMove);
-        window.addEventListener('wheel', onMouseWheel);
+        canvas.element.addEventListener('wheel', onMouseWheel);
     });
 
     editor.method('picker:curve:close', function () {
