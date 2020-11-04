@@ -80,7 +80,7 @@ Object.assign(pcui, (function () {
             };
         }
 
-        _loadData() {
+        _loadJsonModel() {
             if (this._assets.length !== 1 || this._loading)
                 return;
 
@@ -98,7 +98,7 @@ Object.assign(pcui, (function () {
                 for (var i = 0; i < data.model.meshInstances.length; i++)
                     this._nodes[i] = data.model.nodes[data.model.meshInstances[i].node].name;
 
-                this._updateMeshInstances();
+                this._updateJsonMeshInstances();
                 this._progress.hidden = true;
                 this._request = null;
             })
@@ -113,11 +113,25 @@ Object.assign(pcui, (function () {
             });
         }
 
-        _updateMeshInstances() {
+        _updateJsonMeshInstances() {
             if (this._nodes) {
                 this.parent.headerText = `MESH INSTANCES [${this._nodes.length}]`;
                 this._assetElements.forEach((assetElement, ind) => {
                     assetElement.text = `[${ind}] ${this._nodes[ind]}`;
+                });
+            }
+        }
+
+        _updateGlbMeshInstances() {
+            const meshNames = this._assets[0].get('meta.meshInstancesNames');
+            if (meshNames) {
+                this._progress.value = 1;
+                this._progress.hidden = true;
+                if (this.parent) {
+                    this.parent.headerText = `MESH INSTANCES [${meshNames.length}]`; 
+                }
+                this._assetElements.forEach((assetElement, ind) => {
+                    assetElement.text = `[${ind}] ${meshNames[ind] || 'node'}`;
                 });
             }
         }
@@ -202,10 +216,14 @@ Object.assign(pcui, (function () {
             });
 
             if (assets[0].has('file.url')) {
-                if (! this._loading) {
-                    this._loadData();
+                if (assets[0].has('meta.meshInstancesNames')) {
+                    this._updateGlbMeshInstances();
                 } else {
-                    this._updateMeshInstances();
+                    if (! this._loading) {
+                        this._loadJsonModel();
+                    } else {
+                        this._updateJsonMeshInstances();
+                    }
                 }
             }
 
