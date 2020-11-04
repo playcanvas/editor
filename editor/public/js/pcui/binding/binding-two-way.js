@@ -24,6 +24,15 @@ Object.assign(pcui, (function () {
             this._bindingElementToObservers.on('applyingChange', (value) => {
                 this.applyingChange = value;
             });
+            this._bindingElementToObservers.on('history:init', () => {
+                this.emit('history:init');
+            });
+            this._bindingElementToObservers.on('history:undo', () => {
+                this.emit('history:undo');
+            });
+            this._bindingElementToObservers.on('history:redo', () => {
+                this.emit('history:redo');
+            });
 
             this._bindingObserversToElement.on('applyingChange', (value) => {
                 this.applyingChange = value;

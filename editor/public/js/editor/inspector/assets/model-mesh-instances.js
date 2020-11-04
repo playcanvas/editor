@@ -126,19 +126,63 @@ Object.assign(pcui, (function () {
             this.unlink();
             this._assets = assets;
             this._assets[0].get('data.mapping').forEach((_, ind) => {
+                const binding = new pcui.BindingTwoWay({
+                    history: this._args.history
+                });
+
                 const assetElement = new pcui.AssetInput({
                     assetType: 'material',
                     assets: this._args.assets,
                     class: `node-${ind}`,
                     text: `[${ind}] node`,
                     flexGrow: 1,
-                    binding: new pcui.BindingTwoWay({
-                        history: this._args.history
-                    }),
+                    binding: binding,
                     allowDragDrop: true,
                     // update viewport materials on drag enter
                     dragEnterFn: this._dragEnterFn(ind),
                     dragLeaveFn: this._dragLeaveFn(ind)
+                });
+
+                let prevUserMappings = null;
+
+                binding.on('history:init', () => {
+                    prevUserMappings = binding.observers.map(observer => observer.has(`meta.userMapping.${ind}`));
+                });
+
+                binding.on('history:redo', () => {
+                    prevUserMappings = [];
+
+                    binding.observers.forEach(observer => {
+                        const history = observer.history.enabled;
+                        observer.history.enabled = false;
+
+                        prevUserMappings.push(observer.has(`meta.userMapping.${ind}`));
+                        if (!observer.get('meta')) {
+                            observer.set('meta', {});
+                        }
+                        if (!observer.has('meta.userMapping')) {
+                            observer.set('meta.userMapping', {});
+                        }
+                        observer.set(`meta.userMapping.${ind}`, true);
+
+                        observer.history.enabled = history;
+                    });
+                });
+                binding.on('history:undo', () => {
+                    binding.observers.forEach(observer => {
+                        const history = observer.history.enabled;
+                        observer.history.enabled = false;
+
+                        if (!prevUserMappings[ind]) {
+                            observer.unset(`meta.userMapping.${ind}`);
+                            if (Object.keys(observer.get('meta.userMapping')).length === 0) {
+                                observer.unset('meta.userMapping');
+                            }
+                        }
+
+                        observer.history.enabled = history;
+
+                    });
                 });
 
                 if (this._args.mode === 'picker') {

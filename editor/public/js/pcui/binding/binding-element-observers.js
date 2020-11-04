@@ -45,6 +45,7 @@ Object.assign(pcui, (function () {
 
             const execute = () => {
                 this._setValueToObservers(observers, paths, value, isArrayOfValues);
+                this.emit('history:redo');
             };
 
             if (this._history) {
@@ -60,12 +61,15 @@ Object.assign(pcui, (function () {
                     });
                 }
 
+                this.emit('history:init');
+
                 this._history.add({
                     name: this._getHistoryActionName(paths),
                     redo: execute,
                     combine: this._historyCombine,
                     undo: () => {
                         this._setValueToObservers(observers, paths, previousValues, true);
+                        this.emit('history:undo');
                     }
                 });
 
