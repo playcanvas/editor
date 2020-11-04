@@ -107,6 +107,37 @@ editor.once('load', function () {
             reader.readAsText(hiddenInput.files[0]);
         });
 
+        var createFrame = function (name, frameData, height, scaleWidth, scaleHeight) {
+            // the free version of texturepacker doesn't include the pivot data, so provide defaults if necessary
+            if (!frameData.pivot) {
+                frameData.pivot = {
+                    x: 0.5,
+                    y: 0.5
+                };
+            }
+
+            return {
+                name: name,
+                border: frameData.borders ? [
+                    Math.max(0, frameData.borders.x),
+                    Math.max(0, frameData.frame.h - frameData.borders.y - frameData.borders.h),
+                    Math.max(0, frameData.frame.w - frameData.borders.x - frameData.borders.w),
+                    Math.max(0, frameData.borders.y)
+                ] :
+                [0, 0, 0, 0],
+                rect: [
+                    frameData.frame.x * scaleWidth,
+                    (height - frameData.frame.y - frameData.frame.h) * scaleHeight,
+                    frameData.frame.w * scaleWidth,
+                    frameData.frame.h * scaleHeight
+                ],
+                pivot: [
+                    frameData.pivot.x,
+                    frameData.pivot.y
+                ]
+            };
+        }
+
         var importFramesFromTexturePacker = function (data) {
             var width = data.meta.size.w;
             var height = data.meta.size.h;
@@ -116,39 +147,41 @@ editor.once('load', function () {
             var scaleWidth = actualWidth / width;
             var scaleHeight = actualHeight / height;
 
-            var newFrames = {};
+            var oldFrames = atlasAsset.getRaw('data.frames')._data;
+
+            var nameIndex = {};
             var counter = 0;
 
-            for (var key in data.frames) {
-                var frameData = data.frames[key];
+            for (var key in oldFrames) {
+                // get name of old frame
+                var name = oldFrames[key]._data.name;
 
-                // the free version of texturepacker doesn't include the pivot data, so provide defaults if necessary
-                if (!frameData.pivot) {
-                    frameData.pivot = {
-                        x: 0.5,
-                        y: 0.5
-                    };
+                // if name exists in new frames then remember
+                // its old key
+                if (data.frames[name]) {
+                    nameIndex[name] = key;
+                    // set counter to be larger than the the max existing index
+                    var intKey = parseInt(key, 10);
+                    if (counter <= intKey) {
+                        counter = intKey + 1;
+                    }
                 }
-                newFrames[counter++] = {
-                    name: frameData.filename || key,
-                    border: frameData.borders ? [
-                        Math.max(0, frameData.borders.x),
-                        Math.max(0, frameData.frame.h - frameData.borders.y - frameData.borders.h),
-                        Math.max(0, frameData.frame.w - frameData.borders.x - frameData.borders.w),
-                        Math.max(0, frameData.borders.y)
-                    ] :
-                    [0, 0, 0, 0],
-                    rect: [
-                        frameData.frame.x * scaleWidth,
-                        (height - frameData.frame.y - frameData.frame.h) * scaleHeight,
-                        frameData.frame.w * scaleWidth,
-                        frameData.frame.h * scaleHeight
-                    ],
-                    pivot: [
-                        frameData.pivot.x,
-                        frameData.pivot.y
-                    ]
-                };
+            }
+
+            var newFrames = {};
+            // for all the new frames
+            for (var key in data.frames) {
+                // create new frame
+                var frameData = data.frames[key];
+                var frame = createFrame(frameData.filename || key, frameData, height, scaleWidth, scaleHeight);
+
+                // if frame already exists then use the same index
+                if (nameIndex.hasOwnProperty(key)) {
+                    newFrames[nameIndex[key]] = frame;
+                } else {
+                    // otherwise put the new frame after all the other existing indexes
+                    newFrames[counter++] = frame;
+                }
             }
 
             atlasAsset.set('data.frames', newFrames);
