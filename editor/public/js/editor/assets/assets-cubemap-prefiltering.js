@@ -6,233 +6,101 @@ editor.once('load', function () {
         app = editor.call('viewport:app');
     });
 
-    // var device = editor.call('preview:device');
-    // var assets = editor.call('preview:assetRegistry');
+    function generatePrefilteredLighting(cubemap) {
+        var device = cubemap.device;
 
-    var getTextureAssets = function (assetCubeMap) {
-        var result = [];
-        var textures = assetCubeMap.get('data.textures');
-        for (var i = 0; i < textures.length; i++) {
-            var id = textures[i];
-            if (parseInt(id) >= 0) {
-                var texture = editor.call('assets:get', id);
-                if (!texture) {
-                    return null;
-                }
-
-                result.push(texture);
-            } else {
-                return null;
-            }
-        }
-
-        return result;
-    };
-
-    var prefilterHdrCubemap = function (assetCubeMap, cubemap, callback) {
-        if (! app) {
-            // webgl not available
-            callback(new Error('webgl not available'));
-            return;
-        }
-
-        try {
-            var textureAssets = getTextureAssets(assetCubeMap);
-            if (textureAssets) {
-                var l = textureAssets.length;
-                var count = l;
-                var textures = [];
-
-                var onLoad = function () {
-                    editor.call('status:job', 'prefilter');
-
-                    cubemap = new pc.Texture(app.graphicsDevice, {
-                        cubemap: true,
-                        rgbm: false,
-                        fixCubemapSeams: true,
-                        format: textures[0].format,
-                        width: textures[0].width,
-                        height: textures[0].height
-                    });
-
-                    cubemap.addressU = pc.ADDRESS_CLAMP_TO_EDGE;
-                    cubemap.addressV = pc.ADDRESS_CLAMP_TO_EDGE;
-
-                    cubemap._levels[0] = [ textures[0]._levels[0],
-                                           textures[1]._levels[0],
-                                           textures[2]._levels[0],
-                                           textures[3]._levels[0],
-                                           textures[4]._levels[0],
-                                           textures[5]._levels[0] ];
-
-                    // prefilter cubemap
-                    var options = {
-                        device: app.graphicsDevice,
-                        sourceCubemap: cubemap,
-                        method: 1,
-                        samples: 4096,
-                        cpuSync: true,
-                        filteredFixed: [],
-                        filteredFixedRgbm: [],
-                        singleFilteredFixedRgbm: true
-                    };
-
-                    pc.prefilterCubemap(options);
-
-                    // get dds and create blob
-                    var dds = options.singleFilteredFixedRgbm.getDds();
-                    var blob = new Blob([dds], {type: 'image/dds'});
-
-                    // upload blob as dds
-                    editor.call('assets:uploadFile', {
-                        file: blob,
-                        name: assetCubeMap.get('name') + '.dds',
-                        asset: assetCubeMap,
-                        type: 'cubemap'
-                    }, function (err, data) {
-                        if (!err) {
-                            callback();
-                        } else {
-                            editor.call('status:job', 'prefilter');
-                            callback(err);
-                        }
-                    });
-                };
-
-                textureAssets.forEach(function (asset, index) {
-                    editor.call('status:job', 'prefilter', index);
-
-                    // when prefiltering we load a dds file that the pipeline put next to the png as well as the dds file
-                    // as far as I know, this isn't referenced anywhere else and is only used here to generate the cubemap
-                    // but honestly, who knows it could be used elsewhere too.
-                    var url = swapExtension(asset.get('file.url'), '.png', '.dds');
-
-                    app.assets._loader.load(url, "texture", function (err, resource) {
-                        if (!err) {
-                            textures[index] = resource;
-                        } else {
-                            console.warn(err);
-                        }
-
-                        count--;
-                        if (count === 0) {
-                            onLoad();
-                        }
-                    });
-                });
-            }
-        } catch (ex) {
-            callback(ex);
-        }
-    };
-
-    var prefilterCubemap = function (assetCubeMap, cubemap, callback) {
-        if (! app) {
-            // webgl not available
-            callback(new Error('webgl not available'));
-            return;
-        }
-
-        try {
-            var count = 0;
-            var textures = [ ];
-            var texturesAssets = [ ];
-            var textureIds = assetCubeMap.get('data.textures');
-
-            for(var i = 0; i < 6; i++) {
-                // missing texture
-                if (! textureIds[i])
-                    return;
-
-                texturesAssets[i] = editor.call('assets:get', textureIds[i]);
-
-                // texture is not in registry
-                if (! texturesAssets[i])
-                    return;
-            }
-
-            var texturesReady = function() {
-                editor.call('status:job', 'prefilter');
-
-                var options = {
-                    device: app.graphicsDevice,
-                    sourceCubemap: cubemap,
-                    method: 1,
-                    samples: 4096,
-                    cpuSync: true,
-                    filteredFixed: [ ],
-                    singleFilteredFixed: true
-                };
-
-                pc.prefilterCubemap(options);
-
-                var dds = options.singleFilteredFixed.getDds();
-                var blob = new Blob([ dds ], { type: 'image/dds' });
-
-                // upload blob as dds
-                editor.call('assets:uploadFile', {
-                    file: blob,
-                    name: assetCubeMap.get('name') + '.dds',
-                    asset: assetCubeMap,
-                    type: 'cubemap'
-                }, function (err, data) {
-                    if (callback)
-                        callback(null);
-                });
-            };
-
-            var textureLoad = function(ind, url) {
-                editor.call('status:job', 'prefilter', ind);
-
-                app.assets._loader.load(url, 'texture', function (err, resource) {
-                    if (err)
-                        console.warn(err);
-
-                    textures[ind] = resource;
-
-                    count++;
-                    if (count === 6)
-                        texturesReady();
-                });
-            };
-
-            for(var i = 0; i < 6; i++)
-                textureLoad(i, texturesAssets[i].get('file.url'))
-        } catch (ex) {
-            if (callback)
-                callback(ex);
-        }
-    };
-
-    editor.method('assets:cubemaps:prefilter', function (assetCubeMap, callback) {
-        if (! app) {
-            // webgl not available
-            callback(new Error('webgl not available'));
-            return;
-        }
-
-        var asset = app.assets.get(parseInt(assetCubeMap.get('id'), 10));
-        if (! asset)
-            return;
-
-        var cubemap;
-        var onLoad = function() {
-            if (app.graphicsDevice.textureFloatRenderable && cubemap.rgbm) {
-                prefilterHdrCubemap(assetCubeMap, cubemap, callback);
-            } else {
-                prefilterCubemap(assetCubeMap, cubemap, callback);
-            }
+        // read the pixel data of the given texture face
+        var readPixels = function (texture, face) {
+            var rt = new pc.RenderTarget({ colorBuffer: texture, depth: false, face: face });
+            var data = new Uint8ClampedArray(texture.width * texture.height * 4);
+            var device = texture.device;
+            device.setFramebuffer(rt._glFrameBuffer);
+            device.initRenderTarget(rt);
+            device.gl.readPixels(0, 0, texture.width, texture.height, device.gl.RGBA, device.gl.UNSIGNED_BYTE, data);
+            return data;
         };
 
-        if (asset.resource) {
-            cubemap = asset.resource;
-            onLoad();
-        } else {
-            asset.once('load', function(asset) {
-                cubemap = asset.resource;
-                onLoad();
+        var i;
+        var cubemaps = [];
+
+        cubemap.minFilter = pc.FILTER_LINEAR;
+        cubemap.magFilter = pc.FILTER_LINEAR;
+
+        // generate prefiltered lighting data
+        var sizes = [128, 64, 32, 16, 8, 4, 2, 1];
+        var specPower = [undefined, 512, 128, 32, 8, 2, 1, 1];
+        for (i = 0; i < sizes.length; ++i) {
+            var level = new pc.Texture(device, {
+                cubemap: true,
+                name: 'skyboxPrefilter' + i,
+                width: sizes[i],
+                height: sizes[i],
+                type: cubemap.type,
+                addressU: pc.ADDRESS_CLAMP_TO_EDGE,
+                addressV: pc.ADDRESS_CLAMP_TO_EDGE,
+                fixCubemapSeams: true,
+                mipmaps: false
             });
-            app.assets.load(asset);
+            pc.reprojectTexture(device, cubemaps[0] || cubemap, level, specPower[i], 8192);
+            cubemaps.push(level);
+        }
+
+        // download texture from GPU
+        var levels = [];
+        for (i = 0; i < cubemaps.length; ++i) {
+            levels[i] = [];
+            for (var face = 0; face < 6; ++face) {
+                levels[i].push(readPixels(cubemaps[i], face));
+            }
+        }
+
+        return new pc.Texture(device, {
+            cubemap: true,
+            name: 'filteredCubemap',
+            width: 128,
+            height: 128,
+            type: cubemap.type,
+            addressU: pc.ADDRESS_CLAMP_TO_EDGE,
+            addressV: pc.ADDRESS_CLAMP_TO_EDGE,
+            fixCubemapSeams: true,
+            levels: levels
+        });
+    }
+
+    editor.method('assets:cubemaps:prefilter', function (assetCubeMap, callback) {
+        if (!app) {
+            // webgl not available
+            callback(new Error('webgl not available'));
+            return;
+        }
+
+        var onLoad = function(cubemap) {
+            var blob = new Blob([ generatePrefilteredLighting(cubemap).getDds() ], { type: 'image/dds' });
+
+            // upload blob as dds
+            editor.call('assets:uploadFile', {
+                file: blob,
+                name: assetCubeMap.get('name') + '.dds',
+                asset: assetCubeMap,
+                type: 'cubemap'
+            }, function (err, data) {
+                if (callback)
+                    callback(err, data);
+            });
+
+            assetCubeMap.set('data.rgbm', cubemap.type === pc.TEXTURETYPE_RGBM ? true : false);
+        };
+
+        var asset = app.assets.get(parseInt(assetCubeMap.get('id'), 10));
+        if (asset) {
+            if (asset.resource) {
+                onLoad(asset.resource);
+            } else {
+                asset.once('load', function(asset) {
+                    onLoad(asset.resource);
+                });
+                app.assets.load(asset);
+            }
         }
     });
 
