@@ -257,7 +257,7 @@ Object.assign(pcui, (function () {
 
         _updateLayout() {
             this._updateFilteringSelect();
-            const validationError = this._checkFacesValid();
+            const validationError = this._isPrefiltered() ? null : this._checkFacesValid();
             this._errorLabel.text = validationError;
             this._errorLabel.hidden = !validationError;
             this._prefilteringPanel.hidden = !!validationError;

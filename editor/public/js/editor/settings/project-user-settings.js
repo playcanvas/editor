@@ -69,7 +69,7 @@ editor.once('load', function () {
                 settings.set('editor.pipeline', {});
 
             if (! settings.has('editor.pipeline.texturePot'))
-                settings.set('editor.pipeline.texturePot', true);
+                settings.set('editor.pipeline.texturePot', false);
 
             if (! settings.has('editor.pipeline.searchRelatedAssets'))
                 settings.set('editor.pipeline.searchRelatedAssets', true);
