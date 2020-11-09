@@ -11,6 +11,23 @@ Object.assign(pcui, (function () {
     var DEFAULTS = utils.deepCopy(pcui.DEFAULTS);
 
     /**
+     * @event
+     * @name pcui.ArrayInput#linkElement
+     * @param {pcui.Element} element The array element
+     * @param {Number} index The index of the array element
+     * @param {String} path The path linked
+     * @description Fired when an array element is linked to observers
+     */
+
+    /**
+     * @event
+     * @name pcui.ArrayInput#unlinkElement
+     * @param {pcui.Element} element The array element
+     * @param {Number} index The index of the array element
+     * @description Fired when an array element is unlinked from observers
+     */
+
+    /**
      * @name pcui.ArrayInput
      * @classdesc Element that allows editing an array of values.
      * @property {Boolean} renderChanges If true the input will flash when changed.
@@ -312,11 +329,12 @@ Object.assign(pcui, (function () {
             element.unlink();
             element.value = null;
 
-            if (useSinglePath) {
-                element.link(observers, paths[0] + `.${index}`);
-            } else {
-                element.link(observers, paths.map(path => `${path}.${index}`));
-            }
+            this.emit('unlinkElement', element, index);
+
+            const path = (useSinglePath ? paths[0] + `.${index}` : paths.map(path => `${path}.${index}`));
+            element.link(observers, path);
+
+            this.emit('linkElement', element, index, path);
         }
 
         _updateValues(values, applyToBinding) {

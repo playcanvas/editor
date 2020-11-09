@@ -88,7 +88,8 @@ Object.assign(pcui, (function () {
         }
 
         _realign() {
-            if (!this._elementForHorizontalAlign) return;
+            if (!this._elementForHorizontalAlign || this._elementForHorizontalAlign.destroyed) return;
+            if (!this._elementForVerticalAlign || this._elementForVerticalAlign.destroyed) return;
 
             const horizontalAlignRect = this._elementForHorizontalAlign.dom.getBoundingClientRect();
             const verticalAlignRect = this._elementForVerticalAlign.dom.getBoundingClientRect();
@@ -159,6 +160,10 @@ Object.assign(pcui, (function () {
         }
 
         _onTargetDestroy() {
+            this.destroy();
+        }
+
+        _clearTargetEvents() {
             if (!this._target) return;
 
             this._targetEvents.forEach(evt => evt.unbind());
@@ -191,7 +196,7 @@ Object.assign(pcui, (function () {
          * @param {pcui.Element} args.elementForVerticalAlign The tooltip will use this element to align itself vertically depending on the pcui.Tooltip#align property.
          */
         attach(args) {
-            this._onTargetDestroy();
+            this._clearTargetEvents();
 
             if (!this.parent) {
                 editor.call('layout.root').append(this);
@@ -215,7 +220,7 @@ Object.assign(pcui, (function () {
             if (this._destroyed) return;
 
             this._cancelToggle();
-            this._onTargetDestroy();
+            this._clearTargetEvents();
 
             super.destroy();
         }

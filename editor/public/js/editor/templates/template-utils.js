@@ -45,6 +45,8 @@ editor.once('load', function() {
 
         ALL_DIGITS_REG: /^\d+$/,
 
+        MAX_SCHEMA_QRY_PATH_LENGTH: 8,
+
         getScriptNameReg: function() {
             return TemplateUtils.SCRIPT_NAME_REG;
         },
@@ -112,6 +114,12 @@ editor.once('load', function() {
             });
 
             return node;
+        },
+
+        getParentAtPath: function (node, path) {
+            path = path.slice(0, path.length - 1);
+
+            return TemplateUtils.getNodeAtPath(node, path);
         },
 
         insertAtPath: function (node, path, val) {
@@ -260,30 +268,14 @@ editor.once('load', function() {
             return h;
         },
 
-        isStopPathInSchema: function (path) {
+        isPathInSchema: function (path, method) {
+            path = path.slice(0, TemplateUtils.MAX_SCHEMA_QRY_PATH_LENGTH);
+
             const s = TemplateUtils.pathToStr(path);
 
-            const method = editor.call('schema:getMergeMethodForPath', config.schema.scene, s);
+            const m = editor.call('schema:getMergeMethodForPath', config.schema.scene, s);
 
-            return method === 'stop_and_report_conflict';
-        },
-
-        stopPathsFromAttrs: function (scriptAttrs) {
-            const h = {};
-
-            Object.keys(scriptAttrs).forEach(script => {
-                const attrs = scriptAttrs[script];
-
-                Object.keys(attrs).forEach(attr => {
-                    const type = attrs[attr].type;
-
-                    if (TemplateUtils.STOP_TEMPL_ATTR_TYPES[type]) {
-                        h[`components.script.scripts.${script}.attributes.${attr}`] = 1;
-                    }
-                });
-            });
-
-            return h;
+            return m === method;
         },
 
         deepClone: function (obj) {
@@ -413,6 +405,59 @@ editor.once('load', function() {
     };
 
     const AttrUtils = {
+        INDEXES_IN_PATH: { // path here is shorter by 2
+            ENTITY_SCRIPT_NAME: 3,
+            ENTITY_SCRIPT_ATTR_NAME: 5,
+            JSON_NON_ARRAY_ATTR_PROPERTY: 6,
+            JSON_ARRAY_ATTR_PROPERTY: 7
+        },
+
+        isJsonMapNode: function (data) {
+            return AttrUtils.checkScriptAttr(data, { needMaps: true });
+        },
+
+        isJsonArrayNode: function (data) {
+            return AttrUtils.checkScriptAttr(data, { needArrays: true });
+        },
+
+        checkScriptAttr: function (data, opts) {
+            const h = AttrUtils.findAttrObj(data);
+
+            return h &&
+                AttrUtils.isJsonScriptAttr(h) &&
+                !AttrUtils.jsonAttrPropertyData(h, data.path) && // not inside json attr
+                (!opts.needArrays || (AttrUtils.areBothNodesArs(data) && AttrUtils.isArrayAttr(h))) &&
+                (!opts.needMaps || AttrUtils.areBothNodesMapObjs(data));
+        },
+
+        findAttrObj: function (data) {
+            const scriptName = data.path[AttrUtils.INDEXES_IN_PATH.ENTITY_SCRIPT_NAME];
+
+            const attrName = data.path[AttrUtils.INDEXES_IN_PATH.ENTITY_SCRIPT_ATTR_NAME];
+
+            const h = data.scriptAttrs[scriptName];
+
+            return h && h[attrName];
+        },
+
+        jsonAttrPropertyData: function (attrObj, path) {
+            const ind = AttrUtils.isArrayAttr(attrObj) ?
+                AttrUtils.INDEXES_IN_PATH.JSON_ARRAY_ATTR_PROPERTY :
+                AttrUtils.INDEXES_IN_PATH.JSON_NON_ARRAY_ATTR_PROPERTY;
+
+            const name = path[ind];
+
+            return AttrUtils.isJsonScriptAttr(attrObj) &&
+                name &&
+                AttrUtils.findInAttrSchema(attrObj, name);
+        },
+
+        findInAttrSchema: function (attrObj, name) {
+            const a = attrObj.schema || [];
+
+            return a.find(h => h.name === name);
+        },
+
         isJsonScriptAttr: function (attrObj) {
             return attrObj.type === 'json' &&
                 attrObj.schema;
@@ -426,17 +471,30 @@ editor.once('load', function() {
             return a.map((elt, ind) => ind.toString());
         },
 
+        objIntKeys: function (h) {
+            const a = TemplateUtils.isMapObj(h) && Object.keys(h);
+
+            const allDigits = a && a.every(s => TemplateUtils.ALL_DIGITS_REG.test(s));
+
+            return allDigits && a;
+        },
+
         addAllJsonEntPaths: function(dst, attrObj, pref, attrInEnt) {
             const names = AttrUtils.allJsonEntNames(attrObj.schema);
 
-            Array.isArray(attrInEnt) ?
-                AttrUtils.addPathsForJsonAr(dst, names, pref, attrInEnt) :
+            const inds = AttrUtils.arrayIndsFromAttr(attrInEnt);
+
+            inds ?
+                AttrUtils.addPathsForJsonAr(dst, names, pref, inds) :
                 AttrUtils.addEntNamePaths(dst, names, pref, null);
         },
 
-        addPathsForJsonAr: function (dst, names, pref, attrInEnt) {
-            const inds = AttrUtils.arrayToIndexStrs(attrInEnt);
+        arrayIndsFromAttr: function (attrInEnt) {
+            return (Array.isArray(attrInEnt) && AttrUtils.arrayToIndexStrs(attrInEnt)) ||
+                AttrUtils.objIntKeys(attrInEnt);
+        },
 
+        addPathsForJsonAr: function (dst, names, pref, inds) {
             inds.forEach(i => {
                 AttrUtils.addEntNamePaths(dst, names, pref, i);
             });
@@ -489,6 +547,64 @@ editor.once('load', function() {
             const path = TemplateUtils.strToPath(h.path);
 
             return TemplateUtils.getNodeAtPath(dstEnt, path);
+        },
+
+        insideArrayAtMissingIndex: function (data) {
+            const p1 = data.parent1;
+
+            const p2 = data.parent2;
+
+            const i = AttrUtils.lastArrayElt(data.path);
+
+            return Array.isArray(p1) &&
+                Array.isArray(p2) &&
+                AttrUtils.indexOutOfBounds(i, p1.length, p2.length);
+        },
+
+        lastArrayElt: function (a) {
+            return a[a.length - 1];
+        },
+
+        indexOutOfBounds: function (i, len1, len2) {
+            const lastInd = Math.min(len1, len2) - 1;
+
+            return i > lastInd;
+        },
+
+        conflictFieldsForAttr: function (data) {
+            const h = AttrUtils.findAttrObj(data);
+
+            return h ? AttrUtils.makeAttrFields(h, data.path) : {};
+        },
+
+        makeAttrFields: function (attrObj, path) {
+            const h = {};
+
+            [ 'src', 'dst' ].forEach(type => {
+                const field = type + '_type';
+
+                h[field] = AttrUtils.attrToTypeStr(attrObj, path);
+            });
+
+            return h;
+        },
+
+        attrToTypeStr: function (attrObj, path) {
+            const h = AttrUtils.jsonAttrPropertyData(attrObj, path) || attrObj;
+
+            const pref = AttrUtils.isArrayAttr(h) ? 'array:' : '';
+
+            return pref + h.type;
+        },
+
+        areBothNodesMapObjs: function (data) {
+            return TemplateUtils.isMapObj(data.node1) &&
+                TemplateUtils.isMapObj(data.node2);
+        },
+
+        areBothNodesArs: function (data) {
+            return Array.isArray(data.node1) &&
+                Array.isArray(data.node2);
         }
     };
 });

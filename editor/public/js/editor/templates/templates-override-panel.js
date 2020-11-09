@@ -190,7 +190,7 @@ Object.assign(pcui, (function () {
 
             if (isArray) {
                 labelAlignTop = true;
-                if (type === 'string' && name === 'tags') {
+                if (type === 'string' && name === 'Tags') {
                     field = pcui.Element.create('tags', {
                         readOnly: true,
                         value: value
@@ -235,7 +235,7 @@ Object.assign(pcui, (function () {
                             value: value,
                             readOnly: true,
                             assets: this._assets,
-                            text: this._prettifyName(name)
+                            text: name
                         });
                         break;
                     case 'array:asset':
@@ -356,7 +356,7 @@ Object.assign(pcui, (function () {
 
             if (type !== 'asset' || isArray) {
                 result = new pcui.LabelGroup({
-                    text: this._prettifyName(name),
+                    text: name,
                     field: field,
                     nativeTooltip: true,
                     labelAlignTop: labelAlignTop
@@ -474,7 +474,7 @@ Object.assign(pcui, (function () {
             let dstValue = override.dst_value;
             let srcValue = override.src_value;
 
-            if (name === 'path' && override.path_data) {
+            if (name === 'Path' && override.path_data) {
                 dstValue = override.path_data.dst.names.join('/');
                 srcValue = override.path_data.src.names.join('/');
             }
@@ -549,7 +549,7 @@ Object.assign(pcui, (function () {
                 let type = 'string';
                 let isArray = false;
 
-                if (pathParts.length === 6 && pathParts[4] === 'attributes') {
+                if (pathParts.length >= 6 && pathParts[4] === 'attributes') {
                     attributeName = pathParts[5];
 
                     const scriptAsset = editor.call('assets:scripts:assetByScript', scriptName);
@@ -557,8 +557,29 @@ Object.assign(pcui, (function () {
                         // get attribute type
                         const attributeOptions = scriptAsset.get(`data.scripts.${scriptName}.attributes.${attributeName}`);
                         if (attributeOptions) {
-                            isArray = attributeOptions.array;
-                            type = attributeOptions.type;
+                            if (pathParts.length > 6 && attributeOptions.type === 'json' && Array.isArray(attributeOptions.schema)) {
+                                // pathParts[7] would be a field of a JSON array attribute element
+                                // pathParts[6] would be a field of the JSON attribute
+                                let subField;
+                                if (pathParts[7]) {
+                                    subField = pathParts[7];
+                                    attributeName += `.${pathParts[6]}.${pathParts[7]}`;
+                                } else {
+                                    subField = pathParts[6];
+                                    attributeName += `.${pathParts[6]}`;
+                                }
+
+                                for (let i = 0; i < attributeOptions.schema.length; i++) {
+                                    if (attributeOptions.schema[i].name === subField) {
+                                        type = attributeOptions.schema[i].type;
+                                        isArray = attributeOptions.schema[i].array;
+                                        break;
+                                    }
+                                }
+                            } else {
+                                isArray = attributeOptions.array;
+                                type = attributeOptions.type;
+                            }
                         }
                     }
                 } else if (pathParts.length === 5) {
@@ -619,7 +640,7 @@ Object.assign(pcui, (function () {
                 }
             } else {
                 const type = editor.call('schema:getTypeForPath', config.schema.scene, `entities.$.${override.path}`);
-                const field = pathParts[4];
+                const field = this._prettifyName(pathParts[4]);
                 result.overrideGroups[soundSlotName].properties.push(...this._createGridLine(field, type, override, false));
             }
         }
@@ -668,7 +689,7 @@ Object.assign(pcui, (function () {
                 }
             } else {
                 const type = editor.call('schema:getTypeForPath', config.schema.scene, `entities.$.${override.path}`);
-                const field = pathParts[4];
+                const field = this._prettifyName(pathParts[4]);
                 result.overrideGroups[clipName].properties.push(...this._createGridLine(field, type, override, false));
             }
 
@@ -860,7 +881,7 @@ Object.assign(pcui, (function () {
                         type = editor.call('schema:getTypeForPath', config.schema.scene, `entities.$.${parts[0]}`);
                     }
 
-                    fields.properties.push(...this._createGridLine(field, type, override, false));
+                    fields.properties.push(...this._createGridLine(this._prettifyName(field), type, override, false));
 
                 } else {
                     if (parts[0] === 'components') {
@@ -889,7 +910,7 @@ Object.assign(pcui, (function () {
                             } else {
                                 type = editor.call('schema:getTypeForPath', config.schema.scene, `entities.$.components.${parts[1]}.${parts[2]}`);
                                 field = parts[2];
-                                fields.components[component].properties.push(...this._createGridLine(field, type, override, false));
+                                fields.components[component].properties.push(...this._createGridLine(this._prettifyName(field), type, override, false));
                             }
 
                         } else if (parts.length > 3) {
