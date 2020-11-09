@@ -46,6 +46,12 @@ editor.once('load', function() {
             a.forEach(this.recursiveCallForKey, this);
         }
 
+        callArrayRecursion() {
+            const a = editor.call('template:attrUtils', 'arrayToIndexStrs', this.data.node1);
+
+            a.forEach(this.recursiveCallForKey, this);
+        }
+
         resultKnown() {
             return this.data.knownResultPaths.includes(this.data.path);
         }
@@ -70,7 +76,11 @@ editor.once('load', function() {
 
                 node1: this.nodeFromRoot(type1),
 
-                node2: this.nodeFromRoot(type2)
+                node2: this.nodeFromRoot(type2),
+
+                parent1: this.parentFromRoot(type1),
+
+                parent2: this.parentFromRoot(type2)
             };
 
             Object.assign(this.data, h);
@@ -102,6 +112,13 @@ editor.once('load', function() {
             return editor.call(
                 'template:utils', 'getNodeAtPath', root, this.data.path);
         }
+
+        parentFromRoot(type) {
+            const root = this.data.typeToRoot[type];
+
+            return editor.call(
+                'template:utils', 'getParentAtPath', root, this.data.path);
+        }
     }
 
     /**
@@ -122,19 +139,42 @@ editor.once('load', function() {
             this.data = data;
 
             this.traversal = traversal;
+
+            this.fullPath = [ 'entities', data.entityResourceId ].concat(data.path);
         }
 
         handleNode() {
-            if (this.areNodesEqual()) {
+            if (editor.call('template:attrUtils', 'insideArrayAtMissingIndex', this.data)) {
+                this.reportDiff();
+
+            } else if (this.areNodesEqual()) {
                 this.traversal.addCurPathToKnown();
 
-            } else if (this.needRecursion()) {
+            } else if (this.pathStop()) {
+                this.reportDiff();
+
+            } else if (this.pathAttrs()) {
+                this.handleAttrs();
+
+            } else if (this.areBothNodesMaps()) {
                 this.traversal.makeRecursiveCalls();
 
             } else {
                 this.reportDiff();
+            }
+        }
 
-                this.traversal.addCurPathToKnown();
+        handleAttrs() {
+            if (editor.call('template:attrUtils', 'isJsonArrayNode', this.data)) {
+                this.traversal.callArrayRecursion();
+
+            } else if (editor.call('template:attrUtils', 'isJsonMapNode', this.data)) {
+                this.traversal.makeRecursiveCalls();
+
+           } else {
+                const h = editor.call('template:attrUtils', 'conflictFieldsForAttr', this.data);
+
+                this.reportDiff(h);
             }
         }
 
@@ -143,33 +183,40 @@ editor.once('load', function() {
                 'assets:isDeepEqual', this.data.node1, this.data.node2);
         }
 
-        needRecursion() {
-            return this.areBothNodesMaps() && !this.shouldStopAndReport();
-        }
-
         areBothNodesMaps() {
             return [ this.data.node1, this.data.node2 ].every(h => {
                 return editor.call('template:utils', 'isMapObj', h);
             });
         }
 
-        shouldStopAndReport() {
-            const fullPath = [ 'entities', this.data.entityResourceId ].concat(this.data.path);
-
-            return this.isAttrStopPath() ||
-                editor.call('template:utils', 'isStopPathInSchema', fullPath);
+        pathStop() {
+            return editor.call(
+                'template:utils',
+                'isPathInSchema',
+                this.fullPath,
+                'stop_and_report_conflict'
+            );
         }
 
-        isAttrStopPath() {
-            const s = editor.call('template:utils', 'pathToStr', this.data.path);
-
-            return this.data.attrStopPaths[s];
+        pathAttrs() {
+            return editor.call(
+                'template:utils',
+                'isPathInSchema',
+                this.fullPath,
+                'merge_entity_script_attributes'
+            );
         }
 
-        reportDiff() {
+        reportDiff(extraFields) {
+            extraFields = extraFields || {};
+
             const h = new MakeNodeConflict(this.data).run();
 
+            Object.assign(h, extraFields);
+
             this.data.conflicts.push(h);
+
+            this.traversal.addCurPathToKnown();
         }
     }
 

@@ -1,6 +1,9 @@
 editor.once('load', function () {
     'use strict';
 
+    const REGEX_SCRIPT_NAME = /^components\.script\.scripts\.([^.]+)$/;
+    const REGEX_JSON_SCRIPT_ATTR_ARRAY_ELEMENT = /^components\.script\.scripts\.[^.]+\.attributes\.[^.]+\.\d+$/;
+
     function rememberEntitiesPanelState(entity) {
         return editor.call('entities:panel:getExpandedState', entity);
     }
@@ -92,6 +95,78 @@ editor.once('load', function () {
             previousIndex = entity.get('components.script.order').indexOf(scriptName);
             entity.removeValue('components.script.order', scriptName);
 
+            entity.history.enabled = history;
+        }
+
+        redo();
+
+        editor.call('history:add', {
+            name: `entities.${override.resource_id}.${override.path}`,
+            undo: undo,
+            redo: redo
+        });
+    }
+
+    function revertNewJsonScriptAttributeArrayElement(entity, override, index) {
+        const prev = entity.get(override.path);
+        const path = override.path.substring(0, override.path.lastIndexOf('.'));
+
+        function redo() {
+            entity = entity.latest();
+            if (!entity) return;
+
+            const history = entity.history.enabled;
+            entity.history.enabled = false;
+            entity.remove(path, index);
+            entity.history.enabled = history;
+        }
+
+        function undo() {
+            entity = entity.latest();
+            if (!entity) return;
+
+            const history = entity.history.enabled;
+            entity.history.enabled = false;
+            entity.insert(path, prev, index);
+            entity.history.enabled = history;
+
+        }
+
+        redo();
+
+        editor.call('history:add', {
+            name: `entities.${entity.get('resource_id')}.${override.path}`,
+            undo: undo,
+            redo: redo
+        });
+    }
+
+    function revertDeletedJsonScriptAttributeArrayElement(entity, override) {
+        const idx = override.path.lastIndexOf('.');
+        const path = override.path.substring(0, idx);
+        const index = parseInt(override.path.substring(idx + 1), 10);
+
+        function undo() {
+            entity = entity.latest();
+            if (!entity || !entity.has(path)) return;
+
+            const history = entity.history.enabled;
+            entity.history.enabled = false;
+            entity.remove(path, index);
+            entity.history.enabled = history;
+
+
+        }
+
+        function redo() {
+            entity = entity.latest();
+            if (!entity || !entity.has(path)) return;
+
+            const history = entity.history.enabled;
+            entity.history.enabled = false;
+            const value = editor.call('template:attrUtils', 'remapDstForRevert', override) 
+            console.log(path, index, value);
+            entity.insert(path, value, index);
             entity.history.enabled = history;
         }
 
@@ -380,16 +455,19 @@ editor.once('load', function () {
         let entity = entities.get(override.resource_id);
         if (!entity) return;
 
-        const scriptReg = editor.call('template:utils', 'getScriptNameReg');
-
         if (override.missing_in_dst) {
-            const match = override.path.match(scriptReg);
+            let match = override.path.match(REGEX_SCRIPT_NAME);
             if (match) {
                 revertNewScript(entity, override, match[1]);
-            } else if (override.path === 'template_id') {
-                revertNewTemplateId(entity, override);
             } else {
-                entity.unset(override.path);
+                match = override.path.match(REGEX_JSON_SCRIPT_ATTR_ARRAY_ELEMENT);
+                if (match) {
+                    revertNewJsonScriptAttributeArrayElement(entity, override, parseInt(match[1], 10));
+                } else if (override.path === 'template_id') {
+                    revertNewTemplateId(entity, override);
+                } else {
+                    entity.unset(override.path);
+                }
             }
         } else {
             if (override.path === 'parent') {
@@ -401,15 +479,20 @@ editor.once('load', function () {
                 revertScriptOrder(entity, override);
             } else {
                 // handle deleted script
-                const match = override.path.match(scriptReg);
+                let match = override.path.match(REGEX_SCRIPT_NAME);
                 if (match) {
                     revertDeletedScript(entity, override, match[1]);
                 } else {
-                    const val = override.entity_ref_paths ?
-                      editor.call('template:attrUtils', 'remapDstForRevert', override) :
-                      override.dst_value;
+                    match = override.path.match(REGEX_JSON_SCRIPT_ATTR_ARRAY_ELEMENT);
+                    if (match) {
+                        revertDeletedJsonScriptAttributeArrayElement(entity, override);
+                    } else {
+                        const val = override.entity_ref_paths ?
+                        editor.call('template:attrUtils', 'remapDstForRevert', override) :
+                        override.dst_value;
 
-                    entity.set(override.path, val);
+                        entity.set(override.path, val);
+                    }
                 }
             }
         }

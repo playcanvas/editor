@@ -124,12 +124,6 @@ editor.once('load', function() {
             const a = Object.values(this.instance.entities);
 
             this.scriptAttrs = editor.call('template:getScriptAttributes', a);
-
-            this.attrStopPaths = editor.call(
-                'template:utils',
-                'stopPathsFromAttrs',
-                this.scriptAttrs
-            );
         }
 
         setOverrides() {
@@ -137,7 +131,7 @@ editor.once('load', function() {
                 'template:findConflicts',
                 this.typeToInstData,
                 this.typeToIdToTempl,
-                this.attrStopPaths
+                this.scriptAttrs
             );
 
             this.overrides.typeToInstData = this.typeToInstData;

@@ -189,6 +189,32 @@ Object.assign(pcui, (function () {
                     if (attr.path) {
                         const field = this.getField(attr.path);
                         this._templateOverridesInspector.registerElementForPath(attr.path, attr.type === 'asset' ? field : field.parent, tooltipGroup);
+
+                        if (field instanceof pcui.ArrayInput) {
+                            const pathsIndex = {};
+
+                            // register each array element for template overrides
+                            field.on('linkElement', (element, index, path) => {
+                                pathsIndex[index] = path;
+
+                                const arrayElementPanel = element.parent;
+                                this._templateOverridesInspector.registerElementForPath(path, arrayElementPanel);
+
+                                element.once('destroy', () => {
+                                    if (pathsIndex[index] === path) {
+                                        this._templateOverridesInspector.unregisterElementForPath(path);
+                                        delete pathsIndex[index];
+                                    }
+                                });
+                            });
+
+                            field.on('unlinkElement', (element, index) => {
+                                if (pathsIndex[index]) {
+                                    this._templateOverridesInspector.unregisterElementForPath(pathsIndex[index]);
+                                    delete pathsIndex[index];
+                                }
+                            });
+                        }
                     } else if (attr.paths) {
                         attr.paths.forEach(path => {
                             // use first path to get field as subsequent paths

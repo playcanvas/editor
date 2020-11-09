@@ -11,17 +11,17 @@ editor.once('load', function() {
      * @returns {Object} An object with fields 'conflicts',
      *    'addedEntities' and 'deletedEntities'
      */
-    editor.method('template:findConflicts', function (typeToInstData, typeToIdToTempl, attrStopPaths) {
-        return new FindTemplateConflicts(typeToInstData, typeToIdToTempl, attrStopPaths).run();
+    editor.method('template:findConflicts', function (typeToInstData, typeToIdToTempl, scriptAttrs) {
+        return new FindTemplateConflicts(typeToInstData, typeToIdToTempl, scriptAttrs).run();
     });
 
     class FindTemplateConflicts {
-        constructor(typeToInstData, typeToIdToTempl, attrStopPaths) {
+        constructor(typeToInstData, typeToIdToTempl, scriptAttrs) {
             this.typeToInstData = typeToInstData;
 
             this.typeToIdToTempl = typeToIdToTempl;
 
-            this.attrStopPaths = attrStopPaths;
+            this.scriptAttrs = scriptAttrs;
 
             this.visitedIds = {};
 
@@ -95,7 +95,7 @@ editor.once('load', function() {
         }
 
         useTraversal(ent, typeToNode) { // ent is always from src
-            const conflicts = new TemplateTraversal(ent, typeToNode, this.attrStopPaths).run();
+            const conflicts = new TemplateTraversal(ent, typeToNode, this.scriptAttrs).run();
 
             Array.prototype.push.apply(this.result.conflicts, conflicts);
         }
@@ -108,12 +108,12 @@ editor.once('load', function() {
     }
 
     class TemplateTraversal {
-        constructor(ent, typeToNode, attrStopPaths) {
+        constructor(ent, typeToNode, scriptAttrs) {
             this.ent = ent;
 
             this.typeToNode = typeToNode;
 
-            this.attrStopPaths = attrStopPaths;
+            this.scriptAttrs = scriptAttrs;
 
             this.conflicts = [];
         }
@@ -133,7 +133,7 @@ editor.once('load', function() {
                 typeToRoot: this.typeToNode,
                 conflicts: this.conflicts,
                 entityResourceId: this.ent.resource_id,
-                attrStopPaths: this.attrStopPaths
+                scriptAttrs: this.scriptAttrs
             };
 
             new StartRecursiveTraversal(h).run();
