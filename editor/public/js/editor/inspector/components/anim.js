@@ -144,10 +144,12 @@ Object.assign(pcui, (function () {
             this._stateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
             if (this._stateGraphAssetId) {
                 this._stateGraphAsset = this._args.assets.get(this._stateGraphAssetId);
-                this._stateGraphAsset.on('*:set', (path) => {
+                if (this._stateGraphAsset) {
+                    this._stateGraphAsset.on('*:set', (path) => {
+                        this._addAnimationAssetSlots();
+                    });
                     this._addAnimationAssetSlots();
-                });
-                this._addAnimationAssetSlots();
+                }
             }
             this._entities[0].on('components.anim.stateGraphAsset:set', () => {
                 this._stateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
