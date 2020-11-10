@@ -61,33 +61,33 @@
     font-smoothing: antialiased;
 }
 
-.font-icon {
-    font-family: 'pc-icon';
-    @extend .font-smooth;
-}
-
 .font-thin {
-    font-family: 'Proxima Nova Thin', 'Helvetica Neue', Arial, Helvetica, sans-serif !important;
+    font-family: 'Proxima Nova Thin', 'Helvetica Neue', Arial, Helvetica, sans-serif;
     font-weight: 100;
     font-style: normal;
 }
 
 .font-light {
-    font-family: 'Proxima Nova Light', 'Helvetica Neue', Arial, Helvetica, sans-serif !important;
+    font-family: 'Proxima Nova Light', 'Helvetica Neue', Arial, Helvetica, sans-serif;
     font-weight: 200;
     font-style: normal;
 }
 
 .font-regular {
-    font-family: 'Proxima Nova Regular', 'Helvetica Neue', Arial, Helvetica, sans-serif !important;
+    font-family: 'Proxima Nova Regular', 'Helvetica Neue', Arial, Helvetica, sans-serif;
     font-weight: normal;
     font-style: normal;
 }
 
 .font-bold {
-    font-family: 'Proxima Nova Bold', 'Helvetica Neue', Arial, Helvetica, sans-serif !important;
+    font-family: 'Proxima Nova Bold', 'Helvetica Neue', Arial, Helvetica, sans-serif;
     font-weight: bold;
     font-style: normal;
+}
+
+.font-icon {
+    font-family: 'pc-icon';
+    @extend .font-smooth;
 }
 
 .fixedFont {
