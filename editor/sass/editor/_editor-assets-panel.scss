@@ -759,11 +759,15 @@
     margin: $element-margin / 2;
     width: 8px;
     height: 8px;
+    flex-shrink: 0;
 }
 
 .pcui-asset-panel .pcui-table {
     .pcui-asset-panel-users {
         max-height: initial;
+        top: 5px;
+        max-width: (6 + $element-margin) * 8;
+        flex-wrap: nowrap;
     }
 
     .pcui-asset-panel-users-indicator {
