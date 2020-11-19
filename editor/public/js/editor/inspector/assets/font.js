@@ -439,6 +439,8 @@ Object.assign(pcui, (function () {
             this._assetEvents.push(this._processFontButton.on('click', this._onClickProcessFontButton.bind(this)));
             this._assetEvents.push(this._localizationAttributes.getField('localization').on('change', this._addLocalization.bind(this)));
             assets.forEach((asset) => {
+                this._toggleProcessFontButton(asset);
+
                 this._assetEvents.push(asset.on('task:set', (v) => {
                     // process font complete
                     this._processFontWarningContainer.hidden = true;
@@ -455,6 +457,7 @@ Object.assign(pcui, (function () {
                     }
                     this._toggleProcessFontButton(asset);
                 }));
+
                 this._assetEvents.push(asset.on('*:set', this._refreshLocalizationsForAsset.bind(this)));
                 this._assetEvents.push(asset.on('*:unset', this._refreshLocalizationsForAsset.bind(this)));
             });

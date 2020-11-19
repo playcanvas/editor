@@ -123,6 +123,18 @@ Object.assign(pcui, (function () {
             type: "boolean"
         },
         {
+            label: "Mode",
+            path: "meta.compress.compressionMode",
+            type: "select",
+            args: {
+                type: "string",
+                options: [
+                    { v: "etc", t: "ETC (smaller size, lower quality)" },
+                    { v: "astc", t: "ASTC (larger size, higher quality)" }
+                ]
+            }
+        },
+        {
             label: "Quality",
             path: "meta.compress.quality",
             type: "select",
@@ -328,6 +340,7 @@ Object.assign(pcui, (function () {
         const normals = !!asset.get('meta.compress.normals');
         const compress = asset.get('meta.compress.' + format);
         const mipmaps = asset.get('data.mipmaps');
+        const compressionMode = asset.get('meta.compress.compressionMode');
         const quality = asset.get('meta.compress.quality');
 
         if (!! data !== compress) {
@@ -358,7 +371,9 @@ Object.assign(pcui, (function () {
             return true;
 
         if (format === 'basis' && data) {
-            if ((!!(data.opt & 8) !== normals) || (data.quality === undefined) || (data.quality !== quality)) {
+            if ((!!(data.opt & 8) !== normals) ||
+                (data.quality === undefined) || (data.quality !== quality) ||
+                (data.compressionMode === undefined) || (data.compressionMode !== compressionMode)) {
                 return true;
             }
         }
@@ -590,9 +605,10 @@ Object.assign(pcui, (function () {
                     if (format === 'basis') {
                         const width = assets[i].get('meta.width');
                         const height = assets[i].get('meta.height');
-                        const depth = 1;
-                        const pixelFormat = pc.PIXELFORMAT_DXT1;
+                        const alpha = assets[i].get('meta.alpha');
+                        const pixelFormat = alpha ? pc.PIXELFORMAT_DXT5 : pc.PIXELFORMAT_DXT1;
                         const mipmaps = assets[i].get('data.mipmaps');
+                        const depth = 1;
                         const cubemap = false;
                         vram = pc.Texture.calcGpuSize(width, height, depth, pixelFormat, mipmaps, cubemap);
                     } else {
@@ -786,8 +802,9 @@ Object.assign(pcui, (function () {
             // enable/disable basis controls based on whether basis is enabled
             const basisUiDisabled = !writeAccess || !basisSelected;
             if (this._compressionBasisAttributesInspector) {
-                this._compressionBasisAttributesInspector.getField('meta.compress.quality').disabled = basisUiDisabled;
                 this._compressionBasisAttributesInspector.getField('meta.compress.normals').disabled = basisUiDisabled;
+                this._compressionBasisAttributesInspector.getField('meta.compress.compressionMode').disabled = basisUiDisabled;
+                this._compressionBasisAttributesInspector.getField('meta.compress.quality').disabled = basisUiDisabled;
             }
 
             if (this._containerImportBasis) {
@@ -948,8 +965,10 @@ Object.assign(pcui, (function () {
                     if (variants.indexOf('pvr') !== -1)
                         task.options.pvrBpp = assets[i].get('meta.compress.pvrBpp');
 
-                    if (variants.indexOf('basis') !== -1)
+                    if (variants.indexOf('basis') !== -1) {
+                        task.options.compressionMode = assets[i].get('meta.compress.compressionMode');
                         task.options.quality = assets[i].get('meta.compress.quality');
+                    }
 
                     const sourceId = assets[i].get('source_asset_id');
                     if (sourceId) {
