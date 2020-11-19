@@ -44,7 +44,8 @@ editor.once('load', function() {
                         etc1: false,
                         etc2: false,
                         basis: false,
-                        quality: 128
+                        quality: 128,
+                        compressionMode: 'etc'
                     });
                 } else {
                     if (! asset.has('meta.compress.normals'))
@@ -67,6 +68,9 @@ editor.once('load', function() {
 
                     if (! asset.has('meta.compress.quality'))
                         asset.set('meta.compress.quality', 128);
+
+                    if (! asset.has('meta.compress.compressionMode'))
+                        asset.set('meta.compress.compressionMode', 'etc');
                 }
             }
             if (asset.get('data')) {
