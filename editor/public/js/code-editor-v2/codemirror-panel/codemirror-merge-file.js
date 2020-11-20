@@ -15,6 +15,8 @@ editor.once('load', function () {
     var REGEX_DST_BRANCH = /(.*?<<<<<<<[\s\S]*?)=======.*?$/gm;
     var REGEX_SRC_BRANCH = /.*?=======.*?\n([\s\S]*?>>>>>>>.*?$)/gm; // eslint-disable-line no-div-regex
 
+    var LARGE_FILE_SIZE = 1000000;
+
     var MergeFileEditor = function () {
         // the asset type
         this.type = config.self.branch.merge.conflict.assetType;
@@ -105,15 +107,6 @@ editor.once('load', function () {
     };
 
     MergeFileEditor.prototype.createOverlay = function (className, branchName, startPos, endPos, reverse) {
-        // var header = document.createElement('div');
-        // header.classList.add('conflict-overlay');
-        // header.classList.add('conflict-overlay-header');
-        // header.classList.add(className);
-
-        // var btnUse = new ui.Button({
-        //     text: 'USE ME'
-        // });
-        // header.appendChild(btnUse.element);
         var label = new ui.Label({
             text: branchName
         });
@@ -385,7 +378,13 @@ editor.once('load', function () {
                     return;
                 }
 
-                this.doc = CodeMirror.Doc(contents, MODES[this.type]);
+                let mode = MODES[this.type];
+                // stop highlighting if document is larger than 1MB
+                if (contents.length > LARGE_FILE_SIZE) {
+                    mode = 'text';
+                }
+
+                this.doc = CodeMirror.Doc(contents, mode);
                 if (this.ternLoaded) {
                     this.renderDocument();
                 }
