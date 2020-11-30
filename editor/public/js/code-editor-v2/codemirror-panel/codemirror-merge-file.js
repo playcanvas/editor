@@ -256,7 +256,10 @@ editor.once('load', function () {
         // clear existing overlays
         for (var i = 0; i < this.overlays.length; i++) {
             this.cm.off('scroll', this.overlays[i].positionLabel);
-            this.overlays[i].parentElement.removeChild(this.overlays[i]);
+            var parent = this.overlays[i].parentElement;
+            if (parent) {
+                parent.removeChild(this.overlays[i]);
+            }
         }
         this.overlays.length = 0;
 
