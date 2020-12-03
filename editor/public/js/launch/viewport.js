@@ -227,6 +227,10 @@ editor.once('load', function () {
         }
     });
 
+    if (projectSettings.get('maxAssetRetries')) {
+        app.loader.enableRetry(projectSettings.get('maxAssetRetries'));
+    }
+
     if (queryParams.useBundles === 'false') {
         app.enableBundles = false;
     }
@@ -380,6 +384,14 @@ editor.once('load', function () {
 
     projectSettings.on('i18nAssets:remove', function (value) {
         app.i18n.assets = projectSettings.get('i18nAssets');
+    });
+
+    projectSettings.on('maxAssetRetries:set', function (value) {
+        if (value > 0) {
+            app.loader.enableRetry(value);
+        } else {
+            app.loader.disableRetry();
+        }
     });
 
     // locale change

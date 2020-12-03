@@ -46,6 +46,7 @@ Object.assign(pcui, (function () {
         'externalscripts',
         'input',
         'localization',
+        'network',
         'assettasks',
         'audio',
         'scripts'

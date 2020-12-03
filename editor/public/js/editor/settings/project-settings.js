@@ -28,7 +28,8 @@ editor.once('load', function () {
         'layerOrder',
         'i18nAssets',
         'useLegacyAmmoPhysics',
-        'useLegacyAudio'
+        'useLegacyAudio',
+        'maxAssetRetries'
     ];
 
     var data = {};
@@ -213,6 +214,10 @@ editor.once('load', function () {
 
         if (settings.get('powerPreference') === null) {
             settings.set('powerPreference', 'default');
+        }
+
+        if (settings.get('maxAssetRetries') === null) {
+            settings.set('maxAssetRetries', 0);
         }
 
         settings.history.enabled = history;

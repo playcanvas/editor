@@ -184,6 +184,10 @@ editor.once('load', function() {
         title: 'Enable Gamepad input',
         description: 'Disable this if you do not want to handle any gamepad input in your application.'
     }, {
+        name: 'project:maxAssetRetries',
+        title: 'Max Asset Retries',
+        description: 'The maximum number of times to retry loading an asset if it fails to be loaded. If an asset request fails it will be retried with an exponential backoff.'
+    }, {
         name: 'asset-tasks',
         title: 'Asset Tasks',
         description: 'Settings for defining default behaviour rules for asset pipeline jobs: assets extracting, textures resizing, etc.'
