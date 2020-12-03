@@ -713,7 +713,6 @@ editor.once('load', function () {
                 // and the destination checkpoint
                 showMainProgress(spinnerIcon, 'Loading changes...');
                 editor.call('diff:merge', function (err, data) {
-                    console.log(data);
                     if (err) {
                         return showMainProgress(errorIcon, err);
                     }
@@ -725,7 +724,6 @@ editor.once('load', function () {
                 // get the conflicts of the current merge
                 showMainProgress(spinnerIcon, 'Loading conflicts...');
                 editor.call('branches:getMerge', config.self.branch.merge.id, function (err, data) {
-                    console.log(data);
                     if (err) {
                         return showMainProgress(errorIcon, err);
                     }
