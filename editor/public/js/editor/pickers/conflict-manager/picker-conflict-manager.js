@@ -11,6 +11,9 @@ editor.once('load', function () {
     // if true then we are showing a diff instead of a merge
     var diffMode = false;
 
+    var evtMessengerMergeComplete = null;
+    var evtMessengerMergeProgress = null;
+
     // overlay
     var root = editor.call('layout.root');
     var overlay = new ui.Overlay();
@@ -562,21 +565,9 @@ editor.once('load', function () {
         setLayoutMode(LAYOUT_NONE);
         showMainProgress(spinnerIcon, 'Completing merge...');
 
-        editor.call('branches:applyMerge', config.self.branch.merge.id, true, function (err) {
-
+        editor.call('branches:applyMerge', config.self.branch.merge.id, true, err => {
             if (err) {
-                // if there was an error show it in the UI and then go back to the conflicts
-                showMainProgress(errorIcon, err);
-                setTimeout(function () {
-                    btnComplete.disabled = false;
-                    listItems.innerElement.firstChild.ui.selected = true;
-                }, 2000);
-            } else {
-                // if no error then refresh the browser
-                showMainProgress(completedIcon, 'Merge complete - refreshing browser...');
-                setTimeout(function () {
-                    window.location.reload();
-                }, 1000);
+                onMergeComplete(err);
             }
         });
     });
@@ -594,33 +585,65 @@ editor.once('load', function () {
         setLayoutMode(LAYOUT_NONE);
         showMainProgress(spinnerIcon, 'Resolving conflicts...');
 
-        editor.call('branches:applyMerge', config.self.branch.merge.id, false, function (err) {
+        editor.call('branches:applyMerge', config.self.branch.merge.id, false, err => {
             if (err) {
-                // if there was an error show it in the UI and then go back to the conflicts
-                showMainProgress(errorIcon, err);
-                setTimeout(function () {
-                    btnReview.disabled = false;
-                    listItems.innerElement.firstChild.ui.selected = true;
-                }, 2000);
-            } else {
-                // if no error then show the merge diff
-                // vaios
-                showMainProgress(spinnerIcon, 'Loading changes...');
-                editor.call('diff:merge', function (err, data) {
-                    toggleDiffMode(true);
-                    if (err) {
-                        return showMainProgress(errorIcon, err);
-                    }
-
-                    btnReview.disabled = false;
-                    btnReview.hidden = true;
-                    btnComplete.disabled = false;
-                    btnComplete.hidden = false;
-                    onMergeDataLoaded(data);
-                });
+                onMergeComplete(err);
             }
         });
     });
+
+    // Called when the merge progress status changes to ready for review
+    var onReadyForReview = function () {
+        showMainProgress(spinnerIcon, 'Loading changes...');
+        editor.call('diff:merge', function (err, data) {
+            toggleDiffMode(true);
+            if (err) {
+                return showMainProgress(errorIcon, err);
+            }
+
+            btnReview.disabled = false;
+            btnReview.hidden = true;
+            btnComplete.disabled = false;
+            btnComplete.hidden = false;
+            onMergeDataLoaded(data);
+        });
+    }
+
+    // Called when the merge process is completed
+    var onMergeComplete = function (err) {
+        if (err) {
+            // if there was an error show it in the UI and then go back to the conflicts
+            showMainProgress(errorIcon, err);
+            setTimeout(function () {
+                window.location.reload();
+            }, 2000);
+        } else {
+            // if no error then refresh the browser
+            showMainProgress(completedIcon, 'Merge complete - refreshing browser...');
+            setTimeout(function () {
+                window.location.reload();
+            }, 1000);
+        }
+    }
+
+    // Called when we get a merge completed message from the messenger
+    var onMsgMergeComplete = function (data) {
+        if (data.dst_branch_id !== config.self.branch.id) return;
+        if (data.status === 'error') {
+            onMergeComplete(data.message);
+        } else {
+            onMergeComplete();
+        }
+    }
+
+    // Called when we get a merge progress status message from the messenger
+    var onMsgMergeProgress = function (data) {
+        if (data.dst_branch_id !== config.self.branch.id) return;
+        config.self.branch.merge.mergeProgressStatus = data.status;
+        if (data.status === MERGE_STATUS_READY_FOR_REVIEW) {
+            onReadyForReview();
+        }
+    }
 
     // Called when we load the merge object from the server
     var onMergeDataLoaded = function (data) {
@@ -705,6 +728,9 @@ editor.once('load', function () {
         // editor-blocking picker opened
         editor.emit('picker:open', 'conflict-manager');
 
+        evtMessengerMergeComplete = editor.on('messenger:merge.complete', onMsgMergeComplete);
+        evtMessengerMergeProgress = editor.on('messenger:merge.setProgress', onMsgMergeProgress);
+
         setLayoutMode(LAYOUT_NONE);
 
         if (!currentMergeObject) {
@@ -719,6 +745,11 @@ editor.once('load', function () {
 
                     onMergeDataLoaded(data);
                 });
+
+            } else if (config.self.branch.merge.mergeProgressStatus === MERGE_STATUS_APPLY_STARTED) {
+                showMainProgress(spinnerIcon, 'Merging in progress...');
+            } else if (config.self.branch.merge.mergeProgressStatus === MERGE_STATUS_READY_FOR_REVIEW) {
+                onReadyForReview();
 
             } else {
                 // get the conflicts of the current merge
@@ -745,6 +776,16 @@ editor.once('load', function () {
     // clean up
     overlay.on('hide', function () {
         currentMergeObject = null;
+
+        if (evtMessengerMergeComplete) {
+            evtMessengerMergeComplete.unbind();
+            evtMessengerMergeComplete = null;
+        }
+
+        if (evtMessengerMergeProgress) {
+            evtMessengerMergeProgress.unbind();
+            evtMessengerMergeProgress = null;
+        }
 
         listItems.clear();
 

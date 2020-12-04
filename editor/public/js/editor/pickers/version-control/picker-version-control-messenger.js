@@ -164,6 +164,15 @@ editor.once('load', function () {
         editor.call('picker:versioncontrol:mergeOverlay');
     });
 
+    // store current merge progress
+    editor.on('messenger:merge.setProgress', function (data) {
+        if (data.dst_branch_id !== config.self.branch.id) return;
+
+        if (config.self.branch.merge) {
+            config.self.branch.merge.mergeProgressStatus = data.status;
+        }
+    });
+
     // show overlay if the current merge has been force stopped
     editor.on('messenger:merge.delete', function (data) {
         if (! config.self.branch.merge) return;

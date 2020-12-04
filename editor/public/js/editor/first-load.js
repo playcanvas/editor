@@ -13,10 +13,20 @@
             // if this user started it then show the conflict manager
             // otherwise if another user started then show the merge in progress overlay
             if (merge.user.id === config.self.id) {
-                if (merge.hasConflicts && !merge.beforeReviewFinished) {
-                    editor.call('picker:conflictManager');
-                } else {
-                    editor.call('picker:diffManager');
+                switch (merge.mergeProgressStatus) {
+                    case MERGE_STATUS_APPLY_STARTED:
+                        editor.call('picker:conflictManager');
+                        break;
+                    case MERGE_STATUS_READY_FOR_REVIEW:
+                        editor.call('picker:diffManager');
+                        break;
+                    default:
+                        if (merge.hasConflicts) {
+                            editor.call('picker:conflictManager');
+                        } else {
+                            editor.call('picker:diffManager');
+                        }
+                        break;
                 }
             } else {
                 editor.call('picker:versioncontrol:mergeOverlay');
