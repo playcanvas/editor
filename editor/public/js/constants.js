@@ -63,3 +63,7 @@ var ANIM_PARAMETER_TRIGGER = 'TRIGGER';
 
 var ANIM_STATE_START = 'START';
 var ANIM_STATE_END = 'END';
+
+// VERSION CONTROL
+var MERGE_STATUS_APPLY_STARTED = 'merge_apply_started';
+var MERGE_STATUS_READY_FOR_REVIEW = 'merge_ready_for_review';
