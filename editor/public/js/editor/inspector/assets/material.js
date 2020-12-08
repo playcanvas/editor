@@ -1257,14 +1257,14 @@ Object.assign(pcui, (function () {
             for (let i = 0; i < this._assets.length; i++) {
                 for (const map in MAPS) {
                     const currentOffset = this._assets[i].get(`data.${map}MapOffset`);
-                    if (offset === null) {
+                    if (!offset) {
                         offset = currentOffset;
                     }  else if (!offset.equals(currentOffset)) {
                         return false;
                     }
 
                     const currentTiling = this._assets[i].get(`data.${map}MapTiling`);
-                    if (tiling === null) {
+                    if (!tiling) {
                         tiling = currentTiling;
                     }  else if (!tiling.equals(currentTiling)) {
                         return false;
