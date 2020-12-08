@@ -17,8 +17,9 @@
         border-top: 1px solid $bcg-primary;
         background-color: $bcg-darker;
         position: sticky;
-        position: -webkit-sticky;
         left: 0;
+        top: 0;
+        z-index: 2;
 
         &.active,
         &:hover,
