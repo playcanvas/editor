@@ -23,82 +23,117 @@ Object.assign(pcui, (function () {
 
             this._assetEvents = [];
 
-            const dragEndEvt = this._scriptListContainer.on('child:dragend', (_, newIndex, oldIndex) => {
+            this._scriptListContainer.on('child:dragend', (_, newIndex, oldIndex) => {
                 this._projectSettings.move('scripts', oldIndex, newIndex);
             });
-            editor.once('assets:load', () => {
-                this._loadedInitialScripts = true;
-                this._updateScriptList();
-                const events = ['*:set', '*:unset', 'scripts:remove', 'scripts:move', 'scripts:insert'];
-                events.forEach(evt => {
-                    this._scriptEvents.push(this._projectSettings.on(evt, () => {
-                        this._clearScriptList();
-                        this._updateScriptList();
-                    }));
-                });
-            });
 
-            this.on('show', () => {
-                this._clearScriptList();
-                this._updateScriptList();
-            });
+            this._scriptEvents.push(this._projectSettings.on('scripts:insert', this._onScriptInsert.bind(this)));
+            this._scriptEvents.push(this._projectSettings.on('scripts:remove', this._onScriptRemove.bind(this)));
+            this._scriptEvents.push(this._projectSettings.on('scripts:move', this._onScriptMove.bind(this)));
+            this._scriptEvents.push(this._projectSettings.on('scripts:set', this._onScriptsSet.bind(this)));
 
-            this.once('destroy', () => {
-                dragEndEvt.unbind();
-            });
-        }
-
-        _updateScriptList() {
             const scripts = this._projectSettings.get('scripts');
-            const assets = this._args.assets;
 
             scripts.forEach((script, i) => {
-                const asset = assets.get(script);
-
-                const scriptPanel = new pcui.Panel({
-                    headerText: asset ? asset.get('name') : script,
-                    sortable: true,
-                    class: CLASS_SCRIPTS_LIST_ITEM
-                });
-
-                // there is a chance that the asset hasn't been added yet
-                // due to network delays. In that case when the asset is added
-                // update the name
-                if (!asset) {
-                    this._assetEvents.push(editor.once(`assets:add[${script}]`, asset => {
-                        this._assetEvents.push(asset.on('name:set', (name) => {
-                            scriptPanel.headerText = name;
-                        }));
-                        scriptPanel.headerText = asset.get('name');
-                    }));
-                } else {
-                    this._assetEvents.push(asset.on('name:set', (name) => {
-                        scriptPanel.headerText = name;
-                    }));
-                }
-
-                scriptPanel.header.append(new pcui.Label({ text: `#${i + 1}` }));
-                this._scriptEvents.push(scriptPanel.on('click', () => {
-                    const asset = assets.get(script);
-                    if (asset) {
-                        editor.call('selector:set', 'asset', [asset]);
-                    }
-                }));
-                this._scriptList.push(scriptPanel);
-                this._scriptListContainer.append(scriptPanel);
+                this._onScriptInsert(script, i);
             });
+
         }
 
+        _onScriptInsert(value, index) {
+            const panel = this._createScriptPanel(value, index);
+            this._scriptList.splice(index, 0, panel);
+            const before = this._scriptListContainer.dom.childNodes[index];
+            this._scriptListContainer.appendBefore(panel, before && before.ui);
+        }
 
-        _clearScriptList() {
+        _onScriptRemove(value, index) {
+            const panel = this._scriptList[index];
+            if (panel) {
+                this._scriptList.splice(index, 1);
+                panel.destroy();
+
+                for (let i = index + 1; i < this._scriptList.length; i++) {
+                    this._scriptList[i]._fieldOrder.text = `#${i + 1}`;
+                }
+            }
+        }
+
+        _onScriptMove(value, newIndex, oldIndex) {
+            const panel = this._scriptList[oldIndex];
+            if (panel) {
+                this._scriptList.splice(oldIndex, 1);
+                this._scriptList.splice(newIndex, 0, panel);
+                this._scriptListContainer.remove(panel);
+                const before = this._scriptListContainer.dom.childNodes[newIndex];
+                this._scriptListContainer.appendBefore(panel, before && before.ui);
+
+                for (let i = Math.min(newIndex, oldIndex); i < this._scriptList.length; i++) {
+                    this._scriptList[i]._fieldOrder.text = `#${i + 1}`;
+                }
+            }
+        }
+
+        _onScriptsSet(value) {
+            this._scriptList.length = 0;
+            this._scriptListContainer.clear();
+
             this._assetEvents.forEach(evt => evt.unbind());
             this._assetEvents.length = 0;
 
-            this._scriptList.forEach(scriptPanel => {
-                this._scriptListContainer.remove(scriptPanel);
-                scriptPanel.destroy();
+            value.forEach((script, i) => {
+                this._onScriptInsert(script, i);
             });
-            this._scriptList = [];
+        }
+
+        _createScriptPanel(assetId, order) {
+            const asset = this._args.assets.get(assetId);
+
+            const scriptPanel = new pcui.Panel({
+                headerText: asset ? asset.get('name') : assetId,
+                sortable: true,
+                class: CLASS_SCRIPTS_LIST_ITEM
+            });
+
+            // there is a chance that the asset hasn't been added yet
+            // due to network delays. In that case when the asset is added
+            // update the name
+            if (!asset) {
+                this._assetEvents.push(editor.once(`assets:add[${assetId}]`, asset => {
+                    this._assetEvents.push(asset.on('name:set', (name) => {
+                        scriptPanel.headerText = name;
+                    }));
+                    scriptPanel.headerText = asset.get('name');
+                }));
+            } else {
+                this._assetEvents.push(asset.on('name:set', (name) => {
+                    scriptPanel.headerText = name;
+                }));
+            }
+
+            scriptPanel._fieldOrder = new pcui.Label({ text: `#${order + 1}` });
+            scriptPanel.header.append(scriptPanel._fieldOrder);
+            scriptPanel.on('click', () => {
+                const asset = this._args.assets.get(assetId);
+                if (asset) {
+                    editor.call('selector:set', 'asset', [asset]);
+                }
+            });
+
+            return scriptPanel;
+        }
+
+        destroy() {
+            if (this._destroyed) return;
+
+            this._scriptEvents.forEach(evt => evt.unbind());
+            this._scriptEvents.length = 0;
+            this._scriptList.length = 0;
+
+            this._assetEvents.forEach(evt => evt.unbind());
+            this._assetEvents.length = 0;
+
+            super.destroy();
         }
     }
 

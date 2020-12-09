@@ -154,6 +154,8 @@ Object.assign(pcui, (function () {
             // click on the title
             this._containerControls.on('click', evt => evt.stopPropagation());
 
+            this._tooltips = [];
+
             // header controls
 
             // button to create new asset
@@ -165,6 +167,8 @@ Object.assign(pcui, (function () {
             this._btnNew.on('click', this._onClickNew.bind(this));
             this._containerControls.append(this._btnNew);
 
+            this._createTooltip('Create or upload new Asset', this._btnNew);
+
             // button to delete asset
             this._btnDelete = new pcui.Button({
                 icon: 'E124',
@@ -174,6 +178,8 @@ Object.assign(pcui, (function () {
             this._btnDelete.on('click', this._onClickDelete.bind(this));
             this._containerControls.append(this._btnDelete);
 
+            this._createTooltip('Delete Asset', this._btnDelete);
+
             // button to go up on folder
             this._btnBack = new pcui.Button({
                 icon: 'E114',
@@ -182,6 +188,8 @@ Object.assign(pcui, (function () {
             });
             this._btnBack.on('click', this._onClickBack.bind(this));
             this._containerControls.append(this._btnBack);
+
+            this._createTooltip('Go one folder up', this._btnBack);
 
             // contains view mode buttons
             const containerBtn = new pcui.Container({
@@ -199,6 +207,8 @@ Object.assign(pcui, (function () {
             this._btnLargeGrid.on('click', this._onClickLargeGrid.bind(this));
             containerBtn.append(this._btnLargeGrid);
 
+            this._createTooltip('Grid view', this._btnLargeGrid);
+
             // show small grid view mode
             this._btnSmallGrid = new pcui.Button({
                 icon: 'E145',
@@ -207,6 +217,8 @@ Object.assign(pcui, (function () {
             this._btnSmallGrid.on('click', this._onClickSmallGrid.bind(this));
             containerBtn.append(this._btnSmallGrid);
 
+            this._createTooltip('Grid view (small)', this._btnSmallGrid);
+
             // show details view mode
             this._btnDetailsView = new pcui.Button({
                 icon: 'E146',
@@ -214,6 +226,8 @@ Object.assign(pcui, (function () {
             });
             this._btnDetailsView.on('click', this._onClickDetailsView.bind(this));
             containerBtn.append(this._btnDetailsView);
+
+            this._createTooltip('Details view', this._btnDetailsView);
 
             // asset type dropdown filter
             const dropdownTypeOptions = Object.keys(TYPES)
@@ -265,6 +279,8 @@ Object.assign(pcui, (function () {
             });
             btnStore.on('click', this._onClickStore.bind(this));
             this._containerControls.append(btnStore);
+
+            this._createTooltip('Open PlayCanvas Store', btnStore);
 
             // folders tree view
             this._containerFolders = new pcui.Container({
@@ -463,6 +479,18 @@ Object.assign(pcui, (function () {
                 editor.call('hotkey:unregister', 'asset:paste');
                 editor.call('hotkey:unregister', 'asset:paste:keepFolderStructure');
             })
+        }
+
+        _createTooltip(text, target) {
+            const tooltip = new pcui.Tooltip({
+                description: text,
+                align: 'bottom'
+            });
+            tooltip.style.padding = '8px';
+            tooltip.attach({
+                target: target
+            });
+            this._tooltips.push(tooltip);
         }
 
         _onCopyAssets() {
@@ -1993,6 +2021,9 @@ Object.assign(pcui, (function () {
             this.dropManager = null;
 
             this.assets = null;
+
+            this._tooltips.forEach(tooltip => tooltip.destroy());
+            this._tooltips.length = 0;
 
             super.destroy();
         }

@@ -386,25 +386,21 @@ Object.assign(pcui, (function () {
         }
 
         _isUv1Missing() {
-            let missing = false;
-
-            for (let i = 0; this._entities && i < this._entities.length && !missing; i++) {
+            for (let i = 0; this._entities && i < this._entities.length; i++) {
                 const e = this._entities[i];
-                if (!e.has('components.model') ||
-                    e.get('components.model.type') !== 'asset' ||
-                    !e.get('components.model.asset')) {
-                    continue;
-                }
-
-                const asset = this._assets.get(e.get('components.model.asset'));
-                if (!asset) continue;
-
-                if (!asset.has('meta.attributes.texCoord1')) {
-                    missing = true;
+                if (e.has('components.model') &&
+                    e.get('components.model.type') === 'asset') {
+                    const assetId = e.get('components.model.asset');
+                    const asset = assetId && this._assets.get(assetId);
+                    if (asset &&
+                        !asset.has('meta.attributes.texCoord1') &&
+                        !asset.has('meta.attributes.TEXCOORD_1')) {
+                        return true;
+                    }
                 }
             }
 
-            return missing;
+            return false;
         }
 
         _onAssetChange() {

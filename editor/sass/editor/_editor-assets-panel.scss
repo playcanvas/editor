@@ -591,6 +591,7 @@
         .pcui-asset-panel-controls {
             flex-direction: row;
             flex-grow: 1;
+            align-items: center;
         }
 
         .pcui-button {
@@ -608,6 +609,8 @@
             width: 24px;
             font-size: 15px;
             margin-left: 0;
+            margin-top: 4px;
+            margin-bottom: 4px;
         }
 
         .pcui-asset-panel-btn-active {
