@@ -112,7 +112,7 @@ VersionControlSidePanelBox.prototype.setCheckpoint = function (checkpoint) {
         panel.onAddedToDom();
     } else {
         // add discard panel after the content
-        if (this.panelDiscard) {
+        if (this.panelDiscard && !this.panelDiscard.parent) {
             this.panel.append(this.panelDiscard);
         }
     }
