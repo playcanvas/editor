@@ -96,6 +96,8 @@ Object.assign(pcui, (function () {
 
         queueRender() {
             if (this._queuedRender) return;
+            if (!this._asset) return;
+
             this._queuedRender = true;
             this._frameRequest = requestAnimationFrame(() => {
                 this.render(this._rotationX, this._rotationY);
@@ -104,6 +106,8 @@ Object.assign(pcui, (function () {
 
         render(rotationX = -15, rotationY = 45) {
             this._queuedRender = false;
+
+            if (!this._asset) return;
 
             const data = this._asset.get('data');
             if (! data) return;

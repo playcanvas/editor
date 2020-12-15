@@ -42,12 +42,16 @@ Object.assign(pcui, (function () {
 
         queueRender() {
             if (this._queuedRender) return;
+            if (!this._asset) return;
+
             this._queuedRender = true;
             this._frameRequest = requestAnimationFrame(this.render.bind(this));
         }
 
         render() {
             this._queuedRender = false;
+
+            if (!this._asset) return;
 
             const images = this._images;
 
