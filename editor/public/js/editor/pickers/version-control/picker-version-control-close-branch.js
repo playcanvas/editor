@@ -92,6 +92,11 @@ editor.once('load', function () {
 
         checkpointRequest = editor.call('checkpoints:get', branch.latestCheckpointId, function (err, checkpoint) {
             checkpointRequest = null;
+
+            if (err) {
+                console.error(err);
+            }
+
             boxBranch.setCheckpoint(checkpoint);
         });
     };

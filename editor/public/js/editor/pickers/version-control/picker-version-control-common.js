@@ -104,11 +104,19 @@ VersionControlSidePanelBox.prototype.append = function (panel) {
  */
 VersionControlSidePanelBox.prototype.setCheckpoint = function (checkpoint) {
     // create panel to show checkpoint info
-    var panel = editor.call('picker:versioncontrol:widget:checkpoint', checkpoint);
-    this.append(panel);
+    if (checkpoint) {
+        var panel = editor.call('picker:versioncontrol:widget:checkpoint', checkpoint);
+        this.append(panel);
 
-    // this needs to be called to update the 'read more' button
-    panel.onAddedToDom();
+        // this needs to be called to update the 'read more' button
+        panel.onAddedToDom();
+    } else {
+        // add discard panel after the content
+        if (this.panelDiscard) {
+            this.panel.append(this.panelDiscard);
+        }
+    }
+
 };
 
 /**
