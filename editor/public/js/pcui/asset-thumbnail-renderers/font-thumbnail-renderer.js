@@ -249,6 +249,8 @@ Object.assign(pcui, (function () {
 
         queueRender() {
             if (this._queuedRender) return;
+            if (!this._asset) return;
+
             this._queuedRender = true;
             this._frameRequest = requestAnimationFrame(() => {
                 this.render();
@@ -257,6 +259,8 @@ Object.assign(pcui, (function () {
 
         render() {
             this._queuedRender = false;
+
+            if (!this._asset) return;
 
             if (!sceneInitialized) {
                 initializeScene();

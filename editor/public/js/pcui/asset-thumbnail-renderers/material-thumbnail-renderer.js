@@ -157,6 +157,8 @@ Object.assign(pcui, (function () {
 
         queueRender() {
             if (this._queuedRender) return;
+            if (!this._asset) return;
+
             this._queuedRender = true;
 
             this._frameRequest = requestAnimationFrame(() => {
@@ -166,6 +168,8 @@ Object.assign(pcui, (function () {
 
         render(rotationX = 0, rotationY = 0, model = 'sphere') {
             this._queuedRender = false;
+
+            if (!this._asset) return;
 
             this._rotationX = rotationX;
             this._rotationY = rotationY;

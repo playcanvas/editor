@@ -77,6 +77,8 @@ Object.assign(pcui, (function () {
 
         queueRender() {
             if (this._queuedRender) return;
+            if (!this._asset) return;
+
             this._queuedRender = true;
             this._frameRequest = requestAnimationFrame(() => {
                 this.render(this._rotationX, this._rotationY, this._mipLevel);
@@ -85,6 +87,8 @@ Object.assign(pcui, (function () {
 
         render(rotationX = 0, rotationY = 0, mipLevel = 0) {
             this._queuedRender = false;
+
+            if (!this._asset) return;
 
             if (!sceneInitialized) {
                 initializeScene();
