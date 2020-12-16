@@ -506,11 +506,23 @@
     font-size: 16px;
 }
 
+.pcui-asset-grid-view-item.type-render:before {
+    @extend .font-icon;
+    content: '\E189';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-size: 16px;
+}
+
 .pcui-asset-panel-grid-view-small {
-    .pcui-asset-grid-view-item.type-textureatlas:before {
-        top: 1px;
-        left: 1px;
-        font-size: 10px;
+    .pcui-asset-grid-view-item {
+        &.type-textureatlas:before,
+        &.type-render:before {
+            top: 1px;
+            left: 1px;
+            font-size: 10px;
+        }
     }
 }
 

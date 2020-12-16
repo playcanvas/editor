@@ -285,6 +285,15 @@ Object.assign(pcui, (function () {
             this._thumbnail.unlink();
         }
 
+        destroy() {
+            if (this._destroyed) return;
+
+            this._dragEnterFn = null;
+            this._dragLeaveFn = null;
+
+            super.destroy();
+        }
+
         get text() {
             return this._label.value;
         }

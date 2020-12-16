@@ -40,6 +40,12 @@ editor.once('load', function () {
                         renderBoneHierarchy(model.model.graph);
                     }
                 }
+
+                // render skeleton if entity with render component that has rootBone set is selected
+                var render = entity.render;
+                if (render && render._rootBone && render._rootBone.entity) {
+                    renderBoneHierarchy(render._rootBone.entity);
+                }
             }
         }
     };

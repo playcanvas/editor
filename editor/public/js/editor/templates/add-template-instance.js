@@ -27,7 +27,7 @@ editor.once('load', function () {
 
             this.subtreeRootId ? this.prepSubtree() : this.prepFull();
 
-            return editor.call(
+            const entity = editor.call(
                 'template:utils',
                 'addEntitySubtree',
                 this.dstRootEnt,
@@ -35,6 +35,10 @@ editor.once('load', function () {
                 this.parent,
                 this.childIndex
             );
+
+            editor.call('viewport:resolveEntityReferences', entity);
+
+            return entity;
         }
 
         prepData() {

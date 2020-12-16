@@ -124,25 +124,34 @@ editor.once('load', function () {
         resultBB.center.set(0, 0, 0);
         resultBB.halfExtents.set(0, 0, 0);
 
-        // first choice is to use the bounding box of all mesh instances on a model component
-        if (entity.model && entity.model.model && entity.model.meshInstances.length) {
-            var meshInstances = entity.model.meshInstances;
+        // first choice is to use the bounding box of all mesh instances on a model or render component
+        if (entity.model || entity.render) {
 
-            for(var i = 0; i < meshInstances.length; i++) {
-                if (meshInstances[i]._hidden)
-                    continue;
-
-                // not sure why this is here, probably to force hierachy to sync
-                meshInstances[i].node.getWorldTransform();
-
-                if (i === 0) {
-                    resultBB.copy(meshInstances[i].aabb);
-                } else {
-                    resultBB.add(meshInstances[i].aabb);
-                }
+            var meshInstances;
+            if (entity.model && entity.model.model && entity.model.meshInstances.length) {
+                meshInstances = entity.model.meshInstances;
+            }
+            if (entity.render && entity.render.meshInstances && entity.render.meshInstances.length) {
+                meshInstances = entity.render.meshInstances;
             }
 
-            return resultBB;
+            if (meshInstances) {
+                for(var i = 0; i < meshInstances.length; i++) {
+                    if (meshInstances[i]._hidden)
+                        continue;
+
+                    // not sure why this is here, probably to force hierachy to sync
+                    meshInstances[i].node.getWorldTransform();
+
+                    if (i === 0) {
+                        resultBB.copy(meshInstances[i].aabb);
+                    } else {
+                        resultBB.add(meshInstances[i].aabb);
+                    }
+                }
+
+                return resultBB;
+            }
         }
 
         // next is the collision bounding box

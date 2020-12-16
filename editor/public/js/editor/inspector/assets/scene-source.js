@@ -33,6 +33,15 @@ Object.assign(pcui, (function () {
             flexDirection: 'row',
             flexWrap: 'wrap'
         }
+    }, {
+        label: 'Scene',
+        alias: 'scene',
+        type: 'container',
+        args: {
+            flex: true,
+            flexDirection: 'row',
+            flexWrap: 'wrap'
+        }
     }];
 
     const DOM = args => [
@@ -69,6 +78,7 @@ Object.assign(pcui, (function () {
             this._contentAttributes.getField('textures').parent.labelAlignTop = true;
             this._contentAttributes.getField('materials').parent.labelAlignTop = true;
             this._contentAttributes.getField('animation').parent.labelAlignTop = true;
+            this._contentAttributes.getField('scene').parent.labelAlignTop = true;
         }
 
         _getContainer(name) {
@@ -120,6 +130,18 @@ Object.assign(pcui, (function () {
             this._getContainer('materials').clear();
         }
 
+        _addScene(scene) {
+            if (scene) {
+                this._getContainer('scene').append(this._createSmallLabel('yes'));
+            } else {
+                this._getContainer('scene').append(this._createSmallLabel('no'));
+            }
+        }
+
+        _removeScene() {
+            this._getContainer('scene').clear();
+        }
+
         link(assets) {
             this.unlink();
             this._contentAttributes.link(assets);
@@ -144,6 +166,11 @@ Object.assign(pcui, (function () {
                 this._removeMaterials();
                 this._addMaterials(assets[0].get('meta.materials'));
             }));
+            this._addScene(assets[0].get('meta.scene'));
+            this._assetEvents.push(assets[0].on('meta.scene:set', () => {
+                this._removeScene();
+                this._addScene(assets[0].get('meta.scene'));
+            }));
         }
 
         unlink() {
@@ -153,6 +180,7 @@ Object.assign(pcui, (function () {
             this._assetEvents = [];
             this._removeTextures();
             this._removeMaterials();
+            this._removeScene();
         }
     }
 
