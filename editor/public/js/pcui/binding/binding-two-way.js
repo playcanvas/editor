@@ -24,14 +24,14 @@ Object.assign(pcui, (function () {
             this._bindingElementToObservers.on('applyingChange', (value) => {
                 this.applyingChange = value;
             });
-            this._bindingElementToObservers.on('history:init', () => {
-                this.emit('history:init');
+            this._bindingElementToObservers.on('history:init', (context) => {
+                this.emit('history:init', context);
             });
-            this._bindingElementToObservers.on('history:undo', () => {
-                this.emit('history:undo');
+            this._bindingElementToObservers.on('history:undo', (context) => {
+                this.emit('history:undo', context);
             });
-            this._bindingElementToObservers.on('history:redo', () => {
-                this.emit('history:redo');
+            this._bindingElementToObservers.on('history:redo', (context) => {
+                this.emit('history:redo', context);
             });
 
             this._bindingObserversToElement.on('applyingChange', (value) => {

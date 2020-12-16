@@ -212,6 +212,10 @@ editor.once('load', function() {
         title: 'Use GLB format',
         description: 'Create model assets in GLB format.'
     }, {
+        name: 'asset-tasks:useContainers',
+        title: 'Create Container Assets',
+        description: 'Use the new GLB conversion pipeline when uploading models. The new pipeline will generate Container, Render and Template assets out of the uploaded model.',
+    }, {
         name: 'asset-tasks:animSampleRate',
         title: 'Animation sample rate',
         description: 'Rate at which to sample animation curves in samples per second. Specify 0 to disable sampling and use input keys instead.'

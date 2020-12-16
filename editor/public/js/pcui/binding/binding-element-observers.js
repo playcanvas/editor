@@ -42,10 +42,14 @@ Object.assign(pcui, (function () {
             // so that we can undo on the same observers in the future
             const observers = this._observers.slice();
             const paths = this._paths.slice();
+            const context = {
+                observers,
+                paths
+            };
 
             const execute = () => {
                 this._setValueToObservers(observers, paths, value, isArrayOfValues);
-                this.emit('history:redo');
+                this.emit('history:redo', context);
             };
 
             if (this._history) {
@@ -61,7 +65,7 @@ Object.assign(pcui, (function () {
                     });
                 }
 
-                this.emit('history:init');
+                this.emit('history:init', context);
 
                 this._history.add({
                     name: this._getHistoryActionName(paths),
@@ -69,7 +73,7 @@ Object.assign(pcui, (function () {
                     combine: this._historyCombine,
                     undo: () => {
                         this._setValueToObservers(observers, paths, previousValues, true);
-                        this.emit('history:undo');
+                        this.emit('history:undo', context);
                     }
                 });
 

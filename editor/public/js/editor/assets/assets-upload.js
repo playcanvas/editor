@@ -111,6 +111,7 @@ editor.once('load', function () {
                 form.append('animSampleRate', settings.get('editor.pipeline.animSampleRate'));
                 form.append('animCurveTolerance', settings.get('editor.pipeline.animCurveTolerance'));
                 form.append('animEnableCubic', settings.get('editor.pipeline.animEnableCubic'));
+                form.append('useContainers', settings.get('editor.pipeline.useContainers'));
                 break;
             case 'font':
                 break;

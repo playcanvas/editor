@@ -29,8 +29,12 @@ editor.once('load', function () {
         'sprite': {
             'data.textureAtlasAsset': true
         },
+        'render': {
+            'data.containerAsset': true
+        },
         'model': {},
         'entity': {
+            'template_id': true,
             'components.model.materialAsset': true,
             'components.model.asset': true,
             'components.collision.asset': true,
@@ -42,11 +46,13 @@ editor.once('load', function () {
             'components.element.materialAsset': true,
             'components.element.fontAsset': true,
             'components.light.cookieAsset': true,
-            'components.sprite.spriteAsset': true
+            'components.sprite.spriteAsset': true,
+            'components.render.asset': true
         },
         'entity-lists': {
             'components.animation.assets': true,
             'components.audiosource.assets': true,
+            'components.render.materialAssets': true
             // 'components.script.scripts': true
         }
     };
@@ -168,6 +174,11 @@ editor.once('load', function () {
 
             updateAsset(this.get('id'), 'asset', valueOld, value);
         },
+        'render': function (path, value, valueOld) {
+            if (!path.startsWith('data.containerAsset')) return;
+
+            updateAsset(this.get('id'), 'asset', valueOld, value);
+        },
         'entity': function (path, value, valueOld) {
             if (path.startsWith('components.animation.assets.')) {
                 var parts = path.split('.');
@@ -184,6 +195,10 @@ editor.once('load', function () {
             } else if (path.startsWith('components.sprite.clips')) {
                 var parts = path.split('.');
                 if (parts.length !== 5 || parts[4] !== 'spriteAsset')
+                    return;
+            } else if (path.startsWith('components.render.materialAssets')) {
+                var parts = path.split('.');
+                if (parts.length !== 4)
                     return;
             } else if (!legacyScripts && path.startsWith('components.script.scripts')) {
                 var parts = path.split('.');

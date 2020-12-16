@@ -17,6 +17,7 @@ editor.once('load', function () {
                 data.overwriteMaterial = settings.get('editor.pipeline.overwriteMaterial');
                 data.overwriteTexture = settings.get('editor.pipeline.overwriteTexture');
                 data.preserveMapping = settings.get('editor.pipeline.preserveMapping');
+                data.useContainers = settings.get('editor.pipeline.useContainers');
             }
         }
 

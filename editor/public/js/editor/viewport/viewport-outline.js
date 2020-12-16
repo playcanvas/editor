@@ -33,6 +33,26 @@ editor.once('load', function() {
 
     var SHADER_OUTLINE = 24;
 
+    var isSelectableEntity = function (item) {
+
+        if (item && item.entity) {
+
+            // model component
+            var modelType = item.get('components.model.type');
+            if ((modelType === 'asset' && item.get('components.model.asset')) || modelType !== 'asset') {
+                return true;
+            }
+
+            // render component
+            var renderType = item.get('components.render.type');
+            if ((renderType === 'asset' && item.get('components.render.asset')) || renderType !== 'asset') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     editor.on('selector:change', function(type, items) {
         if (selection[config.self.id])
             render -= selection[config.self.id].length;
@@ -44,8 +64,8 @@ editor.once('load', function() {
 
         if (type === 'entity') {
             for(var i = 0; i < items.length; i++) {
-                var modelType = items[i].get('components.model.type');
-                if (items[i].entity && (modelType === 'asset' && items[i].get('components.model.asset')) || modelType !== 'asset') {
+
+                if (isSelectableEntity(items[i])) {
                     selection[config.self.id].push(items[i].entity);
                     render++;
                     if (!viewportLayer.enabled) {
@@ -71,10 +91,8 @@ editor.once('load', function() {
         if (data.type === 'entity') {
             for(var i = 0; i < data.ids.length; i++) {
                 var entity = editor.call('entities:get', data.ids[i]);
-                if (! entity) continue;
 
-                var modelType = entity.get('components.model.type');
-                if (entity.entity && (modelType === 'asset' && entity.get('components.model.asset')) || modelType !== 'asset') {
+                if (isSelectableEntity(entity)) {
                     selection[user].push(entity.entity);
                     render++;
                     if (!viewportLayer.enabled) {
@@ -302,14 +320,24 @@ editor.once('load', function() {
                         if (! selection[id][i])
                             continue;
 
-                        var model = selection[id][i].model;
-                        if (! model || ! model.model)
+                        var srcMeshInstances = null;
+
+                        var modelComp = selection[id][i].model;
+                        if (modelComp && modelComp.model) {
+                            srcMeshInstances = modelComp.meshInstances;
+                        }
+
+                        var renderComp = selection[id][i].render;
+                        if (renderComp) {
+                            srcMeshInstances = renderComp.meshInstances;
+                        }
+
+                        if (!srcMeshInstances)
                             continue;
 
-                        var meshes = model.meshInstances;
-                        for(var m = 0; m < meshes.length; m++) {
+                        for(var m = 0; m < srcMeshInstances.length; m++) {
                             //var opChan = 'r';
-                            var instance = meshes[m];
+                            var instance = srcMeshInstances[m];
 
                             //if (! instance.command && instance.drawToDepth && instance.material && instance.layer === pc.LAYER_WORLD) {
                             if (!instance.command && instance.material) {

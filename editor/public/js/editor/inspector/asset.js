@@ -384,7 +384,7 @@ Object.assign(pcui, (function () {
                 hidden = true;
             }
 
-            if (this._assets.length > 1 || ['folder', 'sprite', 'animstategraph'].includes(this._assets[0].get('type'))) {
+            if (this._assets.length > 1 || ['folder', 'sprite', 'animstategraph', 'render'].includes(this._assets[0].get('type'))) {
                 hidden = true;
             }
 

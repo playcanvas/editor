@@ -30,6 +30,7 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.ArrayInput
      * @classdesc Element that allows editing an array of values.
+     * @param {boolean} [args.fixedSize] - If true then editing the number of elements that the array has will not be allowed.
      * @property {Boolean} renderChanges If true the input will flash when changed.
      * @extends pcui.Element
      */
@@ -62,20 +63,23 @@ Object.assign(pcui, (function () {
 
             this._usePanels = args.usePanels || false;
 
-            this._sizeInput = new pcui.NumericInput({
+            this._fixedSize = !!args.fixedSize;
+
+            this._inputSize = new pcui.NumericInput({
                 class: [CLASS_ARRAY_SIZE],
                 placeholder: 'Array Size',
                 value: 0,
                 hideSlider: true,
                 step: 1,
                 precision: 0,
-                min: 0
+                min: 0,
+                readOnly: this._fixedSize
             });
-            this._sizeInput.on('change', this._onSizeChange.bind(this));
-            this._sizeInput.on('focus', this._onFocus.bind(this));
-            this._sizeInput.on('blur', this._onBlur.bind(this));
+            this._inputSize.on('change', this._onSizeChange.bind(this));
+            this._inputSize.on('focus', this._onFocus.bind(this));
+            this._inputSize.on('blur', this._onBlur.bind(this));
             this._suspendSizeChangeEvt = false;
-            this._container.append(this._sizeInput);
+            this._container.append(this._inputSize);
 
             this._containerArray = new pcui.Container({
                 class: CLASS_ARRAY_CONTAINER,
@@ -216,7 +220,7 @@ Object.assign(pcui, (function () {
             if (this._usePanels) {
                 container = new pcui.Panel({
                     headerText: `[${this._arrayElements.length}]`,
-                    removable: true,
+                    removable: !this._fixedSize,
                     collapsible: true,
                     class: [CLASS_ARRAY_ELEMENT, CLASS_ARRAY_ELEMENT + '-' + this._elementType]
                 });
@@ -256,17 +260,19 @@ Object.assign(pcui, (function () {
             this._arrayElements.push(entry);
 
             if (!this._usePanels) {
-                const btnDelete = new pcui.Button({
-                    icon: 'E289',
-                    size: 'small',
-                    class: CLASS_ARRAY_DELETE,
-                    tabIndex: -1 // skip buttons on tab
-                });
-                btnDelete.on('click', () => {
-                    this._removeArrayElement(entry);
-                });
+                if (!this._fixedSize) {
+                    const btnDelete = new pcui.Button({
+                        icon: 'E289',
+                        size: 'small',
+                        class: CLASS_ARRAY_DELETE,
+                        tabIndex: -1 // skip buttons on tab
+                    });
+                    btnDelete.on('click', () => {
+                        this._removeArrayElement(entry);
+                    });
 
-                container.append(btnDelete);
+                    container.append(btnDelete);
+                }
             } else {
                 container.on('click:remove', () => {
                     this._removeArrayElement(entry);
@@ -402,7 +408,7 @@ Object.assign(pcui, (function () {
             }
 
 
-            this._sizeInput.values = arrayLengths;
+            this._inputSize.values = arrayLengths;
 
             this._suspendSizeChangeEvt = false;
             this._suspendArrayElementEvts = false;
@@ -416,11 +422,23 @@ Object.assign(pcui, (function () {
         }
 
         focus() {
-            this._sizeInput.focus();
+            this._inputSize.focus();
         }
 
         blur() {
-            this._sizeInput.blur();
+            this._inputSize.blur();
+        }
+
+        /**
+         * @name pcui.ArrayInput#forEachArrayElement
+         * @description Executes the specified function for each array element.
+         * @param {Function} fn - The function with signature (element, index) => bool to execute. If the function returns
+         * false then the iteration will early out.
+         */
+        forEachArrayElement(fn) {
+            this._containerArray.forEachChild((container, i) => {
+                return fn(container.dom.firstChild.ui, i);
+            });
         }
 
         destroy() {
