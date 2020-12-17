@@ -157,7 +157,16 @@ Object.assign(pcui, (function () {
 
             if (!editor.call('users:hasFlag', 'hasContainerAssets')) {
                 this._attributesInspector.getField('editor.pipeline.useContainers').parent.hidden = true;
+            } else {
+                this._attributesInspector.getField('editor.pipeline.useContainers').parent.hidden = !this._attributesInspector.getField('editor.pipeline.useGlb').value;
+                this._attributesInspector.getField('editor.pipeline.useGlb').on('change', (value) => {
+                    this._attributesInspector.getField('editor.pipeline.useContainers').parent.hidden = !value;
+                    if (!value) {
+                        this._attributesInspector.getField('editor.pipeline.useContainers').value = false;
+                    }
+                });
             }
+
         }
 
         _appendSection(title, attributeElement) {
