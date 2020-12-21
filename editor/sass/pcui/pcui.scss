@@ -23,7 +23,6 @@
 @import '../../node_modules/@playcanvas/pcui/src/components/Divider/style';
 @import '../../node_modules/@playcanvas/pcui/src/components/InfoBox/style';
 @import '../../node_modules/@playcanvas/pcui/src/components/SelectInput/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/ArrayInput/style';
 @import '../../node_modules/@playcanvas/pcui/src/components/Spinner/style';
 @import '../../node_modules/@playcanvas/pcui/src/components/Progress/style';
 @import '../../node_modules/@playcanvas/pcui/src/components/ContextMenu/style';
@@ -46,6 +45,10 @@
 @import 'pcui-inspector';
 @import 'pcui-tooltip';
 @import 'pcui-table';
+
+// array input should come after the other PCUI controls so that its styles
+// override them
+@import '../../node_modules/@playcanvas/pcui/src/components/ArrayInput/style';
 
 // this should always be last
 @import '../../node_modules/@playcanvas/pcui/src/scss/pcui-hidden';
