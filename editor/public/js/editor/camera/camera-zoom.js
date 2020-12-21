@@ -86,15 +86,17 @@ editor.once('viewport:load', function() {
                                 distance = Math.max(1, Math.min(zoomMax, aabb.center.clone().sub(camera.getPosition()).length()));
                             } else {
                                 // nothing selected, then size of aabb of scene or distance to center of aabb
-
-                                if ((Date.now() - aabbRootLast) > 1000) {
-                                    aabbRootLast = Date.now();
-                                    aabbRoot.copy(editor.call('entities:aabb', editor.call('entities:root')));
+                                var root = editor.call('entities:root');
+                                if (root) {
+                                    if ((Date.now() - aabbRootLast) > 1000) {
+                                        aabbRootLast = Date.now();
+                                        aabbRoot.copy(editor.call('entities:aabb', root));
+                                    }
                                 }
 
                                 aabb = aabbRoot;
 
-                                if (editor.call('entities:root')) {
+                                if (root) {
                                     distance = Math.max(aabb.halfExtents.length(), aabb.center.clone().sub(camera.getPosition()).length());
                                     distance = Math.max(1, Math.min(zoomMax, distance));
                                 }
