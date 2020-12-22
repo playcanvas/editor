@@ -508,7 +508,7 @@
 
 .pcui-asset-grid-view-item.type-render:before {
     @extend .font-icon;
-    content: '\E189';
+    content: map-get($asset-icons, "render");
     position: absolute;
     top: 2px;
     left: 2px;
