@@ -73,7 +73,7 @@ editor.once('viewport:load', function() {
                     if (device.supportsBoneTextures) {
                         var boneTexture = meshInstance.skinInstance.boneTexture;
                         renderer.boneTextureId.setValue(boneTexture);
-                        renderer.boneTextureSizeId.setValue([boneTexture.width, boneTexture.height]);
+                        renderer.boneTextureSizeId.setValue([boneTexture.width, boneTexture.height, 1.0 / boneTexture.width, 1.0 / boneTexture.height]);
                     } else {
                         renderer.poseMatrixId.setValue(meshInstance.skinInstance.matrixPalette);
                     }
