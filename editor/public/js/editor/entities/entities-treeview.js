@@ -171,8 +171,12 @@ Object.assign(pcui, (function () {
             // remove existing selection markers for user
             if (this._userSelectionMarkers[user]) {
                 this._userSelectionMarkers[user].markers.forEach(marker => {
-                    marker.parent.remove(marker);
-                    this._userSelectionMarkers[user].pool.push(marker);
+                    // check if marker has already been destroyed
+                    // before adding it to the pool (e.g. if selected entity was deleted)
+                    if (!marker.destroyed) {
+                        marker.parent.remove(marker);
+                        this._userSelectionMarkers[user].pool.push(marker);
+                    }
                 });
 
                 this._userSelectionMarkers[user].markers.length = 0;

@@ -497,22 +497,29 @@
     }
 }
 
-.pcui-asset-grid-view-item.type-textureatlas:before {
-    @extend .font-icon;
-    content: '\E332';
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    font-size: 16px;
-}
+.pcui-asset-grid-view-item {
+    &.type-textureatlas, &.type-render, &.type-sprite {
+        &:before {
+            @extend .font-icon;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            font-size: 16px;
+            z-index: 1;
+        }
+    }
 
-.pcui-asset-grid-view-item.type-render:before {
-    @extend .font-icon;
-    content: '\E189';
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    font-size: 16px;
+    &.type-textureatlas:before {
+        content: '\E332';
+    }
+
+    &.type-render:before {
+        content: map-get($asset-icons, "render");
+    }
+
+    &.type-sprite:before {
+        content: map-get($asset-icons, "sprite");
+    }
 }
 
 .pcui-asset-panel-grid-view-small {

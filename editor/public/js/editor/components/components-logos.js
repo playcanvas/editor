@@ -30,7 +30,8 @@ editor.once('load', function() {
             'text-element': '&#58374;',
             'image-element': '&#58005;',
             'group-element': '&#58375;',
-            'userinterface': '&#58370;'
+            'userinterface': '&#58370;',
+            'render': '&#57744;'
         };
     });
 });
