@@ -590,7 +590,24 @@ Object.assign(pcui, (function () {
                     type: 'boolean',
                     reference: 'asset:material:clearCoatVertexColor'
                 }, {
-                    label: 'Factor',
+                    label: 'Vertex Color Channel',
+                    path: 'data.clearCoatVertexColorChannel',
+                    type: 'select',
+                    args: {
+                        type: 'string',
+                        options: [{
+                            v: 'r', t: 'R'
+                        }, {
+                            v: 'g', t: 'G'
+                        }, {
+                            v: 'b', t: 'B'
+                        }, {
+                            v: 'a', t: 'A'
+                        }]
+                    },
+                    reference: 'asset:material:clearCoatVertexColorChannel'
+                }, {                    
+                    label: 'Clear Coat Factor',
                     path: 'data.clearCoat',
                     type: 'slider',
                     args: {
@@ -668,20 +685,37 @@ Object.assign(pcui, (function () {
                     type: 'boolean',
                     reference: 'asset:material:clearCoatGlossVertexColor'
                 }, {
+                    label: 'Vertex Color Channel',
+                    path: 'data.clearCoatGlossVertexColorChannel',
+                    type: 'select',
+                    args: {
+                        type: 'string',
+                        options: [{
+                            v: 'r', t: 'R'
+                        }, {
+                            v: 'g', t: 'G'
+                        }, {
+                            v: 'b', t: 'B'
+                        }, {
+                            v: 'a', t: 'A'
+                        }]
+                    },
+                    reference: 'asset:material:clearCoatGlossVertexColorChannel'    
+                }, {
                     label: 'Glossiness',
                     path: 'data.clearCoatGlossiness',
                     type: 'slider',
                     args: {
-                        precision: 2,
-                        step: 0.5,
+                        precision: 3,
+                        step: 0.05,
                         min: 0,
-                        max: 100
+                        max: 1
                     },
                     reference: 'asset:material:clearCoatGlossiness'
                 }]
             })
         }, {
-            clearCoatNormalsInspector: new pcui.AttributesInspector({
+            clearCoatNormalInspector: new pcui.AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [{
@@ -1348,7 +1382,10 @@ Object.assign(pcui, (function () {
         'height': 'parallaxInspector',
         'light': 'lightmapInspector',
         'metalness': 'metalnessWorkflowInspector',
-        'gloss': 'glossInspector'
+        'gloss': 'glossInspector',
+        'clearCoat': 'clearCoatInspector',
+        'clearCoatGloss': 'clearCoatGlossInspector',
+        'clearCoatNormal': 'clearCoatNormalInspector'
     };
 
     const COLLAPSED_PANEL_DEPENDENCIES = {
@@ -1370,6 +1407,9 @@ Object.assign(pcui, (function () {
         'specular': ['s', 'spec', 'specular'],
         'metalness': ['m', 'met', 'metal', 'metalness', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa'],
         'gloss': ['g', 'gloss', 'glossiness', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa'],
+        'clearCoat': ['cc', 'clearcoat'],
+        'clearCoatGloss': ['ccg', 'clearcoatgloss'],
+        'clearCoatNormal': ['ccn', 'clearcoatnormal'],
         'emissive': ['e', 'emissive'],
         'opacity': ['o', 't', 'opacity', 'alpha', 'transparency', 'gmat', 'gmao', 'gmaa', 'rgba', 'rmat', 'rmao', 'rmaa'],
         'normal': ['n', 'norm', 'normal', 'normals'],
@@ -1423,6 +1463,8 @@ Object.assign(pcui, (function () {
 
             this._specularInspector.getField('data.useMetalness').on('change', toggleFields);
 
+            this._specularInspector.getField('data.enableGGXSpecular').on('change', toggleFields);
+
             for (const map in MAPS) {
                 const inspector = this[`_${MAPS[map]}`];
                 const field = inspector.getField(`data.${map}Map`);
@@ -1452,6 +1494,9 @@ Object.assign(pcui, (function () {
             }
 
             this._ambientInspector.getField('data.occludeSpecular').parent.hidden = !this._ambientInspector.getField('data.aoMap').value;
+
+            const enableGGXSpecular = this._specularInspector.getField('data.enableGGXSpecular').value;
+            this._specularInspector.getField('data.anisotropy').parent.hidden = !enableGGXSpecular;
 
             const useMetalness = this._specularInspector.getField('data.useMetalness').value;
             this._metalnessWorkflowInspector.hidden = !useMetalness;
@@ -2017,6 +2062,9 @@ Object.assign(pcui, (function () {
             this._metalnessWorkflowInspector.link(assets);
             this._specularWorkflowInspector.link(assets);
             this._glossInspector.link(assets);
+            this._clearCoatInspector.link(assets);
+            this._clearCoatGlossInspector.link(assets);
+            this._clearCoatNormalInspector.link(assets);
             this._emissiveInspector.link(assets);
             this._opacityInspector.link(assets);
             this._normalsInspector.link(assets);
@@ -2138,6 +2186,9 @@ Object.assign(pcui, (function () {
             this._metalnessWorkflowInspector.unlink();
             this._specularWorkflowInspector.unlink();
             this._glossInspector.unlink();
+            this._clearCoatInspector.unlink();
+            this._clearCoatGlossInspector.unlink();
+            this._clearCoatNormalInspector.unlink();            
             this._emissiveInspector.unlink();
             this._opacityInspector.unlink();
             this._normalsInspector.unlink();
