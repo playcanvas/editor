@@ -658,7 +658,17 @@ editor.once('load', function() {
         title: 'clearCoatNormalMapUv',
         subTitle: '{Number}',
         description: 'Normal map UV channel',
-        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatNormalMapUv'                              
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatNormalMapUv'
+    }, {
+        title: 'opacityFadesSpecular',
+        subTitle: '{Boolean}',
+        description: 'Controls whether Specular is faded out by material Opacity which is sometomes not desired for shiny translucent materials such as glass',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#opacityFadesSpecular'
+    }, {
+        title: 'alphaFade',
+        subTitle: '{Number}',
+        description: 'Use alphaFade to fade out materials that do not use opacity to fade specular (opacityFadesSpecular is false).',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#alphaFade'                                 
     }];
 
     for(var i = 0; i < fields.length; i++) {

@@ -992,7 +992,23 @@ Object.assign(pcui, (function () {
                     label: 'Alpha To Coverage',
                     path: 'data.alphaToCoverage',
                     type: 'boolean',
-                    reference: 'asset:material:alphaToCoverage'
+                    reference: 'asset:material:alphaToCoverage'                    
+                }, {
+                    label: 'Opacity Fades Specular',
+                    path: 'data.opacityFadesSpecular',
+                    type: 'boolean',
+                    reference: 'asset:material:opacityFadesSpecular'
+                }, {
+                    label: 'Alpha Fade',
+                    path: 'data.alphaFade',
+                    type: 'slider',
+                    args: {
+                        precision: 3,
+                        step: 0.05,
+                        min: 0,
+                        max: 1
+                    },
+                    reference: 'asset:material:alphaFade'                    
                 }]
             })
         }]
@@ -1460,6 +1476,7 @@ Object.assign(pcui, (function () {
 
             this._opacityInspector.getField('data.blendType').on('change', toggleFields);
             this._opacityInspector.getField('data.opacityMapVertexColor').on('change', toggleFields);
+            this._opacityInspector.getField('data.opacityFadesSpecular').on('change', toggleFields);
 
             this._specularInspector.getField('data.useMetalness').on('change', toggleFields);
 
@@ -1509,6 +1526,9 @@ Object.assign(pcui, (function () {
             const opacityVertexColorField = this._opacityInspector.getField('data.opacityMapVertexColor');
 
             this._opacityInspector.getField('data.alphaTest').parent.hidden = !(opacityMapField.class.contains(pcui.CLASS_MULTIPLE_VALUES) || opacityMapField.value) && !(opacityVertexColorField.value || opacityVertexColorField.class.contains(pcui.CLASS_MULTIPLE_VALUES));
+
+            const opacityFadesSpecular = this._opacityInspector.getField('data.opacityFadesSpecular').value;
+            this._opacityInspector.getField('data.alphaFade').parent.hidden = opacityFadesSpecular;
 
             const normalMap = this._normalsInspector.getField('data.normalMap').value;
             this._normalsInspector.getField('data.bumpMapFactor').parent.hidden = !normalMap;
