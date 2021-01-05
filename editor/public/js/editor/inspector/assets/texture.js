@@ -207,7 +207,7 @@ Object.assign(pcui, (function () {
     ];
     COMPRESSION_LEGACY_ATTRIBUTES.forEach(makeRefAssigner('asset:texture:compress:'));
 
-    const DOM = (parent, hasBasis) => [
+    const DOM = (parent) => [
         {
             root: {
                 texturePanel: new pcui.Panel({
@@ -250,7 +250,7 @@ Object.assign(pcui, (function () {
                     collapsible: true,
                 })
             },
-            children: (hasBasis ? [
+            children: [
                 {
                     root: {
                         compressionBasisContainer: new pcui.Container()
@@ -292,9 +292,7 @@ Object.assign(pcui, (function () {
                             basisDivider: new pcui.Divider()
                         }
                     ]
-                }
-            ] : []).concat([
-                {
+                }, {
                     root: {
                         compressionLegacyContainer: new pcui.Container()
                     },
@@ -317,7 +315,7 @@ Object.assign(pcui, (function () {
                             children: [
                                 {
                                     btnCompressLegacy: new pcui.Button({
-                                        text: `COMPRESS${hasBasis ? ' LEGACY' : ''}`,
+                                        text: 'COMPRESS LEGACY',
                                         flexGrow: 1,
                                         class: CLASS_COMPRESS_BUTTON
                                     })
@@ -326,7 +324,7 @@ Object.assign(pcui, (function () {
                         }
                     ]
                 }
-            ])
+            ]
         }
     ];
 
@@ -529,7 +527,6 @@ Object.assign(pcui, (function () {
             this._assetEvents = [];
             this._compressionChangeTicking = false;
             this._compressionChangeTimeout = null;
-            this._hasBasis = editor.call('users:hasFlag', 'hasBasisTextures');
             this._hasLegacy = false;
 
             this._compressionFormats = {
@@ -550,7 +547,7 @@ Object.assign(pcui, (function () {
             this._showHideLegacyUi = this._showHideLegacyUi.bind(this);
             this._updatePvrWarning = this._updatePvrWarning.bind(this);
 
-            this.buildDom(DOM(this, this._hasBasis));
+            this.buildDom(DOM(this));
             this._setupCompressionSubheads();
             this._setupFilteringTwoWayBinding();
             this._setupPanelReferences();
@@ -986,8 +983,6 @@ Object.assign(pcui, (function () {
         }
 
         _setupBasis() {
-            if (!this._hasBasis) return;
-
             const BASIS_STORE_NAME = 'basis.js';
             const BASIS_WASM_FILENAME = 'basis';
 
@@ -1094,7 +1089,6 @@ Object.assign(pcui, (function () {
         }
 
         _setupLegacy() {
-            if (!this._hasBasis) return;
             const fieldLegacy = this._compressionLegacyAttributesInspector.getField('compress.legacy');
             var dirty = !this._btnCompressLegacy.disabled;
             this._showHideLegacyUi(this._hasLegacy || dirty);
@@ -1104,7 +1098,6 @@ Object.assign(pcui, (function () {
         }
 
         _updateLegacy() {
-            if (!this._hasBasis) return;
             const fieldLegacy = this._compressionLegacyAttributesInspector.getField('compress.legacy');
             var dirty = !this._btnCompressLegacy.disabled;
             fieldLegacy.disabled = this._hasLegacy || dirty;
@@ -1150,7 +1143,7 @@ Object.assign(pcui, (function () {
                     return this._compressionLegacyAttributesInspector.getField('compress.original');
 
 
-                if (this._hasBasis && format === 'basis')
+                if (format === 'basis')
                     return this._compressionBasisAttributesInspector.getField(`meta.compress.${format}`);
 
                 return this._compressionLegacyAttributesInspector.getField(`meta.compress.${format}`);
@@ -1215,8 +1208,6 @@ Object.assign(pcui, (function () {
             // initial checks
             this._btnGetMetaVisibility();
             for(let key in this._compressionFormats) {
-                if (key === 'basis' && !this._hasBasis)
-                    continue;
                 this._calculateSize(key);
             }
             this._checkFormats();
@@ -1259,8 +1250,6 @@ Object.assign(pcui, (function () {
 
                 // recalculate size
                 for(let key in this._compressionFormats) {
-                    if (key === 'basis' && !this._hasBasis)
-                        continue;
                     this._assetEvents.push(asset.on(`file.variants.${key}.size:set`, () => this._queueSizeCalculate(key)));
                     this._assetEvents.push(asset.on(`file.variants.${key}.size:unset`, () => this._queueSizeCalculate(key)));
                     this._assetEvents.push(asset.on(`file.variants.${key}.sizeGzip:set`, () => this._queueSizeCalculate(key)));
