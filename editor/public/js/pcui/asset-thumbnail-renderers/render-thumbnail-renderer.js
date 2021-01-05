@@ -10,7 +10,8 @@ Object.assign(pcui, (function () {
         material: null,
         aabb: null,
         modelPlaceholder: null,
-        previewRoot: null
+        previewRoot: null,
+        renderEntity: null
     };
 
     function initializeScene() {
@@ -23,18 +24,12 @@ Object.assign(pcui, (function () {
 
         scene.aabb = new pc.BoundingBox();
 
-        // model
-        const modelNode = new pc.GraphNode();
-
-        const meshSphere = pc.createSphere(app.graphicsDevice, {
-            radius: 0,
-            latitudeBands: 2,
-            longitudeBands: 2
+        // render entity
+        // don't set rootBone, this renders the mesh wthout skinning (and does not need the hierarchy)
+        scene.renderEntity = new pc.Entity('previewRenderEntity');
+        scene.renderEntity.addComponent('render', {
+            type: 'asset'
         });
-
-        scene.modelPlaceholder = new pc.Model();
-        scene.modelPlaceholder.node = modelNode;
-        scene.modelPlaceholder.meshInstances = [new pc.MeshInstance(modelNode, meshSphere, scene.material)];
 
         // light
         scene.lightEntity = new pc.Entity();
@@ -63,7 +58,7 @@ Object.assign(pcui, (function () {
         scene.previewRoot = new pc.Entity();
         scene.previewRoot._enabledInHierarchy = true;
         scene.previewRoot.enabled = true;
-        scene.previewRoot.addChild(modelNode);
+        scene.previewRoot.addChild(scene.renderEntity);
         scene.previewRoot.addChild(scene.lightEntity);
         scene.previewRoot.addChild(scene.cameraOrigin);
         scene.previewRoot.syncHierarchy();
@@ -72,7 +67,7 @@ Object.assign(pcui, (function () {
         sceneInitialized = true;
     }
 
-    class ModelThumbnailRenderer {
+    class RenderThumbnailRenderer {
 
         constructor(asset, canvas) {
             this._asset = asset;
@@ -80,7 +75,7 @@ Object.assign(pcui, (function () {
 
             this._queueRenderHandler = this.queueRender.bind(this);
 
-            this._watch = editor.call('assets:model:watch', {
+            this._watch = editor.call('assets:render:watch', {
                 asset: asset,
                 autoLoad: true,
                 callback: this._queueRenderHandler
@@ -96,8 +91,6 @@ Object.assign(pcui, (function () {
 
         queueRender() {
             if (this._queuedRender) return;
-            if (!this._asset) return;
-
             this._queuedRender = true;
             this._frameRequest = requestAnimationFrame(() => {
                 this.render(this._rotationX, this._rotationY);
@@ -107,14 +100,12 @@ Object.assign(pcui, (function () {
         render(rotationX = -15, rotationY = 45) {
             this._queuedRender = false;
 
-            if (!this._asset) return;
-
             const data = this._asset.get('data');
             if (! data) return;
 
             const app = pc.Application.getApplication();
-            const modelAsset = app.assets.get(this._asset.get('id'));
-            if (! modelAsset) return;
+            const renderAsset = app.assets.get(this._asset.get('id'));
+            if (! renderAsset) return;
 
             if (!sceneInitialized) {
                 initializeScene();
@@ -142,29 +133,24 @@ Object.assign(pcui, (function () {
             scene.cameraEntity.camera.aspectRatio = height / width;
             layer.renderTarget = rt;
 
-            let model = scene.modelPlaceholder;
-
-            if (modelAsset._editorPreviewModel)
-                model = modelAsset._editorPreviewModel.clone();
-
-            model.lights = [scene.lightEntity.light.light];
+            scene.renderEntity.render.asset = renderAsset;
+            scene.renderEntity.render.material = scene.material;
 
             let first = true;
 
-            // generate aabb for model
-            for (let i = 0; i < model.meshInstances.length; i++) {
+            // generate aabb for render
+            var meshInstances = scene.renderEntity.render.meshInstances;
+            for (let i = 0; i < meshInstances.length; i++) {
                 // initialize any skin instance
-                if (model.meshInstances[i].skinInstance) {
-                    model.meshInstances[i].skinInstance.updateMatrices(model.meshInstances[i].node);
+                if (meshInstances[i].skinInstance) {
+                    meshInstances[i].skinInstance.updateMatrices(meshInstances[i].node);
                 }
-
-                model.meshInstances[i].material = scene.material;
 
                 if (first) {
                     first = false;
-                    scene.aabb.copy(model.meshInstances[i].aabb);
+                    scene.aabb.copy(meshInstances[i].aabb);
                 } else {
-                    scene.aabb.add(model.meshInstances[i].aabb);
+                    scene.aabb.add(meshInstances[i].aabb);
                 }
             }
 
@@ -189,7 +175,9 @@ Object.assign(pcui, (function () {
 
             scene.lightEntity.light.intensity = 1.0 / (Math.min(1.0, app.scene.exposure) || 0.01);
 
-            layer.addMeshInstances(model.meshInstances);
+            if (meshInstances.length) {
+                layer.addMeshInstances(meshInstances);
+            }
             layer.addLight(scene.lightEntity.light);
             layer.addCamera(scene.cameraEntity.camera);
 
@@ -206,18 +194,14 @@ Object.assign(pcui, (function () {
 
             layer.removeLight(scene.lightEntity.light);
             layer.removeCamera(scene.cameraEntity.camera);
-            layer.removeMeshInstances(model.meshInstances);
+            layer.removeMeshInstances(scene.renderEntity.render.meshInstances);
             layer.renderTarget = null;
             scene.previewRoot.enabled = false;
-
-            if (model !== scene.modelPlaceholder) {
-                model.destroy();
-            }
         }
 
         destroy() {
             if (this._watch) {
-                editor.call('assets:model:unwatch', this._asset, this._watch);
+                editor.call('assets:render:unwatch', this._asset, this._watch);
                 this._watch = null;
             }
 
@@ -232,6 +216,6 @@ Object.assign(pcui, (function () {
     }
 
     return {
-        ModelThumbnailRenderer: ModelThumbnailRenderer
+        RenderThumbnailRenderer: RenderThumbnailRenderer
     };
 })());

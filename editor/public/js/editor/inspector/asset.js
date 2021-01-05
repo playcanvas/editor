@@ -164,11 +164,11 @@ Object.assign(pcui, (function () {
             });
             this.append(this._attributesInspector);
 
-            this._btnContainer = new pcui.Container({
+            this._containerButtons = new pcui.Container({
                 flex: true,
                 flexDirection: 'row'
             });
-            this.append(this._btnContainer);
+            this.append(this._containerButtons);
 
             // add download button
             this._btnDownloadAsset = new pcui.Button({
@@ -178,14 +178,7 @@ Object.assign(pcui, (function () {
             });
             this._btnDownloadAsset.style.flex = 1;
 
-            this._btnDownloadAsset.hidden = !editor.call('permissions:read');
-            const evtBtnDownloadPermissions = editor.on('permissions:set:' + config.self.id, () => {
-                this._updateDownloadButton();
-            });
-            this._btnDownloadAsset.once('destroy', () => {
-                evtBtnDownloadPermissions.unbind();
-            });
-            this._btnContainer.append(this._btnDownloadAsset);
+            this._containerButtons.append(this._btnDownloadAsset);
 
             this._btnDownloadAsset.on('click', this._onClickDownloadAsset.bind(this));
 
@@ -197,7 +190,7 @@ Object.assign(pcui, (function () {
             });
             this._btnOpenInViewer.style.flex = 1;
 
-            this._btnContainer.append(this._btnOpenInViewer);
+            this._containerButtons.append(this._btnOpenInViewer);
 
             this._btnOpenInViewer.on('click', this._onClickOpenInViewer.bind(this));
 
@@ -216,7 +209,7 @@ Object.assign(pcui, (function () {
                 evtBtnEditPermissions.unbind();
             });
             this._btnEditAsset.on('click', this._onClickEditAsset.bind(this));
-            this._btnContainer.append(this._btnEditAsset);
+            this._containerButtons.append(this._btnEditAsset);
 
             // add edit button
             this._btnEditSprite = new pcui.Button({
@@ -225,7 +218,7 @@ Object.assign(pcui, (function () {
             });
             this._btnEditSprite.style.flex = 1;
             this._btnEditSprite.on('click', this._onClickEditSprite.bind(this));
-            this._btnContainer.append(this._btnEditSprite);
+            this._containerButtons.append(this._btnEditSprite);
 
             this._attributesInspector.getField('loadingOrder').on('click', this._onClickLoadingOrder.bind(this));
 
@@ -379,13 +372,12 @@ Object.assign(pcui, (function () {
                 }
             }
 
-            const legacyScripts = this._projectSettings.get('useLegacyScripts');
-            if (this._assets && this._assets[0].get('type') === 'script' && legacyScripts) {
-                hidden = true;
-            }
-
-            if (this._assets.length > 1 || ['folder', 'sprite', 'animstategraph'].includes(this._assets[0].get('type'))) {
-                hidden = true;
+            if (this._assets) {
+                if (this._assets[0].get('type') === 'script' && this._projectSettings.get('useLegacyScripts')) {
+                    hidden = true;
+                } else if (this._assets.length > 1 || ['folder', 'sprite', 'animstategraph', 'render'].includes(this._assets[0].get('type'))) {
+                    hidden = true;
+                }
             }
 
             this._btnDownloadAsset.disabled = disabled;
@@ -412,6 +404,8 @@ Object.assign(pcui, (function () {
             if (!assets || !assets.length) return;
 
             this._assets = assets;
+
+            this._containerButtons.hidden = false;
 
             const legacyScripts = this._projectSettings.get('useLegacyScripts');
 
@@ -580,6 +574,8 @@ Object.assign(pcui, (function () {
             super.unlink();
 
             if (!this._assets) return;
+
+            this._containerButtons.hidden = true;
 
             this._assetEvents.forEach(evt => evt.unbind());
             this._assetEvents.length = 0;

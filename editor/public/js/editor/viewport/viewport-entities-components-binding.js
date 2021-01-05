@@ -168,4 +168,57 @@ editor.once('load', function() {
             editor.call('viewport:render');
         });
     });
+
+    function resolveEntityReference(app, entity, component, field) {
+        if (!entity[component]) return;
+        if (entity[component][field] && typeof entity[component][field] === 'string') {
+            const resolvedEntity = app.root.findByGuid(entity[component][field]);
+            if (resolvedEntity) {
+                entity[component][field] = resolvedEntity;
+            }
+        }
+    }
+
+    function recurseFindGuids(entity, result) {
+        result[entity.get('resource_id')] = true;
+        var children = entity.getRaw('children');
+        children.forEach(child => {
+            result[child] = true;
+        });
+
+        children.forEach(child => {
+            var child = editor.call('entities:get', child);
+            if (child) {
+                recurseFindGuids(child, result);
+            }
+        });
+    }
+
+    editor.method('viewport:resolveEntityReferences', function (entity) {
+        const app = editor.call('viewport:app');
+        if (!app) return;
+
+        const guids = {};
+        if (entity) {
+            recurseFindGuids(entity, guids);
+        }
+
+        const components = editor.call('components:list');
+        components.forEach(component => {
+            const store = app.systems[component].store;
+            const entityFields = editor.call('components:getFieldsOfType', component, 'entity');
+            entityFields.forEach(field => {
+                if (entity) {
+                    for (const id in guids) {
+                        if (!store[id]) continue;
+                        resolveEntityReference(app, store[id].entity, component, field);
+                    }
+                } else {
+                    for (const id in store) {
+                        resolveEntityReference(app, store[id].entity, component, field);
+                    }
+                }
+            });
+        });
+    });
 });

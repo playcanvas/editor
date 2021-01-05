@@ -12,8 +12,11 @@ editor.once('load', function () {
         shader: 'glsl'
     };
 
-    var REGEX_DST_BRANCH = /(.*?<<<<<<<[\s\S]*?)=======.*?$/gm;
-    var REGEX_SRC_BRANCH = /.*?=======.*?\n([\s\S]*?>>>>>>>.*?$)/gm; // eslint-disable-line no-div-regex
+    var REGEX_DST_BRANCH_START = /^<<<<<<< /gm;
+    var REGEX_DST_BRANCH_END = /^=======$/gm;
+    var REGEX_SRC_BRANCH_END = /^>>>>>>> /gm;
+
+    var LARGE_FILE_SIZE = 1000000;
 
     var MergeFileEditor = function () {
         // the asset type
@@ -105,15 +108,6 @@ editor.once('load', function () {
     };
 
     MergeFileEditor.prototype.createOverlay = function (className, branchName, startPos, endPos, reverse) {
-        // var header = document.createElement('div');
-        // header.classList.add('conflict-overlay');
-        // header.classList.add('conflict-overlay-header');
-        // header.classList.add(className);
-
-        // var btnUse = new ui.Button({
-        //     text: 'USE ME'
-        // });
-        // header.appendChild(btnUse.element);
         var label = new ui.Label({
             text: branchName
         });
@@ -156,29 +150,38 @@ editor.once('load', function () {
         }
     };
 
-    MergeFileEditor.prototype.createDstOverlays = function () {
+    MergeFileEditor.prototype.createOverlays = function () {
         var content = this.cm.getValue();
-
         var match;
-        while ((match = REGEX_DST_BRANCH.exec(content)) !== null) {
-            var startPos = this.cm.posFromIndex(match.index);
-            startPos.line--;
-            var endPos = this.cm.posFromIndex(match.index + match[1].length);
-            endPos.line--;
+        var dstStartPos;
+        var dstEndPos;
+        var srcStartPos;
+        var srcEndPos;
 
-            this.createOverlay('dst-branch', config.self.branch.merge.destinationBranchName, startPos, endPos);
+        while ((match = REGEX_DST_BRANCH_START.exec(content)) !== null) {
+            dstStartPos = this.cm.posFromIndex(match.index);
+            dstStartPos.line--;
+
+            REGEX_DST_BRANCH_END.lastIndex = match.index;
+            match = REGEX_DST_BRANCH_END.exec(content);
+            if (match !== null) {
+                dstEndPos = this.cm.posFromIndex(match.index);
+                dstEndPos.line--;
+                this.createOverlay('dst-branch', config.self.branch.merge.destinationBranchName, dstStartPos, dstEndPos);
+
+                REGEX_SRC_BRANCH_END.lastIndex = match.index;
+                match = REGEX_SRC_BRANCH_END.exec(content);
+                if (match !== null) {
+                    srcStartPos = dstEndPos;
+                    srcStartPos.line++;
+                    srcEndPos = this.cm.posFromIndex(match.index);
+                    this.createOverlay('src-branch', config.self.branch.merge.sourceBranchName, srcStartPos, srcEndPos, true);
+
+                    REGEX_DST_BRANCH_START.lastIndex = match.index;
+                }
+            }
         }
-    };
 
-    MergeFileEditor.prototype.createSrcOverlays = function () {
-        var content = this.cm.getValue();
-
-        var match;
-        while ((match = REGEX_SRC_BRANCH.exec(content)) !== null) {
-            var startPos = this.cm.posFromIndex(match.index);
-            var endPos = this.cm.posFromIndex(match.index + match[1].length);
-            this.createOverlay('src-branch', config.self.branch.merge.sourceBranchName, startPos, endPos, true);
-        }
     };
 
     // Creates groups out of the created overlays
@@ -253,12 +256,14 @@ editor.once('load', function () {
         // clear existing overlays
         for (var i = 0; i < this.overlays.length; i++) {
             this.cm.off('scroll', this.overlays[i].positionLabel);
-            this.overlays[i].parentElement.removeChild(this.overlays[i]);
+            var parent = this.overlays[i].parentElement;
+            if (parent) {
+                parent.removeChild(this.overlays[i]);
+            }
         }
         this.overlays.length = 0;
 
-        this.createDstOverlays();
-        this.createSrcOverlays();
+        this.createOverlays();
         this.rebuildOverlayGroups();
     };
 
@@ -385,7 +390,13 @@ editor.once('load', function () {
                     return;
                 }
 
-                this.doc = CodeMirror.Doc(contents, MODES[this.type]);
+                let mode = MODES[this.type];
+                // stop highlighting if document is larger than 1MB
+                if (contents.length > LARGE_FILE_SIZE) {
+                    mode = 'text';
+                }
+
+                this.doc = CodeMirror.Doc(contents, mode);
                 if (this.ternLoaded) {
                     this.renderDocument();
                 }

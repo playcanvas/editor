@@ -78,6 +78,13 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'settings',
+            label: 'Create Container Assets',
+            type: 'boolean',
+            alias: 'asset-tasks:useContainers',
+            path: 'editor.pipeline.useContainers'
+        },
+        {
+            observer: 'settings',
             label: 'Sample rate',
             alias: 'asset-tasks:animSampleRate',
             path: 'editor.pipeline.animSampleRate',
@@ -127,7 +134,7 @@ Object.assign(pcui, (function () {
             // add sections
             this._appendSection('Texture Import Settings', this._attributesInspector.getField('editor.pipeline.defaultAssetPreload'));
             this._appendSection('Model Import Settings', this._attributesInspector.getField('editor.pipeline.textureDefaultToAtlas'));
-            this._appendSection('Animation Import Settings', this._attributesInspector.getField('editor.pipeline.useGlb'));
+            this._appendSection('Animation Import Settings', this._attributesInspector.getField('editor.pipeline.useContainers'));
 
             // reference
             if (!this._panelTooltip) {
@@ -147,6 +154,19 @@ Object.assign(pcui, (function () {
                     });
                 }
             }
+
+            if (!editor.call('users:hasFlag', 'hasContainerAssets')) {
+                this._attributesInspector.getField('editor.pipeline.useContainers').parent.hidden = true;
+            } else {
+                this._attributesInspector.getField('editor.pipeline.useContainers').parent.hidden = !this._attributesInspector.getField('editor.pipeline.useGlb').value;
+                this._attributesInspector.getField('editor.pipeline.useGlb').on('change', (value) => {
+                    this._attributesInspector.getField('editor.pipeline.useContainers').parent.hidden = !value;
+                    if (!value) {
+                        this._attributesInspector.getField('editor.pipeline.useContainers').value = false;
+                    }
+                });
+            }
+
         }
 
         _appendSection(title, attributeElement) {

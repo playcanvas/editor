@@ -4,6 +4,12 @@ editor.once('load', function () {
     var request = function (args, callback) {
         Ajax(args)
         .on('error', function (status, err) {
+            if (!err) {
+                err = status;
+                if (err === 504) {
+                    err = 'Request timed out. Please refresh the Editor and try again.';
+                }
+            }
             if (callback) callback(err);
         })
         .on('load', function (status, data) {

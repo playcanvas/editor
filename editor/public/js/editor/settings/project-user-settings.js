@@ -34,6 +34,7 @@ editor.once('load', function () {
                     overwriteMaterial: false,
                     overwriteTexture: true,
                     useGlb: false,
+                    useContainers: false,
                     defaultAssetPreload: true,
                     animSampleRate: 10,
                     animCurveTolerance: 0,
@@ -110,6 +111,9 @@ editor.once('load', function () {
 
             if (!settings.has('editor.pipeline.useGlb')) {
                 settings.set('editor.pipeline.useGlb', false);
+            }
+            if (!settings.has('editor.pipeline.useContainers')) {
+                settings.set('editor.pipeline.useContainers', false);
             }
 
             if (!settings.has('editor.pipeline.defaultAssetPreload')) {

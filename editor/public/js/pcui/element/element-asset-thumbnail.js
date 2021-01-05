@@ -12,7 +12,8 @@ Object.assign(pcui, (function () {
         'font': true,
         'material': true,
         'model': true,
-        'sprite': true
+        'sprite': true,
+        'render': true
     };
 
     /**
@@ -181,6 +182,9 @@ Object.assign(pcui, (function () {
                     break;
                 case 'sprite':
                     this._canvasRenderer = new pcui.SpriteThumbnailRenderer(asset, this._domCanvas, this._assets);
+                    break;
+                case 'render':
+                    this._canvasRenderer = new pcui.RenderThumbnailRenderer(asset, this._domCanvas, this._assets);
                     break;
             }
 

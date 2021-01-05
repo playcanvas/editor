@@ -147,7 +147,7 @@ editor.once('load', function() {
 
         // give components that need it a chance to process entity references now
         // that the scene graph has loaded
-        app.fire('tools:sceneloaded');
+        editor.call('viewport:resolveEntityReferences');
     };
 
     // handle synchronization - all assets must be loaded

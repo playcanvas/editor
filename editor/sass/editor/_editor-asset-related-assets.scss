@@ -1,56 +1,41 @@
+.pcui-related-assets > .pcui-panel > .pcui-panel-content {
+    padding: $element-margin 0;
+}
+
 .pcui-related-assets-related-asset {
-    background-color: #2c393c;
-    border-left: 1px solid #293538;
-    border-top: 1px solid #293538;
-    border-right: 1px solid #293538;
-    margin: 0px 6px 0px 6px;
+    @extend .fixedFont;
+    background-color: $bcg-dark;
+    border-left: 1px solid $bcg-darker;
+    border-top: 1px solid $bcg-darker;
+    border-right: 1px solid $bcg-darker;
+    margin: 0px $element-margin;
     flex-grow: 1;
     cursor: pointer;
-    font-size: 11px;
-    font-family: inconsolatamedium, Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
-    font-weight: normal;
     line-height: 22px;
     padding-left: 25px;
     position: relative;
-}
 
-.pcui-related-assets-related-asset:first-child {
-    margin-top: 6px;
+    font-size: 11px;
 }
 
 .pcui-related-assets-related-asset:last-child {
-    border-bottom: 1px solid #293538;
+    border-bottom: 1px solid $bcg-darker;
 }
 
 .pcui-related-assets-related-asset:hover {
-    color: white;
-    background-color: #20292b;
-    border-color: #20292b;
+    color: $text-primary;
+    background-color: $bcg-darkest;
+    border-color: $bcg-darkest;
 }
 
 .pcui-related-assets-related-asset::before {
-    content: '';
     font-size: 14px;
+    @extend .font-icon;
+
+    position: absolute;
     padding: 0 8px;
     top: 2px;
     left: -3px;
-    position: absolute;
-    color: #5b7073;
-    font-family: 'pc-icon';
-}
 
-.pcui-related-assets-related-asset.asset-type-texture::before {
-    content: '';
-}
-
-.pcui-related-assets-related-asset.asset-type-model::before {
-    content: '';
-}
-
-.pcui-related-assets-related-asset.asset-type-material::before {
-    content: '';
-}
-
-.pcui-related-assets-related-asset.asset-type-animation::before {
-    content: '';
+    color: $text-darkest;
 }

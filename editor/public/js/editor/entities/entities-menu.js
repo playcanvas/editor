@@ -95,6 +95,27 @@ editor.once('load', function() {
         return data;
     };
 
+    var createPrimitiveEntityData = function (type, additions) {
+        var data = {
+            components: {}
+        };
+
+        var settings = editor.call('settings:projectUser');
+        var component;
+        if (editor.call('users:hasFlag', 'hasContainerAssets') && settings.get('editor.pipeline.useContainers')) {
+            component = 'render';
+        } else {
+            component = 'model';
+        }
+
+        data.components[component] = editor.call('components:getDefault', component);
+        data.components[component].type = type;
+
+        applyAdditions(data, additions);
+
+        return data;
+    }
+
     editor.method('menu:entities:new', function (getParentFn) {
         if (! getParentFn)
             getParentFn = function () {return editor.call('entities:selectedFirst');};
@@ -274,16 +295,11 @@ editor.once('load', function() {
                         className: 'menu-item-add-box-primitive',
                         icon: componentsLogos.model,
                         select: function() {
-                            var component = editor.call('components:getDefault', 'model');
-                            component.type = 'box';
-
-                            editor.call('entities:new', {
+                            var data = createPrimitiveEntityData('box', {
                                 name: 'Box',
-                                parent: getParentFn(),
-                                components: {
-                                    model: component
-                                }
-                            });
+                                parent: getParentFn()
+                            })
+                            editor.call('entities:new', data);
                         }
                     },
                     'add-new-capsule': {
@@ -291,16 +307,11 @@ editor.once('load', function() {
                         className: 'menu-item-add-capsule-primitive',
                         icon: componentsLogos.model,
                         select: function() {
-                            var component = editor.call('components:getDefault', 'model');
-                            component.type = 'capsule';
-
-                            editor.call('entities:new', {
+                            var data = createPrimitiveEntityData('capsule', {
                                 name: 'Capsule',
-                                parent: getParentFn(),
-                                components: {
-                                    model: component
-                                }
-                            });
+                                parent: getParentFn()
+                            })
+                            editor.call('entities:new', data);
                         }
                     },
                     'add-new-cone': {
@@ -308,16 +319,11 @@ editor.once('load', function() {
                         className: 'menu-item-add-cone-primitive',
                         icon: componentsLogos.model,
                         select: function() {
-                            var component = editor.call('components:getDefault', 'model');
-                            component.type = 'cone';
-
-                            editor.call('entities:new', {
+                            var data = createPrimitiveEntityData('cone', {
                                 name: 'Cone',
-                                parent: getParentFn(),
-                                components: {
-                                    model: component
-                                }
-                            });
+                                parent: getParentFn()
+                            })
+                            editor.call('entities:new', data);
                         }
                     },
                     'add-new-cylinder': {
@@ -325,16 +331,11 @@ editor.once('load', function() {
                         className: 'menu-item-add-cylinder-primitive',
                         icon: componentsLogos.model,
                         select: function() {
-                            var component = editor.call('components:getDefault', 'model');
-                            component.type = 'cylinder';
-
-                            editor.call('entities:new', {
+                            var data = createPrimitiveEntityData('cylinder', {
                                 name: 'Cylinder',
-                                parent: getParentFn(),
-                                components: {
-                                    model: component
-                                }
-                            });
+                                parent: getParentFn()
+                            })
+                            editor.call('entities:new', data);
                         }
                     },
 
@@ -343,16 +344,11 @@ editor.once('load', function() {
                         className: 'menu-item-add-plane-primitive',
                         icon: componentsLogos.model,
                         select: function() {
-                            var component = editor.call('components:getDefault', 'model');
-                            component.type = 'plane';
-
-                            editor.call('entities:new', {
+                            var data = createPrimitiveEntityData('plane', {
                                 name: 'Plane',
-                                parent: getParentFn(),
-                                components: {
-                                    model: component
-                                }
-                            });
+                                parent: getParentFn()
+                            })
+                            editor.call('entities:new', data);
                         }
                     },
                     'add-new-sphere': {
@@ -360,16 +356,11 @@ editor.once('load', function() {
                         className: 'menu-item-add-sphere-primitive',
                         icon: componentsLogos.model,
                         select: function() {
-                            var component = editor.call('components:getDefault', 'model');
-                            component.type = 'sphere';
-
-                            editor.call('entities:new', {
+                            var data = createPrimitiveEntityData('sphere', {
                                 name: 'Sphere',
-                                parent: getParentFn(),
-                                components: {
-                                    model: component
-                                }
-                            });
+                                parent: getParentFn()
+                            })
+                            editor.call('entities:new', data);
                         }
                     }
                 }

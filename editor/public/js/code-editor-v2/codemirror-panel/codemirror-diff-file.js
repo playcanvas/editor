@@ -14,6 +14,8 @@ editor.once('load', function () {
 
     var REGEX_HUNK = /^\@\@ -([0-9]+)(?:,[0-9]+)? \+([0-9]+)(?:,[0-9]+)? \@\@$/gm;
 
+    var LARGE_FILE_SIZE = 1000000;
+
     var DiffEditor = function () {
         // the asset type
         this.type = config.self.branch.merge.conflict.assetType;
@@ -56,6 +58,7 @@ editor.once('load', function () {
 
     DiffEditor.prototype.createOverlays = function () {
         var content = this.content;
+        var isLarge = (content.length > LARGE_FILE_SIZE);
         var match;
 
         var hunk;
@@ -79,47 +82,52 @@ editor.once('load', function () {
         // depending on the line contents
         var lineCount = this.cm.lineCount();
 
-        for (var i = 0, len = hunks.length; i < len; i++) {
-            hunk = hunks[i];
+        this.cm.operation(() => {
+            for (var i = 0, len = hunks.length; i < len; i++) {
+                hunk = hunks[i];
 
-            var nextHunk = hunks[i + 1];
-            var codeLine = hunk.hunkRightStart;
+                var nextHunk = hunks[i + 1];
+                var codeLine = hunk.hunkRightStart;
 
-            // hunk overlay
-            this.createLineOverlay(hunk.hunkStart - 1, 'hunk');
+                // hunk overlay
+                this.createLineOverlay(hunk.hunkStart - 1, 'hunk');
 
-            for (var j = hunk.hunkStart + 1; j < (nextHunk ? nextHunk.hunkStart : lineCount); j++) {
-                var line = this.cm.getLine(j);
+                for (var j = hunk.hunkStart + 1; j < (nextHunk ? nextHunk.hunkStart : lineCount); j++) {
+                    var line = this.cm.getLine(j);
 
-                var showLine = true;
-                if (line.startsWith('+')) {
-                    // 'add' overlay
-                    this.createLineOverlay(j - 1, 'add');
-                } else if (line.startsWith('-')) {
-                    showLine = false;
-                    // if the line was removed from the current state
-                    // then don't increase the line number
-                    codeLine--;
+                    var showLine = false;
 
-                    // 'remove' overlay
-                    this.createLineOverlay(j - 1, 'remove');
+                    if (line.startsWith('+')) {
+                        showLine = true;
+                        // 'add' overlay
+                        if (!isLarge) {
+                            this.createLineOverlay(j - 1, 'add');
+                        }
+                    } else if (!isLarge && line.startsWith('-')) {
+                        // if the line was removed from the current state
+                        // then don't increase the line number
+                        codeLine--;
+
+                        // 'remove' overlay
+                        this.createLineOverlay(j - 1, 'remove');
+                    }
+
+                    // line number (only for current state)
+                    if (showLine) {
+                        this.createLineNumber(j, codeLine);
+                    }
+
+                    codeLine++;
                 }
 
-                // line number (only for current state)
-                if (showLine) {
-                    this.createLineNumber(j, codeLine);
-                }
-
-                codeLine++;
+                // change hunk text to something more user-friendly
+                this.cm.replaceRange(
+                    'Lines ' + hunk.hunkRightStart + '-' + (codeLine - 1) + ':',
+                    { line: hunk.hunkStart, ch: 0 },
+                    { line: hunk.hunkStart, ch: hunk.hunkLength }
+                );
             }
-
-            // change hunk text to something more user-friendly
-            this.cm.replaceRange(
-                'Lines ' + hunk.hunkRightStart + '-' + (codeLine - 1) + ':',
-                { line: hunk.hunkStart, ch: 0 },
-                { line: hunk.hunkStart, ch: hunk.hunkLength }
-            );
-        }
+        });
     };
 
 
@@ -164,7 +172,13 @@ editor.once('load', function () {
                     return;
                 }
 
-                this.doc = CodeMirror.Doc(contents, MODES[this.type]);
+                // stop highlighting if document is larger than 1MB
+                let mode = MODES[this.type];
+                if (contents.length > LARGE_FILE_SIZE) {
+                    mode = 'text';
+                }
+
+                this.doc = CodeMirror.Doc(contents, mode);
                 this.content = contents;
                 this.renderDocument();
             }.bind(this)

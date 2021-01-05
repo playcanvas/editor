@@ -22,6 +22,8 @@ editor.once('load', function () {
         if (events[id])
             events[id].unbind();
 
+        options = options || {};
+
         // if asset does not exist exit early
         if (! editor.call('assets:get', id)) {
             return options.callback && options.callback();

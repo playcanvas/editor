@@ -184,6 +184,10 @@ editor.once('load', function() {
         title: 'Enable Gamepad input',
         description: 'Disable this if you do not want to handle any gamepad input in your application.'
     }, {
+        name: 'project:maxAssetRetries',
+        title: 'Max Asset Retries',
+        description: 'The maximum number of times to retry loading an asset if it fails to be loaded. If an asset request fails it will be retried with an exponential backoff.'
+    }, {
         name: 'asset-tasks',
         title: 'Asset Tasks',
         description: 'Settings for defining default behaviour rules for asset pipeline jobs: assets extracting, textures resizing, etc.'
@@ -207,6 +211,10 @@ editor.once('load', function() {
         name: 'asset-tasks:useGlb',
         title: 'Use GLB format',
         description: 'Create model assets in GLB format.'
+    }, {
+        name: 'asset-tasks:useContainers',
+        title: 'Create Container Assets',
+        description: 'Use the new GLB conversion pipeline when uploading models. The new pipeline will generate Container, Render and Template assets out of the uploaded model.',
     }, {
         name: 'asset-tasks:animSampleRate',
         title: 'Animation sample rate',
