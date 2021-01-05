@@ -22,15 +22,6 @@ editor.once('load', function() {
 
             if (! asset.has('data.alphaToCoverage'))
                 asset.set('data.alphaToCoverage', false);
-
-            if (! asset.has('data.opacityFadesSpecular'))
-                asset.set('data.opacityFadesSpecular', true);
-
-            if (! asset.has('data.enableGGXSpecular'))
-                asset.set('data.enableGGXSpecular', false);
-
-            if (! asset.has('data.clearCoat'))
-                asset.set('data.clearCoat', 0.0);                
         }
 
         if ((asset.get('type') === 'texture' || asset.get('type') === 'textureatlas') && ! asset.get('source')) {

@@ -33,15 +33,6 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'sceneSettings',
-            label: 'Rotation',
-            path: 'render.skyboxRotation',
-            type: 'vec3',
-            args: {
-                placeholder: ['X', 'Y', 'Z']
-            }
-        },        
-        {
-            observer: 'sceneSettings',
             label: 'Mip',
             path: 'render.skyboxMip',
             type: 'select',
