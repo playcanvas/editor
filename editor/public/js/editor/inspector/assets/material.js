@@ -545,7 +545,7 @@ Object.assign(pcui, (function () {
             clearCoatInspector: new pcui.AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
-                attributes: [{                                 
+                attributes: [{
                     label: 'Clear Coat',
                     type: 'asset',
                     path: 'data.clearCoatMap',
@@ -1462,15 +1462,9 @@ Object.assign(pcui, (function () {
 
             this.buildDom(DOM(this));
 
-            if (!editor.call('users:hasFlag', 'hasClearCoat')) {
+            if (!editor.call('users:hasFlag', 'hasExtendedMatProps')) {
                 this._clearCoatPanel.hidden = true;
-            }
-            
-            if (!editor.call('users:hasFlag', 'hasAnisoGGXSpecular')) {
                 this._specularInspector.getField('data.enableGGXSpecular').parent.hidden = true;
-            }
-
-            if (!editor.call('users:hasFlag', 'hasOpacityFadesSpecular')) {
                 this._opacityInspector.getField('data.opacityFadesSpecular').parent.hidden = true;
             }
 
