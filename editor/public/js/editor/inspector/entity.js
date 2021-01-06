@@ -197,6 +197,7 @@ Object.assign(pcui, (function () {
 
         _onSetComponent(component) {
             if (!this._componentInspectors[component]) return;
+            if (!this._doAllEntitiesHaveComponent(this._entities, component)) return;
 
             this._componentInspectors[component].hidden = false;
             this._componentInspectors[component].link(this._entities);
@@ -260,6 +261,18 @@ Object.assign(pcui, (function () {
             }
         }
 
+        _doAllEntitiesHaveComponent(entities, component) {
+            let result = true;
+            for (let i = 0; i < entities.length; i++) {
+                if (!entities[i].has(`components.${component}`)) {
+                    result = false;
+                    break;
+                }
+            }
+
+            return result;
+        }
+
         link(entities) {
             this.unlink();
 
@@ -291,28 +304,21 @@ Object.assign(pcui, (function () {
             });
 
             for (const component in this._componentInspectors) {
-                let exists = true;
-                for (let i = 0; i < entities.length; i++) {
-                    if (!entities[i].has(`components.${component}`)) {
-                        exists = false;
-                        break;
-                    }
+                if (!this._doAllEntitiesHaveComponent(entities, component)) {
+                    continue;
                 }
 
-                if (exists) {
-                    this._componentInspectors[component].hidden = false;
-                    try {
-                        this._componentInspectors[component].link(entities);
-                    } catch (err) {
-                        this._componentInspectors[component].hidden = true;
-                        log.error(err);
-                    }
-                    this.class.remove(CLASS_NO_COMPONENTS);
+                this._componentInspectors[component].hidden = false;
+                try {
+                    this._componentInspectors[component].link(entities);
+                } catch (err) {
+                    this._componentInspectors[component].hidden = true;
+                    log.error(err);
                 }
+                this.class.remove(CLASS_NO_COMPONENTS);
             }
 
             this._disableUiFields();
-
 
             try {
                 if (this._templateOverridesInspector) {
