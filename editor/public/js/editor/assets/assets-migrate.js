@@ -30,7 +30,25 @@ editor.once('load', function() {
                 asset.set('data.enableGGXSpecular', false);
 
             if (! asset.has('data.clearCoat'))
-                asset.set('data.clearCoat', 0.0);                
+                asset.set('data.clearCoat', 0.0);
+                
+            if (! asset.has('data.clearCoatMapTiling'))
+                asset.set('data.clearCoatMapTiling', [1, 1]);
+
+            if (! asset.has('data.clearCoatMapOffset'))
+                asset.set('data.clearCoatMapOffset', [0, 0]);
+
+            if (! asset.has('data.clearCoatGlossMapTiling'))
+                asset.set('data.clearCoatGlossMapTiling', [1, 1]);
+
+            if (! asset.has('data.clearCoatGlossMapOffset'))
+                asset.set('data.clearCoatGlossMapOffset', [0, 0]);
+
+            if (! asset.has('data.clearCoatNormalMapTiling'))
+                asset.set('data.clearCoatNormalMapTiling', [1, 1]);
+
+            if (! asset.has('data.clearCoatNormalMapOffset'))
+                asset.set('data.clearCoatNormalMapOffset', [0, 0]);
         }
 
         if ((asset.get('type') === 'texture' || asset.get('type') === 'textureatlas') && ! asset.get('source')) {

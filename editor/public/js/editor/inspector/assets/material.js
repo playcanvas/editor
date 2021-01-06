@@ -525,10 +525,27 @@ Object.assign(pcui, (function () {
             })
         },
         children: [{
+            clearCoatFactorInspector: new pcui.AttributesInspector({
+                assets: parent._args.assets,
+                history: parent._args.history,
+                attributes: [{                 
+                    label: 'Clear Coat Factor',
+                    path: 'data.clearCoat',
+                    type: 'slider',
+                    args: {
+                        precision: 3,
+                        step: 0.05,
+                        min: 0,
+                        max: 1
+                    },
+                    reference: 'asset:material:clearCoat'                    
+                }]
+            })
+        }, {            
             clearCoatInspector: new pcui.AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
-                attributes: [{
+                attributes: [{                                 
                     label: 'Clear Coat',
                     type: 'asset',
                     path: 'data.clearCoatMap',
@@ -606,17 +623,6 @@ Object.assign(pcui, (function () {
                         }]
                     },
                     reference: 'asset:material:clearCoatVertexColorChannel'
-                }, {                    
-                    label: 'Clear Coat Factor',
-                    path: 'data.clearCoat',
-                    type: 'slider',
-                    args: {
-                        precision: 3,
-                        step: 0.05,
-                        min: 0,
-                        max: 1
-                    },
-                    reference: 'asset:material:clearCoat'
                 }]
             })
         }, {
@@ -1409,6 +1415,7 @@ Object.assign(pcui, (function () {
         '_ambientPanel': ['aoMap'],
         '_diffusePanel': ['diffuseMap'],
         '_specularPanel': ['specularMap', 'metalnessMap', 'glossMap'],
+        '_clearCoatPanel': ['clearCoat', 'clearCoatMap', 'clearCoatGlossMap', 'clearCoatNormalMap'],
         '_emissivePanel': ['emissiveMap'],
         '_opacityPanel': ['opacityMap'],
         '_normalsPanel': ['normalMap'],
@@ -1455,6 +1462,18 @@ Object.assign(pcui, (function () {
 
             this.buildDom(DOM(this));
 
+            if (!editor.call('users:hasFlag', 'hasClearCoat')) {
+                this._clearCoatPanel.hidden = true;
+            }
+            
+            if (!editor.call('users:hasFlag', 'hasAnisoGGXSpecular')) {
+                this._specularInspector.getField('data.enableGGXSpecular').parent.hidden = true;
+            }
+
+            if (!editor.call('users:hasFlag', 'hasOpacityFadesSpecular')) {
+                this._opacityInspector.getField('data.opacityFadesSpecular').parent.hidden = true;
+            }
+
             this._assets = null;
             this._suppressToggleFields = false;
             this._suppressOffsetAndTilingFields = false;
@@ -1477,6 +1496,8 @@ Object.assign(pcui, (function () {
             this._opacityInspector.getField('data.blendType').on('change', toggleFields);
             this._opacityInspector.getField('data.opacityMapVertexColor').on('change', toggleFields);
             this._opacityInspector.getField('data.opacityFadesSpecular').on('change', toggleFields);
+
+            this._clearCoatFactorInspector.getField('data.clearCoat').on('change', toggleFields);
 
             this._specularInspector.getField('data.useMetalness').on('change', toggleFields);
 
@@ -1518,6 +1539,11 @@ Object.assign(pcui, (function () {
             const useMetalness = this._specularInspector.getField('data.useMetalness').value;
             this._metalnessWorkflowInspector.hidden = !useMetalness;
             this._specularWorkflowInspector.hidden = useMetalness;
+
+            const clearCoat = this._clearCoatFactorInspector.getField('data.clearCoat').value;
+            this._clearCoatInspector.hidden = clearCoat === 0.0;
+            this._clearCoatGlossInspector.hidden = clearCoat === 0.0;
+            this._clearCoatNormalInspector.hidden = clearCoat === 0.0;
 
             const blendType = this._opacityInspector.getField('data.blendType').value;
             this._opacityInspector.getField('data.opacity').parent.hidden = ([2, 4, 6].indexOf(blendType) === -1);
@@ -2082,6 +2108,7 @@ Object.assign(pcui, (function () {
             this._metalnessWorkflowInspector.link(assets);
             this._specularWorkflowInspector.link(assets);
             this._glossInspector.link(assets);
+            this._clearCoatFactorInspector.link(assets);
             this._clearCoatInspector.link(assets);
             this._clearCoatGlossInspector.link(assets);
             this._clearCoatNormalInspector.link(assets);
@@ -2147,6 +2174,13 @@ Object.assign(pcui, (function () {
                                     collapsed = false;
                                     break;
                                 }
+                            } else if (type === 'number') {
+                                const value = this._assets[j].get('data.'+ field);
+                                const defaultValue = editor.call('schema:material:getDefaultValueForField', field);
+                                if (value !== defaultValue ) {
+                                    collapsed = false;
+                                    break;
+                                }
                             }
                         }
 
@@ -2206,6 +2240,7 @@ Object.assign(pcui, (function () {
             this._metalnessWorkflowInspector.unlink();
             this._specularWorkflowInspector.unlink();
             this._glossInspector.unlink();
+            this._clearCoatFactorInspector.unlink();
             this._clearCoatInspector.unlink();
             this._clearCoatGlossInspector.unlink();
             this._clearCoatNormalInspector.unlink();            
