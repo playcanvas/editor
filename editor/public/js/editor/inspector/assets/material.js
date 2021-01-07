@@ -1464,8 +1464,15 @@ Object.assign(pcui, (function () {
 
             if (!editor.call('users:hasFlag', 'hasExtendedMatProps')) {
                 this._clearCoatPanel.hidden = true;
-                this._specularInspector.getField('data.enableGGXSpecular').parent.hidden = true;
+
                 this._opacityInspector.getField('data.opacityFadesSpecular').parent.hidden = true;
+            }
+
+            // separated out becasue it needs more work before release
+            if (!editor.call('users:hasFlag', 'hasAnisoGGXSpec')) {
+
+                this._specularInspector.getField('data.enableGGXSpecular').parent.hidden = true;
+
             }
 
             this._assets = null;
