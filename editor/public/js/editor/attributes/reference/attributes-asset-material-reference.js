@@ -544,6 +544,131 @@ editor.once('load', function() {
         subTitle: '{Boolean}',
         description: 'Apply gamma correction and tonemapping (as configured in scene settings).',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#useGammaTonemap'
+    }, {
+        title: 'enableGGXSpecular',
+        subTitle: '{Boolean}',
+        description: 'Enables GGX specular response. Also enables anisotropy parameter to set material anisotropy.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#enableGGXSpecular'
+    }, {
+        title: 'anisotropy',
+        subTitle: '{Number}',
+        description: 'Defines amount of specular anisotropy when GGX Specular is enabled',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#anisotropy'
+    }, {
+        title: 'clearCoat',
+        subTitle: '{Number}',
+        description: 'Defines intensity of clear coat layer from 0 to 1.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoat'
+    }, {
+        title: 'clearCoatMap',
+        subTitle: '{pc.Texture}',
+        description: 'The clear coat map that specifies a per-pixel intensity value. The clear coat map is modulated by the Clear Coat Factor property.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatMap'
+    }, {
+        title: 'clearCoatMapChannel',
+        subTitle: '{String}',
+        description: 'An clearCoat map color channel to extract color value from texture. Can be: r, g, b, a',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatMapChannel'
+    }, {
+        title: 'clearCoatMapOffset',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the 2D offset of the clearCoatMap. Each component is between 0 and 1.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatMapOffset'
+    }, {
+        title: 'clearCoatMapTiling',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the 2D tiling of the clearCoatMap.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatMapTiling'
+    }, {
+        title: 'clearCoatMapUv',
+        subTitle: '{Number}',
+        description: 'clearCoat map UV channel',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatMapUv'
+    }, {
+        title: 'clearCoatVertexColor',
+        subTitle: '{Boolean}',
+        description: 'Use vertex colors for clearCoat intensity instead of a map',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatVertexColor'
+    }, {
+        title: 'clearCoatVertexColorChannel',
+        subTitle: '{String}',
+        description: 'A color channel to extract color value from vertex colors. Can be: r, g, b, a',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatVertexColorChannel'
+    }, {
+        title: 'clearCoatGlossiness',
+        subTitle: '{Number}',
+        description: 'A value determining the smoothness of a surface. For smaller glossiness values, the clear coat surface is rougher and specular highlights will be broader. For larger glossiness values, the clear coat surface is smoother and will exhibit more concentrated specular highlights (as if the clear coat surface is polished and shiny).',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatGlossiness'
+    }, {
+        title: 'clearCoatGlossVertexColor',
+        subTitle: '{Boolean}',
+        description: 'Use vertex colors for clear coat glossiness instead of a map',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatGlossVertexColor'
+    }, {
+        title: 'clearCoatGlossVertexColorChannel',
+        subTitle: '{String}',
+        description: 'A color channel to extract color value from vertex colors. Can be: r, g, b, a',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatGlossVertexColorChannel'
+    }, {
+        title: 'clearCoatGlossMap',
+        subTitle: '{pc.Texture}',
+        description: 'The clear coat gloss map that specifies a per-pixel intensity value. The clear coat gloss map is modulated by the clearCoat property.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatGlossMap'
+    }, {
+        title: 'clearCoatGlossMapChannel',
+        subTitle: '{String}',
+        description: 'A clear coat gloss map color channel to extract color value from texture. Can be: r, g, b, a',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatGlossMapChannel'
+    }, {
+        title: 'clearCoatGlossMapOffset',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the 2D offset of the clear coat gloss map. Each component is between 0 and 1.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatGlossMapOffset'
+    }, {
+        title: 'clearCoatGlossMapTiling',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the 2D tiling of the clear coat gloss map.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatGlossMapTiling'
+    }, {
+        title: 'clearCoatGlossMapUv',
+        subTitle: '{Number}',
+        description: 'clear coat gloss map UV channel',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatGlossMapUv'
+    }, {
+        title: 'clearCoatBumpiness',
+        subTitle: '{Number}',
+        description: 'The strength of the applied normal map. This is a value between 0 (the normal map has no effect) and 2 (the effect of the normal map is exagerrated). It defaults to 1.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatBumpiness'  
+    }, {
+        title: 'clearCoatNormalMap',
+        subTitle: '{pc.Texture}',
+        description: 'The normal map that specifies the per-pixel surface normals. The normal map is modulated by the \'Bumpiness\' property.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatNormalMap'
+    }, {
+        title: 'clearCoatNormalMapOffset',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the 2D offset of the normalMap. Each component is between 0 and 1.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatNormalMapOffset'
+    }, {
+        title: 'clearCoatNormalMapTiling',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the 2D tiling of the normalMap.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatNormalMapTiling'
+    }, {
+        title: 'clearCoatNormalMapUv',
+        subTitle: '{Number}',
+        description: 'Normal map UV channel',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatNormalMapUv'
+    }, {
+        title: 'opacityFadesSpecular',
+        subTitle: '{Boolean}',
+        description: 'Controls whether Specular is faded out by material Opacity which is sometomes not desired for shiny translucent materials such as glass',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#opacityFadesSpecular'
+    }, {
+        title: 'alphaFade',
+        subTitle: '{Number}',
+        description: 'Use alphaFade to fade out materials that do not use opacity to fade specular (opacityFadesSpecular is false).',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#alphaFade'                                 
     }];
 
     for(var i = 0; i < fields.length; i++) {

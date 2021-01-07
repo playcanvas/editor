@@ -278,16 +278,6 @@ editor.once('load', function () {
         if (asset.sync)
             return;
 
-        // convert material data to flat
-        if (asset.get('type') === 'material') {
-            // store missing tilings / offset before we set default values
-            editor.call('material:rememberMissingFields', asset);
-
-            var assetData = asset.get('data');
-            if (assetData)
-                asset.set('data', editor.call('schema:material:getDefaultData', assetData));
-        }
-
         asset.sync = new ObserverSync({
             item: asset,
             paths: syncPaths
