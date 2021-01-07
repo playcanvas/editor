@@ -466,6 +466,8 @@ Object.assign(pcui, (function () {
                 enabled: entity.get('enabled')
             });
 
+            treeViewItem.iconLabel.class.add(CLASS_COMPONENT_ICON);
+
             treeViewItem.entity = entity;
 
             entity.reparenting = false;
@@ -475,15 +477,15 @@ Object.assign(pcui, (function () {
             // add component icons
             this._componentList.forEach(component => {
                 if (entity.has(`components.${component}`)) {
-                    treeViewItem.iconLabel.class.add(CLASS_COMPONENT_ICON, `type-${component}`);
+                    treeViewItem.iconLabel.class.add(`type-${component}`);
                 }
 
                 events.push(entity.on(`components.${component}:set`, () => {
-                    treeViewItem.iconLabel.class.add(CLASS_COMPONENT_ICON, `type-${component}`);
+                    treeViewItem.iconLabel.class.add(`type-${component}`);
                 }));
 
                 events.push(entity.on(`components.${component}:unset`, () => {
-                    treeViewItem.iconLabel.class.remove(CLASS_COMPONENT_ICON, `type-${component}`);
+                    treeViewItem.iconLabel.class.remove(`type-${component}`);
                 }));
             });
 
