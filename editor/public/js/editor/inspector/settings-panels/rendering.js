@@ -33,15 +33,6 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'sceneSettings',
-            label: 'Rotation',
-            path: 'render.skyboxRotation',
-            type: 'vec3',
-            args: {
-                placeholder: ['X', 'Y', 'Z']
-            }
-        },        
-        {
-            observer: 'sceneSettings',
             label: 'Mip',
             path: 'render.skyboxMip',
             type: 'select',
@@ -381,17 +372,12 @@ Object.assign(pcui, (function () {
                 fogChangeEvt.unbind();
             });
 
-
-            if (editor.call('users:hasFlag', 'hasBasisTextures')) {
-                const clickBasisEvt = this._attributesInspector.getField('basis').on('click', () => {
-                    editor.call('project:module:addModule', 'basis.js', 'basis');
-                });
-                this.once('destroy', () => {
-                    clickBasisEvt.unbind();
-                });
-            } else {
-                this._attributesInspector.getField('basis').parent.hidden = true;
-            }
+            const clickBasisEvt = this._attributesInspector.getField('basis').on('click', () => {
+                editor.call('project:module:addModule', 'basis.js', 'basis');
+            });
+            this.once('destroy', () => {
+                clickBasisEvt.unbind();
+            });
         }
     }
 

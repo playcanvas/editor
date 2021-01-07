@@ -187,6 +187,14 @@ editor.once('load', function() {
             }
         }
 
+        // filter out render component
+        if (!editor.call('users:hasFlag', 'hasContainerAssets')) {
+            idx = result.indexOf('render');
+            if (idx !== -1) {
+                result.splice(idx, 1);
+            }
+        }
+
         return result;
     });
 

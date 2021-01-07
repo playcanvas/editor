@@ -4,7 +4,7 @@ editor.once('plugins:load:asset-texture-lod', function() {
     var app = editor.call('viewport:app');
     if (! app) return; // webgl not available
 
-    var slots = [ 'aoMap', 'diffuseMap', 'emissiveMap', 'glossMap', 'clearCoatMap', 'clearCoatGlossMap', 'clearCoatNormalMap', 'lightMap', 'metalnessMap', 'opacityMap', 'specularMap', 'normalMap' ];
+    var slots = [ 'aoMap', 'diffuseMap', 'emissiveMap', 'glossMap', 'lightMap', 'metalnessMap', 'opacityMap', 'specularMap', 'normalMap' ];
 
 
     var menuItem = editor.call('assets:contextmenu:add', {

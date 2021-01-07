@@ -262,22 +262,6 @@ Object.assign(pcui, (function () {
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [{
-                    label: 'Enable GGX Specular',
-                    path: 'data.enableGGXSpecular',
-                    type: 'boolean',
-                    reference: 'asset:material:enableGGXSpecular'
-                }, {
-                    label: 'Anisotropy',
-                    path: 'data.anisotropy',
-                    type: 'slider',
-                    args: {
-                        precision: 3,
-                        step: 0.05,
-                        min: -1,
-                        max: 1
-                    },
-                    reference: 'asset:material:anisotropy'
-                }, {
                     label: 'Use Metalness',
                     path: 'data.useMetalness',
                     type: 'boolean',
@@ -998,23 +982,7 @@ Object.assign(pcui, (function () {
                     label: 'Alpha To Coverage',
                     path: 'data.alphaToCoverage',
                     type: 'boolean',
-                    reference: 'asset:material:alphaToCoverage'                    
-                }, {
-                    label: 'Opacity Fades Specular',
-                    path: 'data.opacityFadesSpecular',
-                    type: 'boolean',
-                    reference: 'asset:material:opacityFadesSpecular'
-                }, {
-                    label: 'Alpha Fade',
-                    path: 'data.alphaFade',
-                    type: 'slider',
-                    args: {
-                        precision: 3,
-                        step: 0.05,
-                        min: 0,
-                        max: 1
-                    },
-                    reference: 'asset:material:alphaFade'                    
+                    reference: 'asset:material:alphaToCoverage'
                 }]
             })
         }]
@@ -1404,10 +1372,7 @@ Object.assign(pcui, (function () {
         'height': 'parallaxInspector',
         'light': 'lightmapInspector',
         'metalness': 'metalnessWorkflowInspector',
-        'gloss': 'glossInspector',
-        'clearCoat': 'clearCoatInspector',
-        'clearCoatGloss': 'clearCoatGlossInspector',
-        'clearCoatNormal': 'clearCoatNormalInspector'
+        'gloss': 'glossInspector'
     };
 
     const COLLAPSED_PANEL_DEPENDENCIES = {
@@ -1430,9 +1395,6 @@ Object.assign(pcui, (function () {
         'specular': ['s', 'spec', 'specular'],
         'metalness': ['m', 'met', 'metal', 'metalness', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa'],
         'gloss': ['g', 'gloss', 'glossiness', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa'],
-        'clearCoat': ['cc', 'clearcoat'],
-        'clearCoatGloss': ['ccg', 'clearcoatgloss'],
-        'clearCoatNormal': ['ccn', 'clearcoatnormal'],
         'emissive': ['e', 'emissive'],
         'opacity': ['o', 't', 'opacity', 'alpha', 'transparency', 'gmat', 'gmao', 'gmaa', 'rgba', 'rmat', 'rmao', 'rmaa'],
         'normal': ['n', 'norm', 'normal', 'normals'],
@@ -1489,13 +1451,10 @@ Object.assign(pcui, (function () {
 
             this._opacityInspector.getField('data.blendType').on('change', toggleFields);
             this._opacityInspector.getField('data.opacityMapVertexColor').on('change', toggleFields);
-            this._opacityInspector.getField('data.opacityFadesSpecular').on('change', toggleFields);
 
             this._clearCoatFactorInspector.getField('data.clearCoat').on('change', toggleFields);
 
             this._specularInspector.getField('data.useMetalness').on('change', toggleFields);
-
-            this._specularInspector.getField('data.enableGGXSpecular').on('change', toggleFields);
 
             for (const map in MAPS) {
                 const inspector = this[`_${MAPS[map]}`];
@@ -1527,9 +1486,6 @@ Object.assign(pcui, (function () {
 
             this._ambientInspector.getField('data.occludeSpecular').parent.hidden = !this._ambientInspector.getField('data.aoMap').value;
 
-            const enableGGXSpecular = this._specularInspector.getField('data.enableGGXSpecular').value;
-            this._specularInspector.getField('data.anisotropy').parent.hidden = !enableGGXSpecular;
-
             const useMetalness = this._specularInspector.getField('data.useMetalness').value;
             this._metalnessWorkflowInspector.hidden = !useMetalness;
             this._specularWorkflowInspector.hidden = useMetalness;
@@ -1546,9 +1502,6 @@ Object.assign(pcui, (function () {
             const opacityVertexColorField = this._opacityInspector.getField('data.opacityMapVertexColor');
 
             this._opacityInspector.getField('data.alphaTest').parent.hidden = !(opacityMapField.class.contains(pcui.CLASS_MULTIPLE_VALUES) || opacityMapField.value) && !(opacityVertexColorField.value || opacityVertexColorField.class.contains(pcui.CLASS_MULTIPLE_VALUES));
-
-            const opacityFadesSpecular = this._opacityInspector.getField('data.opacityFadesSpecular').value;
-            this._opacityInspector.getField('data.alphaFade').parent.hidden = opacityFadesSpecular;
 
             const normalMap = this._normalsInspector.getField('data.normalMap').value;
             this._normalsInspector.getField('data.bumpMapFactor').parent.hidden = !normalMap;
