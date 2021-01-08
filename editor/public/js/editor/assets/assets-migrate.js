@@ -29,11 +29,12 @@ editor.once('load', function() {
             if (! asset.has('data.alphaFade'))
                 asset.set('data.alphaFade', 1.0);
 
-            if (! asset.has('data.enableGGXSpecular'))
-                asset.set('data.enableGGXSpecular', false);
+            // NB comment out anisotropic GGX migrations for now
+            // if (! asset.has('data.enableGGXSpecular'))
+            //    asset.set('data.enableGGXSpecular', false);
 
-            if (! asset.has('data.anisotropy'))
-                asset.set('data.anisotropy', 0.0);
+            // if (! asset.has('data.anisotropy'))
+            //    asset.set('data.anisotropy', 0.0);
 
             if (! asset.has('data.clearCoat'))
                 asset.set('data.clearCoat', 0.0);
