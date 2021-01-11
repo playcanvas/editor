@@ -56,6 +56,10 @@ editor.once('load', function() {
                 if (shadowUpdateMode === null || isNaN(shadowUpdateMode))
                     entity.set('components.light.shadowUpdateMode', pc.SHADOWUPDATE_REALTIME);
 
+                // shape
+                if (! entity.has('components.light.shape'))
+                    entity.set('components.light.shape', 0);
+
                 // shadowType
                 if (! entity.has('components.light.shadowType'))
                     entity.set('components.light.shadowType', 0);

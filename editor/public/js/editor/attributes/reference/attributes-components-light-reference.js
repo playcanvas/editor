@@ -38,6 +38,11 @@ editor.once('load', function() {
         description: 'The angle at which the spotlight cone has faded to nothing. The angle is specified in degrees. Affects spot lights only.',
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#outerConeAngle'
     }, {
+        title: 'shape',
+        subTitle: '{pc.LIGHTSHAPE_*}',
+        description: 'The shape of the light source',
+        url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#shape'
+    }, {        
         title: 'intensity',
         subTitle: '{Number}',
         description: 'The intensity of the light, this acts as a scalar value for the light\'s color. This value can exceed 1.',

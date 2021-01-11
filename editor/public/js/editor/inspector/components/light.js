@@ -71,6 +71,22 @@ Object.assign(pcui, (function () {
             max: 90
         }
     }, {
+        label: 'Shape',
+        path: 'components.light.shape',
+        type: 'select',
+        args: {
+            type: 'number',
+            options: [{
+                v: 0, t: 'Punctual'
+            }, {
+                v: 1, t: 'Rectangle'
+            }, {
+                v: 2, t: 'Disk'
+            }, {
+                v: 3, t: 'Sphere'
+            }]
+        }
+    }, {        
         type: 'divider'
     }, {
         label: 'Static',
@@ -317,6 +333,10 @@ Object.assign(pcui, (function () {
                 templateOverridesInspector: this._templateOverridesInspector
             });
             this.append(this._attributesInspector);
+
+            if (!editor.call('users:hasFlag', 'hasAreaLights')) {
+                //this._field('shape').parent.hidden = true;
+            }
 
             [
                 'type',
