@@ -13,6 +13,15 @@ Object.assign(pcui, (function () {
             type: 'rgb'
         },
         {
+            label: 'Area Lights',
+            alias: 'areaLights',
+            type: 'button',
+            args: {
+                text: 'IMPORT AREA LIGHTS',
+                icon: 'E228'
+            }
+        },  
+        {
             observer: 'sceneSettings',
             label: 'Skybox',
             path: 'render.skybox',
@@ -20,7 +29,7 @@ Object.assign(pcui, (function () {
             args: {
                 assetType: 'cubemap'
             }
-        },
+        },        
         {
             observer: 'sceneSettings',
             label: 'Intensity',
@@ -387,6 +396,17 @@ Object.assign(pcui, (function () {
             this.once('destroy', () => {
                 clickBasisEvt.unbind();
             });
+
+            if (!editor.call('users:hasFlag', 'hasAreaLights')) {
+            //    this._attributesInspector.getField('areaLights').parent.hidden = true;
+            }
+
+            const clickAreaLightsEvt = this._attributesInspector.getField('areaLights').on('click', () => {
+                editor.call('project:module:addModule', 'area-light-lut.js', 'area-light-lut');
+            });
+            this.once('destroy', () => {
+                clickAreaLightsEvt.unbind();
+            });            
         }
     }
 

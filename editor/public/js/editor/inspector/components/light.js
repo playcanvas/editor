@@ -334,10 +334,6 @@ Object.assign(pcui, (function () {
             });
             this.append(this._attributesInspector);
 
-            if (!editor.call('users:hasFlag', 'hasAreaLights')) {
-                //this._field('shape').parent.hidden = true;
-            }
-
             [
                 'type',
                 'cookieAsset',
@@ -345,7 +341,8 @@ Object.assign(pcui, (function () {
                 'castShadows',
                 'shadowType',
                 'shadowUpdateMode',
-                'affectDynamic'
+                'affectDynamic',
+                'shape'
             ].forEach(field => {
                 this._field(field).on('change', this._toggleFields.bind(this));
             });
@@ -387,9 +384,22 @@ Object.assign(pcui, (function () {
             const shadowType = this._field('shadowType').value;
             const cookie = this._field('cookieAsset').value;
 
+            const hasShapes = editor.call('project:module:hasModule', 'area-light-lut');
+
+            const shape = this._field('shape').value;
+
+            if (!hasShapes) {
+                this._field('shape').parent.hidden = true;
+            }
+
             ['range', 'falloffMode'].forEach(field => {
                 this._field(field).parent.hidden = isDirectional;
             });
+
+            // falloff mode is ignored on area lights
+            if (hasShapes && shape !== 0) {
+                this._field('falloffMode').parent.hidden = true;
+            }
 
             ['innerConeAngle', 'outerConeAngle'].forEach(field => {
                 this._field(field).parent.hidden = !isSpot;

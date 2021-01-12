@@ -66,6 +66,10 @@ editor.once('load', function() {
         subTitle: '{Number}',
         description: 'Intensity of the skybox to match the exposure levels.',
         url: 'http://developer.playcanvas.com/api/pc.Scene.html#skyboxIntensity'
+    }, {        
+        name: 'areaLights',
+        title: 'Area Lights',
+        description: 'Add necessary assets to render area',
     }, {
         title: 'skyboxMip',
         subTitle: '{Number}',
