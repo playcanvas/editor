@@ -69,7 +69,7 @@ editor.once('load', function() {
     }, {        
         name: 'areaLights',
         title: 'Area Lights',
-        description: 'Add necessary assets to render area',
+        description: 'Add necessary assets to render area lights correctly',
     }, {
         title: 'skyboxMip',
         subTitle: '{Number}',
@@ -164,6 +164,10 @@ editor.once('load', function() {
         title: 'Anti-Alias',
         description: 'When disabled, anti-aliasing will be disabled for back-buffer.'
     }, {
+        name: 'project:areaLightData',
+        title: 'Area Light Data',
+        description: 'this will be hidden from users'
+    }, {    
         name: 'project:transparentCanvas',
         title: 'Transparent Canvas',
         description: 'When enabled the canvas will blend with the web page.'

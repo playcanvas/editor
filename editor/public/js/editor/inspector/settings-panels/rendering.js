@@ -25,6 +25,7 @@ Object.assign(pcui, (function () {
             observer: 'projectSettings',
             label: 'Area Lights Data',
             path: 'areaLightData',
+            alias: 'project:areaLightData',
             type: 'asset',
             args: {
                 assetType: 'binary'
