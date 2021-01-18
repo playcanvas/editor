@@ -426,12 +426,12 @@ Object.assign(pcui, (function () {
             });
 
             const handleEngineAssetImport = name => {
-                if (name === 'luts') {
-                    var lutAsset = editor.call('project:engineAsset:getEngineAsset', 'luts');
+                if (name === 'area-light-luts') {
+                    var lutAsset = editor.call('project:engineAsset:getEngineAsset', 'area-light-luts');
                     if (lutAsset.length>0) {
                         this._attributesInspector.getField('areaLightData').value = lutAsset[0][1].get('id');
                     } else {
-                        editor.call('project:engineAsset:addEngineAsset', 'luts', 'luts');
+                        editor.call('project:engineAsset:addEngineAsset', 'area-light-luts', 'area-light-luts');
                         const importAreaLightEvt = editor.on('engineAssetImported', handleEngineAssetImport);
                         this.once('destroy', () => {
                             importAreaLightEvt.unbind();
