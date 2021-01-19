@@ -54,6 +54,10 @@ editor.once('load', function() {
         // skyboxMip
         if (! sceneSettings.has('render.skyboxMip'))
             sceneSettings.set('render.skyboxMip', 0);
+
+        // skyboxRotation
+        if (! sceneSettings.has('render.skyboxRotation'))
+            sceneSettings.set('render.skyboxRotation', [0, 0, 0]);            
     });
 
     var onUnload = function() {
