@@ -22,6 +22,82 @@ editor.once('load', function() {
 
             if (! asset.has('data.alphaToCoverage'))
                 asset.set('data.alphaToCoverage', false);
+
+            if (! asset.has('data.opacityFadesSpecular'))
+                asset.set('data.opacityFadesSpecular', true);
+
+            if (! asset.has('data.alphaFade'))
+                asset.set('data.alphaFade', 1.0);
+
+            // NB comment out anisotropic GGX migrations for now
+            // if (! asset.has('data.enableGGXSpecular'))
+            //    asset.set('data.enableGGXSpecular', false);
+
+            // if (! asset.has('data.anisotropy'))
+            //    asset.set('data.anisotropy', 0.0);
+
+            if (! asset.has('data.clearCoat'))
+                asset.set('data.clearCoat', 0.0);
+
+            if (! asset.has('data.clearCoatMap'))
+                asset.set('data.clearCoatMap', null);
+
+            if (! asset.has('data.clearCoatMapChannel'))
+                asset.set('data.clearCoatMapChannel', 'r');
+
+            if (! asset.has('data.clearCoatMapUv'))
+                asset.set('data.clearCoatMapUv', 0);
+
+            if (! asset.has('data.clearCoatMapTiling'))
+                asset.set('data.clearCoatMapTiling', [1, 1]);
+
+            if (! asset.has('data.clearCoatMapOffset'))
+                asset.set('data.clearCoatMapOffset', [0, 0]);
+
+            if (! asset.has('data.clearCoatVertexColor'))
+                asset.set('data.clearCoatVertexColor', false);
+
+            if (! asset.has('data.clearCoatVertexColorChannel'))
+                asset.set('data.clearCoatVertexColorChannel', 'r');
+
+            if (! asset.has('data.clearCoatGlossiness'))
+                asset.set('data.clearCoatGlossiness', 1.0);
+                
+            if (! asset.has('data.clearCoatGlossMap'))
+                asset.set('data.clearCoatGlossMap', null);
+
+            if (! asset.has('data.clearCoatGlossMapChannel'))
+                asset.set('data.clearCoatGlossMapChannel', 'r');
+
+            if (! asset.has('data.clearCoatGlossMapUv'))
+                asset.set('data.clearCoatGlossMapUv', 0);
+
+            if (! asset.has('data.clearCoatGlossMapTiling'))
+                asset.set('data.clearCoatGlossMapTiling', [1, 1]);
+
+            if (! asset.has('data.clearCoatGlossMapOffset'))
+                asset.set('data.clearCoatGlossMapOffset', [0, 0]);
+
+            if (! asset.has('data.clearCoatGlossVertexColor'))
+                asset.set('data.clearCoatGlossVertexColor', false);
+
+            if (! asset.has('data.clearCoatGlossVertexColorChannel'))
+                asset.set('data.clearCoatGlossVertexColorChannel', 'r');
+
+            if (! asset.has('data.clearCoatBumpiness'))
+                asset.set('data.clearCoatBumpiness', 1.0);
+
+            if (! asset.has('data.clearCoatNormalMap'))
+                asset.set('data.clearCoatNormalMap', null);
+
+            if (! asset.has('data.clearCoatNormalMapUv'))
+                asset.set('data.clearCoatNormalMapUv', 0);
+
+            if (! asset.has('data.clearCoatNormalMapTiling'))
+                asset.set('data.clearCoatNormalMapTiling', [1, 1]);
+
+            if (! asset.has('data.clearCoatNormalMapOffset'))
+                asset.set('data.clearCoatNormalMapOffset', [0, 0]);
         }
 
         if ((asset.get('type') === 'texture' || asset.get('type') === 'textureatlas') && ! asset.get('source')) {
