@@ -242,6 +242,17 @@ editor.once('load', function () {
         var label = new ui.Label({ text: 'Concatenate Scripts' });
         panelOptionsConcat.append(label);
 
+        // minify scripts
+        var panelOptionsMinify = new ui.Panel();
+        panelOptionsMinify.class.add('field');
+        panelOptions.append(panelOptionsMinify);
+        var fieldOptionsMinify = new ui.Checkbox();
+        fieldOptionsMinify.value = true;
+        fieldOptionsMinify.class.add('tick');
+        panelOptionsMinify.append(fieldOptionsMinify);
+        var label = new ui.Label({ text: 'Minify Scripts' });
+        panelOptionsMinify.append(label);
+
         // generate sourcemaps
         var panelOptionsSourcemaps = new ui.Panel();
         panelOptionsSourcemaps.class.add('field');
@@ -254,6 +265,11 @@ editor.once('load', function () {
         panelOptionsSourcemaps.append(label);
 
         fieldOptionsConcat.on('change', value => {
+            panelOptionsMinify.hidden = !value;
+            panelOptionsSourcemaps.hidden = (!fieldOptionsMinify.value || !value);
+        });
+
+        fieldOptionsMinify.on('change', value => {
             panelOptionsSourcemaps.hidden = !value;
         });
 
@@ -388,8 +404,12 @@ editor.once('load', function () {
 
         if (fieldOptionsConcat) {
             data.scripts_concatenate = fieldOptionsConcat.value;
+        }
 
-            if (fieldOptionsConcat.value && fieldOptionsSourcemaps.value) {
+        if (fieldOptionsMinify) {
+            data.scripts_minify = fieldOptionsMinify.value;
+
+            if (fieldOptionsConcat.value && fieldOptionsMinify.value && fieldOptionsSourcemaps.value) {
                 data.scripts_sourcemaps = true;
             }
         }
@@ -432,7 +452,8 @@ editor.once('load', function () {
             branch_id: config.self.branch.id,
             scenes: getSelectedScenes(),
             scripts_concatenate: fieldOptionsConcat ? fieldOptionsConcat.value : false,
-            scripts_sourcemaps: fieldOptionsConcat && fieldOptionsConcat.value && fieldOptionsSourcemaps.value,
+            scripts_minify: fieldOptionsMinify ? fieldOptionsMinify.value : false,
+            scripts_sourcemaps: fieldOptionsMinify && fieldOptionsMinify.value && fieldOptionsSourcemaps.value,
             preload_bundle: fieldOptionsPreload ? fieldOptionsPreload.value : false,
             optimize_scene_format: fieldOptionsOptimizeSceneFormat ? fieldOptionsOptimizeSceneFormat.value : false
         };
