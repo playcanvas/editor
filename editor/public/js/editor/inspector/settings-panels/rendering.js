@@ -39,7 +39,7 @@ Object.assign(pcui, (function () {
             args: {
                 assetType: 'cubemap'
             }
-        },              
+        },
         {
             observer: 'sceneSettings',
             label: 'Intensity',
