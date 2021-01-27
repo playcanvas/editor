@@ -110,6 +110,9 @@ editor.once('load', function() {
 
         data.components[component] = editor.call('components:getDefault', component);
         data.components[component].type = type;
+        if (component === 'render') {
+            data.components.render.materialAssets = [ null ];
+        }
 
         applyAdditions(data, additions);
 
