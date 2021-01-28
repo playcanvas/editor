@@ -231,7 +231,7 @@ editor.once('load', function() {
             pc.drawQuadWithShader(device, targets[0], shaderBlurV);
         }
     });
-    var outlineComp = new pc.LayerComposition();
+    var outlineComp = new pc.LayerComposition("viewport-outline");
     outlineComp.pushOpaque(outlineLayer);
 
     var onUpdateShaderOutline = function(options) {

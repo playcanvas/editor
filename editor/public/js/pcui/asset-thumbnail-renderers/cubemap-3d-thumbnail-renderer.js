@@ -19,7 +19,7 @@ Object.assign(pcui, (function () {
             opaqueSortMode: 0
         });
 
-        scene.layerComposition = new pc.LayerComposition();
+        scene.layerComposition = new pc.LayerComposition("cubemap-thumbnail-renderer");
         scene.layerComposition.push(scene.layer);
 
         scene.scene = new pc.Scene();
