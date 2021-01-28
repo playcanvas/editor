@@ -2296,9 +2296,23 @@ Object.assign(pcui, (function () {
 
             this._selectedAssets = value.slice();
 
-            value.forEach(asset => {
-                this._setAssetSelected(asset, true);
-            });
+            if (value.length) {
+                // disable focusing for table because of performance issues
+                // when there are many rows
+                this._detailsView.allowRowFocus = false;
+
+                value.forEach(asset => {
+                    this._setAssetSelected(asset, true);
+                });
+
+                // restore table focus and focus last selected row
+                this._detailsView.allowRowFocus = true;
+                const lastRow = this._rowsIndex[value[value.length - 1].get('id')];
+                if (lastRow && lastRow.selected) {
+                    lastRow.focus();
+                }
+
+            }
         }
 
         get visibleAssets() {
