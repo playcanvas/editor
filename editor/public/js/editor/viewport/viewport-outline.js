@@ -355,7 +355,16 @@ editor.once('load', function() {
                 }
             }
 
+            // add camera to layer
+            let backupLayers = camera.layers.slice();
+            let newLayers = camera.layers;
+            newLayers.push(outlineLayer.id);
+            camera.layers = newLayers;
+            
             app.renderer.renderComposition(outlineComp);
+
+            // restore camera layers
+            camera.layers = backupLayers;
 
             cleared = false;
         } else {
