@@ -261,7 +261,7 @@ editor.once('load', function () {
 
     // layers
     if (config.project.settings.layers && config.project.settings.layerOrder) {
-        var composition = new pc.LayerComposition();
+        var composition = new pc.LayerComposition("viewport");
 
         for (var key in config.project.settings.layers) {
             layerIndex[key] = createLayer(key, config.project.settings.layers[key]);

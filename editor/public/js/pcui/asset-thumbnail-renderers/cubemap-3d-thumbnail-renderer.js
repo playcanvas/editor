@@ -19,7 +19,7 @@ Object.assign(pcui, (function () {
             opaqueSortMode: 0
         });
 
-        scene.layerComposition = new pc.LayerComposition();
+        scene.layerComposition = new pc.LayerComposition("cubemap-thumbnail-renderer");
         scene.layerComposition.push(scene.layer);
 
         scene.scene = new pc.Scene();
@@ -146,7 +146,17 @@ Object.assign(pcui, (function () {
 
             scene.layer.addCamera(scene.cameraEntity.camera);
             scene.layer.addLight(scene.lightEntity.light);
+
+            // add camera to layer
+            let backupLayers = scene.cameraEntity.camera.layers.slice();
+            let newLayers = scene.cameraEntity.camera.layers;
+            newLayers.push(scene.layer.id);
+            scene.cameraEntity.camera.layers = newLayers;
+
             app.renderer.renderComposition(scene.layerComposition);
+
+            // restore camera layers
+            scene.cameraEntity.camera.layers = backupLayers;
 
             // read pixels from texture
             var device = app.graphicsDevice;

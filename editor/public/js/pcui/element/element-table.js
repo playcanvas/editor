@@ -35,6 +35,7 @@ Object.assign(pcui, (function () {
      * @property {String} sortKey Gets the current sort key
      * @property {Function} sortFn Gets the current sort function
      * @property {Boolean} isAscending Gets whether the current sort order is ascending (or descending)
+     * @property {Boolean} allowRowFocus Gets / sets whether table rows will be focused on selection. Defaults to true.
      */
     class Table extends pcui.Container {
         /**
@@ -85,6 +86,7 @@ Object.assign(pcui, (function () {
 
             this._selectedRows = [];
             this._lastRowFocused = null;
+            this.allowRowFocus = (args.allowRowFocus !== undefined ? args.allowRowFocus : true);
 
             this._columns = [];
 
@@ -168,6 +170,7 @@ Object.assign(pcui, (function () {
 
         _createRow(observer) {
             const row = this._createRowFn(observer);
+            row.table = this;
             row.on('click', evt => this._onRowClick(evt, row));
             row.on('select', this._onRowSelectHandler);
             row.on('deselect', this._onRowDeselectHandler);
@@ -857,6 +860,14 @@ Object.assign(pcui, (function () {
 
         get isAscending() {
             return this._sort.ascending;
+        }
+
+        get allowRowFocus() {
+            return this._allowRowFocus;
+        }
+
+        set allowRowFocus(value) {
+            this._allowRowFocus = value;
         }
     }
 

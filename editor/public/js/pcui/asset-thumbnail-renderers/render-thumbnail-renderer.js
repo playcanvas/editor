@@ -181,7 +181,16 @@ Object.assign(pcui, (function () {
             layer.addLight(scene.lightEntity.light);
             layer.addCamera(scene.cameraEntity.camera);
 
+            // add camera to layer
+            let backupLayers = scene.cameraEntity.camera.layers.slice();
+            let newLayers = scene.cameraEntity.camera.layers;
+            newLayers.push(layer.id);
+            scene.cameraEntity.camera.layers = newLayers;
+
             app.renderer.renderComposition(layerComposition);
+
+            // restore camera layers
+            scene.cameraEntity.camera.layers = backupLayers;
 
             // read pixels from texture
             var device = app.graphicsDevice;

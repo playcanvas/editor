@@ -269,8 +269,17 @@ Object.assign(pcui, (function () {
             layer.addLight(lightEntity.light);
             layer.addMeshInstances(sphere.enabled ? sphere.model.meshInstances : box.model.meshInstances);
 
+            // add camera to layer
+            let backupLayers = cameraEntity.camera.layers.slice();
+            let newLayers = cameraEntity.camera.layers;
+            newLayers.push(layer.id);
+            cameraEntity.camera.layers = newLayers;
+
             // render
             app.renderer.renderComposition(layerComposition);
+
+            // restore camera layers
+            cameraEntity.camera.layers = backupLayers;
 
             // read pixels from texture
             var device = app.graphicsDevice;

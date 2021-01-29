@@ -155,7 +155,7 @@ editor.once('load', function() {
         if (! layerOrder) return;
 
         var i, len;
-        var composition = new pc.LayerComposition();
+        var composition = new pc.LayerComposition("viewport-layers");
 
         var index = {};
         for (var key in layers) {

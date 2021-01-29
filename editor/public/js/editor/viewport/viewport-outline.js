@@ -231,7 +231,7 @@ editor.once('load', function() {
             pc.drawQuadWithShader(device, targets[0], shaderBlurV);
         }
     });
-    var outlineComp = new pc.LayerComposition();
+    var outlineComp = new pc.LayerComposition("viewport-outline");
     outlineComp.pushOpaque(outlineLayer);
 
     var onUpdateShaderOutline = function(options) {
@@ -355,7 +355,16 @@ editor.once('load', function() {
                 }
             }
 
+            // add camera to layer
+            let backupLayers = camera.layers.slice();
+            let newLayers = camera.layers;
+            newLayers.push(outlineLayer.id);
+            camera.layers = newLayers;
+            
             app.renderer.renderComposition(outlineComp);
+
+            // restore camera layers
+            camera.layers = backupLayers;
 
             cleared = false;
         } else {
