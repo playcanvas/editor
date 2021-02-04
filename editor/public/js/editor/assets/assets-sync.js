@@ -13,6 +13,24 @@ editor.once('load', function () {
     ];
     var docs = {};
 
+    // try to detect if the browser was inactive for a while e.g.
+    // if the computer went to sleep
+    const IDLE_CHECK_DELAY = 2000;
+    const IDLE_CHECK_SAFE_WINDOW = 10000;
+
+    var lastIdleCheck = Date.now();
+    var wasIdle = false;
+    var timeoutLoad = null;
+    setInterval(() => {
+        var t = Date.now(); 
+        var dt = t - lastIdleCheck;
+        if (dt > IDLE_CHECK_DELAY + IDLE_CHECK_SAFE_WINDOW) {
+            wasIdle = true;
+            console.log('Browser was idle for about ' + (dt / 1000) + ' seconds...');
+        }
+        lastIdleCheck = t;
+    }, IDLE_CHECK_DELAY);
+    
     editor.method('loadAsset', function (uniqueId, callback) {
         var connection = editor.call('realtime:connection');
 
@@ -153,19 +171,41 @@ editor.once('load', function () {
     editor.on('realtime:authenticated', function () {
         editor.call('assets:clear');
 
-        Ajax({
-            url: '{{url.api}}/projects/{{project.id}}/assets?branchId={{self.branch.id}}&view=designer',
-            auth: true
-        })
-        .on('load', function (status, data) {
-            onLoad(data);
-        })
-        .on('progress', function (progress) {
-            editor.call('assets:progress', 0.1 + progress * 0.4);
-        })
-        .on('error', function (status, evt) {
-            console.log(status, evt);
-        });
+        if (timeoutLoad) {
+            clearTimeout(timeoutLoad);
+            timeoutLoad = null;
+        }
+
+        function loadAll() {
+            Ajax({
+                url: '{{url.api}}/projects/{{project.id}}/assets?branchId={{self.branch.id}}&view=designer',
+                auth: true
+            })
+            .on('load', function (status, data) {
+                onLoad(data);
+            })
+            .on('progress', function (progress) {
+                editor.call('assets:progress', 0.1 + progress * 0.4);
+            })
+            .on('error', function (status, evt) {
+                console.log(status, evt);
+            });
+        }
+
+        if (wasIdle) {
+            wasIdle = false;
+            // if browser was idle wait for a few
+            // seconds before trying to load the assets
+            // because the request seems to expire in that case
+            editor.call('status:job', 'asset:load', 1);
+            timeoutLoad = setTimeout(() => {
+                timeoutLoad = null;
+                editor.call('status:job', 'asset:load');
+                loadAll();
+            }, 5000);
+        } else {
+            loadAll();
+        }
     });
 
     editor.call('assets:progress', 0.1);
