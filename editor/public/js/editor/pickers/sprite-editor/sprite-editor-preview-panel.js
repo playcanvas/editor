@@ -7,7 +7,7 @@ editor.once('load', function () {
         var atlasAsset = args.atlasAsset;
         var atlasImage = args.atlasImage;
         var frames = args.frames;
-        var frameObservers = frames.map(function (f) {return atlasAsset.getRaw('data.frames.' + f);});
+        var frameObservers = frames.map(function (f) { return atlasAsset.getRaw('data.frames.' + f); });
 
         var events = [];
 
@@ -21,7 +21,7 @@ editor.once('load', function () {
         canvas.classList.add('asset-preview');
         previewContainer.append(canvas);
 
-        canvas.addEventListener('click', function() {
+        canvas.addEventListener('click', function () {
             if (parent.class.contains('large')) {
                 parent.class.remove('large');
             } else {
@@ -64,7 +64,7 @@ editor.once('load', function () {
         var renderQueued;
 
         // queue up the rendering to prevent too oftern renders
-        var queueRender = function() {
+        var queueRender = function () {
             if (renderQueued) return;
             renderQueued = true;
             requestAnimationFrame(renderPreview);
@@ -117,7 +117,7 @@ editor.once('load', function () {
 
             panelControls.destroy();
 
-            for (var i = 0, len = events.length; i<len; i++) {
+            for (var i = 0, len = events.length; i < len; i++) {
                 events[i].unbind();
             }
             events.length = 0;
@@ -126,7 +126,7 @@ editor.once('load', function () {
         return {
             setFrames: function (newFrames) {
                 frames = newFrames;
-                frameObservers = frames.map(function (f) {return atlasAsset.getRaw('data.frames.' + f);});
+                frameObservers = frames.map(function (f) { return atlasAsset.getRaw('data.frames.' + f); });
             }
         };
     });

@@ -57,7 +57,7 @@ editor.once('load', function () {
     panelPlaycanvas.append(labelDesc);
 
     // publish button
-    var btnPublish = new ui.Button({text: 'Publish To PlayCanvas'});
+    var btnPublish = new ui.Button({ text: 'Publish To PlayCanvas' });
     btnPublish.class.add('publish');
     handlePermissions(btnPublish);
     panelPlaycanvas.append(btnPublish);
@@ -87,7 +87,7 @@ editor.once('load', function () {
     panelSelfHost.append(labelDesc);
 
     // download button
-    var btnDownload = new ui.Button({text: 'Download .zip'});
+    var btnDownload = new ui.Button({ text: 'Download .zip' });
     btnDownload.class.add('download');
     handlePermissions(btnDownload);
     panelSelfHost.append(btnDownload);
@@ -113,9 +113,9 @@ editor.once('load', function () {
             editor.emit('viewport:hover', true);
     });
 
-    editor.on('viewport:hover', function(state) {
+    editor.on('viewport:hover', function (state) {
         if (state && ! panel.hidden) {
-            setTimeout(function() {
+            setTimeout(function () {
                 editor.emit('viewport:hover', false);
             }, 0);
         }

@@ -1,16 +1,16 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var sceneSettings = new Observer();
 
     // get scene settings
-    editor.method('sceneSettings', function() {
+    editor.method('sceneSettings', function () {
         return sceneSettings;
     });
 
 
     // loaded scene
-    editor.on('scene:raw', function(data) {
+    editor.on('scene:raw', function (data) {
         var sync = sceneSettings.sync ? sceneSettings.sync.enabled : false;
         if (sync)
             sceneSettings.sync.enabled = false;
@@ -34,7 +34,7 @@ editor.once('load', function() {
     });
 
     // migrations
-    editor.on('sceneSettings:ready', function() {
+    editor.on('sceneSettings:ready', function () {
         // lightmapSizeMultiplier
         if (! sceneSettings.has('render.lightmapSizeMultiplier'))
             sceneSettings.set('render.lightmapSizeMultiplier', 16);
@@ -57,10 +57,10 @@ editor.once('load', function() {
 
         // skyboxRotation
         if (! sceneSettings.has('render.skyboxRotation'))
-            sceneSettings.set('render.skyboxRotation', [0, 0, 0]);            
+            sceneSettings.set('render.skyboxRotation', [0, 0, 0]);
     });
 
-    var onUnload = function() {
+    var onUnload = function () {
         if (sceneSettings.history)
             sceneSettings.history.enabled = false;
         if (sceneSettings.sync)

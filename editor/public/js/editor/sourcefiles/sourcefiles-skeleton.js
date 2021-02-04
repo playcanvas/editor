@@ -5,7 +5,7 @@ editor.once('load', function () {
     editor.method('sourcefiles:skeleton', function (url) {
         var parts = url.split('/');
         // remove .js extension
-        var scriptName = parts[parts.length-1].slice(0,-3).replace(/[\.-]+/g, '_');
+        var scriptName = parts[parts.length - 1].slice(0, -3).replace(/[\.-]+/g, '_');
         var objectName = scriptName.charAt(0).toUpperCase() + scriptName.slice(1);
 
         var result = [
@@ -26,7 +26,8 @@ editor.once('load', function () {
             "    };",
             "",
             "    return " + objectName + ";",
-            "});"].join('\n');
+            "});"
+        ].join('\n');
 
         return result;
     });

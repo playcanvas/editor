@@ -67,13 +67,13 @@ editor.once('load', function () {
         // this is limited to simple structures for now
         // so take care
         if (value instanceof Object) {
-            var path = parts[parts.length-1];
+            var path = parts[parts.length - 1];
             obj[path] = {};
             for (var key in value) {
                 obj[path][key] = value[key];
             }
         } else {
-            obj[parts[parts.length-1]] = value;
+            obj[parts[parts.length - 1]] = value;
         }
     });
 
@@ -84,7 +84,7 @@ editor.once('load', function () {
             obj = obj[parts[i]];
         }
 
-        delete obj[parts[parts.length-1]];
+        delete obj[parts[parts.length - 1]];
     });
 
     settings.on('*:insert', function (path, value, index) {

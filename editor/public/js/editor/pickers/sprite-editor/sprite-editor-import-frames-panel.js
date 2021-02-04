@@ -124,7 +124,7 @@ editor.once('load', function () {
                     Math.max(0, frameData.frame.w - frameData.borders.x - frameData.borders.w),
                     Math.max(0, frameData.borders.y)
                 ] :
-                [0, 0, 0, 0],
+                    [0, 0, 0, 0],
                 rect: [
                     frameData.frame.x * scaleWidth,
                     (height - frameData.frame.y - frameData.frame.h) * scaleHeight,
@@ -136,7 +136,7 @@ editor.once('load', function () {
                     frameData.pivot.y
                 ]
             };
-        }
+        };
 
         var importFramesFromTexturePacker = function (data) {
             var width = data.meta.size.w;
@@ -192,7 +192,7 @@ editor.once('load', function () {
         }));
 
         panel.on('destroy', function () {
-            for (var i = 0, len = events.length; i<len; i++) {
+            for (var i = 0, len = events.length; i < len; i++) {
                 events[i].unbind();
             }
             events.length = 0;

@@ -2,11 +2,12 @@
 
 /**
  * Represents a box widget that is commonly used in version control side panels
- * @param {Object} args Various options for the widget
- * @param {String} [args.header] The box title
- * @param {String} [args.headerNote] The text of the note next to the header
- * @param {Boolean} [args.discardChanges] If true then this box will also contain a panel to discard un-checkpointed changes
- * @param {String} [args.discardChangesHelp] The text of the help tooltip in the discard changes panel
+ *
+ * @param {object} args - Various options for the widget
+ * @param {string} [args.header] - The box title
+ * @param {string} [args.headerNote] - The text of the note next to the header
+ * @param {boolean} [args.discardChanges] - If true then this box will also contain a panel to discard un-checkpointed changes
+ * @param {string} [args.discardChangesHelp] The text of the help tooltip in the discard changes panel
  * @param {Boolean} [args.noIcon] If true the box header will not have a top left icon
  */
 var VersionControlSidePanelBox = function (args) {
@@ -80,7 +81,8 @@ VersionControlSidePanelBox.prototype = Object.create(Events.prototype);
 
 /**
  * Adds specified panel to the box
- * @param {ui.Panel} panel The panel
+ *
+ * @param {ui.Panel} panel - The panel
  */
 VersionControlSidePanelBox.prototype.append = function (panel) {
     // make sure we remove the discard panel first
@@ -100,7 +102,8 @@ VersionControlSidePanelBox.prototype.append = function (panel) {
 
 /**
  * Creates a panel to show info for the specified checkpoint and adds this panel to the box
- * @param {Object} checkpoint The checkpoint
+ *
+ * @param {object} checkpoint - The checkpoint
  */
 VersionControlSidePanelBox.prototype.setCheckpoint = function (checkpoint) {
     // create panel to show checkpoint info

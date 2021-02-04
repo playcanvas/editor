@@ -1,7 +1,7 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    editor.method('picker:sprites:frames', function(args) {
+    editor.method('picker:sprites:frames', function (args) {
         var events = [];
 
         var atlasAsset = args.atlasAsset;
@@ -98,9 +98,9 @@ editor.once('load', function() {
                     var keys = spriteEditMode ? spriteEditModeKeys : selectedKeys;
                     var len = keys.length;
                     if (len) {
-                        var diff = parseInt(key, 10) - parseInt(keys[len-1], 10);
+                        var diff = parseInt(key, 10) - parseInt(keys[len - 1], 10);
                         var dir = diff < 0 ? -1 : 1;
-                        var p = panels[keys[len-1]];
+                        var p = panels[keys[len - 1]];
                         var range = [];
                         while (diff !== 0) {
                             p = dir > 0 ? p.element.nextSibling : p.element.previousSibling;
@@ -173,7 +173,7 @@ editor.once('load', function() {
 
             // clean up events
             panel.on('destroy', function () {
-                for (var i = 0, len = frameEvents.length; i<len; i++) {
+                for (var i = 0, len = frameEvents.length; i < len; i++) {
                     frameEvents[i].unbind();
                 }
                 frameEvents.length = 0;
@@ -285,7 +285,7 @@ editor.once('load', function() {
             if (spriteEditMode) {
                 // unhighlight old keys
                 var highlighted = panelFrames.innerElement.querySelectorAll('.frame.highlighted');
-                for (var i = 0, len = highlighted.length; i<len; i++) {
+                for (var i = 0, len = highlighted.length; i < len; i++) {
                     if (! keys || keys.indexOf(highlighted[i].ui.frameKey) === -1) {
                         highlighted[i].ui.class.remove('highlighted');
                     }
@@ -299,7 +299,7 @@ editor.once('load', function() {
 
             } else {
                 var selected = panelFrames.innerElement.querySelectorAll('.frame.selected');
-                for (var i = 0, len = selected.length; i<len; i++) {
+                for (var i = 0, len = selected.length; i < len; i++) {
                     if (! keys || keys.indexOf(selected[i].ui.frameKey) === -1) {
                         selected[i].ui.class.remove('selected');
                         selected[i].ui.class.remove('sprite-frame');
@@ -346,7 +346,7 @@ editor.once('load', function() {
         events.push(editor.on('picker:sprites:pickFrames:end', function () {
             spriteEditMode = false;
 
-            for (var i = 0, len = spriteEditModeKeys.length; i<len; i++) {
+            for (var i = 0, len = spriteEditModeKeys.length; i < len; i++) {
                 if (panels[spriteEditModeKeys[i]]) {
                     panels[spriteEditModeKeys[i]].class.remove('highlighted');
                 }
@@ -358,7 +358,7 @@ editor.once('load', function() {
         events.push(editor.on('picker:sprites:spriteSelected', function (spriteAsset) {
             selectedSprite = spriteAsset;
             var keys = spriteEditMode ? spriteEditModeKeys : selectedKeys;
-            for (var i = 0, len = keys.length; i<len; i++) {
+            for (var i = 0, len = keys.length; i < len; i++) {
                 var panel = panels[keys[i]];
                 if (! panel) continue;
 

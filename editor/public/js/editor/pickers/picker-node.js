@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var overlay = new ui.Overlay();
@@ -15,7 +15,7 @@ editor.once('load', function() {
     // esc to close
     editor.call('hotkey:register', 'picker:node:close', {
         key: 'esc',
-        callback: function() {
+        callback: function () {
             if (overlay.hidden)
                 return;
 
@@ -24,7 +24,7 @@ editor.once('load', function() {
     });
 
     // on close asset picker
-    overlay.on('hide', function() {
+    overlay.on('hide', function () {
         // reset root header
         var root = editor.call('attributes.rootPanel');
         root.style.zIndex = '';
@@ -87,8 +87,8 @@ editor.once('load', function() {
 
         editor.call('history:add', {
             name: 'entities.' + (resourceIds.length > 1 ? '*' : resourceIds[0]) + '.components.model.mapping',
-            undo: function() {
-                for(var i = 0; i < resourceIds.length; i++) {
+            undo: function () {
+                for (var i = 0; i < resourceIds.length; i++) {
                     var item = editor.call('entities:get', resourceIds[i]);
                     if (! item)
                         continue;
@@ -104,8 +104,8 @@ editor.once('load', function() {
                     item.history.enabled = history;
                 }
             },
-            redo: function() {
-                for(var i = 0; i < resourceIds.length; i++) {
+            redo: function () {
+                for (var i = 0; i < resourceIds.length; i++) {
                     var item = editor.call('entities:get', resourceIds[i]);
                     if (! item)
                         continue;
@@ -141,7 +141,7 @@ editor.once('load', function() {
 
 
     // open asset picker
-    editor.method('picker:node', function(entities) {
+    editor.method('picker:node', function (entities) {
         // show overlay
         overlay.hidden = false;
 
@@ -193,7 +193,7 @@ editor.once('load', function() {
 
 
     // close asset picker
-    editor.method('picker:node:close', function() {
+    editor.method('picker:node:close', function () {
         // hide overlay
         overlay.hidden = true;
     });

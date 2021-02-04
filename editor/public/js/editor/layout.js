@@ -1,4 +1,4 @@
-editor.on('load', function() {
+editor.on('load', function () {
     'use strict';
 
     var ignoreMouseDownClasses = /(default-mousedown)|(ui-list-item)|(ui-button)|(ui-text)|(ui-number-field)/i;
@@ -21,7 +21,7 @@ editor.on('load', function() {
     }
 
     // prevent drag'n'select
-    window.addEventListener('mousedown', function(evt) {
+    window.addEventListener('mousedown', function (evt) {
         if (shouldNotPrevent(ignoreMouseDownClasses, evt)) return;
 
         // blur inputs
@@ -42,7 +42,7 @@ editor.on('load', function() {
 
 
     // prevent default context menu
-    window.addEventListener('contextmenu', function(evt) {
+    window.addEventListener('contextmenu', function (evt) {
         if (shouldNotPrevent(ignoreContextMenuClasses, evt)) return;
 
         evt.preventDefault();

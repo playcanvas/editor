@@ -164,7 +164,7 @@ editor.once('load', function () {
 
             const history = entity.history.enabled;
             entity.history.enabled = false;
-            const value = editor.call('template:attrUtils', 'remapDstForRevert', override) 
+            const value = editor.call('template:attrUtils', 'remapDstForRevert', override);
             console.log(path, index, value);
             entity.insert(path, value, index);
             entity.history.enabled = history;
@@ -352,7 +352,7 @@ editor.once('load', function () {
             // handle children reordering
             // create a new children array using the dst_value
             // and then add back any added entities and remove any missing entities
-            let newOrder = override.dst_value.map(id => {
+            const newOrder = override.dst_value.map(id => {
                 for (const key in override.srcToDst) {
                     if (override.srcToDst[key] === id) {
                         return key;
@@ -452,7 +452,7 @@ editor.once('load', function () {
     editor.method('templates:revertOverride', (override, entities) => {
         entities = entities || editor.call('entities:raw');
 
-        let entity = entities.get(override.resource_id);
+        const entity = entities.get(override.resource_id);
         if (!entity) return;
 
         if (override.missing_in_dst) {
@@ -488,8 +488,8 @@ editor.once('load', function () {
                         revertDeletedJsonScriptAttributeArrayElement(entity, override);
                     } else {
                         const val = override.entity_ref_paths ?
-                        editor.call('template:attrUtils', 'remapDstForRevert', override) :
-                        override.dst_value;
+                            editor.call('template:attrUtils', 'remapDstForRevert', override) :
+                            override.dst_value;
 
                         entity.set(override.path, val);
                     }

@@ -8,11 +8,11 @@ editor.once('load', function () {
         json: '{ }',
         asset: null,
         entity: null,
-        rgb: [ 1, 1, 1 ],
-        vec2: [ 0, 0 ],
-        vec3: [ 0, 0, 0 ],
-        vec4: [ 0, 0, 0, 0 ],
-        curveset: { keys: [ 0, 0 ], type: 2 }
+        rgb: [1, 1, 1],
+        vec2: [0, 0],
+        vec3: [0, 0, 0],
+        vec4: [0, 0, 0, 0],
+        curveset: { keys: [0, 0], type: 2 }
     };
 
     // Creates an array widget
@@ -117,7 +117,7 @@ editor.once('load', function () {
             var rowExistsEverywhere = true;
 
             var createRow = function (row) {
-                var paths = args.link.map(function (link, i) {return pathAt(args, i) + '.' + row;});
+                var paths = args.link.map(function (link, i) { return pathAt(args, i) + '.' + row; });
 
                 var fieldArgs = {
                     parent: panelElements,
@@ -421,9 +421,9 @@ editor.once('load', function () {
                 if (args.color || args.curves) {
                     var len = args.color ? args.color.length : args.curves.length;
                     if (len > 1) {
-                        result.keys = [ ];
-                        for(var c = 0; c < len; c++) {
-                            result.keys.push([ 0, 0 ]);
+                        result.keys = [];
+                        for (var c = 0; c < len; c++) {
+                            result.keys.push([0, 0]);
                         }
 
                     }

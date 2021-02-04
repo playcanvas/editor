@@ -1,28 +1,28 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var projectSettings = editor.call('settings:project');
 
     // check legacy physics include flag
-    editor.method('project:settings:hasLegacyPhysics', function() {
+    editor.method('project:settings:hasLegacyPhysics', function () {
         return projectSettings.get('useLegacyAmmoPhysics') &&
                projectSettings.get('use3dPhysics');
     });
 
     // method for checking whether the current project has physics (either legacy or module)
-    editor.method('project:settings:hasPhysics', function() {
+    editor.method('project:settings:hasPhysics', function () {
         return editor.call('project:settings:hasLegacyPhysics') ||
                 editor.call('project:module:hasModule', 'ammo');
     });
 
     // append the physics module controls to the provided panel
-    editor.method('attributes:appendImportAmmo', function(panel) {
+    editor.method('attributes:appendImportAmmo', function (panel) {
         // button
         var button = new pcui.Button({
             text: 'IMPORT AMMO',
             icon: 'E228'
         });
-        button.on('click', function() {
+        button.on('click', function () {
             // ensure legacy physics is disabled
             projectSettings.set('use3dPhysics', false);
             // add the module
@@ -50,10 +50,10 @@ editor.once('load', function() {
         events.push(editor.on('permissions:writeState', function (write) {
             updateEnableState();
         }));
-        events.push(editor.on('onUse3dPhysicsChanged', function() {
+        events.push(editor.on('onUse3dPhysicsChanged', function () {
             updateEnableState();
         }));
-        events.push(editor.on('onModuleImported', function(name) {
+        events.push(editor.on('onModuleImported', function (name) {
             if (name === 'ammo.js') {
                 group.enabled = false;
             }

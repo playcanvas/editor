@@ -1,11 +1,11 @@
-editor.once('viewport:load', function() {
+editor.once('viewport:load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
     if (! app) return; // webgl not available
 
-    var pool = [ ];
-    var points = [ ];
+    var pool = [];
+    var points = [];
     var gizmoSize = 0.1;
     var hoverPoint = null;
     var dragPoint = null;
@@ -42,7 +42,7 @@ editor.once('viewport:load', function() {
     }
     Gizmo.prototype = Object.create(Events.prototype);
 
-    Gizmo.prototype.update = function() {
+    Gizmo.prototype.update = function () {
         if (! this.entity)
             return;
 
@@ -64,7 +64,7 @@ editor.once('viewport:load', function() {
     };
 
     Object.defineProperty(Gizmo.prototype, 'enabled', {
-        set: function(value) {
+        set: function (value) {
             if (!! value === !! this.entity)
                 return;
 
@@ -88,12 +88,12 @@ editor.once('viewport:load', function() {
                 this.entity = null;
             }
         },
-        get: function() {
+        get: function () {
             return !! this.entity;
         }
     });
 
-    editor.method('gizmo:point:create', function(axis, position, dir) {
+    editor.method('gizmo:point:create', function (axis, position, dir) {
         var item = pool.shift();
         if (! item)
             item = new Gizmo();
@@ -107,7 +107,7 @@ editor.once('viewport:load', function() {
         return item;
     });
 
-    editor.method('gizmo:point:recycle', function(point) {
+    editor.method('gizmo:point:recycle', function (point) {
         point.scale.set(1, 1, 1);
         point.enabled = false;
         pool.push(point);
@@ -117,12 +117,12 @@ editor.once('viewport:load', function() {
             points.splice(ind, 1);
     });
 
-    editor.call('gizmo:point:hovered', function() {
+    editor.call('gizmo:point:hovered', function () {
         return hoverPoint;
     });
 
     // on picker hover
-    editor.on('viewport:pick:hover', function(node, picked) {
+    editor.on('viewport:pick:hover', function (node, picked) {
         var match = false;
         if (node && node.__editor && node.point)
             match = points.indexOf(node) !== -1;
@@ -148,7 +148,7 @@ editor.once('viewport:load', function() {
         }
     });
 
-    var pickPlane = function(x, y) {
+    var pickPlane = function (x, y) {
         var camera = editor.call('camera:current');
         var scale = 1;
         var mouseWPos = camera.camera.screenToWorld(x, y, 1);
@@ -193,7 +193,7 @@ editor.once('viewport:load', function() {
         return pickedPos;
     };
 
-    var onTapStart = function(tap) {
+    var onTapStart = function (tap) {
         if (tap.button !== 0 || ! hoverPoint)
             return;
 
@@ -210,14 +210,14 @@ editor.once('viewport:load', function() {
         editor.call('viewport:pick:state', false);
     };
 
-    var onTapMove = function(tap) {
+    var onTapMove = function (tap) {
         if (! dragPoint)
             return;
 
         mouseTap = tap;
     };
 
-    var onTapEnd = function(tap) {
+    var onTapEnd = function (tap) {
         if (tap.button !== 0)
             return;
 
@@ -239,7 +239,7 @@ editor.once('viewport:load', function() {
     editor.on('viewport:mouse:move', onTapMove);
     editor.on('viewport:tap:end', onTapEnd);
 
-    editor.on('viewport:postUpdate', function(dt) {
+    editor.on('viewport:postUpdate', function (dt) {
         if (! dragPoint)
             return;
 

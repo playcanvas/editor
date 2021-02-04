@@ -1,14 +1,14 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('users:hasFlag', 'hasPcuiComponentInspectors')) return;
 
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
 
-        var events = [ ];
+        var events = [];
 
         var projectSettings = editor.call('settings:project');
 
@@ -23,10 +23,10 @@ editor.once('load', function() {
             name: 'Type',
             type: 'string',
             enum: [
-                {v: '', t: '...'},
-                {v: 'text', t: 'Text'},
-                {v: 'image', t: 'Image'},
-                {v: 'group', t: 'Group'}
+                { v: '', t: '...' },
+                { v: 'text', t: 'Text' },
+                { v: 'image', t: 'Image' },
+                { v: 'group', t: 'Group' }
             ],
             link: entities,
             path: 'components.element.type',
@@ -45,15 +45,15 @@ editor.once('load', function() {
             '1,0.5,1,0.5/1,0.5': 'Right',
             '0,0,0,0/0,0': 'Bottom Left',
             '0.5,0,0.5,0/0.5,0': 'Bottom',
-            '1,0,1,0/1,0': 'Bottom Right',
+            '1,0,1,0/1,0': 'Bottom Right'
         };
 
         var presetsEnum = [];
         for (var key in presets) {
-            presetsEnum.push({v: key, t: presets[key]});
+            presetsEnum.push({ v: key, t: presets[key] });
         }
 
-        presetsEnum.push({v: 'custom', t: 'Custom'});
+        presetsEnum.push({ v: 'custom', t: 'Custom' });
 
         var fieldPreset = editor.call('attributes:addField', {
             parent: panel,
@@ -201,7 +201,7 @@ editor.once('load', function() {
 
         toggleAnchorAndPresets();
 
-        entities.forEach(function(entity) {
+        entities.forEach(function (entity) {
             events.push(entity.on('parent:set', toggleAnchorAndPresets));
             events.push(entity.on('components.layoutchild.excludeFromLayout:set', toggleAnchorAndPresets));
         });
@@ -239,7 +239,7 @@ editor.once('load', function() {
             panel: panelAutoSize,
             type: 'checkbox',
             link: entities,
-            path: 'components.element.autoWidth',
+            path: 'components.element.autoWidth'
         });
         editor.call('attributes:registerOverridePath', 'components.element.autoWidth', fieldAutoWidth.element);
 
@@ -284,7 +284,7 @@ editor.once('load', function() {
         });
 
         var setPresetValue = function () {
-            var val = fieldAnchor.map(function (f) {return f.value}).join(',') + '/' + fieldPivot.map(function (f) {return f.value}).join(',');
+            var val = fieldAnchor.map(function (f) { return f.value; }).join(',') + '/' + fieldPivot.map(function (f) { return f.value; }).join(',');
             if (! presets[val])
                 val = 'custom';
 
@@ -318,8 +318,8 @@ editor.once('load', function() {
 
             changingPreset = true;
             var fields = value.split('/');
-            var anchor = fields[0].split(',').map(function (v){ return parseFloat(v);} );
-            var pivot = fields[1].split(',').map(function (v){ return parseFloat(v);} );
+            var anchor = fields[0].split(',').map(function (v){ return parseFloat(v); } );
+            var pivot = fields[1].split(',').map(function (v){ return parseFloat(v); } );
 
             var prev = {};
 
@@ -349,8 +349,8 @@ editor.once('load', function() {
 
             editor.call('history:add', {
                 name: 'entities.components.element.preset',
-                undo: function() {
-                    for(var i = 0; i < entities.length; i++) {
+                undo: function () {
+                    for (var i = 0; i < entities.length; i++) {
                         var entity = entities[i];
                         var history = entity.history.enabled;
                         entity.history.enabled = false;
@@ -364,8 +364,8 @@ editor.once('load', function() {
                         entity.history.enabled = history;
                     }
                 },
-                redo: function() {
-                    for(var i = 0; i < entities.length; i++) {
+                redo: function () {
+                    for (var i = 0; i < entities.length; i++) {
                         var entity = entities[i];
                         var history = entity.history.enabled;
                         entity.history.enabled = false;
@@ -1090,7 +1090,7 @@ editor.once('load', function() {
             batchEnum[group] = projectSettings.get('batchGroups.' + group + '.name');
             fieldBatchGroup._updateOptions(batchEnum);
             fieldBatchGroup.value = group;
-            editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+            editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
             setTimeout(function () {
                 editor.call('editorSettings:batchGroups:focus', group);
             });
@@ -1124,7 +1124,7 @@ editor.once('load', function() {
             onClickTag: function () {
                 // focus layer
                 var layerId = this.originalValue;
-                editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+                editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
                 setTimeout(function () {
                     editor.call('editorSettings:layers:focus', layerId);
                 });

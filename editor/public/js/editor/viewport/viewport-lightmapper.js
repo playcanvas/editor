@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
@@ -8,9 +8,9 @@ editor.once('load', function() {
 
 
     // bake
-    editor.method('lightmapper:bake', function(entities) {
+    editor.method('lightmapper:bake', function (entities) {
         if (! entities) {
-            entities = editor.call('entities:list').filter(function(e) {
+            entities = editor.call('entities:list').filter(function (e) {
                 return e.get('components.model.lightmapped');
             });
         }
@@ -19,7 +19,7 @@ editor.once('load', function() {
         var areaJobs = { };
         var jobs = 0;
 
-        var readyForBake = function() {
+        var readyForBake = function () {
             app.lightmapper.bake(null, app.scene.lightmapMode);
             app.renderer.prepareStaticMeshes(app.graphicsDevice, app.scene);
             editor.call('viewport:render');
@@ -27,7 +27,7 @@ editor.once('load', function() {
         };
 
         // validate lightmapped entities
-        for(var i = 0; i < entities.length; i++) {
+        for (var i = 0; i < entities.length; i++) {
             var obj = entities[i];
 
             // might be primitive
@@ -60,7 +60,7 @@ editor.once('load', function() {
                 // recalculate area
                 areaJobs[assetId] = asset;
                 jobs++;
-                editor.call('assets:model:area', asset, function() {
+                editor.call('assets:model:area', asset, function () {
                     jobs--;
 
                     if (jobs === 0)
@@ -76,15 +76,15 @@ editor.once('load', function() {
     });
 
 
-    editor.method('entities:shadows:update', function() {
-        var entities = editor.call('entities:list').filter(function(e) {
+    editor.method('entities:shadows:update', function () {
+        var entities = editor.call('entities:list').filter(function (e) {
             return e.get('components.light.castShadows') && e.get('components.light.shadowUpdateMode') === 1 && e.entity && e.entity.light && e.entity.light.shadowUpdateMode === pc.SHADOWUPDATE_THISFRAME;
         });
 
         if (! entities.length)
             return;
 
-        for(var i = 0; i < entities.length; i++)
+        for (var i = 0; i < entities.length; i++)
             entities[i].entity.light.light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
 
         editor.call('viewport:render');

@@ -4,9 +4,10 @@ editor.once('load', function () {
     /**
      * Gets the schema object that corresponds to the specified dot separated
      * path from the specified schema object.
-     * @param {String} path The path separated by dots
-     * @param {Object} schema The schema object
-     * @returns {Object} The sub schema
+     *
+     * @param {string} path - The path separated by dots
+     * @param {object} schema - The schema object
+     * @returns {object} The sub schema
      */
     var pathToSchema = function (path, schema) {
         if (typeof(path) === 'string') {
@@ -36,9 +37,10 @@ editor.once('load', function () {
 
     /**
      * Converts the specified schema object to a type recursively.
-     * @param {Object} schema The schema object or field of a parent schema object.
-     * @param {Boolean} fixedLength Whether the specified schema field has a fixed length if it's an array type.
-     * @returns {String} The type
+     *
+     * @param {object} schema - The schema object or field of a parent schema object.
+     * @param {boolean} fixedLength - Whether the specified schema field has a fixed length if it's an array type.
+     * @returns {string} The type
      */
     var schemaToType = function (schema, fixedLength) {
         if (typeof schema === 'string') {
@@ -76,9 +78,10 @@ editor.once('load', function () {
 
     /**
      * Gets the type of the specified schema object,
-     * @param {Object} schemaField A field of the schema
-     * @param {Boolean} fixedLength Whether this field has a fixed length if it's an array type
-     * @returns {String} The type
+     *
+     * @param {object} schemaField - A field of the schema
+     * @param {boolean} fixedLength - Whether this field has a fixed length if it's an array type
+     * @returns {string} The type
      */
     editor.method('schema:getType', function (schemaField, fixedLength) {
         return schemaToType(schemaField, fixedLength);
@@ -86,9 +89,10 @@ editor.once('load', function () {
 
     /**
      * Gets the type of the specified path from the specified schema
-     * @param {Object} schema The schema object
-     * @param {String} path A path separated by dots
-     * @param {String} The type
+     *
+     * @param {object} schema - The schema object
+     * @param {string} path - A path separated by dots
+     * @param {string} The - type
      */
     editor.method('schema:getTypeForPath', function (schema, path) {
         var subSchema = pathToSchema(path, schema);

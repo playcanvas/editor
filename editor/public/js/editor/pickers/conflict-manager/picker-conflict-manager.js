@@ -607,7 +607,7 @@ editor.once('load', function () {
             btnComplete.hidden = false;
             onMergeDataLoaded(data);
         });
-    }
+    };
 
     // Called when the merge process is completed
     var onMergeComplete = function (err) {
@@ -624,7 +624,7 @@ editor.once('load', function () {
                 window.location.reload();
             }, 1000);
         }
-    }
+    };
 
     // Called when we get a merge completed message from the messenger
     var onMsgMergeComplete = function (data) {
@@ -634,7 +634,7 @@ editor.once('load', function () {
         } else {
             onMergeComplete();
         }
-    }
+    };
 
     // Called when we get a merge progress status message from the messenger
     var onMsgMergeProgress = function (data) {
@@ -643,7 +643,7 @@ editor.once('load', function () {
         if (data.status === MERGE_STATUS_READY_FOR_REVIEW) {
             onReadyForReview();
         }
-    }
+    };
 
     // Called when we load the merge object from the server
     var onMergeDataLoaded = function (data) {
@@ -666,9 +666,9 @@ editor.once('load', function () {
             btnReview.disabled = false;
             if (diffMode) {
                 return showMainProgress(completedIcon, 'No changes found - Click Complete Merge');
-            } else {
-                return showMainProgress(completedIcon, 'No conflicts found - Click Review Merge');
             }
+            return showMainProgress(completedIcon, 'No conflicts found - Click Review Merge');
+
         }
 
         for (var i = 0; i < currentMergeObject.conflicts.length; i++) {
@@ -701,7 +701,7 @@ editor.once('load', function () {
             } else {
                 btnComplete.hidden = true;
                 btnReview.hidden = true;
-                panel.header = 'DIFF'
+                panel.header = 'DIFF';
             }
 
             labelFileConflicts.text = "FILE CHANGES";
@@ -712,7 +712,7 @@ editor.once('load', function () {
             btnReview.hidden = false;
             btnReview.disabled = true;
             btnComplete.hidden = true;
-            panel.header = 'RESOLVE CONFLICTS'
+            panel.header = 'RESOLVE CONFLICTS';
 
             labelFileConflicts.text = "FILE CONFLICTS";
             labelFileConflictsSmall.text = "The asset also has file conflicts";

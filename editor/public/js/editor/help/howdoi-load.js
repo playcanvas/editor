@@ -5,7 +5,7 @@ editor.once('load', function () {
     };
 
     Ajax(data)
-    .on('load', function(status, data) {
+    .on('load', function (status, data) {
         if (! data || !data.length)
             return;
 
@@ -19,7 +19,7 @@ editor.once('load', function () {
 
         editor.emit('help:howdoi:load');
     })
-    .on('error', function(status, data) {
+    .on('error', function (status, data) {
         log.error(status);
     });
 });

@@ -21,16 +21,16 @@ pc.Grid = function (device, size, divisions) {
     var iterator = new pc.VertexIterator(vertexBuffer);
     for (i = -(divisions / 2); i <= divisions / 2; i++) {
         color = (i === 0) ? axisColor : gridColor;
-        iterator.element[pc.SEMANTIC_POSITION].set(-size/2, 0.0, i * interval);
+        iterator.element[pc.SEMANTIC_POSITION].set(-size / 2, 0.0, i * interval);
         iterator.element[pc.SEMANTIC_COLOR].set(color[0], color[1], color[2], color[3]);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set( size/2, 0.0, i * interval);
+        iterator.element[pc.SEMANTIC_POSITION].set( size / 2, 0.0, i * interval);
         iterator.element[pc.SEMANTIC_COLOR].set(color[0], color[1], color[2], color[3]);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(i * interval, 0.0, -size/2);
+        iterator.element[pc.SEMANTIC_POSITION].set(i * interval, 0.0, -size / 2);
         iterator.element[pc.SEMANTIC_COLOR].set(color[0], color[1], color[2], color[3]);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(i * interval, 0.0,  size/2);
+        iterator.element[pc.SEMANTIC_POSITION].set(i * interval, 0.0,  size / 2);
         iterator.element[pc.SEMANTIC_COLOR].set(color[0], color[1], color[2], color[3]);
         if (i !== divisions / 2) {
             iterator.next();
@@ -59,7 +59,7 @@ pc.Grid = function (device, size, divisions) {
 
     var model = new pc.Model();
     model.graph = node;
-    model.meshInstances = [ meshInstance ];
+    model.meshInstances = [meshInstance];
 
     this.model = model;
 };

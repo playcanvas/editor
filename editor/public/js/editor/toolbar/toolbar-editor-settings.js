@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var toolbar = editor.call('layout.toolbar');
@@ -10,21 +10,21 @@ editor.once('load', function() {
     button.class.add('pc-icon', 'editor-settings', 'bottom');
     toolbar.append(button);
 
-    button.on('click', function() {
-        editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+    button.on('click', function () {
+        editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
     });
 
-    editor.on('attributes:clear', function() {
+    editor.on('attributes:clear', function () {
         button.class.remove('active');
     });
 
-    editor.on('attributes:inspect[editorSettings]', function() {
+    editor.on('attributes:inspect[editorSettings]', function () {
         editor.call('attributes.rootPanel').collapsed = false;
 
         button.class.add('active');
     });
 
-    editor.on('viewport:expand', function(state) {
+    editor.on('viewport:expand', function (state) {
         button.disabled = state;
     });
 

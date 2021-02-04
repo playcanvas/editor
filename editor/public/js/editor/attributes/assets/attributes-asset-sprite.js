@@ -1,18 +1,18 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    editor.on('attributes:inspect[asset]', function(assets) {
+    editor.on('attributes:inspect[asset]', function (assets) {
         const hasPcuiAssetInspectors = editor.call('users:hasFlag', 'hasPcuiAssetInspectors');
         if (hasPcuiAssetInspectors)
             return;
         var root = editor.call('attributes.rootPanel');
 
-        for(var i = 0; i < assets.length; i++) {
+        for (var i = 0; i < assets.length; i++) {
             if (assets[i].get('type') !== 'sprite')
                 return;
         }
 
-        var events = [ ];
+        var events = [];
 
         if (assets.length > 1)
             editor.call('attributes:header', assets.length + ' Sprites');
@@ -40,9 +40,9 @@ editor.once('load', function() {
             name: 'Render Mode',
             type: 'number',
             enum: [
-                {v:0, t: 'Simple'},
-                {v:1, t:'Sliced'},
-                {v:2, t:'Tiled'}
+                { v: 0, t: 'Simple' },
+                { v: 1, t: 'Sliced' },
+                { v: 2, t: 'Tiled' }
             ],
             link: assets,
             path: 'data.renderMode'
@@ -79,7 +79,7 @@ editor.once('load', function() {
 
             var previewRenderer = new pcui.SpriteThumbnailRenderer(assets[0], preview, editor.call('assets:raw'));
 
-            preview.addEventListener('click', function() {
+            preview.addEventListener('click', function () {
                 if (root.class.contains('large')) {
                     root.class.remove('large');
                 } else {
@@ -103,7 +103,7 @@ editor.once('load', function() {
             previewContainer.append(btnPlay.element);
             btnPlay.parent = panelProperties;
 
-            btnPlay.on('click', function() {
+            btnPlay.on('click', function () {
                 playing = !playing;
 
                 if (playing) {
@@ -148,7 +148,7 @@ editor.once('load', function() {
             renderPreview();
 
             // queue up the rendering to prevent too oftern renders
-            var queueRender = function() {
+            var queueRender = function () {
                 if (renderAnimationFrame) return;
                 renderAnimationFrame = requestAnimationFrame(renderPreview);
             };
@@ -156,7 +156,7 @@ editor.once('load', function() {
             // render on resize
             var evtPanelResize = root.on('resize', queueRender);
 
-            panelProperties.once('destroy', function() {
+            panelProperties.once('destroy', function () {
                 root.class.remove('asset-preview', 'animate');
 
                 evtPanelResize.unbind();
@@ -172,13 +172,13 @@ editor.once('load', function() {
             });
         }
 
-        panelProperties.once('destroy', function() {
+        panelProperties.once('destroy', function () {
             if (renderAnimationFrame) {
                 cancelAnimationFrame(renderAnimationFrame);
                 renderAnimationFrame = null;
             }
 
-            for(var i = 0; i < events.length; i++) {
+            for (var i = 0; i < events.length; i++) {
                 events[i].unbind();
             }
             events.length = 0;

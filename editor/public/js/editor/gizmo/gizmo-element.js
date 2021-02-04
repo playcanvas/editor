@@ -1,8 +1,8 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var corners = [];
-    var cornerColor = new pc.Color(1,1,1,0.9);
+    var cornerColor = new pc.Color(1, 1, 1, 0.9);
     var visible = true;
 
     for (var i = 0; i < 8; i++) {
@@ -15,7 +15,7 @@ editor.once('load', function() {
             mask: GIZMO_MASK
         };
 
-        editor.method('gizmo:element:visible', function(state) {
+        editor.method('gizmo:element:visible', function (state) {
             if (visible !== state) {
                 visible = state;
 

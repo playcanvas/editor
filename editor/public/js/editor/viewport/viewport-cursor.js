@@ -1,11 +1,11 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var state = false;
     var inViewport = false;
 
     // mouse hovering state on viewport
-    editor.on('viewport:hover', function(hover) {
+    editor.on('viewport:hover', function (hover) {
         if (inViewport === hover)
             return;
 
@@ -19,7 +19,7 @@ editor.once('load', function() {
         }
     });
 
-    var checkPicked = function(node, picked) {
+    var checkPicked = function (node, picked) {
         var hover = false;
 
         // if mouse in viewport && entity model has an asset
@@ -39,8 +39,8 @@ editor.once('load', function() {
             state = hover;
             editor.call('cursor:set', state ? 'crosshair' : '');
         }
-    }
+    };
 
-    editor.on('viewport:pick:node', checkPicked)
+    editor.on('viewport:pick:node', checkPicked);
     editor.on('viewport:pick:hover', checkPicked);
 });

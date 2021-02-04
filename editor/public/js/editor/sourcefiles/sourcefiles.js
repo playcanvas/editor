@@ -1,7 +1,7 @@
 editor.once('repositories:load', function (repositories) {
     'use strict';
 
-    if(! editor.call('settings:project').get('useLegacyScripts'))
+    if (! editor.call('settings:project').get('useLegacyScripts'))
         return;
 
     var sourcefiles = new ObserverList();
@@ -67,7 +67,7 @@ editor.once('repositories:load', function (repositories) {
             auth: true,
             notJson: true
         })
-        .on('load', function(status, data) {
+        .on('load', function (status, data) {
             if (callback)
                 callback(null, data);
         })
@@ -95,7 +95,7 @@ editor.once('repositories:load', function (repositories) {
         })
         .on('load', function (status, data) {
 
-            var file = sourcefiles.findOne(function(f) {
+            var file = sourcefiles.findOne(function (f) {
                 return f.get('filename') === url;
             });
 

@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     editor.method('picker:sprites:attributes:sprite', function (args) {
@@ -81,9 +81,9 @@ editor.once('load', function() {
             name: 'Render Mode',
             type: 'number',
             enum: [
-                {v: 0, t: 'Simple'},
-                {v: 1, t: 'Sliced'},
-                {v: 2, t: 'Tiled'}
+                { v: 0, t: 'Simple' },
+                { v: 1, t: 'Sliced' },
+                { v: 2, t: 'Tiled' }
             ],
             link: spriteAsset,
             path: 'data.renderMode'
@@ -155,7 +155,7 @@ editor.once('load', function() {
         });
 
         var panelFrames = editor.call('attributes:addPanel', {
-            parent: panelEdit,
+            parent: panelEdit
         });
         panelFrames.class.add('frames');
 
@@ -293,7 +293,7 @@ editor.once('load', function() {
 
             // clean up events
             panel.on('destroy', function () {
-                for (var i = 0, len = frameEvents.length; i<len; i++) {
+                for (var i = 0, len = frameEvents.length; i < len; i++) {
                     frameEvents[i].unbind();
                 }
                 frameEvents.length = 0;
@@ -323,7 +323,7 @@ editor.once('load', function() {
             var height = draggedPanel.element.offsetHeight;
             var top = evt.clientY - rect.top - 6;
             var overPanelIndex = Math.floor(top / height);
-            var overPanel = panels[overPanelIndex];//panelFrames.innerElement.childNodes[overPanelIndex];
+            var overPanel = panels[overPanelIndex];// panelFrames.innerElement.childNodes[overPanelIndex];
 
             if (overPanel && overPanel !== draggedPanel) {
                 panelFrames.remove(draggedPanel);
@@ -353,7 +353,7 @@ editor.once('load', function() {
             window.removeEventListener('mouseup', onDragEnd);
         };
 
-        for (var i = 0, len = frameKeys.length; i<len; i++) {
+        for (var i = 0, len = frameKeys.length; i < len; i++) {
             addFramePanel(frameKeys[i]);
         }
 
@@ -398,13 +398,13 @@ editor.once('load', function() {
         events.push(spriteAsset.on('data.frameKeys:set', function (value) {
             var i, len;
 
-            for (i = 0, len = panels.length; i<len; i++) {
+            for (i = 0, len = panels.length; i < len; i++) {
                 panels[i].destroy();
             }
             panels.length = 0;
 
             frameKeys = spriteAsset.get('data.frameKeys');
-            for (i = 0, len = frameKeys.length; i<len; i++) {
+            for (i = 0, len = frameKeys.length; i < len; i++) {
                 addFramePanel(frameKeys[i]);
             }
 
@@ -420,7 +420,7 @@ editor.once('load', function() {
             var partsLen = parts.length;
             if (partsLen >= 3) {
                 // re-render frame preview
-                for (var i = 0, len = panels.length; i<len; i++) {
+                for (var i = 0, len = panels.length; i < len; i++) {
                     if (panels[i]._frameKey === parts[2]) {
                         panels[i].queueRender();
 

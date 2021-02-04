@@ -1,11 +1,11 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (! editor.call('settings:project').get('useLegacyScripts')){
         return;
     }
 
-    // keep metrics on number of writeable projects 
+    // keep metrics on number of writeable projects
     metrics.increment({ metricsName: 'editor.script.count.by_type.legacy_script' +
                                         (editor.call('permissions:write') ? '.writable' : '.read_only') +
                                         '.with_project_id.' + config.project.id });
@@ -13,12 +13,12 @@ editor.once('load', function() {
     var repositories = new Observer();
 
     // Load repositories
-    editor.once('start', function() {
+    editor.once('start', function () {
         Ajax({
             url: '{{url.api}}/projects/{{project.id}}/repositories',
             auth: true
         })
-        .on('load', function(status, data) {
+        .on('load', function (status, data) {
             var response = data;
             for (var key in response) {
                 if (response.hasOwnProperty(key)) {

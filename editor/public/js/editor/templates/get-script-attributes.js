@@ -1,12 +1,12 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     /**
      * Given an array of entities, return data about all their
      * script attributes by script name
      *
-     * @param {Object[]} entities The entities
-     * @returns {Object} Data about script attributes by script name
+     * @param {object[]} entities - The entities
+     * @returns {object} Data about script attributes by script name
      */
     editor.method('template:getScriptAttributes', function (entities) {
         return new GetScriptAttributes(entities).run();
@@ -26,7 +26,7 @@ editor.once('load', function() {
         }
 
         handleEntity(ent) {
-            const path = [ 'components', 'script' ];
+            const path = ['components', 'script'];
 
             const comp = editor.call('template:utils', 'getNodeAtPath', ent, path);
 

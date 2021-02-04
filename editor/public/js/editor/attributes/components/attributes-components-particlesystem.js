@@ -1,9 +1,9 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('users:hasFlag', 'hasPcuiComponentInspectors')) return;
 
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
@@ -21,7 +21,7 @@ editor.once('load', function() {
         // controls
         var fieldControls = editor.call('attributes:addField', {
             parent: panel,
-            name: 'Controls',
+            name: 'Controls'
         });
         var label = fieldControls;
         fieldControls = fieldControls.parent;
@@ -31,8 +31,8 @@ editor.once('load', function() {
         var btnPlay = new ui.Button({
             text: '&#57649;'
         });
-        btnPlay.on('click', function() {
-            for(var i = 0; i < entities.length; i++) {
+        btnPlay.on('click', function () {
+            for (var i = 0; i < entities.length; i++) {
                 if (! entities[i].entity || ! entities[i].entity.particlesystem)
                     continue;
 
@@ -53,11 +53,11 @@ editor.once('load', function() {
         var playingState = -1;
         var loopingState = -1;
 
-        var checkPlayingState = function() {
+        var checkPlayingState = function () {
             var playing = -1;
             var looping = -1;
 
-            for(var i = 0; i < entities.length; i++) {
+            for (var i = 0; i < entities.length; i++) {
                 if (! entities[i].entity || ! entities[i].entity.particlesystem)
                     continue;
 
@@ -114,7 +114,7 @@ editor.once('load', function() {
         };
 
         var evtCheckPlayingState = setInterval(checkPlayingState, 100);
-        btnPlay.once('destroy', function() {
+        btnPlay.once('destroy', function () {
             clearInterval(evtCheckPlayingState);
         });
 
@@ -122,8 +122,8 @@ editor.once('load', function() {
         var btnStop = new ui.Button({
             text: '	&#57653;'
         });
-        btnStop.on('click', function() {
-            for(var i = 0; i < entities.length; i++) {
+        btnStop.on('click', function () {
+            for (var i = 0; i < entities.length; i++) {
                 if (! entities[i].entity || ! entities[i].entity.particlesystem)
                     continue;
 
@@ -142,8 +142,8 @@ editor.once('load', function() {
         var btnReset = new ui.Button({
             text: '&#57619;'
         });
-        btnReset.on('click', function() {
-            for(var i = 0; i < entities.length; i++) {
+        btnReset.on('click', function () {
+            for (var i = 0; i < entities.length; i++) {
                 if (! entities[i].entity || ! entities[i].entity.particlesystem)
                     continue;
 
@@ -158,8 +158,8 @@ editor.once('load', function() {
 
         checkPlayingState();
 
-        editor.once('viewport:update', function() {
-            for(var i = 0; i < entities.length; i++) {
+        editor.once('viewport:update', function () {
+            for (var i = 0; i < entities.length; i++) {
                 if (! entities[i].entity || ! entities[i].entity.particlesystem)
                     continue;
 
@@ -328,12 +328,11 @@ editor.once('load', function() {
         panelPlayback.append(labelPreWarm);
         // states
         fieldPreWarm.hidden = labelPreWarm.hidden = ! fieldLoop.value && ! fieldLoop.class.contains('null');
-        fieldLoop.on('change', function(value) {
+        fieldLoop.on('change', function (value) {
             fieldPreWarm.hidden = labelPreWarm.hidden = ! value && ! this.class.contains('null');
         });
         // reference
         editor.call('attributes:reference:attach', 'particlesystem:preWarm', labelPreWarm);
-
 
 
         // lighting
@@ -378,7 +377,7 @@ editor.once('load', function() {
         panelLighting.append(labelHalfLambert);
         // state
         fieldHalfLambert.hidden = labelHalfLambert.hidden = ! fieldLighting.value && ! fieldLighting.class.contains('null');
-        fieldLighting.on('change', function(value) {
+        fieldLighting.on('change', function (value) {
             fieldHalfLambert.hidden = labelHalfLambert.hidden = ! value && ! this.class.contains('null');
         });
         // reference
@@ -525,14 +524,14 @@ editor.once('load', function() {
         var fieldSpawnBounds = editor.call('attributes:addField', {
             parent: panel,
             name: 'Emitter Extents',
-            placeholder: [ 'X', 'Y', 'Z' ],
+            placeholder: ['X', 'Y', 'Z'],
             type: 'vec3',
             link: entities,
             path: 'components.particlesystem.emitterExtents',
             canOverrideTemplate: true
         });
         fieldSpawnBounds[0].parent.hidden = fieldEmitterShape.value !== 0 || fieldEmitterShape.class.contains('null');
-        fieldEmitterShape.on('change', function(value) {
+        fieldEmitterShape.on('change', function (value) {
             fieldSpawnBounds[0].parent.hidden = value !== 0 || this.class.contains('null');
         });
         // reference
@@ -543,14 +542,14 @@ editor.once('load', function() {
         var fieldSpawnBoundsInner = editor.call('attributes:addField', {
             parent: panel,
             name: 'Emitter Extents Inner',
-            placeholder: [ 'X', 'Y', 'Z' ],
+            placeholder: ['X', 'Y', 'Z'],
             type: 'vec3',
             link: entities,
             path: 'components.particlesystem.emitterExtentsInner',
             canOverrideTemplate: true
         });
-        fieldSpawnBoundsInner [0].parent.hidden = fieldEmitterShape.value !== 0 || fieldEmitterShape.class.contains('null');
-        fieldEmitterShape.on('change', function(value) {
+        fieldSpawnBoundsInner[0].parent.hidden = fieldEmitterShape.value !== 0 || fieldEmitterShape.class.contains('null');
+        fieldEmitterShape.on('change', function (value) {
             fieldSpawnBoundsInner[0].parent.hidden = value !== 0 || this.class.contains('null');
         });
         // reference
@@ -567,7 +566,7 @@ editor.once('load', function() {
             canOverrideTemplate: true
         });
         fieldSpawnRadius.parent.hidden = fieldEmitterShape.value !== 1 || fieldEmitterShape.class.contains('null');
-        fieldEmitterShape.on('change', function(value) {
+        fieldEmitterShape.on('change', function (value) {
             fieldSpawnRadius.parent.hidden = value !== 1 || this.class.contains('null');
         });
         // reference
@@ -584,7 +583,7 @@ editor.once('load', function() {
             canOverrideTemplate: true
         });
         fieldSpawnRadiusInner.parent.hidden = fieldEmitterShape.value !== 1 || fieldEmitterShape.class.contains('null');
-        fieldEmitterShape.on('change', function(value) {
+        fieldEmitterShape.on('change', function (value) {
             fieldSpawnRadiusInner.parent.hidden = value !== 1 || this.class.contains('null');
         });
         // reference
@@ -643,7 +642,7 @@ editor.once('load', function() {
             onClickTag: function () {
                 // focus layer
                 var layerId = this.originalValue;
-                editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+                editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
                 setTimeout(function () {
                     editor.call('editorSettings:layers:focus', layerId);
                 });
@@ -658,14 +657,14 @@ editor.once('load', function() {
         var fieldWrapBounds = editor.call('attributes:addField', {
             parent: panel,
             name: 'Wrap Bounds',
-            placeholder: [ 'X', 'Y', 'Z' ],
+            placeholder: ['X', 'Y', 'Z'],
             type: 'vec3',
             link: entities,
             path: 'components.particlesystem.wrapBounds',
             canOverrideTemplate: true
         });
         fieldWrapBounds[0].parent.hidden = ! fieldWrap.value && ! fieldWrap.class.contains('null');
-        fieldWrap.on('change', function(value) {
+        fieldWrap.on('change', function (value) {
             fieldWrapBounds[0].parent.hidden = ! value && ! this.class.contains('null');
         });
         // reference
@@ -693,14 +692,14 @@ editor.once('load', function() {
         var fieldParticleNormal = editor.call('attributes:addField', {
             parent: panel,
             name: 'Particle Normal',
-            placeholder: [ 'X', 'Y', 'Z' ],
+            placeholder: ['X', 'Y', 'Z'],
             type: 'vec3',
             link: entities,
             path: 'components.particlesystem.particleNormal',
             canOverrideTemplate: true
         });
         fieldParticleNormal[0].parent.hidden = fieldOrientation.value === 0 || fieldOrientation.class.contains('null');
-        fieldOrientation.on('change', function(value) {
+        fieldOrientation.on('change', function (value) {
             fieldParticleNormal[0].parent.hidden = value === 0 || this.class.contains('null');
         });
         // reference
@@ -882,7 +881,7 @@ editor.once('load', function() {
             link: entities[0],
             path: 'components.particlesystem.localVelocityGraph',
             canRandomize: true,
-            curves: [ 'X', 'Y', 'Z' ],
+            curves: ['X', 'Y', 'Z'],
             canOverrideTemplate: true
         });
         // reference
@@ -899,7 +898,7 @@ editor.once('load', function() {
             link: entities[0],
             path: 'components.particlesystem.velocityGraph',
             canRandomize: true,
-            curves: [ 'X', 'Y', 'Z' ],
+            curves: ['X', 'Y', 'Z'],
             canOverrideTemplate: true
         });
         // reference
@@ -917,7 +916,7 @@ editor.once('load', function() {
             link: entities[0],
             path: 'components.particlesystem.radialSpeedGraph',
             canRandomize: true,
-            curves: [ 'R' ],
+            curves: ['R'],
             canOverrideTemplate: true
         });
         // reference
@@ -934,7 +933,7 @@ editor.once('load', function() {
             link: entities[0],
             path: 'components.particlesystem.rotationSpeedGraph',
             canRandomize: true,
-            curves: [ 'Angle' ],
+            curves: ['Angle'],
             verticalValue: 180,
             canOverrideTemplate: true
         });
@@ -952,7 +951,7 @@ editor.once('load', function() {
             link: entities[0],
             path: 'components.particlesystem.scaleGraph',
             canRandomize: true,
-            curves: [ 'Scale' ],
+            curves: ['Scale'],
             verticalValue: 1,
             min: 0,
             canOverrideTemplate: true
@@ -971,7 +970,7 @@ editor.once('load', function() {
             link: entities[0],
             path: 'components.particlesystem.colorGraph',
             gradient: true,
-            curves: [ 'R', 'G', 'B' ],
+            curves: ['R', 'G', 'B'],
             max: 1,
             min: 0,
             canOverrideTemplate: true
@@ -988,7 +987,7 @@ editor.once('load', function() {
             link: entities[0],
             path: 'components.particlesystem.alphaGraph',
             canRandomize: true,
-            curves: ['Opacity' ],
+            curves: ['Opacity'],
             min: 0,
             max: 1,
             canOverrideTemplate: true

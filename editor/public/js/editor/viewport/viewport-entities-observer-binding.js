@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
@@ -6,7 +6,7 @@ editor.once('load', function() {
 
     editor.on('entities:add', function (obj) {
         // subscribe to changes
-        obj.on('*:set', function(path, value) {
+        obj.on('*:set', function (path, value) {
             var entity = obj.entity;
             if (! entity)
                 return;

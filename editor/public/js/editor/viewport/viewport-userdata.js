@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     editor.on('userdata:load', function (userdata) {
@@ -8,7 +8,7 @@ editor.once('load', function() {
         var cameras = userdata.get('cameras');
 
         if (cameras) {
-            for(var name in cameras) {
+            for (var name in cameras) {
                 if (! cameras.hasOwnProperty(name))
                     continue;
 

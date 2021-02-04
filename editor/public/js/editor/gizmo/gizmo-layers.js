@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     // holds all layers that are to be added in the beginning of the composition
@@ -129,8 +129,8 @@ editor.once('load', function() {
     });
 
     editor.call('gizmo:layers:register', 'Camera Preview', false, {
-      passThrough: true,
-      isPostEffect: true
+        passThrough: true,
+        isPostEffect: true
     });
 
     editor.once('viewport:load', function () {

@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     // get the unicode for all of the component and new entity logos
     editor.method('components:logos', function () {
         return {

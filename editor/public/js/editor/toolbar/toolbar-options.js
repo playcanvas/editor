@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var root = editor.call('layout.root');
@@ -20,17 +20,17 @@ editor.once('load', function() {
     fieldCollisionVisible.class.add('tick');
     panelCollision.append(fieldCollisionVisible);
     fieldCollisionVisible.value = editor.call('gizmo:collision:visible');
-    fieldCollisionVisible.on('change', function(value) {
+    fieldCollisionVisible.on('change', function (value) {
         editor.call('gizmo:collision:visible', value);
     });
-    editor.on('gizmo:collision:visible', function(visible) {
+    editor.on('gizmo:collision:visible', function (visible) {
         fieldCollisionVisible.value = visible;
     });
     // label
     var label = new ui.Label({
         text: 'Physics Edit Mode'
     });
-    label.on('click', function() {
+    label.on('click', function () {
         fieldCollisionVisible.element.click();
     });
     panelCollision.append(label);
@@ -45,21 +45,20 @@ editor.once('load', function() {
     fieldZonesVisible.class.add('tick');
     panelZones.append(fieldZonesVisible);
     fieldZonesVisible.value = editor.call('gizmo:zone:visible');
-    fieldZonesVisible.on('change', function(value) {
+    fieldZonesVisible.on('change', function (value) {
         editor.call('gizmo:zone:visible', value);
     });
-    editor.on('gizmo:zone:visible', function(visible) {
+    editor.on('gizmo:zone:visible', function (visible) {
         fieldZonesVisible.value = visible;
     });
     // label
     var label = new ui.Label({
         text: 'Zones Edit Mode'
     });
-    label.on('click', function() {
+    label.on('click', function () {
         fieldZonesVisible.element.click();
     });
     panelZones.append(label);
-
 
 
     // fullscreen
@@ -72,7 +71,7 @@ editor.once('load', function() {
 
     var timeout;
 
-    var onHover = function() {
+    var onHover = function () {
         if (timeout) {
             clearTimeout(timeout);
             timeout = null;
@@ -81,38 +80,38 @@ editor.once('load', function() {
         panel.hidden = false;
     };
 
-    var onBlur = function() {
+    var onBlur = function () {
         if (timeout) {
             clearTimeout(timeout);
             timeout = null;
         }
 
-        timeout = setTimeout(function() {
+        timeout = setTimeout(function () {
             panel.hidden = true;
             timeout = null;
         }, 50);
     };
 
-    buttonOptions.element.addEventListener('mouseenter', function() {
+    buttonOptions.element.addEventListener('mouseenter', function () {
         if (! editor.call('permissions:read') || buttonOptions.disabled)
             return;
 
         onHover();
     }, false);
 
-    buttonOptions.element.addEventListener('mouseleave', function() {
+    buttonOptions.element.addEventListener('mouseleave', function () {
         if (! editor.call('permissions:read'))
             return;
 
         onBlur();
     }, false);
 
-    panel.element.addEventListener('mouseenter', function() {
+    panel.element.addEventListener('mouseenter', function () {
         if (! panel.hidden)
             onHover();
     }, false);
 
-    panel.element.addEventListener('mouseleave', function() {
+    panel.element.addEventListener('mouseleave', function () {
         onBlur();
     }, false);
 });

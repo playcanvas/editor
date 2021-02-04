@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var vecA = new pc.Vec3();
@@ -72,8 +72,8 @@ editor.once('load', function() {
 
         obj.handles.tl = createCone(230);
         obj.handles.tr = createCone(130);
-        obj.handles.bl = createCone(130+180);
-        obj.handles.br = createCone(230+180);
+        obj.handles.bl = createCone(130 + 180);
+        obj.handles.br = createCone(230 + 180);
 
         // obj.handles.center = new pc.Entity();
         // var sphere = new pc.Entity();
@@ -91,7 +91,7 @@ editor.once('load', function() {
         return obj;
     };
 
-    var createMaterial = function(color) {
+    var createMaterial = function (color) {
         var mat = new pc.BasicMaterial();
         mat.color = color;
         if (color.a !== 1) {
@@ -156,7 +156,7 @@ editor.once('load', function() {
                 selectedEntity.entity.element.screen;
         };
 
-        editor.method('gizmo:anchor:visible', function(state) {
+        editor.method('gizmo:anchor:visible', function (state) {
             if (visible !== state) {
                 visible = state;
 
@@ -245,7 +245,7 @@ editor.once('load', function() {
                             anchorCurrent[0] = offsetAnchor(anchorCurrent[0], offset.x / resX, 0, anchorCurrent[2], snapIncrement);
                         }
                     }
-                     // else if (gizmoAnchor.handle === gizmoAnchor.handles.center) {
+                    // else if (gizmoAnchor.handle === gizmoAnchor.handles.center) {
                     //     var dx = anchorCurrent[2] - anchorCurrent[0];
                     //     var dy = anchorCurrent[3] - anchorCurrent[1];
 
@@ -277,7 +277,7 @@ editor.once('load', function() {
             // gizmoAnchor.handles.center.setLocalPosition(resX * (pc.math.lerp(anchor.x,anchor.z,0.5) - 0.5), resY * (pc.math.lerp(anchor.y,anchor.w,0.5) - 0.5), 0, 0.1);
         });
 
-        editor.on('viewport:pick:hover', function(node, picked) {
+        editor.on('viewport:pick:hover', function (node, picked) {
             if (! node || ! node.handle) {
                 if (gizmoAnchor.handle) {
                     gizmoAnchor.handle = null;
@@ -332,7 +332,7 @@ editor.once('load', function() {
             editor.call('gizmo:scale:visible', false);
         };
 
-        var onTapMove = function(tap) {
+        var onTapMove = function (tap) {
             if (! moving)
                 return;
 
@@ -340,7 +340,7 @@ editor.once('load', function() {
             mouseTapMoved = true;
         };
 
-        var onTapEnd = function(tap) {
+        var onTapEnd = function (tap) {
             if (tap.button !== 0)
                 return;
 
@@ -366,7 +366,7 @@ editor.once('load', function() {
 
                     editor.call('history:add', {
                         name: 'entity.element.anchor',
-                        undo: function() {
+                        undo: function () {
                             var item = editor.call('entities:get', resourceId);
                             if (! item)
                                 return;
@@ -376,7 +376,7 @@ editor.once('load', function() {
                             item.set('components.element.anchor', previousAnchor);
                             item.history.enabled = history;
                         },
-                        redo: function() {
+                        redo: function () {
                             var item = editor.call('entities:get', resourceId);
                             if (! item)
                                 return;
@@ -393,7 +393,7 @@ editor.once('load', function() {
             }
         };
 
-        var pickPlane = function(x, y) {
+        var pickPlane = function (x, y) {
             var camera = editor.call('camera:current');
 
             var mouseWPos = camera.camera.screenToWorld(x, y, camera.camera.farClip);

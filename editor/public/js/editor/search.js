@@ -1,30 +1,30 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     // calculate, how many string `a`
     // requires edits, to become string `b`
-    editor.method('search:stringEditDistance', function(a, b) {
+    editor.method('search:stringEditDistance', function (a, b) {
         // Levenshtein distance
         // https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#JavaScript
-        if(a.length === 0) return b.length;
-        if(b.length === 0) return a.length;
-        if(a === b) return 0;
+        if (a.length === 0) return b.length;
+        if (b.length === 0) return a.length;
+        if (a === b) return 0;
 
         var i, j;
         var matrix = [];
 
-        for(i = 0; i <= b.length; i++)
+        for (i = 0; i <= b.length; i++)
             matrix[i] = [i];
 
-        for(j = 0; j <= a.length; j++)
+        for (j = 0; j <= a.length; j++)
             matrix[0][j] = j;
 
-        for(i = 1; i <= b.length; i++){
-            for(j = 1; j <= a.length; j++){
-                if(b.charAt(i-1) === a.charAt(j-1)){
-                    matrix[i][j] = matrix[i-1][j-1];
+        for (i = 1; i <= b.length; i++){
+            for (j = 1; j <= a.length; j++){
+                if (b.charAt(i - 1) === a.charAt(j - 1)){
+                    matrix[i][j] = matrix[i - 1][j - 1];
                 } else {
-                    matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, Math.min(matrix[i][j-1] + 1, matrix[i-1][j] + 1));
+                    matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1));
                 }
             }
         }
@@ -35,7 +35,7 @@ editor.once('load', function() {
 
     // calculate, how many characters string `b`
     // contains of a string `a`
-    editor.method('search:charsContains', function(a, b) {
+    editor.method('search:charsContains', function (a, b) {
         if (a === b)
             return a.length;
 
@@ -43,11 +43,11 @@ editor.once('load', function() {
         var ind = { };
         var i;
 
-        for(i = 0; i < b.length; i++)
+        for (i = 0; i < b.length; i++)
             ind[b.charAt(i)] = true;
 
-        for(i = 0; i < a.length; i++) {
-            if(ind[a.charAt(i)])
+        for (i = 0; i < a.length; i++) {
+            if (ind[a.charAt(i)])
                 contains++;
         }
 
@@ -56,8 +56,8 @@ editor.once('load', function() {
 
 
     // tokenize string into array of tokens
-    editor.method('search:stringTokenize', function(name) {
-        var tokens = [ ];
+    editor.method('search:stringTokenize', function (name) {
+        var tokens = [];
 
         // camelCase
         // upperCASE123
@@ -69,7 +69,7 @@ editor.once('load', function() {
         var parts = string.split(/(\s|\-|_)/g);
 
         // filter valid tokens
-        for(var i = 0; i < parts.length; i++) {
+        for (var i = 0; i < parts.length; i++) {
             parts[i] = parts[i].toLowerCase().trim();
             if (parts[i] && parts[i] !== '-' && parts[i] !== '_')
                 tokens.push(parts[i]);
@@ -79,10 +79,10 @@ editor.once('load', function() {
     });
 
 
-    var searchItems = function(items, search, args) {
-        var results = [ ];
+    var searchItems = function (items, search, args) {
+        var results = [];
 
-        for(var i = 0; i < items.length; i++) {
+        for (var i = 0; i < items.length; i++) {
             var item = items[i];
 
             // direct hit
@@ -117,7 +117,7 @@ editor.once('load', function() {
             var subCandidate = Infinity;
 
             // for each token
-            for(var t = 0; t < item.tokens.length; t++) {
+            for (var t = 0; t < item.tokens.length; t++) {
                 // direct token match
                 if (item.tokens[t] === search) {
                     editsCandidate = 0;
@@ -158,31 +158,31 @@ editor.once('load', function() {
     // items is an array with arrays of two values
     // where first value is a string to be searched by
     // and second value is an object to be found
-    /*
-    [
-        [ 'camera', {object} ],
-        [ 'New Entity', {object} ],
-        [ 'Sun', {object} ]
-    ]
-    */
-    editor.method('search:items', function(items, search, args) {
+    //
+    // [
+    //     [ 'camera', {object} ],
+    //     [ 'New Entity', {object} ],
+    //     [ 'Sun', {object} ]
+    // ]
+    //
+    editor.method('search:items', function (items, search, args) {
         search = (search || '').toLowerCase().trim();
 
         if (! search)
-            return [ ];
+            return [];
 
         var searchTokens = editor.call('search:stringTokenize', search);
         if (! searchTokens.length)
-            return [ ];
+            return [];
 
         args = args || { };
         args.containsCharsTolerance = args.containsCharsTolerance || 0.5;
         args.editsDistanceTolerance = args.editsDistanceTolerance || 0.5;
 
-        var result = [ ];
-        var records = [ ];
+        var result = [];
+        var records = [];
 
-        for(var i = 0; i < items.length; i++) {
+        for (var i = 0; i < items.length; i++) {
             var subInd = items[i][0].toLowerCase().trim().indexOf(search);
 
             records.push({
@@ -196,24 +196,24 @@ editor.once('load', function() {
         }
 
         // search each token
-        for(var i = 0; i < searchTokens.length; i++)
+        for (var i = 0; i < searchTokens.length; i++)
             records = searchItems(records, searchTokens[i], args);
 
         // sort result first by substring? then by edits number
-        records.sort(function(a, b) {
+        records.sort(function (a, b) {
             if (a.subFull !== b.subFull) {
                 return a.subFull - b.subFull;
             } else if (a.sub !== b.sub) {
                 return a.sub - b.sub;
             } else if (a.edits !== b.edits) {
                 return a.edits - b.edits;
-            } else {
-                return a.name.length - b.name.length;
             }
+            return a.name.length - b.name.length;
+
         });
 
         // return only items without match information
-        for(var i = 0; i < records.length; i++)
+        for (var i = 0; i < records.length; i++)
             records[i] = records[i].item;
 
         // limit number of results

@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var gizmoType = 'translate';
@@ -8,7 +8,7 @@ editor.once('load', function() {
     var snapShift = false;
     var snapIncrement = 1;
 
-    editor.method('gizmo:type', function(type) {
+    editor.method('gizmo:type', function (type) {
         if (type === undefined)
             return gizmoType;
 
@@ -20,7 +20,7 @@ editor.once('load', function() {
         editor.emit('gizmo:type', type);
     });
 
-    editor.method('gizmo:coordSystem', function(system) {
+    editor.method('gizmo:coordSystem', function (system) {
         if (system === undefined)
             return coordSystem;
 
@@ -32,7 +32,7 @@ editor.once('load', function() {
         editor.emit('gizmo:coordSystem', system);
     });
 
-    var checkSnap = function() {
+    var checkSnap = function () {
         var state = (snapToggle || snapShift) && (snapToggle !== snapShift);
         if (snap === state)
             return;
@@ -41,7 +41,7 @@ editor.once('load', function() {
         editor.emit('gizmo:snap', snap, snapIncrement);
     };
 
-    editor.method('gizmo:snap', function(state) {
+    editor.method('gizmo:snap', function (state) {
         if (snapToggle === state)
             return;
 
@@ -50,7 +50,7 @@ editor.once('load', function() {
     });
 
     var editorSettings = editor.call('settings:projectUser');
-    editorSettings.on('editor.snapIncrement:set', function(value) {
+    editorSettings.on('editor.snapIncrement:set', function (value) {
         if (snapIncrement === (value || 1))
             return;
 
@@ -59,7 +59,7 @@ editor.once('load', function() {
     });
     snapIncrement = editorSettings.get('editor.snapIncrement') || 1;
 
-    editor.on('hotkey:shift', function(state) {
+    editor.on('hotkey:shift', function (state) {
         if (snapShift === state)
             return;
 

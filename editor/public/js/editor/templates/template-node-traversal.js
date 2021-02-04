@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     /**
@@ -16,14 +16,14 @@ editor.once('load', function() {
      * which in turn calls the 'makeRecursiveCalls' or 'addCurPathToKnown'
      * of 'NodeTraversal'.
      *
-     * @param {Object} data Traversal state data with fields:
+     * @param {object} data - Traversal state data with fields:
      *   typeToRoot, conflicts, path, type1
      */
     editor.method('assets:templateNodeTraversal', function (data) {
         new NodeTraversal(data).run();
     });
 
-    const bothTypes = [ 'src', 'dst' ];
+    const bothTypes = ['src', 'dst'];
 
     class NodeTraversal {
         constructor(data) {
@@ -131,8 +131,8 @@ editor.once('load', function() {
      * found here, in which case the traversal's
      * 'addCurPathToKnown' methods is called.
      *
-     * @param {Object} data Traversal state data
-     * @param {Object} traversal A NodeTraversal instance
+     * @param {object} data - Traversal state data
+     * @param {object} traversal - A NodeTraversal instance
      */
     class DiffTemplateNode {
         constructor(data, traversal) {
@@ -140,7 +140,7 @@ editor.once('load', function() {
 
             this.traversal = traversal;
 
-            this.fullPath = [ 'entities', data.entityResourceId ].concat(data.path);
+            this.fullPath = ['entities', data.entityResourceId].concat(data.path);
         }
 
         handleNode() {
@@ -171,7 +171,7 @@ editor.once('load', function() {
             } else if (editor.call('template:attrUtils', 'isJsonMapNode', this.data)) {
                 this.traversal.makeRecursiveCalls();
 
-           } else {
+            } else {
                 const h = editor.call('template:attrUtils', 'conflictFieldsForAttr', this.data);
 
                 this.reportDiff(h);
@@ -184,7 +184,7 @@ editor.once('load', function() {
         }
 
         areBothNodesMaps() {
-            return [ this.data.node1, this.data.node2 ].every(h => {
+            return [this.data.node1, this.data.node2].every(h => {
                 return editor.call('template:utils', 'isMapObj', h);
             });
         }
@@ -290,4 +290,3 @@ editor.once('load', function() {
         }
     }
 });
-

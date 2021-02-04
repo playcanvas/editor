@@ -1,9 +1,9 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
 
-    editor.on('attributes:inspect[asset]', function(assets) {
-        for(var i = 0; i < assets.length; i++) {
+    editor.on('attributes:inspect[asset]', function (assets) {
+        for (var i = 0; i < assets.length; i++) {
             if (assets[i].get('type') !== 'cubemap')
                 return;
         }
@@ -49,16 +49,16 @@ editor.once('load', function() {
             mipSelector.parent = panelParams;
             mipSelector.hidden = ! assets[0].get('file');
 
-            mipSelector.on('change', function(value) {
+            mipSelector.on('change', function (value) {
                 mipLevel = value;
                 queueRender();
             });
 
             var sx = 0, sy = 0, x = 0, y = 0, nx = 0, ny = 0;
             var dragging = false;
-            var previewRotation = [ 0, 0 ];
+            var previewRotation = [0, 0];
 
-            preview.addEventListener('mousedown', function(evt) {
+            preview.addEventListener('mousedown', function (evt) {
                 if (evt.button !== 0)
                     return;
 
@@ -71,7 +71,7 @@ editor.once('load', function() {
                 dragging = true;
             }, false);
 
-            var onMouseMove = function(evt) {
+            var onMouseMove = function (evt) {
                 if (! dragging)
                     return;
 
@@ -83,7 +83,7 @@ editor.once('load', function() {
                 queueRender();
             };
 
-            var onMouseUp = function(evt) {
+            var onMouseUp = function (evt) {
                 if (! dragging)
                     return;
 
@@ -131,7 +131,7 @@ editor.once('load', function() {
             renderPreview();
 
             // queue up the rendering to prevent too oftern renders
-            var queueRender = function() {
+            var queueRender = function () {
                 if (renderQueued) return;
                 renderQueued = true;
                 requestAnimationFrame(renderPreview);
@@ -151,7 +151,7 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'asset:cubemap:asset', panelParams, panelParams.headerElement);
 
         if (assets.length === 1) {
-            panelParams.on('destroy', function() {
+            panelParams.on('destroy', function () {
                 root.class.remove('asset-preview');
 
                 if (previewRenderer) {
@@ -182,7 +182,7 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'asset:texture:filtering', fieldFiltering.parent.innerElement.firstChild.ui);
 
         var isPrefiltered = false;
-        for(var i = 0; i < assets.length; i++) {
+        for (var i = 0; i < assets.length; i++) {
             if (!! assets[i].get('file')) {
                 isPrefiltered = true;
                 break;
@@ -191,12 +191,12 @@ editor.once('load', function() {
 
         var changingFiltering = false;
 
-        var updateFiltering = function() {
+        var updateFiltering = function () {
             var value = '';
             var valueDifferent = false;
             var filter = assets[0].get('data.minFilter') + '_' + assets[0].get('data.magFilter');
 
-            for(var i = 1; i < assets.length; i++) {
+            for (var i = 1; i < assets.length; i++) {
                 if (filter !== (assets[i].get('data.minFilter') + '_' + assets[i].get('data.magFilter'))) {
                     valueDifferent = true;
                     break;
@@ -223,16 +223,16 @@ editor.once('load', function() {
         };
         updateFiltering();
 
-        fieldFiltering.on('change', function(value) {
+        fieldFiltering.on('change', function (value) {
             if (changingFiltering)
                 return;
 
-            var values = [ ];
+            var values = [];
             var valueMin = value === 'nearest' ? 2 : 5;
             var valueMag = value === 'nearest' ? 0 : 1;
 
             changingFiltering = true;
-            for(var i = 0; i < assets.length; i++) {
+            for (var i = 0; i < assets.length; i++) {
                 values.push({
                     id: assets[i].get('id'),
                     valueMin: assets[i].get('data.minFilter'),
@@ -250,8 +250,8 @@ editor.once('load', function() {
             // history
             editor.call('history:add', {
                 name: 'assets.filtering',
-                undo: function() {
-                    for(var i = 0; i < values.length; i++) {
+                undo: function () {
+                    for (var i = 0; i < values.length; i++) {
                         var asset = editor.call('assets:get', values[i].id);
                         if (! asset)
                             continue;
@@ -262,8 +262,8 @@ editor.once('load', function() {
                         asset.history.enabled = true;
                     }
                 },
-                redo: function() {
-                    for(var i = 0; i < values.length; i++) {
+                redo: function () {
+                    for (var i = 0; i < values.length; i++) {
                         var asset = editor.call('assets:get', values[i].id);
                         if (! asset)
                             continue;
@@ -277,28 +277,27 @@ editor.once('load', function() {
             });
         });
 
-        var eventsFiltering = [ ];
+        var eventsFiltering = [];
         var changingQueued = false;
-        var changedFiltering = function() {
+        var changedFiltering = function () {
             if (changingQueued || changingFiltering)
                 return;
 
             changingQueued = true;
-            setTimeout(function() {
+            setTimeout(function () {
                 changingQueued = false;
                 updateFiltering();
             }, 0);
         };
-        for(var i = 0; i < assets.length; i++) {
+        for (var i = 0; i < assets.length; i++) {
             eventsFiltering.push(assets[i].on('data.minFilter:set', changedFiltering));
             eventsFiltering.push(assets[i].on('data.magFilter:set', changedFiltering));
         }
-        fieldFiltering.once('destroy', function() {
-            for(var i = 0; i < eventsFiltering.length; i++) {
+        fieldFiltering.once('destroy', function () {
+            for (var i = 0; i < eventsFiltering.length; i++) {
                 eventsFiltering[i].unbind();
             }
         });
-
 
 
         // anisotropy
@@ -345,10 +344,10 @@ editor.once('load', function() {
                 5: 'back',
                 3: 'bottom'
             };
-            var side = [ 2, 1, 4, 0, 5, 3 ];
-            var faces = [ ];
+            var side = [2, 1, 4, 0, 5, 3];
+            var faces = [];
 
-            var checkValid = function() {
+            var checkValid = function () {
                 var invalid = invalidFaces();
 
                 if (invalid)
@@ -362,13 +361,13 @@ editor.once('load', function() {
                 }
             };
 
-            var invalidFaces = function() {
+            var invalidFaces = function () {
                 var faces = assets[0].get('data.textures');
 
                 if (! (faces instanceof Array))
                     return 'missing faces information';
 
-                for(var i = 0; i < 6; i++) {
+                for (var i = 0; i < 6; i++) {
                     if (! faces[i])
                         return 'set face textures';
                 }
@@ -376,7 +375,7 @@ editor.once('load', function() {
                 var width = 0;
                 var height = 0;
 
-                for(var i = 0; i < 6; i++) {
+                for (var i = 0; i < 6; i++) {
                     var asset = editor.call('assets:get', faces[i]);
                     if (! asset)
                         return 'missing face asset';
@@ -405,16 +404,16 @@ editor.once('load', function() {
                 return false;
             };
 
-            var watchingAssets = [ null, null, null, null, null, null ];
+            var watchingAssets = [null, null, null, null, null, null];
 
-            var makeThumbnailUrl = function(asset) {
+            var makeThumbnailUrl = function (asset) {
                 var url = config.url.home + '/' + (asset.get('thumbnails.l') || asset.get('file.url'));
                 url = url.appendQuery('t=' + asset.get('file.hash'));
                 return url;
             };
 
             // set face texture
-            var setTexture = function(face, assetId) {
+            var setTexture = function (face, assetId) {
                 if (watchingAssets[face.ind]) {
                     watchingAssets[face.ind].unbind();
                     watchingAssets[face.ind] = null;
@@ -427,7 +426,7 @@ editor.once('load', function() {
                     var texture = editor.call('assets:get', assetId);
 
                     if (texture && texture.get('type') === 'texture' && ! texture.get('source')) {
-                        watchingAssets[face.ind] = texture.on('thumbnails:set', function() {
+                        watchingAssets[face.ind] = texture.on('thumbnails:set', function () {
                             face.classList.remove('empty');
                             face.style.backgroundImage = 'url("' + makeThumbnailUrl(texture) + '")';
                         });
@@ -501,7 +500,7 @@ editor.once('load', function() {
             };
 
             // create eface
-            var createFace = function(ind) {
+            var createFace = function (ind) {
                 // create face element
                 var face = faces[ind] = document.createElement('div');
                 face.ind = ind;
@@ -514,7 +513,7 @@ editor.once('load', function() {
                 face.appendChild(name);
 
                 // on face click
-                face.addEventListener('click', function() {
+                face.addEventListener('click', function () {
                     if (! editor.call('permissions:write'))
                         return;
 
@@ -524,13 +523,13 @@ editor.once('load', function() {
                         currentAsset: texture
                     });
 
-                    var evtPick = editor.once('picker:asset', function(texture) {
+                    var evtPick = editor.once('picker:asset', function (texture) {
                         // clear prefiltered data
                         setAssetFace(ind, texture);
                         evtPick = null;
                     });
 
-                    editor.once('picker:asset:close', function() {
+                    editor.once('picker:asset:close', function () {
                         if (evtPick) {
                             evtPick.unbind();
                             evtPick = null;
@@ -541,7 +540,7 @@ editor.once('load', function() {
                 var dropRef = editor.call('drop:target', {
                     ref: face,
                     type: 'asset.texture',
-                    drop: function(type, data) {
+                    drop: function (type, data) {
                         if (type !== 'asset.texture')
                             return;
 
@@ -552,7 +551,7 @@ editor.once('load', function() {
                         try {
                             var empty = true;
                             var faces = assets[0].get('data.textures');
-                            for(var i = 0; i < faces.length; i++) {
+                            for (var i = 0; i < faces.length; i++) {
                                 if (faces[i]) {
                                     empty = false;
                                     break;
@@ -601,9 +600,9 @@ editor.once('load', function() {
                                         'back': 5,
                                         'backward': 5,
 
-                                        '6': 6,
+                                        '6': 6
                                     };
-                                    var faceAssets = editor.call('assets:find', function(a) {
+                                    var faceAssets = editor.call('assets:find', function (a) {
                                         if (a.get('source') || a.get('type') !== 'texture')
                                             return;
 
@@ -630,9 +629,9 @@ editor.once('load', function() {
                                     });
 
                                     if (faceAssets.length === 6) {
-                                        var allFaces = [ ];
+                                        var allFaces = [];
 
-                                        for(var i = 0; i < faceAssets.length; i++) {
+                                        for (var i = 0; i < faceAssets.length; i++) {
                                             var p = faceAssets[i][1].get('name').toLowerCase();
                                             if (match) p = p.slice(match);
                                             var m = p.indexOf('.');
@@ -641,30 +640,30 @@ editor.once('load', function() {
                                             faceAssets[i] = {
                                                 asset: faceAssets[i][1],
                                                 face: sort[p]
-                                            }
+                                            };
                                         }
 
-                                        faceAssets.sort(function(a, b) {
+                                        faceAssets.sort(function (a, b) {
                                             return a.face - b.face;
                                         });
 
 
-                                        for(var i = 0; i < faceAssets.length; i++)
+                                        for (var i = 0; i < faceAssets.length; i++)
                                             setAssetFace(i, faceAssets[i].asset);
 
                                         return;
                                     }
                                 }
                             }
-                        } catch(ex) {
+                        } catch (ex) {
                             log.error(ex);
                         }
 
                         setAssetFace(ind, asset);
                     }
                 });
-                previewPanel.on('destroy', function() {
-                    for(var i = 0; i < watchingAssets.length; i++) {
+                previewPanel.on('destroy', function () {
+                    for (var i = 0; i < watchingAssets.length; i++) {
                         if (! watchingAssets[i])
                             continue;
 
@@ -680,7 +679,7 @@ editor.once('load', function() {
                 face.appendChild(faceClear);
 
                 // on clear click
-                faceClear.addEventListener('click', function(evt) {
+                faceClear.addEventListener('click', function (evt) {
                     if (! editor.call('permissions:write'))
                         return;
 
@@ -693,7 +692,7 @@ editor.once('load', function() {
                 setTexture(face, assets[0].get('data.textures.' + ind));
 
                 // bind to changes
-                face.evt = assets[0].on('data.textures.' + ind + ':set', function(value) {
+                face.evt = assets[0].on('data.textures.' + ind + ':set', function (value) {
                     clearPrefiltered();
                     setTexture(face, value);
                     prefilterPanel.hidden = !! invalidFaces();
@@ -702,13 +701,13 @@ editor.once('load', function() {
             };
 
             // create all faces
-            for(var i = 0; i < side.length; i++)
+            for (var i = 0; i < side.length; i++)
                 createFace(side[i]);
 
             // on destroy
-            previewPanel.on('destroy', function() {
+            previewPanel.on('destroy', function () {
                 // unbind events
-                for(var i = 0; i < faces.length; i++)
+                for (var i = 0; i < faces.length; i++)
                     faces[i].evt.unbind();
             });
 
@@ -723,7 +722,7 @@ editor.once('load', function() {
 
             // prefilter button
             var prefilterBtn = new ui.Button({
-                text: 'Prefilter',
+                text: 'Prefilter'
             });
 
             prefilterPanel.append(prefilterBtn);
@@ -742,7 +741,7 @@ editor.once('load', function() {
 
             // delete prefiltered data button
             var clearPrefilteredBtn = new ui.Button({
-                text: 'Delete Prefiltered Data',
+                text: 'Delete Prefiltered Data'
             });
 
             prefilterPanel.append(clearPrefilteredBtn);

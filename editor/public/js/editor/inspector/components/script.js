@@ -634,7 +634,7 @@ Object.assign(pcui, (function () {
                         var attrInvalid = result.scripts[scriptName].attributesInvalid;
                         attrInvalid.forEach(err => {
                             this._componentInspector.onParseError(err, scriptName);
-                        })
+                        });
                     }
                 }
             });

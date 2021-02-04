@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var root = editor.call('layout.root');
@@ -22,7 +22,7 @@ editor.once('load', function() {
         text: 'GOT IT'
     });
     btn.class.add('next');
-    btn.on('click', function() {
+    btn.on('click', function () {
         overlay.hidden = true;
     });
     overlay.append(btn);

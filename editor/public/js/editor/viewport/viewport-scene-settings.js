@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var sceneSettings = editor.call('sceneSettings');
@@ -10,7 +10,7 @@ editor.once('load', function() {
     var updating;
 
     // queue settings apply
-    var queueApplySettings = function() {
+    var queueApplySettings = function () {
         if (! sceneSettingsLoaded || updating || ! assetsLoaded)
             return;
 
@@ -21,7 +21,7 @@ editor.once('load', function() {
     };
 
     // apply settings
-    var applySettings = function() {
+    var applySettings = function () {
         if (! app) return;
 
         updating = false;
@@ -30,7 +30,7 @@ editor.once('load', function() {
         app.applySceneSettings(sceneSettings.json());
 
         // need to update all materials on scene settings change
-        for(var i = 0; i < app.assets._assets.length; i++) {
+        for (var i = 0; i < app.assets._assets.length; i++) {
             if (app.assets._assets[i].type !== 'material' || !app.assets._assets[i].resource)
                 continue;
 

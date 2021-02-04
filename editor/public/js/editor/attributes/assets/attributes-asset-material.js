@@ -422,20 +422,20 @@ editor.once('load', function () {
             }
 
             return false;
-        }
+        };
         var different = checkTilingOffsetDifferent();
 
         if (different && panelStateNew)
-            panelState['offset'] = true;
+            panelState.offset = true;
 
         var panelTiling = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: panelState['offset'],
+            folded: panelState.offset,
             name: 'Offset & Tiling'
         });
         panelTiling.class.add('component');
-        panelTiling.on('fold', function () { panelState['offset'] = true; });
-        panelTiling.on('unfold', function () { panelState['offset'] = false; });
+        panelTiling.on('fold', function () { panelState.offset = true; });
+        panelTiling.on('unfold', function () { panelState.offset = false; });
         // reference
         editor.call('attributes:reference:attach', 'asset:material:offsetTiling', panelTiling, panelTiling.headerElement);
 
@@ -536,8 +536,8 @@ editor.once('load', function () {
         if (different) {
             fieldTilingOffset.value = false;
 
-            if (panelStateNew && !panelState['offset'])
-                panelState['offset'] = true;
+            if (panelStateNew && !panelState.offset)
+                panelState.offset = true;
         }
 
         fieldOffset[0].value = offset[0];
@@ -916,16 +916,15 @@ editor.once('load', function () {
         };
 
 
-
         // ambient
         var panelAmbient = texturePanels.ao = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: panelState['ao'],
+            folded: panelState.ao,
             name: 'Ambient'
         });
         panelAmbient.class.add('component');
-        panelAmbient.on('fold', function () { panelState['ao'] = true; });
-        panelAmbient.on('unfold', function () { panelState['ao'] = false; });
+        panelAmbient.on('fold', function () { panelState.ao = true; });
+        panelAmbient.on('unfold', function () { panelState.ao = false; });
         // reference
         editor.call('attributes:reference:attach', 'asset:material:ambientOverview', panelAmbient, panelAmbient.headerElement);
 
@@ -1097,12 +1096,12 @@ editor.once('load', function () {
         // diffuse
         var panelDiffuse = texturePanels.diffuse = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: panelState['diffuse'],
+            folded: panelState.diffuse,
             name: 'Diffuse'
         });
         panelDiffuse.class.add('component');
-        panelDiffuse.on('fold', function () { panelState['diffuse'] = true; });
-        panelDiffuse.on('unfold', function () { panelState['diffuse'] = false; });
+        panelDiffuse.on('fold', function () { panelState.diffuse = true; });
+        panelDiffuse.on('unfold', function () { panelState.diffuse = false; });
         // reference
         editor.call('attributes:reference:attach', 'asset:material:diffuseOverview', panelDiffuse, panelDiffuse.headerElement);
 
@@ -1251,16 +1250,15 @@ editor.once('load', function () {
         editor.call('attributes:reference:attach', 'asset:material:diffuseMapTint', labelDiffuseTint);
 
 
-
         // specular
         var panelSpecular = texturePanels.specular = texturePanels.metalness = texturePanels.gloss = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: panelState['specular'],
+            folded: panelState.specular,
             name: 'Specular'
         });
         panelSpecular.class.add('component');
-        panelSpecular.on('fold', function () { panelState['specular'] = true; });
-        panelSpecular.on('unfold', function () { panelState['specular'] = false; });
+        panelSpecular.on('fold', function () { panelState.specular = true; });
+        panelSpecular.on('unfold', function () { panelState.specular = false; });
         // reference
         editor.call('attributes:reference:attach', 'asset:material:specularOverview', panelSpecular, panelSpecular.headerElement);
 
@@ -1333,7 +1331,7 @@ editor.once('load', function () {
                 'r': 'R',
                 'g': 'G',
                 'b': 'B',
-                'a': 'A',
+                'a': 'A'
             },
             link: assets,
             path: 'data.metalnessMapChannel'
@@ -1737,12 +1735,12 @@ editor.once('load', function () {
         // emissive
         var panelEmissive = texturePanels.emissive = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: panelState['emissive'],
+            folded: panelState.emissive,
             name: 'Emissive'
         });
         panelEmissive.class.add('component');
-        panelEmissive.on('fold', function () { panelState['emissive'] = true; });
-        panelEmissive.on('unfold', function () { panelState['emissive'] = false; });
+        panelEmissive.on('fold', function () { panelState.emissive = true; });
+        panelEmissive.on('unfold', function () { panelState.emissive = false; });
         // reference
         editor.call('attributes:reference:attach', 'asset:material:emissiveOverview', panelEmissive, panelEmissive.headerElement);
 
@@ -1892,14 +1890,13 @@ editor.once('load', function () {
         editor.call('attributes:reference:attach', 'asset:material:emissiveMapTint', labelEmissiveTint);
 
 
-
         // emissiveIntensity
         var fieldEmissiveIntensity = editor.call('attributes:addField', {
             parent: panelEmissive,
             name: 'Intensity',
             type: 'number',
             precision: 2,
-            step: .1,
+            step: 0.1,
             min: 0,
             link: assets,
             path: 'data.emissiveIntensity'
@@ -1912,7 +1909,7 @@ editor.once('load', function () {
         var fieldEmissiveIntensitySlider = editor.call('attributes:addField', {
             panel: fieldEmissiveIntensity.parent,
             precision: 2,
-            step: .1,
+            step: 0.1,
             min: 0,
             max: 10,
             type: 'number',
@@ -1926,12 +1923,12 @@ editor.once('load', function () {
         // opacity
         var panelOpacity = texturePanels.opacity = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: panelState['opacity'],
+            folded: panelState.opacity,
             name: 'Opacity'
         });
         panelOpacity.class.add('component');
-        panelOpacity.on('fold', function () { panelState['opacity'] = true; });
-        panelOpacity.on('unfold', function () { panelState['opacity'] = false; });
+        panelOpacity.on('fold', function () { panelState.opacity = true; });
+        panelOpacity.on('unfold', function () { panelState.opacity = false; });
         // reference
         editor.call('attributes:reference:attach', 'asset:material:opacityOverview', panelOpacity, panelOpacity.headerElement);
 
@@ -1957,7 +1954,7 @@ editor.once('load', function () {
                 { v: 5, t: 'Multiply' },
                 { v: 7, t: 'Modulate 2x' },
                 { v: 9, t: 'Min (Partial Support)' },
-                { v: 10, t: 'Max (Partial Support)' },
+                { v: 10, t: 'Max (Partial Support)' }
             ],
             name: 'Blend Type',
             link: assets,
@@ -2086,7 +2083,7 @@ editor.once('load', function () {
             name: 'Intensity',
             type: 'number',
             precision: 3,
-            step: .05,
+            step: 0.05,
             min: 0,
             max: 1,
             link: assets,
@@ -2101,7 +2098,7 @@ editor.once('load', function () {
         var fieldOpacityIntensitySlider = editor.call('attributes:addField', {
             panel: fieldOpacityIntensity.parent,
             precision: 3,
-            step: .05,
+            step: 0.05,
             min: 0,
             max: 1,
             type: 'number',
@@ -2117,7 +2114,7 @@ editor.once('load', function () {
             name: 'Alpha Test',
             type: 'number',
             precision: 3,
-            step: .05,
+            step: 0.05,
             min: 0,
             max: 1,
             link: assets,
@@ -2132,7 +2129,7 @@ editor.once('load', function () {
         var fieldAlphaTestSlider = editor.call('attributes:addField', {
             panel: fieldAlphaTest.parent,
             precision: 3,
-            step: .05,
+            step: 0.05,
             min: 0,
             max: 1,
             type: 'number',
@@ -2161,12 +2158,12 @@ editor.once('load', function () {
         // normals
         var panelNormal = texturePanels.normal = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: panelState['normals'],
+            folded: panelState.normals,
             name: 'Normals'
         });
         panelNormal.class.add('component');
-        panelNormal.on('fold', function () { panelState['normals'] = true; });
-        panelNormal.on('unfold', function () { panelState['normals'] = false; });
+        panelNormal.on('fold', function () { panelState.normals = true; });
+        panelNormal.on('unfold', function () { panelState.normals = false; });
         // reference
         editor.call('attributes:reference:attach', 'asset:material:normalOverview', panelNormal, panelNormal.headerElement);
 
@@ -2263,7 +2260,7 @@ editor.once('load', function () {
             name: 'Bumpiness',
             type: 'number',
             precision: 3,
-            step: .05,
+            step: 0.05,
             min: 0,
             max: 2,
             link: assets,
@@ -2279,7 +2276,7 @@ editor.once('load', function () {
         var fieldBumpinessSlider = editor.call('attributes:addField', {
             panel: fieldBumpiness.parent,
             precision: 3,
-            step: .05,
+            step: 0.05,
             min: 0,
             max: 2,
             type: 'number',
@@ -2293,12 +2290,12 @@ editor.once('load', function () {
         // parallax
         var panelParallax = texturePanels.height = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: panelState['height'],
+            folded: panelState.height,
             name: 'Parallax'
         });
         panelParallax.class.add('component');
-        panelParallax.on('fold', function () { panelState['height'] = true; });
-        panelParallax.on('unfold', function () { panelState['height'] = false; });
+        panelParallax.on('fold', function () { panelState.height = true; });
+        panelParallax.on('unfold', function () { panelState.height = false; });
         // reference
         editor.call('attributes:reference:attach', 'asset:material:parallaxOverview', panelParallax, panelParallax.headerElement);
 
@@ -2415,7 +2412,7 @@ editor.once('load', function () {
             name: 'Strength',
             type: 'number',
             precision: 3,
-            step: .05,
+            step: 0.05,
             min: 0,
             max: 2,
             link: assets,
@@ -2431,7 +2428,7 @@ editor.once('load', function () {
         var fieldHeightMapFactorSlider = editor.call('attributes:addField', {
             panel: fieldHeightMapFactor.parent,
             precision: 3,
-            step: .05,
+            step: 0.05,
             min: 0,
             max: 2,
             type: 'number',
@@ -2445,12 +2442,12 @@ editor.once('load', function () {
         // reflection
         var panelReflection = texturePanels.reflection = texturePanels.refraction = texturePanels.sphere = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: panelState['environment'],
+            folded: panelState.environment,
             name: 'Environment'
         });
         panelReflection.class.add('component');
-        panelReflection.on('fold', function () { panelState['environment'] = true; });
-        panelReflection.on('unfold', function () { panelState['environment'] = false; });
+        panelReflection.on('fold', function () { panelState.environment = true; });
+        panelReflection.on('unfold', function () { panelState.environment = false; });
         // reference
         editor.call('attributes:reference:attach', 'asset:material:environmentOverview', panelReflection, panelReflection.headerElement);
         // filter
@@ -2506,7 +2503,7 @@ editor.once('load', function () {
         var fieldReflectionStrengthSlider = editor.call('attributes:addField', {
             panel: fieldReflectionStrength.parent,
             precision: 3,
-            step: .01,
+            step: 0.01,
             min: 0,
             max: 8,
             type: 'number',
@@ -2537,7 +2534,7 @@ editor.once('load', function () {
         var fieldRefractionSlider = editor.call('attributes:addField', {
             panel: fieldRefraction.parent,
             precision: 3,
-            step: .01,
+            step: 0.01,
             min: 0,
             max: 1,
             type: 'number',
@@ -2568,7 +2565,7 @@ editor.once('load', function () {
         var fieldRefractionIndexSlider = editor.call('attributes:addField', {
             panel: fieldRefractionIndex.parent,
             precision: 3,
-            step: .01,
+            step: 0.01,
             min: 0,
             max: 1,
             type: 'number',
@@ -2641,12 +2638,12 @@ editor.once('load', function () {
         // lightmap
         var panelLightMap = texturePanels.light = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: panelState['light'],
+            folded: panelState.light,
             name: 'LightMap'
         });
         panelLightMap.class.add('component');
-        panelLightMap.on('fold', function () { panelState['light'] = true; });
-        panelLightMap.on('unfold', function () { panelState['light'] = false; });
+        panelLightMap.on('fold', function () { panelState.light = true; });
+        panelLightMap.on('unfold', function () { panelState.light = false; });
         // reference
         editor.call('attributes:reference:attach', 'asset:material:lightMapOverview', panelLightMap, panelLightMap.headerElement);
 
@@ -2770,12 +2767,12 @@ editor.once('load', function () {
         // render states
         var panelRenderStates = texturePanels.states = editor.call('attributes:addPanel', {
             foldable: true,
-            folded: panelState['states'],
+            folded: panelState.states,
             name: 'Other'
         });
         panelRenderStates.class.add('component');
-        panelRenderStates.on('fold', function () { panelState['states'] = true; });
-        panelRenderStates.on('unfold', function () { panelState['states'] = false; });
+        panelRenderStates.on('fold', function () { panelState.states = true; });
+        panelRenderStates.on('unfold', function () { panelState.states = false; });
         // reference
         editor.call('attributes:reference:attach', 'asset:material:other', panelRenderStates, panelRenderStates.headerElement);
 
@@ -2805,7 +2802,7 @@ editor.once('load', function () {
             type: 'checkbox',
             link: assets,
             path: 'data.depthWrite'
-        })
+        });
         // label
         var label = new ui.Label({ text: 'Write' });
         label.style.verticalAlign = 'top';

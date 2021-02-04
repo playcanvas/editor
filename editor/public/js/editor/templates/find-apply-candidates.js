@@ -3,9 +3,10 @@ editor.once('load', function () {
 
     /**
      * Finds all the templates that an override could be applied to.
-     * @param {Object} override The override (as returned by templates:computeOverrides).
-     * @param {ObserverList} entities The entities observer list
-     * @param {Observer} templateInstanceRoot The template instance that we are interested in. We are not going to search above this
+     *
+     * @param {object} override - The override (as returned by templates:computeOverrides).
+     * @param {ObserverList} entities - The entities observer list
+     * @param {Observer} templateInstanceRoot - The template instance that we are interested in. We are not going to search above this
      * entity when looking for candidates. Can be null to check up to the root of the scene.
      */
     editor.method('templates:findApplyCandidatesForOverride', (override, entities, templateInstanceRoot) => {
@@ -36,10 +37,11 @@ editor.once('load', function () {
 
     /**
      * Finds all the templates that a new entity override could be applied to.
-     * @param {Observer} templateInstanceRoot The template instance that we are interested in. We are not going to search above this
+     *
+     * @param {Observer} templateInstanceRoot - The template instance that we are interested in. We are not going to search above this
      * entity when looking for candidates.
-     * @param {Object} newEntityData The new entity in JSON.
-     * @param {ObserverList} entities The entities observer list
+     * @param {object} newEntityData - The new entity in JSON.
+     * @param {ObserverList} entities - The entities observer list
      */
     editor.method('templates:findApplyCandidatesForNewEntity', (templateInstanceRoot, newEntityData, entities) => {
         entities = entities || editor.call('entities:raw');
@@ -62,10 +64,11 @@ editor.once('load', function () {
 
     /**
      * Finds all the templates that a deleted entity override could be applied to.
-     * @param {Observer} templateInstanceRoot The template instance that we are interested in. We are not going to search above this
+     *
+     * @param {Observer} templateInstanceRoot - The template instance that we are interested in. We are not going to search above this
      * entity when looking for candidates.
-     * @param {Object} deletedEntityData The deleted entity in JSON.
-     * @param {ObserverList} entities The entities observer list
+     * @param {object} deletedEntityData - The deleted entity in JSON.
+     * @param {ObserverList} entities - The entities observer list
      */
     editor.method('templates:findApplyCandidatesForDeletedEntity', (templateInstanceRoot, deletedEntityData, entities) => {
         entities = entities || editor.call('entities:raw');

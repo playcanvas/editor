@@ -131,9 +131,9 @@ editor.once('load', function () {
     };
 
     panel.updateFavorite = function () {
-      panel.branchIsFavorite = panel.branch && panel.branch.id && projectUserSettings.get('favoriteBranches').includes(panel.branch.id);
-      btnFavorite.text = panel.branchIsFavorite ? 'Unfavorite' : 'Favorite';
-    }
+        panel.branchIsFavorite = panel.branch && panel.branch.id && projectUserSettings.get('favoriteBranches').includes(panel.branch.id);
+        btnFavorite.text = panel.branchIsFavorite ? 'Unfavorite' : 'Favorite';
+    };
 
     // Set the checkpoints to be displayed
     panel.setCheckpoints = function (checkpoints) {
@@ -416,23 +416,23 @@ editor.once('load', function () {
         return item;
     };
 
-    var createCurrentStateUi = function() {
+    var createCurrentStateUi = function () {
         var currentStateHeader = createCheckpointSectionHeader('CURRENT STATE');
         currentStateHeader.classList.add('current-state');
         var currentStateListItem = createCurrentStateListItem();
         currentStateListItem.class.add('current-state');
-    }
+    };
 
-    btnFavorite.on('click', function() {
-      if (!panel.branch) return;
-      if (panel.branchIsFavorite) {
-        var index = projectUserSettings.get('favoriteBranches').indexOf(panel.branch.id);
-        if (index >= 0)
-          projectUserSettings.remove('favoriteBranches', index);
-      } else {
-        projectUserSettings.insert('favoriteBranches', panel.branch.id);
-      }
-    })
+    btnFavorite.on('click', function () {
+        if (!panel.branch) return;
+        if (panel.branchIsFavorite) {
+            var index = projectUserSettings.get('favoriteBranches').indexOf(panel.branch.id);
+            if (index >= 0)
+                projectUserSettings.remove('favoriteBranches', index);
+        } else {
+            projectUserSettings.insert('favoriteBranches', panel.branch.id);
+        }
+    });
 
     // show create checkpoint panel
     btnNewCheckpoint.on('click', function () {

@@ -1,14 +1,14 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('users:hasFlag', 'hasPcuiComponentInspectors')) return;
 
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
 
-        var events = [ ];
+        var events = [];
 
         var panel = editor.call('attributes:entity:addComponentPanel', {
             title: 'Collision',
@@ -44,7 +44,7 @@ editor.once('load', function() {
         var fieldHalfExtents = editor.call('attributes:addField', {
             parent: panel,
             name: 'Half Extents',
-            placeholder: [ 'X', 'Y', 'Z' ],
+            placeholder: ['X', 'Y', 'Z'],
             precision: 3,
             step: 0.1,
             min: 0,
@@ -54,7 +54,7 @@ editor.once('load', function() {
             canOverrideTemplate: true
         });
         fieldHalfExtents[0].parent.hidden = fieldType.value !== 'box' && fieldType.value !== '';
-        fieldType.on('change', function(value) {
+        fieldType.on('change', function (value) {
             fieldHalfExtents[0].parent.hidden = value !== 'box' && value !== '';
         });
         // reference
@@ -73,9 +73,9 @@ editor.once('load', function() {
             path: 'components.collision.radius',
             canOverrideTemplate: true
         });
-        fieldRadius.parent.hidden = fieldType.value !== '' && [ 'sphere', 'capsule', 'cylinder' ].indexOf(fieldType.value) === -1;
-        fieldType.on('change', function(value) {
-            fieldRadius.parent.hidden = value !== '' && [ 'sphere', 'capsule', 'cylinder' ].indexOf(value) === -1;
+        fieldRadius.parent.hidden = fieldType.value !== '' && ['sphere', 'capsule', 'cylinder'].indexOf(fieldType.value) === -1;
+        fieldType.on('change', function (value) {
+            fieldRadius.parent.hidden = value !== '' && ['sphere', 'capsule', 'cylinder'].indexOf(value) === -1;
         });
         // reference
         editor.call('attributes:reference:attach', 'collision:radius', fieldRadius.parent.innerElement.firstChild.ui);
@@ -94,9 +94,9 @@ editor.once('load', function() {
             canOverrideTemplate: true
         });
         // show/hide
-        fieldHeight.parent.hidden = fieldType.value !== '' && [ 'capsule', 'cylinder' ].indexOf(fieldType.value) === -1;
-        fieldType.on('change', function(value) {
-            fieldHeight.parent.hidden = value !== '' && [ 'capsule', 'cylinder' ].indexOf(value) === -1;
+        fieldHeight.parent.hidden = fieldType.value !== '' && ['capsule', 'cylinder'].indexOf(fieldType.value) === -1;
+        fieldType.on('change', function (value) {
+            fieldHeight.parent.hidden = value !== '' && ['capsule', 'cylinder'].indexOf(value) === -1;
         });
         // reference
         editor.call('attributes:reference:attach', 'collision:height', fieldHeight.parent.innerElement.firstChild.ui);
@@ -117,9 +117,9 @@ editor.once('load', function() {
             path: 'components.collision.axis',
             canOverrideTemplate: true
         });
-        fieldAxis.parent.hidden = fieldType.value !== '' && [ 'capsule', 'cylinder' ].indexOf(fieldType.value) === -1;
-        fieldType.on('change', function(value) {
-            fieldAxis.parent.hidden = value !== '' && [ 'capsule', 'cylinder' ].indexOf(value) === -1;
+        fieldAxis.parent.hidden = fieldType.value !== '' && ['capsule', 'cylinder'].indexOf(fieldType.value) === -1;
+        fieldType.on('change', function (value) {
+            fieldAxis.parent.hidden = value !== '' && ['capsule', 'cylinder'].indexOf(value) === -1;
         });
         // reference
         editor.call('attributes:reference:attach', 'collision:axis', fieldAxis.parent.innerElement.firstChild.ui);
@@ -136,7 +136,7 @@ editor.once('load', function() {
             canOverrideTemplate: true
         });
         fieldAsset.parent.hidden = fieldType.value !== '' && fieldType.value !== 'mesh';
-        fieldType.on('change', function(value) {
+        fieldType.on('change', function (value) {
             fieldAsset.parent.hidden = value !== '' && value !== 'mesh';
         });
         // reference

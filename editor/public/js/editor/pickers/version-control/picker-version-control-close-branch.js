@@ -15,7 +15,7 @@ editor.once('load', function () {
 
     var boxConfirm = new ui.VersionControlSidePanelBox({
         header: 'ARE YOU SURE?',
-        noIcon: true,
+        noIcon: true
     });
 
     var panelTypeName = new ui.Panel();

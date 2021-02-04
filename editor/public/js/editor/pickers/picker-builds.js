@@ -28,7 +28,7 @@ editor.once('load', function () {
     });
     panel.append(loading);
 
-    var progressBar = new ui.Progress({progress: 1});
+    var progressBar = new ui.Progress({ progress: 1 });
     progressBar.hidden = true;
     panel.append(progressBar);
 
@@ -163,15 +163,15 @@ editor.once('load', function () {
                 return -1;
             } else if (config.project.primaryApp === b.id) {
                 return 1;
-            } else {
-                if (a.created_at < b.created_at) {
-                    return 1;
-                } else if (a.created_at > b.created_at) {
-                    return -1;
-                } else {
-                    return 0;
-                }
             }
+            if (a.created_at < b.created_at) {
+                return 1;
+            } else if (a.created_at > b.created_at) {
+                return -1;
+            }
+            return 0;
+
+
         });
     };
 
@@ -337,7 +337,7 @@ editor.once('load', function () {
             dropdownMenu.position(rect.right - dropdownMenu.innerElement.clientWidth, rect.bottom);
         }));
 
-        var more = new ui.Button({text: 'more...'});
+        var more = new ui.Button({ text: 'more...' });
         more.class.add('more');
         item.element.appendChild(more.element);
         more.hidden = true;
@@ -537,9 +537,9 @@ editor.once('load', function () {
             editor.emit('viewport:hover', true);
     });
 
-    editor.on('viewport:hover', function(state) {
+    editor.on('viewport:hover', function (state) {
         if (state && ! panel.hidden) {
-            setTimeout(function() {
+            setTimeout(function () {
                 editor.emit('viewport:hover', false);
             }, 0);
         }

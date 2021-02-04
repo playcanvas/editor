@@ -1,26 +1,26 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var size = 144;
     var directInput = true;
-    var colorHSV = [ 0, 0, 0 ];
-    var channels = [ ];
+    var colorHSV = [0, 0, 0];
+    var channels = [];
     var channelsNumber = 4;
     var changing = false;
     var dragging = false;
 
 
     // make hex out of channels
-    var getHex = function() {
+    var getHex = function () {
         var hex = '';
-        for(var i = 0; i < channelsNumber; i++) {
+        for (var i = 0; i < channelsNumber; i++) {
             hex += ('00' + channels[i].value.toString(16)).slice(-2).toUpperCase();
         }
         return hex;
     };
 
     // rect drag
-    var pickRectMouseMove = function(evt) {
+    var pickRectMouseMove = function (evt) {
         changing = true;
         var rect = pickRect.getBoundingClientRect();
         var x = Math.max(0, Math.min(size, Math.floor(evt.clientX - rect.left)));
@@ -30,8 +30,8 @@ editor.once('load', function() {
         colorHSV[2] = 1.0 - (y / size);
 
         directInput = false;
-        var rgb = hsv2rgb([ colorHSV[0], colorHSV[1], colorHSV[2] ]);
-        for(var i = 0; i < 3; i++) {
+        var rgb = hsv2rgb([colorHSV[0], colorHSV[1], colorHSV[2]]);
+        for (var i = 0; i < 3; i++) {
             channels[i].value = rgb[i];
         }
         fieldHex.value = getHex();
@@ -43,7 +43,7 @@ editor.once('load', function() {
     };
 
     // rect drag stop
-    var pickRectMouseUp = function() {
+    var pickRectMouseUp = function () {
         window.removeEventListener('mousemove', pickRectMouseMove, false);
         window.removeEventListener('mouseup', pickRectMouseUp, false);
         dragging = false;
@@ -51,17 +51,17 @@ editor.once('load', function() {
     };
 
     // hue drag
-    var pickHueMouseMove = function(evt) {
+    var pickHueMouseMove = function (evt) {
         changing = true;
         var rect = pickHue.getBoundingClientRect();
         var y = Math.max(0, Math.min(size, Math.floor(evt.clientY - rect.top)));
         var h = y / size;
 
-        var rgb = hsv2rgb([ h, colorHSV[1], colorHSV[2] ]);
+        var rgb = hsv2rgb([h, colorHSV[1], colorHSV[2]]);
         colorHSV[0] = h;
 
         directInput = false;
-        for(var i = 0; i < 3; i++) {
+        for (var i = 0; i < 3; i++) {
             channels[i].value = rgb[i];
         }
         fieldHex.value = getHex();
@@ -71,7 +71,7 @@ editor.once('load', function() {
     };
 
     // hue drag stop
-    var pickHueMouseUp = function() {
+    var pickHueMouseUp = function () {
         window.removeEventListener('mousemove', pickHueMouseMove, false);
         window.removeEventListener('mouseup', pickHueMouseUp, false);
         dragging = false;
@@ -79,7 +79,7 @@ editor.once('load', function() {
     };
 
     // opacity drag
-    var pickOpacityMouseMove = function(evt) {
+    var pickOpacityMouseMove = function (evt) {
         changing = true;
         var rect = pickHue.getBoundingClientRect();
         var y = Math.max(0, Math.min(size, Math.floor(evt.clientY - rect.top)));
@@ -93,7 +93,7 @@ editor.once('load', function() {
     };
 
     // opacity drag stop
-    var pickOpacityMouseUp = function() {
+    var pickOpacityMouseUp = function () {
         window.removeEventListener('mousemove', pickOpacityMouseMove, false);
         window.removeEventListener('mouseup', pickOpacityMouseUp, false);
         dragging = false;
@@ -101,7 +101,7 @@ editor.once('load', function() {
     };
 
 
-    var updateHex = function() {
+    var updateHex = function () {
         if (! directInput)
             return;
 
@@ -109,7 +109,7 @@ editor.once('load', function() {
 
         var hex = fieldHex.value.trim().toLowerCase();
         if (/^([0-9a-f]{2}){3,4}$/.test(hex)) {
-            for(var i = 0; i < channelsNumber; i++) {
+            for (var i = 0; i < channelsNumber; i++) {
                 channels[i].value = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
             }
         }
@@ -119,8 +119,8 @@ editor.once('load', function() {
 
 
     // update rgb
-    var updateRects = function() {
-        var color = channels.map(function(channel) {
+    var updateRects = function () {
+        var color = channels.map(function (channel) {
             return channel.value || 0;
         }).slice(0, channelsNumber);
 
@@ -145,7 +145,7 @@ editor.once('load', function() {
         pickRectHandle.style.top = Math.max(4, Math.min(size - 4, size * (1.0 - colorHSV[2]))) + 'px'; // v
 
         if (channelsNumber >= 3) {
-            var plainColor = hsv2rgb([ colorHSV[0], 1, 1 ]).join(',');
+            var plainColor = hsv2rgb([colorHSV[0], 1, 1]).join(',');
 
             // rect background color
             pickRect.style.backgroundColor = 'rgb(' + plainColor + ')';
@@ -161,7 +161,7 @@ editor.once('load', function() {
     };
 
     // update alpha handle
-    var updateRectAlpha = function(value) {
+    var updateRectAlpha = function (value) {
         if (channelsNumber !== 4)
             return;
 
@@ -169,21 +169,21 @@ editor.once('load', function() {
         pickOpacityHandle.style.top = Math.floor(size * (1.0 - (Math.max(0, Math.min(255, value)) / 255))) + 'px';
 
         // color
-        pickOpacityHandle.style.backgroundColor = 'rgb(' + [ value, value, value ].join(',') + ')';
+        pickOpacityHandle.style.backgroundColor = 'rgb(' + [value, value, value].join(',') + ')';
 
         callCallback();
     };
 
 
     var callingCallaback = false;
-    var callbackHandle = function() {
+    var callbackHandle = function () {
         callingCallaback = false;
 
-        editor.emit('picker:color', channels.map(function(channel) {
+        editor.emit('picker:color', channels.map(function (channel) {
             return channel.value || 0;
         }).slice(0, channelsNumber));
     };
-    var callCallback = function() {
+    var callCallback = function () {
         if (callingCallaback)
             return;
 
@@ -206,7 +206,7 @@ editor.once('load', function() {
     overlay.append(pickRect);
 
     // rect drag start
-    pickRect.addEventListener('mousedown', function(evt) {
+    pickRect.addEventListener('mousedown', function (evt) {
         pickRectMouseMove(evt);
 
         window.addEventListener('mousemove', pickRectMouseMove, false);
@@ -240,7 +240,7 @@ editor.once('load', function() {
     overlay.append(pickHue);
 
     // hue drag start
-    pickHue.addEventListener('mousedown', function(evt) {
+    pickHue.addEventListener('mousedown', function (evt) {
         pickHueMouseMove(evt);
 
         window.addEventListener('mousemove', pickHueMouseMove, false);
@@ -264,7 +264,7 @@ editor.once('load', function() {
     overlay.append(pickOpacity);
 
     // opacoty drag start
-    pickOpacity.addEventListener('mousedown', function(evt) {
+    pickOpacity.addEventListener('mousedown', function (evt) {
         pickOpacityMouseMove(evt);
 
         window.addEventListener('mousemove', pickOpacityMouseMove, false);
@@ -280,7 +280,6 @@ editor.once('load', function() {
     var pickOpacityHandle = document.createElement('div');
     pickOpacityHandle.classList.add('handle');
     pickOpacity.appendChild(pickOpacityHandle);
-
 
 
     // fields
@@ -353,7 +352,7 @@ editor.once('load', function() {
     fieldHex.renderChanges = false;
     fieldHex.placeholder = '#';
     fieldHex.class.add('field', 'field-hex');
-    fieldHex.on('change', function() {
+    fieldHex.on('change', function () {
         updateHex();
     });
     panelFields.appendChild(fieldHex.element);
@@ -366,7 +365,7 @@ editor.once('load', function() {
     // esc to close
     editor.call('hotkey:register', 'picker:color:close', {
         key: 'esc',
-        callback: function() {
+        callback: function () {
             if (overlay.hidden)
                 return;
 
@@ -375,15 +374,15 @@ editor.once('load', function() {
     });
 
 
-    overlay.on('hide', function() {
+    overlay.on('hide', function () {
         editor.emit('picker:color:close');
     });
 
 
     // call picker
-    editor.method('picker:color', function(color) {
+    editor.method('picker:color', function (color) {
         // class for channels
-        for(var i = 0; i < 4; i++) {
+        for (var i = 0; i < 4; i++) {
             if (color.length - 1 < i) {
                 overlay.class.remove('c-' + (i + 1));
             } else {
@@ -403,7 +402,7 @@ editor.once('load', function() {
 
         // set fields
         directInput = false;
-        for(var i = 0; i < color.length; i++) {
+        for (var i = 0; i < color.length; i++) {
             channels[i].value = color[i];
         }
         fieldHex.value = getHex();
@@ -415,27 +414,27 @@ editor.once('load', function() {
         // focus on hex field
         fieldHex.elementInput.focus();
 
-        setTimeout(function() {
+        setTimeout(function () {
             fieldHex.elementInput.focus();
             fieldHex.elementInput.select();
         }, 100);
     });
 
-    editor.method('picker:color:close', function() {
+    editor.method('picker:color:close', function () {
         overlay.hidden = true;
     });
 
-    editor.method('picker:color:rect', function() {
+    editor.method('picker:color:rect', function () {
         return overlay.rect;
     });
 
     // position color picker
-    editor.method('picker:color:position', function(x, y) {
+    editor.method('picker:color:position', function (x, y) {
         overlay.position(x, y);
     });
 
     // position color picker
-    editor.method('picker:color:set', function(color) {
+    editor.method('picker:color:set', function (color) {
         if (changing || dragging)
             return;
 
@@ -448,7 +447,7 @@ editor.once('load', function() {
 
         // set fields
         directInput = false;
-        for(var i = 0; i < color.length; i++) {
+        for (var i = 0; i < color.length; i++) {
             channels[i].value = color[i];
         }
         fieldHex.value = getHex();

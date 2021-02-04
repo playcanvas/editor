@@ -1,9 +1,9 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('users:hasFlag', 'hasPcuiComponentInspectors')) return;
 
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (!panelComponents)
             return;
@@ -40,10 +40,10 @@ editor.once('load', function() {
             name: 'Scroll Mode',
             type: 'number',
             enum: [
-                {v: '', t: '...'},
-                {v: SCROLL_MODE_CLAMP, t: 'Clamp'},
-                {v: SCROLL_MODE_BOUNCE, t: 'Bounce'},
-                {v: SCROLL_MODE_INFINITE, t: 'Infinite'}
+                { v: '', t: '...' },
+                { v: SCROLL_MODE_CLAMP, t: 'Clamp' },
+                { v: SCROLL_MODE_BOUNCE, t: 'Bounce' },
+                { v: SCROLL_MODE_INFINITE, t: 'Infinite' }
             ],
             canOverrideTemplate: true
         });
@@ -100,9 +100,9 @@ editor.once('load', function() {
             name: 'Visibility',
             type: 'number',
             enum: [
-                {v: '', t: '...'},
-                {v: SCROLLBAR_VISIBILITY_SHOW_ALWAYS, t: 'Show Always'},
-                {v: SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED, t: 'Show When Required'}
+                { v: '', t: '...' },
+                { v: SCROLLBAR_VISIBILITY_SHOW_ALWAYS, t: 'Show Always' },
+                { v: SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED, t: 'Show When Required' }
             ],
             canOverrideTemplate: true
         });
@@ -127,9 +127,9 @@ editor.once('load', function() {
             name: 'Visibility',
             type: 'number',
             enum: [
-                {v: '', t: '...'},
-                {v: SCROLLBAR_VISIBILITY_SHOW_ALWAYS, t: 'Show Always'},
-                {v: SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED, t: 'Show When Required'}
+                { v: '', t: '...' },
+                { v: SCROLLBAR_VISIBILITY_SHOW_ALWAYS, t: 'Show Always' },
+                { v: SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED, t: 'Show When Required' }
             ],
             canOverrideTemplate: true
         });

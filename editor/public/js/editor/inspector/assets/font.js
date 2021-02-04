@@ -151,19 +151,19 @@ Object.assign(pcui, (function () {
                         processFontWarningMessage: new pcui.Label({
                             text: 'Warning. The following characters were not found in the font file:',
                             flexGrow: 1,
-                            class: [ pcui.CLASS_ERROR, CLASS_PROCESS_FONT_WARNING_MESSAGE ]
+                            class: [pcui.CLASS_ERROR, CLASS_PROCESS_FONT_WARNING_MESSAGE]
                         })
                     },
                     {
                         processFontWarningItems: new pcui.Table({
-                            class: [ CLASS_PROCESS_FONT_WARNING_ITEMS ],
+                            class: [CLASS_PROCESS_FONT_WARNING_ITEMS],
                             scrollable: true,
                             columns: [{
                                 title: 'Character',
-                                width: '50%',
+                                width: '50%'
                             }, {
                                 title: 'Unicode',
-                                width: '50%',
+                                width: '50%'
                             }],
                             defaultSortColumn: 0,
                             createRowFn: (observer) => {
@@ -183,14 +183,14 @@ Object.assign(pcui, (function () {
                                 const characterCell = new pcui.TableCell({
                                     alignItems: 'center'
                                 });
-                                const characterLabel = new pcui.Label({text: character});
+                                const characterLabel = new pcui.Label({ text: character });
                                 characterCell.append(characterLabel);
                                 row.append(characterCell);
 
                                 const unicodeCell = new pcui.TableCell({
                                     alignItems: 'center'
                                 });
-                                const unicodeLabel = new pcui.Label({text: character.charCodeAt()});
+                                const unicodeLabel = new pcui.Label({ text: character.charCodeAt() });
                                 unicodeCell.append(unicodeLabel);
                                 row.append(unicodeCell);
 
@@ -202,7 +202,7 @@ Object.assign(pcui, (function () {
                                         {
                                             text: 'Copy character',
                                             onClick: () => copyToClipboard(character)
-                                        },
+                                        }
                                     ]
                                 });
 
@@ -214,7 +214,7 @@ Object.assign(pcui, (function () {
                                         {
                                             text: 'Copy unicode',
                                             onClick: () => copyToClipboard(character.charCodeAt())
-                                        },
+                                        }
                                     ]
                                 });
 
@@ -452,7 +452,7 @@ Object.assign(pcui, (function () {
                         });
                         if (unavailableCharacters.length > 0) {
                             this._processFontWarningContainer.hidden = false;
-                            this._processFontWarningItems.link(unavailableCharacters.map(char => new Observer({character: char})));
+                            this._processFontWarningItems.link(unavailableCharacters.map(char => new Observer({ character: char })));
                         }
                     }
                     this._toggleProcessFontButton(asset);

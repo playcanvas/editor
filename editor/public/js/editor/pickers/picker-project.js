@@ -41,7 +41,7 @@ editor.once('load', function () {
         uploadingImage = true;
 
         editor.call('images:upload', file, function (data) {
-            editor.call('project:save', {image_url: data.url}, function () {
+            editor.call('project:save', { image_url: data.url }, function () {
                 uploadingImage = false;
 
             }, function () {
@@ -144,7 +144,7 @@ editor.once('load', function () {
 
     // register new panel / menu option
     editor.method('picker:project:registerMenu', function (name, title, panel) {
-        var menuItem = new ui.ListItem({text: name});
+        var menuItem = new ui.ListItem({ text: name });
         menuItem.class.add(name.replace(' ', '-'));
         list.append(menuItem);
 

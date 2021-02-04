@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     // get characters between range (inclusive)
@@ -17,18 +17,18 @@ editor.once('load', function() {
     var CYRILLIC = characterRange(0x400, 0x4ff);
     var GREEK = characterRange(0x370, 0x3FF);
 
-    editor.on('attributes:inspect[asset]', function(assets) {
+    editor.on('attributes:inspect[asset]', function (assets) {
         const hasPcuiAssetInspectors = editor.call('users:hasFlag', 'hasPcuiAssetInspectors');
         if (hasPcuiAssetInspectors)
             return;
         var root = editor.call('attributes.rootPanel');
 
-        for(var i = 0; i < assets.length; i++) {
+        for (var i = 0; i < assets.length; i++) {
             if (assets[i].get('type') !== 'font' || assets[i].get('source'))
                 return;
         }
 
-        var events = [ ];
+        var events = [];
 
         if (assets.length > 1)
             editor.call('attributes:header', assets.length + ' Fonts');
@@ -107,7 +107,7 @@ editor.once('load', function() {
                 });
 
                 fieldFrom.value = '0x' + set.charCodeAt(0).toString(16);
-                fieldTo.value = '0x' + set.charCodeAt(set.length-1).toString(16);
+                fieldTo.value = '0x' + set.charCodeAt(set.length - 1).toString(16);
             });
         });
 
@@ -152,7 +152,7 @@ editor.once('load', function() {
         // fieldTo.style.width = '32px';
 
         var btnAddRange = new ui.Button({
-            text: '&#57632;',
+            text: '&#57632;'
         });
         btnAddRange.class.add('font-icon');
 
@@ -203,7 +203,7 @@ editor.once('load', function() {
 
             var previewRenderer = new pcui.FontThumbnailRenderer(assets[0], preview);
 
-            preview.addEventListener('click', function() {
+            preview.addEventListener('click', function () {
                 if (root.class.contains('large')) {
                     root.class.remove('large');
                 } else {
@@ -230,7 +230,7 @@ editor.once('load', function() {
             renderPreview();
 
             // queue up the rendering to prevent too oftern renders
-            var queueRender = function() {
+            var queueRender = function () {
                 if (renderQueued) return;
                 renderQueued = true;
                 requestAnimationFrame(renderPreview);
@@ -239,7 +239,7 @@ editor.once('load', function() {
             // render on resize
             var evtPanelResize = root.on('resize', queueRender);
 
-            paramsPanel.once('destroy', function() {
+            paramsPanel.once('destroy', function () {
                 root.class.remove('asset-preview', 'animate');
 
                 if (previewRenderer) {
@@ -450,8 +450,8 @@ editor.once('load', function() {
             });
         });
 
-        paramsPanel.once('destroy', function() {
-            for(var i = 0; i < events.length; i++)
+        paramsPanel.once('destroy', function () {
+            for (var i = 0; i < events.length; i++)
                 events[i].unbind();
         });
     });

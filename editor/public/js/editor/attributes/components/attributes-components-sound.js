@@ -1,9 +1,9 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('users:hasFlag', 'hasPcuiComponentInspectors')) return;
 
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
@@ -480,7 +480,7 @@ editor.once('load', function() {
                 count++;
             }
 
-            keyName = keyName + 1;
+            keyName += 1;
             name = 'Slot ' + (count + 1);
             while (idx[name]) {
                 count++;

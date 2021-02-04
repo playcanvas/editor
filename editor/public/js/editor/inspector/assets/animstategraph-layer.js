@@ -21,14 +21,14 @@ Object.assign(pcui, (function () {
                 ]
             }),
             statesContainer: new pcui.Container(),
-            transitionsContainer: new pcui.Container(),
+            transitionsContainer: new pcui.Container()
         }
     ];
 
     class AnimstategraphLayer extends pcui.Panel {
         constructor(args) {
             args = Object.assign({
-                class: CLASS_ANIMSTATEGRAPH_LAYER,
+                class: CLASS_ANIMSTATEGRAPH_LAYER
             }, args);
             super(args);
             this._args = args;
@@ -43,10 +43,10 @@ Object.assign(pcui, (function () {
                 this._statesContainer = new pcui.Panel({
                     headerText: 'STATES',
                     collapsible: true,
-                    class: CLASS_ANIMSTATEGRAPH_CONTAINER,
+                    class: CLASS_ANIMSTATEGRAPH_CONTAINER
                 });
                 this._statesContainer.content.class.add(CLASS_ANIMSTATEGRAPH_CONTAINER);
-                const addNewStateButton = new pcui.Button({text: 'STATE', icon: 'E120'});
+                const addNewStateButton = new pcui.Button({ text: 'STATE', icon: 'E120' });
                 addNewStateButton.on('click', () => {
                     this._addNewState();
                 });
@@ -70,7 +70,7 @@ Object.assign(pcui, (function () {
                     });
                     this._statePanels[stateId].on('click:remove', () => {
                         this._deleteState(stateId);
-                    })
+                    });
                     const attributes = [
                         {
                             label: 'Name',
@@ -103,7 +103,7 @@ Object.assign(pcui, (function () {
                     stateInspector.link(this._assets);
                     this._statesContainer.append(this._statePanels[stateId]);
                 }
-                
+
                 if (path && path.includes(`states.${stateId}`)) {
                     this._statePanels[stateId].headerText = state.name;
                 }
@@ -115,10 +115,10 @@ Object.assign(pcui, (function () {
                 this._transitionPanelsContainer = new pcui.Panel({
                     headerText: 'TRANSITIONS',
                     collapsible: true,
-                    class: CLASS_ANIMSTATEGRAPH_CONTAINER,
+                    class: CLASS_ANIMSTATEGRAPH_CONTAINER
                 });
                 this._transitionPanelsContainer.content.class.add(CLASS_ANIMSTATEGRAPH_CONTAINER);
-                const addNewTransitionButton = new pcui.Button({text: 'TRANSITION', icon: 'E120'});
+                const addNewTransitionButton = new pcui.Button({ text: 'TRANSITION', icon: 'E120' });
                 addNewTransitionButton.on('click', () => {
                     this._addNewTransition();
                 });
@@ -133,7 +133,7 @@ Object.assign(pcui, (function () {
             let options = this._assets[0].get(`data.layers.${this._args.id}.states`).map(stateId => {
                 const state = this._assets[0].get(`data.states.${stateId}`);
                 if (!state) return;
-                return {v: Number(stateId), t: state.name };
+                return { v: Number(stateId), t: state.name };
             });
             options = options.filter(o => !!o);
 
@@ -143,7 +143,7 @@ Object.assign(pcui, (function () {
                 const from = states[transition.from] ? states[transition.from].name : '';
                 const to = states[transition.to] ? states[transition.to].name : '';
                 let parameters = this._assets[0].get(`data.parameters`);
-                parameters = Object.keys(parameters).map(key => {return parameters[key].name;});
+                parameters = Object.keys(parameters).map(key => { return parameters[key].name; });
 
                 if (!this._transitionPanels[transitionId]) {
                     this._transitionPanels[transitionId] = new pcui.Panel({
@@ -164,7 +164,7 @@ Object.assign(pcui, (function () {
                             type: 'select',
                             args: {
                                 type: 'number',
-                                options: [{v: -1, t: 'ANY'}, ...options]
+                                options: [{ v: -1, t: 'ANY' }, ...options]
                             }
                         },
                         {
@@ -229,7 +229,7 @@ Object.assign(pcui, (function () {
                                     },
                                     {
                                         v: ANIM_INTERRUPTION_NEXT_PREV,
-                                        t: 'Next then Prev' 
+                                        t: 'Next then Prev'
                                     },
                                     {
                                         v: ANIM_INTERRUPTION_PREV_NEXT,
@@ -324,7 +324,7 @@ Object.assign(pcui, (function () {
 
             const layerTransitions = data.layers[this._args.id].transitions;
             const startStateId = this._assets[0].get(`data.layers.${this._args.id}.states.0`);
-            for (let i = layerTransitions.length -1; i >= 0; i--) {
+            for (let i = layerTransitions.length - 1; i >= 0; i--) {
                 const transitionId = layerTransitions[i];
                 const transition = data.transitions[transitionId];
                 if (transition.to === id) {

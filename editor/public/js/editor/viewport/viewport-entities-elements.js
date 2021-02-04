@@ -1,9 +1,9 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var events = [];
 
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         if (events.length)
             clear();
 
@@ -41,8 +41,8 @@ editor.once('load', function() {
         entity.history.enabled = history;
     };
 
-    var applyProperties = function(entity, pathPrefix, properties) {
-        Object.keys(properties).forEach(function(key) {
+    var applyProperties = function (entity, pathPrefix, properties) {
+        Object.keys(properties).forEach(function (key) {
             var value = properties[key];
             var path = pathPrefix + '.' + key;
             var prevHistory = entity.history.enabled;
@@ -282,7 +282,7 @@ editor.once('load', function() {
             });
         }));
 
-        events.push(editor.on('gizmo:translate:end', function() {
+        events.push(editor.on('gizmo:translate:end', function () {
             var translatedEntities = editor.call('selector:items');
 
             setTimeout(function () {

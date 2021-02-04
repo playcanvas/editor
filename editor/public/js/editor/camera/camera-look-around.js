@@ -1,4 +1,4 @@
-editor.once('viewport:load', function() {
+editor.once('viewport:load', function () {
     'use strict';
 
     // Looking around with right mouse button
@@ -11,7 +11,7 @@ editor.once('viewport:load', function() {
     var pitch = 0;
     var yaw = 0;
 
-    editor.on('viewport:tap:start', function(tap) {
+    editor.on('viewport:tap:start', function (tap) {
         if (tap.button !== 2 || looking)
             return;
 
@@ -36,7 +36,7 @@ editor.once('viewport:load', function() {
         }
     });
 
-    editor.on('viewport:tap:end', function(tap) {
+    editor.on('viewport:tap:end', function (tap) {
         if (tap.button !== 2 || ! looking)
             return;
 
@@ -44,7 +44,7 @@ editor.once('viewport:load', function() {
         editor.call('camera:history:stop', lookCamera);
     });
 
-    editor.on('viewport:tap:move', function(tap) {
+    editor.on('viewport:tap:move', function (tap) {
         if (! looking || tap.button !== 2)
             return;
 

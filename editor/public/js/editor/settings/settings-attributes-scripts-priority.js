@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (! editor.call('settings:project').get('useLegacyScripts'))
@@ -25,21 +25,21 @@ editor.once('load', function() {
                     moveUp.on("click", function () {
                         var index = priorityScripts.indexOf(script);
                         priorityScripts.splice(index, 1);
-                        priorityScripts.splice(index-1, 0, script);
+                        priorityScripts.splice(index - 1, 0, script);
                         sceneSettings.set("priority_scripts", priorityScripts);
                         refreshPriorityList();
                     });
                 } else {
-                    moveUp.class.add('not-visible')
+                    moveUp.class.add('not-visible');
                 }
 
                 var moveDown = new ui.Button();
                 moveDown.class.add('move-down');
-                if (index < priorityScripts.length-1) {
+                if (index < priorityScripts.length - 1) {
                     moveDown.on("click", function () {
                         var index = priorityScripts.indexOf(script);
                         priorityScripts.splice(index, 1);
-                        priorityScripts.splice(index+1, 0, script);
+                        priorityScripts.splice(index + 1, 0, script);
                         sceneSettings.set("priority_scripts", priorityScripts);
                         refreshPriorityList();
                     });
@@ -133,7 +133,7 @@ editor.once('load', function() {
     // esc > no
     editor.call('hotkey:register', 'sceneSettings:priorityScripts:close', {
         key: 'esc',
-        callback: function() {
+        callback: function () {
             if (overlay.hidden)
                 return;
 

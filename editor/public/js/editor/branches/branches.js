@@ -39,7 +39,7 @@ editor.once('load', function () {
         }
 
         if (args.favorite) {
-          url += separator + 'favorite=true';
+            url += separator + 'favorite=true';
         }
 
         request({

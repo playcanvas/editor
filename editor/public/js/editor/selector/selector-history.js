@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var selectorHistory = true;
@@ -7,7 +7,7 @@ editor.once('load', function() {
     var newType = editor.call('selector:type');
     var newItems = editor.call('selector:items');
 
-    var onSelectorChange = function() {
+    var onSelectorChange = function () {
         changing = false;
 
         var oldType = newType;
@@ -22,26 +22,26 @@ editor.once('load', function() {
         editor.call('history:add', {
             name: (items.length === 0) ? 'deselect' : ('select ' + type),
             select: true,
-            undo: function() {
+            undo: function () {
                 var prev = selectorHistory;
                 selectorHistory = false;
                 editor.call('selector:set', oldType, oldItems);
-                editor.once('selector:change', function() {
+                editor.once('selector:change', function () {
                     selectorHistory = prev;
                 });
             },
-            redo: function() {
+            redo: function () {
                 var prev = selectorHistory;
                 selectorHistory = false;
                 editor.call('selector:set', type, items);
-                editor.once('selector:change', function() {
+                editor.once('selector:change', function () {
                     selectorHistory = prev;
                 });
             }
         });
     };
 
-    editor.on('selector:change', function(type, items) {
+    editor.on('selector:change', function (type, items) {
         if (! selectorHistory) {
             newType = type;
             newItems = items;

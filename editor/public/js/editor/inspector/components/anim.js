@@ -4,7 +4,7 @@ Object.assign(pcui, (function () {
     const ATTRIBUTES = [
         {
             label: 'Activate',
-            path:  'components.anim.activate',
+            path: 'components.anim.activate',
             type: 'boolean'
         },
         {
@@ -19,7 +19,7 @@ Object.assign(pcui, (function () {
             }
         },
         {
-            type: 'divider',
+            type: 'divider'
         },
         {
             label: 'State Graph',
@@ -121,7 +121,7 @@ Object.assign(pcui, (function () {
                     }
                 });
                 this._layersContainer.append(layerPanel);
-            };
+            }
             this.append(this._layersContainer);
 
         }
@@ -154,7 +154,7 @@ Object.assign(pcui, (function () {
             this._entities[0].on('components.anim.stateGraphAsset:set', () => {
                 this._stateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
                 this._addAnimationAssetSlots();
-            })
+            });
         }
 
         unlink() {

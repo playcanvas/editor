@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var enabled = true;
@@ -9,8 +9,8 @@ editor.once('load', function() {
 
     var index = { };
 
-    var keyByType = function(type) {
-        switch(type) {
+    var keyByType = function (type) {
+        switch (type) {
             case 'entity':
                 return 'resource_id';
             case 'asset':
@@ -19,14 +19,14 @@ editor.once('load', function() {
         return null;
     };
 
-    var setIndex = function(type, item) {
+    var setIndex = function (type, item) {
         var key = keyByType(type);
         if (! key) return;
 
         if (! index[type])
             index[type] = { };
 
-        index[type][item.get[key]] = item.once('destroy', function() {
+        index[type][item.get[key]] = item.once('destroy', function () {
             var state = editor.call('selector:history');
             if (state)
                 editor.call('selector:history', false);
@@ -39,7 +39,7 @@ editor.once('load', function() {
         });
     };
 
-    var removeIndex = function(type, item) {
+    var removeIndex = function (type, item) {
         if (! index[type]) return;
 
         var key = keyByType(type);
@@ -52,13 +52,13 @@ editor.once('load', function() {
     };
 
     var evtChange = false;
-    var evtChangeFn = function() {
+    var evtChangeFn = function () {
         evtChange = false;
         editor.emit('selector:change', selector.type, selector.array());
     };
 
     // adding
-    selector.on('add', function(item) {
+    selector.on('add', function (item) {
         // add index
         setIndex(this.type, item);
 
@@ -72,7 +72,7 @@ editor.once('load', function() {
 
 
     // removing
-    selector.on('remove', function(item) {
+    selector.on('remove', function (item) {
         editor.emit('selector:remove', item, this.type);
 
         // remove index
@@ -89,7 +89,7 @@ editor.once('load', function() {
 
 
     // selecting item (toggle)
-    editor.method('selector:toggle', function(type, item) {
+    editor.method('selector:toggle', function (type, item) {
         if (! enabled)
             return;
 
@@ -107,7 +107,7 @@ editor.once('load', function() {
 
 
     // selecting list of items
-    editor.method('selector:set', function(type, items) {
+    editor.method('selector:set', function (type, items) {
         if (! enabled)
             return;
 
@@ -118,11 +118,11 @@ editor.once('load', function() {
 
         // make sure items still exist
         if (type === 'asset') {
-            items = items.filter(function(item) {
+            items = items.filter(function (item) {
                 return (legacyScripts && item.get('type') === 'script') || !! editor.call('assets:get', item.get('id'));
             });
         } else if (type === 'entity') {
-            items = items.filter(function(item) {
+            items = items.filter(function (item) {
                 return !! editor.call('entities:get', item.get('resource_id'));
             });
         }
@@ -134,20 +134,20 @@ editor.once('load', function() {
         selector.type = type;
 
         // remove
-        selector.find(function(item) {
+        selector.find(function (item) {
             return items.indexOf(item) === -1;
-        }).forEach(function(item) {
+        }).forEach(function (item) {
             selector.remove(item);
         });
 
         // add
-        for(var i = 0; i < items.length; i++)
+        for (var i = 0; i < items.length; i++)
             selector.add(items[i]);
     });
 
 
     // selecting item
-    editor.method('selector:add', function(type, item) {
+    editor.method('selector:add', function (type, item) {
         if (! enabled)
             return;
 
@@ -163,7 +163,7 @@ editor.once('load', function() {
 
 
     // deselecting item
-    editor.method('selector:remove', function(item) {
+    editor.method('selector:remove', function (item) {
         if (! enabled)
             return;
 
@@ -175,7 +175,7 @@ editor.once('load', function() {
 
 
     // deselecting
-    editor.method('selector:clear', function(item) {
+    editor.method('selector:clear', function (item) {
         if (! enabled)
             return;
 
@@ -184,34 +184,34 @@ editor.once('load', function() {
 
 
     // return select type
-    editor.method('selector:type', function() {
+    editor.method('selector:type', function () {
         return selector.type;
     });
 
 
     // return selected count
-    editor.method('selector:count', function() {
+    editor.method('selector:count', function () {
         return selector.length;
     });
 
 
     // return selected items
-    editor.method('selector:items', function() {
+    editor.method('selector:items', function () {
         return selector.array();
     });
 
     // return selected items without making copy of array
-    editor.method('selector:itemsRaw', function() {
+    editor.method('selector:itemsRaw', function () {
         return selector.data;
     });
 
     // return if it has item
-    editor.method('selector:has', function(item) {
+    editor.method('selector:has', function (item) {
         return selector.has(item);
     });
 
 
-    editor.method('selector:enabled', function(state) {
+    editor.method('selector:enabled', function (state) {
         enabled = state;
     });
 });

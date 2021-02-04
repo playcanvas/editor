@@ -39,7 +39,7 @@ editor.once('load', function () {
 
             editor.call('picker:sprites:selectFrames', null, {
                 clearSprite: true
-            })
+            });
 
             asset.history.enabled = history;
         };
@@ -57,7 +57,7 @@ editor.once('load', function () {
 
                 editor.call('picker:sprites:selectFrames', keys, {
                     clearSprite: true
-                })
+                });
 
                 asset.history.enabled = history;
 

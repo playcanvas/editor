@@ -38,7 +38,7 @@ Object.assign(pcui, (function () {
         label: 'Runtime',
         alias: 'source',
         type: 'label',
-        reference: 'asset:runtime',
+        reference: 'asset:runtime'
     }, {
         label: 'Type',
         alias: 'type',
@@ -319,8 +319,8 @@ Object.assign(pcui, (function () {
         }
 
         _onClickLoadingOrder() {
-            editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
-            setTimeout(function() {
+            editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
+            setTimeout(function () {
                 editor.call('editorSettings:panel:unfold', 'scripts-order');
             }, 0);
         }

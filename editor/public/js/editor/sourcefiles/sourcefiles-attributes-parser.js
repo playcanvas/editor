@@ -33,7 +33,7 @@ var pc = {
     }
 };
 
-function onReadyStateChange (method, url, xhr, success, error) {
+function onReadyStateChange(method, url, xhr, success, error) {
     if (xhr.readyState === 4) {
         switch (xhr.status) {
             case 0: {
@@ -48,7 +48,7 @@ function onReadyStateChange (method, url, xhr, success, error) {
                 break;
             }
             default: {
-                //options.error(xhr.status, xhr, null);
+                // options.error(xhr.status, xhr, null);
                 error(method, url, xhr);
                 break;
             }
@@ -93,7 +93,7 @@ onmessage = function (event) {
     if (data.url) {
         var url = data.url.indexOf('?') !== -1 ? data.url + '&ts=' + new Date().getTime() : data.url + '?ts=' + new Date().getTime();
         request("GET", url, function () {
-            //success
+            // success
             postMessage({
                 name: pc.script.name,
                 values: pc.script.attributes
@@ -101,7 +101,7 @@ onmessage = function (event) {
 
             close();
         }, function (error) {
-            //error
+            // error
             postMessage({
                 error: error.toString()
             });

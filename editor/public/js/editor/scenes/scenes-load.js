@@ -51,7 +51,7 @@ editor.once('load', function () {
 
         if (isNew) {
             editor.once('entities:load', function () {
-                editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+                editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
             });
         }
     });

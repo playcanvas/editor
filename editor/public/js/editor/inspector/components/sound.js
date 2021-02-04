@@ -53,11 +53,11 @@ Object.assign(pcui, (function () {
         args: {
             type: 'string',
             options: [{
-                v: 'linear', t: 'Linear',
+                v: 'linear', t: 'Linear'
             }, {
-                v: 'exponential', t: 'Exponential',
+                v: 'exponential', t: 'Exponential'
             }, {
-                v: 'inverse', t: 'Inverse',
+                v: 'inverse', t: 'Inverse'
             }]
         },
         reference: 'sound:distanceModel'

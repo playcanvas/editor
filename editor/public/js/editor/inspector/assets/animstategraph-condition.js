@@ -6,7 +6,8 @@ Object.assign(pcui, (function () {
     class AnimstategraphCondition extends pcui.Container {
         /**
          * Creates a new condition.
-         * @param {Object} [args] The arguments
+         *
+         * @param {object} [args] - The arguments
          */
         constructor(args) {
             args = Object.assign({
@@ -18,10 +19,11 @@ Object.assign(pcui, (function () {
 
             this.class.add(CLASS_ROOT);
         }
+
         link(assets, path) {
             const selectParameterName = new pcui.SelectInput({
                 type: 'string',
-                options: this._args.parameters.map(param => { return { v: param, t: param }}),
+                options: this._args.parameters.map(param => { return { v: param, t: param }; }),
                 value: assets[0].get(path).parameterName
             });
             selectParameterName.on('change', value => {
@@ -36,28 +38,28 @@ Object.assign(pcui, (function () {
                 options: [
                     {
                         v: ANIM_EQUAL_TO,
-                        t: '==',
+                        t: '=='
                     },
                     {
                         v: ANIM_NOT_EQUAL_TO,
-                        t: '!=',
+                        t: '!='
                     },
                     {
                         v: ANIM_LESS_THAN,
-                        t: '<',
+                        t: '<'
                     },
                     {
                         v: ANIM_LESS_THAN_EQUAL_TO,
-                        t: '<=',
+                        t: '<='
                     },
                     {
                         v: ANIM_GREATER_THAN,
-                        t: '>',
+                        t: '>'
                     },
                     {
                         v: ANIM_GREATER_THAN_EQUAL_TO,
-                        t: '>=',
-                    },
+                        t: '>='
+                    }
                 ],
                 value: assets[0].get(path).predicate
             });
@@ -105,6 +107,6 @@ Object.assign(pcui, (function () {
     }
 
     return {
-        AnimstategraphCondition: AnimstategraphCondition 
+        AnimstategraphCondition: AnimstategraphCondition
     };
 })());

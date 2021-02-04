@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
@@ -35,7 +35,7 @@ editor.once('load', function() {
                 parts = path.split('.');
 
                 if (parts.length === 2) {
-                    id = parseInt(parts[1],10);
+                    id = parseInt(parts[1], 10);
                     var layer = createLayer(id, value);
                     layerIndex[layer.id] = layer;
 
@@ -44,7 +44,7 @@ editor.once('load', function() {
                         app.scene.layers.remove(existing);
                     }
                 } else if (parts.length === 3) {
-                    id = parseInt(parts[1],10);
+                    id = parseInt(parts[1], 10);
                     // change layer property
                     if (layerIndex[id]) {
                         layerIndex[id][parts[2]] = value;
@@ -74,7 +74,7 @@ editor.once('load', function() {
                 var parts = path.split('.');
                 // remove layer
                 if (parts.length === 2) {
-                    var id = parseInt(parts[1],10);
+                    var id = parseInt(parts[1], 10);
                     delete layerIndex[id];
 
                     var existing = app.scene.layers.getLayerById(id);
@@ -162,7 +162,7 @@ editor.once('load', function() {
             layerIndex[key] = createLayer(key, layers[key]);
         }
 
-        for (i = 0, len = layerOrder.length; i<len; i++) {
+        for (i = 0, len = layerOrder.length; i < len; i++) {
             var sublayer = layerOrder[i];
             var layer = layerIndex[sublayer.layer];
             if (! layer) continue;

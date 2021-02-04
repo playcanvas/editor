@@ -41,7 +41,7 @@ editor.once('load', function () {
             var rightBound = Number.NEGATIVE_INFINITY;
             var bottomBound = Number.POSITIVE_INFINITY;
             var topBound = Number.NEGATIVE_INFINITY;
-            for (var i = 0, len = allFrames.length; i<len; i++) {
+            for (var i = 0, len = allFrames.length; i < len; i++) {
                 var f = allFrames[i];
                 if (! f) continue;
 
@@ -51,7 +51,7 @@ editor.once('load', function () {
                 var pivot = animating ? f.pivot : centerPivot;
 
                 var left = -f.rect[2] * pivot[0];
-                var right = (1-pivot[0]) * f.rect[2];
+                var right = (1 - pivot[0]) * f.rect[2];
                 var bottom = -f.rect[3] * pivot[1];
                 var top = (1 - pivot[1]) * f.rect[3];
 

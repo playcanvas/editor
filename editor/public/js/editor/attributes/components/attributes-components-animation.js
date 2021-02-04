@@ -1,9 +1,9 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('users:hasFlag', 'hasPcuiComponentInspectors')) return;
 
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
@@ -32,15 +32,15 @@ editor.once('load', function() {
         var first = true;
         var initial = true;
 
-        var onAssetAdd = function(item) {
+        var onAssetAdd = function (item) {
             var btnPlay = new ui.Button();
             btnPlay.class.add('play');
-            btnPlay.on('click', function(evt) {
+            btnPlay.on('click', function (evt) {
                 evt.stopPropagation();
 
                 var id = parseInt(item.asset.get('id'), 10);
 
-                for(var i = 0; i < entities.length; i++) {
+                for (var i = 0; i < entities.length; i++) {
                     if (! entities[i].entity || ! entities[i].entity.animation)
                         continue;
 
@@ -63,13 +63,13 @@ editor.once('load', function() {
                 var id = item.asset.get('id');
                 var asset = app.assets.get(id);
 
-                var onAssetAdd = function(asset) {
+                var onAssetAdd = function (asset) {
                     if (asset.resource) {
-                        editor.once('viewport:update', function() {
+                        editor.once('viewport:update', function () {
                             btnPlay.element.click();
                         });
                     } else {
-                        asset.once('load', function() {
+                        asset.once('load', function () {
                             btnPlay.element.click();
                         });
                     }
@@ -82,10 +82,10 @@ editor.once('load', function() {
                 }
             }
 
-            item.once('destroy', function() {
+            item.once('destroy', function () {
                 var id = parseInt(item.asset.get('id'), 10);
 
-                for(var i = 0; i < entities.length; i++) {
+                for (var i = 0; i < entities.length; i++) {
                     if (! entities[i].entity || ! entities[i].entity.animation || entities[i].entity.animation.assets.indexOf(id) === -1)
                         continue;
 
@@ -99,7 +99,7 @@ editor.once('load', function() {
         };
 
         var nodes = fieldAssets.element.childNodes;
-        for(var i = 0; i < nodes.length; i++) {
+        for (var i = 0; i < nodes.length; i++) {
             if (! nodes[i].ui || ! nodes[i].ui.asset)
                 continue;
 
@@ -110,7 +110,7 @@ editor.once('load', function() {
         if (first) {
             first = false;
 
-            for(var i = 0; i < entities.length; i++) {
+            for (var i = 0; i < entities.length; i++) {
                 if (! entities[i].entity || ! entities[i].entity.animation)
                     continue;
 

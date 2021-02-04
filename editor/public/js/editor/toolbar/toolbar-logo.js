@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var root = editor.call('layout.root');
@@ -10,7 +10,7 @@ editor.once('load', function() {
 
     var logo = new ui.Button();
     logo.class.add('logo');
-    logo.on('click', function() {
+    logo.on('click', function () {
         menu.open = true;
     });
     toolbar.append(logo);
@@ -41,10 +41,10 @@ editor.once('load', function() {
         return false;
     };
 
-    var setField = function(items, field, value) {
-        var records = [ ];
+    var setField = function (items, field, value) {
+        var records = [];
 
-        for(var i = 0; i < items.length; i++) {
+        for (var i = 0; i < items.length; i++) {
             records.push({
                 item: items[i],
                 value: value,
@@ -156,7 +156,7 @@ editor.once('load', function() {
     var menuData = {
         'entity': {
             title: 'Entity',
-            filter: function() {
+            filter: function () {
                 return editor.call('selector:type') === 'entity' && editor.call('permissions:write');
             },
             items: {
@@ -166,13 +166,13 @@ editor.once('load', function() {
                         return editor.call('selector:items').length === 1;
                     },
                     select: function () {
-                        editor.call('entities:new', {parent: editor.call('entities:selectedFirst')});
+                        editor.call('entities:new', { parent: editor.call('entities:selectedFirst') });
                     },
                     items: editor.call('menu:entities:new')
                 },
                 'add-component': {
                     title: 'Add Component',
-                    filter: function() {
+                    filter: function () {
                         return editor.call('selector:type') === 'entity';
                     },
                     items: editor.call('menu:entities:add-component')
@@ -181,34 +181,34 @@ editor.once('load', function() {
         },
         'edit': {
             title: 'Edit',
-            filter: function() {
+            filter: function () {
                 return editor.call('permissions:write');
             },
             items: {
                 'undo': {
                     title: 'Undo',
                     icon: '&#57620;',
-                    filter: function() {
+                    filter: function () {
                         return history.canUndo;
                     },
-                    select: function() {
+                    select: function () {
                         return history.undo();
                     }
                 },
                 'redo': {
                     title: 'Redo',
                     icon: '&#57621;',
-                    filter: function() {
+                    filter: function () {
                         return history.canRedo;
                     },
-                    select: function() {
+                    select: function () {
                         history.redo();
                     }
                 },
                 'enable': {
                     title: 'Enable',
                     icon: '&#57651;',
-                    filter: function() {
+                    filter: function () {
                         if (! editor.call('permissions:write'))
                             return false;
 
@@ -223,23 +223,23 @@ editor.once('load', function() {
 
                         if (items.length === 1) {
                             return items[0].get('enabled');
-                        } else {
-                            var enabled = items[0].get('enabled');
-                            for(var i = 1; i < items.length; i++) {
-                                if (enabled !== items[i].get('enabled'))
-                                    return false;
-                            }
-                            return enabled;
                         }
+                        var enabled = items[0].get('enabled');
+                        for (var i = 1; i < items.length; i++) {
+                            if (enabled !== items[i].get('enabled'))
+                                return false;
+                        }
+                        return enabled;
+
                     },
-                    select: function() {
+                    select: function () {
                         setField(editor.call('selector:items'), 'enabled', true);
                     }
                 },
                 'disable': {
                     title: 'Disable',
                     icon: '&#57650;',
-                    filter: function() {
+                    filter: function () {
                         if (! editor.call('permissions:write'))
                             return false;
 
@@ -254,16 +254,16 @@ editor.once('load', function() {
 
                         if (items.length === 1) {
                             return ! items[0].get('enabled');
-                        } else {
-                            var disabled = items[0].get('enabled');
-                            for(var i = 1; i < items.length; i++) {
-                                if (disabled !== items[i].get('enabled'))
-                                    return false;
-                            }
-                            return ! disabled;
                         }
+                        var disabled = items[0].get('enabled');
+                        for (var i = 1; i < items.length; i++) {
+                            if (disabled !== items[i].get('enabled'))
+                                return false;
+                        }
+                        return ! disabled;
+
                     },
-                    select: function() {
+                    select: function () {
                         setField(editor.call('selector:items'), 'enabled', false);
                     }
                 },
@@ -341,7 +341,7 @@ editor.once('load', function() {
                 'edit': {
                     title: 'Edit',
                     icon: '&#57648;',
-                    filter: function() {
+                    filter: function () {
                         var type = editor.call('selector:type');
                         if (! type || type !== 'asset')
                             return false;
@@ -349,7 +349,7 @@ editor.once('load', function() {
                         var items = editor.call('selector:items');
                         return items.length === 1 && ['html', 'css', 'json', 'text', 'script', 'shader'].indexOf(items[0].get('type')) !== -1;
                     },
-                    select: function() {
+                    select: function () {
                         var type = editor.call('selector:type');
                         if (! type || type !== 'asset') return;
                         var items = editor.call('selector:items');
@@ -360,7 +360,7 @@ editor.once('load', function() {
                 'duplicate': {
                     title: 'Duplicate',
                     icon: '&#57638;',
-                    filter: function() {
+                    filter: function () {
                         if (! editor.call('permissions:write'))
                             return false;
 
@@ -377,11 +377,11 @@ editor.once('load', function() {
                             return items.length > 0;
                         } else if (type === 'asset') {
                             return items.length === 1 && items[0].get('type') === 'material';
-                        } else {
-                            return false;
                         }
+                        return false;
+
                     },
-                    select: function() {
+                    select: function () {
                         var type = editor.call('selector:type');
                         if (! type) return;
                         var items = editor.call('selector:items');
@@ -396,7 +396,7 @@ editor.once('load', function() {
                 'delete': {
                     title: 'Delete',
                     icon: '&#57636;',
-                    filter: function() {
+                    filter: function () {
                         if (! editor.call('permissions:write'))
                             return false;
 
@@ -415,7 +415,7 @@ editor.once('load', function() {
 
                         return true;
                     },
-                    select: function() {
+                    select: function () {
                         var type = editor.call('selector:type');
                         if (! type) return;
                         var items = editor.call('selector:items');
@@ -434,14 +434,14 @@ editor.once('load', function() {
         },
         'launch': {
             title: 'Launch',
-            select: function() {
+            select: function () {
                 editor.call('launch');
             },
             items: {
                 'launch-remote': {
                     title: 'Launch',
                     icon: '&#57649;',
-                    select: function() {
+                    select: function () {
                         editor.call('launch', 'default');
                     }
                 }
@@ -453,28 +453,28 @@ editor.once('load', function() {
                 'controls': {
                     title: 'Controls',
                     icon: '&#57654;',
-                    select: function() {
+                    select: function () {
                         editor.call('help:controls');
                     }
                 },
                 'learn': {
                     title: 'Learn',
                     icon: '&#57906;',
-                    select: function() {
+                    select: function () {
                         window.open('http://developer.playcanvas.com/en/');
                     }
                 },
                 'forum': {
                     title: 'Forum',
                     icon: '&#57907;',
-                    select: function() {
+                    select: function () {
                         window.open('http://forum.playcanvas.com/');
                     }
                 },
                 'issue': {
                     title: 'Log Issue',
                     icon: '&#57945;',
-                    select: function() {
+                    select: function () {
                         window.open('https://github.com/playcanvas/editor');
                     }
                 },
@@ -497,14 +497,14 @@ editor.once('load', function() {
         'scenes': {
             title: 'Scenes',
             icon: '&#57671;',
-            select: function() {
+            select: function () {
                 editor.call('picker:scene');
             }
         },
         'publishing': {
             title: 'Publishing',
             icon: '&#57911;',
-            select: function() {
+            select: function () {
                 editor.call('picker:publish');
             }
         },
@@ -514,14 +514,14 @@ editor.once('load', function() {
             hide: function () {
                 return config.project.settings.useLegacyScripts || ! editor.call('permissions:read');
             },
-            select: function() {
+            select: function () {
                 editor.call('picker:versioncontrol');
             }
         },
         'bake': {
             title: 'Bake LightMaps',
             icon: '&#57745;',
-            select: function() {
+            select: function () {
                 editor.call('lightmapper:bake');
                 editor.call('entities:shadows:update');
             }
@@ -539,11 +539,11 @@ editor.once('load', function() {
         'settings': {
             title: 'Settings',
             icon: '&#57652;',
-            filter: function() {
+            filter: function () {
                 return editor.call('selector:type') !== 'editorSettings' && ! editor.call('viewport:expand:state');
             },
-            select: function() {
-                editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+            select: function () {
+                editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
             }
         },
         'priorityScripts': null
@@ -561,7 +561,7 @@ editor.once('load', function() {
     }
 
     if (legacyScripts) {
-        menuData['entity']['items']['add-builtin-script'] = {
+        menuData.entity.items['add-builtin-script'] = {
             title: 'Add Built-In Script',
             filter: function () {
                 return editor.call('selector:type') === 'entity';
@@ -584,13 +584,13 @@ editor.once('load', function() {
             }
         };
 
-        menuData['priorityScripts'] = {
+        menuData.priorityScripts = {
             title: 'Script Priority',
             icon: '&#57652;',
-            filter: function() {
+            filter: function () {
                 return editor.call('permissions:write');
             },
-            select: function() {
+            select: function () {
                 editor.call('sceneSettings:priorityScripts');
             }
         };
@@ -598,7 +598,7 @@ editor.once('load', function() {
         // TODO scripts2
         // add built-in-scripts for new system
 
-        delete menuData['priorityScripts'];
+        delete menuData.priorityScripts;
     }
 
     if (legacyScripts) {
@@ -659,7 +659,7 @@ editor.once('load', function() {
         }];
 
         builtInScripts.forEach(function (data) {
-            menuData['entity'].items['add-builtin-script'].items[data.group].items[data.name] = {
+            menuData.entity.items['add-builtin-script'].items[data.group].items[data.name] = {
                 title: data.title,
                 filter: function () {
                     var entity = editor.call('selector:items')[0];
@@ -689,7 +689,7 @@ editor.once('load', function() {
         align: 'left',
         root: root
     });
-    menu.on('open', function(state) {
+    menu.on('open', function (state) {
         tooltip.disabled = state;
     });
 
