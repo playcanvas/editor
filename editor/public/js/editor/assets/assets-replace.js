@@ -5,8 +5,9 @@ editor.once('load', function () {
 
     /**
      * Replaces the specified asset with the replacement asset everywhere
-     * @param {Observer} asset The original asset
-     * @param {Observer} replacement The replacement asset
+     *
+     * @param {Observer} asset - The original asset
+     * @param {Observer} replacement - The replacement asset
      */
     var AssetReplace = function (asset, replacement) {
         this.asset = asset;
@@ -23,8 +24,9 @@ editor.once('load', function () {
 
     /**
      * Set the replacement asset for the specified object at the specified path
-     * @param {Observer} obj The object
-     * @param {String} path The path that we are replacing
+     *
+     * @param {Observer} obj - The object
+     * @param {string} path - The path that we are replacing
      */
     AssetReplace.prototype.set = function (obj, path) {
         var history = obj.history.enabled;

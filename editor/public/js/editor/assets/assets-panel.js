@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var assetsPanel = editor.call('layout.assets');
@@ -83,10 +83,10 @@ editor.once('load', function() {
     var draggingData = { };
     var selector = {
         type: '',
-        items: [ ],
+        items: [],
         prev: {
             type: '',
-            items: [ ]
+            items: []
         }
     };
     var searching = false;
@@ -103,7 +103,7 @@ editor.once('load', function() {
     });
     overlay.append(loading);
 
-    editor.method('assets:progress', function(progress) {
+    editor.method('assets:progress', function (progress) {
         loading.progress = progress;
     });
 
@@ -121,12 +121,12 @@ editor.once('load', function() {
     folders.resizeMax = 300;
     assetsPanel.append(folders);
 
-    editor.method('assets:panel:folders', function() {
+    editor.method('assets:panel:folders', function () {
         return folders;
     });
 
     var currentFolder = null;
-    editor.method('assets:panel:currentFolder', function(asset) {
+    editor.method('assets:panel:currentFolder', function (asset) {
         if (asset === undefined)
             return currentFolder;
 
@@ -152,7 +152,7 @@ editor.once('load', function() {
 
             // open tree up
             var path = currentFolder.get('path');
-            for(var i = 0; i < path.length; i++) {
+            for (var i = 0; i < path.length; i++) {
                 if (! assetsIndex[path[i]] || ! assetsIndex[path[i]].tree)
                     continue;
 
@@ -173,11 +173,11 @@ editor.once('load', function() {
 
     editor.call('hotkey:register', 'assets:fs:up', {
         key: 'backspace',
-        callback: function() {
+        callback: function () {
             if (! currentFolder || editor.call('selector:type') !== 'asset')
                 return;
 
-            var path = typeof(currentFolder) === 'string' ? [ ] : currentFolder.get('path');
+            var path = typeof(currentFolder) === 'string' ? [] : currentFolder.get('path');
             if (path.length === 0) {
                 editor.call('assets:panel:currentFolder', null);
             } else {
@@ -211,17 +211,17 @@ editor.once('load', function() {
         ref: folders,
         hole: true,
         passThrough: true,
-        filter: function(type, data) {
+        filter: function (type, data) {
             return type.startsWith('asset');
         },
-        drop: function(type, data) {
+        drop: function (type, data) {
             if (! type || grid.dragOver === undefined || ! type.startsWith('asset'))
                 return;
 
             var items = editor.call('selector:items');
-            var assets = [ ];
+            var assets = [];
 
-            var addAsset = function(id) {
+            var addAsset = function (id) {
                 var asset = editor.call('assets:get', id);
 
                 // deselect moved asset
@@ -232,7 +232,7 @@ editor.once('load', function() {
             };
 
             if (data.ids) {
-                for(var i = 0; i < data.ids.length; i++)
+                for (var i = 0; i < data.ids.length; i++)
                     addAsset(data.ids[i]);
             } else {
                 addAsset(data.id);
@@ -251,7 +251,7 @@ editor.once('load', function() {
     tree.append(treeRoot);
     treeRoot.open = true;
     treeRoot.class.add('current');
-    treeRoot.on('select', function() {
+    treeRoot.on('select', function () {
         this.selected = false;
     });
 
@@ -259,7 +259,7 @@ editor.once('load', function() {
     var gridScripts;
     var treeScripts;
 
-    treeRoot.elementTitle.addEventListener('mouseover', function() {
+    treeRoot.elementTitle.addEventListener('mouseover', function () {
         if (! dragging || grid.dragOver === null || (! draggingData.id && ! draggingData.ids))
             return;
 
@@ -280,7 +280,7 @@ editor.once('load', function() {
         grid.dragOver = null;
     }, false);
 
-    treeRoot.elementTitle.addEventListener('mouseout', function() {
+    treeRoot.elementTitle.addEventListener('mouseout', function () {
         if (! dragging || grid.dragOver === undefined)
             return;
 
@@ -292,12 +292,12 @@ editor.once('load', function() {
 
     // tree width resizing
     var resizeQueued = false;
-    var resizeTree = function() {
+    var resizeTree = function () {
         resizeQueued = false;
         tree.element.style.width = '';
         tree.element.style.width = (folders.innerElement.scrollWidth - 5) + 'px';
     };
-    var resizeQueue = function() {
+    var resizeQueue = function () {
         if (resizeQueued) return;
         resizeQueued = true;
         requestAnimationFrame(resizeTree);
@@ -315,7 +315,7 @@ editor.once('load', function() {
     files.scroll = true;
     assetsPanel.append(files);
 
-    editor.method('assets:panel:files', function() {
+    editor.method('assets:panel:files', function () {
         return files;
     });
 
@@ -330,17 +330,17 @@ editor.once('load', function() {
         ref: files,
         hole: true,
         passThrough: true,
-        filter: function(type, data) {
+        filter: function (type, data) {
             return type.startsWith('asset');
         },
-        drop: function(type, data) {
+        drop: function (type, data) {
             if (! type || grid.dragOver === undefined || ! type.startsWith('asset'))
                 return;
 
-            var assets = [ ];
+            var assets = [];
             var items = editor.call('selector:items');
 
-            var addAsset = function(id) {
+            var addAsset = function (id) {
                 var asset = editor.call('assets:get', id);
 
                 // deselect moved asset
@@ -374,7 +374,7 @@ editor.once('load', function() {
     });
     dropRef.class.add('assets-drop-area');
 
-    editor.on('permissions:writeState', function(state) {
+    editor.on('permissions:writeState', function (state) {
         tree.enabled = state;
         grid.enabled = state;
     });
@@ -415,11 +415,11 @@ editor.once('load', function() {
     var tooltipTarget = null;
     var tooltipTimeout = null;
 
-    var tooltipShow = function() {
+    var tooltipShow = function () {
         if (! tooltipTarget)
             return;
 
-        while(tooltipTarget && tooltipTarget.nodeName !== 'LI' && ! tooltipTarget.classList.contains('ui-grid-item'))
+        while (tooltipTarget && tooltipTarget.nodeName !== 'LI' && ! tooltipTarget.classList.contains('ui-grid-item'))
             tooltipTarget = tooltipTarget.parentNode;
 
         if (! tooltipTarget || ! tooltipTarget.ui)
@@ -440,7 +440,7 @@ editor.once('load', function() {
         tooltipAsset.hidden = false;
     };
 
-    var onAssetItemHover = function(evt) {
+    var onAssetItemHover = function (evt) {
         if (tooltipTimeout) {
             clearTimeout(tooltipTimeout);
             tooltipTimeout = null;
@@ -449,7 +449,7 @@ editor.once('load', function() {
         tooltipTarget = evt.target;
         tooltipTimeout = setTimeout(tooltipShow, 300);
     };
-    var onAssetItemBlur = function() {
+    var onAssetItemBlur = function () {
         tooltipAsset.hidden = true;
 
         if (tooltipTimeout) {
@@ -457,14 +457,14 @@ editor.once('load', function() {
             tooltipTimeout = null;
         }
     };
-    var onAssetItemRemove = function() {
+    var onAssetItemRemove = function () {
         if (! tooltipTarget || ! tooltipTarget.ui || tooltipTarget.ui.asset !== this)
             return;
 
         onAssetItemBlur();
     };
 
-    grid.innerElement.addEventListener('mousewheel', function() {
+    grid.innerElement.addEventListener('mousewheel', function () {
         tooltipAsset.hidden = true;
 
         if (tooltipTimeout) {
@@ -473,7 +473,7 @@ editor.once('load', function() {
         }
     }, false);
 
-    tree.on('select', function(item) {
+    tree.on('select', function (item) {
         if (assetsChanged)
             return;
 
@@ -482,7 +482,7 @@ editor.once('load', function() {
                 if (currentFolder !== item.asset) {
                     item.selected = false;
                 } else {
-                    editor.call('selector:set', 'asset', [ item.asset ]);
+                    editor.call('selector:set', 'asset', [item.asset]);
                 }
             } else {
                 editor.call('selector:add', 'asset', item.asset);
@@ -506,7 +506,7 @@ editor.once('load', function() {
         }
     });
 
-    tree.on('deselect', function(item) {
+    tree.on('deselect', function (item) {
         if (assetsChanged)
             return;
 
@@ -514,7 +514,7 @@ editor.once('load', function() {
             editor.call('selector:remove', item.asset);
     });
 
-    grid.on('select', function(item) {
+    grid.on('select', function (item) {
         if (assetsChanged)
             return;
 
@@ -525,7 +525,7 @@ editor.once('load', function() {
         }
     });
 
-    grid.on('deselect', function(item) {
+    grid.on('deselect', function (item) {
         if (assetsChanged)
             return;
 
@@ -536,7 +536,7 @@ editor.once('load', function() {
         }
     });
 
-    editor.on('selector:change', function(type, items) {
+    editor.on('selector:change', function (type, items) {
         assetsChanged = true;
 
         selector.prev.type = selector.type;
@@ -550,7 +550,7 @@ editor.once('load', function() {
             items = items.slice(0);
             var assets = items.slice(0);
 
-            for(var i = 0; i < items.length; i++) {
+            for (var i = 0; i < items.length; i++) {
                 if (legacyScripts && items[i].get('type') === 'script') {
                     assets[i] = scriptsIndex[items[i].get('filename')];
                 } else {
@@ -560,7 +560,7 @@ editor.once('load', function() {
 
                         // open tree up
                         var path = items[i].get('path');
-                        for(var n = 0; n < path.length; n++) {
+                        for (var n = 0; n < path.length; n++) {
                             if (! assetsIndex[path[n]] || ! assetsIndex[path[n]].tree)
                                 continue;
 
@@ -573,7 +573,7 @@ editor.once('load', function() {
             grid.selected = assets;
         } else {
             if ((legacyScripts && ! (gridScripts.selected && grid.selected.length === 1)) || selector.type !== 'asset')
-                grid.selected = [ ];
+                grid.selected = [];
 
             tree.clear();
         }
@@ -582,7 +582,7 @@ editor.once('load', function() {
     });
 
     // return grid
-    editor.method('assets:grid', function() {
+    editor.method('assets:grid', function () {
         return grid;
     });
 
@@ -591,10 +591,10 @@ editor.once('load', function() {
     var searchingFunction = null;
     var searchingBatchLimit = 512;
 
-    var searchNextBatch = function() {
+    var searchNextBatch = function () {
         var done = 0;
 
-        while(searchingElement && (searchingBatchLimit === 0 || done < searchingBatchLimit)) {
+        while (searchingElement && (searchingBatchLimit === 0 || done < searchingBatchLimit)) {
             var item = searchingElement.ui;
 
             if (item) {
@@ -617,7 +617,7 @@ editor.once('load', function() {
     };
 
     // filter assets in grid
-    editor.method('assets:panel:filter', function(fn, immediate) {
+    editor.method('assets:panel:filter', function (fn, immediate) {
         if (! fn)
             fn = editor.call('assets:panel:filter:default');
 
@@ -646,9 +646,9 @@ editor.once('load', function() {
 
             if (selector.type === 'asset') {
                 var script = legacyScripts && selector.items[0].get('type') === 'script';
-                var path = script ? [ ] : selector.items[0].get('path');
+                var path = script ? [] : selector.items[0].get('path');
                 var multiPath = false;
-                for(var i = 1; i < selector.items.length; i++) {
+                for (var i = 1; i < selector.items.length; i++) {
                     var item = selector.items[i];
                     if (script !== (item.get('type') === 'script') || (! script && ! path.equals(item.get('path')))) {
                         multiPath = true;
@@ -678,16 +678,16 @@ editor.once('load', function() {
 
 
     // get grid item by id
-    editor.method('assets:panel:get', function(id) {
+    editor.method('assets:panel:get', function (id) {
         return assetsIndex[id] || scriptsIndex[id];
     });
 
-    var appendChildFolders = function(item) {
+    var appendChildFolders = function (item) {
         var queue = treeAppendQueue[item.asset.get('id')];
         if (! queue || ! queue.length)
             return;
 
-        for(var i = 0; i < queue.length; i++) {
+        for (var i = 0; i < queue.length; i++) {
             var closest = treeFindClosest(item.tree, queue[i].tree);
             if (closest === -1) {
                 item.tree.append(queue[i].tree);
@@ -700,7 +700,7 @@ editor.once('load', function() {
         delete treeAppendQueue[item.asset.get('id')];
     };
 
-    var treeFindClosest = function(item, b, nameOld) {
+    var treeFindClosest = function (item, b, nameOld) {
         var l = Array.prototype.slice.call(item.element.childNodes, 1);
         if (item === treeRoot && legacyScripts)
             l = l.slice(1);
@@ -742,7 +742,7 @@ editor.once('load', function() {
         return cur + 1;
     };
 
-    var createLegacyScriptFolder = function() {
+    var createLegacyScriptFolder = function () {
         gridScripts = new ui.GridItem();
         gridScripts.class.add('type-folder', 'scripts');
         grid.append(gridScripts);
@@ -751,22 +751,22 @@ editor.once('load', function() {
             text: 'scripts'
         });
         gridScripts.tree.class.add('scripts');
-        gridScripts.tree.on('select', function() {
+        gridScripts.tree.on('select', function () {
             this.selected = false;
         });
         treeRoot.append(gridScripts.tree);
 
-        gridScripts.on('select', function() {
+        gridScripts.on('select', function () {
             editor.call('selector:clear');
 
             if (! selector.type) {
                 selector.prev.type = null;
-                selector.prev.items = [ ];
+                selector.prev.items = [];
             }
         });
 
         // scripts open
-        gridScripts.element.addEventListener('dblclick', function() {
+        gridScripts.element.addEventListener('dblclick', function () {
             tree.clear();
             editor.call('assets:filter:search', '');
             editor.call('assets:panel:currentFolder', 'scripts');
@@ -808,7 +808,7 @@ editor.once('load', function() {
             if (repositories.get('current') !== 'directory')
                 menuScript.disabled = true;
         });
-        var onContextMenu = function(evt) {
+        var onContextMenu = function (evt) {
             evt.stopPropagation();
             evt.preventDefault();
 
@@ -831,15 +831,15 @@ editor.once('load', function() {
     editor.call('hotkey:register', 'asset:select-all', {
         ctrl: true,
         key: 'a',
-        callback: function() {
-            var assets = [ ];
+        callback: function () {
+            var assets = [];
 
-            for(var key in assetsIndex) {
+            for (var key in assetsIndex) {
                 if (! assetsIndex[key].hidden)
                     assets.push(assetsIndex[key].asset);
             }
 
-            for(var key in scriptsIndex) {
+            for (var key in scriptsIndex) {
                 if (! scriptsIndex[key].hidden)
                     assets.push(scriptsIndex[key].script);
             }
@@ -852,17 +852,17 @@ editor.once('load', function() {
         }
     });
 
-    var renderQueue = [ ];
+    var renderQueue = [];
     var renderQueueIndex = { };
 
-    var renderQueueUpdate = function() {
+    var renderQueueUpdate = function () {
         requestAnimationFrame(renderQueueUpdate);
 
         if (! renderQueue.length)
             return;
 
         var items = 0;
-        while(items < 4 && renderQueue.length) {
+        while (items < 4 && renderQueue.length) {
             items++;
             var id = renderQueue.shift();
             delete renderQueueIndex[id];
@@ -875,7 +875,7 @@ editor.once('load', function() {
     };
     requestAnimationFrame(renderQueueUpdate);
 
-    var renderQueueAdd = function(asset) {
+    var renderQueueAdd = function (asset) {
         var id = asset.get('id');
         if (renderQueueIndex[id])
             return;
@@ -887,7 +887,7 @@ editor.once('load', function() {
         renderQueue.push(id);
     };
 
-    var renderQueueRemove = function(asset) {
+    var renderQueueRemove = function (asset) {
         var id = parseInt(asset.get('id'), 10);
         if (! renderQueueIndex[id])
             return;
@@ -1130,8 +1130,8 @@ editor.once('load', function() {
                 var path = selectorItems[0].get('path');
 
                 if (selectorItems.indexOf(asset) !== -1) {
-                    var ids = [ ];
-                    for(var i = 0; i < selectorItems.length; i++) {
+                    var ids = [];
+                    for (var i = 0; i < selectorItems.length; i++) {
                         // don't allow multi-path dragging
                         if (path.length !== selectorItems[i].get('path').length || path[path.length - 1] !== selectorItems[i].get('path')[path.length - 1])
                             return;
@@ -1160,7 +1160,7 @@ editor.once('load', function() {
             onAddBundle(asset, item, events);
         }
 
-        var updateTask = function() {
+        var updateTask = function () {
             var status = asset.get('task');
             item.class.remove('task', 'failed', 'running');
             if (status && typeof(status) === 'string' && status[0] !== '{') {
@@ -1189,7 +1189,7 @@ editor.once('load', function() {
 
         if (! asset.get('source')) {
             // update thumbnails change
-            asset.on('thumbnails.m:set', function(value) {
+            asset.on('thumbnails.m:set', function (value) {
                 if (value.startsWith('/api')) {
                     value = value.appendQuery('t=' + asset.get('file.hash'));
                 }
@@ -1198,7 +1198,7 @@ editor.once('load', function() {
                 thumbnail.classList.remove('placeholder');
             });
 
-            asset.on('thumbnails.m:unset', function() {
+            asset.on('thumbnails.m:unset', function () {
                 thumbnail.style.backgroundImage = 'none';
                 thumbnail.classList.add('placeholder');
             });
@@ -1206,7 +1206,7 @@ editor.once('load', function() {
 
         // folder open
         if (asset.get('type') === 'folder') {
-            item.element.addEventListener('dblclick', function() {
+            item.element.addEventListener('dblclick', function () {
                 tree.clear();
                 item.tree.open = true;
                 editor.call('assets:filter:search', '');
@@ -1220,7 +1220,7 @@ editor.once('load', function() {
 
         // open sprite editor for textureatlas and sprite assets
         if (asset.get('type') === 'sprite' || asset.get('type') === 'textureatlas') {
-            item.element.addEventListener('dblclick', function() {
+            item.element.addEventListener('dblclick', function () {
                 editor.call('picker:sprites', item.asset);
             }, false);
         }
@@ -1268,7 +1268,7 @@ editor.once('load', function() {
 
                 previewRenderer.render();
             };
-            var queueRender = function() {
+            var queueRender = function () {
                 if (item.hidden) {
                     thumbnail.changed = true;
                     renderQueueRemove(asset);
@@ -1277,7 +1277,7 @@ editor.once('load', function() {
                 }
             };
 
-            item.on('show', function() {
+            item.on('show', function () {
                 if (thumbnail.changed)
                     queueRender();
 
@@ -1331,7 +1331,7 @@ editor.once('load', function() {
         item.element.appendChild(users);
 
         // update name/filename change
-        events.push(asset.on('name:set', function(name, nameOld) {
+        events.push(asset.on('name:set', function (name, nameOld) {
             // grid
             label.textContent = this.get('name');
             // tree
@@ -1354,7 +1354,7 @@ editor.once('load', function() {
             keepLegacyScriptsAtTop();
         }));
 
-        events.push(asset.on('path:set', function(path, pathOld) {
+        events.push(asset.on('path:set', function (path, pathOld) {
             // show or hide based on filters
             item.hidden = ! editor.call('assets:panel:filter:default')('asset', this);
 
@@ -1386,7 +1386,7 @@ editor.once('load', function() {
 
         if (! asset.get('source')) {
             // used event
-            var evtUnused = editor.on('assets:used:' + asset.get('id'), function(state) {
+            var evtUnused = editor.on('assets:used:' + asset.get('id'), function (state) {
                 if (state) {
                     item.class.remove('unused');
                 } else {
@@ -1398,16 +1398,16 @@ editor.once('load', function() {
                 item.class.add('unused');
 
             // clean events
-            item.once('destroy', function() {
+            item.once('destroy', function () {
                 evtUnused.unbind();
             });
         }
 
         // clean events
-        item.once('destroy', function() {
+        item.once('destroy', function () {
             editor.call('selector:remove', asset);
 
-            for(var i = 0; i < events.length; i++)
+            for (var i = 0; i < events.length; i++)
                 events[i].unbind();
             events = null;
 
@@ -1435,7 +1435,7 @@ editor.once('load', function() {
         keepLegacyScriptsAtTop();
     });
 
-    var keepLegacyScriptsAtTop = function() {
+    var keepLegacyScriptsAtTop = function () {
         if (! legacyScripts)
             return;
 
@@ -1458,7 +1458,7 @@ editor.once('load', function() {
         }
     };
 
-    editor.on('assets:move', function(asset, pos) {
+    editor.on('assets:move', function (asset, pos) {
         var item = assetsIndex[asset.get('id')];
         // remove
         grid.element.removeChild(item.element);
@@ -1472,7 +1472,7 @@ editor.once('load', function() {
         }
     });
 
-    editor.on('assets:remove', function(asset) {
+    editor.on('assets:remove', function (asset) {
         var treeItem = assetsIndex[asset.get('id')].tree;
         if (treeItem) {
             if (treeItem.parent)
@@ -1495,7 +1495,7 @@ editor.once('load', function() {
 
                 var found = false;
                 i = ind + 1;
-                while(i--) {
+                while (i--) {
                     if (assetsIndex[path[i]]) {
                         found = true;
                         editor.call('assets:panel:currentFolder', assetsIndex[path[i]].asset);
@@ -1509,7 +1509,7 @@ editor.once('load', function() {
         }
     });
 
-    var addSourceFile = function(file) {
+    var addSourceFile = function (file) {
         file.set('type', 'script');
 
         var item = new ui.GridItem();
@@ -1540,17 +1540,17 @@ editor.once('load', function() {
         item.element.appendChild(users);
 
         // update name/filename change
-        var evtNameSet = file.on('filename:set', function(value, valueOld) {
+        var evtNameSet = file.on('filename:set', function (value, valueOld) {
             label.textContent = value;
             scriptsIndex[value] = item;
             delete scriptsIndex[valueOld];
         });
-        item.on('destroy', function() {
+        item.on('destroy', function () {
             editor.call('selector:remove', file);
             evtNameSet.unbind();
             delete scriptsIndex[file.get('filename')];
         });
-        file.on('destroy', function() {
+        file.on('destroy', function () {
             item.destroy();
         });
 
@@ -1562,7 +1562,7 @@ editor.once('load', function() {
             }
         });
     };
-    var removeSourceFile = function(file) {
+    var removeSourceFile = function (file) {
         file.destroy();
     };
 

@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     editor.method('assets:create:cubemap', function (args) {
@@ -14,7 +14,7 @@ editor.once('load', function() {
             parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             data: {
                 name: 'New Cubemap',
-                textures: [ null, null, null, null, null, null ],
+                textures: [null, null, null, null, null, null],
                 minFilter: 5, // linear mipmap linear
                 magFilter: 1, // linear
                 anisotropy: 1

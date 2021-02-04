@@ -1,7 +1,7 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    editor.method('assets:move-to-store', function(asset) {
+    editor.method('assets:move-to-store', function (asset) {
         if (!asset) {
             return;
         }
@@ -15,21 +15,21 @@ editor.once('load', function() {
         var items = (selectorType == 'asset' && selectedItems.find(e => e.get('id') === asset.get('id'))) ? selectedItems : [asset];
         var assetIds = items.map(e => e.get('id'));
 
-        editor.call('picker:text-input', function(text) {
+        editor.call('picker:text-input', function (text) {
             if (text.length === 0) {
                 return false;
             }
             Ajax(
                 {
-                    url:'{{url.api}}/store/items/' + text,
-                    method:'PUT',
+                    url: '{{url.api}}/store/items/' + text,
+                    method: 'PUT',
                     auth: true,
                     data: {
                         branchId: config.self.branch.id,
                         assetIds: assetIds
                     }
                 },
-                function(t){ }
+                function (t){ }
             );
             return true;
         },

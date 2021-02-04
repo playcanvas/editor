@@ -22,7 +22,7 @@ editor.once('load', function () {
     var wasIdle = false;
     var timeoutLoad = null;
     setInterval(() => {
-        var t = Date.now(); 
+        var t = Date.now();
         var dt = t - lastIdleCheck;
         if (dt > IDLE_CHECK_DELAY + IDLE_CHECK_SAFE_WINDOW) {
             wasIdle = true;
@@ -30,7 +30,7 @@ editor.once('load', function () {
         }
         lastIdleCheck = t;
     }, IDLE_CHECK_DELAY);
-    
+
     editor.method('loadAsset', function (uniqueId, callback) {
         var connection = editor.call('realtime:connection');
 
@@ -109,7 +109,7 @@ editor.once('load', function () {
         var connection = editor.call('realtime:connection');
         var assets = connection.collections.assets;
 
-        for(var i = 0; i < data.length; i++) {
+        for (var i = 0; i < data.length; i++) {
             if (! assets.hasOwnProperty(data[i].uniqueId))
                 continue;
 

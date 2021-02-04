@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var changeName = function (assetId, assetName) {
@@ -16,20 +16,20 @@ editor.once('load', function() {
             log.error(err + data);
             editor.call('status:error', 'Couldn\'t update the name: ' + data);
         });
-    }
+    };
 
     editor.method('assets:rename', function (asset, newName) {
         var oldName = asset.get('name');
         var id = asset.get('id');
         editor.call('history:add', {
             name: 'asset rename',
-            undo: function() {
-                if(editor.call('assets:get', id)) {
+            undo: function () {
+                if (editor.call('assets:get', id)) {
                     changeName(id, oldName);
                 }
             },
-            redo: function() {
-                if(editor.call('assets:get', id)) {
+            redo: function () {
+                if (editor.call('assets:get', id)) {
                     changeName(id, newName);
                 }
             }
