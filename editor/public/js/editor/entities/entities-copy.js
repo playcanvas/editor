@@ -168,7 +168,8 @@ editor.once('load', function () {
 
     /**
      * Copies the specified entities into localStorage
-     * @param {Observer[]} entities The entities to copy
+     *
+     * @param {Observer[]} entities - The entities to copy
      */
     editor.method('entities:copy', function (entities) {
         var data = {

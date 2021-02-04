@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var logos = editor.call('components:logos');
@@ -20,14 +20,14 @@ editor.once('load', function() {
                 title: 'Physics',
                 icon: logos.rigidbody,
                 items: {}
-            },
+            }
         };
 
         // fill menu with available components
         var components = editor.call('components:schema');
         var list = editor.call('components:list');
 
-        for (var i = 0; i < list.length; i++) {
+        for (let i = 0; i < list.length; i++) {
             var key = list[i];
             var submenu = getSubMenu(key);
             if (submenu) {
@@ -40,7 +40,7 @@ editor.once('load', function() {
         // sort alphabetically and add to new object to be returned
         var orderedKeys = Object.keys(items).sort();
         var sorted = {};
-        for (var i = 0; i < orderedKeys.length; i++) {
+        for (let i = 0; i < orderedKeys.length; i++) {
             sorted[orderedKeys[i]] = items[orderedKeys[i]];
         }
 
@@ -59,19 +59,19 @@ editor.once('load', function() {
     // If the entity that is clicked on is part of a selection, then the entire
     // selection is returned.
     // Otherwise return just the entity that is clicked on.
-    var getSelection = function() {
+    var getSelection = function () {
         var selection = editor.call('selector:items');
         var entity = editor.call('entities:contextmenu:entity');
 
         if (entity) {
             if (selection.indexOf(entity) !== -1) {
                 return selection;
-            } else {
-                return [entity];
             }
-        } else {
-            return selection;
+            return [entity];
+
         }
+        return selection;
+
     };
 
     var makeAddComponentMenuItem = function (key, components, logos) {
@@ -95,7 +95,7 @@ editor.once('load', function() {
 
             select: function () {
                 var selection = getSelection();
-                editor.call('entities:addComponent', selection, this._value)
+                editor.call('entities:addComponent', selection, this._value);
             }
         };
 

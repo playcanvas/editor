@@ -22,7 +22,7 @@ editor.once('load', function () {
         return selection;
     }
 
-    templateItems['new_template'] = {
+    templateItems.new_template = {
         title: 'New Template',
         className: 'menu-item-template',
         icon: '&#57632;',
@@ -35,7 +35,7 @@ editor.once('load', function () {
         }
     };
 
-    templateItems['template_apply'] = {
+    templateItems.template_apply = {
         title: 'Apply to Template',
         className: 'menu-item-template-apply',
         icon: '&#57651;',
@@ -48,7 +48,7 @@ editor.once('load', function () {
         }
     };
 
-    templateItems['template_unlink'] = {
+    templateItems.template_unlink = {
         title: 'Unlink From Template',
         className: 'menu-item-template-unlink',
         icon: '&#58200;',
@@ -61,7 +61,7 @@ editor.once('load', function () {
         }
     };
 
-    templateItems['template_instance'] = {
+    templateItems.template_instance = {
         title: 'Add Instance',
         className: 'menu-item-template-instance',
         icon: '&#57632;',

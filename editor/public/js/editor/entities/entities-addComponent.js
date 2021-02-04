@@ -5,8 +5,9 @@ editor.once('load', function () {
 
     /**
      * Adds the specified component to the specified entities.
-     * @param {Observer[]} entities The entities
-     * @param {String} component The name of the component
+     *
+     * @param {Observer[]} entities - The entities
+     * @param {string} component - The name of the component
      */
     editor.method('entities:addComponent', function (entities, component) {
         var componentData = editor.call('components:getDefault', component);

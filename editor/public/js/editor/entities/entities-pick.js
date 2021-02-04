@@ -1,12 +1,12 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    editor.on('viewport:pick:clear', function() {
+    editor.on('viewport:pick:clear', function () {
         if (! editor.call('hotkey:ctrl'))
             editor.call('selector:clear');
     });
 
-    editor.on('viewport:pick:node', function(node, picked) {
+    editor.on('viewport:pick:node', function (node, picked) {
         // icon
         if (node._icon || (node.__editor && node._getEntity)) {
             node = node._getEntity();
@@ -28,7 +28,7 @@ editor.once('load', function() {
             if (node.model && node.model.type === 'asset' && node.model.model) {
                 var meshInstances = node.model.model.meshInstances;
 
-                for(var i = 0; i < meshInstances.length; i++) {
+                for (var i = 0; i < meshInstances.length; i++) {
                     var instance = meshInstances[i];
 
                     if (instance !== picked && instance !== picked._staticSource)
@@ -46,11 +46,11 @@ editor.once('load', function() {
                         if (! asset) break;
 
                         // select model asset
-                        editor.call('selector:set', 'asset', [ asset ]);
+                        editor.call('selector:set', 'asset', [asset]);
                     }
 
                     // highlight selected node
-                    setTimeout(function() {
+                    setTimeout(function () {
                         var node = editor.call('attributes.rootPanel').dom.querySelector('.pcui-asset-input.node-' + index);
                         if (node) {
                             node.classList.add('active');
@@ -73,8 +73,8 @@ editor.once('load', function() {
                 }
             } else {
                 // set selection
-                editor.call('selector:set', 'entity', [ entity ]);
+                editor.call('selector:set', 'entity', [entity]);
             }
         }
-    })
+    });
 });

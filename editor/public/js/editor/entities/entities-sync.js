@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
 
@@ -22,12 +22,12 @@ editor.once('load', function() {
 
         entity.sync = new ObserverSync({
             item: entity,
-            prefix: [ 'entities', entity.get('resource_id') ],
+            prefix: ['entities', entity.get('resource_id')],
             paths: syncPaths
         });
 
         // client > server
-        entity.sync.on('op', function(op) {
+        entity.sync.on('op', function (op) {
             editor.call('realtime:scene:op', op);
         });
     }
@@ -38,7 +38,7 @@ editor.once('load', function() {
 
 
     // server > client
-    editor.on('realtime:scene:op:entities', function(op) {
+    editor.on('realtime:scene:op:entities', function (op) {
         var entity = null;
         if (op.p[1])
             entity = editor.call('entities:get', op.p[1]);

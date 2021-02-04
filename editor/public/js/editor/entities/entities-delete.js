@@ -49,7 +49,8 @@ editor.once('load', function () {
 
     /**
      * Deletes the specified entities
-     * @param {Observer[]} entities The entities to delete
+     *
+     * @param {Observer[]} entities - The entities to delete
      */
     editor.method('entities:delete', function (entities) {
         var records = [];

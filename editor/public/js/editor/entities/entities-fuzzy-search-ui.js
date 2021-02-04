@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var panel = editor.call('layout.hierarchy');
@@ -19,18 +19,18 @@ editor.once('load', function() {
     searchClear.classList.add('clear');
     search.element.appendChild(searchClear);
 
-    searchClear.addEventListener('click', function() {
+    searchClear.addEventListener('click', function () {
         search.value = '';
     }, false);
 
 
     // if entity added, check if it maching query
-    editor.on('entities:add', function(entity) {
+    editor.on('entities:add', function (entity) {
         var query = search.value.trim();
         if (! query)
             return;
 
-        var items = [ [ entity.get('name'), entity ] ];
+        var items = [[entity.get('name'), entity]];
         var result = editor.call('search:items', items, query);
 
         if (! result.length)
@@ -40,11 +40,11 @@ editor.once('load', function() {
     });
 
 
-    var performSearch = function() {
+    var performSearch = function () {
         hierarchy.filter = lastSearch;
     };
 
-    search.on('change', function(value) {
+    search.on('change', function (value) {
         value = value.trim();
 
         if (lastSearch === value) return;

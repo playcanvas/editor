@@ -366,7 +366,6 @@ editor.once('load', function () {
     };
 
 
-
     // Called when a new entity is added. Adds the entity to the index
     // and subscribes to component script events
     EntitiesScriptsIndex.prototype.onEntityAdd = function (entity) {
