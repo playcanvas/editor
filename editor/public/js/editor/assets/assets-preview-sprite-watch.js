@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
@@ -6,8 +6,8 @@ editor.once('load', function() {
 
     var watching = { };
 
-    var subscribe = function(watch) {
-        var onChange = function() {
+    var subscribe = function (watch) {
+        var onChange = function () {
             trigger(watch);
         };
 
@@ -103,7 +103,7 @@ editor.once('load', function() {
         }
     };
 
-    var unsubscribe = function(watch) {
+    var unsubscribe = function (watch) {
         var atlas = watch.asset.get('data.textureAtlasAsset');
         unwatchAtlas(watch, atlas);
         if (watch.events.onSetAtlas) {
@@ -115,21 +115,21 @@ editor.once('load', function() {
         watch.events = {};
     };
 
-    var trigger = function(watch) {
-        for(var key in watch.callbacks)
+    var trigger = function (watch) {
+        for (var key in watch.callbacks)
             watch.callbacks[key].callback();
     };
 
     // used to force the trigger when the asset is known to have changed
     // e.g. when loading the uncompressed texture atlas completes
-    editor.method('assets:sprite:watch:trigger', function(asset) {
+    editor.method('assets:sprite:watch:trigger', function (asset) {
         var watch = watching[asset.get('id')];
         if (watch) {
             trigger(watch);
         }
     });
 
-    editor.method('assets:sprite:watch', function(args) {
+    editor.method('assets:sprite:watch', function (args) {
         var watch = watching[args.asset.get('id')];
 
         if (! watch) {
@@ -150,7 +150,7 @@ editor.once('load', function() {
     });
 
 
-    editor.method('assets:sprite:unwatch', function(asset, handle) {
+    editor.method('assets:sprite:unwatch', function (asset, handle) {
         var watch = watching[asset.get('id')];
         if (! watch) return;
 

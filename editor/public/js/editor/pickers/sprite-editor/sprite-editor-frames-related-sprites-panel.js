@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     editor.method('picker:sprites:attributes:frames:relatedSprites', function (args) {
@@ -82,7 +82,7 @@ editor.once('load', function() {
         }));
 
         panel.on('destroy', function () {
-            for (var i = 0, len = events.length; i<len; i++) {
+            for (var i = 0, len = events.length; i < len; i++) {
                 events[i].unbind();
             }
             events.length = 0;

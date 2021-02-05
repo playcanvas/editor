@@ -1,4 +1,4 @@
-editor.once('viewport:load', function() {
+editor.once('viewport:load', function () {
     'use strict';
 
     var depthTarget;
@@ -11,11 +11,11 @@ editor.once('viewport:load', function() {
     var rendered = false;
     var canvas = editor.call('viewport:canvas');
 
-    editor.on('viewport:preUpdate', function() {
+    editor.on('viewport:preUpdate', function () {
         rendered = false;
     });
 
-    editor.method('camera:depth:render', function(camera) {
+    editor.method('camera:depth:render', function (camera) {
         var rect = camera.camera._rect;
         // TODO rect width/height are referenced by name pre engine release 1.33.0 & by dimension post release.
         var rectWidth = rect.z || rect.width;
@@ -103,7 +103,7 @@ editor.once('viewport:load', function() {
     });
 
 
-    editor.method('camera:depth:pixelAt', function(camera, x, y) {
+    editor.method('camera:depth:pixelAt', function (camera, x, y) {
         if (! depthTarget || ! rendered)
             editor.call('camera:depth:render', camera);
 

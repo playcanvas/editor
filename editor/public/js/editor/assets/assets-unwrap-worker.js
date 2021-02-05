@@ -1,29 +1,29 @@
-onmessage = function(evt) {
+onmessage = function (evt) {
     if (! evt.data.name)
         return;
 
-    switch(evt.data.name) {
+    switch (evt.data.name) {
         case 'start':
             start(evt.data.id, evt.data.filename, evt.data.padding);
             break;
         case 'area':
             area(evt.data.id, evt.data.filename);
             break;
-    };
+    }
 };
 
-var loadFile = function(id, filename, fn) {
+var loadFile = function (id, filename, fn) {
     var xhr = new XMLHttpRequest();
 
-    xhr.addEventListener('load', function() {
+    xhr.addEventListener('load', function () {
         try {
             var data = JSON.parse(this.responseText);
             fn(null, data);
-        } catch(e) {
+        } catch (e) {
             fn(e);
         }
     });
-    xhr.addEventListener('error', function() {
+    xhr.addEventListener('error', function () {
         fn(e);
     });
 
@@ -31,8 +31,8 @@ var loadFile = function(id, filename, fn) {
     xhr.send(null);
 };
 
-var start = function(id, filename, padding) {
-    loadFile(id, filename, function(err, data) {
+var start = function (id, filename, padding) {
+    loadFile(id, filename, function (err, data) {
         if (err) {
             postMessage({
                 name: 'error',
@@ -43,7 +43,7 @@ var start = function(id, filename, padding) {
             close();
         } else {
             var unwrap = new Unwrap();
-            unwrap.progress = function(p) {
+            unwrap.progress = function (p) {
                 postMessage({
                     name: 'progress',
                     id: id,
@@ -65,8 +65,8 @@ var start = function(id, filename, padding) {
     });
 };
 
-var area = function(id, filename) {
-    loadFile(id, filename, function(err, data) {
+var area = function (id, filename) {
+    loadFile(id, filename, function (err, data) {
         if (err) {
             postMessage({
                 name: 'error',
@@ -90,6 +90,7 @@ var area = function(id, filename) {
     });
 };
 
+/* eslint-disable */
 var Unwrap=function(){};
 Unwrap.prototype={now:performance.now&&performance.timing?function(){return performance.now()}:Date.now,swap:function(a,b,c){var f=a[b];a[b]=a[c];a[c]=f},crossNormalize:function(a,b){var c=a.y*b.z-a.z*b.y,f=a.z*b.x-a.x*b.z,d=a.x*b.y-a.y*b.x,e=Math.sqrt(c*c+f*f+d*d);return{x:c/e,y:f/e,z:d/e}},triNormal:function(a,b,c,f,d,e,g,k,h){a-=f;b-=d;c-=e;f-=g;d-=k;h=e-h;e=b*h-c*d;h=c*f-a*h;a=a*d-b*f;b=Math.sqrt(e*e+h*h+a*a);return{x:e/b,y:h/b,z:a/b}},cubeFaceFromNormal:function(a){var b=Math.abs(a.x),c=Math.abs(a.y),
 f=Math.abs(a.z);return b>=c&&b>=f?0>a.x?0:1:c>=b&&c>=f?0>a.y?2:3:0>a.z?4:5},boxUnwrap:function(a,b){this.now();var c=b.length/3,f,d,e,g,k,h,l,r,v,n=0,m;f=0;var q=[];for(m=0;6>m;m++)q[m]=[];for(m=0;m<a.length;m+=3)f=b[3*a[m]],d=b[3*a[m]+1],e=b[3*a[m]+2],g=b[3*a[m+1]],k=b[3*a[m+1]+1],h=b[3*a[m+1]+2],l=b[3*a[m+2]],r=b[3*a[m+2]+1],v=b[3*a[m+2]+2],f=this.triNormal(f,d,e,g,k,h,l,r,v),f=this.cubeFaceFromNormal(f),q[f].push(a[m]),q[f].push(a[m+1]),q[f].push(a[m+2]);for(m=1;6>m;m++);d=[];k=[];for(g=0;6>g;g++)for(f=
@@ -116,3 +117,4 @@ e=a.model.meshInstances[b].node;f=a.model.meshes[d].vertices;d=a.model.meshes[d]
 c,f,d,e,g,k,h,l,r,v,n=0;for(b=0;b<a.model.meshInstances.length;b++)for(f=a.model.meshInstances[b].mesh,c=a.model.meshes[f].vertices,f=a.model.meshes[f].indices,c=a.model.vertices[c],d=c.texCoord1.data,e=f.length/3,c=0;c<e;c++)g=f[3*c],k=f[3*c+1],h=f[3*c+2],l=d[2*g],g=d[2*g+1],r=d[2*k],k=d[2*k+1],v=d[2*h],h=d[2*h+1],n+=this.triangleArea(l,g,0,r,k,0,v,h,0);return n},calculateMultiAreaOfJsonModel:function(a){var b,c,f,d,e,g,k,h,l,r,v,n,m,q,t,p={x:0,y:0,z:0};for(b=0;b<a.model.meshInstances.length;b++){d=
 a.model.meshInstances[b].mesh;e=a.model.meshInstances[b].node;f=a.model.meshes[d].vertices;d=a.model.meshes[d].indices;f=a.model.vertices[f];f=f.position.data;g=this.totalObjectScale(a.model,e);e=new Float32Array(f.length);k=f.length/3;for(c=0;c<k;c++)e[3*c]=f[3*c]*g[0],e[3*c+1]=f[3*c+1]*g[1],e[3*c+2]=f[3*c+2]*g[2];c=d.length/3;for(f=0;f<c;f++)h=d[3*f],l=d[3*f+1],r=d[3*f+2],g=e[3*h],k=e[3*h+1],h=e[3*h+2],v=e[3*l],n=e[3*l+1],l=e[3*l+2],m=e[3*r],q=e[3*r+1],t=e[3*r+2],r=this.triNormal(g,k,h,v,n,l,m,
 q,t),g=this.triangleArea(g,k,h,v,n,l,m,q,t),0<g&&(p.x+=g*Math.abs(r.x),p.y+=g*Math.abs(r.y),p.z+=g*Math.abs(r.z))}return p}};
+/* eslint-enable */

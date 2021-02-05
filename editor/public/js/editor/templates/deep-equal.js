@@ -1,13 +1,13 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     /**
      * Perform a deep comparison of two nodes consisting of
      * ojbects, arrays and scalar values.
      *
-     * @param {Object} node1 First object to compare
-     * @param {Object} node2 Second object to compare
-     * @returns {Boolean} True if the nodes are deep-equal
+     * @param {object} node1 - First object to compare
+     * @param {object} node2 - Second object to compare
+     * @returns {boolean} True if the nodes are deep-equal
      */
     editor.method('assets:isDeepEqual', function (node1, node2) {
         return new DeepEqual(node1, node2).run();
@@ -19,7 +19,7 @@ editor.once('load', function() {
 
             this.node2 = node2;
 
-            this.bothNodes = [ node1, node2 ];
+            this.bothNodes = [node1, node2];
         }
 
         run() {
@@ -32,9 +32,9 @@ editor.once('load', function() {
             } else if (this.areBothArrays()) {
                 return this.handleArrays();
 
-            } else {
-                return false;
             }
+            return false;
+
         }
 
         handleMaps() {
@@ -84,4 +84,3 @@ editor.once('load', function() {
         }
     }
 });
-

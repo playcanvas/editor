@@ -1,9 +1,9 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var cursorType = '';
 
-    editor.method('cursor:set', function(type) {
+    editor.method('cursor:set', function (type) {
         if (cursorType === type)
             return;
 
@@ -13,7 +13,7 @@ editor.once('load', function() {
         document.body.style.setProperty('cursor', '-webkit-' + type, 'important');
     });
 
-    editor.method('cursor:clear', function() {
+    editor.method('cursor:clear', function () {
         if (! cursorType)
             return;
 
@@ -34,7 +34,7 @@ editor.once('load', function() {
     var lastY = 0;
 
     // move tooltip
-    var onMove = function(evt) {
+    var onMove = function (evt) {
         lastX = evt.clientX;
         lastY = evt.clientY;
 
@@ -47,7 +47,7 @@ editor.once('load', function() {
     window.addEventListener('dragover', onMove, false);
 
     // set tooltip text
-    editor.method('cursor:text', function(text) {
+    editor.method('cursor:text', function (text) {
         if (text) tooltip.text = text;
         tooltip.hidden = ! text;
 

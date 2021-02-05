@@ -11,8 +11,9 @@ Object.assign(pcui, (function () {
     class TemplateOverrideInspector {
         /**
          * Creates new instance of the class.
-         * @param {Object} args The arguments.
-         * @param {ObserverList} args.entities The entities observer list.
+         *
+         * @param {object} args - The arguments.
+         * @param {ObserverList} args.entities - The entities observer list.
          */
         constructor(args) {
             this._entities = args.entities;
@@ -147,9 +148,9 @@ Object.assign(pcui, (function () {
          * @description Registers an element and a tooltip group with a template override path.
          * Whenever that path has a template override the provided element will have a CSS class applied to it
          * and a tooltip will be created for that override.
-         * @param {String} path The observer path for the override.
-         * @param {pcui.Element} element The element that we will highlight when an override appears.
-         * @param {pcui.TooltipGroup} [tooltipGroup] An optional tooltip group to use for the override tooltip. If one is not provided
+         * @param {string} path - The observer path for the override.
+         * @param {pcui.Element} element - The element that we will highlight when an override appears.
+         * @param {pcui.TooltipGroup} [tooltipGroup] - An optional tooltip group to use for the override tooltip. If one is not provided
          * then the tooltip will be attached to the element itself.
          */
         registerElementForPath(path, element, tooltipGroup) {
@@ -162,7 +163,7 @@ Object.assign(pcui, (function () {
         /**
          * @name pcui.TemplateOverrideInspector#unregisterElementForPath
          * @description Unregister the specified override path.
-         * @param {String} path The override path.
+         * @param {string} path - The override path.
          */
         unregisterElementForPath(path) {
             delete this._registeredElements[path];

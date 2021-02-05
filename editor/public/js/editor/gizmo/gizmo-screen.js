@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var left = new pc.Vec3();
@@ -60,7 +60,7 @@ editor.once('load', function() {
             return false;
         };
 
-        editor.method('gizmo:screen:visible', function(state) {
+        editor.method('gizmo:screen:visible', function (state) {
             if (visible !== state) {
                 visible = state;
 
@@ -68,10 +68,10 @@ editor.once('load', function() {
             }
         });
 
-        editor.on('entities:add', function(entity) {
+        editor.on('entities:add', function (entity) {
             var key = entity.get('resource_id');
 
-            var addGizmo = function() {
+            var addGizmo = function () {
                 if (entities[key])
                     return;
 
@@ -82,7 +82,7 @@ editor.once('load', function() {
                 editor.call('viewport:render');
             };
 
-            var removeGizmo = function() {
+            var removeGizmo = function () {
                 if (! entities[key])
                     return;
 
@@ -108,7 +108,7 @@ editor.once('load', function() {
             entity.on('components.screen:set', addGizmo);
             entity.on('components.screen:unset', removeGizmo);
 
-            entity.once('destroy', function() {
+            entity.once('destroy', function () {
                 removeGizmo();
             });
         });

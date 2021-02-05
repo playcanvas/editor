@@ -633,7 +633,7 @@ Object.assign(pcui, (function () {
                     history: args.history
                 },
                 this.entities
-                ),
+                )
             });
             // update binding of spriteFrame field
             this._field('spriteFrame').binding = new pcui.BindingTwoWay({
@@ -642,7 +642,7 @@ Object.assign(pcui, (function () {
                     history: args.history
                 },
                 this.entities
-                ),
+                )
             });
 
             this._suppressLocalizedEvents = false;

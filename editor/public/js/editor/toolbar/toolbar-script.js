@@ -85,7 +85,7 @@ editor.once('load', function () {
         }
 
         if (!fieldName.value.toLowerCase().endsWith('.js'))
-            fieldName.value = fieldName.value + '.js';
+            fieldName.value += '.js';
 
         createScript(fieldName.value, function (err, script) {
             creating = false;

@@ -1,11 +1,11 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var currentAsset = null;
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     var root = editor.call('layout.root');
 
-    var customMenuItems = [ ];
+    var customMenuItems = [];
 
     const LEGACY_SCRIPTS_ID = 'legacyScripts';
 
@@ -23,11 +23,11 @@ editor.once('load', function() {
         icon: '&#57864;',
         value: 'script'
     });
-    menuItemNewScript.on('select', function() {
+    menuItemNewScript.on('select', function () {
         if (legacyScripts) {
             editor.call('sourcefiles:new');
         } else {
-            editor.call('picker:script-create', function(filename) {
+            editor.call('picker:script-create', function (filename) {
                 editor.call('assets:create:script', {
                     filename: filename,
                     boilerplate: true
@@ -121,14 +121,14 @@ editor.once('load', function() {
         return editor.call('assets:panel:currentFolder') === 'scripts';
     }
 
-    var addNewMenuItem = function(menu, key, title) {
+    var addNewMenuItem = function (menu, key, title) {
         // new folder
         var item = new ui.MenuItem({
             text: title,
             icon: icons[key] || '',
             value: key
         });
-        item.on('select', function() {
+        item.on('select', function () {
             var args = { };
 
             if (currentAsset && currentAsset.get('type') === 'folder') {
@@ -143,7 +143,7 @@ editor.once('load', function() {
                 if (legacyScripts) {
                     editor.call('sourcefiles:new');
                 } else {
-                    editor.call('picker:script-create', function(filename) {
+                    editor.call('picker:script-create', function (filename) {
                         editor.call('assets:create:script', {
                             filename: filename,
                             boilerplate: true
@@ -151,7 +151,7 @@ editor.once('load', function() {
                     });
                 }
             } else {
-                editor.call('assets:create:' + key, args)
+                editor.call('assets:create:' + key, args);
             }
         });
         menu.append(item);
@@ -165,7 +165,7 @@ editor.once('load', function() {
     };
 
     var keys = Object.keys(assets);
-    for(var i = 0; i < keys.length; i++) {
+    for (var i = 0; i < keys.length; i++) {
         if (! assets.hasOwnProperty(keys[i]))
             continue;
 
@@ -229,7 +229,7 @@ editor.once('load', function() {
         icon: ICONS.COPY,
         value: 'copy'
     });
-    menuItemCopy.on('select', function() {
+    menuItemCopy.on('select', function () {
         var id = parseInt(currentAsset.get('id'), 10);
 
         var asset = currentAsset;
@@ -266,7 +266,7 @@ editor.once('load', function() {
         icon: ICONS.PASTE,
         value: 'paste'
     });
-    menuItemPaste.on('select', function(value, hasChildren, mouseEvt) {
+    menuItemPaste.on('select', function (value, hasChildren, mouseEvt) {
         if (currentAsset && currentAsset.get('type') !== 'folder') return;
 
         const keepFolderStructure = mouseEvt && mouseEvt.shiftKey;
@@ -305,7 +305,7 @@ editor.once('load', function() {
         icon: ICONS.REPLACE,
         value: 'replace'
     });
-    menuItemReplace.on('select', function() {
+    menuItemReplace.on('select', function () {
         var id = parseInt(currentAsset.get('id'), 10);
 
         editor.call('picker:asset', {
@@ -313,12 +313,12 @@ editor.once('load', function() {
             currentAsset: currentAsset
         });
 
-        var evtPick = editor.once('picker:asset', function(asset) {
+        var evtPick = editor.once('picker:asset', function (asset) {
             editor.call('assets:replace', currentAsset, asset);
             evtPick = null;
         });
 
-        editor.once('picker:asset:close', function() {
+        editor.once('picker:asset:close', function () {
             if (evtPick) {
                 evtPick.unbind();
                 evtPick = null;
@@ -332,7 +332,7 @@ editor.once('load', function() {
         icon: ICONS.SPRITE_ASSET,
         value: 'replaceTextureToSprite'
     });
-    menuItemReplaceTextureToSprite.on('select', function() {
+    menuItemReplaceTextureToSprite.on('select', function () {
         var id = parseInt(currentAsset.get('id'), 10);
 
         editor.call('picker:asset', {
@@ -340,12 +340,12 @@ editor.once('load', function() {
             currentAsset: currentAsset
         });
 
-        var evtPick = editor.once('picker:asset', function(asset) {
+        var evtPick = editor.once('picker:asset', function (asset) {
             editor.call('assets:replaceTextureToSprite', currentAsset, asset);
             evtPick = null;
         });
 
-        editor.once('picker:asset:close', function() {
+        editor.once('picker:asset:close', function () {
             if (evtPick) {
                 evtPick.unbind();
                 evtPick = null;
@@ -363,7 +363,7 @@ editor.once('load', function() {
         icon: ICONS.REIMPORT,
         value: 'extract'
     });
-    menuItemExtract.on('select', function() {
+    menuItemExtract.on('select', function () {
         editor.call('assets:reimport', currentAsset.get('id'), currentAsset.get('type'));
     });
     if (editor.call('permissions:write')) menu.append(menuItemExtract);
@@ -375,7 +375,7 @@ editor.once('load', function() {
         icon: ICONS.REIMPORT,
         value: 're-import'
     });
-    menuItemReImport.on('select', function() {
+    menuItemReImport.on('select', function () {
         editor.call('assets:reimport', currentAsset.get('id'), currentAsset.get('type'));
     });
     if (editor.call('permissions:write')) menu.append(menuItemReImport);
@@ -386,7 +386,7 @@ editor.once('load', function() {
         icon: ICONS.DOWNLOAD,
         value: 'download'
     });
-    menuItemDownload.on('select', function() {
+    menuItemDownload.on('select', function () {
         window.open(currentAsset.get('file.url'));
     });
     menu.append(menuItemDownload);
@@ -398,7 +398,7 @@ editor.once('load', function() {
         icon: ICONS.EDIT,
         value: 'edit'
     });
-    menuItemEdit.on('select', function() {
+    menuItemEdit.on('select', function () {
         editor.call('assets:edit', currentAsset);
     });
     menu.append(menuItemEdit);
@@ -410,7 +410,7 @@ editor.once('load', function() {
         icon: ICONS.DUPLICATE,
         value: 'duplicate'
     });
-    menuItemDuplicate.on('select', function() {
+    menuItemDuplicate.on('select', function () {
         editor.call('assets:duplicate', currentAsset);
     });
     if (editor.call('permissions:write')) menu.append(menuItemDuplicate);
@@ -423,7 +423,7 @@ editor.once('load', function() {
         value: 'delete'
     });
     menuItemDelete.style.fontWeight = 200;
-    menuItemDelete.on('select', function() {
+    menuItemDelete.on('select', function () {
         var asset = currentAsset;
         var multiple = false;
 
@@ -461,7 +461,7 @@ editor.once('load', function() {
         icon: ICONS.EDIT,
         value: 'add_to_store'
     });
-    menuItemMoveToStore.on('select', function() {
+    menuItemMoveToStore.on('select', function () {
         editor.call('assets:move-to-store', currentAsset);
     });
     if (editor.call('permissions:write')) menu.append(menuItemMoveToStore);
@@ -472,14 +472,14 @@ editor.once('load', function() {
         icon: ICONS.OPEN_IN_VIEWER,
         value: 'open_in_viewer'
     });
-    menuItemOpenInViewer.on('select', function() {
+    menuItemOpenInViewer.on('select', function () {
         const url = encodeURIComponent(`https://${window.location.hostname}${currentAsset.get('file.url')}`);
         window.open(`/viewer?load=${url}`);
     });
     menu.append(menuItemOpenInViewer);
 
     // filter buttons
-    menu.on('open', function() {
+    menu.on('open', function () {
         if (currentAsset && currentAsset.get('id') === LEGACY_SCRIPTS_ID) {
             menuItemNewScript.hidden = false;
             if (menuItemPaste) {
@@ -560,9 +560,9 @@ editor.once('load', function() {
                 // re-import
                 var sourceId = currentAsset.get('source_asset_id');
                 if (sourceId) {
-                    var source = editor.call('assets:get', sourceId)
+                    var source = editor.call('assets:get', sourceId);
                     if (source) {
-                        if (source.get('type') === 'scene' && ([ 'texture', 'material' ].indexOf(currentAsset.get('type')) !== -1 || ! source.get('meta'))) {
+                        if (source.get('type') === 'scene' && (['texture', 'material'].indexOf(currentAsset.get('type')) !== -1 || ! source.get('meta'))) {
                             menuItemReImport.hidden = true;
                         } else if (currentAsset.get('type') === 'animation' && ! source.get('meta.animation.available')) {
                             menuItemReImport.hidden = true;
@@ -582,15 +582,15 @@ editor.once('load', function() {
                 var ref = editor.call('assets:used:index')[currentAsset.get('id')];
                 if (ref && ref.count && ref.ref) {
                     menuItemReferences.hidden = false;
-                    menuItemReplace.hidden = replaceAvailable[currentAsset.get('type')] ? false : true;
+                    menuItemReplace.hidden = !replaceAvailable[currentAsset.get('type')];
                     menuItemReplaceTextureToSprite.hidden = !editor.call('users:hasFlag', 'hasTextureToSprite') || (currentAsset.get('type') !== 'texture');
 
-                    while(menuItemReferences.innerElement.firstChild)
+                    while (menuItemReferences.innerElement.firstChild)
                         menuItemReferences.innerElement.firstChild.ui.destroy();
 
-                    var menuItems = [ ];
+                    var menuItems = [];
 
-                    var addReferenceItem = function(type, id) {
+                    var addReferenceItem = function (type, id) {
                         var menuItem = new ui.MenuItem();
                         var item = null;
 
@@ -617,12 +617,12 @@ editor.once('load', function() {
                             element: menuItem
                         });
 
-                        menuItem.on('select', function() {
-                            editor.call('selector:set', type, [ item ]);
+                        menuItem.on('select', function () {
+                            editor.call('selector:set', type, [item]);
 
                             if (type === 'asset') {
                                 var folder = null;
-                                var path = item.get('path') || [ ];
+                                var path = item.get('path') || [];
                                 if (path.length)
                                     folder = editor.call('assets:get', path[path.length - 1]);
 
@@ -631,14 +631,14 @@ editor.once('load', function() {
 
                             // unfold rendering tab
                             if (type === 'editorSettings') {
-                                setTimeout(function() {
+                                setTimeout(function () {
                                     editor.call('editorSettings:panel:unfold', 'rendering');
                                 }, 0);
                             }
                         });
                     };
 
-                    for(var key in ref.ref)
+                    for (var key in ref.ref)
                         addReferenceItem(ref.ref[key].type, key);
 
                     var typeSort = {
@@ -647,21 +647,21 @@ editor.once('load', function() {
                         'entity': 3
                     };
 
-                    menuItems.sort(function(a, b) {
+                    menuItems.sort(function (a, b) {
                         if (a.type !== b.type) {
                             return typeSort[a.type] - typeSort[b.type];
-                        } else {
-                            if (a.name > b.name) {
-                                return 1;
-                            } else if (a.name < b.name) {
-                                return -1;
-                            } else {
-                                return 0;
-                            }
                         }
+                        if (a.name > b.name) {
+                            return 1;
+                        } else if (a.name < b.name) {
+                            return -1;
+                        }
+                        return 0;
+
+
                     });
 
-                    for(var i = 0; i < menuItems.length; i++)
+                    for (var i = 0; i < menuItems.length; i++)
                         menuItemReferences.append(menuItems[i].element);
                 } else {
                     menuItemReferences.hidden = true;
@@ -673,7 +673,7 @@ editor.once('load', function() {
                 menuItemReplace.hidden = true;
                 menuItemReplaceTextureToSprite.hidden = true;
                 menuItemReImport.hidden = true;
-                menuItemExtract.hidden = [ 'scene', 'texture', 'textureatlas' ].indexOf(currentAsset.get('type')) === -1 || ! currentAsset.get('meta');
+                menuItemExtract.hidden = ['scene', 'texture', 'textureatlas'].indexOf(currentAsset.get('type')) === -1 || ! currentAsset.get('meta');
             }
 
             // move-to-store
@@ -703,7 +703,7 @@ editor.once('load', function() {
             menuItemOpenInViewer.hidden = true;
         }
 
-        for(var i = 0; i < customMenuItems.length; i++) {
+        for (var i = 0; i < customMenuItems.length; i++) {
             if (! customMenuItems[i].filter)
                 continue;
 
@@ -713,12 +713,12 @@ editor.once('load', function() {
 
 
     // for each asset added
-    editor.on('assets:add', function(asset) {
+    editor.on('assets:add', function (asset) {
         // get grid item
         var item = editor.call('assets:panel:get', asset.get('id'));
         if (! item) return;
 
-        var contextMenuHandler = function(evt) {
+        var contextMenuHandler = function (evt) {
             evt.stopPropagation();
             evt.preventDefault();
 
@@ -756,13 +756,13 @@ editor.once('load', function() {
         return menuCreate;
     });
 
-    editor.on('sourcefiles:add', function(asset) {
+    editor.on('sourcefiles:add', function (asset) {
         // get grid item
         var item = editor.call('assets:panel:get', asset.get('filename'));
         if (! item) return;
 
         // attach contextmenu event
-        item.element.addEventListener('contextmenu', function(evt) {
+        item.element.addEventListener('contextmenu', function (evt) {
             evt.stopPropagation();
             evt.preventDefault();
 
@@ -790,14 +790,14 @@ editor.once('load', function() {
     }
 
 
-    editor.method('assets:contextmenu:add', function(data) {
+    editor.method('assets:contextmenu:add', function (data) {
         var item = new ui.MenuItem({
             text: data.text,
             icon: data.icon,
             value: data.value
         });
 
-        item.on('select', function() {
+        item.on('select', function () {
             data.select.call(item, currentAsset);
         });
 

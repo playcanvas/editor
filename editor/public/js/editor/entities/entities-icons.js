@@ -1,12 +1,12 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app;
     var iconsEntity;
-    var textureNames = [ 'animation', 'audiolistener', 'audiosource', 'sound', 'camera', 'collision', 'light-point', 'light-directional', 'light-spot', 'particlesystem', 'rigidbody', 'script', 'unknown' ];
-    var components = [ 'camera', 'light', 'audiolistener', 'audiosource', 'sound', 'particlesystem', 'script', 'animation', 'model' ];
-    var icons = [ ];
-    var pool = [ ];
+    var textureNames = ['animation', 'audiolistener', 'audiosource', 'sound', 'camera', 'collision', 'light-point', 'light-directional', 'light-spot', 'particlesystem', 'rigidbody', 'script', 'unknown'];
+    var components = ['camera', 'light', 'audiolistener', 'audiosource', 'sound', 'particlesystem', 'script', 'animation', 'model'];
+    var icons = [];
+    var pool = [];
     var dirtifyKeys = [
         'enabled:set',
         'components.model.type:set',
@@ -24,7 +24,7 @@ editor.once('load', function() {
     var materialBehind = null;
     var iconColor = new pc.Color(1, 1, 1, 1);
     var textures = { };
-    var scale = .5;
+    var scale = 0.5;
     var cameraRotation = new pc.Quat();
     var rotateMatrix = new pc.Mat4().setFromAxisAngle(pc.Vec3.LEFT, -90);
     var quadMaterial = new pc.Material();
@@ -40,16 +40,16 @@ editor.once('load', function() {
         this.colorUniform = new Float32Array(4);
 
         this._link = null;
-        this.events = [ ];
-        this.eventsLocal = [ ];
+        this.events = [];
+        this.eventsLocal = [];
         this.local = '';
         this.dirty = true;
-        this.dirtify = function() {
+        this.dirtify = function () {
             self.dirty = true;
         };
     }
 
-    Icon.prototype.entityCreate = function() {
+    Icon.prototype.entityCreate = function () {
         if (this.entity)
             return;
 
@@ -59,7 +59,7 @@ editor.once('load', function() {
 
         this.entity = new pc.Entity('front', app);
         this.entity._icon = true;
-        this.entity._getEntity = function() {
+        this.entity._getEntity = function () {
             return self._link && self._link.entity || null;
         };
 
@@ -71,7 +71,7 @@ editor.once('load', function() {
             castShadows: false,
             receiveShadows: false,
             castShadowsLightmap: false,
-            layers: [layerFront.id],
+            layers: [layerFront.id]
         });
         this.entity.model.meshInstances[0].__editor = true;
         this.entity.model.meshInstances[0].mask = GIZMO_MASK;
@@ -101,7 +101,7 @@ editor.once('load', function() {
         iconsEntity.addChild(this.entity);
     };
 
-    Icon.prototype.entityDelete = function() {
+    Icon.prototype.entityDelete = function () {
         if (! this.entity)
             return;
 
@@ -111,7 +111,7 @@ editor.once('load', function() {
         this.behind = null;
     };
 
-    Icon.prototype.update = function() {
+    Icon.prototype.update = function () {
         if (! this._link || ! this._link.entity)
             return;
 
@@ -150,7 +150,7 @@ editor.once('load', function() {
         }
 
         var component = '';
-        for(var i = 0; i < components.length; i++) {
+        for (var i = 0; i < components.length; i++) {
             if (! this._link.has('components.' + components[i]))
                 continue;
 
@@ -190,13 +190,13 @@ editor.once('load', function() {
 
             if (this.local !== components[i]) {
                 // clear local binds
-                for(var n = 0; n < this.eventsLocal.length; n++)
+                for (var n = 0; n < this.eventsLocal.length; n++)
                     this.eventsLocal[n].unbind();
-                this.eventsLocal = [ ];
+                this.eventsLocal = [];
 
                 // add local binds
                 if (dirtifyLocalKeys[components[i]]) {
-                    for(var n = 0; n < dirtifyLocalKeys[components[i]].length; n++)
+                    for (var n = 0; n < dirtifyLocalKeys[components[i]].length; n++)
                         this.eventsLocal.push(this._link.on(dirtifyLocalKeys[components[i]][n], this.dirtify));
                 }
             }
@@ -204,20 +204,20 @@ editor.once('load', function() {
             this.entityDelete();
         }
     };
-    Icon.prototype.link = function(obj) {
+    Icon.prototype.link = function (obj) {
         this.unlink();
 
         this._link = obj;
-        for(var i = 0; i < dirtifyKeys.length; i++)
+        for (var i = 0; i < dirtifyKeys.length; i++)
             this.events.push(obj.on(dirtifyKeys[i], this.dirtify));
 
-        for(var i = 0; i < components.length; i++) {
+        for (var i = 0; i < components.length; i++) {
             this.events.push(obj.on('components.' + components[i] + ':set', this.dirtify));
             this.events.push(obj.on('components.' + components[i] + ':unset', this.dirtify));
         }
 
         var self = this;
-        this.events.push(obj.once('destroy', function() {
+        this.events.push(obj.once('destroy', function () {
             self.unlink();
         }));
 
@@ -225,17 +225,17 @@ editor.once('load', function() {
 
         this.dirty = true;
     };
-    Icon.prototype.unlink = function() {
+    Icon.prototype.unlink = function () {
         if (! this._link)
             return;
 
-        for(var i = 0; i < this.events.length; i++)
+        for (var i = 0; i < this.events.length; i++)
             this.events[i].unbind();
 
         if (this.entity)
             this.entityDelete();
 
-        this.events = [ ];
+        this.events = [];
         this._link = null;
 
         var ind = icons.indexOf(this);
@@ -243,14 +243,14 @@ editor.once('load', function() {
         pool.push(this);
     };
 
-    editor.once('viewport:load', function() {
+    editor.once('viewport:load', function () {
         app = editor.call('viewport:app');
         if (! app) return; // webgl not available
 
         var shader;
 
         material = new pc.BasicMaterial();
-        material.updateShader = function(device) {
+        material.updateShader = function (device) {
             if (! shader) {
                 shader = new pc.Shader(device, {
                     attributes: {
@@ -297,7 +297,7 @@ editor.once('load', function() {
         iconsEntity = new pc.Entity(app);
         app.root.addChild(iconsEntity);
 
-        for(var i = 0; i < textureNames.length; i++) {
+        for (var i = 0; i < textureNames.length; i++) {
             textures[textureNames[i]] = new pc.Texture(app.graphicsDevice, {
                 width: 64,
                 height: 64
@@ -308,13 +308,13 @@ editor.once('load', function() {
 
             var img = new Image();
             img.textureName = textureNames[i];
-            img.onload = function() {
+            img.onload = function () {
                 textures[this.textureName].setSource(this);
             };
             img.src = '/editor/scene/img/entity-icons/' + textureNames[i] + '.png';
         }
 
-        editor.on('entities:add', function(obj) {
+        editor.on('entities:add', function (obj) {
             var icon = pool.shift();
             if (! icon)
                 icon = new Icon();
@@ -323,24 +323,24 @@ editor.once('load', function() {
         });
     });
 
-    editor.on('selector:change', function(type, items) {
+    editor.on('selector:change', function (type, items) {
         selectedIds = { };
 
         if (type !== 'entity')
             return;
 
-        for(var i = 0; i < items.length; i++)
+        for (var i = 0; i < items.length; i++)
             selectedIds[items[i].get('resource_id')] = true;
     });
 
-    editor.on('viewport:postUpdate', function() {
+    editor.on('viewport:postUpdate', function () {
         if (app) cameraRotation.copy(editor.call('camera:current').getRotation());
 
-        for(var i = 0; i < icons.length; i++)
+        for (var i = 0; i < icons.length; i++)
             icons[i].update();
     });
 
-    editor.method('viewport:icons:size', function(size) {
+    editor.method('viewport:icons:size', function (size) {
         if (size === undefined)
             return scale;
 
@@ -350,7 +350,7 @@ editor.once('load', function() {
 
     var settings = editor.call('settings:user');
     editor.call('viewport:icons:size', settings.get('editor.iconSize'));
-    settings.on('editor.iconSize:set', function(size) {
+    settings.on('editor.iconSize:set', function (size) {
         editor.call('viewport:icons:size', size);
     });
 });

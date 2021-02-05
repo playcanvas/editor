@@ -213,7 +213,7 @@ Object.assign(pcui, (function () {
                                     readOnly: true,
                                     renderChanges: false
                                 }
-                            }
+                            };
                         });
                         elementArgs.attributes.push({
                             type: 'divider'
@@ -336,7 +336,7 @@ Object.assign(pcui, (function () {
                                         value: value[key],
                                         renderChanges: false
                                     }
-                                }
+                                };
                             })
                         });
                         labelAlignTop = true;

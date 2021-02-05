@@ -1,5 +1,5 @@
 editor.once('load', function () {
-    if(! editor.call('settings:project').get('useLegacyScripts'))
+    if (! editor.call('settings:project').get('useLegacyScripts'))
         return;
 
     var VALID_TYPES = [
@@ -45,27 +45,27 @@ editor.once('load', function () {
         },
 
         'vector': function (url, attribute) {
-            validateArrayValue(url, attribute, [0,0,0], 3, 'number');
+            validateArrayValue(url, attribute, [0, 0, 0], 3, 'number');
         },
 
         'vec2': function (url, attribute) {
-            validateArrayValue(url, attribute, [0,0], 2, 'number');
+            validateArrayValue(url, attribute, [0, 0], 2, 'number');
         },
 
         'vec3': function (url, attribute) {
-            validateArrayValue(url, attribute, [0,0,0], 3, 'number');
+            validateArrayValue(url, attribute, [0, 0, 0], 3, 'number');
         },
 
         'vec4': function (url, attribute) {
-            validateArrayValue(url, attribute, [0,0,0,0], 4, 'number');
+            validateArrayValue(url, attribute, [0, 0, 0, 0], 4, 'number');
         },
 
         'rgb': function (url, attribute) {
-            validateArrayValue(url, attribute, [0,0,0], 3, 'number');
+            validateArrayValue(url, attribute, [0, 0, 0], 3, 'number');
         },
 
         'rgba': function (url, attribute) {
-            validateArrayValue(url, attribute, [0,0,0,1], 4, 'number');
+            validateArrayValue(url, attribute, [0, 0, 0, 1], 4, 'number');
         },
 
         'enumeration': function (url, attribute) {
@@ -77,7 +77,7 @@ editor.once('load', function () {
                 var valueType;
                 var enumerations = attribute.options.enumerations;
                 // TODO check enumerations max length
-                for (var i=0; i<enumerations.length; i++) {
+                for (var i = 0; i < enumerations.length; i++) {
                     if (pc.type(enumerations[i]) !== 'object') {
                         throw attributeErrorMsg(url, attribute, "Each enumeration must be an object with this form: {name: '...', value: ...}");
                     } else {
@@ -300,7 +300,7 @@ editor.once('load', function () {
         if (correctLength >= 0 && attribute.defaultValue.length !== correctLength) {
             throw attributeErrorMsg(url, attribute, pc.string.format('Value must be an array with {0} elements of type {1}', correctLength, typeofElements));
         } else {
-            for (var i=0; i<attribute.defaultValue.length; i++) {
+            for (var i = 0; i < attribute.defaultValue.length; i++) {
                 if (typeof attribute.defaultValue[i] !== typeofElements) {
                     throw attributeErrorMsg(url, attribute, pc.string.format('Value must be an array with elements of type {0}', typeofElements));
                 }
@@ -408,10 +408,10 @@ editor.once('load', function () {
     var REGEX_ALLOWED = new RegExp('^((http(s)?:\/\/)((code.playcanvas.com)|(localhost:51000)))|(' + config.url.api + ')');
 
     /**
-    * Starts a web worker which scans the specified URL
-    * for script attributes, then validates the result and passes it to
-    * the success callback
-    */
+     * Starts a web worker which scans the specified URL
+     * for script attributes, then validates the result and passes it to
+     * the success callback
+     */
     editor.method('sourcefiles:scan', function (url, success) {
         if (!REGEX_ALLOWED.test(url)) {
             success({});

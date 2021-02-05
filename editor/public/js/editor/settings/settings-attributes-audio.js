@@ -1,11 +1,11 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var projectSettings = editor.call('settings:project');
 
     var folded = true;
 
-    editor.on('attributes:inspect[editorSettings]', function() {
+    editor.on('attributes:inspect[editorSettings]', function () {
         if (projectSettings.has('useLegacyAudio')) {
 
             var panelAudio = editor.call('attributes:addPanel', {
@@ -13,8 +13,8 @@ editor.once('load', function() {
             });
             panelAudio.foldable = true;
             panelAudio.folded = folded;
-            panelAudio.on('fold', function() { folded = true; });
-            panelAudio.on('unfold', function() { folded = false; });
+            panelAudio.on('fold', function () { folded = true; });
+            panelAudio.on('unfold', function () { folded = false; });
             panelAudio.class.add('component', 'audio');
 
             var fieldLegacyAudio = editor.call('attributes:addField', {

@@ -1,10 +1,10 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (! editor.call('settings:project').get('useLegacyScripts'))
         return;
 
-    editor.on('attributes:inspect[script]', function(scripts) {
+    editor.on('attributes:inspect[script]', function (scripts) {
         if (scripts.length !== 1)
             return;
 
@@ -29,7 +29,7 @@ editor.once('load', function() {
         var btnEdit = new ui.Button();
         btnEdit.text = 'Edit Script';
         btnEdit.class.add('edit-script', 'large-with-icon');
-        btnEdit.on('click', function(evt) {
+        btnEdit.on('click', function (evt) {
             window.open('/editor/code/' + config.project.id + '/' + script.get('filename'));
         });
         panel.append(btnEdit);

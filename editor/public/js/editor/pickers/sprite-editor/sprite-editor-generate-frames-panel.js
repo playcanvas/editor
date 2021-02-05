@@ -46,8 +46,8 @@ editor.once('load', function () {
             value: METHOD_DELETE_EXISTING,
             enum: [
                 { v: METHOD_DELETE_EXISTING, t: 'Delete Existing' },
-                { v: METHOD_ONLY_APPEND, t: 'Only Append' },
-            ],
+                { v: METHOD_ONLY_APPEND, t: 'Only Append' }
+            ]
         });
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:generate:method', fieldMethod.parent.innerElement.firstChild.ui, null, panel);
@@ -58,8 +58,8 @@ editor.once('load', function () {
             type: 'number',
             value: TYPE_GRID_BY_FRAME_COUNT,
             enum: [
-                {v: TYPE_GRID_BY_FRAME_COUNT, t: 'Grid By Frame Count'},
-                {v: TYPE_GRID_BY_FRAME_SIZE, t: 'Grid By Frame Size'}
+                { v: TYPE_GRID_BY_FRAME_COUNT, t: 'Grid By Frame Count' },
+                { v: TYPE_GRID_BY_FRAME_SIZE, t: 'Grid By Frame Size' }
                 // {v: 3, t: 'Auto'}
             ]
         });
@@ -317,12 +317,12 @@ editor.once('load', function () {
                     var left = offsetX + c * (frameWidth + spacingX);
                     var top = offsetY + r * (frameHeight + spacingY) - offsetY - spacingY;
 
-                    if (! isRegionEmpty(left, top+spacingY, frameWidth, frameHeight)) {
+                    if (! isRegionEmpty(left, top + spacingY, frameWidth, frameHeight)) {
                         frames[maxKey] = {
                             name: 'Frame ' + maxKey,
                             rect: [left, Math.floor(imgHeight - (top + spacedHeight)), frameWidth, frameHeight],
                             pivot: pivot,
-                            border: [0,0,0,0]
+                            border: [0, 0, 0, 0]
                         };
                         maxKey++;
                     }
@@ -361,12 +361,12 @@ editor.once('load', function () {
                     var left = offsetX + c * (frameWidth + spacingX);
                     var top = offsetY + r * (frameHeight + spacingY) - offsetY - spacingY;
 
-                    if (! isRegionEmpty(left, top+spacingY, frameWidth, frameHeight)) {
+                    if (! isRegionEmpty(left, top + spacingY, frameWidth, frameHeight)) {
                         frames[maxKey] = {
                             name: 'Frame ' + maxKey,
                             rect: [left, Math.floor(imgHeight - (top + spacedHeight)), frameWidth, frameHeight],
                             pivot: pivot,
-                            border: [0,0,0,0]
+                            border: [0, 0, 0, 0]
                         };
                         maxKey++;
                     }
@@ -400,7 +400,7 @@ editor.once('load', function () {
         }));
 
         panel.on('destroy', function () {
-            for (var i = 0, len = events.length; i<len; i++) {
+            for (var i = 0, len = events.length; i < len; i++) {
                 events[i].unbind();
             }
             events.length = 0;

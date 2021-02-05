@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var gizmo = null;
@@ -12,8 +12,8 @@ editor.once('load', function() {
     var hover = false;
     var hoverAxis = '';
     var hoverEntity = null;
-    var gizmoSize = .4;
-    var arrowRadius = .4;
+    var gizmoSize = 0.4;
+    var arrowRadius = 0.4;
     var vecA = new pc.Vec3();
     var vecB = new pc.Vec3();
     var vecC = new pc.Vec3();
@@ -24,17 +24,17 @@ editor.once('load', function() {
     var startRotation = new pc.Quat();
 
     var immediateRenderOptions;
-    var noDepthImmediateRenderOptions
+    var noDepthImmediateRenderOptions;
 
     var snap = false;
     var snapIncrement = 5;
-    editor.on('gizmo:snap', function(state, increment) {
+    editor.on('gizmo:snap', function (state, increment) {
         snap = state;
         snapIncrement = increment * 5;
     });
 
     // enable/disable gizmo
-    editor.method('gizmo:rotate:toggle', function(state) {
+    editor.method('gizmo:rotate:toggle', function (state) {
         if (! gizmo)
             return;
 
@@ -46,7 +46,7 @@ editor.once('load', function() {
         editor.call('viewport:render');
     });
 
-    editor.on('permissions:writeState', function(state) {
+    editor.on('permissions:writeState', function (state) {
         if (! gizmo)
             return;
 
@@ -55,13 +55,13 @@ editor.once('load', function() {
     });
 
     // show/hide gizmo
-    editor.method('gizmo:rotate:visible', function(state) {
+    editor.method('gizmo:rotate:visible', function (state) {
         if (! gizmo)
             return;
 
         visible = state;
 
-        for(var i = 0; i < gizmo.hoverable.length; i++) {
+        for (var i = 0; i < gizmo.hoverable.length; i++) {
             if (! gizmo.hoverable[i].model)
                 continue;
 
@@ -72,7 +72,7 @@ editor.once('load', function() {
     });
 
     // position gizmo
-    editor.method('gizmo:rotate:position', function(x, y, z) {
+    editor.method('gizmo:rotate:position', function (x, y, z) {
         if (x === undefined)
             return gizmo.root.getPosition();
 
@@ -83,7 +83,7 @@ editor.once('load', function() {
     });
 
     // rotate gizmo
-    editor.method('gizmo:rotate:rotation', function(pitch, yaw, roll) {
+    editor.method('gizmo:rotate:rotation', function (pitch, yaw, roll) {
         gizmo.root.setEulerAngles(pitch, yaw, roll);
 
         if (gizmo.root.enabled)
@@ -91,7 +91,7 @@ editor.once('load', function() {
     });
 
     // initialize gizmo
-    editor.once('viewport:load', function() {
+    editor.once('viewport:load', function () {
         var app = editor.call('viewport:app');
         if (! app) return; // webgl not available
 
@@ -111,7 +111,7 @@ editor.once('load', function() {
         };
 
         // on picker hover
-        editor.on('viewport:pick:hover', function(node, picked) {
+        editor.on('viewport:pick:hover', function (node, picked) {
             var match = gizmo.hoverable.indexOf(node) !== -1;
             if (! hover && match) {
                 // hover
@@ -154,7 +154,7 @@ editor.once('load', function() {
         var lastPoint = new pc.Vec3();
 
         // update gizmo
-        editor.on('viewport:postUpdate', function(dt) {
+        editor.on('viewport:postUpdate', function (dt) {
             if (gizmo.root.enabled) {
                 var camera = editor.call('camera:current');
                 var posCamera = camera.getPosition();
@@ -270,10 +270,10 @@ editor.once('load', function() {
 
             }
 
-            mouseTapMoved = false
+            mouseTapMoved = false;
         });
 
-        var pickPlane = function(x, y) {
+        var pickPlane = function (x, y) {
             var camera = editor.call('camera:current');
 
             var mouseWPos = camera.camera.screenToWorld(x, y, 1);
@@ -318,7 +318,7 @@ editor.once('load', function() {
             };
         };
 
-        var onTapStart = function(tap) {
+        var onTapStart = function (tap) {
             if (moving || tap.button !== 0)
                 return;
 
@@ -338,7 +338,7 @@ editor.once('load', function() {
             editor.call('viewport:pick:state', false);
         };
 
-        var onTapMove = function(tap) {
+        var onTapMove = function (tap) {
             if (! moving)
                 return;
 
@@ -346,7 +346,7 @@ editor.once('load', function() {
             mouseTapMoved = true;
         };
 
-        var onTapEnd = function(tap) {
+        var onTapEnd = function (tap) {
             if (tap.button !== 0)
                 return;
 
@@ -366,7 +366,7 @@ editor.once('load', function() {
         editor.on('viewport:tap:end', onTapEnd);
     });
 
-    var createMaterial = function(color) {
+    var createMaterial = function (color) {
         var mat = new pc.BasicMaterial();
         mat.color = color;
         if (color.a !== 1) {
@@ -378,7 +378,7 @@ editor.once('load', function() {
         return mat;
     };
 
-    var createEntity = function(app) {
+    var createEntity = function (app) {
         var obj = {
             root: null,
             sphere: null,
@@ -393,7 +393,7 @@ editor.once('load', function() {
                 z: null,
                 cull: null
             },
-            hoverable: [ ],
+            hoverable: [],
             matActive: null,
             matBehind: null,
             matBehindHover: { },
@@ -401,11 +401,11 @@ editor.once('load', function() {
         };
 
         // materials
-        obj.matBehind = createMaterial(new pc.Color(1, 1, 1, .1));
+        obj.matBehind = createMaterial(new pc.Color(1, 1, 1, 0.1));
         obj.matBehind.depthTest = false;
-        obj.matBehindHover.x = createMaterial(new pc.Color(1, 0, 0, .2));
-        obj.matBehindHover.y = createMaterial(new pc.Color(0, 1, 0, .2));
-        obj.matBehindHover.z = createMaterial(new pc.Color(0, 0, 1, .2));
+        obj.matBehindHover.x = createMaterial(new pc.Color(1, 0, 0, 0.2));
+        obj.matBehindHover.y = createMaterial(new pc.Color(0, 1, 0, 0.2));
+        obj.matBehindHover.z = createMaterial(new pc.Color(0, 0, 1, 0.2));
         obj.matBehindHover.x.depthTest = false;
         obj.matBehindHover.y.depthTest = false;
         obj.matBehindHover.z.depthTest = false;
@@ -499,7 +499,7 @@ editor.once('load', function() {
         return mi;
     };
 
-    var createLinesModel = function(app) {
+    var createLinesModel = function (app) {
         // Create the rotate gizmo geometry
         var device = app.graphicsDevice;
         var axisSegments = 50;
@@ -539,7 +539,7 @@ editor.once('load', function() {
         var node = new pc.GraphNode();
         var mesh, meshInstance;
 
-        var meshInstances = [ ];
+        var meshInstances = [];
         var materials = [
             createMaterial(new pc.Color(1, 0, 0, 1.1)),
             createMaterial(new pc.Color(0, 1, 0, 1.1)),

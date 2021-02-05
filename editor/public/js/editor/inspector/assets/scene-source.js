@@ -9,11 +9,11 @@ Object.assign(pcui, (function () {
         alias: 'animation',
         type: 'container',
         args: {
-                flex: true,
-                flexDirection: 'row',
-                flexWrap: 'wrap'
-            }
-        },
+            flex: true,
+            flexDirection: 'row',
+            flexWrap: 'wrap'
+        }
+    },
     {
         label: 'Textures',
         alias: 'textures',

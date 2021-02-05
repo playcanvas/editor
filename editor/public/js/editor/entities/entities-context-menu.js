@@ -1,9 +1,9 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var entity = null; // the entity that was clicked on to open the context menu
-    var items = [ ];   // the current selection
-    var customMenuItems = [ ];
+    var items = [];   // the current selection
+    var customMenuItems = [];
     var root = editor.call('layout.root');
 
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
@@ -21,14 +21,14 @@ editor.once('load', function() {
     // create data for entity menu
     var menu;
 
-    var getSelection = function() {
+    var getSelection = function () {
         var selection = editor.call('selector:items');
 
         if (selection.indexOf(entity) !== -1) {
             return selection;
-        } else {
-            return [ entity ];
         }
+        return [entity];
+
     };
 
     var hasLegacyScript = function (entity, url) {
@@ -117,10 +117,10 @@ editor.once('load', function() {
         entity.history.emit('record', 'add', action);
     };
 
-    var setField = function(field, value) {
-        var records = [ ];
+    var setField = function (field, value) {
+        var records = [];
 
-        for(var i = 0; i < items.length; i++) {
+        for (var i = 0; i < items.length; i++) {
             records.push({
                 item: items[i],
                 value: value,
@@ -134,8 +134,8 @@ editor.once('load', function() {
 
         editor.call('history:add', {
             name: 'entities.set[' + field + ']',
-            undo: function() {
-                for(var i = 0; i < records.length; i++) {
+            undo: function () {
+                for (var i = 0; i < records.length; i++) {
                     var item = records[i].item.latest();
                     if (! item)
                         continue;
@@ -145,8 +145,8 @@ editor.once('load', function() {
                     item.history.enabled = true;
                 }
             },
-            redo: function() {
-                for(var i = 0; i < records.length; i++) {
+            redo: function () {
+                for (var i = 0; i < records.length; i++) {
                     var item = records[i].item.latest();
                     if (! item)
                         continue;
@@ -168,13 +168,13 @@ editor.once('load', function() {
         menuData['new-entity'] = {
             title: 'New Entity',
             className: 'menu-item-new-entity',
-            filter: function() {
+            filter: function () {
                 return items.length === 1;
             },
             select: function () {
-                editor.call('entities:new', {parent: items[0]});
+                editor.call('entities:new', { parent: items[0] });
             },
-            items: editor.call('menu:entities:new', function () {return items[0];})
+            items: editor.call('menu:entities:new', function () { return items[0]; })
         };
 
         menuData['add-component'] = {
@@ -184,7 +184,7 @@ editor.once('load', function() {
         };
 
         if (!legacyScripts) {
-            menuData['template'] = {
+            menuData.template = {
                 title: 'Template',
                 className: 'menu-item-templates',
                 icon: '&#58385;',
@@ -223,58 +223,58 @@ editor.once('load', function() {
             // built-in scripts
         }
 
-        menuData['enable'] = {
+        menuData.enable = {
             title: 'Enable',
             className: 'menu-item-enable',
             icon: '&#57651;',
             hide: function () {
                 if (items.length === 1) {
                     return items[0].get('enabled');
-                } else {
-                    var enabled = items[0].get('enabled');
-                    for(var i = 1; i < items.length; i++) {
-                        if (enabled !== items[i].get('enabled'))
-                            return false;
-                    }
-                    return enabled;
                 }
+                var enabled = items[0].get('enabled');
+                for (var i = 1; i < items.length; i++) {
+                    if (enabled !== items[i].get('enabled'))
+                        return false;
+                }
+                return enabled;
+
             },
-            select: function() {
+            select: function () {
                 setField('enabled', true);
             }
         };
 
-        menuData['disable'] = {
+        menuData.disable = {
             title: 'Disable',
             className: 'menu-item-disable',
             icon: '&#57650;',
             hide: function () {
                 if (items.length === 1) {
                     return ! items[0].get('enabled');
-                } else {
-                    var disabled = items[0].get('enabled');
-                    for(var i = 1; i < items.length; i++) {
-                        if (disabled !== items[i].get('enabled'))
-                            return false;
-                    }
-                    return ! disabled;
                 }
+                var disabled = items[0].get('enabled');
+                for (var i = 1; i < items.length; i++) {
+                    if (disabled !== items[i].get('enabled'))
+                        return false;
+                }
+                return ! disabled;
+
             },
-            select: function() {
+            select: function () {
                 setField('enabled', false);
             }
         };
 
-        menuData['copy'] = {
+        menuData.copy = {
             title: 'Copy',
             className: 'menu-item-copy',
             icon: '&#58193;',
-            select: function() {
+            select: function () {
                 editor.call('entities:copy', items);
             }
         };
 
-        menuData['paste'] = {
+        menuData.paste = {
             title: 'Paste',
             className: 'menu-item-paste',
             icon: '&#58184;',
@@ -288,12 +288,12 @@ editor.once('load', function() {
 
                 return false;
             },
-            select: function() {
+            select: function () {
                 editor.call('entities:paste', entity);
             }
         };
 
-        menuData['duplicate'] = {
+        menuData.duplicate = {
             title: 'Duplicate',
             className: 'menu-item-duplicate',
             icon: '&#57638;',
@@ -305,24 +305,24 @@ editor.once('load', function() {
 
                 return items.length > 0;
             },
-            select: function() {
+            select: function () {
                 editor.call('entities:duplicate', getSelection());
             }
         };
 
-        menuData['delete'] = {
+        menuData.delete = {
             title: 'Delete',
             className: 'menu-item-delete',
             icon: '&#57636;',
             filter: function () {
                 var root = editor.call('entities:root');
-                for(var i = 0; i < items.length; i++) {
+                for (var i = 0; i < items.length; i++) {
                     if (items[i] === root)
                         return false;
                 }
                 return true;
             },
-            select: function() {
+            select: function () {
                 editor.call('entities:delete', items);
             }
         };
@@ -415,10 +415,10 @@ editor.once('load', function() {
         menu = ui.Menu.fromData(menuData, { clickableSubmenus: clickableSubmenus });
         root.append(menu);
 
-        menu.on('open', function() {
+        menu.on('open', function () {
             var selection = getSelection();
 
-            for(var i = 0; i < customMenuItems.length; i++) {
+            for (var i = 0; i < customMenuItems.length; i++) {
                 if (! customMenuItems[i].filter)
                     continue;
 
@@ -427,7 +427,7 @@ editor.once('load', function() {
         });
     });
 
-    editor.method('entities:contextmenu:add', function(data) {
+    editor.method('entities:contextmenu:add', function (data) {
         var item = new ui.MenuItem({
             text: data.text,
             icon: data.icon,
@@ -436,7 +436,7 @@ editor.once('load', function() {
             clickableSubmenus: clickableSubmenus
         });
 
-        item.on('select', function() {
+        item.on('select', function () {
             data.select.call(item, getSelection());
         });
 
@@ -451,13 +451,13 @@ editor.once('load', function() {
         return item;
     });
 
-    editor.method('entities:contextmenu:open', function(item, x, y, ignoreSelection) {
+    editor.method('entities:contextmenu:open', function (item, x, y, ignoreSelection) {
         if (! menu ) return;
 
         entity = item;
 
         if (ignoreSelection) {
-            items = [ ];
+            items = [];
         } else {
             items = getSelection();
         }

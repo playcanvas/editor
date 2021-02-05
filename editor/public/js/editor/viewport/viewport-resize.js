@@ -1,5 +1,5 @@
-editor.once('load', function() {
-    'use strict'
+editor.once('load', function () {
+    'use strict';
 
     var container = editor.call('layout.viewport');
     var canvas = editor.call('viewport:canvas');
@@ -12,7 +12,7 @@ editor.once('load', function() {
 
     // once canvas resized
     // notify app
-    canvas.on('resize', function(width, height) {
+    canvas.on('resize', function (width, height) {
         app.resize(width, height);
         editor.call('viewport:render');
         editor.emit('viewport:resize', width, height);
@@ -21,7 +21,7 @@ editor.once('load', function() {
     // handle canvas resizing
     // 20 times a second
     // if size is already same, nothing will happen
-    window.resizeInterval = setInterval(function() {
+    window.resizeInterval = setInterval(function () {
         var rect = container.dom.getBoundingClientRect();
         canvas.resize(Math.floor(rect.width), Math.floor(rect.height));
     }, 1000 / 60);

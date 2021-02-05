@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var selectedEntity = null; // currently selected entity
@@ -8,7 +8,7 @@ editor.once('load', function() {
     var enabled = false;
     var lastCamera = null;     // camera that was last set to preview
     var oldLayers = null;
-    var events = [ ];
+    var events = [];
     var evtUpdate = null;
     var rect = new pc.Vec4(0, 0.8, 0.2, 0.2);
     var app = null;
@@ -29,7 +29,7 @@ editor.once('load', function() {
     btnPin.class.add('pin');
     cameraPreviewBorder.appendChild(btnPin.element);
 
-    btnPin.on('click', function(evt) {
+    btnPin.on('click', function (evt) {
         evt.stopPropagation();
 
         if (pinnedCamera) {
@@ -45,7 +45,7 @@ editor.once('load', function() {
 
     viewport.append(cameraPreviewBorder);
 
-    cameraPreviewBorder.addEventListener('click', function() {
+    cameraPreviewBorder.addEventListener('click', function () {
         var obj = pinnedCamera || selectedEntity;
         if (! obj || ! obj.entity || ! editor.call('permissions:write'))
             return;
@@ -56,11 +56,11 @@ editor.once('load', function() {
     }, false);
 
 
-    editor.once('viewport:load', function(application) {
+    editor.once('viewport:load', function (application) {
         app = application;
     });
 
-    editor.on('permissions:writeState', function(state) {
+    editor.on('permissions:writeState', function (state) {
         if (state) {
             cameraPreviewBorder.classList.add('clickable');
         } else {
@@ -68,7 +68,7 @@ editor.once('load', function() {
         }
     });
 
-    editor.on('viewport:resize', function(width, height) {
+    editor.on('viewport:resize', function (width, height) {
         rect.x = 6.0 / width;
         rect.y = 1.0 - ((43.0 + 196.0) / (height || 1.0));
         rect.z = 258.0 / width;
@@ -77,7 +77,7 @@ editor.once('load', function() {
         updateCameraState();
     });
 
-    var updateCameraState = function() {
+    var updateCameraState = function () {
         if (pinnedCamera) {
             if (currentCamera && currentCamera === pinnedCamera.entity) {
                 renderCamera = false;
@@ -109,7 +109,7 @@ editor.once('load', function() {
 
                 if (!previewLayer) {
                     previewLayer = editor.call('gizmo:layers', 'Camera Preview');
-                    previewLayer.onPostRender = function() {
+                    previewLayer.onPostRender = function () {
                         if (!previewCamera || !previewCamera.entity || !previewCamera.data) return;
                         var entityEnabled = previewCamera.entity.enabled;
                         previewCamera.entity.enabled = true;
@@ -163,7 +163,7 @@ editor.once('load', function() {
         }
     };
 
-    editor.on('camera:change', function(camera) {
+    editor.on('camera:change', function (camera) {
         if (camera && ! camera.__editorCamera) {
             currentCamera = camera;
         } else {
@@ -173,12 +173,12 @@ editor.once('load', function() {
         updateCameraState();
     });
 
-    editor.on('selector:change', function(type, items) {
+    editor.on('selector:change', function (type, items) {
         if (events.length) {
-            for(var i = 0; i < events.length; i++)
+            for (var i = 0; i < events.length; i++)
                 events[i].unbind();
 
-            events = [ ];
+            events = [];
         }
 
         if (type === 'entity' && items.length === 1) {

@@ -75,15 +75,15 @@ editor.once('load', function () {
         }, {
             buttons: ['N', '$/', 'F2'],
             title: 'Rename Entity / Asset',
-            icons: ['&#57895;'],
+            icons: ['&#57895;']
         }, {
             buttons: ['F'],
             title: 'Focus on Entity',
-            icons: ['&#58120;'],
+            icons: ['&#58120;']
         }, {
             buttons: ['Shift', '$+', 'Z'],
             title: 'Previous Selection',
-            icons: ['&#57671;'],
+            icons: ['&#57671;']
         }, {
             buttons: ['Ctrl', '$+', 'Z'],
             title: 'Undo',

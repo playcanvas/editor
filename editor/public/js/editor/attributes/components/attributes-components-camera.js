@@ -1,9 +1,9 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('users:hasFlag', 'hasPcuiComponentInspectors')) return;
 
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
@@ -65,7 +65,7 @@ editor.once('load', function() {
         });
 
         fieldClearColor.parent.hidden = ! (fieldClearColorBuffer.value || fieldClearColorBuffer.class.contains('null'));
-        fieldClearColorBuffer.on('change', function(value) {
+        fieldClearColorBuffer.on('change', function (value) {
             fieldClearColor.parent.hidden = ! (value || this.class.contains('null'));
         });
         // reference
@@ -116,7 +116,7 @@ editor.once('load', function() {
         });
         fieldFov.style.width = '32px';
         fieldFov.parent.hidden = fieldProjection.value !== 0 && fieldProjection.value !== '';
-        fieldProjection.on('change', function(value) {
+        fieldProjection.on('change', function (value) {
             fieldFov.parent.hidden = value !== 0 && value !== '';
         });
         // reference
@@ -146,7 +146,7 @@ editor.once('load', function() {
             canOverrideTemplate: true
         });
         fieldOrthoHeight.parent.hidden = fieldProjection.value !== 1 && fieldProjection.value !== '';
-        fieldProjection.on('change', function(value) {
+        fieldProjection.on('change', function (value) {
             fieldOrthoHeight.parent.hidden = value !== 1 && value !== '';
         });
         // reference
@@ -160,7 +160,7 @@ editor.once('load', function() {
             placeholder: 'Near',
             type: 'number',
             precision: 4,
-            step: .1,
+            step: 0.1,
             min: 0,
             link: entities,
             path: 'components.camera.nearClip'
@@ -178,7 +178,7 @@ editor.once('load', function() {
             placeholder: 'Far',
             type: 'number',
             precision: 4,
-            step: .1,
+            step: 0.1,
             min: 0,
             link: entities,
             path: 'components.camera.farClip'
@@ -207,7 +207,7 @@ editor.once('load', function() {
         var fieldRect = editor.call('attributes:addField', {
             parent: panel,
             name: 'Viewport',
-            placeholder: [ 'X', 'Y', 'W', 'H' ],
+            placeholder: ['X', 'Y', 'W', 'H'],
             type: 'vec4',
             precision: 3,
             step: 0.01,
@@ -245,7 +245,7 @@ editor.once('load', function() {
             onClickTag: function () {
                 // focus layer
                 var layerId = this.originalValue;
-                editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+                editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
                 setTimeout(function () {
                     editor.call('editorSettings:layers:focus', layerId);
                 });

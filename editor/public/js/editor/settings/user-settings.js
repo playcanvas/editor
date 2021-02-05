@@ -8,7 +8,7 @@ editor.once('load', function () {
             editor: {
                 howdoi: true,
                 iconSize: 0.2,
-                showSkeleton: true,
+                showSkeleton: true
             }
         }
     });

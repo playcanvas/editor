@@ -1,9 +1,9 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('users:hasFlag', 'hasPcuiComponentInspectors')) return;
 
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (!panelComponents)
             return;
@@ -39,9 +39,9 @@ editor.once('load', function() {
             name: 'Orientation',
             type: 'number',
             enum: [
-                {v: '', t: '...'},
-                {v: ORIENTATION_HORIZONTAL, t: 'Horizontal'},
-                {v: ORIENTATION_VERTICAL, t: 'Vertical'}
+                { v: '', t: '...' },
+                { v: ORIENTATION_HORIZONTAL, t: 'Horizontal' },
+                { v: ORIENTATION_VERTICAL, t: 'Vertical' }
             ],
             canOverrideTemplate: true
         });
@@ -87,11 +87,11 @@ editor.once('load', function() {
             name: 'Width Fitting',
             type: 'number',
             enum: [
-                {v: '', t: '...'},
-                {v: FITTING_NONE, t: 'None'},
-                {v: FITTING_STRETCH, t: 'Stretch'},
-                {v: FITTING_SHRINK, t: 'Shrink'},
-                {v: FITTING_BOTH, t: 'Both'}
+                { v: '', t: '...' },
+                { v: FITTING_NONE, t: 'None' },
+                { v: FITTING_STRETCH, t: 'Stretch' },
+                { v: FITTING_SHRINK, t: 'Shrink' },
+                { v: FITTING_BOTH, t: 'Both' }
             ],
             canOverrideTemplate: true
         });
@@ -100,11 +100,11 @@ editor.once('load', function() {
             name: 'Height Fitting',
             type: 'number',
             enum: [
-                {v: '', t: '...'},
-                {v: FITTING_NONE, t: 'None'},
-                {v: FITTING_STRETCH, t: 'Stretch'},
-                {v: FITTING_SHRINK, t: 'Shrink'},
-                {v: FITTING_BOTH, t: 'Both'}
+                { v: '', t: '...' },
+                { v: FITTING_NONE, t: 'None' },
+                { v: FITTING_STRETCH, t: 'Stretch' },
+                { v: FITTING_SHRINK, t: 'Shrink' },
+                { v: FITTING_BOTH, t: 'Both' }
             ],
             canOverrideTemplate: true
         });

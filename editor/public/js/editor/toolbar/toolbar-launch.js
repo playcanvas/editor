@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var root = editor.call('layout.root');
@@ -39,7 +39,7 @@ editor.once('load', function() {
     var launchApp = function () {
         var url = config.url.launch + config.scene.id;
 
-        var query = [ ];
+        var query = [];
 
         if (launchOptions.local) {
             url = url.replace(/^https/, 'http');
@@ -110,7 +110,7 @@ editor.once('load', function() {
             e.stopPropagation();
         });
 
-        var label = new ui.Label({text: title});
+        var label = new ui.Label({ text: title });
         panel.append(label);
 
         panel.on('click', function () {
@@ -219,7 +219,7 @@ editor.once('load', function() {
     if (! editor.call('settings:project').get('preferWebGl2'))
         preferWebGl1.parent.disabled = true;
 
-    editor.call('settings:project').on('preferWebGl2:set', function(value) {
+    editor.call('settings:project').on('preferWebGl2:set', function (value) {
         preferWebGl1.parent.disabled = ! value;
     });
 
@@ -303,10 +303,10 @@ editor.once('load', function() {
     buttonExpand.class.add('icon', 'expand');
     panel.append(buttonExpand);
 
-    buttonExpand.on('click', function() {
+    buttonExpand.on('click', function () {
         editor.call('viewport:expand');
     });
-    editor.on('viewport:expand', function(state) {
+    editor.on('viewport:expand', function (state) {
         if (state) {
             tooltipExpand.text = 'Show Panels';
             buttonExpand.class.add('active');

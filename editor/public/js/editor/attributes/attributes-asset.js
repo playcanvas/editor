@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var editableTypes = {
@@ -26,7 +26,7 @@ editor.once('load', function() {
         assetInspectorEvents = [];
     });
 
-    editor.on('attributes:beforeClear', function() {
+    editor.on('attributes:beforeClear', function () {
         assetInspector.unlink();
         if (assetInspector.parent) {
             assetInspector.parent.remove(assetInspector);
@@ -37,7 +37,7 @@ editor.once('load', function() {
         assetInspector.unlink();
     });
 
-    editor.on('attributes:inspect[asset]', function(assets) {
+    editor.on('attributes:inspect[asset]', function (assets) {
 
         // Set panel title
         var multi = assets.length > 1;
@@ -62,14 +62,14 @@ editor.once('load', function() {
             root.append(assetInspector);
         assetInspector.link(assets);
 
-        var events = [ ];
+        var events = [];
         var panel = editor.call('attributes:addPanel');
         panel.class.add('component');
         assetsPanel = panel;
         panel.once('destroy', function () {
             assetsPanel = null;
 
-            for(var i = 0; i < events.length; i++)
+            for (var i = 0; i < events.length; i++)
                 events[i].unbind();
 
             events = null;
@@ -85,7 +85,7 @@ editor.once('load', function() {
         assetInspector.hidden = !enabled;
     });
 
-    editor.method('attributes:assets:panel', function() {
+    editor.method('attributes:assets:panel', function () {
         return assetsPanel;
     });
 });

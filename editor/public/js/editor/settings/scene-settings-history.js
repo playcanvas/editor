@@ -1,7 +1,7 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    editor.on('sceneSettings:load', function(settings) {
+    editor.on('sceneSettings:load', function (settings) {
         if (settings.history)
             settings.history.destroy();
 

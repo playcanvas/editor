@@ -276,7 +276,7 @@ editor.once('load', function () {
         var rect = canvas.element.getBoundingClientRect();
         return {
             x: Math.round(windowX - rect.left),
-            y: Math.round(windowY - rect.top),
+            y: Math.round(windowY - rect.top)
         };
     };
 
@@ -993,7 +993,7 @@ editor.once('load', function () {
         }
 
         updateCursor();
-    }
+    };
 
 
     var startPanning = function (x, y) {
@@ -2078,7 +2078,7 @@ editor.once('load', function () {
     overlay.on('show', function () {
         // editor-blocking picker opened
         editor.emit('picker:open', 'sprite-editor');
-    })
+    });
 
     // Clean up
     overlay.on('hide', function () {

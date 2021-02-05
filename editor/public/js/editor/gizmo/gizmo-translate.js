@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var gizmo = null;
@@ -13,8 +13,8 @@ editor.once('load', function() {
     var hoverAxis = '';
     var hoverPlane = false;
     var hoverEntity = null;
-    var gizmoSize = .4;
-    var arrowRadius = .4;
+    var gizmoSize = 0.4;
+    var arrowRadius = 0.4;
     var vecA = new pc.Vec3();
     var vecB = new pc.Vec3();
     var vecC = new pc.Vec3();
@@ -29,13 +29,13 @@ editor.once('load', function() {
 
     var snap = false;
     var snapIncrement = 1;
-    editor.on('gizmo:snap', function(state, increment) {
+    editor.on('gizmo:snap', function (state, increment) {
         snap = state;
         snapIncrement = increment;
     });
 
     // enable/disable gizmo
-    editor.method('gizmo:translate:toggle', function(state) {
+    editor.method('gizmo:translate:toggle', function (state) {
         if (! gizmo)
             return;
 
@@ -45,7 +45,7 @@ editor.once('load', function() {
         visible = true;
     });
 
-    editor.on('permissions:writeState', function(state) {
+    editor.on('permissions:writeState', function (state) {
         if (! gizmo)
             return;
 
@@ -54,13 +54,13 @@ editor.once('load', function() {
     });
 
     // show/hide gizmo
-    editor.method('gizmo:translate:visible', function(state) {
+    editor.method('gizmo:translate:visible', function (state) {
         if (! gizmo)
             return;
 
         visible = state;
 
-        for(var i = 0; i < gizmo.hoverable.length; i++) {
+        for (var i = 0; i < gizmo.hoverable.length; i++) {
             if (! gizmo.hoverable[i].model)
                 continue;
 
@@ -71,7 +71,7 @@ editor.once('load', function() {
     });
 
     // position gizmo
-    editor.method('gizmo:translate:position', function(x, y, z) {
+    editor.method('gizmo:translate:position', function (x, y, z) {
         if (x === undefined)
             return gizmo.root.getPosition();
 
@@ -82,7 +82,7 @@ editor.once('load', function() {
     });
 
     // rotate gizmo
-    editor.method('gizmo:translate:rotation', function(pitch, yaw, roll) {
+    editor.method('gizmo:translate:rotation', function (pitch, yaw, roll) {
         gizmo.root.setEulerAngles(pitch, yaw, roll);
 
         if (gizmo.root.enabled)
@@ -90,7 +90,7 @@ editor.once('load', function() {
     });
 
     // initialize gizmo
-    editor.once('viewport:load', function() {
+    editor.once('viewport:load', function () {
         var app = editor.call('viewport:app');
         if (! app) return; // webgl not available
 
@@ -106,7 +106,7 @@ editor.once('load', function() {
         }
 
         // on picker hover
-        editor.on('viewport:pick:hover', function(node, picked) {
+        editor.on('viewport:pick:hover', function (node, picked) {
             var match = gizmo.hoverable.indexOf(node) !== -1;
             if (! hover && match) {
                 // hover
@@ -161,7 +161,7 @@ editor.once('load', function() {
         });
 
         // update gizmo
-        editor.on('viewport:postUpdate', function(dt) {
+        editor.on('viewport:postUpdate', function (dt) {
             if (gizmo.root.enabled) {
                 var camera = editor.call('camera:current');
                 var posCamera = camera.getPosition();
@@ -213,15 +213,15 @@ editor.once('load', function() {
 
                 // swap sides to face camera
                 // x
-                gizmo.plane.x.setLocalPosition(0, (vecA.y > 0) ? .4 : -.4, (vecA.z > 0) ? .4 : -.4);
+                gizmo.plane.x.setLocalPosition(0, (vecA.y > 0) ? 0.4 : -0.4, (vecA.z > 0) ? 0.4 : -0.4);
                 gizmo.line.x.setLocalPosition((vecA.x > 0) ? 1.5 : 1.1, 0, 0);
                 gizmo.line.x.setLocalScale(arrowRadius, (vecA.x > 0) ? 1 : 1.8, arrowRadius);
                 // y
-                gizmo.plane.y.setLocalPosition((vecA.x > 0) ? .4 : -.4, 0, (vecA.z > 0) ? .4 : -.4);
+                gizmo.plane.y.setLocalPosition((vecA.x > 0) ? 0.4 : -0.4, 0, (vecA.z > 0) ? 0.4 : -0.4);
                 gizmo.line.y.setLocalPosition(0, (vecA.y > 0) ? 1.5 : 1.1, 0);
                 gizmo.line.y.setLocalScale(arrowRadius, (vecA.y > 0) ? 1 : 1.8, arrowRadius);
                 // z
-                gizmo.plane.z.setLocalPosition((vecA.x > 0) ? .4 : -.4, (vecA.y > 0) ? .4 : -.4, 0);
+                gizmo.plane.z.setLocalPosition((vecA.x > 0) ? 0.4 : -0.4, (vecA.y > 0) ? 0.4 : -0.4, 0);
                 gizmo.line.z.setLocalPosition(0, 0, (vecA.z > 0) ? 1.5 : 1.1);
                 gizmo.line.z.setLocalScale(arrowRadius, (vecA.z > 0) ? 1 : 1.8, arrowRadius);
 
@@ -234,36 +234,36 @@ editor.once('load', function() {
 
                 // plane x lines
                 if (gizmo.plane.x.model.enabled) {
-                    vecB.set(0, 0, (vecA.z > 0) ? scale * .8 : -scale * .8);
-                    vecC.set(0, (vecA.y > 0) ? scale * .8 : -scale * .8, (vecA.z > 0) ? scale * .8 : -scale * .8);
-                    vecD.set(0, (vecA.y > 0) ? scale * .8 : -scale * .8, 0);
+                    vecB.set(0, 0, (vecA.z > 0) ? scale * 0.8 : -scale * 0.8);
+                    vecC.set(0, (vecA.y > 0) ? scale * 0.8 : -scale * 0.8, (vecA.z > 0) ? scale * 0.8 : -scale * 0.8);
+                    vecD.set(0, (vecA.y > 0) ? scale * 0.8 : -scale * 0.8, 0);
                     quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
                     quat.transformVector(vecD, vecD).add(gizmo.root.getPosition());
                     var clr = (hoverAxis === 'x' && hoverPlane) ? gizmo.matActive.color : gizmo.arrow.x.mat.color;
-                    app.renderLines([ vecB, vecC, vecC, vecD ], clr, immediateRenderOptions);
+                    app.renderLines([vecB, vecC, vecC, vecD], clr, immediateRenderOptions);
                 }
                 // plane y lines
                 if (gizmo.plane.y.model.enabled) {
-                    vecB.set((vecA.x > 0) ? scale * .8 : -scale * .8, 0, 0);
-                    vecC.set((vecA.x > 0) ? scale * .8 : -scale * .8, 0, (vecA.z > 0) ? scale * .8 : -scale * .8);
-                    vecD.set(0, 0, (vecA.z > 0) ? scale * .8 : -scale * .8);
+                    vecB.set((vecA.x > 0) ? scale * 0.8 : -scale * 0.8, 0, 0);
+                    vecC.set((vecA.x > 0) ? scale * 0.8 : -scale * 0.8, 0, (vecA.z > 0) ? scale * 0.8 : -scale * 0.8);
+                    vecD.set(0, 0, (vecA.z > 0) ? scale * 0.8 : -scale * 0.8);
                     quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
                     quat.transformVector(vecD, vecD).add(gizmo.root.getPosition());
                     var clr = (hoverAxis === 'y' && hoverPlane) ? gizmo.matActive.color : gizmo.arrow.y.mat.color;
-                    app.renderLines([ vecB, vecC, vecC, vecD ], clr, immediateRenderOptions);
+                    app.renderLines([vecB, vecC, vecC, vecD], clr, immediateRenderOptions);
                 }
                 // plane z lines
                 if (gizmo.plane.z.model.enabled) {
-                    vecB.set((vecA.x > 0) ? scale * .8 : -scale * .8, 0, 0);
-                    vecC.set((vecA.x > 0) ? scale * .8 : -scale * .8, (vecA.y > 0) ? scale * .8 : -scale * .8, 0);
-                    vecD.set(0, (vecA.y > 0) ? scale * .8 : -scale * .8, 0);
+                    vecB.set((vecA.x > 0) ? scale * 0.8 : -scale * 0.8, 0, 0);
+                    vecC.set((vecA.x > 0) ? scale * 0.8 : -scale * 0.8, (vecA.y > 0) ? scale * 0.8 : -scale * 0.8, 0);
+                    vecD.set(0, (vecA.y > 0) ? scale * 0.8 : -scale * 0.8, 0);
                     quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
                     quat.transformVector(vecD, vecD).add(gizmo.root.getPosition());
                     var clr = (hoverAxis === 'z' && hoverPlane) ? gizmo.matActive.color : gizmo.arrow.z.mat.color;
-                    app.renderLines([ vecB, vecC, vecC, vecD ], clr, immediateRenderOptions);
+                    app.renderLines([vecB, vecC, vecC, vecD], clr, immediateRenderOptions);
                 }
 
                 // hide lines and arrows if viewed from very angle
@@ -274,7 +274,7 @@ editor.once('load', function() {
                 // draw axes lines
                 // line x
                 if (gizmo.line.x.model.enabled) {
-                    vecB.set(((vecA.x > 0) ? scale * 1 : scale * .2), 0, 0);
+                    vecB.set(((vecA.x > 0) ? scale * 1 : scale * 0.2), 0, 0);
                     quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
                     vecC.set(scale * 2, 0, 0);
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
@@ -282,7 +282,7 @@ editor.once('load', function() {
                 }
                 // line y
                 if (gizmo.line.y.model.enabled) {
-                    vecB.set(0, ((vecA.y > 0) ? scale * 1 : scale * .2), 0);
+                    vecB.set(0, ((vecA.y > 0) ? scale * 1 : scale * 0.2), 0);
                     quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
                     vecC.set(0, scale * 2, 0);
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
@@ -290,7 +290,7 @@ editor.once('load', function() {
                 }
                 // line z
                 if (gizmo.line.z.model.enabled) {
-                    vecB.set(0, 0, ((vecA.z > 0) ? scale * 1 : scale * .2));
+                    vecB.set(0, 0, ((vecA.z > 0) ? scale * 1 : scale * 0.2));
                     quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
                     vecC.set(0, 0, scale * 2);
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
@@ -298,10 +298,10 @@ editor.once('load', function() {
                 }
             }
 
-            mouseTapMoved = false
+            mouseTapMoved = false;
         });
 
-        var pickPlane = function(x, y) {
+        var pickPlane = function (x, y) {
             var camera = editor.call('camera:current');
 
             var mouseWPos = camera.camera.screenToWorld(x, y, 1);
@@ -351,7 +351,7 @@ editor.once('load', function() {
             return pickedPos;
         };
 
-        var onTapStart = function(tap) {
+        var onTapStart = function (tap) {
             if (moving || tap.button !== 0)
                 return;
 
@@ -368,7 +368,7 @@ editor.once('load', function() {
             editor.call('gizmo:translate:visible', false);
         };
 
-        var onTapMove = function(tap) {
+        var onTapMove = function (tap) {
             if (! moving)
                 return;
 
@@ -376,7 +376,7 @@ editor.once('load', function() {
             mouseTapMoved = true;
         };
 
-        var onTapEnd = function(tap) {
+        var onTapEnd = function (tap) {
             if (tap.button !== 0)
                 return;
 
@@ -397,7 +397,7 @@ editor.once('load', function() {
         editor.on('viewport:tap:end', onTapEnd);
     });
 
-    var createMaterial = function(color) {
+    var createMaterial = function (color) {
         var mat = new pc.BasicMaterial();
         mat.color = color;
         if (color.a !== 1) {
@@ -409,7 +409,7 @@ editor.once('load', function() {
         return mat;
     };
 
-    var createEntity = function() {
+    var createEntity = function () {
         var obj = {
             root: null,
             plane: {
@@ -427,14 +427,14 @@ editor.once('load', function() {
                 y: null,
                 z: null
             },
-            hoverable: [ ],
+            hoverable: [],
             matActive: null,
             matActiveTransparent: null
         };
 
         // active mat
         obj.matActive = createMaterial(new pc.Color(1, 1, 1, 1));
-        obj.matActiveTransparent = createMaterial(new pc.Color(1, 1, 1, .25));
+        obj.matActiveTransparent = createMaterial(new pc.Color(1, 1, 1, 0.25));
         obj.matActiveTransparent.cull = pc.CULLFACE_NONE;
 
         // root entity
@@ -458,9 +458,9 @@ editor.once('load', function() {
         planeX.model.model.meshInstances[0].mask = GIZMO_MASK;
         entity.addChild(planeX);
         planeX.setLocalEulerAngles(90, -90, 0);
-        planeX.setLocalScale(.8, .8, .8);
-        planeX.setLocalPosition(0, .4, .4);
-        planeX.mat = planeX.model.material = createMaterial(new pc.Color(1, 0, 0, .25));
+        planeX.setLocalScale(0.8, 0.8, 0.8);
+        planeX.setLocalPosition(0, 0.4, 0.4);
+        planeX.mat = planeX.model.material = createMaterial(new pc.Color(1, 0, 0, 0.25));
         planeX.mat.cull = pc.CULLFACE_NONE;
 
         // plane y
@@ -479,9 +479,9 @@ editor.once('load', function() {
         planeY.model.model.meshInstances[0].mask = GIZMO_MASK;
         entity.addChild(planeY);
         planeY.setLocalEulerAngles(0, 0, 0);
-        planeY.setLocalScale(.8, .8, .8);
-        planeY.setLocalPosition(-.4, 0, .4);
-        planeY.mat = planeY.model.material = createMaterial(new pc.Color(0, 1, 0, .25));
+        planeY.setLocalScale(0.8, 0.8, 0.8);
+        planeY.setLocalPosition(-0.4, 0, 0.4);
+        planeY.mat = planeY.model.material = createMaterial(new pc.Color(0, 1, 0, 0.25));
         planeY.mat.cull = pc.CULLFACE_NONE;
 
         // plane z
@@ -500,9 +500,9 @@ editor.once('load', function() {
         planeZ.model.model.meshInstances[0].mask = GIZMO_MASK;
         entity.addChild(planeZ);
         planeZ.setLocalEulerAngles(90, 0, 0);
-        planeZ.setLocalScale(.8, .8, .8);
-        planeZ.setLocalPosition(-.4, .4, 0);
-        planeZ.mat = planeZ.model.material = createMaterial(new pc.Color(0, 0, 1, .25));
+        planeZ.setLocalScale(0.8, 0.8, 0.8);
+        planeZ.setLocalPosition(-0.4, 0.4, 0);
+        planeZ.mat = planeZ.model.material = createMaterial(new pc.Color(0, 0, 1, 0.25));
         planeZ.mat.cull = pc.CULLFACE_NONE;
 
         // line x
@@ -521,7 +521,7 @@ editor.once('load', function() {
         entity.addChild(lineX);
         lineX.setLocalEulerAngles(90, 90, 0);
         lineX.setLocalPosition(1.6, 0, 0);
-        lineX.setLocalScale(arrowRadius, .8, arrowRadius);
+        lineX.setLocalScale(arrowRadius, 0.8, arrowRadius);
         lineX.mat = lineX.model.material = createMaterial(new pc.Color(1, 0, 0, 0));
 
         // line y
@@ -540,7 +540,7 @@ editor.once('load', function() {
         entity.addChild(lineY);
         lineY.setLocalEulerAngles(0, 0, 0);
         lineY.setLocalPosition(0, 1.6, 0);
-        lineY.setLocalScale(arrowRadius, .8, arrowRadius);
+        lineY.setLocalScale(arrowRadius, 0.8, arrowRadius);
         lineY.mat = lineY.model.material = createMaterial(new pc.Color(0, 1, 0, 0));
 
         // line z
@@ -559,7 +559,7 @@ editor.once('load', function() {
         entity.addChild(lineZ);
         lineZ.setLocalEulerAngles(90, 0, 0);
         lineZ.setLocalPosition(0, 0, 1.6);
-        lineZ.setLocalScale(arrowRadius, .8, arrowRadius);
+        lineZ.setLocalScale(arrowRadius, 0.8, arrowRadius);
         lineZ.mat = lineZ.model.material = createMaterial(new pc.Color(0, 0, 1, 0));
 
         // arrow x
@@ -578,7 +578,7 @@ editor.once('load', function() {
         entity.addChild(arrowX);
         arrowX.setLocalEulerAngles(90, 90, 0);
         arrowX.setLocalPosition(2.3, 0, 0);
-        arrowX.setLocalScale(arrowRadius, .6, arrowRadius);
+        arrowX.setLocalScale(arrowRadius, 0.6, arrowRadius);
         arrowX.mat = arrowX.model.material = createMaterial(new pc.Color(1, 0, 0, 1));
 
         // arrow y
@@ -597,7 +597,7 @@ editor.once('load', function() {
         entity.addChild(arrowY);
         arrowY.setLocalEulerAngles(0, 0, 0);
         arrowY.setLocalPosition(0, 2.3, 0);
-        arrowY.setLocalScale(arrowRadius, .6, arrowRadius);
+        arrowY.setLocalScale(arrowRadius, 0.6, arrowRadius);
         arrowY.mat = arrowY.model.material = createMaterial(new pc.Color(0, 1, 0, 1));
 
         // arrow z
@@ -616,7 +616,7 @@ editor.once('load', function() {
         entity.addChild(arrowZ);
         arrowZ.setLocalEulerAngles(90, 0, 0);
         arrowZ.setLocalPosition(0, 0, 2.3);
-        arrowZ.setLocalScale(arrowRadius, .6, arrowRadius);
+        arrowZ.setLocalScale(arrowRadius, 0.6, arrowRadius);
         arrowZ.mat = arrowZ.model.material = createMaterial(new pc.Color(0, 0, 1, 1));
 
         return obj;

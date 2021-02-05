@@ -53,8 +53,8 @@ editor.once('load', function () {
     function setNumOverrides(overrides) {
         overrides.totalOverrides = 0;
 
-        [ 'conflicts', 'addedEntities', 'deletedEntities' ].forEach(k => {
+        ['conflicts', 'addedEntities', 'deletedEntities'].forEach(k => {
             overrides.totalOverrides += overrides[k].length;
-        })
+        });
     }
 });

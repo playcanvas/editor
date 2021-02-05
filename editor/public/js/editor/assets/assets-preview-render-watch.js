@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
@@ -6,7 +6,7 @@ editor.once('load', function() {
 
     var watching = { };
 
-    var subscribe = function(watch) {
+    var subscribe = function (watch) {
         var currentContainer = null;
 
         watch.onChange = function (asset, name, value) {
@@ -48,7 +48,7 @@ editor.once('load', function() {
                     app.assets.load(engineContainer);
                 });
                 watch.evContainerFileUnset = containerAsset.on('file:unset', () => {
-                    watch.onContainerRemove()
+                    watch.onContainerRemove();
                 });
 
             } else {
@@ -62,7 +62,7 @@ editor.once('load', function() {
             watchContainer();
         });
 
-        watch.onAdd = function(asset) {
+        watch.onAdd = function (asset) {
             app.assets.off('add:' + watch.asset.get('id'), watch.onAdd);
             watch.onAdd = null;
             watch.engineAsset = asset;
@@ -124,7 +124,7 @@ editor.once('load', function() {
         }
     };
 
-    var unsubscribe = function(watch) {
+    var unsubscribe = function (watch) {
         var container = watch.asset.get('data.containerAsset');
         unwatchContainer(watch, container);
 
@@ -140,13 +140,13 @@ editor.once('load', function() {
         if (watch.onAdd)
             app.assets.off('add:' + watch.asset.get('id'), watch.onAdd);
 
-        for(var key in watch.watching)
+        for (var key in watch.watching)
             watch.watching[key].unbind();
 
 
     };
 
-    var load = function(watch, asset, reload) {
+    var load = function (watch, asset, reload) {
         if (reload && asset) {
             asset.unload();
         }
@@ -158,14 +158,14 @@ editor.once('load', function() {
     };
 
 
-    var trigger = function(watch) {
-        for(var key in watch.callbacks) {
+    var trigger = function (watch) {
+        for (var key in watch.callbacks) {
             watch.callbacks[key].callback();
         }
     };
 
 
-    editor.method('assets:render:watch', function(args) {
+    editor.method('assets:render:watch', function (args) {
         var watch = watching[args.asset.get('id')];
 
         if (! watch) {
@@ -209,7 +209,7 @@ editor.once('load', function() {
     });
 
 
-    editor.method('assets:render:unwatch', function(asset, handle) {
+    editor.method('assets:render:unwatch', function (asset, handle) {
         var watch = watching[asset.get('id')];
         if (! watch) return;
 

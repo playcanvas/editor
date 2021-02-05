@@ -11,15 +11,15 @@ editor.once('load', function () {
     var regexUrl = /[a-z]+:\/\/[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b[-a-zA-Z0-9@:%_\+.~#?&\/=]*/g;
     var regexEmail = /[-a-zA-Z0-9:%._\+~]{1,256}@[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-z]{2,16}/g;
 
-    var stringToElements = function(args) {
-        var items = [ ];
+    var stringToElements = function (args) {
+        var items = [];
 
         var bits = args.string.match(args.regex);
-        if (! bits) return [ args.string ];
+        if (! bits) return [args.string];
 
         var parts = args.string.split(args.regex);
 
-        for(var i = 0; i < parts.length; i++) {
+        for (var i = 0; i < parts.length; i++) {
             items.push(parts[i]);
 
             if (bits.length > i)
@@ -29,7 +29,7 @@ editor.once('load', function () {
         return items;
     };
 
-    var parseMessageFilterLink = function(string) {
+    var parseMessageFilterLink = function (string) {
         var link = document.createElement('a');
         link.target = '_blank';
         link.href = string;
@@ -37,21 +37,21 @@ editor.once('load', function () {
         return link;
     };
 
-    var parseMessageFilterEmail = function(string) {
+    var parseMessageFilterEmail = function (string) {
         var link = document.createElement('a');
         link.href = 'mailto:' + string;
         link.textContent = string;
         return link;
     };
 
-    var parseMessage = function(message) {
+    var parseMessage = function (message) {
         var items = stringToElements({
             string: message,
             regex: regexUrl,
             filter: parseMessageFilterLink
         });
 
-        for(var i = 0; i < items.length; i++) {
+        for (var i = 0; i < items.length; i++) {
             if (typeof(items[i]) !== 'string')
                 continue;
 
@@ -61,7 +61,7 @@ editor.once('load', function () {
                 filter: parseMessageFilterEmail
             });
 
-            for(var e = 0; e < emails.length; e++) {
+            for (var e = 0; e < emails.length; e++) {
                 var item;
 
                 if (typeof(emails[e]) === 'string') {
@@ -82,14 +82,14 @@ editor.once('load', function () {
         return items;
     };
 
-    editor.on('whoisonline:remove', function(id) {
+    editor.on('whoisonline:remove', function (id) {
         if (lastUser === id) {
             lastUser = null;
             lastMessage = 0;
         }
     });
 
-    editor.method('chat:post', function(type, string) {
+    editor.method('chat:post', function (type, string) {
         if (type !== 'system' && typeof(type) !== 'number')
             return;
 
@@ -149,7 +149,7 @@ editor.once('load', function () {
 
         var elements = parseMessage(message);
         var fragment = document.createDocumentFragment();
-        for(var i = 0; i < elements.length; i++)
+        for (var i = 0; i < elements.length; i++)
             fragment.appendChild(elements[i]);
         text.appendChild(fragment);
 
@@ -165,11 +165,11 @@ editor.once('load', function () {
         return element;
     });
 
-    editor.method('chat:sync:msg', function(data) {
+    editor.method('chat:sync:msg', function (data) {
         editor.call('chat:post', data.user, data.d);
     });
 
-    editor.method('chat:send', function(message) {
+    editor.method('chat:send', function (message) {
         message = message.trim();
         if (! message)
             return;

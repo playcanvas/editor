@@ -5,9 +5,9 @@ editor.once('load', function () {
     // selected entity gizmos
     var entities = { };
     // pool of gizmos
-    var pool = [ ];
+    var pool = [];
     // colors
-    var colorBehind = new pc.Color(1, 1, 1, .8);
+    var colorBehind = new pc.Color(1, 1, 1, 0.8);
     var colorPrimary = new pc.Color(1, 1, 1);
     var container;
     var vec = new pc.Vec3();
@@ -20,7 +20,7 @@ editor.once('load', function () {
     materialBehind.update();
     var materialSpot, materialSpotBehind;
     var models = { };
-    var poolModels = { 'directional': [ ], 'point': [ ], 'point-close': [ ], 'spot': [ ] };
+    var poolModels = { 'directional': [], 'point': [], 'point-close': [], 'spot': [] };
 
     var layerFront = editor.call('gizmo:layers', 'Bright Gizmo');
     var layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
@@ -43,13 +43,13 @@ editor.once('load', function () {
     // gizmo class
     function Gizmo() {
         this._link = null;
-        this.lines = [ ];
-        this.events = [ ];
+        this.lines = [];
+        this.events = [];
         this.type = '';
         this.entity = null;
     }
     // update lines
-    Gizmo.prototype.update = function() {
+    Gizmo.prototype.update = function () {
         if (! app) return; // webgl not available
 
         if (! this._link || ! this._link.entity)
@@ -109,7 +109,7 @@ editor.once('load', function () {
 
         var material = materialBehind;
 
-        switch(this.type) {
+        switch (this.type) {
             case 'directional':
                 this.entity.setRotation(this._link.entity.getRotation());
                 break;
@@ -150,7 +150,7 @@ editor.once('load', function () {
         // }
     };
     // link to entity
-    Gizmo.prototype.link = function(obj) {
+    Gizmo.prototype.link = function (obj) {
         if (! app) return; // webgl not available
 
         this.unlink();
@@ -158,7 +158,7 @@ editor.once('load', function () {
 
         var self = this;
 
-        this.events.push(this._link.once('destroy', function() {
+        this.events.push(this._link.once('destroy', function () {
             self.unlink();
         }));
 
@@ -174,16 +174,16 @@ editor.once('load', function () {
         container.addChild(this.entity);
     };
     // unlink
-    Gizmo.prototype.unlink = function() {
+    Gizmo.prototype.unlink = function () {
         if (! app) return; // webgl not available
 
         if (! this._link)
             return;
 
-        for(var i = 0; i < this.events.length; i++)
+        for (var i = 0; i < this.events.length; i++)
             this.events[i].unbind();
 
-        this.events = [ ];
+        this.events = [];
         this._link = null;
         this.type = '';
 
@@ -200,10 +200,10 @@ editor.once('load', function () {
         this.entity.destroy();
     };
 
-    editor.on('selector:change', function(type, items) {
+    editor.on('selector:change', function (type, items) {
         // clear gizmos
         if (type !== 'entity') {
-            for(var key in entities) {
+            for (var key in entities) {
                 entities[key].unlink();
                 pool.push(entities[key]);
             }
@@ -213,13 +213,13 @@ editor.once('load', function () {
 
         // index selection
         var ids = { };
-        for(var i = 0; i < items.length; i++)
+        for (var i = 0; i < items.length; i++)
             ids[items[i].get('resource_id')] = items[i];
 
         var render = false;
 
         // remove
-        for(var key in entities) {
+        for (var key in entities) {
             if (ids[key])
                 continue;
 
@@ -230,7 +230,7 @@ editor.once('load', function () {
         }
 
         // add
-        for(var key in ids) {
+        for (var key in ids) {
             if (entities[key])
                 continue;
 
@@ -248,7 +248,7 @@ editor.once('load', function () {
             editor.call('viewport:render');
     });
 
-    editor.once('viewport:load', function() {
+    editor.once('viewport:load', function () {
         app = editor.call('viewport:app');
         if (! app) return; // webgl not available
 
@@ -263,7 +263,7 @@ editor.once('load', function () {
         var shaderSpot;
 
         materialSpot = new pc.BasicMaterial();
-        materialSpot.updateShader = function(device) {
+        materialSpot.updateShader = function (device) {
             if (! shaderSpot) {
                 shaderSpot = new pc.Shader(device, {
                     attributes: {
@@ -295,7 +295,7 @@ editor.once('load', function () {
                         {\n \
                             gl_FragColor = uColor;\n \
                             gl_FragColor = clamp(gl_FragColor, 0.0, 1.0);\n \
-                        }\n',
+                        }\n'
                 });
             }
             this.shader = shaderSpot;
@@ -326,7 +326,7 @@ editor.once('load', function () {
         // directional light
         buffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, 14);
         iterator = new pc.VertexIterator(buffer);
-        size = .2;
+        size = 0.2;
         length = -(2 - size * 2);
         // line
         iterator.element[pc.SEMANTIC_POSITION].set(0, 0, 0);
@@ -384,8 +384,8 @@ editor.once('load', function () {
         // model
         model = new pc.Model();
         model.graph = node;
-        model.meshInstances = [ meshInstance, meshInstanceBehind ];
-        models['directional'] = model;
+        model.meshInstances = [meshInstance, meshInstanceBehind];
+        models.directional = model;
 
         // ================
         // point light
@@ -393,7 +393,7 @@ editor.once('load', function () {
         buffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, segments * 2);
         iterator = new pc.VertexIterator(buffer);
         // xz axis
-        for(var i = 0; i < segments; i++) {
+        for (var i = 0; i < segments; i++) {
             iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), Math.cos(360 / segments * i * rad), 0);
             iterator.next();
             iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * (i + 1) * rad), Math.cos(360 / segments * (i + 1) * rad), 0);
@@ -424,8 +424,8 @@ editor.once('load', function () {
         // model
         model = new pc.Model();
         model.graph = node;
-        model.meshInstances = [ meshInstance, meshInstanceBehind ];
-        models['point'] = model;
+        model.meshInstances = [meshInstance, meshInstanceBehind];
+        models.point = model;
 
 
         // ================
@@ -434,7 +434,7 @@ editor.once('load', function () {
         buffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, segments * 2 * 3);
         iterator = new pc.VertexIterator(buffer);
         // circles
-        for(var i = 0; i < segments; i++) {
+        for (var i = 0; i < segments; i++) {
             iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), 0, Math.cos(360 / segments * i * rad));
             iterator.next();
             iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * (i + 1) * rad), 0, Math.cos(360 / segments * (i + 1) * rad));
@@ -473,7 +473,7 @@ editor.once('load', function () {
         // model
         model = new pc.Model();
         model.graph = node;
-        model.meshInstances = [ meshInstance, meshInstanceBehind ];
+        model.meshInstances = [meshInstance, meshInstanceBehind];
         models['point-close'] = model;
 
 
@@ -498,7 +498,7 @@ editor.once('load', function () {
         iterator.element[pc.SEMANTIC_ATTR15].set(1);
         iterator.next();
         // circles
-        for(var i = 0; i < segments; i++) {
+        for (var i = 0; i < segments; i++) {
             // inner
             iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), -1, Math.cos(360 / segments * i * rad));
             iterator.element[pc.SEMANTIC_ATTR15].set(0);
@@ -539,12 +539,12 @@ editor.once('load', function () {
         // model
         model = new pc.Model();
         model.graph = node;
-        model.meshInstances = [ meshInstance, meshInstanceBehind ];
-        models['spot'] = model;
+        model.meshInstances = [meshInstance, meshInstanceBehind];
+        models.spot = model;
     });
 
-    editor.on('viewport:gizmoUpdate', function(dt) {
-        for(var key in entities)
+    editor.on('viewport:gizmoUpdate', function (dt) {
+        for (var key in entities)
             entities[key].update();
     });
 });

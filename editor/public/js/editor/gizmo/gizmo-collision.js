@@ -6,15 +6,15 @@ editor.once('load', function () {
     var entities = { };
     var selected = { };
     // pool of gizmos
-    var pool = [ ];
-    var poolVec3 = [ ];
+    var pool = [];
+    var poolVec3 = [];
     // colors
     var alphaFront = 0.6;
     var alphaBehind = 0.2;
-    var colorBehind = new pc.Color(1, 1, 1, .05);
+    var colorBehind = new pc.Color(1, 1, 1, 0.05);
     var colorPrimary = new pc.Color(1, 1, 1);
     var colorOccluder = new pc.Color(1, 1, 1, 1);
-    var colorDefault = [ 1, 1, 1 ];
+    var colorDefault = [1, 1, 1];
     var container;
     var vecA = new pc.Vec3();
     var vecB = new pc.Vec3();
@@ -38,7 +38,7 @@ editor.once('load', function () {
     materialBehind.update();
 
     var materialOccluder = new pc.BasicMaterial();
-    materialOccluder.name = 'collision occluder'
+    materialOccluder.name = 'collision occluder';
     materialOccluder.color = colorOccluder;
     materialOccluder.redWrite = false;
     materialOccluder.greenWrite = false;
@@ -50,7 +50,7 @@ editor.once('load', function () {
 
     var models = { };
     var materials = { };
-    var poolModels = { 'box': [ ], 'sphere': [ ], 'capsule-x': [ ], 'capsule-y': [ ], 'capsule-z': [ ], 'cylinder-x': [ ], 'cylinder-y': [ ], 'cylinder-z': [ ], 'cone-x': [ ], 'cone-y': [ ], 'cone-z': [ ] };
+    var poolModels = { 'box': [], 'sphere': [], 'capsule-x': [], 'capsule-y': [], 'capsule-z': [], 'cylinder-x': [], 'cylinder-y': [], 'cylinder-z': [], 'cone-x': [], 'cone-y': [], 'cone-z': [] };
     var axesNames = { 0: 'x', 1: 'y', 2: 'z' };
     var shaderCapsule = { };
 
@@ -58,7 +58,7 @@ editor.once('load', function () {
     var layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
 
     var visible = false;
-    editor.method('gizmo:collision:visible', function(state) {
+    editor.method('gizmo:collision:visible', function (state) {
         if (state === undefined)
             return visible;
 
@@ -78,16 +78,16 @@ editor.once('load', function () {
     // gizmo class
     function Gizmo() {
         this._link = null;
-        this.lines = [ ];
-        this.events = [ ];
+        this.lines = [];
+        this.events = [];
         this.type = '';
         this.asset = 0;
         this.entity = null;
         this.color;
-    };
+    }
 
     // update lines
-    Gizmo.prototype.update = function() {
+    Gizmo.prototype.update = function () {
         if (! app) return; // webgl not available
 
         if (! this._link || ! this._link.entity)
@@ -117,7 +117,7 @@ editor.once('load', function () {
             if (! this.color) {
                 var hash = 0;
                 var string = this._link.entity.getGuid();
-                for(var i = 0; i < string.length; i++)
+                for (var i = 0; i < string.length; i++)
                     hash += string.charCodeAt(i);
 
                 this.color = editor.call('color:hsl2rgb', (hash % 128) / 128, 0.5, 0.5);
@@ -180,11 +180,11 @@ editor.once('load', function () {
                     // model.meshInstances[2].updateKey();
                     model.meshInstances[2].__editor = true;
 
-                    switch(this.type) {
+                    switch (this.type) {
                         case 'capsule-x':
                         case 'capsule-y':
                         case 'capsule-z':
-                            for(var i = 0; i < model.meshInstances.length; i++) {
+                            for (var i = 0; i < model.meshInstances.length; i++) {
                                 model.meshInstances[i].setParameter('radius', collision.radius || 0.5);
                                 model.meshInstances[i].setParameter('height', collision.height || 2);
                             }
@@ -217,18 +217,18 @@ editor.once('load', function () {
         }
 
         var mat = materialBehind;
-        var radius = collision.radius || .00001;
-        var height = collision.height || .00001;
+        var radius = collision.radius || 0.00001;
+        var height = collision.height || 0.00001;
 
         if (this.entity.model.model && this.entity.model.meshInstances[1])
             mat = null;
 
-        switch(this.type) {
+        switch (this.type) {
             case 'sphere':
                 this.entity.setLocalScale(radius, radius, radius);
                 break;
             case 'box':
-                this.entity.setLocalScale(collision.halfExtents.x || .00001, collision.halfExtents.y || .00001, collision.halfExtents.z || .00001);
+                this.entity.setLocalScale(collision.halfExtents.x || 0.00001, collision.halfExtents.y || 0.00001, collision.halfExtents.z || 0.00001);
                 break;
             case 'cylinder-x':
             case 'cone-x':
@@ -264,7 +264,7 @@ editor.once('load', function () {
                         this.entity.model.model.__picking = picking;
 
                         var meshes = this.entity.model.meshInstances;
-                        for(var i = 0; i < meshes.length; i++) {
+                        for (var i = 0; i < meshes.length; i++) {
                             if (! meshes[i].__collision)
                                 continue;
 
@@ -276,7 +276,7 @@ editor.once('load', function () {
         }
     };
     // link to entity
-    Gizmo.prototype.link = function(obj) {
+    Gizmo.prototype.link = function (obj) {
         if (! app) return; // webgl not available
 
         this.unlink();
@@ -284,7 +284,7 @@ editor.once('load', function () {
 
         var self = this;
 
-        this.events.push(this._link.once('destroy', function() {
+        this.events.push(this._link.once('destroy', function () {
             self.unlink();
         }));
 
@@ -314,25 +314,25 @@ editor.once('load', function () {
             layerFront.addMeshInstances(backMeshInstances);
         };
 
-        this.entity._getEntity = function() {
+        this.entity._getEntity = function () {
             return self._link.entity;
         };
 
         container.addChild(this.entity);
     };
     // unlink
-    Gizmo.prototype.unlink = function() {
+    Gizmo.prototype.unlink = function () {
         if (! app) return; // webgl not available
 
         if (! this._link)
             return;
 
-        for(var i = 0; i < this.events.length; i++) {
+        for (var i = 0; i < this.events.length; i++) {
             if (this.events[i] && this.events[i].unbind)
                 this.events[i].unbind();
         }
 
-        this.events = [ ];
+        this.events = [];
         this._link = null;
         this.color = null;
         this.type = '';
@@ -351,7 +351,7 @@ editor.once('load', function () {
         this.entity.destroy();
     };
     // create wireframe
-    Gizmo.prototype.createWireframe = function(asset) {
+    Gizmo.prototype.createWireframe = function (asset) {
         if (! app) return; // webgl not available
 
         asset = app.assets.get(asset);
@@ -363,7 +363,7 @@ editor.once('load', function () {
         } else {
             var self = this;
 
-            this.events.push(asset.once('load', function(asset) {
+            this.events.push(asset.once('load', function (asset) {
                 if (self.asset !== asset.id)
                     return;
 
@@ -372,10 +372,10 @@ editor.once('load', function () {
         }
     };
 
-    editor.on('entities:add', function(entity) {
+    editor.on('entities:add', function (entity) {
         var key = entity.get('resource_id');
 
-        var addGizmo = function() {
+        var addGizmo = function () {
             if (entities[key])
                 return;
 
@@ -389,7 +389,7 @@ editor.once('load', function () {
             editor.call('viewport:render');
         };
 
-        var removeGizmo = function() {
+        var removeGizmo = function () {
             if (! entities[key])
                 return;
 
@@ -408,16 +408,16 @@ editor.once('load', function () {
         entity.on('destroy', removeGizmo);
     });
 
-    editor.on('selector:change', function(type, items) {
+    editor.on('selector:change', function (type, items) {
         selected = { };
 
         if (type === 'entity' && items && items.length) {
-            for(var i = 0; i < items.length; i++)
+            for (var i = 0; i < items.length; i++)
                 selected[items[i].get('resource_id')] = true;
         }
     });
 
-    editor.once('viewport:load', function() {
+    editor.once('viewport:load', function () {
         app = editor.call('viewport:app');
         if (! app) return; // webgl not available
 
@@ -460,7 +460,7 @@ editor.once('load', function () {
 
         var _updateShader = materialDefault.updateShader;
 
-        materialDefault.updateShader = function(device, scene, objDefs, staticLightList, pass, sortedLights) {
+        materialDefault.updateShader = function (device, scene, objDefs, staticLightList, pass, sortedLights) {
             if (pass === pc.SHADER_FORWARD) {
                 if (! shaderDefault) {
                     shaderDefault = new pc.Shader(device, {
@@ -469,7 +469,7 @@ editor.once('load', function () {
                             aNormal: pc.SEMANTIC_NORMAL
                         },
                         vshader: defaultVShader,
-                        fshader: defaultFShader,
+                        fshader: defaultFShader
                     });
                 }
 
@@ -539,10 +539,10 @@ editor.once('load', function () {
             }\n';
 
 
-        var makeCapsuleMaterial = function(a) {
+        var makeCapsuleMaterial = function (a) {
             var matDefault = materials['capsule-' + a] = materialDefault.clone();
             var _updateShader = matDefault.updateShader;
-            matDefault.updateShader = function(device, scene, objDefs, staticLightList, pass, sortedLights) {
+            matDefault.updateShader = function (device, scene, objDefs, staticLightList, pass, sortedLights) {
                 if (pass === pc.SHADER_FORWARD) {
                     if (! shaderCapsule[a]) {
                         shaderCapsule[a] = new pc.Shader(device, {
@@ -552,12 +552,12 @@ editor.once('load', function () {
                                 aSide: pc.SEMANTIC_ATTR15
                             },
                             vshader: capsuleVShader.replace('{axis}', a),
-                            fshader: capsuleFShader,
+                            fshader: capsuleFShader
                         });
                     }
                     this.shader = shaderCapsule[a];
                 } else if (pass === pc.SHADER_PICK) {
-                    var shaderName = 'pick-' + a
+                    var shaderName = 'pick-' + a;
                     if (! shaderCapsule[shaderName]) {
                         shaderCapsule[shaderName] = new pc.Shader(device, {
                             attributes: {
@@ -566,7 +566,7 @@ editor.once('load', function () {
                                 aSide: pc.SEMANTIC_ATTR15
                             },
                             vshader: capsuleVShaderPick.replace('{axis}', a),
-                            fshader: capsuleFShaderPick,
+                            fshader: capsuleFShaderPick
                         });
                     }
                     this.shader = shaderCapsule[shaderName];
@@ -584,9 +584,9 @@ editor.once('load', function () {
             var matOccluder = materials['capsuleOcclude-' + a] = materialOccluder.clone();
             matOccluder.updateShader = matDefault.updateShader;
             matOccluder.update();
-        }
+        };
 
-        for(var key in axesNames)
+        for (var key in axesNames)
             makeCapsuleMaterial(axesNames[key]);
 
         var buffer, iterator, size, length, node, mesh, meshInstance, model, indexBuffer, indices;
@@ -600,7 +600,7 @@ editor.once('load', function () {
         ]);
         var rad = Math.PI / 180;
 
-        var createModel = function(args) {
+        var createModel = function (args) {
             var mesh;
 
             if (args.mesh) {
@@ -654,7 +654,7 @@ editor.once('load', function () {
             // model
             var model = new pc.Model();
             model.graph = node;
-            model.meshInstances = [ meshInstance, meshInstanceBehind, meshInstanceOccluder ];
+            model.meshInstances = [meshInstance, meshInstanceBehind, meshInstanceOccluder];
 
             return model;
         };
@@ -686,7 +686,7 @@ editor.once('load', function () {
             16, 17, 18, 18, 19, 16,
             20, 21, 22, 22, 23, 20
         ];
-        models['box'] = createModel({
+        models.box = createModel({
             positions: positions,
             normals: normals,
             indices: indices,
@@ -699,12 +699,12 @@ editor.once('load', function () {
         // ================
         // sphere
         var segments = 64;
-        positions = [ ];
-        normals = [ ];
-        indices = [ ];
+        positions = [];
+        normals = [];
+        indices = [];
 
-        for(var y = 1; y < segments / 2; y++) {
-            for(var i = 0; i < segments; i++) {
+        for (var y = 1; y < segments / 2; y++) {
+            for (var i = 0; i < segments; i++) {
                 var l = Math.sin((y * (180 / (segments / 2)) + 90) * rad);
                 var c = Math.cos((y * (180 / (segments / 2)) + 90) * rad);
                 vecA.set(Math.sin(360 / segments * i * rad) * Math.abs(c), l, Math.cos(360 / segments * i * rad) * Math.abs(c));
@@ -719,19 +719,19 @@ editor.once('load', function () {
         positions.push(0, -1, 0);
         normals.push(0, -1, 0);
 
-        for(var y = 0; y < segments / 2 - 2; y++) {
-            for(var i = 0; i < segments; i++) {
+        for (var y = 0; y < segments / 2 - 2; y++) {
+            for (var i = 0; i < segments; i++) {
                 indices.push(y * segments + i, (y + 1) * segments + i, y * segments + (i + 1) % segments);
                 indices.push((y + 1) * segments + i, (y + 1) * segments + (i + 1) % segments, y * segments + (i + 1) % segments);
             }
         }
 
-        for(var i = 0; i < segments; i++) {
+        for (var i = 0; i < segments; i++) {
             indices.push(i, (i + 1) % segments, (segments / 2 - 1) * segments);
             indices.push((segments / 2 - 2) * segments + i, (segments / 2 - 1) * segments + 1, (segments / 2 - 2) * segments + (i + 1) % segments);
         }
 
-        models['sphere'] = createModel({
+        models.sphere = createModel({
             positions: positions,
             normals: normals,
             indices: indices,
@@ -741,7 +741,7 @@ editor.once('load', function () {
         });
 
         // ================
-        //cones 
+        // cones
         models['cone-x'] = createModel({
             mesh: pc.scene.procedural.createCone(app.graphicsDevice),
             matDefault: materialDefault,
@@ -769,19 +769,19 @@ editor.once('load', function () {
         // ================
         // cylinders
         var axes = {
-            'x': [ 'z', 'y', 'x' ],
-            'y': [ 'x', 'z', 'y' ],
-            'z': [ 'y', 'x', 'z' ]
+            'x': ['z', 'y', 'x'],
+            'y': ['x', 'z', 'y'],
+            'z': ['y', 'x', 'z']
         };
-        for(var a in axes) {
-            positions = [ ];
-            indices = [ ];
-            normals = [ ];
+        for (var a in axes) {
+            positions = [];
+            indices = [];
+            normals = [];
             var segments = 72;
 
             // side
-            for(var v = 1; v >= -1; v -= 2) {
-                for(var i = 0; i < segments; i++) {
+            for (var v = 1; v >= -1; v -= 2) {
+                for (var i = 0; i < segments; i++) {
                     vecA[axes[a][0]] = Math.sin(360 / segments * i * rad);
                     vecA[axes[a][1]] = Math.cos(360 / segments * i * rad);
                     vecA[axes[a][2]] = v * 0.5;
@@ -794,13 +794,13 @@ editor.once('load', function () {
             }
 
             // top/bottom
-            for(var v = 1; v >= -1; v -= 2) {
+            for (var v = 1; v >= -1; v -= 2) {
                 vecA.set(0, 0, 0);
                 vecA[axes[a][2]] = v;
                 positions.push(vecA.x * 0.5, vecA.y * 0.5, vecA.z * 0.5);
                 normals.push(vecA.x, vecA.y, vecA.z);
 
-                for(var i = 0; i < segments; i++) {
+                for (var i = 0; i < segments; i++) {
                     vecA[axes[a][0]] = Math.sin(360 / segments * i * rad);
                     vecA[axes[a][1]] = Math.cos(360 / segments * i * rad);
                     vecA[axes[a][2]] = v * 0.5;
@@ -813,7 +813,7 @@ editor.once('load', function () {
                 }
             }
 
-            for(var i = 0; i < segments; i++) {
+            for (var i = 0; i < segments; i++) {
                 // sides
                 indices.push(i, i + segments, (i + 1) % segments);
                 indices.push(i + segments, (i + 1) % segments + segments, (i + 1) % segments);
@@ -833,7 +833,7 @@ editor.once('load', function () {
         }
 
         // ================
-        // capsules 
+        // capsules
 
         models['capsule-x'] = createModel({
             mesh: pc.scene.procedural.createCapsule(app.graphicsDevice, {
@@ -871,12 +871,12 @@ editor.once('load', function () {
         models['capsule-z'].graph.setLocalScale(2.0, 0.5, 2.0);
     });
 
-    var createModelCopy = function(resource, color) {
+    var createModelCopy = function (resource, color) {
         var model = resource.clone();
 
-        var meshesExtra = [ ];
+        var meshesExtra = [];
 
-        for(var i = 0; i < model.meshInstances.length; i++) {
+        for (var i = 0; i < model.meshInstances.length; i++) {
             model.meshInstances[i].material = materialDefault.clone();
             model.meshInstances[i].material.updateShader = materialDefault.updateShader;
             model.meshInstances[i].material.color.set(color[0], color[1], color[2], alphaFront);
@@ -927,8 +927,8 @@ editor.once('load', function () {
         return model;
     };
 
-    editor.on('viewport:gizmoUpdate', function(dt) {
-        for(var key in entities)
+    editor.on('viewport:gizmoUpdate', function (dt) {
+        for (var key in entities)
             entities[key].update();
     });
 });

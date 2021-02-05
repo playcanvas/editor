@@ -28,7 +28,8 @@ editor.once('load', function () {
 
     /**
      * Creates a new entity.
-     * @param {Object} defaultData The default entity data. This can also define a postCreationCallback argument at each level, which is
+     *
+     * @param {object} defaultData - The default entity data. This can also define a postCreationCallback argument at each level, which is
      * designed for cases where composite entity hierarchies need some post-processing, and the
      * post processing needs to be done both in the case of initial creation and also the case
      * of undo/redo.

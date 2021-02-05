@@ -36,13 +36,13 @@ Object.assign(pcui, (function () {
                 collapsible: true
             });
 
-            this._addNewParameterButton = new pcui.Button({text: 'PARAMETER', icon: 'E120'});
+            this._addNewParameterButton = new pcui.Button({ text: 'PARAMETER', icon: 'E120' });
             this._addNewParameterButton.on('click', () => {
                 this._addNewParameter();
             });
             this._parametersPanel.header.append(this._addNewParameterButton);
             const parameters = this._assets[0].get('data.parameters');
-            for (let paramId in parameters) {
+            for (const paramId in parameters) {
                 const paramPanel = new pcui.Panel({
                     headerText: this._assets[0].get(`data.parameters.${paramId}.name`),
                     collapsible: true,
@@ -54,7 +54,7 @@ Object.assign(pcui, (function () {
                     this._deleteParameter(paramId);
                 });
                 let valueType;
-                switch(parameters[paramId].type) {
+                switch (parameters[paramId].type) {
                     case pc.ANIM_PARAMETER_BOOLEAN:
                     case pc.ANIM_PARAMETER_TRIGGER:
                         valueType = 'boolean';
@@ -83,15 +83,15 @@ Object.assign(pcui, (function () {
                                 options: [
                                     {
                                         v: pc.ANIM_PARAMETER_INTEGER,
-                                        t: 'Integer' 
+                                        t: 'Integer'
                                     },
                                     {
                                         v: pc.ANIM_PARAMETER_FLOAT,
-                                        t: 'Float' 
+                                        t: 'Float'
                                     },
                                     {
                                         v: pc.ANIM_PARAMETER_BOOLEAN,
-                                        t: 'Boolean' 
+                                        t: 'Boolean'
                                     },
                                     {
                                         v: pc.ANIM_PARAMETER_TRIGGER,
@@ -114,7 +114,7 @@ Object.assign(pcui, (function () {
                 nameField.onValidate = (value) => {
                     const currParams = this._assets[0].get('data.parameters');
                     let nameExists = false;
-                    for (let currParamId in currParams) {
+                    for (const currParamId in currParams) {
                         if (currParams[currParamId].name === value) {
                             nameExists = true;
                         }
@@ -155,7 +155,7 @@ Object.assign(pcui, (function () {
             const key = Number.isFinite(maxKey) ? maxKey + 1 : 0;
             layers[key] = {
                 name: `New Layer`,
-                states:  [0],
+                states: [0],
                 transitions: []
             };
             this._assets[0].set('data.layers', layers);
@@ -176,7 +176,7 @@ Object.assign(pcui, (function () {
                 collapsible: true
             });
 
-            const addNewLayerButton = new pcui.Button({text: 'LAYER', icon: 'E120'});
+            const addNewLayerButton = new pcui.Button({ text: 'LAYER', icon: 'E120' });
             addNewLayerButton.on('click', () => {
                 this._addNewLayer();
             });
@@ -196,14 +196,14 @@ Object.assign(pcui, (function () {
                 });
                 layerPanel.on('click:remove', () => {
                     this._deleteLayer(layerId);
-                })
+                });
                 this._layersPanel.append(layerPanel);
                 layerPanel.link(this._assets);
             }
         }
 
         _removeParameterList() {
-            this._parametersPanel.content.forEachChild(child => { this._panelCollapseStates[`${this._assets[0].get('id')}.${child.headerText}`] = child.collapsed});
+            this._parametersPanel.content.forEachChild(child => { this._panelCollapseStates[`${this._assets[0].get('id')}.${child.headerText}`] = child.collapsed; });
             this.remove(this._parametersPanel);
             delete this._parametersPanel;
         }
@@ -229,6 +229,7 @@ Object.assign(pcui, (function () {
                 }
             });
         }
+
         unlink() {
             super.unlink();
             if (this._assets) {

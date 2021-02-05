@@ -440,7 +440,7 @@ Object.assign(pcui, (function () {
             if (!this._writePermissions) return false;
 
             if (dropType === 'assets') {
-                let assets = dropData.ids.map(id => this._assets.get(id));
+                const assets = dropData.ids.map(id => this._assets.get(id));
                 return assets.filter(asset => {
                     if (!asset) return false;
                     const type = asset.get('type');
@@ -553,7 +553,7 @@ Object.assign(pcui, (function () {
                     next = null;
 
                     if (index > 0) {
-                        after = this._treeItemIndex[entity.get('children.' + index)]
+                        after = this._treeItemIndex[entity.get('children.' + index)];
                     }
                 }
 
@@ -672,7 +672,7 @@ Object.assign(pcui, (function () {
         /**
          * @name pcui.EntitiesTreeView#getTreeItemForEntity
          * @description Gets the tree view item that displays the entity with the specified id.
-         * @param {String} resourceId The entity resource id
+         * @param {string} resourceId - The entity resource id
          * @returns {pcui.TreeViewItem} The tree view item.
          */
         getTreeItemForEntity(resourceId) {
@@ -682,7 +682,7 @@ Object.assign(pcui, (function () {
         /**
          * @name pcui.EntitiesTreeView#highlightEntity
          * @description Highlight the tree view item for the entity with the specified id
-         * @param {String} resourceId The entity resource id
+         * @param {string} resourceId - The entity resource id
          */
         highlightEntity(resourceId) {
             if (this._treeItemIndex[resourceId]) {
@@ -693,7 +693,7 @@ Object.assign(pcui, (function () {
         /**
          * @name pcui.EntitiesTreeView#unhighlightEntity
          * @description Unhighlight the tree view item for the entity with the specified id
-         * @param {String} resourceId The entity resource id
+         * @param {string} resourceId - The entity resource id
          */
         unhighlightEntity(resourceId) {
             if (this._treeItemIndex[resourceId]) {
@@ -704,7 +704,7 @@ Object.assign(pcui, (function () {
         /**
          * @name pcui.EntitiesTreeView#createDropTarget
          * @description Creates a drop target for the tree view.
-         * @param {pcui.Element} targetElement The element that activates the drop target.
+         * @param {pcui.Element} targetElement - The element that activates the drop target.
          * @returns {pcui.DropTarget} The drop target.
          */
         createDropTarget(targetElement) {
@@ -724,6 +724,7 @@ Object.assign(pcui, (function () {
         }
 
         /**
+         * @param entity
          * @name pcui.EntitiesTreeView#getExpandedState
          * @description Gets dictionary with the expanded state the specified Entity and its children
          * @returns A dictionary with <resource_id, boolean> entries.
@@ -743,7 +744,7 @@ Object.assign(pcui, (function () {
                 for (let i = 0; i < children.length; i++) {
                     recurse(this._entities.get(children[i]));
                 }
-            }
+            };
 
             recurse(entity);
 
@@ -753,7 +754,7 @@ Object.assign(pcui, (function () {
         /**
          * @name pcui.EntitiesTreeView#restoreExpandedState
          * @description Restores the expanded state of an entity and its children
-         * @param {Object} state The expanded state returned from getExpandedState()
+         * @param {object} state - The expanded state returned from getExpandedState()
          */
         restoreExpandedState(state) {
             for (const resourceId in state) {

@@ -1,16 +1,16 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    const parentChildren = [ 'parent', 'children' ];
+    const parentChildren = ['parent', 'children'];
 
     /**
      * Given an entity and data about all declared script attribute types
      * (by script name), return an array of paths to all entity references
      * inside the provided entity.
      *
-     * @param {Object} entity The entity
-     * @param {Object} scriptAttrs Data about script attributes by script name
-     * @returns {Object[]} An array of paths
+     * @param {object} entity - The entity
+     * @param {object} scriptAttrs - Data about script attributes by script name
+     * @returns {object[]} An array of paths
      */
     editor.method('template:allEntityPaths', function (entity, scriptAttrs) {
         const paths1 = new ComponentEntityPaths(entity).run();
@@ -24,7 +24,7 @@ editor.once('load', function() {
         return result || [];
     });
 
-    const addIfPresent = function(entity, field, result) {
+    const addIfPresent = function (entity, field, result) {
         if (entity[field]) {
             const path = [field];
 
@@ -36,8 +36,8 @@ editor.once('load', function() {
      * Given an entity, return an array of paths to all entity references inside
      * its components, other than script attributes.
      *
-     * @param {Object} entity The entity
-     * @returns {Object[]} An array of paths
+     * @param {object} entity - The entity
+     * @returns {object[]} An array of paths
      */
     class ComponentEntityPaths {
         constructor(entity) {
@@ -80,9 +80,9 @@ editor.once('load', function() {
      * (by script name), return an array of paths to all entity references,
      * which are values of script attributes.
      *
-     * @param {Object} entity The entity
-     * @param {Object} scriptAttrs Data about script attributes by script name
-     * @returns {Object[]} An array of paths
+     * @param {object} entity - The entity
+     * @param {object} scriptAttrs - Data about script attributes by script name
+     * @returns {object[]} An array of paths
      */
     class ScriptAttrEntityPaths {
         constructor(entity, scriptAttrs) {

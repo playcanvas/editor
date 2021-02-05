@@ -1,4 +1,4 @@
-editor.once('viewport:load', function() {
+editor.once('viewport:load', function () {
     'use strict';
 
     // Orbit camera with virtual point of focus
@@ -16,7 +16,7 @@ editor.once('viewport:load', function() {
     var quat = new pc.Quat();
 
 
-    editor.on('viewport:update', function(dt) {
+    editor.on('viewport:update', function (dt) {
         var camera = editor.call('camera:current');
 
         if (camera.camera.projection !== pc.PROJECTION_PERSPECTIVE)
@@ -41,14 +41,14 @@ editor.once('viewport:load', function() {
             camera.focus.copy(pivot);
     });
 
-    editor.on('camera:change', function(camera) {
+    editor.on('camera:change', function (camera) {
         if (! camera.focus)
             return;
 
         pivot.copy(camera.focus);
     });
 
-    editor.on('camera:focus', function(point) {
+    editor.on('camera:focus', function (point) {
         pivot.copy(point);
 
         var camera = editor.call('camera:current');
@@ -56,7 +56,7 @@ editor.once('viewport:load', function() {
             camera.focus.copy(pivot);
     });
 
-    editor.on('camera:focus:end', function(point, value) {
+    editor.on('camera:focus:end', function (point, value) {
         var camera = editor.call('camera:current');
         distance = value;
         pivot.copy(camera.forward).scale(distance).add(camera.getPosition());
@@ -66,7 +66,7 @@ editor.once('viewport:load', function() {
             camera.focus.copy(pivot);
     });
 
-    editor.on('viewport:tap:start', function(tap, evt) {
+    editor.on('viewport:tap:start', function (tap, evt) {
         if (tap.button !== 0 || evt.shiftKey || orbiting)
             return;
 
@@ -96,7 +96,7 @@ editor.once('viewport:load', function() {
         }
     });
 
-    editor.on('viewport:tap:end', function(tap) {
+    editor.on('viewport:tap:end', function (tap) {
         if (tap.button !== 0 || ! orbiting)
             return;
 
@@ -104,7 +104,7 @@ editor.once('viewport:load', function() {
         editor.call('camera:history:stop', orbitCamera);
     });
 
-    editor.on('viewport:tap:move', function(tap) {
+    editor.on('viewport:tap:move', function (tap) {
         if (! orbiting || tap.button !== 0)
             return;
 
@@ -114,7 +114,7 @@ editor.once('viewport:load', function() {
         editor.call('viewport:render');
     });
 
-    editor.on('camera:toggle', function(state) {
+    editor.on('camera:toggle', function (state) {
         if (! state && orbiting) {
             orbiting = false;
             editor.call('camera:history:stop', orbitCamera);

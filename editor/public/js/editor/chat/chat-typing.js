@@ -1,11 +1,11 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var typing = 0;
     var typingMessage;
     var users = { };
 
-    editor.on('whoisonline:add', function(id) {
+    editor.on('whoisonline:add', function (id) {
         if (users[id])
             return;
 
@@ -23,7 +23,7 @@ editor.once('load', function() {
         });
     });
 
-    editor.on('whoisonline:remove', function(id) {
+    editor.on('whoisonline:remove', function (id) {
         if (! users[id])
             return;
 
@@ -35,9 +35,9 @@ editor.once('load', function() {
         delete users[id];
     });
 
-    var notifyTypers = function() {
-        var typers = [ ];
-        for(var id in users) {
+    var notifyTypers = function () {
+        var typers = [];
+        for (var id in users) {
             if (! users.hasOwnProperty(id) || ! users[id].typing)
                 continue;
 
@@ -47,7 +47,7 @@ editor.once('load', function() {
         editor.emit('chat:typing', typing, typers, msg);
     };
 
-    editor.method('chat:sync:typing', function(data) {
+    editor.method('chat:sync:typing', function (data) {
         if (! users[data.user] || data.user === config.self.id || users[data.user].typing === data.d)
             return;
 
@@ -62,7 +62,7 @@ editor.once('load', function() {
         notifyTypers();
     });
 
-    editor.method('chat:typing', function(state) {
+    editor.method('chat:typing', function (state) {
         editor.call('realtime:send', 'chat', {
             t: 'typing',
             d: state ? 1 : 0

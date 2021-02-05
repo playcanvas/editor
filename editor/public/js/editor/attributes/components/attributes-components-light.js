@@ -1,14 +1,14 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('users:hasFlag', 'hasPcuiComponentInspectors')) return;
 
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
 
-        var events = [ ];
+        var events = [];
 
         var projectSettings = editor.call('settings:project');
 
@@ -57,7 +57,7 @@ editor.once('load', function() {
             name: 'Intensity',
             type: 'number',
             precision: 2,
-            step: .1,
+            step: 0.1,
             min: 0,
             max: 32,
             link: entities,
@@ -72,7 +72,7 @@ editor.once('load', function() {
         var fieldIntensitySlider = editor.call('attributes:addField', {
             panel: fieldIntensity.parent,
             precision: 2,
-            step: .1,
+            step: 0.1,
             min: 0,
             max: 32,
             type: 'number',
@@ -89,14 +89,14 @@ editor.once('load', function() {
             name: 'Range',
             type: 'number',
             precision: 2,
-            step: .1,
+            step: 0.1,
             min: 0,
             link: entities,
             path: 'components.light.range',
             canOverrideTemplate: true
         });
         fieldRange.parent.hidden = ! (fieldType.value === '' || fieldType.value !== 'directional');
-        fieldType.on('change', function(value) {
+        fieldType.on('change', function (value) {
             fieldRange.parent.hidden = ! (value === '' || value !== 'directional');
         });
         // reference
@@ -117,7 +117,7 @@ editor.once('load', function() {
             canOverrideTemplate: true
         });
         fieldFalloffMode.parent.hidden = ! (fieldType.value === '' || fieldType.value !== 'directional');
-        fieldType.on('change', function(value) {
+        fieldType.on('change', function (value) {
             fieldFalloffMode.parent.hidden = ! (value === '' || value !== 'directional');
         });
         // reference
@@ -141,7 +141,7 @@ editor.once('load', function() {
 
         fieldInnerConeAngle.style.width = '32px';
         fieldInnerConeAngle.parent.hidden = ! (fieldType.value === '' || fieldType.value === 'spot');
-        fieldType.on('change', function(value) {
+        fieldType.on('change', function (value) {
             fieldInnerConeAngle.parent.hidden = ! (value === '' || value === 'spot');
         });
         // reference
@@ -223,7 +223,7 @@ editor.once('load', function() {
         fieldLightMapDirection.parent.append(labelLightMapDirection);
         // reference
         editor.call('attributes:reference:attach', 'light:bakeDir', labelLightMapDirection);
-        var checkLightMapDir = function() {
+        var checkLightMapDir = function () {
             fieldLightMapDirection.disabled = labelLightMapDirection.disabled = ! fieldLightMap.value;
         };
         fieldLightMap.on('change', checkLightMapDir);
@@ -268,7 +268,7 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'light:affectLightmapped', labelBaked);
         // disable/enable affectLightmapped flag
         fieldAffectLightmapped.disabled = labelBaked.disabled = !! fieldLightMap.value;
-        fieldLightMap.on('change', function() {
+        fieldLightMap.on('change', function () {
             fieldAffectLightmapped.disabled = labelBaked.disabled = !! fieldLightMap.value;
         });
 
@@ -297,7 +297,7 @@ editor.once('load', function() {
             parent: panel
         });
         panelShadows.hidden = ! fieldCastShadows.value && ! fieldCastShadows.class.contains('null');
-        fieldCastShadows.on('change', function(value) {
+        fieldCastShadows.on('change', function (value) {
             panelShadows.hidden = ! value && ! this.class.contains('null');
         });
 
@@ -319,7 +319,7 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'light:shadowUpdateMode', fieldShadowUpdateMode.parent.innerElement.firstChild.ui);
 
-        var updateFieldShadowUpdateMode = function() {
+        var updateFieldShadowUpdateMode = function () {
             fieldShadowUpdateMode.parent.hidden = fieldLightMap.value && ! fieldAffectDynamic.value && ! fieldLightMap.class.contains('null') && ! fieldAffectDynamic.class.contains('null');
         };
         fieldLightMap.on('change', updateFieldShadowUpdateMode);
@@ -333,11 +333,11 @@ editor.once('load', function() {
         btnUpdateShadow.class.add('shadowUpdate');
         btnUpdateShadow.hidden = fieldShadowUpdateMode.value !== pc.SHADOWUPDATE_THISFRAME && !! fieldShadowUpdateMode.value;
         fieldShadowUpdateMode.parent.append(btnUpdateShadow);
-        fieldShadowUpdateMode.on('change', function() {
+        fieldShadowUpdateMode.on('change', function () {
             btnUpdateShadow.hidden = fieldShadowUpdateMode.value !== pc.SHADOWUPDATE_THISFRAME && !! fieldShadowUpdateMode.value;
         });
-        btnUpdateShadow.on('click', function() {
-            for(var i = 0; i < entities.length; i++) {
+        btnUpdateShadow.on('click', function () {
+            for (var i = 0; i < entities.length; i++) {
                 if (entities[i].entity && entities[i].entity.light && entities[i].entity.light.shadowUpdateMode === pc.SHADOWUPDATE_THISFRAME)
                     entities[i].entity.light.light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
             }
@@ -349,7 +349,7 @@ editor.once('load', function() {
             align: 'bottom',
             root: editor.call('layout.root')
         });
-        btnUpdateShadow.once('destroy', function() {
+        btnUpdateShadow.once('destroy', function () {
             updateShadowTooltip.destroy();
         });
 
@@ -392,7 +392,7 @@ editor.once('load', function() {
             canOverrideTemplate: true
         });
         fieldShadowDistance.parent.hidden = ! (fieldType.value === '' || fieldType.value === 'directional');
-        fieldType.on('change', function(value) {
+        fieldType.on('change', function (value) {
             fieldShadowDistance.parent.hidden = ! (value === '' || value === 'directional');
         });
         // reference
@@ -437,7 +437,7 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'light:vsmBlurMode', fieldShadowVsmBlurMode.parent.innerElement.firstChild.ui);
         //
         fieldShadowVsmBlurMode.parent.hidden = fieldShadowType.value === 0 || fieldShadowType.value === 4;
-        fieldShadowType.on('change', function() {
+        fieldShadowType.on('change', function () {
             fieldShadowVsmBlurMode.parent.hidden = fieldShadowType.value === 0 || fieldShadowType.value === 4;
         });
 
@@ -457,7 +457,7 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'light:vsmBlurSize', fieldShadowVsmBlurSize.parent.innerElement.firstChild.ui);
         //
         fieldShadowVsmBlurSize.parent.hidden = fieldShadowType.value === 0 || fieldShadowType.value === 4;
-        fieldShadowType.on('change', function() {
+        fieldShadowType.on('change', function () {
             fieldShadowVsmBlurSize.parent.hidden = fieldShadowType.value === 0 || fieldShadowType.value === 4;
         });
         // vsmBlurSize slider
@@ -482,7 +482,7 @@ editor.once('load', function() {
             name: 'VSM Bias',
             type: 'number',
             precision: 4,
-            step: .001,
+            step: 0.001,
             min: 0,
             max: 1,
             link: entities,
@@ -493,7 +493,7 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'light:vsmBias', fieldVsmBias.parent.innerElement.firstChild.ui);
         //
         fieldVsmBias.parent.hidden = fieldShadowType.value === 0 || fieldShadowType.value === 4;
-        fieldShadowType.on('change', function() {
+        fieldShadowType.on('change', function () {
             fieldVsmBias.parent.hidden = fieldShadowType.value === 0 || fieldShadowType.value === 4;
         });
 
@@ -504,7 +504,7 @@ editor.once('load', function() {
             name: 'Bias',
             type: 'number',
             precision: 4,
-            step: .001,
+            step: 0.001,
             min: 0,
             max: 1,
             link: entities,
@@ -519,7 +519,7 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'light:shadowBias', fieldShadowBias.parent.innerElement.firstChild.ui);
         //
         fieldShadowBias.parent.hidden = fieldShadowType.value !== 0 && fieldShadowType.value !== 4;
-        fieldShadowType.on('change', function() {
+        fieldShadowType.on('change', function () {
             fieldShadowBias.parent.hidden = fieldShadowType.value !== 0 && fieldShadowType.value !== 4;
         });
 
@@ -530,7 +530,7 @@ editor.once('load', function() {
             type: 'number',
             placeholder: 'Normal Offset',
             precision: 3,
-            step: .001,
+            step: 0.001,
             min: 0,
             max: 1,
             link: entities,
@@ -567,7 +567,7 @@ editor.once('load', function() {
         var fieldCookie = editor.call('attributes:addField', argsCookie);
         fieldCookie.parent.hidden = fieldType.value === 'directional';
         fieldCookie.parent.class.add('channel');
-        fieldType.on('change', function(value) {
+        fieldType.on('change', function (value) {
             fieldCookie.parent.hidden = fieldType.value === 'directional';
             argsCookie.kind = fieldType.value === 'point' ? 'cubemap' : 'texture';
             if (fieldCookie.parent.hidden) {
@@ -584,7 +584,7 @@ editor.once('load', function() {
         var panelCookie = editor.call('attributes:addPanel', {
             parent: panel
         });
-        var updatePanelCookie = function() {
+        var updatePanelCookie = function () {
             panelCookie.hidden = (! fieldCookie.value && ! fieldCookie.class.contains('null')) || fieldType.value === 'directional';
         };
         updatePanelCookie();
@@ -657,7 +657,7 @@ editor.once('load', function() {
             type: 'vec2',
             step: 0.01,
             precision: 3,
-            placeholder: [ 'U', 'V' ],
+            placeholder: ['U', 'V'],
             link: entities,
             path: 'components.light.cookieOffset',
             canOverrideTemplate: true
@@ -673,7 +673,7 @@ editor.once('load', function() {
             type: 'vec2',
             step: 0.01,
             precision: 3,
-            placeholder: [ 'U', 'V' ],
+            placeholder: ['U', 'V'],
             link: entities,
             path: 'components.light.cookieScale',
             canOverrideTemplate: true
@@ -681,7 +681,7 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'light:cookieScale', fieldCookieScale[0].parent.innerElement.firstChild.ui);
 
-        var updateCookieParams = function() {
+        var updateCookieParams = function () {
             var hidden = panelCookie.hidden || fieldType.value === 'point';
             fieldCookieAngle.parent.hidden = hidden;
             fieldCookieOffset[0].parent.hidden = hidden;
@@ -701,7 +701,7 @@ editor.once('load', function() {
             canOverrideTemplate: true
         });
         fieldCookieFalloff.parent.hidden = fieldType.value !== 'spot';
-        fieldType.on('change', function() {
+        fieldType.on('change', function () {
             fieldCookieFalloff.parent.hidden = fieldType.value !== 'spot';
         });
         // reference
@@ -763,7 +763,7 @@ editor.once('load', function() {
             onClickTag: function () {
                 // focus layer
                 var layerId = this.originalValue;
-                editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+                editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
                 setTimeout(function () {
                     editor.call('editorSettings:layers:focus', layerId);
                 });

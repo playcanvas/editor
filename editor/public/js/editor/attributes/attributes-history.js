@@ -1,7 +1,7 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    var list = [ ];
+    var list = [];
     var selecting = false;
 
 
@@ -15,7 +15,7 @@ editor.once('load', function() {
     panel.header.append(controls);
 
 
-    var selectorReturn = function() {
+    var selectorReturn = function () {
         var item = getLast();
         if (! item)
             return;
@@ -25,7 +25,7 @@ editor.once('load', function() {
 
         selecting = true;
         editor.call('selector:set', item.type, item.items);
-        editor.once('selector:change', function() {
+        editor.once('selector:change', function () {
             selecting = false;
 
             updateTooltipContent();
@@ -44,7 +44,7 @@ editor.once('load', function() {
     controls.append(btnBack);
 
 
-    editor.on('selector:change', function(type, items) {
+    editor.on('selector:change', function (type, items) {
         if (selecting)
             return;
 
@@ -64,7 +64,7 @@ editor.once('load', function() {
         });
     });
 
-    var getLast = function() {
+    var getLast = function () {
         if (! list.length)
             return;
 
@@ -74,13 +74,13 @@ editor.once('load', function() {
         var i = list.length - 1;
         var candidate = list[i];
 
-        while(candidate && ignoreType && ignoreType === candidate.type && candidate.items.equals(ignore))
+        while (candidate && ignoreType && ignoreType === candidate.type && candidate.items.equals(ignore))
             candidate = list[--i];
 
         return candidate || null;
     };
 
-    var updateTooltipContent = function() {
+    var updateTooltipContent = function () {
         var item = getLast();
 
         if (! item && ! btnBack.hidden) {
@@ -118,11 +118,11 @@ editor.once('load', function() {
     tooltip.on('show', updateTooltipContent);
     tooltip.class.add('previous-selection');
 
-    btnBack.on('hide', function() {
+    btnBack.on('hide', function () {
         tooltip.hidden = true;
     });
 
-    var setTooltipText = function(str) {
+    var setTooltipText = function (str) {
         tooltip.html = '<span>Previous Selection</span><br />' + str;
     };
 

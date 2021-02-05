@@ -1,9 +1,9 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('users:hasFlag', 'hasPcuiComponentInspectors')) return;
 
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (!panelComponents)
             return;
@@ -57,9 +57,9 @@ editor.once('load', function() {
             name: 'Transition Mode',
             type: 'number',
             enum: [
-                {v: '', t: '...'},
-                {v: BUTTON_TRANSITION_MODE_TINT, t: 'Tint'},
-                {v: BUTTON_TRANSITION_MODE_SPRITE_CHANGE, t: 'Sprite Change'}
+                { v: '', t: '...' },
+                { v: BUTTON_TRANSITION_MODE_TINT, t: 'Tint' },
+                { v: BUTTON_TRANSITION_MODE_SPRITE_CHANGE, t: 'Sprite Change' }
             ]
         });
 

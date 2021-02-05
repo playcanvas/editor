@@ -79,7 +79,8 @@ editor.once('load', function () {
 
     /**
      * Returns all of the bundle assets for the specified asset
-     * @param {Observer} asset The asset
+     *
+     * @param {Observer} asset - The asset
      * @returns {Observer[]} The bundles for the asset or an empty array.
      */
     editor.method('assets:bundles:listForAsset', function (asset) {
@@ -88,6 +89,7 @@ editor.once('load', function () {
 
     /**
      * Returns a list of all the bundle assets
+     *
      * @returns {Observer[]} The bundle assets
      */
     editor.method('assets:bundles:list', function () {
@@ -96,7 +98,8 @@ editor.once('load', function () {
 
     /**
      * Returns true if the specified asset id is in a bundle
-     * @returns {Boolean} True of false
+     *
+     * @returns {boolean} True of false
      */
     editor.method('assets:bundles:containAsset', function (assetId) {
         return !!bundlesIndex[assetId];
@@ -124,8 +127,9 @@ editor.once('load', function () {
     /**
      * Adds assets to the bundle asset. Does not add already existing
      * assets or assets with invalid types.
-     * @param {Observer[]} assets The assets to add to the bundle
-     * @param {Observer} bundleAsset The bundle asset
+     *
+     * @param {Observer[]} assets - The assets to add to the bundle
+     * @param {Observer} bundleAsset - The bundle asset
      */
     editor.method('assets:bundles:addAssets', function (assets, bundleAsset) {
         var validAssets = assets.filter(function (asset) {
@@ -174,8 +178,9 @@ editor.once('load', function () {
 
     /**
      * Removes the specified assets from the specified bundle asset
-     * @param {Observer[]} assets The assets to remove
-     * @param {Observer} bundleAsset The bundle asset
+     *
+     * @param {Observer[]} assets - The assets to remove
+     * @param {Observer} bundleAsset - The bundle asset
      */
     editor.method('assets:bundles:removeAssets', function (assets, bundleAsset) {
         var redo = function () {
@@ -216,8 +221,9 @@ editor.once('load', function () {
     /**
      * Calculates the file size of a bundle Asset by adding up the file
      * sizes of all the assets it references.
-     * @param {Observer} The bundle asset
-     * @returns {Number} The file size
+     *
+     * @param {Observer} The - bundle asset
+     * @returns {number} The file size
      */
     editor.method('assets:bundles:calculateSize', function (bundleAsset) {
         var size = 0;

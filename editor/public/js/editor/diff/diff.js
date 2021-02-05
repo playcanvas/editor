@@ -13,7 +13,8 @@ editor.once('load', function () {
 
     /**
      * Generates a new diff between 2 checkpoint ids. If one checkpoint id is null
-     * @param {Function} [callback] Optional callback after the diff is generated.
+     *
+     * @param {Function} [callback] - Optional callback after the diff is generated.
      * Has the following signature: (err, diff)
      */
     editor.method('diff:create', function (srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId, callback) {
@@ -39,7 +40,8 @@ editor.once('load', function () {
 
     /**
      * Generates a diff between a checkpoint and the current merge.
-     * @param {Function} [callback] Optional callback after the diff is generated.
+     *
+     * @param {Function} [callback] - Optional callback after the diff is generated.
      */
     editor.method('diff:merge', function (callback) {
         request({

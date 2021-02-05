@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var root = editor.call('layout.root');
@@ -22,7 +22,7 @@ editor.once('load', function() {
             tooltipUndo.class.add('innactive');
         }
     });
-    buttonUndo.on('click', function() {
+    buttonUndo.on('click', function () {
         history.undo();
     });
 
@@ -45,7 +45,7 @@ editor.once('load', function() {
     buttonRedo.enabled = history.canRedo;
     toolbar.append(buttonRedo);
 
-    history.on('canRedo', function(state) {
+    history.on('canRedo', function (state) {
         buttonRedo.enabled = state;
         if (state) {
             tooltipRedo.class.remove('innactive');
@@ -53,7 +53,7 @@ editor.once('load', function() {
             tooltipRedo.class.add('innactive');
         }
     });
-    buttonRedo.on('click', function() {
+    buttonRedo.on('click', function () {
         history.redo();
     });
 
@@ -66,7 +66,7 @@ editor.once('load', function() {
     if (! history.canRedo)
         tooltipRedo.class.add('innactive');
 
-    editor.on('permissions:writeState', function(state) {
+    editor.on('permissions:writeState', function (state) {
         buttonUndo.hidden = buttonRedo.hidden = ! state;
     });
 });

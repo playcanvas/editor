@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
@@ -8,17 +8,17 @@ editor.once('load', function() {
     var device = renderer.device;
     var scene = app.scene;
 
-    var users = [ ];
+    var users = [];
     var selection = { };
     var colors = { };
     var colorUniform = new Float32Array(3);
     var render = 0;
     var cleared = false;
     var visible = true;
-    var viewportLayer = null
+    var viewportLayer = null;
 
-    var targets = [ ];
-    var textures = [ ];
+    var targets = [];
+    var textures = [];
 
     var createSolidTex = function (name, r, g, b, a) {
         var result = new pc.Texture(app.graphicsDevice, { width: 1, height: 1, format: pc.PIXELFORMAT_R8_G8_B8_A8 });
@@ -51,19 +51,19 @@ editor.once('load', function() {
         }
 
         return false;
-    }
+    };
 
-    editor.on('selector:change', function(type, items) {
+    editor.on('selector:change', function (type, items) {
         if (selection[config.self.id])
             render -= selection[config.self.id].length;
 
         if (! selection[config.self.id])
             users.unshift(config.self.id);
 
-        selection[config.self.id] = [ ];
+        selection[config.self.id] = [];
 
         if (type === 'entity') {
-            for(var i = 0; i < items.length; i++) {
+            for (var i = 0; i < items.length; i++) {
 
                 if (isSelectableEntity(items[i])) {
                     selection[config.self.id].push(items[i].entity);
@@ -79,17 +79,17 @@ editor.once('load', function() {
             editor.call('viewport:render');
     });
 
-    editor.on('selector:sync', function(user, data) {
+    editor.on('selector:sync', function (user, data) {
         if (selection[user])
             render -= selection[user].length;
 
         if (! selection[user])
             users.push(user);
 
-        selection[user] = [ ];
+        selection[user] = [];
 
         if (data.type === 'entity') {
-            for(var i = 0; i < data.ids.length; i++) {
+            for (var i = 0; i < data.ids.length; i++) {
                 var entity = editor.call('entities:get', data.ids[i]);
 
                 if (isSelectableEntity(entity)) {
@@ -106,7 +106,7 @@ editor.once('load', function() {
             editor.call('viewport:render');
     });
 
-    editor.on('whoisonline:remove', function(id) {
+    editor.on('whoisonline:remove', function (id) {
         if (! selection[id])
             return;
 
@@ -118,7 +118,7 @@ editor.once('load', function() {
         users.splice(ind, 1);
     });
 
-    editor.method('viewport:outline:visible', function(state) {
+    editor.method('viewport:outline:visible', function (state) {
         if (state !== visible) {
             visible = state;
             render++;
@@ -214,10 +214,10 @@ editor.once('load', function() {
         overrideClear: true,
         clearColorBuffer: true,
         clearDepthBuffer: true,
-        clearColor: new pc.Color(0,0,0,0),
+        clearColor: new pc.Color(0, 0, 0, 0),
         shaderPass: SHADER_OUTLINE,
 
-        onPostRender: function() {
+        onPostRender: function () {
             // extend pass X
             var uOffset = device.scope.resolve('uOffset');
             var uColorBuffer = device.scope.resolve('source');
@@ -234,24 +234,24 @@ editor.once('load', function() {
     var outlineComp = new pc.LayerComposition("viewport-outline");
     outlineComp.pushOpaque(outlineLayer);
 
-    var onUpdateShaderOutline = function(options) {
+    var onUpdateShaderOutline = function (options) {
         if (options.pass !== SHADER_OUTLINE) return options;
         var outlineOptions = {
-            opacityMap:                 options.opacityMap,
-            opacityMapUv:               options.opacityMapUv,
-            opacityMapChannel:          options.opacityMapChannel,
-            opacityMapTransform:        options.opacityMapTransform,
-            opacityVertexColor:         options.opacityVertexColor,
-            opacityVertexColorChannel:  options.opacityVertexColorChannel,
-            vertexColors:               options.vertexColors,
-            alphaTest:                  options.alphaTest,
-            skin:                       options.skin
-        }
+            opacityMap: options.opacityMap,
+            opacityMapUv: options.opacityMapUv,
+            opacityMapChannel: options.opacityMapChannel,
+            opacityMapTransform: options.opacityMapTransform,
+            opacityVertexColor: options.opacityVertexColor,
+            opacityVertexColorChannel: options.opacityVertexColorChannel,
+            vertexColors: options.vertexColors,
+            alphaTest: options.alphaTest,
+            skin: options.skin
+        };
         return outlineOptions;
     };
 
     // ### RENDER EVENT ###
-    editor.on('viewport:postUpdate', function() {
+    editor.on('viewport:postUpdate', function () {
         if (! render && cleared) return;
 
         if (!render && !cleared) {
@@ -260,15 +260,15 @@ editor.once('load', function() {
 
         // ### INIT/RESIZE RENDERTARGETS ###
         if (targets[0] && (targets[0].width !== device.width || targets[1].height !== device.height)) {
-            for(var i = 0; i < 2; i++) {
+            for (var i = 0; i < 2; i++) {
                 targets[i].destroy();
                 textures[i].destroy();
             }
-            targets = [ ];
-            textures = [ ];
+            targets = [];
+            textures = [];
         }
         if (! targets[0]) {
-            for(var i = 0; i < 2; i++) {
+            for (var i = 0; i < 2; i++) {
                 textures[i] = new pc.Texture(device, {
                     format: pc.PIXELFORMAT_R8_G8_B8_A8,
                     width: device.width,
@@ -299,7 +299,7 @@ editor.once('load', function() {
             var meshInstances = outlineLayer.opaqueMeshInstances;
 
             if (visible) {
-                for(var u = 0; u < users.length; u++) {
+                for (var u = 0; u < users.length; u++) {
                     var id = parseInt(users[u], 10);
 
                     if (! selection.hasOwnProperty(id) || ! selection[id].length)
@@ -310,13 +310,13 @@ editor.once('load', function() {
                         var data = editor.call('whoisonline:color', id, 'data');
 
                         if (config.self.id === id)
-                            data = [ 1, 1, 1 ];
+                            data = [1, 1, 1];
 
                         colors[id] = new pc.Color(data[0], data[1], data[2]);
                         color = colors[id];
                     }
 
-                    for(var i = 0; i < selection[id].length; i++) {
+                    for (var i = 0; i < selection[id].length; i++) {
                         if (! selection[id][i])
                             continue;
 
@@ -335,18 +335,18 @@ editor.once('load', function() {
                         if (!srcMeshInstances)
                             continue;
 
-                        for(var m = 0; m < srcMeshInstances.length; m++) {
-                            //var opChan = 'r';
+                        for (var m = 0; m < srcMeshInstances.length; m++) {
+                            // var opChan = 'r';
                             var instance = srcMeshInstances[m];
 
-                            //if (! instance.command && instance.drawToDepth && instance.material && instance.layer === pc.LAYER_WORLD) {
+                            // if (! instance.command && instance.drawToDepth && instance.material && instance.layer === pc.LAYER_WORLD) {
                             if (!instance.command && instance.material) {
 
                                 instance.onUpdateShader = onUpdateShaderOutline;
                                 colorUniform[0] = color.r;
                                 colorUniform[1] = color.g;
                                 colorUniform[2] = color.b;
-                                instance.setParameter("material_emissive", colorUniform, 1<<SHADER_OUTLINE);
+                                instance.setParameter("material_emissive", colorUniform, 1 << SHADER_OUTLINE);
                                 instance.setParameter("texture_emissiveMap", whiteTex, 1 << SHADER_OUTLINE);
                                 meshInstances.push(instance);
                             }
@@ -356,11 +356,11 @@ editor.once('load', function() {
             }
 
             // add camera to layer
-            let backupLayers = camera.layers.slice();
-            let newLayers = camera.layers;
+            const backupLayers = camera.layers.slice();
+            const newLayers = camera.layers;
             newLayers.push(outlineLayer.id);
             camera.layers = newLayers;
-            
+
             app.renderer.renderComposition(outlineComp);
 
             // restore camera layers

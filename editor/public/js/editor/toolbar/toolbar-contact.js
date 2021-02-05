@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var toolbar = editor.call('layout.toolbar');
@@ -16,7 +16,7 @@ editor.once('load', function() {
         root: editor.call('layout.root')
     });
 
-    contact.on('click', function() {
+    contact.on('click', function () {
         window.open('http://forum.playcanvas.com/t/playcanvas-editor-feedback/616');
     });
 });

@@ -1,4 +1,4 @@
-editor.once('viewport:load', function() {
+editor.once('viewport:load', function () {
     'use strict';
 
     var viewport = editor.call('layout.viewport');
@@ -16,17 +16,17 @@ editor.once('viewport:load', function() {
     combo.disabledClick = true;
     combo.class.add('viewport-camera');
 
-    combo.on('open', function() {
+    combo.on('open', function () {
         tooltip.disabled = true;
     });
-    combo.on('close', function() {
+    combo.on('close', function () {
         tooltip.disabled = false;
     });
 
 
     viewport.append(combo);
 
-    combo.on('change', function(value) {
+    combo.on('change', function (value) {
         var entity = app.root.findByGuid(value);
         editor.call('camera:set', entity);
     });
@@ -38,11 +38,11 @@ editor.once('viewport:load', function() {
         root: editor.call('layout.root')
     });
 
-    var refreshOptions = function() {
+    var refreshOptions = function () {
         combo._updateOptions(options);
 
         var writePermission = editor.call('permissions:write');
-        for(var key in combo.optionElements) {
+        for (var key in combo.optionElements) {
             if (index[key].__editorCamera)
                 continue;
 
@@ -56,7 +56,7 @@ editor.once('viewport:load', function() {
 
     editor.on('permissions:writeState', refreshOptions);
 
-    editor.on('camera:add', function(entity) {
+    editor.on('camera:add', function (entity) {
         options[entity.getGuid()] = entity.name;
         index[entity.getGuid()] = entity;
         refreshOptions();
@@ -76,7 +76,7 @@ editor.once('viewport:load', function() {
         }
     });
 
-    editor.on('camera:remove', function(entity) {
+    editor.on('camera:remove', function (entity) {
         delete options[entity.getGuid()];
         refreshOptions();
 
@@ -86,7 +86,7 @@ editor.once('viewport:load', function() {
         }
     });
 
-    editor.on('camera:change', function(entity) {
+    editor.on('camera:change', function (entity) {
         combo.value = entity.getGuid();
     });
 });

@@ -1,7 +1,7 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    editor.on('attributes:inspect[asset]', function(assets) {
+    editor.on('attributes:inspect[asset]', function (assets) {
         const hasPcuiAssetInspectors = editor.call('users:hasFlag', 'hasPcuiAssetInspectors');
         if (hasPcuiAssetInspectors) {
             return;
@@ -31,7 +31,7 @@ editor.once('load', function() {
 
 
         var playing = null;
-        var updateTimeline = function() {
+        var updateTimeline = function () {
             timeline.progress = audio.currentTime / audio.duration;
         };
 
@@ -48,7 +48,7 @@ editor.once('load', function() {
         });
         btnPlay.disabled = true;
         btnPlay.class.add('audio-play');
-        btnPlay.on('click', function() {
+        btnPlay.on('click', function () {
             if (audio.paused) {
                 audio.play();
             } else {
@@ -63,23 +63,23 @@ editor.once('load', function() {
         var timeline = new ui.Progress();
         timeline.class.add('audio-timeline');
         timeline.progress = 1;
-        timeline.speed = .9;
+        timeline.speed = 0.9;
         panel.append(timeline);
 
 
         // duration information available
-        audio.addEventListener('durationchange', function(evt) {
+        audio.addEventListener('durationchange', function (evt) {
             fieldDuration.text = audio.duration.toFixed(2) + 's';
         }, false);
 
         // can be played
-        audio.addEventListener('canplay', function(evt) {
+        audio.addEventListener('canplay', function (evt) {
             btnPlay.enabled = true;
             timeline.progress = 0;
         }, false);
 
         // on play
-        audio.addEventListener('play', function() {
+        audio.addEventListener('play', function () {
             btnPlay.class.add('active');
             btnPlay.text = '&#57649;';
 
@@ -90,7 +90,7 @@ editor.once('load', function() {
         }, false);
 
         // on stop
-        audio.addEventListener('pause', function() {
+        audio.addEventListener('pause', function () {
             timeline.progress = 0;
             btnPlay.class.remove('active');
             btnPlay.text = '&#57649;';
@@ -100,7 +100,7 @@ editor.once('load', function() {
         }, false);
 
 
-        panel.once('destroy', function() {
+        panel.once('destroy', function () {
             clearInterval(playing);
         });
     });

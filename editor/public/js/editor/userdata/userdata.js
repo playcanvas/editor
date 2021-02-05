@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var userdata = new Observer();
@@ -8,11 +8,11 @@ editor.once('load', function() {
         if (! userdata.sync) {
             userdata.sync = new ObserverSync({
                 item: userdata,
-                paths: [ 'cameras' ]
+                paths: ['cameras']
             });
 
             // client > server
-            userdata.sync.on('op', function(op) {
+            userdata.sync.on('op', function (op) {
                 if (op.oi === null) {
                     log.error('Tried to send invalid userdata op', op);
                     return;

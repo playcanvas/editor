@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var fields = [{
@@ -64,7 +64,7 @@ editor.once('load', function() {
         url: 'http://developer.playcanvas.com/api/pc.ScrollViewComponent.html#verticalScrollbarEntity'
     }];
 
-    for(var i = 0; i < fields.length; i++) {
+    for (var i = 0; i < fields.length; i++) {
         fields[i].name = 'scrollview:' + (fields[i].name || fields[i].title);
         editor.call('attributes:reference:add', fields[i]);
     }

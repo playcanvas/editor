@@ -1,15 +1,15 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var index = { };
     var render = 0;
 
 
-    editor.on('viewport:update', function() {
+    editor.on('viewport:update', function () {
         if (render !== 0) editor.call('viewport:render');
     });
 
-    var checkState = function(item, remove) {
+    var checkState = function (item, remove) {
         if (remove || ! item.entity.entity || ! item.entity.entity.particlesystem) {
             if (item.active) {
                 render--;
@@ -37,13 +37,13 @@ editor.once('load', function() {
         }
     };
 
-    var add = function(entity) {
+    var add = function (entity) {
         var id = entity.get('resource_id');
 
         if (index[id])
             return;
 
-        var onCheckState = function() {
+        var onCheckState = function () {
             checkState(item);
         };
 
@@ -51,7 +51,7 @@ editor.once('load', function() {
             id: id,
             entity: entity,
             active: false,
-            evtEnable: entity.on('components.particlesystem.enabled:set', function() {
+            evtEnable: entity.on('components.particlesystem.enabled:set', function () {
                 setTimeout(onCheckState, 0);
             }),
             evtSet: entity.on('components.particlesystem:set', onCheckState),
@@ -61,7 +61,7 @@ editor.once('load', function() {
         checkState(item);
     };
 
-    var remove = function(item) {
+    var remove = function (item) {
         checkState(item, true);
 
         item.evtEnable.unbind();
@@ -71,21 +71,21 @@ editor.once('load', function() {
         delete index[item.id];
     };
 
-    var clear = function() {
+    var clear = function () {
         var keys = Object.keys(index);
 
-        for(var i = 0; i < keys.length; i++)
+        for (var i = 0; i < keys.length; i++)
             remove(index[keys[i]]);
     };
 
 
-    editor.on('selector:change', function(type, items) {
+    editor.on('selector:change', function (type, items) {
         clear();
 
         if (type !== 'entity')
             return;
 
-        for(var i = 0; i < items.length; i++)
+        for (var i = 0; i < items.length; i++)
             add(items[i]);
     });
 });

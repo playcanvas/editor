@@ -136,13 +136,13 @@ editor.once('load', function () {
     };
     var onSetMethods = {
         'cubemap': function (path, value, valueOld) {
-            if (!keys['cubemap'][path])
+            if (!keys.cubemap[path])
                 return;
 
             updateAsset(this.get('id'), 'asset', valueOld, value);
         },
         'material': function (path, value, valueOld) {
-            if (!keys['material'][path])
+            if (!keys.material[path])
                 return;
 
             updateAsset(this.get('id'), 'asset', valueOld, value);
@@ -151,7 +151,7 @@ editor.once('load', function () {
             if (path.startsWith('data.mapping.') && path.slice(-8) === 'material')
                 updateAsset(this.get('id'), 'asset', valueOld, value);
 
-            if (!keys['model'][path])
+            if (!keys.model[path])
                 return;
 
             updateAsset(this.get('id'), 'asset', valueOld, value);
@@ -169,7 +169,7 @@ editor.once('load', function () {
             updateAsset(this.get('id'), 'asset', value);
         },
         'sprite': function (path, value, valueOld) {
-            if (!keys['sprite'][path])
+            if (!keys.sprite[path])
                 return;
 
             updateAsset(this.get('id'), 'asset', valueOld, value);
@@ -216,13 +216,13 @@ editor.once('load', function () {
                     if (primaryScript) {
                         updateAsset(this.get('resource_id'), 'entity', null, primaryScript.get('id'));
                         return;
-                    } else {
-                        return;
                     }
+                    return;
+
                 } else {
                     return;
                 }
-            } else if (!keys['entity'][path]) {
+            } else if (!keys.entity[path]) {
                 return;
             }
 
@@ -296,7 +296,7 @@ editor.once('load', function () {
                 } else {
                     return;
                 }
-            } else if (!keys['entity'][path]) {
+            } else if (!keys.entity[path]) {
                 return;
             }
 
@@ -483,12 +483,12 @@ editor.once('load', function () {
 
     // entities
     editor.on('entities:add', function (entity) {
-        entity.on('*:set', onSetMethods['entity']);
+        entity.on('*:set', onSetMethods.entity);
         entity.on('*:unset', onSetMethods['entity-unset']);
         entity.on('*:insert', onSetMethods['entity-insert']);
         entity.on('*:remove', onSetMethods['entity-remove']);
 
-        for (var key in keys['entity'])
+        for (var key in keys.entity)
             updateAsset(entity.get('resource_id'), 'entity', null, entity.get(key));
 
         var mappings = entity.get('components.model.mapping');

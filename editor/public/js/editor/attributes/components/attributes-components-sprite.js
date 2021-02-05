@@ -1,14 +1,14 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('users:hasFlag', 'hasPcuiComponentInspectors')) return;
 
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
 
-        var events = [ ];
+        var events = [];
 
         var projectSettings = editor.call('settings:project');
 
@@ -41,9 +41,9 @@ editor.once('load', function() {
             name: 'Type',
             type: 'string',
             enum: [
-                {v: '', t: '...'},
-                {v: 'simple', t: 'Simple'},
-                {v: 'animated', t: 'Animated'}
+                { v: '', t: '...' },
+                { v: 'simple', t: 'Simple' },
+                { v: 'animated', t: 'Animated' }
             ],
             link: entities,
             path: 'components.sprite.type',
@@ -263,7 +263,7 @@ editor.once('load', function() {
             batchEnum[group] = editor.call('settings:project').get('batchGroups.' + group + '.name');
             fieldBatchGroup._updateOptions(batchEnum);
             fieldBatchGroup.value = group;
-            editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+            editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
             setTimeout(function () {
                 editor.call('editorSettings:batchGroups:focus', group);
             });
@@ -301,7 +301,7 @@ editor.once('load', function() {
             onClickTag: function () {
                 // focus layer
                 var layerId = this.originalValue;
-                editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+                editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
                 setTimeout(function () {
                     editor.call('editorSettings:layers:focus', layerId);
                 });
@@ -380,7 +380,7 @@ editor.once('load', function() {
 
             btnRemove.on('click', function () {
                 var records = [];
-                for (var i = 0; i<numEntities; i++) {
+                for (var i = 0; i < numEntities; i++) {
                     records.push({
                         clip: entities[i].get(paths[i]),
                         autoPlayClip: entities[i].get('components.sprite.autoPlayClip')
@@ -388,7 +388,7 @@ editor.once('load', function() {
                 }
 
                 var redo = function () {
-                    for (var i = 0; i<numEntities; i++) {
+                    for (var i = 0; i < numEntities; i++) {
                         var entity = editor.call('entities:get', entities[i].get('resource_id'));
                         if (! entity) continue;
 
@@ -405,7 +405,7 @@ editor.once('load', function() {
                 };
 
                 var undo = function () {
-                    for (var i = 0; i<numEntities; i++) {
+                    for (var i = 0; i < numEntities; i++) {
                         var entity = editor.call('entities:get', entities[i].get('resource_id'));
                         if (! entity) continue;
 
@@ -465,14 +465,14 @@ editor.once('load', function() {
                 // remember the previous autoPlayClip value
                 // for each entity
                 var records = [];
-                for (var i = 0; i<numEntities; i++) {
+                for (var i = 0; i < numEntities; i++) {
                     records.push(entities[i].get('components.sprite.autoPlayClip'));
                 }
 
                 var redo = function () {
                     clipName = newName;
 
-                    for (var i = 0; i<numEntities; i++) {
+                    for (var i = 0; i < numEntities; i++) {
                         var entity = editor.call('entities:get', entities[i].get('resource_id'));
                         if (! entity) continue;
                         var history = entity.history.enabled;
@@ -491,7 +491,7 @@ editor.once('load', function() {
                 var undo = function () {
                     clipName = previousName;
 
-                    for (var i = 0; i<numEntities; i++) {
+                    for (var i = 0; i < numEntities; i++) {
                         var entity = editor.call('entities:get', entities[i].get('resource_id'));
                         if (! entity) continue;
                         var history = entity.history.enabled;
@@ -544,7 +544,7 @@ editor.once('load', function() {
                 }));
             };
 
-            for (var i = 0; i<numEntities; i++)
+            for (var i = 0; i < numEntities; i++)
                 createNameChangeListener(i);
 
             // reference
@@ -565,7 +565,7 @@ editor.once('load', function() {
                 panel: panelPlayback,
                 type: 'checkbox',
                 link: entities,
-                paths: paths.map(function (p) {return p + '.loop';})
+                paths: paths.map(function (p) { return p + '.loop'; })
             });
             label = new ui.Label({ text: 'Loop' });
             label.class.add('label-infield');
@@ -584,7 +584,7 @@ editor.once('load', function() {
                 step: 1,
                 link: entities,
                 placeholder: 'FPS',
-                paths: paths.map(function (p) {return p + '.fps';})
+                paths: paths.map(function (p) { return p + '.fps'; })
             });
 
             editor.call('attributes:registerOverridePath', paths[0] + '.fps', fieldClipFps.element);
@@ -599,7 +599,7 @@ editor.once('load', function() {
                 type: 'asset',
                 kind: 'sprite',
                 link: entities,
-                path: paths.map(function (p) {return p + '.spriteAsset';}),
+                path: paths.map(function (p) { return p + '.spriteAsset'; }),
                 canOverrideTemplate: true
             });
 

@@ -1,5 +1,5 @@
-editor.once('load', function() {
-    'use strict'
+editor.once('load', function () {
+    'use strict';
 
     var canvas = new ui.Canvas({
         id: 'canvas-3d',
@@ -30,12 +30,12 @@ editor.once('load', function() {
         });
 
         app.enableBundles = false;
-    } catch(ex) {
+    } catch (ex) {
         editor.emit('viewport:error', ex);
         return;
     }
 
-    editorSettings.on('*:set', function() {
+    editorSettings.on('*:set', function () {
         app.setEditorSettings(editorSettings.json().editor);
     });
 
@@ -44,12 +44,12 @@ editor.once('load', function() {
     editor.call('layout.viewport').prepend(canvas);
 
     // get canvas
-    editor.method('viewport:canvas', function() {
+    editor.method('viewport:canvas', function () {
         return canvas;
     });
 
     // get app
-    editor.method('viewport:app', function() {
+    editor.method('viewport:app', function () {
         return app;
     });
 

@@ -1,7 +1,7 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    editor.on('attributes:inspect[asset]', function(assets) {
+    editor.on('attributes:inspect[asset]', function (assets) {
         if (assets.length !== 1 || assets[0].get('type') !== 'html' || assets[0].get('source'))
             return;
         const hasPcuiAssetInspectors = editor.call('users:hasFlag', 'hasPcuiAssetInspectors');
@@ -40,27 +40,27 @@ editor.once('load', function() {
         fieldError.hidden = true;
         editor.call('attributes.rootPanel').append(fieldError);
 
-        var loadContent = function() {
+        var loadContent = function () {
             if (asset.get('file.size') > 128 * 1024) {
                 panelRaw.hidden = true;
                 loading.hidden = true;
                 return;
-            } else {
-                panelRaw.hidden = false;
-                loading.hidden = false;
             }
+            panelRaw.hidden = false;
+            loading.hidden = false;
+
             // load data
             Ajax({
                 url: '{{url.home}}' + asset.get('file.url').appendQuery('t=' + asset.get('file.hash')),
                 notJson: true
             })
-            .on('load', function(status, data) {
+            .on('load', function (status, data) {
                 fieldCode.text = data;
                 fieldCode.hidden = false;
                 fieldError.hidden = true;
                 loading.hidden = true;
             })
-            .on('error', function() {
+            .on('error', function () {
                 loading.hidden = false;
                 loading.failed = true;
                 fieldCode.hidden = true;
@@ -70,10 +70,10 @@ editor.once('load', function() {
         if (asset.has('file.url'))
             loadContent();
 
-        var evtReload = asset.on('file.hash:set', function() {
+        var evtReload = asset.on('file.hash:set', function () {
             loadContent();
         });
-        panel.once('destroy', function() {
+        panel.once('destroy', function () {
             evtReload.unbind();
         });
     });

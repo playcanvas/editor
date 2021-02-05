@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app;
@@ -16,7 +16,7 @@ editor.once('load', function() {
         editor.call('lightmapper:bake');
         editor.call('entities:shadows:update');
     });
-    editor.on('lightmapper:uv1Missing', function(state) {
+    editor.on('lightmapper:uv1Missing', function (state) {
         if (state) {
             buttonBake.class.add('active');
         } else {
@@ -48,7 +48,7 @@ editor.once('load', function() {
     if (! editor.call('permissions:write'))
         elAuto.style.display = 'none';
 
-    editor.on('permissions:writeState', function(state) {
+    editor.on('permissions:writeState', function (state) {
         if (state) {
             elAuto.style.display = '';
         } else {
@@ -63,17 +63,16 @@ editor.once('load', function() {
     checkAuto.class.add('tick');
     checkAuto.parent = tooltipBake;
     elAuto.appendChild(checkAuto.element);
-    editor.on('lightmapper:auto', function(state) {
+    editor.on('lightmapper:auto', function (state) {
         checkAuto.value = state;
     });
-    checkAuto.on('change', function(value) {
+    checkAuto.on('change', function (value) {
         editor.call('lightmapper:auto', value);
     });
 
     var labelAuto = new ui.Label({ text: 'Auto Rebake' });
     labelAuto.parent = tooltipBake;
     elAuto.appendChild(labelAuto.element);
-
 
 
     // uv1 missing
@@ -87,12 +86,12 @@ editor.once('load', function() {
     });
     btnAutoUnwrap.parent = tooltipBake;
     elUV1.appendChild(btnAutoUnwrap.element);
-    btnAutoUnwrap.on('click', function() {
+    btnAutoUnwrap.on('click', function () {
         if (! uv1Missing)
             return;
 
         var assetIds = Object.keys(uv1MissingAssets);
-        for(var i = 0; i < assetIds.length; i++) {
+        for (var i = 0; i < assetIds.length; i++) {
             if (! uv1MissingAssets.hasOwnProperty(assetIds[i]))
                 continue;
 
@@ -106,7 +105,7 @@ editor.once('load', function() {
     editor.call('hotkey:register', 'lightmapper:bake', {
         key: 'b',
         ctrl: true,
-        callback: function() {
+        callback: function () {
             if (editor.call('picker:isOpen:otherThan', 'curve')) return;
 
             editor.call('lightmapper:bake');
@@ -119,21 +118,21 @@ editor.once('load', function() {
     var uv1Missing = false;
     var uv1MissingAssets = { };
 
-    editor.on('assets:model:unwrap', function(asset) {
+    editor.on('assets:model:unwrap', function (asset) {
         if (! uv1MissingAssets[asset.get('id')])
             return;
 
         delete uv1MissingAssets[asset.get('id')];
         editor.call('lightmapper:uv1missing', uv1MissingAssets);
-    })
+    });
 
-    editor.method('lightmapper:uv1missing', function(assets) {
+    editor.method('lightmapper:uv1missing', function (assets) {
         if (assets === undefined)
             return uv1Missing;
 
         uv1MissingAssets = assets;
 
-        var state = Object.keys(assets).length !== 0
+        var state = Object.keys(assets).length !== 0;
 
         if (uv1Missing === state)
             return;
@@ -142,7 +141,7 @@ editor.once('load', function() {
         editor.emit('lightmapper:uv1Missing', uv1Missing);
     });
 
-    tooltipBake.on('show', function() {
+    tooltipBake.on('show', function () {
         if (uv1Missing) {
             elUV1.classList.remove('hidden');
         } else {

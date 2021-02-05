@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var root = editor.call('layout.root');
@@ -119,8 +119,8 @@ editor.once('load', function() {
     tooltipSnap.class.add('innactive');
 
 
-    editor.on('permissions:writeState', function(state) {
-        for(var key in gizmoButtons) {
+    editor.on('permissions:writeState', function (state) {
+        for (var key in gizmoButtons) {
             gizmoButtons[key].hidden = ! state;
         }
 
@@ -135,16 +135,16 @@ editor.once('load', function() {
     });
     buttonFocus.disabled = true;
     buttonFocus.class.add('pc-icon');
-    buttonFocus.on('click', function() {
+    buttonFocus.on('click', function () {
         editor.call('viewport:focus');
     });
     toolbar.append(buttonFocus);
 
-    editor.on('attributes:clear', function() {
+    editor.on('attributes:clear', function () {
         buttonFocus.disabled = true;
         tooltipFocus.class.add('innactive');
     });
-    editor.on('attributes:inspect[*]', function(type) {
+    editor.on('attributes:inspect[*]', function (type) {
         buttonFocus.disabled = type !== 'entity';
         if (type === 'entity') {
             tooltipFocus.class.remove('innactive');
@@ -165,43 +165,43 @@ editor.once('load', function() {
     // translate hotkey
     editor.call('hotkey:register', 'gizmo:translate', {
         key: '1',
-        callback: function() {
+        callback: function () {
             if (editor.call('picker:isOpen:otherThan', 'curve')) return;
-            gizmoButtons['translate'].emit('click');
+            gizmoButtons.translate.emit('click');
         }
     });
 
     // rotate hotkey
     editor.call('hotkey:register', 'gizmo:rotate', {
         key: '2',
-        callback: function() {
+        callback: function () {
             if (editor.call('picker:isOpen:otherThan', 'curve')) return;
-            gizmoButtons['rotate'].emit('click');
+            gizmoButtons.rotate.emit('click');
         }
     });
 
     // scale hotkey
     editor.call('hotkey:register', 'gizmo:scale', {
         key: '3',
-        callback: function() {
+        callback: function () {
             if (editor.call('picker:isOpen:otherThan', 'curve')) return;
-            gizmoButtons['scale'].emit('click');
+            gizmoButtons.scale.emit('click');
         }
     });
 
     // resize hotkey
     editor.call('hotkey:register', 'gizmo:resize', {
         key: '4',
-        callback: function() {
+        callback: function () {
             if (editor.call('picker:isOpen:otherThan', 'curve')) return;
-            gizmoButtons['resize'].emit('click');
+            gizmoButtons.resize.emit('click');
         }
     });
 
     // world/local hotkey
     editor.call('hotkey:register', 'gizmo:world', {
         key: 'l',
-        callback: function() {
+        callback: function () {
             if (editor.call('picker:isOpen:otherThan', 'curve')) return;
             buttonWorld.emit('click');
         }
@@ -210,7 +210,7 @@ editor.once('load', function() {
     // focus
     editor.call('hotkey:register', 'viewport:focus', {
         key: 'f',
-        callback: function() {
+        callback: function () {
             if (editor.call('picker:isOpen:otherThan', 'curve')) return;
             editor.call('viewport:focus');
         }

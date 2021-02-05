@@ -5,8 +5,9 @@ editor.once('load', function () {
      * Contains the UI for showing text conflicts using
      * an i-framed code editor. Also contains buttons to resolve
      * the merged file.
-     * @param {Object} conflict The conflict group
-     * @param {Object} mergeObject The merge object
+     *
+     * @param {object} conflict - The conflict group
+     * @param {object} mergeObject - The merge object
      */
     var TextResolver = function (conflict, mergeObject) {
         Events.call(this);

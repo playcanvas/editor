@@ -1,13 +1,13 @@
-editor.once('load', function() {
-    'use strict'
+editor.once('load', function () {
+    'use strict';
 
-    editor.on('entities:add', function(entity) {
-        setTimeout(function() {
+    editor.on('entities:add', function (entity) {
+        setTimeout(function () {
             entity.history.enabled = false;
 
             // tags
             if (! entity.has('tags'))
-                entity.set('tags', [ ]);
+                entity.set('tags', []);
 
             // components
 
@@ -94,11 +94,11 @@ editor.once('load', function() {
 
                 // cookieScale
                 if (! entity.has('components.light.cookieScale'))
-                    entity.set('components.light.cookieScale', [ 1.0, 1.0 ]);
+                    entity.set('components.light.cookieScale', [1.0, 1.0]);
 
                 // cookieOffset
                 if (! entity.has('components.light.cookieOffset'))
-                    entity.set('components.light.cookieOffset', [ 0.0, 0.0 ]);
+                    entity.set('components.light.cookieOffset', [0.0, 0.0]);
 
                 // layers
                 if (! entity.has('components.light.layers')) {
@@ -108,7 +108,7 @@ editor.once('load', function() {
             }
 
             // model
-            if(entity.has('components.model')) {
+            if (entity.has('components.model')) {
                 // isStatic
                 if (! entity.has('components.model.isStatic'))
                     entity.set('components.model.isStatic', false);

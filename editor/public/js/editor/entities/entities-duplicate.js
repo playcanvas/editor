@@ -26,10 +26,11 @@ editor.once('load', function () {
      * What needs to happen is that properties that refer to entities within the old
      * duplicated structure are automatically updated to point to the corresponding
      * entities within the new structure. This function implements that requirement.
-     * @param {Observer} oldSubtreeRoot The root entity from the tree that was duplicated
-     * @param {Observer} oldEntity The source entity
-     * @param {Observer} newEntity The duplicated entity
-     * @param {Object} duplicatedIdsMap Contains a map that points from the old resource ids to the new resource ids
+     *
+     * @param {Observer} oldSubtreeRoot - The root entity from the tree that was duplicated
+     * @param {Observer} oldEntity - The source entity
+     * @param {Observer} newEntity - The duplicated entity
+     * @param {object} duplicatedIdsMap - Contains a map that points from the old resource ids to the new resource ids
      */
     var resolveDuplicatedEntityReferenceProperties = function (oldSubtreeRoot, oldEntity, newEntity, duplicatedIdsMap) {
         // TODO Would be nice to also make this work for entity script attributes
@@ -101,7 +102,7 @@ editor.once('load', function () {
 
                                     resolveEntityScriptAttribute(
                                         newEntity,
-                                        field, 
+                                        field,
                                         `${componentAttributePath}.${i}.${field.name}`,
                                         previousValue[i] ? previousValue[i][field.name] : null,
                                         duplicatedIdsMap
@@ -114,7 +115,7 @@ editor.once('load', function () {
 
                                 resolveEntityScriptAttribute(
                                     newEntity,
-                                    field, 
+                                    field,
                                     `${componentAttributePath}.${field.name}`,
                                     previousValue[field.name],
                                     duplicatedIdsMap
@@ -123,10 +124,10 @@ editor.once('load', function () {
                         }
                     } else if (attributeDef.type === 'entity') {
                         resolveEntityScriptAttribute(
-                            newEntity, 
+                            newEntity,
                             attributeDef,
-                            componentAttributePath, 
-                            previousValue, 
+                            componentAttributePath,
+                            previousValue,
                             duplicatedIdsMap
                         );
                     }
@@ -188,8 +189,8 @@ editor.once('load', function () {
         var name = '';
         var number = 1;
 
-        //step from end of string character by character checking to see if we have a trailing number
-        //stopping when the string we are constructing is no longer a valid number
+        // step from end of string character by character checking to see if we have a trailing number
+        // stopping when the string we are constructing is no longer a valid number
         var numberString = '';
         var foundNumber = true;
         for (var i = entityName.length - 1; i >= 0; i--) {
@@ -210,7 +211,7 @@ editor.once('load', function () {
             name,
             number
         };
-    }
+    };
 
     var isEntityNameTaken = function (name, entities) {
         for (var j = 0; j < entities.length; j++) {
@@ -221,10 +222,10 @@ editor.once('load', function () {
             }
         }
         return false;
-    }
+    };
 
     var getUniqueNameForDuplicatedEntity = function (entityName, entities) {
-        var entityNameAndNumber = splitEntityNameAndNumber(entityName); //if entityName === '1box23' then name === '1box' and number === 23,  if entityName === '1' then name === '' and number === 1
+        var entityNameAndNumber = splitEntityNameAndNumber(entityName); // if entityName === '1box23' then name === '1box' and number === 23,  if entityName === '1' then name === '' and number === 1
         var name = entityNameAndNumber.name;
         var number = entityNameAndNumber.number;
 
@@ -234,14 +235,16 @@ editor.once('load', function () {
             newUniqueName = name + startIndex++;
         }
         return newUniqueName;
-    }
+    };
 
     /**
      * Duplicates an entity in the scene
-     * @param {Observer} entity The entity
-     * @param {Observer} parent The parent of the new entity
-     * @param {Number} ind The index in the parent's children array where we want to insert the new entity
-     * @param {Object} duplicatedIdsMap A guid->guid map that contains references from the source resource ids to the new resource ids
+     *
+     * @param {Observer} entity - The entity
+     * @param {Observer} parent - The parent of the new entity
+     * @param {number} ind - The index in the parent's children array where we want to insert the new entity
+     * @param {object} duplicatedIdsMap - A guid->guid map that contains references from the source resource ids to the new resource ids
+     * @param useUniqueName
      * @returns {Observer} The new entity
      */
     var duplicateEntity = function (entity, parent, ind, duplicatedIdsMap, useUniqueName) {
@@ -284,7 +287,8 @@ editor.once('load', function () {
 
     /**
      * Duplicates the specified entities and adds them to the scene.
-     * @param {Observer[]} entities The entities to duplicate
+     *
+     * @param {Observer[]} entities - The entities to duplicate
      */
     editor.method('entities:duplicate', function (entities) {
         var i;

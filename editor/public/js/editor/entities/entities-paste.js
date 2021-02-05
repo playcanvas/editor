@@ -12,9 +12,10 @@ editor.once('load', function () {
      * Try to find an assetId in this project that
      * corresponds to the specified assetId that may come from
      * a different project.
-     * @param {Number} assetId The asset id we are trying to remap
-     * @param {Object} assetsIndex The assets index stored in localStorage that contains paths of assets
-     * @returns {Number} The asset id in this project
+     *
+     * @param {number} assetId - The asset id we are trying to remap
+     * @param {object} assetsIndex - The assets index stored in localStorage that contains paths of assets
+     * @returns {number} The asset id in this project
      */
     var remapAsset = function (assetId, assetsIndex) {
         if (!assetId) return null;
@@ -91,11 +92,12 @@ editor.once('load', function () {
     /**
      * Remaps the resource ids of the entities and their entity references in localStorage
      * with new resource ids, also remaps asset ids.
-     * @param {Observer} entity The entity we are remapping
-     * @param {Observer} parent The parent of the pasted entity
-     * @param {Object} data The data in localStorage
-     * @param {Object} entityMapping An index that maps old resource ids to new resource ids
-     * @param {Object} assetMapping An index that maps old asset ids to new asset ids
+     *
+     * @param {Observer} entity - The entity we are remapping
+     * @param {Observer} parent - The parent of the pasted entity
+     * @param {object} data - The data in localStorage
+     * @param {object} entityMapping - An index that maps old resource ids to new resource ids
+     * @param {object} assetMapping - An index that maps old asset ids to new asset ids
      */
     var remapEntitiesAndAssets = function (entity, parent, data, entityMapping, assetMapping) {
         var resourceId = entity.get('resource_id');
@@ -158,8 +160,7 @@ editor.once('load', function () {
                             entity.set(fullKey, assetMapping[assets]);
                         }
                     }
-                }
-                else if (entity.has(path)) {
+                } else if (entity.has(path)) {
                     assets = entity.get(path);
                     if (!assets) continue;
 
@@ -197,7 +198,7 @@ editor.once('load', function () {
                                     if (attr.value) {
                                         if (attr.value instanceof Array) {
                                             for (j = 0; j < attr.value.length; j++) {
-                                                entity.set('components.script.scripts.' + i + '.attributes.' + name + '.value.' + j, assetMapping[attr.value[j]])
+                                                entity.set('components.script.scripts.' + i + '.attributes.' + name + '.value.' + j, assetMapping[attr.value[j]]);
                                             }
                                         } else {
                                             entity.set('components.script.scripts.' + i + '.attributes.' + name + '.value', assetMapping[attr.value]);
@@ -207,7 +208,7 @@ editor.once('load', function () {
                                     if (attr.defaultValue) {
                                         if (attr.defaultValue instanceof Array) {
                                             for (j = 0; j < attr.defaultValue.length; j++) {
-                                                entity.set('components.script.scripts.' + i + '.attributes.' + name + '.defaultValue.' + j, assetMapping[attr.value[j]])
+                                                entity.set('components.script.scripts.' + i + '.attributes.' + name + '.defaultValue.' + j, assetMapping[attr.value[j]]);
                                             }
                                         } else {
                                             entity.set('components.script.scripts.' + i + '.attributes.' + name + '.defaultValue', assetMapping[attr.value]);
@@ -312,11 +313,12 @@ editor.once('load', function () {
                 }
             }
         }
-    }
+    };
 
     /**
      * Pastes entities in localStore under the specified parent
-     * @param {Observer} parent The parent entity
+     *
+     * @param {Observer} parent - The parent entity
      */
     editor.method('entities:paste', function (parent) {
         // parse data from local storage
@@ -332,7 +334,7 @@ editor.once('load', function () {
 
 
         // remap assets
-        let remappedAssets = {};
+        const remappedAssets = {};
         if (data.assets) {
             for (var key in data.assets) {
                 remappedAssets[key] = remapAsset(key, data.assets);

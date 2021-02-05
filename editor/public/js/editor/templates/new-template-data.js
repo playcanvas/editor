@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     /**
@@ -6,9 +6,9 @@ editor.once('load', function() {
      * a json copy of it with new guids. All entity references inside are
      * updated to match new guids.
      *
-     * @param {Object} root The root entity
-     * @param {Object[]} sceneEnts All entities descending from the root
-     * @returns {Object} An object with fields
+     * @param {object} root - The root entity
+     * @param {object[]} sceneEnts - All entities descending from the root
+     * @returns {object} An object with fields
      *   'assetData' (for storing as data
      *       of the new template asset, it has the format
      *       { entities: <guid to entity map> }),
@@ -91,7 +91,7 @@ editor.once('load', function() {
             return {
                 assetData: { entities: ents },
                 srcToDst: this.srcToDst
-            }
+            };
         }
     }
 });

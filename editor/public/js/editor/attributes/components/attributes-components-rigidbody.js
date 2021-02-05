@@ -1,14 +1,14 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('users:hasFlag', 'hasPcuiComponentInspectors')) return;
 
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
 
-        var events = [ ];
+        var events = [];
 
         var panel = editor.call('attributes:entity:addComponentPanel', {
             title: 'Rigid Body',
@@ -40,7 +40,7 @@ editor.once('load', function() {
             parent: panel
         });
         panelDynamic.hidden = fieldType.value !== '' && fieldType.value !== 'dynamic';
-        fieldType.on('change', function(value) {
+        fieldType.on('change', function (value) {
             panelDynamic.hidden = value !== '' && value !== 'dynamic';
         });
 
@@ -50,7 +50,7 @@ editor.once('load', function() {
             name: 'Mass',
             type: 'number',
             precision: 2,
-            step: .1,
+            step: 0.1,
             min: 0,
             link: entities,
             path: 'components.rigidbody.mass',
@@ -68,7 +68,7 @@ editor.once('load', function() {
             placeholder: 'Linear',
             type: 'number',
             precision: 6,
-            step: .01,
+            step: 0.01,
             min: 0,
             max: 1,
             link: entities,
@@ -88,7 +88,7 @@ editor.once('load', function() {
             placeholder: 'Angular',
             type: 'number',
             precision: 6,
-            step: .01,
+            step: 0.01,
             min: 0,
             max: 1,
             link: entities,
@@ -102,9 +102,9 @@ editor.once('load', function() {
         var fieldLinearFactor = editor.call('attributes:addField', {
             parent: panelDynamic,
             name: 'Linear Factor',
-            placeholder: [ 'X', 'Y', 'Z' ],
+            placeholder: ['X', 'Y', 'Z'],
             precision: 4,
-            step: .01,
+            step: 0.01,
             min: 0,
             max: 1,
             type: 'vec3',
@@ -120,9 +120,9 @@ editor.once('load', function() {
         var fieldAngularFactor = editor.call('attributes:addField', {
             parent: panelDynamic,
             name: 'Angular Factor',
-            placeholder: [ 'X', 'Y', 'Z' ],
+            placeholder: ['X', 'Y', 'Z'],
             precision: 4,
-            step: .01,
+            step: 0.01,
             min: 0,
             max: 1,
             type: 'vec3',
@@ -140,7 +140,7 @@ editor.once('load', function() {
             name: 'Friction',
             type: 'number',
             precision: 4,
-            step: .01,
+            step: 0.01,
             min: 0,
             max: 1,
             link: entities,
@@ -172,7 +172,7 @@ editor.once('load', function() {
             name: 'Restitution',
             type: 'number',
             precision: 4,
-            step: .01,
+            step: 0.01,
             min: 0,
             max: 1,
             link: entities,

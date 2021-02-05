@@ -2,7 +2,7 @@ editor.once('load', function () {
 
     var app = null;
 
-    editor.once('viewport:load', function() {
+    editor.once('viewport:load', function () {
         app = editor.call('viewport:app');
     });
 
@@ -74,8 +74,8 @@ editor.once('load', function () {
             return;
         }
 
-        var onLoad = function(cubemap) {
-            var blob = new Blob([ generatePrefilteredLighting(cubemap).getDds() ], { type: 'image/dds' });
+        var onLoad = function (cubemap) {
+            var blob = new Blob([generatePrefilteredLighting(cubemap).getDds()], { type: 'image/dds' });
 
             // upload blob as dds
             editor.call('assets:uploadFile', {
@@ -88,7 +88,7 @@ editor.once('load', function () {
                     callback(err, data);
             });
 
-            assetCubeMap.set('data.rgbm', cubemap.type === pc.TEXTURETYPE_RGBM ? true : false);
+            assetCubeMap.set('data.rgbm', cubemap.type === pc.TEXTURETYPE_RGBM);
         };
 
         var asset = app.assets.get(parseInt(assetCubeMap.get('id'), 10));
@@ -96,7 +96,7 @@ editor.once('load', function () {
             if (asset.resource) {
                 onLoad(asset.resource);
             } else {
-                asset.once('load', function(asset) {
+                asset.once('load', function (asset) {
                     onLoad(asset.resource);
                 });
                 app.assets.load(asset);
@@ -106,13 +106,13 @@ editor.once('load', function () {
 
     // invalidate prefiltering data on cubemaps
     // when one of face textures file is changed
-    editor.on('assets:add', function(asset) {
+    editor.on('assets:add', function (asset) {
         if (asset.get('type') !== 'cubemap')
             return;
 
-        asset._textures = [ ];
+        asset._textures = [];
 
-        var invalidate = function() {
+        var invalidate = function () {
             if (! asset.get('file'))
                 return;
 
@@ -120,7 +120,7 @@ editor.once('load', function () {
             asset.set('file', null);
         };
 
-        var watchTexture = function(ind, id) {
+        var watchTexture = function (ind, id) {
             if (asset._textures[ind])
                 asset._textures[ind].unbind();
 
@@ -134,16 +134,16 @@ editor.once('load', function () {
                 asset._textures[ind] = texture.on('file.hash:set', invalidate);
         };
 
-        var watchFace = function(ind) {
+        var watchFace = function (ind) {
             // update watching on face change
-            asset.on('data.textures.' + ind + ':set', function(id) {
+            asset.on('data.textures.' + ind + ':set', function (id) {
                 watchTexture(ind, id);
             });
             // start watching
             watchTexture(ind, asset.get('data.textures.' + ind));
         };
 
-        for(var i = 0; i < 6; i++)
+        for (var i = 0; i < 6; i++)
             watchFace(i);
     });
 });

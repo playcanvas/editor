@@ -96,11 +96,12 @@ editor.once('load', function () {
     /**
      * Append a new field to the section. This will create
      * a new field on all 3 panels (base, source, destination);
-     * @param {Object} args The field options
-     * @param {String} args.name The name of the field
-     * @param {Boolean} args.prettify If true the name will be 'prettified'
-     * @param {String} args.type The type of the field if it's the same for all base, source and destination values
-     * @param {String} args.baseType The type of the base value
+     *
+     * @param {object} args - The field options
+     * @param {string} args.name - The name of the field
+     * @param {boolean} args.prettify - If true the name will be 'prettified'
+     * @param {string} args.type - The type of the field if it's the same for all base, source and destination values
+     * @param {string} args.baseType The type of the base value
      * @param {String} args.sourceType The type of the source value
      * @param {String} args.destType The type of the destination value
      * @param {Object} args.conflict The conflict object

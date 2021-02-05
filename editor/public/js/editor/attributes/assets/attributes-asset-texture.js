@@ -1,14 +1,14 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     // append the basis module controls to the provided panel
-    editor.method('attributes:appendImportModule', function(panel, moduleStoreName, wasmFilename) {
+    editor.method('attributes:appendImportModule', function (panel, moduleStoreName, wasmFilename) {
         // button
         var button = new pcui.Button({
             text: 'IMPORT BASIS',
             icon: 'E228'
         });
-        button.on('click', function() {
+        button.on('click', function () {
             editor.call('project:module:addModule', moduleStoreName, wasmFilename);
         });
 
@@ -35,7 +35,7 @@ editor.once('load', function() {
         events.push(editor.on('permissions:writeState', function (write) {
             updateEnableState();
         }));
-        events.push(editor.on('onModuleImported', function(name) {
+        events.push(editor.on('onModuleImported', function (name) {
             if (name === 'basis.js') {
                 group.enabled = false;
             }

@@ -1,7 +1,7 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    editor.once('start', function() {
+    editor.once('start', function () {
         var auth = false;
 
         var socket, connection;
@@ -25,7 +25,7 @@ editor.once('load', function() {
 
             var shareDbMessage = connection.socket.onmessage;
 
-            connection.socket.onmessage = function(msg) {
+            connection.socket.onmessage = function (msg) {
                 try {
                     if (msg.data.startsWith('auth')) {
                         if (!auth) {
@@ -89,7 +89,7 @@ editor.once('load', function() {
 
             };
 
-            connection.on('connected', function() {
+            connection.on('connected', function () {
                 reconnectAttempts = 0;
                 reconnectInterval = 3;
 
@@ -100,7 +100,7 @@ editor.once('load', function() {
                 editor.emit('realtime:connected');
             });
 
-            connection.on('error', function(msg) {
+            connection.on('error', function (msg) {
                 if (connection.state === 'connected')
                     return;
                 editor.emit('realtime:error', msg);
@@ -151,7 +151,7 @@ editor.once('load', function() {
             editor.once('visible', reconnect);
         }
 
-        var emitOp = function(type, op) {
+        var emitOp = function (type, op) {
             // console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
             // console.log(op);
 
@@ -163,7 +163,7 @@ editor.once('load', function() {
             scene = connection.get('scenes', '' + uniqueId);
 
             // error
-            scene.on('error', function(err) {
+            scene.on('error', function (err) {
                 editor.emit('realtime:scene:error', err);
             });
 
@@ -187,7 +187,7 @@ editor.once('load', function() {
         });
 
         // write scene operations
-        editor.method('realtime:scene:op', function(op) {
+        editor.method('realtime:scene:op', function (op) {
             if (! editor.call('permissions:write') || ! scene)
                 return;
 
@@ -196,14 +196,14 @@ editor.once('load', function() {
             // console.log(op)
 
             try {
-                scene.submitOp([ op ]);
+                scene.submitOp([op]);
             } catch (e) {
                 log.error(e);
                 editor.emit('realtime:scene:error', e);
             }
         });
 
-        editor.method('realtime:send', function(name, data) {
+        editor.method('realtime:send', function (name, data) {
             // console.log(name, data);
             if (socket.readyState === 1)
                 socket.send(name + JSON.stringify(data));

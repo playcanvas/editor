@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     // Creates new texture atlas asset from texture asset
@@ -78,7 +78,7 @@ editor.once('load', function() {
                 name: 'Frame ' + maxKey,
                 rect: [0, 0, width, height],
                 pivot: [0.5, 0.5],
-                border: [horBorder,verBorder,horBorder,verBorder]
+                border: [horBorder, verBorder, horBorder, verBorder]
             });
             asset.history.enabled = history;
         }

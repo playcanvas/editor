@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
@@ -14,7 +14,7 @@ editor.once('load', function() {
     var hoverMeshInstance = null;
 
 
-    editor.on('viewport:pick:hover', function(node, picked) {
+    editor.on('viewport:pick:hover', function (node, picked) {
         hoverNode = node;
         hoverPicked = picked;
 
@@ -23,7 +23,7 @@ editor.once('load', function() {
     });
 
 
-    var onPick = function(node, picked) {
+    var onPick = function (node, picked) {
         var meshInstance = null;
 
         if (node && node._icon)
@@ -45,7 +45,7 @@ editor.once('load', function() {
     };
 
 
-    var onLeave = function() {
+    var onLeave = function () {
         if (! hoverEntity)
             return;
 
@@ -83,7 +83,7 @@ editor.once('load', function() {
         editor.call('viewport:render');
     };
 
-    var onHover = function(entity, meshInstance) {
+    var onHover = function (entity, meshInstance) {
         if (entity === hoverEntity && meshInstance === hoverMeshInstance)
             return;
 
@@ -149,7 +149,7 @@ editor.once('load', function() {
         ref: canvas,
         type: 'asset.material',
         hole: true,
-        drop: function(type, data) {
+        drop: function (type, data) {
             if (! config.scene.id)
                 return;
 
@@ -197,7 +197,7 @@ editor.once('load', function() {
 
                             editor.call('history:add', {
                                 name: 'assets.' + asset.get('id') + '.data.mapping.' + ind + '.material',
-                                undo: function() {
+                                undo: function () {
                                     var item = editor.call('assets:get', asset.get('id'));
                                     if (! item) return;
 
@@ -215,7 +215,7 @@ editor.once('load', function() {
 
                                     item.history.enabled = history;
                                 },
-                                redo: function() {
+                                redo: function () {
                                     var item = editor.call('assets:get', asset.get('id'));
                                     if (! item) return;
 
@@ -259,8 +259,8 @@ editor.once('load', function() {
                         } else {
                             undo.path = 'components.model.mapping.' + ind;
                             undo.value = entity.has('components.model.mapping.' + ind) ?
-                                         entity.get('components.model.mapping.' + ind) :
-                                         undefined;
+                                entity.get('components.model.mapping.' + ind) :
+                                undefined;
                             redo.path = undo.path;
                             redo.value = parseInt(hoverMaterial.id, 10);
 
@@ -271,7 +271,7 @@ editor.once('load', function() {
 
                         editor.call('history:add', {
                             name: 'entities.' + resourceId + '.components.model.mapping',
-                            undo: function() {
+                            undo: function () {
                                 var item = editor.call('entities:get', resourceId);
                                 if (! item) return;
 
@@ -285,7 +285,7 @@ editor.once('load', function() {
 
                                 item.history.enabled = history;
                             },
-                            redo: function() {
+                            redo: function () {
                                 var item = editor.call('entities:get', resourceId);
                                 if (! item) return;
 
@@ -321,7 +321,7 @@ editor.once('load', function() {
                     var adjustedPrev = entity.get('components.render.type') !== 'asset' ? prev.slice(0, 1) : prev;
                     entity.set('components.render.materialAssets', adjustedPrev);
                     entity.history.enabled = history;
-                }
+                };
 
                 var redo = function () {
                     entity = entity.latest();
@@ -333,7 +333,7 @@ editor.once('load', function() {
                     var adjustedIndex = entity.get('components.render.type') !== 'asset' ? 0 : ind;
                     entity.set('components.render.materialAssets.' + adjustedIndex, parseInt(hoverMaterial.id, 10));
                     entity.history.enabled = history;
-                }
+                };
 
                 redo();
 
@@ -345,7 +345,7 @@ editor.once('load', function() {
             }
 
         },
-        over: function(type, data) {
+        over: function (type, data) {
             if (! config.scene.id)
                 return;
 
@@ -362,7 +362,7 @@ editor.once('load', function() {
 
             onPick(hoverNode, hoverPicked);
         },
-        leave: function() {
+        leave: function () {
             if (!config.scene.id)
                 return;
 

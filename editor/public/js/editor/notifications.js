@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var TIMEOUT = 5000;
@@ -7,7 +7,7 @@ editor.once('load', function() {
     var logo = 'https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/platform/images/logo/playcanvas-logo-360.jpg';
     var visible = ! document.hidden;
 
-    document.addEventListener('visibilitychange', function() {
+    document.addEventListener('visibilitychange', function () {
         if (visible === ! document.hidden)
             return;
 
@@ -20,30 +20,30 @@ editor.once('load', function() {
         editor.emit('visibility', visible);
     }, false);
 
-    editor.method('visibility', function() {
+    editor.method('visibility', function () {
         return visible;
     });
 
-    editor.method('notify:state', function() {
+    editor.method('notify:state', function () {
         if (! window.Notification)
             return null;
 
         return Notification.permission;
     });
 
-    editor.method('notify:permission', function(fn) {
+    editor.method('notify:permission', function (fn) {
         if (! window.Notification)
             return;
 
         if (Notification.permission !== 'denied') {
-            Notification.requestPermission(function(permission) {
+            Notification.requestPermission(function (permission) {
                 editor.emit('notify:permission', permission);
                 if (fn) fn();
             });
         }
     });
 
-    editor.method('notify', function(args) {
+    editor.method('notify', function (args) {
         // no supported
         if (! window.Notification || ! args.title || visible)
             return;
@@ -51,12 +51,12 @@ editor.once('load', function() {
         args = args || { };
 
         var timeout;
-        var queueClose = function(item) {
-            setTimeout(function() {
+        var queueClose = function (item) {
+            setTimeout(function () {
                 item.close();
             }, TIMEOUT_OVERLAP);
         };
-        var notify = function() {
+        var notify = function () {
             if (last) {
                 queueClose(last);
                 last = null;
@@ -67,11 +67,11 @@ editor.once('load', function() {
                 icon: args.icon || logo
             });
 
-            timeout = setTimeout(function() {
+            timeout = setTimeout(function () {
                 notification.close();
             }, args.timeout || TIMEOUT);
 
-            notification.onclick = function(evt) {
+            notification.onclick = function (evt) {
                 evt.preventDefault();
                 notification.close();
 
@@ -79,7 +79,7 @@ editor.once('load', function() {
                     args.click(evt);
             };
 
-            notification.onclose = function(evt) {
+            notification.onclose = function (evt) {
                 clearTimeout(timeout);
                 timeout = null;
 
@@ -93,7 +93,7 @@ editor.once('load', function() {
             notify();
         } else if (Notification.permission !== 'denied') {
             // ask for permission
-            editor.call('notify:permission', function(permission) {
+            editor.call('notify:permission', function (permission) {
                 if (permission === 'granted')
                     notify();
             });
@@ -102,7 +102,7 @@ editor.once('load', function() {
         }
     });
 
-    editor.method('notify:title', function(title) {
+    editor.method('notify:title', function (title) {
         document.title = title;
     });
 });

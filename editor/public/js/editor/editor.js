@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     function Editor() {
@@ -9,7 +9,7 @@
     Editor.prototype = Object.create(Events.prototype);
 
 
-    Editor.prototype.method = function(name, fn) {
+    Editor.prototype.method = function (name, fn) {
         if (this._hooks[name] !== undefined) {
             throw new Error('can\'t override hook: ' + name);
         }
@@ -17,18 +17,18 @@
     };
 
 
-    Editor.prototype.methodRemove = function(name) {
+    Editor.prototype.methodRemove = function (name) {
         delete this._hooks[name];
     };
 
 
-    Editor.prototype.call = function(name) {
+    Editor.prototype.call = function (name) {
         if (this._hooks[name]) {
             var args = Array.prototype.slice.call(arguments, 1);
 
             try {
                 return this._hooks[name].apply(null, args);
-            } catch(ex) {
+            } catch (ex) {
                 console.info('%c%s %c(editor.method error)', 'color: #06f', name, 'color: #f00');
                 log.error(ex);
             }
@@ -45,12 +45,12 @@
 
 
 // config
-(function() {
+(function () {
     'use strict';
 
-    var applyConfig = function(path, value) {
+    var applyConfig = function (path, value) {
         if (typeof(value) === 'object') {
-            for(var key in value) {
+            for (var key in value) {
                 applyConfig((path ? path + '.' : '') + key, value[key]);
             }
         } else {

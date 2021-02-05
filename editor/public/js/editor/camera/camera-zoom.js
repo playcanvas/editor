@@ -1,4 +1,4 @@
-editor.once('viewport:load', function() {
+editor.once('viewport:load', function () {
     'use strict';
 
     // Moving towards mouse point in world using mouse wheel
@@ -25,21 +25,21 @@ editor.once('viewport:load', function() {
     var aabbRoot = new pc.BoundingBox();
     var aabbRootLast = 0;
 
-    editor.on('hotkey:shift', function(state) {
+    editor.on('hotkey:shift', function (state) {
         shiftKey = state;
     });
-    editor.on('viewport:hover', function(state) {
+    editor.on('viewport:hover', function (state) {
         hovering = state;
     });
 
-    editor.on('selector:change', function(type) {
+    editor.on('selector:change', function (type) {
         if (selectorLastType !== type || type === 'entity') {
             selectorLastType = type;
             aabbSelectionLast = 0;
         }
     });
 
-    editor.on('viewport:update', function(dt) {
+    editor.on('viewport:update', function (dt) {
         if (zoomTarget !== zoom) {
             var diff = zoom;
             zoom += (zoomTarget - zoom) * Math.min(1.0, zoomEasing * ((firstUpdate === 1 ? 1 / 60 : dt) / (1 / 60)));
@@ -128,14 +128,14 @@ editor.once('viewport:load', function() {
         } else {
             if (firstUpdate === 2) {
                 firstUpdate = 3;
-                editor.once('viewport:postUpdate', function() {
+                editor.once('viewport:postUpdate', function () {
                     editor.call('camera:history:stop', zoomCamera);
                 });
             }
         }
     });
 
-    var onMouseWheel = function(evt) {
+    var onMouseWheel = function (evt) {
         if (! hovering)
             return;
 
@@ -156,14 +156,14 @@ editor.once('viewport:load', function() {
         }
     };
 
-    var onFocus = function(point, dist) {
+    var onFocus = function (point, dist) {
         distance = Math.max(1, Math.min(zoomMax, dist));
     };
 
     editor.on('camera:focus', onFocus);
     editor.on('camera:focus:end', onFocus);
 
-    editor.on('viewport:mouse:move', function(tap) {
+    editor.on('viewport:mouse:move', function (tap) {
         mouseCoords.x = tap.x;
         mouseCoords.y = tap.y;
     });

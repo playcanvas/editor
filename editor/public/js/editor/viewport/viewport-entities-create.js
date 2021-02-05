@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
@@ -11,7 +11,7 @@ editor.once('load', function() {
     // queue for hierarchy resync
     var awaitingResyncHierarchy = false;
 
-    var resyncHierarchy = function() {
+    var resyncHierarchy = function () {
         awaitingResyncHierarchy = false;
 
         if (! app) return; // webgl not available
@@ -72,7 +72,7 @@ editor.once('load', function() {
 
         // add components
         var components = obj.json().components;
-        for(var key in components) {
+        for (var key in components) {
             if (app.context.systems[key]) {
                 if (key === 'script')
                     continue;
@@ -93,7 +93,7 @@ editor.once('load', function() {
         }
 
         var children = obj.get('children');
-        for(var i = 0; i < children.length; i++) {
+        for (var i = 0; i < children.length; i++) {
             childIndex[children[i]] = {
                 index: i,
                 parent: entity
@@ -127,7 +127,7 @@ editor.once('load', function() {
         editor.emit('entities:add:entity', obj);
     };
 
-    var createEntities = function() {
+    var createEntities = function () {
         // new entity created
         editor.on('entities:add', function (obj) {
             processEntity(obj);
@@ -137,7 +137,7 @@ editor.once('load', function() {
         editor.on('entities:remove', function (obj) {
             delete entitiesIndex[obj.get('resource_id')];
             var children = obj.get('children');
-            for(var i = 0; i < children.length; i++) {
+            for (var i = 0; i < children.length; i++) {
                 delete childIndex[children[i]];
             }
         });
@@ -162,7 +162,7 @@ editor.once('load', function() {
             createEntities();
     });
 
-    editor.once('entities:load', function() {
+    editor.once('entities:load', function () {
         entitiesLoaded = true;
         // if assets already loaded then create entities
         if (assetsLoaded)

@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var users = { };
@@ -12,7 +12,7 @@ editor.once('load', function() {
         if (userRequests[id])
             return userRequests[id].push(callback);
 
-        userRequests[id] = [ callback ];
+        userRequests[id] = [callback];
 
         Ajax({
             url: '{{url.api}}/users/' + id,
@@ -21,14 +21,14 @@ editor.once('load', function() {
         .on('load', function (status, data) {
             users[id] = data;
 
-            for(var i = 0; i < userRequests[id].length; i++)
+            for (var i = 0; i < userRequests[id].length; i++)
                 userRequests[id][i](data);
 
             delete userRequests[id];
         });
     });
 
-    editor.method('users:get', function(id) {
+    editor.method('users:get', function (id) {
         return users[id] || null;
     });
 });

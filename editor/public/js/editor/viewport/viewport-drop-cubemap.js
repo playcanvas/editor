@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
@@ -13,9 +13,9 @@ editor.once('load', function() {
     var hoverCubemap = null;
     var hoverEntity = undefined;
     var hoverMeshInstance = null;
-    var hoverSkyboxFields = [ 'cubeMap', 'prefilteredCubeMap128', 'prefilteredCubeMap64', 'prefilteredCubeMap32', 'prefilteredCubeMap16', 'prefilteredCubeMap8', 'prefilteredCubeMap4' ]
+    var hoverSkyboxFields = ['cubeMap', 'prefilteredCubeMap128', 'prefilteredCubeMap64', 'prefilteredCubeMap32', 'prefilteredCubeMap16', 'prefilteredCubeMap8', 'prefilteredCubeMap4'];
 
-    var onPickHover = function(node, picked) {
+    var onPickHover = function (node, picked) {
         var meshInstance = null;
 
         if (node && node._icon)
@@ -36,7 +36,7 @@ editor.once('load', function() {
         }
     };
 
-    var onLeave = function() {
+    var onLeave = function () {
         if (hoverSkybox) {
             app.scene.setSkybox(hoverSkybox);
             hoverSkybox = null;
@@ -44,7 +44,7 @@ editor.once('load', function() {
         }
 
         if (hoverMaterial) {
-            for(var i = 0; i < hoverSkyboxFields.length; i++)
+            for (var i = 0; i < hoverSkyboxFields.length; i++)
                 hoverMaterial[hoverSkyboxFields[i]] = hoverMaterial._hoverCubeMap[hoverSkyboxFields[i]];
             hoverMaterial.update();
             delete hoverMaterial._hoverCubeMap;
@@ -54,22 +54,22 @@ editor.once('load', function() {
         }
     };
 
-    var onCubemapLoad = function() {
+    var onCubemapLoad = function () {
         setCubemap();
     };
 
-    var setCubemap = function() {
+    var setCubemap = function () {
         if (hoverEntity) {
             hoverMaterial = hoverMeshInstance.material;
 
             if (hoverMaterial) {
                 if (! hoverMaterial._hoverCubeMap) {
                     hoverMaterial._hoverCubeMap = { };
-                    for(var i = 0; i < hoverSkyboxFields.length; i++)
+                    for (var i = 0; i < hoverSkyboxFields.length; i++)
                         hoverMaterial._hoverCubeMap[hoverSkyboxFields[i]] = hoverMaterial[hoverSkyboxFields[i]];
                 }
 
-                for(var i = 0; i < hoverSkyboxFields.length; i++)
+                for (var i = 0; i < hoverSkyboxFields.length; i++)
                     hoverMaterial[hoverSkyboxFields[i]] = hoverCubemap.resources[i];
 
                 hoverMaterial.update();
@@ -78,7 +78,7 @@ editor.once('load', function() {
             }
         } else {
             if (! hoverSkybox) {
-                hoverSkybox = [ null, null, null, null, null, null ];
+                hoverSkybox = [null, null, null, null, null, null];
                 var id = editor.call('sceneSettings').get('render.skybox');
                 if (id) {
                     var engineCubemap = app.assets.get(id);
@@ -94,7 +94,7 @@ editor.once('load', function() {
         }
     };
 
-    var onHover = function(entity, meshInstance) {
+    var onHover = function (entity, meshInstance) {
         if (entity === hoverEntity && meshInstance === hoverMeshInstance)
             return;
 
@@ -110,7 +110,7 @@ editor.once('load', function() {
         ref: canvas,
         type: 'asset.cubemap',
         hole: true,
-        drop: function(type, data) {
+        drop: function (type, data) {
             if (!config.scene.id)
                 return;
 
@@ -152,7 +152,7 @@ editor.once('load', function() {
                 editor.call('viewport:render');
             }
         },
-        over: function(type, data) {
+        over: function (type, data) {
             if (!config.scene.id)
                 return;
 
@@ -170,7 +170,7 @@ editor.once('load', function() {
             evtPickHover = editor.on('viewport:pick:hover', onPickHover);
             onHover(null, null);
         },
-        leave: function() {
+        leave: function () {
             if (!config.scene.id)
                 return;
 

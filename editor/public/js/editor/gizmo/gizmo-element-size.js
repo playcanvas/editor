@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var vecA = new pc.Vec3();
@@ -17,8 +17,8 @@ editor.once('load', function() {
 
     var posStart = [];
     var posCurrent = [];
-    var sizeStart = [0,0];
-    var sizeCurrent = [0,0];
+    var sizeStart = [0, 0];
+    var sizeCurrent = [0, 0];
     var startWorldCorners = [new pc.Vec3(), new pc.Vec3(), new pc.Vec3(), new pc.Vec3()];
     var worldToEntitySpace = new pc.Mat4();
     var entitySpaceToParentSpace = new pc.Mat4();
@@ -66,7 +66,7 @@ editor.once('load', function() {
         return obj;
     };
 
-    var createMaterial = function(color) {
+    var createMaterial = function (color) {
         var mat = new pc.BasicMaterial();
         mat.color = color;
         if (color.a !== 1) {
@@ -210,7 +210,7 @@ editor.once('load', function() {
 
         });
 
-        editor.on('viewport:pick:hover', function(node, picked) {
+        editor.on('viewport:pick:hover', function (node, picked) {
             if (! node || gizmo.handles.indexOf(node) === -1) {
                 if (gizmo.handle) {
                     gizmo.handle = null;
@@ -273,7 +273,7 @@ editor.once('load', function() {
             editor.call('gizmo:scale:visible', false);
         };
 
-        var onTapMove = function(tap) {
+        var onTapMove = function (tap) {
             if (! moving)
                 return;
 
@@ -281,7 +281,7 @@ editor.once('load', function() {
             mouseTapMoved = true;
         };
 
-        var onTapEnd = function(tap) {
+        var onTapEnd = function (tap) {
             if (tap.button !== 0)
                 return;
 
@@ -308,7 +308,7 @@ editor.once('load', function() {
 
                     editor.call('history:add', {
                         name: 'entity.element.size',
-                        undo: function() {
+                        undo: function () {
                             var item = editor.call('entities:get', resourceId);
                             if (! item)
                                 return;
@@ -320,7 +320,7 @@ editor.once('load', function() {
                             item.set('components.element.height', previousSize[1]);
                             item.history.enabled = history;
                         },
-                        redo: function() {
+                        redo: function () {
                             var item = editor.call('entities:get', resourceId);
                             if (! item)
                                 return;
@@ -339,7 +339,7 @@ editor.once('load', function() {
             }
         };
 
-        var pickPlane = function(x, y) {
+        var pickPlane = function (x, y) {
             var camera = editor.call('camera:current');
             var entity = selectedEntity.entity;
 

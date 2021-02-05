@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var canvas = editor.call('viewport:canvas');
@@ -15,7 +15,7 @@ editor.once('load', function() {
 
     editor.call('drop:target', {
         ref: canvas,
-        filter: function(type, data) {
+        filter: function (type, data) {
             if (type === 'asset.model') {
                 var asset = app.assets.get(data.id);
                 if (asset) app.assets.load(asset);
@@ -24,7 +24,7 @@ editor.once('load', function() {
             }
 
             if (type === 'assets') {
-                for(var i = 0; i < data.ids.length; i++) {
+                for (var i = 0; i < data.ids.length; i++) {
                     var asset = editor.call('assets:get', data.ids[i]);
                     if (! asset)
                         return false;
@@ -33,7 +33,7 @@ editor.once('load', function() {
                         return false;
                 }
 
-                for(var i = 0; i < data.ids.length; i++) {
+                for (var i = 0; i < data.ids.length; i++) {
                     var asset = app.assets.get(data.ids[i]);
                     if (asset) app.assets.load(asset);
                 }
@@ -41,17 +41,17 @@ editor.once('load', function() {
                 return true;
             }
         },
-        drop: function(type, data) {
+        drop: function (type, data) {
             if (! config.scene.id)
                 return;
 
-            var assets = [ ];
+            var assets = [];
 
             if (type === 'asset.model') {
                 var asset = editor.call('assets:get', parseInt(data.id, 10));
                 if (asset) assets.push(asset);
             } else if (type === 'assets') {
-                for(var i = 0; i < data.ids.length; i++) {
+                for (var i = 0; i < data.ids.length; i++) {
                     var asset = editor.call('assets:get', parseInt(data.ids[i], 10));
                     if (asset && asset.get('type') === 'model')
                         assets.push(asset);
@@ -69,18 +69,18 @@ editor.once('load', function() {
             if (! parent)
                 parent = editor.call('entities:root');
 
-            var entities = [ ];
-            var data = [ ];
+            var entities = [];
+            var data = [];
 
             // calculate aabb
             var first = true;
-            for(var i = 0; i < assets.length; i++) {
+            for (var i = 0; i < assets.length; i++) {
                 var assetEngine = app.assets.get(assets[i].get('id'));
                 if (! assetEngine) continue;
 
                 if (assetEngine.resource) {
                     var meshes = assetEngine.resource.meshInstances;
-                    for(var m = 0; m < meshes.length; m++) {
+                    for (var m = 0; m < meshes.length; m++) {
                         if (first) {
                             first = false;
                             aabb.copy(meshes[m].aabb);
@@ -119,7 +119,7 @@ editor.once('load', function() {
                 distance = aabb.halfExtents.length() * 2.2;
             }
 
-            for(var i = 0; i < assets.length; i++) {
+            for (var i = 0; i < assets.length; i++) {
                 var component = editor.call('components:getDefault', 'model');
                 component.type = 'asset';
                 component.asset = parseInt(assets[i].get('id'), 10);
@@ -135,7 +135,7 @@ editor.once('load', function() {
                 var entity = editor.call('entities:new', {
                     parent: parent,
                     name: name,
-                    position: [ vecC.x, vecC.y, vecC.z ],
+                    position: [vecC.x, vecC.y, vecC.z],
                     components: {
                         model: component
                     },
@@ -149,26 +149,26 @@ editor.once('load', function() {
 
             editor.call('selector:history', false);
             editor.call('selector:set', 'entity', entities);
-            editor.once('selector:change', function() {
+            editor.once('selector:change', function () {
                 editor.call('selector:history', true);
             });
 
             var selectorType = editor.call('selector:type');
             var selectorItems = editor.call('selector:items');
             if (selectorType === 'entity') {
-                for(var i = 0; i < selectorItems.length; i++)
+                for (var i = 0; i < selectorItems.length; i++)
                     selectorItems[i] = selectorItems[i].get('resource_id');
             }
 
             var parentId = parent.get('resource_id');
-            var resourceIds = [ ];
-            for(var i = 0; i < entities.length; i++)
+            var resourceIds = [];
+            for (var i = 0; i < entities.length; i++)
                 resourceIds.push(entities[i].get('resource_id'));
 
             editor.call('history:add', {
                 name: 'new model entities ' + entities.length,
-                undo: function() {
-                    for(var i = 0; i < resourceIds.length; i++) {
+                undo: function () {
+                    for (var i = 0; i < resourceIds.length; i++) {
                         var entity = editor.call('entities:get', resourceIds[i]);
                         if (! entity)
                             continue;
@@ -177,8 +177,8 @@ editor.once('load', function() {
                     }
 
                     if (selectorType === 'entity' && selectorItems.length) {
-                        var items = [ ];
-                        for(var i = 0; i < selectorItems.length; i++) {
+                        var items = [];
+                        for (var i = 0; i < selectorItems.length; i++) {
                             var item = editor.call('entities:get', selectorItems[i]);
                             if (item)
                                 items.push(item);
@@ -187,20 +187,20 @@ editor.once('load', function() {
                         if (items.length) {
                             editor.call('selector:history', false);
                             editor.call('selector:set', selectorType, items);
-                            editor.once('selector:change', function() {
+                            editor.once('selector:change', function () {
                                 editor.call('selector:history', true);
                             });
                         }
                     }
                 },
-                redo: function() {
+                redo: function () {
                     var parent = editor.call('entities:get', parentId);
                     if (! parent)
                         return;
 
-                    var entities = [ ];
+                    var entities = [];
 
-                    for(var i = 0; i < data.length; i++) {
+                    for (var i = 0; i < data.length; i++) {
                         var entity = new Observer(data[i]);
                         entities.push(entity);
                         editor.call('entities:addEntity', entity, parent, false);
@@ -208,7 +208,7 @@ editor.once('load', function() {
 
                     editor.call('selector:history', false);
                     editor.call('selector:set', 'entity', entities);
-                    editor.once('selector:change', function() {
+                    editor.once('selector:change', function () {
                         editor.call('selector:history', true);
                     });
 

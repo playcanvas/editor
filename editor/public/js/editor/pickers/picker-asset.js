@@ -217,10 +217,11 @@ editor.once('load', function () {
     /**
      * Opens the asset picker. To get the selected asset(s) listen for the 'picker:asset' event or
      * the 'picker:assets' event if args.multi is true.
-     * @param {Object} args Arguments
-     * @param {String} [args.type] The asset type that this picker can pick. Can also be '*' for all
-     * @param {Boolean} [args.multi] Allows selection of multiple assets
-     * @param {Observer} [args.currentAsset] The currently selected asset
+     *
+     * @param {object} args - Arguments
+     * @param {string} [args.type] - The asset type that this picker can pick. Can also be '*' for all
+     * @param {boolean} [args.multi] - Allows selection of multiple assets
+     * @param {Observer} [args.currentAsset] - The currently selected asset
      */
     editor.method('picker:asset', function (args) {
         var type = args.type;
@@ -316,7 +317,7 @@ editor.once('load', function () {
         }
 
         editor.call('assets:filter:type', (pickerType === '*') ? 'all' : pickerType);
-        editor.call('assets:filter:type:disabled', (!pickerType || pickerType === '*') ? false : true);
+        editor.call('assets:filter:type:disabled', !((!pickerType || pickerType === '*')));
 
         // disable selector
         editor.call('selector:enabled', false);

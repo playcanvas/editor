@@ -310,19 +310,19 @@ editor.once('load', function () {
         Ajax.post('/editor/scene/{{scene.id}}/tips/reset', {});
 
         ['hierarchy',
-         'assets',
-         'store',
-         'dashboard',
-         'entityInspector',
-         'soundComponent',
-         'mainMenu',
-         'controls',
-         'launch',
-         'howdoi'].forEach(function (tip) {
+            'assets',
+            'store',
+            'dashboard',
+            'entityInspector',
+            'soundComponent',
+            'mainMenu',
+            'controls',
+            'launch',
+            'howdoi'].forEach(function (tip) {
             config.self.flags.tips[tip] = false;
-         });
+        });
 
-         showBubbles(100);
+        showBubbles(100);
     });
 
     var openedDemo = false;

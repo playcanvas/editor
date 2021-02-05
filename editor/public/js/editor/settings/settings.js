@@ -49,7 +49,7 @@ editor.once('load', function () {
                     // local -> server
                     settings.sync.on('op', function (op) {
                         if (doc)
-                            doc.submitOp([ op ]);
+                            doc.submitOp([op]);
                     });
                 }
 

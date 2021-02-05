@@ -1,14 +1,14 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var lastSelectionType = null;
-    var lastIds = [ ];
+    var lastIds = [];
     var selection = { };
     var timeout;
     var lastCheck = 0;
 
 
-    var checkSelector = function() {
+    var checkSelector = function () {
         timeout = null;
         lastCheck = Date.now();
 
@@ -16,13 +16,13 @@ editor.once('load', function() {
         var items = editor.call('selector:items');
 
         var selectionType = editor.call('selector:type');
-        var ids = [ ];
+        var ids = [];
 
         if (type === 'entity') {
-            for(var i = 0; i < items.length; i++)
+            for (var i = 0; i < items.length; i++)
                 ids.push(items[i].get('resource_id'));
         } else if (type === 'asset') {
-            for(var i = 0; i < items.length; i++) {
+            for (var i = 0; i < items.length; i++) {
                 var id = items[i].get('id');
                 if (items[i].get('type') === 'script' && ! id) {
                     ids.push(items[i].get('filename'));
@@ -44,7 +44,7 @@ editor.once('load', function() {
             if (ids.length !== lastIds.length) {
                 changed = true;
             } else {
-                for(var i = 0; i < ids.length; i++) {
+                for (var i = 0; i < ids.length; i++) {
                     if (ids[i] !== lastIds[i]) {
                         changed = true;
                         break;
@@ -64,7 +64,7 @@ editor.once('load', function() {
         }
     };
 
-    editor.on('selector:change', function(type, items) {
+    editor.on('selector:change', function (type, items) {
         if (timeout)
             return;
 
@@ -75,7 +75,7 @@ editor.once('load', function() {
         }
     });
 
-    editor.on('selector:sync:raw', function(data) {
+    editor.on('selector:sync:raw', function (data) {
         data = JSON.parse(data);
         var id = data.u;
 

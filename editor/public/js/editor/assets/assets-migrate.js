@@ -1,7 +1,7 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    var migrateAsset = function(asset) {
+    var migrateAsset = function (asset) {
         asset.history.enabled = false;
 
         if (asset.get('type') === 'material' && asset.get('data')) {
@@ -18,7 +18,7 @@ editor.once('load', function() {
                 asset.set('data.useGammaTonemap', true);
 
             if (! asset.get('data.cubeMapProjectionBox'))
-                asset.set('data.cubeMapProjectionBox', { center: [ 0, 0, 0 ], halfExtents: [ 0.5, 0.5, 0.5 ] });
+                asset.set('data.cubeMapProjectionBox', { center: [0, 0, 0], halfExtents: [0.5, 0.5, 0.5] });
 
             if (! asset.has('data.alphaToCoverage'))
                 asset.set('data.alphaToCoverage', false);
@@ -62,7 +62,7 @@ editor.once('load', function() {
 
             if (! asset.has('data.clearCoatGlossiness'))
                 asset.set('data.clearCoatGlossiness', 1.0);
-                
+
             if (! asset.has('data.clearCoatGlossMap'))
                 asset.set('data.clearCoatGlossMap', null);
 

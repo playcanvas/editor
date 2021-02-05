@@ -53,7 +53,7 @@ editor.once('load', function () {
         // add to selection if necessary
         if (keys && options && options.add) {
             var temp = prevHighlighted.slice();
-            for (var i = 0, len = keys.length; i<len; i++) {
+            for (var i = 0, len = keys.length; i < len; i++) {
                 if (temp.indexOf(keys[i]) === -1) {
                     temp.push(keys[i]);
                 }
@@ -83,7 +83,7 @@ editor.once('load', function () {
                     }
 
                     if (! spriteAsset) {
-                        selected = newSelection || newKeys[len-1];
+                        selected = newSelection || newKeys[len - 1];
 
                     }
                 }
@@ -323,7 +323,7 @@ editor.once('load', function () {
                     editor.call('picker:sprites:pickFrames:add');
                 });
             }
-        })
+        });
 
 
     };

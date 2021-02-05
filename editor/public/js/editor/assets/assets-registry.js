@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     editor.method('assets:registry:bind', function (assetRegistry, assetTypes) {
@@ -60,7 +60,7 @@ editor.once('load', function() {
             };
 
             var checkPath = /^(data|file)\b/;
-            var onUpdate = function(path, value) {
+            var onUpdate = function (path, value) {
                 var match = path.match(checkPath);
                 if (! match) return;
 
