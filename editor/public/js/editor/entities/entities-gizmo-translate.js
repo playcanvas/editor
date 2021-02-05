@@ -7,7 +7,6 @@ editor.once('load', function () {
     var vecA = new pc.Vec3();
     var vecB = new pc.Vec3();
     var vecC = new pc.Vec3();
-    var startPosition = new pc.Vec3();
     var timeoutUpdatePosition, timeoutUpdateRotation;
     var coordSystem = 'world';
     var app;

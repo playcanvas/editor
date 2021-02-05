@@ -1,8 +1,6 @@
 editor.once('load', function () {
     'use strict';
 
-    var settings = editor.call('settings:project');
-
     /**
      * Adds the specified component to the specified entities.
      *

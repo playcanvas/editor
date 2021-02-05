@@ -4,7 +4,6 @@ editor.once('load', function () {
     var app = editor.call('viewport:app');
     if (! app) return; // webgl not available
 
-    var defaultSize = new pc.Vec3(1, 1, 1);
     var defaultSizeSmall = new pc.Vec3(0.2, 0.2, 0.2);
     var aabb = new pc.BoundingBox();
     var aabbA = new pc.BoundingBox();

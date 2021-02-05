@@ -2,7 +2,6 @@ editor.once('load', function () {
     'use strict';
 
     var typing = 0;
-    var typingMessage;
     var users = { };
 
     editor.on('whoisonline:add', function (id) {

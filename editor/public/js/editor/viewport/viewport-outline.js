@@ -6,7 +6,6 @@ editor.once('load', function () {
 
     var renderer = app.renderer;
     var device = renderer.device;
-    var scene = app.scene;
 
     var users = [];
     var selection = { };

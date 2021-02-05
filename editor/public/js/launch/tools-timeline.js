@@ -4,7 +4,6 @@ editor.once('load', function() {
     // variables
     var enabled = editor.call('tools:enabled');
     var counter = 0;
-    var frame = 0;
     var scale = .2;
     var events = [ ];
     var cacheAssetLoading = { };

@@ -6,9 +6,6 @@ editor.once('load', function () {
     var quat = new pc.Quat();
     var quatB = new pc.Quat();
     var vecA = new pc.Vec3();
-    var vecB = new pc.Vec3();
-    var vecC = new pc.Vec3();
-    var startPosition = new pc.Vec3();
     var timeoutUpdatePosition, timeoutUpdateRotation;
     var coordSystem = 'world';
     var gizmoPos = new pc.Vec3();

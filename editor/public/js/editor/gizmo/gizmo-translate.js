@@ -19,10 +19,7 @@ editor.once('load', function () {
     var vecB = new pc.Vec3();
     var vecC = new pc.Vec3();
     var vecD = new pc.Vec3();
-    var vecE = new pc.Vec3();
     var quat = new pc.Quat();
-    var matA = new pc.Mat4();
-    var matB = new pc.Mat4();
     var evtTapStart;
     var pickStart = new pc.Vec3();
     var immediateRenderOptions;

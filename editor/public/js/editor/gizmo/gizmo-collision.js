@@ -7,7 +7,6 @@ editor.once('load', function () {
     var selected = { };
     // pool of gizmos
     var pool = [];
-    var poolVec3 = [];
     // colors
     var alphaFront = 0.6;
     var alphaBehind = 0.2;
@@ -743,7 +742,7 @@ editor.once('load', function () {
         // ================
         // cones
         models['cone-x'] = createModel({
-            mesh: pc.scene.procedural.createCone(app.graphicsDevice),
+            mesh: pc.createCone(app.graphicsDevice),
             matDefault: materialDefault,
             matBehind: materialBehind,
             matOccluder: materialOccluder
@@ -751,14 +750,14 @@ editor.once('load', function () {
         models['cone-x'].graph.setLocalEulerAngles(0, 0, -90);
         models['cone-x'].graph.setLocalScale(2, 1, 2);
         models['cone-y'] = createModel({
-            mesh: pc.scene.procedural.createCone(app.graphicsDevice),
+            mesh: pc.createCone(app.graphicsDevice),
             matDefault: materialDefault,
             matBehind: materialBehind,
             matOccluder: materialOccluder
         });
         models['cone-y'].graph.setLocalScale(2, 1, 2);
         models['cone-z'] = createModel({
-            mesh: pc.scene.procedural.createCone(app.graphicsDevice),
+            mesh: pc.createCone(app.graphicsDevice),
             matDefault: materialDefault,
             matBehind: materialBehind,
             matOccluder: materialOccluder
@@ -836,7 +835,7 @@ editor.once('load', function () {
         // capsules
 
         models['capsule-x'] = createModel({
-            mesh: pc.scene.procedural.createCapsule(app.graphicsDevice, {
+            mesh: pc.createCapsule(app.graphicsDevice, {
                 height: 2.0,
                 radius: 0.5
             }),
@@ -848,7 +847,7 @@ editor.once('load', function () {
         models['capsule-x'].graph.setLocalScale(2.0, 0.5, 2.0);
 
         models['capsule-y'] = createModel({
-            mesh: pc.scene.procedural.createCapsule(app.graphicsDevice, {
+            mesh: pc.createCapsule(app.graphicsDevice, {
                 height: 2.0,
                 radius: 0.5
             }),
@@ -859,7 +858,7 @@ editor.once('load', function () {
         models['capsule-y'].graph.setLocalScale(2.0, 0.5, 2.0);
 
         models['capsule-z'] = createModel({
-            mesh: pc.scene.procedural.createCapsule(app.graphicsDevice, {
+            mesh: pc.createCapsule(app.graphicsDevice, {
                 height: 2.0,
                 radius: 0.5
             }),

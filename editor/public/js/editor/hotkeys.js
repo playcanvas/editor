@@ -3,7 +3,6 @@ editor.once('load', function () {
 
     var hotkeys = { };
     var keyIndex = { };
-    var keysDown = { };
     var ctrl = false;
     var shift = false;
     var alt = false;

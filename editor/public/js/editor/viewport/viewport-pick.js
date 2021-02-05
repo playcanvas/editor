@@ -10,7 +10,6 @@ editor.once('load', function () {
         picked: null
     };
     var mouseCoords = new pc.Vec2();
-    var mouseTap = false;
     var inViewport = false;
     var picking = true;
     var filter = null;

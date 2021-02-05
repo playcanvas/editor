@@ -2,7 +2,6 @@ editor.once('load', function () {
     'use strict';
 
     var panel = editor.call('chat:panel');
-    var inputField = editor.call('chat:inputField');
     var number = 0;
 
     editor.on('visibility', function (state) {

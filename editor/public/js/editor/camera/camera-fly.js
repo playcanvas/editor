@@ -9,7 +9,6 @@ editor.once('viewport:load', function () {
     var flying = false;
     var flySpeed = 7;
     var flySpeedFast = 25;
-    var flySpeedTarget = 0;
     var flyEasing = 0.5;
     var flyVec = new pc.Vec3();
     var flyCamera = null;

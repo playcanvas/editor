@@ -54,7 +54,6 @@ editor.once('viewport:load', function () {
         var drawCallsCount = drawCalls.length;
 
         for (var i = 0; i < drawCallsCount; i++) {
-            var opChan = 'r';
             var meshInstance = drawCalls[i];
             if (! meshInstance.command && meshInstance.material && meshInstance.material.blendType === pc.BLEND_NONE) {
                 var mesh = meshInstance.mesh;
@@ -65,7 +64,6 @@ editor.once('viewport:load', function () {
                 if (material.opacityMap) {
                     renderer.opacityMapId.setValue(material.opacityMap);
                     renderer.alphaTestId.setValue(material.alphaTest);
-                    if (material.opacityMapChannel) opChan = material.opacityMapChannel;
                 }
 
                 if (meshInstance.skinInstance) {

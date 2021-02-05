@@ -7,13 +7,11 @@ editor.once('load', function () {
     var vecA = new pc.Vec3();
     var vecB = new pc.Vec3();
     var vecC = new pc.Vec3();
-    var startPosition = new pc.Vec3();
     var timeoutUpdatePosition, timeoutUpdateRotation;
     var app;
     var gizmoMoving = false;
     var gizmoAxis, gizmoMiddle;
     var linesColorActive = new pc.Color(1, 1, 1, 1);
-    var linesColor = new pc.Color(1, 1, 1, 0.2);
     var linesColorBehind = new pc.Color(1, 1, 1, 0.05);
     var immediateRenderOptions;
     var brightRenderOptions;

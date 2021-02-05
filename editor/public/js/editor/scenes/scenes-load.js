@@ -2,7 +2,6 @@ editor.once('load', function () {
     'use strict';
 
     var pushState = true;
-    var sceneSelected = false;
     var deletedScenes = {};
 
     var realtimeAuthenticated = false;

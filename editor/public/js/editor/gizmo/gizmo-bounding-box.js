@@ -10,8 +10,6 @@ editor.once('load', function () {
     var color = new pc.Color(1, 1, 1);
     var colorBehind = new pc.Color(1, 1, 1, 0.2);
 
-    var colorNew = new pc.Color(1, 0.5, 0);
-
     var immediateRenderOptions;
     var immediateMaskRenderOptions;
 

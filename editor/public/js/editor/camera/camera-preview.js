@@ -5,11 +5,8 @@ editor.once('load', function () {
     var currentCamera = null;  // current camera rendering to viewport
     var renderCamera = false;
     var pinnedCamera = null;   // camera that is currently pinned in preview
-    var enabled = false;
     var lastCamera = null;     // camera that was last set to preview
-    var oldLayers = null;
     var events = [];
-    var evtUpdate = null;
     var rect = new pc.Vec4(0, 0.8, 0.2, 0.2);
     var app = null;
     var previewLayer = null;
@@ -147,7 +144,6 @@ editor.once('load', function () {
             // stop rendering preview
             cameraPreviewBorder.classList.remove('active');
 
-
             if (previewLayer) previewLayer.enabled = false;
             if (lastCamera) {
                 // ### DISABLE CAMERA ###
@@ -157,9 +153,6 @@ editor.once('load', function () {
                 }
                 lastCamera = null;
             }
-
-
-            enabled = false;
         }
     };
 

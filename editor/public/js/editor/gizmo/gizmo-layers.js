@@ -30,8 +30,6 @@ editor.once('load', function () {
         }
 
         var index = insertToBeginning ? layerIndexBefore : layerIndexAfter;
-        var keys = Object.keys(index);
-        var previous = keys.length ? index[keys[keys.length - 1]] : null;
 
         index[data.id] = new pc.Layer(data);
         nameIndex[name] = index[data.id];

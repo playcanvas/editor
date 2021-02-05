@@ -1,8 +1,6 @@
 editor.once('load', function() {
     'use strict';
 
-    var timeout;
-
     var icon = document.createElement('img');
     icon.classList.add('connecting');
     icon.src = 'https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/platform/images/loader_transparent.gif';

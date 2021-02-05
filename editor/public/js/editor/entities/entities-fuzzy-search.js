@@ -1,7 +1,6 @@
 editor.once('load', function () {
     'use strict';
 
-
     editor.method('entities:fuzzy-search', function (query) {
         var items = [];
         var entities = editor.call('entities:list');

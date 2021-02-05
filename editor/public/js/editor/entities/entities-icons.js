@@ -26,8 +26,6 @@ editor.once('load', function () {
     var textures = { };
     var scale = 0.5;
     var cameraRotation = new pc.Quat();
-    var rotateMatrix = new pc.Mat4().setFromAxisAngle(pc.Vec3.LEFT, -90);
-    var quadMaterial = new pc.Material();
     var selectedIds = { };
 
     // icon class

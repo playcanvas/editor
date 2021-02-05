@@ -6,8 +6,6 @@ editor.once('load', function () {
 
     var canvas = editor.call('viewport:canvas');
     var evtPickHover = null;
-    var evtViewportHover = null;
-    var evtOnLoad = null;
     var hoverSkybox = null;
     var hoverMaterial = null;
     var hoverCubemap = null;
