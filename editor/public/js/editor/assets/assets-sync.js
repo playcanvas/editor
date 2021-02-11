@@ -63,7 +63,7 @@ editor.once('load', function () {
             doc.on('op', function (ops, local) {
                 if (local) return;
 
-                for (var i = 0; i < ops.length; i++) {
+                for (let i = 0; i < ops.length; i++) {
                     editor.emit('realtime:op:assets', ops[i], uniqueId);
                 }
             });
@@ -109,7 +109,7 @@ editor.once('load', function () {
         var connection = editor.call('realtime:connection');
         var assets = connection.collections.assets;
 
-        for (var i = 0; i < data.length; i++) {
+        for (let i = 0; i < data.length; i++) {
             if (! assets.hasOwnProperty(data[i].uniqueId))
                 continue;
 
@@ -152,7 +152,7 @@ editor.once('load', function () {
             while (startBatch < total) {
                 // start bulk subscribe
                 connection.startBulk();
-                for (var i = startBatch; i < startBatch + batchSize && i < total; i++) {
+                for (let i = startBatch; i < startBatch + batchSize && i < total; i++) {
                     load(data[i].uniqueId);
                 }
                 // end bulk subscribe and send message to server
@@ -267,7 +267,7 @@ editor.once('load', function () {
 
         var assets = [];
 
-        for (var i = 0; i < list.length; i++) {
+        for (let i = 0; i < list.length; i++) {
             if (legacyScripts && list[i].get('type') === 'script') {
                 editor.emit('sourcefiles:remove', list[i]);
                 Ajax({

@@ -350,7 +350,7 @@ editor.once('load', function () {
         var result = [];
 
         var listItems = container.innerElement.childNodes;
-        for (var i = 0; i < listItems.length; i++) {
+        for (let i = 0; i < listItems.length; i++) {
             if (listItems[i].ui.isSelected()) {
                 result.push(listItems[i].ui.sceneId);
             }
@@ -842,7 +842,7 @@ editor.once('load', function () {
             row.remove();
         }
 
-        for (var i = 0; i < scenes.length; i++) {
+        for (let i = 0; i < scenes.length; i++) {
             if (parseInt(scenes[i].id, 10) === sceneId) {
                 scenes.splice(i, 1);
                 break;

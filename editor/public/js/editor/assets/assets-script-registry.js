@@ -116,7 +116,7 @@ editor.once('load', function () {
             if (!collisionStates[script])
                 collisionStates[script] = {};
 
-            for (var i = 0; i < collides.length; i++) {
+            for (let i = 0; i < collides.length; i++) {
                 var key = collides[i].get('id');
                 if (collisionStates[script][key])
                     continue;
@@ -193,7 +193,7 @@ editor.once('load', function () {
         asset.on('*:set', function (path, value, old) {
             if (path === 'preload') {
                 var scripts = Object.keys(this.get('data.scripts'));
-                for (var i = 0; i < scripts.length; i++)
+                for (let i = 0; i < scripts.length; i++)
                     checkCollisions(this, scripts[i]);
 
                 return;

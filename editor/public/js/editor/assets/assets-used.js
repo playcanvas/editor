@@ -227,7 +227,7 @@ editor.once('load', function () {
             }
 
             if (value instanceof Array) {
-                for (var i = 0; i < value.length; i++) {
+                for (let i = 0; i < value.length; i++) {
                     updateAsset(this.get('resource_id'), 'entity', valueOld && valueOld[i] || null, value[i]);
                 }
             } else {
@@ -264,7 +264,7 @@ editor.once('load', function () {
                         var type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + parts[5] + '.type');
                         if (type === 'asset') {
                             if (value.attributes[parts[5]] instanceof Array) {
-                                for (var i = 0; i < value.attributes[parts[5]].length; i++) {
+                                for (let i = 0; i < value.attributes[parts[5]].length; i++) {
                                     updateAsset(this.get('resource_id'), 'entity', value.attributes[parts[5]][i], null);
                                 }
                             } else {
@@ -283,7 +283,7 @@ editor.once('load', function () {
                             var type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + attrName + '.type');
                             if (type === 'asset') {
                                 if (value.attributes[attrName] instanceof Array) {
-                                    for (var i = 0; i < value.attributes[attrName].length; i++) {
+                                    for (let i = 0; i < value.attributes[attrName].length; i++) {
                                         updateAsset(this.get('resource_id'), 'entity', value.attributes[attrName][i], null);
                                     }
                                 } else {
@@ -301,7 +301,7 @@ editor.once('load', function () {
             }
 
             if (value instanceof Array) {
-                for (var i = 0; i < value.length; i++) {
+                for (let i = 0; i < value.length; i++) {
                     updateAsset(this.get('resource_id'), 'entity', value[i], null);
                 }
             } else {
@@ -332,7 +332,7 @@ editor.once('load', function () {
             }
 
             if (value instanceof Array) {
-                for (var i = 0; i < value.length; i++) {
+                for (let i = 0; i < value.length; i++) {
                     updateAsset(this.get('resource_id'), 'entity', null, value[i]);
                 }
             } else {
@@ -474,7 +474,7 @@ editor.once('load', function () {
             if (type === 'model') {
                 var mapping = asset.get('data.mapping');
                 if (mapping) {
-                    for (var i = 0; i < mapping.length; i++)
+                    for (let i = 0; i < mapping.length; i++)
                         updateAsset(asset.get('id'), 'asset', null, mapping[i].material);
                 }
             }
@@ -506,7 +506,7 @@ editor.once('load', function () {
             if (!items || !items.length)
                 continue;
 
-            for (var i = 0; i < items.length; i++)
+            for (let i = 0; i < items.length; i++)
                 updateAsset(entity.get('resource_id'), 'entity', null, items[i]);
         }
 

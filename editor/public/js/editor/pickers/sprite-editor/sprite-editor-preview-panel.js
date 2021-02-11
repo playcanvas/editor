@@ -117,7 +117,7 @@ editor.once('load', function () {
 
             panelControls.destroy();
 
-            for (var i = 0, len = events.length; i < len; i++) {
+            for (let i = 0, len = events.length; i < len; i++) {
                 events[i].unbind();
             }
             events.length = 0;

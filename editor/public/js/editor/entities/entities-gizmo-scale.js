@@ -85,7 +85,7 @@ editor.once('load', function () {
         gizmoMiddle = middle;
         gizmoMoving = true;
 
-        for (var i = 0; i < items.length; i++) {
+        for (let i = 0; i < items.length; i++) {
             var scale = items[i].obj.get('scale');
             items[i].start[0] = scale[0];
             items[i].start[1] = scale[1];
@@ -100,7 +100,7 @@ editor.once('load', function () {
         gizmoMoving = false;
         var records = [];
 
-        for (var i = 0; i < items.length; i++) {
+        for (let i = 0; i < items.length; i++) {
             items[i].obj.history.enabled = true;
 
             records.push({
@@ -113,7 +113,7 @@ editor.once('load', function () {
         editor.call('history:add', {
             name: 'entities.scale',
             undo: function () {
-                for (var i = 0; i < records.length; i++) {
+                for (let i = 0; i < records.length; i++) {
                     var item = records[i].item.latest();
                     if (! item)
                         continue;
@@ -124,7 +124,7 @@ editor.once('load', function () {
                 }
             },
             redo: function () {
-                for (var i = 0; i < records.length; i++) {
+                for (let i = 0; i < records.length; i++) {
                     var item = records[i].item.latest();
                     if (! item)
                         continue;
@@ -139,7 +139,7 @@ editor.once('load', function () {
 
     // scaled
     var onGizmoOffset = function (x, y, z) {
-        for (var i = 0; i < items.length; i++) {
+        for (let i = 0; i < items.length; i++) {
             if (items[i].child)
                 continue;
 
@@ -157,7 +157,7 @@ editor.once('load', function () {
         if (gizmoMoving) {
             var camera = editor.call('camera:current');
 
-            for (var i = 0; i < items.length; i++) {
+            for (let i = 0; i < items.length; i++) {
                 if (items[i].child)
                     continue;
 
@@ -191,7 +191,7 @@ editor.once('load', function () {
             }
         } else {
             var dirty = false;
-            for (var i = 0; i < items.length; i++) {
+            for (let i = 0; i < items.length; i++) {
                 if (! items[i].obj.entity)
                     continue;
 
@@ -225,11 +225,11 @@ editor.once('load', function () {
 
     var updateChildRelation = function () {
         var itemIds = { };
-        for (var i = 0; i < items.length; i++) {
+        for (let i = 0; i < items.length; i++) {
             itemIds[items[i].obj.get('resource_id')] = items[i];
         }
 
-        for (var i = 0; i < items.length; i++) {
+        for (let i = 0; i < items.length; i++) {
             var child = false;
             var parent = items[i].obj.entity._parent;
             var id = '';
@@ -253,13 +253,13 @@ editor.once('load', function () {
 
         var objects = editor.call('selector:items');
 
-        for (var i = 0; i < events.length; i++)
+        for (let i = 0; i < events.length; i++)
             events[i].unbind();
         events = [];
         items = [];
 
         if (editor.call('selector:type') === 'entity' && editor.call('gizmo:type') === 'scale') {
-            for (var i = 0; i < objects.length; i++) {
+            for (let i = 0; i < objects.length; i++) {
                 if (! objects[i].entity)
                     continue;
 

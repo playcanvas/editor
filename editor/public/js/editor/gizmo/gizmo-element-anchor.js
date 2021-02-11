@@ -227,7 +227,7 @@ editor.once('load', function () {
                     offset.sub(pickStart);
                     anchorDirty = true;
 
-                    for (var i = 0; i < 4; i++)
+                    for (let i = 0; i < 4; i++)
                         anchorCurrent[i] = anchorStart[i];
 
                     if (gizmoAnchor.handle === gizmoAnchor.handles.tr || gizmoAnchor.handle === gizmoAnchor.handles.tl) {

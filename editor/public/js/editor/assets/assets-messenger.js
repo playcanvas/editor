@@ -33,7 +33,7 @@ editor.once('load', function () {
 
     // remove multiple
     editor.on('messenger:assets.delete', function (data) {
-        for (var i = 0; i < data.assets.length; i++) {
+        for (let i = 0; i < data.assets.length; i++) {
             var asset = editor.call('assets:getUnique', parseInt(data.assets[i], 10));
             if (! asset) continue;
             editor.call('assets:remove', asset);

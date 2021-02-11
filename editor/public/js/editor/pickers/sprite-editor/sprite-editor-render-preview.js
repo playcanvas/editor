@@ -41,7 +41,7 @@ editor.once('load', function () {
             var rightBound = Number.NEGATIVE_INFINITY;
             var bottomBound = Number.POSITIVE_INFINITY;
             var topBound = Number.NEGATIVE_INFINITY;
-            for (var i = 0, len = allFrames.length; i < len; i++) {
+            for (let i = 0, len = allFrames.length; i < len; i++) {
                 var f = allFrames[i];
                 if (! f) continue;
 

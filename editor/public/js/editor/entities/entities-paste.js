@@ -378,7 +378,7 @@ editor.once('load', function () {
         }
 
         // reparent children after they're all added
-        for (var i = 0; i < newEntities.length; i++) {
+        for (let i = 0; i < newEntities.length; i++) {
             entity = newEntities[i];
             var parentEntity = editor.call('entities:get', entity.get('parent'));
 
@@ -436,7 +436,7 @@ editor.once('load', function () {
 
                 var entities = [];
                 // re-add entities
-                for (var i = 0; i < selectedEntities.length; i++) {
+                for (let i = 0; i < selectedEntities.length; i++) {
                     var fromCache = editor.call('entities:getFromDeletedCache', selectedEntities[i].get('resource_id'));
                     if (!fromCache) continue;
 

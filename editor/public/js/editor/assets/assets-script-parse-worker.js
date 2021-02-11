@@ -115,7 +115,7 @@ var parseScript = function (id, url, engine) {
                 }
 
                 if (defaultValidators[args.type]) {
-                    for (var i = 0; i < args.default.length; i++) {
+                    for (let i = 0; i < args.default.length; i++) {
                         const err = defaultValidators[args.type](args.default[i], args.schema);
                         if (err) {
                             return `invalid default value at index ${i} - ${err}`;

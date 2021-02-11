@@ -87,7 +87,7 @@ editor.once('load', function () {
                 if (! model) {
                     // no in pool
                     model = models[this.type].clone();
-                    for (var i = 0; i < model.meshInstances.length; i++) {
+                    for (let i = 0; i < model.meshInstances.length; i++) {
                         model.meshInstances[i].__useFrontLayer = models[this.type].meshInstances[i].__useFrontLayer;
                         // model.meshInstances[i].mask = GIZMO_MASK;
                     }
@@ -180,7 +180,7 @@ editor.once('load', function () {
         if (! this._link)
             return;
 
-        for (var i = 0; i < this.events.length; i++)
+        for (let i = 0; i < this.events.length; i++)
             this.events[i].unbind();
 
         this.events = [];
@@ -213,7 +213,7 @@ editor.once('load', function () {
 
         // index selection
         var ids = { };
-        for (var i = 0; i < items.length; i++)
+        for (let i = 0; i < items.length; i++)
             ids[items[i].get('resource_id')] = items[i];
 
         var render = false;
@@ -393,7 +393,7 @@ editor.once('load', function () {
         buffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, segments * 2);
         iterator = new pc.VertexIterator(buffer);
         // xz axis
-        for (var i = 0; i < segments; i++) {
+        for (let i = 0; i < segments; i++) {
             iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), Math.cos(360 / segments * i * rad), 0);
             iterator.next();
             iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * (i + 1) * rad), Math.cos(360 / segments * (i + 1) * rad), 0);
@@ -434,7 +434,7 @@ editor.once('load', function () {
         buffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, segments * 2 * 3);
         iterator = new pc.VertexIterator(buffer);
         // circles
-        for (var i = 0; i < segments; i++) {
+        for (let i = 0; i < segments; i++) {
             iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), 0, Math.cos(360 / segments * i * rad));
             iterator.next();
             iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * (i + 1) * rad), 0, Math.cos(360 / segments * (i + 1) * rad));
@@ -498,7 +498,7 @@ editor.once('load', function () {
         iterator.element[pc.SEMANTIC_ATTR15].set(1);
         iterator.next();
         // circles
-        for (var i = 0; i < segments; i++) {
+        for (let i = 0; i < segments; i++) {
             // inner
             iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), -1, Math.cos(360 / segments * i * rad));
             iterator.element[pc.SEMANTIC_ATTR15].set(0);

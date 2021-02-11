@@ -8,7 +8,7 @@ editor.once('load', function () {
         description: 'Text containing GLSL to be used in the application.'
     }];
 
-    for (var i = 0; i < fields.length; i++) {
+    for (let i = 0; i < fields.length; i++) {
         fields[i].name = 'asset:shader:' + (fields[i].name || fields[i].title);
         editor.call('attributes:reference:add', fields[i]);
     }

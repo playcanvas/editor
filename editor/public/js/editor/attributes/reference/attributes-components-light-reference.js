@@ -165,7 +165,7 @@ editor.once('load', function () {
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#layers'
     }];
 
-    for (var i = 0; i < fields.length; i++) {
+    for (let i = 0; i < fields.length; i++) {
         fields[i].name = 'light:' + (fields[i].name || fields[i].title);
         editor.call('attributes:reference:add', fields[i]);
     }

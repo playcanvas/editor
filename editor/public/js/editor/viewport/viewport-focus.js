@@ -12,7 +12,7 @@ editor.once('load', function () {
         aabbA.add(editor.call('entities:getBoundingBoxForEntity', entity));
 
         var children = entity.children;
-        for (var i = 0; i < children.length; i++) {
+        for (let i = 0; i < children.length; i++) {
             if (! (children[i] instanceof pc.Entity) || children[i].__editor)
                 continue;
 
@@ -38,7 +38,7 @@ editor.once('load', function () {
         aabb.halfExtents.copy(defaultSizeSmall);
 
         // calculate aabb for selected entities
-        for (var i = 0; i < items.length; i++) {
+        for (let i = 0; i < items.length; i++) {
             var entity = items[i].entity;
 
             if (! entity)

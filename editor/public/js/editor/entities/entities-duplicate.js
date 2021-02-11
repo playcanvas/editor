@@ -159,7 +159,7 @@ editor.once('load', function () {
         if (attributeDef.array) {
             // remap entity array
             newValue = previousValue.slice();
-            for (var i = 0; i < newValue.length; i++) {
+            for (let i = 0; i < newValue.length; i++) {
                 if (!newValue[i] || !duplicatedIdsMap[newValue[i]]) continue;
                 newValue[i] = duplicatedIdsMap[newValue[i]];
                 dirty = true;
@@ -193,7 +193,7 @@ editor.once('load', function () {
         // stopping when the string we are constructing is no longer a valid number
         var numberString = '';
         var foundNumber = true;
-        for (var i = entityName.length - 1; i >= 0; i--) {
+        for (let i = entityName.length - 1; i >= 0; i--) {
             var char = entityName.charAt(i);
             if (foundNumber) {
                 numberString = char + numberString;
@@ -432,7 +432,7 @@ editor.once('load', function () {
             redo: function () {
                 var entities = [];
 
-                for (var i = 0; i < entitiesNewData.length; i++) {
+                for (let i = 0; i < entitiesNewData.length; i++) {
                     var id = entitiesNewData[i].resource_id;
                     var meta = entitiesNewMeta[id];
                     if (!meta)

@@ -57,7 +57,7 @@ editor.once('load', function () {
 
         visible = state;
 
-        for (var i = 0; i < gizmo.hoverable.length; i++) {
+        for (let i = 0; i < gizmo.hoverable.length; i++) {
             if (! gizmo.hoverable[i].model)
                 continue;
 

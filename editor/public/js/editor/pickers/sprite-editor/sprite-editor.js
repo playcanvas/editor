@@ -581,7 +581,7 @@ editor.once('load', function () {
             if (oldFrame) {
                 var frame = atlasAsset.getRaw('data.frames.' + selected)._data;
                 var dirty = false;
-                for (var i = 0; i < 4; i++) {
+                for (let i = 0; i < 4; i++) {
                     if (oldFrame.rect[i] !== frame.rect[i]) {
                         dirty = true;
                         break;
@@ -595,7 +595,7 @@ editor.once('load', function () {
                 }
 
                 if (!dirty) {
-                    for (var i = 0; i < 2; i++) {
+                    for (let i = 0; i < 2; i++) {
                         if (oldFrame.pivot[i] !== frame.pivot[i]) {
                             dirty = true;
                             break;
@@ -1128,7 +1128,7 @@ editor.once('load', function () {
         ctx.beginPath();
         ctx.lineWidth = 1;
         ctx.strokeStyle = spriteAsset ? COLOR_ORANGE : COLOR_DARK;
-        for (var i = 0, len = highlightedFrames.length; i < len; i++) {
+        for (let i = 0, len = highlightedFrames.length; i < len; i++) {
             var key = highlightedFrames[i];
             if (selected && selected === key) continue;
 
@@ -1149,7 +1149,7 @@ editor.once('load', function () {
         ctx.beginPath();
         ctx.lineWidth = 1;
         ctx.strokeStyle = COLOR_DARK;
-        for (var i = 0, len = newSpriteFrames.length; i < len; i++) {
+        for (let i = 0, len = newSpriteFrames.length; i < len; i++) {
             var key = newSpriteFrames[i];
 
             // check if frame no longer exists
@@ -1168,7 +1168,7 @@ editor.once('load', function () {
         ctx.lineWidth = 1;
         ctx.setLineDash([4]);
         if (!spriteEditMode) {
-            for (var i = 0, len = highlightedFrames.length; i < len; i++) {
+            for (let i = 0, len = highlightedFrames.length; i < len; i++) {
                 var key = highlightedFrames[i];
                 if (selected && selected === key) continue;
                 renderBorderLines(frames[key]._data, left, top, width, height);
@@ -1935,7 +1935,7 @@ editor.once('load', function () {
         middlePanel.class.remove('grab');
         middlePanel.class.remove('grabbing');
 
-        for (var i = 0; i < events.length; i++) {
+        for (let i = 0; i < events.length; i++) {
             events[i].unbind();
         }
         events.length = 0;

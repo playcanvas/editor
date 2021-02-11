@@ -163,7 +163,7 @@ editor.once('load', function () {
                             // TODO scritps2
                             // move attribute
                             var attrIndex = { };
-                            for (var i = 0; i < attributesOrder.length; i++)
+                            for (let i = 0; i < attributesOrder.length; i++)
                                 attrIndex[attributesOrder[i]] = i;
 
                             var scriptAttributeOrder = asset.get('data.scripts.' + key + '.attributesOrder');

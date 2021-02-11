@@ -66,7 +66,7 @@ editor.once('load', function () {
     };
 
     var subscribe = function (watch) {
-        for (var i = 0; i < slots.length; i++) {
+        for (let i = 0; i < slots.length; i++) {
             var textureId = watch.asset.get('data.' + slots[i]);
             if (textureId)
                 addTextureWatch(watch, slots[i], textureId);
@@ -81,7 +81,7 @@ editor.once('load', function () {
 
         watch.watching.all = watch.asset.on('data:set', function (value) {
             if (value) {
-                for (var i = 0; i < slots.length; i++) {
+                for (let i = 0; i < slots.length; i++) {
                     var id = value[slots[i]];
                     if (watch.textures[slots[i]]) {
                         if (id !== watch.textures[slots[i]].id) {
@@ -93,14 +93,14 @@ editor.once('load', function () {
                     }
                 }
             } else {
-                for (var i = 0; i < slots.length; i++) {
+                for (let i = 0; i < slots.length; i++) {
                     if (watch.textures[slots[i]])
                         removeTextureWatch(watch, slots[i]);
                 }
             }
         });
 
-        for (var i = 0; i < slots.length; i++)
+        for (let i = 0; i < slots.length; i++)
             addSlotWatch(watch, slots[i]);
     };
 

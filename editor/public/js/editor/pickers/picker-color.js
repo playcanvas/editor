@@ -13,7 +13,7 @@ editor.once('load', function () {
     // make hex out of channels
     var getHex = function () {
         var hex = '';
-        for (var i = 0; i < channelsNumber; i++) {
+        for (let i = 0; i < channelsNumber; i++) {
             hex += ('00' + channels[i].value.toString(16)).slice(-2).toUpperCase();
         }
         return hex;
@@ -31,7 +31,7 @@ editor.once('load', function () {
 
         directInput = false;
         var rgb = hsv2rgb([colorHSV[0], colorHSV[1], colorHSV[2]]);
-        for (var i = 0; i < 3; i++) {
+        for (let i = 0; i < 3; i++) {
             channels[i].value = rgb[i];
         }
         fieldHex.value = getHex();
@@ -61,7 +61,7 @@ editor.once('load', function () {
         colorHSV[0] = h;
 
         directInput = false;
-        for (var i = 0; i < 3; i++) {
+        for (let i = 0; i < 3; i++) {
             channels[i].value = rgb[i];
         }
         fieldHex.value = getHex();
@@ -109,7 +109,7 @@ editor.once('load', function () {
 
         var hex = fieldHex.value.trim().toLowerCase();
         if (/^([0-9a-f]{2}){3,4}$/.test(hex)) {
-            for (var i = 0; i < channelsNumber; i++) {
+            for (let i = 0; i < channelsNumber; i++) {
                 channels[i].value = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
             }
         }
@@ -382,7 +382,7 @@ editor.once('load', function () {
     // call picker
     editor.method('picker:color', function (color) {
         // class for channels
-        for (var i = 0; i < 4; i++) {
+        for (let i = 0; i < 4; i++) {
             if (color.length - 1 < i) {
                 overlay.class.remove('c-' + (i + 1));
             } else {
@@ -402,7 +402,7 @@ editor.once('load', function () {
 
         // set fields
         directInput = false;
-        for (var i = 0; i < color.length; i++) {
+        for (let i = 0; i < color.length; i++) {
             channels[i].value = color[i];
         }
         fieldHex.value = getHex();
@@ -447,7 +447,7 @@ editor.once('load', function () {
 
         // set fields
         directInput = false;
-        for (var i = 0; i < color.length; i++) {
+        for (let i = 0; i < color.length; i++) {
             channels[i].value = color[i];
         }
         fieldHex.value = getHex();

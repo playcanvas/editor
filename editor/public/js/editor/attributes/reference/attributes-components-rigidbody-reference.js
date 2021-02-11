@@ -54,7 +54,7 @@ editor.once('load', function () {
         url: 'http://developer.playcanvas.com/api/pc.RigidBodyComponent.html#type'
     }];
 
-    for (var i = 0; i < fields.length; i++) {
+    for (let i = 0; i < fields.length; i++) {
         fields[i].name = 'rigidbody:' + (fields[i].name || fields[i].title);
         editor.call('attributes:reference:add', fields[i]);
     }

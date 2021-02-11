@@ -36,7 +36,7 @@ editor.once('load', function () {
         // Build index of conflicts so that the conflicts become
         // a hierarchical object
         var index = {};
-        for (var i = 0, len = conflicts.data.length; i < len; i++) {
+        for (let i = 0, len = conflicts.data.length; i < len; i++) {
             var conflict = conflicts.data[i];
             var parts = conflict.path.split('.');
             var target = index;

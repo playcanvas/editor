@@ -165,7 +165,7 @@ editor.once('load', function () {
     };
 
     var keys = Object.keys(assets);
-    for (var i = 0; i < keys.length; i++) {
+    for (let i = 0; i < keys.length; i++) {
         if (! assets.hasOwnProperty(keys[i]))
             continue;
 
@@ -242,7 +242,7 @@ editor.once('load', function () {
 
             if (type === 'asset') {
                 items = editor.call('selector:items');
-                for (var i = 0; i < items.length; i++) {
+                for (let i = 0; i < items.length; i++) {
                     // if the asset that was right-clicked is in the selection
                     // then include all the other selected items
                     // otherwise only copy the right-clicked item
@@ -434,7 +434,7 @@ editor.once('load', function () {
 
             if (type === 'asset') {
                 items = editor.call('selector:items');
-                for (var i = 0; i < items.length; i++) {
+                for (let i = 0; i < items.length; i++) {
                     // if the asset that was right-clicked is in the selection
                     // then include all the other selected items in the delete
                     // otherwise only delete the right-clicked item
@@ -661,7 +661,7 @@ editor.once('load', function () {
 
                     });
 
-                    for (var i = 0; i < menuItems.length; i++)
+                    for (let i = 0; i < menuItems.length; i++)
                         menuItemReferences.append(menuItems[i].element);
                 } else {
                     menuItemReferences.hidden = true;
@@ -703,7 +703,7 @@ editor.once('load', function () {
             menuItemOpenInViewer.hidden = true;
         }
 
-        for (var i = 0; i < customMenuItems.length; i++) {
+        for (let i = 0; i < customMenuItems.length; i++) {
             if (! customMenuItems[i].filter)
                 continue;
 

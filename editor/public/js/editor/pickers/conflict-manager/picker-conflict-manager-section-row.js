@@ -41,7 +41,7 @@ editor.once('load', function () {
         var values = this._convertValues(self._conflict);
 
         // Create 3 panels for base, source and destionation values
-        for (var i = 0; i < 3; i++) {
+        for (let i = 0; i < 3; i++) {
             var panel = new ui.Panel();
             panel.class.add('conflict-field');
             var isArray = self._types[i].startsWith('array:');
@@ -375,13 +375,13 @@ editor.once('load', function () {
     };
 
     ConflictSectionRow.prototype._onHover = function () {
-        for (var i = 0; i < 3; i++) {
+        for (let i = 0; i < 3; i++) {
             this._panels[i].class.add('hovered');
         }
     };
 
     ConflictSectionRow.prototype._onUnHover = function () {
-        for (var i = 0; i < 3; i++) {
+        for (let i = 0; i < 3; i++) {
             this._panels[i].class.remove('hovered');
         }
     };
@@ -456,7 +456,7 @@ editor.once('load', function () {
 
     // Appends all row panels to parent panels
     ConflictSectionRow.prototype.appendToParents = function (parents) {
-        for (var i = 0; i < parents.length; i++) {
+        for (let i = 0; i < parents.length; i++) {
             parents[i].append(this._panels[i]);
         }
     };

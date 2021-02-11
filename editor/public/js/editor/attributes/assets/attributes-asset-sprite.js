@@ -7,7 +7,7 @@ editor.once('load', function () {
             return;
         var root = editor.call('attributes.rootPanel');
 
-        for (var i = 0; i < assets.length; i++) {
+        for (let i = 0; i < assets.length; i++) {
             if (assets[i].get('type') !== 'sprite')
                 return;
         }
@@ -178,7 +178,7 @@ editor.once('load', function () {
                 renderAnimationFrame = null;
             }
 
-            for (var i = 0; i < events.length; i++) {
+            for (let i = 0; i < events.length; i++) {
                 events[i].unbind();
             }
             events.length = 0;

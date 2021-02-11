@@ -766,7 +766,7 @@ Object.assign(pcui, (function () {
             }
 
             function redo() {
-                for (var i = 0; i < entities.length; i++) {
+                for (let i = 0; i < entities.length; i++) {
                     const entity = entities[i].latest();
                     if (!entity || !entity.has('components.element')) continue;
 

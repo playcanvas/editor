@@ -21,7 +21,7 @@ editor.once('load', function () {
     // graph, we still want the positions to stay the same after the page
     // is refreshed.
     editor.method('entities:layout:storeLayout', function (childEntityIds) {
-        for (var i = 0; i < childEntityIds.length; ++i) {
+        for (let i = 0; i < childEntityIds.length; ++i) {
             var entity = editor.call('entities:get', childEntityIds[i]);
             var historyEnabled = entity.history.enabled;
             entity.history.enabled = false;

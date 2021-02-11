@@ -29,7 +29,7 @@ editor.once('load', function () {
         });
 
         var addGizmoLayers = function (camera, layers) {
-            for (var i = 0; i < layers.length; i++) {
+            for (let i = 0; i < layers.length; i++) {
                 var layer = layers[i];
                 var idx = camera.layers.indexOf(layer.id);
                 if (idx === -1) {
@@ -40,7 +40,7 @@ editor.once('load', function () {
         };
 
         var removeGizmoLayers = function (camera, layers) {
-            for (var i = 0; i < layers.length; i++) {
+            for (let i = 0; i < layers.length; i++) {
                 var layer = layers[i];
                 var idx = camera.layers.indexOf(layer.id);
                 if (idx !== -1) {
@@ -242,7 +242,7 @@ editor.once('load', function () {
         };
 
         // add default cameras
-        for (var i = 0; i < list.length; i++) {
+        for (let i = 0; i < list.length; i++) {
             var entity = createCamera(list[i]);
 
             editor.call('camera:add', entity);

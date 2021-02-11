@@ -27,7 +27,7 @@ editor.once('load', function () {
         };
 
         // validate lightmapped entities
-        for (var i = 0; i < entities.length; i++) {
+        for (let i = 0; i < entities.length; i++) {
             var obj = entities[i];
 
             // might be primitive
@@ -84,7 +84,7 @@ editor.once('load', function () {
         if (! entities.length)
             return;
 
-        for (var i = 0; i < entities.length; i++)
+        for (let i = 0; i < entities.length; i++)
             entities[i].entity.light.light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
 
         editor.call('viewport:render');

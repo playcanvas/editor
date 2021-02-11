@@ -394,7 +394,7 @@ editor.once('load', function () {
             }));
         }
         fieldShader.once('destroy', function () {
-            for (var i = 0; i < evtFresnelModel.length; i++)
+            for (let i = 0; i < evtFresnelModel.length; i++)
                 evtFresnelModel[i].unbind();
         });
 
@@ -410,7 +410,7 @@ editor.once('load', function () {
             var offset = assets[0].get('data.' + mappingMaps[0] + 'MapOffset');
             var tiling = assets[0].get('data.' + mappingMaps[0] + 'MapTiling');
 
-            for (var i = 0; i < assets.length; i++) {
+            for (let i = 0; i < assets.length; i++) {
                 for (var m = 0; m < mappingMaps.length; m++) {
                     if (i === 0 && m === 0)
                         continue;
@@ -486,7 +486,7 @@ editor.once('load', function () {
                 editor.call('history:add', {
                     name: 'assets.materials.tiling-offset',
                     undo: function () {
-                        for (var i = 0; i < items.length; i++) {
+                        for (let i = 0; i < items.length; i++) {
                             var item = items[i].item.latest();
                             if (!item) continue;
 
@@ -497,7 +497,7 @@ editor.once('load', function () {
                         }
                     },
                     redo: function () {
-                        for (var i = 0; i < items.length; i++) {
+                        for (let i = 0; i < items.length; i++) {
                             var item = items[i].item.latest();
                             if (!item) continue;
 
@@ -552,7 +552,7 @@ editor.once('load', function () {
             var items = [];
 
             tilingOffsetsChanging = true;
-            for (var i = 0; i < assets.length; i++) {
+            for (let i = 0; i < assets.length; i++) {
                 assets[i].history.enabled = false;
                 for (var m = 0; m < mappingMaps.length; m++) {
                     var path = 'data.' + mappingMaps[m] + 'Map' + type;
@@ -578,7 +578,7 @@ editor.once('load', function () {
             editor.call('history:add', {
                 name: 'assets.materials.' + type + '.' + field,
                 undo: function () {
-                    for (var i = 0; i < items.length; i++) {
+                    for (let i = 0; i < items.length; i++) {
                         var item = items[i].item.latest();
                         if (!item) continue;
 
@@ -588,7 +588,7 @@ editor.once('load', function () {
                     }
                 },
                 redo: function () {
-                    for (var i = 0; i < items.length; i++) {
+                    for (let i = 0; i < items.length; i++) {
                         var item = items[i].item.latest();
                         if (!item) continue;
 
@@ -693,7 +693,7 @@ editor.once('load', function () {
             var parts = filename.split(/(\-|_|\.)/g);
             var tokens = [];
 
-            for (var i = 0; i < parts.length; i++) {
+            for (let i = 0; i < parts.length; i++) {
                 if (parts[i] === '-' || parts[i] === '_' || parts[i] === '.')
                     continue;
 
@@ -734,7 +734,7 @@ editor.once('load', function () {
             });
 
             var candidates = {};
-            for (var i = 0; i < textures.length; i++) {
+            for (let i = 0; i < textures.length; i++) {
                 var t = tokenizeFilename(textures[i][1].get('name'));
 
                 if (!t || t[0] !== tokens[0] || !postfixToSlot[t[1]])
@@ -888,7 +888,7 @@ editor.once('load', function () {
                 editor.call('history:add', {
                     name: 'material textures auto-bind',
                     undo: function () {
-                        for (var i = 0; i < records.length; i++) {
+                        for (let i = 0; i < records.length; i++) {
                             var asset = editor.call('assets:get', records[i].id);
                             if (!asset)
                                 continue;
@@ -900,7 +900,7 @@ editor.once('load', function () {
                         }
                     },
                     redo: function () {
-                        for (var i = 0; i < records.length; i++) {
+                        for (let i = 0; i < records.length; i++) {
                             var asset = editor.call('assets:get', records[i].id);
                             if (!asset)
                                 continue;
@@ -2907,7 +2907,7 @@ editor.once('load', function () {
             var field = item.tiling || item.offset;
             var onChange = function () {
                 var path = item.path;
-                for (var i = 0, len = assets.length; i < len; i++) {
+                for (let i = 0, len = assets.length; i < len; i++) {
                     if (missingPaths[assets[i].get('id') + '.' + path]) {
                         assets[i].set(path, [field[0].value, field[1].value]);
                         delete missingPaths[assets[i].get('id') + '.' + path];

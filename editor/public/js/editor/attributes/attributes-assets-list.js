@@ -162,7 +162,7 @@ editor.once('load', function () {
         var addAssets = function (assetIds) {
             var records = [];
 
-            for (var i = 0; i < link.length; i++) {
+            for (let i = 0; i < link.length; i++) {
                 var path = pathAt(args, i);
 
                 for (var j = 0; j < assetIds.length; j++) {
@@ -187,7 +187,7 @@ editor.once('load', function () {
             editor.call('history:add', {
                 name: pathAt(args, 0),
                 undo: function () {
-                    for (var i = 0; i < records.length; i++) {
+                    for (let i = 0; i < records.length; i++) {
                         var item = records[i].item.latest();
                         if (!item) continue;
 
@@ -197,7 +197,7 @@ editor.once('load', function () {
                     }
                 },
                 redo: function () {
-                    for (var i = 0; i < records.length; i++) {
+                    for (let i = 0; i < records.length; i++) {
                         var item = records[i].item.latest();
                         if (!item) continue;
 
@@ -213,7 +213,7 @@ editor.once('load', function () {
         var removeAsset = function (assetId) {
             var records = [];
 
-            for (var i = 0; i < link.length; i++) {
+            for (let i = 0; i < link.length; i++) {
                 var path = pathAt(args, i);
                 var ind = link[i].get(path).indexOf(assetId);
                 if (ind === -1)
@@ -234,7 +234,7 @@ editor.once('load', function () {
             editor.call('history:add', {
                 name: pathAt(args, 0),
                 undo: function () {
-                    for (var i = 0; i < records.length; i++) {
+                    for (let i = 0; i < records.length; i++) {
                         var item = records[i].item.latest();
                         if (!item) continue;
 
@@ -244,7 +244,7 @@ editor.once('load', function () {
                     }
                 },
                 redo: function () {
-                    for (var i = 0; i < records.length; i++) {
+                    for (let i = 0; i < records.length; i++) {
                         var item = records[i].item.latest();
                         if (!item) continue;
 
@@ -359,7 +359,7 @@ editor.once('load', function () {
 
                 // already added
                 var id = parseInt(data.id, 10);
-                for (var i = 0; i < link.length; i++) {
+                for (let i = 0; i < link.length; i++) {
                     if (link[i].get(pathAt(args, i)).indexOf(id) === -1)
                         return true;
                 }
@@ -442,7 +442,7 @@ editor.once('load', function () {
         };
 
         // list
-        for (var i = 0; i < link.length; i++) {
+        for (let i = 0; i < link.length; i++) {
             var assets = link[i].get(pathAt(args, i));
             if (assets) {
                 for (var a = 0; a < assets.length; a++)
@@ -498,7 +498,7 @@ editor.once('load', function () {
         fieldFilter.on('change', filterAssets);
 
         fieldAssetsList.once('destroy', function () {
-            for (var i = 0; i < events.length; i++) {
+            for (let i = 0; i < events.length; i++) {
                 events[i].unbind();
             }
 

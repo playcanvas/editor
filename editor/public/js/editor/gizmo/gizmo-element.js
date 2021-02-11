@@ -5,7 +5,7 @@ editor.once('load', function () {
     var cornerColor = new pc.Color(1, 1, 1, 0.9);
     var visible = true;
 
-    for (var i = 0; i < 8; i++) {
+    for (let i = 0; i < 8; i++) {
         corners.push(new pc.Vec3());
     }
 
@@ -29,7 +29,7 @@ editor.once('load', function () {
             }
 
             var selected = editor.call('selector:itemsRaw');
-            for (var i = 0, len = selected.length; i < len; i++) {
+            for (let i = 0, len = selected.length; i < len; i++) {
                 var item = selected[i];
 
                 var entity = item.entity;

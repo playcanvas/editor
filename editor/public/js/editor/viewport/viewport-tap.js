@@ -45,7 +45,7 @@ editor.once('load', function () {
 
     var evtMouseMove = function (evt) {
         var rect = canvas.element.getBoundingClientRect();
-        for (var i = 0; i < taps.length; i++) {
+        for (let i = 0; i < taps.length; i++) {
             if (! taps[i].mouse)
                 continue;
 
@@ -76,7 +76,7 @@ editor.once('load', function () {
     var evtMouseUp = function (evt) {
         var items = taps.slice(0);
 
-        for (var i = 0; i < items.length; i++) {
+        for (let i = 0; i < items.length; i++) {
         // if (tapMouse.down) {
             if (! items[i].mouse || ! items[i].down || items[i].button !== evt.button)
                 continue;

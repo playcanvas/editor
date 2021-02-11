@@ -15,7 +15,7 @@ editor.once('load', function () {
         // group clips by name
         var numEntities = entities.length;
         var groupedClips = {};
-        for (var i = 0; i < numEntities; i++) {
+        for (let i = 0; i < numEntities; i++) {
             var clips = entities[i].get('components.sprite.clips');
             if (! clips) continue;
 
@@ -348,7 +348,7 @@ editor.once('load', function () {
         var createClipPanel = function (clipName) {
             // gather edited paths
             var paths = [];
-            for (var i = 0; i < numEntities; i++) {
+            for (let i = 0; i < numEntities; i++) {
                 paths.push(groupedClips[clipName][entities[i].get('resource_id')]);
             }
 
@@ -367,7 +367,7 @@ editor.once('load', function () {
 
             var clipEvents = [];
             panelClip.on('destroy', function () {
-                for (var i = 0; i < clipEvents.length; i++) {
+                for (let i = 0; i < clipEvents.length; i++) {
                     clipEvents[i].unbind();
                 }
                 clipEvents = null;
@@ -380,7 +380,7 @@ editor.once('load', function () {
 
             btnRemove.on('click', function () {
                 var records = [];
-                for (var i = 0; i < numEntities; i++) {
+                for (let i = 0; i < numEntities; i++) {
                     records.push({
                         clip: entities[i].get(paths[i]),
                         autoPlayClip: entities[i].get('components.sprite.autoPlayClip')
@@ -388,7 +388,7 @@ editor.once('load', function () {
                 }
 
                 var redo = function () {
-                    for (var i = 0; i < numEntities; i++) {
+                    for (let i = 0; i < numEntities; i++) {
                         var entity = editor.call('entities:get', entities[i].get('resource_id'));
                         if (! entity) continue;
 
@@ -405,7 +405,7 @@ editor.once('load', function () {
                 };
 
                 var undo = function () {
-                    for (var i = 0; i < numEntities; i++) {
+                    for (let i = 0; i < numEntities; i++) {
                         var entity = editor.call('entities:get', entities[i].get('resource_id'));
                         if (! entity) continue;
 
@@ -465,14 +465,14 @@ editor.once('load', function () {
                 // remember the previous autoPlayClip value
                 // for each entity
                 var records = [];
-                for (var i = 0; i < numEntities; i++) {
+                for (let i = 0; i < numEntities; i++) {
                     records.push(entities[i].get('components.sprite.autoPlayClip'));
                 }
 
                 var redo = function () {
                     clipName = newName;
 
-                    for (var i = 0; i < numEntities; i++) {
+                    for (let i = 0; i < numEntities; i++) {
                         var entity = editor.call('entities:get', entities[i].get('resource_id'));
                         if (! entity) continue;
                         var history = entity.history.enabled;
@@ -491,7 +491,7 @@ editor.once('load', function () {
                 var undo = function () {
                     clipName = previousName;
 
-                    for (var i = 0; i < numEntities; i++) {
+                    for (let i = 0; i < numEntities; i++) {
                         var entity = editor.call('entities:get', entities[i].get('resource_id'));
                         if (! entity) continue;
                         var history = entity.history.enabled;
@@ -521,7 +521,7 @@ editor.once('load', function () {
                     panelClip.header = value;
 
                     // update autoPlayClip enum options
-                    for (var i = 0; i < enumAutoPlay.length; i++) {
+                    for (let i = 0; i < enumAutoPlay.length; i++) {
                         if (enumAutoPlay[i].v === oldValue) {
                             enumAutoPlay[i].v = value;
                             enumAutoPlay[i].t = value;
@@ -544,7 +544,7 @@ editor.once('load', function () {
                 }));
             };
 
-            for (var i = 0; i < numEntities; i++)
+            for (let i = 0; i < numEntities; i++)
                 createNameChangeListener(i);
 
             // reference
@@ -627,7 +627,7 @@ editor.once('load', function () {
         btnAddClip.on('click', function () {
             // search clips of all entities for the largest key
             var largestKey = 1;
-            for (var i = 0; i < numEntities; i++) {
+            for (let i = 0; i < numEntities; i++) {
                 var clips = entities[i].get('components.sprite.clips');
                 if (! clips) continue;
 
@@ -644,7 +644,7 @@ editor.once('load', function () {
             }
 
             var redo = function () {
-                for (var i = 0; i < numEntities; i++) {
+                for (let i = 0; i < numEntities; i++) {
                     var entity = editor.call('entities:get', entities[i].get('resource_id'));
                     if (! entity) continue;
                     var history = entity.history.enabled;
@@ -666,7 +666,7 @@ editor.once('load', function () {
             };
 
             var undo = function () {
-                for (var i = 0; i < numEntities; i++) {
+                for (let i = 0; i < numEntities; i++) {
                     var entity = editor.call('entities:get', entities[i].get('resource_id'));
                     if (! entity) continue;
                     var history = entity.history.enabled;
@@ -758,7 +758,7 @@ editor.once('load', function () {
             }));
         };
 
-        for (var i = 0; i < numEntities; i++) {
+        for (let i = 0; i < numEntities; i++) {
             createSetHandler(i);
             createUnsetHandler(i);
         }
@@ -767,7 +767,7 @@ editor.once('load', function () {
         var toggleFields = function () {
             var hideAnimated = false;
 
-            for (var i = 0; i < numEntities; i++) {
+            for (let i = 0; i < numEntities; i++) {
                 if (entities[i].get('components.sprite.type') !== 'animated') {
                     hideAnimated = true;
                     break;
@@ -814,7 +814,7 @@ editor.once('load', function () {
 
         // destroy panel
         panel.on('destroy', function () {
-            for (var i = 0; i < events.length; i++) {
+            for (let i = 0; i < events.length; i++) {
                 events[i].unbind();
             }
             events.length = 0;

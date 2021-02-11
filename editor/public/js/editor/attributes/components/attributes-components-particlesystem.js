@@ -32,7 +32,7 @@ editor.once('load', function () {
             text: '&#57649;'
         });
         btnPlay.on('click', function () {
-            for (var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 if (! entities[i].entity || ! entities[i].entity.particlesystem)
                     continue;
 
@@ -57,7 +57,7 @@ editor.once('load', function () {
             var playing = -1;
             var looping = -1;
 
-            for (var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 if (! entities[i].entity || ! entities[i].entity.particlesystem)
                     continue;
 
@@ -123,7 +123,7 @@ editor.once('load', function () {
             text: '	&#57653;'
         });
         btnStop.on('click', function () {
-            for (var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 if (! entities[i].entity || ! entities[i].entity.particlesystem)
                     continue;
 
@@ -143,7 +143,7 @@ editor.once('load', function () {
             text: '&#57619;'
         });
         btnReset.on('click', function () {
-            for (var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 if (! entities[i].entity || ! entities[i].entity.particlesystem)
                     continue;
 
@@ -159,7 +159,7 @@ editor.once('load', function () {
         checkPlayingState();
 
         editor.once('viewport:update', function () {
-            for (var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 if (! entities[i].entity || ! entities[i].entity.particlesystem)
                     continue;
 

@@ -91,7 +91,7 @@ editor.once('load', function () {
             return;
 
         var assetIds = Object.keys(uv1MissingAssets);
-        for (var i = 0; i < assetIds.length; i++) {
+        for (let i = 0; i < assetIds.length; i++) {
             if (! uv1MissingAssets.hasOwnProperty(assetIds[i]))
                 continue;
 

@@ -293,7 +293,7 @@ editor.once('load', function () {
 
             // clean up events
             panel.on('destroy', function () {
-                for (var i = 0, len = frameEvents.length; i < len; i++) {
+                for (let i = 0, len = frameEvents.length; i < len; i++) {
                     frameEvents[i].unbind();
                 }
                 frameEvents.length = 0;
@@ -353,7 +353,7 @@ editor.once('load', function () {
             window.removeEventListener('mouseup', onDragEnd);
         };
 
-        for (var i = 0, len = frameKeys.length; i < len; i++) {
+        for (let i = 0, len = frameKeys.length; i < len; i++) {
             addFramePanel(frameKeys[i]);
         }
 
@@ -420,7 +420,7 @@ editor.once('load', function () {
             var partsLen = parts.length;
             if (partsLen >= 3) {
                 // re-render frame preview
-                for (var i = 0, len = panels.length; i < len; i++) {
+                for (let i = 0, len = panels.length; i < len; i++) {
                     if (panels[i]._frameKey === parts[2]) {
                         panels[i].queueRender();
 
@@ -477,7 +477,7 @@ editor.once('load', function () {
         }));
 
         panel.on('destroy', function () {
-            for (var i = 0; i < events.length; i++) {
+            for (let i = 0; i < events.length; i++) {
                 events[i].unbind();
             }
 

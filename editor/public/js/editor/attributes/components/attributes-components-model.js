@@ -267,7 +267,7 @@ editor.once('load', function () {
 
         var checkUV1Missing = function () {
             var missing = false;
-            for (var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 var e = entities[i];
                 if (! e.has('components.model') || ! e.get('components.model.lightmapped') || e.get('components.model.type') !== 'asset' || ! e.get('components.model.asset'))
                     continue;
@@ -317,7 +317,7 @@ editor.once('load', function () {
             var min = Infinity;
             var max = -Infinity;
 
-            for (var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 if (! entities[i].get('components.model.lightmapped') || ! entities[i].entity.model || (! entities[i].entity.model.asset && entities[i].entity.type === 'asset') || (entities[i].entity.model.asset && ! app.assets.get(entities[i].entity.model.asset)))
                     continue;
 
@@ -440,14 +440,14 @@ editor.once('load', function () {
         editor.call('attributes:reference:attach', 'model:layers', fieldLayers.parent.parent.innerElement.firstChild.ui);
 
         panel.on('destroy', function () {
-            for (var i = 0; i < events.length; i++)
+            for (let i = 0; i < events.length; i++)
                 events[i].unbind();
         });
 
 
         // gather all mappings for all selected entities
         var allMappings = {};
-        for (var i = 0, len = entities.length; i < len; i++) {
+        for (let i = 0, len = entities.length; i < len; i++) {
             var mapping = entities[i].get('components.model.mapping');
             if (mapping) {
                 for (var key in mapping) {
@@ -474,7 +474,7 @@ editor.once('load', function () {
         // and are referencing an asset
         var toggleMaterials = function ()  {
             var referencedModelAsset = entities[0].get('components.model.asset');
-            for (var i = 0, len = entities.length; i < len; i++) {
+            for (let i = 0, len = entities.length; i < len; i++) {
                 if (entities[i].get('components.model.type') !== 'asset' ||
                     entities[i].get('components.model.asset') !== referencedModelAsset) {
                     panelMaterials.hidden = true;
@@ -536,7 +536,7 @@ editor.once('load', function () {
             editor.call('history:add', {
                 name: 'entities.' + (resourceIds.length > 1 ? '*' : resourceIds[0]) + '.components.model.mapping',
                 undo: function () {
-                    for (var i = 0; i < resourceIds.length; i++) {
+                    for (let i = 0; i < resourceIds.length; i++) {
                         var item = editor.call('entities:get', resourceIds[i]);
                         if (! item)
                             continue;
@@ -552,7 +552,7 @@ editor.once('load', function () {
                     }
                 },
                 redo: function () {
-                    for (var i = 0; i < resourceIds.length; i++) {
+                    for (let i = 0; i < resourceIds.length; i++) {
                         var item = editor.call('entities:get', resourceIds[i]);
                         if (! item)
                             continue;

@@ -24,14 +24,14 @@ editor.once('load', function () {
             }
 
             // render child links
-            for (var i = 0; i < node.children.length; ++i) {
+            for (let i = 0; i < node.children.length; ++i) {
                 var child = node.children[i];
                 renderBone(node, child);
                 renderBoneHierarchy(child);
             }
         };
 
-        for (var i = 0; i < entities.length; ++i) {
+        for (let i = 0; i < entities.length; ++i) {
             var entity = entities[i];
             if (entity) {
                 var model = entity.model;

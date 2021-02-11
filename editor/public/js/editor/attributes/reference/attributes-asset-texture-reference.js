@@ -110,7 +110,7 @@ editor.once('load', function () {
         description: 'Set the compression quality for the texture.'
     }];
 
-    for (var i = 0; i < fields.length; i++) {
+    for (let i = 0; i < fields.length; i++) {
         fields[i].name = 'asset:texture:' + (fields[i].name || fields[i].title);
         editor.call('attributes:reference:add', fields[i]);
     }

@@ -168,7 +168,7 @@ editor.once('load', function () {
 
     editor.on('selector:change', function (type, items) {
         if (events.length) {
-            for (var i = 0; i < events.length; i++)
+            for (let i = 0; i < events.length; i++)
                 events[i].unbind();
 
             events = [];

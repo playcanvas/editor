@@ -33,7 +33,7 @@ editor.once('load', function () {
     ];
 
     var data = {};
-    for (var i = 0; i < syncPaths.length; i++)
+    for (let i = 0; i < syncPaths.length; i++)
         data[syncPaths[i]] = config.project.settings.hasOwnProperty(syncPaths[i]) ? config.project.settings[syncPaths[i]] : null;
 
     var settings = editor.call('settings:create', {
@@ -57,7 +57,7 @@ editor.once('load', function () {
     settings.on('*:set', function (path, value) {
         var parts = path.split('.');
         var obj = config.project.settings;
-        for (var i = 0; i < parts.length - 1; i++) {
+        for (let i = 0; i < parts.length - 1; i++) {
             if (! obj.hasOwnProperty(parts[i]))
                 obj[parts[i]] = {};
 
@@ -80,7 +80,7 @@ editor.once('load', function () {
     settings.on('*:unset', function (path) {
         var parts = path.split('.');
         var obj = config.project.settings;
-        for (var i = 0; i < parts.length - 1; i++) {
+        for (let i = 0; i < parts.length - 1; i++) {
             obj = obj[parts[i]];
         }
 
@@ -90,7 +90,7 @@ editor.once('load', function () {
     settings.on('*:insert', function (path, value, index) {
         var parts = path.split('.');
         var obj = config.project.settings;
-        for (var i = 0; i < parts.length - 1; i++) {
+        for (let i = 0; i < parts.length - 1; i++) {
             obj = obj[parts[i]];
         }
 
@@ -103,7 +103,7 @@ editor.once('load', function () {
     settings.on('*:remove', function (path, value, index) {
         var parts = path.split('.');
         var obj = config.project.settings;
-        for (var i = 0; i < parts.length - 1; i++) {
+        for (let i = 0; i < parts.length - 1; i++) {
             obj = obj[parts[i]];
         }
 

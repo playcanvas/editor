@@ -95,7 +95,7 @@ Object.assign(pcui, (function () {
                 this._loading = 0;
 
                 this._nodes = [];
-                for (var i = 0; i < data.model.meshInstances.length; i++)
+                for (let i = 0; i < data.model.meshInstances.length; i++)
                     this._nodes[i] = data.model.nodes[data.model.meshInstances[i].node].name;
 
                 this._updateJsonMeshInstances();

@@ -16,7 +16,7 @@ editor.once('load', function () {
             assetIds = [assetIds];
         }
 
-        for (var i = 0; i < assetIds.length; i++) {
+        for (let i = 0; i < assetIds.length; i++) {
             var assetId = assetIds[i];
             if (! assetId || assets[assetId]) continue;
 

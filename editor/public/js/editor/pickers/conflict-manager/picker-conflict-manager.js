@@ -83,7 +83,7 @@ editor.once('load', function () {
 
     // create vertical borders
     var verticalBorders = [];
-    for (var i = 0; i < 2; i++) {
+    for (let i = 0; i < 2; i++) {
         var border = document.createElement('div');
         border.classList.add('vertical-border');
         border.classList.add('vertical-border-' + i);
@@ -252,7 +252,7 @@ editor.once('load', function () {
 
     // Returns true if the conflict group has any file conflicts
     var hasFileConflicts = function (group) {
-        for (var i = 0; i < group.data.length; i++) {
+        for (let i = 0; i < group.data.length; i++) {
             if (group.data[i].isTextualMerge) {
                 return true;
             }
@@ -263,7 +263,7 @@ editor.once('load', function () {
 
     // Returns true if the conflict group has any regular data conflicts
     var hasDataConflicts = function (group) {
-        for (var i = 0; i < group.data.length; i++) {
+        for (let i = 0; i < group.data.length; i++) {
             if (! group.data[i].isTextualMerge) {
                 return true;
             }
@@ -276,7 +276,7 @@ editor.once('load', function () {
     // have been resolved
     var isConflictGroupResolved = function (group) {
         var resolved = true;
-        for (var i = 0; i < group.data.length; i++) {
+        for (let i = 0; i < group.data.length; i++) {
             if (!group.data[i].useSrc && !group.data[i].useDst && !group.data[i].useMergedFile) {
                 resolved = false;
                 break;
@@ -289,7 +289,7 @@ editor.once('load', function () {
     var checkAllResolved = function () {
         var result = true;
 
-        for (var i = 0; i < currentMergeObject.conflicts.length; i++) {
+        for (let i = 0; i < currentMergeObject.conflicts.length; i++) {
             if (!isConflictGroupResolved(currentMergeObject.conflicts[i])) {
                 return false;
             }
@@ -360,7 +360,7 @@ editor.once('load', function () {
         item.refreshResolvedCount = function () {
             var resolved = 0;
             var total = conflictGroup.data.length;
-            for (var i = 0; i < total; i++) {
+            for (let i = 0; i < total; i++) {
                 if (conflictGroup.data[i].useSrc ||
                     conflictGroup.data[i].useDst ||
                     conflictGroup.data[i].useMergedFile) {
@@ -386,7 +386,7 @@ editor.once('load', function () {
         panelConflicts.hidden = false;
         panelBottom.hidden = diffMode;
 
-        for (var i = 0; i < verticalBorders.length; i++) {
+        for (let i = 0; i < verticalBorders.length; i++) {
             verticalBorders[i].classList.remove('hidden');
         }
     };
@@ -406,7 +406,7 @@ editor.once('load', function () {
         // the mode
         panelRight.class.remove('file-conflicts-visible');
         var children = panelRight.innerElement.childNodes;
-        for (var i = 0; i < children.length; i++) {
+        for (let i = 0; i < children.length; i++) {
             children[i].classList.add('hidden');
         }
 
@@ -671,7 +671,7 @@ editor.once('load', function () {
 
         }
 
-        for (var i = 0; i < currentMergeObject.conflicts.length; i++) {
+        for (let i = 0; i < currentMergeObject.conflicts.length; i++) {
             var item = createLeftListItem(currentMergeObject.conflicts[i]);
             if (i === 0) {
                 item.selected = true;

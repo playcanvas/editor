@@ -62,7 +62,7 @@ editor.once('load', function () {
         selection[config.self.id] = [];
 
         if (type === 'entity') {
-            for (var i = 0; i < items.length; i++) {
+            for (let i = 0; i < items.length; i++) {
 
                 if (isSelectableEntity(items[i])) {
                     selection[config.self.id].push(items[i].entity);
@@ -88,7 +88,7 @@ editor.once('load', function () {
         selection[user] = [];
 
         if (data.type === 'entity') {
-            for (var i = 0; i < data.ids.length; i++) {
+            for (let i = 0; i < data.ids.length; i++) {
                 var entity = editor.call('entities:get', data.ids[i]);
 
                 if (isSelectableEntity(entity)) {
@@ -259,7 +259,7 @@ editor.once('load', function () {
 
         // ### INIT/RESIZE RENDERTARGETS ###
         if (targets[0] && (targets[0].width !== device.width || targets[1].height !== device.height)) {
-            for (var i = 0; i < 2; i++) {
+            for (let i = 0; i < 2; i++) {
                 targets[i].destroy();
                 textures[i].destroy();
             }
@@ -267,7 +267,7 @@ editor.once('load', function () {
             textures = [];
         }
         if (! targets[0]) {
-            for (var i = 0; i < 2; i++) {
+            for (let i = 0; i < 2; i++) {
                 textures[i] = new pc.Texture(device, {
                     format: pc.PIXELFORMAT_R8_G8_B8_A8,
                     width: device.width,
@@ -315,7 +315,7 @@ editor.once('load', function () {
                         color = colors[id];
                     }
 
-                    for (var i = 0; i < selection[id].length; i++) {
+                    for (let i = 0; i < selection[id].length; i++) {
                         if (! selection[id][i])
                             continue;
 

@@ -442,7 +442,7 @@ editor.once('load', function () {
         }
 
         // remove from apps array
-        for (var i = 0; i < apps.length; i++) {
+        for (let i = 0; i < apps.length; i++) {
             if (apps[i].id === app.id) {
                 // close dropdown menu if current app deleted
                 if (dropdownApp === apps[i])
@@ -483,7 +483,7 @@ editor.once('load', function () {
         editor.call('apps:get', data.app.id, function (app) {
             // add app if it's not already inside the apps array
             var found = false;
-            for (var i = 0; i < apps.length; i++) {
+            for (let i = 0; i < apps.length; i++) {
                 if (apps[i].id === data.app.id) {
                     found = true;
                     break;
@@ -510,7 +510,7 @@ editor.once('load', function () {
 
         // get app from server
         editor.call('apps:get', data.app.id, function (app) {
-            for (var i = 0; i < apps.length; i++) {
+            for (let i = 0; i < apps.length; i++) {
                 if (apps[i].id === app.id) {
                     apps[i] = app;
                 }

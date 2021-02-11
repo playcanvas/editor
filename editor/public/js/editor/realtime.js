@@ -173,7 +173,7 @@ editor.once('load', function () {
                 scene.on('op', function (ops, local) {
                     if (local) return;
 
-                    for (var i = 0; i < ops.length; i++)
+                    for (let i = 0; i < ops.length; i++)
                         emitOp('scene', ops[i]);
                 });
 

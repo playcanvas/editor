@@ -53,8 +53,8 @@ editor.once('load', function () {
         if (! visible) return;
 
         var ind = 0;
-        for (var x = -1; x <= 1; x += 2) {
-            for (var y = -1; y <= 1; y += 2) {
+        for (let x = -1; x <= 1; x += 2) {
+            for (let y = -1; y <= 1; y += 2) {
                 for (var z = -1; z <= 1; z += 2) {
                     points[ind * 4].copy(aabb.halfExtents);
                     points[ind * 4].x *= x;
@@ -100,7 +100,7 @@ editor.once('load', function () {
         }
 
         var children = root.children;
-        for (var i = 0; i < children.length; i++) {
+        for (let i = 0; i < children.length; i++) {
             if (children[i].__editor || ! (children[i] instanceof pc.Entity))
                 continue;
 
@@ -134,7 +134,7 @@ editor.once('load', function () {
             }
 
             if (meshInstances) {
-                for (var i = 0; i < meshInstances.length; i++) {
+                for (let i = 0; i < meshInstances.length; i++) {
                     if (meshInstances[i]._hidden)
                         continue;
 
@@ -260,7 +260,7 @@ editor.once('load', function () {
             // firstBB = true;
             var noEntities = true;
 
-            for (var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 if (! entities[i])
                     continue;
 

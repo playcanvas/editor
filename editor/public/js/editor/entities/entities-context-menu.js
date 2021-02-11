@@ -34,7 +34,7 @@ editor.once('load', function () {
     var hasLegacyScript = function (entity, url) {
         var scriptComponent = entity.get('components.script');
         if (scriptComponent) {
-            for (var i = 0; i < scriptComponent.scripts.length; i++) {
+            for (let i = 0; i < scriptComponent.scripts.length; i++) {
                 if (scriptComponent.scripts[i].url === url) {
                     return true;
                 }
@@ -67,7 +67,7 @@ editor.once('load', function () {
                 } else {
                     var scripts = e.get('components.script.scripts');
                     if (scripts) {
-                        for (var i = 0; i < scripts.length; i++) {
+                        for (let i = 0; i < scripts.length; i++) {
                             if (scripts[i].url === url) {
                                 e.remove('components.script.scripts', i);
                                 break;
@@ -120,7 +120,7 @@ editor.once('load', function () {
     var setField = function (field, value) {
         var records = [];
 
-        for (var i = 0; i < items.length; i++) {
+        for (let i = 0; i < items.length; i++) {
             records.push({
                 item: items[i],
                 value: value,
@@ -135,7 +135,7 @@ editor.once('load', function () {
         editor.call('history:add', {
             name: 'entities.set[' + field + ']',
             undo: function () {
-                for (var i = 0; i < records.length; i++) {
+                for (let i = 0; i < records.length; i++) {
                     var item = records[i].item.latest();
                     if (! item)
                         continue;
@@ -146,7 +146,7 @@ editor.once('load', function () {
                 }
             },
             redo: function () {
-                for (var i = 0; i < records.length; i++) {
+                for (let i = 0; i < records.length; i++) {
                     var item = records[i].item.latest();
                     if (! item)
                         continue;
@@ -232,7 +232,7 @@ editor.once('load', function () {
                     return items[0].get('enabled');
                 }
                 var enabled = items[0].get('enabled');
-                for (var i = 1; i < items.length; i++) {
+                for (let i = 1; i < items.length; i++) {
                     if (enabled !== items[i].get('enabled'))
                         return false;
                 }
@@ -253,7 +253,7 @@ editor.once('load', function () {
                     return ! items[0].get('enabled');
                 }
                 var disabled = items[0].get('enabled');
-                for (var i = 1; i < items.length; i++) {
+                for (let i = 1; i < items.length; i++) {
                     if (disabled !== items[i].get('enabled'))
                         return false;
                 }
@@ -316,7 +316,7 @@ editor.once('load', function () {
             icon: '&#57636;',
             filter: function () {
                 var root = editor.call('entities:root');
-                for (var i = 0; i < items.length; i++) {
+                for (let i = 0; i < items.length; i++) {
                     if (items[i] === root)
                         return false;
                 }
@@ -418,7 +418,7 @@ editor.once('load', function () {
         menu.on('open', function () {
             var selection = getSelection();
 
-            for (var i = 0; i < customMenuItems.length; i++) {
+            for (let i = 0; i < customMenuItems.length; i++) {
                 if (! customMenuItems[i].filter)
                     continue;
 

@@ -72,7 +72,7 @@ editor.once('load', function () {
         var item = index[script][entity.get('resource_id')];
         if (!item) return;
 
-        for (var i = 0; i < item.events.length; i++)
+        for (let i = 0; i < item.events.length; i++)
             item.events[i].unbind();
 
         delete index[script][entity.get('resource_id')];
@@ -314,7 +314,7 @@ editor.once('load', function () {
             if (attribute.array) {
                 if (attribute.default instanceof Array) {
                     value = attribute.default;
-                    for (var i = 0; i < attribute.default.length; i++) {
+                    for (let i = 0; i < attribute.default.length; i++) {
                         if (typeof (attribute.default[i]) !== TYPES[attribute.type]) {
                             value = [];
                             break;
@@ -373,7 +373,7 @@ editor.once('load', function () {
 
         var scripts = entity.get('components.script.order');
         if (scripts) {
-            for (var i = 0; i < scripts.length; i++) {
+            for (let i = 0; i < scripts.length; i++) {
                 self.add(entity, scripts[i]);
             }
         }

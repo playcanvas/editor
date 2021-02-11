@@ -117,7 +117,7 @@ editor.once('load', function () {
             new pc.Color(0, 1, 0),
             new pc.Color(0, 1, 0)
         ];
-        for (var i = 0; i < materials.length; i++) {
+        for (let i = 0; i < materials.length; i++) {
             var color = materials[i];
             materials[i] = new pc.BasicMaterial();
             materials[i].color = color;
@@ -284,7 +284,7 @@ editor.once('load', function () {
                 if (! this.color && this._link.entity) {
                     var hash = 0;
                     var string = this._link.entity.getGuid();
-                    for (var i = 0; i < string.length; i++)
+                    for (let i = 0; i < string.length; i++)
                         hash += string.charCodeAt(i);
 
                     this.color = editor.call('color:hsl2rgb', (hash % 128) / 128, 0.5, 0.5);
@@ -393,7 +393,7 @@ editor.once('load', function () {
             if (! this._link)
                 return;
 
-            for (var i = 0; i < this.events.length; i++)
+            for (let i = 0; i < this.events.length; i++)
                 this.events[i].unbind();
 
             this.events = [];
@@ -440,7 +440,7 @@ editor.once('load', function () {
             dragGizmoType = editor.call('gizmo:type');
             editor.call('gizmo:' + dragGizmoType + ':toggle', false);
 
-            for (var i = 0; i < points.length; i++)
+            for (let i = 0; i < points.length; i++)
                 points[i].entity.enabled = false;
 
             lastZone.entity.model.meshInstances[1].visible = false;
@@ -458,7 +458,7 @@ editor.once('load', function () {
             dragPoint = null;
             editor.call('gizmo:' + dragGizmoType + ':toggle', true);
 
-            for (var i = 0; i < points.length; i++)
+            for (let i = 0; i < points.length; i++)
                 points[i].entity.enabled = true;
 
             lastZone.entity.model.meshInstances[1].visible = true;
@@ -514,7 +514,7 @@ editor.once('load', function () {
         };
 
         var pointsCreate = function () {
-            for (var i = 0; i < 6; i++) {
+            for (let i = 0; i < 6; i++) {
                 var point = editor.call('gizmo:point:create', axes[i], null, direction[i]);
                 point.ind = i;
                 point.entity.model.meshInstances[0].material = materials[i];
@@ -539,15 +539,15 @@ editor.once('load', function () {
             if (! points || ! points.length)
                 return;
 
-            for (var i = 0; i < points.length; i++)
+            for (let i = 0; i < points.length; i++)
                 points[i].entity.enabled = state;
         });
 
         var pointsDestroy = function () {
-            for (var i = 0; i < points.length; i++)
+            for (let i = 0; i < points.length; i++)
                 editor.call('gizmo:point:recycle', points[i]);
 
-            for (var i = 0; i < events.length; i++)
+            for (let i = 0; i < events.length; i++)
                 events[i].unbind();
 
             events = [];
@@ -661,7 +661,7 @@ editor.once('load', function () {
         editor.on('selector:change', function (type, items) {
             selected = { };
             if (items) {
-                for (var i = 0; i < items.length; i++)
+                for (let i = 0; i < items.length; i++)
                     selected[items[i].get('resource_id')] = items[i];
             }
 
@@ -692,7 +692,7 @@ editor.once('load', function () {
 
                 var a = scales[dragPoint.ind];
 
-                for (var i = 0; i < a.length; i++) {
+                for (let i = 0; i < a.length; i++) {
                     for (var l = 0; l <= 2; l++) {
                         vecA.set(0, 0, 0);
                         vecA[a[i]] = scale[a[i]] * 0.5;

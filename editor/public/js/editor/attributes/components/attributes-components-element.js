@@ -92,7 +92,7 @@ editor.once('load', function () {
 
             // var refreshValue = function () {
             //     var value = null;
-            //     for (var i = 0, len = entities.length; i < len; i++) {
+            //     for (let i = 0, len = entities.length; i < len; i++) {
             //         var anchor = entities[i].get('components.element.anchor.' + index);
             //         if (value === null) {
             //             value = anchor;
@@ -117,7 +117,7 @@ editor.once('load', function () {
 
             //     var prev = {};
 
-            //     for (var i = 0, len = entities.length; i < len; i++) {
+            //     for (let i = 0, len = entities.length; i < len; i++) {
             //         if (entities[i].has('components.element')) {
             //             var prevData = {
             //                 anchor: entities[i].get('components.element.anchor.' + index)
@@ -135,7 +135,7 @@ editor.once('load', function () {
             //     editor.call('history:add', {
             //         name: 'components.element.anchor.' + index,
             //         undo: function () {
-            //             for (var i = 0, len = entities.length; i < len; i++) {
+            //             for (let i = 0, len = entities.length; i < len; i++) {
             //                 var prevData = prev[entities[i].get('resource_id')];
             //                 if (! prevData) continue;
 
@@ -148,7 +148,7 @@ editor.once('load', function () {
             //             }
             //         },
             //         redo: function () {
-            //             for (var i = 0, len = entities.length; i < len; i++) {
+            //             for (let i = 0, len = entities.length; i < len; i++) {
             //                 var obj = editor.call('entities:get', entities[i].get('resource_id'));
             //                 if (! obj) return;
 
@@ -165,7 +165,7 @@ editor.once('load', function () {
 
             // });
 
-            // for (var i = 0, len = entities.length; i < len; i++) {
+            // for (let i = 0, len = entities.length; i < len; i++) {
             //     events.push(entities[i].on('components.element.anchor:set', refreshValue));
             //     events.push(entities[i].on('components.element.anchor.0:set', refreshValue));
             //     events.push(entities[i].on('components.element.anchor.1:set', refreshValue));
@@ -178,7 +178,7 @@ editor.once('load', function () {
         editor.call('attributes:reference:attach', 'element:anchor', fieldAnchor[0].parent.innerElement.firstChild.ui);
 
         var isUnderControlOfLayoutGroup = function () {
-            for (var i = 0, len = entities.length; i < len; i++) {
+            for (let i = 0, len = entities.length; i < len; i++) {
                 var entity = entities[i];
 
                 if (editor.call('entities:layout:isUnderControlOfLayoutGroup', entity)) {
@@ -192,7 +192,7 @@ editor.once('load', function () {
         var toggleAnchorAndPresets = function () {
             var disabled = isUnderControlOfLayoutGroup();
 
-            for (var i = 0; i < 4; i++) {
+            for (let i = 0; i < 4; i++) {
                 fieldAnchor[i].disabled = disabled;
             }
 
@@ -295,7 +295,7 @@ editor.once('load', function () {
 
         var changingPreset = false;
 
-        for (var i = 0; i < 4; i++) {
+        for (let i = 0; i < 4; i++) {
             events.push(fieldAnchor[i].on('change', function (value) {
                 if (changingPreset) return;
                 changingPreset = true;
@@ -304,7 +304,7 @@ editor.once('load', function () {
             }));
         }
 
-        for (var i = 0; i < 2; i++) {
+        for (let i = 0; i < 2; i++) {
             events.push(fieldPivot[i].on('change', function (value) {
                 if (changingPreset) return;
                 changingPreset = true;
@@ -327,7 +327,7 @@ editor.once('load', function () {
             var prevPivots = [];
             var prevPositions = [];
 
-            for (var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 var history = entities[i].history.enabled;
                 entities[i].history.enabled = false;
                 var width = entities[i].get('components.element.width');
@@ -350,7 +350,7 @@ editor.once('load', function () {
             editor.call('history:add', {
                 name: 'entities.components.element.preset',
                 undo: function () {
-                    for (var i = 0; i < entities.length; i++) {
+                    for (let i = 0; i < entities.length; i++) {
                         var entity = entities[i];
                         var history = entity.history.enabled;
                         entity.history.enabled = false;
@@ -365,7 +365,7 @@ editor.once('load', function () {
                     }
                 },
                 redo: function () {
-                    for (var i = 0; i < entities.length; i++) {
+                    for (let i = 0; i < entities.length; i++) {
                         var entity = entities[i];
                         var history = entity.history.enabled;
                         entity.history.enabled = false;
@@ -389,7 +389,7 @@ editor.once('load', function () {
         }));
 
         var hasSplitAnchors = function (horizontal) {
-            for (var i = 0, len = entities.length; i < len; i++) {
+            for (let i = 0, len = entities.length; i < len; i++) {
                 var e = entities[i];
                 var anchor = e.get('components.element.anchor');
                 if (! anchor) continue;
@@ -467,7 +467,7 @@ editor.once('load', function () {
             fieldMargin[1].disabled = ! verticalSplit;
             fieldMargin[3].disabled = fieldMargin[1].disabled;
 
-            for (var i = 0; i < 4; i++)
+            for (let i = 0; i < 4; i++)
                 fieldMargin[i].renderChanges = !fieldMargin[i].disabled;
         };
 
@@ -592,7 +592,7 @@ editor.once('load', function () {
 
         // update the value of the localized field when we change the element key
         // If the key is null it means the element is not localized. If not null then it is localized.
-        for (var i = 0, len = entities.length; i < len; i++) {
+        for (let i = 0, len = entities.length; i < len; i++) {
             events.push(entities[i].on('components.element.key:set', refreshLocalizedValue));
         }
 
@@ -624,7 +624,7 @@ editor.once('load', function () {
 
             var redo = function () {
                 prev = {};
-                for (var i = 0, len = entities.length; i < len; i++) {
+                for (let i = 0, len = entities.length; i < len; i++) {
                     var id = entities[i].get('resource_id');
                     var e = editor.call('entities:get', id);
                     if (!e) continue;
@@ -1217,7 +1217,7 @@ editor.once('load', function () {
                 var lastRedo = lastHistoryAction.redo;
 
                 var previous = {};
-                for (var i = 0, len = entities.length; i < len; i++) {
+                for (let i = 0, len = entities.length; i < len; i++) {
                     var anchor = entities[i].get('components.element.anchor');
                     if (Math.abs(anchor[0] - anchor[2]) > 0.001 || Math.abs(anchor[1] - anchor[3]) > 0.001) {
                         continue;
@@ -1236,7 +1236,7 @@ editor.once('load', function () {
                 lastHistoryAction.undo = function () {
                     lastUndo();
 
-                    for (var i = 0, len = entities.length; i < len; i++) {
+                    for (let i = 0, len = entities.length; i < len; i++) {
                         var prev = previous[entities[i].get('resource_id')];
                         if (! prev) continue;
 
@@ -1255,7 +1255,7 @@ editor.once('load', function () {
                 };
 
                 var redo = function () {
-                    for (var i = 0, len = entities.length; i < len; i++) {
+                    for (let i = 0, len = entities.length; i < len; i++) {
                         var prev = previous[entities[i].get('resource_id')];
                         if (! prev) continue;
 

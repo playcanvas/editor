@@ -11,7 +11,7 @@ editor.once('load', function () {
         var menuAddComponent = new ui.Menu();
         var components = editor.call('components:schema');
         var list = editor.call('components:list');
-        for (var i = 0; i < list.length; i++) {
+        for (let i = 0; i < list.length; i++) {
             menuAddComponent.append(new ui.MenuItem({
                 text: components[list[i]].$title,
                 value: list[i]
@@ -21,7 +21,7 @@ editor.once('load', function () {
             var items = editor.call('selector:items');
 
             var legacyAudio = editor.call('settings:project').get('useLegacyAudio');
-            for (var i = 0; i < list.length; i++) {
+            for (let i = 0; i < list.length; i++) {
                 var different = false;
                 var disabled = items[0].has('components.' + list[i]);
 
@@ -78,7 +78,7 @@ editor.once('load', function () {
             checkingPanel = false;
 
             var show = entities[0].has('components.' + name);
-            for (var i = 1; i < entities.length; i++) {
+            for (let i = 1; i < entities.length; i++) {
                 if (show !== entities[i].has('components.' + name)) {
                     show = false;
                     break;
@@ -96,12 +96,12 @@ editor.once('load', function () {
             setTimeout(checkPanel);
         };
         checkPanel();
-        for (var i = 0; i < entities.length; i++) {
+        for (let i = 0; i < entities.length; i++) {
             events.push(entities[i].on('components.' + name + ':set', queueCheckPanel));
             events.push(entities[i].on('components.' + name + ':unset', queueCheckPanel));
         }
         panel.once('destroy', function () {
-            for (var i = 0; i < entities.length; i++)
+            for (let i = 0; i < entities.length; i++)
                 events[i].unbind();
         });
 
@@ -117,7 +117,7 @@ editor.once('load', function () {
         fieldRemove.on('click', function () {
             var records = [];
 
-            for (var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 records.push({
                     item: entities[i],
                     value: entities[i].get('components.' + name)
@@ -131,7 +131,7 @@ editor.once('load', function () {
             editor.call('history:add', {
                 name: 'entities.set[components.' + name + ']',
                 undo: function () {
-                    for (var i = 0; i < records.length; i++) {
+                    for (let i = 0; i < records.length; i++) {
                         var item = records[i].item.latest();
                         if (! item)
                             continue;
@@ -142,7 +142,7 @@ editor.once('load', function () {
                     }
                 },
                 redo: function () {
-                    for (var i = 0; i < records.length; i++) {
+                    for (let i = 0; i < records.length; i++) {
                         var item = records[i].item.latest();
                         if (! item)
                             continue;
@@ -259,7 +259,7 @@ editor.once('load', function () {
         items.panelComponents.clear();
 
         // unlink fields
-        for (var i = 0; i < argsList.length; i++) {
+        for (let i = 0; i < argsList.length; i++) {
             argsList[i].link = null;
             argsList[i].unlinkField();
         }
@@ -425,17 +425,17 @@ editor.once('load', function () {
             root.append(items.panelComponents);
 
         // disable renderChanges
-        for (var i = 0; i < argsFieldsChanges.length; i++)
+        for (let i = 0; i < argsFieldsChanges.length; i++)
             argsFieldsChanges[i].renderChanges = false;
 
         // link fields
-        for (var i = 0; i < argsList.length; i++) {
+        for (let i = 0; i < argsList.length; i++) {
             argsList[i].link = entities;
             argsList[i].linkField();
         }
 
         // enable renderChanges
-        for (var i = 0; i < argsFieldsChanges.length; i++)
+        for (let i = 0; i < argsFieldsChanges.length; i++)
             argsFieldsChanges[i].renderChanges = true;
 
         onInspect(entities);
@@ -455,7 +455,7 @@ editor.once('load', function () {
         var disableRotation = false;
         var disableScale = false;
 
-        for (var i = 0, len = selectedEntities.length; i < len; i++) {
+        for (let i = 0, len = selectedEntities.length; i < len; i++) {
             var entity = selectedEntities[i];
 
             // disable rotation / scale for 2D screens
@@ -473,7 +473,7 @@ editor.once('load', function () {
         items.fieldPosition[0].enabled = !disablePositionXY;
         items.fieldPosition[1].enabled = !disablePositionXY;
 
-        for (var i = 0; i < 3; i++) {
+        for (let i = 0; i < 3; i++) {
             items.fieldRotation[i].enabled = !disableRotation;
             items.fieldScale[i].enabled = !disableScale;
 
@@ -509,7 +509,7 @@ editor.once('load', function () {
         };
 
 
-        for (var i = 0, len = entities.length; i < len; i++) {
+        for (let i = 0, len = entities.length; i < len; i++) {
             addEvents(entities[i]);
         }
 
@@ -517,7 +517,7 @@ editor.once('load', function () {
     };
 
     var onUninspect = function () {
-        for (var i = 0; i < inspectEvents.length; i++) {
+        for (let i = 0; i < inspectEvents.length; i++) {
             inspectEvents[i].unbind();
         }
 

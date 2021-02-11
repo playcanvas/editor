@@ -15,7 +15,7 @@ editor.once('load', function () {
 
     editor.on('attributes:inspect[asset]', function (assets) {
 
-        for (var i = 0; i < assets.length; i++) {
+        for (let i = 0; i < assets.length; i++) {
             if (assets[i].get('type') !== 'model' || assets[i].get('source'))
                 return;
         }

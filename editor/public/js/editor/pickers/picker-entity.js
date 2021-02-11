@@ -55,10 +55,10 @@ editor.once('load', function () {
             hierarchyPanel.collapsed = true;
 
         // disable new selections
-        for (var i = 0, len = hierarchy.selected.length; i < len; i++)
+        for (let i = 0, len = hierarchy.selected.length; i < len; i++)
             hierarchy.selected[i].selected = false;
 
-        for (var i = 0, len = initialSelection.length; i < len; i++)
+        for (let i = 0, len = initialSelection.length; i < len; i++)
             initialSelection[i].selected = true;
 
         currentEntity = null;
@@ -82,7 +82,7 @@ editor.once('load', function () {
         // get current hierarchy selection
         initialSelection = hierarchy.selected ? hierarchy.selected.slice(0) : [];
         if (initialSelection) {
-            for (var i = 0, len = initialSelection.length; i < len; i++) {
+            for (let i = 0, len = initialSelection.length; i < len; i++) {
                 initialSelection[i].selected = false;
             }
         }

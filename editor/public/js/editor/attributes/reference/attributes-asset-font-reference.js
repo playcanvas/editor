@@ -32,7 +32,7 @@ editor.once('load', function () {
         description: 'Specifies the width of the range around each font glyph between the minimum and maximum representable signed distance, in pixels. Click Process Font after changing this option.'
     }];
 
-    for (var i = 0; i < fields.length; i++) {
+    for (let i = 0; i < fields.length; i++) {
         fields[i].name = 'asset:font:' + (fields[i].name || fields[i].title);
         editor.call('attributes:reference:add', fields[i]);
     }

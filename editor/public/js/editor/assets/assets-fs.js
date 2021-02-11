@@ -6,7 +6,7 @@ editor.once('load', function () {
             assets = [assets];
 
         var ids = [];
-        for (var i = 0; i < assets.length; i++)
+        for (let i = 0; i < assets.length; i++)
             ids.push(parseInt(assets[i].get('uniqueId'), 10));
 
         return ids;

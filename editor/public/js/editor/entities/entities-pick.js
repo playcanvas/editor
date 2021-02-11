@@ -28,7 +28,7 @@ editor.once('load', function () {
             if (node.model && node.model.type === 'asset' && node.model.model) {
                 var meshInstances = node.model.model.meshInstances;
 
-                for (var i = 0; i < meshInstances.length; i++) {
+                for (let i = 0; i < meshInstances.length; i++) {
                     var instance = meshInstances[i];
 
                     if (instance !== picked && instance !== picked._staticSource)

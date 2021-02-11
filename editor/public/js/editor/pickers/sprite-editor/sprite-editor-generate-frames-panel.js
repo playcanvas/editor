@@ -379,8 +379,8 @@ editor.once('load', function () {
             var right = left + width;
             var bottom = top + height;
 
-            for (var x = left; x < right; x++) {
-                for (var y = top; y < bottom; y++) {
+            for (let x = left; x < right; x++) {
+                for (let y = top; y < bottom; y++) {
                     if (! isPixelEmpty(x, y)) {
                         return false;
                     }
@@ -400,7 +400,7 @@ editor.once('load', function () {
         }));
 
         panel.on('destroy', function () {
-            for (var i = 0, len = events.length; i < len; i++) {
+            for (let i = 0, len = events.length; i < len; i++) {
                 events[i].unbind();
             }
             events.length = 0;

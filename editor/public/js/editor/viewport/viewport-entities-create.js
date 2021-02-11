@@ -48,7 +48,7 @@ editor.once('load', function () {
 
     var insertChild = function (parent, node, index) {
         // try to insert the node at the right index
-        for (var i = 0, len = parent._children.length; i < len; i++) {
+        for (let i = 0, len = parent._children.length; i < len; i++) {
             var child = parent._children[i];
             if (child instanceof pc.Entity && childIndex[child.getGuid()]) {
                 // if our index is less than this child's index
@@ -93,7 +93,7 @@ editor.once('load', function () {
         }
 
         var children = obj.get('children');
-        for (var i = 0; i < children.length; i++) {
+        for (let i = 0; i < children.length; i++) {
             childIndex[children[i]] = {
                 index: i,
                 parent: entity
@@ -137,7 +137,7 @@ editor.once('load', function () {
         editor.on('entities:remove', function (obj) {
             delete entitiesIndex[obj.get('resource_id')];
             var children = obj.get('children');
-            for (var i = 0; i < children.length; i++) {
+            for (let i = 0; i < children.length; i++) {
                 delete childIndex[children[i]];
             }
         });

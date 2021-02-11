@@ -77,7 +77,7 @@ editor.once('load', function () {
         // add all textures
         var addTextures = function (list) {
             fieldTextures.clear();
-            for (var i = 0; i < list.length; i++) {
+            for (let i = 0; i < list.length; i++) {
                 var item = new ui.ListItem({
                     text: list[i].name
                 });
@@ -122,7 +122,7 @@ editor.once('load', function () {
         // add all materials
         var addMaterials = function (list) {
             fieldMaterials.clear();
-            for (var i = 0; i < list.length; i++) {
+            for (let i = 0; i < list.length; i++) {
                 var item = new ui.ListItem({
                     text: list[i].name
                 });
@@ -135,7 +135,7 @@ editor.once('load', function () {
             addMaterials(materials);
         // might be set/unset later
         events.push(asset.on('meta.materials:set', function (materials) {
-            for (var i = 0; i < materials.length; i++)
+            for (let i = 0; i < materials.length; i++)
                 materials[i] = materials[i].json();
 
             addMaterials(materials);
@@ -147,7 +147,7 @@ editor.once('load', function () {
 
         // clear up events
         panelContents.once('destroy', function () {
-            for (var i = 0; i < events.length; i++)
+            for (let i = 0; i < events.length; i++)
                 events[i].unbind();
         });
     });

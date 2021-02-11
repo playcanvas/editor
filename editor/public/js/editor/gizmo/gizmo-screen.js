@@ -14,7 +14,7 @@ editor.once('load', function () {
 
     var projectSettings = editor.call('settings:project');
 
-    for (var i = 0; i < 8; i++) {
+    for (let i = 0; i < 8; i++) {
         corners.push(new pc.Vec3());
         cornerColors.push(new pc.Color(1, 1, 1));
     }
@@ -45,12 +45,12 @@ editor.once('load', function () {
         // Returns true if a child of the entity is selected
         var isChildSelected = function (entity) {
             var children = entity.get('children');
-            for (var i = 0, len = children.length; i < len; i++) {
+            for (let i = 0, len = children.length; i < len; i++) {
                 if (selectedEntities[children[i]])
                     return true;
             }
 
-            for (var i = 0, len = children.length; i < len; i++) {
+            for (let i = 0, len = children.length; i < len; i++) {
                 var child = editor.call('entities:get', children[i]);
                 if (child && isChildSelected(child)) {
                     return true;

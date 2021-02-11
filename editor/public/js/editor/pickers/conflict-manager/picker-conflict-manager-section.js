@@ -78,7 +78,7 @@ editor.once('load', function () {
 
         var startIndex = this._resolver.isDiff ? 1 : 0;
 
-        for (var i = startIndex; i < 3; i++) {
+        for (let i = startIndex; i < 3; i++) {
             label = new ui.Label({
                 text: i === startIndex ? title : ''
             });
@@ -110,7 +110,7 @@ editor.once('load', function () {
         var row = new ui.ConflictSectionRow(this._resolver, args);
         this._rows.push(row);
 
-        for (var i = 0; i < this._indent; i++) {
+        for (let i = 0; i < this._indent; i++) {
             row.indent();
         }
 
@@ -178,7 +178,7 @@ editor.once('load', function () {
 
     ConflictSection.prototype.onAddedToDom = function () {
         // make value fields in the same row have equal heights
-        for (var i = 0, len = this._rows.length; i < len; i++) {
+        for (let i = 0, len = this._rows.length; i < len; i++) {
             this._rows[i].onAddedToDom();
         }
 
@@ -221,13 +221,13 @@ editor.once('load', function () {
     };
 
     ConflictSection.prototype.resolveUsingSource = function () {
-        for (var i = 0, len = this._rows.length; i < len; i++) {
+        for (let i = 0, len = this._rows.length; i < len; i++) {
             this._rows[i].resolveUsingSource();
         }
     };
 
     ConflictSection.prototype.resolveUsingDestination = function () {
-        for (var i = 0, len = this._rows.length; i < len; i++) {
+        for (let i = 0, len = this._rows.length; i < len; i++) {
             this._rows[i].resolveUsingDestination();
         }
     };

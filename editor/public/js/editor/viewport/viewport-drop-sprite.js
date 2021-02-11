@@ -24,7 +24,7 @@ editor.once('load', function () {
             }
 
             if (type === 'assets') {
-                for (var i = 0; i < data.ids.length; i++) {
+                for (let i = 0; i < data.ids.length; i++) {
                     var asset = editor.call('assets:get', data.ids[i]);
                     if (! asset)
                         return false;
@@ -33,7 +33,7 @@ editor.once('load', function () {
                         return false;
                 }
 
-                for (var i = 0; i < data.ids.length; i++) {
+                for (let i = 0; i < data.ids.length; i++) {
                     var asset = app.assets.get(data.ids[i]);
                     if (asset) app.assets.load(asset);
                 }
@@ -51,7 +51,7 @@ editor.once('load', function () {
                 var asset = editor.call('assets:get', parseInt(data.id, 10));
                 if (asset) assets.push(asset);
             } else if (type === 'assets') {
-                for (var i = 0; i < data.ids.length; i++) {
+                for (let i = 0; i < data.ids.length; i++) {
                     var asset = editor.call('assets:get', parseInt(data.ids[i], 10));
                     if (asset && asset.get('type') === 'sprite')
                         assets.push(asset);
@@ -74,7 +74,7 @@ editor.once('load', function () {
 
             // calculate aabb
             var first = true;
-            for (var i = 0; i < assets.length; i++) {
+            for (let i = 0; i < assets.length; i++) {
                 var assetEngine = app.assets.get(assets[i].get('id'));
                 if (! assetEngine) continue;
 
@@ -119,7 +119,7 @@ editor.once('load', function () {
                 distance = aabb.halfExtents.length() * 2.2;
             }
 
-            for (var i = 0; i < assets.length; i++) {
+            for (let i = 0; i < assets.length; i++) {
                 var component = editor.call('components:getDefault', 'sprite');
 
                 var name = assets[i].get('name') || 'Untitled';
@@ -165,19 +165,19 @@ editor.once('load', function () {
             var selectorType = editor.call('selector:type');
             var selectorItems = editor.call('selector:items');
             if (selectorType === 'entity') {
-                for (var i = 0; i < selectorItems.length; i++)
+                for (let i = 0; i < selectorItems.length; i++)
                     selectorItems[i] = selectorItems[i].get('resource_id');
             }
 
             var parentId = parent.get('resource_id');
             var resourceIds = [];
-            for (var i = 0; i < entities.length; i++)
+            for (let i = 0; i < entities.length; i++)
                 resourceIds.push(entities[i].get('resource_id'));
 
             editor.call('history:add', {
                 name: 'new sprite entities ' + entities.length,
                 undo: function () {
-                    for (var i = 0; i < resourceIds.length; i++) {
+                    for (let i = 0; i < resourceIds.length; i++) {
                         var entity = editor.call('entities:get', resourceIds[i]);
                         if (! entity)
                             continue;
@@ -187,7 +187,7 @@ editor.once('load', function () {
 
                     if (selectorType === 'entity' && selectorItems.length) {
                         var items = [];
-                        for (var i = 0; i < selectorItems.length; i++) {
+                        for (let i = 0; i < selectorItems.length; i++) {
                             var item = editor.call('entities:get', selectorItems[i]);
                             if (item)
                                 items.push(item);
@@ -209,7 +209,7 @@ editor.once('load', function () {
 
                     var entities = [];
 
-                    for (var i = 0; i < data.length; i++) {
+                    for (let i = 0; i < data.length; i++) {
                         var entity = new Observer(data[i]);
                         entities.push(entity);
                         editor.call('entities:addEntity', entity, parent, false);

@@ -22,7 +22,7 @@ editor.once('load', function () {
     };
 
     var initLayers = function () {
-        for (var i = 0; i < events.length; i++) {
+        for (let i = 0; i < events.length; i++) {
             events[i].unbind();
         }
         events.length = 0;
