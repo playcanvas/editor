@@ -86,7 +86,7 @@ editor.once('load', function () {
                 if (! model) {
                     // no in pool
                     model = models[this.type].clone();
-                    for (var i = 0; i < model.meshInstances.length; i++) {
+                    for (let i = 0; i < model.meshInstances.length; i++) {
                         model.meshInstances[i].__useFrontLayer = models[this.type].meshInstances[i].__useFrontLayer;
                     }
                     model._type = this.type;
@@ -145,7 +145,7 @@ editor.once('load', function () {
         if (! this._link)
             return;
 
-        for (var i = 0; i < this.events.length; i++) {
+        for (let i = 0; i < this.events.length; i++) {
             if (this.events[i] && this.events[i].unbind)
                 this.events[i].unbind();
         }
@@ -169,7 +169,7 @@ editor.once('load', function () {
     editor.on('selector:change', function (type, items) {
         // clear gizmos
         if (type !== 'entity') {
-            for (var key in entities) {
+            for (const key in entities) {
                 entities[key].unlink();
                 pool.push(entities[key]);
             }
@@ -179,13 +179,13 @@ editor.once('load', function () {
 
         // index selection
         var ids = { };
-        for (var i = 0; i < items.length; i++)
+        for (let i = 0; i < items.length; i++)
             ids[items[i].get('resource_id')] = items[i];
 
         var render = false;
 
         // remove
-        for (var key in entities) {
+        for (const key in entities) {
             if (ids[key])
                 continue;
 
@@ -196,7 +196,7 @@ editor.once('load', function () {
         }
 
         // add
-        for (var key in ids) {
+        for (const key in ids) {
             if (entities[key])
                 continue;
 
@@ -320,7 +320,7 @@ editor.once('load', function () {
         buffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, segments * 2 * 3);
         iterator = new pc.VertexIterator(buffer);
         // circles
-        for (var i = 0; i < segments; i++) {
+        for (let i = 0; i < segments; i++) {
             iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), 0, Math.cos(360 / segments * i * rad));
             iterator.next();
             iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * (i + 1) * rad), 0, Math.cos(360 / segments * (i + 1) * rad));
@@ -360,7 +360,7 @@ editor.once('load', function () {
     });
 
     editor.on('viewport:gizmoUpdate', function (dt) {
-        for (var key in entities) {
+        for (const key in entities) {
 
             // set inTools to true on emitter when running inside Editor - allows is to render screenspace particles in world space
             var entity = app.root.findByGuid(key);

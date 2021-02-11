@@ -65,7 +65,7 @@ editor.once('load', function () {
     var ConflictFieldVector = function (value) {
         var panel = new ui.Panel();
         var vars = ['x: ', 'y: ', 'z: ', 'w: '];
-        for (var i = 0; i < value.length; i++) {
+        for (let i = 0; i < value.length; i++) {
             var label = new ui.Label({
                 text: vars[i] + value[i] + ''
             });
@@ -268,7 +268,7 @@ editor.once('load', function () {
 
         this._list = new ui.List();
 
-        for (var i = 0; i < this._size; i++) {
+        for (let i = 0; i < this._size; i++) {
             var item = new ui.ListItem();
             var field = ConflictField.create(type, value[i]);
             field.element.class.add('array-' + type);

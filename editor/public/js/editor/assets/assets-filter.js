@@ -28,7 +28,7 @@ editor.once('load', function () {
         if (! data.length || ! tags.length)
             return false;
 
-        for (var i = 0; i < tags.length; i++) {
+        for (let i = 0; i < tags.length; i++) {
             if (tags[i].length === 1) {
                 // single occurance
                 if (data.indexOf(tags[i][0]) !== -1)
@@ -103,7 +103,7 @@ editor.once('load', function () {
                         var tags = [];
                         var merge = '';
 
-                        for (var i = 0; i < bits.length; i++) {
+                        for (let i = 0; i < bits.length; i++) {
                             var tag = bits[i].trim();
                             if (! tag) continue;
 

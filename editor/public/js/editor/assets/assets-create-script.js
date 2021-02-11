@@ -25,7 +25,7 @@ editor.once('load', function () {
                 var parts = string.split(/(\s|\-|_|\.)/g);
 
                 // filter valid tokens
-                for (var i = 0; i < parts.length; i++) {
+                for (let i = 0; i < parts.length; i++) {
                     parts[i] = parts[i].toLowerCase().trim();
                     if (parts[i] && parts[i] !== '-' && parts[i] !== '_' && parts[i] !== '.')
                         tokens.push(parts[i]);
@@ -35,13 +35,13 @@ editor.once('load', function () {
                     if (! scriptName) {
                         scriptName = tokens[0];
 
-                        for (var i = 1; i < tokens.length; i++) {
+                        for (let i = 1; i < tokens.length; i++) {
                             scriptName += tokens[i].charAt(0).toUpperCase() + tokens[i].slice(1);
                         }
                     }
 
                     if (! className) {
-                        for (var i = 0; i < tokens.length; i++) {
+                        for (let i = 0; i < tokens.length; i++) {
                             className += tokens[i].charAt(0).toUpperCase() + tokens[i].slice(1);
                         }
                     }

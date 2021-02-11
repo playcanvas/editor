@@ -53,7 +53,7 @@ editor.once('load', function () {
 
         if (count > 0) {
             var least = 1;
-            for (var key in jobs) {
+            for (const key in jobs) {
                 if (jobs[key] < least)
                     least = jobs[key];
             }

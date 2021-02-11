@@ -227,7 +227,7 @@ editor.once('load', function () {
             }
 
             if (value instanceof Array) {
-                for (var i = 0; i < value.length; i++) {
+                for (let i = 0; i < value.length; i++) {
                     updateAsset(this.get('resource_id'), 'entity', valueOld && valueOld[i] || null, value[i]);
                 }
             } else {
@@ -264,7 +264,7 @@ editor.once('load', function () {
                         var type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + parts[5] + '.type');
                         if (type === 'asset') {
                             if (value.attributes[parts[5]] instanceof Array) {
-                                for (var i = 0; i < value.attributes[parts[5]].length; i++) {
+                                for (let i = 0; i < value.attributes[parts[5]].length; i++) {
                                     updateAsset(this.get('resource_id'), 'entity', value.attributes[parts[5]][i], null);
                                 }
                             } else {
@@ -279,11 +279,11 @@ editor.once('load', function () {
                     if (primaryScript) {
                         updateAsset(this.get('resource_id'), 'entity', primaryScript.get('id'), null);
 
-                        for (var attrName in value.attributes) {
+                        for (const attrName in value.attributes) {
                             var type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + attrName + '.type');
                             if (type === 'asset') {
                                 if (value.attributes[attrName] instanceof Array) {
-                                    for (var i = 0; i < value.attributes[attrName].length; i++) {
+                                    for (let i = 0; i < value.attributes[attrName].length; i++) {
                                         updateAsset(this.get('resource_id'), 'entity', value.attributes[attrName][i], null);
                                     }
                                 } else {
@@ -301,7 +301,7 @@ editor.once('load', function () {
             }
 
             if (value instanceof Array) {
-                for (var i = 0; i < value.length; i++) {
+                for (let i = 0; i < value.length; i++) {
                     updateAsset(this.get('resource_id'), 'entity', value[i], null);
                 }
             } else {
@@ -332,7 +332,7 @@ editor.once('load', function () {
             }
 
             if (value instanceof Array) {
-                for (var i = 0; i < value.length; i++) {
+                for (let i = 0; i < value.length; i++) {
                     updateAsset(this.get('resource_id'), 'entity', null, value[i]);
                 }
             } else {
@@ -468,13 +468,13 @@ editor.once('load', function () {
             if (onSetMethods[type + '-remove'])
                 asset.on('*:remove', onSetMethods[type + '-remove']);
 
-            for (var key in keys[type])
+            for (const key in keys[type])
                 updateAsset(asset.get('id'), 'asset', null, asset.get(key));
 
             if (type === 'model') {
                 var mapping = asset.get('data.mapping');
                 if (mapping) {
-                    for (var i = 0; i < mapping.length; i++)
+                    for (let i = 0; i < mapping.length; i++)
                         updateAsset(asset.get('id'), 'asset', null, mapping[i].material);
                 }
             }
@@ -488,12 +488,12 @@ editor.once('load', function () {
         entity.on('*:insert', onSetMethods['entity-insert']);
         entity.on('*:remove', onSetMethods['entity-remove']);
 
-        for (var key in keys.entity)
+        for (const key in keys.entity)
             updateAsset(entity.get('resource_id'), 'entity', null, entity.get(key));
 
         var mappings = entity.get('components.model.mapping');
         if (mappings) {
-            for (var ind in mappings) {
+            for (const ind in mappings) {
                 if (!mappings.hasOwnProperty(ind) || !mappings[ind])
                     continue;
 
@@ -501,18 +501,18 @@ editor.once('load', function () {
             }
         }
 
-        for (var key in keys['entity-lists']) {
+        for (const key in keys['entity-lists']) {
             var items = entity.get(key);
             if (!items || !items.length)
                 continue;
 
-            for (var i = 0; i < items.length; i++)
+            for (let i = 0; i < items.length; i++)
                 updateAsset(entity.get('resource_id'), 'entity', null, items[i]);
         }
 
         var slots = entity.get('components.sound.slots');
         if (slots) {
-            for (var i in slots) {
+            for (const i in slots) {
                 if (!slots.hasOwnProperty(i) || !slots[i].asset)
                     continue;
 
@@ -522,7 +522,7 @@ editor.once('load', function () {
 
         var clips = entity.get('components.sprite.clips');
         if (clips) {
-            for (var key in clips) {
+            for (const key in clips) {
                 if (!clips.hasOwnProperty(key) || !clips[key].spriteAsset) {
                     continue;
                 }
@@ -534,7 +534,7 @@ editor.once('load', function () {
         var scripts = entity.get('components.script.scripts');
 
         if (scripts) {
-            for (var script in scripts) {
+            for (const script in scripts) {
                 if (!scripts.hasOwnProperty(script))
                     continue;
 
@@ -543,7 +543,7 @@ editor.once('load', function () {
                     updateAsset(entity.get('resource_id'), 'entity', null, primaryScript.get('id'));
 
                     var attributes = scripts[script].attributes;
-                    for (var attr in attributes) {
+                    for (const attr in attributes) {
                         if (!attributes.hasOwnProperty(attr))
                             continue;
 

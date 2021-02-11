@@ -22,7 +22,7 @@ editor.once('load', function () {
     };
 
     var initLayers = function () {
-        for (var i = 0; i < events.length; i++) {
+        for (let i = 0; i < events.length; i++) {
             events[i].unbind();
         }
         events.length = 0;
@@ -158,7 +158,7 @@ editor.once('load', function () {
         var composition = new pc.LayerComposition("viewport-layers");
 
         var index = {};
-        for (var key in layers) {
+        for (const key in layers) {
             layerIndex[key] = createLayer(key, layers[key]);
         }
 

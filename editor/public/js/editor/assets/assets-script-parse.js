@@ -65,7 +65,7 @@ editor.once('load', function () {
                         asset.set('data.loading', result.loading);
 
                     // remove scripts
-                    for (var key in scripts) {
+                    for (const key in scripts) {
                         if (! scripts.hasOwnProperty(key) || result.scripts.hasOwnProperty(key))
                             continue;
 
@@ -73,7 +73,7 @@ editor.once('load', function () {
                     }
 
                     // add scripts
-                    for (var key in result.scripts) {
+                    for (const key in result.scripts) {
                         if (! result.scripts.hasOwnProperty(key))
                             continue;
 
@@ -82,7 +82,7 @@ editor.once('load', function () {
                         // TODO scripts2
                         // attributes validation
 
-                        for (var attr in result.scripts[key].attributes) {
+                        for (const attr in result.scripts[key].attributes) {
                             if (! result.scripts[key].attributes.hasOwnProperty(attr))
                                 continue;
 
@@ -120,7 +120,7 @@ editor.once('load', function () {
                             });
                         } else {
                             // change attributes
-                            for (var attr in attributes) {
+                            for (const attr in attributes) {
                                 if (! attributes.hasOwnProperty(attr) || ! script.attributes.hasOwnProperty(attr))
                                     continue;
 
@@ -142,7 +142,7 @@ editor.once('load', function () {
                             }
 
                             // remove attributes
-                            for (var attr in script.attributes) {
+                            for (const attr in script.attributes) {
                                 if (! script.attributes.hasOwnProperty(attr) || attributes.hasOwnProperty(attr))
                                     continue;
 
@@ -151,7 +151,7 @@ editor.once('load', function () {
                             }
 
                             // add attributes
-                            for (var attr in attributes) {
+                            for (const attr in attributes) {
                                 if (! attributes.hasOwnProperty(attr) || script.attributes.hasOwnProperty(attr))
                                     continue;
 
@@ -163,7 +163,7 @@ editor.once('load', function () {
                             // TODO scritps2
                             // move attribute
                             var attrIndex = { };
-                            for (var i = 0; i < attributesOrder.length; i++)
+                            for (let i = 0; i < attributesOrder.length; i++)
                                 attrIndex[attributesOrder[i]] = i;
 
                             var scriptAttributeOrder = asset.get('data.scripts.' + key + '.attributesOrder');

@@ -69,7 +69,7 @@ editor.once('load', function () {
         var revert = Object.keys(this._pendingRevertedConflicts);
 
         // Group conflicts by status to minimize REST API calls
-        for (var conflictId in this._pendingResolvedConflicts) {
+        for (const conflictId in this._pendingResolvedConflicts) {
             if (this._pendingResolvedConflicts[conflictId].useSrc) {
                 useSrc.push(conflictId);
             } else {
@@ -111,7 +111,7 @@ editor.once('load', function () {
     ConflictResolver.prototype.appendToParent = function (parent) {
         this._parent = parent;
 
-        for (var i = 0, len = this.elements.length; i < len; i++) {
+        for (let i = 0, len = this.elements.length; i < len; i++) {
             var element = this.elements[i];
             if (element instanceof ui.ConflictSection) {
                 // only append a section if it has conflicts
@@ -138,7 +138,7 @@ editor.once('load', function () {
 
     // Calls onAddedToDom on every section
     ConflictResolver.prototype.reflow = function () {
-        for (var i = 0, len = this.elements.length; i < len; i++) {
+        for (let i = 0, len = this.elements.length; i < len; i++) {
             var element = this.elements[i];
             if (element instanceof ui.ConflictSection) {
                 element.onAddedToDom();
@@ -150,7 +150,7 @@ editor.once('load', function () {
 
     // Resolves all conflicts using the source values
     ConflictResolver.prototype.resolveUsingSource = function () {
-        for (var i = 0, len = this.elements.length; i < len; i++) {
+        for (let i = 0, len = this.elements.length; i < len; i++) {
             var element = this.elements[i];
             if (element instanceof ui.ConflictSection) {
                 element.resolveUsingSource();
@@ -160,7 +160,7 @@ editor.once('load', function () {
 
     // Resolves all conflicts using the destination values
     ConflictResolver.prototype.resolveUsingDestination = function () {
-        for (var i = 0, len = this.elements.length; i < len; i++) {
+        for (let i = 0, len = this.elements.length; i < len; i++) {
             var element = this.elements[i];
             if (element instanceof ui.ConflictSection) {
                 element.resolveUsingDestination();
@@ -177,7 +177,7 @@ editor.once('load', function () {
             this._parent = null;
         }
 
-        for (var i = 0, len = this.elements.length; i < len; i++) {
+        for (let i = 0, len = this.elements.length; i < len; i++) {
             this.elements[i].destroy();
         }
         this.elements.length = 0;

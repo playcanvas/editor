@@ -66,7 +66,7 @@ editor.once('load', function () {
     };
 
     var subscribe = function (watch) {
-        for (var i = 0; i < slots.length; i++) {
+        for (let i = 0; i < slots.length; i++) {
             var textureId = watch.asset.get('data.' + slots[i]);
             if (textureId)
                 addTextureWatch(watch, slots[i], textureId);
@@ -81,7 +81,7 @@ editor.once('load', function () {
 
         watch.watching.all = watch.asset.on('data:set', function (value) {
             if (value) {
-                for (var i = 0; i < slots.length; i++) {
+                for (let i = 0; i < slots.length; i++) {
                     var id = value[slots[i]];
                     if (watch.textures[slots[i]]) {
                         if (id !== watch.textures[slots[i]].id) {
@@ -93,27 +93,27 @@ editor.once('load', function () {
                     }
                 }
             } else {
-                for (var i = 0; i < slots.length; i++) {
+                for (let i = 0; i < slots.length; i++) {
                     if (watch.textures[slots[i]])
                         removeTextureWatch(watch, slots[i]);
                 }
             }
         });
 
-        for (var i = 0; i < slots.length; i++)
+        for (let i = 0; i < slots.length; i++)
             addSlotWatch(watch, slots[i]);
     };
 
     var unsubscribe = function (watch) {
-        for (var key in watch.textures)
+        for (const key in watch.textures)
             removeTextureWatch(watch, key);
 
-        for (var key in watch.watching)
+        for (const key in watch.watching)
             watch.watching[key].unbind();
     };
 
     var trigger = function (watch, slot) {
-        for (var key in watch.callbacks)
+        for (const key in watch.callbacks)
             watch.callbacks[key].callback(slot);
     };
 
@@ -142,7 +142,7 @@ editor.once('load', function () {
             watch.autoLoad++;
 
         if (watch.autoLoad === 1) {
-            for (var key in watch.textures) {
+            for (const key in watch.textures) {
                 var asset = app.assets.get(watch.textures[key].id);
                 if (asset && ! asset.resource)
                     app.assets.load(asset);

@@ -73,7 +73,7 @@ editor.once('load', function () {
 
     var pluginsPreload = projectSettings.get('plugins');
     if (pluginsPreload) {
-        for (var i = 0; i < pluginsPreload.length; i++)
+        for (let i = 0; i < pluginsPreload.length; i++)
             editor.call('plugins:load', pluginsPreload[i]);
     }
 });

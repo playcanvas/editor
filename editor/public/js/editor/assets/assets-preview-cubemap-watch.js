@@ -82,7 +82,7 @@ editor.once('load', function () {
     };
 
     var subscribe = function (watch) {
-        for (var i = 0; i < 6; i++) {
+        for (let i = 0; i < 6; i++) {
             var textureId = watch.asset.get('data.textures.' + i);
             if (textureId)
                 addTextureWatch(watch, i, textureId);
@@ -90,7 +90,7 @@ editor.once('load', function () {
 
         watch.watching.all = watch.asset.on('data.textures:set', function (value) {
             if (value) {
-                for (var i = 0; i < 6; i++) {
+                for (let i = 0; i < 6; i++) {
                     var id = value[i];
                     if (watch.textures[i]) {
                         if (id !== watch.textures[i].id) {
@@ -102,7 +102,7 @@ editor.once('load', function () {
                     }
                 }
             } else {
-                for (var i = 0; i < 6; i++) {
+                for (let i = 0; i < 6; i++) {
                     if (watch.textures[i])
                         removeTextureWatch(watch, i);
                 }
@@ -111,7 +111,7 @@ editor.once('load', function () {
             trigger(watch);
         });
 
-        for (var i = 0; i < 6; i++)
+        for (let i = 0; i < 6; i++)
             addSlotWatch(watch, i);
 
         watch.retryTimeout = null;
@@ -154,10 +154,10 @@ editor.once('load', function () {
     };
 
     var unsubscribe = function (watch) {
-        for (var key in watch.textures)
+        for (const key in watch.textures)
             removeTextureWatch(watch, key);
 
-        for (var key in watch.watching)
+        for (const key in watch.watching)
             watch.watching[key].unbind();
 
         if (watch.retryTimeout) {
@@ -171,7 +171,7 @@ editor.once('load', function () {
     };
 
     var trigger = function (watch, slot) {
-        for (var key in watch.callbacks)
+        for (const key in watch.callbacks)
             watch.callbacks[key].callback(slot);
     };
 

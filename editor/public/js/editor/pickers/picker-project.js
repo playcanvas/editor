@@ -221,7 +221,7 @@ editor.once('load', function () {
         window.removeEventListener('keydown', onKeyDown);
 
         // hide all panels
-        for (var key in menuOptions) {
+        for (const key in menuOptions) {
             menuOptions[key].panel.hidden = true;
             menuOptions[key].item.class.remove('active');
             menuOptions[key].item.class.remove('selected');
@@ -268,7 +268,7 @@ editor.once('load', function () {
         }
 
         // hide all first
-        for (var key in menuOptions) {
+        for (const key in menuOptions) {
             menuOptions[key].item.class.remove('active');
             menuOptions[key].panel.hidden = true;
         }

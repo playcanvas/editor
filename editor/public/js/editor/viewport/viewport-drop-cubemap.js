@@ -6,8 +6,6 @@ editor.once('load', function () {
 
     var canvas = editor.call('viewport:canvas');
     var evtPickHover = null;
-    var evtViewportHover = null;
-    var evtOnLoad = null;
     var hoverSkybox = null;
     var hoverMaterial = null;
     var hoverCubemap = null;
@@ -44,7 +42,7 @@ editor.once('load', function () {
         }
 
         if (hoverMaterial) {
-            for (var i = 0; i < hoverSkyboxFields.length; i++)
+            for (let i = 0; i < hoverSkyboxFields.length; i++)
                 hoverMaterial[hoverSkyboxFields[i]] = hoverMaterial._hoverCubeMap[hoverSkyboxFields[i]];
             hoverMaterial.update();
             delete hoverMaterial._hoverCubeMap;
@@ -65,11 +63,11 @@ editor.once('load', function () {
             if (hoverMaterial) {
                 if (! hoverMaterial._hoverCubeMap) {
                     hoverMaterial._hoverCubeMap = { };
-                    for (var i = 0; i < hoverSkyboxFields.length; i++)
+                    for (let i = 0; i < hoverSkyboxFields.length; i++)
                         hoverMaterial._hoverCubeMap[hoverSkyboxFields[i]] = hoverMaterial[hoverSkyboxFields[i]];
                 }
 
-                for (var i = 0; i < hoverSkyboxFields.length; i++)
+                for (let i = 0; i < hoverSkyboxFields.length; i++)
                     hoverMaterial[hoverSkyboxFields[i]] = hoverCubemap.resources[i];
 
                 hoverMaterial.update();

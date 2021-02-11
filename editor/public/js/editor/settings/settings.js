@@ -59,7 +59,7 @@ editor.once('load', function () {
                 }
 
                 settings.sync._enabled = false;
-                for (var key in data) {
+                for (const key in data) {
                     if (data[key] instanceof Array) {
                         settings.set(key, data[key].slice(0));
                     } else {
@@ -77,7 +77,7 @@ editor.once('load', function () {
                     var history = settings.history.enabled;
                     if (history)
                         settings.history.enabled = false;
-                    for (var i = 0; i < ops.length; i++) {
+                    for (let i = 0; i < ops.length; i++) {
                         settings.sync.write(ops[i]);
                     }
                     if (history)

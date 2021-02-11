@@ -20,7 +20,7 @@ editor.once('load', function () {
         description: 'The anim state graph asset that will control the animation playback for this entity.'
     }];
 
-    for (var i = 0; i < fields.length; i++) {
+    for (let i = 0; i < fields.length; i++) {
         fields[i].name = 'anim:' + (fields[i].name || fields[i].title);
         editor.call('attributes:reference:add', fields[i]);
     }

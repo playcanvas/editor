@@ -95,7 +95,7 @@ editor.once('load', function () {
             return unwrapping[asset.get('id')] || null;
         }
         var list = [];
-        for (var key in unwrapping) {
+        for (const key in unwrapping) {
             if (! unwrapping.hasOwnProperty(key))
                 continue;
 

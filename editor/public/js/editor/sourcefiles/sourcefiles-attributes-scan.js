@@ -77,7 +77,7 @@ editor.once('load', function () {
                 var valueType;
                 var enumerations = attribute.options.enumerations;
                 // TODO check enumerations max length
-                for (var i = 0; i < enumerations.length; i++) {
+                for (let i = 0; i < enumerations.length; i++) {
                     if (pc.type(enumerations[i]) !== 'object') {
                         throw attributeErrorMsg(url, attribute, "Each enumeration must be an object with this form: {name: '...', value: ...}");
                     } else {
@@ -101,7 +101,7 @@ editor.once('load', function () {
                 validateValue(url, attribute, valueType, enumerations[0].value);
 
                 var isValueInEnumerations = false;
-                for (var i = 0; i < enumerations.length; i++) {
+                for (let i = 0; i < enumerations.length; i++) {
                     if (enumerations[i].value === attribute.defaultValue) {
                         isValueInEnumerations = true;
                         break;
@@ -163,7 +163,7 @@ editor.once('load', function () {
                     if (validData.keys.length !== 0 && validData.keys.length !== attribute.options.curves.length) {
                         throw attributeErrorMsg(url, attribute, 'Invalid keys. Needs to be an array of ' + attribute.options.curves.length + ' arrays');
                     } else {
-                        for (var i = 0, len = validData.keys.length; i < len; i++) {
+                        for (let i = 0, len = validData.keys.length; i < len; i++) {
                             if (!(validData.keys[i] instanceof Array)) {
                                 throw attributeErrorMsg(url, attribute, 'Invalid keys. Needs to be an array of ' + len + ' arrays');
                             } else {
@@ -183,7 +183,7 @@ editor.once('load', function () {
                         if (validData.keys.length % 2 !== 0)
                             throw attributeErrorMsg(url, attribute, 'Invalid keys. Array must hold an even amount of numbers');
 
-                        for (var i = 0, len = validData.keys.length; i < len; i++) {
+                        for (let i = 0, len = validData.keys.length; i < len; i++) {
                             if (typeof validData.keys[i] !== 'number')
                                 throw attributeErrorMsg(url, attribute, 'Invalid keys. Array values must be numbers');
                         }
@@ -198,7 +198,7 @@ editor.once('load', function () {
                 if (attribute.options.curves.length === 1)
                     attribute.defaultValue.keys = [0, 0];
                 else {
-                    for (var i = 0; i < attribute.options.curves.length; i++) {
+                    for (let i = 0; i < attribute.options.curves.length; i++) {
                         attribute.defaultValue.keys.push([0, 0]);
                     }
                 }
@@ -242,7 +242,7 @@ editor.once('load', function () {
                     if (validData.keys.length !== 0 && validData.keys.length !== attribute.options.type.length) {
                         throw attributeErrorMsg(url, attribute, 'Invalid keys. Needs to be an array of ' + attribute.options.type.length + ' arrays');
                     } else {
-                        for (var i = 0, len = validData.keys.length; i < len; i++) {
+                        for (let i = 0, len = validData.keys.length; i < len; i++) {
                             if (!(validData.keys[i] instanceof Array)) {
                                 throw attributeErrorMsg(url, attribute, 'Invalid keys. Needs to be an array of ' + len + ' arrays');
                             } else {
@@ -262,7 +262,7 @@ editor.once('load', function () {
                         if (validData.keys.length % 2 !== 0)
                             throw attributeErrorMsg(url, attribute, 'Invalid keys. Array must hold an even amount of numbers');
 
-                        for (var i = 0, len = validData.keys.length; i < len; i++) {
+                        for (let i = 0, len = validData.keys.length; i < len; i++) {
                             if (typeof validData.keys[i] !== 'number')
                                 throw attributeErrorMsg(url, attribute, 'Invalid keys. Array values must be numbers');
                         }
@@ -277,7 +277,7 @@ editor.once('load', function () {
                 if (attribute.options.type.length === 1)
                     attribute.defaultValue.keys = [0, 0];
                 else {
-                    for (var i = 0; i < attribute.options.type.length; i++) {
+                    for (let i = 0; i < attribute.options.type.length; i++) {
                         attribute.defaultValue.keys.push([0, 0]);
                     }
                 }
@@ -300,7 +300,7 @@ editor.once('load', function () {
         if (correctLength >= 0 && attribute.defaultValue.length !== correctLength) {
             throw attributeErrorMsg(url, attribute, pc.string.format('Value must be an array with {0} elements of type {1}', correctLength, typeofElements));
         } else {
-            for (var i = 0; i < attribute.defaultValue.length; i++) {
+            for (let i = 0; i < attribute.defaultValue.length; i++) {
                 if (typeof attribute.defaultValue[i] !== typeofElements) {
                     throw attributeErrorMsg(url, attribute, pc.string.format('Value must be an array with elements of type {0}', typeofElements));
                 }

@@ -18,7 +18,7 @@ editor.once('load', function () {
     // Maintains the childToParent index
     editor.on('entities:add', function (entity) {
         var children = entity.get('children');
-        for (var i = 0; i < children.length; i++)
+        for (let i = 0; i < children.length; i++)
             childToParent[children[i]] = entity.get('resource_id');
 
         entity.on('children:insert', function (value) {

@@ -242,7 +242,7 @@ editor.once('load', function () {
             while (rowExistsEverywhere) {
                 row++;
 
-                for (var i = 0; i < allArrays.length; i++) {
+                for (let i = 0; i < allArrays.length; i++) {
                     if (! allArrays[i] || (! (allArrays[i] instanceof Array)) || allArrays[i].length <= row) {
                         rowExistsEverywhere = false;
                         break;

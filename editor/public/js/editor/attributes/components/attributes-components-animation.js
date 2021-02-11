@@ -40,7 +40,7 @@ editor.once('load', function () {
 
                 var id = parseInt(item.asset.get('id'), 10);
 
-                for (var i = 0; i < entities.length; i++) {
+                for (let i = 0; i < entities.length; i++) {
                     if (! entities[i].entity || ! entities[i].entity.animation)
                         continue;
 
@@ -85,7 +85,7 @@ editor.once('load', function () {
             item.once('destroy', function () {
                 var id = parseInt(item.asset.get('id'), 10);
 
-                for (var i = 0; i < entities.length; i++) {
+                for (let i = 0; i < entities.length; i++) {
                     if (! entities[i].entity || ! entities[i].entity.animation || entities[i].entity.animation.assets.indexOf(id) === -1)
                         continue;
 
@@ -99,7 +99,7 @@ editor.once('load', function () {
         };
 
         var nodes = fieldAssets.element.childNodes;
-        for (var i = 0; i < nodes.length; i++) {
+        for (let i = 0; i < nodes.length; i++) {
             if (! nodes[i].ui || ! nodes[i].ui.asset)
                 continue;
 
@@ -110,7 +110,7 @@ editor.once('load', function () {
         if (first) {
             first = false;
 
-            for (var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 if (! entities[i].entity || ! entities[i].entity.animation)
                     continue;
 

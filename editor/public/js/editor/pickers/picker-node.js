@@ -47,7 +47,7 @@ editor.once('load', function () {
         var resourceIds = [];
         var actions = [];
 
-        for (var i = 0, len = currentEntities.length; i < len; i++) {
+        for (let i = 0, len = currentEntities.length; i < len; i++) {
 
             var history = currentEntities[i].history.enabled;
             currentEntities[i].history.enabled = false;
@@ -88,7 +88,7 @@ editor.once('load', function () {
         editor.call('history:add', {
             name: 'entities.' + (resourceIds.length > 1 ? '*' : resourceIds[0]) + '.components.model.mapping',
             undo: function () {
-                for (var i = 0; i < resourceIds.length; i++) {
+                for (let i = 0; i < resourceIds.length; i++) {
                     var item = editor.call('entities:get', resourceIds[i]);
                     if (! item)
                         continue;
@@ -105,7 +105,7 @@ editor.once('load', function () {
                 }
             },
             redo: function () {
-                for (var i = 0; i < resourceIds.length; i++) {
+                for (let i = 0; i < resourceIds.length; i++) {
                     var item = editor.call('entities:get', resourceIds[i]);
                     if (! item)
                         continue;
@@ -131,7 +131,7 @@ editor.once('load', function () {
     var isAlreadyOverriden = function (index) {
         var len = currentEntities.length;
         var overrideCount = 0;
-        for (var i = 0; i < len; i++) {
+        for (let i = 0; i < len; i++) {
             if (currentEntities[i].has('components.model.mapping.' + index))
                 overrideCount++;
         }

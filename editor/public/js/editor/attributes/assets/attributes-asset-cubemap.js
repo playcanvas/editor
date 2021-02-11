@@ -3,7 +3,7 @@ editor.once('load', function () {
 
 
     editor.on('attributes:inspect[asset]', function (assets) {
-        for (var i = 0; i < assets.length; i++) {
+        for (let i = 0; i < assets.length; i++) {
             if (assets[i].get('type') !== 'cubemap')
                 return;
         }
@@ -182,7 +182,7 @@ editor.once('load', function () {
         editor.call('attributes:reference:attach', 'asset:texture:filtering', fieldFiltering.parent.innerElement.firstChild.ui);
 
         var isPrefiltered = false;
-        for (var i = 0; i < assets.length; i++) {
+        for (let i = 0; i < assets.length; i++) {
             if (!! assets[i].get('file')) {
                 isPrefiltered = true;
                 break;
@@ -196,7 +196,7 @@ editor.once('load', function () {
             var valueDifferent = false;
             var filter = assets[0].get('data.minFilter') + '_' + assets[0].get('data.magFilter');
 
-            for (var i = 1; i < assets.length; i++) {
+            for (let i = 1; i < assets.length; i++) {
                 if (filter !== (assets[i].get('data.minFilter') + '_' + assets[i].get('data.magFilter'))) {
                     valueDifferent = true;
                     break;
@@ -232,7 +232,7 @@ editor.once('load', function () {
             var valueMag = value === 'nearest' ? 0 : 1;
 
             changingFiltering = true;
-            for (var i = 0; i < assets.length; i++) {
+            for (let i = 0; i < assets.length; i++) {
                 values.push({
                     id: assets[i].get('id'),
                     valueMin: assets[i].get('data.minFilter'),
@@ -251,7 +251,7 @@ editor.once('load', function () {
             editor.call('history:add', {
                 name: 'assets.filtering',
                 undo: function () {
-                    for (var i = 0; i < values.length; i++) {
+                    for (let i = 0; i < values.length; i++) {
                         var asset = editor.call('assets:get', values[i].id);
                         if (! asset)
                             continue;
@@ -263,7 +263,7 @@ editor.once('load', function () {
                     }
                 },
                 redo: function () {
-                    for (var i = 0; i < values.length; i++) {
+                    for (let i = 0; i < values.length; i++) {
                         var asset = editor.call('assets:get', values[i].id);
                         if (! asset)
                             continue;
@@ -289,12 +289,12 @@ editor.once('load', function () {
                 updateFiltering();
             }, 0);
         };
-        for (var i = 0; i < assets.length; i++) {
+        for (let i = 0; i < assets.length; i++) {
             eventsFiltering.push(assets[i].on('data.minFilter:set', changedFiltering));
             eventsFiltering.push(assets[i].on('data.magFilter:set', changedFiltering));
         }
         fieldFiltering.once('destroy', function () {
-            for (var i = 0; i < eventsFiltering.length; i++) {
+            for (let i = 0; i < eventsFiltering.length; i++) {
                 eventsFiltering[i].unbind();
             }
         });
@@ -367,7 +367,7 @@ editor.once('load', function () {
                 if (! (faces instanceof Array))
                     return 'missing faces information';
 
-                for (var i = 0; i < 6; i++) {
+                for (let i = 0; i < 6; i++) {
                     if (! faces[i])
                         return 'set face textures';
                 }
@@ -375,7 +375,7 @@ editor.once('load', function () {
                 var width = 0;
                 var height = 0;
 
-                for (var i = 0; i < 6; i++) {
+                for (let i = 0; i < 6; i++) {
                     var asset = editor.call('assets:get', faces[i]);
                     if (! asset)
                         return 'missing face asset';
@@ -450,7 +450,7 @@ editor.once('load', function () {
                 var setRgbmIfNeeded = function (asset) {
                     var allHdr = true;
                     var textures = asset.get('data.textures');
-                    for (var i = 0; i < textures.length; i++) {
+                    for (let i = 0; i < textures.length; i++) {
                         if (textures[i] >= 0) {
                             var texture = editor.call('assets:get', textures[i]);
                             if (texture && !texture.get('data.rgbm')) {
@@ -551,7 +551,7 @@ editor.once('load', function () {
                         try {
                             var empty = true;
                             var faces = assets[0].get('data.textures');
-                            for (var i = 0; i < faces.length; i++) {
+                            for (let i = 0; i < faces.length; i++) {
                                 if (faces[i]) {
                                     empty = false;
                                     break;
@@ -631,7 +631,7 @@ editor.once('load', function () {
                                     if (faceAssets.length === 6) {
                                         var allFaces = [];
 
-                                        for (var i = 0; i < faceAssets.length; i++) {
+                                        for (let i = 0; i < faceAssets.length; i++) {
                                             var p = faceAssets[i][1].get('name').toLowerCase();
                                             if (match) p = p.slice(match);
                                             var m = p.indexOf('.');
@@ -648,7 +648,7 @@ editor.once('load', function () {
                                         });
 
 
-                                        for (var i = 0; i < faceAssets.length; i++)
+                                        for (let i = 0; i < faceAssets.length; i++)
                                             setAssetFace(i, faceAssets[i].asset);
 
                                         return;
@@ -663,7 +663,7 @@ editor.once('load', function () {
                     }
                 });
                 previewPanel.on('destroy', function () {
-                    for (var i = 0; i < watchingAssets.length; i++) {
+                    for (let i = 0; i < watchingAssets.length; i++) {
                         if (! watchingAssets[i])
                             continue;
 
@@ -701,13 +701,13 @@ editor.once('load', function () {
             };
 
             // create all faces
-            for (var i = 0; i < side.length; i++)
+            for (let i = 0; i < side.length; i++)
                 createFace(side[i]);
 
             // on destroy
             previewPanel.on('destroy', function () {
                 // unbind events
-                for (var i = 0; i < faces.length; i++)
+                for (let i = 0; i < faces.length; i++)
                     faces[i].evt.unbind();
             });
 

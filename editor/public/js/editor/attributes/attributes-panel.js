@@ -74,7 +74,7 @@ editor.once('load', function () {
             var value = args.link[0].has(path) ? args.link[0].get(path) : undefined;
             if (args.type === 'rgb') {
                 if (value) {
-                    for (var i = 1; i < args.link.length; i++) {
+                    for (let i = 1; i < args.link.length; i++) {
                         path = pathAt(args, i);
                         if (! value.equals(args.link[i].get(path))) {
                             value = null;
@@ -90,7 +90,7 @@ editor.once('load', function () {
                 }
             } else if (args.type === 'asset') {
                 var countUndefined = value === undefined ? 1 : 0;
-                for (var i = 1; i < args.link.length; i++) {
+                for (let i = 1; i < args.link.length; i++) {
                     path = pathAt(args, i);
                     if (!args.link[i].has(path)) {
                         countUndefined++;
@@ -127,7 +127,7 @@ editor.once('load', function () {
                     args.field.class.remove('null');
                 }
             } else if (args.type === 'entity' || ! args.type) {
-                for (var i = 1; i < args.link.length; i++) {
+                for (let i = 1; i < args.link.length; i++) {
                     path = pathAt(args, i);
                     if (value !== args.link[i].get(path)) {
                         value = 'various';
@@ -143,7 +143,7 @@ editor.once('load', function () {
                 }
             } else {
                 var valueFound = false;
-                for (var i = 0; i < args.link.length; i++) {
+                for (let i = 0; i < args.link.length; i++) {
                     path = pathAt(args, i);
                     if (! args.link[i].has(path))
                         continue;
@@ -207,7 +207,7 @@ editor.once('load', function () {
             if (args.type === "string" && args.trim)
                 args.field.value = value;
 
-            for (var i = 0; i < args.link.length; i++) {
+            for (let i = 0; i < args.link.length; i++) {
                 var path = pathAt(args, i);
                 if (! args.link[i].has(path)) continue;
 
@@ -228,7 +228,7 @@ editor.once('load', function () {
                     name: pathAt(args, 0),
                     undo: function () {
                         var different = false;
-                        for (var i = 0; i < items.length; i++) {
+                        for (let i = 0; i < items.length; i++) {
                             var path = pathAt(args, i);
                             var item = items[i].item.latest();
                             if (! item)
@@ -252,7 +252,7 @@ editor.once('load', function () {
                         }
                     },
                     redo: function () {
-                        for (var i = 0; i < items.length; i++) {
+                        for (let i = 0; i < items.length; i++) {
                             var path = pathAt(args, i);
                             var item = items[i].item.latest();
                             if (! item)
@@ -290,7 +290,7 @@ editor.once('load', function () {
             historyStart = function () {
                 var items = [];
 
-                for (var i = 0; i < args.link.length; i++) {
+                for (let i = 0; i < args.link.length; i++) {
                     var v = args.link[i].get(pathAt(args, i));
                     if (v instanceof Array)
                         v = v.slice(0);
@@ -309,7 +309,7 @@ editor.once('load', function () {
                 editor.call('history:add', {
                     name: pathAt(args, 0),
                     undo: function () {
-                        for (var i = 0; i < items.length; i++) {
+                        for (let i = 0; i < items.length; i++) {
                             var item = items[i].item.latest();
                             if (! item)
                                 continue;
@@ -320,7 +320,7 @@ editor.once('load', function () {
                         }
                     },
                     redo: function () {
-                        for (var i = 0; i < items.length; i++) {
+                        for (let i = 0; i < items.length; i++) {
                             var item = items[i].item.latest();
                             if (! item)
                                 continue;
@@ -401,13 +401,13 @@ editor.once('load', function () {
         update();
         events.push(args.field.on('change', changeField));
 
-        for (var i = 0; i < args.link.length; i++) {
+        for (let i = 0; i < args.link.length; i++) {
             events.push(args.link[i].on(pathAt(args, i) + ':set', changeFieldQueue));
             events.push(args.link[i].on(pathAt(args, i) + ':unset', changeFieldQueue));
         }
 
         events.push(args.field.once('destroy', function () {
-            for (var i = 0; i < events.length; i++)
+            for (let i = 0; i < events.length; i++)
                 events[i].unbind();
         }));
 
@@ -468,7 +468,7 @@ editor.once('load', function () {
         if (args.paths && args.paths instanceof Array && args.link && ! (args.link instanceof Array)) {
             var link = args.link;
             args.link = [];
-            for (var i = 0; i < args.paths.length; i++) {
+            for (let i = 0; i < args.paths.length; i++) {
                 args.link.push(link);
             }
         }
@@ -506,7 +506,7 @@ editor.once('load', function () {
                 };
 
                 if (field instanceof Array) {
-                    for (var i = 0; i < field.length; i++) {
+                    for (let i = 0; i < field.length; i++) {
                         var paths = args.paths;
 
                         if (paths) {
@@ -524,7 +524,7 @@ editor.once('load', function () {
         };
 
         var unlinkField = args.unlinkField = function () {
-            for (var i = 0; i < args.linkEvents.length; i++)
+            for (let i = 0; i < args.linkEvents.length; i++)
                 args.linkEvents[i].unbind();
 
             args.linkEvents = [];
@@ -634,7 +634,7 @@ editor.once('load', function () {
 
                     var records = [];
 
-                    for (var i = 0; i < args.link.length; i++) {
+                    for (let i = 0; i < args.link.length; i++) {
                         var path = pathAt(args, i);
                         if (args.link[i].get(path).indexOf(tag) === -1)
                             continue;
@@ -654,7 +654,7 @@ editor.once('load', function () {
                         editor.call('history:add', {
                             name: pathAt(args, 0),
                             undo: function () {
-                                for (var i = 0; i < records.length; i++) {
+                                for (let i = 0; i < records.length; i++) {
                                     var item = records[i].item.latest();
                                     if (! item)
                                         continue;
@@ -665,7 +665,7 @@ editor.once('load', function () {
                                 }
                             },
                             redo: function () {
-                                for (var i = 0; i < records.length; i++) {
+                                for (let i = 0; i < records.length; i++) {
                                     var item = records[i].item.latest();
                                     if (! item)
                                         continue;
@@ -689,7 +689,7 @@ editor.once('load', function () {
                             return;
                     }
 
-                    for (var i = 0; i < args.link.length; i++) {
+                    for (let i = 0; i < args.link.length; i++) {
                         var path = pathAt(args, i);
                         if (args.link[i].get(path).indexOf(tag) !== -1)
                             continue;
@@ -709,7 +709,7 @@ editor.once('load', function () {
                         editor.call('history:add', {
                             name: pathAt(args, 0),
                             undo: function () {
-                                for (var i = 0; i < records.length; i++) {
+                                for (let i = 0; i < records.length; i++) {
                                     var item = records[i].item.latest();
                                     if (! item)
                                         continue;
@@ -720,7 +720,7 @@ editor.once('load', function () {
                                 }
                             },
                             redo: function () {
-                                for (var i = 0; i < records.length; i++) {
+                                for (let i = 0; i < records.length; i++) {
                                     var item = records[i].item.latest();
                                     if (! item)
                                         continue;
@@ -775,7 +775,7 @@ editor.once('load', function () {
                         }
                     }
 
-                    for (var i = 0; i < values.length; i++) {
+                    for (let i = 0; i < values.length; i++) {
                         var value = values[i];
                         onInsert(value);
                     }
@@ -852,7 +852,7 @@ editor.once('load', function () {
                         if (! (args.link instanceof Array))
                             args.link = [args.link];
 
-                        for (var i = 0; i < args.link.length; i++) {
+                        for (let i = 0; i < args.link.length; i++) {
                             var path = pathAt(args, i);
                             var tags = args.link[i].get(path);
 
@@ -882,17 +882,17 @@ editor.once('load', function () {
 
                     sortTags();
 
-                    for (var i = 0; i < tagList.length; i++)
+                    for (let i = 0; i < tagList.length; i++)
                         insertElement(tagList[i]);
                 };
 
                 args.unlinkField = function () {
-                    for (var i = 0; i < args.linkEvents.length; i++)
+                    for (let i = 0; i < args.linkEvents.length; i++)
                         args.linkEvents[i].unbind();
 
                     args.linkEvents = [];
 
-                    for (var key in tagItems)
+                    for (const key in tagItems)
                         tagsPanel.innerElement.removeChild(tagItems[key]);
 
                     tagList = [];
@@ -985,7 +985,7 @@ editor.once('load', function () {
                 var channels = parseInt(args.type[3], 10);
                 field = [];
 
-                for (var i = 0; i < channels; i++) {
+                for (let i = 0; i < channels; i++) {
                     field[i] = new ui.NumberField();
                     field[i].flexGrow = 1;
                     field[i].style.width = '24px';
@@ -1121,7 +1121,7 @@ editor.once('load', function () {
                     evtPick = editor.once('picker:asset', function (asset) {
                         var oldValues = { };
                         if (args.onSet && args.link && args.link instanceof Array) {
-                            for (var i = 0; i < args.link.length; i++) {
+                            for (let i = 0; i < args.link.length; i++) {
                                 var id = 0;
                                 if (args.link[i]._type === 'asset') {
                                     id = args.link[i].get('id');
@@ -1320,7 +1320,7 @@ editor.once('load', function () {
 
                         var oldValues = { };
                         if (args.onSet && args.link && args.link instanceof Array) {
-                            for (var i = 0; i < args.link.length; i++) {
+                            for (let i = 0; i < args.link.length; i++) {
                                 var id = 0;
                                 if (args.link[i]._type === 'asset') {
                                     id = args.link[i].get('id');
@@ -1434,7 +1434,7 @@ editor.once('load', function () {
 
                         // get initial value only if it's the same for all
                         // links otherwise set it to null
-                        for (var i = 0, len = args.link.length; i < len; i++) {
+                        for (let i = 0, len = args.link.length; i < len; i++) {
                             var val = args.link[i].get(pathAt(args, i));
                             if (entity !== val) {
                                 if (entity) {
@@ -1601,7 +1601,7 @@ editor.once('load', function () {
                             };
 
                             var path;
-                            for (var i = 0, len = paths.length; i < len; i++) {
+                            for (let i = 0, len = paths.length; i < len; i++) {
                                 path = pathAt(args, 0); // always use 0 because we do not support multiselect
                                 // use the second curve path if needed
                                 if (args.canRandomize && paths[i][0] !== '0') {
@@ -1628,7 +1628,7 @@ editor.once('load', function () {
                                     item.history.enabled = false;
                                 }
 
-                                for (var i = 0, len = previous.paths.length; i < len; i++) {
+                                for (let i = 0, len = previous.paths.length; i < len; i++) {
                                     item.set(previous.paths[i], previous.values[i]);
                                 }
 
@@ -1651,7 +1651,7 @@ editor.once('load', function () {
                                     item.history.enabled = false;
                                 }
 
-                                for (var i = 0, len = paths.length; i < len; i++) {
+                                for (let i = 0, len = paths.length; i < len; i++) {
                                     path = pathAt(args, 0); // always use 0 because we do not support multiselect
                                     // use the second curve path if needed
                                     if (args.canRandomize && paths[i][0] !== '0') {
@@ -1745,7 +1745,7 @@ editor.once('load', function () {
                             };
 
                             var path;
-                            for (var i = 0; i < paths.length; i++) {
+                            for (let i = 0; i < paths.length; i++) {
                                 // always use 0 because we do not support multiselect
                                 path = pathAt(args, 0) + paths[i].substring(1);
                                 previous.paths.push(path);
@@ -1763,7 +1763,7 @@ editor.once('load', function () {
                                     item.history.enabled = false;
                                 }
 
-                                for (var i = 0; i < previous.paths.length; i++) {
+                                for (let i = 0; i < previous.paths.length; i++) {
                                     item.set(previous.paths[i], previous.values[i]);
                                 }
 
@@ -1782,7 +1782,7 @@ editor.once('load', function () {
                                     item.history.enabled = false;
                                 }
 
-                                for (var i = 0; i < paths.length; i++) {
+                                for (let i = 0; i < paths.length; i++) {
                                     // always use 0 because we do not support multiselect
                                     path = pathAt(args, 0) + paths[i].substring(1);
                                     item.set(path, values[i]);
@@ -1850,7 +1850,7 @@ editor.once('load', function () {
     var inspectedItems = [];
 
     editor.on('attributes:clear', function () {
-        for (var i = 0; i < inspectedItems.length; i++) {
+        for (let i = 0; i < inspectedItems.length; i++) {
             inspectedItems[i].unbind();
         }
         inspectedItems = [];
@@ -1885,7 +1885,7 @@ editor.once('load', function () {
         }
 
         // clear if destroyed
-        for (var i = 0; i < items.length; i++) {
+        for (let i = 0; i < items.length; i++) {
             inspectedItems.push(items[i].once('destroy', function () {
                 editor.call('attributes:clear');
             }));

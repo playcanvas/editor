@@ -74,7 +74,7 @@ Object.assign(pcui, (function () {
             if (!stateGraph) return;
             const layers = stateGraph.get('data.layers');
             this._layersContainer = new pcui.Container();
-            for (var layerId in layers) {
+            for (const layerId in layers) {
                 const layer = layers[layerId];
                 const layerPanel = new pcui.Panel({
                     headerText: `Layer: ${layer.name}`,

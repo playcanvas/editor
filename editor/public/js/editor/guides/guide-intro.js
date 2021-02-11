@@ -281,7 +281,7 @@ editor.once('load', function () {
                     }
                 };
 
-                for (var i = 0; i < items.length; i++) {
+                for (let i = 0; i < items.length; i++) {
                     if (items[i].has('components.sound')) {
                         showSoundBubble();
                         return;
@@ -291,7 +291,7 @@ editor.once('load', function () {
                 // if a sound component is added show bubble
                 if (! selectEvents) selectEvents = [];
 
-                for (var i = 0; i < items.length; i++) {
+                for (let i = 0; i < items.length; i++) {
                     selectEvents.push(items[i].on('components.sound:set', showSoundBubble));
                 }
             });

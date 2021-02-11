@@ -26,8 +26,6 @@ editor.once('load', function () {
     var textures = { };
     var scale = 0.5;
     var cameraRotation = new pc.Quat();
-    var rotateMatrix = new pc.Mat4().setFromAxisAngle(pc.Vec3.LEFT, -90);
-    var quadMaterial = new pc.Material();
     var selectedIds = { };
 
     // icon class
@@ -150,7 +148,7 @@ editor.once('load', function () {
         }
 
         var component = '';
-        for (var i = 0; i < components.length; i++) {
+        for (let i = 0; i < components.length; i++) {
             if (! this._link.has('components.' + components[i]))
                 continue;
 
@@ -208,10 +206,10 @@ editor.once('load', function () {
         this.unlink();
 
         this._link = obj;
-        for (var i = 0; i < dirtifyKeys.length; i++)
+        for (let i = 0; i < dirtifyKeys.length; i++)
             this.events.push(obj.on(dirtifyKeys[i], this.dirtify));
 
-        for (var i = 0; i < components.length; i++) {
+        for (let i = 0; i < components.length; i++) {
             this.events.push(obj.on('components.' + components[i] + ':set', this.dirtify));
             this.events.push(obj.on('components.' + components[i] + ':unset', this.dirtify));
         }
@@ -229,7 +227,7 @@ editor.once('load', function () {
         if (! this._link)
             return;
 
-        for (var i = 0; i < this.events.length; i++)
+        for (let i = 0; i < this.events.length; i++)
             this.events[i].unbind();
 
         if (this.entity)
@@ -297,7 +295,7 @@ editor.once('load', function () {
         iconsEntity = new pc.Entity(app);
         app.root.addChild(iconsEntity);
 
-        for (var i = 0; i < textureNames.length; i++) {
+        for (let i = 0; i < textureNames.length; i++) {
             textures[textureNames[i]] = new pc.Texture(app.graphicsDevice, {
                 width: 64,
                 height: 64
@@ -329,14 +327,14 @@ editor.once('load', function () {
         if (type !== 'entity')
             return;
 
-        for (var i = 0; i < items.length; i++)
+        for (let i = 0; i < items.length; i++)
             selectedIds[items[i].get('resource_id')] = true;
     });
 
     editor.on('viewport:postUpdate', function () {
         if (app) cameraRotation.copy(editor.call('camera:current').getRotation());
 
-        for (var i = 0; i < icons.length; i++)
+        for (let i = 0; i < icons.length; i++)
             icons[i].update();
     });
 

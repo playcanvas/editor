@@ -302,7 +302,7 @@ editor.once('load', function () {
                     }
 
                     // add to the score for each matched keyword
-                    for (var i = 0, len = keywords.length; i < len; i++) {
+                    for (let i = 0, len = keywords.length; i < len; i++) {
                         match = q.exec(keywords[i]);
                         if (match) {
                             score++;

@@ -337,7 +337,7 @@ editor.once('load', function () {
             btnUpdateShadow.hidden = fieldShadowUpdateMode.value !== pc.SHADOWUPDATE_THISFRAME && !! fieldShadowUpdateMode.value;
         });
         btnUpdateShadow.on('click', function () {
-            for (var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 if (entities[i].entity && entities[i].entity.light && entities[i].entity.light.shadowUpdateMode === pc.SHADOWUPDATE_THISFRAME)
                     entities[i].entity.light.light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
             }
@@ -739,7 +739,7 @@ editor.once('load', function () {
         var layersEnum = {
             '': ''
         };
-        for (var key in layers) {
+        for (const key in layers) {
             layersEnum[key] = layers[key].name;
         }
         delete layersEnum[LAYERID_DEPTH];

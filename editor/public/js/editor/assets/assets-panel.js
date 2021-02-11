@@ -152,7 +152,7 @@ editor.once('load', function () {
 
             // open tree up
             var path = currentFolder.get('path');
-            for (var i = 0; i < path.length; i++) {
+            for (let i = 0; i < path.length; i++) {
                 if (! assetsIndex[path[i]] || ! assetsIndex[path[i]].tree)
                     continue;
 
@@ -232,7 +232,7 @@ editor.once('load', function () {
             };
 
             if (data.ids) {
-                for (var i = 0; i < data.ids.length; i++)
+                for (let i = 0; i < data.ids.length; i++)
                     addAsset(data.ids[i]);
             } else {
                 addAsset(data.id);
@@ -351,7 +351,7 @@ editor.once('load', function () {
             };
 
             if (data.ids) {
-                for (var i = 0; i < data.ids.length; i++) {
+                for (let i = 0; i < data.ids.length; i++) {
                     addAsset(data.ids[i]);
                 }
             } else {
@@ -550,7 +550,7 @@ editor.once('load', function () {
             items = items.slice(0);
             var assets = items.slice(0);
 
-            for (var i = 0; i < items.length; i++) {
+            for (let i = 0; i < items.length; i++) {
                 if (legacyScripts && items[i].get('type') === 'script') {
                     assets[i] = scriptsIndex[items[i].get('filename')];
                 } else {
@@ -648,7 +648,7 @@ editor.once('load', function () {
                 var script = legacyScripts && selector.items[0].get('type') === 'script';
                 var path = script ? [] : selector.items[0].get('path');
                 var multiPath = false;
-                for (var i = 1; i < selector.items.length; i++) {
+                for (let i = 1; i < selector.items.length; i++) {
                     var item = selector.items[i];
                     if (script !== (item.get('type') === 'script') || (! script && ! path.equals(item.get('path')))) {
                         multiPath = true;
@@ -687,7 +687,7 @@ editor.once('load', function () {
         if (! queue || ! queue.length)
             return;
 
-        for (var i = 0; i < queue.length; i++) {
+        for (let i = 0; i < queue.length; i++) {
             var closest = treeFindClosest(item.tree, queue[i].tree);
             if (closest === -1) {
                 item.tree.append(queue[i].tree);
@@ -834,12 +834,12 @@ editor.once('load', function () {
         callback: function () {
             var assets = [];
 
-            for (var key in assetsIndex) {
+            for (const key in assetsIndex) {
                 if (! assetsIndex[key].hidden)
                     assets.push(assetsIndex[key].asset);
             }
 
-            for (var key in scriptsIndex) {
+            for (const key in scriptsIndex) {
                 if (! scriptsIndex[key].hidden)
                     assets.push(scriptsIndex[key].script);
             }
@@ -991,7 +991,7 @@ editor.once('load', function () {
             if (draggingData.ids) {
                 // multi-drag
                 var assetPath = asset.get('path');
-                for (var i = 0; i < draggingData.ids.length; i++) {
+                for (let i = 0; i < draggingData.ids.length; i++) {
                     if (assetPath.indexOf(draggingData.ids[i]) !== -1)
                         return;
                 }
@@ -1061,7 +1061,7 @@ editor.once('load', function () {
             // make sure we'fe found at least 1 valid asset
             var valid = false;
             var bundleAssets = asset.get('data.assets');
-            for (var i = 0; i < assetIds.length; i++) {
+            for (let i = 0; i < assetIds.length; i++) {
                 var draggedAsset = editor.call('assets:get', assetIds[i]);
                 if (! draggedAsset) continue;
                 if (bundleAssets.indexOf(draggedAsset.get('id')) !== -1) continue;
@@ -1131,7 +1131,7 @@ editor.once('load', function () {
 
                 if (selectorItems.indexOf(asset) !== -1) {
                     var ids = [];
-                    for (var i = 0; i < selectorItems.length; i++) {
+                    for (let i = 0; i < selectorItems.length; i++) {
                         // don't allow multi-path dragging
                         if (path.length !== selectorItems[i].get('path').length || path[path.length - 1] !== selectorItems[i].get('path')[path.length - 1])
                             return;
@@ -1407,7 +1407,7 @@ editor.once('load', function () {
         item.once('destroy', function () {
             editor.call('selector:remove', asset);
 
-            for (var i = 0; i < events.length; i++)
+            for (let i = 0; i < events.length; i++)
                 events[i].unbind();
             events = null;
 

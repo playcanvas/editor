@@ -167,7 +167,7 @@ editor.once('load', function () {
 
             // clean up events
             spriteItem.on('destroy', function () {
-                for (var i = 0, len = spriteEvents.length; i < len; i++) {
+                for (let i = 0, len = spriteEvents.length; i < len; i++) {
                     spriteEvents[i].unbind();
                 }
                 spriteEvents.length = 0;
@@ -186,7 +186,7 @@ editor.once('load', function () {
             return asset.get('type') === 'sprite' && parseInt(asset.get('data.textureAtlasAsset'), 10) === atlasId;
         });
 
-        for (var i = 0; i < spriteAssets.length; i++) {
+        for (let i = 0; i < spriteAssets.length; i++) {
             createSpriteItem(spriteAssets[i][1]);
         }
 
@@ -199,7 +199,7 @@ editor.once('load', function () {
             var parts = path.split('.');
             if (parts.length >= 3) {
                 var key = parts[2];
-                for (var assetId in firstFramePerSprite) {
+                for (const assetId  in firstFramePerSprite) {
                     if (firstFramePerSprite[assetId] === key) {
                         var p = spriteItems[assetId];
                         if (p) {
@@ -219,7 +219,7 @@ editor.once('load', function () {
             var parts = path.split('.');
             if (parts.length >= 3) {
                 var key = parts[2];
-                for (var assetId in firstFramePerSprite) {
+                for (const assetId  in firstFramePerSprite) {
                     if (firstFramePerSprite[assetId] === key) {
                         var p = spriteItems[assetId];
                         if (p) {
@@ -275,7 +275,7 @@ editor.once('load', function () {
             menu.destroy();
             contextMenuAsset = null;
 
-            for (var i = 0, len = events.length; i < len; i++) {
+            for (let i = 0, len = events.length; i < len; i++) {
                 events[i].unbind();
             }
             events.length = 0;

@@ -4,22 +4,15 @@ editor.once('viewport:load', function (app) {
     // Panning with left mouse button while shift key is down
 
     var panning = false;
-    var panSpeed = 0.01;
     var panCamera;
     var shiftKey = false;
     var vecA = new pc.Vec2();
     var vecB = new pc.Vec3();
     var vecC = new pc.Vec3();
     var vecD = new pc.Vec3();
-    var vecE = new pc.Vec3();
-    var quat = new pc.Quat();
-    var panLastPosition = new pc.Vec3();
-    var panPosition = new pc.Vec3();
-    var firstPan = false;
     var panPoint = new pc.Vec3();
     var grabbed = false;
     var panButton = 0;
-
 
     editor.on('hotkey:shift', function (state) {
         shiftKey = state;
@@ -53,8 +46,6 @@ editor.once('viewport:load', function (app) {
 
             if (vecB.length())
                 camera.setPosition(camera.getPosition().add(vecB));
-        } else {
-
         }
 
         editor.call('viewport:render');
@@ -68,7 +59,6 @@ editor.once('viewport:load', function (app) {
 
         editor.call('camera:focus:stop');
         panning = true;
-        firstPan = true;
 
         var camera = editor.call('camera:current');
         var point = editor.call('camera:depth:pixelAt', camera.camera, tap.x, tap.y);

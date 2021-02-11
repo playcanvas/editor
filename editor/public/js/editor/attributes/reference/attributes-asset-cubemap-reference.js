@@ -37,7 +37,7 @@ editor.once('load', function () {
         description: 'Prefilter button generates a set of low-resolution filtered textures which are used in the environment map of the Physical material. Prefiltering the cube map is essential for using the Physical material.'
     }];
 
-    for (var i = 0; i < fields.length; i++) {
+    for (let i = 0; i < fields.length; i++) {
         fields[i].name = 'asset:cubemap:' + (fields[i].name || fields[i].title);
         editor.call('attributes:reference:add', fields[i]);
     }

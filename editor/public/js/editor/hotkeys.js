@@ -3,7 +3,6 @@ editor.once('load', function () {
 
     var hotkeys = { };
     var keyIndex = { };
-    var keysDown = { };
     var ctrl = false;
     var shift = false;
     var alt = false;
@@ -412,11 +411,11 @@ editor.once('load', function () {
         }
     };
 
-    for (var key in keyMap) {
+    for (const key in keyMap) {
         keyByKeyCode[keyMap[key].keyCode] = key;
 
         if (keyMap[key].code instanceof Array) {
-            for (var i = 0; i < keyMap[key].code.length; i++) {
+            for (let i = 0; i < keyMap[key].code.length; i++) {
                 keyByCode[keyMap[key].code[i]] = key;
             }
         } else {
@@ -516,7 +515,7 @@ editor.once('load', function () {
 
         if (keyIndex[index]) {
             var skipPreventDefault = false;
-            for (var i = 0; i < keyIndex[index].length; i++) {
+            for (let i = 0; i < keyIndex[index].length; i++) {
                 if (! skipPreventDefault && hotkeys[keyIndex[index][i]].skipPreventDefault)
                     skipPreventDefault = true;
 

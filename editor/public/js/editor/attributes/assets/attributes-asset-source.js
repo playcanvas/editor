@@ -49,14 +49,14 @@ editor.once('load', function () {
 
             asset.once('destroy', function () {
                 item.destroy();
-                for (var i = 0; i < assetEvents.length; i++)
+                for (let i = 0; i < assetEvents.length; i++)
                     assetEvents[i].unbind();
             });
 
             events = events.concat(assetEvents);
         };
 
-        for (var i = 0; i < assets.length; i++)
+        for (let i = 0; i < assets.length; i++)
             addAsset(assets[i][1]);
 
         if (! assets.length)
@@ -72,7 +72,7 @@ editor.once('load', function () {
 
 
         list.once('destroy', function () {
-            for (var i = 0; i < events.length; i++)
+            for (let i = 0; i < events.length; i++)
                 events[i].unbind();
         });
     });

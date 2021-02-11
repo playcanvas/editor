@@ -61,7 +61,7 @@ editor.once('load', function () {
 
         visible = state;
 
-        for (var i = 0; i < gizmo.hoverable.length; i++) {
+        for (let i = 0; i < gizmo.hoverable.length; i++) {
             if (! gizmo.hoverable[i].model)
                 continue;
 
@@ -547,7 +547,7 @@ editor.once('load', function () {
         ];
 
         // create 3 rings of lines (the visible portion of the gizmo)
-        for (var i = 0; i < 3; i++) {
+        for (let i = 0; i < 3; i++) {
             mesh = new pc.Mesh();
             mesh.vertexBuffer = vertexBuffers[i];
             mesh.indexBuffer[0] = null;

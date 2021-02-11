@@ -125,7 +125,7 @@ editor.once('load', function () {
             mergeId: mergeId,
             conflictIds: conflictIds
         };
-        for (var key in resolveData) {
+        for (const key in resolveData) {
             data[key] = resolveData[key];
         }
 

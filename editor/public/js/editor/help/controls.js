@@ -137,7 +137,7 @@ editor.once('load', function () {
         });
     }
 
-    for (var i = 0; i < items.length; i++) {
+    for (let i = 0; i < items.length; i++) {
         var row = document.createElement('div');
         row.classList.add('row');
 

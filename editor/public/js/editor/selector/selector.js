@@ -141,7 +141,7 @@ editor.once('load', function () {
         });
 
         // add
-        for (var i = 0; i < items.length; i++)
+        for (let i = 0; i < items.length; i++)
             selector.add(items[i]);
     });
 

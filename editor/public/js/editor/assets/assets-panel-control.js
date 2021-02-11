@@ -107,7 +107,7 @@ editor.once('load', function () {
     };
 
     var keys = Object.keys(assets);
-    for (var i = 0; i < keys.length; i++) {
+    for (let i = 0; i < keys.length; i++) {
         if (! assets.hasOwnProperty(keys[i]))
             continue;
 

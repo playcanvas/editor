@@ -20,7 +20,7 @@ editor.once('load', function () {
         this.events = [];
         this.visible = false;
 
-        for (var i = 0; i < 24; i++)
+        for (let i = 0; i < 24; i++)
             this.lines.push(new pc.Vec3());
     }
     // update lines
@@ -89,7 +89,7 @@ editor.once('load', function () {
 
         // transform lines according to camera transform
         var wtm = new pc.Mat4().setTRS(this._link.entity.getPosition(), this._link.entity.getRotation(), pc.Vec3.ONE);
-        for (var i = 0; i < this.lines.length; i++)
+        for (let i = 0; i < this.lines.length; i++)
             wtm.transformPoint(this.lines[i], this.lines[i]);
 
         this.visible = true;
@@ -120,7 +120,7 @@ editor.once('load', function () {
         if (! this._link)
             return;
 
-        for (var i = 0; i < this.events.length; i++)
+        for (let i = 0; i < this.events.length; i++)
             this.events[i].unbind();
 
         this.events = [];
@@ -131,7 +131,7 @@ editor.once('load', function () {
     editor.on('selector:change', function (type, items) {
         // clear gizmos
         if (type !== 'entity') {
-            for (var key in entities) {
+            for (const key in entities) {
                 entities[key].unlink();
                 pool.push(entities[key]);
             }
@@ -141,13 +141,13 @@ editor.once('load', function () {
 
         // index selection
         var ids = { };
-        for (var i = 0; i < items.length; i++)
+        for (let i = 0; i < items.length; i++)
             ids[items[i].get('resource_id')] = items[i];
 
         var render = false;
 
         // remove
-        for (var key in entities) {
+        for (const key in entities) {
             if (ids[key])
                 continue;
 
@@ -158,7 +158,7 @@ editor.once('load', function () {
         }
 
         // add
-        for (var key in ids) {
+        for (const key in ids) {
             if (entities[key])
                 continue;
 
@@ -191,7 +191,7 @@ editor.once('load', function () {
     });
 
     editor.on('viewport:gizmoUpdate', function (dt) {
-        for (var key in entities) {
+        for (const key in entities) {
             entities[key].update();
             entities[key].render();
         }

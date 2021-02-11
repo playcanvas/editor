@@ -36,7 +36,7 @@ editor.once('load', function () {
         // Build index of conflicts so that the conflicts become
         // a hierarchical object
         var index = {};
-        for (var i = 0, len = conflicts.data.length; i < len; i++) {
+        for (let i = 0, len = conflicts.data.length; i < len; i++) {
             var conflict = conflicts.data[i];
             var parts = conflict.path.split('.');
             var target = index;
@@ -65,7 +65,7 @@ editor.once('load', function () {
         }
 
         if (index.layers) {
-            for (var key in index.layers) {
+            for (const key in index.layers) {
                 var section = resolver.createSection('LAYER ' + getLayerName(key, mergeObject), true);
                 section.appendAllFields({
                     schema: 'settings',
@@ -85,7 +85,7 @@ editor.once('load', function () {
         // Batch groups
         if (index.batchGroups) {
             resolver.createSeparator('BATCH GROUPS');
-            for (var key in index.batchGroups) {
+            for (const key in index.batchGroups) {
                 var section = resolver.createSection('BATCH GROUP ' + getBatchGroupName(key, mergeObject), true);
                 section.appendAllFields({
                     schema: 'settings',

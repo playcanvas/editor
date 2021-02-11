@@ -197,15 +197,15 @@ editor.once('load', function () {
 
     editor.on('entities:add', function (entity) {
         // model
-        for (var i = 0; i < fieldsLocal.length; i++)
+        for (let i = 0; i < fieldsLocal.length; i++)
             entity.on(fieldsLocal[i] + ':set', evtRebakeEntity);
 
         // light
-        for (var i = 0; i < fieldsLight.length; i++)
+        for (let i = 0; i < fieldsLight.length; i++)
             entity.on(fieldsLight[i] + ':set', evtRebakeLight);
 
         // global
-        for (var i = 0; i < fieldsGlobal.length; i++)
+        for (let i = 0; i < fieldsGlobal.length; i++)
             entity.on(fieldsGlobal[i] + ':set', evtRebakeScene);
     });
 

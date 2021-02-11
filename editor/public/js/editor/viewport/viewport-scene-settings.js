@@ -30,7 +30,7 @@ editor.once('load', function () {
         app.applySceneSettings(sceneSettings.json());
 
         // need to update all materials on scene settings change
-        for (var i = 0; i < app.assets._assets.length; i++) {
+        for (let i = 0; i < app.assets._assets.length; i++) {
             if (app.assets._assets[i].type !== 'material' || !app.assets._assets[i].resource)
                 continue;
 

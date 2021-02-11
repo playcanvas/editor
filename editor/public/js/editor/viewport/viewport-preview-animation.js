@@ -74,7 +74,7 @@ editor.once('load', function () {
     var clear = function () {
         var keys = Object.keys(index);
 
-        for (var i = 0; i < keys.length; i++)
+        for (let i = 0; i < keys.length; i++)
             remove(index[keys[i]]);
     };
 
@@ -85,7 +85,7 @@ editor.once('load', function () {
         if (type !== 'entity')
             return;
 
-        for (var i = 0; i < items.length; i++)
+        for (let i = 0; i < items.length; i++)
             add(items[i]);
     });
 });

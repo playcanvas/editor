@@ -42,7 +42,7 @@ editor.once('viewport:load', function () {
         combo._updateOptions(options);
 
         var writePermission = editor.call('permissions:write');
-        for (var key in combo.optionElements) {
+        for (const key in combo.optionElements) {
             if (index[key].__editorCamera)
                 continue;
 

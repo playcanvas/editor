@@ -32,7 +32,7 @@ editor.once('load', function () {
 
         // find textual merge conflict
         this._textualMergeConflict = null;
-        for (var i = 0; i < conflict.data.length; i++) {
+        for (let i = 0; i < conflict.data.length; i++) {
             if (conflict.data[i].isTextualMerge) {
                 this._textualMergeConflict = conflict.data[i];
                 break;

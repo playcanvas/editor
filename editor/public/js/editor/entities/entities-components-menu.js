@@ -83,7 +83,7 @@ editor.once('load', function () {
                 // then it should be available to add
                 var selection = getSelection();
                 var name = 'components.' + key;
-                for (var i = 0, len = selection.length; i < len; i++) {
+                for (let i = 0, len = selection.length; i < len; i++) {
                     if (!selection[i].has(name)) {
                         return true;
                     }

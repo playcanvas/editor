@@ -190,7 +190,7 @@ editor.once('load', function () {
                             var script = scripts[i];
                             if (!script.attributes) continue;
 
-                            for (var name in script.attributes) {
+                            for (const name in script.attributes) {
                                 var attr = script.attributes[name];
                                 if (!attr) continue;
 
@@ -225,7 +225,7 @@ editor.once('load', function () {
                     } else {
                         // scripts 2.0
                         if (scripts) {
-                            for (var script in scripts) {
+                            for (const script in scripts) {
                                 var asset = editor.call('assets:scripts:assetByScript', script);
                                 if (!asset) continue;
 
@@ -336,14 +336,14 @@ editor.once('load', function () {
         // remap assets
         const remappedAssets = {};
         if (data.assets) {
-            for (var key in data.assets) {
+            for (const key in data.assets) {
                 remappedAssets[key] = remapAsset(key, data.assets);
             }
         }
 
         // change resource ids
         var mapping = {};
-        for (var guid in data.hierarchy) {
+        for (const guid in data.hierarchy) {
             mapping[guid] = pc.guid.create();
         }
 
@@ -353,7 +353,7 @@ editor.once('load', function () {
 
         var entity;
 
-        for (var resourceId in data.hierarchy) {
+        for (const resourceId in data.hierarchy) {
             // create new entity
             entity = new Observer(data.hierarchy[resourceId]);
 
@@ -378,7 +378,7 @@ editor.once('load', function () {
         }
 
         // reparent children after they're all added
-        for (var i = 0; i < newEntities.length; i++) {
+        for (let i = 0; i < newEntities.length; i++) {
             entity = newEntities[i];
             var parentEntity = editor.call('entities:get', entity.get('parent'));
 
@@ -436,7 +436,7 @@ editor.once('load', function () {
 
                 var entities = [];
                 // re-add entities
-                for (var i = 0; i < selectedEntities.length; i++) {
+                for (let i = 0; i < selectedEntities.length; i++) {
                     var fromCache = editor.call('entities:getFromDeletedCache', selectedEntities[i].get('resource_id'));
                     if (!fromCache) continue;
 

@@ -47,7 +47,7 @@ editor.once('load', function () {
         var height = asset.get('meta.height') || 1;
 
         if (count) {
-            for (var key in frames) {
+            for (const key in frames) {
                 // search for existing frame that covers the entire atlas
                 if (frames[key]._data.rect[0] <= 0 &&
                     frames[key]._data.rect[1] <= 0 &&
@@ -62,7 +62,7 @@ editor.once('load', function () {
 
         if (frame === null) {
             var maxKey = 1;
-            for (var key in frames) {
+            for (const key in frames) {
                 maxKey = Math.max(maxKey, parseInt(key, 10) + 1);
             }
 

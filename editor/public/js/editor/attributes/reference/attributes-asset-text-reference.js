@@ -8,7 +8,7 @@ editor.once('load', function () {
         description: 'String data to be used in application.'
     }];
 
-    for (var i = 0; i < fields.length; i++) {
+    for (let i = 0; i < fields.length; i++) {
         fields[i].name = 'asset:text:' + (fields[i].name || fields[i].title);
         editor.call('attributes:reference:add', fields[i]);
     }

@@ -22,7 +22,7 @@ editor.once('load', function () {
 
         if (history) {
             var oldFrames = {};
-            for (var i = 0; i < numKeys; i++) {
+            for (let i = 0; i < numKeys; i++) {
                 oldFrames[keys[i]] = atlasAsset.get('data.frames.' + keys[i]);
             }
         }
@@ -33,7 +33,7 @@ editor.once('load', function () {
             var history = asset.history.enabled;
             asset.history.enabled = false;
 
-            for (var i = 0; i < numKeys; i++) {
+            for (let i = 0; i < numKeys; i++) {
                 asset.unset('data.frames.' + keys[i]);
             }
 
@@ -51,7 +51,7 @@ editor.once('load', function () {
                 var history = asset.history.enabled;
                 asset.history.enabled = false;
 
-                for (var i = 0; i < numKeys; i++) {
+                for (let i = 0; i < numKeys; i++) {
                     asset.set('data.frames.' + keys[i], oldFrames[keys[i]]);
                 }
 

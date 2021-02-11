@@ -32,7 +32,7 @@ editor.once('load', function () {
             }
 
             var keys = asset.getRaw('data.frameKeys');
-            for (var i = 0; i < numFrames; i++) {
+            for (let i = 0; i < numFrames; i++) {
                 if (keys.indexOf(frames[i]) !== -1) {
                     return true;
                 }
@@ -65,14 +65,14 @@ editor.once('load', function () {
             }));
 
             item.on('destroy', function () {
-                for (var i = 0; i < assetEvents.length; i++) {
+                for (let i = 0; i < assetEvents.length; i++) {
                     assetEvents[i].unbind();
                 }
                 assetEvents.length = 0;
             });
         };
 
-        for (var i = 0; i < assets.length; i++) {
+        for (let i = 0; i < assets.length; i++) {
             createAssetPanel(assets[i][1]);
         }
 
@@ -82,7 +82,7 @@ editor.once('load', function () {
         }));
 
         panel.on('destroy', function () {
-            for (var i = 0, len = events.length; i < len; i++) {
+            for (let i = 0, len = events.length; i < len; i++) {
                 events[i].unbind();
             }
             events.length = 0;

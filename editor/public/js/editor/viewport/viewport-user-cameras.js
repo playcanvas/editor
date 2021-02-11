@@ -287,7 +287,7 @@ editor.once('load', function () {
     editor.on('viewport:update', function (dt) {
         var render = false;
 
-        for (var id in cameras) {
+        for (const id in cameras) {
             var camera = cameras[id];
 
             if (vecA.copy(camera.getPosition()).sub(camera.pos).length() > 0.01) {

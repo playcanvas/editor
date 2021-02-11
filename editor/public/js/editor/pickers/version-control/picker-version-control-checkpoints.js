@@ -502,7 +502,7 @@ editor.once('load', function () {
             // go through all the checkpoint list items and call onAddedToDom() to recalculate
             // whether we need to show read more or not
             var listItems = listCheckpoints.element.querySelectorAll('.checkpoint-widget');
-            for (var i = 0, len = listItems.length; i < len; i++) {
+            for (let i = 0, len = listItems.length; i < len; i++) {
                 var item = listItems[i].ui;
                 item.onAddedToDom();
             }

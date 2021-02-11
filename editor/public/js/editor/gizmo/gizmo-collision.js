@@ -7,7 +7,6 @@ editor.once('load', function () {
     var selected = { };
     // pool of gizmos
     var pool = [];
-    var poolVec3 = [];
     // colors
     var alphaFront = 0.6;
     var alphaBehind = 0.2;
@@ -117,7 +116,7 @@ editor.once('load', function () {
             if (! this.color) {
                 var hash = 0;
                 var string = this._link.entity.getGuid();
-                for (var i = 0; i < string.length; i++)
+                for (let i = 0; i < string.length; i++)
                     hash += string.charCodeAt(i);
 
                 this.color = editor.call('color:hsl2rgb', (hash % 128) / 128, 0.5, 0.5);
@@ -184,7 +183,7 @@ editor.once('load', function () {
                         case 'capsule-x':
                         case 'capsule-y':
                         case 'capsule-z':
-                            for (var i = 0; i < model.meshInstances.length; i++) {
+                            for (let i = 0; i < model.meshInstances.length; i++) {
                                 model.meshInstances[i].setParameter('radius', collision.radius || 0.5);
                                 model.meshInstances[i].setParameter('height', collision.height || 2);
                             }
@@ -264,7 +263,7 @@ editor.once('load', function () {
                         this.entity.model.model.__picking = picking;
 
                         var meshes = this.entity.model.meshInstances;
-                        for (var i = 0; i < meshes.length; i++) {
+                        for (let i = 0; i < meshes.length; i++) {
                             if (! meshes[i].__collision)
                                 continue;
 
@@ -327,7 +326,7 @@ editor.once('load', function () {
         if (! this._link)
             return;
 
-        for (var i = 0; i < this.events.length; i++) {
+        for (let i = 0; i < this.events.length; i++) {
             if (this.events[i] && this.events[i].unbind)
                 this.events[i].unbind();
         }
@@ -412,7 +411,7 @@ editor.once('load', function () {
         selected = { };
 
         if (type === 'entity' && items && items.length) {
-            for (var i = 0; i < items.length; i++)
+            for (let i = 0; i < items.length; i++)
                 selected[items[i].get('resource_id')] = true;
         }
     });
@@ -586,7 +585,7 @@ editor.once('load', function () {
             matOccluder.update();
         };
 
-        for (var key in axesNames)
+        for (const key in axesNames)
             makeCapsuleMaterial(axesNames[key]);
 
         var buffer, iterator, size, length, node, mesh, meshInstance, model, indexBuffer, indices;
@@ -703,8 +702,8 @@ editor.once('load', function () {
         normals = [];
         indices = [];
 
-        for (var y = 1; y < segments / 2; y++) {
-            for (var i = 0; i < segments; i++) {
+        for (let y = 1; y < segments / 2; y++) {
+            for (let i = 0; i < segments; i++) {
                 var l = Math.sin((y * (180 / (segments / 2)) + 90) * rad);
                 var c = Math.cos((y * (180 / (segments / 2)) + 90) * rad);
                 vecA.set(Math.sin(360 / segments * i * rad) * Math.abs(c), l, Math.cos(360 / segments * i * rad) * Math.abs(c));
@@ -719,14 +718,14 @@ editor.once('load', function () {
         positions.push(0, -1, 0);
         normals.push(0, -1, 0);
 
-        for (var y = 0; y < segments / 2 - 2; y++) {
-            for (var i = 0; i < segments; i++) {
+        for (let y = 0; y < segments / 2 - 2; y++) {
+            for (let i = 0; i < segments; i++) {
                 indices.push(y * segments + i, (y + 1) * segments + i, y * segments + (i + 1) % segments);
                 indices.push((y + 1) * segments + i, (y + 1) * segments + (i + 1) % segments, y * segments + (i + 1) % segments);
             }
         }
 
-        for (var i = 0; i < segments; i++) {
+        for (let i = 0; i < segments; i++) {
             indices.push(i, (i + 1) % segments, (segments / 2 - 1) * segments);
             indices.push((segments / 2 - 2) * segments + i, (segments / 2 - 1) * segments + 1, (segments / 2 - 2) * segments + (i + 1) % segments);
         }
@@ -743,7 +742,7 @@ editor.once('load', function () {
         // ================
         // cones
         models['cone-x'] = createModel({
-            mesh: pc.scene.procedural.createCone(app.graphicsDevice),
+            mesh: pc.createCone(app.graphicsDevice),
             matDefault: materialDefault,
             matBehind: materialBehind,
             matOccluder: materialOccluder
@@ -751,14 +750,14 @@ editor.once('load', function () {
         models['cone-x'].graph.setLocalEulerAngles(0, 0, -90);
         models['cone-x'].graph.setLocalScale(2, 1, 2);
         models['cone-y'] = createModel({
-            mesh: pc.scene.procedural.createCone(app.graphicsDevice),
+            mesh: pc.createCone(app.graphicsDevice),
             matDefault: materialDefault,
             matBehind: materialBehind,
             matOccluder: materialOccluder
         });
         models['cone-y'].graph.setLocalScale(2, 1, 2);
         models['cone-z'] = createModel({
-            mesh: pc.scene.procedural.createCone(app.graphicsDevice),
+            mesh: pc.createCone(app.graphicsDevice),
             matDefault: materialDefault,
             matBehind: materialBehind,
             matOccluder: materialOccluder
@@ -773,7 +772,7 @@ editor.once('load', function () {
             'y': ['x', 'z', 'y'],
             'z': ['y', 'x', 'z']
         };
-        for (var a in axes) {
+        for (const a in axes) {
             positions = [];
             indices = [];
             normals = [];
@@ -781,7 +780,7 @@ editor.once('load', function () {
 
             // side
             for (var v = 1; v >= -1; v -= 2) {
-                for (var i = 0; i < segments; i++) {
+                for (let i = 0; i < segments; i++) {
                     vecA[axes[a][0]] = Math.sin(360 / segments * i * rad);
                     vecA[axes[a][1]] = Math.cos(360 / segments * i * rad);
                     vecA[axes[a][2]] = v * 0.5;
@@ -800,7 +799,7 @@ editor.once('load', function () {
                 positions.push(vecA.x * 0.5, vecA.y * 0.5, vecA.z * 0.5);
                 normals.push(vecA.x, vecA.y, vecA.z);
 
-                for (var i = 0; i < segments; i++) {
+                for (let i = 0; i < segments; i++) {
                     vecA[axes[a][0]] = Math.sin(360 / segments * i * rad);
                     vecA[axes[a][1]] = Math.cos(360 / segments * i * rad);
                     vecA[axes[a][2]] = v * 0.5;
@@ -813,7 +812,7 @@ editor.once('load', function () {
                 }
             }
 
-            for (var i = 0; i < segments; i++) {
+            for (let i = 0; i < segments; i++) {
                 // sides
                 indices.push(i, i + segments, (i + 1) % segments);
                 indices.push(i + segments, (i + 1) % segments + segments, (i + 1) % segments);
@@ -836,7 +835,7 @@ editor.once('load', function () {
         // capsules
 
         models['capsule-x'] = createModel({
-            mesh: pc.scene.procedural.createCapsule(app.graphicsDevice, {
+            mesh: pc.createCapsule(app.graphicsDevice, {
                 height: 2.0,
                 radius: 0.5
             }),
@@ -848,7 +847,7 @@ editor.once('load', function () {
         models['capsule-x'].graph.setLocalScale(2.0, 0.5, 2.0);
 
         models['capsule-y'] = createModel({
-            mesh: pc.scene.procedural.createCapsule(app.graphicsDevice, {
+            mesh: pc.createCapsule(app.graphicsDevice, {
                 height: 2.0,
                 radius: 0.5
             }),
@@ -859,7 +858,7 @@ editor.once('load', function () {
         models['capsule-y'].graph.setLocalScale(2.0, 0.5, 2.0);
 
         models['capsule-z'] = createModel({
-            mesh: pc.scene.procedural.createCapsule(app.graphicsDevice, {
+            mesh: pc.createCapsule(app.graphicsDevice, {
                 height: 2.0,
                 radius: 0.5
             }),
@@ -876,7 +875,7 @@ editor.once('load', function () {
 
         var meshesExtra = [];
 
-        for (var i = 0; i < model.meshInstances.length; i++) {
+        for (let i = 0; i < model.meshInstances.length; i++) {
             model.meshInstances[i].material = materialDefault.clone();
             model.meshInstances[i].material.updateShader = materialDefault.updateShader;
             model.meshInstances[i].material.color.set(color[0], color[1], color[2], alphaFront);
@@ -928,7 +927,7 @@ editor.once('load', function () {
     };
 
     editor.on('viewport:gizmoUpdate', function (dt) {
-        for (var key in entities)
+        for (const key in entities)
             entities[key].update();
     });
 });

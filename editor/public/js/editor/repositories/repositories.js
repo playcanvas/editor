@@ -20,7 +20,7 @@ editor.once('load', function () {
         })
         .on('load', function (status, data) {
             var response = data;
-            for (var key in response) {
+            for (const key in response) {
                 if (response.hasOwnProperty(key)) {
                     repositories.set(key, response[key]);
                 }

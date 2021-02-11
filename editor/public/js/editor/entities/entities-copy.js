@@ -16,7 +16,7 @@ editor.once('load', function () {
             assetIds = [assetIds];
         }
 
-        for (var i = 0; i < assetIds.length; i++) {
+        for (let i = 0; i < assetIds.length; i++) {
             var assetId = assetIds[i];
             if (! assetId || assets[assetId]) continue;
 
@@ -241,7 +241,7 @@ editor.once('load', function () {
             gatherDependencies(e, data);
         }
 
-        for (var key in selection) {
+        for (const key in selection) {
             // set parent of each copied entity to null
             if (data.hierarchy[key])
                 data.hierarchy[key].parent = null;

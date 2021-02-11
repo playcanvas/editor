@@ -18,7 +18,7 @@ editor.once('load', function () {
 
         expanded = state;
 
-        for (var i = 0; i < panels.length; i++)
+        for (let i = 0; i < panels.length; i++)
             panels[i].hidden = expanded;
 
         editor.emit('viewport:expand', state);

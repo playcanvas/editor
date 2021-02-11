@@ -20,8 +20,8 @@ editor.once('load', function () {
     // create playcanvas application
     try {
         var app = new Application(canvas.element, {
-            mouse: new pc.input.Mouse(canvas.element),
-            touch: !!('ontouchstart' in window) ? new pc.input.TouchDevice(canvas.element) : null,
+            mouse: new pc.Mouse(canvas.element),
+            touch: !!('ontouchstart' in window) ? new pc.TouchDevice(canvas.element) : null,
             editorSettings: editorSettings.json().editor,
             graphicsDeviceOptions: {
                 antialias: !disableAntiAliasing,

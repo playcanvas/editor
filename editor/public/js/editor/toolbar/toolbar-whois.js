@@ -30,7 +30,7 @@ editor.once('load', function () {
 
 
     editor.on('whoisonline:add', function (id) {
-        for (var i = 0; i < panel.innerElement.childNodes.length; i++) {
+        for (let i = 0; i < panel.innerElement.childNodes.length; i++) {
             var child = panel.innerElement.childNodes[i];
             if (child.userId === id)
                 return;
@@ -62,7 +62,7 @@ editor.once('load', function () {
 
 
     editor.on('whoisonline:remove', function (id, index) {
-        for (var i = 0; i < panel.innerElement.childNodes.length; i++) {
+        for (let i = 0; i < panel.innerElement.childNodes.length; i++) {
             var child = panel.innerElement.childNodes[i];
             if (child.userId === id) {
                 if (child.tooltip)

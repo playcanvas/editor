@@ -8,7 +8,7 @@ Object.assign(Helpers, {
         var rgba = colour.map(function (element, index) {
             return index < 3 ? Math.round(element * scale) : element;
         } ).join(',');
-        for (var i = colour.length; i < 4; ++i) {
+        for (let i = colour.length; i < 4; ++i) {
             rgba += ',' + (i < 3 ? scale : 1);
         }
         return 'rgba(' + rgba + ')';
@@ -379,7 +379,7 @@ editor.once('load', function () {
         value = STATE.typeMap[value];
         var paths = [];
         var values = [];
-        for (var i = 0; i < STATE.curves.length; ++i) {
+        for (let i = 0; i < STATE.curves.length; ++i) {
             paths.push(i.toString() + '.type');
             values.push(value);
         }
@@ -513,7 +513,7 @@ editor.once('load', function () {
 
     function evaluateGradient(time, alphaOverride) {
         var result = [];
-        for (var i = 0; i < 3; ++i) {
+        for (let i = 0; i < 3; ++i) {
             result.push(STATE.curves[i].value(time));
         }
 
@@ -531,7 +531,7 @@ editor.once('load', function () {
     function calcAnchorTimes() {
         // get curve anchor points
         var times = [];
-        for (var i = 0; i < STATE.curves.length; i++) {
+        for (let i = 0; i < STATE.curves.length; i++) {
             var curve = STATE.curves[i];
             for (var j = 0; j < curve.keys.length; ++j) {
                 times.push(curve.keys[j][0]);
@@ -654,7 +654,7 @@ editor.once('load', function () {
         var time = STATE.anchors[STATE.selectedAnchor];
         // make a copy of the curve data before editing starts
         STATE.keystore = [];
-        for (var i = 0; i < STATE.curves.length; ++i) {
+        for (let i = 0; i < STATE.curves.length; ++i) {
             var keys = [];
             STATE.curves[i].keys.forEach(function (element) {
                 if (element[0] !== time) {
@@ -669,7 +669,7 @@ editor.once('load', function () {
         if (STATE.selectedAnchor === -1) {
             return;
         }
-        for (var i = 0; i < STATE.curves.length; ++i) {
+        for (let i = 0; i < STATE.curves.length; ++i) {
             var curve = STATE.curves[i];
             var keystore = STATE.keystore[i];
 
@@ -693,7 +693,7 @@ editor.once('load', function () {
 
     // insert an anchor at the given time with the given color
     function insertAnchor(time, color) {
-        for (var i = 0; i < STATE.curves.length; ++i) {
+        for (let i = 0; i < STATE.curves.length; ++i) {
             var keys = STATE.curves[i].keys;
 
             var j = 0;
@@ -715,7 +715,7 @@ editor.once('load', function () {
 
     // delete the anchor(s) at the given time
     function deleteAnchor(time) {
-        for (var i = 0; i < STATE.curves.length; ++i) {
+        for (let i = 0; i < STATE.curves.length; ++i) {
             var curve = STATE.curves[i];
 
             for (var j = 0; j < curve.keys.length; ++j) {
@@ -741,7 +741,7 @@ editor.once('load', function () {
         if (STATE.selectedAnchor !== -1) {
             var time = STATE.anchors[STATE.selectedAnchor];
 
-            for (var i = 0; i < STATE.curves.length; ++i) {
+            for (let i = 0; i < STATE.curves.length; ++i) {
                 var curve = STATE.curves[i];
 
                 for (var j = 0; j < curve.keys.length; ++j) {

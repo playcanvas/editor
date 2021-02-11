@@ -109,7 +109,7 @@ editor.once('load', function () {
                         label.class.add('title');
                         panelErrors.append(label);
 
-                        for (var i = 0; i < result.scriptsInvalid.length; i++) {
+                        for (let i = 0; i < result.scriptsInvalid.length; i++) {
                             var label = new ui.Label({ text: result.scriptsInvalid[i] });
                             panelErrors.append(label);
                         }
@@ -119,7 +119,7 @@ editor.once('load', function () {
                     }
 
                     // template attributes validation errors
-                    for (var key in result.scripts) {
+                    for (const key in result.scripts) {
                         if (! result.scripts.hasOwnProperty(key) || ! scriptsPanelIndex[key])
                             continue;
 
@@ -141,7 +141,7 @@ editor.once('load', function () {
                         if (validation.collision)
                             validation.append(validation.collision);
 
-                        for (var i = 0; i < attrInvalid.length; i++)
+                        for (let i = 0; i < attrInvalid.length; i++)
                             validation.append(new ui.Label({ text: attrInvalid[i] }));
 
                         validation.hidden = false;
@@ -247,7 +247,7 @@ editor.once('load', function () {
                     onCollide();
 
                 panel.once('destroy', function () {
-                    for (var i = 0; i < events.length; i++)
+                    for (let i = 0; i < events.length; i++)
                         events[i].unbind();
                     events = null;
                 });
@@ -255,7 +255,7 @@ editor.once('load', function () {
                 scriptsPanelIndex[script] = panel;
 
                 var attributesOrder = asset.get('data.scripts.' + script + '.attributesOrder');
-                for (var i = 0; i < attributesOrder.length; i++)
+                for (let i = 0; i < attributesOrder.length; i++)
                     createScriptAttribute(script, attributesOrder[i]);
 
                 checkScriptsEmpty();
@@ -339,7 +339,7 @@ editor.once('load', function () {
                 }));
 
                 fieldType.once('destroy', function () {
-                    for (var i = 0; i < events.length; i++)
+                    for (let i = 0; i < events.length; i++)
                         events[i].unbind();
 
                     events = null;
@@ -348,7 +348,7 @@ editor.once('load', function () {
 
             var data = asset.get('data.scripts');
             var scriptKeys = [];
-            for (var key in data) {
+            for (const key in data) {
                 if (! data.hasOwnProperty(key))
                     continue;
 
@@ -464,7 +464,7 @@ editor.once('load', function () {
 
         // clear events
         panel.once('destroy', function () {
-            for (var i = 0; i < events.length; i++)
+            for (let i = 0; i < events.length; i++)
                 events[i].unbind();
 
             events = null;

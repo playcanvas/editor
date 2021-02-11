@@ -74,7 +74,7 @@ editor.once('load', function () {
         var calculateExcludeScripts = function () {
             excludeScripts = { };
             var excludeScriptsIndex = { };
-            for (var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 var scripts = entities[i].get('components.script.order');
                 if (! scripts)
                     continue;
@@ -148,7 +148,7 @@ editor.once('load', function () {
                 inputAddScript.class.add('not-empty');
 
                 var items = [];
-                for (var key in autoComplete.index) {
+                for (const key in autoComplete.index) {
                     if (! autoComplete.index.hasOwnProperty(key))
                         continue;
 
@@ -157,13 +157,13 @@ editor.once('load', function () {
 
                 var search = editor.call('search:items', items, value);
                 var searchIndex = { };
-                for (var i = 0; i < search.length; i++)
+                for (let i = 0; i < search.length; i++)
                     searchIndex[search[i]] = true;
 
                 itemAutoCompleteNew.hidden = !! excludeScripts[value] || !! searchIndex[value];
                 itemAutoCompleteNew.class.remove('active');
 
-                for (var key in autoComplete.index) {
+                for (const key in autoComplete.index) {
                     if (! autoComplete.index.hasOwnProperty(key))
                         continue;
 
@@ -180,7 +180,7 @@ editor.once('load', function () {
                 itemAutoCompleteNew.hidden = false;
                 itemAutoCompleteNew.class.remove('active');
 
-                for (var key in autoComplete.index) {
+                for (const key in autoComplete.index) {
                     if (! autoComplete.index.hasOwnProperty(key))
                         continue;
 
@@ -216,7 +216,7 @@ editor.once('load', function () {
                 itemAutoCompleteNew.element.addEventListener('mousedown', createNewScript, false);
                 autoComplete.append(itemAutoCompleteNew);
 
-                for (var i = 0; i < scripts.length; i++) {
+                for (let i = 0; i < scripts.length; i++) {
                     var item = addScriptAutocompleteItem(scripts[i]);
                     if (excludeScripts[scripts[i]])
                         item.hidden = true;
@@ -226,7 +226,7 @@ editor.once('load', function () {
                 // resort might be required if new scripts were added before templated
             } else {
                 // show all items as search is empty
-                for (var key in autoComplete.index) {
+                for (const key in autoComplete.index) {
                     if (! autoComplete.index.hasOwnProperty(key))
                         continue;
 
@@ -276,7 +276,7 @@ editor.once('load', function () {
         var onScriptAdd = function (script) {
             var records = [];
 
-            for (var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 if (entities[i].has('components.script.scripts.' + script))
                     continue;
 
@@ -298,7 +298,7 @@ editor.once('load', function () {
             editor.call('history:add', {
                 name: 'entities.components.script.scripts',
                 undo: function () {
-                    for (var i = 0; i < records.length; i++) {
+                    for (let i = 0; i < records.length; i++) {
                         var item = records[i].item.latest();
                         if (! item) continue;
 
@@ -309,7 +309,7 @@ editor.once('load', function () {
                     }
                 },
                 redo: function () {
-                    for (var i = 0; i < records.length; i++) {
+                    for (let i = 0; i < records.length; i++) {
                         var item = records[i].item.latest();
                         if (! item) continue;
 
@@ -490,7 +490,7 @@ editor.once('load', function () {
                 dragScripts = [];
                 var children = panelScripts.innerElement.children;
 
-                for (var i = 0; i < children.length; i++) {
+                for (let i = 0; i < children.length; i++) {
                     var script = children[i].ui ? children[i].ui.script : children[i].script;
 
                     dragScripts.push({
@@ -513,7 +513,7 @@ editor.once('load', function () {
                 scriptPanelsIndex[dragScript].class.add('dragged');
 
                 dragCalculateSizes();
-                for (var i = 0; i < dragScripts.length; i++) {
+                for (let i = 0; i < dragScripts.length; i++) {
                     if (dragScripts[i].script === dragScript)
                         dragScriptInd = i;
                 }
@@ -545,7 +545,7 @@ editor.once('load', function () {
                     var height = dragPlaceholder.clientHeight;
 
                     var c = 0;
-                    for (var i = 0; i < dragScripts.length; i++) {
+                    for (let i = 0; i < dragScripts.length; i++) {
                         if (dragScripts[i].script === dragScript) {
                             c = i;
                             break;
@@ -553,7 +553,7 @@ editor.once('load', function () {
                     }
 
                     // hovered script
-                    for (var i = 0; i < dragScripts.length; i++) {
+                    for (let i = 0; i < dragScripts.length; i++) {
                         var off = Math.max(0, dragScripts[i].height - height);
                         if (c < i) {
                             if (y >= (dragScripts[i].y + off) && y <= (dragScripts[i].y + dragScripts[i].height)) {
@@ -645,7 +645,7 @@ editor.once('load', function () {
             if (panel) {
                 // check if script is still present in all entities
                 var complete = true;
-                for (var i = 0; i < entities.length; i++) {
+                for (let i = 0; i < entities.length; i++) {
                     if (! entities[i].has('components.script.scripts.' + script)) {
                         complete = false;
                         break;
@@ -673,7 +673,7 @@ editor.once('load', function () {
 
             // clean events
             panel.once('destroy', function () {
-                for (var i = 0; i < events.length; i++)
+                for (let i = 0; i < events.length; i++)
                     events[i].unbind();
                 events = null;
             });
@@ -705,7 +705,7 @@ editor.once('load', function () {
             }
 
             // check if script is present in all entities
-            for (var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 if (! entities[i].has('components.script.scripts.' + script)) {
                     panel.header += ' *';
                     break;
@@ -776,7 +776,7 @@ editor.once('load', function () {
             btnRemove.on('click', function () {
                 var records = [];
 
-                for (var i = 0; i < entities.length; i++) {
+                for (let i = 0; i < entities.length; i++) {
                     if (! entities[i].has('components.script.scripts.' + script))
                         continue;
 
@@ -787,7 +787,7 @@ editor.once('load', function () {
                     });
                 }
 
-                for (var i = 0; i < records.length; i++) {
+                for (let i = 0; i < records.length; i++) {
                     var entity = records[i].item;
                     entity.history.enabled = false;
                     entity.unset('components.script.scripts.' + script);
@@ -798,7 +798,7 @@ editor.once('load', function () {
                 editor.call('history:add', {
                     name: 'entities.components.script.scripts',
                     undo: function () {
-                        for (var i = 0; i < records.length; i++) {
+                        for (let i = 0; i < records.length; i++) {
                             var item = records[i].item.latest();
                             if (! item) continue;
 
@@ -809,7 +809,7 @@ editor.once('load', function () {
                         }
                     },
                     redo: function () {
-                        for (var i = 0; i < records.length; i++) {
+                        for (let i = 0; i < records.length; i++) {
                             var item = records[i].item.latest();
                             if (! item) continue;
 
@@ -949,7 +949,7 @@ editor.once('load', function () {
             if (scriptAsset) {
                 var attributesOrder = scriptAsset.get('data.scripts.' + script + '.attributesOrder');
                 if (attributesOrder) {
-                    for (var i = 0; i < attributesOrder.length; i++) {
+                    for (let i = 0; i < attributesOrder.length; i++) {
                         var attribute = scriptAsset.get('data.scripts.' + script + '.attributes.' + attributesOrder[i]);
                         addScriptAttribute(script, attributesOrder[i], attribute);
                     }
@@ -965,7 +965,7 @@ editor.once('load', function () {
                 return;
 
             var complete = true;
-            for (var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 if (entities[i].has('components.script.scripts.' + script)) {
                     complete = false;
                     break;
@@ -1053,7 +1053,7 @@ editor.once('load', function () {
 
             if (attribute.enum) {
                 choices = [{ v: '', t: '...' }];
-                for (var i = 0; i < attribute.enum.order.length; i++) {
+                for (let i = 0; i < attribute.enum.order.length; i++) {
                     var key = attribute.enum.order[i];
                     choices.push({
                         v: attribute.enum.options[key],
@@ -1164,7 +1164,7 @@ editor.once('load', function () {
                 changed = true;
 
             if (! changed && typeof(value.enum) === 'object') {
-                for (var i = 0; i < value.enum.order.length; i++) {
+                for (let i = 0; i < value.enum.order.length; i++) {
                     if (value.enum.options[value.enum.order[i]] !== old.enum.options[value.enum.order[i]]) {
                         changed = true;
                         break;
@@ -1198,11 +1198,11 @@ editor.once('load', function () {
                 if (value.placeholder !== old.placeholder) {
                     if (panel.field instanceof Array) {
                         if (value.placeholder instanceof Array && value.placeholder.length === panel.field.length) {
-                            for (var i = 0; i < panel.field.length; i++) {
+                            for (let i = 0; i < panel.field.length; i++) {
                                 panel.field[i].placeholder = value.placeholder[i];
                             }
                         } else {
-                            for (var i = 0; i < panel.field.length; i++) {
+                            for (let i = 0; i < panel.field.length; i++) {
                                 panel.field[i].placeholder = null;
                             }
                         }
@@ -1269,7 +1269,7 @@ editor.once('load', function () {
         };
 
         var scripts = { };
-        for (var i = 0; i < entities.length; i++) {
+        for (let i = 0; i < entities.length; i++) {
             // on script add
             events.push(entities[i].on('components.script.order:insert', function (value, ind) {
                 addScript(value, ind);
@@ -1287,7 +1287,7 @@ editor.once('load', function () {
                 if (! value || ! value.order || ! value.order.length)
                     return;
 
-                for (var i = 0; i < value.order.length; i++) {
+                for (let i = 0; i < value.order.length; i++) {
                     addScript(value.order[i], i);
                     calculateExcludeScripts();
                 }
@@ -1298,7 +1298,7 @@ editor.once('load', function () {
                 if (! value || ! value.order || ! value.order.length)
                     return;
 
-                for (var i = 0; i < value.order.length; i++) {
+                for (let i = 0; i < value.order.length; i++) {
                     removeScript(value.order[i]);
                     calculateExcludeScripts();
                 }
@@ -1330,7 +1330,7 @@ editor.once('load', function () {
                 scripts[items[s]] = true;
         }
 
-        for (var key in scripts) {
+        for (const key in scripts) {
             if (! scripts.hasOwnProperty(key))
                 continue;
 
@@ -1338,7 +1338,7 @@ editor.once('load', function () {
         }
 
         panel.once('destroy', function () {
-            for (var i = 0; i < events.length; i++)
+            for (let i = 0; i < events.length; i++)
                 events[i].unbind();
 
             events = null;

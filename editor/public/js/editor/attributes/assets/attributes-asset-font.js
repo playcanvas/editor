@@ -4,7 +4,7 @@ editor.once('load', function () {
     // get characters between range (inclusive)
     var characterRange = function (from, to) {
         var chars = [];
-        for (var i = from; i <= to; i++) {
+        for (let i = from; i <= to; i++) {
             chars.push(String.fromCharCode(i));
         }
 
@@ -23,7 +23,7 @@ editor.once('load', function () {
             return;
         var root = editor.call('attributes.rootPanel');
 
-        for (var i = 0; i < assets.length; i++) {
+        for (let i = 0; i < assets.length; i++) {
             if (assets[i].get('type') !== 'font' || assets[i].get('source'))
                 return;
         }
@@ -368,7 +368,7 @@ editor.once('load', function () {
         var toggleSaveButton = function () {
             var sameChars = true;
             var lastChars = proxyObservers[0].get('chars');
-            for (var i = 1; i < proxyObservers.length; i++) {
+            for (let i = 1; i < proxyObservers.length; i++) {
                 if (proxyObservers[i].get('chars') !== lastChars) {
                     sameChars = false;
                     break;
@@ -382,7 +382,7 @@ editor.once('load', function () {
 
             var tasksInProgress = false;
 
-            for (var i = 0; i < assets.length; i++) {
+            for (let i = 0; i < assets.length; i++) {
                 if (!editor.call('assets:get', assets[i].get('source_asset_id'))) {
                     btnSave.disabled = true;
                     return;
@@ -427,7 +427,7 @@ editor.once('load', function () {
                 var unique = '';
                 var chars = {};
 
-                for (var i = 0, len = value.length; i < len; i++) {
+                for (let i = 0, len = value.length; i < len; i++) {
                     if (chars[value[i]]) continue;
                     chars[value[i]] = true;
                     unique += value[i];
@@ -451,7 +451,7 @@ editor.once('load', function () {
         });
 
         paramsPanel.once('destroy', function () {
-            for (var i = 0; i < events.length; i++)
+            for (let i = 0; i < events.length; i++)
                 events[i].unbind();
         });
     });

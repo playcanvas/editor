@@ -17,7 +17,7 @@ editor.once('load', function () {
         };
 
         if (defaultData.children) {
-            for (var i = 0; i < defaultData.children.length; i++) {
+            for (let i = 0; i < defaultData.children.length; i++) {
                 var childEntityData = createNewEntityData(defaultData.children[i], entityData.resource_id);
                 entityData.children.push(childEntityData);
             }
@@ -48,7 +48,7 @@ editor.once('load', function () {
             selectorType = editor.call('selector:type');
             selectorItems = editor.call('selector:items');
             if (selectorType === 'entity') {
-                for (var i = 0; i < selectorItems.length; i++)
+                for (let i = 0; i < selectorItems.length; i++)
                     selectorItems[i] = selectorItems[i].get('resource_id');
             }
         }
@@ -73,7 +73,7 @@ editor.once('load', function () {
 
                     if (selectorType === 'entity' && selectorItems.length) {
                         var items = [];
-                        for (var i = 0; i < selectorItems.length; i++) {
+                        for (let i = 0; i < selectorItems.length; i++) {
                             var item = editor.call('entities:get', selectorItems[i]);
                             if (item)
                                 items.push(item);

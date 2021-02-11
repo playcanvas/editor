@@ -59,7 +59,7 @@ editor.once('load', function () {
                 while (true)  {
                     name = namePart + ' ' + numberPart;
                     var found = true;
-                    for (var i = 0; i < scenes.length; i++) {
+                    for (let i = 0; i < scenes.length; i++) {
                         if (scenes[i].name === name) {
                             numberPart++;
                             found = false;
@@ -321,7 +321,7 @@ editor.once('load', function () {
             row.parentElement.removeChild(row);
         }
 
-        for (var i = 0; i < scenes.length; i++) {
+        for (let i = 0; i < scenes.length; i++) {
             if (parseInt(scenes[i].id, 10) === parseInt(sceneId, 10)) {
                 // close dropdown menu if current scene deleted
                 if (dropdownScene === scenes[i])

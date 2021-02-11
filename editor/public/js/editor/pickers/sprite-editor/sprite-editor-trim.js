@@ -47,7 +47,7 @@ editor.once('load', function () {
             var height = atlasAsset.get('meta.height');
 
             var frameData = atlasAsset.getRaw('data.frames')._data;
-            for (var i = 0, len = frames.length; i < len; i++) {
+            for (let i = 0, len = frames.length; i < len; i++) {
                 var frame = frameData[frames[i]];
                 if (! frame) continue;
                 frame = frame._data;
@@ -58,9 +58,9 @@ editor.once('load', function () {
                 var bottom = Math.min(height - frame.rect[1] - 1, height - 1);
 
                 // trim vertically from left to right
-                for (var x = left; x <= right; x++) {
+                for (let x = left; x <= right; x++) {
                     var foundPixel = false;
-                    for (var y = top; y <= bottom; y++) {
+                    for (let y = top; y <= bottom; y++) {
                         left = x;
                         if (! isPixelEmpty(x, y, width, imageData)) {
                             foundPixel = true;
@@ -74,9 +74,9 @@ editor.once('load', function () {
                 }
 
                 // trim vertically from right to left
-                for (var x = right; x >= left; x--) {
+                for (let x = right; x >= left; x--) {
                     var foundPixel = false;
-                    for (var y = top; y <= bottom; y++) {
+                    for (let y = top; y <= bottom; y++) {
                         right = x;
                         if (! isPixelEmpty(x, y, width, imageData)) {
                             foundPixel = true;
@@ -90,9 +90,9 @@ editor.once('load', function () {
                 }
 
                 // trim horizontally from top to bottom
-                for (var y = top; y <= bottom; y++) {
+                for (let y = top; y <= bottom; y++) {
                     var foundPixel = false;
-                    for (var x = left; x <= right; x++) {
+                    for (let x = left; x <= right; x++) {
                         top = y;
                         if (! isPixelEmpty(x, y, width, imageData)) {
                             foundPixel = true;
@@ -106,9 +106,9 @@ editor.once('load', function () {
                 }
 
                 // trim horizontally from bottom to top
-                for (var y = bottom; y >= top; y--) {
+                for (let y = bottom; y >= top; y--) {
                     var foundPixel = false;
-                    for (var x = left; x <= right; x++) {
+                    for (let x = left; x <= right; x++) {
                         bottom = y;
                         if (! isPixelEmpty(x, y, width, imageData)) {
                             foundPixel = true;
@@ -145,7 +145,7 @@ editor.once('load', function () {
 
             var history = asset.history.enabled;
             asset.history.enabled = false;
-            for (var key in prev) {
+            for (const key in prev) {
                 atlasAsset.set('data.frames.' + key + '.rect', prev[key]);
             }
             asset.history.enabled = history;

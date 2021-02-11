@@ -11,8 +11,6 @@ editor.once('viewport:load', function () {
     var firstUpdate = false;
     var flySpeed = 0.25;
     var vecA = new pc.Vec3();
-    var vecB = new pc.Vec3();
-
 
     editor.method('camera:focus', function (point, distance) {
         var camera = editor.call('camera:current');

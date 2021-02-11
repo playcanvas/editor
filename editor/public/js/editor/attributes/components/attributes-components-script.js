@@ -75,12 +75,12 @@ editor.once('load', function () {
         var events = [];
         var scriptsIndex = { };
 
-        for (var i = 0; i < entities.length; i++) {
+        for (let i = 0; i < entities.length; i++) {
             events.push(entities[i].on('components.script:unset', function (valueOld) {
                 if (! valueOld)
                     return;
 
-                for (var i = 0; i < valueOld.scripts.length; i++) {
+                for (let i = 0; i < valueOld.scripts.length; i++) {
                     var scriptPanel = scriptsIndex[valueOld.scripts[i].url];
                     if (! scriptPanel)
                         continue;
@@ -145,7 +145,7 @@ editor.once('load', function () {
                 requestScript = true;
             }
 
-            for (var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 var addScript = true;
                 var scripts = entities[i].getRaw('components.script.scripts');
                 for (var s = 0; s < scripts.length; s++) {
@@ -189,7 +189,7 @@ editor.once('load', function () {
             editor.call('history:add', {
                 name: 'entities.components.script.scripts',
                 undo: function () {
-                    for (var i = 0; i < records.length; i++) {
+                    for (let i = 0; i < records.length; i++) {
                         var item = records[i].item.latest();
                         if (! item)
                             continue;
@@ -210,7 +210,7 @@ editor.once('load', function () {
                     }
                 },
                 redo: function () {
-                    for (var i = 0; i < records.length; i++) {
+                    for (let i = 0; i < records.length; i++) {
                         var item = records[i].item.latest();
                         if (! item)
                             continue;
@@ -253,13 +253,13 @@ editor.once('load', function () {
                 data.url = url;
 
                 // merge old attributes with new attributes for all script components with this script
-                for (var key in entitiesWithScripts) {
+                for (const key in entitiesWithScripts) {
                     var entity = entitiesWithScripts[key];
                     var scripts = entity.getRaw('components.script.scripts');
                     if (! scripts)
                         continue;
 
-                    for (var i = 0; i < scripts.length; i++) {
+                    for (let i = 0; i < scripts.length; i++) {
                         var scriptInstance = scripts[i];
                         if (scriptInstance.get('url') !== url)
                             continue;
@@ -339,7 +339,7 @@ editor.once('load', function () {
             var toDestroy = [];
             var toCreate = [];
 
-            for (var i = 0; i < children.length; i++) {
+            for (let i = 0; i < children.length; i++) {
                 var attribute = children[i].ui.attribute;
                 var attributeType = children[i].ui.attributeType;
                 var attributeUiType = children[i].ui.attributeUiType;
@@ -358,7 +358,7 @@ editor.once('load', function () {
             }
 
             if (attributes) {
-                for (var i = 0; i < attributes.length; i++) {
+                for (let i = 0; i < attributes.length; i++) {
                     var ind = list.indexOf(attributes[i]);
                     var panelAttribute = null;
 
@@ -417,7 +417,7 @@ editor.once('load', function () {
 
             var url = script.get('url');
             var scripts = [];
-            for (var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 var items = entities[i].getRaw('components.script.scripts');
                 if (! items)
                     continue;
@@ -735,7 +735,7 @@ editor.once('load', function () {
             fieldRemoveScript.on('click', function (value) {
                 var records = [];
 
-                for (var i = 0; i < entities.length; i++) {
+                for (let i = 0; i < entities.length; i++) {
                     entities[i].history.enabled = false;
                     var scripts = entities[i].getRaw('components.script.scripts');
                     for (var s = 0; s < scripts.length; s++) {
@@ -763,7 +763,7 @@ editor.once('load', function () {
                 editor.call('history:add', {
                     name: 'entities.components.script.scripts',
                     undo: function () {
-                        for (var i = 0; i < records.length; i++) {
+                        for (let i = 0; i < records.length; i++) {
                             var item = records[i].item.latest();
                             if (! item)
                                 continue;
@@ -794,7 +794,7 @@ editor.once('load', function () {
                         refreshScriptAttributes(records[0].value.url);
                     },
                     redo: function () {
-                        for (var i = 0; i < records.length; i++) {
+                        for (let i = 0; i < records.length; i++) {
                             var item = records[i].item.latest();
                             if (! item)
                                 continue;
@@ -866,7 +866,7 @@ editor.once('load', function () {
                 // add attributes if has any
                 var order = script.get('attributesOrder');
                 if (order) {
-                    for (var i = 0; i < order.length; i++) {
+                    for (let i = 0; i < order.length; i++) {
                         createAttributeField(script, order[i], attributes);
                     }
                 }
@@ -920,7 +920,7 @@ editor.once('load', function () {
         };
 
         // add existing scripts and subscribe to scripts Observer list
-        for (var i = 0; i < entities.length; i++) {
+        for (let i = 0; i < entities.length; i++) {
             var scripts = entities[i].getRaw('components.script.scripts');
 
             if (scripts) {
@@ -930,7 +930,7 @@ editor.once('load', function () {
 
             // subscribe to scripts:set
             events.push(entities[i].on('components.script.scripts:set', function (value, valueOld) {
-                for (var i = 0; i < value.length; i++)
+                for (let i = 0; i < value.length; i++)
                     addScriptPanel(value[i]);
             }));
 
@@ -983,7 +983,7 @@ editor.once('load', function () {
                 var rectA = root.innerElement.getBoundingClientRect();
                 var rectB = panel.element.getBoundingClientRect();
                 if (rectB.top > rectA.top && rectB.bottom < rectA.bottom) {
-                    for (var i = 0; i < entities.length; i++) {
+                    for (let i = 0; i < entities.length; i++) {
                         var addScript = true;
                         var scripts = entities[i].getRaw('components.script.scripts');
                         for (var s = 0; s < scripts.length; s++) {
@@ -1009,7 +1009,7 @@ editor.once('load', function () {
 
         // clean up events
         panel.once('destroy', function () {
-            for (var i = 0; i < events.length; i++)
+            for (let i = 0; i < events.length; i++)
                 events[i].unbind();
 
             events = null;

@@ -41,8 +41,8 @@ editor.once('load', function () {
     };
 
     var extToType = {};
-    for (var type in typeToExt) {
-        for (var i = 0; i < typeToExt[type].length; i++) {
+    for (const type in typeToExt) {
+        for (let i = 0; i < typeToExt[type].length; i++) {
             extToType[typeToExt[type][i]] = type;
         }
     }
@@ -51,7 +51,7 @@ editor.once('load', function () {
     editor.method('assets:canUploadFiles', function (files) {
         // check usage first
         var totalSize = 0;
-        for (var i = 0; i < files.length; i++) {
+        for (let i = 0; i < files.length; i++) {
             totalSize += files[i].size;
         }
 
@@ -243,7 +243,7 @@ editor.once('load', function () {
 
         var currentFolder = editor.call('assets:panel:currentFolder');
 
-        for (var i = 0; i < files.length; i++) {
+        for (let i = 0; i < files.length; i++) {
             var path = [];
 
             if (currentFolder && currentFolder.get)

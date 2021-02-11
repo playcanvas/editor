@@ -19,7 +19,7 @@ editor.once('load', function () {
 
         var parts = args.string.split(args.regex);
 
-        for (var i = 0; i < parts.length; i++) {
+        for (let i = 0; i < parts.length; i++) {
             items.push(parts[i]);
 
             if (bits.length > i)
@@ -51,7 +51,7 @@ editor.once('load', function () {
             filter: parseMessageFilterLink
         });
 
-        for (var i = 0; i < items.length; i++) {
+        for (let i = 0; i < items.length; i++) {
             if (typeof(items[i]) !== 'string')
                 continue;
 
@@ -149,7 +149,7 @@ editor.once('load', function () {
 
         var elements = parseMessage(message);
         var fragment = document.createDocumentFragment();
-        for (var i = 0; i < elements.length; i++)
+        for (let i = 0; i < elements.length; i++)
             fragment.appendChild(elements[i]);
         text.appendChild(fragment);
 

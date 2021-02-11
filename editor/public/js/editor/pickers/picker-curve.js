@@ -220,7 +220,7 @@ editor.once('load', function () {
         toggleCurve(curves[i], enabled);
     };
 
-    for (var i = 0; i < colors.curves.length; i++) {
+    for (let i = 0; i < colors.curves.length; i++) {
         var btn = new ui.Button();
         btn.class.add('picker-curve-toggle', 'active');
         btn.element.style.color = colors.curves[3 - i];
@@ -369,11 +369,11 @@ editor.once('load', function () {
             curveType: curveType
         };
 
-        for (var i = 0; i < numCurves; i++) {
+        for (let i = 0; i < numCurves; i++) {
             data.primaryKeys.push(serializeCurveKeys(curves[i]));
         }
 
-        for (var i = 0; i < numCurves; i++) {
+        for (let i = 0; i < numCurves; i++) {
             if (! curves[numCurves + i]) continue;
 
             if (betweenCurves) {
@@ -442,16 +442,16 @@ editor.once('load', function () {
             }
         };
 
-        for (var i = 0; i < numCurves; i++) {
+        for (let i = 0; i < numCurves; i++) {
             copyKeys(i, data.primaryKeys[i]);
         }
 
-        for (var i = 0; i < numCurves; i++) {
+        for (let i = 0; i < numCurves; i++) {
             copyKeys(i + numCurves, data.secondaryKeys[i]);
         }
 
         enabledCurves.length = 0;
-        for (var i = 0; i < numCurves; i++)  {
+        for (let i = 0; i < numCurves; i++)  {
             if (curveToggles[i].class.contains('active')) {
                 enabledCurves.push(curves[i]);
                 if (betweenCurves) {
@@ -570,7 +570,7 @@ editor.once('load', function () {
         fieldValue.min = args.min;
 
         curveNames = args.curves || [];
-        for (var i = 0; i < colors.curves.length; i++) {
+        for (let i = 0; i < colors.curves.length; i++) {
             if (i < numCurves) {
                 curveToggles[i].text = curveNames[i];
                 curveToggles[i].class.remove('hidden');
@@ -595,7 +595,7 @@ editor.once('load', function () {
         });
 
         enabledCurves.length = 0;
-        for (var i = 0; i < numCurves; i++)  {
+        for (let i = 0; i < numCurves; i++)  {
             if (curveToggles[i].class.contains('active')) {
                 enabledCurves.push(curves[i]);
                 if (betweenCurves) {
@@ -627,7 +627,7 @@ editor.once('load', function () {
         swizzle = getColorSwizzle();
 
         // refresh toggle colors in case we are rendering single color curves
-        for (var i = 0; i < curveToggles.length; i++) {
+        for (let i = 0; i < curveToggles.length; i++) {
             curveToggles[i].style.color = colors.curves[swizzle[i]];
         }
 
@@ -710,7 +710,7 @@ editor.once('load', function () {
         var renderedCurveIndices = {};
 
         // draw curves in the order in which they were enabled
-        for (var i = 0; i < enabledCurves.length; i++) {
+        for (let i = 0; i < enabledCurves.length; i++) {
             var curve = enabledCurves[i];
             var index = curves.indexOf(curve);
 
@@ -894,7 +894,7 @@ editor.once('load', function () {
         var precision = 2;
 
         var keys = [];
-        for (var i = 0; i < curves.length; i++) {
+        for (let i = 0; i < curves.length; i++) {
             var k = curves[i].keys;
             var ka = [];
             for (var j = 0, len = k.length; j < len; j++ ) {
@@ -1093,7 +1093,7 @@ editor.once('load', function () {
         }
 
         enabledCurves.forEach(function (curve) {
-            for (var i = curve.keys.length - 1; i > 0; i--) {
+            for (let i = curve.keys.length - 1; i > 0; i--) {
                 var key = curve.keys[i];
                 var prevKey = curve.keys[i - 1];
                 if (key[0].toFixed(3) === prevKey[0].toFixed(3)) {
@@ -1114,7 +1114,7 @@ editor.once('load', function () {
 
 
         if (! suspendEvents) {
-            for (var index in changedCurves) {
+            for (const index in changedCurves) {
                 var curve = curves[parseInt(index)];
                 if (curve) {
                     var val = serializeCurveKeys(curve);
@@ -1302,7 +1302,7 @@ editor.once('load', function () {
                 }
             }
 
-            for (var i = 0, imax = curve.keys.length; i < imax; i++) {
+            for (let i = 0, imax = curve.keys.length; i < imax; i++) {
                 var anchor = curve.keys[i];
                 var anchorCoords = calculateAnchorCoords(anchor);
 
@@ -1480,7 +1480,7 @@ editor.once('load', function () {
             // if there is another point with the same time
             // then make the two points have the same values
             var keys = selectedCurve.keys;
-            for (var i = 0, len = keys.length; i < len; i++) {
+            for (let i = 0, len = keys.length; i < len; i++) {
                 if (keys[i] !== selectedAnchor && keys[i][0] === time) {
                     value = keys[i][1];
                 }

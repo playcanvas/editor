@@ -24,7 +24,7 @@ editor.once('load', function () {
             data.on('op', function (ops, local) {
                 if (local) return;
 
-                for (var i = 0; i < ops.length; i++) {
+                for (let i = 0; i < ops.length; i++) {
                     if (ops[i].p[0])
                         editor.emit('realtime:userdata:' + userId + ':op:' + ops[i].p[0], ops[i]);
                 }

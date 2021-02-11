@@ -14,7 +14,7 @@ editor.once('load', function () {
         var menuData = { };
         var entityMenuData = editor.call('menu:get', 'entity');
         if (entityMenuData) {
-            for (var key in entityMenuData.items) {
+            for (const key in entityMenuData.items) {
                 menuData[key] = entityMenuData.items[key];
             }
         }

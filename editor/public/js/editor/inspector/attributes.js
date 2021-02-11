@@ -315,7 +315,7 @@ Object.assign(pcui, (function () {
 
         get value() {
             const result = {};
-            for (var key in this._fields) {
+            for (const key in this._fields) {
                 const field = this._fields[key];
                 const parts = key.split('.');
                 result[parts[parts.length - 1]] = field.value;

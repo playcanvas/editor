@@ -184,7 +184,7 @@ Object.assign(pcui, (function () {
 
             this.append(this._layersPanel);
             const layers = this._assets[0].get('data.layers');
-            for (var layerId in layers) {
+            for (const layerId in layers) {
                 const layer = layers[layerId];
                 const layerPanel = new pcui.AnimstategraphLayer({
                     collapsible: true,

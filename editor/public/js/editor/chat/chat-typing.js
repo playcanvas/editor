@@ -2,7 +2,6 @@ editor.once('load', function () {
     'use strict';
 
     var typing = 0;
-    var typingMessage;
     var users = { };
 
     editor.on('whoisonline:add', function (id) {
@@ -37,7 +36,7 @@ editor.once('load', function () {
 
     var notifyTypers = function () {
         var typers = [];
-        for (var id in users) {
+        for (const id in users) {
             if (! users.hasOwnProperty(id) || ! users[id].typing)
                 continue;
 

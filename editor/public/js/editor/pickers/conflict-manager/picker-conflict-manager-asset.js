@@ -7,7 +7,7 @@ editor.once('load', function () {
 
         var sectionAsset = resolver.createSection(conflicts.itemName + ' - ID: ' + conflicts.itemId);
 
-        for (var i = 0; i < conflicts.data.length; i++) {
+        for (let i = 0; i < conflicts.data.length; i++) {
             if (conflicts.data[i].isTextualMerge) continue;
 
             // get the type from the path - force 'data' to be an object for now

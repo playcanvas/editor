@@ -227,7 +227,7 @@ editor.once('load', function () {
                     offset.sub(pickStart);
                     anchorDirty = true;
 
-                    for (var i = 0; i < 4; i++)
+                    for (let i = 0; i < 4; i++)
                         anchorCurrent[i] = anchorStart[i];
 
                     if (gizmoAnchor.handle === gizmoAnchor.handles.tr || gizmoAnchor.handle === gizmoAnchor.handles.tl) {
@@ -282,7 +282,7 @@ editor.once('load', function () {
                 if (gizmoAnchor.handle) {
                     gizmoAnchor.handle = null;
 
-                    for (var key in gizmoAnchor.handles) {
+                    for (const key in gizmoAnchor.handles) {
                         setModelMaterial(gizmoAnchor.handles[key].handleModel, gizmoAnchor.matInactive);
                     }
 
@@ -295,7 +295,7 @@ editor.once('load', function () {
                 if (! gizmoAnchor.handle || gizmoAnchor.handle !== node.handle) {
                     gizmoAnchor.handle = node.handle;
 
-                    for (var key in gizmoAnchor.handles) {
+                    for (const key in gizmoAnchor.handles) {
                         setModelMaterial(gizmoAnchor.handles[key].handleModel, gizmoAnchor.handles[key] === gizmoAnchor.handle ? gizmoAnchor.matActive : gizmoAnchor.matInactive);
                     }
 

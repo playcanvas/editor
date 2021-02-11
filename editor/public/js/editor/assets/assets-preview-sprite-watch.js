@@ -116,7 +116,7 @@ editor.once('load', function () {
     };
 
     var trigger = function (watch) {
-        for (var key in watch.callbacks)
+        for (const key in watch.callbacks)
             watch.callbacks[key].callback();
     };
 

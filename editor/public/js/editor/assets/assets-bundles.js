@@ -13,7 +13,7 @@ editor.once('load', function () {
     var addToIndex = function (assetIds, bundleAsset) {
         if (! assetIds) return;
 
-        for (var i = 0; i < assetIds.length; i++) {
+        for (let i = 0; i < assetIds.length; i++) {
             if (! bundlesIndex[assetIds[i]]) {
                 bundlesIndex[assetIds[i]] = [bundleAsset];
                 editor.emit('assets:bundles:insert', bundleAsset, assetIds[i]);
@@ -64,7 +64,7 @@ editor.once('load', function () {
             bundleAssets.splice(idx, 1);
         }
 
-        for (var id in bundlesIndex) {
+        for (const id in bundlesIndex) {
             idx = bundlesIndex[id].indexOf(asset);
             if (idx !== -1) {
                 bundlesIndex[id].splice(idx, 1);
@@ -145,7 +145,7 @@ editor.once('load', function () {
 
             var history = asset.history.enabled;
             asset.history.enabled = false;
-            for (var i = 0; i < len; i++) {
+            for (let i = 0; i < len; i++) {
                 asset.removeValue('data.assets', validAssets[i].get('id'));
             }
             asset.history.enabled = history;
@@ -157,7 +157,7 @@ editor.once('load', function () {
 
             var history = asset.history.enabled;
             asset.history.enabled = false;
-            for (var i = 0; i < len; i++) {
+            for (let i = 0; i < len; i++) {
                 if (isAssetValid(validAssets[i], asset)) {
                     asset.insert('data.assets', validAssets[i].get('id'));
                 }
@@ -189,7 +189,7 @@ editor.once('load', function () {
 
             var history = asset.history.enabled;
             asset.history.enabled = false;
-            for (var i = 0; i < assets.length; i++) {
+            for (let i = 0; i < assets.length; i++) {
                 asset.removeValue('data.assets', assets[i].get('id'));
             }
             asset.history.enabled = history;
@@ -201,7 +201,7 @@ editor.once('load', function () {
 
             var history = asset.history.enabled;
             asset.history.enabled = false;
-            for (var i = 0; i < assets.length; i++) {
+            for (let i = 0; i < assets.length; i++) {
                 if (isAssetValid(assets[i], asset)) {
                     asset.insert('data.assets', assets[i].get('id'));
                 }
@@ -228,7 +228,7 @@ editor.once('load', function () {
     editor.method('assets:bundles:calculateSize', function (bundleAsset) {
         var size = 0;
         var assets = bundleAsset.get('data.assets');
-        for (var i = 0; i < assets.length; i++) {
+        for (let i = 0; i < assets.length; i++) {
             var asset = editor.call('assets:get', assets[i]);
             if (! asset || !asset.has('file.size')) continue;
 

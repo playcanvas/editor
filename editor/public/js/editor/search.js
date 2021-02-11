@@ -69,7 +69,7 @@ editor.once('load', function () {
         var parts = string.split(/(\s|\-|_)/g);
 
         // filter valid tokens
-        for (var i = 0; i < parts.length; i++) {
+        for (let i = 0; i < parts.length; i++) {
             parts[i] = parts[i].toLowerCase().trim();
             if (parts[i] && parts[i] !== '-' && parts[i] !== '_')
                 tokens.push(parts[i]);
@@ -82,7 +82,7 @@ editor.once('load', function () {
     var searchItems = function (items, search, args) {
         var results = [];
 
-        for (var i = 0; i < items.length; i++) {
+        for (let i = 0; i < items.length; i++) {
             var item = items[i];
 
             // direct hit
@@ -182,7 +182,7 @@ editor.once('load', function () {
         var result = [];
         var records = [];
 
-        for (var i = 0; i < items.length; i++) {
+        for (let i = 0; i < items.length; i++) {
             var subInd = items[i][0].toLowerCase().trim().indexOf(search);
 
             records.push({
@@ -196,7 +196,7 @@ editor.once('load', function () {
         }
 
         // search each token
-        for (var i = 0; i < searchTokens.length; i++)
+        for (let i = 0; i < searchTokens.length; i++)
             records = searchItems(records, searchTokens[i], args);
 
         // sort result first by substring? then by edits number
@@ -213,7 +213,7 @@ editor.once('load', function () {
         });
 
         // return only items without match information
-        for (var i = 0; i < records.length; i++)
+        for (let i = 0; i < records.length; i++)
             records[i] = records[i].item;
 
         // limit number of results

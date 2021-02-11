@@ -143,7 +143,7 @@ editor.once('load', function () {
             watchTexture(ind, asset.get('data.textures.' + ind));
         };
 
-        for (var i = 0; i < 6; i++)
+        for (let i = 0; i < 6; i++)
             watchFace(i);
     });
 });
