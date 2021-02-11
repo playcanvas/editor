@@ -256,7 +256,7 @@ editor.once('load', function () {
         // when layers change make sure that our Editor cameras have them
         projectSettings.on('layerOrder:insert', function (value) {
             var id = parseInt(value.get('layer'), 10);
-            for (var key in editorCameras) {
+            for (const key in editorCameras) {
                 var entity = editorCameras[key];
                 var idx = entity.camera.layers.indexOf(id);
                 if (idx === -1) {
@@ -270,7 +270,7 @@ editor.once('load', function () {
 
         projectSettings.on('layerOrder:remove', function (value) {
             var id = parseInt(value.get('layer'), 10);
-            for (var key in editorCameras) {
+            for (const key in editorCameras) {
                 var entity = editorCameras[key];
                 var idx = entity.camera.layers.indexOf(id);
                 if (idx !== -1) {

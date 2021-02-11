@@ -834,12 +834,12 @@ editor.once('load', function () {
         callback: function () {
             var assets = [];
 
-            for (var key in assetsIndex) {
+            for (const key in assetsIndex) {
                 if (! assetsIndex[key].hidden)
                     assets.push(assetsIndex[key].asset);
             }
 
-            for (var key in scriptsIndex) {
+            for (const key in scriptsIndex) {
                 if (! scriptsIndex[key].hidden)
                     assets.push(scriptsIndex[key].script);
             }

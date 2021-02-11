@@ -67,7 +67,7 @@ editor.once('load', function () {
 
             var hasFrames = false;
             var currentFrames = atlasAsset.getRaw('data.frames')._data;
-            for (var key in currentFrames) {
+            for (const key in currentFrames) {
                 hasFrames = true;
                 break;
             }
@@ -152,7 +152,7 @@ editor.once('load', function () {
             var nameIndex = {};
             var counter = 0;
 
-            for (var key in oldFrames) {
+            for (const key in oldFrames) {
                 // get name of old frame
                 var name = oldFrames[key]._data.name;
 
@@ -170,7 +170,7 @@ editor.once('load', function () {
 
             var newFrames = {};
             // for all the new frames
-            for (var key in data.frames) {
+            for (const key in data.frames) {
                 // create new frame
                 var frameData = data.frames[key];
                 var frame = createFrame(frameData.filename || key, frameData, height, scaleWidth, scaleHeight);

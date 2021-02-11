@@ -619,7 +619,7 @@ editor.once('load', function () {
         var layersEnum = {
             '': ''
         };
-        for (var key in layers) {
+        for (const key in layers) {
             layersEnum[key] = layers[key].name;
         }
         delete layersEnum[LAYERID_DEPTH];

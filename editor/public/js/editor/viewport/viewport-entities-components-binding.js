@@ -4,7 +4,7 @@ editor.once('load', function () {
     // converts the data to runtime types
     var runtimeComponentData = function (component, data) {
         var result = {};
-        for (var key in data) {
+        for (const key in data) {
             if (data.hasOwnProperty(key)) {
                 result[key] = editor.call('components:convertValue', component, key, data[key]);
             }

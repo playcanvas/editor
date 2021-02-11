@@ -131,7 +131,7 @@ editor.once('load', function () {
     editor.on('selector:change', function (type, items) {
         // clear gizmos
         if (type !== 'entity') {
-            for (var key in entities) {
+            for (const key in entities) {
                 entities[key].unlink();
                 pool.push(entities[key]);
             }
@@ -147,7 +147,7 @@ editor.once('load', function () {
         var render = false;
 
         // remove
-        for (var key in entities) {
+        for (const key in entities) {
             if (ids[key])
                 continue;
 
@@ -158,7 +158,7 @@ editor.once('load', function () {
         }
 
         // add
-        for (var key in ids) {
+        for (const key in ids) {
             if (entities[key])
                 continue;
 
@@ -191,7 +191,7 @@ editor.once('load', function () {
     });
 
     editor.on('viewport:gizmoUpdate', function (dt) {
-        for (var key in entities) {
+        for (const key in entities) {
             entities[key].update();
             entities[key].render();
         }

@@ -194,7 +194,7 @@ editor.once('load', function () {
 
         // create frames
         var frames = atlasAsset.getRaw('data.frames')._data;
-        for (var key in frames) {
+        for (const key in frames) {
             addFramePanel(key, frames[key]._data);
         }
 
@@ -241,7 +241,7 @@ editor.once('load', function () {
                         var panelAfter = null;
 
                         var search = parseInt(key, 10);
-                        for (var k in panels) {
+                        for (const k in panels) {
                             if (search < parseInt(k, 10)) {
                                 panelBefore = panels[k];
                                 break;

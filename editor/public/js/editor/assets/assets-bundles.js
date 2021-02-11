@@ -64,7 +64,7 @@ editor.once('load', function () {
             bundleAssets.splice(idx, 1);
         }
 
-        for (var id in bundlesIndex) {
+        for (const id in bundlesIndex) {
             idx = bundlesIndex[id].indexOf(asset);
             if (idx !== -1) {
                 bundlesIndex[id].splice(idx, 1);

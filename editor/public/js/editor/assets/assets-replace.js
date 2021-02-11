@@ -69,7 +69,7 @@ editor.once('load', function () {
             // sound
             var sound = obj.get('components.sound');
             if (sound) {
-                for (var ind in sound.slots) {
+                for (const ind in sound.slots) {
                     if (!sound.slots[ind] || sound.slots[ind].asset !== this.oldId)
                         continue;
 
@@ -242,7 +242,7 @@ editor.once('load', function () {
                 }
 
                 if (sprite.clips) {
-                    for (var key in sprite.clips) {
+                    for (const key in sprite.clips) {
                         if (sprite.clips[key].spriteAsset && sprite.clips[key].spriteAsset === this.oldId) {
                             this.set(obj, 'components.sprite.clips.' + key + '.spriteAsset');
                         }
@@ -437,7 +437,7 @@ editor.once('load', function () {
             // script
             var scripts = obj.get('components.script.scripts');
             if (scripts) {
-                for (var script in scripts) {
+                for (const script in scripts) {
                     var assetScript = editor.call('assets:scripts:assetByScript', script);
                     if (!assetScript)
                         continue;
@@ -448,7 +448,7 @@ editor.once('load', function () {
 
                     var attributes = assetScripts[script].attributes;
 
-                    for (var attrName in scripts[script].attributes) {
+                    for (const attrName in scripts[script].attributes) {
                         if (!attributes[attrName] || attributes[attrName].type !== 'asset')
                             continue;
 

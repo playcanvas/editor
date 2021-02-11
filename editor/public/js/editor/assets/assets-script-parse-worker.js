@@ -382,7 +382,7 @@ var parseScript = function (id, url, engine) {
 
         // extend
         obj[name].extend = function (methods) {
-            for (var key in methods) {
+            for (const key in methods) {
                 if (! methods.hasOwnProperty(key))
                     continue;
 

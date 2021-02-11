@@ -69,7 +69,7 @@ editor.once('load', function () {
         var revert = Object.keys(this._pendingRevertedConflicts);
 
         // Group conflicts by status to minimize REST API calls
-        for (var conflictId in this._pendingResolvedConflicts) {
+        for (const conflictId in this._pendingResolvedConflicts) {
             if (this._pendingResolvedConflicts[conflictId].useSrc) {
                 useSrc.push(conflictId);
             } else {

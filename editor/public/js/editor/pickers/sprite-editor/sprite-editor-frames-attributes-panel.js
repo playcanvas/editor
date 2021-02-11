@@ -307,7 +307,7 @@ editor.once('load', function () {
 
                 var frameData = asset.getRaw('data.frames')._data;
 
-                for (var key in prev) {
+                for (const key in prev) {
                     if (! frameData[key]) continue;
 
                     asset.set('data.frames.' + key + '.rect.' + rect, prev[key].value);

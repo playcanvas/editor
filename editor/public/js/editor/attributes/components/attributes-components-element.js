@@ -49,7 +49,7 @@ editor.once('load', function () {
         };
 
         var presetsEnum = [];
-        for (var key in presets) {
+        for (const key in presets) {
             presetsEnum.push({ v: key, t: presets[key] });
         }
 
@@ -609,7 +609,7 @@ editor.once('load', function () {
             var otherPath = localized ? 'components.element.text' : 'components.element.key';
 
             var undo = function () {
-                for (var id in prev) {
+                for (const id in prev) {
                     var e = editor.call('entities:get', id);
                     if (!e) return;
                     if (e.has('components.element')) {
@@ -1061,7 +1061,7 @@ editor.once('load', function () {
             '': '...',
             'NaN': 'None'
         };
-        for (var key in batchGroups) {
+        for (const key in batchGroups) {
             batchEnum[key] = batchGroups[key].name;
         }
 
@@ -1101,7 +1101,7 @@ editor.once('load', function () {
         var layersEnum = {
             '': ''
         };
-        for (var key in layers) {
+        for (const key in layers) {
             layersEnum[key] = layers[key].name;
         }
         delete layersEnum[LAYERID_DEPTH];

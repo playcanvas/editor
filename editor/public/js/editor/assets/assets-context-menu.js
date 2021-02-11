@@ -638,7 +638,7 @@ editor.once('load', function () {
                         });
                     };
 
-                    for (var key in ref.ref)
+                    for (const key in ref.ref)
                         addReferenceItem(ref.ref[key].type, key);
 
                     var typeSort = {

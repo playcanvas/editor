@@ -9,7 +9,7 @@ editor.once('load', function () {
         if (! this.scene)
             this.scene = new pc.Scene();
 
-        for (var key in this.systems) {
+        for (const key in this.systems) {
             if (this.systems.hasOwnProperty(key))
                 this.systems[key]._inTools = true;
         }

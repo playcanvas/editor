@@ -1114,7 +1114,7 @@ editor.once('load', function () {
 
 
         if (! suspendEvents) {
-            for (var index in changedCurves) {
+            for (const index in changedCurves) {
                 var curve = curves[parseInt(index)];
                 if (curve) {
                     var val = serializeCurveKeys(curve);

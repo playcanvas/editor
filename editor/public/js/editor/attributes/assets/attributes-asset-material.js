@@ -763,7 +763,7 @@ editor.once('load', function () {
                 var history = assets[a].history.enabled;
                 assets[a].history.enabled = false;
 
-                for (var s in candidates) {
+                for (const s in candidates) {
                     var key = 'data.' + s + 'Map';
 
                     if (assets[a].get(key))

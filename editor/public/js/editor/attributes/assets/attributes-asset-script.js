@@ -119,7 +119,7 @@ editor.once('load', function () {
                     }
 
                     // template attributes validation errors
-                    for (var key in result.scripts) {
+                    for (const key in result.scripts) {
                         if (! result.scripts.hasOwnProperty(key) || ! scriptsPanelIndex[key])
                             continue;
 
@@ -348,7 +348,7 @@ editor.once('load', function () {
 
             var data = asset.get('data.scripts');
             var scriptKeys = [];
-            for (var key in data) {
+            for (const key in data) {
                 if (! data.hasOwnProperty(key))
                     continue;
 

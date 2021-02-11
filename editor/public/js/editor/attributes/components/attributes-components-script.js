@@ -253,7 +253,7 @@ editor.once('load', function () {
                 data.url = url;
 
                 // merge old attributes with new attributes for all script components with this script
-                for (var key in entitiesWithScripts) {
+                for (const key in entitiesWithScripts) {
                     var entity = entitiesWithScripts[key];
                     var scripts = entity.getRaw('components.script.scripts');
                     if (! scripts)

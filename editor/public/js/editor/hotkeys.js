@@ -411,7 +411,7 @@ editor.once('load', function () {
         }
     };
 
-    for (var key in keyMap) {
+    for (const key in keyMap) {
         keyByKeyCode[keyMap[key].keyCode] = key;
 
         if (keyMap[key].code instanceof Array) {

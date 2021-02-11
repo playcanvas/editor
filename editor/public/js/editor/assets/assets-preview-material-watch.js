@@ -105,15 +105,15 @@ editor.once('load', function () {
     };
 
     var unsubscribe = function (watch) {
-        for (var key in watch.textures)
+        for (const key in watch.textures)
             removeTextureWatch(watch, key);
 
-        for (var key in watch.watching)
+        for (const key in watch.watching)
             watch.watching[key].unbind();
     };
 
     var trigger = function (watch, slot) {
-        for (var key in watch.callbacks)
+        for (const key in watch.callbacks)
             watch.callbacks[key].callback(slot);
     };
 
@@ -142,7 +142,7 @@ editor.once('load', function () {
             watch.autoLoad++;
 
         if (watch.autoLoad === 1) {
-            for (var key in watch.textures) {
+            for (const key in watch.textures) {
                 var asset = app.assets.get(watch.textures[key].id);
                 if (asset && ! asset.resource)
                     app.assets.load(asset);

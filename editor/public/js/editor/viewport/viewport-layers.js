@@ -158,7 +158,7 @@ editor.once('load', function () {
         var composition = new pc.LayerComposition("viewport-layers");
 
         var index = {};
-        for (var key in layers) {
+        for (const key in layers) {
             layerIndex[key] = createLayer(key, layers[key]);
         }
 

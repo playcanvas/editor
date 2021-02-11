@@ -69,7 +69,7 @@ editor.once('load', function () {
         if (value instanceof Object) {
             var path = parts[parts.length - 1];
             obj[path] = {};
-            for (var key in value) {
+            for (const key in value) {
                 obj[path][key] = value[key];
             }
         } else {

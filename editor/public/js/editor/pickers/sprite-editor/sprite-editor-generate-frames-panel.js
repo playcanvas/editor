@@ -290,7 +290,7 @@ editor.once('load', function () {
             var pivot = presetValues[fieldPivot.value];
 
             var maxKey = 1;
-            for (var key in frames) {
+            for (const key in frames) {
                 maxKey = Math.max(maxKey, parseInt(key, 10) + 1);
             }
 
@@ -334,7 +334,7 @@ editor.once('load', function () {
             var pivot = presetValues[fieldPivot.value];
 
             var maxKey = 1;
-            for (var key in frames) {
+            for (const key in frames) {
                 maxKey = Math.max(maxKey, parseInt(key, 10) + 1);
             }
 

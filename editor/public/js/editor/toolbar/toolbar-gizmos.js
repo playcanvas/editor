@@ -120,7 +120,7 @@ editor.once('load', function () {
 
 
     editor.on('permissions:writeState', function (state) {
-        for (var key in gizmoButtons) {
+        for (const key in gizmoButtons) {
             gizmoButtons[key].hidden = ! state;
         }
 

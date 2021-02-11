@@ -671,7 +671,7 @@ editor.once('load', function () {
         editor.on('viewport:gizmoUpdate', function (dt) {
             zones = 0;
 
-            for (var key in entities)
+            for (const key in entities)
                 entities[key].update();
 
             if (zones === 1) {

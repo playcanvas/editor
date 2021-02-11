@@ -585,7 +585,7 @@ editor.once('load', function () {
             matOccluder.update();
         };
 
-        for (var key in axesNames)
+        for (const key in axesNames)
             makeCapsuleMaterial(axesNames[key]);
 
         var buffer, iterator, size, length, node, mesh, meshInstance, model, indexBuffer, indices;
@@ -772,7 +772,7 @@ editor.once('load', function () {
             'y': ['x', 'z', 'y'],
             'z': ['y', 'x', 'z']
         };
-        for (var a in axes) {
+        for (const a in axes) {
             positions = [];
             indices = [];
             normals = [];
@@ -927,7 +927,7 @@ editor.once('load', function () {
     };
 
     editor.on('viewport:gizmoUpdate', function (dt) {
-        for (var key in entities)
+        for (const key in entities)
             entities[key].update();
     });
 });

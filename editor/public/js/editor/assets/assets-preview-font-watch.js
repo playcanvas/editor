@@ -47,7 +47,7 @@ editor.once('load', function () {
         if (watch.onAdd)
             app.assets.off('add:' + watch.asset.get('id'), watch.onAdd);
 
-        for (var key in watch.watching)
+        for (const key in watch.watching)
             watch.watching[key].unbind();
 
 
@@ -66,7 +66,7 @@ editor.once('load', function () {
 
 
     var trigger = function (watch) {
-        for (var key in watch.callbacks) {
+        for (const key in watch.callbacks) {
             watch.callbacks[key].callback();
         }
     };

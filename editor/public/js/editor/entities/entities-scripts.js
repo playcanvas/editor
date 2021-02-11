@@ -33,7 +33,7 @@ editor.once('load', function () {
         var result = [];
         var entry = this._index[script];
         if (entry) {
-            for (var key in entry) {
+            for (const key in entry) {
                 result.push(entry[key].entity);
             }
         }
@@ -105,7 +105,7 @@ editor.once('load', function () {
 
         // unset attributes
         var attributes = entity.get('components.script.scripts.' + script + '.attributes');
-        for (var key in attributes) {
+        for (const key in attributes) {
             if (!attributes.hasOwnProperty(key))
                 continue;
 
@@ -414,7 +414,7 @@ editor.once('load', function () {
         if (!index[script])
             return;
 
-        for (var key in index[script]) {
+        for (const key in index[script]) {
             if (!index[script].hasOwnProperty(key))
                 continue;
 

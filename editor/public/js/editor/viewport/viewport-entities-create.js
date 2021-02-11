@@ -72,7 +72,7 @@ editor.once('load', function () {
 
         // add components
         var components = obj.json().components;
-        for (var key in components) {
+        for (const key in components) {
             if (app.context.systems[key]) {
                 if (key === 'script')
                     continue;

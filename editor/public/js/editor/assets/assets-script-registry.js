@@ -51,7 +51,7 @@ editor.once('load', function () {
                 collisionScripts[script] = {};
 
             if (!collisionScripts[script][assetId]) {
-                for (var key in scripts[script]) {
+                for (const key in scripts[script]) {
                     if (!scripts[script].hasOwnProperty(key) || collisionScripts[script][key])
                         continue;
 
@@ -87,7 +87,7 @@ editor.once('load', function () {
             if (Object.keys(collisionScripts[script]).length === 1)
                 delete collisionScripts[script];
 
-            for (var key in collisions)
+            for (const key in collisions)
                 checkCollisions(collisions[key], script);
         }
 
@@ -102,7 +102,7 @@ editor.once('load', function () {
         var collides = [];
 
         if (collisionScripts[script]) {
-            for (var key in collisionScripts[script]) {
+            for (const key in collisionScripts[script]) {
                 if (!collisionScripts[script].hasOwnProperty(key))
                     continue;
 
@@ -132,7 +132,7 @@ editor.once('load', function () {
         } else {
             // no collision
             if (collisionStates[script]) {
-                for (var key in collisionStates[script]) {
+                for (const key in collisionStates[script]) {
                     if (!collisionStates[script].hasOwnProperty(key))
                         continue;
 
@@ -182,7 +182,7 @@ editor.once('load', function () {
 
         // index scripts
         var scripts = asset.get('data.scripts');
-        for (var key in scripts) {
+        for (const key in scripts) {
             if (!scripts.hasOwnProperty(key))
                 continue;
 
@@ -279,7 +279,7 @@ editor.once('load', function () {
 
         asset.once('destroy', function () {
             var scripts = asset.get('data.scripts');
-            for (var key in scripts) {
+            for (const key in scripts) {
                 if (!scripts.hasOwnProperty(key))
                     continue;
 

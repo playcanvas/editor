@@ -199,7 +199,7 @@ editor.once('load', function () {
             var parts = path.split('.');
             if (parts.length >= 3) {
                 var key = parts[2];
-                for (var assetId in firstFramePerSprite) {
+                for (const assetId  in firstFramePerSprite) {
                     if (firstFramePerSprite[assetId] === key) {
                         var p = spriteItems[assetId];
                         if (p) {
@@ -219,7 +219,7 @@ editor.once('load', function () {
             var parts = path.split('.');
             if (parts.length >= 3) {
                 var key = parts[2];
-                for (var assetId in firstFramePerSprite) {
+                for (const assetId  in firstFramePerSprite) {
                     if (firstFramePerSprite[assetId] === key) {
                         var p = spriteItems[assetId];
                         if (p) {

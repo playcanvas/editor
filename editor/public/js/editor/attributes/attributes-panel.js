@@ -892,7 +892,7 @@ editor.once('load', function () {
 
                     args.linkEvents = [];
 
-                    for (var key in tagItems)
+                    for (const key in tagItems)
                         tagsPanel.innerElement.removeChild(tagItems[key]);
 
                     tagList = [];

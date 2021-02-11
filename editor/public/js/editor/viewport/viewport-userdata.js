@@ -8,7 +8,7 @@ editor.once('load', function () {
         var cameras = userdata.get('cameras');
 
         if (cameras) {
-            for (var name in cameras) {
+            for (const name in cameras) {
                 if (! cameras.hasOwnProperty(name))
                     continue;
 

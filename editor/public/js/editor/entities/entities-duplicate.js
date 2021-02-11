@@ -76,13 +76,13 @@ editor.once('load', function () {
         // remap entity script attributes
         var scriptComponent = oldEntity.get('components.script');
         if (scriptComponent && !settings.get('useLegacyScripts')) {
-            for (var scriptName in scriptComponent.scripts) {
+            for (const scriptName in scriptComponent.scripts) {
                 // get script asset
                 var scriptAsset = editor.call('assets:scripts:assetByScript', scriptName);
                 if (!scriptAsset) continue;
 
                 // go through the script component attribute values
-                for (var attributeName in scriptComponent.scripts[scriptName].attributes) {
+                for (const attributeName in scriptComponent.scripts[scriptName].attributes) {
                     var previousValue = scriptComponent.scripts[scriptName].attributes[attributeName];
                     // early out if the value is null
                     if (!previousValue || (Array.isArray(previousValue) && !previousValue.length)) continue;

@@ -148,7 +148,7 @@ editor.once('load', function () {
                 inputAddScript.class.add('not-empty');
 
                 var items = [];
-                for (var key in autoComplete.index) {
+                for (const key in autoComplete.index) {
                     if (! autoComplete.index.hasOwnProperty(key))
                         continue;
 
@@ -163,7 +163,7 @@ editor.once('load', function () {
                 itemAutoCompleteNew.hidden = !! excludeScripts[value] || !! searchIndex[value];
                 itemAutoCompleteNew.class.remove('active');
 
-                for (var key in autoComplete.index) {
+                for (const key in autoComplete.index) {
                     if (! autoComplete.index.hasOwnProperty(key))
                         continue;
 
@@ -180,7 +180,7 @@ editor.once('load', function () {
                 itemAutoCompleteNew.hidden = false;
                 itemAutoCompleteNew.class.remove('active');
 
-                for (var key in autoComplete.index) {
+                for (const key in autoComplete.index) {
                     if (! autoComplete.index.hasOwnProperty(key))
                         continue;
 
@@ -226,7 +226,7 @@ editor.once('load', function () {
                 // resort might be required if new scripts were added before templated
             } else {
                 // show all items as search is empty
-                for (var key in autoComplete.index) {
+                for (const key in autoComplete.index) {
                     if (! autoComplete.index.hasOwnProperty(key))
                         continue;
 
@@ -1330,7 +1330,7 @@ editor.once('load', function () {
                 scripts[items[s]] = true;
         }
 
-        for (var key in scripts) {
+        for (const key in scripts) {
             if (! scripts.hasOwnProperty(key))
                 continue;
 

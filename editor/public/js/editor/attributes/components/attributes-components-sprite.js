@@ -19,7 +19,7 @@ editor.once('load', function () {
             var clips = entities[i].get('components.sprite.clips');
             if (! clips) continue;
 
-            for (var key in clips) {
+            for (const key in clips) {
                 var clip = clips[key];
                 if (! groupedClips[clip.name]) {
                     groupedClips[clip.name] = {};
@@ -222,7 +222,7 @@ editor.once('load', function () {
             t: 'None'
         }];
 
-        for (var name in groupedClips) {
+        for (const name in groupedClips) {
             if (Object.keys(groupedClips[name]).length !== numEntities) continue;
 
             enumAutoPlay.push({
@@ -238,7 +238,7 @@ editor.once('load', function () {
             '': '...',
             'NaN': 'None'
         };
-        for (var key in batchGroups) {
+        for (const key in batchGroups) {
             batchEnum[key] = batchGroups[key].name;
         }
 
@@ -277,7 +277,7 @@ editor.once('load', function () {
         var layersEnum = {
             '': ''
         };
-        for (var key in layers) {
+        for (const key in layers) {
             layersEnum[key] = layers[key].name;
         }
         delete layersEnum[LAYERID_DEPTH];
@@ -607,7 +607,7 @@ editor.once('load', function () {
         };
 
         // show all clips that are common between all selected entities
-        for (var name in groupedClips) {
+        for (const name in groupedClips) {
             if (Object.keys(groupedClips[name]).length !== numEntities) continue;
 
             createClipPanel(name);
@@ -631,7 +631,7 @@ editor.once('load', function () {
                 var clips = entities[i].get('components.sprite.clips');
                 if (! clips) continue;
 
-                for (var key in clips) {
+                for (const key in clips) {
                     largestKey = Math.max(largestKey, parseInt(key) + 1);
                 }
             }
@@ -651,7 +651,7 @@ editor.once('load', function () {
                     entity.history.enabled = false;
                     var clips = entity.get('components.sprite.clips') || {};
                     var slot = 0;
-                    for (var key in clips) {
+                    for (const key in clips) {
                         slot = Math.max(slot, parseInt(key, 10) + 1);
                     }
 
@@ -675,7 +675,7 @@ editor.once('load', function () {
                     var clips = entity.get('components.sprite.clips');
                     if (! clips) continue;
                     var slot = null;
-                    for (var key in clips) {
+                    for (const key in clips) {
                         if (clips[key].name === desiredName) {
                             slot = key;
                             break;

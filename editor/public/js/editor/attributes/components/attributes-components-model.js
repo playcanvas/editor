@@ -367,7 +367,7 @@ editor.once('load', function () {
             '': '...',
             'NaN': 'None'
         };
-        for (var key in batchGroups) {
+        for (const key in batchGroups) {
             batchEnum[key] = batchGroups[key].name;
         }
 
@@ -406,7 +406,7 @@ editor.once('load', function () {
         var layersEnum = {
             '': ''
         };
-        for (var key in layers) {
+        for (const key in layers) {
             layersEnum[key] = layers[key].name;
         }
         delete layersEnum[LAYERID_DEPTH];
@@ -450,7 +450,7 @@ editor.once('load', function () {
         for (let i = 0, len = entities.length; i < len; i++) {
             var mapping = entities[i].get('components.model.mapping');
             if (mapping) {
-                for (var key in mapping) {
+                for (const key in mapping) {
                     if (!allMappings[key])
                         allMappings[key] = [entities[i].get('resource_id')];
                     else
@@ -644,7 +644,7 @@ editor.once('load', function () {
         };
 
         // add field for each mapping
-        for (var key in allMappings) {
+        for (const key in allMappings) {
             addOverride(key);
         }
 
@@ -660,7 +660,7 @@ editor.once('load', function () {
                 var resourceId = entity.get('resource_id');
 
                 // remove deleted overrides
-                for (var key in allMappings) {
+                for (const key in allMappings) {
                     if (value[key] === undefined) {
                         var ind = allMappings[key].indexOf(resourceId);
                         if (ind !== -1) {
@@ -678,7 +678,7 @@ editor.once('load', function () {
 
 
                 // add new
-                for (var key in value) {
+                for (const key in value) {
                     if (!allMappings[key]) {
                         allMappings[key] = [resourceId];
                         addOverride(key);

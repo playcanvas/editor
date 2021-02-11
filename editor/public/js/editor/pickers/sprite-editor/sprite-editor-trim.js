@@ -145,7 +145,7 @@ editor.once('load', function () {
 
             var history = asset.history.enabled;
             asset.history.enabled = false;
-            for (var key in prev) {
+            for (const key in prev) {
                 atlasAsset.set('data.frames.' + key + '.rect', prev[key]);
             }
             asset.history.enabled = history;

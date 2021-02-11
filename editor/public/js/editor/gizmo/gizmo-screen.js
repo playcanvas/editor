@@ -118,7 +118,7 @@ editor.once('load', function () {
                 return;
             }
 
-            for (var key in entities) {
+            for (const key in entities) {
                 var entity = app.root.findByGuid(key);
                 if (! entity)
                     continue;

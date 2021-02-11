@@ -553,7 +553,7 @@ editor.once('load', function () {
             if (newFrame.rect[2] !== 0 && newFrame.rect[3] !== 0) {
                 // generate key name for new frame
                 var key = 1;
-                for (var existingKey in atlasAsset.getRaw('data.frames')._data) {
+                for (const existingKey in atlasAsset.getRaw('data.frames')._data) {
                     key = Math.max(parseInt(existingKey, 10) + 1, key);
                 }
 
@@ -1117,7 +1117,7 @@ editor.once('load', function () {
         ctx.beginPath();
         ctx.strokeStyle = COLOR_GRAY;
         ctx.lineWidth = 1;
-        for (var key in frames) {
+        for (const key in frames) {
             if (highlightedFrames.indexOf(key) !== -1 || newSpriteFrames.indexOf(key) !== -1) continue;
 
             renderFrame(frames[key]._data, left, top, width, height);
@@ -1580,7 +1580,7 @@ editor.once('load', function () {
         var imgTop = imageTop();
 
         var frames = atlasAsset.getRaw('data.frames')._data;
-        for (var key in frames) {
+        for (const key in frames) {
             var frame = frames[key]._data;
             var left = frameLeft(frame, imgLeft, imgWidth);
             var top = frameTop(frame, imgTop, imgHeight);

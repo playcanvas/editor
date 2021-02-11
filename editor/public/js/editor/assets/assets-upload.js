@@ -41,7 +41,7 @@ editor.once('load', function () {
     };
 
     var extToType = {};
-    for (var type in typeToExt) {
+    for (const type in typeToExt) {
         for (let i = 0; i < typeToExt[type].length; i++) {
             extToType[typeToExt[type][i]] = type;
         }

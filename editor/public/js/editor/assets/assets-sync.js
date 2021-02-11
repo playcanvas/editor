@@ -80,7 +80,7 @@ editor.once('load', function () {
                 assetData.file.url = getFileUrl(assetData.id, assetData.revision, assetData.file.filename);
 
                 if (assetData.file.variants) {
-                    for (var key in assetData.file.variants) {
+                    for (const key in assetData.file.variants) {
                         assetData.file.variants[key].url = getFileUrl(assetData.id, assetData.revision, assetData.file.variants[key].filename);
                     }
                 }
