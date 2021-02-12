@@ -239,8 +239,11 @@ Object.assign(pcui, (function () {
                     const inspector = new pcui[cls]({
                         hidden: true,
                         assets: args.assets,
+                        entities: args.entities,
                         projectSettings: args.projectSettings,
-                        history: args.history
+                        history: args.history,
+                        inspectorPanel: args.inspectorPanel,
+                        inspectorPanelSecondary: args.inspectorPanelSecondary
                     });
 
                     this._typedAssetInspectors[assetType] = inspector;

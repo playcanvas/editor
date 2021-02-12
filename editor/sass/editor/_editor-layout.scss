@@ -24,6 +24,19 @@
     min-height: 0;
 }
 
+// secondary attributes panel
+#layout-attributes-secondary {
+    grid-area: attributes;
+    min-width: 0;
+    min-height: 0;
+    > .pcui-container {
+        overflow: auto;
+        > .pcui-panel {
+            overflow: auto;
+        }
+    }
+}
+
 // 3d viewport
 #layout-viewport {
     grid-area: viewport;
@@ -43,6 +56,10 @@
     grid-area: attributes;
     min-width: 0;
     min-height: 0;
+}
+
+#layout-attributes.layout-attributes-left {
+    grid-area: hierarchy;
 }
 
 // status bar

@@ -23,10 +23,13 @@ editor.once('viewport:load', function () {
         tooltip.disabled = false;
     });
 
-
     viewport.append(combo);
 
-    combo.on('change', function (value) {
+    editor.method('layout.viewport.camera', function() {
+        return combo;
+    });
+
+    combo.on('change', function(value) {
         var entity = app.root.findByGuid(value);
         editor.call('camera:set', entity);
     });

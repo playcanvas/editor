@@ -132,7 +132,7 @@ Object.assign(pcui, (function () {
 
             let options = this._assets[0].get(`data.layers.${this._args.id}.states`).map(stateId => {
                 const state = this._assets[0].get(`data.states.${stateId}`);
-                if (!state) return;
+                if (!state) return undefined;
                 return { v: Number(stateId), t: state.name };
             });
             options = options.filter(o => !!o);
