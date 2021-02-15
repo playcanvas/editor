@@ -1,6 +1,41 @@
-.asset-animstategraph-inspector-parameter,.asset-animstategraph-inspector-layer, .asset-animstategraph-inspector-state, .asset-animstategraph-inspector-transition {
-    margin: 6px;
-    border: 1px solid #293538;
+.asset-animstategraph-inspector {
+    .asset-animstategraph-inspector-parameter, .asset-animstategraph-inspector-layer, .asset-animstategraph-inspector-state, .asset-animstategraph-inspector-transition {
+        margin: 6px;
+        border: 1px solid #293538;
+    }
+}
+
+.asset-animstategraph-inspector-transitions {
+    overflow: visible;
+    .asset-animstategraph-inspector-transition {
+        margin: 6px;
+        border: 1px solid #293538;
+        overflow: visible;
+    }
+
+    > .pcui-button {
+        width: calc(100% - 12px);
+    }
+}
+
+.pcui-container.asset-animstategraph-inspector-layer-select {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 200px;
+    height: 24px;
+    z-index: 9999;
+}
+
+.asset-animstategraph-inspector-layer-select {
+    .pcui-select-input-container-value {
+        .pcui-select-input-value::before {
+            font-family: 'pc-icon';
+            font-size: 12px;
+            content: '\E147';
+            padding-right: 8px;
+        }
+    }
 }
 
 .asset-animstategraph-inspector-container {

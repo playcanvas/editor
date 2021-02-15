@@ -63,7 +63,7 @@ editor.once('load', function () {
     if (editor.call('users:hasFlag', 'hasAnimComponent')) {
         assets.animstategraph = {
             title: 'Anim State Graph',
-            icon: '&#57754;'
+            icon: '&#58386;'
         };
     }
 

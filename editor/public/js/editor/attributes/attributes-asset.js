@@ -17,13 +17,41 @@ editor.once('load', function () {
 
     assetInspector = new pcui.AssetInspector({
         assets: editor.call('assets:raw'),
+        entities: editor.call('entities:raw'),
         projectSettings: editor.call('settings:project'),
         history: editor.call('editor:history'),
-        editableTypes: editableTypes
+        editableTypes: editableTypes,
+        inspectorPanel: editor.call('layout.attributes'),
+        inspectorPanelSecondary: editor.call('layout.attributes.secondary')
     });
     assetInspector.once('destroy', () => {
         assetInspectorEvents.forEach(evt => evt.unbind());
         assetInspectorEvents = [];
+    });
+    assetInspector.on('fullscreenMode:on', () => {
+        editor.call('layout.attributes.secondary').hidden = false;
+        editor.call('layout.hierarchy').hidden = true;
+        editor.call('layout.toolbar').hidden = true;
+        editor.call('layout.toolbar.launch').hidden = true;
+        editor.call('layout.viewport.camera').hidden = true;
+        editor.call('viewport:canvas').hidden = true;
+        editor.call('layout.attributes').class.add('layout-attributes-left');
+        editor.call('layout.attributes').resizable = 'right';
+    });
+
+    assetInspector.on('fullscreenMode:off', () => {
+        editor.call('layout.attributes.secondary').hidden = true;
+        editor.call('layout.hierarchy').hidden = false;
+        editor.call('layout.toolbar').hidden = false;
+        editor.call('layout.toolbar.launch').hidden = false;
+        editor.call('layout.viewport.camera').hidden = false;
+        editor.call('viewport:canvas').hidden = false;
+        editor.call('layout.attributes').class.remove('layout-attributes-left');
+        editor.call('layout.attributes').resizable = 'left';
+    });
+
+    assetInspector.on('updateSecondaryPanelHeader', (text) => {
+        editor.call('layout.attributes.secondary').headerText = text;
     });
 
     editor.on('attributes:beforeClear', function () {
