@@ -27,11 +27,13 @@
 @import '../../node_modules/@playcanvas/pcui/src/components/Progress/style';
 @import '../../node_modules/@playcanvas/pcui/src/components/ContextMenu/style';
 @import '../../node_modules/@playcanvas/pcui/src/components/TreeView/style';
+@import '../../node_modules/@playcanvas/pcui/src/components/LabelGroup/style';
+@import '../../node_modules/@playcanvas/pcui/src/components/GridView/style';
+@import '../../node_modules/@playcanvas/pcui/src/components/GridViewItem/style';
 
 // editor specific pcui controls
 @import 'pcui-common';
 @import 'pcui-canvas';
-@import 'pcui-label-group';
 @import 'pcui-color-input';
 @import 'pcui-curve-input';
 @import 'pcui-gradient-input';
@@ -39,7 +41,6 @@
 @import 'pcui-asset-list';
 @import 'pcui-entity-input';
 @import 'pcui-asset-thumbnail';
-@import 'pcui-grid-view';
 @import 'pcui-drop-manager';
 @import 'pcui-drop-target';
 @import 'pcui-inspector';

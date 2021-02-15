@@ -4,11 +4,11 @@ Object.assign(pcui, (function () {
     const Element = pcuiExternal.Element;
     const ArrayInput = pcuiExternal.ArrayInput;
     for (const name in pcui.DEFAULTS) {
-       if (!ArrayInput.DEFAULTS.hasOwnProperty(name)) {
+        if (!ArrayInput.DEFAULTS.hasOwnProperty(name)) {
             Element.register(`array:${name}`, ArrayInput, { type: name, renderChanges: true });
-       }
+        }
+        ArrayInput.DEFAULTS[name] = utils.deepCopy(pcui.DEFAULTS[name]);
 
-       ArrayInput.DEFAULTS[name] = utils.deepCopy(pcui.DEFAULTS[name]);
     }
 
     return {
@@ -22,6 +22,7 @@ Object.assign(pcui, (function () {
         Divider: pcuiExternal.Divider,
         InfoBox: pcuiExternal.InfoBox,
         Label: pcuiExternal.Label,
+        LabelGroup: pcuiExternal.LabelGroup,
         NumericInput: pcuiExternal.NumericInput,
         Overlay: pcuiExternal.Overlay,
         Panel: pcuiExternal.Panel,
@@ -33,6 +34,8 @@ Object.assign(pcui, (function () {
         TextInput: pcuiExternal.TextInput,
         TreeViewItem: pcuiExternal.TreeViewItem,
         TreeView: pcuiExternal.TreeView,
+        GridView: pcuiExternal.GridView,
+        GridViewItem: pcuiExternal.GridViewItem,
         VectorInput: pcuiExternal.VectorInput
     };
 
