@@ -384,7 +384,7 @@ Object.assign(pcui, (function () {
             const shadowType = this._field('shadowType').value;
             const cookie = this._field('cookieAsset').value;
 
-            const hasShapes = editor.call('settings:project').get('areaLightData');
+            const hasShapes = editor.call('settings:project').get('areaLightDataAsset');
             const shape = this._field('shape').value;
 
             if (!hasShapes) {

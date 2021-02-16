@@ -295,15 +295,15 @@ editor.once('load', function () {
         }
     }
 
-    if (config.project.settings.areaLightData) {
-        var id = config.project.settings.areaLightData;
+    if (config.project.settings.areaLightDataAsset) {
+        var id = config.project.settings.areaLightDataAsset;
         var engineAsset = app.assets.get(id);
         if (engineAsset) {
-            app.setAreaLightData(engineAsset);
+            app.setAreaLightLuts(engineAsset);
         } else {
             app.assets.on('add:' + id, function() {
                 var engineAsset = app.assets.get(id);
-                app.setAreaLightData(engineAsset);
+                app.setAreaLightLuts(engineAsset);
             });
         }
     }
@@ -391,15 +391,15 @@ editor.once('load', function () {
         app.i18n.assets = value;
     });
 
-    projectSettings.on('areaLightData:set', function (value) {
+    projectSettings.on('areaLightDataAsset:set', function (value) {
         var id = value;
         var engineAsset = app.assets.get(id);
         if (engineAsset) {
-            app.setAreaLightData(engineAsset);
+            app.setAreaLightLuts(engineAsset);
         } else {
             app.assets.on('add:' + id, function() {
                 var engineAsset = app.assets.get(id);
-                app.setAreaLightData(engineAsset);
+                app.setAreaLightLuts(engineAsset);
             });
         }
     });

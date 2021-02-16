@@ -24,8 +24,8 @@ Object.assign(pcui, (function () {
         {
             observer: 'projectSettings',
             label: 'Area Lights Data',
-            path: 'areaLightData',
-            alias: 'project:areaLightData',
+            path: 'areaLightDataAsset',
+            alias: 'project:areaLightDataAsset',
             type: 'asset',
             args: {
                 assetType: 'binary'
@@ -408,7 +408,7 @@ Object.assign(pcui, (function () {
             });
 
             var areaLightImportField = this._attributesInspector.getField('areaLights');
-            var areaLightDataField = this._attributesInspector.getField('areaLightData');
+            var areaLightDataField = this._attributesInspector.getField('areaLightDataAsset');
 
             if (!editor.call('users:hasFlag', 'hasAreaLights')) {
                 areaLightImportField.parent.hidden = true;
@@ -429,7 +429,7 @@ Object.assign(pcui, (function () {
                 if (name === 'area-light-luts') {
                     var lutAsset = editor.call('project:engineAsset:getEngineAsset', 'area-light-luts');
                     if (lutAsset.length>0) {
-                        this._attributesInspector.getField('areaLightData').value = lutAsset[0][1].get('id');
+                        this._attributesInspector.getField('areaLightDataAsset').value = lutAsset[0][1].get('id');
                     } else {
                         editor.call('project:engineAsset:addEngineAsset', 'area-light-luts', 'area-light-luts');
                         const importAreaLightEvt = editor.on('engineAssetImported', handleEngineAssetImport);

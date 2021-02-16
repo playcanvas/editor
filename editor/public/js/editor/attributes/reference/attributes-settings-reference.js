@@ -164,7 +164,7 @@ editor.once('load', function() {
         title: 'Anti-Alias',
         description: 'When disabled, anti-aliasing will be disabled for back-buffer.'
     }, {
-        name: 'project:areaLightData',
+        name: 'project:areaLightDataAsset',
         title: 'Area Light Data',
         description: 'this will be hidden from users'
     }, {    

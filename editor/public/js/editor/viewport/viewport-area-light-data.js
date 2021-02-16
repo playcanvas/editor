@@ -9,20 +9,20 @@ editor.once('load', function () {
     var areaLightDataAssetId;
 
     var refreshAreaLightAsset = function () {
-        areaLightDataAssetId = projectSettings.get('areaLightData');
+        areaLightDataAssetId = projectSettings.get('areaLightDataAsset');
         var engineAsset = app.assets.get(areaLightDataAssetId);
         if (engineAsset) {
-            app.setAreaLightData(engineAsset);
+            app.setAreaLightLuts(engineAsset);
         }
         editor.call('viewport:render');
     };
 
-    projectSettings.on('areaLightData:set', refreshAreaLightAsset);
-    projectSettings.on('areaLightData:remove', refreshAreaLightAsset);
+    projectSettings.on('areaLightDataAsset:set', refreshAreaLightAsset);
+    projectSettings.on('areaLightDataAsset:remove', refreshAreaLightAsset);
 
     // initialize area lights
     var renderFrame = false;
-    if (config.project.settings.areaLightData) {
+    if (config.project.settings.areaLightDataAsset) {
         refreshAreaLightAsset();
         renderFrame = true;
     }
@@ -38,7 +38,7 @@ editor.once('load', function () {
         if (id === areaLightDataAssetId) {
             var engineAsset = app.assets.get(id);
             if (engineAsset) {
-                app.setAreaLightData(engineAsset);
+                app.setAreaLightLuts(engineAsset);
             }
         }
     });
