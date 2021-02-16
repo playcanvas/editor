@@ -1,7 +1,9 @@
 editor.once('load', function () {
     'use strict';
 
-    editor.method('templates:isTemplateChild', function (entity) {
+    // Checks if the entity is part of a template and if so returns the template
+    // root or null otherwise
+    editor.method('templates:isTemplateChild', function (entity, entities) {
         const templateEntIdsPath = `template_ent_ids.${entity.get('resource_id')}`;
 
         let current = entity;
@@ -11,16 +13,21 @@ editor.once('load', function () {
                 break;
             }
 
-            current = editor.call('entities:get', parent);
+            if (entities) {
+                current = entities.get(parent);
+            } else {
+                current = editor.call('entities:get', parent);
+            }
+
             if (!current) {
                 break;
             }
 
             if (current.get('template_id') && current.get(templateEntIdsPath)) {
-                return true;
+                return current;
             }
         }
 
-        return false;
+        return null;
     });
 });

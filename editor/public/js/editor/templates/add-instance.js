@@ -1,7 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    editor.method('template:addInstance', function (asset, parent, opts) {
+    editor.method('template:addInstanceInFrontEnd', function (asset, parent, opts) {
         if (! editor.call('permissions:write')) {
             return;
         }

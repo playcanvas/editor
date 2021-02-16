@@ -174,6 +174,8 @@ editor.once('load', function () {
     editor.method('entities:copy', function (entities) {
         var data = {
             project: config.project.id,
+            scene: config.scene.uniqueId,
+            branch: config.self.branch.id,
             legacy_scripts: settings.get('useLegacyScripts'),
             hierarchy: {},
             assets: {},
