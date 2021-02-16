@@ -17,7 +17,7 @@ editor.once('load', function () {
             });
         } else {
             // get deeper into the attribute
-            for (var key in attribute) {
+            for (const key in attribute) {
                 if (!attribute[key]) continue;
 
                 appendScriptAttribute(attribute[key], `${attributeName}.${key}`, section);
@@ -34,7 +34,7 @@ editor.once('load', function () {
         // Build index of conflicts so that the conflicts become
         // a hierarchical object
         var index = {};
-        for (var i = 0, len = conflicts.data.length; i < len; i++) {
+        for (let i = 0, len = conflicts.data.length; i < len; i++) {
             var conflict = conflicts.data[i];
             // check if the whole scene has changed (e.g. deleted in one branch)
             if (conflict.path === '') {
@@ -77,7 +77,7 @@ editor.once('load', function () {
 
         // append scene settings
         if (index.settings) {
-            for (var key in index.settings) {
+            for (const key in index.settings) {
                 sectionProperties.appendAllFields({
                     schema: 'scene',
                     fields: index.settings[key]
@@ -98,7 +98,7 @@ editor.once('load', function () {
                 allowSectionCloaking = numEntities > 50;
             }
 
-            for (var key in index.entities) {
+            for (const key in index.entities) {
                 // create title for entity section
                 var entityName = resolver.srcEntityIndex[key] || resolver.dstEntityIndex[key];
                 if (entityName) {
@@ -120,7 +120,7 @@ editor.once('load', function () {
 
                 // Components
                 if (entity.components) {
-                    for (var component in componentSchema) {
+                    for (const component in componentSchema) {
                         if (! entity.components.hasOwnProperty(component)) continue;
                         sectionEntity.appendTitle(component.toUpperCase() + ' COMPONENT');
 
@@ -136,7 +136,7 @@ editor.once('load', function () {
                             // add script attributes after
                             var scripts = entity.components.script.scripts;
                             if (scripts) {
-                                for (var scriptName in scripts) {
+                                for (const scriptName in scripts) {
                                     if (! scripts[scriptName]) continue;
 
                                     sectionEntity.appendTitle(`script: '${scriptName}'`, true);
@@ -161,7 +161,7 @@ editor.once('load', function () {
                                     var attributes = scripts[scriptName].attributes;
                                     if (! attributes) continue;
 
-                                    for (var attributeName in attributes) {
+                                    for (const attributeName in attributes) {
                                         var attribute = attributes[attributeName];
                                         if (! attribute) continue;
 
@@ -179,7 +179,7 @@ editor.once('load', function () {
 
                             var slots = entity.components.sound.slots;
                             if (slots) {
-                                for (var key in slots) {
+                                for (const key in slots) {
                                     sectionEntity.appendTitle('SOUND SLOT ' + key, true);
                                     sectionEntity.appendAllFields({
                                         schema: 'scene',
@@ -197,7 +197,7 @@ editor.once('load', function () {
 
                             var clips = entity.components.sprite.clips;
                             if (clips) {
-                                for (var key in clips) {
+                                for (const key in clips) {
                                     sectionEntity.appendTitle('CLIP ' + key, true);
                                     sectionEntity.appendAllFields({
                                         schema: 'scene',
@@ -216,7 +216,7 @@ editor.once('load', function () {
                             // handle mapping
                             var mapping = entity.components.model.mapping;
                             if (mapping) {
-                                for (var key in mapping) {
+                                for (const key in mapping) {
                                     sectionEntity.appendTitle('ENTITY MATERIAL ' + key, true);
 
                                     sectionEntity.appendField({

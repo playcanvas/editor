@@ -1,4 +1,4 @@
-editor.once('viewport:load', function() {
+editor.once('viewport:load', function () {
     'use strict';
 
     // Flying with WASD or Arrows
@@ -9,7 +9,6 @@ editor.once('viewport:load', function() {
     var flying = false;
     var flySpeed = 7;
     var flySpeedFast = 25;
-    var flySpeedTarget = 0;
     var flyEasing = 0.5;
     var flyVec = new pc.Vec3();
     var flyCamera = null;
@@ -27,11 +26,11 @@ editor.once('viewport:load', function() {
     var keysMovement = { 87: 1, 38: 1, 65: 1, 37: 1, 83: 1, 40: 1, 68: 1, 39: 1, 81: 1, 69: 1, 34: 1, 33: 1 };
 
 
-    editor.method('camera:fly:state', function() {
+    editor.method('camera:fly:state', function () {
         return flying;
     });
 
-    editor.on('viewport:update', function(dt) {
+    editor.on('viewport:update', function (dt) {
         var camera;
         var speed = 0;
 
@@ -72,11 +71,11 @@ editor.once('viewport:load', function() {
         }
     });
 
-    editor.on('hotkey:shift', function(state) {
+    editor.on('hotkey:shift', function (state) {
         shiftKey = state;
     });
 
-    window.addEventListener('keydown', function(evt) {
+    window.addEventListener('keydown', function (evt) {
         if (! keysMovement[evt.keyCode] || evt.ctrlKey || evt.metaKey || evt.altKey)
             return;
 
@@ -110,7 +109,7 @@ editor.once('viewport:load', function() {
         editor.call('viewport:render');
     }, false);
 
-    window.addEventListener('keyup', function(evt) {
+    window.addEventListener('keyup', function (evt) {
         if (! flying || ! keysMovement[evt.keyCode] || evt.ctrlKey || evt.metaKey || evt.altKey)
             return;
 

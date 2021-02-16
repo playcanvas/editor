@@ -1,11 +1,11 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     // new
     editor.call('hotkey:register', 'entity:new', {
         key: 'e',
         ctrl: true,
-        callback: function() {
+        callback: function () {
             if (! editor.call('permissions:write'))
                 return;
 
@@ -52,7 +52,7 @@ editor.once('load', function() {
     });
 
     // delete
-    var deleteCallback = function() {
+    var deleteCallback = function () {
         if (editor.call('picker:isOpen')) return;
 
         if (! editor.call('permissions:write'))

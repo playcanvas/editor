@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('settings:project').get('useLegacyScripts')) {
@@ -25,18 +25,18 @@ editor.once('load', function() {
     // update attributes accordingly
 
 
-    editor.method('scripts:parse', function(asset, fn) {
+    editor.method('scripts:parse', function (asset, fn) {
         editor.call('status:text', `Parsing script asset '${asset.get('name')}'...`);
 
         var worker = new Worker('/editor/scene/js/editor/assets/assets-script-parse-worker.js');
         worker.asset = asset;
         worker.progress = 0;
 
-        worker.onmessage = function(evt) {
+        worker.onmessage = function (evt) {
             if (! evt.data.name)
                 return;
 
-            switch(evt.data.name) {
+            switch (evt.data.name) {
                 case 'results':
                     worker.terminate();
                     var result = evt.data.data;
@@ -65,7 +65,7 @@ editor.once('load', function() {
                         asset.set('data.loading', result.loading);
 
                     // remove scripts
-                    for(var key in scripts) {
+                    for (const key in scripts) {
                         if (! scripts.hasOwnProperty(key) || result.scripts.hasOwnProperty(key))
                             continue;
 
@@ -73,7 +73,7 @@ editor.once('load', function() {
                     }
 
                     // add scripts
-                    for(var key in result.scripts) {
+                    for (const key in result.scripts) {
                         if (! result.scripts.hasOwnProperty(key))
                             continue;
 
@@ -82,7 +82,7 @@ editor.once('load', function() {
                         // TODO scripts2
                         // attributes validation
 
-                        for(var attr in result.scripts[key].attributes) {
+                        for (const attr in result.scripts[key].attributes) {
                             if (! result.scripts[key].attributes.hasOwnProperty(attr))
                                 continue;
 
@@ -115,12 +115,12 @@ editor.once('load', function() {
                         if (! script) {
                             // new script
                             asset.set('data.scripts.' + key, {
-                                'attributesOrder': attributesOrder || [ ],
+                                'attributesOrder': attributesOrder || [],
                                 'attributes': attributes
                             });
                         } else {
                             // change attributes
-                            for(var attr in attributes) {
+                            for (const attr in attributes) {
                                 if (! attributes.hasOwnProperty(attr) || ! script.attributes.hasOwnProperty(attr))
                                     continue;
 
@@ -142,7 +142,7 @@ editor.once('load', function() {
                             }
 
                             // remove attributes
-                            for(var attr in script.attributes) {
+                            for (const attr in script.attributes) {
                                 if (! script.attributes.hasOwnProperty(attr) || attributes.hasOwnProperty(attr))
                                     continue;
 
@@ -151,7 +151,7 @@ editor.once('load', function() {
                             }
 
                             // add attributes
-                            for(var attr in attributes) {
+                            for (const attr in attributes) {
                                 if (! attributes.hasOwnProperty(attr) || script.attributes.hasOwnProperty(attr))
                                     continue;
 
@@ -163,12 +163,12 @@ editor.once('load', function() {
                             // TODO scritps2
                             // move attribute
                             var attrIndex = { };
-                            for(var i = 0; i < attributesOrder.length; i++)
+                            for (let i = 0; i < attributesOrder.length; i++)
                                 attrIndex[attributesOrder[i]] = i;
 
                             var scriptAttributeOrder = asset.get('data.scripts.' + key + '.attributesOrder');
                             var i = scriptAttributeOrder.length;
-                            while(i--) {
+                            while (i--) {
                                 var attr = scriptAttributeOrder[i];
                                 var indOld = asset.get('data.scripts.' + key + '.attributesOrder').indexOf(attr);
                                 var indNew = attrIndex[attr];
@@ -186,7 +186,7 @@ editor.once('load', function() {
             }
         };
 
-        worker.onerror = function(err) {
+        worker.onerror = function (err) {
             editor.call('status:error', 'There was an error while parsing a script');
             console.log('worker onerror', err);
             if (fn) fn(err);

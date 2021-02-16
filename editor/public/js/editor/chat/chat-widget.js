@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var root = editor.call('layout.root');
@@ -12,7 +12,7 @@ editor.once('load', function() {
     panel.folded = true;
     panel.class.add('chat-widget');
     panel.hidden = ! editor.call('permissions:read') || editor.call('viewport:expand:state');
-    editor.on('permissions:set', function(level) {
+    editor.on('permissions:set', function (level) {
         panel.hidden = ! level || editor.call('viewport:expand:state');
     });
     viewport.append(panel);
@@ -29,11 +29,11 @@ editor.once('load', function() {
         assetPanel.on('expand', adjustPosition);
     }
 
-    editor.method('chat:panel', function() {
+    editor.method('chat:panel', function () {
         return panel;
     });
 
-    editor.on('viewport:expand', function(state) {
+    editor.on('viewport:expand', function (state) {
         if (state) {
             panel.class.add('expanded');
         } else {
@@ -42,7 +42,7 @@ editor.once('load', function() {
     });
 
 
-    panel.element.addEventListener('mouseover', function() {
+    panel.element.addEventListener('mouseover', function () {
         editor.emit('viewport:hover', false);
     }, false);
 
@@ -60,11 +60,11 @@ editor.once('load', function() {
         root: root
     });
 
-    notify.on('click', function() {
+    notify.on('click', function () {
         var permission = editor.call('notify:state');
 
         if (permission === 'denied') {
-            return;
+
         } else if (permission === 'granted') {
             var granted = editor.call('localStorage:get', 'editor:notifications:chat');
             editor.call('localStorage:set', 'editor:notifications:chat', ! granted);
@@ -73,7 +73,7 @@ editor.once('load', function() {
             editor.call('notify:permission');
         }
     });
-    var checkNotificationsState = function() {
+    var checkNotificationsState = function () {
         var permission = editor.call('notify:state');
 
         if (permission === 'denied') {
@@ -143,7 +143,7 @@ editor.once('load', function() {
     typersMultiple.appendChild(document.createTextNode(' users are typing...'));
 
 
-    editor.on('chat:typing', function(count, ids) {
+    editor.on('chat:typing', function (count, ids) {
         if (count === 0) {
             if (typersLast) typersLast.classList.remove('active');
             typersLast = null;
@@ -185,11 +185,11 @@ editor.once('load', function() {
     number.textContent = '0';
     panel.headerAppend(number);
 
-    editor.method('chat:unreadCount', function() {
+    editor.method('chat:unreadCount', function () {
         return messagesNumber;
     });
 
-    editor.on('chat:post', function(type, msg, element) {
+    editor.on('chat:post', function (type, msg, element) {
         if (! panel.folded)
             lastMessage = element;
 
@@ -203,7 +203,7 @@ editor.once('load', function() {
         if (! number.classList.contains('typing'))
             number.textContent = messagesNumber;
     });
-    editor.on('chat:typing', function(typing, ids) {
+    editor.on('chat:typing', function (typing, ids) {
         if (! panel.folded)
             return;
 
@@ -223,7 +223,7 @@ editor.once('load', function() {
             number.style.color = '';
         }
     });
-    panel.on('unfold', function() {
+    panel.on('unfold', function () {
         messagesNumber = 0;
         number.textContent = '0';
         number.classList.remove('typing', 'notify');
@@ -239,7 +239,7 @@ editor.once('load', function() {
             lastMessage = messages.innerElement.lastChild;
         }
 
-        setTimeout(function() {
+        setTimeout(function () {
             input.elementInput.select();
             input.elementInput.focus();
         }, 200);
@@ -252,14 +252,14 @@ editor.once('load', function() {
     messages.scroll = true;
     panel.append(messages);
 
-    messages.innerElement.addEventListener('contextmenu', function(evt) {
+    messages.innerElement.addEventListener('contextmenu', function (evt) {
         if (evt.target.tagName !== 'A')
             return;
 
         evt.stopPropagation();
     });
 
-    editor.method('chat:messagesPanel', function() {
+    editor.method('chat:messagesPanel', function () {
         return messages;
     });
 
@@ -277,7 +277,7 @@ editor.once('load', function() {
     input.placeholder = '>';
     panel.append(input);
 
-    editor.method('chat:inputField', function() {
+    editor.method('chat:inputField', function () {
         return input;
     });
 
@@ -286,12 +286,12 @@ editor.once('load', function() {
     clear.classList.add('clear');
     input.element.appendChild(clear);
 
-    clear.addEventListener('click', function() {
+    clear.addEventListener('click', function () {
         input.value = '';
         onTypingEnd();
     }, false);
 
-    var onTypingEnd = function() {
+    var onTypingEnd = function () {
         if (typingTimeout) {
             clearTimeout(typingTimeout);
             typingTimeout = null;
@@ -304,7 +304,7 @@ editor.once('load', function() {
         editor.call('chat:typing', false);
     };
 
-    input.on('change', function(value) {
+    input.on('change', function (value) {
         value = value.trim();
 
         if (value.length > 1024) {
@@ -330,7 +330,7 @@ editor.once('load', function() {
         }
     });
 
-    input.element.addEventListener('keydown', function(evt) {
+    input.element.addEventListener('keydown', function (evt) {
         if (evt.keyCode === 27) {
             // esc
             input.value = '';

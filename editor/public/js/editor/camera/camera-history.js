@@ -1,11 +1,11 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var camera;
     var overlapping = 0;
     var position, rotation, eulers, orthoHeight;
 
-    editor.method('camera:history:start', function(entity) {
+    editor.method('camera:history:start', function (entity) {
         if (entity === camera) {
             overlapping++;
             return;
@@ -26,7 +26,7 @@ editor.once('load', function() {
         obj.history.enabled = false;
     });
 
-    editor.method('camera:history:stop', function(entity) {
+    editor.method('camera:history:stop', function (entity) {
         if (! camera) return;
 
         if (entity) {

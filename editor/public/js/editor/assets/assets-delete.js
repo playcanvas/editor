@@ -1,7 +1,7 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    editor.method('assets:delete:picker', function(items) {
+    editor.method('assets:delete:picker', function (items) {
         if (! editor.call('permissions:write'))
             return;
 
@@ -13,7 +13,7 @@ editor.once('load', function() {
         if (items.length > 1)
             msg = 'Delete ' + items.length + ' Assets?';
 
-        editor.call('picker:confirm', msg, function() {
+        editor.call('picker:confirm', msg, function () {
             if (! editor.call('permissions:write'))
                 return;
 
@@ -24,7 +24,7 @@ editor.once('load', function() {
         });
     });
 
-    var deleteCallback = function() {
+    var deleteCallback = function () {
         if (! editor.call('permissions:write'))
             return;
 

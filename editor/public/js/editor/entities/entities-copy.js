@@ -16,7 +16,7 @@ editor.once('load', function () {
             assetIds = [assetIds];
         }
 
-        for (var i = 0; i < assetIds.length; i++) {
+        for (let i = 0; i < assetIds.length; i++) {
             var assetId = assetIds[i];
             if (! assetId || assets[assetId]) continue;
 
@@ -168,11 +168,14 @@ editor.once('load', function () {
 
     /**
      * Copies the specified entities into localStorage
-     * @param {Observer[]} entities The entities to copy
+     *
+     * @param {Observer[]} entities - The entities to copy
      */
     editor.method('entities:copy', function (entities) {
         var data = {
             project: config.project.id,
+            scene: config.scene.uniqueId,
+            branch: config.self.branch.id,
             legacy_scripts: settings.get('useLegacyScripts'),
             hierarchy: {},
             assets: {},
@@ -240,7 +243,7 @@ editor.once('load', function () {
             gatherDependencies(e, data);
         }
 
-        for (var key in selection) {
+        for (const key in selection) {
             // set parent of each copied entity to null
             if (data.hierarchy[key])
                 data.hierarchy[key].parent = null;

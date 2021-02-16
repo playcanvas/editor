@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var fields = [{
@@ -25,7 +25,7 @@ editor.once('load', function() {
     }];
 
     // fields reference
-    for(var i = 0; i < fields.length; i++) {
+    for (let i = 0; i < fields.length; i++) {
         fields[i].name = 'asset:sprite:' + (fields[i].name || fields[i].title);
         editor.call('attributes:reference:add', fields[i]);
     }

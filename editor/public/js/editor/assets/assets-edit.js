@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var types = {
@@ -22,24 +22,24 @@ editor.once('load', function() {
         }
     });
 
-    var dblClick = function(key, asset) {
+    var dblClick = function (key, asset) {
         var gridItem = editor.call('assets:panel:get', asset.get(key));
         if (! gridItem)
             return;
 
-        gridItem.element.addEventListener('dblclick', function(evt) {
+        gridItem.element.addEventListener('dblclick', function (evt) {
             editor.call('assets:edit', asset);
         }, false);
     };
 
-    editor.on('assets:add', function(asset) {
+    editor.on('assets:add', function (asset) {
         if (! types[asset.get('type')])
             return;
 
         dblClick('id', asset);
     });
 
-    editor.on('sourcefiles:add', function(file) {
+    editor.on('sourcefiles:add', function (file) {
         dblClick('filename', file);
     });
 });

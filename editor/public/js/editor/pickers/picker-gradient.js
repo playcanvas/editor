@@ -1,46 +1,45 @@
-
 // helpers
 
 function Helpers() { }
 
 Object.assign(Helpers, {
-    rgbaStr : function(colour, scale) {
+    rgbaStr: function (colour, scale) {
         if (!scale) { scale = 1; }
-        var rgba = colour.map(function(element, index) {
+        var rgba = colour.map(function (element, index) {
             return index < 3 ? Math.round(element * scale) : element;
         } ).join(',');
-        for (var i=colour.length; i<4; ++i) {
+        for (let i = colour.length; i < 4; ++i) {
             rgba += ',' + (i < 3 ? scale : 1);
         }
         return 'rgba(' + rgba + ')';
     },
 
-    hexStr : function(clr) {
-        return clr.map(function(v) {
+    hexStr: function (clr) {
+        return clr.map(function (v) {
             return ('00' + v.toString(16)).slice(-2).toUpperCase();
         }).join('');
     },
 
     // rgb(a) -> hsva
-    toHsva : function(rgba) {
-        var hsva = rgb2hsv(rgba.map(function(v) { return v * 255; }));
+    toHsva: function (rgba) {
+        var hsva = rgb2hsv(rgba.map(function (v) { return v * 255; }));
         hsva.push(rgba.length > 3 ? rgba[3] : 1);
         return hsva;
     },
 
     // hsv(1) -> rgba
-    toRgba : function(hsva) {
-        var rgba = hsv2rgb(hsva).map(function(v) { return v / 255; });
+    toRgba: function (hsva) {
+        var rgba = hsv2rgb(hsva).map(function (v) { return v / 255; });
         rgba.push(hsva.length > 3 ? hsva[3] : 1);
         return rgba;
     },
 
     // calculate the normalized coordinate [x,y] relative to rect
-    normalizedCoord : function(widget, x, y) {
+    normalizedCoord: function (widget, x, y) {
         var rect = widget.element.getBoundingClientRect();
         return [(x - rect.left) / rect.width,
-                (y - rect.top) / rect.height];
-    },
+            (y - rect.top) / rect.height];
+    }
 });
 
 // color picker
@@ -50,20 +49,20 @@ function ColorPicker(parent) {
 
     // capture this for the event handler
     function genEvtHandler(self, func) {
-        return function(evt) {
+        return function (evt) {
             func.apply(self, [evt]);
-        }
-    };
+        };
+    }
 
     this.panel = new ui.Panel();
-    this.panel.class.add('color-panel')
+    this.panel.class.add('color-panel');
     parent.appendChild(this.panel.element);
 
     this.colorRect = new ui.Canvas( { useDevicePixelRatio: true } );
     this.colorRect.class.add('color-rect');
     this.panel.append(this.colorRect.element);
     this.colorRect.resize(this.colorRect.element.clientWidth,
-                          this.colorRect.element.clientHeight);
+        this.colorRect.element.clientHeight);
 
     this.colorHandle = document.createElement('div');
     this.colorHandle.classList.add('color-handle');
@@ -73,7 +72,7 @@ function ColorPicker(parent) {
     this.hueRect.class.add('hue-rect');
     this.panel.append(this.hueRect.element);
     this.hueRect.resize(this.hueRect.element.clientWidth,
-                        this.hueRect.element.clientHeight);
+        this.hueRect.element.clientHeight);
 
     this.hueHandle = document.createElement('div');
     this.hueHandle.classList.add('hue-handle');
@@ -83,7 +82,7 @@ function ColorPicker(parent) {
     this.alphaRect.class.add('alpha-rect');
     this.panel.append(this.alphaRect.element);
     this.alphaRect.resize(this.alphaRect.element.clientWidth,
-                          this.alphaRect.element.clientHeight);
+        this.alphaRect.element.clientHeight);
 
     this.alphaHandle = document.createElement('div');
     this.alphaHandle.classList.add('alpha-handle');
@@ -101,17 +100,17 @@ function ColorPicker(parent) {
 
     function numberField(label) {
         var field = new ui.NumberField({
-            precision : 1,
-            step : 1,
-            min : 0,
-            max : 255
+            precision: 1,
+            step: 1,
+            min: 0,
+            max: 255
         });
         field.renderChanges = false;
         field.placeholder = label;
         field.on('change', this.fieldChangeHandler);
         this.fields.appendChild(field.element);
         return field;
-    };
+    }
 
     this.rField = numberField.call(this, 'r');
     this.gField = numberField.call(this, 'g');
@@ -136,22 +135,22 @@ function ColorPicker(parent) {
     this._storeHsva = [0, 0, 0, 1];
     this._dragMode = 0;
     this._changing = false;
-};
+}
 
 ColorPicker.prototype = {
-    _generateHue : function (canvas) {
+    _generateHue: function (canvas) {
         var ctx = canvas.element.getContext('2d');
         var w = canvas.pixelWidth;
         var h = canvas.pixelHeight;
         var gradient = ctx.createLinearGradient(0, 0, 0, h);
-        for (var t=0; t<=6; t+=1) {
+        for (var t = 0; t <= 6; t += 1) {
             gradient.addColorStop(t / 6, Helpers.rgbaStr(hsv2rgb([t / 6, 1, 1])));
         }
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, w, h);
     },
 
-    _generateAlpha : function (canvas) {
+    _generateAlpha: function (canvas) {
         var ctx = canvas.element.getContext('2d');
         var w = canvas.pixelWidth;
         var h = canvas.pixelHeight;
@@ -162,7 +161,7 @@ ColorPicker.prototype = {
         ctx.fillRect(0, 0, w, h);
     },
 
-    _generateGradient : function (canvas, clr) {
+    _generateGradient: function (canvas, clr) {
         var ctx = canvas.element.getContext('2d');
         var w = canvas.pixelWidth;
         var h = canvas.pixelHeight;
@@ -180,31 +179,31 @@ ColorPicker.prototype = {
         ctx.fillRect(0, 0, w, h);
     },
 
-    _onFieldChanged : function() {
+    _onFieldChanged: function () {
         if (!this._changing) {
             var rgba = [this.rField.value,
-                        this.gField.value,
-                        this.bField.value,
-                        this.aField.value].map(function (v) { return v / 255; });
+                this.gField.value,
+                this.bField.value,
+                this.aField.value].map(function (v) { return v / 255; });
             this.hsva = Helpers.toHsva(rgba);
             this.emit('change', this.color);
         }
     },
 
-    _onHexChanged : function() {
+    _onHexChanged: function () {
         if (!this._changing) {
             var hex = this.hexField.value.trim().toLowerCase();
             if (/^([0-9a-f]{2}){3,4}$/.test(hex)) {
-                var rgb = [ parseInt(hex.substring(0, 2), 16),
-                            parseInt(hex.substring(2, 4), 16),
-                            parseInt(hex.substring(4, 6), 16) ];
+                var rgb = [parseInt(hex.substring(0, 2), 16),
+                    parseInt(hex.substring(2, 4), 16),
+                    parseInt(hex.substring(4, 6), 16)];
                 this.hsva = rgb2hsv(rgb).concat([this.hsva[3]]);
                 this.emit('change', this.color);
             }
         }
     },
 
-    _onMouseDown : function(evt) {
+    _onMouseDown: function (evt) {
         if (evt.currentTarget === this.colorRect.element) {
             this._dragMode = 1;     // drag color
         } else if (evt.currentTarget === this.hueRect.element) {
@@ -221,7 +220,7 @@ ColorPicker.prototype = {
         window.addEventListener('mouseup', this.upHandler);
     },
 
-    _onMouseMove : function(evt) {
+    _onMouseMove: function (evt) {
         var newhsva;
         if (this._dragMode === 1) {
             var m = Helpers.normalizedCoord(this.colorRect, evt.pageX, evt.pageY);
@@ -246,7 +245,7 @@ ColorPicker.prototype = {
         }
     },
 
-    _onMouseUp : function(evt) {
+    _onMouseUp: function (evt) {
         window.removeEventListener('mousemove', this.moveHandler);
         window.removeEventListener('mouseup', this.upHandler);
 
@@ -254,18 +253,18 @@ ColorPicker.prototype = {
             this._storeHsva[1] !== this._hsva[1] ||
             this._storeHsva[2] !== this._hsva[2] ||
             this._storeHsva[3] !== this._hsva[3]) {
-                this.emit('change', this.color);
+            this.emit('change', this.color);
         }
     },
 
-    __proto__ : Events.prototype,
+    __proto__: Events.prototype
 };
 
 Object.defineProperty(ColorPicker.prototype, 'hsva', {
-    get: function() {
+    get: function () {
         return this._hsva;
     },
-    set: function(hsva) {
+    set: function (hsva) {
         var rgb = hsv2rgb(hsva);
         var hueRgb = hsv2rgb([hsva[0], 1, 1]);
 
@@ -304,10 +303,10 @@ Object.defineProperty(ColorPicker.prototype, 'hsva', {
 });
 
 Object.defineProperty(ColorPicker.prototype, 'color', {
-    get: function() {
+    get: function () {
         return Helpers.toRgba(this._hsva);
     },
-    set: function(clr) {
+    set: function (clr) {
         var hsva = Helpers.toHsva(clr);
         if (hsva[0] === 0 && hsva[1] === 0 && this._hsva[0] !== -1) {
             // if the incoming RGB is a shade of grey (without hue),
@@ -315,11 +314,11 @@ Object.defineProperty(ColorPicker.prototype, 'color', {
             hsva[0] = this._hsva[0];
         }
         this.hsva = hsva;
-    },
+    }
 });
 
 Object.defineProperty(ColorPicker.prototype, 'editAlpha', {
-    set: function(editAlpha) {
+    set: function (editAlpha) {
         if (editAlpha) {
             this.alphaRect.element.style.display = 'inline';
             this.alphaHandle.style.display = 'block';
@@ -334,7 +333,7 @@ Object.defineProperty(ColorPicker.prototype, 'editAlpha', {
 
 // gradient picker
 
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     // open the picker
@@ -354,7 +353,7 @@ editor.once('load', function() {
         UI.anchors.element.addEventListener('mousedown', anchorsOnMouseDown);
         editor.emit('picker:gradient:open');
         editor.emit('picker:open', 'gradient');
-    };
+    }
 
     // handle the picker being closed
     function onClose() {
@@ -364,7 +363,7 @@ editor.once('load', function() {
         UI.anchors.element.removeEventListener('mousedown', anchorsOnMouseDown);
         editor.emit('picker:gradient:close');
         editor.emit('picker:close', 'gradient');
-    };
+    }
 
     function onDeleteKey() {
         if (!UI.overlay.hidden) {
@@ -374,23 +373,23 @@ editor.once('load', function() {
                 deleteAnchor(deleteTime);
             }
         }
-    };
+    }
 
     function onTypeChanged(value) {
         value = STATE.typeMap[value];
         var paths = [];
         var values = [];
-        for (var i=0; i<STATE.curves.length; ++i) {
+        for (let i = 0; i < STATE.curves.length; ++i) {
             paths.push(i.toString() + '.type');
             values.push(value);
         }
         editor.emit('picker:curve:change', paths, values);
-    };
+    }
 
     function render() {
         renderGradient();
         renderAnchors();
-    };
+    }
 
     function renderGradient() {
         var ctx = UI.gradient.element.getContext('2d');
@@ -408,7 +407,7 @@ editor.once('load', function() {
 
         // fill gradient
         var gradient = ctx.createLinearGradient(0, 0, w, 0);
-        for (var t=0; t<=w; t+=2) {
+        for (var t = 0; t <= w; t += 2) {
             var x = t / w;
             gradient.addColorStop(x, Helpers.rgbaStr(evaluateGradient(x), 255));
         }
@@ -423,21 +422,21 @@ editor.once('load', function() {
 
             ctx.beginPath();
             ctx.rect(coords[0] - 2,
-                     coords[1],
-                     4,
-                     -6);
+                coords[1],
+                4,
+                -6);
             ctx.fillStyle = 'rgb(255, 255, 255)';
             ctx.fill();
 
             ctx.beginPath();
             ctx.rect(coords[0] - 1,
-                     coords[1],
-                     2,
-                     -6);
+                coords[1],
+                2,
+                -6);
             ctx.fillStyle = 'rgb(0, 0, 0)';
             ctx.fill();
         }
-    };
+    }
 
     function renderAnchors() {
         var ctx = UI.anchors.element.getContext('2d');
@@ -451,7 +450,7 @@ editor.once('load', function() {
         ctx.fillRect(0, 0, w, h);
 
         // render plain anchors
-        for (var index=0; index<STATE.anchors.length; ++index) {
+        for (var index = 0; index < STATE.anchors.length; ++index) {
 
             if (index !== STATE.hoveredAnchor &&
                 index !== STATE.selectedAnchor) {
@@ -467,7 +466,7 @@ editor.once('load', function() {
         if (STATE.selectedAnchor !== -1) {
             renderAnchor(ctx, STATE.anchors[STATE.selectedAnchor], "selected");
         }
-    };
+    }
 
     function renderAnchor(ctx, time, type) {
         var coords = [time * UI.anchors.width, UI.anchors.height / 2];
@@ -477,17 +476,17 @@ editor.once('load', function() {
         if (type === "selected") {
             ctx.beginPath();
             ctx.rect(coords[0] - 2,
-                     coords[1],
-                     4,
-                     -coords[1]);
+                coords[1],
+                4,
+                -coords[1]);
             ctx.fillStyle = 'rgb(255, 255, 255)';
             ctx.fill();
 
             ctx.beginPath();
             ctx.rect(coords[0] - 1,
-                     coords[1],
-                     2,
-                     -coords[1]);
+                coords[1],
+                2,
+                -coords[1]);
             ctx.fillStyle = 'rgb(0, 0, 0)';
             ctx.fill();
         }
@@ -510,12 +509,11 @@ editor.once('load', function() {
         ctx.arc(coords[0], coords[1], (radius), 0, 2 * Math.PI, false);
         ctx.fillStyle = Helpers.rgbaStr(evaluateGradient(time, 1), 255);
         ctx.fill();
-    };
+    }
 
     function evaluateGradient(time, alphaOverride) {
         var result = [];
-        for (var i=0; i<3; ++i)
-        {
+        for (let i = 0; i < 3; ++i) {
             result.push(STATE.curves[i].value(time));
         }
 
@@ -528,30 +526,30 @@ editor.once('load', function() {
         }
 
         return result;
-    };
+    }
 
     function calcAnchorTimes() {
         // get curve anchor points
-        var times = [ ];
-        for (var i=0; i<STATE.curves.length; i++) {
+        var times = [];
+        for (let i = 0; i < STATE.curves.length; i++) {
             var curve = STATE.curves[i];
-            for (var j=0; j<curve.keys.length; ++j) {
+            for (var j = 0; j < curve.keys.length; ++j) {
                 times.push(curve.keys[j][0]);
             }
         }
 
         // sort anchors and remove duplicates
         times.sort();
-        times = times.filter(function(item, pos, ary) { return !pos || item != ary[pos-1]; });
+        times = times.filter(function (item, pos, ary) { return !pos || item != ary[pos - 1]; });
 
         return times;
-    };
+    }
 
     // helper function for calculating the normalized coordinate
     // x,y relative to rect
     function calcNormalizedCoord(x, y, rect) {
         return [(x - rect.left) / rect.width,
-                (y - rect.top) / rect.height];
+            (y - rect.top) / rect.height];
     }
 
     // get the bounding client rect minus padding
@@ -566,17 +564,17 @@ editor.once('load', function() {
         var rect = element.getBoundingClientRect();
 
         return new DOMRect(rect.x + paddingLeft,
-                           rect.y + paddingTop,
-                           rect.width - paddingRight - paddingLeft,
-                           rect.height - paddingTop - paddingBottom);
+            rect.y + paddingTop,
+            rect.width - paddingRight - paddingLeft,
+            rect.height - paddingTop - paddingBottom);
     }
 
     function anchorsOnMouseDown(e) {
         if (STATE.hoveredAnchor === -1) {
             // user clicked in empty space, create new anchor and select it
             var coord = calcNormalizedCoord(e.clientX,
-                                            e.clientY,
-                                            getClientRect(UI.anchors.element));
+                e.clientY,
+                getClientRect(UI.anchors.element));
             insertAnchor(coord[0], evaluateGradient(coord[0]));
             selectAnchor(STATE.anchors.indexOf(coord[0]));
         } else if (STATE.hoveredAnchor !== STATE.selectedAnchor) {
@@ -587,12 +585,12 @@ editor.once('load', function() {
         // drag the selected anchor
         dragStart();
         UI.draggingAnchor = true;
-    };
+    }
 
     function anchorsOnMouseMove(e) {
         var coord = calcNormalizedCoord(e.clientX,
-                                        e.clientY,
-                                        getClientRect(UI.anchors.element));
+            e.clientY,
+            getClientRect(UI.anchors.element));
 
         if (UI.draggingAnchor) {
             dragUpdate(pc.math.clamp(coord[0], 0, 1));
@@ -602,7 +600,7 @@ editor.once('load', function() {
                    coord[1] <= 1) {
             var closest = -1;
             var closestDist = 0;
-            for (var index=0; index<STATE.anchors.length; ++index) {
+            for (var index = 0; index < STATE.anchors.length; ++index) {
                 var dist = Math.abs(STATE.anchors[index] - coord[0]);
                 if (closest === -1 || dist < closestDist) {
                     closest = index;
@@ -619,7 +617,7 @@ editor.once('load', function() {
             selectHovered(-1);
             render();
         }
-    };
+    }
 
     function anchorsOnMouseUp(e) {
         if (UI.draggingAnchor) {
@@ -647,7 +645,7 @@ editor.once('load', function() {
         }
         STATE.changing = false;
         render();
-    };
+    }
 
     function dragStart() {
         if (STATE.selectedAnchor === -1) {
@@ -656,11 +654,11 @@ editor.once('load', function() {
         var time = STATE.anchors[STATE.selectedAnchor];
         // make a copy of the curve data before editing starts
         STATE.keystore = [];
-        for (var i=0; i<STATE.curves.length; ++i) {
+        for (let i = 0; i < STATE.curves.length; ++i) {
             var keys = [];
-            STATE.curves[i].keys.forEach(function(element) {
+            STATE.curves[i].keys.forEach(function (element) {
                 if (element[0] !== time) {
-                    keys.push([ element[0], element[1] ] );
+                    keys.push([element[0], element[1]] );
                 }
             } );
             STATE.keystore.push(keys);
@@ -671,14 +669,14 @@ editor.once('load', function() {
         if (STATE.selectedAnchor === -1) {
             return;
         }
-        for (var i=0; i<STATE.curves.length; ++i) {
+        for (let i = 0; i < STATE.curves.length; ++i) {
             var curve = STATE.curves[i];
             var keystore = STATE.keystore[i];
 
             // merge keystore with the drag anchor (ignoring existing anchors at
             // the current anchor location)
-            curve.keys = keystore.map(function (element) { return [ element[0], element[1] ]; } )
-                                 .filter(function (element) { return element[0] !== time; });
+            curve.keys = keystore.map(function (element) { return [element[0], element[1]]; } )
+            .filter(function (element) { return element[0] !== time; });
             curve.keys.push([time, STATE.selectedValue[i]]);
             curve.sort();
         }
@@ -695,11 +693,11 @@ editor.once('load', function() {
 
     // insert an anchor at the given time with the given color
     function insertAnchor(time, color) {
-        for (var i=0; i<STATE.curves.length; ++i) {
+        for (let i = 0; i < STATE.curves.length; ++i) {
             var keys = STATE.curves[i].keys;
 
-            var j=0;
-            while (j<keys.length) {
+            var j = 0;
+            while (j < keys.length) {
                 if (keys[j][0] >= time) {
                     break;
                 }
@@ -717,10 +715,10 @@ editor.once('load', function() {
 
     // delete the anchor(s) at the given time
     function deleteAnchor(time) {
-        for (var i=0; i<STATE.curves.length; ++i) {
+        for (let i = 0; i < STATE.curves.length; ++i) {
             var curve = STATE.curves[i];
 
-            for (var j=0; j<curve.keys.length; ++j) {
+            for (var j = 0; j < curve.keys.length; ++j) {
                 if (curve.keys[j][0] === time) {
                     curve.keys.splice(j, 1);
                     break;
@@ -737,16 +735,16 @@ editor.once('load', function() {
             dragUpdate(time);
             dragEnd();
         }
-    };
+    }
 
     function colorSelectedAnchor(clr, dragging) {
         if (STATE.selectedAnchor !== -1) {
             var time = STATE.anchors[STATE.selectedAnchor];
 
-            for (var i=0; i<STATE.curves.length; ++i) {
+            for (let i = 0; i < STATE.curves.length; ++i) {
                 var curve = STATE.curves[i];
 
-                for (var j=0; j<curve.keys.length; ++j) {
+                for (var j = 0; j < curve.keys.length; ++j) {
                     if (curve.keys[j][0] === time) {
                         curve.keys[j][1] = clr[i];
                         break;
@@ -765,26 +763,26 @@ editor.once('load', function() {
     function emitCurveChange() {
         var paths = [];
         var values = [];
-        STATE.curves.forEach(function(curve, index) {
+        STATE.curves.forEach(function (curve, index) {
             paths.push('0.keys.' + index);
             var keys = [];
-            curve.keys.forEach(function(key) {
+            curve.keys.forEach(function (key) {
                 keys.push(key[0], key[1]);
             });
             values.push(keys);
         });
         editor.emit('picker:curve:change', paths, values);
-    };
+    }
 
     function doCopy() {
         var data = {
             type: STATE.curves[0].type,
-            keys: STATE.curves.map(function(c) {
+            keys: STATE.curves.map(function (c) {
                 return [].concat.apply([], c.keys);
             })
         };
         editor.call('localStorage:set', 'playcanvas_editor_clipboard_gradient', data);
-    };
+    }
 
     function doPaste() {
         var data = editor.call('localStorage:get', 'playcanvas_editor_clipboard_gradient');
@@ -792,10 +790,10 @@ editor.once('load', function() {
             // only paste the number of curves we're currently editing
             var pasteData = {
                 type: data.type,
-                keys: [],
+                keys: []
             };
 
-            for (var index=0; index<STATE.curves.length; ++index) {
+            for (var index = 0; index < STATE.curves.length; ++index) {
                 if (index < data.keys.length) {
                     pasteData.keys.push(data.keys[index]);
                 } else {
@@ -806,7 +804,7 @@ editor.once('load', function() {
             setValue([pasteData]);
             emitCurveChange();
         }
-    };
+    }
 
     function createCheckerPattern() {
         var canvas = new ui.Canvas();
@@ -814,11 +812,11 @@ editor.once('load', function() {
         canvas.height = 16;
         var ctx = canvas.element.getContext('2d');
         ctx.fillStyle = "#949a9c";
-        ctx.fillRect(0,0,8,8);
-        ctx.fillRect(8,8,8,8);
+        ctx.fillRect(0, 0, 8, 8);
+        ctx.fillRect(8, 8, 8, 8);
         ctx.fillStyle = "#657375";
-        ctx.fillRect(8,0,8,8);
-        ctx.fillRect(0,8,8,8);
+        ctx.fillRect(8, 0, 8, 8);
+        ctx.fillRect(0, 8, 8, 8);
         return ctx.createPattern(canvas.element, 'repeat');
     }
 
@@ -834,7 +832,7 @@ editor.once('load', function() {
         var comboItems = {
             0: 'Step',
             1: 'Linear',
-            2: 'Spline',
+            2: 'Spline'
         };
         STATE.typeMap = {
             0: CURVE_STEP,
@@ -849,7 +847,7 @@ editor.once('load', function() {
             STATE.typeMap[3] = value[0].type;
         }
         UI.typeCombo._updateOptions(comboItems);
-        UI.typeCombo.value = { 0:1, 1:3, 2:3, 3:3, 4:2, 5:0 }[value[0].type];
+        UI.typeCombo.value = { 0: 1, 1: 3, 2: 3, 3: 3, 4: 2, 5: 0 }[value[0].type];
 
         // store the curves
         STATE.curves = [];
@@ -870,47 +868,47 @@ editor.once('load', function() {
         }
 
         UI.colorPicker.editAlpha = STATE.curves.length > 3;
-    };
+    }
 
     // constants
     var CONST = {
         bg: '#2c393c',
-        anchorRadius : 5,
-        selectedRadius : 7,
+        anchorRadius: 5,
+        selectedRadius: 7
     };
 
     // ui widgets
     var UI = {
-        root : editor.call('layout.root'),
-        overlay : new ui.Overlay(),
-        panel : document.createElement('div'),
-        gradient : new ui.Canvas( { useDevicePixelRatio: true } ),
-        checkerPattern : createCheckerPattern(),
-        anchors : new ui.Canvas( { useDevicePixelRatio: true } ),
-        footer : new ui.Panel(),
-        typeLabel : new ui.Label( { text : 'Type' }),
-        typeCombo : new ui.SelectField({
-            options : { 0: 'placeholder' },
-            type : 'number'
+        root: editor.call('layout.root'),
+        overlay: new ui.Overlay(),
+        panel: document.createElement('div'),
+        gradient: new ui.Canvas( { useDevicePixelRatio: true } ),
+        checkerPattern: createCheckerPattern(),
+        anchors: new ui.Canvas( { useDevicePixelRatio: true } ),
+        footer: new ui.Panel(),
+        typeLabel: new ui.Label( { text: 'Type' }),
+        typeCombo: new ui.SelectField({
+            options: { 0: 'placeholder' },
+            type: 'number'
         }),
-        positionLabel : new ui.Label( { text : 'Position' }),
-        positionEdit : new ui.NumberField( { min : 0, max : 100, step : 1 } ),
-        copyButton : new ui.Button({ text: '&#58193' }),
-        pasteButton : new ui.Button({ text: '&#58184' }),
-        colorPicker : null,
+        positionLabel: new ui.Label( { text: 'Position' }),
+        positionEdit: new ui.NumberField( { min: 0, max: 100, step: 1 } ),
+        copyButton: new ui.Button({ text: '&#58193' }),
+        pasteButton: new ui.Button({ text: '&#58184' }),
+        colorPicker: null
     };
 
     // current state
     var STATE = {
-        curves : [],            // holds all the gradient curves (either 3 or 4 of them)
-        keystore : [],          // holds the curve during edit
-        anchors : [],           // holds the times of the anchors
-        hoveredAnchor : -1,     // index of the hovered anchor
-        selectedAnchor : -1,    // index of selected anchor
-        selectedValue : [],     // value being dragged
-        changing : false,       // UI is currently changing
-        draggingAnchor : false,
-        typeMap : { },          // map from curve type dropdown to engine curve enum
+        curves: [],            // holds all the gradient curves (either 3 or 4 of them)
+        keystore: [],          // holds the curve during edit
+        anchors: [],           // holds the times of the anchors
+        hoveredAnchor: -1,     // index of the hovered anchor
+        selectedAnchor: -1,    // index of selected anchor
+        selectedValue: [],     // value being dragged
+        changing: false,       // UI is currently changing
+        draggingAnchor: false,
+        typeMap: { }          // map from curve type dropdown to engine curve enum
     };
 
     // initialize overlay
@@ -958,7 +956,7 @@ editor.once('load', function() {
     UI.footer.append(UI.positionEdit);
     UI.positionEdit.style.width = '40px';
     UI.positionEdit.renderChanges = false;
-    UI.positionEdit.on('change', function(value) { if (!STATE.changing) { moveSelectedAnchor(value/100); } } );
+    UI.positionEdit.on('change', function (value) { if (!STATE.changing) { moveSelectedAnchor(value / 100); } } );
 
     UI.copyButton.on('click', doCopy);
     UI.footer.append(UI.copyButton);
@@ -981,7 +979,7 @@ editor.once('load', function() {
     // construct the color picker
     UI.colorPicker = new ColorPicker(UI.panel);
     UI.colorPicker.on('change', colorSelectedAnchor);
-    UI.colorPicker.on('changing', function(color) {
+    UI.colorPicker.on('changing', function (color) {
         colorSelectedAnchor(color, true);
     });
 
@@ -1008,7 +1006,7 @@ editor.once('load', function() {
         open();
     });
 
-    editor.method('picker:gradient:set', function(value, args) {
+    editor.method('picker:gradient:set', function (value, args) {
         setValue(value, args);
     });
 
@@ -1016,7 +1014,7 @@ editor.once('load', function() {
         return UI.overlay.rect;
     });
 
-    editor.method('picker:gradient:position', function(x, y) {
+    editor.method('picker:gradient:position', function (x, y) {
         if (y + UI.panel.clientHeight > window.innerHeight) {
             y = window.innerHeight - UI.panel.clientHeight;
         }

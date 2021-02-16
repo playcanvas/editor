@@ -1,4 +1,4 @@
-editor.once('viewport:load', function() {
+editor.once('viewport:load', function () {
     'use strict';
 
     // Focusing on a point and a distance
@@ -11,10 +11,8 @@ editor.once('viewport:load', function() {
     var firstUpdate = false;
     var flySpeed = 0.25;
     var vecA = new pc.Vec3();
-    var vecB = new pc.Vec3();
 
-
-    editor.method('camera:focus', function(point, distance) {
+    editor.method('camera:focus', function (point, distance) {
         var camera = editor.call('camera:current');
 
         if (! focusing) {
@@ -38,19 +36,19 @@ editor.once('viewport:load', function() {
         editor.call('viewport:render');
     });
 
-    editor.method('camera:focus:stop', function() {
+    editor.method('camera:focus:stop', function () {
         if (! focusing)
             return;
 
         focusing = false;
         var camera = editor.call('camera:current');
         editor.emit('camera:focus:end', focusTarget, vecA.copy(focusTarget).sub(camera.getPosition()).length());
-        editor.once('viewport:postUpdate', function() {
+        editor.once('viewport:postUpdate', function () {
             editor.call('camera:history:stop', focusCamera);
         });
     });
 
-    editor.on('viewport:update', function(dt) {
+    editor.on('viewport:update', function (dt) {
         if (focusing) {
             var camera = editor.call('camera:current');
 
@@ -76,7 +74,7 @@ editor.once('viewport:load', function() {
                 focusing = false;
 
                 editor.emit('camera:focus:end', focusTarget, vecA.copy(focusTarget).sub(camera.getPosition()).length());
-                editor.once('viewport:postUpdate', function() {
+                editor.once('viewport:postUpdate', function () {
                     editor.call('camera:history:stop', focusCamera);
                 });
             }

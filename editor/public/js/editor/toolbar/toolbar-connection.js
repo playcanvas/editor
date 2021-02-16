@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var timeout;
@@ -38,13 +38,13 @@ editor.once('load', function() {
     });
 
     editor.on('realtime:nextAttempt', function (time) {
-        function setText (remaining) {
+        function setText(remaining) {
             content.innerHTML = 'Disconnected. Reconnecting in ' + remaining + ' seconds...';
         }
 
         var before = new Date();
 
-        function renderTime () {
+        function renderTime() {
             var now = new Date();
             var elapsed = now.getTime() - before.getTime();
             before = now;
@@ -83,7 +83,7 @@ editor.once('load', function() {
         overlay.hidden = false;
     };
 
-    editor.on('viewport:error', function(err) {
+    editor.on('viewport:error', function (err) {
         viewportError = true;
         log.error(err);
         console.trace();

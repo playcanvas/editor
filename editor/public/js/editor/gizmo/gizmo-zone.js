@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app;
@@ -9,7 +9,7 @@ editor.once('load', function() {
     var layerFront = editor.call('gizmo:layers', 'Bright Collision');
     var layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
 
-    var filterPicker = function(drawCall) {
+    var filterPicker = function (drawCall) {
         if (drawCall.command)
             return true;
 
@@ -31,7 +31,7 @@ editor.once('load', function() {
         layerFront.addMeshInstances(backMeshInstances);
     };
 
-    editor.method('gizmo:zone:visible', function(state) {
+    editor.method('gizmo:zone:visible', function (state) {
         if (state === undefined)
             return visible;
 
@@ -65,22 +65,22 @@ editor.once('load', function() {
         var selected = { };
 
         // pool of gizmos
-        var pool = [ ];
+        var pool = [];
         var models = { };
         var poolModels = {
-            'box': [ ]
+            'box': []
         };
         var zones = 0;
         var lastZone = null;
         var historyPositon = new pc.Vec3();
         var historySize = new pc.Vec3();
-        var points = [ ];
+        var points = [];
         var hoverPoint = null;
         var dragPoint = null;
         var dragLength = 0;
         var dragPos = new pc.Vec3();
         var dragGizmoType = '';
-        var events = [ ];
+        var events = [];
 
         var vecA = new pc.Vec3();
         var vecB = new pc.Vec3();
@@ -91,23 +91,23 @@ editor.once('load', function() {
         var quatC = new pc.Quat();
 
         var axesInd = { 'x': 0, 'y': 1, 'z': 2 };
-        var axes = [ 'z', 'x', 'z', 'x', 'y', 'y' ];
-        var direction = [ -1, 1, 1, -1, 1, -1 ];
+        var axes = ['z', 'x', 'z', 'x', 'y', 'y'];
+        var direction = [-1, 1, 1, -1, 1, -1];
         var eulers = [
-            [ -90, 0, 0 ], // front
-            [ 90, 90, 0 ], // right
-            [ 90, 0, 0 ], // back
-            [ 90, -90, 0 ], // left
-            [ 0, 0, 0 ], // top
-            [ 180, 0, 0 ]  // bottom
+            [-90, 0, 0], // front
+            [90, 90, 0], // right
+            [90, 0, 0], // back
+            [90, -90, 0], // left
+            [0, 0, 0], // top
+            [180, 0, 0]  // bottom
         ];
         var scales = [
-            [ 'x', 'y', ], // front
-            [ 'z', 'y', ], // right
-            [ 'x', 'y', ], // back
-            [ 'z', 'y', ], // left
-            [ 'x', 'z', ], // top
-            [ 'x', 'z', ]  // bottom
+            ['x', 'y'], // front
+            ['z', 'y'], // right
+            ['x', 'y'], // back
+            ['z', 'y'], // left
+            ['x', 'z'], // top
+            ['x', 'z']  // bottom
         ];
         var materials = [
             new pc.Color(0, 0, 1),
@@ -117,7 +117,7 @@ editor.once('load', function() {
             new pc.Color(0, 1, 0),
             new pc.Color(0, 1, 0)
         ];
-        for(var i = 0; i < materials.length; i++) {
+        for (let i = 0; i < materials.length; i++) {
             var color = materials[i];
             materials[i] = new pc.BasicMaterial();
             materials[i].color = color;
@@ -126,7 +126,7 @@ editor.once('load', function() {
 
         var alphaFront = 0.6;
         var alphaBehind = 0.1;
-        var colorDefault = [ 1, 1, 1 ];
+        var colorDefault = [1, 1, 1];
         var colorPrimary = new pc.Color(1, 1, 1, alphaFront);
         var colorBehind = new pc.Color(1, 1, 1, alphaBehind);
         var colorOccluder = new pc.Color(1, 1, 1, 1);
@@ -165,7 +165,7 @@ editor.once('load', function() {
 
         var shaderDefault;
         var materialDefault = new pc.BasicMaterial();
-        materialDefault.updateShader = function(device) {
+        materialDefault.updateShader = function (device) {
             if (! shaderDefault) {
                 shaderDefault = new pc.Shader(device, {
                     attributes: {
@@ -232,7 +232,7 @@ editor.once('load', function() {
         materialPlane.update();
 
         var handleHighlightMaterial = new pc.BasicMaterial();
-        handleHighlightMaterial.color = new pc.Color(1,1,1,0.1);
+        handleHighlightMaterial.color = new pc.Color(1, 1, 1, 0.1);
         handleHighlightMaterial.update();
 
         var plane = new pc.Entity();
@@ -260,14 +260,14 @@ editor.once('load', function() {
         // gizmo class
         function Gizmo() {
             this._link = null;
-            this.events = [ ];
+            this.events = [];
             this.entity = null;
             this.type = '';
             this.color;
         }
 
         // update lines
-        Gizmo.prototype.update = function() {
+        Gizmo.prototype.update = function () {
             if (! this._link || ! this._link.entity)
                 return;
 
@@ -284,7 +284,7 @@ editor.once('load', function() {
                 if (! this.color && this._link.entity) {
                     var hash = 0;
                     var string = this._link.entity.getGuid();
-                    for (var i = 0; i < string.length; i++)
+                    for (let i = 0; i < string.length; i++)
                         hash += string.charCodeAt(i);
 
                     this.color = editor.call('color:hsl2rgb', (hash % 128) / 128, 0.5, 0.5);
@@ -361,13 +361,13 @@ editor.once('load', function() {
         };
 
         // link to entity
-        Gizmo.prototype.link = function(obj) {
+        Gizmo.prototype.link = function (obj) {
             this.unlink();
             this._link = obj;
 
             var self = this;
 
-            this.events.push(this._link.once('destroy', function() {
+            this.events.push(this._link.once('destroy', function () {
                 self.unlink();
             }));
 
@@ -379,7 +379,7 @@ editor.once('load', function() {
                 layers: [layerBack.id, layerFront.id]
             });
             this.entity.model.addModelToLayers = addModelToLayers;
-            this.entity._getEntity = function() {
+            this.entity._getEntity = function () {
                 return self._link.entity;
             };
             this.entity.setLocalScale(1, 1, 1);
@@ -389,14 +389,14 @@ editor.once('load', function() {
         };
 
         // unlink
-        Gizmo.prototype.unlink = function() {
+        Gizmo.prototype.unlink = function () {
             if (! this._link)
                 return;
 
-            for(var i = 0; i < this.events.length; i++)
+            for (let i = 0; i < this.events.length; i++)
                 this.events[i].unbind();
 
-            this.events = [ ];
+            this.events = [];
             this._link = null;
 
             var model = this.entity.model.model;
@@ -413,7 +413,7 @@ editor.once('load', function() {
             this.type = '';
         };
 
-        var onPointFocus = function() {
+        var onPointFocus = function () {
             if (hoverPoint)
                 hoverPoint.entity.model.meshInstances[0].material = materials[hoverPoint.ind];
 
@@ -422,7 +422,7 @@ editor.once('load', function() {
             plane.enabled = true;
         };
 
-        var onPointBlur = function() {
+        var onPointBlur = function () {
             if (hoverPoint === this) {
                 hoverPoint.entity.model.meshInstances[0].material = materials[hoverPoint.ind];
                 hoverPoint = null;
@@ -430,7 +430,7 @@ editor.once('load', function() {
             }
         };
 
-        var onPointDragStart = function() {
+        var onPointDragStart = function () {
             if (! editor.call('permissions:write'))
                 return;
 
@@ -440,7 +440,7 @@ editor.once('load', function() {
             dragGizmoType = editor.call('gizmo:type');
             editor.call('gizmo:' + dragGizmoType + ':toggle', false);
 
-            for(var i = 0; i < points.length; i++)
+            for (let i = 0; i < points.length; i++)
                 points[i].entity.enabled = false;
 
             lastZone.entity.model.meshInstances[1].visible = false;
@@ -454,11 +454,11 @@ editor.once('load', function() {
             historySize.set(size[0], size[1], size[2]);
         };
 
-        var onPointDragEnd = function() {
+        var onPointDragEnd = function () {
             dragPoint = null;
             editor.call('gizmo:' + dragGizmoType + ':toggle', true);
 
-            for(var i = 0; i < points.length; i++)
+            for (let i = 0; i < points.length; i++)
                 points[i].entity.enabled = true;
 
             lastZone.entity.model.meshInstances[1].visible = true;
@@ -471,12 +471,12 @@ editor.once('load', function() {
             var newPosition = lastZone._link.get('position');
             var newSize = lastZone._link.get('components.zone.size');
 
-            var prevPosition = [ historyPositon.x, historyPositon.y, historyPositon.z ];
-            var prevSize = [ historySize.x, historySize.y, historySize.z ];
+            var prevPosition = [historyPositon.x, historyPositon.y, historyPositon.z];
+            var prevSize = [historySize.x, historySize.y, historySize.z];
 
             editor.call('history:add', {
                 name: 'entity.zone',
-                undo: function() {
+                undo: function () {
                     var item = link.latest();
                     if (! item) return;
 
@@ -485,7 +485,7 @@ editor.once('load', function() {
                     item.set('components.zone.size', prevSize);
                     item.history.enabled = true;
                 },
-                redo: function() {
+                redo: function () {
                     var item = link.latest();
                     if (! item) return;
 
@@ -497,7 +497,7 @@ editor.once('load', function() {
             });
         };
 
-        var onPointDragMove = function(length) {
+        var onPointDragMove = function (length) {
             var size = Math.max(0.000000001, dragLength + length);
             lastZone._link.set('components.zone.size.' + axesInd[dragPoint.axis], size);
 
@@ -507,14 +507,14 @@ editor.once('load', function() {
             quatA.transformVector(vecA, vecA);
             vecB.copy(dragPos).add(vecA);
 
-            lastZone._link.set('position', [ vecB.x, vecB.y, vecB.z ]);
+            lastZone._link.set('position', [vecB.x, vecB.y, vecB.z]);
 
             pointsUpdate();
             editor.call('viewport:render');
         };
 
-        var pointsCreate = function() {
-            for(var i = 0; i < 6; i++) {
+        var pointsCreate = function () {
+            for (let i = 0; i < 6; i++) {
                 var point = editor.call('gizmo:point:create', axes[i], null, direction[i]);
                 point.ind = i;
                 point.entity.model.meshInstances[0].material = materials[i];
@@ -535,27 +535,27 @@ editor.once('load', function() {
             editor.call('viewport:render');
         };
 
-        editor.on('permissions:writeState', function(state) {
+        editor.on('permissions:writeState', function (state) {
             if (! points || ! points.length)
                 return;
 
-            for(var i = 0; i < points.length; i++)
+            for (let i = 0; i < points.length; i++)
                 points[i].entity.enabled = state;
         });
 
-        var pointsDestroy = function() {
-            for(var i = 0; i < points.length; i++)
+        var pointsDestroy = function () {
+            for (let i = 0; i < points.length; i++)
                 editor.call('gizmo:point:recycle', points[i]);
 
-            for(var i = 0; i < events.length; i++)
+            for (let i = 0; i < events.length; i++)
                 events[i].unbind();
 
-            events = [ ];
-            points = [ ];
+            events = [];
+            points = [];
             container.removeChild(plane);
         };
 
-        var pointsUpdate = function() {
+        var pointsUpdate = function () {
             var transform = lastZone.entity.getWorldTransform();
             var position = transform.getTranslation();
             var rotation = quatA.setFromMat4(transform);
@@ -619,10 +619,10 @@ editor.once('load', function() {
             }
         };
 
-        editor.on('entities:add', function(entity) {
+        editor.on('entities:add', function (entity) {
             var key = entity.get('resource_id');
 
-            var addGizmo = function() {
+            var addGizmo = function () {
                 if (entities[key])
                     return;
 
@@ -636,7 +636,7 @@ editor.once('load', function() {
                 editor.call('viewport:render');
             };
 
-            var removeGizmo = function() {
+            var removeGizmo = function () {
                 if (! entities[key])
                     return;
 
@@ -653,25 +653,25 @@ editor.once('load', function() {
             entity.on('components.zone:set', addGizmo);
             entity.on('components.zone:unset', removeGizmo);
 
-            entity.once('destroy', function() {
+            entity.once('destroy', function () {
                 removeGizmo();
             });
         });
 
-        editor.on('selector:change', function(type, items) {
+        editor.on('selector:change', function (type, items) {
             selected = { };
             if (items) {
-                for(var i = 0; i < items.length; i++)
+                for (let i = 0; i < items.length; i++)
                     selected[items[i].get('resource_id')] = items[i];
             }
 
             editor.call('viewport:render');
         });
 
-        editor.on('viewport:gizmoUpdate', function(dt) {
+        editor.on('viewport:gizmoUpdate', function (dt) {
             zones = 0;
 
-            for(var key in entities)
+            for (const key in entities)
                 entities[key].update();
 
             if (zones === 1) {
@@ -692,8 +692,8 @@ editor.once('load', function() {
 
                 var a = scales[dragPoint.ind];
 
-                for(var i = 0; i < a.length; i++) {
-                    for(var l = 0; l <= 2; l++) {
+                for (let i = 0; i < a.length; i++) {
+                    for (var l = 0; l <= 2; l++) {
                         vecA.set(0, 0, 0);
                         vecA[a[i]] = scale[a[i]] * 0.5;
                         rotation.transformVector(vecA, vecA);
@@ -713,7 +713,7 @@ editor.once('load', function() {
         });
 
 
-        var createModels = function() {
+        var createModels = function () {
             // ================
             // box
             var positions = [
@@ -747,12 +747,12 @@ editor.once('load', function() {
             });
 
             var wireframePositions = [
-                 0.5, 0.5, 0.5,    0.5, 0.5, -0.5,   -0.5, 0.5, -0.5,   -0.5, 0.5, 0.5, // top
-                 0.5, 0.5, 0.5,   -0.5, 0.5, 0.5,    -0.5, -0.5, 0.5,    0.5, -0.5, 0.5, // front
-                 0.5, 0.5, 0.5,    0.5, -0.5, 0.5,    0.5, -0.5, -0.5,   0.5, 0.5, -0.5, // right
-                 0.5, 0.5, -0.5,  -0.5, 0.5, -0.5,   -0.5, -0.5, -0.5,   0.5, -0.5, -0.5, // back
+                0.5, 0.5, 0.5,    0.5, 0.5, -0.5,   -0.5, 0.5, -0.5,   -0.5, 0.5, 0.5, // top
+                0.5, 0.5, 0.5,   -0.5, 0.5, 0.5,    -0.5, -0.5, 0.5,    0.5, -0.5, 0.5, // front
+                0.5, 0.5, 0.5,    0.5, -0.5, 0.5,    0.5, -0.5, -0.5,   0.5, 0.5, -0.5, // right
+                0.5, 0.5, -0.5,  -0.5, 0.5, -0.5,   -0.5, -0.5, -0.5,   0.5, -0.5, -0.5, // back
                 -0.5, 0.5, 0.5,   -0.5, -0.5, 0.5,   -0.5, -0.5, -0.5,  -0.5, 0.5, -0.5, // right
-                 0.5, -0.5, 0.5,   0.5, -0.5, -0.5,  -0.5, -0.5, -0.5,  -0.5, -0.5, 0.5 // bottom
+                0.5, -0.5, 0.5,   0.5, -0.5, -0.5,  -0.5, -0.5, -0.5,  -0.5, -0.5, 0.5 // bottom
             ];
             var meshWireframe = pc.createMesh(app.graphicsDevice, wireframePositions);
             meshWireframe.primitive[0].type = pc.PRIMITIVE_LINES;
@@ -801,9 +801,9 @@ editor.once('load', function() {
             // model
             var model = new pc.Model();
             model.graph = node;
-            model.meshInstances = [ meshInstance, meshInstanceBehind, meshInstanceWireframe, meshInstanceOccluder];
+            model.meshInstances = [meshInstance, meshInstanceBehind, meshInstanceWireframe, meshInstanceOccluder];
 
-            models['box'] = model;
+            models.box = model;
         };
         createModels();
     });

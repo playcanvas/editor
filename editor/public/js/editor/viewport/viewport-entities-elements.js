@@ -1,13 +1,13 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var events = [];
 
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         if (events.length)
             clear();
 
-        for (var i = 0, len = entities.length; i < len; i++) {
+        for (let i = 0, len = entities.length; i < len; i++) {
             updateElementProperties(entities[i]);
             addEvents(entities[i]);
         }
@@ -41,8 +41,8 @@ editor.once('load', function() {
         entity.history.enabled = history;
     };
 
-    var applyProperties = function(entity, pathPrefix, properties) {
-        Object.keys(properties).forEach(function(key) {
+    var applyProperties = function (entity, pathPrefix, properties) {
+        Object.keys(properties).forEach(function (key) {
             var value = properties[key];
             var path = pathPrefix + '.' + key;
             var prevHistory = entity.history.enabled;
@@ -282,7 +282,7 @@ editor.once('load', function() {
             });
         }));
 
-        events.push(editor.on('gizmo:translate:end', function() {
+        events.push(editor.on('gizmo:translate:end', function () {
             var translatedEntities = editor.call('selector:items');
 
             setTimeout(function () {
@@ -290,7 +290,7 @@ editor.once('load', function() {
 
                 // Trigger reflow if the user has moved an element that is under
                 // the control of a layout group.
-                for (var i = 0; i < translatedEntities.length; ++i) {
+                for (let i = 0; i < translatedEntities.length; ++i) {
                     var entity = translatedEntities[i];
 
                     if (editor.call('entities:layout:isUnderControlOfLayoutGroup', entity)) {
@@ -317,7 +317,7 @@ editor.once('load', function() {
     };
 
     var clear = function () {
-        for (var i = 0, len = events.length; i < len; i++)
+        for (let i = 0, len = events.length; i < len; i++)
             events[i].unbind();
 
         events.length = 0;

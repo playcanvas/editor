@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
@@ -20,11 +20,11 @@ editor.once('load', function() {
 
         var assetEngine = assets.get(asset.get('id'));
         // render on asset load
-        assetEngine.on('load', function() {
+        assetEngine.on('load', function () {
             editor.call('viewport:render');
         });
         // render on asset data change
-        assetEngine.on('change', function() {
+        assetEngine.on('change', function () {
             editor.call('viewport:render');
         });
 

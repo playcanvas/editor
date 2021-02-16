@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     const IGNORE_ROOT_PATHS_FOR_OVERRIDES = {
@@ -47,15 +47,15 @@ editor.once('load', function() {
 
         MAX_SCHEMA_QRY_PATH_LENGTH: 8,
 
-        getScriptNameReg: function() {
+        getScriptNameReg: function () {
             return TemplateUtils.SCRIPT_NAME_REG;
         },
 
-        isIgnoreRootOverride: function(path) {
+        isIgnoreRootOverride: function (path) {
             return IGNORE_ROOT_PATHS_FOR_OVERRIDES[path];
         },
 
-        ignoreRootPathsForRevert: function() {
+        ignoreRootPathsForRevert: function () {
             return IGNORE_ROOT_PATHS_FOR_REVERT;
         },
 
@@ -226,7 +226,7 @@ editor.once('load', function() {
                 TemplateUtils.remapEntStr(v, srcToDst);
         },
 
-        remapEntArray: function(a, srcToDst) {
+        remapEntArray: function (a, srcToDst) {
             return a.map(v => TemplateUtils.remapEntStr(v, srcToDst));
         },
 
@@ -234,7 +234,7 @@ editor.once('load', function() {
             return srcToDst[v] || null;
         },
 
-        remapOrAssignKeys: function(h1, srcToDst) {
+        remapOrAssignKeys: function (h1, srcToDst) {
             const h2 = {};
 
             const a = Object.keys(h1);
@@ -258,7 +258,7 @@ editor.once('load', function() {
             return h;
         },
 
-        strArrayToMap: function(a) {
+        strArrayToMap: function (a) {
             const h = {};
 
             a.forEach(s => {
@@ -323,7 +323,7 @@ editor.once('load', function() {
                 const ch = idToEntity[id];
 
                 TemplateUtils.getDescendants(ch, idToEntity, result);
-            })
+            });
         },
 
         addEntitySubtree: function (entData, allEnts, parent, childIndex) {
@@ -340,7 +340,7 @@ editor.once('load', function() {
             return entity;
         },
 
-        addEntObserver: function(data, parent, childIndex) {
+        addEntObserver: function (data, parent, childIndex) {
             const entity = new Observer(data);
 
             editor.call('entities:addEntity', entity, parent, false, childIndex);
@@ -348,25 +348,25 @@ editor.once('load', function() {
             return entity;
         },
 
-        findIdWithoutParent: function(ents) {
+        findIdWithoutParent: function (ents) {
             const ids = Object.keys(ents);
 
             return ids.find(id => !ents[id].parent);
         },
 
-        selectPresentInSecond: function(a1, a2) {
+        selectPresentInSecond: function (a1, a2) {
             const h = TemplateUtils.strArrayToMap(a2);
 
             return a1.filter(s => h[s]);
         },
 
-        matchFromRegex: function(s, r) {
+        matchFromRegex: function (s, r) {
             const match = r.exec(s);
 
             return match ? match[1] : match;
         },
 
-        markAddRmScriptConflicts: function(overrides) {
+        markAddRmScriptConflicts: function (overrides) {
             overrides.conflicts.forEach(TemplateUtils.setScriptName);
 
             const a = overrides.conflicts.filter(h => h.script_name);
@@ -383,7 +383,7 @@ editor.once('load', function() {
             });
         },
 
-        setScriptName: function(h) {
+        setScriptName: function (h) {
             const s = TemplateUtils.matchFromRegex(h.path, TemplateUtils.getScriptNameReg());
 
             if (s) {
@@ -463,7 +463,7 @@ editor.once('load', function() {
                 attrObj.schema;
         },
 
-        isArrayAttr: function(h) {
+        isArrayAttr: function (h) {
             return h.array === true;
         },
 
@@ -479,7 +479,7 @@ editor.once('load', function() {
             return allDigits && a;
         },
 
-        addAllJsonEntPaths: function(dst, attrObj, pref, attrInEnt) {
+        addAllJsonEntPaths: function (dst, attrObj, pref, attrInEnt) {
             const names = AttrUtils.allJsonEntNames(attrObj.schema);
 
             const inds = AttrUtils.arrayIndsFromAttr(attrInEnt);
@@ -510,7 +510,7 @@ editor.once('load', function() {
             });
         },
 
-        allJsonEntNames: function(schema) {
+        allJsonEntNames: function (schema) {
             const a = schema.filter(h => h.type === 'entity');
 
             return a.map(h => h.name);
@@ -533,7 +533,7 @@ editor.once('load', function() {
             return editor.call('assets:isDeepEqual', srcEnt, dstEnt);
         },
 
-        remapDstForRevert: function(h) { // conflict
+        remapDstForRevert: function (h) { // conflict
             const dstToSrc = TemplateUtils.invertMap(h.srcToDst);
 
             let dstEnt = TemplateUtils.makeTmpEntity(h, 'dst_value');
@@ -580,7 +580,7 @@ editor.once('load', function() {
         makeAttrFields: function (attrObj, path) {
             const h = {};
 
-            [ 'src', 'dst' ].forEach(type => {
+            ['src', 'dst'].forEach(type => {
                 const field = type + '_type';
 
                 h[field] = AttrUtils.attrToTypeStr(attrObj, path);

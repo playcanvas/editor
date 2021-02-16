@@ -49,7 +49,8 @@ editor.once('load', function () {
 
     /**
      * Deletes the specified entities
-     * @param {Observer[]} entities The entities to delete
+     *
+     * @param {Observer[]} entities - The entities to delete
      */
     editor.method('entities:delete', function (entities) {
         var records = [];
@@ -126,7 +127,7 @@ editor.once('load', function () {
             name: 'delete entities',
             undo: function () {
                 var entities = [];
-                for (var i = 0, len = records.length; i < len; i++) {
+                for (let i = 0, len = records.length; i < len; i++) {
                     var parent = editor.call('entities:get', records[i].parentId);
                     if (!parent)
                         return;
@@ -146,7 +147,7 @@ editor.once('load', function () {
                 }, 0);
             },
             redo: function () {
-                for (var i = 0, len = records.length; i < len; i++) {
+                for (let i = 0, len = records.length; i < len; i++) {
                     var entity = editor.call('entities:get', records[i].resourceId);
                     if (!entity)
                         return;

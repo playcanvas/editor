@@ -18,7 +18,7 @@ editor.once('load', function () {
     });
     panel.append(loading);
 
-    var progressBar = new ui.Progress({progress: 1});
+    var progressBar = new ui.Progress({ progress: 1 });
     progressBar.hidden = true;
     panel.append(progressBar);
 
@@ -59,7 +59,7 @@ editor.once('load', function () {
                 while (true)  {
                     name = namePart + ' ' + numberPart;
                     var found = true;
-                    for (var i = 0; i < scenes.length; i++) {
+                    for (let i = 0; i < scenes.length; i++) {
                         if (scenes[i].name === name) {
                             numberPart++;
                             found = false;
@@ -170,7 +170,7 @@ editor.once('load', function () {
 
         input.elementInput.addEventListener('keydown', function (e) {
             if (e.keyCode === 13) {
-                 if (! input.value) return;
+                if (! input.value) return;
 
                 editor.call('picker:scene:close');
                 editor.call('scenes:new', input.value, function (scene) {
@@ -196,7 +196,7 @@ editor.once('load', function () {
     });
 
     // on hide
-    panel.on('hide', function() {
+    panel.on('hide', function () {
         destroyTooltips();
         destroyEvents();
         scenes = [];
@@ -211,9 +211,9 @@ editor.once('load', function () {
             editor.emit('viewport:hover', true);
     });
 
-    editor.on('viewport:hover', function(state) {
+    editor.on('viewport:hover', function (state) {
         if (state && ! panel.hidden) {
-            setTimeout(function() {
+            setTimeout(function () {
                 editor.emit('viewport:hover', false);
             }, 0);
         }
@@ -299,12 +299,12 @@ editor.once('load', function () {
     };
 
     // call picker
-    editor.method('picker:scene', function() {
+    editor.method('picker:scene', function () {
         editor.call('picker:project', 'scenes');
     });
 
     // close picker
-    editor.method('picker:scene:close', function() {
+    editor.method('picker:scene:close', function () {
         editor.call('picker:project:close');
     });
 
@@ -321,7 +321,7 @@ editor.once('load', function () {
             row.parentElement.removeChild(row);
         }
 
-        for (var i = 0; i < scenes.length; i++) {
+        for (let i = 0; i < scenes.length; i++) {
             if (parseInt(scenes[i].id, 10) === parseInt(sceneId, 10)) {
                 // close dropdown menu if current scene deleted
                 if (dropdownScene === scenes[i])

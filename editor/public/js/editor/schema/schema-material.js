@@ -3,14 +3,15 @@ editor.once('load', function () {
 
     /**
      * Returns a JSON object that contains all of the default material data.
-     * @param {Object} existingData If a field already exists in this object
+     *
+     * @param {object} existingData - If a field already exists in this object
      * then use that instead of the default value.
      */
     editor.method('schema:material:getDefaultData', function (existingData) {
         var result = {};
         var schema = config.schema.materialData;
 
-        for (var key in schema) {
+        for (const key in schema) {
             if (key.startsWith('$')) continue;
             if (existingData && existingData[key] !== undefined) {
                 result[key] = existingData[key];
@@ -27,7 +28,8 @@ editor.once('load', function () {
 
     /**
      * Gets the default value of a specific field from the material schema
-     * @param {String} fieldName The name of the field
+     *
+     * @param {string} fieldName - The name of the field
      * @returns {*} The default value or undefined
      */
     editor.method('schema:material:getDefaultValueForField', function (fieldName) {
@@ -42,7 +44,8 @@ editor.once('load', function () {
 
     /**
      * Returns the type of a data field
-     * @param {String} fieldName The name of the field
+     *
+     * @param {string} fieldName - The name of the field
      */
     editor.method('schema:material:getType', function (fieldName) {
         return editor.call('schema:getTypeForPath', config.schema.materialData, fieldName);

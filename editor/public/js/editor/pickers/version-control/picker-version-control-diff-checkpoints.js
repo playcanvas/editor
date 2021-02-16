@@ -159,7 +159,7 @@ editor.once('load', function () {
         } else {
             panel.class.add('empty');
         }
-    }
+    };
 
     var setLeftCheckpoint = function (branch, checkpoint) {
         leftBranch = branch;

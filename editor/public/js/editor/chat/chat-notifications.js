@@ -1,11 +1,10 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var panel = editor.call('chat:panel');
-    var inputField = editor.call('chat:inputField');
     var number = 0;
 
-    editor.on('visibility', function(state) {
+    editor.on('visibility', function (state) {
         if (state) {
             number = 0;
             editor.call('notify:title', config.project.name + ' | Editor');
@@ -15,7 +14,7 @@ editor.once('load', function() {
         }
     });
 
-    editor.on('chat:post', function(type, msg, element) {
+    editor.on('chat:post', function (type, msg, element) {
         editor.call('notify:permission');
 
         var granted = editor.call('localStorage:get', 'editor:notifications:chat');
@@ -40,14 +39,14 @@ editor.once('load', function() {
         } else if (typeof(type) === 'number') {
             var user = editor.call('users:get', type);
             title = 'Message from ' + (user && ('@' + user.username) || 'a user');
-            icon = '/api/users/' + user.id + '/thumbnail?size=128'
+            icon = '/api/users/' + user.id + '/thumbnail?size=128';
         }
 
         editor.call('notify', {
             title: title,
             body: msg,
             icon: icon,
-            click: function() {
+            click: function () {
                 window.focus();
                 panel.folded = false;
             }

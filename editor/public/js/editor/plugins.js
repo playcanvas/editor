@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var pluginNameCheck = /[a-z0-9\-_]/i;
@@ -7,7 +7,7 @@ editor.once('load', function() {
     var projectSettings = editor.call('settings:project');
 
 
-    editor.method('plugins:load', function(name, fn) {
+    editor.method('plugins:load', function (name, fn) {
         if (! name || ! pluginNameCheck.test(name)) {
             if (fn) fn(new Error('invalid plugin name'));
             return;
@@ -22,7 +22,7 @@ editor.once('load', function() {
         var element = document.createElement('script');
         element.async = false;
 
-        element.addEventListener('error', function(err) {
+        element.addEventListener('error', function (err) {
             if (loaded)
                 return;
 
@@ -35,7 +35,7 @@ editor.once('load', function() {
             if (fn) fn(err);
         });
 
-        element.onload = element.onreadystatechange = function() {
+        element.onload = element.onreadystatechange = function () {
             if (loaded)
                 return;
 
@@ -60,7 +60,7 @@ editor.once('load', function() {
         editor.emit('plugins:loading', name);
     });
 
-    editor.method('plugins:unload', function(name) {
+    editor.method('plugins:unload', function (name) {
         if (! plugins[name])
             return;
 
@@ -73,7 +73,7 @@ editor.once('load', function() {
 
     var pluginsPreload = projectSettings.get('plugins');
     if (pluginsPreload) {
-        for(var i = 0; i < pluginsPreload.length; i++)
+        for (let i = 0; i < pluginsPreload.length; i++)
             editor.call('plugins:load', pluginsPreload[i]);
     }
 });

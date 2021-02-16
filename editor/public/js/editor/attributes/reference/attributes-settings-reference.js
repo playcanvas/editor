@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var fields = [{
@@ -22,10 +22,10 @@ editor.once('load', function() {
         description: 'Set the Camera Clear Color of your preference to affect Editor. This color will not affect the game.'
     }, {
         name: 'iconSize',
-        description: 'Size of icons displayed in Editor viewport',
+        description: 'Size of icons displayed in Editor viewport'
     }, {
         name: 'showSkeleton',
-        description: 'Set whether to render the bone structure of selected entity skeleton in the viewport',
+        description: 'Set whether to render the bone structure of selected entity skeleton in the viewport'
     }, {
         name: 'localServer',
         description: 'Set a URL to use as the local server. When you click on "Launch Local" all your scripts will be loaded from this URL.'
@@ -78,7 +78,7 @@ editor.once('load', function() {
     }, {
         title: 'skyboxRotation',
         description: 'Rotation of skybox',
-        url: 'http://developer.playcanvas.com/api/pc.Scene.html#skyboxRotation'        
+        url: 'http://developer.playcanvas.com/api/pc.Scene.html#skyboxRotation'
     }, {
         title: 'toneMapping',
         subTitle: '{Number}',
@@ -123,7 +123,7 @@ editor.once('load', function() {
     }, {
         name: 'project:externalScripts',
         title: 'External Scripts',
-        description: 'The URLs of external scripts you would like to include in your application. These URLs are added as <script> tags in the main HTML page of the application before any other script is loaded.',
+        description: 'The URLs of external scripts you would like to include in your application. These URLs are added as <script> tags in the main HTML page of the application before any other script is loaded.'
     }, {
         name: 'project',
         title: 'Project Settings',
@@ -216,6 +216,14 @@ editor.once('load', function() {
         title: 'Search related assets',
         description: 'If enabled, importing a source asset will update target assets where ever they are located. If disabled, assets will only be updated if they are in the same folder, otherwise new assets will be created.'
     }, {
+        name: 'asset-tasks:serverEntityCopy',
+        title: 'Server-side Entity Copy',
+        description: 'If enabled, copy pasting Entities will be executed server-side. Provides a performance boost for large Entity hierarchies.'
+    }, {
+        name: 'asset-tasks:serverTemplateInstance',
+        title: 'Server-side Add Template Instance',
+        description: 'If enabled, adding a Template instance will be executed server-side. Provides a performance boost for large Template assets.'
+    }, {
         name: 'asset-tasks:preserveMapping',
         title: 'Preserve model material mappings',
         description: 'If enabled, after importing an existing source model we will try to preserve the material mappings that were set by the user on the existing model.'
@@ -226,7 +234,7 @@ editor.once('load', function() {
     }, {
         name: 'asset-tasks:useContainers',
         title: 'Create Container Assets',
-        description: 'Use the new GLB conversion pipeline when uploading models. The new pipeline will generate Container, Render and Template assets out of the uploaded model.',
+        description: 'Use the new GLB conversion pipeline when uploading models. The new pipeline will generate Container, Render and Template assets out of the uploaded model.'
     }, {
         name: 'asset-tasks:animSampleRate',
         title: 'Animation sample rate',
@@ -345,7 +353,7 @@ editor.once('load', function() {
         description: 'Creates a new Localization JSON Asset with the default en-US format.'
     }];
 
-    for(var i = 0; i < fields.length; i++) {
+    for (let i = 0; i < fields.length; i++) {
         fields[i].name = 'settings:' + (fields[i].name || fields[i].title);
         editor.call('attributes:reference:add', fields[i]);
     }

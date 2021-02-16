@@ -1,7 +1,7 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    editor.on('attributes:inspect[asset]', function(assets) {
+    editor.on('attributes:inspect[asset]', function (assets) {
         const hasPcuiAssetInspectors = editor.call('users:hasFlag', 'hasPcuiAssetInspectors');
         if (hasPcuiAssetInspectors)
             return;
@@ -37,7 +37,7 @@ editor.once('load', function() {
             path: 'data.glueScriptId'
         });
         glueScript.parent.class.add('script-picker');
-        glueScript.on('change', function() {
+        glueScript.on('change', function () {
             var asset = editor.call('assets:get', assets[0].get('data.glueScriptId'));
             if (asset) {
                 var history = asset.history.enabled;
@@ -48,7 +48,7 @@ editor.once('load', function() {
         });
 
         // reference
-        editor.call('attributes:reference:attach', 'asset:wasm:glueScriptId', glueScript._label);        
+        editor.call('attributes:reference:attach', 'asset:wasm:glueScriptId', glueScript._label);
 
         // fallback script
         var fallbackScript = editor.call('attributes:addField', {
@@ -60,7 +60,7 @@ editor.once('load', function() {
             path: 'data.fallbackScriptId'
         });
         fallbackScript.parent.class.add('script-picker');
-        fallbackScript.on('change', function() {
+        fallbackScript.on('change', function () {
             var asset = editor.call('assets:get', assets[0].get('data.fallbackScriptId'));
             if (asset) {
                 var history = asset.history.enabled;

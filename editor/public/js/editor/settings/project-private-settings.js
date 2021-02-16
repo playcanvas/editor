@@ -52,7 +52,7 @@ editor.once('load', function () {
 
                 var history = settings.history.enabled;
                 settings.history.enabled = false;
-                for (var key in pendingChanges) {
+                for (const key in pendingChanges) {
                     settings.set(key, pendingChanges[key]);
                 }
                 settings.history.enabled = history;
@@ -68,7 +68,7 @@ editor.once('load', function () {
             // unset private settings
             settings.disconnect();
             settings.history.enabled = false;
-            for (var key in defaultData) {
+            for (const key in defaultData) {
                 settings.unset(key);
             }
         } else {

@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var root = editor.call('layout.root');
@@ -41,19 +41,19 @@ editor.once('load', function() {
         root: root
     });
 
-    editor.on('scene:name', function(name) {
+    editor.on('scene:name', function (name) {
         sceneName.text = name;
     });
 
-    sceneName.on('click', function() {
-        editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+    sceneName.on('click', function () {
+        editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
     });
 
-    editor.on('attributes:clear', function() {
+    editor.on('attributes:clear', function () {
         sceneName.class.remove('active');
     });
 
-    editor.on('attributes:inspect[editorSettings]', function() {
+    editor.on('attributes:inspect[editorSettings]', function () {
         sceneName.class.add('active');
     });
 

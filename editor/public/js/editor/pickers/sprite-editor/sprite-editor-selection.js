@@ -34,7 +34,7 @@ editor.once('load', function () {
             if (klen !== hlen) {
                 dirty = true;
             } else {
-                for (var i = 0; i < klen; i++) {
+                for (let i = 0; i < klen; i++) {
                     if (keys[i] !== highlightedFrames[i]) {
                         dirty = true;
                         break;
@@ -53,7 +53,7 @@ editor.once('load', function () {
         // add to selection if necessary
         if (keys && options && options.add) {
             var temp = prevHighlighted.slice();
-            for (var i = 0, len = keys.length; i<len; i++) {
+            for (let i = 0, len = keys.length; i < len; i++) {
                 if (temp.indexOf(keys[i]) === -1) {
                     temp.push(keys[i]);
                 }
@@ -83,7 +83,7 @@ editor.once('load', function () {
                     }
 
                     if (! spriteAsset) {
-                        selected = newSelection || newKeys[len-1];
+                        selected = newSelection || newKeys[len - 1];
 
                     }
                 }
@@ -265,7 +265,7 @@ editor.once('load', function () {
     // Create sprite assets for each selected frame
     editor.method('picker:sprites:spritesFromFrames', function (args) {
         var frameCounter = 0;
-        for (var i = 0; i < highlightedFrames.length; i++) {
+        for (let i = 0; i < highlightedFrames.length; i++) {
             var name = atlasAsset.get('data.frames.' + highlightedFrames[i] + '.name');
             if (!name) {
                 name = 'New Sprite ' + i;
@@ -323,7 +323,7 @@ editor.once('load', function () {
                     editor.call('picker:sprites:pickFrames:add');
                 });
             }
-        })
+        });
 
 
     };
@@ -420,7 +420,7 @@ editor.once('load', function () {
         newSpriteFrames.length = 0;
         setSprite(null);
 
-        for (var i = 0; i < events.length; i++) {
+        for (let i = 0; i < events.length; i++) {
             events[i].unbind();
         }
         events.length = 0;

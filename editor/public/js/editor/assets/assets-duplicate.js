@@ -1,7 +1,7 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    editor.method('assets:duplicate', function(asset) {
+    editor.method('assets:duplicate', function (asset) {
         if (asset.get('type') !== 'material' && asset.get('type') !== 'sprite') return;
 
         var path = asset.get('path');

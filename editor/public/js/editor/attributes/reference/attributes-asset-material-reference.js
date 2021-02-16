@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var fields = [{
@@ -638,7 +638,7 @@ editor.once('load', function() {
         title: 'clearCoatBumpiness',
         subTitle: '{Number}',
         description: 'The strength of the applied normal map. This is a value between 0 (the normal map has no effect) and 2 (the effect of the normal map is exagerrated). It defaults to 1.',
-        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatBumpiness'  
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatBumpiness'
     }, {
         title: 'clearCoatNormalMap',
         subTitle: '{pc.Texture}',
@@ -668,10 +668,10 @@ editor.once('load', function() {
         title: 'alphaFade',
         subTitle: '{Number}',
         description: 'Use alphaFade to fade out materials that do not use opacity to fade specular (opacityFadesSpecular is false).',
-        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#alphaFade'                                 
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#alphaFade'
     }];
 
-    for(var i = 0; i < fields.length; i++) {
+    for (let i = 0; i < fields.length; i++) {
         fields[i].name = 'asset:material:' + (fields[i].name || fields[i].title);
         editor.call('attributes:reference:add', fields[i]);
     }

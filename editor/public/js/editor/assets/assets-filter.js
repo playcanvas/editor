@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('users:hasFlag', 'hasPcuiAssetsPanel')) return;
@@ -7,7 +7,7 @@ editor.once('load', function() {
     var assetsPanel = editor.call('layout.assets');
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     var currentFolder = null;
-    var currentPath = [ ];
+    var currentPath = [];
 
     var searchLastValue = '';
     var searchTags = null;
@@ -17,7 +17,7 @@ editor.once('load', function() {
     panelFilters.class.add('filters');
     assetsPanel.header.append(panelFilters);
 
-    var tagsCheck = function(asset, tags) {
+    var tagsCheck = function (asset, tags) {
         var data = asset.get('tags');
 
         if (! data.length)
@@ -28,7 +28,7 @@ editor.once('load', function() {
         if (! data.length || ! tags.length)
             return false;
 
-        for(var i = 0; i < tags.length; i++) {
+        for (let i = 0; i < tags.length; i++) {
             if (tags[i].length === 1) {
                 // single occurance
                 if (data.indexOf(tags[i][0]) !== -1)
@@ -37,7 +37,7 @@ editor.once('load', function() {
                 // combined occurance
                 var multiple = true;
 
-                for(var t = 0; t < tags[i].length; t++) {
+                for (var t = 0; t < tags[i].length; t++) {
                     if (data.indexOf(tags[i][t]) !== -1)
                         continue;
 
@@ -53,7 +53,7 @@ editor.once('load', function() {
         return false;
     };
 
-    var filter = function(type, item) {
+    var filter = function (type, item) {
         if (! item)
             return false;
 
@@ -100,10 +100,10 @@ editor.once('load', function() {
                     try {
                         var raw = search.value.slice(1, -1);
                         var bits = raw.split(',');
-                        var tags = [ ];
+                        var tags = [];
                         var merge = '';
 
-                        for(var i = 0; i < bits.length; i++) {
+                        for (let i = 0; i < bits.length; i++) {
                             var tag = bits[i].trim();
                             if (! tag) continue;
 
@@ -125,8 +125,8 @@ editor.once('load', function() {
                                     if (! subTag) continue;
                                     tags.push(subTag);
                                 } else {
-                                    var subTags = [ ];
-                                    for(var s = 0; s < subBits.length; s++) {
+                                    var subTags = [];
+                                    for (var s = 0; s < subBits.length; s++) {
                                         var subTag = subBits[s].trim();
                                         if (! subTag) continue;
                                         subTags.push(subTag);
@@ -147,7 +147,7 @@ editor.once('load', function() {
 
                         searchTags = tags;
                         normalSearch = false;
-                    } catch(ex) {
+                    } catch (ex) {
                         searchTags = false;
                     }
                 } else {
@@ -167,7 +167,7 @@ editor.once('load', function() {
                 try {
                     visible = (new RegExp(search.value.slice(1), 'i')).test(name);
                     normalSearch = false;
-                } catch(ex) { }
+                } catch (ex) { }
             }
 
             if (normalSearch) {
@@ -199,7 +199,7 @@ editor.once('load', function() {
 
         return visible;
     };
-    editor.method('assets:panel:filter:default', function() {
+    editor.method('assets:panel:filter:default', function () {
         return filter;
     });
 
@@ -275,7 +275,7 @@ editor.once('load', function() {
     filterField.renderChanges = false;
     panelFilters.append(filterField);
 
-    filterField.on('change', function(value) {
+    filterField.on('change', function (value) {
         if (value !== 'all') {
             filterField.class.add('not-empty');
         } else {
@@ -290,32 +290,32 @@ editor.once('load', function() {
         align: 'bottom',
         root: root
     });
-    filterField.on('open', function() {
+    filterField.on('open', function () {
         tooltipFilter.disabled = true;
     });
-    filterField.on('close', function() {
+    filterField.on('close', function () {
         tooltipFilter.disabled = false;
     });
 
-    editor.method('assets:filter:search', function(query) {
+    editor.method('assets:filter:search', function (query) {
         if (query === undefined)
             return search.value;
 
         search.value = query;
     });
 
-    editor.method('assets:filter:type', function(type) {
+    editor.method('assets:filter:type', function (type) {
         if (type === undefined)
             return filterField.value;
 
         filterField.value = type || 'all';
     });
 
-    editor.method('assets:filter:type:disabled', function(state) {
+    editor.method('assets:filter:type:disabled', function (state) {
         filterField.disabled = state;
     });
 
-    editor.on('assets:panel:currentFolder', function(asset) {
+    editor.on('assets:panel:currentFolder', function (asset) {
         if (asset) {
             if (typeof(asset) === 'string') {
                 if (legacyScripts) {
@@ -337,7 +337,7 @@ editor.once('load', function() {
         editor.call('assets:panel:filter', filter, true);
     });
 
-    editor.on('assets:add', function(asset) {
+    editor.on('assets:add', function (asset) {
         if (filterField.value === 'all' && ! search.value)
             return;
 
@@ -368,7 +368,7 @@ editor.once('load', function() {
     search.renderChanges = false;
     panelFilters.append(search);
 
-    search.element.addEventListener('keydown', function(evt) {
+    search.element.addEventListener('keydown', function (evt) {
         if (evt.keyCode === 27)
             searchClear.click();
     }, false);
@@ -388,11 +388,11 @@ editor.once('load', function() {
     searchClear.classList.add('clear');
     search.element.appendChild(searchClear);
 
-    searchClear.addEventListener('click', function() {
+    searchClear.addEventListener('click', function () {
         search.value = '';
     }, false);
 
-    search.on('change', function(value) {
+    search.on('change', function (value) {
         value = value.trim();
 
         if (searchLastValue === value)

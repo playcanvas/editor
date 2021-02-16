@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('users:hasFlag', 'hasPcuiAssetsPanel')) return;
@@ -63,18 +63,18 @@ editor.once('load', function() {
     if (editor.call('users:hasFlag', 'hasAnimComponent')) {
         assets.animstategraph = {
             title: 'Anim State Graph',
-            icon: '&#57754;'
+            icon: '&#58386;'
         };
     }
 
-    var addNewMenuItem = function(key, data) {
+    var addNewMenuItem = function (key, data) {
         // new folder
         var item = new ui.MenuItem({
             text: data.title,
             icon: data.icon || '',
             value: key
         });
-        item.on('select', function() {
+        item.on('select', function () {
             var args = {
                 parent: editor.call('assets:panel:currentFolder')
             };
@@ -85,7 +85,7 @@ editor.once('load', function() {
                 if (editor.call('settings:project').get('useLegacyScripts')) {
                     editor.call('sourcefiles:new');
                 } else {
-                    editor.call('picker:script-create', function(filename) {
+                    editor.call('picker:script-create', function (filename) {
                         editor.call('assets:create:script', {
                             filename: filename,
                             boilerplate: true
@@ -93,7 +93,7 @@ editor.once('load', function() {
                     });
                 }
             } else {
-                editor.call('assets:create:' + key, args)
+                editor.call('assets:create:' + key, args);
             }
         });
         menu.append(item);
@@ -107,7 +107,7 @@ editor.once('load', function() {
     };
 
     var keys = Object.keys(assets);
-    for(var i = 0; i < keys.length; i++) {
+    for (let i = 0; i < keys.length; i++) {
         if (! assets.hasOwnProperty(keys[i]))
             continue;
 
@@ -119,7 +119,7 @@ editor.once('load', function() {
     controls.enabled = false;
     controls.class.add('assets-controls');
     assetsPanel.header.append(controls);
-    editor.on('permissions:writeState', function(state) {
+    editor.on('permissions:writeState', function (state) {
         controls.enabled = state;
     });
 
@@ -129,7 +129,7 @@ editor.once('load', function() {
     btnNew.hidden = ! editor.call('permissions:write');
     btnNew.class.add('create-asset');
     btnNew.text = '&#57632;';
-    btnNew.on('click', function(evt) {
+    btnNew.on('click', function (evt) {
         var rect = btnNew.element.getBoundingClientRect();
         menu.position(rect.right, rect.top);
         menu.open = true;
@@ -142,7 +142,7 @@ editor.once('load', function() {
         align: 'bottom',
         root: root
     });
-    menu.on('open', function(state) {
+    menu.on('open', function (state) {
         tooltipAdd.disabled = state;
     });
 
@@ -154,7 +154,7 @@ editor.once('load', function() {
     btnDelete.style.fontWeight = 200;
     btnDelete.disabled = true;
     btnDelete.class.add('delete');
-    btnDelete.on('click', function() {
+    btnDelete.on('click', function () {
         if (! editor.call('permissions:write'))
             return;
 
@@ -186,7 +186,7 @@ editor.once('load', function() {
         controls.append(btnDetailsView);
     }
 
-    editor.on('permissions:writeState', function(state) {
+    editor.on('permissions:writeState', function (state) {
         btnNew.hidden = ! state;
         btnDelete.hidden = ! state;
     });
@@ -199,7 +199,7 @@ editor.once('load', function() {
     btnUp.style.fontWeight = 200;
     btnUp.disabled = true;
     btnUp.class.add('up');
-    btnUp.on('click', function() {
+    btnUp.on('click', function () {
         var folder = editor.call('assets:panel:currentFolder');
         if (! folder) return;
 
@@ -221,7 +221,7 @@ editor.once('load', function() {
     });
     controls.append(btnUp);
 
-    editor.on('assets:panel:currentFolder', function(folder) {
+    editor.on('assets:panel:currentFolder', function (folder) {
         if (folder) {
             btnUp.disabled = false;
             tooltipUp.class.remove('innactive');
@@ -248,7 +248,7 @@ editor.once('load', function() {
     });
     btnThumbSize.style.fontWeight = 200;
     btnThumbSize.class.add('size');
-    btnThumbSize.on('click', function() {
+    btnThumbSize.on('click', function () {
         if (assetsGrid.class.contains('small')) {
             assetsGrid.class.remove('small');
             tooltipThumbSize.html = '<span style="color:#fff">Large</span> / Small';
@@ -279,13 +279,13 @@ editor.once('load', function() {
     tooltipThumbSize.class.add('innactive');
 
 
-    editor.on('attributes:clear', function() {
+    editor.on('attributes:clear', function () {
         // btnDuplicate.disabled = true;
         btnDelete.disabled = true;
         tooltipDelete.class.add('innactive');
     });
 
-    editor.on('attributes:inspect[*]', function(type) {
+    editor.on('attributes:inspect[*]', function (type) {
         if (type.startsWith('asset')) {
             btnDelete.enabled = true;
             tooltipDelete.class.remove('innactive');

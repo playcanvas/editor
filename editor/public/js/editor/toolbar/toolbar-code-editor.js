@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('settings:project').get('useLegacyScripts'))
@@ -15,7 +15,7 @@ editor.once('load', function() {
     var publishButton = toolbar.dom.querySelector('.publish-download');
     toolbar.appendBefore(button, publishButton);
 
-    button.on('click', function() {
+    button.on('click', function () {
         editor.call('picker:codeeditor');
     });
 

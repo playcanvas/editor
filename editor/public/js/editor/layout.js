@@ -1,4 +1,4 @@
-editor.on('load', function() {
+editor.on('load', function () {
     'use strict';
 
     var ignoreMouseDownClasses = /(default-mousedown)|(ui-list-item)|(ui-button)|(ui-text)|(ui-number-field)/i;
@@ -21,7 +21,7 @@ editor.on('load', function() {
     }
 
     // prevent drag'n'select
-    window.addEventListener('mousedown', function(evt) {
+    window.addEventListener('mousedown', function (evt) {
         if (shouldNotPrevent(ignoreMouseDownClasses, evt)) return;
 
         // blur inputs
@@ -42,7 +42,7 @@ editor.on('load', function() {
 
 
     // prevent default context menu
-    window.addEventListener('contextmenu', function(evt) {
+    window.addEventListener('contextmenu', function (evt) {
         if (shouldNotPrevent(ignoreContextMenuClasses, evt)) return;
 
         evt.preventDefault();
@@ -203,6 +203,39 @@ editor.on('load', function() {
     editor.on('permissions:writeState', function (state) {
         attributesPanel.enabled = state;
     });
+
+    // secondary attributes panel 
+    var attributesSecondaryPanel = new pcui.Panel({
+        headerText: 'INSPECTOR',
+        id: 'layout-attributes-secondary',
+        flex: true,
+        enabled: true,
+        width: editor.call('localStorage:get', 'editor:layout:attributes-secondary:width') || 256,
+        panelType: 'normal',
+        collapsible: true,
+        collapseHorizontally: true,
+        collapsed: editor.call('localStorage:get', 'editor:layout:attributes-secondary:collapse') || window.innerWidth <= 480,
+        scrollable: true,
+        resizable: 'left',
+        resizeMin: 196,
+        resizeMax: 512,
+        hidden: true
+    });
+
+    attributesSecondaryPanel.on('resize', function () {
+        editor.call('localStorage:set', 'editor:layout:attributes-secondary:width', hierarchyPanel.width);
+    });
+    attributesSecondaryPanel.on('collapse', function () {
+        editor.call('localStorage:set', 'editor:layout:attributes-secondary:collapse', true);
+    });
+    attributesSecondaryPanel.on('expand', function () {
+        editor.call('localStorage:set', 'editor:layout:attributes-secondary:collapse', false);
+    });
+
+    root.append(attributesSecondaryPanel);
+    // expose
+    editor.method('layout.attributes.secondary', function () { return attributesSecondaryPanel; });
+
 
     // status bar
     var statusBar = new pcui.Container({

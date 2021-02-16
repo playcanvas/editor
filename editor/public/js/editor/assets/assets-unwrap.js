@@ -1,9 +1,9 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var unwrapping = { };
 
-    editor.method('assets:model:unwrap', function(asset, args, fn) {
+    editor.method('assets:model:unwrap', function (asset, args, fn) {
         if (asset.get('type') !== 'model' || ! asset.has('file.filename') || unwrapping[asset.get('id')])
             return;
 
@@ -22,11 +22,11 @@ editor.once('load', function() {
 
         unwrapping[asset.get('id')] = worker;
 
-        worker.onmessage = function(evt) {
+        worker.onmessage = function (evt) {
             if (! evt.data.name)
                 return;
 
-            switch(evt.data.name) {
+            switch (evt.data.name) {
                 case 'finish':
                     var data = evt.data.data;
 
@@ -65,7 +65,7 @@ editor.once('load', function() {
             }
         };
 
-        worker.onerror = function(err) {
+        worker.onerror = function (err) {
             if (fn) fn(err);
             // remove from unwrapping list
             delete unwrapping[asset.get('id')];
@@ -80,7 +80,7 @@ editor.once('load', function() {
     });
 
 
-    editor.method('assets:model:unwrap:cancel', function(asset) {
+    editor.method('assets:model:unwrap:cancel', function (asset) {
         var worker = unwrapping[asset.get('id')];
         if (! worker)
             return;
@@ -90,30 +90,30 @@ editor.once('load', function() {
     });
 
 
-    editor.method('assets:model:unwrapping', function(asset) {
+    editor.method('assets:model:unwrapping', function (asset) {
         if (asset) {
             return unwrapping[asset.get('id')] || null;
-        } else {
-            var list = [ ];
-            for(var key in unwrapping) {
-                if (! unwrapping.hasOwnProperty(key))
-                    continue;
-
-                list.push(unwrapping[key]);
-            }
-            return list.length ? list : null;
         }
+        var list = [];
+        for (const key in unwrapping) {
+            if (! unwrapping.hasOwnProperty(key))
+                continue;
+
+            list.push(unwrapping[key]);
+        }
+        return list.length ? list : null;
+
     });
 
 
-    editor.method('assets:model:area', function(asset, fn) {
+    editor.method('assets:model:area', function (asset, fn) {
         if (asset.get('type') !== 'model' || ! asset.has('file.filename'))
             return;
 
         var filename = asset.get('file.filename');
         var worker = new Worker('/editor/scene/js/editor/assets/assets-unwrap-worker.js');
 
-        worker.onmessage = function(evt) {
+        worker.onmessage = function (evt) {
             if (evt.data.name && evt.data.name === 'finish') {
                 // save area
                 asset.set('data.area', evt.data.area || null);
@@ -122,7 +122,7 @@ editor.once('load', function() {
             }
         };
 
-        worker.onerror = function(err) {
+        worker.onerror = function (err) {
             if (fn) fn(err);
         };
 

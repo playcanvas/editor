@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     editor.method('picker:sprites:attributes:frames', function (args) {
@@ -35,7 +35,7 @@ editor.once('load', function() {
             name: 'Name',
             type: 'string',
             link: atlasAsset,
-            paths: frames.map(function (f) {return 'data.frames.' + f + '.name';})
+            paths: frames.map(function (f) { return 'data.frames.' + f + '.name'; })
         });
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:frame:name', fieldName.parent.innerElement.firstChild.ui, null, panel);
@@ -53,7 +53,7 @@ editor.once('load', function() {
             parent: panel,
             type: 'vec4',
             link: atlasAsset,
-            paths: frames.map(function (f) {return 'data.frames.' + f + '.rect';})
+            paths: frames.map(function (f) { return 'data.frames.' + f + '.rect'; })
         });
         fieldRect[0].parent.hidden = true;
 
@@ -104,7 +104,7 @@ editor.once('load', function() {
 
             var frameData = atlasAsset.getRaw('data.frames')._data;
 
-            for (var i = 0, len = frames.length; i<len; i++) {
+            for (let i = 0, len = frames.length; i < len; i++) {
                 var f = frameData[frames[i]];
                 if (! f) continue;
                 var rect = f._data.rect;
@@ -122,7 +122,7 @@ editor.once('load', function() {
 
             var frameData = atlasAsset.getRaw('data.frames')._data;
 
-            for (var i = 0, len = frames.length; i<len; i++) {
+            for (let i = 0, len = frames.length; i < len; i++) {
                 var f = frameData[frames[i]];
                 if (! f) continue;
                 var rect = f._data.rect;
@@ -268,7 +268,7 @@ editor.once('load', function() {
                 asset.history.enabled = false;
 
                 var frameData = asset.getRaw('data.frames')._data;
-                for (var i = 0, len = frames.length; i<len; i++) {
+                for (let i = 0, len = frames.length; i < len; i++) {
                     var frame = frameData[frames[i]];
                     if (! frame) continue;
 
@@ -278,7 +278,7 @@ editor.once('load', function() {
                         prev[frames[i]] = {
                             value: frame._data.rect[rect],
                             border: [frame._data.border[border], frame._data.border[border + 2]]
-                        }
+                        };
 
                         // set property
                         asset.set('data.frames.' + frames[i] + '.rect.' + rect, value);
@@ -307,7 +307,7 @@ editor.once('load', function() {
 
                 var frameData = asset.getRaw('data.frames')._data;
 
-                for (var key in prev) {
+                for (const key in prev) {
                     if (! frameData[key]) continue;
 
                     asset.set('data.frames.' + key + '.rect.' + rect, prev[key].value);
@@ -324,7 +324,7 @@ editor.once('load', function() {
                 name: 'change rect',
                 undo: undo,
                 redo: redo
-            })
+            });
 
             redo();
         };
@@ -368,7 +368,7 @@ editor.once('load', function() {
             if (! newValue) return;
 
             var prevValues = {};
-            for (var i = 0; i < numFrames; i++) {
+            for (let i = 0; i < numFrames; i++) {
                 prevValues[frames[i]] = atlasAsset.get('data.frames.' + frames[i] + '.pivot');
             }
 
@@ -378,7 +378,7 @@ editor.once('load', function() {
 
                 var history = asset.history.enabled;
                 asset.history.enabled = false;
-                for (var i = 0; i < numFrames; i++) {
+                for (let i = 0; i < numFrames; i++) {
                     var key = 'data.frames.' + frames[i];
                     if (asset.has(key)) {
                         asset.set(key + '.pivot', newValue);
@@ -393,7 +393,7 @@ editor.once('load', function() {
 
                 var history = asset.history.enabled;
                 asset.history.enabled = false;
-                for (var i = 0; i < numFrames; i++) {
+                for (let i = 0; i < numFrames; i++) {
                     var key = 'data.frames.' + frames[i];
                     if (asset.has(key) && prevValues[frames[i]]) {
                         asset.set(key + '.pivot', prevValues[frames[i]]);
@@ -423,7 +423,7 @@ editor.once('load', function() {
             step: 0.1,
             placeholder: ['↔', '↕'],
             link: atlasAsset,
-            paths: frames.map(function (f) {return 'data.frames.' + f + '.pivot';})
+            paths: frames.map(function (f) { return 'data.frames.' + f + '.pivot'; })
         });
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:frame:pivot', fieldPivot[0].parent.innerElement.firstChild.ui, null, panel);
@@ -440,7 +440,7 @@ editor.once('load', function() {
         var updatePivotPreset = function () {
             var suspend = suspendChanges;
             suspendChanges = true;
-            for (var i = 0; i < presetValues.length; i++) {
+            for (let i = 0; i < presetValues.length; i++) {
                 if (presetValues[i][0] === fieldPivot[0].value && presetValues[i][1] === fieldPivot[1].value) {
                     fieldPivotPreset.value = i;
                     break;
@@ -459,7 +459,7 @@ editor.once('load', function() {
             type: 'vec4',
             link: atlasAsset,
             min: 0,
-            paths: frames.map(function (f) {return 'data.frames.' + f + '.border';})
+            paths: frames.map(function (f) { return 'data.frames.' + f + '.border'; })
         });
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:frame:border', fieldBorder[0].parent.innerElement.firstChild.ui, null, panel);
@@ -473,7 +473,7 @@ editor.once('load', function() {
 
             var frameData = atlasAsset.getRaw('data.frames')._data;
 
-            for (var i = 0, len = frames.length; i<len; i++) {
+            for (let i = 0, len = frames.length; i < len; i++) {
                 var f = frameData[frames[i]];
                 if (! f) continue;
                 var rect = f._data.rect;
@@ -490,7 +490,7 @@ editor.once('load', function() {
             fieldBorder[3].max = maxTop;
         };
 
-        for (var i = 0; i<4; i++) {
+        for (let i = 0; i < 4; i++) {
             fieldBorder[i].on('change', updateBorderMax);
         }
 
@@ -613,7 +613,7 @@ editor.once('load', function() {
         }));
 
         panel.on('destroy', function () {
-            for (var i = 0, len = events.length; i<len; i++) {
+            for (let i = 0, len = events.length; i < len; i++) {
                 events[i].unbind();
             }
             events.length = 0;

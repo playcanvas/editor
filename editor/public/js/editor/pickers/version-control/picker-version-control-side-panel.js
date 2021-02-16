@@ -32,7 +32,7 @@ editor.once('load', function () {
             panelMain.class.add('main');
             panelMain.flex = true;
 
-            for (var i = 0; i < args.mainContents.length; i++) {
+            for (let i = 0; i < args.mainContents.length; i++) {
                 panelMain.append(args.mainContents[i]);
             }
         }

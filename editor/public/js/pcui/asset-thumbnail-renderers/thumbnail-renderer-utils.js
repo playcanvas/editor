@@ -40,7 +40,7 @@ Object.assign(pcui, (function () {
         transparentSortMode: 3
     });
 
-    ThumbnailRendererUtils._layerComposition = new pc.LayerComposition();
+    ThumbnailRendererUtils._layerComposition = new pc.LayerComposition("thumbnail-renderer");
     ThumbnailRendererUtils._layerComposition.push(ThumbnailRendererUtils._layer);
 
     return {

@@ -1,7 +1,7 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    var panels = [ ];
+    var panels = [];
     panels.push(editor.call('layout.hierarchy'));
     panels.push(editor.call('layout.assets'));
     panels.push(editor.call('layout.attributes'));
@@ -9,7 +9,7 @@ editor.once('load', function() {
     var expanded = false;
 
 
-    editor.method('viewport:expand', function(state) {
+    editor.method('viewport:expand', function (state) {
         if (state === undefined)
             state = ! expanded;
 
@@ -18,14 +18,14 @@ editor.once('load', function() {
 
         expanded = state;
 
-        for(var i = 0; i < panels.length; i++)
+        for (let i = 0; i < panels.length; i++)
             panels[i].hidden = expanded;
 
         editor.emit('viewport:expand', state);
     });
 
 
-    editor.method('viewport:expand:state', function() {
+    editor.method('viewport:expand:state', function () {
         return expanded;
     });
 
@@ -33,7 +33,7 @@ editor.once('load', function() {
     // expand hotkey
     editor.call('hotkey:register', 'viewport:expand', {
         key: 'space',
-        callback: function() {
+        callback: function () {
             editor.call('viewport:expand');
         }
     });

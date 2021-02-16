@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var userData = null;
@@ -19,12 +19,12 @@ editor.once('load', function() {
         });
 
         // ready to sync
-        data.on('load', function() {
+        data.on('load', function () {
             // notify of operations
-            data.on('op', function(ops, local) {
+            data.on('op', function (ops, local) {
                 if (local) return;
 
-                for (var i = 0; i < ops.length; i++) {
+                for (let i = 0; i < ops.length; i++) {
                     if (ops[i].p[0])
                         editor.emit('realtime:userdata:' + userId + ':op:' + ops[i].p[0], ops[i]);
                 }
@@ -44,7 +44,7 @@ editor.once('load', function() {
     });
 
     // write userdata operations
-    editor.method('realtime:userdata:op', function(op) {
+    editor.method('realtime:userdata:op', function (op) {
         if (! editor.call('permissions:read') || ! userData)
             return;
 
@@ -52,7 +52,7 @@ editor.once('load', function() {
         // console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
         // console.log(op)
 
-        userData.submitOp([ op ]);
+        userData.submitOp([op]);
     });
 
     // subscribe to permission changes for userdata

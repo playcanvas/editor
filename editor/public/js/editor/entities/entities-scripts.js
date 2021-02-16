@@ -33,7 +33,7 @@ editor.once('load', function () {
         var result = [];
         var entry = this._index[script];
         if (entry) {
-            for (var key in entry) {
+            for (const key in entry) {
                 result.push(entry[key].entity);
             }
         }
@@ -72,7 +72,7 @@ editor.once('load', function () {
         var item = index[script][entity.get('resource_id')];
         if (!item) return;
 
-        for (var i = 0; i < item.events.length; i++)
+        for (let i = 0; i < item.events.length; i++)
             item.events[i].unbind();
 
         delete index[script][entity.get('resource_id')];
@@ -105,7 +105,7 @@ editor.once('load', function () {
 
         // unset attributes
         var attributes = entity.get('components.script.scripts.' + script + '.attributes');
-        for (var key in attributes) {
+        for (const key in attributes) {
             if (!attributes.hasOwnProperty(key))
                 continue;
 
@@ -314,7 +314,7 @@ editor.once('load', function () {
             if (attribute.array) {
                 if (attribute.default instanceof Array) {
                     value = attribute.default;
-                    for (var i = 0; i < attribute.default.length; i++) {
+                    for (let i = 0; i < attribute.default.length; i++) {
                         if (typeof (attribute.default[i]) !== TYPES[attribute.type]) {
                             value = [];
                             break;
@@ -366,7 +366,6 @@ editor.once('load', function () {
     };
 
 
-
     // Called when a new entity is added. Adds the entity to the index
     // and subscribes to component script events
     EntitiesScriptsIndex.prototype.onEntityAdd = function (entity) {
@@ -374,7 +373,7 @@ editor.once('load', function () {
 
         var scripts = entity.get('components.script.order');
         if (scripts) {
-            for (var i = 0; i < scripts.length; i++) {
+            for (let i = 0; i < scripts.length; i++) {
                 self.add(entity, scripts[i]);
             }
         }
@@ -415,7 +414,7 @@ editor.once('load', function () {
         if (!index[script])
             return;
 
-        for (var key in index[script]) {
+        for (const key in index[script]) {
             if (!index[script].hasOwnProperty(key))
                 continue;
 

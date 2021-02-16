@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
@@ -18,7 +18,7 @@ editor.once('load', function() {
     materialDefault.update();
     // material quad
     var materialQuad = new pc.BasicMaterial();
-    materialQuad.color = new pc.Color(1, 1, 1, .25);
+    materialQuad.color = new pc.Color(1, 1, 1, 0.25);
     materialQuad.cull = pc.CULLFACE_NONE;
     materialQuad.blend = true;
     materialQuad.blendSrc = pc.BLENDMODE_SRC_ALPHA;
@@ -26,7 +26,7 @@ editor.once('load', function() {
     materialQuad.update();
     // material behind
     var materialBehind = new pc.BasicMaterial();
-    materialBehind.color = new pc.Color(1, 1, 1, .15);
+    materialBehind.color = new pc.Color(1, 1, 1, 0.15);
     materialBehind.blend = true;
     materialBehind.blendSrc = pc.BLENDMODE_SRC_ALPHA;
     materialBehind.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
@@ -62,12 +62,12 @@ editor.once('load', function() {
         }
     };
 
-    var close = .25;
-    var far = .5;
-    var horiz = .5;
-    var vert = .375;
+    var close = 0.25;
+    var far = 0.5;
+    var horiz = 0.5;
+    var vert = 0.375;
 
-    var createCameraModel = function() {
+    var createCameraModel = function () {
         var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [
             { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 }
         ]);
@@ -143,7 +143,7 @@ editor.once('load', function() {
         // model
         cameraModel = new pc.Model();
         cameraModel.graph = node;
-        cameraModel.meshInstances = [ meshInstance ];
+        cameraModel.meshInstances = [meshInstance];
     };
 
     // Creates user camera and binds to real time events
@@ -184,10 +184,10 @@ editor.once('load', function() {
         cameraQuad.setLocalScale(close * horiz * 2, 1, close * vert * 2);
         camera.addChild(cameraQuad);
 
-        var pos = data.cameras.perspective.position || [ 0, 0, 0 ];
+        var pos = data.cameras.perspective.position || [0, 0, 0];
         camera.setPosition(pos[0], pos[1], pos[2]);
 
-        var rot = data.cameras.perspective.rotation || [ 0, 0, 0 ];
+        var rot = data.cameras.perspective.rotation || [0, 0, 0];
         camera.setEulerAngles(rot[0], rot[1], rot[2]);
 
         camera.pos = camera.getPosition().clone();
@@ -196,7 +196,7 @@ editor.once('load', function() {
         editor.call('viewport:render');
 
         // server > client
-        var evt = editor.on('realtime:userdata:' + userId + ':op:cameras', function(op) {
+        var evt = editor.on('realtime:userdata:' + userId + ':op:cameras', function (op) {
             if (op.p.length !== 3 || ! op.oi || op.p[1] !== 'perspective')
                 return;
 
@@ -221,18 +221,18 @@ editor.once('load', function() {
         editor.once('scene:unload', unload);
         editor.once('realtime:disconnected', unload);
 
-        editor.call('users:loadOne', userId, function(user) {
+        editor.call('users:loadOne', userId, function (user) {
             var dataNormal = editor.call('whoisonline:color', user.id, 'data');
-            var colorNormal = new Float32Array([ dataNormal[0], dataNormal[1], dataNormal[2], 1 ]);
+            var colorNormal = new Float32Array([dataNormal[0], dataNormal[1], dataNormal[2], 1]);
             camera.model.meshInstances[0].setParameter('uColor', colorNormal);
             camera.model.meshInstances[0].mask = GIZMO_MASK;
 
-            var colorBehind = new Float32Array([ dataNormal[0], dataNormal[1], dataNormal[2], 0.15 ]);
+            var colorBehind = new Float32Array([dataNormal[0], dataNormal[1], dataNormal[2], 0.15]);
             cameraInner.model.meshInstances[0].setParameter('uColor', colorBehind);
             cameraInner.model.meshInstances[0].mask = GIZMO_MASK;
 
             var dataLight = editor.call('whoisonline:color', user.id, 'data');
-            var colorLight = new Float32Array([ dataLight[0], dataLight[1], dataLight[2], 0.25 ]);
+            var colorLight = new Float32Array([dataLight[0], dataLight[1], dataLight[2], 0.25]);
             cameraQuad.model.meshInstances[0].setParameter('uColor', colorLight);
             cameraQuad.model.meshInstances[0].mask = GIZMO_MASK;
         });
@@ -284,10 +284,10 @@ editor.once('load', function() {
     var vecB = new pc.Vec3();
     var quat = new pc.Quat();
 
-    editor.on('viewport:update', function(dt) {
+    editor.on('viewport:update', function (dt) {
         var render = false;
 
-        for(var id in cameras) {
+        for (const id in cameras) {
             var camera = cameras[id];
 
             if (vecA.copy(camera.getPosition()).sub(camera.pos).length() > 0.01) {

@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var fields = [{
@@ -14,7 +14,7 @@ editor.once('load', function() {
         url: 'http://developer.playcanvas.com/api/pc.ScriptComponent.html#scripts'
     }];
 
-    for(var i = 0; i < fields.length; i++) {
+    for (let i = 0; i < fields.length; i++) {
         fields[i].name = 'script:' + (fields[i].name || fields[i].title);
         editor.call('attributes:reference:add', fields[i]);
     }

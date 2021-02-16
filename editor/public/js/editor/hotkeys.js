@@ -1,9 +1,8 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var hotkeys = { };
     var keyIndex = { };
-    var keysDown = { };
     var ctrl = false;
     var shift = false;
     var alt = false;
@@ -20,39 +19,39 @@ editor.once('load', function() {
         },
         'tab': {
             keyCode: 9,
-            code: 'Tab',
+            code: 'Tab'
         },
         'enter': {
             keyCode: 13,
-            code: [ 'enter', 'NumpadEnter', 'Enter' ],
+            code: ['enter', 'NumpadEnter', 'Enter']
         },
         'shift': {
             keyCode: 16,
-            code: [ 'ShiftLeft', 'ShiftRight' ],
+            code: ['ShiftLeft', 'ShiftRight']
         },
         'ctrl': {
             keyCode: 17,
-            code: [ 'CtrlLeft', 'CtrlRight' ],
+            code: ['CtrlLeft', 'CtrlRight']
         },
         'alt': {
             keyCode: 18,
-            code: [ 'AltLeft', 'AltRight' ],
+            code: ['AltLeft', 'AltRight']
         },
         'pause/break': {
             keyCode: 19,
-            code: 'Pause',
+            code: 'Pause'
         },
         'caps lock': {
             keyCode: 20,
-            code: 'CapsLock',
+            code: 'CapsLock'
         },
         'esc': {
             keyCode: 27,
-            code: 'Escape',
+            code: 'Escape'
         },
         'space': {
             keyCode: 32,
-            code: 'Space',
+            code: 'Space'
         },
         'page up': {
             keyCode: 33,
@@ -400,7 +399,7 @@ editor.once('load', function() {
         },
         'back slash': {
             keyCode: 220,
-            code: [ 'Backslash', 'IntlBackslash' ]
+            code: ['Backslash', 'IntlBackslash']
         },
         'close bracket': {
             keyCode: 221,
@@ -409,14 +408,14 @@ editor.once('load', function() {
         'single quote': {
             keyCode: 222,
             code: 'Quote'
-        },
+        }
     };
 
-    for(var key in keyMap) {
+    for (const key in keyMap) {
         keyByKeyCode[keyMap[key].keyCode] = key;
 
         if (keyMap[key].code instanceof Array) {
-            for(var i = 0; i < keyMap[key].code.length; i++) {
+            for (let i = 0; i < keyMap[key].code.length; i++) {
                 keyByCode[keyMap[key].code[i]] = key;
             }
         } else {
@@ -425,11 +424,11 @@ editor.once('load', function() {
     }
 
 
-    editor.method('hotkey:register', function(name, args) {
+    editor.method('hotkey:register', function (name, args) {
         hotkeys[name] = args;
 
         // keys list
-        var keys = [ args.ctrl ? 1 : 0, args.alt ? 1 : 0, args.shift ? 1 : 0 ];
+        var keys = [args.ctrl ? 1 : 0, args.alt ? 1 : 0, args.shift ? 1 : 0];
 
         // map keyCode to key
         if (typeof(args.key) === 'number')
@@ -446,13 +445,13 @@ editor.once('load', function() {
         args.index = keys.join('+');
 
         if (! keyIndex[args.index])
-            keyIndex[args.index] = [ ];
+            keyIndex[args.index] = [];
 
         keyIndex[args.index].push(name);
     });
 
 
-    editor.method('hotkey:unregister', function(name) {
+    editor.method('hotkey:unregister', function (name) {
         var hotkey = hotkeys[name];
         if (! hotkey) return;
 
@@ -466,20 +465,20 @@ editor.once('load', function() {
     });
 
 
-    editor.method('hotkey:shift', function() {
+    editor.method('hotkey:shift', function () {
         return shift;
     });
 
-    editor.method('hotkey:ctrl', function() {
+    editor.method('hotkey:ctrl', function () {
         return ctrl;
     });
 
-    editor.method('hotkey:alt', function() {
+    editor.method('hotkey:alt', function () {
         return alt;
     });
 
 
-    var updateModifierKeys = function(evt) {
+    var updateModifierKeys = function (evt) {
         if (shift !== evt.shiftKey) {
             shift = evt.shiftKey;
             editor.emit('hotkey:shift', shift);
@@ -498,7 +497,7 @@ editor.once('load', function() {
     editor.method('hotkey:updateModifierKeys', updateModifierKeys);
 
 
-    window.addEventListener('keydown', function(evt) {
+    window.addEventListener('keydown', function (evt) {
         if (evt.target) {
             var tag = evt.target.tagName;
             if (/(input)|(textarea)/i.test(tag) && ! evt.target.classList.contains('hotkeys'))
@@ -512,11 +511,11 @@ editor.once('load', function() {
         if (evt.keyCode === 92 || evt.keyCode === 93)
             return;
 
-        var index = [ ctrl+0, alt+0, shift+0, key ].join('+');
+        var index = [ctrl + 0, alt + 0, shift + 0, key].join('+');
 
         if (keyIndex[index]) {
             var skipPreventDefault = false;
-            for(var i = 0; i < keyIndex[index].length; i++) {
+            for (let i = 0; i < keyIndex[index].length; i++) {
                 if (! skipPreventDefault && hotkeys[keyIndex[index][i]].skipPreventDefault)
                     skipPreventDefault = true;
 
@@ -540,24 +539,24 @@ editor.once('load', function() {
     window.addEventListener('click', updateModifierKeys, false);
 
 
-    ui.Grid._ctrl = function() {
+    ui.Grid._ctrl = function () {
         return ctrl;
     };
-    ui.Grid._shift = function() {
+    ui.Grid._shift = function () {
         return shift;
     };
 
-    ui.Tree._ctrl = function() {
+    ui.Tree._ctrl = function () {
         return ctrl;
     };
-    ui.Tree._shift = function() {
+    ui.Tree._shift = function () {
         return shift;
     };
 
-    ui.List._ctrl = function() {
+    ui.List._ctrl = function () {
         return ctrl;
     };
-    ui.List._shift = function() {
+    ui.List._shift = function () {
         return shift;
     };
 });

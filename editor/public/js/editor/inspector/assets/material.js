@@ -359,7 +359,7 @@ Object.assign(pcui, (function () {
                     },
                     reference: 'asset:material:metalness'
                 }]
-            }),
+            })
         }, {
             specularWorkflowInspector: new pcui.AttributesInspector({
                 assets: parent._args.assets,
@@ -528,7 +528,7 @@ Object.assign(pcui, (function () {
             clearCoatFactorInspector: new pcui.AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
-                attributes: [{                 
+                attributes: [{
                     label: 'Clear Coat Factor',
                     path: 'data.clearCoat',
                     type: 'slider',
@@ -538,10 +538,10 @@ Object.assign(pcui, (function () {
                         min: 0,
                         max: 1
                     },
-                    reference: 'asset:material:clearCoat'                    
+                    reference: 'asset:material:clearCoat'
                 }]
             })
-        }, {            
+        }, {
             clearCoatInspector: new pcui.AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
@@ -706,7 +706,7 @@ Object.assign(pcui, (function () {
                             v: 'a', t: 'A'
                         }]
                     },
-                    reference: 'asset:material:clearCoatGlossVertexColorChannel'    
+                    reference: 'asset:material:clearCoatGlossVertexColorChannel'
                 }, {
                     label: 'Glossiness',
                     path: 'data.clearCoatGlossiness',
@@ -774,7 +774,7 @@ Object.assign(pcui, (function () {
                     reference: 'asset:material:clearCoatBumpiness'
                 }]
             })
-        }]        
+        }]
     }, {
         root: {
             emissivePanel: new pcui.Panel({
@@ -792,7 +792,7 @@ Object.assign(pcui, (function () {
                     path: 'data.emissiveMap',
                     type: 'asset',
                     args: {
-                        assetType: 'texture',
+                        assetType: 'texture'
                     },
                     reference: 'asset:material:emissiveMap'
                 }, {
@@ -998,7 +998,7 @@ Object.assign(pcui, (function () {
                     label: 'Alpha To Coverage',
                     path: 'data.alphaToCoverage',
                     type: 'boolean',
-                    reference: 'asset:material:alphaToCoverage'                    
+                    reference: 'asset:material:alphaToCoverage'
                 }, {
                     label: 'Opacity Fades Specular',
                     path: 'data.opacityFadesSpecular',
@@ -1014,7 +1014,7 @@ Object.assign(pcui, (function () {
                         min: 0,
                         max: 1
                     },
-                    reference: 'asset:material:alphaFade'                    
+                    reference: 'asset:material:alphaFade'
                 }]
             })
         }]
@@ -1771,7 +1771,7 @@ Object.assign(pcui, (function () {
 
             this._suppressToggleFields = true;
 
-            let prev = [];
+            const prev = [];
 
             try {
                 // depending on the filename of the texture being
@@ -1788,7 +1788,7 @@ Object.assign(pcui, (function () {
                 const texturesInSamePath = this._args.assets.find(asset => {
                     return asset.get('type') === 'texture' &&
                             !asset.get('source') &&
-                            path.equals(asset.get('path'))
+                            path.equals(asset.get('path'));
                 });
 
                 const candidates = {};
@@ -2040,7 +2040,7 @@ Object.assign(pcui, (function () {
 
                 engineAsset.resource[path] = textureAsset.resource;
                 engineAsset.resource.update();
-            }
+            };
 
             this._assets.forEach(asset => {
                 const engineAsset = app.assets.get(asset.get('id'));
@@ -2169,14 +2169,14 @@ Object.assign(pcui, (function () {
                                     break;
                                 }
                             } else if (type === 'vec2') {
-                                const value = this._assets[j].get('data.'+ field);
+                                const value = this._assets[j].get('data.' + field);
                                 const defaultValue = editor.call('schema:material:getDefaultValueForField', field);
                                 if (value && value[0] !== defaultValue[0] || value && value[1] !== defaultValue[1]) {
                                     collapsed = false;
                                     break;
                                 }
                             } else if (type === 'number') {
-                                const value = this._assets[j].get('data.'+ field);
+                                const value = this._assets[j].get('data.' + field);
                                 const defaultValue = editor.call('schema:material:getDefaultValueForField', field);
                                 if (value !== defaultValue ) {
                                     collapsed = false;
@@ -2244,7 +2244,7 @@ Object.assign(pcui, (function () {
             this._clearCoatFactorInspector.unlink();
             this._clearCoatInspector.unlink();
             this._clearCoatGlossInspector.unlink();
-            this._clearCoatNormalInspector.unlink();            
+            this._clearCoatNormalInspector.unlink();
             this._emissiveInspector.unlink();
             this._opacityInspector.unlink();
             this._normalsInspector.unlink();

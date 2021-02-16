@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var projectSettings = editor.call('settings:project');
@@ -85,7 +85,7 @@ editor.once('load', function() {
             return;
         }
 
-        for (var fieldName in schemaField) {
+        for (const fieldName in schemaField) {
             if (fieldName.startsWith('$')) continue;
 
             var field = schemaField[fieldName];
@@ -204,7 +204,7 @@ editor.once('load', function() {
 
     editor.method('components:getDefault', function (component) {
         var result = {};
-        for (var fieldName in schema[component]) {
+        for (const fieldName in schema[component]) {
             if (fieldName.startsWith('$')) continue;
             var field = schema[component][fieldName];
             if (field.hasOwnProperty('$default')) {
@@ -233,7 +233,7 @@ editor.once('load', function() {
     editor.method('components:getFieldsOfType', function (component, type) {
         var matchingFields = [];
 
-        for (var field in schema[component]) {
+        for (const field in schema[component]) {
             if (schema[component][field].$editorType === type) {
                 matchingFields.push(field);
             }

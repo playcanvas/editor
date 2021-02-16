@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var fields = [{
@@ -44,7 +44,7 @@ editor.once('load', function() {
         description: 'Here you can define a replacement asset to be used for a particular locale. When the application\'s locale changes then references to this asset will use the replacement asset for the new locale.'
     }];
 
-    for(var i = 0; i < fields.length; i++) {
+    for (let i = 0; i < fields.length; i++) {
         fields[i].name = 'asset:' + (fields[i].name || fields[i].title);
         editor.call('attributes:reference:add', fields[i]);
     }

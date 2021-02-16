@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
@@ -6,7 +6,7 @@ editor.once('load', function() {
 
     editor.on('entities:add', function (obj) {
         // subscribe to changes
-        obj.on('*:set', function(path, value) {
+        obj.on('*:set', function (path, value) {
             var entity = obj.entity;
             if (! entity)
                 return;
@@ -56,7 +56,7 @@ editor.once('load', function() {
                 // skip any graph nodes
                 if (index > 0) {
                     var children = obj.entity.children;
-                    for (var i = 0, len = children.length; i < len && index > 0; i++) {
+                    for (let i = 0, len = children.length; i < len && index > 0; i++) {
                         if (children[i] instanceof pc.Entity) {
                             index--;
                         }

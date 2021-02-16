@@ -38,10 +38,10 @@ editor.once('load', function () {
         if (evt.keyCode === 27) {
             overlay.hidden = true;
         }
-    }
+    };
 
-    overlay.on('show', function() { window.addEventListener('keydown', keydownHandler); });
-    overlay.on('hide', function() { window.removeEventListener('keydown', keydownHandler); });
+    overlay.on('show', function () { window.addEventListener('keydown', keydownHandler); });
+    overlay.on('hide', function () { window.removeEventListener('keydown', keydownHandler); });
 
     // display the picker
     editor.method('picker:text-input', function (callback_, options) {

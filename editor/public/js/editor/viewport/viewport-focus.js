@@ -1,19 +1,18 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
     if (! app) return; // webgl not available
 
-    var defaultSize = new pc.Vec3(1, 1, 1);
-    var defaultSizeSmall = new pc.Vec3(.2, .2, .2);
+    var defaultSizeSmall = new pc.Vec3(0.2, 0.2, 0.2);
     var aabb = new pc.BoundingBox();
     var aabbA = new pc.BoundingBox();
 
-    var calculateChildAABB = function(entity) {
+    var calculateChildAABB = function (entity) {
         aabbA.add(editor.call('entities:getBoundingBoxForEntity', entity));
 
         var children = entity.children;
-        for(var i = 0; i < children.length; i++) {
+        for (let i = 0; i < children.length; i++) {
             if (! (children[i] instanceof pc.Entity) || children[i].__editor)
                 continue;
 
@@ -21,25 +20,25 @@ editor.once('load', function() {
         }
     };
 
-    editor.method('selection:aabb', function() {
+    editor.method('selection:aabb', function () {
         if (editor.call('selector:type') !== 'entity')
             return null;
 
         return editor.call('entities:aabb', editor.call('selector:items'));
     });
 
-    editor.method('entities:aabb', function(items) {
+    editor.method('entities:aabb', function (items) {
         if (! items)
             return null;
 
         if (! (items instanceof Array))
-            items = [ items ];
+            items = [items];
 
         aabb.center.set(0, 0, 0);
         aabb.halfExtents.copy(defaultSizeSmall);
 
         // calculate aabb for selected entities
-        for(var i = 0; i < items.length; i++) {
+        for (let i = 0; i < items.length; i++) {
             var entity = items[i].entity;
 
             if (! entity)
@@ -59,7 +58,7 @@ editor.once('load', function() {
         return aabb;
     });
 
-    editor.method('viewport:focus', function() {
+    editor.method('viewport:focus', function () {
         var selection = editor.call('selection:aabb');
         if (! selection) return;
 
@@ -68,7 +67,7 @@ editor.once('load', function() {
         // aabb
         var distance = Math.max(aabb.halfExtents.x, Math.max(aabb.halfExtents.y, aabb.halfExtents.z));
         // fov
-        distance = (distance / Math.tan(0.5 * camera.camera.fov * Math.PI / 180.0));
+        distance /= Math.tan(0.5 * camera.camera.fov * Math.PI / 180.0);
         // extra space
         distance = distance * 1.1 + 1;
 

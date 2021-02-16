@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     /**
@@ -6,8 +6,8 @@ editor.once('load', function() {
      * and return data about its overrides by comparing it
      * with the corresponding template asset.
      *
-     * @param {Object} root The root entity of a template instance
-     * @returns {Object} An object with fields 'conflicts',
+     * @param {object} root - The root entity of a template instance
+     * @returns {object} An object with fields 'conflicts',
      * 'addedEntities' and 'deletedEntities'
      */
     editor.method('templates:computeOverrides', function (root) {
@@ -32,6 +32,8 @@ editor.once('load', function() {
      * Find all descendant entities and put them in an object under
      * the key 'entities' (so that the format is consistent with
      * template asset data).
+     *
+     * @param root
      */
     const getInstanceData = function (root) {
         const ents = editor.call('template:utils', 'getAllEntitiesInSubtree', root, []);
@@ -51,10 +53,10 @@ editor.once('load', function() {
      * Given asset and instance entity data, and the guid of the instance root,
      * return data about the instance's overrides.
      *
-     * @param {Object} asset Asset data
-     * @param {Object} instance Instance data
-     * @param {String} instRootId The guid of the instance root
-     * @returns {Object} An object with fields 'conflicts',
+     * @param {object} asset - Asset data
+     * @param {object} instance - Instance data
+     * @param {string} instRootId - The guid of the instance root
+     * @returns {object} An object with fields 'conflicts',
      * 'addedEntities' and 'deletedEntities'
      */
     class FindInstanceOverrides {

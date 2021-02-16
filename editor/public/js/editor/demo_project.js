@@ -1,6 +1,6 @@
 // if you have loading the Demo Ball project for the first time
 // we show a splash screen with some simple instructions
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('users:hasOpenedEditor')) {
@@ -50,7 +50,7 @@ editor.once('load', function() {
         overlay.hidden = true;
     });
 
-    editor.once('scene:raw', function() {
+    editor.once('scene:raw', function () {
         overlay.hidden = false;
     });
 

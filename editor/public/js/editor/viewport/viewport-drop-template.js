@@ -61,35 +61,39 @@ editor.once('load', function () {
                 parent = editor.call('entities:root');
             }
 
-            let newEntities = [];
+            let newEntityIds;
+            let cancelWaitForEntities;
 
             function undo() {
-                newEntities.forEach(e => {
-                    e = e.latest();
-                    if (e) {
-                        editor.call('entities:removeEntity', e);
+                if (cancelWaitForEntities) {
+                    cancelWaitForEntities();
+                    cancelWaitForEntities = null;
+                }
+
+                newEntityIds.forEach(id => {
+                    const entity = editor.call('entities:get', id);
+                    if (entity) {
+                        editor.call('entities:removeEntity', entity);
                     }
                 });
+
+                newEntityIds = null;
                 editor.call('viewport:render');
             }
 
-            function redo() {
-                // add instances
-                newEntities = assets.map(asset => editor.call('template:addInstance', asset, parent));
-
-                // select them
+            function onInstancesAdded(entities, ctrlDown) {
                 editor.call('selector:history', false);
-                editor.call('selector:set', 'entity', newEntities);
+                editor.call('selector:set', 'entity', entities);
                 editor.once('selector:change', () => {
                     editor.call('selector:history', true);
                 });
 
                 const vec = new pc.Vec3();
 
-                if (ui.Tree._ctrl && ui.Tree._ctrl()) {
+                if (ctrlDown) {
                     // position entities in front of camera based on aabb
                     const camera = editor.call('camera:current');
-                    const aabb = editor.call('entities:aabb', newEntities);
+                    const aabb = editor.call('entities:aabb', entities);
                     vec.copy(camera.forward).scale(aabb.halfExtents.length() * 2.2);
                     vec.add(camera.getPosition());
 
@@ -102,7 +106,7 @@ editor.once('load', function () {
                     vec.set(0, 0, 0);
                 }
 
-                newEntities.forEach(e => {
+                entities.forEach(e => {
                     e.history.enabled = false;
                     e.set('position', [vec.x, vec.y, vec.z]);
                     e.history.enabled = true;
@@ -110,6 +114,32 @@ editor.once('load', function () {
 
                 editor.call('viewport:render');
                 editor.call('viewport:focus');
+            }
+
+            function redo() {
+                newEntityIds = [];
+                let entitiesToSelect = [];
+
+                const ctrlDown = editor.call('hotkey:ctrl');
+
+                const childIndex = parent.get('children').length;
+
+                // add instances
+                editor.call('template:addMultipleInstances', assets.map(asset => { return { asset } }), parent, childIndex, entityIds => {
+                    if (newEntityIds) {
+                        newEntityIds = newEntityIds.concat(entityIds);
+
+                        cancelWaitForEntities = editor.call('entities:waitToExist', newEntityIds, 5000, entities => {
+                            cancelWaitForEntities = null;
+                            entitiesToSelect = entitiesToSelect.concat(entities);
+                            onInstancesAdded(entitiesToSelect, ctrlDown);
+                        });
+                    }
+                });
+
+                if (entitiesToSelect.length) {
+                    onInstancesAdded(entitiesToSelect, ctrlDown);
+                }
             }
 
             editor.call('history:add', {

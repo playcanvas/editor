@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var canvas = editor.call('viewport:canvas');
@@ -13,8 +13,8 @@ editor.once('load', function() {
         this.down = true;
         this.button = evt.button;
         this.mouse = !! mouse;
-    };
-    Tap.prototype.update = function(evt, rect) {
+    }
+    Tap.prototype.update = function (evt, rect) {
         var x = evt.clientX - rect.left;
         var y = evt.clientY - rect.top;
 
@@ -35,17 +35,17 @@ editor.once('load', function() {
         this.y = y;
     };
 
-    var taps = [ ];
+    var taps = [];
     // var tapMouse = new Tap({ clientX: 0, clientY: 0 }, { left: 0, top: 0 });
     var inViewport = false;
 
-    editor.method('viewport:inViewport', function() {
+    editor.method('viewport:inViewport', function () {
         return inViewport;
     });
 
-    var evtMouseMove = function(evt) {
+    var evtMouseMove = function (evt) {
         var rect = canvas.element.getBoundingClientRect();
-        for(var i = 0; i < taps.length; i++) {
+        for (let i = 0; i < taps.length; i++) {
             if (! taps[i].mouse)
                 continue;
 
@@ -73,10 +73,10 @@ editor.once('load', function() {
         }
     };
 
-    var evtMouseUp = function(evt) {
+    var evtMouseUp = function (evt) {
         var items = taps.slice(0);
 
-        for(var i = 0; i < items.length; i++) {
+        for (let i = 0; i < items.length; i++) {
         // if (tapMouse.down) {
             if (! items[i].mouse || ! items[i].down || items[i].button !== evt.button)
                 continue;
@@ -102,7 +102,7 @@ editor.once('load', function() {
         });
     };
 
-    canvas.element.addEventListener('mousedown', function(evt) {
+    canvas.element.addEventListener('mousedown', function (evt) {
         var rect = canvas.element.getBoundingClientRect();
 
         editor.emit('viewport:mouse:move', {
@@ -111,7 +111,7 @@ editor.once('load', function() {
             down: true
         });
 
-        var tap = new Tap(evt, rect, true)
+        var tap = new Tap(evt, rect, true);
         taps.push(tap);
 
         editor.emit('viewport:tap:start', tap, evt);
@@ -122,12 +122,12 @@ editor.once('load', function() {
         evt.preventDefault();
     }, false);
 
-    canvas.element.addEventListener('mouseover', function() {
+    canvas.element.addEventListener('mouseover', function () {
         editor.emit('viewport:hover', true);
         editor.call('viewport:render');
     }, false);
 
-    canvas.element.addEventListener('mouseleave', function(evt) {
+    canvas.element.addEventListener('mouseleave', function (evt) {
         // ignore tooltip
         var target = evt.toElement || evt.relatedTarget;
         if (target && target.classList.contains('cursor-tooltip'))

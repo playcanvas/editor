@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var editableTypes = {
@@ -17,16 +17,44 @@ editor.once('load', function() {
 
     assetInspector = new pcui.AssetInspector({
         assets: editor.call('assets:raw'),
+        entities: editor.call('entities:raw'),
         projectSettings: editor.call('settings:project'),
         history: editor.call('editor:history'),
-        editableTypes: editableTypes
+        editableTypes: editableTypes,
+        inspectorPanel: editor.call('layout.attributes'),
+        inspectorPanelSecondary: editor.call('layout.attributes.secondary')
     });
     assetInspector.once('destroy', () => {
         assetInspectorEvents.forEach(evt => evt.unbind());
         assetInspectorEvents = [];
     });
+    assetInspector.on('fullscreenMode:on', () => {
+        editor.call('layout.attributes.secondary').hidden = false;
+        editor.call('layout.hierarchy').hidden = true;
+        editor.call('layout.toolbar').hidden = true;
+        editor.call('layout.toolbar.launch').hidden = true;
+        editor.call('layout.viewport.camera').hidden = true;
+        editor.call('viewport:canvas').hidden = true;
+        editor.call('layout.attributes').class.add('layout-attributes-left');
+        editor.call('layout.attributes').resizable = 'right';
+    });
 
-    editor.on('attributes:beforeClear', function() {
+    assetInspector.on('fullscreenMode:off', () => {
+        editor.call('layout.attributes.secondary').hidden = true;
+        editor.call('layout.hierarchy').hidden = false;
+        editor.call('layout.toolbar').hidden = false;
+        editor.call('layout.toolbar.launch').hidden = false;
+        editor.call('layout.viewport.camera').hidden = false;
+        editor.call('viewport:canvas').hidden = false;
+        editor.call('layout.attributes').class.remove('layout-attributes-left');
+        editor.call('layout.attributes').resizable = 'left';
+    });
+
+    assetInspector.on('updateSecondaryPanelHeader', (text) => {
+        editor.call('layout.attributes.secondary').headerText = text;
+    });
+
+    editor.on('attributes:beforeClear', function () {
         assetInspector.unlink();
         if (assetInspector.parent) {
             assetInspector.parent.remove(assetInspector);
@@ -37,7 +65,7 @@ editor.once('load', function() {
         assetInspector.unlink();
     });
 
-    editor.on('attributes:inspect[asset]', function(assets) {
+    editor.on('attributes:inspect[asset]', function (assets) {
 
         // Set panel title
         var multi = assets.length > 1;
@@ -62,14 +90,14 @@ editor.once('load', function() {
             root.append(assetInspector);
         assetInspector.link(assets);
 
-        var events = [ ];
+        var events = [];
         var panel = editor.call('attributes:addPanel');
         panel.class.add('component');
         assetsPanel = panel;
         panel.once('destroy', function () {
             assetsPanel = null;
 
-            for(var i = 0; i < events.length; i++)
+            for (let i = 0; i < events.length; i++)
                 events[i].unbind();
 
             events = null;
@@ -85,7 +113,7 @@ editor.once('load', function() {
         assetInspector.hidden = !enabled;
     });
 
-    editor.method('attributes:assets:panel', function() {
+    editor.method('attributes:assets:panel', function () {
         return assetsPanel;
     });
 });

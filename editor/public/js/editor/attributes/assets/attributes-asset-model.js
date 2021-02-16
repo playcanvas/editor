@@ -1,10 +1,10 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var panelNodes = null;
 
     editor.method('attributes:asset:model:nodesPanel', function () {
-        return panelNodes
+        return panelNodes;
     });
 
     var panelToggles = {
@@ -13,9 +13,9 @@ editor.once('load', function() {
         'nodes': false
     };
 
-    editor.on('attributes:inspect[asset]', function(assets) {
+    editor.on('attributes:inspect[asset]', function (assets) {
 
-        for (var i = 0; i < assets.length; i++) {
+        for (let i = 0; i < assets.length; i++) {
             if (assets[i].get('type') !== 'model' || assets[i].get('source'))
                 return;
         }
@@ -28,12 +28,12 @@ editor.once('load', function() {
         panelNodes.flex = true;
         panelNodes.innerElement.style.flexDirection = 'column';
         panelNodes.foldable = true;
-        panelNodes.folded = panelToggles['nodes'];
-        panelNodes.on('fold', function() {
-            panelToggles['nodes'] = true;
+        panelNodes.folded = panelToggles.nodes;
+        panelNodes.on('fold', function () {
+            panelToggles.nodes = true;
         });
-        panelNodes.on('unfold', function() {
-            panelToggles['nodes'] = false;
+        panelNodes.on('unfold', function () {
+            panelToggles.nodes = false;
         });
         panelNodes.class.add('noHeader');
 

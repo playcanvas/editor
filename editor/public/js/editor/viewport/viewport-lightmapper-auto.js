@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
@@ -12,13 +12,13 @@ editor.once('load', function() {
     var queued = false;
 
 
-    editor.on('lightmapper:baked', function() {
+    editor.on('lightmapper:baked', function () {
         queued = false;
         timeLast = Date.now();
     });
 
 
-    editor.method('lightmapper:auto', function(value) {
+    editor.method('lightmapper:auto', function (value) {
         if (value === undefined)
             return state;
 
@@ -34,7 +34,7 @@ editor.once('load', function() {
 
 
     // track entities model assets loading state to re-bake
-    var rebakeEntity = function(entity, force) {
+    var rebakeEntity = function (entity, force) {
         if (! (state || force))
             return;
 
@@ -61,7 +61,7 @@ editor.once('load', function() {
 
                 loading = {
                     assetId: assetId,
-                    fn: function(asset) {
+                    fn: function (asset) {
                         delete entityAssetLoading[entity.get('resource_id')];
 
                         if (asset.id !== parseInt(entity.get('components.model.asset'), 10))
@@ -76,13 +76,13 @@ editor.once('load', function() {
         }
 
         editor.call('viewport:render');
-        editor.once('viewport:update', function() {
+        editor.once('viewport:update', function () {
             // console.log('rebake self');
-            editor.call('lightmapper:bake', [ entity ]);
+            editor.call('lightmapper:bake', [entity]);
         });
     };
 
-    var rebakeScene = function(force) {
+    var rebakeScene = function (force) {
         if (! (state || force))
             return;
 
@@ -92,7 +92,7 @@ editor.once('load', function() {
         if (! force && (Date.now() - timeLast) < timeDelay) {
             if (! queued) {
                 queued = true;
-                setTimeout(function() {
+                setTimeout(function () {
                     if (! queued) return;
                     rebakeScene();
                 }, (timeDelay - (Date.now() - timeLast)) + 16);
@@ -102,7 +102,7 @@ editor.once('load', function() {
 
         bakingNextFrame = true;
         editor.call('viewport:render');
-        editor.once('viewport:update', function() {
+        editor.once('viewport:update', function () {
             if (! bakingNextFrame)
                 return;
 
@@ -113,7 +113,7 @@ editor.once('load', function() {
     };
 
 
-    editor.on('viewport:update', function() {
+    editor.on('viewport:update', function () {
         if (queued && (Date.now() - timeLast) >= timeDelay)
             rebakeScene();
     });
@@ -121,9 +121,9 @@ editor.once('load', function() {
 
     // bake once all assets are loaded on first time-load
     var loadingAssets = { };
-    var onLoadStart = function(asset) {
+    var onLoadStart = function (asset) {
         loadingAssets[asset.id] = true;
-        asset.once('load', function() {
+        asset.once('load', function () {
             delete loadingAssets[asset.id];
 
             if (Object.keys(loadingAssets).length === 0) {
@@ -135,37 +135,37 @@ editor.once('load', function() {
     app.assets.on('load:start', onLoadStart);
 
     // re-bake on scene switches
-    editor.on('scene:load', function() {
+    editor.on('scene:load', function () {
         // needs to wait 3 frames
         // before it is safe to re-bake
         // don't ask why :D
 
         editor.call('viewport:render');
-        editor.once('viewport:update', function() {
+        editor.once('viewport:update', function () {
             editor.call('viewport:render');
-            editor.once('viewport:update', function() {
+            editor.once('viewport:update', function () {
                 rebakeScene(true);
             });
         });
     });
 
     // re-bake on scene settings loaded
-    editor.on('sceneSettings:load', function() {
+    editor.on('sceneSettings:load', function () {
         rebakeScene(true);
     });
 
 
-    var evtRebakeEntity = function() {
+    var evtRebakeEntity = function () {
         rebakeEntity(this);
     };
-    var evtRebakeLight = function() {
+    var evtRebakeLight = function () {
         if (! this.get('components.light.bake'))
             return;
 
         rebakeScene();
     };
 
-    var evtRebakeScene = function() {
+    var evtRebakeScene = function () {
         rebakeScene();
     };
 
@@ -195,17 +195,17 @@ editor.once('load', function() {
         'components.light.bake'
     ];
 
-    editor.on('entities:add', function(entity) {
+    editor.on('entities:add', function (entity) {
         // model
-        for(var i = 0; i < fieldsLocal.length; i++)
+        for (let i = 0; i < fieldsLocal.length; i++)
             entity.on(fieldsLocal[i] + ':set', evtRebakeEntity);
 
         // light
-        for(var i = 0; i < fieldsLight.length; i++)
+        for (let i = 0; i < fieldsLight.length; i++)
             entity.on(fieldsLight[i] + ':set', evtRebakeLight);
 
         // global
-        for(var i = 0; i < fieldsGlobal.length; i++)
+        for (let i = 0; i < fieldsGlobal.length; i++)
             entity.on(fieldsGlobal[i] + ':set', evtRebakeScene);
     });
 

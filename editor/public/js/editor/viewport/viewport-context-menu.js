@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var currentEntity = null;
@@ -14,7 +14,7 @@ editor.once('load', function() {
         var menuData = { };
         var entityMenuData = editor.call('menu:get', 'entity');
         if (entityMenuData) {
-            for (var key in entityMenuData.items) {
+            for (const key in entityMenuData.items) {
                 menuData[key] = entityMenuData.items[key];
             }
         }

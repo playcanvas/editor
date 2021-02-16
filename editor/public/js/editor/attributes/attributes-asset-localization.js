@@ -1,7 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    editor.on('attributes:inspect[asset]', function(assets) {
+    editor.on('attributes:inspect[asset]', function (assets) {
         const hasPcuiAssetInspectors = editor.call('users:hasFlag', 'hasPcuiAssetInspectors');
         if (hasPcuiAssetInspectors)
             return;
@@ -131,7 +131,7 @@ editor.once('load', function () {
 
         // clear events
         panel.on('destroy', function () {
-            for (var i = 0; i < events.length; i++) {
+            for (let i = 0; i < events.length; i++) {
                 events[i].unbind();
             }
             events.length = 0;

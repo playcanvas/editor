@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var inViewport = false;
@@ -8,7 +8,7 @@ editor.once('load', function() {
     var nodeLast = null;
     var delay = 500;
 
-    editor.on('viewport:hover', function(state) {
+    editor.on('viewport:hover', function (state) {
         inViewport = state;
 
         if (! inViewport) {
@@ -20,11 +20,11 @@ editor.once('load', function() {
         }
     });
 
-    var showTooltip = function() {
+    var showTooltip = function () {
         editor.call('cursor:text', nameLast);
     };
 
-    var checkPicked = function(node, picked) {
+    var checkPicked = function (node, picked) {
         var name = '';
 
         if (inViewport && node) {
@@ -35,7 +35,7 @@ editor.once('load', function() {
                     name = entity.name;
             } else if (node._userCamera) {
                 name = '@';
-                editor.call('users:loadOne', node._userCamera, function(data) {
+                editor.call('users:loadOne', node._userCamera, function (data) {
                     name = '@' + (data && data.username || 'anonymous');
                 });
             } else if (node.model && node.model.asset && node.model.model && picked && picked.node) {
@@ -65,6 +65,6 @@ editor.once('load', function() {
             nodeLast = node;
     };
 
-    editor.on('viewport:pick:node', checkPicked)
+    editor.on('viewport:pick:node', checkPicked);
     editor.on('viewport:pick:hover', checkPicked);
 });

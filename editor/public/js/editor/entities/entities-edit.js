@@ -18,7 +18,7 @@ editor.once('load', function () {
     // Maintains the childToParent index
     editor.on('entities:add', function (entity) {
         var children = entity.get('children');
-        for (var i = 0; i < children.length; i++)
+        for (let i = 0; i < children.length; i++)
             childToParent[children[i]] = entity.get('resource_id');
 
         entity.on('children:insert', function (value) {
@@ -31,9 +31,10 @@ editor.once('load', function () {
 
     /**
      * Updates entity references to the old entity to point to the new entity (which could also be null)
-     * @param {Object} entityReferencesMap See addEntity
-     * @param {String} oldValue The resource id that we want to replace
-     * @param {String} newValue The new resource id that we want our references to point to
+     *
+     * @param {object} entityReferencesMap - See addEntity
+     * @param {string} oldValue - The resource id that we want to replace
+     * @param {string} newValue - The new resource id that we want our references to point to
      */
     var updateEntityReferenceFields = function (entityReferencesMap, oldValue, newValue) {
         var referencesToThisEntity = entityReferencesMap[oldValue];
@@ -52,11 +53,12 @@ editor.once('load', function () {
 
     /**
      * Adds an entity to the scene.
-     * @param {Observer} entity The entity
-     * @param {Observer} parent The parent of the entity
-     * @param {Boolean} select Whether to select the new entity after it's added
-     * @param {Number} ind The index in the parent's children array where we want to insert the entity
-     * @param {Object} entityReferencesMap A dictionary holding references to entities
+     *
+     * @param {Observer} entity - The entity
+     * @param {Observer} parent - The parent of the entity
+     * @param {boolean} select - Whether to select the new entity after it's added
+     * @param {number} ind - The index in the parent's children array where we want to insert the entity
+     * @param {object} entityReferencesMap - A dictionary holding references to entities
      * that need to be updated if we undo adding this entity. The format of this object looks like so:
      * targetResourceId: {
      *   sourceEntityGuid: GUID,
@@ -150,9 +152,11 @@ editor.once('load', function () {
 
     /**
      * Removes an entity from the scene
-     * @param {Observer} entity The entity
-     * @param {Object} entityReferencesMap Holds references to entities that need to be updated when
+     *
+     * @param {Observer} entity - The entity
+     * @param {object} entityReferencesMap - Holds references to entities that need to be updated when
      * this entity is removed. See addEntity for more.
+     * @param forgetDeletedEntities
      */
     var removeEntity = function (entity, entityReferencesMap, forgetDeletedEntities) {
         entityReferencesMap = entityReferencesMap || {};
@@ -207,8 +211,9 @@ editor.once('load', function () {
 
     /**
      * Gets the resource id of the parent of the entityh with the specified resource id.
-     * @param {String} childResourceId The resource id of an entity
-     * @returns {String} The resource id of the entity's parent
+     *
+     * @param {string} childResourceId - The resource id of an entity
+     * @returns {string} The resource id of the entity's parent
      */
     editor.method('entities:getParentResourceId', function (childResourceId) {
         return childToParent[childResourceId];
@@ -217,8 +222,9 @@ editor.once('load', function () {
     /**
      * Updates the childToParent map with a new child-parent resource id pair. Used
      * from other methods that edit the scene hierarchy.
-     * @param {String} childResourceId The resource id of the child entity
-     * @param {String} parentResourceId The resource id of the parent entity
+     *
+     * @param {string} childResourceId - The resource id of the child entity
+     * @param {string} parentResourceId - The resource id of the parent entity
      */
     editor.method('entities:updateChildToParentIndex', function (childResourceId, parentResourceId) {
         childToParent[childResourceId] = parentResourceId;
@@ -226,6 +232,7 @@ editor.once('load', function () {
 
     /**
      * Gets an entity from the deleted cache
+     *
      * @returns {Observer} The deleted entity
      */
     editor.method('entities:getFromDeletedCache', function (resourceId) {

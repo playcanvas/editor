@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     var time;
     var rect = new pc.Vec4(0, 0, 1, 1);
 
@@ -9,7 +9,7 @@ editor.once('load', function() {
         if (! this.scene)
             this.scene = new pc.Scene();
 
-        for (var key in this.systems) {
+        for (const key in this.systems) {
             if (this.systems.hasOwnProperty(key))
                 this.systems[key]._inTools = true;
         }
@@ -35,13 +35,13 @@ editor.once('load', function() {
         }
     };
 
-    editor.method('viewport:application', function() {
+    editor.method('viewport:application', function () {
         return Application;
     });
 
     Application = pc.inherits(Application, pc.Application);
 
-    Application.prototype.render = function() {
+    Application.prototype.render = function () {
         this.root.syncHierarchy();
 
         this.fire('prerender', null);
@@ -74,9 +74,9 @@ editor.once('load', function() {
         return dt;
     };
 
-    Application.prototype.makeTick = function() {
+    Application.prototype.makeTick = function () {
         var app = this;
-        return function() {
+        return function () {
             requestAnimationFrame(app.tick);
 
             pc.app = app;
@@ -115,18 +115,18 @@ editor.once('load', function() {
 
         var gridLayer = editor.call('gizmo:layers', 'Viewport Grid');
 
-         if (this.grid) {
-             gridLayer.removeMeshInstances(this.grid.model.meshInstances);
-             this.grid.destroy();
-         }
+        if (this.grid) {
+            gridLayer.removeMeshInstances(this.grid.model.meshInstances);
+            this.grid.destroy();
+        }
 
-         settings.gridDivisions = parseInt(settings.gridDivisions, 10);
-         if (settings.gridDivisions > 0 && settings.gridDivisionSize > 0) {
-             var size = settings.gridDivisions * settings.gridDivisionSize;
-             this.grid = new pc.Grid(this.graphicsDevice, size, settings.gridDivisions);
-             this.grid.model.meshInstances[0].aabb.halfExtents.set(size / 2, size / 2, size / 2);
-             gridLayer.addMeshInstances(this.grid.model.meshInstances);
-         }
+        settings.gridDivisions = parseInt(settings.gridDivisions, 10);
+        if (settings.gridDivisions > 0 && settings.gridDivisionSize > 0) {
+            var size = settings.gridDivisions * settings.gridDivisionSize;
+            this.grid = new pc.Grid(this.graphicsDevice, size, settings.gridDivisions);
+            this.grid.model.meshInstances[0].aabb.halfExtents.set(size / 2, size / 2, size / 2);
+            gridLayer.addMeshInstances(this.grid.model.meshInstances);
+        }
 
         this.redraw = true;
     };

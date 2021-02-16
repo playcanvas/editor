@@ -1,7 +1,7 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    editor.on('attributes:inspect[asset]', function(assets) {
+    editor.on('attributes:inspect[asset]', function (assets) {
         if (assets.length !== 1 || assets[0].get('type') !== 'scene' || ! assets[0].get('source'))
             return;
         const hasPcuiAssetInspectors = editor.call('users:hasFlag', 'hasPcuiAssetInspectors');
@@ -9,7 +9,7 @@ editor.once('load', function() {
             return;
 
         var asset = assets[0];
-        var events = [ ];
+        var events = [];
 
         // contents
         var panelContents = editor.call('attributes:addPanel', {
@@ -30,11 +30,11 @@ editor.once('load', function() {
         // meta
         var panelMeta = editor.call('attributes:addPanel');
         panelMeta.hidden = ! asset.get('meta');
-        events.push(asset.on('meta:set', function() {
+        events.push(asset.on('meta:set', function () {
             panelMeta.hidden = false;
             labelEmptyMeta.hidden = true;
         }));
-        events.push(asset.on('meta:unset', function() {
+        events.push(asset.on('meta:unset', function () {
             panelMeta.hidden = true;
             labelEmptyMeta.hidden = false;
         }));
@@ -46,7 +46,7 @@ editor.once('load', function() {
             parent: panelMeta,
             name: 'Animation'
         });
-        var animationCheck = function(available) {
+        var animationCheck = function (available) {
             if (available) {
                 fieldAnimation.value = 'yes';
             } else {
@@ -75,9 +75,9 @@ editor.once('load', function() {
         fieldNoTextures.class.add('no-data');
         fieldTextures.parent.appendBefore(fieldNoTextures, fieldTextures);
         // add all textures
-        var addTextures = function(list) {
+        var addTextures = function (list) {
             fieldTextures.clear();
-            for(var i = 0; i < list.length; i++) {
+            for (let i = 0; i < list.length; i++) {
                 var item = new ui.ListItem({
                     text: list[i].name
                 });
@@ -100,10 +100,10 @@ editor.once('load', function() {
             fieldTextures.hidden = true;
         }
         // might be set later
-        events.push(asset.on('meta.textures:set', function() {
+        events.push(asset.on('meta.textures:set', function () {
             addTextures(asset.get('meta.textures'));
         }));
-        events.push(asset.on('meta.textures:unset', function() {
+        events.push(asset.on('meta.textures:unset', function () {
             fieldTextures.clear();
             fieldTextures.hidden = true;
             fieldNoTextures.hidden = false;
@@ -120,9 +120,9 @@ editor.once('load', function() {
         fieldMaterials.flexGrow = 1;
         fieldMaterials.selectable = false;
         // add all materials
-        var addMaterials = function(list) {
+        var addMaterials = function (list) {
             fieldMaterials.clear();
-            for(var i = 0; i < list.length; i++) {
+            for (let i = 0; i < list.length; i++) {
                 var item = new ui.ListItem({
                     text: list[i].name
                 });
@@ -134,20 +134,20 @@ editor.once('load', function() {
         if (materials && materials.length)
             addMaterials(materials);
         // might be set/unset later
-        events.push(asset.on('meta.materials:set', function(materials) {
-            for(var i = 0; i < materials.length; i++)
+        events.push(asset.on('meta.materials:set', function (materials) {
+            for (let i = 0; i < materials.length; i++)
                 materials[i] = materials[i].json();
 
             addMaterials(materials);
         }));
-        events.push(asset.on('meta.materials:unset', function() {
+        events.push(asset.on('meta.materials:unset', function () {
             fieldMaterials.clear();
         }));
 
 
         // clear up events
-        panelContents.once('destroy', function() {
-            for(var i = 0; i < events.length; i++)
+        panelContents.once('destroy', function () {
+            for (let i = 0; i < events.length; i++)
                 events[i].unbind();
         });
     });

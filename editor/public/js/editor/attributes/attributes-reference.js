@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var root = editor.call('layout.root');
@@ -7,7 +7,7 @@ editor.once('load', function() {
     var missing = { };
     var referenceIndex = {};
 
-    var sanitize = function(str) {
+    var sanitize = function (str) {
         return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
     };
 
@@ -23,11 +23,11 @@ editor.once('load', function() {
         }
     });
 
-    editor.method('attributes:reference:addLegacy', function(args) {
+    editor.method('attributes:reference:addLegacy', function (args) {
         index[args.name] = editor.call('attributes:reference', args);
     });
 
-    editor.method('attributes:reference:attach', function(name, target, element, panel) {
+    editor.method('attributes:reference:attach', function (name, target, element, panel) {
         var tooltip = index[name];
 
         if (! tooltip) {
@@ -48,7 +48,7 @@ editor.once('load', function() {
     });
 
 
-    editor.method('attributes:reference:template', function(args) {
+    editor.method('attributes:reference:template', function (args) {
         var html = '';
 
         if (args.title)
@@ -72,7 +72,7 @@ editor.once('load', function() {
     });
 
 
-    editor.method('attributes:reference', function(args) {
+    editor.method('attributes:reference', function (args) {
         var tooltip = new ui.Tooltip({
             align: 'right'
         });
@@ -85,13 +85,13 @@ editor.once('load', function() {
         var timerHover = null;
         var timerBlur = null;
 
-        tooltip.attach = function(args) {
+        tooltip.attach = function (args) {
             var target = args.target;
             var element = args.element;
             var targetPanel = args.panel || panel;
             targetPanel = targetPanel.dom || targetPanel.element;
 
-            var show = function() {
+            var show = function () {
                 if (! target || target.hidden) return;
                 // fix top offset for new framework
                 const topOffset = (element.ui instanceof pcui.Element ? 6 : 16);
@@ -99,23 +99,23 @@ editor.once('load', function() {
                 tooltip.hidden = false;
             };
 
-            var evtHide = function() {
+            var evtHide = function () {
                 clearTimeout(timerHover);
                 clearTimeout(timerBlur);
                 tooltip.hidden = true;
             };
 
-            var evtHover = function() {
+            var evtHover = function () {
                 clearTimeout(timerBlur);
                 timerHover = setTimeout(show, 500);
             };
 
-            var evtBlur = function() {
+            var evtBlur = function () {
                 clearTimeout(timerHover);
                 timerBlur = setTimeout(hide, 200);
             };
 
-            var evtClick = function() {
+            var evtClick = function () {
                 clearTimeout(timerBlur);
                 clearTimeout(timerHover);
                 show();
@@ -123,7 +123,7 @@ editor.once('load', function() {
 
             target.on('hide', evtHide);
 
-            target.once('destroy', function() {
+            target.once('destroy', function () {
                 element.removeEventListener('mouseover', evtHover);
                 element.removeEventListener('mouseout', evtBlur);
                 element.removeEventListener('click', evtClick);
@@ -140,11 +140,11 @@ editor.once('load', function() {
             element.addEventListener('click', evtClick, false);
         };
 
-        var hide = function() {
+        var hide = function () {
             tooltip.hidden = true;
         };
 
-        tooltip.on('hover', function() {
+        tooltip.on('hover', function () {
             clearTimeout(timerBlur);
         });
 

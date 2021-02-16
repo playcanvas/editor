@@ -1,22 +1,20 @@
 editor.once('load', function () {
     'use strict';
     var app = null;
-    var entities = [ ];
+    var entities = [];
 
     var BOUNDING_BOX_MIN_EXTENTS = new pc.Vec3(0.01, 0.01, 0.01);
 
     var visible = true;
 
     var color = new pc.Color(1, 1, 1);
-    var colorBehind = new pc.Color(1, 1, 1, .2);
-
-    var colorNew = new pc.Color(1, .5, 0);
+    var colorBehind = new pc.Color(1, 1, 1, 0.2);
 
     var immediateRenderOptions;
     var immediateMaskRenderOptions;
 
-    var points = [ ];
-    for(var c = 0; c < 32; c++)
+    var points = [];
+    for (var c = 0; c < 32; c++)
         points[c] = new pc.Vec3();
 
     // temp variables for getBoundingBoxForHierarchy
@@ -32,32 +30,32 @@ editor.once('load', function () {
     // tmp variable used to render bounding box
     var _selectionBB = new pc.BoundingBox();
 
-    editor.on('selector:change', function(type, items) {
+    editor.on('selector:change', function (type, items) {
         if (type === 'entity') {
-            entities = items.map(function(item) {
+            entities = items.map(function (item) {
                 return item.entity;
             });
         } else {
-            entities = [ ];
+            entities = [];
         }
     });
 
-    editor.method('gizmo:boundingbox:visible', function(state) {
+    editor.method('gizmo:boundingbox:visible', function (state) {
         if (state !== visible) {
             visible = state;
             editor.call('viewport:render');
         }
     });
 
-    editor.method('viewport:render:aabb', function(aabb) {
+    editor.method('viewport:render:aabb', function (aabb) {
         if (! app) return; // webgl not available
 
         if (! visible) return;
 
         var ind = 0;
-        for(var x = -1; x <= 1; x += 2) {
-            for(var y = -1; y <= 1; y += 2) {
-                for(var z = -1; z <= 1; z += 2) {
+        for (let x = -1; x <= 1; x += 2) {
+            for (let y = -1; y <= 1; y += 2) {
+                for (var z = -1; z <= 1; z += 2) {
                     points[ind * 4].copy(aabb.halfExtents);
                     points[ind * 4].x *= x;
                     points[ind * 4].y *= y;
@@ -65,13 +63,13 @@ editor.once('load', function () {
                     points[ind * 4].add(aabb.center);
 
                     points[ind * 4 + 1].copy(points[ind * 4]);
-                    points[ind * 4 + 1].x -= aabb.halfExtents.x * .3 * x;
+                    points[ind * 4 + 1].x -= aabb.halfExtents.x * 0.3 * x;
 
                     points[ind * 4 + 2].copy(points[ind * 4]);
-                    points[ind * 4 + 2].y -= aabb.halfExtents.y * .3 * y;
+                    points[ind * 4 + 2].y -= aabb.halfExtents.y * 0.3 * y;
 
                     points[ind * 4 + 3].copy(points[ind * 4]);
-                    points[ind * 4 + 3].z -= aabb.halfExtents.z * .3 * z;
+                    points[ind * 4 + 3].z -= aabb.halfExtents.z * 0.3 * z;
 
                     app.renderLine(points[ind * 4], points[ind * 4 + 1], colorBehind, immediateRenderOptions);
                     app.renderLine(points[ind * 4], points[ind * 4 + 2], colorBehind, immediateRenderOptions);
@@ -102,7 +100,7 @@ editor.once('load', function () {
         }
 
         var children = root.children;
-        for(var i = 0; i < children.length; i++) {
+        for (let i = 0; i < children.length; i++) {
             if (children[i].__editor || ! (children[i] instanceof pc.Entity))
                 continue;
 
@@ -136,7 +134,7 @@ editor.once('load', function () {
             }
 
             if (meshInstances) {
-                for(var i = 0; i < meshInstances.length; i++) {
+                for (let i = 0; i < meshInstances.length; i++) {
                     if (meshInstances[i]._hidden)
                         continue;
 
@@ -156,7 +154,7 @@ editor.once('load', function () {
 
         // next is the collision bounding box
         if (entity.collision) {
-            switch(entity.collision.type) {
+            switch (entity.collision.type) {
                 case 'box':
                     _tmpBB.center.set(0, 0, 0);
                     _tmpBB.halfExtents.copy(entity.collision.halfExtents);
@@ -206,12 +204,12 @@ editor.once('load', function () {
         // the particle system
         if (entity.particlesystem) {
             if (entity.particlesystem.emitter) {
-                _tmpBB.center.set(0,0,0);
+                _tmpBB.center.set(0, 0, 0);
                 _tmpBB.copy(entity.particlesystem.emitter.localBounds);
                 resultBB.setFromTransformedAabb(_tmpBB, entity.getWorldTransform());
                 return resultBB;
             } else if (entity.particlesystem.emitterShape === pc.EMITTERSHAPE_BOX) {
-                _tmpBB.center.set(0,0,0);
+                _tmpBB.center.set(0, 0, 0);
                 _tmpBB.halfExtents.copy(entity.particlesystem.emitterExtents).scale(0.5);
                 resultBB.setFromTransformedAabb(_tmpBB, entity.getWorldTransform());
                 return resultBB;
@@ -238,11 +236,11 @@ editor.once('load', function () {
         return resultBB;
     };
 
-    editor.method('entities:getBoundingBoxForEntity', function(entity) {
+    editor.method('entities:getBoundingBoxForEntity', function (entity) {
         return getBoundingBoxForEntity(entity, _resultBB);
     });
 
-    editor.once('viewport:load', function() {
+    editor.once('viewport:load', function () {
         app = editor.call('viewport:app');
 
         immediateRenderOptions = {
@@ -255,14 +253,14 @@ editor.once('load', function () {
             mask: GIZMO_MASK
         };
 
-        editor.on('viewport:postUpdate', function() {
+        editor.on('viewport:postUpdate', function () {
             if (! entities.length)
                 return;
 
             // firstBB = true;
             var noEntities = true;
 
-            for(var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 if (! entities[i])
                     continue;
 

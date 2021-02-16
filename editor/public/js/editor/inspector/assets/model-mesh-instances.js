@@ -95,7 +95,7 @@ Object.assign(pcui, (function () {
                 this._loading = 0;
 
                 this._nodes = [];
-                for (var i = 0; i < data.model.meshInstances.length; i++)
+                for (let i = 0; i < data.model.meshInstances.length; i++)
                     this._nodes[i] = data.model.nodes[data.model.meshInstances[i].node].name;
 
                 this._updateJsonMeshInstances();
@@ -128,7 +128,7 @@ Object.assign(pcui, (function () {
                 this._progress.value = 1;
                 this._progress.hidden = true;
                 if (this.parent) {
-                    this.parent.headerText = `MESH INSTANCES [${meshNames.length}]`; 
+                    this.parent.headerText = `MESH INSTANCES [${meshNames.length}]`;
                 }
                 this._assetElements.forEach((assetElement, ind) => {
                     assetElement.text = `[${ind}] ${meshNames[ind] || 'node'}`;

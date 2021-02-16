@@ -1,5 +1,5 @@
-editor.once('load', function() {
-    'use strict'
+editor.once('load', function () {
+    'use strict';
 
     var panel = editor.call('layout.hierarchy');
 
@@ -22,7 +22,7 @@ editor.once('load', function() {
 
     treeView.createDropTarget(panel.content);
 
-    editor.on('permissions:writeState', function(state) {
+    editor.on('permissions:writeState', function (state) {
         treeView.writePermissions = state;
     });
 
@@ -38,7 +38,7 @@ editor.once('load', function() {
     });
 
     // append all treeItems according to child order
-    editor.on('entities:load', function() {
+    editor.on('entities:load', function () {
         treeView.entities = editor.call('entities:raw');
     });
 

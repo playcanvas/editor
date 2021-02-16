@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
@@ -6,7 +6,7 @@ editor.once('load', function() {
     var root = editor.call('layout.attributes');
     root.headerText = title;
 
-    var clearPanel = function() {
+    var clearPanel = function () {
         editor.emit('attributes:beforeClear');
         root.clear();
         editor.emit('attributes:clear');
@@ -16,17 +16,17 @@ editor.once('load', function() {
     editor.method('attributes:clear', clearPanel);
 
     // set header
-    editor.method('attributes:header', function(text) {
+    editor.method('attributes:header', function (text) {
         root.headerText = text;
     });
 
     // return root panel
-    editor.method('attributes.rootPanel', function() {
+    editor.method('attributes.rootPanel', function () {
         return root;
     });
 
     // add panel
-    editor.method('attributes:addPanel', function(args) {
+    editor.method('attributes:addPanel', function (args) {
         args = args || { };
 
         // panel
@@ -41,7 +41,7 @@ editor.once('load', function() {
         return panel;
     });
 
-    var historyState = function(item, state) {
+    var historyState = function (item, state) {
         if (item.history !== undefined) {
             if (typeof(item.history) === 'boolean') {
                 item.history = state;
@@ -60,21 +60,21 @@ editor.once('load', function() {
         return args.paths ? args.paths[index] : args.path;
     };
 
-    editor.method('attributes:linkField', function(args) {
+    editor.method('attributes:linkField', function (args) {
         var update, changeField, changeFieldQueue;
         args.field._changing = false;
-        var events = [ ];
+        var events = [];
 
         if (! (args.link instanceof Array))
-            args.link = [ args.link ];
+            args.link = [args.link];
 
-        update = function() {
+        update = function () {
             var different = false;
             var path = pathAt(args, 0);
             var value = args.link[0].has(path) ? args.link[0].get(path) : undefined;
             if (args.type === 'rgb') {
                 if (value) {
-                    for(var i = 1; i < args.link.length; i++) {
+                    for (let i = 1; i < args.link.length; i++) {
                         path = pathAt(args, i);
                         if (! value.equals(args.link[i].get(path))) {
                             value = null;
@@ -84,13 +84,13 @@ editor.once('load', function() {
                     }
                 }
                 if (value) {
-                    value = value.map(function(v) {
+                    value = value.map(function (v) {
                         return Math.floor(v * 255);
                     });
                 }
             } else if (args.type === 'asset') {
                 var countUndefined = value === undefined ? 1 : 0;
-                for(var i = 1; i < args.link.length; i++) {
+                for (let i = 1; i < args.link.length; i++) {
                     path = pathAt(args, i);
                     if (!args.link[i].has(path)) {
                         countUndefined++;
@@ -127,7 +127,7 @@ editor.once('load', function() {
                     args.field.class.remove('null');
                 }
             } else if (args.type === 'entity' || ! args.type) {
-                for(var i = 1; i < args.link.length; i++) {
+                for (let i = 1; i < args.link.length; i++) {
                     path = pathAt(args, i);
                     if (value !== args.link[i].get(path)) {
                         value = 'various';
@@ -143,7 +143,7 @@ editor.once('load', function() {
                 }
             } else {
                 var valueFound = false;
-                for(var i = 0; i < args.link.length; i++) {
+                for (let i = 0; i < args.link.length; i++) {
                     path = pathAt(args, i);
                     if (! args.link[i].has(path))
                         continue;
@@ -178,7 +178,7 @@ editor.once('load', function() {
             }
         };
 
-        changeField = function(value) {
+        changeField = function (value) {
             if (args.field._changing)
                 return;
 
@@ -193,21 +193,21 @@ editor.once('load', function() {
                 value = value.trim();
 
             if (args.type === 'rgb') {
-                value = value.map(function(v) {
+                value = value.map(function (v) {
                     return v / 255;
                 });
             } else if (args.type === 'asset') {
                 args.field.class.remove('null');
             }
 
-            var items = [ ];
+            var items = [];
 
             // set link value
             args.field._changing = true;
             if (args.type === "string" && args.trim)
                 args.field.value = value;
 
-            for(var i = 0; i < args.link.length; i++) {
+            for (let i = 0; i < args.link.length; i++) {
                 var path = pathAt(args, i);
                 if (! args.link[i].has(path)) continue;
 
@@ -226,9 +226,9 @@ editor.once('load', function() {
             if (args.type !== 'rgb' && ! args.slider && ! args.stopHistory) {
                 editor.call('history:add', {
                     name: pathAt(args, 0),
-                    undo: function() {
+                    undo: function () {
                         var different = false;
-                        for(var i = 0; i < items.length; i++) {
+                        for (let i = 0; i < items.length; i++) {
                             var path = pathAt(args, i);
                             var item = items[i].item.latest();
                             if (! item)
@@ -251,8 +251,8 @@ editor.once('load', function() {
                             args.field.class.remove('null');
                         }
                     },
-                    redo: function() {
-                        for(var i = 0; i < items.length; i++) {
+                    redo: function () {
+                        for (let i = 0; i < items.length; i++) {
                             var path = pathAt(args, i);
                             var item = items[i].item.latest();
                             if (! item)
@@ -273,12 +273,12 @@ editor.once('load', function() {
             }
         };
 
-        changeFieldQueue = function() {
+        changeFieldQueue = function () {
             if (args.field._changing)
                 return;
 
             args.field._changing = true;
-            setTimeout(function() {
+            setTimeout(function () {
                 args.field._changing = false;
                 update();
             }, 0);
@@ -287,10 +287,10 @@ editor.once('load', function() {
         var historyStart, historyEnd;
 
         if (args.type === 'rgb' || args.slider) {
-            historyStart = function() {
-                var items = [ ];
+            historyStart = function () {
+                var items = [];
 
-                for(var i = 0; i < args.link.length; i++) {
+                for (let i = 0; i < args.link.length; i++) {
                     var v = args.link[i].get(pathAt(args, i));
                     if (v instanceof Array)
                         v = v.slice(0);
@@ -304,12 +304,12 @@ editor.once('load', function() {
                 return items;
             };
 
-            historyEnd = function(items, value) {
+            historyEnd = function (items, value) {
                 // history
                 editor.call('history:add', {
                     name: pathAt(args, 0),
-                    undo: function() {
-                        for(var i = 0; i < items.length; i++) {
+                    undo: function () {
+                        for (let i = 0; i < items.length; i++) {
                             var item = items[i].item.latest();
                             if (! item)
                                 continue;
@@ -319,8 +319,8 @@ editor.once('load', function() {
                             historyState(item, true);
                         }
                     },
-                    redo: function() {
-                        for(var i = 0; i < items.length; i++) {
+                    redo: function () {
+                        for (let i = 0; i < items.length; i++) {
                             var item = items[i].item.latest();
                             if (! item)
                                 continue;
@@ -336,26 +336,26 @@ editor.once('load', function() {
 
         if (args.type === 'rgb') {
             var colorPickerOn = false;
-            events.push(args.field.on('click', function() {
+            events.push(args.field.on('click', function () {
                 colorPickerOn = true;
 
                 // set picker color
                 editor.call('picker:color', args.field.value);
 
-                var items = [ ];
+                var items = [];
 
                 // picking starts
-                var evtColorPickStart = editor.on('picker:color:start', function() {
+                var evtColorPickStart = editor.on('picker:color:start', function () {
                     items = historyStart();
                 });
 
                 // picked color
-                var evtColorPick = editor.on('picker:color', function(color) {
+                var evtColorPick = editor.on('picker:color', function (color) {
                     args.field.value = color;
                 });
 
-                var evtColorPickEnd = editor.on('picker:color:end', function() {
-                    historyEnd(items.slice(0), args.field.value.map(function(v) {
+                var evtColorPickEnd = editor.on('picker:color:end', function () {
+                    historyEnd(items.slice(0), args.field.value.map(function (v) {
                         return v / 255;
                     }));
                 });
@@ -366,12 +366,12 @@ editor.once('load', function() {
                 editor.call('picker:color:position', rectField.left - rectPicker.width, rectField.top);
 
                 // color changed, update picker
-                var evtColorToPicker = args.field.on('change', function() {
+                var evtColorToPicker = args.field.on('change', function () {
                     editor.call('picker:color:set', this.value);
                 });
 
                 // picker closed
-                editor.once('picker:color:close', function() {
+                editor.once('picker:color:close', function () {
                     evtColorPick.unbind();
                     evtColorPickStart.unbind();
                     evtColorPickEnd.unbind();
@@ -382,18 +382,18 @@ editor.once('load', function() {
             }));
 
             // close picker if field destroyed
-            args.field.once('destroy', function() {
+            args.field.once('destroy', function () {
                 if (colorPickerOn)
                     editor.call('picker:color:close');
             });
         } else if (args.slider) {
             var sliderRecords;
 
-            events.push(args.field.on('start', function() {
+            events.push(args.field.on('start', function () {
                 sliderRecords = historyStart();
             }));
 
-            events.push(args.field.on('end', function() {
+            events.push(args.field.on('end', function () {
                 historyEnd(sliderRecords.slice(0), args.field.value);
             }));
         }
@@ -401,13 +401,13 @@ editor.once('load', function() {
         update();
         events.push(args.field.on('change', changeField));
 
-        for(var i = 0; i < args.link.length; i++) {
+        for (let i = 0; i < args.link.length; i++) {
             events.push(args.link[i].on(pathAt(args, i) + ':set', changeFieldQueue));
             events.push(args.link[i].on(pathAt(args, i) + ':unset', changeFieldQueue));
         }
 
-        events.push(args.field.once('destroy', function() {
-            for(var i = 0; i < events.length; i++)
+        events.push(args.field.once('destroy', function () {
+            for (let i = 0; i < events.length; i++)
                 events[i].unbind();
         }));
 
@@ -415,7 +415,7 @@ editor.once('load', function() {
     });
 
     // add field
-    editor.method('attributes:addField', function(args) {
+    editor.method('attributes:addField', function (args) {
         var panel = args.panel;
 
         if (! panel) {
@@ -462,20 +462,20 @@ editor.once('load', function() {
 
         var field;
 
-        args.linkEvents = [ ];
+        args.linkEvents = [];
 
         // if we provide multiple paths for a single Observer then turn args.link into an array
         if (args.paths && args.paths instanceof Array && args.link && ! (args.link instanceof Array)) {
             var link = args.link;
             args.link = [];
-            for (var i = 0; i < args.paths.length; i++) {
+            for (let i = 0; i < args.paths.length; i++) {
                 args.link.push(link);
             }
         }
 
-        var linkField = args.linkField = function() {
+        var linkField = args.linkField = function () {
             if (args.link) {
-                var link = function(field, path) {
+                var link = function (field, path) {
                     var data = {
                         field: field,
                         type: args.type,
@@ -506,7 +506,7 @@ editor.once('load', function() {
                 };
 
                 if (field instanceof Array) {
-                    for(var i = 0; i < field.length; i++) {
+                    for (let i = 0; i < field.length; i++) {
                         var paths = args.paths;
 
                         if (paths) {
@@ -523,14 +523,14 @@ editor.once('load', function() {
             }
         };
 
-        var unlinkField = args.unlinkField = function() {
-            for(var i = 0; i < args.linkEvents.length; i++)
+        var unlinkField = args.unlinkField = function () {
+            for (let i = 0; i < args.linkEvents.length; i++)
                 args.linkEvents[i].unbind();
 
-            args.linkEvents = [ ];
+            args.linkEvents = [];
         };
 
-        switch(args.type) {
+        switch (args.type) {
             case 'string':
                 if (args.enum) {
                     field = new ui.SelectField({
@@ -581,7 +581,7 @@ editor.once('load', function() {
                     field.blurOnEnter = false;
                     field.renderChanges = false;
 
-                    field.element.addEventListener('keydown', function(evt) {
+                    field.element.addEventListener('keydown', function (evt) {
                         if (evt.keyCode !== 13 || ! field.value)
                             return;
 
@@ -595,7 +595,7 @@ editor.once('load', function() {
                         text: '&#57632'
                     });
                     btnAdd.flexGrow = 0;
-                    btnAdd.on('click', function() {
+                    btnAdd.on('click', function () {
                         if (! field.value)
                             return;
 
@@ -613,16 +613,16 @@ editor.once('load', function() {
 
                 var tagItems = { };
                 var tagIndex = { };
-                var tagList = [ ];
+                var tagList = [];
 
-                var onRemoveClick = function() {
+                var onRemoveClick = function () {
                     if (innerPanel.disabled)
                         return;
 
                     removeTag(this.tag);
                 };
 
-                var removeTag = function(tag) {
+                var removeTag = function (tag) {
                     if (tagType === 'string' && ! tag) {
                         return;
                     } else if (tag === null || tag === undefined) {
@@ -632,9 +632,9 @@ editor.once('load', function() {
                     if (! tagIndex.hasOwnProperty(tag))
                         return;
 
-                    var records = [ ];
+                    var records = [];
 
-                    for(var i = 0; i < args.link.length; i++) {
+                    for (let i = 0; i < args.link.length; i++) {
                         var path = pathAt(args, i);
                         if (args.link[i].get(path).indexOf(tag) === -1)
                             continue;
@@ -653,8 +653,8 @@ editor.once('load', function() {
                     if (!args.stopHistory) {
                         editor.call('history:add', {
                             name: pathAt(args, 0),
-                            undo: function() {
-                                for(var i = 0; i < records.length; i++) {
+                            undo: function () {
+                                for (let i = 0; i < records.length; i++) {
                                     var item = records[i].item.latest();
                                     if (! item)
                                         continue;
@@ -664,8 +664,8 @@ editor.once('load', function() {
                                     historyState(item, true);
                                 }
                             },
-                            redo: function() {
-                                for(var i = 0; i < records.length; i++) {
+                            redo: function () {
+                                for (let i = 0; i < records.length; i++) {
                                     var item = records[i].item.latest();
                                     if (! item)
                                         continue;
@@ -679,8 +679,8 @@ editor.once('load', function() {
                     }
                 };
 
-                var addTag = function(tag) {
-                    var records = [ ];
+                var addTag = function (tag) {
+                    var records = [];
 
                     // convert to number if needed
                     if (args.tagType === 'number') {
@@ -689,7 +689,7 @@ editor.once('load', function() {
                             return;
                     }
 
-                    for(var i = 0; i < args.link.length; i++) {
+                    for (let i = 0; i < args.link.length; i++) {
                         var path = pathAt(args, i);
                         if (args.link[i].get(path).indexOf(tag) !== -1)
                             continue;
@@ -708,8 +708,8 @@ editor.once('load', function() {
                     if (!args.stopHistory) {
                         editor.call('history:add', {
                             name: pathAt(args, 0),
-                            undo: function() {
-                                for(var i = 0; i < records.length; i++) {
+                            undo: function () {
+                                for (let i = 0; i < records.length; i++) {
                                     var item = records[i].item.latest();
                                     if (! item)
                                         continue;
@@ -719,8 +719,8 @@ editor.once('load', function() {
                                     historyState(item, true);
                                 }
                             },
-                            redo: function() {
-                                for(var i = 0; i < records.length; i++) {
+                            redo: function () {
+                                for (let i = 0; i < records.length; i++) {
                                     var item = records[i].item.latest();
                                     if (! item)
                                         continue;
@@ -734,7 +734,7 @@ editor.once('load', function() {
                     }
                 };
 
-                var onInsert = function(tag) {
+                var onInsert = function (tag) {
                     if (! tagIndex.hasOwnProperty(tag)) {
                         tagIndex[tag] = 0;
                         tagList.push(tag);
@@ -744,7 +744,7 @@ editor.once('load', function() {
                     insertElement(tag);
                 };
 
-                var onRemove = function(tag) {
+                var onRemove = function (tag) {
                     if (! tagIndex[tag])
                         return;
 
@@ -775,13 +775,13 @@ editor.once('load', function() {
                         }
                     }
 
-                    for (var i = 0; i < values.length; i++) {
+                    for (let i = 0; i < values.length; i++) {
                         var value = values[i];
                         onInsert(value);
                     }
                 };
 
-                var insertElement = function(tag) {
+                var insertElement = function (tag) {
                     if (! tagItems[tag]) {
                         sortTags();
 
@@ -824,8 +824,8 @@ editor.once('load', function() {
                     }
                 };
 
-                var sortTags = function() {
-                    tagList.sort(function(a, b) {
+                var sortTags = function () {
+                    tagList.sort(function (a, b) {
                         if (args.tagToString) {
                             a = args.tagToString(a);
                             b = args.tagToString(b);
@@ -835,9 +835,9 @@ editor.once('load', function() {
                             return 1;
                         } else if (a < b) {
                             return -1;
-                        } else {
-                            return 0;
                         }
+                        return 0;
+
                     });
                 };
 
@@ -845,14 +845,14 @@ editor.once('load', function() {
                     field.placeholder = args.placeholder;
 
                 // list
-                args.linkEvents = [ ];
+                args.linkEvents = [];
 
-                args.linkField = function() {
+                args.linkField = function () {
                     if (args.link) {
                         if (! (args.link instanceof Array))
-                            args.link = [ args.link ];
+                            args.link = [args.link];
 
-                        for(var i = 0; i < args.link.length; i++) {
+                        for (let i = 0; i < args.link.length; i++) {
                             var path = pathAt(args, i);
                             var tags = args.link[i].get(path);
 
@@ -863,7 +863,7 @@ editor.once('load', function() {
                             if (! tags)
                                 continue;
 
-                            for(var t = 0; t < tags.length; t++) {
+                            for (var t = 0; t < tags.length; t++) {
                                 if (tagType === 'string' && ! tags[t]) {
                                     continue;
                                 } else if (tags[t] === null || tags[t] === undefined) {
@@ -882,20 +882,20 @@ editor.once('load', function() {
 
                     sortTags();
 
-                    for(var i = 0; i < tagList.length; i++)
+                    for (let i = 0; i < tagList.length; i++)
                         insertElement(tagList[i]);
                 };
 
-                args.unlinkField = function() {
-                    for(var i = 0; i < args.linkEvents.length; i++)
+                args.unlinkField = function () {
+                    for (let i = 0; i < args.linkEvents.length; i++)
                         args.linkEvents[i].unbind();
 
-                    args.linkEvents = [ ];
+                    args.linkEvents = [];
 
-                    for(var key in tagItems)
+                    for (const key in tagItems)
                         tagsPanel.innerElement.removeChild(tagItems[key]);
 
-                    tagList = [ ];
+                    tagList = [];
                     tagIndex = { };
                     tagItems = { };
                 };
@@ -983,9 +983,9 @@ editor.once('load', function() {
             case 'vec3':
             case 'vec4':
                 var channels = parseInt(args.type[3], 10);
-                field = [ ];
+                field = [];
 
-                for(var i = 0; i < channels; i++) {
+                for (let i = 0; i < channels; i++) {
                     field[i] = new ui.NumberField();
                     field[i].flexGrow = 1;
                     field[i].style.width = '24px';
@@ -1023,7 +1023,7 @@ editor.once('load', function() {
                 linkField();
 
                 var colorPickerOn = false;
-                field.on('click', function() {
+                field.on('click', function () {
                     colorPickerOn = true;
                     var first = true;
 
@@ -1031,12 +1031,12 @@ editor.once('load', function() {
                     editor.call('picker:color', field.value);
 
                     // picking starts
-                    var evtColorPickStart = editor.on('picker:color:start', function() {
+                    var evtColorPickStart = editor.on('picker:color:start', function () {
                         first = true;
                     });
 
                     // picked color
-                    var evtColorPick = editor.on('picker:color', function(color) {
+                    var evtColorPick = editor.on('picker:color', function (color) {
                         first = false;
                         field.value = color;
                     });
@@ -1047,12 +1047,12 @@ editor.once('load', function() {
                     editor.call('picker:color:position', rectField.left - rectPicker.width, rectField.top);
 
                     // color changed, update picker
-                    var evtColorToPicker = field.on('change', function() {
+                    var evtColorToPicker = field.on('change', function () {
                         editor.call('picker:color:set', this.value);
                     });
 
                     // picker closed
-                    editor.once('picker:color:close', function() {
+                    editor.once('picker:color:close', function () {
                         evtColorPick.unbind();
                         evtColorPickStart.unbind();
                         evtColorToPicker.unbind();
@@ -1062,7 +1062,7 @@ editor.once('load', function() {
                 });
 
                 // close picker if field destroyed
-                field.on('destroy', function() {
+                field.on('destroy', function () {
                     if (colorPickerOn)
                         editor.call('picker:color:close');
                 });
@@ -1111,17 +1111,17 @@ editor.once('load', function() {
                 btnRemove.parent = panel;
                 btnRemove.flexGrow = 0;
 
-                fieldTitle.on('click', function() {
+                fieldTitle.on('click', function () {
                     var asset = editor.call('assets:get', field.value);
                     editor.call('picker:asset', {
                         type: args.kind,
                         currentAsset: asset
                     });
 
-                    evtPick = editor.once('picker:asset', function(asset) {
+                    evtPick = editor.once('picker:asset', function (asset) {
                         var oldValues = { };
                         if (args.onSet && args.link && args.link instanceof Array) {
-                            for(var i = 0; i < args.link.length; i++) {
+                            for (let i = 0; i < args.link.length; i++) {
                                 var id = 0;
                                 if (args.link[i]._type === 'asset') {
                                     id = args.link[i].get('id');
@@ -1141,7 +1141,7 @@ editor.once('load', function() {
                         if (args.onSet) args.onSet(asset, oldValues);
                     });
 
-                    editor.once('picker:asset:close', function() {
+                    editor.once('picker:asset:close', function () {
                         if (evtPick) {
                             evtPick.unbind();
                             evtPick = null;
@@ -1150,13 +1150,13 @@ editor.once('load', function() {
                     });
                 });
 
-                field.on('click', function() {
+                field.on('click', function () {
                     if (! this.value)
                         return;
 
                     var asset = editor.call('assets:get', this.value);
                     if (! asset) return;
-                    editor.call('selector:set', 'asset', [ asset ]);
+                    editor.call('selector:set', 'asset', [asset]);
 
                     if (legacyScripts && asset.get('type') === 'script') {
                         editor.call('assets:panel:currentFolder', 'scripts');
@@ -1169,11 +1169,11 @@ editor.once('load', function() {
                         }
                     }
                 });
-                btnEdit.on('click', function() {
+                btnEdit.on('click', function () {
                     field.emit('click');
                 });
 
-                btnRemove.on('click', function() {
+                btnRemove.on('click', function () {
                     field.emit('beforechange', null);
                     field.value = null;
                 });
@@ -1183,7 +1183,7 @@ editor.once('load', function() {
                 var queueRender;
 
                 var evtThumbnailChange;
-                var updateThumbnail = function(empty) {
+                var updateThumbnail = function (empty) {
                     var asset = editor.call('assets:get', field.value);
 
                     if (previewRenderer) {
@@ -1229,7 +1229,7 @@ editor.once('load', function() {
                         field.elementImage.classList.add('flipY');
                     }
 
-                    var renderPreview = function() {
+                    var renderPreview = function () {
                         renderQueued = false;
 
                         if (previewRenderer) {
@@ -1246,13 +1246,13 @@ editor.once('load', function() {
 
                     renderPreview();
 
-                    queueRender = function() {
+                    queueRender = function () {
                         if (renderQueued) return;
                         renderQueued = true;
                         requestAnimationFrame(renderPreview);
                     };
 
-                    field.once('destroy', function() {
+                    field.once('destroy', function () {
                         if (previewRenderer) {
                             previewRenderer.destroy();
                             previewRenderer = null;
@@ -1262,7 +1262,7 @@ editor.once('load', function() {
 
                 linkField();
 
-                var updateField = function() {
+                var updateField = function () {
                     var value = field.value;
 
                     fieldTitle.text = field.class.contains('null') ? 'various' : 'Empty';
@@ -1309,18 +1309,18 @@ editor.once('load', function() {
 
                 var dropRef = editor.call('drop:target', {
                     ref: panel,
-                    filter: function(type, data) {
+                    filter: function (type, data) {
                         var rectA = root.innerElement.getBoundingClientRect();
                         var rectB = panel.element.getBoundingClientRect();
                         return data.id && (args.kind === '*' || type === 'asset.' + args.kind) && parseInt(data.id, 10) !== field.value && ! editor.call('assets:get', parseInt(data.id, 10)).get('source') && rectB.top > rectA.top && rectB.bottom < rectA.bottom;
                     },
-                    drop: function(type, data) {
+                    drop: function (type, data) {
                         if ((args.kind !== '*' && type !== 'asset.' + args.kind) || editor.call('assets:get', parseInt(data.id, 10)).get('source'))
                             return;
 
                         var oldValues = { };
                         if (args.onSet && args.link && args.link instanceof Array) {
-                            for(var i = 0; i < args.link.length; i++) {
+                            for (let i = 0; i < args.link.length; i++) {
                                 var id = 0;
                                 if (args.link[i]._type === 'asset') {
                                     id = args.link[i].get('id');
@@ -1342,16 +1342,16 @@ editor.once('load', function() {
                             if (asset) args.onSet(asset, oldValues);
                         }
                     },
-                    over: function(type, data) {
+                    over: function (type, data) {
                         if (args.over)
                             args.over(type, data);
                     },
-                    leave: function() {
+                    leave: function () {
                         if (args.leave)
                             args.leave();
                     }
                 });
-                field.on('destroy', function() {
+                field.on('destroy', function () {
                     dropRef.destroy();
                     if (evtThumbnailChange) {
                         evtThumbnailChange.unbind();
@@ -1434,7 +1434,7 @@ editor.once('load', function() {
 
                         // get initial value only if it's the same for all
                         // links otherwise set it to null
-                        for (var i = 0, len = args.link.length; i < len; i++) {
+                        for (let i = 0, len = args.link.length; i < len; i++) {
                             var val = args.link[i].get(pathAt(args, i));
                             if (entity !== val) {
                                 if (entity) {
@@ -1486,22 +1486,22 @@ editor.once('load', function() {
 
                 var dropRef = editor.call('drop:target', {
                     ref: field,
-                    filter: function(type, data) {
+                    filter: function (type, data) {
                         var rectA = root.innerElement.getBoundingClientRect();
                         var rectB = field.element.getBoundingClientRect();
                         return type === 'entity' && data.resource_id !== field.value && rectB.top > rectA.top && rectB.bottom < rectA.bottom;
                     },
-                    drop: function(type, data) {
+                    drop: function (type, data) {
                         if (type !== 'entity')
                             return;
 
                         field.value = data.resource_id;
                     },
-                    over: function(type, data) {
+                    over: function (type, data) {
                         if (args.over)
                             args.over(type, data);
                     },
-                    leave: function() {
+                    leave: function () {
                         if (args.leave)
                             args.leave();
                     }
@@ -1601,7 +1601,7 @@ editor.once('load', function() {
                             };
 
                             var path;
-                            for (var i = 0, len = paths.length; i < len; i++) {
+                            for (let i = 0, len = paths.length; i < len; i++) {
                                 path = pathAt(args, 0); // always use 0 because we do not support multiselect
                                 // use the second curve path if needed
                                 if (args.canRandomize && paths[i][0] !== '0') {
@@ -1628,7 +1628,7 @@ editor.once('load', function() {
                                     item.history.enabled = false;
                                 }
 
-                                for (var i = 0, len = previous.paths.length; i < len; i++) {
+                                for (let i = 0, len = previous.paths.length; i < len; i++) {
                                     item.set(previous.paths[i], previous.values[i]);
                                 }
 
@@ -1651,7 +1651,7 @@ editor.once('load', function() {
                                     item.history.enabled = false;
                                 }
 
-                                for (var i = 0, len = paths.length; i < len; i++) {
+                                for (let i = 0, len = paths.length; i < len; i++) {
                                     path = pathAt(args, 0); // always use 0 because we do not support multiselect
                                     // use the second curve path if needed
                                     if (args.canRandomize && paths[i][0] !== '0') {
@@ -1699,7 +1699,7 @@ editor.once('load', function() {
                 field.on('click', toggleCurvePicker);
 
                 // close picker if field destroyed
-                field.on('destroy', function() {
+                field.on('destroy', function () {
                     if (curvePickerOn) {
                         editor.call('picker:curve:close');
                     }
@@ -1745,14 +1745,14 @@ editor.once('load', function() {
                             };
 
                             var path;
-                            for (var i=0; i<paths.length; i++) {
+                            for (let i = 0; i < paths.length; i++) {
                                 // always use 0 because we do not support multiselect
                                 path = pathAt(args, 0) + paths[i].substring(1);
                                 previous.paths.push(path);
                                 previous.values.push(field._link.get(path));
                             }
 
-                            var undo = function() {
+                            var undo = function () {
                                 var item = link.latest();
 
                                 if (!item) return;
@@ -1763,7 +1763,7 @@ editor.once('load', function() {
                                     item.history.enabled = false;
                                 }
 
-                                for (var i=0; i<previous.paths.length; i++) {
+                                for (let i = 0; i < previous.paths.length; i++) {
                                     item.set(previous.paths[i], previous.values[i]);
                                 }
 
@@ -1771,7 +1771,7 @@ editor.once('load', function() {
                                     item.history.enabled = history;
                             };
 
-                            var redo = function() {
+                            var redo = function () {
                                 var item = link.latest();
 
                                 if (!item) return;
@@ -1782,7 +1782,7 @@ editor.once('load', function() {
                                     item.history.enabled = false;
                                 }
 
-                                for (var i=0; i<paths.length; i++) {
+                                for (let i = 0; i < paths.length; i++) {
                                     // always use 0 because we do not support multiselect
                                     path = pathAt(args, 0) + paths[i].substring(1);
                                     item.set(path, values[i]);
@@ -1847,29 +1847,29 @@ editor.once('load', function() {
         return field;
     });
 
-    var inspectedItems = [ ];
+    var inspectedItems = [];
 
-    editor.on('attributes:clear', function() {
-        for(var i = 0; i < inspectedItems.length; i++) {
+    editor.on('attributes:clear', function () {
+        for (let i = 0; i < inspectedItems.length; i++) {
             inspectedItems[i].unbind();
         }
-        inspectedItems = [ ];
+        inspectedItems = [];
     });
 
-    editor.method('attributes:inspect', function(type, item) {
+    editor.method('attributes:inspect', function (type, item) {
         clearPanel();
 
         // clear if destroyed
-        inspectedItems.push(item.once('destroy', function() {
+        inspectedItems.push(item.once('destroy', function () {
             editor.call('attributes:clear');
         }));
 
         root.headerText = type;
-        editor.emit('attributes:inspect[' + type + ']', [ item ]);
-        editor.emit('attributes:inspect[*]', type, [ item ]);
+        editor.emit('attributes:inspect[' + type + ']', [item]);
+        editor.emit('attributes:inspect[*]', type, [item]);
     });
 
-    editor.on('selector:change', function(type, items) {
+    editor.on('selector:change', function (type, items) {
         clearPanel();
 
         // nothing selected
@@ -1885,8 +1885,8 @@ editor.once('load', function() {
         }
 
         // clear if destroyed
-        for(var i = 0; i < items.length; i++) {
-            inspectedItems.push(items[i].once('destroy', function() {
+        for (let i = 0; i < items.length; i++) {
+            inspectedItems.push(items[i].once('destroy', function () {
                 editor.call('attributes:clear');
             }));
         }
@@ -1896,5 +1896,5 @@ editor.once('load', function() {
         editor.emit('attributes:inspect[*]', type, items);
     });
 
-    editor.emit('selector:change', null, [ ]);
+    editor.emit('selector:change', null, []);
 });

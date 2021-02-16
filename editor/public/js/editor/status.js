@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var jobs = { };
@@ -28,14 +28,14 @@ editor.once('load', function() {
 
 
     // status text
-    editor.method('status:text', function(text) {
+    editor.method('status:text', function (text) {
         status.text = text;
         status.class.remove('error');
     });
 
 
     // status error
-    editor.method('status:error', function(text) {
+    editor.method('status:error', function (text) {
         status.text = text;
         status.class.add('error');
     });
@@ -47,13 +47,13 @@ editor.once('load', function() {
     });
 
     // update jobs
-    var updateJobs = function() {
+    var updateJobs = function () {
         var count = Object.keys(jobs).length;
         jobsCount.text = count;
 
         if (count > 0) {
             var least = 1;
-            for(var key in jobs) {
+            for (const key in jobs) {
                 if (jobs[key] < least)
                     least = jobs[key];
             }
@@ -66,7 +66,7 @@ editor.once('load', function() {
     };
 
     // status job
-    editor.method('status:job', function(id, value) {
+    editor.method('status:job', function (id, value) {
         if (jobs.hasOwnProperty(id) && value === undefined) {
             delete jobs[id];
         } else {

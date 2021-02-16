@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     editor.method('assets:create:animstategraph', function (args) {
@@ -9,7 +9,7 @@ editor.once('load', function() {
 
         var data = editor.call('schema:animstategraph:getDefaultData');
 
-        var defaultAssetPreload = editor.call('settings:projectUser').get('editor.pipeline.defaultAssetPreload');;
+        var defaultAssetPreload = editor.call('settings:projectUser').get('editor.pipeline.defaultAssetPreload');
 
         var asset = {
             name: 'New Anim State Graph',

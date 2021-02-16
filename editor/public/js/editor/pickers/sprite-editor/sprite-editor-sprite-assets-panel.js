@@ -1,7 +1,7 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    editor.method('picker:sprites:spriteassets', function(args) {
+    editor.method('picker:sprites:spriteassets', function (args) {
         var events = [];
 
         var atlasAsset = args.atlasAsset;
@@ -22,7 +22,7 @@ editor.once('load', function() {
         menuDuplicate.on('select', function () {
             if (! contextMenuAsset) return;
             editor.call('assets:duplicate', contextMenuAsset);
-        })
+        });
         menu.append(menuDuplicate);
 
         // delete
@@ -33,7 +33,7 @@ editor.once('load', function() {
         });
         menuDelete.on('select', function () {
             if (! contextMenuAsset) return;
-            editor.call('assets:delete:picker', [ contextMenuAsset ]);
+            editor.call('assets:delete:picker', [contextMenuAsset]);
         });
         menu.append(menuDelete);
 
@@ -90,9 +90,9 @@ editor.once('load', function() {
                     if (f) {
                         var frame = atlasAsset.getRaw('data.frames.' + f);
                         return frame && frame._data;
-                    } else {
-                        return null;
                     }
+                    return null;
+
                 });
 
                 editor.call('picker:sprites:renderFramePreview', frames[0], canvas.element, frames);
@@ -167,7 +167,7 @@ editor.once('load', function() {
 
             // clean up events
             spriteItem.on('destroy', function () {
-                for (var i = 0, len = spriteEvents.length; i<len; i++) {
+                for (let i = 0, len = spriteEvents.length; i < len; i++) {
                     spriteEvents[i].unbind();
                 }
                 spriteEvents.length = 0;
@@ -186,7 +186,7 @@ editor.once('load', function() {
             return asset.get('type') === 'sprite' && parseInt(asset.get('data.textureAtlasAsset'), 10) === atlasId;
         });
 
-        for (var i = 0; i<spriteAssets.length; i++) {
+        for (let i = 0; i < spriteAssets.length; i++) {
             createSpriteItem(spriteAssets[i][1]);
         }
 
@@ -199,7 +199,7 @@ editor.once('load', function() {
             var parts = path.split('.');
             if (parts.length >= 3) {
                 var key = parts[2];
-                for (var assetId in firstFramePerSprite) {
+                for (const assetId  in firstFramePerSprite) {
                     if (firstFramePerSprite[assetId] === key) {
                         var p = spriteItems[assetId];
                         if (p) {
@@ -219,7 +219,7 @@ editor.once('load', function() {
             var parts = path.split('.');
             if (parts.length >= 3) {
                 var key = parts[2];
-                for (var assetId in firstFramePerSprite) {
+                for (const assetId  in firstFramePerSprite) {
                     if (firstFramePerSprite[assetId] === key) {
                         var p = spriteItems[assetId];
                         if (p) {
@@ -275,7 +275,7 @@ editor.once('load', function() {
             menu.destroy();
             contextMenuAsset = null;
 
-            for (var i = 0, len = events.length; i<len; i++) {
+            for (let i = 0, len = events.length; i < len; i++) {
                 events[i].unbind();
             }
             events.length = 0;

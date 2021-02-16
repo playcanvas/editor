@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var DEFAULT_THICKNESS = 20;
@@ -13,7 +13,7 @@ editor.once('load', function() {
                     margin: [0, DEFAULT_THICKNESS, 0, 0],
                     width: DEFAULT_THICKNESS,
                     height: DEFAULT_LENGTH,
-                    color: [.5, .5, .5]
+                    color: [0.5, 0.5, 0.5]
                 };
 
             case ORIENTATION_HORIZONTAL:
@@ -23,7 +23,7 @@ editor.once('load', function() {
                     margin: [0, 0, DEFAULT_THICKNESS, 0],
                     width: DEFAULT_LENGTH,
                     height: DEFAULT_THICKNESS,
-                    color: [.5, .5, .5]
+                    color: [0.5, 0.5, 0.5]
                 };
         }
     });

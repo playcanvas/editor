@@ -78,7 +78,7 @@ editor.once('load', function () {
 
         var startIndex = this._resolver.isDiff ? 1 : 0;
 
-        for (var i = startIndex; i < 3; i++) {
+        for (let i = startIndex; i < 3; i++) {
             label = new ui.Label({
                 text: i === startIndex ? title : ''
             });
@@ -96,11 +96,12 @@ editor.once('load', function () {
     /**
      * Append a new field to the section. This will create
      * a new field on all 3 panels (base, source, destination);
-     * @param {Object} args The field options
-     * @param {String} args.name The name of the field
-     * @param {Boolean} args.prettify If true the name will be 'prettified'
-     * @param {String} args.type The type of the field if it's the same for all base, source and destination values
-     * @param {String} args.baseType The type of the base value
+     *
+     * @param {object} args - The field options
+     * @param {string} args.name - The name of the field
+     * @param {boolean} args.prettify - If true the name will be 'prettified'
+     * @param {string} args.type - The type of the field if it's the same for all base, source and destination values
+     * @param {string} args.baseType The type of the base value
      * @param {String} args.sourceType The type of the source value
      * @param {String} args.destType The type of the destination value
      * @param {Object} args.conflict The conflict object
@@ -109,7 +110,7 @@ editor.once('load', function () {
         var row = new ui.ConflictSectionRow(this._resolver, args);
         this._rows.push(row);
 
-        for (var i = 0; i < this._indent; i++) {
+        for (let i = 0; i < this._indent; i++) {
             row.indent();
         }
 
@@ -143,7 +144,7 @@ editor.once('load', function () {
 
         var addedTitle = false;
 
-        for (var field in fields)  {
+        for (const field in fields)  {
             if (except && except.indexOf(field) !== -1) continue;
 
             var path = fields[field].path;
@@ -177,7 +178,7 @@ editor.once('load', function () {
 
     ConflictSection.prototype.onAddedToDom = function () {
         // make value fields in the same row have equal heights
-        for (var i = 0, len = this._rows.length; i < len; i++) {
+        for (let i = 0, len = this._rows.length; i < len; i++) {
             this._rows[i].onAddedToDom();
         }
 
@@ -220,13 +221,13 @@ editor.once('load', function () {
     };
 
     ConflictSection.prototype.resolveUsingSource = function () {
-        for (var i = 0, len = this._rows.length; i < len; i++) {
+        for (let i = 0, len = this._rows.length; i < len; i++) {
             this._rows[i].resolveUsingSource();
         }
     };
 
     ConflictSection.prototype.resolveUsingDestination = function () {
-        for (var i = 0, len = this._rows.length; i < len; i++) {
+        for (let i = 0, len = this._rows.length; i < len; i++) {
             this._rows[i].resolveUsingDestination();
         }
     };

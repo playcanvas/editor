@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     editor.method('assets:registry:bind', function (assetRegistry, assetTypes) {
@@ -36,7 +36,7 @@ editor.once('load', function() {
             newAsset.id = parseInt(assetJson.id, 10);
 
             if (assetJson.i18n) {
-                for (var locale in assetJson.i18n) {
+                for (const locale in assetJson.i18n) {
                     newAsset.addLocalizedAssetId(locale, assetJson.i18n[locale]);
                 }
             }
@@ -49,7 +49,7 @@ editor.once('load', function() {
             var updateFields = function () {
                 var realtimeAsset = assetRegistry.get(asset.get('id'));
 
-                for (var key in updatedFields) {
+                for (const key in updatedFields) {
                     // this will trigger the 'update' event on the asset in the engine
                     // handling all resource loading automatically
                     realtimeAsset[key] = asset.get(key);
@@ -60,7 +60,7 @@ editor.once('load', function() {
             };
 
             var checkPath = /^(data|file)\b/;
-            var onUpdate = function(path, value) {
+            var onUpdate = function (path, value) {
                 var match = path.match(checkPath);
                 if (! match) return;
 

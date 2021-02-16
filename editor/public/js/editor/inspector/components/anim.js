@@ -4,7 +4,7 @@ Object.assign(pcui, (function () {
     const ATTRIBUTES = [
         {
             label: 'Activate',
-            path:  'components.anim.activate',
+            path: 'components.anim.activate',
             type: 'boolean'
         },
         {
@@ -19,14 +19,15 @@ Object.assign(pcui, (function () {
             }
         },
         {
-            type: 'divider',
+            type: 'divider'
         },
         {
             label: 'State Graph',
             path: 'components.anim.stateGraphAsset',
             type: 'asset',
             args: {
-                assetType: 'animstategraph'
+                assetType: 'animstategraph',
+                allowDragDrop: true
             }
         }
     ];
@@ -62,45 +63,55 @@ Object.assign(pcui, (function () {
                 templateOverridesInspector: this._templateOverridesInspector
             });
             this.append(this._attributesInspector);
-        }
+
+            this.stateGraphFieldChangeEvent = value => {
+                if (!value) {
+                    const prevHistoryEnabled = this._entities[0].history.enabled;
+                    this._entities[0].history.enabled = false;
+                    this._entities[0].set('components.anim.animationAssets', {});
+                    this._entities[0].history.enabled = prevHistoryEnabled;
+                }
+            };
+            this.stateGraphAssetSetEvent = () => {
+                this._addAnimationAssetSlots();
+            };
+            this.entityStateGraphAssetSetEvent = () => {
+                    this._stateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
+                    this._addAnimationAssetSlots();
+                }
+            };
 
         _addAnimationAssetSlots() {
-            if (this._layersContainer) {
-                this.remove(this._layersContainer);
-            }
+            this._clearAnimationSlots();
             if (!this._entities) return;
 
             const stateGraph = this._assets.get(this._stateGraphAssetId);
             if (!stateGraph) return;
             const layers = stateGraph.get('data.layers');
             this._layersContainer = new pcui.Container();
-            for (var layerId in layers) {
+            for (const layerId in layers) {
                 const layer = layers[layerId];
                 const layerPanel = new pcui.Panel({
                     headerText: `Layer: ${layer.name}`,
                     class: CLASS_LAYER,
                     collapsible: true
                 });
-                const layerPlayAll = new pcui.Button({
-                    text: 'PLAY ALL',
-                    icon: 'E131'
-                });
-                layerPanel.header.append(layerPlayAll);
                 layer.states.forEach(stateId => {
                     const state = stateGraph.get(`data.states.${stateId}`);
                     if (!state) return;
-                    if (!['START', 'END'].includes(state.name)) {
+                    if (!['START', 'END', 'ANY'].includes(state.name)) {
                         if (!this._entities[0].get(`components.anim.animationAssets.${layer.name}:${state.name}`)) {
                             const prevHistoryEnabled = this._entities[0].history.enabled;
                             this._entities[0].history.enabled = false;
-                            this._entities[0].set(`components.anim.animationAssets.${layer.name}:${state.name}`, {
-                                asset: null
-                            });
+                            var animAssets = this._entities[0].get('components.anim.animationAssets');
+                            animAssets[`${layer.name}:${state.name}`] = { asset: null };
+                            this._entities[0].set(`components.anim.animationAssets`, animAssets);
                             this._entities[0].history.enabled = prevHistoryEnabled;
                         }
                         const stateAsset = new pcui.AssetInput({
                             text: state.name,
                             assetType: 'animation',
+                            allowDragDrop: true,
                             assets: this._assets,
                             binding: new pcui.BindingTwoWay({
                                 history: this._args.history
@@ -111,50 +122,49 @@ Object.assign(pcui, (function () {
                             class: CLASS_STATE,
                             headerText: state.name
                         });
-                        const statePlay = new pcui.Button({
-                            icon: 'E131'
-                        });
-                        statePanel.header.append(statePlay);
                         statePanel.content.append(stateAsset);
                         stateAsset.link(this._entities, `components.anim.animationAssets.${layer.name}:${state.name}.asset`);
                         layerPanel.append(statePanel);
                     }
                 });
                 this._layersContainer.append(layerPanel);
-            };
+            }
             this.append(this._layersContainer);
+        }
 
+        _clearAnimationSlots() {
+            if (this._layersContainer) {
+                this.remove(this._layersContainer);
+            }
         }
 
         link(entities) {
+            this.unlink();
             super.link(entities);
             this._entities = entities;
 
             this._attributesInspector.link(entities);
             const stateGraphField = this._attributesInspector.getField('components.anim.stateGraphAsset');
-            stateGraphField.on('change', value => {
-                if (!value) {
-                    const prevHistoryEnabled = this._entities[0].history.enabled;
-                    this._entities[0].history.enabled = false;
-                    this._entities[0].set('components.anim.animationAssets', {});
-                    this._entities[0].history.enabled = prevHistoryEnabled;
-                }
-            });
+            this.stateGraphFieldChangeEventBound = stateGraphField.on('change', this.stateGraphFieldChangeEvent);
 
             this._stateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
             if (this._stateGraphAssetId) {
                 this._stateGraphAsset = this._args.assets.get(this._stateGraphAssetId);
                 if (this._stateGraphAsset) {
-                    this._stateGraphAsset.on('*:set', (path) => {
-                        this._addAnimationAssetSlots();
-                    });
+                    this.stateGraphAssetSetEventBound = this._stateGraphAsset.on('*:set', this.stateGraphAssetSetEvent);
                     this._addAnimationAssetSlots();
+                } else {
+                    this._clearAnimationSlots();
+                    const prevHistoryEnabled = this._entities[0].history.enabled;
+                    this._entities[0].history.enabled = false;
+                    this._entities[0].set('components.anim.animationAssets', {});
+                    this._entities[0].history.enabled = prevHistoryEnabled;
                 }
             }
             this._entities[0].on('components.anim.stateGraphAsset:set', () => {
                 this._stateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
                 this._addAnimationAssetSlots();
-            })
+            });
         }
 
         unlink() {
@@ -168,6 +178,11 @@ Object.assign(pcui, (function () {
                 }
                 this._attributesInspector.unlink();
             }
+
+            if (this.entityStateGraphAssetSetEventBound) this.entityStateGraphAssetSetEventBound.unbind();
+            if (this.stateGraphFieldChangeEventBound) this.stateGraphFieldChangeEventBound.unbind();
+            if (this.stateGraphAssetSetEventBound) this.stateGraphAssetSetEventBound.unbind();
+            if (this.onDestroyStateGraphAsset) this.onDestroyStateGraphAsset.unbind();
         }
     }
 

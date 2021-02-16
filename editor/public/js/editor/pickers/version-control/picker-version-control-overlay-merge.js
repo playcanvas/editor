@@ -91,7 +91,7 @@ editor.once('load', function () {
             var lastBranch = data.result[data.result.length - 1];
 
             // remove 'our' branch
-            for (var i = 0; i < data.result.length; i++) {
+            for (let i = 0; i < data.result.length; i++) {
                 if (data.result[i].id === config.self.branch.id) {
                     data.result.splice(i, 1);
                     break;

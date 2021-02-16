@@ -1,4 +1,4 @@
-editor.on('load', function() {
+editor.on('load', function () {
     var hierarchyOverlay = new pcui.Container({
         class: 'progress-overlay',
         flex: true
@@ -6,7 +6,7 @@ editor.on('load', function() {
     editor.call('layout.hierarchy').append(hierarchyOverlay);
 
     var p = new ui.Progress();
-    p.on('progress:100', function() {
+    p.on('progress:100', function () {
         hierarchyOverlay.hidden = true;
     });
     hierarchyOverlay.append(p);
@@ -14,11 +14,11 @@ editor.on('load', function() {
 
     var loadedEntities = false;
 
-    editor.method('entities:loaded', function() {
+    editor.method('entities:loaded', function () {
         return loadedEntities;
     });
 
-    editor.on('scene:raw', function(data) {
+    editor.on('scene:raw', function (data) {
         editor.call('status:clear');
         editor.call('selector:clear');
         editor.call('entities:clear');
@@ -28,7 +28,7 @@ editor.on('load', function() {
         var i = 0;
 
         // list
-        for(var key in data.entities) {
+        for (const key in data.entities) {
             editor.call('entities:add',  new Observer(data.entities[key]));
             p.progress = (++i / total) * 0.8 + 0.1;
         }
@@ -39,7 +39,7 @@ editor.on('load', function() {
         editor.emit('entities:load');
     });
 
-    editor.on('realtime:disconnected', function() {
+    editor.on('realtime:disconnected', function () {
         editor.call('selector:clear');
         editor.call('entities:clear');
         editor.call('attributes:clear');

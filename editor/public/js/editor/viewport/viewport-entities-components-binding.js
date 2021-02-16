@@ -1,10 +1,10 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     // converts the data to runtime types
     var runtimeComponentData = function (component, data) {
         var result = {};
-        for (var key in data) {
+        for (const key in data) {
             if (data.hasOwnProperty(key)) {
                 result[key] = editor.call('components:convertValue', component, key, data[key]);
             }
@@ -13,7 +13,7 @@ editor.once('load', function() {
         return result;
     };
 
-    var approxEqual = function(a, b) {
+    var approxEqual = function (a, b) {
         return Math.abs(a - b) < 1e-4;
     };
 
@@ -21,7 +21,7 @@ editor.once('load', function() {
         var app;
 
         // subscribe to changes
-        obj.on('*:set', function(path, value) {
+        obj.on('*:set', function (path, value) {
             if (obj._silent || ! path.startsWith('components'))
                 return;
 

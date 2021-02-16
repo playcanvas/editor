@@ -1,7 +1,7 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
-    editor.once('viewport:load', function() {
+    editor.once('viewport:load', function () {
         var camerasIndex = { };
         var editorCameras = { };
         var currentCamera = null;
@@ -16,20 +16,20 @@ editor.once('load', function() {
 
         var projectSettings = editor.call('settings:project');
 
-        editor.method('camera:get', function(name) {
+        editor.method('camera:get', function (name) {
             return editorCameras[name] || null;
         });
 
-        editor.method('camera:editor', function() {
+        editor.method('camera:editor', function () {
             return editorCameras;
         });
 
-        editor.method('camera:current', function() {
+        editor.method('camera:current', function () {
             return currentCamera;
         });
 
         var addGizmoLayers = function (camera, layers) {
-            for (var i = 0; i < layers.length; i++) {
+            for (let i = 0; i < layers.length; i++) {
                 var layer = layers[i];
                 var idx = camera.layers.indexOf(layer.id);
                 if (idx === -1) {
@@ -40,7 +40,7 @@ editor.once('load', function() {
         };
 
         var removeGizmoLayers = function (camera, layers) {
-            for (var i = 0; i < layers.length; i++) {
+            for (let i = 0; i < layers.length; i++) {
                 var layer = layers[i];
                 var idx = camera.layers.indexOf(layer.id);
                 if (idx !== -1) {
@@ -51,7 +51,7 @@ editor.once('load', function() {
             camera.layers = camera.layers; // force update
         };
 
-        editor.method('camera:set', function(entity) {
+        editor.method('camera:set', function (entity) {
             if (! entity) entity = defaultCamera;
 
             if (currentCamera === entity || ! entity.camera)
@@ -114,7 +114,7 @@ editor.once('load', function() {
             editor.call('viewport:render');
         });
 
-        editor.method('camera:add', function(entity) {
+        editor.method('camera:add', function (entity) {
             if (camerasIndex[entity.getGuid()])
                 return;
 
@@ -127,7 +127,7 @@ editor.once('load', function() {
             editor.emit('camera:add', entity);
         });
 
-        editor.method('camera:remove', function(entity) {
+        editor.method('camera:remove', function (entity) {
             if (! camerasIndex[entity.getGuid()])
                 return;
 
@@ -139,11 +139,11 @@ editor.once('load', function() {
             editor.emit('camera:remove', entity);
         });
 
-        editor.on('permissions:writeState', function(state) {
+        editor.on('permissions:writeState', function (state) {
             if (state || currentCamera.__editorCamera)
                 return;
 
-            editor.call('camera:set', editorCameras['perspective']);
+            editor.call('camera:set', editorCameras.perspective);
         });
 
 
@@ -199,7 +199,7 @@ editor.once('load', function() {
         }];
 
 
-        var createCamera = function(args) {
+        var createCamera = function (args) {
             var entity = new pc.Entity();
             entity.__editorCamera = true;
             entity.__editorName = args.name;
@@ -217,12 +217,12 @@ editor.once('load', function() {
                 priority: 0,
                 clearColorBuffer: true,
                 clearDepthBuffer: true,
-                frustumCulling: true,
+                frustumCulling: true
             };
 
             var layerOrder = projectSettings.get('layerOrder');
             if (layerOrder) {
-                params.layers = layerOrder.map(function (l) {return parseInt(l.layer, 10);});
+                params.layers = layerOrder.map(function (l) { return parseInt(l.layer, 10); });
             }
 
             if (args.ortho) {
@@ -242,7 +242,7 @@ editor.once('load', function() {
         };
 
         // add default cameras
-        for(var i = 0; i < list.length; i++) {
+        for (let i = 0; i < list.length; i++) {
             var entity = createCamera(list[i]);
 
             editor.call('camera:add', entity);
@@ -256,7 +256,7 @@ editor.once('load', function() {
         // when layers change make sure that our Editor cameras have them
         projectSettings.on('layerOrder:insert', function (value) {
             var id = parseInt(value.get('layer'), 10);
-            for (var key in editorCameras) {
+            for (const key in editorCameras) {
                 var entity = editorCameras[key];
                 var idx = entity.camera.layers.indexOf(id);
                 if (idx === -1) {
@@ -270,7 +270,7 @@ editor.once('load', function() {
 
         projectSettings.on('layerOrder:remove', function (value) {
             var id = parseInt(value.get('layer'), 10);
-            for (var key in editorCameras) {
+            for (const key in editorCameras) {
                 var entity = editorCameras[key];
                 var idx = entity.camera.layers.indexOf(id);
                 if (idx !== -1) {

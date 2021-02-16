@@ -58,7 +58,7 @@ Object.assign(pcui, (function () {
             args: {
                 placeholder: ['X', 'Y', 'Z']
             }
-        },        
+        },
         {
             observer: 'sceneSettings',
             label: 'Mip',

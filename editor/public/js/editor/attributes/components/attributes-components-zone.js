@@ -1,14 +1,14 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('users:hasFlag', 'hasPcuiComponentInspectors')) return;
 
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
 
-        var events = [ ];
+        var events = [];
 
         var panel = editor.call('attributes:entity:addComponentPanel', {
             title: 'Zone',
@@ -21,7 +21,7 @@ editor.once('load', function() {
         var fieldSize = editor.call('attributes:addField', {
             parent: panel,
             name: 'Size',
-            placeholder: [ 'W', 'H', 'D' ],
+            placeholder: ['W', 'H', 'D'],
             precision: 2,
             step: 0.1,
             min: 0,

@@ -1,18 +1,18 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
     if (! app) return; // webgl not available
     var watching = { };
 
-    var subscribe = function(watch) {
+    var subscribe = function (watch) {
         watch.onChange = function (asset, name, value) {
             if (name === 'data') {
                 trigger(watch);
             }
         };
 
-        watch.onAdd = function(asset) {
+        watch.onAdd = function (asset) {
             app.assets.off('add:' + watch.asset.get('id'), watch.onAdd);
             watch.onAdd = null;
             watch.engineAsset = asset;
@@ -38,7 +38,7 @@ editor.once('load', function() {
 
     };
 
-    var unsubscribe = function(watch) {
+    var unsubscribe = function (watch) {
         if (watch.engineAsset) {
             watch.engineAsset.off('load', watch.onLoad);
             watch.engineAsset.off('change', watch.onChange);
@@ -47,13 +47,13 @@ editor.once('load', function() {
         if (watch.onAdd)
             app.assets.off('add:' + watch.asset.get('id'), watch.onAdd);
 
-        for(var key in watch.watching)
+        for (const key in watch.watching)
             watch.watching[key].unbind();
 
 
     };
 
-    var loadFont = function(watch, asset, reload) {
+    var loadFont = function (watch, asset, reload) {
         if (reload && asset) {
             asset.unload();
         }
@@ -65,14 +65,14 @@ editor.once('load', function() {
     };
 
 
-    var trigger = function(watch) {
-        for(var key in watch.callbacks) {
+    var trigger = function (watch) {
+        for (const key in watch.callbacks) {
             watch.callbacks[key].callback();
         }
     };
 
 
-    editor.method('assets:font:watch', function(args) {
+    editor.method('assets:font:watch', function (args) {
         var watch = watching[args.asset.get('id')];
 
         if (! watch) {
@@ -109,7 +109,7 @@ editor.once('load', function() {
     });
 
 
-    editor.method('assets:font:unwatch', function(asset, handle) {
+    editor.method('assets:font:unwatch', function (asset, handle) {
         var watch = watching[asset.get('id')];
         if (! watch) return;
 

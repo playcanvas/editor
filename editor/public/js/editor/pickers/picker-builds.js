@@ -28,7 +28,7 @@ editor.once('load', function () {
     });
     panel.append(loading);
 
-    var progressBar = new ui.Progress({progress: 1});
+    var progressBar = new ui.Progress({ progress: 1 });
     progressBar.hidden = true;
     panel.append(progressBar);
 
@@ -163,15 +163,15 @@ editor.once('load', function () {
                 return -1;
             } else if (config.project.primaryApp === b.id) {
                 return 1;
-            } else {
-                if (a.created_at < b.created_at) {
-                    return 1;
-                } else if (a.created_at > b.created_at) {
-                    return -1;
-                } else {
-                    return 0;
-                }
             }
+            if (a.created_at < b.created_at) {
+                return 1;
+            } else if (a.created_at > b.created_at) {
+                return -1;
+            }
+            return 0;
+
+
         });
     };
 
@@ -337,7 +337,7 @@ editor.once('load', function () {
             dropdownMenu.position(rect.right - dropdownMenu.innerElement.clientWidth, rect.bottom);
         }));
 
-        var more = new ui.Button({text: 'more...'});
+        var more = new ui.Button({ text: 'more...' });
         more.class.add('more');
         item.element.appendChild(more.element);
         more.hidden = true;
@@ -442,7 +442,7 @@ editor.once('load', function () {
         }
 
         // remove from apps array
-        for (var i = 0; i < apps.length; i++) {
+        for (let i = 0; i < apps.length; i++) {
             if (apps[i].id === app.id) {
                 // close dropdown menu if current app deleted
                 if (dropdownApp === apps[i])
@@ -483,7 +483,7 @@ editor.once('load', function () {
         editor.call('apps:get', data.app.id, function (app) {
             // add app if it's not already inside the apps array
             var found = false;
-            for (var i = 0; i < apps.length; i++) {
+            for (let i = 0; i < apps.length; i++) {
                 if (apps[i].id === data.app.id) {
                     found = true;
                     break;
@@ -510,7 +510,7 @@ editor.once('load', function () {
 
         // get app from server
         editor.call('apps:get', data.app.id, function (app) {
-            for (var i = 0; i < apps.length; i++) {
+            for (let i = 0; i < apps.length; i++) {
                 if (apps[i].id === app.id) {
                     apps[i] = app;
                 }
@@ -537,9 +537,9 @@ editor.once('load', function () {
             editor.emit('viewport:hover', true);
     });
 
-    editor.on('viewport:hover', function(state) {
+    editor.on('viewport:hover', function (state) {
         if (state && ! panel.hidden) {
-            setTimeout(function() {
+            setTimeout(function () {
                 editor.emit('viewport:hover', false);
             }, 0);
         }

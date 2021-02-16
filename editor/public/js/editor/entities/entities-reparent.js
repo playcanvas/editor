@@ -3,7 +3,8 @@ editor.once('load', function () {
 
     /**
      * Reparent entities under new parent.
-     * @param {Array} data An array of {entity, parent, index} entries where entity is the entity
+     *
+     * @param {Array} data - An array of {entity, parent, index} entries where entity is the entity
      * being reparented, parent is the new parent and index is the new index under the parent's children
      */
     editor.method('entities:reparent', function (data, preserveTransform) {
@@ -60,8 +61,8 @@ editor.once('load', function () {
 
                 var localPosition = record.entity.entity.getLocalPosition();
                 var localRotation = record.entity.entity.getLocalEulerAngles();
-                record.entity.set('position', [ localPosition.x, localPosition.y, localPosition.z ]);
-                record.entity.set('rotation', [ localRotation.x, localRotation.y, localRotation.z ]);
+                record.entity.set('position', [localPosition.x, localPosition.y, localPosition.z]);
+                record.entity.set('rotation', [localRotation.x, localRotation.y, localRotation.z]);
             }
 
             record.parent.history.enabled = true;
@@ -71,7 +72,7 @@ editor.once('load', function () {
 
         editor.call('history:add', {
             name: 'reparent entities',
-            undo: function() {
+            undo: function () {
                 for (let i = 0; i < records.length; i++) {
                     const record = records[i];
                     var entity = record.entity.latest();
@@ -120,8 +121,8 @@ editor.once('load', function () {
 
                         var localPosition = entity.entity.getLocalPosition();
                         var localRotation = entity.entity.getLocalEulerAngles();
-                        entity.set('position', [ localPosition.x, localPosition.y, localPosition.z ]);
-                        entity.set('rotation', [ localRotation.x, localRotation.y, localRotation.z ]);
+                        entity.set('position', [localPosition.x, localPosition.y, localPosition.z]);
+                        entity.set('rotation', [localRotation.x, localRotation.y, localRotation.z]);
                     }
 
                     entity.history.enabled = true;
@@ -176,8 +177,8 @@ editor.once('load', function () {
 
                         var localPosition = entity.entity.getLocalPosition();
                         var localRotation = entity.entity.getLocalEulerAngles();
-                        entity.set('position', [ localPosition.x, localPosition.y, localPosition.z ]);
-                        entity.set('rotation', [ localRotation.x, localRotation.y, localRotation.z ]);
+                        entity.set('position', [localPosition.x, localPosition.y, localPosition.z]);
+                        entity.set('rotation', [localRotation.x, localRotation.y, localRotation.z]);
                     }
 
                     entity.history.enabled = true;

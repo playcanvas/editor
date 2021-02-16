@@ -276,7 +276,7 @@ editor.once('load', function () {
         var rect = canvas.element.getBoundingClientRect();
         return {
             x: Math.round(windowX - rect.left),
-            y: Math.round(windowY - rect.top),
+            y: Math.round(windowY - rect.top)
         };
     };
 
@@ -553,7 +553,7 @@ editor.once('load', function () {
             if (newFrame.rect[2] !== 0 && newFrame.rect[3] !== 0) {
                 // generate key name for new frame
                 var key = 1;
-                for (var existingKey in atlasAsset.getRaw('data.frames')._data) {
+                for (const existingKey in atlasAsset.getRaw('data.frames')._data) {
                     key = Math.max(parseInt(existingKey, 10) + 1, key);
                 }
 
@@ -581,7 +581,7 @@ editor.once('load', function () {
             if (oldFrame) {
                 var frame = atlasAsset.getRaw('data.frames.' + selected)._data;
                 var dirty = false;
-                for (var i = 0; i < 4; i++) {
+                for (let i = 0; i < 4; i++) {
                     if (oldFrame.rect[i] !== frame.rect[i]) {
                         dirty = true;
                         break;
@@ -595,7 +595,7 @@ editor.once('load', function () {
                 }
 
                 if (!dirty) {
-                    for (var i = 0; i < 2; i++) {
+                    for (let i = 0; i < 2; i++) {
                         if (oldFrame.pivot[i] !== frame.pivot[i]) {
                             dirty = true;
                             break;
@@ -993,7 +993,7 @@ editor.once('load', function () {
         }
 
         updateCursor();
-    }
+    };
 
 
     var startPanning = function (x, y) {
@@ -1117,7 +1117,7 @@ editor.once('load', function () {
         ctx.beginPath();
         ctx.strokeStyle = COLOR_GRAY;
         ctx.lineWidth = 1;
-        for (var key in frames) {
+        for (const key in frames) {
             if (highlightedFrames.indexOf(key) !== -1 || newSpriteFrames.indexOf(key) !== -1) continue;
 
             renderFrame(frames[key]._data, left, top, width, height);
@@ -1128,7 +1128,7 @@ editor.once('load', function () {
         ctx.beginPath();
         ctx.lineWidth = 1;
         ctx.strokeStyle = spriteAsset ? COLOR_ORANGE : COLOR_DARK;
-        for (var i = 0, len = highlightedFrames.length; i < len; i++) {
+        for (let i = 0, len = highlightedFrames.length; i < len; i++) {
             var key = highlightedFrames[i];
             if (selected && selected === key) continue;
 
@@ -1149,7 +1149,7 @@ editor.once('load', function () {
         ctx.beginPath();
         ctx.lineWidth = 1;
         ctx.strokeStyle = COLOR_DARK;
-        for (var i = 0, len = newSpriteFrames.length; i < len; i++) {
+        for (let i = 0, len = newSpriteFrames.length; i < len; i++) {
             var key = newSpriteFrames[i];
 
             // check if frame no longer exists
@@ -1168,7 +1168,7 @@ editor.once('load', function () {
         ctx.lineWidth = 1;
         ctx.setLineDash([4]);
         if (!spriteEditMode) {
-            for (var i = 0, len = highlightedFrames.length; i < len; i++) {
+            for (let i = 0, len = highlightedFrames.length; i < len; i++) {
                 var key = highlightedFrames[i];
                 if (selected && selected === key) continue;
                 renderBorderLines(frames[key]._data, left, top, width, height);
@@ -1580,7 +1580,7 @@ editor.once('load', function () {
         var imgTop = imageTop();
 
         var frames = atlasAsset.getRaw('data.frames')._data;
-        for (var key in frames) {
+        for (const key in frames) {
             var frame = frames[key]._data;
             var left = frameLeft(frame, imgLeft, imgWidth);
             var top = frameTop(frame, imgTop, imgHeight);
@@ -1935,7 +1935,7 @@ editor.once('load', function () {
         middlePanel.class.remove('grab');
         middlePanel.class.remove('grabbing');
 
-        for (var i = 0; i < events.length; i++) {
+        for (let i = 0; i < events.length; i++) {
             events[i].unbind();
         }
         events.length = 0;
@@ -2078,7 +2078,7 @@ editor.once('load', function () {
     overlay.on('show', function () {
         // editor-blocking picker opened
         editor.emit('picker:open', 'sprite-editor');
-    })
+    });
 
     // Clean up
     overlay.on('hide', function () {

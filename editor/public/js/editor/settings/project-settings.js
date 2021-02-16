@@ -34,7 +34,7 @@ editor.once('load', function () {
     ];
 
     var data = {};
-    for (var i = 0; i < syncPaths.length; i++)
+    for (let i = 0; i < syncPaths.length; i++)
         data[syncPaths[i]] = config.project.settings.hasOwnProperty(syncPaths[i]) ? config.project.settings[syncPaths[i]] : null;
 
     var settings = editor.call('settings:create', {
@@ -58,7 +58,7 @@ editor.once('load', function () {
     settings.on('*:set', function (path, value) {
         var parts = path.split('.');
         var obj = config.project.settings;
-        for (var i = 0; i < parts.length - 1; i++) {
+        for (let i = 0; i < parts.length - 1; i++) {
             if (! obj.hasOwnProperty(parts[i]))
                 obj[parts[i]] = {};
 
@@ -68,30 +68,30 @@ editor.once('load', function () {
         // this is limited to simple structures for now
         // so take care
         if (value instanceof Object) {
-            var path = parts[parts.length-1];
+            var path = parts[parts.length - 1];
             obj[path] = {};
-            for (var key in value) {
+            for (const key in value) {
                 obj[path][key] = value[key];
             }
         } else {
-            obj[parts[parts.length-1]] = value;
+            obj[parts[parts.length - 1]] = value;
         }
     });
 
     settings.on('*:unset', function (path) {
         var parts = path.split('.');
         var obj = config.project.settings;
-        for (var i = 0; i < parts.length - 1; i++) {
+        for (let i = 0; i < parts.length - 1; i++) {
             obj = obj[parts[i]];
         }
 
-        delete obj[parts[parts.length-1]];
+        delete obj[parts[parts.length - 1]];
     });
 
     settings.on('*:insert', function (path, value, index) {
         var parts = path.split('.');
         var obj = config.project.settings;
-        for (var i = 0; i < parts.length - 1; i++) {
+        for (let i = 0; i < parts.length - 1; i++) {
             obj = obj[parts[i]];
         }
 
@@ -104,7 +104,7 @@ editor.once('load', function () {
     settings.on('*:remove', function (path, value, index) {
         var parts = path.split('.');
         var obj = config.project.settings;
-        for (var i = 0; i < parts.length - 1; i++) {
+        for (let i = 0; i < parts.length - 1; i++) {
             obj = obj[parts[i]];
         }
 

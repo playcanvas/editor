@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     editor.method('assets:create:shader', function (args) {
@@ -13,7 +13,7 @@ editor.once('load', function() {
             source: false,
             parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
             filename: 'asset.glsl',
-            file: new Blob([ '\n' ], { type: 'text/x-glsl' }),
+            file: new Blob(['\n'], { type: 'text/x-glsl' }),
             scope: {
                 type: 'project',
                 id: config.project.id

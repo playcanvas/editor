@@ -4,15 +4,16 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.TemplateOverrideTooltip
      * @classdesc A template override tooltip.
-     * @extends pcui.Tooltip
+     * @augments pcui.Tooltip
      */
     class TemplateOverrideTooltip extends pcui.Tooltip {
         /**
          * Creates a new tooltip.
-         * @param {Object} args The arguments.
-         * @param {Observer} args.templateRoot The entity that represents the template root in the scene.
-         * @param {ObserverList} args.entities The entities observer list.
-         * @param {Object} args.override The override.
+         *
+         * @param {object} args - The arguments.
+         * @param {Observer} args.templateRoot - The entity that represents the template root in the scene.
+         * @param {ObserverList} args.entities - The entities observer list.
+         * @param {object} args.override - The override.
          */
         constructor(args) {
             if (!args) args = {};
@@ -49,9 +50,7 @@ Object.assign(pcui, (function () {
 
                 btnApply.on('click', () => {
                     btnApply.enabled = false;
-                    if (!editor.call('templates:applyOverride', template, this._override, function () {
-                        btnApply.enabled = true;
-                    })) {
+                    if (!editor.call('templates:applyOverride', template, this._override)) {
                         btnApply.enabled = true;
                     }
                 });

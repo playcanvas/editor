@@ -49,7 +49,7 @@ editor.once('load', function () {
             names = [names];
         }
 
-        for (var key in openPickers) {
+        for (const key in openPickers) {
             if (names.indexOf(key) === -1) {
                 return true;
             }

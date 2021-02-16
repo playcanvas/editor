@@ -6,7 +6,8 @@ Object.assign(pcui, (function () {
     class AnimstategraphCondition extends pcui.Container {
         /**
          * Creates a new condition.
-         * @param {Object} [args] The arguments
+         *
+         * @param {object} [args] - The arguments
          */
         constructor(args) {
             args = Object.assign({
@@ -18,10 +19,12 @@ Object.assign(pcui, (function () {
 
             this.class.add(CLASS_ROOT);
         }
+
         link(assets, path) {
+            if (!assets[0].get(path)) return;
             const selectParameterName = new pcui.SelectInput({
                 type: 'string',
-                options: this._args.parameters.map(param => { return { v: param, t: param }}),
+                options: this._args.parameters.map(param => { return { v: param, t: param }; }),
                 value: assets[0].get(path).parameterName
             });
             selectParameterName.on('change', value => {
@@ -31,42 +34,51 @@ Object.assign(pcui, (function () {
             });
             this.append(selectParameterName);
 
-            const selectPredicate = new pcui.SelectInput({
-                type: 'string',
-                options: [
-                    {
-                        v: ANIM_EQUAL_TO,
-                        t: '==',
-                    },
-                    {
-                        v: ANIM_NOT_EQUAL_TO,
-                        t: '!=',
-                    },
-                    {
-                        v: ANIM_LESS_THAN,
-                        t: '<',
-                    },
-                    {
-                        v: ANIM_LESS_THAN_EQUAL_TO,
-                        t: '<=',
-                    },
-                    {
-                        v: ANIM_GREATER_THAN,
-                        t: '>',
-                    },
-                    {
-                        v: ANIM_GREATER_THAN_EQUAL_TO,
-                        t: '>=',
-                    },
-                ],
-                value: assets[0].get(path).predicate
+            let shouldSelectPredicate;
+            Object.keys(assets[0].get('data.parameters')).forEach(paramKey => {
+                const param = assets[0].get('data.parameters')[paramKey];
+                if (param.name === assets[0].get(path).parameterName && [ANIM_PARAMETER_INTEGER, ANIM_PARAMETER_FLOAT].includes(param.type)) {
+                    shouldSelectPredicate = true;
+                }
             });
-            selectPredicate.on('change', value => {
-                const condition = assets[0].get(path);
-                condition.predicate = value;
-                assets[0].set(path, condition);
-            });
-            this.append(selectPredicate);
+            if (shouldSelectPredicate) {
+                const selectPredicate = new pcui.SelectInput({
+                    type: 'string',
+                    options: [
+                        {
+                            v: ANIM_EQUAL_TO,
+                            t: '=='
+                        },
+                        {
+                            v: ANIM_NOT_EQUAL_TO,
+                            t: '!='
+                        },
+                        {
+                            v: ANIM_LESS_THAN,
+                            t: '<'
+                        },
+                        {
+                            v: ANIM_LESS_THAN_EQUAL_TO,
+                            t: '<='
+                        },
+                        {
+                            v: ANIM_GREATER_THAN,
+                            t: '>'
+                        },
+                        {
+                            v: ANIM_GREATER_THAN_EQUAL_TO,
+                            t: '>='
+                        }
+                    ],
+                    value: assets[0].get(path).predicate
+                });
+                selectPredicate.on('change', value => {
+                    const condition = assets[0].get(path);
+                    condition.predicate = value;
+                    assets[0].set(path, condition);
+                });
+                this.append(selectPredicate);
+            }
             const condition = assets[0].get(path);
             const parameters = assets[0].get('data.parameters');
             const parameter = Object.keys(parameters).map(key => parameters[key]).filter(param => param.name === condition.parameterName)[0];
@@ -84,7 +96,8 @@ Object.assign(pcui, (function () {
                 } else {
                     const valueInput = new pcui.NumericInput({
                         value: assets[0].get(path).value,
-                        precision: parameter.type === ANIM_PARAMETER_INTEGER ? 0 : undefined
+                        precision: parameter.type === ANIM_PARAMETER_INTEGER ? 0 : undefined,
+                        hideSlider: true
                     });
                     valueInput.on('change', value => {
                         const condition = assets[0].get(path);
@@ -105,6 +118,6 @@ Object.assign(pcui, (function () {
     }
 
     return {
-        AnimstategraphCondition: AnimstategraphCondition 
+        AnimstategraphCondition: AnimstategraphCondition
     };
 })());

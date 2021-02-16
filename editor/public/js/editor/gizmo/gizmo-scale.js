@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var gizmo = null;
@@ -11,7 +11,7 @@ editor.once('load', function() {
     var hoverAxis = '';
     var hoverMiddle = false;
     var hoverEntity = null;
-    var gizmoSize = .4;
+    var gizmoSize = 0.4;
     var vecA = new pc.Vec3();
     var vecB = new pc.Vec3();
     var vecC = new pc.Vec3();
@@ -24,13 +24,13 @@ editor.once('load', function() {
 
     var snap = false;
     var snapIncrement = 1;
-    editor.on('gizmo:snap', function(state, increment) {
+    editor.on('gizmo:snap', function (state, increment) {
         snap = state;
         snapIncrement = increment;
     });
 
     // enable/disable gizmo
-    editor.method('gizmo:scale:toggle', function(state) {
+    editor.method('gizmo:scale:toggle', function (state) {
         if (! gizmo)
             return;
 
@@ -40,7 +40,7 @@ editor.once('load', function() {
         visible = true;
     });
 
-    editor.on('permissions:writeState', function(state) {
+    editor.on('permissions:writeState', function (state) {
         if (! gizmo)
             return;
 
@@ -49,13 +49,13 @@ editor.once('load', function() {
     });
 
     // show/hide gizmo
-    editor.method('gizmo:scale:visible', function(state) {
+    editor.method('gizmo:scale:visible', function (state) {
         if (! gizmo)
             return;
 
         visible = state;
 
-        for(var i = 0; i < gizmo.hoverable.length; i++) {
+        for (let i = 0; i < gizmo.hoverable.length; i++) {
             if (! gizmo.hoverable[i].model)
                 continue;
 
@@ -66,7 +66,7 @@ editor.once('load', function() {
     });
 
     // position gizmo
-    editor.method('gizmo:scale:position', function(x, y, z) {
+    editor.method('gizmo:scale:position', function (x, y, z) {
         gizmo.root.setPosition(x, y, z);
 
         if (gizmo.root.enabled)
@@ -74,7 +74,7 @@ editor.once('load', function() {
     });
 
     // rotate gizmo
-    editor.method('gizmo:scale:rotation', function(pitch, yaw, roll) {
+    editor.method('gizmo:scale:rotation', function (pitch, yaw, roll) {
         gizmo.root.setEulerAngles(pitch, yaw, roll);
 
         if (gizmo.root.enabled)
@@ -82,7 +82,7 @@ editor.once('load', function() {
     });
 
     // initialize gizmo
-    editor.once('viewport:load', function() {
+    editor.once('viewport:load', function () {
         var app = editor.call('viewport:app');
         if (! app) return; // webgl not available
 
@@ -96,7 +96,7 @@ editor.once('load', function() {
         app.root.addChild(gizmo.root);
 
         // on picker hover
-        editor.on('viewport:pick:hover', function(node, picked) {
+        editor.on('viewport:pick:hover', function (node, picked) {
             var match = gizmo.hoverable.indexOf(node) !== -1;
             if (! hover && match) {
                 // hover
@@ -113,9 +113,9 @@ editor.once('load', function() {
                     // set normal material
                     if (hoverAxis) {
                         if (hoverMiddle) {
-                            gizmo.box['x'].model.material = gizmo.box['x'].mat;
-                            gizmo.box['y'].model.material = gizmo.box['y'].mat;
-                            gizmo.box['z'].model.material = gizmo.box['z'].mat;
+                            gizmo.box.x.model.material = gizmo.box.x.mat;
+                            gizmo.box.y.model.material = gizmo.box.y.mat;
+                            gizmo.box.z.model.material = gizmo.box.z.mat;
                         } else {
                             gizmo.box[hoverAxis].model.material = gizmo.box[hoverAxis].mat;
                         }
@@ -129,9 +129,9 @@ editor.once('load', function() {
 
                     // set active material
                     if (hoverMiddle) {
-                        gizmo.box['x'].model.material = gizmo.matActive;
-                        gizmo.box['y'].model.material = gizmo.matActive;
-                        gizmo.box['z'].model.material = gizmo.matActive;
+                        gizmo.box.x.model.material = gizmo.matActive;
+                        gizmo.box.y.model.material = gizmo.matActive;
+                        gizmo.box.z.model.material = gizmo.matActive;
                     } else {
                         gizmo.box[hoverAxis].model.material = gizmo.matActive;
                     }
@@ -139,9 +139,9 @@ editor.once('load', function() {
             } else {
                 if (hoverAxis) {
                     if (hoverMiddle) {
-                        gizmo.box['x'].model.material = gizmo.box['x'].mat;
-                        gizmo.box['y'].model.material = gizmo.box['y'].mat;
-                        gizmo.box['z'].model.material = gizmo.box['z'].mat;
+                        gizmo.box.x.model.material = gizmo.box.x.mat;
+                        gizmo.box.y.model.material = gizmo.box.y.mat;
+                        gizmo.box.z.model.material = gizmo.box.z.mat;
                     } else {
                         gizmo.box[hoverAxis].model.material = gizmo.box[hoverAxis].mat;
                     }
@@ -157,7 +157,7 @@ editor.once('load', function() {
         });
 
         // update gizmo
-        editor.on('viewport:postUpdate', function(dt) {
+        editor.on('viewport:postUpdate', function (dt) {
             if (gizmo.root.enabled) {
                 editor.emit('gizmo:scale:render', dt);
 
@@ -216,7 +216,7 @@ editor.once('load', function() {
                 // draw axes lines
                 // line x
                 if (gizmo.line.x.model.enabled) {
-                    vecB.set(scale * .5, 0, 0);
+                    vecB.set(scale * 0.5, 0, 0);
                     quat.transformVector(vecB, vecB).add(posGizmo);
                     vecC.set(scale * 2, 0, 0);
                     quat.transformVector(vecC, vecC).add(posGizmo);
@@ -224,7 +224,7 @@ editor.once('load', function() {
                 }
                 // line y
                 if (gizmo.line.y.model.enabled) {
-                    vecB.set(0, scale * .5, 0);
+                    vecB.set(0, scale * 0.5, 0);
                     quat.transformVector(vecB, vecB).add(posGizmo);
                     vecC.set(0, scale * 2, 0);
                     quat.transformVector(vecC, vecC).add(posGizmo);
@@ -232,7 +232,7 @@ editor.once('load', function() {
                 }
                 // line z
                 if (gizmo.line.z.model.enabled) {
-                    vecB.set(0, 0, scale * .5);
+                    vecB.set(0, 0, scale * 0.5);
                     quat.transformVector(vecB, vecB).add(posGizmo);
                     vecC.set(0, 0, scale * 2);
                     quat.transformVector(vecC, vecC).add(posGizmo);
@@ -241,7 +241,7 @@ editor.once('load', function() {
             }
         });
 
-        var pickPlane = function(x, y) {
+        var pickPlane = function (x, y) {
             var camera = editor.call('camera:current');
             var scale = 1;
             var mouseWPos = camera.camera.screenToWorld(x, y, 1);
@@ -308,7 +308,7 @@ editor.once('load', function() {
             return pickedPos;
         };
 
-        var onTapStart = function(tap) {
+        var onTapStart = function (tap) {
             if (tap.button !== 0)
                 return;
 
@@ -329,14 +329,14 @@ editor.once('load', function() {
             editor.call('viewport:pick:state', false);
         };
 
-        var onTapMove = function(tap) {
+        var onTapMove = function (tap) {
             if (! moving)
                 return;
 
             mouseTap = tap;
         };
 
-        var onTapEnd = function(tap) {
+        var onTapEnd = function (tap) {
             if (tap.button !== 0)
                 return;
 
@@ -357,7 +357,7 @@ editor.once('load', function() {
         editor.on('viewport:tap:end', onTapEnd);
     });
 
-    var createMaterial = function(color) {
+    var createMaterial = function (color) {
         var mat = new pc.BasicMaterial();
         mat.color = color;
         if (color.a !== 1) {
@@ -370,8 +370,8 @@ editor.once('load', function() {
         return mat;
     };
 
-    var createEntity = function() {
-        var boxSize = .4;
+    var createEntity = function () {
+        var boxSize = 0.4;
 
         var obj = {
             root: null,
@@ -386,16 +386,16 @@ editor.once('load', function() {
                 y: null,
                 z: null
             },
-            hoverable: [ ],
+            hoverable: [],
             matActive: null,
             matActiveTransparent: null
         };
 
         // active mat
         obj.matActive = createMaterial(new pc.Color(1, 1, 1, 0.9)); // this has to be transparent otherwise it flickers when you hover over it
-        obj.matActiveTransparent = createMaterial(new pc.Color(1, 1, 1, .25));
+        obj.matActiveTransparent = createMaterial(new pc.Color(1, 1, 1, 0.25));
         obj.colorLineBehind = new pc.Color(1, 1, 1, 0.05);
-        obj.colorLine = new pc.Color(1, 1, 1, .2);
+        obj.colorLine = new pc.Color(1, 1, 1, 0.2);
         obj.colorLineActive = new pc.Color(1, 1, 1, 1);
 
         var layer = editor.call('gizmo:layers', 'Axis Gizmo').id;

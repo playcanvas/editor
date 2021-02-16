@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var left = new pc.Vec3();
@@ -14,7 +14,7 @@ editor.once('load', function() {
 
     var projectSettings = editor.call('settings:project');
 
-    for (var i = 0; i < 8; i++) {
+    for (let i = 0; i < 8; i++) {
         corners.push(new pc.Vec3());
         cornerColors.push(new pc.Color(1, 1, 1));
     }
@@ -45,12 +45,12 @@ editor.once('load', function() {
         // Returns true if a child of the entity is selected
         var isChildSelected = function (entity) {
             var children = entity.get('children');
-            for (var i = 0, len = children.length; i < len; i++) {
+            for (let i = 0, len = children.length; i < len; i++) {
                 if (selectedEntities[children[i]])
                     return true;
             }
 
-            for (var i = 0, len = children.length; i < len; i++) {
+            for (let i = 0, len = children.length; i < len; i++) {
                 var child = editor.call('entities:get', children[i]);
                 if (child && isChildSelected(child)) {
                     return true;
@@ -60,7 +60,7 @@ editor.once('load', function() {
             return false;
         };
 
-        editor.method('gizmo:screen:visible', function(state) {
+        editor.method('gizmo:screen:visible', function (state) {
             if (visible !== state) {
                 visible = state;
 
@@ -68,10 +68,10 @@ editor.once('load', function() {
             }
         });
 
-        editor.on('entities:add', function(entity) {
+        editor.on('entities:add', function (entity) {
             var key = entity.get('resource_id');
 
-            var addGizmo = function() {
+            var addGizmo = function () {
                 if (entities[key])
                     return;
 
@@ -82,7 +82,7 @@ editor.once('load', function() {
                 editor.call('viewport:render');
             };
 
-            var removeGizmo = function() {
+            var removeGizmo = function () {
                 if (! entities[key])
                     return;
 
@@ -108,7 +108,7 @@ editor.once('load', function() {
             entity.on('components.screen:set', addGizmo);
             entity.on('components.screen:unset', removeGizmo);
 
-            entity.once('destroy', function() {
+            entity.once('destroy', function () {
                 removeGizmo();
             });
         });
@@ -118,7 +118,7 @@ editor.once('load', function() {
                 return;
             }
 
-            for (var key in entities) {
+            for (const key in entities) {
                 var entity = app.root.findByGuid(key);
                 if (! entity)
                     continue;

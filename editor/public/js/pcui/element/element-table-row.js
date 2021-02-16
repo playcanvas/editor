@@ -12,6 +12,7 @@ Object.assign(pcui, (function () {
      * @property {Boolean} selected Whether the row is selected
      * @property {pcui.TableRow} previousSibling Returns the previous visible sibling row
      * @property {pcui.TableRow} nextSibling Returns the next visible sibling row
+     * @property {pcui.Table} table Gets / sets the table that this row belongs to
      */
     class TableRow extends pcui.Container {
         /**
@@ -33,6 +34,7 @@ Object.assign(pcui, (function () {
                 this._header = true;
             }
 
+            this._table = null;
             this._selected = false;
 
             if (!this._header) {
@@ -83,7 +85,9 @@ Object.assign(pcui, (function () {
             if (this._header) return;
 
             if (value) {
-                this.focus();
+                if (this.table && this.table.allowRowFocus) {
+                    this.focus();
+                }
             }
 
             if (this.selected === value) return;
@@ -123,6 +127,14 @@ Object.assign(pcui, (function () {
             }
 
             return null;
+        }
+
+        get table() {
+            return this._table;
+        }
+
+        set table(value) {
+            this._table = value;
         }
     }
 

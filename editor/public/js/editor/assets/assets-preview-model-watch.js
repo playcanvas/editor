@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
@@ -6,20 +6,20 @@ editor.once('load', function() {
 
     var watching = { };
 
-    var subscribe = function(watch) {
-        var onChange = function() {
+    var subscribe = function (watch) {
+        var onChange = function () {
             loadModel(watch, watch.engineAsset, true);
         };
 
-        watch.watching.file = watch.asset.on('file.hash:set', function() {
+        watch.watching.file = watch.asset.on('file.hash:set', function () {
             setTimeout(onChange, 0);
         });
 
-        watch.watching.fileUnset = watch.asset.on('file.hash:unset', function() {
+        watch.watching.fileUnset = watch.asset.on('file.hash:unset', function () {
             setTimeout(onChange, 0);
         });
 
-        watch.onAdd = function(asset) {
+        watch.onAdd = function (asset) {
             app.assets.off('add:' + watch.asset.get('id'), watch.onAdd);
             watch.engineAsset = asset;
             watch.onAdd = null;
@@ -35,18 +35,18 @@ editor.once('load', function() {
         }
     };
 
-    var unsubscribe = function(watch) {
+    var unsubscribe = function (watch) {
         if (watch.engineAsset)
             watch.engineAsset.off('load', watch.onLoad);
 
         if (watch.onAdd)
             app.assets.off('add:' + watch.asset.get('id'), watch.onAdd);
 
-        for(var key in watch.watching)
+        for (const key in watch.watching)
             watch.watching[key].unbind();
     };
 
-    var loadModel = function(watch, asset, reload) {
+    var loadModel = function (watch, asset, reload) {
         var url;
         var file = watch.asset.get('file');
 
@@ -60,7 +60,7 @@ editor.once('load', function() {
         }
 
         if (url && (reload || ! asset._editorPreviewModel)) {
-            app.assets._loader.load(url, asset.type, function(err, resource, extra) {
+            app.assets._loader.load(url, asset.type, function (err, resource, extra) {
                 if (resource instanceof Array) {
                     asset._editorPreviewModel = resource[0];
                 } else {
@@ -74,13 +74,13 @@ editor.once('load', function() {
         }
     };
 
-    var trigger = function(watch) {
-        for(var key in watch.callbacks)
+    var trigger = function (watch) {
+        for (const key in watch.callbacks)
             watch.callbacks[key].callback();
     };
 
 
-    editor.method('assets:model:watch', function(args) {
+    editor.method('assets:model:watch', function (args) {
         var watch = watching[args.asset.get('id')];
 
         if (! watch) {
@@ -117,7 +117,7 @@ editor.once('load', function() {
     });
 
 
-    editor.method('assets:model:unwatch', function(asset, handle) {
+    editor.method('assets:model:unwatch', function (asset, handle) {
         var watch = watching[asset.get('id')];
         if (! watch) return;
 

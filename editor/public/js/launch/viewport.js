@@ -33,8 +33,8 @@ editor.once('load', function () {
 
         var fillMode = app._fillMode;
 
-        if (fillMode == pc.fw.FillMode.NONE || fillMode == pc.fw.FillMode.KEEP_ASPECT) {
-            if ((fillMode == pc.fw.FillMode.NONE && canvas.clientHeight < window.innerHeight) || (canvas.clientWidth / canvas.clientHeight >= window.innerWidth / window.innerHeight)) {
+        if (fillMode === pc.FILLMODE_NONE || fillMode === pc.FILLMODE_KEEP_ASPECT) {
+            if ((fillMode === pc.FILLMODE_NONE && canvas.clientHeight < window.innerHeight) || (canvas.clientWidth / canvas.clientHeight >= window.innerWidth / window.innerHeight)) {
                 canvas.style.marginTop = Math.floor((window.innerHeight - canvas.clientHeight) / 2) + 'px';
             } else {
                 canvas.style.marginTop = '';
@@ -211,10 +211,10 @@ editor.once('load', function () {
             useMouse: useMouse,
             useTouch: useTouch
         }),
-        mouse: useMouse ? new pc.input.Mouse(canvas) : null,
-        touch: useTouch && pc.platform.touch ? new pc.input.TouchDevice(canvas) : null,
-        keyboard: useKeyboard ? new pc.input.Keyboard(window) : null,
-        gamepads: useGamepads ? new pc.input.GamePads() : null,
+        mouse: useMouse ? new pc.Mouse(canvas) : null,
+        touch: useTouch && pc.platform.touch ? new pc.TouchDevice(canvas) : null,
+        keyboard: useKeyboard ? new pc.Keyboard(window) : null,
+        gamepads: useGamepads ? new pc.GamePads() : null,
         scriptPrefix: scriptPrefix,
         scriptsOrder: projectSettings.get('scripts') || [],
         assetPrefix: '/api/',
@@ -261,7 +261,7 @@ editor.once('load', function () {
 
     // layers
     if (config.project.settings.layers && config.project.settings.layerOrder) {
-        var composition = new pc.LayerComposition();
+        var composition = new pc.LayerComposition("viewport");
 
         for (var key in config.project.settings.layers) {
             layerIndex[key] = createLayer(key, config.project.settings.layers[key]);

@@ -1,14 +1,14 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('users:hasFlag', 'hasPcuiComponentInspectors')) return;
 
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
 
-        var events = [ ];
+        var events = [];
 
         var projectSettings = editor.call('settings:project');
 
@@ -23,10 +23,10 @@ editor.once('load', function() {
             name: 'Type',
             type: 'string',
             enum: [
-                {v: '', t: '...'},
-                {v: 'text', t: 'Text'},
-                {v: 'image', t: 'Image'},
-                {v: 'group', t: 'Group'}
+                { v: '', t: '...' },
+                { v: 'text', t: 'Text' },
+                { v: 'image', t: 'Image' },
+                { v: 'group', t: 'Group' }
             ],
             link: entities,
             path: 'components.element.type',
@@ -45,15 +45,15 @@ editor.once('load', function() {
             '1,0.5,1,0.5/1,0.5': 'Right',
             '0,0,0,0/0,0': 'Bottom Left',
             '0.5,0,0.5,0/0.5,0': 'Bottom',
-            '1,0,1,0/1,0': 'Bottom Right',
+            '1,0,1,0/1,0': 'Bottom Right'
         };
 
         var presetsEnum = [];
-        for (var key in presets) {
-            presetsEnum.push({v: key, t: presets[key]});
+        for (const key in presets) {
+            presetsEnum.push({ v: key, t: presets[key] });
         }
 
-        presetsEnum.push({v: 'custom', t: 'Custom'});
+        presetsEnum.push({ v: 'custom', t: 'Custom' });
 
         var fieldPreset = editor.call('attributes:addField', {
             parent: panel,
@@ -92,7 +92,7 @@ editor.once('load', function() {
 
             // var refreshValue = function () {
             //     var value = null;
-            //     for (var i = 0, len = entities.length; i < len; i++) {
+            //     for (let i = 0, len = entities.length; i < len; i++) {
             //         var anchor = entities[i].get('components.element.anchor.' + index);
             //         if (value === null) {
             //             value = anchor;
@@ -117,7 +117,7 @@ editor.once('load', function() {
 
             //     var prev = {};
 
-            //     for (var i = 0, len = entities.length; i < len; i++) {
+            //     for (let i = 0, len = entities.length; i < len; i++) {
             //         if (entities[i].has('components.element')) {
             //             var prevData = {
             //                 anchor: entities[i].get('components.element.anchor.' + index)
@@ -135,7 +135,7 @@ editor.once('load', function() {
             //     editor.call('history:add', {
             //         name: 'components.element.anchor.' + index,
             //         undo: function () {
-            //             for (var i = 0, len = entities.length; i < len; i++) {
+            //             for (let i = 0, len = entities.length; i < len; i++) {
             //                 var prevData = prev[entities[i].get('resource_id')];
             //                 if (! prevData) continue;
 
@@ -148,7 +148,7 @@ editor.once('load', function() {
             //             }
             //         },
             //         redo: function () {
-            //             for (var i = 0, len = entities.length; i < len; i++) {
+            //             for (let i = 0, len = entities.length; i < len; i++) {
             //                 var obj = editor.call('entities:get', entities[i].get('resource_id'));
             //                 if (! obj) return;
 
@@ -165,7 +165,7 @@ editor.once('load', function() {
 
             // });
 
-            // for (var i = 0, len = entities.length; i < len; i++) {
+            // for (let i = 0, len = entities.length; i < len; i++) {
             //     events.push(entities[i].on('components.element.anchor:set', refreshValue));
             //     events.push(entities[i].on('components.element.anchor.0:set', refreshValue));
             //     events.push(entities[i].on('components.element.anchor.1:set', refreshValue));
@@ -178,7 +178,7 @@ editor.once('load', function() {
         editor.call('attributes:reference:attach', 'element:anchor', fieldAnchor[0].parent.innerElement.firstChild.ui);
 
         var isUnderControlOfLayoutGroup = function () {
-            for (var i = 0, len = entities.length; i < len; i++) {
+            for (let i = 0, len = entities.length; i < len; i++) {
                 var entity = entities[i];
 
                 if (editor.call('entities:layout:isUnderControlOfLayoutGroup', entity)) {
@@ -192,7 +192,7 @@ editor.once('load', function() {
         var toggleAnchorAndPresets = function () {
             var disabled = isUnderControlOfLayoutGroup();
 
-            for (var i = 0; i < 4; i++) {
+            for (let i = 0; i < 4; i++) {
                 fieldAnchor[i].disabled = disabled;
             }
 
@@ -201,7 +201,7 @@ editor.once('load', function() {
 
         toggleAnchorAndPresets();
 
-        entities.forEach(function(entity) {
+        entities.forEach(function (entity) {
             events.push(entity.on('parent:set', toggleAnchorAndPresets));
             events.push(entity.on('components.layoutchild.excludeFromLayout:set', toggleAnchorAndPresets));
         });
@@ -239,7 +239,7 @@ editor.once('load', function() {
             panel: panelAutoSize,
             type: 'checkbox',
             link: entities,
-            path: 'components.element.autoWidth',
+            path: 'components.element.autoWidth'
         });
         editor.call('attributes:registerOverridePath', 'components.element.autoWidth', fieldAutoWidth.element);
 
@@ -284,7 +284,7 @@ editor.once('load', function() {
         });
 
         var setPresetValue = function () {
-            var val = fieldAnchor.map(function (f) {return f.value}).join(',') + '/' + fieldPivot.map(function (f) {return f.value}).join(',');
+            var val = fieldAnchor.map(function (f) { return f.value; }).join(',') + '/' + fieldPivot.map(function (f) { return f.value; }).join(',');
             if (! presets[val])
                 val = 'custom';
 
@@ -295,7 +295,7 @@ editor.once('load', function() {
 
         var changingPreset = false;
 
-        for (var i = 0; i < 4; i++) {
+        for (let i = 0; i < 4; i++) {
             events.push(fieldAnchor[i].on('change', function (value) {
                 if (changingPreset) return;
                 changingPreset = true;
@@ -304,7 +304,7 @@ editor.once('load', function() {
             }));
         }
 
-        for (var i = 0; i < 2; i++) {
+        for (let i = 0; i < 2; i++) {
             events.push(fieldPivot[i].on('change', function (value) {
                 if (changingPreset) return;
                 changingPreset = true;
@@ -318,8 +318,8 @@ editor.once('load', function() {
 
             changingPreset = true;
             var fields = value.split('/');
-            var anchor = fields[0].split(',').map(function (v){ return parseFloat(v);} );
-            var pivot = fields[1].split(',').map(function (v){ return parseFloat(v);} );
+            var anchor = fields[0].split(',').map(function (v){ return parseFloat(v); } );
+            var pivot = fields[1].split(',').map(function (v){ return parseFloat(v); } );
 
             var prev = {};
 
@@ -327,7 +327,7 @@ editor.once('load', function() {
             var prevPivots = [];
             var prevPositions = [];
 
-            for (var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 var history = entities[i].history.enabled;
                 entities[i].history.enabled = false;
                 var width = entities[i].get('components.element.width');
@@ -349,8 +349,8 @@ editor.once('load', function() {
 
             editor.call('history:add', {
                 name: 'entities.components.element.preset',
-                undo: function() {
-                    for(var i = 0; i < entities.length; i++) {
+                undo: function () {
+                    for (let i = 0; i < entities.length; i++) {
                         var entity = entities[i];
                         var history = entity.history.enabled;
                         entity.history.enabled = false;
@@ -364,8 +364,8 @@ editor.once('load', function() {
                         entity.history.enabled = history;
                     }
                 },
-                redo: function() {
-                    for(var i = 0; i < entities.length; i++) {
+                redo: function () {
+                    for (let i = 0; i < entities.length; i++) {
                         var entity = entities[i];
                         var history = entity.history.enabled;
                         entity.history.enabled = false;
@@ -389,7 +389,7 @@ editor.once('load', function() {
         }));
 
         var hasSplitAnchors = function (horizontal) {
-            for (var i = 0, len = entities.length; i < len; i++) {
+            for (let i = 0, len = entities.length; i < len; i++) {
                 var e = entities[i];
                 var anchor = e.get('components.element.anchor');
                 if (! anchor) continue;
@@ -467,7 +467,7 @@ editor.once('load', function() {
             fieldMargin[1].disabled = ! verticalSplit;
             fieldMargin[3].disabled = fieldMargin[1].disabled;
 
-            for (var i = 0; i < 4; i++)
+            for (let i = 0; i < 4; i++)
                 fieldMargin[i].renderChanges = !fieldMargin[i].disabled;
         };
 
@@ -592,7 +592,7 @@ editor.once('load', function() {
 
         // update the value of the localized field when we change the element key
         // If the key is null it means the element is not localized. If not null then it is localized.
-        for (var i = 0, len = entities.length; i < len; i++) {
+        for (let i = 0, len = entities.length; i < len; i++) {
             events.push(entities[i].on('components.element.key:set', refreshLocalizedValue));
         }
 
@@ -609,7 +609,7 @@ editor.once('load', function() {
             var otherPath = localized ? 'components.element.text' : 'components.element.key';
 
             var undo = function () {
-                for (var id in prev) {
+                for (const id in prev) {
                     var e = editor.call('entities:get', id);
                     if (!e) return;
                     if (e.has('components.element')) {
@@ -624,7 +624,7 @@ editor.once('load', function() {
 
             var redo = function () {
                 prev = {};
-                for (var i = 0, len = entities.length; i < len; i++) {
+                for (let i = 0, len = entities.length; i < len; i++) {
                     var id = entities[i].get('resource_id');
                     var e = editor.call('entities:get', id);
                     if (!e) continue;
@@ -1061,7 +1061,7 @@ editor.once('load', function() {
             '': '...',
             'NaN': 'None'
         };
-        for (var key in batchGroups) {
+        for (const key in batchGroups) {
             batchEnum[key] = batchGroups[key].name;
         }
 
@@ -1090,7 +1090,7 @@ editor.once('load', function() {
             batchEnum[group] = projectSettings.get('batchGroups.' + group + '.name');
             fieldBatchGroup._updateOptions(batchEnum);
             fieldBatchGroup.value = group;
-            editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+            editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
             setTimeout(function () {
                 editor.call('editorSettings:batchGroups:focus', group);
             });
@@ -1101,7 +1101,7 @@ editor.once('load', function() {
         var layersEnum = {
             '': ''
         };
-        for (var key in layers) {
+        for (const key in layers) {
             layersEnum[key] = layers[key].name;
         }
         delete layersEnum[LAYERID_DEPTH];
@@ -1124,7 +1124,7 @@ editor.once('load', function() {
             onClickTag: function () {
                 // focus layer
                 var layerId = this.originalValue;
-                editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+                editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
                 setTimeout(function () {
                     editor.call('editorSettings:layers:focus', layerId);
                 });
@@ -1217,7 +1217,7 @@ editor.once('load', function() {
                 var lastRedo = lastHistoryAction.redo;
 
                 var previous = {};
-                for (var i = 0, len = entities.length; i < len; i++) {
+                for (let i = 0, len = entities.length; i < len; i++) {
                     var anchor = entities[i].get('components.element.anchor');
                     if (Math.abs(anchor[0] - anchor[2]) > 0.001 || Math.abs(anchor[1] - anchor[3]) > 0.001) {
                         continue;
@@ -1236,7 +1236,7 @@ editor.once('load', function() {
                 lastHistoryAction.undo = function () {
                     lastUndo();
 
-                    for (var i = 0, len = entities.length; i < len; i++) {
+                    for (let i = 0, len = entities.length; i < len; i++) {
                         var prev = previous[entities[i].get('resource_id')];
                         if (! prev) continue;
 
@@ -1255,7 +1255,7 @@ editor.once('load', function() {
                 };
 
                 var redo = function () {
-                    for (var i = 0, len = entities.length; i < len; i++) {
+                    for (let i = 0, len = entities.length; i < len; i++) {
                         var prev = previous[entities[i].get('resource_id')];
                         if (! prev) continue;
 

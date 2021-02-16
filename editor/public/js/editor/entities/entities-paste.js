@@ -6,15 +6,22 @@ editor.once('load', function () {
     var componentAssetPaths = editor.call('components:assetPaths');
     var containsStar = /\.\*\./;
 
+    const jobsInProgress = {};
+
+    const MAX_JOB_LENGTH = 8;
+    const TIME_WAIT_ENTITIES = 5000;
+    const PASTE_BACKEND_LIMIT = 500;
+
     // try to find asset id in this project
     // from path of asset in old project
     /**
      * Try to find an assetId in this project that
      * corresponds to the specified assetId that may come from
      * a different project.
-     * @param {Number} assetId The asset id we are trying to remap
-     * @param {Object} assetsIndex The assets index stored in localStorage that contains paths of assets
-     * @returns {Number} The asset id in this project
+     *
+     * @param {number} assetId - The asset id we are trying to remap
+     * @param {object} assetsIndex - The assets index stored in localStorage that contains paths of assets
+     * @returns {number} The asset id in this project
      */
     var remapAsset = function (assetId, assetsIndex) {
         if (!assetId) return null;
@@ -91,11 +98,12 @@ editor.once('load', function () {
     /**
      * Remaps the resource ids of the entities and their entity references in localStorage
      * with new resource ids, also remaps asset ids.
-     * @param {Observer} entity The entity we are remapping
-     * @param {Observer} parent The parent of the pasted entity
-     * @param {Object} data The data in localStorage
-     * @param {Object} entityMapping An index that maps old resource ids to new resource ids
-     * @param {Object} assetMapping An index that maps old asset ids to new asset ids
+     *
+     * @param {Observer} entity - The entity we are remapping
+     * @param {Observer} parent - The parent of the pasted entity
+     * @param {object} data - The data in localStorage
+     * @param {object} entityMapping - An index that maps old resource ids to new resource ids
+     * @param {object} assetMapping - An index that maps old asset ids to new asset ids
      */
     var remapEntitiesAndAssets = function (entity, parent, data, entityMapping, assetMapping) {
         var resourceId = entity.get('resource_id');
@@ -158,8 +166,7 @@ editor.once('load', function () {
                             entity.set(fullKey, assetMapping[assets]);
                         }
                     }
-                }
-                else if (entity.has(path)) {
+                } else if (entity.has(path)) {
                     assets = entity.get(path);
                     if (!assets) continue;
 
@@ -189,7 +196,7 @@ editor.once('load', function () {
                             var script = scripts[i];
                             if (!script.attributes) continue;
 
-                            for (var name in script.attributes) {
+                            for (const name in script.attributes) {
                                 var attr = script.attributes[name];
                                 if (!attr) continue;
 
@@ -197,7 +204,7 @@ editor.once('load', function () {
                                     if (attr.value) {
                                         if (attr.value instanceof Array) {
                                             for (j = 0; j < attr.value.length; j++) {
-                                                entity.set('components.script.scripts.' + i + '.attributes.' + name + '.value.' + j, assetMapping[attr.value[j]])
+                                                entity.set('components.script.scripts.' + i + '.attributes.' + name + '.value.' + j, assetMapping[attr.value[j]]);
                                             }
                                         } else {
                                             entity.set('components.script.scripts.' + i + '.attributes.' + name + '.value', assetMapping[attr.value]);
@@ -207,7 +214,7 @@ editor.once('load', function () {
                                     if (attr.defaultValue) {
                                         if (attr.defaultValue instanceof Array) {
                                             for (j = 0; j < attr.defaultValue.length; j++) {
-                                                entity.set('components.script.scripts.' + i + '.attributes.' + name + '.defaultValue.' + j, assetMapping[attr.value[j]])
+                                                entity.set('components.script.scripts.' + i + '.attributes.' + name + '.defaultValue.' + j, assetMapping[attr.value[j]]);
                                             }
                                         } else {
                                             entity.set('components.script.scripts.' + i + '.attributes.' + name + '.defaultValue', assetMapping[attr.value]);
@@ -224,7 +231,7 @@ editor.once('load', function () {
                     } else {
                         // scripts 2.0
                         if (scripts) {
-                            for (var script in scripts) {
+                            for (const script in scripts) {
                                 var asset = editor.call('assets:scripts:assetByScript', script);
                                 if (!asset) continue;
 
@@ -312,11 +319,108 @@ editor.once('load', function () {
                 }
             }
         }
+    };
+
+    function pasteInBackend(data, parent) {
+        let entityIds;
+        let cancelWaitForEntities;
+
+        function undo() {
+            if (cancelWaitForEntities) {
+                cancelWaitForEntities();
+                cancelWaitForEntities = null;
+            }
+
+            if (!entityIds || !entityIds.length) return;
+
+            entityIds.forEach(id => {
+                const entity = editor.call('entities:get', id);
+                if (entity) {
+                    editor.call('entities:removeEntity', entity, null, true);
+                }
+            });
+
+            entityIds = null;
+        }
+
+        function redo() {
+            parent = parent.latest();
+            if (!parent) return;
+
+            const children = parent.get('children');
+
+            const jobId = pc.guid.create().substring(0, MAX_JOB_LENGTH);
+
+            jobsInProgress[jobId] = (newEntityIds) => {
+                entityIds = newEntityIds;
+                cancelWaitForEntities = editor.call('entities:waitToExist', newEntityIds, TIME_WAIT_ENTITIES, entities => {
+                    editor.call('selector:history', false);
+                    editor.call('selector:set', 'entity', entities);
+                    editor.once('selector:change', function () {
+                        editor.call('selector:history', true);
+                    });
+                });
+            };
+
+            const taskData = {
+                projectId: config.project.id,
+                branchId: data.branch || config.self.branch.id,
+                parentId: parent.get('resource_id'),
+                sceneId: data.scene || config.scene.uniqueId,
+                jobId: jobId,
+                children: children,
+                childIndex: children.length,
+                entities: Object.keys(data.hierarchy)
+                .filter(id => {
+                    return data.hierarchy[id].parent === null
+                })
+                .map(id => {
+                    return {
+                        id: id
+                    };
+                })
+            }
+
+            if (data.scene && data.scene !== config.scene.uniqueId) {
+                taskData.newSceneId = config.scene.uniqueId;
+                taskData.newBranchId = config.self.branch.id;
+            }
+
+            editor.call('realtime:send', 'pipeline', {
+                name: 'entities-copy',
+                data: taskData
+            });
+
+            editor.call('status:job', jobId, 1);
+        }
+
+        redo();
+
+        // add history
+        editor.call('history:add', {
+            name: 'paste entities',
+            undo: undo,
+            redo: redo
+        });
     }
+
+    editor.on('messenger:entity.copy', data => {
+        if (jobsInProgress.hasOwnProperty(data.job_id)) {
+            const callback = jobsInProgress[data.job_id];
+
+            // clear pending job
+            editor.call('status:job', data.job_id);
+            delete jobsInProgress[data.job_id];
+
+            const result = data.multTaskResults.map(d => d.newRootId);
+            callback(result);
+        }
+    });
 
     /**
      * Pastes entities in localStore under the specified parent
-     * @param {Observer} parent The parent entity
+     *
+     * @param {Observer} parent - The parent entity
      */
     editor.method('entities:paste', function (parent) {
         // parse data from local storage
@@ -326,22 +430,35 @@ editor.once('load', function () {
 
         if (data.type !== 'entity') return;
 
+        const projectUserSettings = editor.call('settings:projectUser');
+
         // paste on root if no parent specified
         if (!parent)
             parent = editor.call('entities:root');
 
+        // if there are a lot of entities, do the copying in the backend
+        if (editor.call('users:hasFlag', 'hasPipelineEntityCopy') &&
+            projectUserSettings.get('editor.pipeline.entityCopy') &&
+            Object.keys(data.hierarchy).length > PASTE_BACKEND_LIMIT &&
+            data.project === config.project.id &&
+            data.branch === config.self.branch.id) {
+            // TODO support pasting in different scenes / projects
+            pasteInBackend(data, parent);
+            return;
+        }
+
 
         // remap assets
-        let remappedAssets = {};
+        const remappedAssets = {};
         if (data.assets) {
-            for (var key in data.assets) {
+            for (const key in data.assets) {
                 remappedAssets[key] = remapAsset(key, data.assets);
             }
         }
 
         // change resource ids
         var mapping = {};
-        for (var guid in data.hierarchy) {
+        for (const guid in data.hierarchy) {
             mapping[guid] = pc.guid.create();
         }
 
@@ -351,7 +468,7 @@ editor.once('load', function () {
 
         var entity;
 
-        for (var resourceId in data.hierarchy) {
+        for (const resourceId in data.hierarchy) {
             // create new entity
             entity = new Observer(data.hierarchy[resourceId]);
 
@@ -376,7 +493,7 @@ editor.once('load', function () {
         }
 
         // reparent children after they're all added
-        for (var i = 0; i < newEntities.length; i++) {
+        for (let i = 0; i < newEntities.length; i++) {
             entity = newEntities[i];
             var parentEntity = editor.call('entities:get', entity.get('parent'));
 
@@ -434,7 +551,7 @@ editor.once('load', function () {
 
                 var entities = [];
                 // re-add entities
-                for (var i = 0; i < selectedEntities.length; i++) {
+                for (let i = 0; i < selectedEntities.length; i++) {
                     var fromCache = editor.call('entities:getFromDeletedCache', selectedEntities[i].get('resource_id'));
                     if (!fromCache) continue;
 

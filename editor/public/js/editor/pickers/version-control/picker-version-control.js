@@ -114,21 +114,21 @@ editor.once('load', function () {
 
     editor.on('checkpoint:diff:select', function (branch, checkpoint) {
         var numSelected = panelDiffCheckpoints.getSelectedCount();
-        panel.class.remove('diff-checkpoints-selected-' + numSelected)
+        panel.class.remove('diff-checkpoints-selected-' + numSelected);
         panelDiffCheckpoints.onCheckpointSelected(branch, checkpoint);
         numSelected = panelDiffCheckpoints.getSelectedCount();
         if (numSelected) {
-            panel.class.add('diff-checkpoints-selected-' + numSelected)
+            panel.class.add('diff-checkpoints-selected-' + numSelected);
         }
     });
 
     editor.on('checkpoint:diff:deselect', function (branch, checkpoint) {
         var numSelected = panelDiffCheckpoints.getSelectedCount();
-        panel.class.remove('diff-checkpoints-selected-' + numSelected)
+        panel.class.remove('diff-checkpoints-selected-' + numSelected);
         panelDiffCheckpoints.onCheckpointDeselected(branch, checkpoint);
         numSelected = panelDiffCheckpoints.getSelectedCount();
         if (numSelected) {
-            panel.class.add('diff-checkpoints-selected-' + numSelected)
+            panel.class.add('diff-checkpoints-selected-' + numSelected);
         }
     });
 
@@ -421,11 +421,11 @@ editor.once('load', function () {
     menuBranchesFavorite.on('select', function () {
         if (!contextBranch) return;
         if (menuBranches.contextBranchIsFavorite) {
-          var index = projectUserSettings.get('favoriteBranches').indexOf(contextBranch.id);
-          if (index >= 0)
-            projectUserSettings.remove('favoriteBranches', index);
+            var index = projectUserSettings.get('favoriteBranches').indexOf(contextBranch.id);
+            if (index >= 0)
+                projectUserSettings.remove('favoriteBranches', index);
         } else {
-          projectUserSettings.insert('favoriteBranches', contextBranch.id);
+            projectUserSettings.insert('favoriteBranches', contextBranch.id);
         }
     });
 
@@ -572,15 +572,15 @@ editor.once('load', function () {
         panel.append(dropdown);
 
         Object.defineProperty(item, 'isFavorite', {
-            get: function() {
+            get: function () {
                 return this._isFavorite;
             },
-            set: function(value) {
-              if (value !== this._isFavorite) {
-                this._isFavorite = Boolean(value);
-                labelIcon.text = this._isFavorite ? '&#9733;' : '&#58208;'
-                labelIcon.style.fontSize = this._isFavorite ? '10px' : '8px';
-              }
+            set: function (value) {
+                if (value !== this._isFavorite) {
+                    this._isFavorite = Boolean(value);
+                    labelIcon.text = this._isFavorite ? '&#9733;' : '&#58208;';
+                    labelIcon.style.fontSize = this._isFavorite ? '10px' : '8px';
+                }
             }
         });
 
@@ -644,10 +644,10 @@ editor.once('load', function () {
     };
 
     var updateBranchFavorite = function (branchId) {
-      const item = getBranchListItem(branchId);
-      if (item)
-        item.isFavorite = projectUserSettings.get('favoriteBranches').includes(item.branch.id);
-    }
+        const item = getBranchListItem(branchId);
+        if (item)
+            item.isFavorite = projectUserSettings.get('favoriteBranches').includes(item.branch.id);
+    };
 
     // Select specified branch and show its checkpoints
     var selectBranch = function (branch) {
@@ -944,7 +944,7 @@ editor.once('load', function () {
 
             // select next or previous sibling
             if (nextItem && nextItem !== loadMoreListItem.element) {
-                nextItem.ui.selected = true
+                nextItem.ui.selected = true;
             }
         }));
 

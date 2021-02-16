@@ -1,33 +1,33 @@
-onmessage = function(evt) {
+onmessage = function (evt) {
     if (! evt.data.name)
         return;
 
-    switch(evt.data.name) {
+    switch (evt.data.name) {
         case 'parse':
-            parseScript(evt.data.asset, evt.data.url, evt.data.engine)
+            parseScript(evt.data.asset, evt.data.url, evt.data.engine);
             break;
     }
 };
 
 var __results = {
-    scriptsInvalid: [ ],
+    scriptsInvalid: [],
     scripts: { },
     loading: false
 };
 
 var window = self;
 
-var parseScript = function(id, url, engine) {
+var parseScript = function (id, url, engine) {
     // import engine
     importScripts(engine);
 
     // loading screen override
-    pc.script.createLoadingScreen = function() {
+    pc.script.createLoadingScreen = function () {
         __results.loading = true;
     };
 
     // implement pc.createScript
-    pc.createScript = function(name, app, script) {
+    pc.createScript = function (name, app, script) {
         var valid = true;
 
         if (script) {
@@ -65,7 +65,7 @@ var parseScript = function(id, url, engine) {
         }
 
         var obj = { };
-        obj[name] = function() { };
+        obj[name] = function () { };
 
         // name
         obj[name].name = name;
@@ -115,7 +115,7 @@ var parseScript = function(id, url, engine) {
                 }
 
                 if (defaultValidators[args.type]) {
-                    for (var i = 0; i < args.default.length; i++) {
+                    for (let i = 0; i < args.default.length; i++) {
                         const err = defaultValidators[args.type](args.default[i], args.schema);
                         if (err) {
                             return `invalid default value at index ${i} - ${err}`;
@@ -134,7 +134,7 @@ var parseScript = function(id, url, engine) {
 
         // attributes
         obj[name].attributes = {
-            add: function(attr, args) {
+            add: function (attr, args) {
                 if (! valid)
                     return;
 
@@ -381,8 +381,8 @@ var parseScript = function(id, url, engine) {
         };
 
         // extend
-        obj[name].extend = function(methods) {
-            for(var key in methods) {
+        obj[name].extend = function (methods) {
+            for (const key in methods) {
                 if (! methods.hasOwnProperty(key))
                     continue;
 
@@ -393,8 +393,8 @@ var parseScript = function(id, url, engine) {
         if (valid) {
             // define script in results
             __results.scripts[name] = {
-                attributesInvalid: [ ],
-                attributesOrder: [ ],
+                attributesInvalid: [],
+                attributesOrder: [],
                 attributes: { }
             };
         }

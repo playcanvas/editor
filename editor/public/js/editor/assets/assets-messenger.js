@@ -25,15 +25,15 @@ editor.once('load', function () {
     editor.on('messenger:asset.new', create);
 
     // remove
-    editor.on('messenger:asset.delete', function(data) {
+    editor.on('messenger:asset.delete', function (data) {
         var asset = editor.call('assets:getUnique', data.asset.id);
         if (! asset) return;
         editor.call('assets:remove', asset);
     });
 
     // remove multiple
-    editor.on('messenger:assets.delete', function(data) {
-        for (var i = 0; i < data.assets.length; i++) {
+    editor.on('messenger:assets.delete', function (data) {
+        for (let i = 0; i < data.assets.length; i++) {
             var asset = editor.call('assets:getUnique', parseInt(data.assets[i], 10));
             if (! asset) continue;
             editor.call('assets:remove', asset);

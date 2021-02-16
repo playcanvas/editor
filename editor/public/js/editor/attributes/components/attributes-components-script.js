@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (! editor.call('settings:project').get('useLegacyScripts'))
@@ -60,7 +60,7 @@ editor.once('load', function() {
         delete entitiesWithScripts[entity.get('resource_id')];
     });
 
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
@@ -72,15 +72,15 @@ editor.once('load', function() {
         });
 
         // holds each script panel
-        var events = [ ];
+        var events = [];
         var scriptsIndex = { };
 
-        for(var i = 0; i < entities.length; i++) {
-            events.push(entities[i].on('components.script:unset', function(valueOld) {
+        for (let i = 0; i < entities.length; i++) {
+            events.push(entities[i].on('components.script:unset', function (valueOld) {
                 if (! valueOld)
                     return;
 
-                for(var i = 0; i < valueOld.scripts.length; i++) {
+                for (let i = 0; i < valueOld.scripts.length; i++) {
                     var scriptPanel = scriptsIndex[valueOld.scripts[i].url];
                     if (! scriptPanel)
                         continue;
@@ -130,9 +130,9 @@ editor.once('load', function() {
         panelScripts.class.add('components-scripts');
         panel.append(panelScripts);
 
-        var addScript = function(url) {
+        var addScript = function (url) {
             var scriptAdded = false;
-            var records = [ ];
+            var records = [];
             var requestScript = false;
 
             if (! urlRegex.test(url)) {
@@ -145,10 +145,10 @@ editor.once('load', function() {
                 requestScript = true;
             }
 
-            for(var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 var addScript = true;
                 var scripts = entities[i].getRaw('components.script.scripts');
-                for(var s = 0; s < scripts.length; s++) {
+                for (var s = 0; s < scripts.length; s++) {
                     if (scripts[s].get('url') === url) {
                         addScript = false;
                         break;
@@ -188,8 +188,8 @@ editor.once('load', function() {
 
             editor.call('history:add', {
                 name: 'entities.components.script.scripts',
-                undo: function() {
-                    for(var i = 0; i < records.length; i++) {
+                undo: function () {
+                    for (let i = 0; i < records.length; i++) {
                         var item = records[i].item.latest();
                         if (! item)
                             continue;
@@ -198,7 +198,7 @@ editor.once('load', function() {
                         if (! scripts)
                             continue;
 
-                        for(var s = 0; s < scripts.length; s++) {
+                        for (var s = 0; s < scripts.length; s++) {
                             if (scripts[s].get('url') !== url)
                                 continue;
 
@@ -209,15 +209,15 @@ editor.once('load', function() {
                         }
                     }
                 },
-                redo: function() {
-                    for(var i = 0; i < records.length; i++) {
+                redo: function () {
+                    for (let i = 0; i < records.length; i++) {
                         var item = records[i].item.latest();
                         if (! item)
                             continue;
 
                         var addScript = true;
                         var scripts = item.getRaw('components.script.scripts');
-                        for(var s = 0; s < scripts.length; s++) {
+                        for (var s = 0; s < scripts.length; s++) {
                             if (scripts[s].get('url') !== url)
                                 continue;
                             addScript = false;
@@ -243,7 +243,7 @@ editor.once('load', function() {
             return scriptAdded;
         };
 
-        var refreshScriptAttributes = function(url) {
+        var refreshScriptAttributes = function (url) {
             if (! editor.call('permissions:write'))
                 return;
 
@@ -253,13 +253,13 @@ editor.once('load', function() {
                 data.url = url;
 
                 // merge old attributes with new attributes for all script components with this script
-                for (var key in entitiesWithScripts) {
+                for (const key in entitiesWithScripts) {
                     var entity = entitiesWithScripts[key];
                     var scripts = entity.getRaw('components.script.scripts');
                     if (! scripts)
                         continue;
 
-                    for (var i = 0; i < scripts.length; i++) {
+                    for (let i = 0; i < scripts.length; i++) {
                         var scriptInstance = scripts[i];
                         if (scriptInstance.get('url') !== url)
                             continue;
@@ -287,17 +287,17 @@ editor.once('load', function() {
                                             if (attributeNew.defaultValue instanceof Array) {
                                                 value = attributeNew.defaultValue;
                                             } else {
-                                                value = [ ];
+                                                value = [];
                                             }
                                         }
                                     } else if (attributeOld.options.max === 1 && attributeNew.options.max !== 1) {
                                         // now multiple assets
                                         if (attributeOld.value && typeof(attributeOld.value) === 'number') {
-                                            value = [ attributeOld.value ];
+                                            value = [attributeOld.value];
                                         } else if (attributeNew.defaultValue instanceof Array) {
                                             value = attributeNew.defaultValue;
                                         } else {
-                                            value = [ ];
+                                            value = [];
                                         }
                                     } else if (attributeOld.options.max !== 1 && attributeNew.options.max === 1) {
                                         // now single asset
@@ -331,15 +331,15 @@ editor.once('load', function() {
             });
         };
 
-        var updateAttributeFields = function(script, parent) {
+        var updateAttributeFields = function (script, parent) {
             var attributes = script.get('attributesOrder');
             var children = parent.innerElement.childNodes;
-            var list = [ ];
+            var list = [];
             var index = { };
-            var toDestroy = [ ];
-            var toCreate = [ ];
+            var toDestroy = [];
+            var toCreate = [];
 
-            for(var i = 0; i < children.length; i++) {
+            for (let i = 0; i < children.length; i++) {
                 var attribute = children[i].ui.attribute;
                 var attributeType = children[i].ui.attributeType;
                 var attributeUiType = children[i].ui.attributeUiType;
@@ -353,12 +353,12 @@ editor.once('load', function() {
             }
 
             var i = toDestroy.length;
-            while(i--) {
+            while (i--) {
                 toDestroy[i].destroy();
             }
 
             if (attributes) {
-                for(var i = 0; i < attributes.length; i++) {
+                for (let i = 0; i < attributes.length; i++) {
                     var ind = list.indexOf(attributes[i]);
                     var panelAttribute = null;
 
@@ -395,34 +395,34 @@ editor.once('load', function() {
             }
         };
 
-        var createAttributeField = function(script, attribute, parent) {
+        var createAttributeField = function (script, attribute, parent) {
             var choices = null;
             attribute = script.get('attributes.' + attribute);
 
             if (attribute.type === 'enumeration') {
-                choices = [ { v: '', t: '...' } ];
+                choices = [{ v: '', t: '...' }];
 
                 try {
-                    for(var e = 0; e < attribute.options.enumerations.length; e++) {
+                    for (var e = 0; e < attribute.options.enumerations.length; e++) {
                         choices.push({
                             v: attribute.options.enumerations[e].value,
                             t: attribute.options.enumerations[e].name
                         });
                     }
-                } catch(ex) {
+                } catch (ex) {
                     console.info('could not recreate enumeration for script attribute, ' + script.get('url'));
-                    log.error(ex)
+                    log.error(ex);
                 }
             }
 
             var url = script.get('url');
-            var scripts = [ ];
-            for(var i = 0; i < entities.length; i++) {
+            var scripts = [];
+            for (let i = 0; i < entities.length; i++) {
                 var items = entities[i].getRaw('components.script.scripts');
                 if (! items)
                     continue;
 
-                for(var s = 0; s < items.length; s++) {
+                for (var s = 0; s < items.length; s++) {
                     if (items[s].get('url') === url) {
                         scripts.push(items[s]);
                         break;
@@ -484,7 +484,7 @@ editor.once('load', function() {
                 if (attribute.type === 'number') {
                     if (attribute.options && attribute.options.step) {
                         args.step = attribute.options.step;
-                        console.log('step yes')
+                        console.log('step yes');
                     }
                 } else if (attribute.type === 'curve' || attribute.type === 'colorcurve') {
                     // find entity of first script
@@ -578,36 +578,36 @@ editor.once('load', function() {
                 slider.style.width = '32px';
                 slider.flexGrow = 4;
 
-                var sliderHidden = function() {
+                var sliderHidden = function () {
                     var min = script.get('attributes.' + attribute.name + '.options.min');
                     var max = script.get('attributes.' + attribute.name + '.options.max');
                     slider.hidden = min == null || max == null || isNaN(min) || isNaN(max);
                 };
                 sliderHidden();
 
-                var evtMin = script.on('attributes.' + attribute.name + '.options.min:set', function(value) {
+                var evtMin = script.on('attributes.' + attribute.name + '.options.min:set', function (value) {
                     slider.min = value;
                     sliderHidden();
                 });
-                events.push(evtMin)
+                events.push(evtMin);
 
-                var evtMax = script.on('attributes.' + attribute.name + '.options.max:set', function(value) {
+                var evtMax = script.on('attributes.' + attribute.name + '.options.max:set', function (value) {
                     slider.max = value;
                     sliderHidden();
                 });
                 events.push(evtMax);
 
-                var evtMinUnset = script.on('attributes.' + attribute.name + '.options.min:unset', function() {
+                var evtMinUnset = script.on('attributes.' + attribute.name + '.options.min:unset', function () {
                     slider.hidden = true;
                 });
                 events.push(evtMinUnset);
 
-                var evtMaxUnset = script.on('attributes.' + attribute.name + '.options.max:unset', function() {
+                var evtMaxUnset = script.on('attributes.' + attribute.name + '.options.max:unset', function () {
                     slider.hidden = true;
                 });
                 events.push(evtMaxUnset);
 
-                events.push(field.once('destroy', function() {
+                events.push(field.once('destroy', function () {
                     evtMin.unbind();
                     evtMax.unbind();
                     evtMinUnset.unbind();
@@ -650,17 +650,17 @@ editor.once('load', function() {
                 events.push(evtAssetTypeChanged);
 
                 // if we change `max` to change between single/multiple
-                var evtMaxAssetChanged = script.on('attributes.' + attribute.name + '.options.max:set', function(value) {
+                var evtMaxAssetChanged = script.on('attributes.' + attribute.name + '.options.max:set', function (value) {
                     if ((options.single && value === 1) || (! options.single && value !== 1))
                         return;
 
-                    setTimeout(function() {
+                    setTimeout(function () {
                         updateAttributeFields(script, parent);
                     }, 0);
                 });
                 events.push(evtMaxAssetChanged);
 
-                field.once('destroy', function() {
+                field.once('destroy', function () {
                     evtAssetTypeChanged.unbind();
                     evtMaxAssetChanged.unbind();
                 });
@@ -673,14 +673,14 @@ editor.once('load', function() {
                 fieldParent = field.parent;
             }
 
-            var evtType = script.on('attributes.' + attribute.name + '.type:set', function(value) {
-                setTimeout(function() {
+            var evtType = script.on('attributes.' + attribute.name + '.type:set', function (value) {
+                setTimeout(function () {
                     updateAttributeFields(script, parent);
                 }, 0);
             });
             events.push(evtType);
 
-            events.push(fieldParent.once('destroy', function() {
+            events.push(fieldParent.once('destroy', function () {
                 evtType.unbind();
             }));
 
@@ -691,7 +691,7 @@ editor.once('load', function() {
             return fieldParent;
         };
 
-        var createScriptPanel = function(script) {
+        var createScriptPanel = function (script) {
             var panelScript = scriptsIndex[script.get('url')];
             if (panelScript) {
                 panelScript.count++;
@@ -716,14 +716,14 @@ editor.once('load', function() {
             panelScript._link = href;
             href.textContent = (panelScript.count === entities.length ? '' : '* ') + panelScript._originalTitle;
             href.url = isExternalUrl ? url : 'https://' + window.location.host + '/editor/code/' + config.project.id + '/' + url;
-            href.addEventListener('click', function() {
+            href.addEventListener('click', function () {
                 window.open(this.url, this.url);
             });
             panelScript.headerElementTitle.textContent = '';
             panelScript.headerElementTitle.appendChild(href);
 
             // name change
-            events.push(script.on('name:set', function(value) {
+            events.push(script.on('name:set', function (value) {
                 panelScript._originalTitle = value;
                 href.textContent = (panelScript.count === entities.length ? '' : '* ') + panelScript._originalTitle;
             }));
@@ -733,12 +733,12 @@ editor.once('load', function() {
             fieldRemoveScript.parent = panelScript;
             fieldRemoveScript.class.add('remove');
             fieldRemoveScript.on('click', function (value) {
-                var records = [ ];
+                var records = [];
 
-                for(var i = 0; i < entities.length; i++) {
+                for (let i = 0; i < entities.length; i++) {
                     entities[i].history.enabled = false;
                     var scripts = entities[i].getRaw('components.script.scripts');
-                    for(var s = 0; s < scripts.length; s++) {
+                    for (var s = 0; s < scripts.length; s++) {
                         if (scripts[s].get('url') === script.get('url')) {
                             var data = scripts[s].json();
 
@@ -762,8 +762,8 @@ editor.once('load', function() {
 
                 editor.call('history:add', {
                     name: 'entities.components.script.scripts',
-                    undo: function() {
-                        for(var i = 0; i < records.length; i++) {
+                    undo: function () {
+                        for (let i = 0; i < records.length; i++) {
                             var item = records[i].item.latest();
                             if (! item)
                                 continue;
@@ -774,7 +774,7 @@ editor.once('load', function() {
 
                             var addScript = true;
 
-                            for(var s = 0; s < scripts.length; s++) {
+                            for (var s = 0; s < scripts.length; s++) {
                                 if (scripts[s].get('url') === records[i].value.url) {
                                     addScript = false;
                                     break;
@@ -793,15 +793,15 @@ editor.once('load', function() {
 
                         refreshScriptAttributes(records[0].value.url);
                     },
-                    redo: function() {
-                        for(var i = 0; i < records.length; i++) {
+                    redo: function () {
+                        for (let i = 0; i < records.length; i++) {
                             var item = records[i].item.latest();
                             if (! item)
                                 continue;
 
                             var scripts = item.getRaw('components.script.scripts');
 
-                            for(var s = 0; s < scripts.length; s++) {
+                            for (var s = 0; s < scripts.length; s++) {
                                 if (scripts[s].get('url') !== records[i].value.url)
                                     continue;
 
@@ -866,7 +866,7 @@ editor.once('load', function() {
                 // add attributes if has any
                 var order = script.get('attributesOrder');
                 if (order) {
-                    for(var i = 0; i < order.length; i++) {
+                    for (let i = 0; i < order.length; i++) {
                         createAttributeField(script, order[i], attributes);
                     }
                 }
@@ -874,11 +874,11 @@ editor.once('load', function() {
 
             var timerUpdateAttributes = null;
             // when attributes order changed, schedule update
-            events.push(script.on('attributesOrder:set', function() {
+            events.push(script.on('attributesOrder:set', function () {
                 if (timerUpdateAttributes)
                     return;
 
-                timerUpdateAttributes = setTimeout(function() {
+                timerUpdateAttributes = setTimeout(function () {
                     timerUpdateAttributes = null;
                     updateAttributeFields(script, attributes);
                 }, 0);
@@ -888,7 +888,7 @@ editor.once('load', function() {
         };
 
         // Converts URL to script name
-        var getFilenameFromUrl = function(url) {
+        var getFilenameFromUrl = function (url) {
             var filename = url;
 
             if (jsRegex.test(filename))
@@ -901,7 +901,7 @@ editor.once('load', function() {
             return filename;
         };
 
-        var addScriptPanel = function(script, ind) {
+        var addScriptPanel = function (script, ind) {
             var panelScript = createScriptPanel(script);
             if (! panelScript)
                 return;
@@ -920,17 +920,17 @@ editor.once('load', function() {
         };
 
         // add existing scripts and subscribe to scripts Observer list
-        for(var i = 0; i < entities.length; i++) {
+        for (let i = 0; i < entities.length; i++) {
             var scripts = entities[i].getRaw('components.script.scripts');
 
             if (scripts) {
-                for(var s = 0; s < scripts.length; s++)
+                for (var s = 0; s < scripts.length; s++)
                     addScriptPanel(scripts[s]);
             }
 
             // subscribe to scripts:set
-            events.push(entities[i].on('components.script.scripts:set', function(value, valueOld) {
-                for(var i = 0; i < value.length; i++)
+            events.push(entities[i].on('components.script.scripts:set', function (value, valueOld) {
+                for (let i = 0; i < value.length; i++)
                     addScriptPanel(value[i]);
             }));
 
@@ -976,17 +976,17 @@ editor.once('load', function() {
         // drag drop
         editor.call('drop:target', {
             ref: panel,
-            filter: function(type, data) {
+            filter: function (type, data) {
                 if (type !== 'asset.script') return false;
 
                 var root = editor.call('layout.root');
                 var rectA = root.innerElement.getBoundingClientRect();
                 var rectB = panel.element.getBoundingClientRect();
                 if (rectB.top > rectA.top && rectB.bottom < rectA.bottom) {
-                    for(var i = 0; i < entities.length; i++) {
+                    for (let i = 0; i < entities.length; i++) {
                         var addScript = true;
                         var scripts = entities[i].getRaw('components.script.scripts');
-                        for(var s = 0; s < scripts.length; s++) {
+                        for (var s = 0; s < scripts.length; s++) {
                             if (scripts[s].get('url') === data.filename) {
                                 return false;
                             }
@@ -999,7 +999,7 @@ editor.once('load', function() {
                 return false;
 
             },
-            drop: function(type, data) {
+            drop: function (type, data) {
                 if (type !== 'asset.script')
                     return;
 
@@ -1008,8 +1008,8 @@ editor.once('load', function() {
         });
 
         // clean up events
-        panel.once('destroy', function() {
-            for(var i = 0; i < events.length; i++)
+        panel.once('destroy', function () {
+            for (let i = 0; i < events.length; i++)
                 events[i].unbind();
 
             events = null;

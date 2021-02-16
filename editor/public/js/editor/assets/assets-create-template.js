@@ -7,7 +7,7 @@ editor.once('load', function () {
      * Set template-specific fields on the root to mark
      * it as a template instance.
      *
-     * @param {Object} root The root entity
+     * @param {object} root - The root entity
      */
     editor.method('assets:create:template', function (root) {
         if (! editor.call('permissions:write')) {
@@ -25,7 +25,7 @@ editor.once('load', function () {
             type: 'template',
             source: false,
             parent: parent,
-            data:  data.assetData,
+            data: data.assetData,
             scope: {
                 type: 'project',
                 id: config.project.id
@@ -43,7 +43,7 @@ editor.once('load', function () {
                 root.set('template_id', parseInt(assetId, 10));
                 root.set('template_ent_ids', data.srcToDst);
                 root.history.enabled = history;
-            }
+            };
 
             // check if asset exists first because of initial race condition
             // if it doesn't exist wait for it before setting template_id because

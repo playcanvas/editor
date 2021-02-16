@@ -1,10 +1,10 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     // returns all selected entities
     editor.method('entities:selection', function () {
         if (editor.call('selector:type') !== 'entity')
-            return [ ];
+            return [];
 
         return editor.call('selector:items').slice(0);
     });
@@ -14,8 +14,8 @@ editor.once('load', function() {
         var selection = editor.call('entities:selection');
         if (selection.length) {
             return selection[0];
-        } else {
-            return null;
         }
+        return null;
+
     });
 });

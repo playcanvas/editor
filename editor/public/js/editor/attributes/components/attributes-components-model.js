@@ -1,9 +1,9 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('users:hasFlag', 'hasPcuiComponentInspectors')) return;
 
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
@@ -11,7 +11,7 @@ editor.once('load', function() {
         var app = editor.call('viewport:app');
         if (! app) return; // webgl not available
 
-        var events = [ ];
+        var events = [];
 
         var projectSettings = editor.call('settings:project');
 
@@ -41,7 +41,7 @@ editor.once('load', function() {
             path: 'components.model.type',
             canOverrideTemplate: true
         });
-        fieldType.on('change', function(value) {
+        fieldType.on('change', function (value) {
             fieldAsset.parent.hidden = value !== 'asset';
             fieldMaterial.parent.hidden = value === 'asset';
             toggleMaterials();
@@ -265,9 +265,9 @@ editor.once('load', function() {
         label.style.color = '#f66';
         fieldIsStatic.parent.append(label);
 
-        var checkUV1Missing = function() {
+        var checkUV1Missing = function () {
             var missing = false;
-            for(var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 var e = entities[i];
                 if (! e.has('components.model') || ! e.get('components.model.lightmapped') || e.get('components.model.type') !== 'asset' || ! e.get('components.model.asset'))
                     continue;
@@ -286,7 +286,7 @@ editor.once('load', function() {
             label.hidden = ! missing;
         };
         checkUV1Missing();
-        fieldLightmapped.on('change', function() {
+        fieldLightmapped.on('change', function () {
             checkUV1Missing();
             collectResolutions();
         });
@@ -305,19 +305,19 @@ editor.once('load', function() {
         fieldResolution.flexShrink = 0;
         // show/hide
         fieldResolution.parent.hidden = ! fieldLightmapped.value && ! fieldLightmapped.class.contains('null');
-        fieldLightmapped.on('change', function() {
+        fieldLightmapped.on('change', function () {
             fieldResolution.parent.hidden = ! fieldLightmapped.value && ! fieldLightmapped.class.contains('null');
         });
         // reference
         editor.call('attributes:reference:attach', 'model:resolution', fieldResolution.parent.innerElement.firstChild.ui);
 
         // calculate resolutions for lightmap
-        var collectResolutions = function() {
+        var collectResolutions = function () {
             var lightmapper = app.lightmapper;
             var min = Infinity;
             var max = -Infinity;
 
-            for(var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 if (! entities[i].get('components.model.lightmapped') || ! entities[i].entity.model || (! entities[i].entity.model.asset && entities[i].entity.type === 'asset') || (entities[i].entity.model.asset && ! app.assets.get(entities[i].entity.model.asset)))
                     continue;
 
@@ -349,7 +349,7 @@ editor.once('load', function() {
             path: 'components.model.lightmapSizeMultiplier',
             canOverrideTemplate: true
         });
-        fieldLightmapSizeMultiplier.on('change', function() {
+        fieldLightmapSizeMultiplier.on('change', function () {
             collectResolutions();
         });
         // reference
@@ -367,7 +367,7 @@ editor.once('load', function() {
             '': '...',
             'NaN': 'None'
         };
-        for (var key in batchGroups) {
+        for (const key in batchGroups) {
             batchEnum[key] = batchGroups[key].name;
         }
 
@@ -395,7 +395,7 @@ editor.once('load', function() {
             batchEnum[group] = projectSettings.get('batchGroups.' + group + '.name');
             fieldBatchGroup._updateOptions(batchEnum);
             fieldBatchGroup.value = group;
-            editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+            editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
             setTimeout(function () {
                 editor.call('editorSettings:batchGroups:focus', group);
             });
@@ -406,7 +406,7 @@ editor.once('load', function() {
         var layersEnum = {
             '': ''
         };
-        for (var key in layers) {
+        for (const key in layers) {
             layersEnum[key] = layers[key].name;
         }
         delete layersEnum[LAYERID_DEPTH];
@@ -429,7 +429,7 @@ editor.once('load', function() {
             onClickTag: function () {
                 // focus layer
                 var layerId = this.originalValue;
-                editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+                editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
                 setTimeout(function () {
                     editor.call('editorSettings:layers:focus', layerId);
                 });
@@ -439,18 +439,18 @@ editor.once('load', function() {
         // reference
         editor.call('attributes:reference:attach', 'model:layers', fieldLayers.parent.parent.innerElement.firstChild.ui);
 
-        panel.on('destroy', function() {
-            for(var i = 0; i < events.length; i++)
+        panel.on('destroy', function () {
+            for (let i = 0; i < events.length; i++)
                 events[i].unbind();
         });
 
 
         // gather all mappings for all selected entities
         var allMappings = {};
-        for (var i = 0, len = entities.length; i < len; i++) {
+        for (let i = 0, len = entities.length; i < len; i++) {
             var mapping = entities[i].get('components.model.mapping');
             if (mapping) {
-                for (var key in mapping) {
+                for (const key in mapping) {
                     if (!allMappings[key])
                         allMappings[key] = [entities[i].get('resource_id')];
                     else
@@ -474,7 +474,7 @@ editor.once('load', function() {
         // and are referencing an asset
         var toggleMaterials = function ()  {
             var referencedModelAsset = entities[0].get('components.model.asset');
-            for (var i = 0, len = entities.length; i < len; i++) {
+            for (let i = 0, len = entities.length; i < len; i++) {
                 if (entities[i].get('components.model.type') !== 'asset' ||
                     entities[i].get('components.model.asset') !== referencedModelAsset) {
                     panelMaterials.hidden = true;
@@ -494,7 +494,7 @@ editor.once('load', function() {
             text: 'Asset Materials'
         });
         assetMaterials.disabled = ! editor.call('assets:get', entities[0].get('components.model.asset'));
-        events.push(entities[0].on('components.model.asset:set', function(value) {
+        events.push(entities[0].on('components.model.asset:set', function (value) {
             assetMaterials.disabled = entityMaterials.disabled = ! value || ! editor.call('assets:get', value);
         }));
 
@@ -535,8 +535,8 @@ editor.once('load', function() {
 
             editor.call('history:add', {
                 name: 'entities.' + (resourceIds.length > 1 ? '*' : resourceIds[0]) + '.components.model.mapping',
-                undo: function() {
-                    for(var i = 0; i < resourceIds.length; i++) {
+                undo: function () {
+                    for (let i = 0; i < resourceIds.length; i++) {
                         var item = editor.call('entities:get', resourceIds[i]);
                         if (! item)
                             continue;
@@ -551,8 +551,8 @@ editor.once('load', function() {
                         item.history.enabled = history;
                     }
                 },
-                redo: function() {
-                    for(var i = 0; i < resourceIds.length; i++) {
+                redo: function () {
+                    for (let i = 0; i < resourceIds.length; i++) {
                         var item = editor.call('entities:get', resourceIds[i]);
                         if (! item)
                             continue;
@@ -572,7 +572,7 @@ editor.once('load', function() {
             if (! engineEntity.model)
                 return;
 
-            var meshInstances = engineEntity.model.meshInstances || [ ];
+            var meshInstances = engineEntity.model.meshInstances || [];
 
             var field = editor.call('attributes:addField', {
                 parent: panelMaterials,
@@ -582,7 +582,7 @@ editor.once('load', function() {
                 link: entities,
                 path: 'components.model.mapping.' + index,
                 canOverrideTemplate: true,
-                over: function(type, data) {
+                over: function (type, data) {
                     valuesBefore = entities.map(function (entity) {
                         var path = 'components.model.mapping.' + index;
                         return entity.has(path) ? entity.get(path) : undefined;
@@ -601,7 +601,7 @@ editor.once('load', function() {
 
                     editor.call('viewport:render');
                 },
-                leave: function() {
+                leave: function () {
                     if (!valuesBefore) return;
 
                     entities.forEach(function (entity, i) {
@@ -644,7 +644,7 @@ editor.once('load', function() {
         };
 
         // add field for each mapping
-        for (var key in allMappings) {
+        for (const key in allMappings) {
             addOverride(key);
         }
 
@@ -660,7 +660,7 @@ editor.once('load', function() {
                 var resourceId = entity.get('resource_id');
 
                 // remove deleted overrides
-                for (var key in allMappings) {
+                for (const key in allMappings) {
                     if (value[key] === undefined) {
                         var ind = allMappings[key].indexOf(resourceId);
                         if (ind !== -1) {
@@ -678,12 +678,11 @@ editor.once('load', function() {
 
 
                 // add new
-                for (var key in value) {
+                for (const key in value) {
                     if (!allMappings[key]) {
                         allMappings[key] = [resourceId];
                         addOverride(key);
-                    }
-                    else {
+                    } else {
                         if (allMappings[key].indexOf(resourceId) === -1)
                             allMappings[key].push(resourceId);
                     }
@@ -695,7 +694,7 @@ editor.once('load', function() {
                 if (! /^components.model.mapping/.test(path)) return;
 
                 var parts = path.split('.');
-                var index = parts[parts.length-1];
+                var index = parts[parts.length - 1];
                 if (!allMappings[index]) return;
 
                 var resourceId = entity.get('resource_id');

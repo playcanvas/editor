@@ -2,11 +2,11 @@ editor.once('load', function () {
     'use strict';
 
     var app = null;
-    var entities = [ ];
+    var entities = [];
     var visible = true;
 
     var color = new pc.Color(1, 1, 1);
-    var colorBehind = new pc.Color(1, 1, 1, .5);
+    var colorBehind = new pc.Color(1, 1, 1, 0.5);
 
     var immediateRenderOptions;
     var immediateMaskRenderOptions;
@@ -24,14 +24,14 @@ editor.once('load', function () {
             }
 
             // render child links
-            for (var i=0; i<node.children.length; ++i) {
+            for (let i = 0; i < node.children.length; ++i) {
                 var child = node.children[i];
                 renderBone(node, child);
                 renderBoneHierarchy(child);
             }
         };
 
-        for (var i=0; i<entities.length; ++i) {
+        for (let i = 0; i < entities.length; ++i) {
             var entity = entities[i];
             if (entity) {
                 var model = entity.model;
@@ -54,17 +54,17 @@ editor.once('load', function () {
         return visible;
     });
 
-    editor.on('selector:change', function(type, items) {
+    editor.on('selector:change', function (type, items) {
         if (type === 'entity') {
-            entities = items.map(function(item) {
+            entities = items.map(function (item) {
                 return item.entity;
             });
         } else {
-            entities = [ ];
+            entities = [];
         }
     });
 
-    editor.once('viewport:load', function() {
+    editor.once('viewport:load', function () {
         // get the app
         app = editor.call('viewport:app');
 
@@ -80,12 +80,12 @@ editor.once('load', function () {
 
         // hook up changes to editor.showSkeleton
         var settings = editor.call('settings:user');
-        settings.on('editor.showSkeleton:set', function(enabled) {
+        settings.on('editor.showSkeleton:set', function (enabled) {
             visible = enabled;
         });
         visible = settings.get('editor.showSkeleton');
 
-        editor.on('viewport:postUpdate', function() {
+        editor.on('viewport:postUpdate', function () {
             if (app && visible && entities.length) {
                 renderBones(entities);
             }

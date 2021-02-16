@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var root = editor.call('layout.root');
@@ -8,7 +8,7 @@ editor.once('load', function() {
     panel.class.add('whoisonline');
     viewport.append(panel);
 
-    editor.on('viewport:expand', function(state) {
+    editor.on('viewport:expand', function (state) {
         if (state) {
             panel.class.add('expanded');
         } else {
@@ -30,7 +30,7 @@ editor.once('load', function() {
 
 
     editor.on('whoisonline:add', function (id) {
-        for(var i = 0; i < panel.innerElement.childNodes.length; i++) {
+        for (let i = 0; i < panel.innerElement.childNodes.length; i++) {
             var child = panel.innerElement.childNodes[i];
             if (child.userId === id)
                 return;
@@ -62,7 +62,7 @@ editor.once('load', function() {
 
 
     editor.on('whoisonline:remove', function (id, index) {
-        for(var i = 0; i < panel.innerElement.childNodes.length; i++) {
+        for (let i = 0; i < panel.innerElement.childNodes.length; i++) {
             var child = panel.innerElement.childNodes[i];
             if (child.userId === id) {
                 if (child.tooltip)
@@ -74,7 +74,7 @@ editor.once('load', function() {
     });
 
 
-    editor.method('whoisonline:panel', function() {
+    editor.method('whoisonline:panel', function () {
         return panel;
     });
 
@@ -82,10 +82,10 @@ editor.once('load', function() {
     if (chatWidget) {
         panel.class.add('chat-minified');
 
-        chatWidget.on('fold', function() {
+        chatWidget.on('fold', function () {
             panel.class.add('chat-minified');
         });
-        chatWidget.on('unfold', function() {
+        chatWidget.on('unfold', function () {
             panel.class.remove('chat-minified');
         });
 
@@ -93,7 +93,7 @@ editor.once('load', function() {
             panel.class.add('no-chat');
     }
 
-    editor.on('permissions:set', function(level) {
+    editor.on('permissions:set', function (level) {
         if (level) {
             panel.class.remove('no-chat');
         } else {

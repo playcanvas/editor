@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var toolbar = editor.call('layout.toolbar');
@@ -9,7 +9,7 @@ editor.once('load', function() {
     button.class.add('pc-icon', 'help-howdoi', 'bottom', 'push-top');
     toolbar.append(button);
 
-    button.on('click', function() {
+    button.on('click', function () {
         editor.call('help:howdoi:toggle');
     });
 

@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
@@ -6,14 +6,14 @@ editor.once('load', function() {
 
     const hasPcuiAssetInspectors = editor.call('users:hasFlag', 'hasPcuiAssetInspectors');
 
-    editor.on('attributes:inspect[asset]', function(assets) {
+    editor.on('attributes:inspect[asset]', function (assets) {
         if (hasPcuiAssetInspectors)
             return;
         if (assets.length !== 1 || assets[0].get('type') !== 'script' || assets[0].get('source'))
             return;
 
         var asset = assets[0];
-        var events = [ ];
+        var events = [];
 
         // panel
         var panel = editor.call('attributes:assets:panel');
@@ -38,9 +38,9 @@ editor.once('load', function() {
                 var panelOrder = fieldOrder.parent;
                 panelOrder.innerElement.removeChild(fieldOrder.element);
                 panelOrder.append(btnOrder);
-                btnOrder.on('click', function() {
-                    editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
-                    setTimeout(function() {
+                btnOrder.on('click', function () {
+                    editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
+                    setTimeout(function () {
                         editor.call('editorSettings:panel:unfold', 'scripts-order');
                     }, 0);
                 });
@@ -84,14 +84,14 @@ editor.once('load', function() {
                 text: 'Parse'
             });
             btnParse.hidden = ! editor.call('permissions:write');
-            events.push(editor.on('permissions:writeState', function(state) {
+            events.push(editor.on('permissions:writeState', function (state) {
                 btnParse.hidden = ! state;
             }));
             btnParse.class.add('parse-script');
-            btnParse.on('click', function() {
+            btnParse.on('click', function () {
                 btnParse.disabled = true;
 
-                editor.call('scripts:parse', asset, function(err, result) {
+                editor.call('scripts:parse', asset, function (err, result) {
                     btnParse.disabled = false;
 
                     if (err) {
@@ -109,7 +109,7 @@ editor.once('load', function() {
                         label.class.add('title');
                         panelErrors.append(label);
 
-                        for(var i = 0; i < result.scriptsInvalid.length; i++) {
+                        for (let i = 0; i < result.scriptsInvalid.length; i++) {
                             var label = new ui.Label({ text: result.scriptsInvalid[i] });
                             panelErrors.append(label);
                         }
@@ -119,7 +119,7 @@ editor.once('load', function() {
                     }
 
                     // template attributes validation errors
-                    for(var key in result.scripts) {
+                    for (const key in result.scripts) {
                         if (! result.scripts.hasOwnProperty(key) || ! scriptsPanelIndex[key])
                             continue;
 
@@ -139,9 +139,9 @@ editor.once('load', function() {
 
                         validation.clear();
                         if (validation.collision)
-                            validation.append(validation.collision)
+                            validation.append(validation.collision);
 
-                        for(var i = 0; i < attrInvalid.length; i++)
+                        for (let i = 0; i < attrInvalid.length; i++)
                             validation.append(new ui.Label({ text: attrInvalid[i] }));
 
                         validation.hidden = false;
@@ -158,7 +158,7 @@ editor.once('load', function() {
             fieldLoading.class.add('loading');
             fieldLoading.hidden = ! asset.get('data.loading');
             panelScripts.append(fieldLoading);
-            events.push(asset.on('data.loading:set', function(value) {
+            events.push(asset.on('data.loading:set', function (value) {
                 fieldLoading.hidden = ! value;
                 checkScriptsEmpty();
             }));
@@ -180,7 +180,7 @@ editor.once('load', function() {
             var scriptsPanelIndex = { };
             var noScriptsLabel;
 
-            var checkScriptsEmpty = function() {
+            var checkScriptsEmpty = function () {
                 var empty = Object.keys(scriptsPanelIndex).length === 0;
 
                 if (empty) {
@@ -201,11 +201,11 @@ editor.once('load', function() {
                 }
             };
 
-            var createScriptPanel = function(script) {
+            var createScriptPanel = function (script) {
                 if (scriptsPanelIndex[script])
                     return;
 
-                var events = [ ];
+                var events = [];
 
                 var panel = new ui.Panel();
                 panel.class.add('script');
@@ -219,7 +219,7 @@ editor.once('load', function() {
                 panel.validation = validation;
                 panel.append(validation);
 
-                var onCollide = function() {
+                var onCollide = function () {
                     if (validation.collision)
                         return;
 
@@ -232,7 +232,7 @@ editor.once('load', function() {
 
                 events.push(editor.on('assets[' + asset.get('id') + ']:scripts[' + script + ']:collide', onCollide));
 
-                events.push(editor.on('assets[' + asset.get('id') + ']:scripts[' + script + ']:resolve', function() {
+                events.push(editor.on('assets[' + asset.get('id') + ']:scripts[' + script + ']:resolve', function () {
                     if (! validation.collision)
                         return;
 
@@ -246,8 +246,8 @@ editor.once('load', function() {
                 if (editor.call('assets:scripts:collide', script))
                     onCollide();
 
-                panel.once('destroy', function() {
-                    for(var i = 0; i < events.length; i++)
+                panel.once('destroy', function () {
+                    for (let i = 0; i < events.length; i++)
                         events[i].unbind();
                     events = null;
                 });
@@ -255,14 +255,14 @@ editor.once('load', function() {
                 scriptsPanelIndex[script] = panel;
 
                 var attributesOrder = asset.get('data.scripts.' + script + '.attributesOrder');
-                for(var i = 0; i < attributesOrder.length; i++)
+                for (let i = 0; i < attributesOrder.length; i++)
                     createScriptAttribute(script, attributesOrder[i]);
 
                 checkScriptsEmpty();
             };
 
-            var createScriptAttribute = function(script, attr, ind) {
-                var events = [ ];
+            var createScriptAttribute = function (script, attr, ind) {
+                var events = [];
                 var panel = scriptsPanelIndex[script];
                 if (! panel) return;
 
@@ -276,7 +276,7 @@ editor.once('load', function() {
                 var panelAttribute = new ui.Panel();
                 panelAttribute.class.add('attr');
                 panelAttribute.updatingTooltip = null;
-                panelAttribute.updateTooltip = function() {
+                panelAttribute.updateTooltip = function () {
                     panelAttribute.updatingTooltip = false;
 
                     var attribute = asset.get('data.scripts.' + script + '.attributes.' + attr);
@@ -327,7 +327,7 @@ editor.once('load', function() {
                     element: panelAttribute.element
                 });
 
-                events.push(asset.on('*:set', function(path) {
+                events.push(asset.on('*:set', function (path) {
                     if (panelAttribute.updatingTooltip)
                         return;
 
@@ -338,8 +338,8 @@ editor.once('load', function() {
                     setTimeout(panelAttribute.updateTooltip, 0);
                 }));
 
-                fieldType.once('destroy', function() {
-                    for(var i = 0; i < events.length; i++)
+                fieldType.once('destroy', function () {
+                    for (let i = 0; i < events.length; i++)
                         events[i].unbind();
 
                     events = null;
@@ -347,8 +347,8 @@ editor.once('load', function() {
             };
 
             var data = asset.get('data.scripts');
-            var scriptKeys = [ ];
-            for(var key in data) {
+            var scriptKeys = [];
+            for (const key in data) {
                 if (! data.hasOwnProperty(key))
                     continue;
 
@@ -357,7 +357,7 @@ editor.once('load', function() {
 
             checkScriptsEmpty();
 
-            events.push(asset.on('*:set', function(path, value) {
+            events.push(asset.on('*:set', function (path, value) {
                 if (! path.startsWith('data.scripts'))
                     return;
 
@@ -379,7 +379,7 @@ editor.once('load', function() {
                 }
             }));
 
-            events.push(asset.on('*:unset', function(path, value) {
+            events.push(asset.on('*:unset', function (path, value) {
                 if (! path.startsWith('data.scripts'))
                     return;
 
@@ -405,7 +405,7 @@ editor.once('load', function() {
                 }
             }));
 
-            events.push(asset.on('*:insert', function(path, value, ind) {
+            events.push(asset.on('*:insert', function (path, value, ind) {
                 if (! path.startsWith('data.scripts'))
                     return;
 
@@ -417,7 +417,7 @@ editor.once('load', function() {
                 }
             }));
 
-            events.push(asset.on('*:remove', function(path, value) {
+            events.push(asset.on('*:remove', function (path, value) {
                 if (! path.startsWith('data.scripts'))
                     return;
 
@@ -436,7 +436,7 @@ editor.once('load', function() {
                 }
             }));
 
-            events.push(asset.on('*:move', function(path, value, ind, indOld) {
+            events.push(asset.on('*:move', function (path, value, ind, indOld) {
                 if (! path.startsWith('data.scripts'))
                     return;
 
@@ -463,8 +463,8 @@ editor.once('load', function() {
         }
 
         // clear events
-        panel.once('destroy', function() {
-            for(var i = 0; i < events.length; i++)
+        panel.once('destroy', function () {
+            for (let i = 0; i < events.length; i++)
                 events[i].unbind();
 
             events = null;

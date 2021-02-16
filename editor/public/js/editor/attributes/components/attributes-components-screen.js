@@ -1,14 +1,14 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('users:hasFlag', 'hasPcuiComponentInspectors')) return;
 
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
 
-        var events = [ ];
+        var events = [];
 
         var panel = editor.call('attributes:entity:addComponentPanel', {
             title: 'Screen',
@@ -65,9 +65,9 @@ editor.once('load', function() {
             name: 'Scale Mode',
             type: 'string',
             enum: [
-                {v: '', t: '...'},
-                {v: 'none', t: 'None'},
-                {v: 'blend', t: 'Blend'},
+                { v: '', t: '...' },
+                { v: 'none', t: 'None' },
+                { v: 'blend', t: 'Blend' }
             ],
             link: entities,
             path: 'components.screen.scaleMode',

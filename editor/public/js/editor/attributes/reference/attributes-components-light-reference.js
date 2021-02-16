@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var fields = [{
@@ -72,7 +72,7 @@ editor.once('load', function() {
         subTitle: '{Number}',
         description: 'The size of the texture used for the shadow map.',
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#shadowResolution'
-    },{
+    }, {
         title: 'type',
         subTitle: '{String}',
         description: 'The type of light. Can be: directional, point, spot.',
@@ -170,7 +170,7 @@ editor.once('load', function() {
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#layers'
     }];
 
-    for(var i = 0; i < fields.length; i++) {
+    for (let i = 0; i < fields.length; i++) {
         fields[i].name = 'light:' + (fields[i].name || fields[i].title);
         editor.call('attributes:reference:add', fields[i]);
     }

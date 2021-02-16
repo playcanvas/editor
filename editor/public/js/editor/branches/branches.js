@@ -39,7 +39,7 @@ editor.once('load', function () {
         }
 
         if (args.favorite) {
-          url += separator + 'favorite=true';
+            url += separator + 'favorite=true';
         }
 
         request({
@@ -125,7 +125,7 @@ editor.once('load', function () {
             mergeId: mergeId,
             conflictIds: conflictIds
         };
-        for (var key in resolveData) {
+        for (const key in resolveData) {
             data[key] = resolveData[key];
         }
 

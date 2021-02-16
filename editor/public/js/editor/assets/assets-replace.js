@@ -5,8 +5,9 @@ editor.once('load', function () {
 
     /**
      * Replaces the specified asset with the replacement asset everywhere
-     * @param {Observer} asset The original asset
-     * @param {Observer} replacement The replacement asset
+     *
+     * @param {Observer} asset - The original asset
+     * @param {Observer} replacement - The replacement asset
      */
     var AssetReplace = function (asset, replacement) {
         this.asset = asset;
@@ -23,8 +24,9 @@ editor.once('load', function () {
 
     /**
      * Set the replacement asset for the specified object at the specified path
-     * @param {Observer} obj The object
-     * @param {String} path The path that we are replacing
+     *
+     * @param {Observer} obj - The object
+     * @param {string} path - The path that we are replacing
      */
     AssetReplace.prototype.set = function (obj, path) {
         var history = obj.history.enabled;
@@ -42,7 +44,7 @@ editor.once('load', function () {
 
     AssetReplace.prototype.handleAnimation = function () {
         // entity
-        for (var i = 0; i < this.entities.length; i++) {
+        for (let i = 0; i < this.entities.length; i++) {
             var obj = this.entities[i];
 
             // animation
@@ -61,13 +63,13 @@ editor.once('load', function () {
 
     AssetReplace.prototype.handleAudio = function () {
         // entity
-        for (var i = 0; i < this.entities.length; i++) {
+        for (let i = 0; i < this.entities.length; i++) {
             var obj = this.entities[i];
 
             // sound
             var sound = obj.get('components.sound');
             if (sound) {
-                for (var ind in sound.slots) {
+                for (const ind in sound.slots) {
                     if (!sound.slots[ind] || sound.slots[ind].asset !== this.oldId)
                         continue;
 
@@ -240,7 +242,7 @@ editor.once('load', function () {
                 }
 
                 if (sprite.clips) {
-                    for (var key in sprite.clips) {
+                    for (const key in sprite.clips) {
                         if (sprite.clips[key].spriteAsset && sprite.clips[key].spriteAsset === this.oldId) {
                             this.set(obj, 'components.sprite.clips.' + key + '.spriteAsset');
                         }
@@ -400,7 +402,7 @@ editor.once('load', function () {
                     editor.call('history:add', {
                         name: 'asset texture to sprite',
                         undo: function () {
-                            for (var i = 0; i < changed.length; i++) {
+                            for (let i = 0; i < changed.length; i++) {
                                 var obj = changed[i];
                                 var history = obj.history.enabled;
                                 obj.history.enabled = false;
@@ -411,7 +413,7 @@ editor.once('load', function () {
                         },
 
                         redo: function () {
-                            for (var i = 0; i < changed.length; i++) {
+                            for (let i = 0; i < changed.length; i++) {
                                 var obj = changed[i];
                                 var history = obj.history.enabled;
                                 obj.history.enabled = false;
@@ -429,13 +431,13 @@ editor.once('load', function () {
 
     AssetReplace.prototype.replaceScriptAttributes = function () {
         // entity.components.script
-        for (var i = 0; i < this.entities.length; i++) {
+        for (let i = 0; i < this.entities.length; i++) {
             var obj = this.entities[i];
 
             // script
             var scripts = obj.get('components.script.scripts');
             if (scripts) {
-                for (var script in scripts) {
+                for (const script in scripts) {
                     var assetScript = editor.call('assets:scripts:assetByScript', script);
                     if (!assetScript)
                         continue;
@@ -446,7 +448,7 @@ editor.once('load', function () {
 
                     var attributes = assetScripts[script].attributes;
 
-                    for (var attrName in scripts[script].attributes) {
+                    for (const attrName in scripts[script].attributes) {
                         if (!attributes[attrName] || attributes[attrName].type !== 'asset')
                             continue;
 
@@ -479,7 +481,7 @@ editor.once('load', function () {
         editor.call('history:add', {
             name: 'asset replace',
             undo: function () {
-                for (var i = 0; i < records.length; i++) {
+                for (let i = 0; i < records.length; i++) {
                     var obj = records[i].get();
                     if (!obj || !obj.has(records[i].path))
                         continue;
@@ -503,7 +505,7 @@ editor.once('load', function () {
                 }
             },
             redo: function () {
-                for (var i = 0; i < records.length; i++) {
+                for (let i = 0; i < records.length; i++) {
                     var obj = records[i].get();
                     if (!obj || !obj.has(records[i].path))
                         continue;

@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     // holds all layers that are to be added in the beginning of the composition
@@ -30,8 +30,6 @@ editor.once('load', function() {
         }
 
         var index = insertToBeginning ? layerIndexBefore : layerIndexAfter;
-        var keys = Object.keys(index);
-        var previous = keys.length ? index[keys[keys.length - 1]] : null;
 
         index[data.id] = new pc.Layer(data);
         nameIndex[name] = index[data.id];
@@ -45,7 +43,7 @@ editor.once('load', function() {
 
     editor.method('gizmo:layers:list', function () {
         var result = [];
-        for (var key in nameIndex) {
+        for (const key in nameIndex) {
             result.push(nameIndex[key]);
         }
 
@@ -59,11 +57,11 @@ editor.once('load', function() {
             composition = app.scene.layers;
         }
 
-        for (var key in layerIndexBefore) {
+        for (const key in layerIndexBefore) {
             composition.remove(layerIndexBefore[key]);
         }
 
-        for (var key in layerIndexAfter) {
+        for (const key in layerIndexAfter) {
             composition.remove(layerIndexAfter[key]);
         }
     });
@@ -129,8 +127,8 @@ editor.once('load', function() {
     });
 
     editor.call('gizmo:layers:register', 'Camera Preview', false, {
-      passThrough: true,
-      isPostEffect: true
+        passThrough: true,
+        isPostEffect: true
     });
 
     editor.once('viewport:load', function () {

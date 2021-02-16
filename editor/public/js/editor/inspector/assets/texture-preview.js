@@ -8,7 +8,7 @@ Object.assign(pcui, (function () {
             return null;
 
         return config.url.home + asset.get('file.url').appendQuery('t=' + asset.get('file.hash'));
-    }
+    };
 
     class TextureAssetInspectorPreview extends pcui.AssetInspectorPreviewBase {
         constructor(args) {
@@ -32,7 +32,7 @@ Object.assign(pcui, (function () {
             if (!previewUrl)
                 return;
 
-            this._preview.style.backgroundImage = `url("${previewUrl}")`
+            this._preview.style.backgroundImage = `url("${previewUrl}")`;
         }
 
         link(assets) {

@@ -1,6 +1,6 @@
-(function() {
+(function () {
     // first load
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         editor.emit('load');
         editor.call('status:text', 'starting');
         editor.emit('start');

@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var fields = [{
@@ -257,7 +257,7 @@ editor.once('load', function() {
         url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#layers'
     }];
 
-    for (var i = 0; i < fields.length; i++) {
+    for (let i = 0; i < fields.length; i++) {
         if (['animStartFrame', 'animNumAnimations', 'animIndex', 'randomizeAnimIndex'].includes(fields[i].title) && !editor.call('users:hasFlag', 'hasParticleSystemAnimStartFrame'))
             continue;
         fields[i].name = 'particlesystem:' + (fields[i].name || fields[i].title);

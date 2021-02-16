@@ -54,7 +54,7 @@ editor.once('load', function () {
         editor.unbind('scene:name', positionWidget);
         editor.unbind('viewport:resize', positionWidget);
 
-        if (!config.self.flags.tips['howdoi'])
+        if (!config.self.flags.tips.howdoi)
             editor.call('guide:bubble:show', 'howdoi', bubble, 200, true);
     });
 
@@ -140,7 +140,7 @@ editor.once('load', function () {
         // open popup on mousedown instead of 'click' because
         // for some reason the 'click' event doesn't always work here
         menuItem.element.addEventListener('mousedown', function (e) {
-            e.stopPropagation() ;
+            e.stopPropagation();
             openPopup();
         });
 
@@ -302,7 +302,7 @@ editor.once('load', function () {
                     }
 
                     // add to the score for each matched keyword
-                    for (var i = 0, len = keywords.length; i < len; i++) {
+                    for (let i = 0, len = keywords.length; i < len; i++) {
                         match = q.exec(keywords[i]);
                         if (match) {
                             score++;
@@ -438,8 +438,7 @@ editor.once('load', function () {
             close.hidden = true;
 
             filterSuggestions();
-        }
-        else {
+        } else {
             window.removeEventListener('click', click);
             window.removeEventListener('keydown', key);
             input.class.remove('focus');
@@ -480,7 +479,7 @@ editor.once('load', function () {
     editor.call('hotkey:register', 'help:howdoi', {
         key: 'space',
         ctrl: true,
-        callback: function() {
+        callback: function () {
             if (editor.call('picker:isOpen:otherThan', 'curve')) return;
             editor.call('help:howdoi');
         }

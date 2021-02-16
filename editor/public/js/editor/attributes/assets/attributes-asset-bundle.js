@@ -5,7 +5,7 @@ editor.once('load', function () {
         const hasPcuiAssetInspectors = editor.call('users:hasFlag', 'hasPcuiAssetInspectors');
         if (hasPcuiAssetInspectors)
             return;
-        for (var i = 0; i < assets.length; i++) {
+        for (let i = 0; i < assets.length; i++) {
             if (assets[i].get('type') !== 'bundle')
                 return;
         }
@@ -37,7 +37,7 @@ editor.once('load', function () {
         });
 
         panel.once('destroy', function () {
-            for (var i = 0; i < events.length; i++) {
+            for (let i = 0; i < events.length; i++) {
                 events[i].unbind();
             }
             events.length = 0;

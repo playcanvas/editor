@@ -1,9 +1,9 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('users:hasFlag', 'hasPcuiComponentInspectors')) return;
 
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
@@ -219,7 +219,7 @@ editor.once('load', function() {
                 // if the name already exists show error
                 var error = false;
                 var value = fieldSlotName.value;
-                for (var k in slots) {
+                for (const k in slots) {
                     if (k === key) continue;
 
                     if (slots[k].name === value) {
@@ -242,7 +242,7 @@ editor.once('load', function() {
 
                 var prevValue = entities[0].get('components.sound.slots.' + key + '.name');
                 var slots = entities[0].get('components.sound.slots');
-                for (var k in slots) {
+                for (const k in slots) {
 
                     // revert slot name to previous value
                     if (slots[k].name === value) {
@@ -474,13 +474,13 @@ editor.once('load', function() {
             var count = 0;
             var idx = {};
             slots = entities[0].get('components.sound.slots');
-            for (var key in slots) {
+            for (const key in slots) {
                 keyName = parseInt(key, 10);
                 idx[slots[key].name] = true;
                 count++;
             }
 
-            keyName = keyName + 1;
+            keyName += 1;
             name = 'Slot ' + (count + 1);
             while (idx[name]) {
                 count++;
@@ -502,7 +502,7 @@ editor.once('load', function() {
 
         // create slots for first entity only
         var slots = entities[0].get('components.sound.slots');
-        for (var key in slots) {
+        for (const key in slots) {
             createSlot(key, slots[key]);
         }
 

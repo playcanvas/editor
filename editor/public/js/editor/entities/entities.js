@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var entities = new ObserverList({
@@ -14,12 +14,12 @@ editor.once('load', function() {
     }
 
     // on adding
-    entities.on('add', function(entity) {
+    entities.on('add', function (entity) {
         editor.emit('entities:add', entity, entity === entityRoot);
     });
 
     // on removing
-    entities.on('remove', function(entity) {
+    entities.on('remove', function (entity) {
         if (entity === entityRoot) {
             entityRoot = null;
         }
@@ -35,7 +35,7 @@ editor.once('load', function() {
     });
 
     // allow adding entity
-    editor.method('entities:add', function(entity) {
+    editor.method('entities:add', function (entity) {
         if (! entity.get('parent')) {
             if (entityRoot) {
                 // this is a bad scene it has more than one entities
@@ -53,7 +53,7 @@ editor.once('load', function() {
     });
 
     // allow remove entity
-    editor.method('entities:remove', function(entity) {
+    editor.method('entities:remove', function (entity) {
         entities.remove(entity);
     });
 
@@ -64,13 +64,13 @@ editor.once('load', function() {
     });
 
     // get entity
-    editor.method('entities:get', function(resourceId) {
+    editor.method('entities:get', function (resourceId) {
         return entities.get(resourceId);
     });
 
 
     // list entities
-    editor.method('entities:list', function() {
+    editor.method('entities:list', function () {
         return entities.array();
     });
 

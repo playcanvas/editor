@@ -38,7 +38,7 @@ Object.assign(pcui, (function () {
         label: 'Runtime',
         alias: 'source',
         type: 'label',
-        reference: 'asset:runtime',
+        reference: 'asset:runtime'
     }, {
         label: 'Type',
         alias: 'type',
@@ -239,8 +239,11 @@ Object.assign(pcui, (function () {
                     const inspector = new pcui[cls]({
                         hidden: true,
                         assets: args.assets,
+                        entities: args.entities,
                         projectSettings: args.projectSettings,
-                        history: args.history
+                        history: args.history,
+                        inspectorPanel: args.inspectorPanel,
+                        inspectorPanelSecondary: args.inspectorPanelSecondary
                     });
 
                     this._typedAssetInspectors[assetType] = inspector;
@@ -319,8 +322,8 @@ Object.assign(pcui, (function () {
         }
 
         _onClickLoadingOrder() {
-            editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
-            setTimeout(function() {
+            editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
+            setTimeout(function () {
                 editor.call('editorSettings:panel:unfold', 'scripts-order');
             }, 0);
         }

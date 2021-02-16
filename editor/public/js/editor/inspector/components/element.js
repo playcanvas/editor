@@ -135,7 +135,10 @@ Object.assign(pcui, (function () {
     }, {
         label: 'Text',
         path: 'components.element.text',
-        type: 'text'
+        type: 'text',
+        args: {
+            resizable: 'vertical'
+        }
     }, {
         label: 'Key',
         path: 'components.element.key',
@@ -633,7 +636,7 @@ Object.assign(pcui, (function () {
                     history: args.history
                 },
                 this.entities
-                ),
+                )
             });
             // update binding of spriteFrame field
             this._field('spriteFrame').binding = new pcui.BindingTwoWay({
@@ -642,7 +645,7 @@ Object.assign(pcui, (function () {
                     history: args.history
                 },
                 this.entities
-                ),
+                )
             });
 
             this._suppressLocalizedEvents = false;
@@ -766,7 +769,7 @@ Object.assign(pcui, (function () {
             }
 
             function redo() {
-                for (var i = 0; i < entities.length; i++) {
+                for (let i = 0; i < entities.length; i++) {
                     const entity = entities[i].latest();
                     if (!entity || !entity.has('components.element')) continue;
 

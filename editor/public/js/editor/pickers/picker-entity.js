@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var overlay = new ui.Overlay();
@@ -21,7 +21,7 @@ editor.once('load', function() {
     // esc to close
     editor.call('hotkey:register', 'picker:entity:close', {
         key: 'esc',
-        callback: function() {
+        callback: function () {
             if (overlay.hidden)
                 return;
 
@@ -49,16 +49,16 @@ editor.once('load', function() {
 
 
     // on close entity picker
-    overlay.on('hide', function() {
+    overlay.on('hide', function () {
         // fold back hierarchy panel if needed
         if (hierarchyCollapsed)
             hierarchyPanel.collapsed = true;
 
         // disable new selections
-        for (var i = 0, len = hierarchy.selected.length; i < len; i++)
+        for (let i = 0, len = hierarchy.selected.length; i < len; i++)
             hierarchy.selected[i].selected = false;
 
-        for (var i = 0, len = initialSelection.length; i < len; i++)
+        for (let i = 0, len = initialSelection.length; i < len; i++)
             initialSelection[i].selected = true;
 
         currentEntity = null;
@@ -75,14 +75,14 @@ editor.once('load', function() {
 
 
     // open entity picker
-    editor.method('picker:entity', function(resourceId, fn) {
+    editor.method('picker:entity', function (resourceId, fn) {
         // disable selector
         editor.call('selector:enabled', false);
 
         // get current hierarchy selection
         initialSelection = hierarchy.selected ? hierarchy.selected.slice(0) : [];
         if (initialSelection) {
-            for (var i = 0, len = initialSelection.length; i < len; i++) {
+            for (let i = 0, len = initialSelection.length; i < len; i++) {
                 initialSelection[i].selected = false;
             }
         }
@@ -114,7 +114,7 @@ editor.once('load', function() {
         // flash entities panel
         hierarchyPanel.flash();
         // focus on panel
-        setTimeout(function() {
+        setTimeout(function () {
             const selected = hierarchy.selected;
             if (selected.length) {
                 selected[0].focus();
@@ -126,7 +126,7 @@ editor.once('load', function() {
 
 
     // close entity picker
-    editor.method('picker:entity:close', function() {
+    editor.method('picker:entity:close', function () {
         // hide overlay
         overlay.hidden = true;
     });

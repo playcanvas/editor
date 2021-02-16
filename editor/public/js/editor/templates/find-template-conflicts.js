@@ -1,14 +1,15 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     /**
      * Find template instance overrides via recursive traversal,
      * given data representing the instance and the template asset.
-     * @param {Object} typeToInstData A map from type (src or dst)
+     *
+     * @param {object} typeToInstData - A map from type (src or dst)
      *    to an object with the fields: entities, templIdToEntity, templIdToEntId
-     * @param {Object} typeToIdToTempl A map from type to a map from
+     * @param {object} typeToIdToTempl - A map from type to a map from
      *    instance id to template id.
-     * @returns {Object} An object with fields 'conflicts',
+     * @returns {object} An object with fields 'conflicts',
      *    'addedEntities' and 'deletedEntities'
      */
     editor.method('template:findConflicts', function (typeToInstData, typeToIdToTempl, scriptAttrs) {
@@ -148,7 +149,7 @@ editor.once('load', function() {
         run() {
             this.knownResultPaths = new MergePathStore();
 
-            [ 'src', 'dst' ].forEach(this.handleType, this);
+            ['src', 'dst'].forEach(this.handleType, this);
         }
 
         handleType(type) {
@@ -184,4 +185,3 @@ editor.once('load', function() {
         }
     }
 });
-

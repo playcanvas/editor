@@ -1,31 +1,24 @@
-editor.once('viewport:load', function(app) {
+editor.once('viewport:load', function (app) {
     'use strict';
 
     // Panning with left mouse button while shift key is down
 
     var panning = false;
-    var panSpeed = 0.01;
     var panCamera;
     var shiftKey = false;
     var vecA = new pc.Vec2();
     var vecB = new pc.Vec3();
     var vecC = new pc.Vec3();
     var vecD = new pc.Vec3();
-    var vecE = new pc.Vec3();
-    var quat = new pc.Quat();
-    var panLastPosition = new pc.Vec3();
-    var panPosition = new pc.Vec3();
-    var firstPan = false;
     var panPoint = new pc.Vec3();
     var grabbed = false;
     var panButton = 0;
 
-
-    editor.on('hotkey:shift', function(state) {
+    editor.on('hotkey:shift', function (state) {
         shiftKey = state;
     });
 
-    editor.on('viewport:update', function(dt) {
+    editor.on('viewport:update', function (dt) {
         if (! panning)
             return;
 
@@ -53,14 +46,12 @@ editor.once('viewport:load', function(app) {
 
             if (vecB.length())
                 camera.setPosition(camera.getPosition().add(vecB));
-        } else {
-
         }
 
         editor.call('viewport:render');
     });
 
-    var onPanStart = function(tap) {
+    var onPanStart = function (tap) {
         if (panning)
             return;
 
@@ -68,7 +59,6 @@ editor.once('viewport:load', function(app) {
 
         editor.call('camera:focus:stop');
         panning = true;
-        firstPan = true;
 
         var camera = editor.call('camera:current');
         var point = editor.call('camera:depth:pixelAt', camera.camera, tap.x, tap.y);
@@ -108,14 +98,14 @@ editor.once('viewport:load', function(app) {
     };
     editor.method('camera:pan:start', onPanStart);
 
-    editor.on('viewport:tap:start', function(tap) {
+    editor.on('viewport:tap:start', function (tap) {
         if (panning || ((tap.button !== 0 || ! shiftKey) && tap.button !== 1))
             return;
 
         onPanStart(tap);
     });
 
-    editor.on('viewport:tap:end', function(tap) {
+    editor.on('viewport:tap:end', function (tap) {
         if (! panning || tap.button !== panButton)
             return;
 
@@ -123,7 +113,7 @@ editor.once('viewport:load', function(app) {
         editor.call('camera:history:stop', panCamera);
     });
 
-    editor.on('viewport:tap:move', function(tap) {
+    editor.on('viewport:tap:move', function (tap) {
         if (! panning)
             return;
 
@@ -133,7 +123,7 @@ editor.once('viewport:load', function(app) {
         editor.call('viewport:render');
     });
 
-    editor.on('camera:toggle', function(state) {
+    editor.on('camera:toggle', function (state) {
         if (! state && panning) {
             panning = false;
             editor.call('camera:history:stop', panCamera);

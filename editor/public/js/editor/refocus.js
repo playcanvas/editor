@@ -1,10 +1,10 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var last = null;
     var timeout = null;
 
-    var onClear = function() {
+    var onClear = function () {
         last = null;
 
         if (timeout) {
@@ -15,17 +15,17 @@ editor.once('load', function() {
 
     window.addEventListener('focus', onClear, true);
 
-    window.addEventListener('blur', function(evt) {
+    window.addEventListener('blur', function (evt) {
         if (! evt.target || ! evt.target.ui || ! evt.target.ui.focus || ! evt.target.ui.refocusable) {
             onClear();
         } else {
-            timeout = setTimeout(function() {
+            timeout = setTimeout(function () {
                 last = evt.target.ui;
             }, 0);
         }
     }, true);
 
-    window.addEventListener('keydown', function(evt) {
+    window.addEventListener('keydown', function (evt) {
         if (! last)
             return;
 
@@ -34,9 +34,9 @@ editor.once('load', function() {
         } else {
             onClear();
         }
-    }, false)
+    }, false);
 
-    window.addEventListener('mousedown', function() {
+    window.addEventListener('mousedown', function () {
         if (last) onClear();
     }, false);
 });

@@ -5,7 +5,7 @@ Object.assign(pcui, (function () {
     const CLASS_RELATED_ASSET = CLASS_ROOT + '-related-asset';
 
     const DOM = (title) => [{
-        relatedAssetsPanel: new pcui.Panel({ flex: true, headerText: title})
+        relatedAssetsPanel: new pcui.Panel({ flex: true, headerText: title })
     }];
 
     class RelatedAssetsInspector extends pcui.Container {

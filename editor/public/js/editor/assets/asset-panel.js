@@ -58,7 +58,7 @@ Object.assign(pcui, (function () {
             textureatlas: 'Texture Atlas',
             textureatlasSource: 'Texture Atlas (source)',
             wasm: 'Wasm'
-        }
+        };
     } else {
         TYPES = {
             all: 'All',
@@ -88,7 +88,7 @@ Object.assign(pcui, (function () {
             textureatlas: 'Texture Atlas',
             textureatlasSource: 'Texture Atlas (source)',
             wasm: 'Wasm'
-        }
+        };
     }
 
     // types of assets that can be double clicked
@@ -138,14 +138,14 @@ Object.assign(pcui, (function () {
      * small thumbnails and a details view. Also shows the project's folders in a treeview
      * on the left. Allows filtering of assets by type and by searching in various ways. Allows
      * creating new assets and moving assets to different folders.
-     * @extends pcui.Panel
+     * @augments pcui.Panel
      * @property {pcui.DropManager} The drop manager to support drag and drop.
      * @property {ObserverList} assets The asset list to display.
      * @property {Observer} currentFolder The current folder.
      * @property {pcui.Table} detailsView The details view.
      * @property {pcui.TreeView} foldersView The folders view.
      * @property {pcui.GridView} gridView The grid view.
-     * @property {String} viewMode The current view mode. Can be one of:
+     * @property {string} viewMode The current view mode. Can be one of:
      * pcui.AssetPanel.VIEW_LARGE_GRID,
      * pcui.AssetPanel.VIEW_SMALL_GRID,
      * pcui.AssetPanel.VIEW_DETAILS
@@ -155,15 +155,16 @@ Object.assign(pcui, (function () {
      * @property {pcui.TextInput} searchInput The search filter text input
      * @property {Observer[]} selectedAssets The selected assets
      * @property {Observer[]} visibleAssets The assets that are currently visible in the asset panel.
-     * @property {Boolean} showSourceAssets If false source assets will not be displayed
-     * @property {Boolean} suspendSelectionEvents If true selection events will not the editor's selector to be affected
-     * @property {Boolean} suspendFiltering If true changes to filters will not re-filter the asset panel.
-     * @property {Boolean} writePermissions If false then only a read-only view will be shown
+     * @property {boolean} showSourceAssets If false source assets will not be displayed
+     * @property {boolean} suspendSelectionEvents If true selection events will not the editor's selector to be affected
+     * @property {boolean} suspendFiltering If true changes to filters will not re-filter the asset panel.
+     * @property {boolean} writePermissions If false then only a read-only view will be shown
      */
     class AssetPanel extends pcui.Panel {
         /**
          * Creates new AssetPanel.
-         * @param {Object} args The arguments
+         *
+         * @param {object} args - The arguments
          */
         constructor(args) {
             args = Object.assign({
@@ -504,14 +505,14 @@ Object.assign(pcui, (function () {
                     callback: () => this._onPasteAssets(true)
                 });
 
-            })
+            });
 
             this.on('hideToRoot', () => {
                 // unregister hotkeys
                 editor.call('hotkey:unregister', 'asset:copy');
                 editor.call('hotkey:unregister', 'asset:paste');
                 editor.call('hotkey:unregister', 'asset:paste:keepFolderStructure');
-            })
+            });
         }
 
         _createTooltip(text, target) {
@@ -2296,9 +2297,23 @@ Object.assign(pcui, (function () {
 
             this._selectedAssets = value.slice();
 
-            value.forEach(asset => {
-                this._setAssetSelected(asset, true);
-            });
+            if (value.length) {
+                // disable focusing for table because of performance issues
+                // when there are many rows
+                this._detailsView.allowRowFocus = false;
+
+                value.forEach(asset => {
+                    this._setAssetSelected(asset, true);
+                });
+
+                // restore table focus and focus last selected row
+                this._detailsView.allowRowFocus = true;
+                const lastRow = this._rowsIndex[value[value.length - 1].get('id')];
+                if (lastRow && lastRow.selected) {
+                    lastRow.focus();
+                }
+
+            }
         }
 
         get visibleAssets() {

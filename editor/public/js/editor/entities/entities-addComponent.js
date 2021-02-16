@@ -1,18 +1,17 @@
 editor.once('load', function () {
     'use strict';
 
-    var settings = editor.call('settings:project');
-
     /**
      * Adds the specified component to the specified entities.
-     * @param {Observer[]} entities The entities
-     * @param {String} component The name of the component
+     *
+     * @param {Observer[]} entities - The entities
+     * @param {string} component - The name of the component
      */
     editor.method('entities:addComponent', function (entities, component) {
         var componentData = editor.call('components:getDefault', component);
         var records = [];
 
-        for (var i = 0; i < entities.length; i++) {
+        for (let i = 0; i < entities.length; i++) {
             if (entities[i].has('components.' + component))
                 continue;
 
@@ -29,7 +28,7 @@ editor.once('load', function () {
         editor.call('history:add', {
             name: 'entities.' + component,
             undo: function () {
-                for (var i = 0; i < records.length; i++) {
+                for (let i = 0; i < records.length; i++) {
                     var item = records[i].item.latest();
                     if (!item)
                         continue;
@@ -39,7 +38,7 @@ editor.once('load', function () {
                 }
             },
             redo: function () {
-                for (var i = 0; i < records.length; i++) {
+                for (let i = 0; i < records.length; i++) {
                     var item = records[i].item.latest();
                     if (!item)
                         continue;

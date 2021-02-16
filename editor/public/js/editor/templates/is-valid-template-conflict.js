@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     /**
@@ -8,17 +8,17 @@ editor.once('load', function() {
      * This takes into account that entity id's are expected to be
      * different. The 'srcToDst' argument provides the expected id mapping.
      *
-     * @param {Object} conflict The conflict
-     * @param {String} rootId The guid of the root entity to determine
+     * @param {object} conflict - The conflict
+     * @param {string} rootId - The guid of the root entity to determine
      *   if this conflict involves the root entity
-     * @param {Object} srcToDst The guid mapping
-     * @returns {Boolean} True if the conflict should be reported as an override
+     * @param {object} srcToDst - The guid mapping
+     * @returns {boolean} True if the conflict should be reported as an override
      */
     editor.method('template:isValidTemplateConflict',
         function (conflict, rootId, srcToDst, scriptAttrs) {
 
             return new IsValidTemplateConflict(conflict, rootId, srcToDst, scriptAttrs).run();
-    });
+        });
 
     const ignorePathsForAll = {
         resource_id: 1
@@ -56,9 +56,9 @@ editor.once('load', function() {
                     this.scriptAttrs
                 );
 
-            } else {
-                return true;
             }
+            return true;
+
         }
 
         ignorePath() {
@@ -83,7 +83,7 @@ editor.once('load', function() {
         }
 
         areBothArrays() {
-            return [ this.src_value, this.dst_value ].every(Array.isArray);
+            return [this.src_value, this.dst_value].every(Array.isArray);
         }
 
         isArrayDifferent(srcAr, dstAr) {

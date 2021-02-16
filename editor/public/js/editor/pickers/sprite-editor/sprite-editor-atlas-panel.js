@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     editor.method('picker:sprites:attributes:atlas', function (atlasAsset) {
@@ -68,7 +68,7 @@ editor.once('load', function() {
             // do this in a timeout to avoid updating
             // when we add a lot of frames at once
             if (! timeout)
-                timeout = setTimeout(updateFrameCount) ;
+                timeout = setTimeout(updateFrameCount);
 
         });
 
@@ -79,7 +79,7 @@ editor.once('load', function() {
             // do this in a timeout to avoid updating
             // when we add a lot of frames at once
             if (! timeout)
-                timeout = setTimeout(updateFrameCount) ;
+                timeout = setTimeout(updateFrameCount);
         });
 
         events.push(rootPanel.on('clear', function () {
@@ -87,7 +87,7 @@ editor.once('load', function() {
         }));
 
         panel.on('destroy', function () {
-            for (var i = 0, len = events.length; i<len; i++) {
+            for (let i = 0, len = events.length; i < len; i++) {
                 events[i].unbind();
             }
             events.length = 0;

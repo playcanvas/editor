@@ -1,25 +1,25 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     if (editor.call('users:hasFlag', 'hasPcuiComponentInspectors')) return;
 
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
         if (! panelComponents)
             return;
 
-        var events = [ ];
+        var events = [];
 
         var projectSettings = editor.call('settings:project');
 
         // group clips by name
         var numEntities = entities.length;
         var groupedClips = {};
-        for (var i = 0; i < numEntities; i++) {
+        for (let i = 0; i < numEntities; i++) {
             var clips = entities[i].get('components.sprite.clips');
             if (! clips) continue;
 
-            for (var key in clips) {
+            for (const key in clips) {
                 var clip = clips[key];
                 if (! groupedClips[clip.name]) {
                     groupedClips[clip.name] = {};
@@ -41,9 +41,9 @@ editor.once('load', function() {
             name: 'Type',
             type: 'string',
             enum: [
-                {v: '', t: '...'},
-                {v: 'simple', t: 'Simple'},
-                {v: 'animated', t: 'Animated'}
+                { v: '', t: '...' },
+                { v: 'simple', t: 'Simple' },
+                { v: 'animated', t: 'Animated' }
             ],
             link: entities,
             path: 'components.sprite.type',
@@ -222,7 +222,7 @@ editor.once('load', function() {
             t: 'None'
         }];
 
-        for (var name in groupedClips) {
+        for (const name in groupedClips) {
             if (Object.keys(groupedClips[name]).length !== numEntities) continue;
 
             enumAutoPlay.push({
@@ -238,7 +238,7 @@ editor.once('load', function() {
             '': '...',
             'NaN': 'None'
         };
-        for (var key in batchGroups) {
+        for (const key in batchGroups) {
             batchEnum[key] = batchGroups[key].name;
         }
 
@@ -263,7 +263,7 @@ editor.once('load', function() {
             batchEnum[group] = editor.call('settings:project').get('batchGroups.' + group + '.name');
             fieldBatchGroup._updateOptions(batchEnum);
             fieldBatchGroup.value = group;
-            editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+            editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
             setTimeout(function () {
                 editor.call('editorSettings:batchGroups:focus', group);
             });
@@ -277,7 +277,7 @@ editor.once('load', function() {
         var layersEnum = {
             '': ''
         };
-        for (var key in layers) {
+        for (const key in layers) {
             layersEnum[key] = layers[key].name;
         }
         delete layersEnum[LAYERID_DEPTH];
@@ -301,7 +301,7 @@ editor.once('load', function() {
             onClickTag: function () {
                 // focus layer
                 var layerId = this.originalValue;
-                editor.call('selector:set', 'editorSettings', [ editor.call('settings:projectUser') ]);
+                editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
                 setTimeout(function () {
                     editor.call('editorSettings:layers:focus', layerId);
                 });
@@ -348,7 +348,7 @@ editor.once('load', function() {
         var createClipPanel = function (clipName) {
             // gather edited paths
             var paths = [];
-            for (var i = 0; i < numEntities; i++) {
+            for (let i = 0; i < numEntities; i++) {
                 paths.push(groupedClips[clipName][entities[i].get('resource_id')]);
             }
 
@@ -367,7 +367,7 @@ editor.once('load', function() {
 
             var clipEvents = [];
             panelClip.on('destroy', function () {
-                for (var i = 0; i < clipEvents.length; i++) {
+                for (let i = 0; i < clipEvents.length; i++) {
                     clipEvents[i].unbind();
                 }
                 clipEvents = null;
@@ -380,7 +380,7 @@ editor.once('load', function() {
 
             btnRemove.on('click', function () {
                 var records = [];
-                for (var i = 0; i<numEntities; i++) {
+                for (let i = 0; i < numEntities; i++) {
                     records.push({
                         clip: entities[i].get(paths[i]),
                         autoPlayClip: entities[i].get('components.sprite.autoPlayClip')
@@ -388,7 +388,7 @@ editor.once('load', function() {
                 }
 
                 var redo = function () {
-                    for (var i = 0; i<numEntities; i++) {
+                    for (let i = 0; i < numEntities; i++) {
                         var entity = editor.call('entities:get', entities[i].get('resource_id'));
                         if (! entity) continue;
 
@@ -405,7 +405,7 @@ editor.once('load', function() {
                 };
 
                 var undo = function () {
-                    for (var i = 0; i<numEntities; i++) {
+                    for (let i = 0; i < numEntities; i++) {
                         var entity = editor.call('entities:get', entities[i].get('resource_id'));
                         if (! entity) continue;
 
@@ -465,14 +465,14 @@ editor.once('load', function() {
                 // remember the previous autoPlayClip value
                 // for each entity
                 var records = [];
-                for (var i = 0; i<numEntities; i++) {
+                for (let i = 0; i < numEntities; i++) {
                     records.push(entities[i].get('components.sprite.autoPlayClip'));
                 }
 
                 var redo = function () {
                     clipName = newName;
 
-                    for (var i = 0; i<numEntities; i++) {
+                    for (let i = 0; i < numEntities; i++) {
                         var entity = editor.call('entities:get', entities[i].get('resource_id'));
                         if (! entity) continue;
                         var history = entity.history.enabled;
@@ -491,7 +491,7 @@ editor.once('load', function() {
                 var undo = function () {
                     clipName = previousName;
 
-                    for (var i = 0; i<numEntities; i++) {
+                    for (let i = 0; i < numEntities; i++) {
                         var entity = editor.call('entities:get', entities[i].get('resource_id'));
                         if (! entity) continue;
                         var history = entity.history.enabled;
@@ -521,7 +521,7 @@ editor.once('load', function() {
                     panelClip.header = value;
 
                     // update autoPlayClip enum options
-                    for (var i = 0; i < enumAutoPlay.length; i++) {
+                    for (let i = 0; i < enumAutoPlay.length; i++) {
                         if (enumAutoPlay[i].v === oldValue) {
                             enumAutoPlay[i].v = value;
                             enumAutoPlay[i].t = value;
@@ -544,7 +544,7 @@ editor.once('load', function() {
                 }));
             };
 
-            for (var i = 0; i<numEntities; i++)
+            for (let i = 0; i < numEntities; i++)
                 createNameChangeListener(i);
 
             // reference
@@ -565,7 +565,7 @@ editor.once('load', function() {
                 panel: panelPlayback,
                 type: 'checkbox',
                 link: entities,
-                paths: paths.map(function (p) {return p + '.loop';})
+                paths: paths.map(function (p) { return p + '.loop'; })
             });
             label = new ui.Label({ text: 'Loop' });
             label.class.add('label-infield');
@@ -584,7 +584,7 @@ editor.once('load', function() {
                 step: 1,
                 link: entities,
                 placeholder: 'FPS',
-                paths: paths.map(function (p) {return p + '.fps';})
+                paths: paths.map(function (p) { return p + '.fps'; })
             });
 
             editor.call('attributes:registerOverridePath', paths[0] + '.fps', fieldClipFps.element);
@@ -599,7 +599,7 @@ editor.once('load', function() {
                 type: 'asset',
                 kind: 'sprite',
                 link: entities,
-                path: paths.map(function (p) {return p + '.spriteAsset';}),
+                path: paths.map(function (p) { return p + '.spriteAsset'; }),
                 canOverrideTemplate: true
             });
 
@@ -607,7 +607,7 @@ editor.once('load', function() {
         };
 
         // show all clips that are common between all selected entities
-        for (var name in groupedClips) {
+        for (const name in groupedClips) {
             if (Object.keys(groupedClips[name]).length !== numEntities) continue;
 
             createClipPanel(name);
@@ -627,11 +627,11 @@ editor.once('load', function() {
         btnAddClip.on('click', function () {
             // search clips of all entities for the largest key
             var largestKey = 1;
-            for (var i = 0; i < numEntities; i++) {
+            for (let i = 0; i < numEntities; i++) {
                 var clips = entities[i].get('components.sprite.clips');
                 if (! clips) continue;
 
-                for (var key in clips) {
+                for (const key in clips) {
                     largestKey = Math.max(largestKey, parseInt(key) + 1);
                 }
             }
@@ -644,14 +644,14 @@ editor.once('load', function() {
             }
 
             var redo = function () {
-                for (var i = 0; i < numEntities; i++) {
+                for (let i = 0; i < numEntities; i++) {
                     var entity = editor.call('entities:get', entities[i].get('resource_id'));
                     if (! entity) continue;
                     var history = entity.history.enabled;
                     entity.history.enabled = false;
                     var clips = entity.get('components.sprite.clips') || {};
                     var slot = 0;
-                    for (var key in clips) {
+                    for (const key in clips) {
                         slot = Math.max(slot, parseInt(key, 10) + 1);
                     }
 
@@ -666,7 +666,7 @@ editor.once('load', function() {
             };
 
             var undo = function () {
-                for (var i = 0; i < numEntities; i++) {
+                for (let i = 0; i < numEntities; i++) {
                     var entity = editor.call('entities:get', entities[i].get('resource_id'));
                     if (! entity) continue;
                     var history = entity.history.enabled;
@@ -675,7 +675,7 @@ editor.once('load', function() {
                     var clips = entity.get('components.sprite.clips');
                     if (! clips) continue;
                     var slot = null;
-                    for (var key in clips) {
+                    for (const key in clips) {
                         if (clips[key].name === desiredName) {
                             slot = key;
                             break;
@@ -758,7 +758,7 @@ editor.once('load', function() {
             }));
         };
 
-        for (var i = 0; i < numEntities; i++) {
+        for (let i = 0; i < numEntities; i++) {
             createSetHandler(i);
             createUnsetHandler(i);
         }
@@ -767,7 +767,7 @@ editor.once('load', function() {
         var toggleFields = function () {
             var hideAnimated = false;
 
-            for (var i = 0; i < numEntities; i++) {
+            for (let i = 0; i < numEntities; i++) {
                 if (entities[i].get('components.sprite.type') !== 'animated') {
                     hideAnimated = true;
                     break;
@@ -814,7 +814,7 @@ editor.once('load', function() {
 
         // destroy panel
         panel.on('destroy', function () {
-            for (var i = 0; i < events.length; i++) {
+            for (let i = 0; i < events.length; i++) {
                 events[i].unbind();
             }
             events.length = 0;

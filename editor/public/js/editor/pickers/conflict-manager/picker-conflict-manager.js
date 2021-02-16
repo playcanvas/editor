@@ -83,7 +83,7 @@ editor.once('load', function () {
 
     // create vertical borders
     var verticalBorders = [];
-    for (var i = 0; i < 2; i++) {
+    for (let i = 0; i < 2; i++) {
         var border = document.createElement('div');
         border.classList.add('vertical-border');
         border.classList.add('vertical-border-' + i);
@@ -252,7 +252,7 @@ editor.once('load', function () {
 
     // Returns true if the conflict group has any file conflicts
     var hasFileConflicts = function (group) {
-        for (var i = 0; i < group.data.length; i++) {
+        for (let i = 0; i < group.data.length; i++) {
             if (group.data[i].isTextualMerge) {
                 return true;
             }
@@ -263,7 +263,7 @@ editor.once('load', function () {
 
     // Returns true if the conflict group has any regular data conflicts
     var hasDataConflicts = function (group) {
-        for (var i = 0; i < group.data.length; i++) {
+        for (let i = 0; i < group.data.length; i++) {
             if (! group.data[i].isTextualMerge) {
                 return true;
             }
@@ -276,7 +276,7 @@ editor.once('load', function () {
     // have been resolved
     var isConflictGroupResolved = function (group) {
         var resolved = true;
-        for (var i = 0; i < group.data.length; i++) {
+        for (let i = 0; i < group.data.length; i++) {
             if (!group.data[i].useSrc && !group.data[i].useDst && !group.data[i].useMergedFile) {
                 resolved = false;
                 break;
@@ -289,7 +289,7 @@ editor.once('load', function () {
     var checkAllResolved = function () {
         var result = true;
 
-        for (var i = 0; i < currentMergeObject.conflicts.length; i++) {
+        for (let i = 0; i < currentMergeObject.conflicts.length; i++) {
             if (!isConflictGroupResolved(currentMergeObject.conflicts[i])) {
                 return false;
             }
@@ -360,7 +360,7 @@ editor.once('load', function () {
         item.refreshResolvedCount = function () {
             var resolved = 0;
             var total = conflictGroup.data.length;
-            for (var i = 0; i < total; i++) {
+            for (let i = 0; i < total; i++) {
                 if (conflictGroup.data[i].useSrc ||
                     conflictGroup.data[i].useDst ||
                     conflictGroup.data[i].useMergedFile) {
@@ -386,7 +386,7 @@ editor.once('load', function () {
         panelConflicts.hidden = false;
         panelBottom.hidden = diffMode;
 
-        for (var i = 0; i < verticalBorders.length; i++) {
+        for (let i = 0; i < verticalBorders.length; i++) {
             verticalBorders[i].classList.remove('hidden');
         }
     };
@@ -406,7 +406,7 @@ editor.once('load', function () {
         // the mode
         panelRight.class.remove('file-conflicts-visible');
         var children = panelRight.innerElement.childNodes;
-        for (var i = 0; i < children.length; i++) {
+        for (let i = 0; i < children.length; i++) {
             children[i].classList.add('hidden');
         }
 
@@ -607,7 +607,7 @@ editor.once('load', function () {
             btnComplete.hidden = false;
             onMergeDataLoaded(data);
         });
-    }
+    };
 
     // Called when the merge process is completed
     var onMergeComplete = function (err) {
@@ -624,7 +624,7 @@ editor.once('load', function () {
                 window.location.reload();
             }, 1000);
         }
-    }
+    };
 
     // Called when we get a merge completed message from the messenger
     var onMsgMergeComplete = function (data) {
@@ -634,7 +634,7 @@ editor.once('load', function () {
         } else {
             onMergeComplete();
         }
-    }
+    };
 
     // Called when we get a merge progress status message from the messenger
     var onMsgMergeProgress = function (data) {
@@ -643,7 +643,7 @@ editor.once('load', function () {
         if (data.status === MERGE_STATUS_READY_FOR_REVIEW) {
             onReadyForReview();
         }
-    }
+    };
 
     // Called when we load the merge object from the server
     var onMergeDataLoaded = function (data) {
@@ -666,12 +666,12 @@ editor.once('load', function () {
             btnReview.disabled = false;
             if (diffMode) {
                 return showMainProgress(completedIcon, 'No changes found - Click Complete Merge');
-            } else {
-                return showMainProgress(completedIcon, 'No conflicts found - Click Review Merge');
             }
+            return showMainProgress(completedIcon, 'No conflicts found - Click Review Merge');
+
         }
 
-        for (var i = 0; i < currentMergeObject.conflicts.length; i++) {
+        for (let i = 0; i < currentMergeObject.conflicts.length; i++) {
             var item = createLeftListItem(currentMergeObject.conflicts[i]);
             if (i === 0) {
                 item.selected = true;
@@ -701,7 +701,7 @@ editor.once('load', function () {
             } else {
                 btnComplete.hidden = true;
                 btnReview.hidden = true;
-                panel.header = 'DIFF'
+                panel.header = 'DIFF';
             }
 
             labelFileConflicts.text = "FILE CHANGES";
@@ -712,7 +712,7 @@ editor.once('load', function () {
             btnReview.hidden = false;
             btnReview.disabled = true;
             btnComplete.hidden = true;
-            panel.header = 'RESOLVE CONFLICTS'
+            panel.header = 'RESOLVE CONFLICTS';
 
             labelFileConflicts.text = "FILE CONFLICTS";
             labelFileConflictsSmall.text = "The asset also has file conflicts";

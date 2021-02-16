@@ -112,7 +112,7 @@ editor.once('load', function () {
     panelInfo.append(group);
 
     // name
-    var label = new ui.Label({text: 'Title'});
+    var label = new ui.Label({ text: 'Title' });
     label.class.add('field-label');
     group.appendChild(label.element);
 
@@ -135,7 +135,7 @@ editor.once('load', function () {
         refreshButtonsState();
     });
 
-    label = new ui.Label({text: 'Click on the image to upload artwork. 720 x 720px'});
+    label = new ui.Label({ text: 'Click on the image to upload artwork. 720 x 720px' });
     label.class.add('image-click');
     group.appendChild(label.element);
 
@@ -144,7 +144,7 @@ editor.once('load', function () {
     panelDescription.class.add('description');
     panel.append(panelDescription);
 
-    label = new ui.Label({text: 'Description'});
+    label = new ui.Label({ text: 'Description' });
     label.class.add('field-label');
     panelDescription.append(label);
 
@@ -171,7 +171,7 @@ editor.once('load', function () {
     panelVersion.class.add('version');
     panel.append(panelVersion);
 
-    label = new ui.Label({text: 'Version'});
+    label = new ui.Label({ text: 'Version' });
     label.class.add('field-label');
     panelVersion.append(label);
 
@@ -198,7 +198,7 @@ editor.once('load', function () {
     panelNotes.class.add('notes');
     panel.append(panelNotes);
 
-    var label = new ui.Label({text: 'Release Notes'});
+    var label = new ui.Label({ text: 'Release Notes' });
     label.class.add('field-label');
     panelNotes.append(label);
 
@@ -227,7 +227,7 @@ editor.once('load', function () {
         panelOptions.class.add('options');
         panel.append(panelOptions);
 
-        label = new ui.Label({text: 'Options'});
+        label = new ui.Label({ text: 'Options' });
         label.class.add('field-label');
         panelOptions.append(label);
 
@@ -305,14 +305,14 @@ editor.once('load', function () {
     panelScenes.class.add('scenes');
     panel.append(panelScenes);
 
-    label = new ui.Label({text: 'Choose Scenes'});
+    label = new ui.Label({ text: 'Choose Scenes' });
     panelScenes.append(label);
 
     var selectAll = new ui.Checkbox();
     selectAll.class.add('tick');
     panelScenes.append(selectAll);
 
-    label = new ui.Label({text: 'Select all'});
+    label = new ui.Label({ text: 'Select all' });
     panelScenes.append(label);
     label.class.add('select-all');
 
@@ -326,7 +326,7 @@ editor.once('load', function () {
     panel.append(panelNoScenes);
 
     // no scenes msg
-    var labelNoScenes = new ui.Label({text: 'There are no scenes.'});
+    var labelNoScenes = new ui.Label({ text: 'There are no scenes.' });
     labelNoScenes.class.add('error');
     labelNoScenes.hidden = true;
     panelNoScenes.append(labelNoScenes);
@@ -337,7 +337,7 @@ editor.once('load', function () {
     });
     panelNoScenes.append(loadingScenes);
 
-    var progressBar = new ui.Progress({progress: 1});
+    var progressBar = new ui.Progress({ progress: 1 });
     progressBar.hidden = false;
     panelNoScenes.append(progressBar);
 
@@ -350,7 +350,7 @@ editor.once('load', function () {
         var result = [];
 
         var listItems = container.innerElement.childNodes;
-        for (var i = 0; i < listItems.length; i++) {
+        for (let i = 0; i < listItems.length; i++) {
             if (listItems[i].ui.isSelected()) {
                 result.push(listItems[i].ui.sceneId);
             }
@@ -550,12 +550,12 @@ editor.once('load', function () {
     downloadProgressInfo.classList.add('progress-info');
     panelDownloadProgress.appendChild(downloadProgressInfo);
 
-    var downloadProgressTitle = new ui.Label({text: 'Preparing build'});
+    var downloadProgressTitle = new ui.Label({ text: 'Preparing build' });
     downloadProgressTitle.renderChanges = false;
     downloadProgressTitle.class.add('progress-title');
     downloadProgressInfo.appendChild(downloadProgressTitle.element);
 
-    var btnDownloadReady = new ui.Button({text: 'Download'});
+    var btnDownloadReady = new ui.Button({ text: 'Download' });
     btnDownloadReady.class.add('ready');
     downloadProgressInfo.appendChild(btnDownloadReady.element);
 
@@ -822,9 +822,9 @@ editor.once('load', function () {
             editor.emit('viewport:hover', true);
     });
 
-    editor.on('viewport:hover', function(state) {
+    editor.on('viewport:hover', function (state) {
         if (state && ! panel.hidden) {
-            setTimeout(function() {
+            setTimeout(function () {
                 editor.emit('viewport:hover', false);
             }, 0);
         }
@@ -842,7 +842,7 @@ editor.once('load', function () {
             row.remove();
         }
 
-        for (var i = 0; i < scenes.length; i++) {
+        for (let i = 0; i < scenes.length; i++) {
             if (parseInt(scenes[i].id, 10) === sceneId) {
                 scenes.splice(i, 1);
                 break;

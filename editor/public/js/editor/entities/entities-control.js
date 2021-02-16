@@ -1,5 +1,5 @@
-editor.once('load', function() {
-    'use strict'
+editor.once('load', function () {
+    'use strict';
 
     var root = editor.call('layout.root');
     var panel = editor.call('layout.hierarchy');
@@ -13,7 +13,7 @@ editor.once('load', function() {
         hidden: !editor.call('permissions:write')
     });
 
-    editor.on('permissions:writeState', function(state) {
+    editor.on('permissions:writeState', function (state) {
         controls.hidden = ! state;
     });
 
@@ -24,7 +24,7 @@ editor.once('load', function() {
         text: '&#57632;'
     });
     btnAdd.class.add('add');
-    btnAdd.on('click', function() {
+    btnAdd.on('click', function () {
         menuEntities.open = true;
         var rect = btnAdd.element.getBoundingClientRect();
         menuEntities.position(rect.left, rect.top);
@@ -44,7 +44,7 @@ editor.once('load', function() {
     });
     btnDuplicate.disabled = true;
     btnDuplicate.class.add('duplicate');
-    btnDuplicate.on('click', function() {
+    btnDuplicate.on('click', function () {
         var type = editor.call('selector:type');
         var items = editor.call('selector:items');
 
@@ -64,13 +64,13 @@ editor.once('load', function() {
     var menuEntities = ui.Menu.fromData(editor.call('menu:entities:new'));
     root.append(menuEntities);
 
-     // controls delete
-     var btnDelete = new ui.Button({
+    // controls delete
+    var btnDelete = new ui.Button({
         text: '&#57636;'
     });
     btnDelete.class.add('delete');
     btnDelete.style.fontWeight = 200;
-    btnDelete.on('click', function() {
+    btnDelete.on('click', function () {
         var type = editor.call('selector:type');
 
         if (type !== 'entity')
@@ -89,14 +89,14 @@ editor.once('load', function() {
     tooltipDelete.class.add('innactive');
 
 
-    editor.on('attributes:clear', function() {
+    editor.on('attributes:clear', function () {
         btnDuplicate.disabled = true;
         btnDelete.disabled = true;
         tooltipDelete.class.add('innactive');
         tooltipDuplicate.class.add('innactive');
     });
 
-    editor.on('attributes:inspect[*]', function(type, items) {
+    editor.on('attributes:inspect[*]', function (type, items) {
         var root = editor.call('entities:root');
 
         if (type === 'entity' && items[0] !== root) {

@@ -1,17 +1,17 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var componentsLogos = editor.call('components:logos');
 
-    var applyAdditions = function(object, additions) {
+    var applyAdditions = function (object, additions) {
         if (additions) {
-            Object.keys(additions).forEach(function(name) {
+            Object.keys(additions).forEach(function (name) {
                 object[name] = additions[name];
             });
         }
     };
 
-    var createGroupElementComponentData = function(additions) {
+    var createGroupElementComponentData = function (additions) {
         var data = editor.call('components:getDefault', 'element');
         data.type = 'group';
 
@@ -20,7 +20,7 @@ editor.once('load', function() {
         return data;
     };
 
-    var createImageElementComponentData = function(additions) {
+    var createImageElementComponentData = function (additions) {
         var data = editor.call('components:getDefault', 'element');
         data.type = 'image';
 
@@ -29,7 +29,7 @@ editor.once('load', function() {
         return data;
     };
 
-    var createTextElementComponentData = function(additions) {
+    var createTextElementComponentData = function (additions) {
         var data = editor.call('components:getDefault', 'element');
         data.type = 'text';
         data.text = 'Text';
@@ -41,7 +41,7 @@ editor.once('load', function() {
         return data;
     };
 
-    var createButtonEntityData = function(additions) {
+    var createButtonEntityData = function (additions) {
         var data = {
             components: {
                 button: editor.call('components:getDefault', 'button'),
@@ -51,7 +51,7 @@ editor.once('load', function() {
             // only known post-creation. Defining these as a post-creation callback
             // means that they'll also be correctly resolved if the user undoes the
             // button creation and then redoes it.
-            postCreationCallback: function(button) {
+            postCreationCallback: function (button) {
                 button.history.enabled = false;
                 button.set('components.button.imageEntity', button.entity.getGuid());
                 button.history.enabled = true;
@@ -63,7 +63,7 @@ editor.once('load', function() {
         return data;
     };
 
-    var createScrollbarEntityData = function(orientation, additions) {
+    var createScrollbarEntityData = function (orientation, additions) {
         var scrollbarComponentData = editor.call('components:getDefault', 'scrollbar');
         scrollbarComponentData.orientation = orientation;
 
@@ -80,7 +80,7 @@ editor.once('load', function() {
                 scrollbar: scrollbarComponentData,
                 element: containerData
             },
-            postCreationCallback: function(scrollbar) {
+            postCreationCallback: function (scrollbar) {
                 scrollbar.history.enabled = false;
                 scrollbar.set('components.scrollbar.handleEntity', scrollbar.entity.findByName('Handle').getGuid());
                 scrollbar.history.enabled = true;
@@ -110,23 +110,26 @@ editor.once('load', function() {
 
         data.components[component] = editor.call('components:getDefault', component);
         data.components[component].type = type;
+        if (component === 'render') {
+            data.components.render.materialAssets = [null];
+        }
 
         applyAdditions(data, additions);
 
         return data;
-    }
+    };
 
     editor.method('menu:entities:new', function (getParentFn) {
         if (! getParentFn)
-            getParentFn = function () {return editor.call('entities:selectedFirst');};
+            getParentFn = function () { return editor.call('entities:selectedFirst'); };
 
         return {
             'add-new-entity': {
                 title: 'Entity',
                 className: 'menu-item-add-entity',
                 icon: '&#57632;',
-                select: function() {
-                    editor.call('entities:new', {parent: getParentFn()});
+                select: function () {
+                    editor.call('entities:new', { parent: getParentFn() });
                 }
             },
             'audio-sub-menu': {
@@ -138,7 +141,7 @@ editor.once('load', function() {
                         title: 'Audio Listener',
                         className: 'menu-item-add-audio-listener',
                         icon: componentsLogos.audiolistener,
-                        select: function() {
+                        select: function () {
                             editor.call('entities:new', {
                                 name: 'Audio Listener',
                                 parent: getParentFn(),
@@ -155,7 +158,7 @@ editor.once('load', function() {
                         hide: function () {
                             return ! editor.call('settings:project').get('useLegacyAudio');
                         },
-                        select: function() {
+                        select: function () {
                             editor.call('entities:new', {
                                 name: 'Audio Source',
                                 parent: getParentFn(),
@@ -169,7 +172,7 @@ editor.once('load', function() {
                         title: 'Sound',
                         className: 'menu-item-add-sound',
                         icon: componentsLogos.sound,
-                        select: function() {
+                        select: function () {
                             editor.call('entities:new', {
                                 name: 'Sound',
                                 parent: getParentFn(),
@@ -185,7 +188,7 @@ editor.once('load', function() {
                 title: 'Camera',
                 className: 'menu-item-add-camera',
                 icon: componentsLogos.camera,
-                select: function() {
+                select: function () {
                     editor.call('entities:new', {
                         name: 'Camera',
                         parent: getParentFn(),
@@ -204,7 +207,7 @@ editor.once('load', function() {
                         title: 'Directional Light',
                         className: 'menu-item-add-directional-light',
                         icon: componentsLogos.directional,
-                        select: function() {
+                        select: function () {
                             var component = editor.call('components:getDefault', 'light');
                             component.type = 'directional';
 
@@ -221,7 +224,7 @@ editor.once('load', function() {
                         title: 'Point Light',
                         className: 'menu-item-add-point-light',
                         icon: componentsLogos.point,
-                        select: function() {
+                        select: function () {
                             var component = editor.call('components:getDefault', 'light');
                             component.type = 'point';
                             component.shadowResolution = 256;
@@ -239,7 +242,7 @@ editor.once('load', function() {
                         title: 'Spot Light',
                         className: 'menu-item-add-spot-light',
                         icon: componentsLogos.spot,
-                        select: function() {
+                        select: function () {
                             var component = editor.call('components:getDefault', 'light');
                             component.type = 'spot';
 
@@ -258,7 +261,7 @@ editor.once('load', function() {
                 title: 'Model',
                 className: 'menu-item-add-model',
                 icon: componentsLogos.model,
-                select: function() {
+                select: function () {
                     var component = editor.call('components:getDefault', 'model');
                     component.type = 'asset';
 
@@ -275,7 +278,7 @@ editor.once('load', function() {
                 title: 'Particle System',
                 className: 'menu-item-add-particle-system',
                 icon: componentsLogos.particlesystem,
-                select: function() {
+                select: function () {
                     editor.call('entities:new', {
                         name: 'Particle System',
                         parent: getParentFn(),
@@ -294,11 +297,11 @@ editor.once('load', function() {
                         title: 'Box',
                         className: 'menu-item-add-box-primitive',
                         icon: componentsLogos.model,
-                        select: function() {
+                        select: function () {
                             var data = createPrimitiveEntityData('box', {
                                 name: 'Box',
                                 parent: getParentFn()
-                            })
+                            });
                             editor.call('entities:new', data);
                         }
                     },
@@ -306,11 +309,11 @@ editor.once('load', function() {
                         title: 'Capsule',
                         className: 'menu-item-add-capsule-primitive',
                         icon: componentsLogos.model,
-                        select: function() {
+                        select: function () {
                             var data = createPrimitiveEntityData('capsule', {
                                 name: 'Capsule',
                                 parent: getParentFn()
-                            })
+                            });
                             editor.call('entities:new', data);
                         }
                     },
@@ -318,11 +321,11 @@ editor.once('load', function() {
                         title: 'Cone',
                         className: 'menu-item-add-cone-primitive',
                         icon: componentsLogos.model,
-                        select: function() {
+                        select: function () {
                             var data = createPrimitiveEntityData('cone', {
                                 name: 'Cone',
                                 parent: getParentFn()
-                            })
+                            });
                             editor.call('entities:new', data);
                         }
                     },
@@ -330,11 +333,11 @@ editor.once('load', function() {
                         title: 'Cylinder',
                         className: 'menu-item-add-cylinder-primitive',
                         icon: componentsLogos.model,
-                        select: function() {
+                        select: function () {
                             var data = createPrimitiveEntityData('cylinder', {
                                 name: 'Cylinder',
                                 parent: getParentFn()
-                            })
+                            });
                             editor.call('entities:new', data);
                         }
                     },
@@ -343,11 +346,11 @@ editor.once('load', function() {
                         title: 'Plane',
                         className: 'menu-item-add-plane-primitive',
                         icon: componentsLogos.model,
-                        select: function() {
+                        select: function () {
                             var data = createPrimitiveEntityData('plane', {
                                 name: 'Plane',
                                 parent: getParentFn()
-                            })
+                            });
                             editor.call('entities:new', data);
                         }
                     },
@@ -355,11 +358,11 @@ editor.once('load', function() {
                         title: 'Sphere',
                         className: 'menu-item-add-sphere-primitive',
                         icon: componentsLogos.model,
-                        select: function() {
+                        select: function () {
                             var data = createPrimitiveEntityData('sphere', {
                                 name: 'Sphere',
                                 parent: getParentFn()
-                            })
+                            });
                             editor.call('entities:new', data);
                         }
                     }
@@ -374,7 +377,7 @@ editor.once('load', function() {
                         title: 'Sprite',
                         className: 'menu-item-add-sprite',
                         icon: componentsLogos.sprite,
-                        select: function() {
+                        select: function () {
                             var data = editor.call('components:getDefault', 'sprite');
                             editor.call('entities:new', {
                                 name: 'Sprite',
@@ -389,7 +392,7 @@ editor.once('load', function() {
                         title: 'Animated Sprite',
                         className: 'menu-item-add-animated-sprite',
                         icon: componentsLogos.sprite,
-                        select: function() {
+                        select: function () {
                             var data = editor.call('components:getDefault', 'sprite');
                             data.type = 'animated';
                             data.clips = {
@@ -422,7 +425,7 @@ editor.once('load', function() {
                         title: '2D Screen',
                         className: 'menu-item-add-2d-screen-ui',
                         icon: componentsLogos['2d-screen'],
-                        select: function() {
+                        select: function () {
                             var data = editor.call('components:getDefault', 'screen');
                             data.screenSpace = true;
 
@@ -439,7 +442,7 @@ editor.once('load', function() {
                         title: '3D Screen',
                         className: 'menu-item-add-3d-screen-ui',
                         icon: componentsLogos['3d-screen'],
-                        select: function() {
+                        select: function () {
                             var data = editor.call('components:getDefault', 'screen');
                             data.screenSpace = false;
 
@@ -457,7 +460,7 @@ editor.once('load', function() {
                         title: 'Text Element',
                         className: 'menu-item-add-text-element-ui',
                         icon: componentsLogos['text-element'],
-                        select: function() {
+                        select: function () {
                             editor.call('entities:new', {
                                 name: 'Text',
                                 parent: getParentFn(),
@@ -471,7 +474,7 @@ editor.once('load', function() {
                         title: 'Image Element',
                         className: 'menu-item-add-image-element-ui',
                         icon: componentsLogos['image-element'],
-                        select: function() {
+                        select: function () {
                             editor.call('entities:new', {
                                 name: 'Image',
                                 parent: getParentFn(),
@@ -485,7 +488,7 @@ editor.once('load', function() {
                         title: 'Element Group',
                         className: 'menu-item-add-element-group-ui',
                         icon: componentsLogos['group-element'],
-                        select: function() {
+                        select: function () {
                             var data = editor.call('components:getDefault', 'element');
                             data.type = 'group';
                             editor.call('entities:new', {
@@ -501,7 +504,7 @@ editor.once('load', function() {
                         title: 'Button Element',
                         className: 'menu-item-add-button-element-ui',
                         icon: componentsLogos.button,
-                        select: function() {
+                        select: function () {
                             editor.call('entities:new', createButtonEntityData({
                                 name: 'Button',
                                 parent: getParentFn(),
@@ -520,7 +523,7 @@ editor.once('load', function() {
                         title: 'Scroll View Element',
                         className: 'menu-item-add-scroll-view-element-ui',
                         icon: componentsLogos.scrollview,
-                        select: function() {
+                        select: function () {
                             var viewportSize = 200;
                             var scrollbarSize = 20;
 
@@ -535,7 +538,7 @@ editor.once('load', function() {
                                         pivot: [0, 1]
                                     })
                                 },
-                                postCreationCallback: function(scrollView) {
+                                postCreationCallback: function (scrollView) {
                                     scrollView.history.enabled = false;
                                     scrollView.set('components.scrollview.viewportEntity', scrollView.entity.findByName('Viewport').getGuid());
                                     scrollView.set('components.scrollview.contentEntity', scrollView.entity.findByName('Content').getGuid());
@@ -551,7 +554,7 @@ editor.once('load', function() {
                                                 anchor: [0, 0, 1, 1],
                                                 margin: [0, scrollbarSize, scrollbarSize, 0],
                                                 pivot: [0, 1],
-                                                color: [.2, .2, .2],
+                                                color: [0.2, 0.2, 0.2],
                                                 mask: true
                                             })
                                         },
@@ -585,7 +588,7 @@ editor.once('load', function() {
                         title: 'Scrollbar Element',
                         className: 'menu-item-add-scrollbar-element-ui',
                         icon: componentsLogos.scrollbar,
-                        select: function() {
+                        select: function () {
                             editor.call('entities:new', createScrollbarEntityData(ORIENTATION_VERTICAL, {
                                 name: 'Scrollbar',
                                 parent: getParentFn()

@@ -18,13 +18,13 @@ editor.once('load', function () {
         };
 
         Ajax(data)
-        .on('load', function(status, data) {
+        .on('load', function (status, data) {
             if (callback)
                 callback(data);
         })
-        .on('progress', function(progress) {
+        .on('progress', function (progress) {
         })
-        .on('error', function(status, data) {
+        .on('error', function (status, data) {
             if (error)
                 error(status, data);
         });

@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     const useLegacyComponentInspectors = false;
@@ -11,33 +11,33 @@ editor.once('load', function() {
         var menuAddComponent = new ui.Menu();
         var components = editor.call('components:schema');
         var list = editor.call('components:list');
-        for(var i = 0; i < list.length; i++) {
+        for (let i = 0; i < list.length; i++) {
             menuAddComponent.append(new ui.MenuItem({
                 text: components[list[i]].$title,
                 value: list[i]
             }));
         }
-        menuAddComponent.on('open', function() {
+        menuAddComponent.on('open', function () {
             var items = editor.call('selector:items');
 
             var legacyAudio = editor.call('settings:project').get('useLegacyAudio');
-            for(var i = 0; i < list.length; i++) {
+            for (let i = 0; i < list.length; i++) {
                 var different = false;
                 var disabled = items[0].has('components.' + list[i]);
 
-                for(var n = 1; n < items.length; n++) {
+                for (var n = 1; n < items.length; n++) {
                     if (disabled !== items[n].has('components.' + list[i])) {
                         var different = true;
                         break;
                     }
                 }
-                this.findByPath([ list[i] ]).disabled = different ? false : disabled;
+                this.findByPath([list[i]]).disabled = different ? false : disabled;
 
                 if (list[i] === 'audiosource')
                     this.findByPath([list[i]]).hidden = ! legacyAudio;
             }
         });
-        menuAddComponent.on('select', function(path) {
+        menuAddComponent.on('select', function (path) {
             var items = editor.call('selector:items');
             var component = path[0];
             editor.call('entities:addComponent', items, component);
@@ -47,18 +47,18 @@ editor.once('load', function() {
     }
 
     // legacy
-    editor.method('attributes:entity.panelComponents', function() {
+    editor.method('attributes:entity.panelComponents', function () {
         if (useLegacyComponentInspectors) return panelComponents;
 
         return entityInspector;
     });
 
     // legacy
-    editor.method('attributes:entity:addComponentPanel', function(args) {
+    editor.method('attributes:entity:addComponentPanel', function (args) {
         var title = args.title;
         var name = args.name;
         var entities = args.entities;
-        var events = [ ];
+        var events = [];
 
         // panel
         var panel = editor.call('attributes:addPanel', {
@@ -74,11 +74,11 @@ editor.once('load', function() {
 
         // show/hide panel
         var checkingPanel;
-        var checkPanel = function() {
+        var checkPanel = function () {
             checkingPanel = false;
 
             var show = entities[0].has('components.' + name);
-            for(var i = 1; i < entities.length; i++) {
+            for (let i = 1; i < entities.length; i++) {
                 if (show !== entities[i].has('components.' + name)) {
                     show = false;
                     break;
@@ -88,20 +88,20 @@ editor.once('load', function() {
             panel.disabled = ! show;
             panel.hidden = ! show;
         };
-        var queueCheckPanel = function() {
+        var queueCheckPanel = function () {
             if (checkingPanel)
                 return;
 
             checkingPanel = true;
             setTimeout(checkPanel);
-        }
+        };
         checkPanel();
-        for(var i = 0; i < entities.length; i++) {
+        for (let i = 0; i < entities.length; i++) {
             events.push(entities[i].on('components.' + name + ':set', queueCheckPanel));
             events.push(entities[i].on('components.' + name + ':unset', queueCheckPanel));
         }
-        panel.once('destroy', function() {
-            for(var i = 0; i < entities.length; i++)
+        panel.once('destroy', function () {
+            for (let i = 0; i < entities.length; i++)
                 events[i].unbind();
         });
 
@@ -109,15 +109,15 @@ editor.once('load', function() {
         var fieldRemove = new ui.Button();
 
         fieldRemove.hidden = ! editor.call('permissions:write');
-        events.push(editor.on('permissions:writeState', function(state) {
+        events.push(editor.on('permissions:writeState', function (state) {
             fieldRemove.hidden = ! state;
         }));
 
         fieldRemove.class.add('component-remove');
-        fieldRemove.on('click', function() {
-            var records = [ ];
+        fieldRemove.on('click', function () {
+            var records = [];
 
-            for(var i = 0; i < entities.length; i++) {
+            for (let i = 0; i < entities.length; i++) {
                 records.push({
                     item: entities[i],
                     value: entities[i].get('components.' + name)
@@ -130,8 +130,8 @@ editor.once('load', function() {
 
             editor.call('history:add', {
                 name: 'entities.set[components.' + name + ']',
-                undo: function() {
-                    for(var i = 0; i < records.length; i++) {
+                undo: function () {
+                    for (let i = 0; i < records.length; i++) {
                         var item = records[i].item.latest();
                         if (! item)
                             continue;
@@ -141,8 +141,8 @@ editor.once('load', function() {
                         item.history.enabled = true;
                     }
                 },
-                redo: function() {
-                    for(var i = 0; i < records.length; i++) {
+                redo: function () {
+                    for (let i = 0; i < records.length; i++) {
                         var item = records[i].item.latest();
                         if (! item)
                             continue;
@@ -175,7 +175,7 @@ editor.once('load', function() {
         labelEnabled.class.add('component-toggle-label');
         panel.headerAppend(labelEnabled);
         labelEnabled.text = fieldEnabled.value ? 'On' : 'Off';
-        fieldEnabled.on('change', function(value) {
+        fieldEnabled.on('change', function (value) {
             labelEnabled.text = value ? 'On' : 'Off';
         });
 
@@ -183,8 +183,8 @@ editor.once('load', function() {
     });
 
     var items = null;
-    var argsList = [ ];
-    var argsFieldsChanges = [ ];
+    var argsList = [];
+    var argsFieldsChanges = [];
     var inspectEvents = [];
 
     var templateOverrides = new pcui.TemplateOverridesView({
@@ -226,7 +226,7 @@ editor.once('load', function() {
 
 
     // before clearing inspector, preserve elements
-    editor.on('attributes:beforeClear', function() {
+    editor.on('attributes:beforeClear', function () {
         if (!useLegacyComponentInspectors) {
             entityInspector.unlink();
             if (entityInspector.parent) {
@@ -259,7 +259,7 @@ editor.once('load', function() {
         items.panelComponents.clear();
 
         // unlink fields
-        for(var i = 0; i < argsList.length; i++) {
+        for (let i = 0; i < argsList.length; i++) {
             argsList[i].link = null;
             argsList[i].unlinkField();
         }
@@ -267,7 +267,7 @@ editor.once('load', function() {
     });
 
     // initialize fields
-    var initialize = function() {
+    var initialize = function () {
         items = { };
 
         var root = editor.call('attributes.rootPanel');
@@ -329,7 +329,7 @@ editor.once('load', function() {
         var argsPosition = {
             parent: panel,
             name: 'Position',
-            placeholder: [ 'X', 'Y', 'Z' ],
+            placeholder: ['X', 'Y', 'Z'],
             precision: 3,
             step: 0.05,
             type: 'vec3',
@@ -344,7 +344,7 @@ editor.once('load', function() {
         var argsRotation = {
             parent: panel,
             name: 'Rotation',
-            placeholder: [ 'X', 'Y', 'Z' ],
+            placeholder: ['X', 'Y', 'Z'],
             precision: 2,
             step: 0.1,
             type: 'vec3',
@@ -360,7 +360,7 @@ editor.once('load', function() {
         var argsScale = {
             parent: panel,
             name: 'Scale',
-            placeholder: [ 'X', 'Y', 'Z' ],
+            placeholder: ['X', 'Y', 'Z'],
             precision: 3,
             step: 0.05,
             type: 'vec3',
@@ -379,13 +379,13 @@ editor.once('load', function() {
         var btnAddComponent = items.btnAddComponent = new ui.Button();
 
         btnAddComponent.hidden = ! editor.call('permissions:write');
-        editor.on('permissions:writeState', function(state) {
+        editor.on('permissions:writeState', function (state) {
             btnAddComponent.hidden = ! state;
         });
 
         btnAddComponent.text = 'Add Component';
         btnAddComponent.class.add('add-component');
-        btnAddComponent.on('click', function(evt) {
+        btnAddComponent.on('click', function (evt) {
             menuAddComponent.position(evt.clientX, evt.clientY);
             menuAddComponent.open = true;
         });
@@ -393,7 +393,7 @@ editor.once('load', function() {
     };
 
     // link data to fields when inspecting
-    editor.on('attributes:inspect[entity]', function(entities) {
+    editor.on('attributes:inspect[entity]', function (entities) {
         if (entities.length > 1) {
             editor.call('attributes:header', entities.length + ' Entities');
         } else {
@@ -412,7 +412,6 @@ editor.once('load', function() {
         }
 
 
-
         if (! items)
             initialize();
 
@@ -426,17 +425,17 @@ editor.once('load', function() {
             root.append(items.panelComponents);
 
         // disable renderChanges
-        for(var i = 0; i < argsFieldsChanges.length; i++)
+        for (let i = 0; i < argsFieldsChanges.length; i++)
             argsFieldsChanges[i].renderChanges = false;
 
         // link fields
-        for(var i = 0; i < argsList.length; i++) {
+        for (let i = 0; i < argsList.length; i++) {
             argsList[i].link = entities;
             argsList[i].linkField();
         }
 
         // enable renderChanges
-        for(var i = 0; i < argsFieldsChanges.length; i++)
+        for (let i = 0; i < argsFieldsChanges.length; i++)
             argsFieldsChanges[i].renderChanges = true;
 
         onInspect(entities);
@@ -456,7 +455,7 @@ editor.once('load', function() {
         var disableRotation = false;
         var disableScale = false;
 
-        for (var i = 0, len = selectedEntities.length; i < len; i++) {
+        for (let i = 0, len = selectedEntities.length; i < len; i++) {
             var entity = selectedEntities[i];
 
             // disable rotation / scale for 2D screens
@@ -474,7 +473,7 @@ editor.once('load', function() {
         items.fieldPosition[0].enabled = !disablePositionXY;
         items.fieldPosition[1].enabled = !disablePositionXY;
 
-        for (var i = 0; i < 3; i++) {
+        for (let i = 0; i < 3; i++) {
             items.fieldRotation[i].enabled = !disableRotation;
             items.fieldScale[i].enabled = !disableScale;
 
@@ -510,7 +509,7 @@ editor.once('load', function() {
         };
 
 
-        for (var i = 0, len = entities.length; i < len; i++) {
+        for (let i = 0, len = entities.length; i < len; i++) {
             addEvents(entities[i]);
         }
 
@@ -518,7 +517,7 @@ editor.once('load', function() {
     };
 
     var onUninspect = function () {
-        for (var i = 0; i < inspectEvents.length; i++) {
+        for (let i = 0; i < inspectEvents.length; i++) {
             inspectEvents[i].unbind();
         }
 
