@@ -22,6 +22,18 @@ editor.once('load', function () {
         return selection;
     }
 
+    function selectEntity(entity) {
+        // timeout because there is a chance the selector will be disabled
+        // when the entity picker is enabled
+        setTimeout(() => {
+            editor.call('selector:history', false);
+            editor.call('selector:set', 'entity', [entity]);
+            editor.once('selector:change', () => {
+                editor.call('selector:history', true);
+            });
+        });
+    }
+
     templateItems.new_template = {
         title: 'New Template',
         className: 'menu-item-template',
@@ -69,7 +81,7 @@ editor.once('load', function () {
             return getSelection().length === 1;
         },
         select: function () {
-            if (! editor.call('permissions:write')) {
+            if (!editor.call('permissions:write')) {
                 return;
             }
 
@@ -77,26 +89,33 @@ editor.once('load', function () {
                 type: 'template'
             });
 
+            let parent = getSelection()[0];
+            if (!parent) return;
+
             var evtPick = editor.once('picker:asset', function (asset) {
-                let newEntity;
+                let newEntityId;
 
                 function undo() {
-                    const entity = newEntity.latest();
+                    const entity = editor.call('entities:get', newEntityId);
                     if (entity) {
                         editor.call('entities:removeEntity', entity);
                     }
                 }
 
                 function redo() {
-                    newEntity = editor.call('template:addInstance', asset, getSelection()[0]);
+                    if (parent) {
+                        parent = parent.latest();
+                    }
 
-                    // select entity
-                    setTimeout(() => {
-                        editor.call('selector:history', false);
-                        editor.call('selector:set', 'entity', [newEntity]);
-                        editor.once('selector:change', () => {
-                            editor.call('selector:history', true);
-                        });
+                    if (!parent) return;
+
+                    const childIndex = parent.get('children').length;
+                    editor.call('template:addInstance', asset, parent, { childIndex }, entityId => {
+                        newEntityId = entityId;
+                        const newEntity = editor.call('entities:get', newEntityId);
+                        if (newEntity) {
+                            selectEntity(newEntity);
+                        }
                     });
                 }
 

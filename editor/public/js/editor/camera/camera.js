@@ -61,8 +61,10 @@ editor.once('load', function () {
 
             var old = currentCamera;
             if (old) {
-                old.camera.enabled = false;
-                removeGizmoLayers(old.camera, gizmoLayers);
+                if (old.camera) {
+                    old.camera.enabled = false;
+                    removeGizmoLayers(old.camera, gizmoLayers);
+                }
 
                 if (evtLayersSet) {
                     evtLayersSet.unbind();

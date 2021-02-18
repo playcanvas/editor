@@ -6,6 +6,12 @@ editor.once('load', function () {
     var componentAssetPaths = editor.call('components:assetPaths');
     var containsStar = /\.\*\./;
 
+    const jobsInProgress = {};
+
+    const MAX_JOB_LENGTH = 8;
+    const TIME_WAIT_ENTITIES = 5000;
+    const PASTE_BACKEND_LIMIT = 500;
+
     // try to find asset id in this project
     // from path of asset in old project
     /**
@@ -315,6 +321,102 @@ editor.once('load', function () {
         }
     };
 
+    function pasteInBackend(data, parent) {
+        let entityIds;
+        let cancelWaitForEntities;
+
+        function undo() {
+            if (cancelWaitForEntities) {
+                cancelWaitForEntities();
+                cancelWaitForEntities = null;
+            }
+
+            if (!entityIds || !entityIds.length) return;
+
+            entityIds.forEach(id => {
+                const entity = editor.call('entities:get', id);
+                if (entity) {
+                    editor.call('entities:removeEntity', entity, null, true);
+                }
+            });
+
+            entityIds = null;
+        }
+
+        function redo() {
+            parent = parent.latest();
+            if (!parent) return;
+
+            const children = parent.get('children');
+
+            const jobId = pc.guid.create().substring(0, MAX_JOB_LENGTH);
+
+            jobsInProgress[jobId] = (newEntityIds) => {
+                entityIds = newEntityIds;
+                cancelWaitForEntities = editor.call('entities:waitToExist', newEntityIds, TIME_WAIT_ENTITIES, entities => {
+                    editor.call('selector:history', false);
+                    editor.call('selector:set', 'entity', entities);
+                    editor.once('selector:change', function () {
+                        editor.call('selector:history', true);
+                    });
+                });
+            };
+
+            const taskData = {
+                projectId: config.project.id,
+                branchId: data.branch || config.self.branch.id,
+                parentId: parent.get('resource_id'),
+                sceneId: data.scene || config.scene.uniqueId,
+                jobId: jobId,
+                children: children,
+                childIndex: children.length,
+                entities: Object.keys(data.hierarchy)
+                .filter(id => {
+                    return data.hierarchy[id].parent === null
+                })
+                .map(id => {
+                    return {
+                        id: id
+                    };
+                })
+            }
+
+            if (data.scene && data.scene !== config.scene.uniqueId) {
+                taskData.newSceneId = config.scene.uniqueId;
+                taskData.newBranchId = config.self.branch.id;
+            }
+
+            editor.call('realtime:send', 'pipeline', {
+                name: 'entities-copy',
+                data: taskData
+            });
+
+            editor.call('status:job', jobId, 1);
+        }
+
+        redo();
+
+        // add history
+        editor.call('history:add', {
+            name: 'paste entities',
+            undo: undo,
+            redo: redo
+        });
+    }
+
+    editor.on('messenger:entity.copy', data => {
+        if (jobsInProgress.hasOwnProperty(data.job_id)) {
+            const callback = jobsInProgress[data.job_id];
+
+            // clear pending job
+            editor.call('status:job', data.job_id);
+            delete jobsInProgress[data.job_id];
+
+            const result = data.multTaskResults.map(d => d.newRootId);
+            callback(result);
+        }
+    });
+
     /**
      * Pastes entities in localStore under the specified parent
      *
@@ -328,9 +430,22 @@ editor.once('load', function () {
 
         if (data.type !== 'entity') return;
 
+        const projectUserSettings = editor.call('settings:projectUser');
+
         // paste on root if no parent specified
         if (!parent)
             parent = editor.call('entities:root');
+
+        // if there are a lot of entities, do the copying in the backend
+        if (editor.call('users:hasFlag', 'hasPipelineEntityCopy') &&
+            projectUserSettings.get('editor.pipeline.entityCopy') &&
+            Object.keys(data.hierarchy).length > PASTE_BACKEND_LIMIT &&
+            data.project === config.project.id &&
+            data.branch === config.self.branch.id) {
+            // TODO support pasting in different scenes / projects
+            pasteInBackend(data, parent);
+            return;
+        }
 
 
         // remap assets

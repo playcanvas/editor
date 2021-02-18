@@ -208,6 +208,14 @@ editor.once('load', function () {
         title: 'Search related assets',
         description: 'If enabled, importing a source asset will update target assets where ever they are located. If disabled, assets will only be updated if they are in the same folder, otherwise new assets will be created.'
     }, {
+        name: 'asset-tasks:serverEntityCopy',
+        title: 'Server-side Entity Copy',
+        description: 'If enabled, copy pasting Entities will be executed server-side. Provides a performance boost for large Entity hierarchies.'
+    }, {
+        name: 'asset-tasks:serverTemplateInstance',
+        title: 'Server-side Add Template Instance',
+        description: 'If enabled, adding a Template instance will be executed server-side. Provides a performance boost for large Template assets.'
+    }, {
         name: 'asset-tasks:preserveMapping',
         title: 'Preserve model material mappings',
         description: 'If enabled, after importing an existing source model we will try to preserve the material mappings that were set by the user on the existing model.'

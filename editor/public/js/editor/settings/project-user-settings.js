@@ -38,7 +38,9 @@ editor.once('load', function () {
                     defaultAssetPreload: true,
                     animSampleRate: 10,
                     animCurveTolerance: 0,
-                    animEnableCubic: false
+                    animEnableCubic: false,
+                    entityCopy: false,
+                    templateInstance: false
                 }
             },
             branch: config.self.branch.id,
@@ -92,6 +94,14 @@ editor.once('load', function () {
 
             if (! settings.has('editor.pipeline.overwriteTexture'))
                 settings.set('editor.pipeline.overwriteTexture', true);
+
+            if (!settings.has('editor.pipeline.entityCopy')) {
+                settings.set('editor.pipeline.entityCopy', false);
+            }
+
+            if (!settings.has('editor.pipeline.templateInstance')) {
+                settings.set('editor.pipeline.templateInstance', false);
+            }
 
             if (! settings.has('editor.locale')) {
                 settings.set('editor.locale', 'en-US');

@@ -100,7 +100,9 @@ editor.once('load', function () {
             var camera = editor.call('camera:current');
             var distance = 0;
 
-            if (ui.Tree._ctrl && ui.Tree._ctrl()) {
+            const ctrlDown = editor.call('hotkey:ctrl');
+
+            if (ctrlDown) {
                 vecA.copy(camera.forward).scale(aabb.halfExtents.length() * 2.2);
                 vecB.copy(camera.getPosition()).add(vecA);
                 vecC.copy(vecB).sub(aabb.center);

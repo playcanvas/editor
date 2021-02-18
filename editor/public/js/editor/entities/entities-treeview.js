@@ -9,6 +9,8 @@ Object.assign(pcui, (function () {
     const CLASS_USER_SELECTION_MARKER = CLASS_ROOT + '-user-marker';
     const CLASS_USER_SELECTION_MARKER_CONTAINER = CLASS_USER_SELECTION_MARKER + '-container';
 
+    const TIME_WAIT_ENTITIES = 5000;
+
     /**
      * @name pcui.EntitiesTreeView
      * @classdesc Represents the Entity TreeView that shows the Scene hierarchy.
@@ -47,13 +49,14 @@ Object.assign(pcui, (function () {
             this._dropData = null;
 
             this.on('rename', this._onRename.bind(this));
-            this.on('reparent', this._onReparent.bind(this));
 
             this.on('dragstart', this._onStartDrag.bind(this));
             this.on('dragend', this._onEndDrag.bind(this));
 
             this.on('select', this._onSelectEntityItem.bind(this));
             this.on('deselect', this._onDeselectEntityItem.bind(this));
+
+            this._onReparentFn = this._onReparent.bind(this);
 
             this._eventsEditor.push(editor.on('selector:change', this._onSelectorChange.bind(this)));
             this._eventsEditor.push(editor.on('selector:sync', this._onSelectorSync.bind(this)));
@@ -78,25 +81,52 @@ Object.assign(pcui, (function () {
         }
 
         _onReparent(reparentedItems) {
+            // do not allow entities part of a template to be dragged out
+            // of the template root
+            let newParentTemplates = {};
+
+            for (let i = 0; i < reparentedItems.length; i++) {
+                const entry = reparentedItems[i];
+                const templateRoot = editor.call('templates:isTemplateChild', entry.item.entity, this._entities);
+                if (templateRoot) {
+                    const newParentId = entry.newParent.entity.get('resource_id');
+                    if (!newParentTemplates.hasOwnProperty(newParentId)) {
+                        if (entry.newParent.entity.get('template_id')) {
+                            newParentTemplates[newParentId] = entry.newParent.entity;
+                        } else {
+                            newParentTemplates[newParentId] = editor.call('templates:isTemplateChild', entry.newParent.entity, this._entities);
+                        }
+                    }
+
+                    if (templateRoot !== newParentTemplates[newParentId]) {
+                        editor.call(
+                            'picker:confirm',
+                            `Entities that are part of a Template cannot be reparented outside the Template.`,
+                            function () {},
+                            {
+                                yesText: 'OK',
+                                noText: ''
+                            }
+                        );
+
+                        return;
+                    }
+                }
+            }
+
             // preserve transform if we are not pressing Ctrl
             const preserveTransform = !this._pressedCtrl;
 
             var items = reparentedItems
-            .filter(reparented => !reparented.item.entity.reparenting)
             .map(reparented => {
-                reparented.item.entity.reparenting = true;
                 return {
                     entity: reparented.item.entity,
-                    parent: reparented.item.parent.entity,
-                    index: Array.prototype.indexOf.call(reparented.item.parent.dom.childNodes, reparented.item.dom) - 1
+                    parent: reparented.newParent.entity,
+                    index: reparented.newChildIndex
                 };
             });
 
             editor.call('entities:reparent', items, preserveTransform);
-
-            items.forEach(item => {
-                item.entity.reparenting = false;
-            });
 
             editor.call('viewport:render');
         }
@@ -271,6 +301,17 @@ Object.assign(pcui, (function () {
             this._instantiateDraggedAssets(dragOverItem, dragArea, dropType, dropData);
         }
 
+        _selectEntitiesById(entityIds) {
+            const entities = entityIds.map(id => this._entities.get(id)).filter(entity => entity);
+            if (entities.length) {
+                editor.call('selector:history', false);
+                editor.call('selector:set', 'entity', entities);
+                editor.once('selector:change', () => {
+                    editor.call('selector:history', true);
+                });
+            }
+        }
+
         _instantiateDraggedAssets(dragOverItem, dragArea, dropType, dropData) {
             let parent = dragOverItem.entity;
             let childIndex;
@@ -304,43 +345,61 @@ Object.assign(pcui, (function () {
 
             if (!assets.length) return;
 
-            let newEntities = [];
+            let newEntityIds;
+            let cancelWaitForEntities;
 
             const undo = () => {
-                newEntities.forEach(e => {
-                    e = e.latest();
-                    if (e) {
-                        editor.call('entities:removeEntity', e);
+                newEntityIds.forEach(id => {
+                    const entity = this._entities.get(id);
+                    if (entity) {
+                        editor.call('entities:removeEntity', entity);
                     }
                 });
+
+                newEntityIds = null;
+
+                if (cancelWaitForEntities) {
+                    cancelWaitForEntities();
+                    cancelWaitForEntities = null;
+                }
+
                 editor.call('viewport:render');
             };
 
             const redo = () => {
-                newEntities = [];
+                newEntityIds = [];
                 parent = parent.latest();
                 if (!parent) return;
 
+                const templates = [];
                 assets.forEach(asset => {
                     try {
                         if (asset.get('type') === 'template') {
-                            newEntities.push(this._instantiateDraggedTemplateAsset(asset, parent, childIndex));
+                            templates.push(asset);
                         } else if (asset.get('type') === 'model') {
-                            newEntities.push(this._instantiateDraggedModelAsset(asset, parent, childIndex));
+                            newEntityIds.push(this._instantiateDraggedModelAsset(asset, parent, childIndex));
                         } else if (asset.get('type') === 'sprite') {
-                            newEntities.push(this._instantiateDraggedSpriteAsset(asset, parent, childIndex));
+                            newEntityIds.push(this._instantiateDraggedSpriteAsset(asset, parent, childIndex));
                         }
                     } catch (err) {
                         log.error(err);
                     }
                 });
 
-                // select them
-                editor.call('selector:history', false);
-                editor.call('selector:set', 'entity', newEntities);
-                editor.once('selector:change', () => {
-                    editor.call('selector:history', true);
-                });
+                if (templates.length) {
+                    this._instantiateDraggedTemplateAssets(templates, parent, childIndex, entityIds => {
+                        if (newEntityIds) {
+                            newEntityIds = newEntityIds.concat(entityIds);
+
+                            cancelWaitForEntities = editor.call('entities:waitToExist', newEntityIds, TIME_WAIT_ENTITIES, () => {
+                                cancelWaitForEntities = null;
+                                this._selectEntitiesById(newEntityIds);
+                            }, this._entities);
+                        }
+                    });
+                }
+
+                this._selectEntitiesById(newEntityIds);
             };
 
             if (this._history) {
@@ -354,17 +413,21 @@ Object.assign(pcui, (function () {
             redo();
         }
 
-        _instantiateDraggedTemplateAsset(asset, parentEntity, childIndex) {
-            const newEntity = editor.call('template:addInstance', asset, parentEntity);
-            const index = parentEntity.get('children').indexOf(newEntity.get('resource_id'));
-            if (childIndex !== undefined && index !== childIndex) {
-                const history = parentEntity.history.enabled;
-                parentEntity.history.enabled = false;
-                parentEntity.move('children', index, childIndex);
-                parentEntity.history.enabled = history;
+        _instantiateDraggedTemplateAssets(assets, parentEntity, childIndex, callback) {
+            if (childIndex === null || childIndex === undefined) {
+                childIndex = parentEntity.get('children').length;
             }
 
-            return newEntity;
+            editor.call('template:addMultipleInstances',
+                assets.map((asset) => {
+                    return {
+                        asset: asset
+                    }
+                }),
+                parentEntity,
+                childIndex,
+                callback
+            );
         }
 
         _instantiateDraggedModelAsset(asset, parentEntity, childIndex) {
@@ -470,8 +533,6 @@ Object.assign(pcui, (function () {
 
             treeViewItem.entity = entity;
 
-            entity.reparenting = false;
-
             const events = [];
 
             // add component icons
@@ -492,7 +553,7 @@ Object.assign(pcui, (function () {
             // handle template icons
             if (entity.get('template_id')) {
                 treeViewItem.class.add(CLASS_TEMPLATE_INSTANCE);
-            } else if (editor.call('templates:isTemplateChild', entity)) {
+            } else if (editor.call('templates:isTemplateChild', entity, this._entities)) {
                 treeViewItem.class.add(CLASS_TEMPLATE_INSTANCE_CHILD);
             }
 
@@ -517,7 +578,7 @@ Object.assign(pcui, (function () {
             // add child
             events.push(entity.on('children:insert', (childId, index) => {
                 const item = this._treeItemIndex[childId];
-                if (!item || item.entity.reparenting) return;
+                if (!item) return;
 
                 if (item.parent) {
                     item.parent.remove(item);
@@ -534,7 +595,7 @@ Object.assign(pcui, (function () {
             // remove child
             events.push(entity.on('children:remove', childId => {
                 const item = this._treeItemIndex[childId];
-                if (!item || item.entity.reparenting) return;
+                if (!item) return;
 
                 treeViewItem.remove(item);
             }));
@@ -542,7 +603,7 @@ Object.assign(pcui, (function () {
             // move child
             events.push(entity.on('children:move', (childId, index) => {
                 var item = this._treeItemIndex[childId];
-                if (!item || item.entity.reparenting)
+                if (!item)
                     return;
 
                 treeViewItem.remove(item);

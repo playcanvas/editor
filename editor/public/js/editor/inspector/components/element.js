@@ -135,7 +135,10 @@ Object.assign(pcui, (function () {
     }, {
         label: 'Text',
         path: 'components.element.text',
-        type: 'text'
+        type: 'text',
+        args: {
+            resizable: 'vertical'
+        }
     }, {
         label: 'Key',
         path: 'components.element.key',

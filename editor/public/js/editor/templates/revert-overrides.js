@@ -4,6 +4,8 @@ editor.once('load', function () {
     const REGEX_SCRIPT_NAME = /^components\.script\.scripts\.([^.]+)$/;
     const REGEX_JSON_SCRIPT_ATTR_ARRAY_ELEMENT = /^components\.script\.scripts\.[^.]+\.attributes\.[^.]+\.\d+$/;
 
+    const IGNORE_PATHS = editor.call('template:utils', 'ignoreRootPathsForRevert');
+
     function rememberEntitiesPanelState(entity) {
         return editor.call('entities:panel:getExpandedState', entity);
     }
@@ -24,15 +26,16 @@ editor.once('load', function () {
     editor.method('templates:revertDeletedEntity', (deletedEntity, templateInstanceRoot, entities) => {
         entities = entities || editor.call('entities:raw');
 
-        let newEntity = null;
+        let newEntityId;
 
         function undo() {
-            newEntity = newEntity.latest();
-            if (!newEntity) return;
+            const newEntity = editor.call('entities:get', newEntityId);
 
-            editor.call('entities:removeEntity', newEntity, null, true);
+            if (newEntity) {
+                editor.call('entities:removeEntity', newEntity, null, true);
+            }
 
-            newEntity = null;
+            newEntityId = null;
         }
 
         function redo() {
@@ -51,7 +54,9 @@ editor.once('load', function () {
                 srcToDst: srcToDst
             };
 
-            newEntity = editor.call('template:addInstance', asset, parentEnt, opts);
+            editor.call('template:addInstance', asset, parentEnt, opts, entityId => {
+                newEntityId = entityId;
+            });
         }
 
         redo();
@@ -165,7 +170,6 @@ editor.once('load', function () {
             const history = entity.history.enabled;
             entity.history.enabled = false;
             const value = editor.call('template:attrUtils', 'remapDstForRevert', override);
-            console.log(path, index, value);
             entity.insert(path, value, index);
             entity.history.enabled = history;
         }
@@ -449,6 +453,22 @@ editor.once('load', function () {
         });
     }
 
+    function afterAddInstance(entity, entitiesPanelState, ignorePathValues) {
+        entity.history.enabled = false;
+        IGNORE_PATHS.forEach((path, i) => {
+            entity.set(path, ignorePathValues[i]);
+        });
+        entity.history.enabled = true;
+
+        editor.call('selector:history', false);
+        editor.call('selector:set', 'entity', [entity]);
+        editor.once('selector:change', function () {
+            editor.call('selector:history', true);
+        });
+
+        restoreEntitiesPanelState(entitiesPanelState);
+    }
+
     editor.method('templates:revertOverride', (override, entities) => {
         entities = entities || editor.call('entities:raw');
 
@@ -499,103 +519,48 @@ editor.once('load', function () {
     });
 
     editor.method('templates:revertAll', function (entity) {
-
-        let templateId = entity.get('template_id');
-        let templateEntIds = entity.get('template_ent_ids');
+        const templateId = entity.get('template_id');
+        const templateEntIds = entity.get('template_ent_ids');
         if (!templateId || !templateEntIds) return false;
 
-        let asset = editor.call('assets:get', templateId);
+        const asset = editor.call('assets:get', templateId);
         if (!asset) return;
 
-        let parent = editor.call('entities:get', entity.get('parent'));
+        const parent = editor.call('entities:get', entity.get('parent'));
         if (!parent) return;
 
-        let removedEntityData;
+        const ignorePathValues = IGNORE_PATHS.map(path => entity.get(path));
 
-        let entitiesPanelState;
+        const entitiesPanelState = rememberEntitiesPanelState(entity);
 
-        function undo() {
-            parent = parent.latest();
-            if (!parent) return;
+        const childIndex = parent.get('children').indexOf(entity.get('resource_id'));
 
-            const newEntity = editor.call('entities:get', removedEntityData.resource_id);
-            if (!newEntity) return;
+        // remove entity and then re-add instance from
+        // the template keeping the same ids as before
+        editor.call('entities:removeEntity', entity);
 
-            const childIndex = parent.get('children').indexOf(newEntity.get('resource_id'));
+        setTimeout(function () {
+            const srcToDst = editor.call('template:utils', 'invertMap', templateEntIds);
 
-            editor.call('entities:removeEntity', newEntity, null, true);
+            const opts = {
+                dstToSrc: templateEntIds,
+                srcToDst: srcToDst,
+                childIndex: childIndex
+            };
 
-            const entity = new Observer(removedEntityData);
-
-            setTimeout(function () {
-                editor.call('entities:addEntity', entity, parent, true, childIndex);
-
-                restoreEntitiesPanelState(entitiesPanelState);
-            });
-        }
-
-        function redo() {
-            entity = entity.latest();
-            if (!entity) return;
-
-            templateId = entity.get('template_id');
-            templateEntIds = entity.get('template_ent_ids');
-            if (!templateId || !templateEntIds) return;
-
-            asset = editor.call('assets:get', templateId);
-            if (!asset) return;
-
-            parent = editor.call('entities:get', entity.get('parent'));
-            if (!parent) return;
-
-            const ignorePaths = editor.call('template:utils', 'ignoreRootPathsForRevert');
-
-            const ignorePathValues = ignorePaths.map(path => entity.get(path));
-
-            removedEntityData = entity.json();
-
-            entitiesPanelState = rememberEntitiesPanelState(entity);
-
-            const childIndex = parent.get('children').indexOf(entity.get('resource_id'));
-
-            // remove entity and then re-add instance from
-            // the template keeping the same ids as before
-            editor.call('entities:removeEntity', entity);
-
-            setTimeout(function () {
-                const opts = {
-                    dstToSrc: templateEntIds,
-                    childIndex: childIndex
-                };
-
-                entity = editor.call('template:addInstance', asset, parent, opts);
-
-                entity.history.enabled = false;
-                ignorePaths.forEach((path, i) => {
-                    entity.set(path, ignorePathValues[i]);
-                });
-                entity.history.enabled = true;
-
-                setTimeout(function () {
-                    editor.call('selector:history', false);
-                    editor.call('selector:set', 'entity', [entity]);
-                    editor.once('selector:change', function () {
-                        editor.call('selector:history', true);
+            editor.call('template:addInstance', asset, parent, opts, entityId => {
+                editor.call('entities:waitToExist', [entityId], 5000, entities => {
+                    // use timeout to make sure treeview has been updated
+                    setTimeout(() => {
+                        afterAddInstance(entities[0], entitiesPanelState, ignorePathValues);
                     });
+                });
+            });
+        }, 0);
 
-                    restoreEntitiesPanelState(entitiesPanelState);
-                }, 0);
-            }, 0);
-        }
-
-        redo();
-
-        editor.call('history:add', {
-            name: 'template revert all',
-            undo: undo,
-            redo: redo
-        });
 
         return true;
     });
+
+    
 });
