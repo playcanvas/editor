@@ -246,7 +246,7 @@ editor.once('load', function () {
 
         const taskData = {
             entityId: resourceId,
-            templateId: templateAsset.get('uniqueId'),
+            templateId: templateAsset.get('id'),
             branchId: config.self.branch.id,
             resourceId: override.resource_id,
             overrides: [{
