@@ -1415,7 +1415,7 @@ Object.assign(pcui, (function () {
         '_ambientPanel': ['aoMap'],
         '_diffusePanel': ['diffuseMap'],
         '_specularPanel': ['specularMap', 'metalnessMap', 'glossMap'],
-        '_clearCoatPanel': ['clearCoat', 'clearCoatMap', 'clearCoatGlossMap', 'clearCoatNormalMap'],
+        '_clearCoatPanel': ['clearCoatMap', 'clearCoatGlossMap', 'clearCoatNormalMap'],
         '_emissivePanel': ['emissiveMap'],
         '_opacityPanel': ['opacityMap'],
         '_normalsPanel': ['normalMap'],
