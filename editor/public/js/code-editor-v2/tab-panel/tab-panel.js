@@ -521,6 +521,12 @@ editor.once('load', function () {
         return tabsIndex[FIND_IN_FILES];
     });
 
+    editor.method('tabs:findInFiles:focus', function () {
+        if (tabsIndex[FIND_IN_FILES]) {
+            focusTab(FIND_IN_FILES);
+        }
+    });
+
     // close tab
     editor.method('tabs:close', function (id) {
         var entry = tabsIndex[id];

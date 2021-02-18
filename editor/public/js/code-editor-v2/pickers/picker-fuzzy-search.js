@@ -26,6 +26,9 @@ editor.once('load', function () {
     menuResults.class.add('results');
     panel.append(menuResults);
 
+    var findInFilesFakeAsset = null;
+    const FIND_RESULTS = 'Find Results';
+
     // selected item index
     var selectedIndex = 0;
 
@@ -80,6 +83,35 @@ editor.once('load', function () {
         }
 
         selectionStack.push(id);
+    });
+
+    editor.on('tabs:focus', function (tab) {
+        var id = tab.id;
+        if (id !== FIND_RESULTS) return;
+
+        // if the find results tab is focused create
+        // a fake asset for the find results tab to be
+        // able to view it in the picker
+        findInFilesFakeAsset = new Observer({
+            id: FIND_RESULTS,
+            name: FIND_RESULTS,
+            path: [],
+            type: 'script'
+        });
+
+        var idx = selectionStack.indexOf(id);
+        if (idx !== -1) {
+            selectionStack.splice(idx, 1);
+        }
+
+        selectionStack.push(id);
+    });
+
+    editor.on('tabs:close', function (tab) {
+        if (tab.id === FIND_RESULTS) {
+            // clear fake asset if the find results tab is closed
+            findInFilesFakeAsset = null;
+        }
     });
 
     // when a document is closed remove it from the stack
@@ -146,18 +178,25 @@ editor.once('load', function () {
         scoreIndex = {};
         var results = [];
 
-        for (var i = 0, len = assets.length; i < len; i++) {
-            var asset = assets[i];
-            if (asset.get('type') === 'folder') continue;
+        function process(asset) {
+            if (asset.get('type') === 'folder') return;
 
             var name = asset.get('name');
 
             var score = calculateScore(name, pattern, plen);
-            if (! score) continue;
+            if (! score) return;
 
             scoreIndex[asset.get('id')] = score;
 
             results.push(asset);
+        }
+
+        for (var i = 0, len = assets.length; i < len; i++) {
+            process(assets[i]);
+        }
+
+        if (findInFilesFakeAsset) {
+            process(findInFilesFakeAsset);
         }
 
         // sort and add menu items
@@ -207,7 +246,13 @@ editor.once('load', function () {
         // first add whatever is in the stack except the selected one
         var i = selectionStack.length - 1;
         while (--i >= 0) {
-            var asset = editor.call('assets:get', selectionStack[i]);
+            var asset;
+            if (selectionStack[i] === FIND_RESULTS) {
+                asset = findInFilesFakeAsset;
+            } else {
+                asset = editor.call('assets:get', selectionStack[i]);
+            }
+
             if (asset) {
                 results.push(asset);
                 skipAssets[selectionStack[i]] = true;
@@ -217,7 +262,13 @@ editor.once('load', function () {
         // add the selected one
         i = selectionStack.length - 1;
         if (i >= 0) {
-            var asset = editor.call('assets:get', selectionStack[i]);
+            var asset;
+            if (selectionStack[i] === FIND_RESULTS) {
+                asset = findInFilesFakeAsset;
+            } else {
+                asset = editor.call('assets:get', selectionStack[i]);
+            }
+
             if (asset) {
                 results.push(asset);
                 skipAssets[selectionStack[i]] = true;
@@ -269,6 +320,11 @@ editor.once('load', function () {
     };
 
     var pick = function (assetId) {
+        if (assetId === FIND_RESULTS) {
+            editor.call('tabs:findInFiles:focus');
+            return;
+        }
+
         // open new file in new tab (if it's not open already)
         editor.call('tabs:temp:lock');
         editor.call('files:select', assetId);
