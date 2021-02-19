@@ -3,6 +3,7 @@ editor.once('load', function () {
 
     editor.method('templates:computeFilteredOverrides', function (root) {
         const overrides = editor.call('templates:computeOverrides', root);
+        if (!overrides) return overrides;
 
         filterRemovableConflicts(
             overrides, 'children', 'templates:handleChildrenConflict');

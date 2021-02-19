@@ -128,11 +128,13 @@ Object.assign(pcui, (function () {
 
             const resourceId = this._entity.get('resource_id');
             const overrides = editor.call('templates:computeFilteredOverrides', current);
-            overrides.conflicts.forEach(override => {
-                if (override.resource_id !== resourceId) return;
+            if (overrides) {
+                overrides.conflicts.forEach(override => {
+                    if (override.resource_id !== resourceId) return;
 
-                this._addOverride(override, current);
-            });
+                    this._addOverride(override, current);
+                });
+            }
         }
 
         _deferRefreshOverrides() {
