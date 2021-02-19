@@ -544,7 +544,11 @@ Object.assign(pcui, (function () {
             this.hidden = false;
             if (this._entity.get('template_id')) {
                 this._templateAsset = this._assets.get(this._entity.get('template_id'));
-                this._labelTemplate.link(this._templateAsset, 'name');
+                if (this._templateAsset) {
+                    this._labelTemplate.link(this._templateAsset, 'name');
+                } else {
+                    this._labelTemplate.text = this._entity.get('template_id');
+                }
             }
             this._bindEntityEventsRecursively(this._entity);
 
@@ -553,6 +557,8 @@ Object.assign(pcui, (function () {
 
         unlink() {
             if (!this._entity) return;
+
+            this._templateAsset = null;
 
             this._unbindEntityEvents();
 

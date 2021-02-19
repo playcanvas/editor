@@ -8,12 +8,13 @@ editor.once('load', function () {
      *
      * @param {object} root - The root entity of a template instance
      * @returns {object} An object with fields 'conflicts',
-     * 'addedEntities' and 'deletedEntities'
+     * 'addedEntities' and 'deletedEntities'. Return null if template asset not found.
      */
     editor.method('templates:computeOverrides', function (root) {
         const templateId = root.get('template_id');
 
         const asset = getAssetData(templateId);
+        if (!asset) return null;
 
         const instance = getInstanceData(root);
 
@@ -24,8 +25,7 @@ editor.once('load', function () {
 
     const getAssetData = function (id) {
         const asset = editor.call('assets:get', id);
-
-        return asset.get('data');
+        return asset && asset.get('data');
     };
 
     /**
