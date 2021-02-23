@@ -276,13 +276,18 @@ editor.once('load', function () {
         return row;
     };
 
+    // sort by case insensitive alphabetical order
     var sortScenes = function (scenes) {
         scenes.sort(function (a, b) {
-            if (a.modified < b.modified) {
-                return 1;
-            } else if (a.modified > b.modified) {
-                return -1;
-            }
+            const aname = a.name.toLowerCase();
+            const bname = b.name.toLowerCase();
+
+            if (aname < bname) return -1;
+            if (aname > bname) return 1;
+
+            // then sort by item_id
+            if (a.id < b.id) return -1;
+            if (a.id > b.id) return 1;
 
             return 0;
         });
