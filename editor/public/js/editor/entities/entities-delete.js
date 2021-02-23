@@ -1,6 +1,13 @@
 editor.once('load', function () {
     'use strict';
 
+    const MAX_JOB_LENGTH = 8;
+
+    const jobsInProgress = {};
+
+    const projectUserSettings = editor.call('settings:projectUser');
+
+
     // When entities are deleted, we need to do some work to identify references to the
     // deleted entities held by other entities in the graph. For example, if entityA has
     // a component that holds a reference to entityB and entityB is deleted, we should
@@ -47,6 +54,51 @@ editor.once('load', function () {
         // TODO: this doesn't seem to work for entity script attributes
     };
 
+    function deleteInBackend(entityIds) {
+        const jobId = pc.guid.create().substring(0, MAX_JOB_LENGTH);
+
+        jobsInProgress[jobId] = true;
+
+        const taskData = {
+            projectId: config.project.id,
+            branchId: config.self.branch.id,
+            sceneId: config.scene.uniqueId,
+            jobId: jobId,
+            entities: entityIds
+        };
+
+        editor.call('realtime:send', 'pipeline', {
+            name: 'entities-delete',
+            data: taskData
+        });
+
+        editor.call('status:job', jobId, 1);
+    }
+
+    editor.method('entities:deleteInBackend', deleteInBackend);
+
+    editor.on('messenger:entity.delete', data => {
+        if (jobsInProgress.hasOwnProperty(data.job_id)) {
+            // clear pending job
+            editor.call('status:job', data.job_id);
+            delete jobsInProgress[data.job_id];
+        }
+    });
+
+    // Gets the count of the entities and their children
+    function getTotalEntityCount(entities) {
+        let count = entities.length;
+
+        for (let i = 0; i < entities.length; i++) {
+            if (entities[i]) {
+                const children = entities[i].get('children');
+                count += getTotalEntityCount(children.map(id => editor.call('entities:get', id)));
+            }
+        }
+
+        return count;
+    }
+
     /**
      * Deletes the specified entities
      *
@@ -84,6 +136,21 @@ editor.once('load', function () {
 
         // delete only top level entities
         entities = entitiesToDelete;
+
+        // if we have a lot of entities delete in the backend
+        if (editor.call('users:hasFlag', 'hasPipelineEntityCopy') &&
+            projectUserSettings.get('editor.pipeline.entityCopy') &&
+            getTotalEntityCount(entitiesToDelete) > COPY_OR_DELETE_IN_BACKEND_LIMIT) {
+
+            editor.call(
+                'picker:confirm',
+                'Deleting this many entities is not undoable. Are you sure?', () => {
+                    deleteInBackend(entitiesToDelete.map(entity => entity.get('resource_id')));
+                }
+            );
+
+            return;
+        }
 
         for (i = 0; i < entities.length; i++) {
             var resourceId = entities[i].get('resource_id');

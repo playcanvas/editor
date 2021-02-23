@@ -497,6 +497,11 @@ Object.assign(pcui, (function () {
             };
 
             const cleanUp = () => {
+                window.removeEventListener('mouseup', onMouseUp, true);
+                window.removeEventListener('mousemove', onMouseMove, true);
+
+                if (this.destroyed) return;
+
                 this.class.remove(CLASS_RESIZING);
                 this._forEachColumnCell(this._containerHead, colIndex, cell => {
                     cell.class.remove(CLASS_CELL_ACTIVE);
@@ -510,8 +515,6 @@ Object.assign(pcui, (function () {
 
                 this.dom.removeEventListener('wheel', this._domEvtWheel);
 
-                window.removeEventListener('mouseup', onMouseUp, true);
-                window.removeEventListener('mousemove', onMouseMove, true);
             };
 
             handle.dom.addEventListener('mousedown', onMouseDown, true);
