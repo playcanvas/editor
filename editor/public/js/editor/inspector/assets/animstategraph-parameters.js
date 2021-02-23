@@ -39,12 +39,12 @@ Object.assign(pcui, (function () {
                 attributes: [
                     {
                         label: 'Name',
-                        path: `data.parameters.${paramId}.name`,
+                        alias: `data.parameters.${paramId}.name`,
                         type: 'string'
                     },
                     {
                         label: 'Type',
-                        path: `data.parameters.${paramId}.type`,
+                        alias: `data.parameters.${paramId}.type`,
                         type: 'select',
                         args: {
                             type: 'string',
@@ -79,6 +79,165 @@ Object.assign(pcui, (function () {
                     }
                 ]
             });
+
+            const paramTypeSelect = attributesInspector.getField(`data.parameters.${paramId}.type`);
+            paramTypeSelect.value = this._assets[0].get(`data.parameters.${paramId}.type`);
+            paramTypeSelect.on('change', (value) => {
+                if (this._assets[0].get(`data.parameters.${paramId}.type`) === value) return;
+
+                const prevConditionValues = [];
+                const prevConditionPredicates = [];
+                let prevValue;
+
+                const redo = () => {
+                    const asset = this._assets[0].latest();
+                    const historyEnabled = asset.history.enabled;
+                    asset.history.enabled = false;
+
+                    prevValue = asset.get(`data.parameters.${paramId}.type`);
+                    asset.set(`data.parameters.${paramId}.type`, value);
+                    Object.keys(asset.get(`data.transitions`)).forEach(transitionKey => {
+                        const transition = asset.get(`data.transitions.${transitionKey}`);
+                        if (transition.conditions) {
+                            Object.keys(transition.conditions).forEach(conditionKey => {
+                                const condition = transition.conditions[conditionKey];
+                                if (condition.parameterName === param.name) {
+                                    let updatedValue;
+                                    switch (value) {
+                                        case pc.ANIM_PARAMETER_INTEGER:
+                                        case pc.ANIM_PARAMETER_FLOAT:
+                                            updatedValue = 0;
+                                            break;
+                                        case pc.ANIM_PARAMETER_BOOLEAN:
+                                        case pc.ANIM_PARAMETER_TRIGGER:
+                                            updatedValue = true;
+                                            prevConditionPredicates.push({
+                                                transition: transitionKey,
+                                                condition: conditionKey,
+                                                value: asset.get(`data.transitions.${transitionKey}.conditions.${conditionKey}.predicate`)
+                                            });
+                                            asset.set(`data.transitions.${transitionKey}.conditions.${conditionKey}.predicate`, pc.ANIM_EQUAL_TO);
+                                            break;
+                                    }
+                                    prevConditionValues.push({
+                                        transition: transitionKey,
+                                        condition: conditionKey,
+                                        value: asset.get(`data.transitions.${transitionKey}.conditions.${conditionKey}.value`)
+                                    });
+                                    asset.set(`data.transitions.${transitionKey}.conditions.${conditionKey}.value`, updatedValue);
+                                }
+                            });
+                        }
+                    });
+
+                    asset.history.enabled = historyEnabled;
+                };
+
+                const undo = () => {
+                    const asset = this._assets[0].latest();
+                    const historyEnabled = asset.history.enabled;
+                    asset.history.enabled = false;
+
+                    asset.set(`data.parameters.${paramId}.type`, prevValue);
+                    prevConditionValues.forEach(prevConditionValue => {
+                        const transition = prevConditionValue.transition;
+                        const condition = prevConditionValue.condition;
+                        const value = prevConditionValue.value;
+                        asset.set(`data.transitions.${transition}.conditions.${condition}.value`, value);
+                    });
+                    prevConditionPredicates.forEach(prevConditionPredicate => {
+                        const transition = prevConditionPredicate.transition;
+                        const condition = prevConditionPredicate.condition;
+                        const value = prevConditionPredicate.value;
+                        asset.set(`data.transitions.${transition}.conditions.${condition}.predicate`, value);
+                    });
+
+                    asset.history.enabled = historyEnabled;
+                };
+
+                this._assets[0].history._history.add({
+                    redo,
+                    undo,
+                    name: `update parameter ${param.name} type`
+                });
+                redo();
+            });
+
+            const nameField = attributesInspector.getField(`data.parameters.${paramId}.name`);
+            nameField.value = this._assets[0].get(`data.parameters.${paramId}.name`);
+            nameField.onValidate = (value) => {
+                const currParams = this._assets[0].get('data.parameters');
+                let nameExists = false;
+                for (const currParamId in currParams) {
+                    if (currParams[currParamId].name === value) {
+                        nameExists = true;
+                    }
+                }
+                if (!nameExists) {
+                    this._parameterPanels[paramId].headerText = value;
+                }
+                return !nameExists;
+            };
+
+            nameField.on('change', (value) => {
+                const prevName = this._assets[0].get(`data.parameters.${paramId}.name`);
+                if (prevName === value) return;
+
+                const conditionsWithName = [];
+
+                const redo = () => {
+                    const asset = this._assets[0].latest();
+                    const historyEnabled = asset.history.enabled;
+                    asset.history.enabled = false;
+
+                    this._assets[0].set(`data.parameters.${paramId}.name`, value);
+                    nameField.value = value;
+
+                    Object.keys(asset.get(`data.transitions`)).forEach(transitionKey => {
+                        const transition = asset.get(`data.transitions.${transitionKey}`);
+                        if (transition.conditions) {
+                            Object.keys(transition.conditions).forEach(conditionKey => {
+                                const condition = transition.conditions[conditionKey];
+                                if (condition.parameterName === prevName) {
+                                    conditionsWithName.push({
+                                        transition: transitionKey,
+                                        condition: conditionKey
+                                    });
+                                    asset.set(`data.transitions.${transitionKey}.conditions.${conditionKey}.parameterName`, value);
+                                }
+                            });
+                        }
+                    });
+
+                    asset.history.enabled = historyEnabled;
+                };
+
+                const undo = () => {
+                    const asset = this._assets[0].latest();
+                    const historyEnabled = asset.history.enabled;
+                    asset.history.enabled = false;
+
+                    this._assets[0].set(`data.parameters.${paramId}.name`, prevName);
+                    nameField.value = prevName;
+
+                    conditionsWithName.forEach(conditionWithName => {
+                        const transition = conditionWithName.transition;
+                        const condition = conditionWithName.condition;
+                        asset.set(`data.transitions.${transition}.conditions.${condition}.parameterName`, prevName);
+                    });
+
+                    asset.history.enabled = historyEnabled;
+                };
+
+                this._assets[0].history._history.add({
+                    redo,
+                    undo,
+                    name: `update parameter ${value} name`
+                });
+                redo();
+            });
+
+
             attributesInspector.link(this._assets);
             return attributesInspector;
         }
@@ -103,20 +262,6 @@ Object.assign(pcui, (function () {
 
             const attributesInspector = this._createParamAttributesInspector(paramId, param);
 
-            const nameField = attributesInspector.getField(`data.parameters.${paramId}.name`);
-            nameField.onValidate = (value) => {
-                const currParams = this._assets[0].get('data.parameters');
-                let nameExists = false;
-                for (const currParamId in currParams) {
-                    if (currParams[currParamId].name === value) {
-                        nameExists = true;
-                    }
-                }
-                if (!nameExists) {
-                    paramPanel.headerText = value;
-                }
-                return !nameExists;
-            };
             paramPanel.append(attributesInspector);
             paramPanel._attributesInspector = attributesInspector;
             this.content.append(paramPanel);
