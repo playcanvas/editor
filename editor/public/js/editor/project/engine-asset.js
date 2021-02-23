@@ -29,7 +29,7 @@ editor.once('load', function() {
                         notJson: true       // server response is empty
                     } ).on('load', function(status, data) {
                         editor.call('status:text', 'Engine Assset successfully imported');
-                        editor.emit('engineAssetImported', storeName);
+                        editor.emit('engineAssetImported', assetName);
                     } ).on('error', function(err) {
                         editor.call('status:error', 'Failed to import Engine Assset ' + storeName);
                     } );

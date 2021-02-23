@@ -425,14 +425,14 @@ Object.assign(pcui, (function () {
                 }
             });
 
-            const handleEngineAssetImport = name => {
+            const handleAreaLightLutsImport = name => {
                 if (name === 'area-light-luts') {
-                    var lutAsset = editor.call('project:engineAsset:getEngineAsset', 'area-light-luts');
+                    var lutAsset = editor.call('project:engineAsset:getEngineAsset', name);
                     if (lutAsset.length>0) {
                         this._attributesInspector.getField('areaLightDataAsset').value = lutAsset[0][1].get('id');
                     } else {
-                        editor.call('project:engineAsset:addEngineAsset', 'area-light-luts', 'area-light-luts');
-                        const importAreaLightEvt = editor.on('engineAssetImported', handleEngineAssetImport);
+                        editor.call('project:engineAsset:addEngineAsset', `${name}.bin`, name);
+                        const importAreaLightEvt = editor.on('engineAssetImported', handleAreaLightLutsImport);
                         this.once('destroy', () => {
                             importAreaLightEvt.unbind();
                         });                                                        
@@ -441,7 +441,7 @@ Object.assign(pcui, (function () {
             }
 
             const clickAreaLightImportEvt = areaLightImportField.on('click', () => {
-                handleEngineAssetImport();
+                handleAreaLightLutsImport('area-light-luts');
             });
             this.once('destroy', () => {
                 clickAreaLightImportEvt.unbind();
