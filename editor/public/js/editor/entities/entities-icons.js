@@ -165,8 +165,8 @@ editor.once('load', function () {
             this.behind.model.material = materialBehind;
 
             this.color.copy(iconColor);
-            var textureName = components[i];
-            if (components[i] === 'light') {
+            var textureName = component;
+            if (component === 'light') {
                 textureName += '-' + this._link.entity.light.type;
                 this.color.copy(this._link.entity.light.color);
             }
@@ -186,16 +186,16 @@ editor.once('load', function () {
             this.colorUniform[3] = this.color.a;
             this.behind.model.model.meshInstances[0].setParameter('uColor', this.colorUniform);
 
-            if (this.local !== components[i]) {
+            if (this.local !== component) {
                 // clear local binds
                 for (var n = 0; n < this.eventsLocal.length; n++)
                     this.eventsLocal[n].unbind();
                 this.eventsLocal = [];
 
                 // add local binds
-                if (dirtifyLocalKeys[components[i]]) {
-                    for (var n = 0; n < dirtifyLocalKeys[components[i]].length; n++)
-                        this.eventsLocal.push(this._link.on(dirtifyLocalKeys[components[i]][n], this.dirtify));
+                if (dirtifyLocalKeys[component]) {
+                    for (var n = 0; n < dirtifyLocalKeys[component].length; n++)
+                        this.eventsLocal.push(this._link.on(dirtifyLocalKeys[component][n], this.dirtify));
                 }
             }
         } else if (this.entity) {
