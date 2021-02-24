@@ -63,7 +63,8 @@ Object.assign(pcui, (function () {
             this._stateInspector = new pcui.AttributesInspector({
                 assets: this._args.assets,
                 history: this._args.history,
-                attributes: attributes
+                attributes: attributes,
+                enabled: !this._view.parent.readOnly
             });
             this.prepend(this._stateInspector);
 
@@ -87,7 +88,7 @@ Object.assign(pcui, (function () {
                         headerText: entityObserver.entity.name,
                         collapsible: true
                     });
-                    const viewEntityButton = new pcui.Button({icon: 'E117'});
+                    const viewEntityButton = new pcui.Button({ icon: 'E117' });
                     entityPanel.header.append(viewEntityButton);
                     viewEntityButton.on('click', () => {
                         editor.call('selector:add', 'entity', entityObserver);
@@ -98,7 +99,8 @@ Object.assign(pcui, (function () {
                         allowDragDrop: true,
                         binding: new pcui.BindingTwoWay({
                             history: this._args.history
-                        })
+                        }),
+                        enabled: !this._view.parent.readOnly
                     });
                     entityAnimationAsset.link([entityObserver], `components.anim.animationAssets.${layerName}:${state.name}.asset`);
                     entityPanel.content.append(entityAnimationAsset);
