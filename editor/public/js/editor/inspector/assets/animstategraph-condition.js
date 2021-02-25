@@ -83,7 +83,7 @@ Object.assign(pcui, (function () {
             const parameters = assets[0].get('data.parameters');
             const parameter = Object.keys(parameters).map(key => parameters[key]).filter(param => param.name === condition.parameterName)[0];
             if (parameter) {
-                if ([ANIM_PARAMETER_BOOLEAN, ANIM_PARAMETER_TRIGGER].includes(parameter.type)) {
+                if (ANIM_PARAMETER_BOOLEAN === parameter.type) {
                     const valueInput = new pcui.BooleanInput({
                         value: assets[0].get(path).value
                     });
@@ -93,7 +93,7 @@ Object.assign(pcui, (function () {
                         assets[0].set(path, condition);
                     });
                     this.append(valueInput);
-                } else {
+                } else if ([ANIM_PARAMETER_FLOAT, ANIM_PARAMETER_INTEGER].includes(parameter.type)) {
                     const valueInput = new pcui.NumericInput({
                         value: assets[0].get(path).value,
                         precision: parameter.type === ANIM_PARAMETER_INTEGER ? 0 : undefined,

@@ -13,6 +13,25 @@ Object.assign(pcui, (function () {
             type: 'rgb'
         },
         {
+            label: 'Area Lights',
+            alias: 'areaLights',
+            type: 'button',
+            args: {
+                text: 'IMPORT AREA LIGHTS',
+                icon: 'E228'
+            }
+        },  
+        {
+            observer: 'projectSettings',
+            label: 'Area Lights Data',
+            path: 'areaLightDataAsset',
+            alias: 'project:areaLightDataAsset',
+            type: 'asset',
+            args: {
+                assetType: 'binary'
+            }
+        },        
+        {
             observer: 'sceneSettings',
             label: 'Skybox',
             path: 'render.skybox',
@@ -387,6 +406,47 @@ Object.assign(pcui, (function () {
             this.once('destroy', () => {
                 clickBasisEvt.unbind();
             });
+
+            var areaLightImportField = this._attributesInspector.getField('areaLights');
+            var areaLightDataField = this._attributesInspector.getField('areaLightDataAsset');
+
+            if (!editor.call('users:hasFlag', 'hasAreaLights')) {
+                areaLightImportField.parent.hidden = true;
+                areaLightDataField.hidden = true;
+            }
+
+            areaLightDataField.on('change', value => {
+                if (!value) {
+                    //show import button again
+                    areaLightImportField.hidden = false;
+                } else {
+                    //hide import button
+                    areaLightImportField.hidden = true;
+                }
+            });
+
+            const handleAreaLightLutsImport = name => {
+                if (name === 'area-light-luts') {
+                    var lutAsset = editor.call('project:engineAsset:getEngineAsset', name);
+                    if (lutAsset.length>0) {
+                        this._attributesInspector.getField('areaLightDataAsset').value = lutAsset[0][1].get('id');
+                    } else {
+                        editor.call('project:engineAsset:addEngineAsset', `${name}.bin`, name);
+                        const importAreaLightEvt = editor.on('engineAssetImported', handleAreaLightLutsImport);
+                        this.once('destroy', () => {
+                            importAreaLightEvt.unbind();
+                        });                                                        
+                    }                            
+                }
+            }
+
+            const clickAreaLightImportEvt = areaLightImportField.on('click', () => {
+                handleAreaLightLutsImport('area-light-luts');
+            });
+            this.once('destroy', () => {
+                clickAreaLightImportEvt.unbind();
+            });   
+
         }
     }
 

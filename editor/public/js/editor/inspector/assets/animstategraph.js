@@ -26,8 +26,9 @@ Object.assign(pcui, (function () {
             super(args);
             this._args = args;
             this._assets = null;
-            this._view = new pcui.AnimstategraphView(this, args);
+            this.readOnly = !editor.call('permissions:write');
             this.history = args.history;
+            this._view = new pcui.AnimstategraphView(this, args);
 
             this.buildDom(DOM(this));
 

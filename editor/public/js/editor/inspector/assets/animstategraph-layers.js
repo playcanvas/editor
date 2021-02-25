@@ -22,7 +22,7 @@ Object.assign(pcui, (function () {
 
     class AnimstategraphLayers extends pcui.Panel {
         constructor(parent, args) {
-            args = Object.assign({}, args);
+            args = Object.assign({ enabled: !parent.readOnly }, args);
             super(args);
             this._parent = parent;
             this._args = args;

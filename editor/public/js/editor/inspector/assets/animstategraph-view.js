@@ -206,6 +206,10 @@ Object.assign(pcui, (function () {
 
         }
 
+        get parent() {
+            return this._parent;
+        }
+
         _generateGraphData(layer) {
             const historyEnabled = this._assets[0].history.enabled;
             this._assets[0].history.enabled = false;
@@ -441,7 +445,8 @@ Object.assign(pcui, (function () {
                 graphSchema: animSchema,
                 contextMenuItems: animContextMenuItems,
                 config: {
-                    adjustVertices: true
+                    adjustVertices: true,
+                    readOnly: this.parent.readOnly
                 }
             });
         }

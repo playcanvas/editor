@@ -10,7 +10,6 @@ editor.once('load', function () {
 
     const MAX_JOB_LENGTH = 8;
     const TIME_WAIT_ENTITIES = 5000;
-    const PASTE_BACKEND_LIMIT = 500;
 
     // try to find asset id in this project
     // from path of asset in old project
@@ -333,12 +332,33 @@ editor.once('load', function () {
 
             if (!entityIds || !entityIds.length) return;
 
+            // first deselect entities so that the undo action
+            // does not then add a deselect action to the history
+            // which will prevent us from 'redo'
+            const selectorHistory = editor.call('selector:history');
+            editor.call('selector:history', false);
+            let dirtySelection = false;
             entityIds.forEach(id => {
                 const entity = editor.call('entities:get', id);
                 if (entity) {
-                    editor.call('entities:removeEntity', entity, null, true);
+                    if (editor.call('selector:has', entity)) {
+                        editor.call('selector:remove', entity);
+                        dirtySelection = true;
+                    }
                 }
             });
+
+            if (dirtySelection) {
+                editor.once('selector:change', () => {
+                    // restore selection history
+                    editor.call('selector:history', selectorHistory);
+                });
+            } else {
+                editor.call('selector:history', selectorHistory);
+            }
+
+            // delete entities in the backend if they were pasted in the backend
+            editor.call('entities:deleteInBackend', entityIds);
 
             entityIds = null;
         }
@@ -372,14 +392,14 @@ editor.once('load', function () {
                 childIndex: children.length,
                 entities: Object.keys(data.hierarchy)
                 .filter(id => {
-                    return data.hierarchy[id].parent === null
+                    return data.hierarchy[id].parent === null;
                 })
                 .map(id => {
                     return {
                         id: id
                     };
                 })
-            }
+            };
 
             if (data.scene && data.scene !== config.scene.uniqueId) {
                 taskData.newSceneId = config.scene.uniqueId;
@@ -439,7 +459,7 @@ editor.once('load', function () {
         // if there are a lot of entities, do the copying in the backend
         if (editor.call('users:hasFlag', 'hasPipelineEntityCopy') &&
             projectUserSettings.get('editor.pipeline.entityCopy') &&
-            Object.keys(data.hierarchy).length > PASTE_BACKEND_LIMIT &&
+            Object.keys(data.hierarchy).length > COPY_OR_DELETE_IN_BACKEND_LIMIT &&
             data.project === config.project.id &&
             data.branch === config.self.branch.id) {
             // TODO support pasting in different scenes / projects

@@ -4,6 +4,11 @@ editor.once('load', function () {
     var settings = editor.call('settings:project');
     var projectUserSettings = editor.call('settings:projectUser');
 
+    const MAX_JOB_LENGTH = 8;
+    const TIME_WAIT_ENTITIES = 5000;
+
+    const jobsInProgress = {};
+
     /**
      * When an entity that has properties that contain references to some entities
      * within its subtree is duplicated, the expectation of the user is likely that
@@ -285,6 +290,116 @@ editor.once('load', function () {
         return entity;
     };
 
+    // Gets the count of the entities and their children
+    function getTotalEntityCount(entities) {
+        let count = entities.length;
+
+        for (let i = 0; i < entities.length; i++) {
+            if (entities[i]) {
+                const children = entities[i].get('children');
+                count += getTotalEntityCount(children.map(id => editor.call('entities:get', id)));
+            }
+        }
+
+        return count;
+    }
+
+    function duplicateInBackend(data) {
+        let entityIds;
+        let cancelWaitForEntities;
+
+        function undo() {
+            if (cancelWaitForEntities) {
+                cancelWaitForEntities();
+                cancelWaitForEntities = null;
+            }
+
+            if (!entityIds || !entityIds.length) return;
+
+            // first deselect entities so that the undo action
+            // does not then add a deselect action to the history
+            // which will prevent us from 'redo'
+            const selectorHistory = editor.call('selector:history');
+            editor.call('selector:history', false);
+            let dirtySelection = false;
+            entityIds.forEach(id => {
+                const entity = editor.call('entities:get', id);
+                if (entity) {
+                    if (editor.call('selector:has', entity)) {
+                        editor.call('selector:remove', entity);
+                        dirtySelection = true;
+                    }
+                }
+            });
+
+            if (dirtySelection) {
+                editor.once('selector:change', () => {
+                    // restore selection history
+                    editor.call('selector:history', selectorHistory);
+                });
+            } else {
+                editor.call('selector:history', selectorHistory);
+            }
+
+            // delete entities in the backend if they were pasted in the backend
+            editor.call('entities:deleteInBackend', entityIds);
+
+            entityIds = null;
+        }
+
+        function redo() {
+            const jobId = pc.guid.create().substring(0, MAX_JOB_LENGTH);
+
+            jobsInProgress[jobId] = (newEntityIds) => {
+                entityIds = newEntityIds;
+                cancelWaitForEntities = editor.call('entities:waitToExist', newEntityIds, TIME_WAIT_ENTITIES, entities => {
+                    editor.call('selector:history', false);
+                    editor.call('selector:set', 'entity', entities);
+                    editor.once('selector:change', function () {
+                        editor.call('selector:history', true);
+                    });
+                });
+            };
+
+            const taskData = {
+                projectId: config.project.id,
+                branchId: config.self.branch.id,
+                sceneId: config.scene.uniqueId,
+                jobId: jobId,
+                entities: data
+            };
+
+            editor.call('realtime:send', 'pipeline', {
+                name: 'entities-duplicate',
+                data: taskData
+            });
+
+            editor.call('status:job', jobId, 1);
+        }
+
+        redo();
+
+        // add history
+        editor.call('history:add', {
+            name: 'duplicate entities',
+            undo: undo,
+            redo: redo
+        });
+    }
+
+    editor.on('messenger:entity.copy', data => {
+        if (jobsInProgress.hasOwnProperty(data.job_id)) {
+            const callback = jobsInProgress[data.job_id];
+
+            // clear pending job
+            editor.call('status:job', data.job_id);
+            delete jobsInProgress[data.job_id];
+
+            const result = data.multTaskResults.map(d => d.newRootId);
+            callback(result);
+        }
+    });
+
     /**
      * Duplicates the specified entities and adds them to the scene.
      *
@@ -337,6 +452,14 @@ editor.once('load', function () {
         items.sort(function (a, b) {
             return ids[b.get('resource_id')].ind - ids[a.get('resource_id')].ind;
         });
+
+        // if we have a lot of entities duplicate in the backend
+        if (editor.call('users:hasFlag', 'hasPipelineEntityCopy') &&
+            projectUserSettings.get('editor.pipeline.entityCopy') &&
+            getTotalEntityCount(items) > COPY_OR_DELETE_IN_BACKEND_LIMIT) {
+            duplicateInBackend(items.map(entity => entity.get('resource_id')));
+            return;
+        }
 
         // remember current selection
         var selectorType = editor.call('selector:type');

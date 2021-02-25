@@ -64,6 +64,16 @@ editor.once('load', function () {
             let newEntityIds;
             let cancelWaitForEntities;
 
+            const ctrlDown = editor.call('hotkey:ctrl');
+            let cameraPos, cameraForward;
+
+            if (ctrlDown) {
+                // position entities in front of camera based on aabb
+                const camera = editor.call('camera:current');
+                cameraForward = camera.forward.clone();
+                cameraPos = camera.getPosition().clone();
+            }
+
             function undo() {
                 if (cancelWaitForEntities) {
                     cancelWaitForEntities();
@@ -92,10 +102,9 @@ editor.once('load', function () {
 
                 if (ctrlDown) {
                     // position entities in front of camera based on aabb
-                    const camera = editor.call('camera:current');
                     const aabb = editor.call('entities:aabb', entities);
-                    vec.copy(camera.forward).scale(aabb.halfExtents.length() * 2.2);
-                    vec.add(camera.getPosition());
+                    vec.copy(cameraForward).scale(aabb.halfExtents.length() * 2.2);
+                    vec.add(cameraPos);
 
                     var tmp = new pc.Entity();
                     parent.entity.addChild(tmp);
@@ -119,8 +128,6 @@ editor.once('load', function () {
             function redo() {
                 newEntityIds = [];
                 let entitiesToSelect = [];
-
-                const ctrlDown = editor.call('hotkey:ctrl');
 
                 const childIndex = parent.get('children').length;
 

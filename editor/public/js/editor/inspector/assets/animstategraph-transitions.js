@@ -24,7 +24,8 @@ Object.assign(pcui, (function () {
         constructor(args, view) {
             super({
                 args: Object.assign({}, args),
-                class: CLASS_ANIMSTATEGRAPH_TRANSITIONS
+                class: CLASS_ANIMSTATEGRAPH_TRANSITIONS,
+                enabled: !view.parent.readOnly
             });
             this._view = view;
             this._args = args;
