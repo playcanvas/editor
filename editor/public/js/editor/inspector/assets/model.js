@@ -305,6 +305,14 @@ Object.assign(pcui, (function () {
             }));
 
             this._meshInstancesPanel.hidden = assets.length > 1;
+            let hidePipelinePanel = false;
+            for (let i = 0; i < assets.length; i++) {
+                if (assets[i].get('file.filename').match(/.*\.glb$/)){
+                    hidePipelinePanel = true;
+                    break;
+                }
+            }
+            this._pipelinePanel.hidden = hidePipelinePanel;
         }
 
         unlink() {
