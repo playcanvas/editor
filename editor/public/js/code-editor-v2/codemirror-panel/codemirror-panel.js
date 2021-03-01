@@ -30,6 +30,9 @@ editor.once('load', function () {
         styleActiveLine: true,
         scrollPastEnd: true,
         keyMap: 'sublime',
+        lint: {
+            esversion: 6
+        },
 
         readOnly: true,
         cursorBlinkRate: -1,

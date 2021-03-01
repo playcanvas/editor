@@ -60,7 +60,9 @@ editor.once('load', function () {
         }
 
         if (this.type === 'script') {
-            this.cm.setOption('lint', true);
+            this.cm.setOption('lint', {
+                esversion: 6
+            });
         } else {
             this.cm.setOption('lint', false);
         }
