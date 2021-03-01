@@ -169,6 +169,10 @@ editor.once('load', function () {
         var resourceId = root.get('resource_id');
 
         var templateId = root.get('template_id');
+        const templateAsset = editor.call('assets:get', templateId);
+        if (!templateAsset) {
+            return;
+        }
 
         // check if there are any circular references
         if (checkCircularReferences(root, {})) {
@@ -190,7 +194,8 @@ editor.once('load', function () {
             data: {
                 jobId: jobId,
                 entityId: resourceId,
-                templateId: templateId,
+                templateId: templateAsset.get('uniqueId'),
+                templateItemId: templateId,
                 branchId: config.self.branch.id
             }
         });
@@ -246,7 +251,8 @@ editor.once('load', function () {
 
         const taskData = {
             entityId: resourceId,
-            templateId: templateAsset.get('id'),
+            templateId: templateAsset.get('uniqueId'),
+            templateItemId: templateAsset.get('id'),
             branchId: config.self.branch.id,
             resourceId: override.resource_id,
             overrides: [{

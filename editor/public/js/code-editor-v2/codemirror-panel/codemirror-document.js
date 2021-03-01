@@ -121,7 +121,9 @@ editor.once('load', function () {
             }
 
             if (focusedView.type === 'script') {
-                cm.setOption('lint', true);
+                cm.setOption('lint', {
+                    esversion: 6
+                });
             } else {
                 cm.setOption('lint', false);
             }
