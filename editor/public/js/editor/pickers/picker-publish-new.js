@@ -469,6 +469,12 @@ editor.once('load', function () {
             downloadProgressTitle.class.remove('error');
             downloadProgressTitle.text = 'Preparing build...';
 
+            // smoothly scroll to the bottom
+            panelDownloadProgress.scrollIntoView({
+                behavior: 'smooth',
+                block: 'end'
+            });
+
             // when job is updated get the job and
             // proceed depending on job status
             var evt = editor.on('messenger:job.update', function (msg) {
