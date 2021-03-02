@@ -171,6 +171,12 @@ editor.once('load', function () {
 
         // preload
         var defaultAssetPreload = editor.call('settings:projectUser').get('editor.pipeline.defaultAssetPreload');
+
+        // default preload scripts to true
+        if (args.type === 'script') {
+            defaultAssetPreload = true;
+        }
+
         form.append('preload', args.preload === undefined ? defaultAssetPreload : args.preload);
 
         form = appendCommon(form, args);

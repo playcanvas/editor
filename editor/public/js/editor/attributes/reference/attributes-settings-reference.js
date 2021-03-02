@@ -66,7 +66,7 @@ editor.once('load', function () {
         subTitle: '{Number}',
         description: 'Intensity of the skybox to match the exposure levels.',
         url: 'http://developer.playcanvas.com/api/pc.Scene.html#skyboxIntensity'
-    }, {        
+    }, {
         name: 'areaLights',
         title: 'Area Lights',
         description: 'Add necessary assets to render area lights correctly',
@@ -167,7 +167,7 @@ editor.once('load', function () {
         name: 'project:areaLightDataAsset',
         title: 'Area Light Data',
         description: 'this will be hidden from users'
-    }, {    
+    }, {
         name: 'project:transparentCanvas',
         title: 'Transparent Canvas',
         description: 'When enabled the canvas will blend with the web page.'
@@ -250,7 +250,7 @@ editor.once('load', function () {
     }, {
         name: 'asset-tasks:defaultAssetPreload',
         title: 'Preload new assets',
-        description: 'Create new assets with the preload option selected.'
+        description: 'Create new assets with the preload option selected. Script assets will be created with preload enabled regardless of this setting.'
     }, {
         name: 'asset-tasks:overwrite:model',
         title: 'Overwrite models',
