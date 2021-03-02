@@ -416,18 +416,29 @@ Object.assign(pcui, (function () {
                     const latest = observers[i].latest();
                     if (!latest || !latest.has('components.element')) continue;
 
+                    const path = this._pathAt(paths, i);
+
+                    const prevEntry = {
+                        value: latest.get(path)
+                    };
+
                     let width = 0;
                     let height = 0;
-                    if (asset && asset.get('type') === 'sprite') {
-                        const dimensions = this._getSpriteDimensions(value, latest);
-                        if (dimensions) {
+
+                    // if there is already an asset assigned to the slot
+                    // then do not resize the element
+                    if (!prevEntry.value) {
+                        if (asset && asset.get('type') === 'sprite') {
+                            const dimensions = this._getSpriteDimensions(value, latest);
+                            if (dimensions) {
+                                width = dimensions.width;
+                                height = dimensions.height;
+                            }
+                        } else if (asset && asset.get('type') === 'texture') {
+                            const dimensions = this._getTextureDimensions(value);
                             width = dimensions.width;
                             height = dimensions.height;
                         }
-                    } else if (asset && asset.get('type') === 'texture') {
-                        const dimensions = this._getTextureDimensions(value);
-                        width = dimensions.width;
-                        height = dimensions.height;
                     }
 
                     let history = false;
@@ -435,12 +446,6 @@ Object.assign(pcui, (function () {
                         history = latest.history.enabled;
                         latest.history.enabled = false;
                     }
-
-                    const path = this._pathAt(paths, i);
-
-                    const prevEntry = {
-                        value: latest.get(path)
-                    };
 
                     latest.set(path, value);
 
