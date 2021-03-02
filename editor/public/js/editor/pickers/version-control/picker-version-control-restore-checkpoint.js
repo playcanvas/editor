@@ -3,8 +3,8 @@ editor.once('load', function () {
 
     var boxRestore = new ui.VersionControlSidePanelBox({
         header: 'RESTORING TO',
-        discardChanges: true,
-        discardChangesHelp: 'If you choose not to discard your changes then a checkpoint will be created first, before restoring.'
+        createTargetCheckpoint: true,
+        targetCheckpointHelp: 'Tick to create a checkpoint before restoring this branch. If you leave this unticked any changes will be discarded.'
     });
 
     var panel = editor.call('picker:versioncontrol:createSidePanel', {
@@ -20,6 +20,8 @@ editor.once('load', function () {
     });
     panel.class.add('restore-checkpoint');
 
+    panel.createTargetCheckpoint = true;
+
     editor.method('picker:versioncontrol:widget:restoreCheckpoint', function () {
         return panel;
     });
@@ -30,8 +32,8 @@ editor.once('load', function () {
         panel.labelTitle.text = 'Restore checkpoint "' + checkpoint.id.substring(0, 7) + '" ?';
     };
 
-    boxRestore.on('discardChanges', function (value) {
-        panel.discardChanges = value;
+    boxRestore.on('createTargetCheckpoint', function (value) {
+        panel.createTargetCheckpoint = value;
     });
 
     panel.on('hide', function () {

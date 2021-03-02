@@ -2,9 +2,8 @@ editor.once('load', function () {
     'use strict';
 
     var boxBranch = new ui.VersionControlSidePanelBox({
-
-        discardChanges: true,
-        discardChangesHelp: 'If you choose to not discard your changes, a checkpoint will be created before closing the branch.'
+        createTargetCheckpoint: true,
+        targetCheckpointHelp: 'Tick to create a checkpoint before closing this branch. If you leave this unticked any changes will be discarded.'
     });
 
     var labelIcon = new ui.Label({
@@ -57,6 +56,8 @@ editor.once('load', function () {
     });
     panel.class.add('close-branch');
 
+    panel.createTargetCheckpoint = true;
+
     panel.buttonConfirm.disabled = true;
     fieldName.on('change', function () {
         if (! panel.branch) return;
@@ -64,8 +65,8 @@ editor.once('load', function () {
         panel.buttonConfirm.disabled = fieldName.value.toLowerCase() !== panel.branch.name.toLowerCase();
     });
 
-    boxBranch.on('discardChanges', function (value) {
-        panel.discardChanges = value;
+    boxBranch.on('createTargetCheckpoint', function (value) {
+        panel.createTargetCheckpoint = value;
     });
 
     panel.on('show', function () {

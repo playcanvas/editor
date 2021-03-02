@@ -419,7 +419,7 @@ strong {
         }
     }
 
-    &.discard-changes-tooltip {
+    &.version-control-checkbox-tooltip {
         > .inner {
             max-width: 300px;
             line-height: 1.8;
@@ -7746,7 +7746,7 @@ strong {
                                     margin: 10px;
                                 }
 
-                                > .ui-panel.discard {
+                                > .ui-panel.checkpoint-checkbox {
                                     font-size: 12px;
                                     padding: 10px;
                                     border-top: 1px solid $border-primary;

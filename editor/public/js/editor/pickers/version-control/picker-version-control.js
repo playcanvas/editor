@@ -222,7 +222,7 @@ editor.once('load', function () {
             });
         };
 
-        if (! panelCloseBranch.discardChanges) {
+        if (panelCloseBranch.createTargetCheckpoint) {
             // take a checkpoint first
             createCheckpoint(panelCloseBranch.branch.id, 'Checkpoint before closing branch "' + panelCloseBranch.branch.name + '"', close);
         } else {
@@ -261,7 +261,8 @@ editor.once('load', function () {
     panelMergeBranches.on('confirm', function () {
         var sourceBranch = panelMergeBranches.sourceBranch;
         var destinationBranch = panelMergeBranches.destinationBranch;
-        var discardChanges = panelMergeBranches.discardChanges;
+        var createSourceCheckpoint = panelMergeBranches.createSourceCheckpoint;
+        var createTargetCheckpoint = panelMergeBranches.createTargetCheckpoint;
 
         togglePanels(false);
 
@@ -298,11 +299,22 @@ editor.once('load', function () {
             });
         };
 
-        if (discardChanges) {
-            merge();
-        } else {
-            // take a checkpoint first
+        if (createSourceCheckpoint) {
+            // take a checkpoint in the source branch first
+            createCheckpoint(sourceBranch.id, 'Checkpoint before merging checkpoint "' + sourceBranch.latestCheckpointId + '" into "' + destinationBranch.latestCheckpointId + '"', () => {
+                if (createTargetCheckpoint) {
+                    // take a checkpoint in the target branch first
+                    createCheckpoint(config.self.branch.id, 'Checkpoint before merging checkpoint "' + sourceBranch.latestCheckpointId + '" into "' + destinationBranch.latestCheckpointId + '"', merge);
+                } else {
+                    merge();
+                }
+            });
+
+        } else if (createTargetCheckpoint) {
+            // take a checkpoint in the target branch first
             createCheckpoint(config.self.branch.id, 'Checkpoint before merging checkpoint "' + sourceBranch.latestCheckpointId + '" into "' + destinationBranch.latestCheckpointId + '"', merge);
+        } else {
+            merge();
         }
     });
 
@@ -340,7 +352,7 @@ editor.once('load', function () {
             });
         };
 
-        if (! panelRestoreCheckpoint.discardChanges) {
+        if (panelRestoreCheckpoint.createTargetCheckpoint) {
             // take a checkpoint first
             createCheckpoint(config.self.branch.id, 'Checkpoint before restoring "' + panelRestoreCheckpoint.checkpoint.id.substring(0, 7) + '"', restore);
         } else {
