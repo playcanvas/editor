@@ -30,6 +30,13 @@ Object.assign(pcui, (function () {
             selectParameterName.on('change', value => {
                 const condition = assets[0].get(path);
                 condition.parameterName = value;
+                const params = assets[0].latest().get('data.parameters');
+                Object.keys(params).forEach(paramKey => {
+                    const param = params[paramKey];
+                    if (param.name === condition.parameterName && [ANIM_PARAMETER_BOOLEAN, ANIM_PARAMETER_TRIGGER].includes(param.type)) {
+                        condition.value = true;
+                    }
+                });
                 assets[0].set(path, condition);
             });
             this.append(selectParameterName);
@@ -41,59 +48,52 @@ Object.assign(pcui, (function () {
                     shouldSelectPredicate = true;
                 }
             });
-            if (shouldSelectPredicate) {
-                const selectPredicate = new pcui.SelectInput({
-                    type: 'string',
-                    options: [
-                        {
-                            v: ANIM_EQUAL_TO,
-                            t: '=='
-                        },
-                        {
-                            v: ANIM_NOT_EQUAL_TO,
-                            t: '!='
-                        },
-                        {
-                            v: ANIM_LESS_THAN,
-                            t: '<'
-                        },
-                        {
-                            v: ANIM_LESS_THAN_EQUAL_TO,
-                            t: '<='
-                        },
-                        {
-                            v: ANIM_GREATER_THAN,
-                            t: '>'
-                        },
-                        {
-                            v: ANIM_GREATER_THAN_EQUAL_TO,
-                            t: '>='
-                        }
-                    ],
-                    value: assets[0].get(path).predicate
-                });
-                selectPredicate.on('change', value => {
-                    const condition = assets[0].get(path);
-                    condition.predicate = value;
-                    assets[0].set(path, condition);
-                });
-                this.append(selectPredicate);
+            const selectPredicate = new pcui.SelectInput({
+                type: 'string',
+                options: [
+                    {
+                        v: ANIM_EQUAL_TO,
+                        t: '=='
+                    },
+                    {
+                        v: ANIM_NOT_EQUAL_TO,
+                        t: '!='
+                    },
+                    {
+                        v: ANIM_LESS_THAN,
+                        t: '<'
+                    },
+                    {
+                        v: ANIM_LESS_THAN_EQUAL_TO,
+                        t: '<='
+                    },
+                    {
+                        v: ANIM_GREATER_THAN,
+                        t: '>'
+                    },
+                    {
+                        v: ANIM_GREATER_THAN_EQUAL_TO,
+                        t: '>='
+                    }
+                ],
+                value: assets[0].get(path).predicate
+            });
+            selectPredicate.on('change', value => {
+                const condition = assets[0].get(path);
+                condition.predicate = value;
+                assets[0].set(path, condition);
+            });
+            this.append(selectPredicate);
+            if (!shouldSelectPredicate) {
+                selectPredicate.enabled = false;
+            } else {
+                selectPredicate.enabled = true;
             }
             const condition = assets[0].get(path);
             const parameters = assets[0].get('data.parameters');
             const parameter = Object.keys(parameters).map(key => parameters[key]).filter(param => param.name === condition.parameterName)[0];
             if (parameter) {
-                if (ANIM_PARAMETER_BOOLEAN === parameter.type) {
-                    const valueInput = new pcui.BooleanInput({
-                        value: assets[0].get(path).value
-                    });
-                    valueInput.on('change', value => {
-                        const condition = assets[0].get(path);
-                        condition.value = value;
-                        assets[0].set(path, condition);
-                    });
-                    this.append(valueInput);
-                } else if ([ANIM_PARAMETER_FLOAT, ANIM_PARAMETER_INTEGER].includes(parameter.type)) {
+                if ([ANIM_PARAMETER_FLOAT, ANIM_PARAMETER_INTEGER].includes(parameter.type)) {
                     const valueInput = new pcui.NumericInput({
                         value: assets[0].get(path).value,
                         precision: parameter.type === ANIM_PARAMETER_INTEGER ? 0 : undefined,
@@ -104,6 +104,19 @@ Object.assign(pcui, (function () {
                         condition.value = value;
                         assets[0].set(path, condition);
                     });
+                    this.append(valueInput);
+                } else {
+                    const valueInput = new pcui.BooleanInput({
+                        value: assets[0].get(path).value
+                    });
+                    valueInput.on('change', value => {
+                        const condition = assets[0].get(path);
+                        condition.value = value;
+                        assets[0].set(path, condition);
+                    });
+                    if (parameter.type === ANIM_PARAMETER_TRIGGER) {
+                        valueInput.enabled = false;
+                    }
                     this.append(valueInput);
                 }
             }
