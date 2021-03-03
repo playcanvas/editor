@@ -102,6 +102,14 @@ Object.assign(pcui, (function () {
             step: 1
         }
     }, {
+        label: ' ',
+        type: 'button',
+        alias: 'components.element.resetSize',
+        args: {
+            text: 'Reset Size',
+            size: 'small'
+        }
+    }, {
         label: 'Margin',
         path: 'components.element.margin',
         type: 'vec4',
@@ -301,11 +309,44 @@ Object.assign(pcui, (function () {
     }];
 
     ATTRIBUTES.forEach(attr => {
+        if (attr.type === 'button') return;
+
         const field = attr.path || attr.alias;
         if (!field) return;
         const parts = field.split('.');
         attr.reference = `element:${parts[parts.length - 1]}`;
     });
+
+    function getSpriteDimensions(id, frame, assets) {
+        const spriteAsset = assets.get(id);
+        // renderMode has three states: 0 = Simple, 1 = Slices, 2 = Tiled. Only Simple should set the element width / height.
+        if (!spriteAsset || spriteAsset.get('data.renderMode') !== 0) return null;
+        let frameKey = spriteAsset.get(`data.frameKeys.${frame}`);
+        if (!frameKey) {
+            const frameKeys = spriteAsset.get('data.frameKeys');
+            frameKey = frameKeys[frameKeys.length - 1];
+        }
+
+        const textureAtlasAsset = assets.get(spriteAsset.get('data.textureAtlasAsset'));
+        if (!textureAtlasAsset) return null;
+        const spriteRect = textureAtlasAsset.get(`data.frames.${frameKey}.rect`);
+        const width = spriteRect[2];
+        const height = spriteRect[3];
+        return {
+            width,
+            height
+        };
+    }
+
+    function getTextureDimensions(id, assets) {
+        const asset = assets.get(id);
+        const width = asset && asset.get('meta.width') || 0;
+        const height = asset && asset.get('meta.height') || 0;
+        return {
+            width,
+            height
+        };
+    }
 
     // Custom binding from element -> observers for texture and sprite assets which
     // resizes an Image Element when the asset is first assigned
@@ -323,38 +364,6 @@ Object.assign(pcui, (function () {
                 historyName: this._historyName,
                 historyCombine: this._historyCombine
             });
-        }
-
-        _getSpriteDimensions(value, entity) {
-            const spriteAsset = this._assets.get(value);
-            // renderMode has three states: 0 = Simple, 1 = Slices, 2 = Tiled. Only Simple should set the element width / height.
-            if (!spriteAsset || spriteAsset.get('data.renderMode') !== 0) return null;
-            const spriteFrame = entity.get('components.element.spriteFrame');
-            let frameKey = spriteAsset.get(`data.frameKeys.${spriteFrame}`);
-            if (!frameKey) {
-                const frameKeys = spriteAsset.get('data.frameKeys');
-                frameKey = frameKeys[frameKeys.length - 1];
-            }
-
-            const textureAtlasAsset = this._assets.get(spriteAsset.get('data.textureAtlasAsset'));
-            if (!textureAtlasAsset) return null;
-            const spriteRect = textureAtlasAsset.get(`data.frames.${frameKey}.rect`);
-            const width = spriteRect[2];
-            const height = spriteRect[3];
-            return {
-                width,
-                height
-            };
-        }
-
-        _getTextureDimensions(value) {
-            const asset = this._assets.get(value);
-            const width = asset && asset.get('meta.width') || 0;
-            const height = asset && asset.get('meta.height') || 0;
-            return {
-                width,
-                height
-            };
         }
 
         _hasSplitAnchor(entity) {
@@ -416,18 +425,30 @@ Object.assign(pcui, (function () {
                     const latest = observers[i].latest();
                     if (!latest || !latest.has('components.element')) continue;
 
+                    const path = this._pathAt(paths, i);
+
+                    const prevEntry = {
+                        value: latest.get(path)
+                    };
+
                     let width = 0;
                     let height = 0;
-                    if (asset && asset.get('type') === 'sprite') {
-                        const dimensions = this._getSpriteDimensions(value, latest);
-                        if (dimensions) {
+
+                    // if there is already an asset assigned to the slot
+                    // then do not resize the element
+                    if (!prevEntry.value) {
+                        if (asset && asset.get('type') === 'sprite') {
+                            const frame = latest.get('components.element.spriteFrame');
+                            const dimensions = getSpriteDimensions(value, frame, this._assets);
+                            if (dimensions) {
+                                width = dimensions.width;
+                                height = dimensions.height;
+                            }
+                        } else if (asset && asset.get('type') === 'texture') {
+                            const dimensions = getTextureDimensions(value, this._assets);
                             width = dimensions.width;
                             height = dimensions.height;
                         }
-                    } else if (asset && asset.get('type') === 'texture') {
-                        const dimensions = this._getTextureDimensions(value);
-                        width = dimensions.width;
-                        height = dimensions.height;
                     }
 
                     let history = false;
@@ -435,12 +456,6 @@ Object.assign(pcui, (function () {
                         history = latest.history.enabled;
                         latest.history.enabled = false;
                     }
-
-                    const path = this._pathAt(paths, i);
-
-                    const prevEntry = {
-                        value: latest.get(path)
-                    };
 
                     latest.set(path, value);
 
@@ -545,7 +560,9 @@ Object.assign(pcui, (function () {
 
                     latest.set('components.element.spriteFrame', value);
 
-                    const dimensions = this._getSpriteDimensions(latest.get('components.element.spriteAsset'), latest);
+                    const spriteAsset = latest.get('components.element.spriteAsset');
+                    const frame = latest.get('components.element.spriteFrame');
+                    const dimensions = getSpriteDimensions(spriteAsset, frame, this._assets);
                     if (dimensions) {
                         const width = dimensions.width;
                         const height = dimensions.height;
@@ -648,6 +665,20 @@ Object.assign(pcui, (function () {
                 )
             });
 
+            // reset size button tooltip
+            (new pcui.TooltipReference({
+                reference: {
+                    title: 'Reset Size',
+                    description: 'Sets the width and height to the dimensions of the Texture or Sprite asset.'
+                }
+            })).attach({
+                target: this._field('resetSize')
+            });
+
+            this._field('resetSize').on('click', () => {
+                this._onClickResetSize(args.assets);
+            });
+
             this._suppressLocalizedEvents = false;
             this._suppressPresetEvents = false;
             this._suppressToggleFields = false;
@@ -704,6 +735,7 @@ Object.assign(pcui, (function () {
             this._field('opacity').parent.hidden = this._field('color').parent.hidden;
             this._field('rect').parent.hidden = !isImage || sprite;
             this._field('mask').parent.hidden = !isImage;
+            this._field('resetSize').parent.hidden = !isImage || (!sprite && !texture);
 
             this._field('width').disabled = horizontalSplit || (this._field('autoWidth').value && isText);
             this._field('height').disabled = verticalSplit || (this._field('autoHeight').value && isText);
@@ -927,6 +959,81 @@ Object.assign(pcui, (function () {
 
         _updatePreset() {
             this._field('preset').value = this._getCurrentPresetValue();
+        }
+
+        _onClickResetSize(assets) {
+            if (!this._entities) return;
+
+            let prev = null;
+
+            const entities = this._entities.slice();
+
+            function resetSize(entity, width, height) {
+                const history = entity.history.enabled;
+                entity.history.enabled = false;
+                entity.set('components.element.width', width);
+                entity.set('components.element.height', height);
+                entity.history.enabled = history;
+            }
+
+            const undo = () => {
+                prev.forEach(entry => {
+                    const entity = entry.entity.latest();
+                    if (!entity) return;
+
+                    resetSize(entity, entry.width, entry.height);
+                });
+            };
+
+            const redo = () => {
+                prev = [];
+
+                entities.forEach(entity => {
+                    entity = entity.latest();
+                    if (!entity) return;
+
+                    let width, height;
+
+                    const texture = entity.get('components.element.textureAsset');
+                    if (texture) {
+                        const result = getTextureDimensions(texture, assets);
+                        if (result) {
+                            width = result.width;
+                            height = result.height;
+                        }
+                    } else {
+                        const sprite = entity.get('components.element.spriteAsset');
+                        if (sprite) {
+                            const frame = entity.get('components.element.spriteFrame') || 0;
+                            const result = getSpriteDimensions(sprite, frame, assets);
+                            if (result) {
+                                width = result.width;
+                                height = result.height;
+                            }
+                        }
+                    }
+
+                    if (width) {
+                        prev.push({
+                            entity: entity,
+                            width: entity.get('components.element.width'),
+                            height: entity.get('components.element.height')
+                        });
+
+                        resetSize(entity, width, height);
+                    }
+                });
+            };
+
+            redo();
+
+            if (this._history && prev.length) {
+                this._history.add({
+                    name: 'reset element size',
+                    redo: redo,
+                    undo: undo
+                });
+            }
         }
 
         link(entities) {

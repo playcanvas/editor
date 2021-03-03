@@ -6,8 +6,10 @@
  * @param {object} args - Various options for the widget
  * @param {string} [args.header] - The box title
  * @param {string} [args.headerNote] - The text of the note next to the header
- * @param {boolean} [args.discardChanges] - If true then this box will also contain a panel to discard un-checkpointed changes
- * @param {string} [args.discardChangesHelp] The text of the help tooltip in the discard changes panel
+ * @param {boolean} [args.createTargetCheckpoint] - If true then this box will also contain a panel to take a checkpoint in the target branch
+ * @param {string} [args.targetCheckpointHelp] The text of the help tooltip in the target checkpoint panel
+ * @param {boolean} [args.createSourceCheckpoint] - If true then this box will also contain a panel to take a checkpoint in the source branch
+ * @param {string} [args.sourceCheckpointHelp] The text of the help tooltip in the source checkpoint panel
  * @param {Boolean} [args.noIcon] If true the box header will not have a top left icon
  */
 var VersionControlSidePanelBox = function (args) {
@@ -37,47 +39,65 @@ var VersionControlSidePanelBox = function (args) {
         panel.headerElement.appendChild(labelHeader.element);
     }
 
-    // add discard your changes panel
-    if (args && args.discardChanges) {
-        var panelDiscard = new ui.Panel();
-        this.panelDiscard = panelDiscard;
-        panelDiscard.class.add('discard');
-        panelDiscard.flexGrow = 1;
-        var label = new ui.Label({
-            text: 'Discard un-checkpointed changes?'
+    if (args && args.createTargetCheckpoint) {
+        [this.panelTargetCheckpoint, this.checkboxTargetCheckpoint] = this._createCheckbox(
+            'Create checkpoint first?',
+            args.targetCheckpointHelp
+        );
+        this.checkboxTargetCheckpoint.value = true;
+
+        this.checkboxTargetCheckpoint.on('change', value => {
+            this.emit('createTargetCheckpoint', value);
         });
-        panelDiscard.append(label);
+    }
 
-        var checkboxDiscardChanges = new ui.Checkbox();
-        this.checkboxDiscardChanges = checkboxDiscardChanges;
-        checkboxDiscardChanges.class.add('tick');
-        panelDiscard.append(checkboxDiscardChanges);
+    if (args && args.createSourceCheckpoint) {
+        [this.panelSourceCheckpoint, this.checkboxSourceCheckpoint] = this._createCheckbox(
+            'Create checkpoint first?',
+            args.sourceCheckpointHelp
+        );
 
-        checkboxDiscardChanges.on('change', function (value) {
-            this.emit('discardChanges', value);
-        }.bind(this));
-
-        // add little help icon
-        var labelDiscardHelp = new ui.Label({
-            text: '&#57656;',
-            unsafe: true
+        this.checkboxSourceCheckpoint.on('change', value => {
+            this.emit('createSourceCheckpoint', value);
         });
-        labelDiscardHelp.class.add('help');
-        panelDiscard.append(labelDiscardHelp);
-
-        if (args.discardChangesHelp) {
-            var tooltip = Tooltip.attach({
-                target: labelDiscardHelp.element,
-                text: args.discardChangesHelp,
-                align: 'top',
-                root: editor.call('layout.root')
-            });
-            tooltip.class.add('discard-changes-tooltip');
-        }
     }
 };
 
 VersionControlSidePanelBox.prototype = Object.create(Events.prototype);
+
+VersionControlSidePanelBox.prototype._createCheckbox = function (msg, tooltipMsg) {
+    var panel = new ui.Panel();
+    panel.flexGrow = 1;
+    var label = new ui.Label({
+        text: msg
+    });
+    panel.append(label);
+    panel.class.add('checkpoint-checkbox');
+
+    var checkbox = new ui.Checkbox();
+    checkbox.class.add('tick');
+    panel.append(checkbox);
+
+    // add little help icon
+    var labelHelp = new ui.Label({
+        text: '&#57656;',
+        unsafe: true
+    });
+    labelHelp.class.add('help');
+    panel.append(labelHelp);
+
+    if (tooltipMsg) {
+        var tooltip = Tooltip.attach({
+            target: labelHelp.element,
+            text: tooltipMsg,
+            align: 'top',
+            root: editor.call('layout.root')
+        });
+        tooltip.class.add('version-control-checkbox-tooltip');
+    }
+
+    return [panel, checkbox];
+};
 
 /**
  * Adds specified panel to the box
@@ -85,18 +105,24 @@ VersionControlSidePanelBox.prototype = Object.create(Events.prototype);
  * @param {ui.Panel} panel - The panel
  */
 VersionControlSidePanelBox.prototype.append = function (panel) {
-    // make sure we remove the discard panel first
-    // because it's meant to be added to the end
-    if (this.panelDiscard) {
-        this.panel.remove(this.panelDiscard);
+    // make sure we remove the checkpoint panels first
+    // because they are meant to be added to the end
+    if (this.panelTargetCheckpoint) {
+        this.panel.remove(this.panelTargetCheckpoint);
+    }
+    if (this.panelSourceCheckpoint) {
+        this.panel.remove(this.panelSourceCheckpoint);
     }
 
     this.panel.append(panel);
     this.children.push(panel);
 
-    // add discard panel after the content
-    if (this.panelDiscard) {
-        this.panel.append(this.panelDiscard);
+    // add checkpoint panels after the content
+    if (this.panelTargetCheckpoint) {
+        this.panel.append(this.panelTargetCheckpoint);
+    }
+    if (this.panelSourceCheckpoint) {
+        this.panel.append(this.panelSourceCheckpoint);
     }
 };
 
@@ -114,9 +140,12 @@ VersionControlSidePanelBox.prototype.setCheckpoint = function (checkpoint) {
         // this needs to be called to update the 'read more' button
         panel.onAddedToDom();
     } else {
-        // add discard panel after the content
-        if (this.panelDiscard && !this.panelDiscard.parent) {
-            this.panel.append(this.panelDiscard);
+        // add checkpoint panels after the content
+        if (this.panelTargetCheckpoint && !this.panelTargetCheckpoint.parent) {
+            this.panel.append(this.panelTargetCheckpoint);
+        }
+        if (this.panelSourceCheckpoint && !this.panelSourceCheckpoint.parent) {
+            this.panel.append(this.panelSourceCheckpoint);
         }
     }
 
@@ -128,9 +157,13 @@ VersionControlSidePanelBox.prototype.setCheckpoint = function (checkpoint) {
 VersionControlSidePanelBox.prototype.clear = function () {
     var panel = this.panel;
 
-    if (this.panelDiscard) {
-        panel.remove(this.panelDiscard);
-        this.checkboxDiscardChanges.value = false;
+    if (this.panelTargetCheckpoint) {
+        panel.remove(this.panelTargetCheckpoint);
+        this.checkboxTargetCheckpoint.value = true;
+    }
+    if (this.panelSourceCheckpoint) {
+        panel.remove(this.panelSourceCheckpoint);
+        this.checkboxSourceCheckpoint.value = false;
     }
 
     this.children.forEach(function (child) {

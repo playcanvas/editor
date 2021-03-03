@@ -14,7 +14,7 @@ editor.once('load', function () {
 
     var REGEX_HUNK = /^\@\@ -([0-9]+)(?:,[0-9]+)? \+([0-9]+)(?:,[0-9]+)? \@\@$/gm;
 
-    var LARGE_FILE_SIZE = 1000000;
+    var LARGE_FILE_SIZE = 300000;
 
     var DiffEditor = function () {
         // the asset type
@@ -172,7 +172,7 @@ editor.once('load', function () {
                     return;
                 }
 
-                // stop highlighting if document is larger than 1MB
+                // stop highlighting if document is large
                 let mode = MODES[this.type];
                 if (contents.length > LARGE_FILE_SIZE) {
                     mode = 'text';

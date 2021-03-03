@@ -2,7 +2,9 @@ editor.once('load', function () {
     'use strict';
 
     var boxFrom = new ui.VersionControlSidePanelBox({
-        headerNote: 'Merge from'
+        headerNote: 'Merge from',
+        createSourceCheckpoint: true,
+        sourceCheckpointHelp: 'Tick to create a checkpoint in the source branch before merging.'
     });
 
     var labelArrow = new ui.Label({
@@ -13,8 +15,8 @@ editor.once('load', function () {
 
     var boxInto = new ui.VersionControlSidePanelBox({
         headerNote: 'Merge to',
-        discardChanges: true,
-        discardChangesHelp: 'If you choose not to discard your changes then a new checkpoint will be created before merging.'
+        createTargetCheckpoint: true,
+        targetCheckpointHelp: 'Tick to create a checkpoint in the target branch before merging. If you leave this unticked any changes in the target branch will be discarded.'
     });
 
     // holds pending requests to get checkpoints
@@ -33,10 +35,16 @@ editor.once('load', function () {
             }
         }
     });
+    panel.createTargetCheckpoint = true;
+    panel.createSourceCheckpoint = false;
     panel.class.add('merge-branches');
 
-    boxInto.on('discardChanges', function (value) {
-        panel.discardChanges = value;
+    boxFrom.on('createSourceCheckpoint', function (value) {
+        panel.createSourceCheckpoint = value;
+    });
+
+    boxInto.on('createTargetCheckpoint', function (value) {
+        panel.createTargetCheckpoint = value;
     });
 
     panel.on('hide', function () {
