@@ -299,12 +299,16 @@ editor.once('load', function () {
             });
         };
 
+        var checkpointDescription = function (srcBranch, dstBranch) {
+            return `Checkpoint before merging branch "${srcBranch.name}" [${srcBranch.latestCheckpointId.substring(0, 7)}] into "${dstBranch.name}" [${dstBranch.latestCheckpointId.substring(0, 7)}]`;
+        };
+
         if (createSourceCheckpoint) {
             // take a checkpoint in the source branch first
-            createCheckpoint(sourceBranch.id, 'Checkpoint before merging checkpoint "' + sourceBranch.latestCheckpointId + '" into "' + destinationBranch.latestCheckpointId + '"', () => {
+            createCheckpoint(sourceBranch.id, checkpointDescription(sourceBranch, destinationBranch), () => {
                 if (createTargetCheckpoint) {
                     // take a checkpoint in the target branch first
-                    createCheckpoint(config.self.branch.id, 'Checkpoint before merging checkpoint "' + sourceBranch.latestCheckpointId + '" into "' + destinationBranch.latestCheckpointId + '"', merge);
+                    createCheckpoint(config.self.branch.id, checkpointDescription(sourceBranch, destinationBranch), merge);
                 } else {
                     merge();
                 }
@@ -312,7 +316,7 @@ editor.once('load', function () {
 
         } else if (createTargetCheckpoint) {
             // take a checkpoint in the target branch first
-            createCheckpoint(config.self.branch.id, 'Checkpoint before merging checkpoint "' + sourceBranch.latestCheckpointId + '" into "' + destinationBranch.latestCheckpointId + '"', merge);
+            createCheckpoint(config.self.branch.id, checkpointDescription(sourceBranch, destinationBranch), merge);
         } else {
             merge();
         }
