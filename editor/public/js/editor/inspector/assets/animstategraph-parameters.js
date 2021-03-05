@@ -83,7 +83,8 @@ Object.assign(pcui, (function () {
             const paramTypeSelect = attributesInspector.getField(`data.parameters.${paramId}.type`);
             paramTypeSelect.value = this._assets[0].get(`data.parameters.${paramId}.type`);
             paramTypeSelect.on('change', (value) => {
-                if (this._assets[0].get(`data.parameters.${paramId}.type`) === value) return;
+                param = this._assets[0].get(`data.parameters.${paramId}`);
+                if (param.type === value) return;
 
                 const prevConditionValues = [];
                 const prevConditionPredicates = [];
@@ -101,7 +102,7 @@ Object.assign(pcui, (function () {
                         if (transition.conditions) {
                             Object.keys(transition.conditions).forEach(conditionKey => {
                                 const condition = transition.conditions[conditionKey];
-                                if (condition.parameterName === param.name) {
+                                if (condition.parameterName === asset.get(`data.parameters.${paramId}.name`)) {
                                     let updatedValue;
                                     switch (value) {
                                         case pc.ANIM_PARAMETER_INTEGER:
