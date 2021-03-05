@@ -210,6 +210,62 @@ Object.assign(pcui, (function () {
             return this._parent;
         }
 
+        get selectedItem() {
+            return this._graph.selectedItem;
+        }
+
+        selectItem(item) {
+            switch (item.type) {
+                case 'NODE': {
+                    const node = this._assets[0].get(`data.states.${item.id}`);
+                    this._graph.selectNode(node, true);
+                    this._onSelectNode(node);
+                    break;
+                }
+                case 'EDGE': {
+                    const edge = this._assets[0].get(`data.transitions.${item.edgeId}`);
+                    this._graph.selectEdge(edge, item.edgeId, true);
+                    this._onSelectEdge(edge);
+                    break;
+                }
+            }
+        }
+
+        _keyboardListener(e) {
+            if (e.keyCode === 27) {
+            // esc
+                if (this._graph.selectedItem) {
+                    this._graph.deselectItem();
+                } else {
+                    this.parent.closeAsset(this._assets[0]);
+                }
+            } else if (e.keyCode === 46 && this._graph.selectedItem) {
+            // del
+                const item = this._graph.selectedItem;
+                switch (item.type) {
+                    case 'NODE': {
+                        var node = this._assets[0].get(`data.states.${item.id}`);
+                        if (![
+                            ANIM_SCHEMA.NODE.DEFAULT_STATE,
+                            ANIM_SCHEMA.NODE.START_STATE,
+                            ANIM_SCHEMA.NODE.END_STATE,
+                            ANIM_SCHEMA.NODE.ANY_STATE
+                        ].includes(node.nodeType)) {
+                            this._graph.deleteNode(item.id);
+                        }
+                        break;
+                    }
+                    case 'EDGE': {
+                        var edge = this._assets[0].get(`data.transitions.${item.edgeId}`);
+                        if (!edge.defaultTransition) {
+                            this._graph.deleteEdge(item.edgeId);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
         _generateGraphData(layer) {
             const historyEnabled = this._assets[0].history.enabled;
             this._assets[0].history.enabled = false;
@@ -605,15 +661,102 @@ Object.assign(pcui, (function () {
                 this._onDeleteEdge(edgeId, true);
             });
 
-            this._graph.on(GRAPH_ACTIONS.SELECT_NODE, (node) => {
+            this._graph.on(GRAPH_ACTIONS.SELECT_NODE, ({ node, prevItem }) => {
+                if (this._suppressGraphDataEvents) return;
+                const assetId = this._assets[0].get('id');
+                this.parent.history.add({
+                    redo: () => {
+                        if (this._assets[0].get('id') !== assetId) return;
+                        this._suppressGraphEvents(() => {
+                            this._onSelectNode(node);
+                            this._graph.selectNode(node, true);
+                        });
+                    },
+                    undo: () => {
+                        if (this._assets[0].get('id') !== assetId) return;
+                        this._suppressGraphEvents(() => {
+                            if (prevItem) {
+                                switch (prevItem.type) {
+                                    case 'NODE': {
+                                        const prevNode = this._graph._graphData.get(`data.nodes.${prevItem.id}`);
+                                        this._graph.selectNode(prevNode, true);
+                                        this._onSelectNode(prevNode);
+                                        break;
+                                    }
+                                    case 'EDGE': {
+                                        const prevEdge = this._graph._graphData.get(`data.edges.${prevItem.edgeId}`);
+                                        this._graph.selectEdge(prevEdge, prevItem.edgeId, true);
+                                        this._onSelectEdge(prevEdge);
+                                        break;
+                                    }
+                                }
+                            } else {
+                                this._onDeselectItem();
+                                this._graph.deselectItem(true);
+                            }
+                        });
+                    },
+                    name: 'select node'
+                });
                 this._onSelectNode(node);
             });
 
-            this._graph.on(GRAPH_ACTIONS.SELECT_EDGE, ({ edge }) => {
+            this._graph.on(GRAPH_ACTIONS.SELECT_EDGE, ({ edge, edgeId }) => {
+                if (this._suppressGraphDataEvents) return;
+                const assetId = this._assets[0].get('id');
+                this.parent.history.add({
+                    redo: () => {
+                        if (this._assets[0].get('id') !== assetId) return;
+                        this._suppressGraphEvents(() => {
+                            this._onSelectEdge(edge);
+                            this._graph.selectEdge(edge, edgeId, true);
+                        });
+                    },
+                    undo: () => {
+                        if (this._assets[0].get('id') !== assetId) return;
+                        this._suppressGraphEvents(() => {
+                            this._onDeselectItem();
+                            this._graph.deselectItem(true);
+                        });
+                    },
+                    name: 'select edge'
+                });
                 this._onSelectEdge(edge);
             });
 
-            this._graph.on(GRAPH_ACTIONS.DESELECT_ITEM, () => {
+            this._graph.on(GRAPH_ACTIONS.DESELECT_ITEM, ({ type, id, edgeId }) => {
+                if (this._suppressGraphDataEvents) return;
+                const assetId = this._assets[0].get('id');
+                this.parent.history.add({
+                    redo: () => {
+                        if (this._assets[0].get('id') !== assetId) return;
+                        this._suppressGraphEvents(() => {
+                            this._onDeselectItem();
+                            this._graph.deselectItem(true);
+                        });
+                    },
+                    undo: () => {
+                        if (this._assets[0].get('id') !== assetId) return;
+                        this._suppressGraphEvents(() => {
+                            switch (type) {
+                                case 'NODE': {
+
+                                    const node = this._graph._graphData.get(`data.nodes.${id}`);
+                                    this._graph.selectNode(node, true);
+                                    this._onSelectNode(node);
+                                    break;
+                                }
+                                case 'EDGE': {
+                                    const edge = this._graph._graphData.get(`data.edges.${edgeId}`);
+                                    this._graph.selectEdge(edge, edgeId, true);
+                                    this._onSelectEdge(edge);
+                                    break;
+                                }
+                            }
+                        });
+                    },
+                    name: 'deselect item'
+                });
                 this._onDeselectItem();
             });
 
@@ -657,12 +800,21 @@ Object.assign(pcui, (function () {
                 this._graph.dom.style.width = viewportCanvas.style.width;
                 this._graph.dom.style.height = viewportCanvas.style.height;
             });
+
+            // add keyboard listener
+            this._keyboardListenerBound = this._keyboardListener.bind(this);
+            window.addEventListener('keydown', this._keyboardListenerBound);
         }
 
         unlink() {
             this._destroyGraph();
             if (this._viewportResizeEvent) this._viewportResizeEvent.unbind();
             if (this._handleIncomingUpdatesEvent) this._handleIncomingUpdatesEvent.unbind();
+            // remove keyboard listener
+            if (this._keyboardListenerBound) {
+                window.removeEventListener('keydown', this._keyboardListenerBound);
+                delete this._keyboardListenerBound;
+            }
         }
     }
 

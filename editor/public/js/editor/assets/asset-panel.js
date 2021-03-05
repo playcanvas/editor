@@ -101,7 +101,8 @@ Object.assign(pcui, (function () {
         shader: true,
         sprite: true,
         text: true,
-        textureatlas: true
+        textureatlas: true,
+        animstategraph: true
     };
 
     // types of assets that we can drop stuff over
@@ -757,6 +758,8 @@ Object.assign(pcui, (function () {
                 } else {
                     window.open('/editor/asset/' + asset.get('id'), asset.get('id')).focus();
                 }
+            } else if (type === 'animstategraph') {
+                editor.call('picker:animstategraph', asset);
             }
 
         }

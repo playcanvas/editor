@@ -32,6 +32,9 @@ editor.once('load', function () {
         if (type !== 'asset')
             return;
 
+        if (editor.call('animstategraph:editor:open'))
+            return;
+
         editor.call('assets:delete:picker', editor.call('selector:items'));
     };
     // delete
