@@ -456,17 +456,19 @@ editor.once('load', function () {
         if (!parent)
             parent = editor.call('entities:root');
 
-        // if there are a lot of entities, do the copying in the backend
-        if (editor.call('users:hasFlag', 'hasPipelineEntityCopy') &&
+        const canUseBackend = editor.call('users:hasFlag', 'hasPipelineEntityCopy') &&
             projectUserSettings.get('editor.pipeline.entityCopy') &&
-            Object.keys(data.hierarchy).length > COPY_OR_DELETE_IN_BACKEND_LIMIT &&
-            data.project === config.project.id &&
-            data.branch === config.self.branch.id) {
-            // TODO support pasting in different scenes / projects
+            data.project === config.project.id;
+
+        const mustUseBackend = canUseBackend &&
+            (data.branch !== config.self.branch.id ||
+                Object.keys(data.hierarchy).length > COPY_OR_DELETE_IN_BACKEND_LIMIT);
+
+        if (mustUseBackend) {
+            // TODO support pasting in different projects
             pasteInBackend(data, parent);
             return;
         }
-
 
         // remap assets
         const remappedAssets = {};
