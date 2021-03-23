@@ -40,6 +40,7 @@ Object.assign(pcui, (function () {
             this.readOnly = !editor.call('permissions:write');
             this.history = args.history;
             this._view = new pcui.AnimstategraphView(this, args);
+            this._animComponentListener = new pcui.AnimstategraphAnimComponent(args, this._view);
 
             this.buildDom(DOM(this));
 
@@ -195,6 +196,7 @@ Object.assign(pcui, (function () {
                 this.openFullscreenMode();
             }
             this._openInFullscreen = false;
+            this._animComponentListener.link(assets);
         }
 
         unlink() {
@@ -203,6 +205,7 @@ Object.assign(pcui, (function () {
                 this._assets = null;
             }
             this.closeFullscreenMode();
+            this._animComponentListener.unlink();
         }
     }
 

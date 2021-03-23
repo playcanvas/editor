@@ -101,21 +101,21 @@ Object.assign(pcui, (function () {
     // Hide fields based on current asset type
     const HIDDEN_FIELDS = {
         'tags': [
-            'folder',
+            'folder.source',
             'scene.source',
             'texture.source',
             'font.source',
             'legacyScripts'
         ],
         'source_asset_id': [
-            'folder',
+            'folder.source',
             'scene.source',
             'texture.source',
             'font.source',
             'legacyScripts'
         ],
         'preload': [
-            'folder',
+            'folder.source',
             'scene.source',
             'texture.source',
             'font.source',
@@ -130,6 +130,7 @@ Object.assign(pcui, (function () {
             'legacyScripts'
         ],
         'size': [
+            'folder.source',
             'legacyScripts'
         ],
         'source': [
