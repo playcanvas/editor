@@ -502,7 +502,8 @@ Object.assign(pcui, (function () {
                 contextMenuItems: animContextMenuItems,
                 config: {
                     adjustVertices: true,
-                    readOnly: this.parent.readOnly
+                    readOnly: this.parent.readOnly,
+                    incrementNodeNames: true
                 }
             });
         }

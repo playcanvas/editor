@@ -81,6 +81,8 @@ Object.assign(pcui, (function () {
             }
 
             this._linkedEntitiesList = [];
+            this._linkedEntities = [];
+            this._linkedEntityAssets = [];
             this._args.entities.forEach(entityObserver => {
                 if (entityObserver.entity.anim && entityObserver.entity.anim.stateGraphAsset && entityObserver.entity.anim.stateGraphAsset === this._assets[0].get('id')) {
                     const entityPanel = new pcui.Panel({
@@ -105,10 +107,18 @@ Object.assign(pcui, (function () {
                     entityAnimationAsset.link([entityObserver], `components.anim.animationAssets.${layerName}:${state.name}.asset`);
                     entityPanel.content.append(entityAnimationAsset);
 
+                    this._linkedEntities.push(entityObserver);
+                    this._linkedEntityAssets.push(entityAnimationAsset);
                     this._linkedEntitiesList.push(entityPanel);
                     this._linkedEntitiesPanel.append(entityPanel);
                     this._linkedEntitiesPanel.hidden = false;
                 }
+
+                this._linkEntitiesEvent = this._assets[0].on(`${path}.name:set`, (value) => {
+                    this._linkedEntities.forEach((entity, i) => {
+                        this._linkedEntityAssets[i].link([entity], `components.anim.animationAssets.${layerName}:${value}.asset`);
+                    });
+                });
             });
         }
 
@@ -127,6 +137,10 @@ Object.assign(pcui, (function () {
                 });
                 this._linkedEntitiesList = [];
                 this._linkedEntitiesPanel.hidden = true;
+            }
+            if (this._linkEntitiesEvent) {
+                this._linkEntitiesEvent.unbind();
+                this._linkEntitiesEvent = null;
             }
 
             this.parent.headerText = 'INSPECTOR';
