@@ -130,6 +130,7 @@ Object.assign(pcui, (function () {
             'legacyScripts'
         ],
         'size': [
+            'folder.source',
             'legacyScripts'
         ],
         'source': [
