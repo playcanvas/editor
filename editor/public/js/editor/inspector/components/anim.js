@@ -19,6 +19,11 @@ Object.assign(pcui, (function () {
             }
         },
         {
+            label: 'Root Bone',
+            path: 'components.anim.rootBone',
+            type: 'entity'
+        },
+        {
             type: 'divider'
         },
         {
@@ -58,6 +63,7 @@ Object.assign(pcui, (function () {
 
             this._attributesInspector = new pcui.AttributesInspector({
                 assets: args.assets,
+                entities: args.entities,
                 history: args.history,
                 attributes: ATTRIBUTES,
                 templateOverridesInspector: this._templateOverridesInspector
