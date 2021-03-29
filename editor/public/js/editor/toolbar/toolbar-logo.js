@@ -7,26 +7,12 @@ editor.once('load', function () {
 
     var history = editor.call('editor:history');
 
-
     var logo = new ui.Button();
     logo.class.add('logo');
     logo.on('click', function () {
         menu.open = true;
     });
     toolbar.append(logo);
-
-    var componentsLogos = {
-        'animation': '&#57875;',
-        'audiolistener': '&#57750;',
-        'audiosource': '&#57751;',
-        'camera': '&#57874;',
-        'collision': '&#57735;',
-        'light': '&#57748;',
-        'model': '&#57736;',
-        'particlesystem': '&#57753;',
-        'rigidbody': '&#57737;',
-        'script': '&#57910;'
-    };
 
     var hasLegacyScript = function (entity, url) {
         var scriptComponent = entity.get('components.script');

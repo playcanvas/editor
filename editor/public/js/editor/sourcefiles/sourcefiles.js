@@ -39,12 +39,6 @@ editor.once('repositories:load', function (repositories) {
 
     // get script full URL
     editor.method('sourcefiles:url', function (relativeUrl) {
-        var services = {
-            directory: 'directory',
-            bitbucket: 'bitbucket.org',
-            github: 'github.com'
-        };
-
         var fullUrl = [
             config.url.api,
             'projects',

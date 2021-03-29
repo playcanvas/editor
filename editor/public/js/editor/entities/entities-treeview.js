@@ -83,7 +83,7 @@ Object.assign(pcui, (function () {
         _onReparent(reparentedItems) {
             // do not allow entities part of a template to be dragged out
             // of the template root
-            let newParentTemplates = {};
+            const newParentTemplates = {};
 
             for (let i = 0; i < reparentedItems.length; i++) {
                 const entry = reparentedItems[i];
@@ -422,7 +422,7 @@ Object.assign(pcui, (function () {
                 assets.map((asset) => {
                     return {
                         asset: asset
-                    }
+                    };
                 }),
                 parentEntity,
                 childIndex,

@@ -1,49 +1,18 @@
 editor.once('load', function () {
     'use strict';
 
-    var app = editor.call('viewport:app');
+    const app = editor.call('viewport:app');
     if (! app) return; // webgl not available
 
-    var canvas = editor.call('viewport:canvas');
-    var active = false;
-    var hoverMaterial = null;
-    var hoverAsset = null;
-    var hoverEntity = null;
-    var hoverNode = null;
-    var hoverPicked = null;
-    var hoverMeshInstance = null;
+    const canvas = editor.call('viewport:canvas');
 
-
-    editor.on('viewport:pick:hover', function (node, picked) {
-        hoverNode = node;
-        hoverPicked = picked;
-
-        if (active)
-            onPick(node, picked);
-    });
-
-
-    var onPick = function (node, picked) {
-        var meshInstance = null;
-
-        if (node && node._icon)
-            node = node._getEntity();
-
-        if (! node || ! editor.call('entities:get', node.getGuid())) {
-            onHover(null);
-            return;
-        }
-
-        if (picked instanceof pc.MeshInstance)
-            meshInstance = picked;
-
-        if (meshInstance && (! meshInstance.node._parent || ! meshInstance.node._parent._icon) && (node.model || node.render)) {
-            onHover(node, meshInstance);
-        } else {
-            onHover(null);
-        }
-    };
-
+    let active = false;
+    let hoverMaterial = null;
+    let hoverAsset = null;
+    let hoverEntity = null;
+    let hoverNode = null;
+    let hoverPicked = null;
+    let hoverMeshInstance = null;
 
     var onLeave = function () {
         if (! hoverEntity)
@@ -57,7 +26,7 @@ editor.once('load', function () {
                     hoverAsset.fire('change', hoverAsset, 'data', hoverAsset.data, hoverAsset.data);
                     delete hoverAsset._materialBeforeHover;
                 } else {
-                    var mapping = hoverEntity.model.mapping;
+                    const mapping = hoverEntity.model.mapping;
                     if (hoverEntity._materialBeforeHover === undefined)
                         delete mapping[hoverEntity._materialIndHover];
                     else
@@ -69,7 +38,7 @@ editor.once('load', function () {
             }
         } else if (hoverEntity.render) {
             if (hoverEntity.render.type === 'asset' && hoverEntity.render.meshInstances.length)  {
-                var materials = hoverEntity.render.materialAssets;
+                const materials = hoverEntity.render.materialAssets;
                 materials[hoverEntity._materialIndHover] = hoverEntity._materialBeforeHover;
                 hoverEntity.render.materialAssets = materials;
             } else {
@@ -96,9 +65,9 @@ editor.once('load', function () {
         if (hoverEntity) {
             if (hoverEntity.model) {
                 if (hoverEntity.model.type === 'asset' && hoverEntity.model.model) {
-                    var ind = hoverEntity.model.model.meshInstances.indexOf(hoverMeshInstance);
+                    const ind = hoverEntity.model.model.meshInstances.indexOf(hoverMeshInstance);
                     if (ind !== -1) {
-                        var mapping = hoverEntity.model.mapping;
+                        const mapping = hoverEntity.model.mapping;
                         if (!mapping || !mapping.hasOwnProperty(ind)) {
 
                             hoverAsset = app.assets.get(hoverEntity.model.asset);
@@ -124,11 +93,11 @@ editor.once('load', function () {
                 }
             } else if (hoverEntity.render) {
                 if (hoverEntity.render.type === 'asset' && hoverEntity.render.meshInstances.length) {
-                    var ind = hoverEntity.render.meshInstances.indexOf(hoverMeshInstance);
+                    const ind = hoverEntity.render.meshInstances.indexOf(hoverMeshInstance);
                     if (ind !== -1) {
                         hoverEntity._materialBeforeHover = hoverEntity.render.materialAssets[ind];
                         hoverEntity._materialIndHover = ind;
-                        var materials = hoverEntity.render.materialAssets;
+                        const materials = hoverEntity.render.materialAssets;
                         materials[ind] = hoverMaterial;
                         hoverEntity.render.materialAssets = materials;
 
@@ -145,6 +114,35 @@ editor.once('load', function () {
         }
     };
 
+    var onPick = function (node, picked) {
+        let meshInstance = null;
+
+        if (node && node._icon)
+            node = node._getEntity();
+
+        if (! node || ! editor.call('entities:get', node.getGuid())) {
+            onHover(null);
+            return;
+        }
+
+        if (picked instanceof pc.MeshInstance)
+            meshInstance = picked;
+
+        if (meshInstance && (! meshInstance.node._parent || ! meshInstance.node._parent._icon) && (node.model || node.render)) {
+            onHover(node, meshInstance);
+        } else {
+            onHover(null);
+        }
+    };
+
+    editor.on('viewport:pick:hover', function (node, picked) {
+        hoverNode = node;
+        hoverPicked = picked;
+
+        if (active)
+            onPick(node, picked);
+    });
+
     editor.call('drop:target', {
         ref: canvas,
         type: 'asset.material',
@@ -158,26 +156,26 @@ editor.once('load', function () {
             if (! hoverEntity || (! hoverEntity.model && !hoverEntity.render))
                 return;
 
-            var entity = editor.call('entities:get', hoverEntity.getGuid());
+            let entity = editor.call('entities:get', hoverEntity.getGuid());
             if (! entity)
                 return;
 
             if (hoverEntity.model) {
                 if (entity.get('components.model.type') === 'asset') {
-                    var ind = hoverEntity.model.model.meshInstances.indexOf(hoverMeshInstance);
+                    const ind = hoverEntity.model.model.meshInstances.indexOf(hoverMeshInstance);
                     if (ind === -1)
                         return;
 
                     // if we are setting the model asset mapping then set it and return
                     if (hoverAsset) {
-                        var asset = editor.call('assets:get', hoverAsset.id);
+                        const asset = editor.call('assets:get', hoverAsset.id);
                         if (asset.has('data.mapping.' + ind + '.material')) {
-                            var history = asset.history.enabled;
+                            const history = asset.history.enabled;
                             asset.history.enabled = false;
 
-                            var prevMapping = asset.get('data.mapping.' + ind + '.material');
-                            var prevUserMapping = asset.get('meta.userMapping.' + ind);
-                            var newMapping = hoverMaterial.id;
+                            const prevMapping = asset.get('data.mapping.' + ind + '.material');
+                            const prevUserMapping = asset.get('meta.userMapping.' + ind);
+                            const newMapping = hoverMaterial.id;
 
                             // set mapping and also userMapping
                             asset.set('data.mapping.' + ind + '.material', newMapping);
@@ -198,10 +196,10 @@ editor.once('load', function () {
                             editor.call('history:add', {
                                 name: 'assets.' + asset.get('id') + '.data.mapping.' + ind + '.material',
                                 undo: function () {
-                                    var item = editor.call('assets:get', asset.get('id'));
+                                    const item = editor.call('assets:get', asset.get('id'));
                                     if (! item) return;
 
-                                    var history = item.history.enabled;
+                                    const history = item.history.enabled;
                                     item.history.enabled = false;
                                     item.set('data.mapping.' + ind + '.material', prevMapping);
 
@@ -216,10 +214,10 @@ editor.once('load', function () {
                                     item.history.enabled = history;
                                 },
                                 redo: function () {
-                                    var item = editor.call('assets:get', asset.get('id'));
+                                    const item = editor.call('assets:get', asset.get('id'));
                                     if (! item) return;
 
-                                    var history = item.history.enabled;
+                                    const history = item.history.enabled;
                                     item.history.enabled = false;
                                     item.set('data.mapping.' + ind + '.material', newMapping);
                                     if (! item.get('meta')) {
@@ -241,15 +239,15 @@ editor.once('load', function () {
                         // set mapping with custom history action
                         // to prevent bug where undoing will set the mapping to
                         // null instead of unsetting it
-                        var history = entity.history.enabled;
+                        const history = entity.history.enabled;
                         entity.history.enabled = false;
-                        var resourceId = entity.get('resource_id');
+                        const resourceId = entity.get('resource_id');
 
-                        var undo = {};
-                        var redo = {};
+                        const undo = {};
+                        const redo = {};
 
                         if (!entity.get('components.model.mapping')) {
-                            var mapping = {};
+                            const mapping = {};
                             mapping[ind] = parseInt(hoverMaterial.id, 10);
                             entity.set('components.model.mapping', mapping);
                             undo.path = 'components.model.mapping';
@@ -272,10 +270,10 @@ editor.once('load', function () {
                         editor.call('history:add', {
                             name: 'entities.' + resourceId + '.components.model.mapping',
                             undo: function () {
-                                var item = editor.call('entities:get', resourceId);
+                                const item = editor.call('entities:get', resourceId);
                                 if (! item) return;
 
-                                var history = item.history.enabled;
+                                const history = item.history.enabled;
                                 item.history.enabled = false;
 
                                 if (undo.value === undefined)
@@ -286,10 +284,10 @@ editor.once('load', function () {
                                 item.history.enabled = history;
                             },
                             redo: function () {
-                                var item = editor.call('entities:get', resourceId);
+                                const item = editor.call('entities:get', resourceId);
                                 if (! item) return;
 
-                                var history = item.history.enabled;
+                                const history = item.history.enabled;
                                 item.history.enabled = false;
                                 if (redo.value === undefined)
                                     item.unset(redo.path);
@@ -305,11 +303,11 @@ editor.once('load', function () {
                 }
 
             } else if (hoverEntity.render) {
-                var ind = hoverEntity.render.meshInstances.indexOf(hoverMeshInstance);
+                const ind = hoverEntity.render.meshInstances.indexOf(hoverMeshInstance);
                 if (ind === -1)
                     return;
 
-                var prev = entity.get('components.render.materialAssets');
+                const prev = entity.get('components.render.materialAssets');
 
                 var undo = function () {
                     entity = entity.latest();
@@ -318,7 +316,7 @@ editor.once('load', function () {
                     const history = entity.history.enabled;
                     entity.history.enabled = false;
                     // if the type of the render component has changed then only editor first material asset
-                    var adjustedPrev = entity.get('components.render.type') !== 'asset' ? prev.slice(0, 1) : prev;
+                    const adjustedPrev = entity.get('components.render.type') !== 'asset' ? prev.slice(0, 1) : prev;
                     entity.set('components.render.materialAssets', adjustedPrev);
                     entity.history.enabled = history;
                 };
@@ -330,7 +328,7 @@ editor.once('load', function () {
                     const history = entity.history.enabled;
                     entity.history.enabled = false;
                     // if the type of the render component has changed then only editor first material asset
-                    var adjustedIndex = entity.get('components.render.type') !== 'asset' ? 0 : ind;
+                    const adjustedIndex = entity.get('components.render.type') !== 'asset' ? 0 : ind;
                     entity.set('components.render.materialAssets.' + adjustedIndex, parseInt(hoverMaterial.id, 10));
                     entity.history.enabled = history;
                 };

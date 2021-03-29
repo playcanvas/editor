@@ -204,7 +204,7 @@ editor.on('load', function () {
         attributesPanel.enabled = state;
     });
 
-    // secondary attributes panel 
+    // secondary attributes panel
     var attributesSecondaryPanel = new pcui.Panel({
         headerText: 'INSPECTOR',
         id: 'layout-attributes-secondary',

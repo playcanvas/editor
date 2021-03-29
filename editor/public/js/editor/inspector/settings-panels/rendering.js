@@ -20,7 +20,7 @@ Object.assign(pcui, (function () {
                 text: 'IMPORT AREA LIGHTS',
                 icon: 'E228'
             }
-        },  
+        },
         {
             observer: 'projectSettings',
             label: 'Area Lights Data',
@@ -30,7 +30,7 @@ Object.assign(pcui, (function () {
             args: {
                 assetType: 'binary'
             }
-        },        
+        },
         {
             observer: 'sceneSettings',
             label: 'Skybox',
@@ -417,10 +417,10 @@ Object.assign(pcui, (function () {
 
             areaLightDataField.on('change', value => {
                 if (!value) {
-                    //show import button again
+                    // show import button again
                     areaLightImportField.hidden = false;
                 } else {
-                    //hide import button
+                    // hide import button
                     areaLightImportField.hidden = true;
                 }
             });
@@ -428,24 +428,24 @@ Object.assign(pcui, (function () {
             const handleAreaLightLutsImport = name => {
                 if (name === 'area-light-luts') {
                     var lutAsset = editor.call('project:engineAsset:getEngineAsset', name);
-                    if (lutAsset.length>0) {
+                    if (lutAsset.length > 0) {
                         this._attributesInspector.getField('areaLightDataAsset').value = lutAsset[0][1].get('id');
                     } else {
                         editor.call('project:engineAsset:addEngineAsset', `${name}.bin`, name);
                         const importAreaLightEvt = editor.on('engineAssetImported', handleAreaLightLutsImport);
                         this.once('destroy', () => {
                             importAreaLightEvt.unbind();
-                        });                                                        
-                    }                            
+                        });
+                    }
                 }
-            }
+            };
 
             const clickAreaLightImportEvt = areaLightImportField.on('click', () => {
                 handleAreaLightLutsImport('area-light-luts');
             });
             this.once('destroy', () => {
                 clickAreaLightImportEvt.unbind();
-            });   
+            });
 
         }
     }

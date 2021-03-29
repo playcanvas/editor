@@ -22,6 +22,33 @@ editor.once('load', function () {
     var REGEX_GUID = /^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$/i;
     var REGEX_COLOR_CURVE = /^((r((gba?)?))|g|b|a)$/; // r or g or b or rgb or rgba
 
+    var attributeErrorMsg = function (url, attribute, error) {
+        return pc.string.format("Attribute '{0}' of script {1} is invalid: {2}", attribute.name, url, error);
+    };
+
+    var validateValue = function (url, attribute, correctType, valueIfUndefined) {
+        var type = pc.type(attribute.defaultValue);
+        if (type === 'undefined' || type === 'null') {
+            attribute.defaultValue = valueIfUndefined;
+        } else if (type !== correctType) {
+            throw attributeErrorMsg(url, attribute, 'Value is not of type ' + correctType);
+        }
+    };
+
+    var validateArrayValue = function (url, attribute, valueIfUndefined, correctLength, typeofElements) {
+        validateValue(url, attribute, 'array', valueIfUndefined);
+
+        if (correctLength >= 0 && attribute.defaultValue.length !== correctLength) {
+            throw attributeErrorMsg(url, attribute, pc.string.format('Value must be an array with {0} elements of type {1}', correctLength, typeofElements));
+        } else {
+            for (let i = 0; i < attribute.defaultValue.length; i++) {
+                if (typeof attribute.defaultValue[i] !== typeofElements) {
+                    throw attributeErrorMsg(url, attribute, pc.string.format('Value must be an array with elements of type {0}', typeofElements));
+                }
+            }
+        }
+    };
+
     var validators = {
         'number': function (url, attribute) {
             validateValue(url, attribute, 'number', 0);
@@ -283,33 +310,6 @@ editor.once('load', function () {
                 }
             }
         }
-    };
-
-    var validateValue = function (url, attribute, correctType, valueIfUndefined) {
-        var type = pc.type(attribute.defaultValue);
-        if (type === 'undefined' || type === 'null') {
-            attribute.defaultValue = valueIfUndefined;
-        } else if (type !== correctType) {
-            throw attributeErrorMsg(url, attribute, 'Value is not of type ' + correctType);
-        }
-    };
-
-    var validateArrayValue = function (url, attribute, valueIfUndefined, correctLength, typeofElements) {
-        validateValue(url, attribute, 'array', valueIfUndefined);
-
-        if (correctLength >= 0 && attribute.defaultValue.length !== correctLength) {
-            throw attributeErrorMsg(url, attribute, pc.string.format('Value must be an array with {0} elements of type {1}', correctLength, typeofElements));
-        } else {
-            for (let i = 0; i < attribute.defaultValue.length; i++) {
-                if (typeof attribute.defaultValue[i] !== typeofElements) {
-                    throw attributeErrorMsg(url, attribute, pc.string.format('Value must be an array with elements of type {0}', typeofElements));
-                }
-            }
-        }
-    };
-
-    var attributeErrorMsg = function (url, attribute, error) {
-        return pc.string.format("Attribute '{0}' of script {1} is invalid: {2}", attribute.name, url, error);
     };
 
     var validateScriptAttributes = function (url, data) {

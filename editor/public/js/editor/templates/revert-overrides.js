@@ -562,5 +562,5 @@ editor.once('load', function () {
         return true;
     });
 
-    
+
 });

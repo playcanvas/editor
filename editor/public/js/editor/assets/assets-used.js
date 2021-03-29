@@ -1,9 +1,9 @@
 editor.once('load', function () {
     'use strict';
 
-    var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
-    var index = {};
-    var keys = {
+    const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
+    const index = {};
+    const keys = {
         'cubemap': {
             'data.textures.0': true,
             'data.textures.1': true,
@@ -56,7 +56,8 @@ editor.once('load', function () {
             // 'components.script.scripts': true
         }
     };
-    var updateAsset = function (referer, type, oldId, newId) {
+
+    const updateAsset = function (referer, type, oldId, newId) {
         if (oldId && index[oldId] !== undefined) {
             index[oldId].count--;
 
@@ -109,8 +110,8 @@ editor.once('load', function () {
                 });
 
                 // referer can be destroyed
-                var itemType = 'asset';
-                var item = editor.call('assets:get', referer);
+                let itemType = 'asset';
+                let item = editor.call('assets:get', referer);
                 if (!item) {
                     item = editor.call('entities:get', referer);
                     itemType = 'entity';
@@ -134,7 +135,8 @@ editor.once('load', function () {
                 editor.emit('assets:used:' + newId, true);
         }
     };
-    var onSetMethods = {
+
+    const onSetMethods = {
         'cubemap': function (path, value, valueOld) {
             if (!keys.cubemap[path])
                 return;
@@ -181,38 +183,38 @@ editor.once('load', function () {
         },
         'entity': function (path, value, valueOld) {
             if (path.startsWith('components.animation.assets.')) {
-                var parts = path.split('.');
+                const parts = path.split('.');
                 if (parts.length !== 4)
                     return;
             } else if (path.startsWith('components.model.mapping.')) {
-                var parts = path.split('.');
+                const parts = path.split('.');
                 if (parts.length !== 4)
                     return;
             } else if (path.startsWith('components.sound.slots')) {
-                var parts = path.split('.');
+                const parts = path.split('.');
                 if (parts.length !== 5 || parts[4] !== 'asset')
                     return;
             } else if (path.startsWith('components.sprite.clips')) {
-                var parts = path.split('.');
+                const parts = path.split('.');
                 if (parts.length !== 5 || parts[4] !== 'spriteAsset')
                     return;
             } else if (path.startsWith('components.render.materialAssets')) {
-                var parts = path.split('.');
+                const parts = path.split('.');
                 if (parts.length !== 4)
                     return;
             } else if (!legacyScripts && path.startsWith('components.script.scripts')) {
-                var parts = path.split('.');
+                const parts = path.split('.');
                 if (parts.length === 6 && parts[4] === 'attributes') {
-                    var primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
+                    const primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
                     if (primaryScript) {
-                        var type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + parts[5] + '.type');
+                        const type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + parts[5] + '.type');
                         if (type !== 'asset')
                             return;
                     } else {
                         return;
                     }
                 } else if (parts.length === 4) {
-                    var primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
+                    const primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
                     if (primaryScript) {
                         updateAsset(this.get('resource_id'), 'entity', null, primaryScript.get('id'));
                         return;
@@ -236,32 +238,32 @@ editor.once('load', function () {
         },
         'entity-unset': function (path, value) {
             if (path.startsWith('components.model.mapping.')) {
-                var parts = path.split('.');
+                const parts = path.split('.');
                 if (parts.length !== 4)
                     return;
             } else if (path.startsWith('components.sound.slots')) {
-                var parts = path.split('.');
+                const parts = path.split('.');
                 if (parts.length !== 5 || parts[4] !== 'asset')
                     return;
             } else if (path.startsWith('components.sprite.clips')) {
-                var parts = path.split('.');
+                const parts = path.split('.');
                 if (parts.length !== 5 || parts[4] !== 'spriteAsset')
                     return;
             } else if (!legacyScripts && path.startsWith('components.script.scripts')) {
-                var parts = path.split('.');
+                const parts = path.split('.');
                 if (parts.length === 6 && parts[4] === 'attributes') {
-                    var primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
+                    const primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
                     if (primaryScript) {
-                        var type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + parts[5] + '.type');
+                        const type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + parts[5] + '.type');
                         if (type !== 'asset')
                             return;
                     } else {
                         return;
                     }
                 } else if (parts.length === 5) {
-                    var primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
+                    const primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
                     if (primaryScript) {
-                        var type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + parts[5] + '.type');
+                        const type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + parts[5] + '.type');
                         if (type === 'asset') {
                             if (value.attributes[parts[5]] instanceof Array) {
                                 for (let i = 0; i < value.attributes[parts[5]].length; i++) {
@@ -275,12 +277,12 @@ editor.once('load', function () {
                         return;
                     }
                 } else if (parts.length === 4) {
-                    var primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
+                    const primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
                     if (primaryScript) {
                         updateAsset(this.get('resource_id'), 'entity', primaryScript.get('id'), null);
 
                         for (const attrName in value.attributes) {
-                            var type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + attrName + '.type');
+                            const type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + attrName + '.type');
                             if (type === 'asset') {
                                 if (value.attributes[attrName] instanceof Array) {
                                     for (let i = 0; i < value.attributes[attrName].length; i++) {
@@ -310,15 +312,15 @@ editor.once('load', function () {
         },
         'entity-insert': function (path, value) {
             if (legacyScripts && path.startsWith('components.script.scripts.')) {
-                var parts = path.split('.');
+                const parts = path.split('.');
                 if (parts.length !== 7 || parts[4] !== 'attributes' || parts[6] !== 'value' || this.get(parts.slice(0, 6).join('.') + '.type') !== 'asset')
                     return;
             } else if (!legacyScripts && path.startsWith('components.script.scripts')) {
-                var parts = path.split('.');
+                const parts = path.split('.');
                 if (parts.length === 6 && parts[4] === 'attributes') {
-                    var primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
+                    const primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
                     if (primaryScript) {
-                        var type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + parts[5] + '.type');
+                        const type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + parts[5] + '.type');
                         if (type !== 'asset')
                             return;
                     } else {
@@ -341,15 +343,15 @@ editor.once('load', function () {
         },
         'entity-remove': function (path, value) {
             if (legacyScripts && path.startsWith('components.script.scripts.')) {
-                var parts = path.split('.');
+                const parts = path.split('.');
                 if (parts.length !== 7 || parts[4] !== 'attributes' || parts[6] !== 'value' || this.get(parts.slice(0, 6).join('.') + '.type') !== 'asset')
                     return;
             } else if (!legacyScripts && path.startsWith('components.script.scripts')) {
-                var parts = path.split('.');
+                const parts = path.split('.');
                 if (parts.length === 6 && parts[4] === 'attributes') {
-                    var primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
+                    const primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
                     if (primaryScript) {
-                        var type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + parts[5] + '.type');
+                        const type = primaryScript.get('data.scripts.' + parts[3] + '.attributes.' + parts[5] + '.type');
                         if (type !== 'asset')
                             return;
                     } else {
@@ -367,33 +369,32 @@ editor.once('load', function () {
     };
 
     editor.on('assets:scripts:primary:set', function (asset, script) {
-        var entities = editor.call('entities:list:byScript', script);
-        var len = entities.length;
+        const entities = editor.call('entities:list:byScript', script);
+        const len = entities.length;
         if (!len) {
             return;
         }
 
-        var i;
-        var itemsOrder = asset.get('data.scripts.' + script + '.attributesOrder');
-        var items = asset.get('data.scripts.' + script + '.attributes');
-        var attributes = [];
-        for (i = 0; i < itemsOrder.length; i++) {
+        const itemsOrder = asset.get('data.scripts.' + script + '.attributesOrder');
+        const items = asset.get('data.scripts.' + script + '.attributes');
+        const attributes = [];
+        for (let i = 0; i < itemsOrder.length; i++) {
             if (items[itemsOrder[i]].type === 'asset')
                 attributes.push(itemsOrder[i]);
         }
 
-        for (i = 0; i < len; i++) {
-            var entity = entities[i];
+        for (let i = 0; i < len; i++) {
+            const entity = entities[i];
 
             updateAsset(entity.get('resource_id'), 'entity', null, asset.get('id'));
 
-            for (var a = 0; a < attributes.length; a++) {
-                var value = entity.get('components.script.scripts.' + script + '.attributes.' + attributes[a]);
+            for (let a = 0; a < attributes.length; a++) {
+                const value = entity.get('components.script.scripts.' + script + '.attributes.' + attributes[a]);
                 if (!value)
                     continue;
 
                 if (value instanceof Array) {
-                    for (var v = 0; v < value.length; v++) {
+                    for (let v = 0; v < value.length; v++) {
                         if (typeof (value[v]) === 'number') {
                             updateAsset(entity.get('resource_id'), 'entity', null, value[v]);
                         }
@@ -406,38 +407,37 @@ editor.once('load', function () {
     });
 
     editor.on('assets:scripts:primary:unset', function (asset, script) {
-        var entities = editor.call('entities:list:byScript', script);
-        var len = entities.length;
+        const entities = editor.call('entities:list:byScript', script);
+        const len = entities.length;
         if (!len) {
             return;
         }
 
-        var data = asset.get('data.scripts.' + script);
-        var attributes = [];
-        var i;
+        const data = asset.get('data.scripts.' + script);
+        const attributes = [];
 
         if (data) {
-            var itemsOrder = data.attributesOrder;
-            var items = data.attributes;
+            const itemsOrder = data.attributesOrder;
+            const items = data.attributes;
 
-            for (i = 0; i < itemsOrder.length; i++) {
+            for (let i = 0; i < itemsOrder.length; i++) {
                 if (items[itemsOrder[i]].type === 'asset')
                     attributes.push(itemsOrder[i]);
             }
         }
 
-        for (i = 0; i < len; i++) {
-            var entity = entities[i];
+        for (let i = 0; i < len; i++) {
+            const entity = entities[i];
 
             updateAsset(entity.get('resource_id'), 'entity', asset.get('id'), null);
 
-            for (var a = 0; a < attributes.length; a++) {
-                var value = entity.get('components.script.scripts.' + script + '.attributes.' + attributes[a]);
+            for (let a = 0; a < attributes.length; a++) {
+                const value = entity.get('components.script.scripts.' + script + '.attributes.' + attributes[a]);
                 if (!value)
                     continue;
 
                 if (value instanceof Array) {
-                    for (var v = 0; v < value.length; v++) {
+                    for (let v = 0; v < value.length; v++) {
                         if (typeof (value[v]) === 'number') {
                             updateAsset(entity.get('resource_id'), 'entity', value[v], null);
                         }
@@ -454,7 +454,7 @@ editor.once('load', function () {
         if (asset.get('source'))
             return;
 
-        var type = asset.get('type');
+        const type = asset.get('type');
 
         if (type === 'folder')
             return;
@@ -472,7 +472,7 @@ editor.once('load', function () {
                 updateAsset(asset.get('id'), 'asset', null, asset.get(key));
 
             if (type === 'model') {
-                var mapping = asset.get('data.mapping');
+                const mapping = asset.get('data.mapping');
                 if (mapping) {
                     for (let i = 0; i < mapping.length; i++)
                         updateAsset(asset.get('id'), 'asset', null, mapping[i].material);
@@ -491,7 +491,7 @@ editor.once('load', function () {
         for (const key in keys.entity)
             updateAsset(entity.get('resource_id'), 'entity', null, entity.get(key));
 
-        var mappings = entity.get('components.model.mapping');
+        const mappings = entity.get('components.model.mapping');
         if (mappings) {
             for (const ind in mappings) {
                 if (!mappings.hasOwnProperty(ind) || !mappings[ind])
@@ -502,7 +502,7 @@ editor.once('load', function () {
         }
 
         for (const key in keys['entity-lists']) {
-            var items = entity.get(key);
+            const items = entity.get(key);
             if (!items || !items.length)
                 continue;
 
@@ -510,7 +510,7 @@ editor.once('load', function () {
                 updateAsset(entity.get('resource_id'), 'entity', null, items[i]);
         }
 
-        var slots = entity.get('components.sound.slots');
+        const slots = entity.get('components.sound.slots');
         if (slots) {
             for (const i in slots) {
                 if (!slots.hasOwnProperty(i) || !slots[i].asset)
@@ -520,7 +520,7 @@ editor.once('load', function () {
             }
         }
 
-        var clips = entity.get('components.sprite.clips');
+        const clips = entity.get('components.sprite.clips');
         if (clips) {
             for (const key in clips) {
                 if (!clips.hasOwnProperty(key) || !clips[key].spriteAsset) {
@@ -531,28 +531,28 @@ editor.once('load', function () {
             }
         }
 
-        var scripts = entity.get('components.script.scripts');
+        const scripts = entity.get('components.script.scripts');
 
         if (scripts) {
             for (const script in scripts) {
                 if (!scripts.hasOwnProperty(script))
                     continue;
 
-                var primaryScript = editor.call('assets:scripts:assetByScript', script);
+                const primaryScript = editor.call('assets:scripts:assetByScript', script);
                 if (primaryScript) {
                     updateAsset(entity.get('resource_id'), 'entity', null, primaryScript.get('id'));
 
-                    var attributes = scripts[script].attributes;
+                    const attributes = scripts[script].attributes;
                     for (const attr in attributes) {
                         if (!attributes.hasOwnProperty(attr))
                             continue;
 
-                        var type = primaryScript.get('data.scripts.' + script + '.attributes.' + attr + '.type');
+                        const type = primaryScript.get('data.scripts.' + script + '.attributes.' + attr + '.type');
                         if (type === 'asset') {
-                            var value = attributes[attr];
+                            const value = attributes[attr];
 
                             if (value instanceof Array) {
-                                for (var v = 0; v < value.length; v++) {
+                                for (let v = 0; v < value.length; v++) {
                                     updateAsset(entity.get('resource_id'), 'entity', null, value[v]);
                                 }
                             } else if (value) {
@@ -566,7 +566,7 @@ editor.once('load', function () {
     });
 
     // scene settings
-    var sceneSettings = editor.call('sceneSettings');
+    const sceneSettings = editor.call('sceneSettings');
     sceneSettings.on('render.skybox:set', function (value, valueOld) {
         updateAsset('sceneSettings', 'editorSettings', valueOld, value);
     });

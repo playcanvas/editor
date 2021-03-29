@@ -132,7 +132,7 @@ editor.once('load', function () {
                 const childIndex = parent.get('children').length;
 
                 // add instances
-                editor.call('template:addMultipleInstances', assets.map(asset => { return { asset } }), parent, childIndex, entityIds => {
+                editor.call('template:addMultipleInstances', assets.map(asset => { return { asset }; }), parent, childIndex, entityIds => {
                     if (newEntityIds) {
                         newEntityIds = newEntityIds.concat(entityIds);
 

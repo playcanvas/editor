@@ -42,7 +42,7 @@ editor.once('load', function () {
         subTitle: '{pc.LIGHTSHAPE_*}',
         description: 'The shape of the light source',
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#shape'
-    }, {        
+    }, {
         title: 'intensity',
         subTitle: '{Number}',
         description: 'The intensity of the light, this acts as a scalar value for the light\'s color. This value can exceed 1.',

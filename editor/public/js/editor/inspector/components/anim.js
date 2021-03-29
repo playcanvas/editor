@@ -82,10 +82,10 @@ Object.assign(pcui, (function () {
                 this._addAnimationAssetSlots();
             };
             this.entityStateGraphAssetSetEvent = () => {
-                    this._stateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
-                    this._addAnimationAssetSlots();
-                }
+                this._stateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
+                this._addAnimationAssetSlots();
             };
+        }
 
         _addAnimationAssetSlots() {
             this._clearAnimationSlots();

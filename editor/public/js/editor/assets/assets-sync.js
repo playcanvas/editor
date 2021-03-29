@@ -31,6 +31,10 @@ editor.once('load', function () {
         lastIdleCheck = t;
     }, IDLE_CHECK_DELAY);
 
+    var getFileUrl = function (id, revision, filename) {
+        return '/api/assets/' + id + '/file/' + encodeURIComponent(filename) + '?branchId=' + config.self.branch.id;
+    };
+
     editor.method('loadAsset', function (uniqueId, callback) {
         var connection = editor.call('realtime:connection');
 
@@ -292,10 +296,6 @@ editor.once('load', function () {
             delete docs[id];
         }
     });
-
-    var getFileUrl = function (id, revision, filename) {
-        return '/api/assets/' + id + '/file/' + encodeURIComponent(filename) + '?branchId=' + config.self.branch.id;
-    };
 
     var assetSetThumbnailPaths = function (asset) {
         if (asset.get('type') !== 'texture' && asset.get('type') !== 'textureatlas')

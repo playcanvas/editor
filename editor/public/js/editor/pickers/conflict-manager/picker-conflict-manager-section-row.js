@@ -1,9 +1,9 @@
 editor.once('load', function () {
     'use strict';
 
-    var BASE_PANEL = 0;
-    var DEST_PANEL = 1;
-    var SOURCE_PANEL = 2;
+    const BASE_PANEL = 0;
+    const DEST_PANEL = 1;
+    const SOURCE_PANEL = 2;
 
     /**
      * A row that contains the base, source and destination fields.
@@ -12,12 +12,12 @@ editor.once('load', function () {
      * @param {object} args - The arguments
      * @param {string} args.name - The name of the field
      * @param {boolean} args.noPath - If true then this field has no path (which means the whole object is considered to be a conflict e.g. a whole asset)
-     * @param {string} args.type The type of the field (if same type for base, source and destination values)
-     * @param {String} args.baseType The type of the base value
-     * @param {String} args.sourceType The type of the source value
-     * @param {String} args.destType The type of the destination value
-     * @param {Object} args.conflict The conflict object
-     * @param {Boolean} args.prettify If true the name will be prettified
+     * @param {string} args.type - The type of the field (if same type for base, source and destination values)
+     * @param {string} args.baseType - The type of the base value
+     * @param {string} args.sourceType - The type of the source value
+     * @param {string} args.destType - The type of the destination value
+     * @param {object} args.conflict - The conflict object
+     * @param {boolean} args.prettify - If true the name will be prettified
      */
     var ConflictSectionRow = function (resolver, args) {
         Events.call(this);
@@ -245,7 +245,7 @@ editor.once('load', function () {
         // convert ids to names
         if (base) {
             // for base values try to find the name first in the source index and then in the destination index
-            var handled = false;
+            let handled = false;
             for (const type in indexes) {
                 if (baseType === type) {
                     base = self._convertIdToName(base, indexes[type][0], indexes[type][1]);
@@ -269,7 +269,7 @@ editor.once('load', function () {
         }
 
         if (src) {
-            var handled = false;
+            let handled = false;
             for (const type in indexes) {
                 if (srcType === type) {
                     src = self._convertIdToName(src, indexes[type][0]);
@@ -307,7 +307,7 @@ editor.once('load', function () {
         }
 
         if (dst) {
-            var handled = false;
+            let handled = false;
             for (const type in indexes) {
                 if (dstType === type) {
                     dst = self._convertIdToName(dst, indexes[type][1]);

@@ -89,9 +89,9 @@ editor.once('load', function () {
 
                     setting.position = false;
                 });
-            }
-            // anchor change
-            else if (/^components.element.anchor/.test(path)) {
+            } else if (/^components.element.anchor/.test(path)) {
+                // anchor change
+
                 if (setting.anchor) return;
                 setting.anchor = true;
 
@@ -111,9 +111,9 @@ editor.once('load', function () {
 
                     setting.anchor = false;
                 });
-            }
-            // pivot change
-            else if (/^components.element.pivot/.test(path)) {
+            } else if (/^components.element.pivot/.test(path)) {
+                // pivot change
+
                 if (setting.pivot) return;
 
                 setting.pivot = true;
@@ -135,9 +135,9 @@ editor.once('load', function () {
 
                     setting.pivot = false;
                 });
-            }
-            // width / height change
-            else if (/^components.element.(width|height)/.test(path)) {
+            } else if (/^components.element.(width|height)/.test(path)) {
+                // width / height change
+
                 if (setting.size) return;
 
                 setting.size = true;
@@ -154,9 +154,9 @@ editor.once('load', function () {
 
                     setting.size = false;
                 });
-            }
-            // margin change
-            else if (/^components.element.margin/.test(path)) {
+            } else if (/^components.element.margin/.test(path)) {
+                // margin change
+
                 if (setting.margin) return;
 
                 setting.margin = true;
@@ -179,9 +179,9 @@ editor.once('load', function () {
 
                     setting.margin = false;
                 });
-            }
-            // autoWidth change
-            else if (/^components.element.autoWidth/.test(path)) {
+            } else if (/^components.element.autoWidth/.test(path)) {
+                // autoWidth change
+
                 if (setting.autoWidth) return;
 
                 setting.autoWidth = true;
@@ -194,9 +194,9 @@ editor.once('load', function () {
                     entity.history.enabled = history;
                     setting.autoWidth = false;
                 });
-            }
-            // autoHeight change
-            else if (/^components.element.autoHeight/.test(path)) {
+            } else if (/^components.element.autoHeight/.test(path)) {
+                // autoHeight change
+
                 if (setting.autoHeight) return;
 
                 setting.autoHeight = true;
@@ -209,9 +209,9 @@ editor.once('load', function () {
                     entity.history.enabled = history;
                     setting.autoHeight = false;
                 });
-            }
-            // text / font change
-            else if (/^components.element.(text|fontAsset)/.test(path)) {
+            } else if (/^components.element.(text|fontAsset)/.test(path)) {
+                // text / font change
+
                 if (setting.text) return;
 
                 setting.text = true;
@@ -234,23 +234,23 @@ editor.once('load', function () {
                     });
 
                 }
-            }
-            // disabling a layout group
-            else if (/^components.layoutgroup.enabled/.test(path)) {
+            } else if (/^components.layoutgroup.enabled/.test(path)) {
+                // disabling a layout group
+
                 if (value === false && valueOld === true) {
                     editor.call('entities:layout:storeLayout', entity.get('children'));
                 }
-            }
-            // excluding a layout child from the layout
-            else if (/^components.layoutchild.excludeFromLayout/.test(path)) {
+            } else if (/^components.layoutchild.excludeFromLayout/.test(path)) {
+                // excluding a layout child from the layout
+
                 if (value === true && valueOld === false) {
                     editor.call('entities:layout:storeLayout', [entity.entity.getGuid()]);
                 }
-            }
-            // switching the orientation of a scrollbar - we need to update the anchoring
-            // and margins of the track element and handle element to account for the new
-            // orientation.
-            else if (/^components.scrollbar.orientation/.test(path)) {
+            } else if (/^components.scrollbar.orientation/.test(path)) {
+                // switching the orientation of a scrollbar - we need to update the anchoring
+                // and margins of the track element and handle element to account for the new
+                // orientation.
+
                 if (value !== valueOld) {
                     var orientation = value;
 

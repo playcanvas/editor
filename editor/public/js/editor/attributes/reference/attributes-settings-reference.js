@@ -69,7 +69,7 @@ editor.once('load', function () {
     }, {
         name: 'areaLights',
         title: 'Area Lights',
-        description: 'Add necessary assets to render area lights correctly',
+        description: 'Add necessary assets to render area lights correctly'
     }, {
         title: 'skyboxMip',
         subTitle: '{Number}',

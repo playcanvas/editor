@@ -7,10 +7,10 @@
  * @param {string} [args.header] - The box title
  * @param {string} [args.headerNote] - The text of the note next to the header
  * @param {boolean} [args.createTargetCheckpoint] - If true then this box will also contain a panel to take a checkpoint in the target branch
- * @param {string} [args.targetCheckpointHelp] The text of the help tooltip in the target checkpoint panel
+ * @param {string} [args.targetCheckpointHelp] - The text of the help tooltip in the target checkpoint panel
  * @param {boolean} [args.createSourceCheckpoint] - If true then this box will also contain a panel to take a checkpoint in the source branch
- * @param {string} [args.sourceCheckpointHelp] The text of the help tooltip in the source checkpoint panel
- * @param {Boolean} [args.noIcon] If true the box header will not have a top left icon
+ * @param {string} [args.sourceCheckpointHelp] - The text of the help tooltip in the source checkpoint panel
+ * @param {boolean} [args.noIcon] - If true the box header will not have a top left icon
  */
 var VersionControlSidePanelBox = function (args) {
     Events.call(this);

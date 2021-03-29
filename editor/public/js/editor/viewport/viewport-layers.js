@@ -1,10 +1,10 @@
 editor.once('load', function () {
     'use strict';
 
-    var app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    const app = editor.call('viewport:app');
+    if (!app) return; // webgl not available
 
-    var projectSettings = editor.call('settings:project');
+    const projectSettings = editor.call('settings:project');
 
     var layerIndex = {};
 
@@ -157,7 +157,6 @@ editor.once('load', function () {
         var i, len;
         var composition = new pc.LayerComposition("viewport-layers");
 
-        var index = {};
         for (const key in layers) {
             layerIndex[key] = createLayer(key, layers[key]);
         }
@@ -182,5 +181,4 @@ editor.once('load', function () {
     };
 
     editor.on('settings:project:load', initLayers);
-
 });

@@ -179,7 +179,6 @@ editor.once('load', function () {
         args.containsCharsTolerance = args.containsCharsTolerance || 0.5;
         args.editsDistanceTolerance = args.editsDistanceTolerance || 0.5;
 
-        var result = [];
         var records = [];
 
         for (let i = 0; i < items.length; i++) {
