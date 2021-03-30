@@ -2,7 +2,6 @@ editor.once("load", function () {
     'use strict';
 
     const WHITELISTED_FOR_EVERYONE = {
-        'hasPcuiAssetsPanel': true
     };
 
     editor.method('users:hasOpenedEditor', function () {

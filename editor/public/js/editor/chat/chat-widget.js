@@ -17,17 +17,15 @@ editor.once('load', function () {
     });
     viewport.append(panel);
 
-    if (editor.call('users:hasFlag', 'hasPcuiAssetsPanel')) {
-        var assetPanel = editor.call('layout.assets');
+    const assetPanel = editor.call('layout.assets');
 
-        const adjustPosition = () => {
-            panel.style.bottom = assetPanel.collapsed ? '36px' : '4px';
-        };
+    const adjustPosition = () => {
+        panel.style.bottom = assetPanel.collapsed ? '36px' : '4px';
+    };
 
-        adjustPosition();
-        assetPanel.on('collapse', adjustPosition);
-        assetPanel.on('expand', adjustPosition);
-    }
+    adjustPosition();
+    assetPanel.on('collapse', adjustPosition);
+    assetPanel.on('expand', adjustPosition);
 
     editor.method('chat:panel', function () {
         return panel;
