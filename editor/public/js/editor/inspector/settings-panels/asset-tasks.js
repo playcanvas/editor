@@ -29,13 +29,6 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'settings',
-            label: 'Server-side Add Template Instance',
-            type: 'boolean',
-            alias: 'asset-tasks:serverTemplateInstance',
-            path: 'editor.pipeline.templateInstance'
-        },
-        {
-            observer: 'settings',
             label: 'Textures POT',
             type: 'boolean',
             alias: 'asset-tasks:texturePot',
@@ -149,7 +142,7 @@ Object.assign(pcui, (function () {
             this._attributesInspector.class.add(CLASS_ATTRIBUTES);
 
             // add sections
-            this._appendSection('Texture Import Settings', this._attributesInspector.getField('editor.pipeline.templateInstance'));
+            this._appendSection('Texture Import Settings', this._attributesInspector.getField('editor.pipeline.entityCopy'));
             this._appendSection('Model Import Settings', this._attributesInspector.getField('editor.pipeline.textureDefaultToAtlas'));
             this._appendSection('Animation Import Settings', this._attributesInspector.getField('editor.pipeline.useContainers'));
 
@@ -187,11 +180,6 @@ Object.assign(pcui, (function () {
             if (!editor.call('users:hasFlag', 'hasPipelineEntityCopy')) {
                 this._attributesInspector.getField('editor.pipeline.entityCopy').parent.hidden = true;
             }
-
-            if (!editor.call('users:hasFlag', 'hasPipelineTemplateInstance')) {
-                this._attributesInspector.getField('editor.pipeline.templateInstance').parent.hidden = true;
-            }
-
         }
 
         _appendSection(title, attributeElement) {

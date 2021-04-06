@@ -39,8 +39,7 @@ editor.once('load', function () {
                     animSampleRate: 10,
                     animCurveTolerance: 0,
                     animEnableCubic: false,
-                    entityCopy: false,
-                    templateInstance: false
+                    entityCopy: false
                 }
             },
             branch: config.self.branch.id,
@@ -97,10 +96,6 @@ editor.once('load', function () {
 
             if (!settings.has('editor.pipeline.entityCopy')) {
                 settings.set('editor.pipeline.entityCopy', false);
-            }
-
-            if (!settings.has('editor.pipeline.templateInstance')) {
-                settings.set('editor.pipeline.templateInstance', false);
             }
 
             if (! settings.has('editor.locale')) {

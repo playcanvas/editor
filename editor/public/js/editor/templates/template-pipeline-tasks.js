@@ -98,29 +98,7 @@ editor.once('load', function () {
         }
     }
 
-    function addMultipleInstancesInEditor(data, parent, childIndex, callback) {
-        const result = [];
-        data.forEach(d => {
-            if (!d.opts) {
-                d.opts = {};
-            }
-            d.opts.childIndex = childIndex;
-            const entity = editor.call('template:addInstanceInFrontEnd', d.asset, parent, d.opts);
-            result.push(entity.get('resource_id'));
-        });
-
-        if (callback) {
-            callback(result);
-        }
-    }
-
     editor.method('template:addMultipleInstances', function (data, parent, childIndex, callback) {
-        const projectUserSettings = editor.call('settings:projectUser');
-        if (!editor.call('users:hasFlag', 'hasPipelineTemplateInstance') ||
-            !projectUserSettings.get('editor.pipeline.templateInstance')) {
-            return addMultipleInstancesInEditor(data, parent, childIndex, callback);
-        }
-
         const jobId = randomGuid();
 
         const taskData = {
