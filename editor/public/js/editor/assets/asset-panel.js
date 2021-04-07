@@ -133,6 +133,96 @@ Object.assign(pcui, (function () {
         return Math.floor(Math.random() * 16777215).toString(16);
     }
 
+    // Helper class for asset grid view item
+    class AssetGridViewItem extends pcui.GridViewItem {
+        constructor(args) {
+            super(args);
+
+            this.class.add(CLASS_ASSET_GRID_ITEM);
+
+            this.thumbnail = new pcui.AssetThumbnail({
+                assets: args.assets,
+                canvasWidth: 64,
+                canvasHeight: 64
+            });
+
+            this.prepend(this.thumbnail);
+
+            this.containerUsers = new pcui.Container({
+                flex: true,
+                class: CLASS_USERS_CONTAINER,
+                hidden: true
+            });
+            this.append(this.containerUsers);
+            this.containerUsers.on('append', () => {
+                this.containerUsers.hidden = false;
+            });
+            this.containerUsers.on('remove', () => {
+                if (this.containerUsers.dom.childNodes.length === 0) {
+                    this.containerUsers.hidden = true;
+                }
+            });
+
+            this._asset = null;
+        }
+
+        showProgress() {
+            if (!this.progress) {
+                this.progress = new pcui.Progress({
+                    value: 100,
+                    hidden: true
+                });
+
+                this.appendAfter(this.progress, this.thumbnail);
+            }
+
+            return this.progress;
+        }
+
+        hideProgress() {
+            if (this.progress) {
+                this.progress.destroy();
+                this.progress = null;
+            }
+        }
+
+        link(asset) {
+            super.link(asset, 'name');
+
+            this._asset = asset;
+
+            this.class.add('type-' + this._asset.get('type'));
+
+            // pass the whole asset observer as the value
+            // because we do not want the thumbnail to search the
+            // asset list for the asset (e.g. this might be a dummy
+            // asset like the script folder for legacy scripts). Also
+            // if the asset is missing from the asset list for some reason
+            // we still want to show a valid icon for it and not a 'missing' icon.
+            this.thumbnail.value = asset;
+            if (asset.get('source')) {
+                this.class.add(CLASS_ASSET_SOURCE);
+            } else {
+                if (!editor.call('assets:used:get', asset.get('id'))) {
+                    this.class.add(CLASS_ASSET_NOT_REFERENCED);
+                }
+            }
+        }
+
+        unlink() {
+            if (!this._asset) return;
+
+            super.unlink();
+
+            this.classRemove(CLASS_ASSET_SOURCE);
+            this.classRemove(CLASS_ASSET_NOT_REFERENCED);
+            this.class.remove('type-' + this._asset.get('type'));
+
+            this._asset = null;
+            this.thumbnail.value = null;
+        }
+    }
+
     /**
      * @name pcui.AssetPanel
      * @classdesc Shows assets in various ways. Supports a grid view with large or
@@ -2390,97 +2480,6 @@ Object.assign(pcui, (function () {
     AssetPanel.VIEW_SMALL_GRID = 'sgrid';
     AssetPanel.VIEW_DETAILS = 'details';
     AssetPanel.LEGACY_SCRIPTS_ID = LEGACY_SCRIPTS_ID;
-
-
-    // Helper class for asset grid view item
-    class AssetGridViewItem extends pcui.GridViewItem {
-        constructor(args) {
-            super(args);
-
-            this.class.add(CLASS_ASSET_GRID_ITEM);
-
-            this.thumbnail = new pcui.AssetThumbnail({
-                assets: args.assets,
-                canvasWidth: 64,
-                canvasHeight: 64
-            });
-
-            this.prepend(this.thumbnail);
-
-            this.containerUsers = new pcui.Container({
-                flex: true,
-                class: CLASS_USERS_CONTAINER,
-                hidden: true
-            });
-            this.append(this.containerUsers);
-            this.containerUsers.on('append', () => {
-                this.containerUsers.hidden = false;
-            });
-            this.containerUsers.on('remove', () => {
-                if (this.containerUsers.dom.childNodes.length === 0) {
-                    this.containerUsers.hidden = true;
-                }
-            });
-
-            this._asset = null;
-        }
-
-        showProgress() {
-            if (!this.progress) {
-                this.progress = new pcui.Progress({
-                    value: 100,
-                    hidden: true
-                });
-
-                this.appendAfter(this.progress, this.thumbnail);
-            }
-
-            return this.progress;
-        }
-
-        hideProgress() {
-            if (this.progress) {
-                this.progress.destroy();
-                this.progress = null;
-            }
-        }
-
-        link(asset) {
-            super.link(asset, 'name');
-
-            this._asset = asset;
-
-            this.class.add('type-' + this._asset.get('type'));
-
-            // pass the whole asset observer as the value
-            // because we do not want the thumbnail to search the
-            // asset list for the asset (e.g. this might be a dummy
-            // asset like the script folder for legacy scripts). Also
-            // if the asset is missing from the asset list for some reason
-            // we still want to show a valid icon for it and not a 'missing' icon.
-            this.thumbnail.value = asset;
-            if (asset.get('source')) {
-                this.class.add(CLASS_ASSET_SOURCE);
-            } else {
-                if (!editor.call('assets:used:get', asset.get('id'))) {
-                    this.class.add(CLASS_ASSET_NOT_REFERENCED);
-                }
-            }
-        }
-
-        unlink() {
-            if (!this._asset) return;
-
-            super.unlink();
-
-            this.classRemove(CLASS_ASSET_SOURCE);
-            this.classRemove(CLASS_ASSET_NOT_REFERENCED);
-            this.class.remove('type-' + this._asset.get('type'));
-
-            this._asset = null;
-            this.thumbnail.value = null;
-        }
-    }
 
     return {
         AssetPanel: AssetPanel

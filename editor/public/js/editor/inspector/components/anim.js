@@ -19,6 +19,11 @@ Object.assign(pcui, (function () {
             }
         },
         {
+            label: 'Root Bone',
+            path: 'components.anim.rootBone',
+            type: 'entity'
+        },
+        {
             type: 'divider'
         },
         {
@@ -58,6 +63,7 @@ Object.assign(pcui, (function () {
 
             this._attributesInspector = new pcui.AttributesInspector({
                 assets: args.assets,
+                entities: args.entities,
                 history: args.history,
                 attributes: ATTRIBUTES,
                 templateOverridesInspector: this._templateOverridesInspector
@@ -76,10 +82,10 @@ Object.assign(pcui, (function () {
                 this._addAnimationAssetSlots();
             };
             this.entityStateGraphAssetSetEvent = () => {
-                    this._stateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
-                    this._addAnimationAssetSlots();
-                }
+                this._stateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
+                this._addAnimationAssetSlots();
             };
+        }
 
         _addAnimationAssetSlots() {
             this._clearAnimationSlots();

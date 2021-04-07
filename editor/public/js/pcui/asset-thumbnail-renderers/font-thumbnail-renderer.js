@@ -312,7 +312,15 @@ Object.assign(pcui, (function () {
                     text = '';
                     const chars = this._asset.get('meta.chars');
                     for (let i = 0, len = chars.length; i < len && text.length < 2; i++) {
-                        if (/\s/.test(chars[i])) continue;
+
+                        // skip space character
+                        if (/\s/.test(chars[i]))
+                            continue;
+
+                        // skip characters which doesn't exists in character set
+                        if (!engineAsset.resource.data.chars.hasOwnProperty(chars[i]))
+                            continue;
+
                         text += chars[i];
                     }
                 }
@@ -321,50 +329,52 @@ Object.assign(pcui, (function () {
                 // scene.defaultScreenSpaceTextMaterial.msdfMap = engineAsset.resource.textures[0];
                 scene.defaultScreenSpaceTextMaterial.setParameter('font_sdfIntensity', this._asset.get('data.intensity'));
 
-                const char = engineAsset.resource.data.chars[text[0]];
-                const pxRange = (char && char.range) ? ((char.scale || 1) * char.range) : 2;
-                scene.defaultScreenSpaceTextMaterial.setParameter('font_pxrange', pxRange);
+                if (text){
 
-                const map = char.map || 0;
-                scene.defaultScreenSpaceTextMaterial.setParameter('font_textureWidth', engineAsset.resource.data.info.maps[map].width);
+                    const char = engineAsset.resource.data.chars[text[0]];
+                    const pxRange = (char && char.range) ? ((char.scale || 1) * char.range) : 2;
+                    scene.defaultScreenSpaceTextMaterial.setParameter('font_pxrange', pxRange);
 
-                scene.defaultScreenSpaceTextMaterial.setParameter('outline_thickness', 0);
+                    const map = char.map || 0;
+                    scene.defaultScreenSpaceTextMaterial.setParameter('font_textureWidth', engineAsset.resource.data.info.maps[map].width);
 
-                const shadowOffsetUniform = new Float32Array([0, 0]);
-                scene.defaultScreenSpaceTextMaterial.setParameter('shadow_offset', shadowOffsetUniform);
+                    scene.defaultScreenSpaceTextMaterial.setParameter('outline_thickness', 0);
 
-                scene.defaultScreenSpaceTextMaterial.update();
+                    const shadowOffsetUniform = new Float32Array([0, 0]);
+                    scene.defaultScreenSpaceTextMaterial.setParameter('shadow_offset', shadowOffsetUniform);
 
-                updateMeshes(text, engineAsset.resource);
+                    scene.defaultScreenSpaceTextMaterial.update();
 
-                layer.addMeshInstances(scene.model.meshInstances);
-                layer.addCamera(scene.cameraEntity.camera);
+                    updateMeshes(text, engineAsset.resource);
 
-                // add camera to layer
-                let backupLayers = scene.cameraEntity.camera.layers.slice();
-                let newLayers = scene.cameraEntity.camera.layers;
-                newLayers.push(layer.id);
-                scene.cameraEntity.camera.layers = newLayers;
+                    layer.addMeshInstances(scene.model.meshInstances);
+                    layer.addCamera(scene.cameraEntity.camera);
 
-                app.renderer.renderComposition(layerComposition);
+                    // add camera to layer
+                    let backupLayers = scene.cameraEntity.camera.layers.slice();
+                    let newLayers = scene.cameraEntity.camera.layers;
+                    newLayers.push(layer.id);
+                    scene.cameraEntity.camera.layers = newLayers;
 
-                // restore camera layers
-                scene.cameraEntity.camera.layers = backupLayers;
+                    app.renderer.renderComposition(layerComposition);
+
+                    // restore camera layers
+                    scene.cameraEntity.camera.layers = backupLayers;
 
 
-                // read pixels from texture
-                const device = app.graphicsDevice;
-                device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, rt._glFrameBuffer);
-                device.gl.readPixels(0, 0, width, height, device.gl.RGBA, device.gl.UNSIGNED_BYTE, rt.pixels);
+                    // read pixels from texture
+                    const device = app.graphicsDevice;
+                    device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, rt._glFrameBuffer);
+                    device.gl.readPixels(0, 0, width, height, device.gl.RGBA, device.gl.UNSIGNED_BYTE, rt.pixels);
 
-                // render to canvas
-                const ctx = this._canvas.getContext('2d');
-                ctx.putImageData(new ImageData(rt.pixelsClamped, width, height), (this._canvas.width - width) / 2, (this._canvas.height - height) / 2);
+                    // render to canvas
+                    const ctx = this._canvas.getContext('2d');
+                    ctx.putImageData(new ImageData(rt.pixelsClamped, width, height), (this._canvas.width - width) / 2, (this._canvas.height - height) / 2);
 
-                layer.removeMeshInstances(scene.model.meshInstances);
-                layer.removeCamera(scene.cameraEntity.camera);
+                    layer.removeMeshInstances(scene.model.meshInstances);
+                    layer.removeCamera(scene.cameraEntity.camera);
+                }
             }
-
 
             scene.previewRoot.enabled = false;
             layer.renderTarget = null;

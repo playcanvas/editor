@@ -69,7 +69,7 @@ editor.once('load', function () {
     }, {
         name: 'areaLights',
         title: 'Area Lights',
-        description: 'Add necessary assets to render area lights correctly',
+        description: 'Add necessary assets to render area lights correctly'
     }, {
         title: 'skyboxMip',
         subTitle: '{Number}',
@@ -219,10 +219,6 @@ editor.once('load', function () {
         name: 'asset-tasks:serverEntityCopy',
         title: 'Server-side Entity Copy',
         description: 'If enabled, copy pasting Entities will be executed server-side. Provides a performance boost for large Entity hierarchies.'
-    }, {
-        name: 'asset-tasks:serverTemplateInstance',
-        title: 'Server-side Add Template Instance',
-        description: 'If enabled, adding a Template instance will be executed server-side. Provides a performance boost for large Template assets.'
     }, {
         name: 'asset-tasks:preserveMapping',
         title: 'Preserve model material mappings',

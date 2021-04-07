@@ -69,15 +69,12 @@ editor.on('load', function () {
     // expose
     editor.method('layout.toolbar', function () { return toolbar; });
 
-
-    var hasPcuiAssetsPanel = editor.call('users:hasFlag', 'hasPcuiAssetsPanel');
-
     // hierarchy
     var hierarchyPanel = new pcui.Panel({
         headerText: 'HIERARCHY',
         id: 'layout-hierarchy',
         flex: true,
-        enabled: hasPcuiAssetsPanel,
+        enabled: true,
         width: editor.call('localStorage:get', 'editor:layout:hierarchy:width') || 256,
         panelType: 'normal',
         collapsible: true,
@@ -103,12 +100,6 @@ editor.on('load', function () {
     // expose
     editor.method('layout.hierarchy', function () { return hierarchyPanel; });
 
-    if (!hasPcuiAssetsPanel) {
-        editor.on('permissions:writeState', function (state) {
-            hierarchyPanel.enabled = state;
-        });
-    }
-
     // viewport
     var viewport = new pcui.Container({
         id: 'layout-viewport',
@@ -119,42 +110,23 @@ editor.on('load', function () {
     editor.method('layout.viewport', function () { return viewport; });
 
     // assets
-    var assetsPanel;
-    if (hasPcuiAssetsPanel) {
-        assetsPanel = new pcui.AssetPanel({
-            id: 'layout-assets',
-            class: 'assets',
-            panelType: 'normal',
-            collapsible: true,
-            collapsed: editor.call('localStorage:get', 'editor:layout:assets:collapse') || window.innerHeight <= 480,
-            height: editor.call('localStorage:get', 'editor:layout:assets:height') || 212,
-            resizable: 'top',
-            resizeMin: 106,
-            resizeMax: 106 * 6,
-            viewMode: editor.call('localStorage:get', 'editor:assets:viewMode')
-        });
+    const assetsPanel = new pcui.AssetPanel({
+        id: 'layout-assets',
+        class: 'assets',
+        panelType: 'normal',
+        collapsible: true,
+        collapsed: editor.call('localStorage:get', 'editor:layout:assets:collapse') || window.innerHeight <= 480,
+        height: editor.call('localStorage:get', 'editor:layout:assets:height') || 212,
+        resizable: 'top',
+        resizeMin: 106,
+        resizeMax: 106 * 6,
+        viewMode: editor.call('localStorage:get', 'editor:assets:viewMode')
+    });
 
-        // save changes to viewmode to localStorage
-        assetsPanel.on('viewMode', value => {
-            editor.call('localStorage:set', 'editor:assets:viewMode', value);
-        });
-    } else {
-        assetsPanel = new pcui.Panel({
-            id: 'layout-assets',
-            class: 'assets',
-            headerText: 'ASSETS',
-            flex: true,
-            flexDirection: 'row',
-            panelType: 'normal',
-            collapsible: true,
-            collapsed: editor.call('localStorage:get', 'editor:layout:assets:collapse') || window.innerHeight <= 480,
-            height: editor.call('localStorage:get', 'editor:layout:assets:height') || 212,
-            scrollable: true,
-            resizable: 'top',
-            resizeMin: 106,
-            resizeMax: 106 * 6
-        });
-    }
+    // save changes to viewmode to localStorage
+    assetsPanel.on('viewMode', value => {
+        editor.call('localStorage:set', 'editor:assets:viewMode', value);
+    });
 
     assetsPanel.on('resize', function () {
         editor.call('localStorage:set', 'editor:layout:assets:height', assetsPanel.height);
@@ -204,7 +176,7 @@ editor.on('load', function () {
         attributesPanel.enabled = state;
     });
 
-    // secondary attributes panel 
+    // secondary attributes panel
     var attributesSecondaryPanel = new pcui.Panel({
         headerText: 'INSPECTOR',
         id: 'layout-attributes-secondary',

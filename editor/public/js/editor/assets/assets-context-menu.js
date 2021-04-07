@@ -772,24 +772,6 @@ editor.once('load', function () {
         });
     });
 
-    function onContextMenu(evt, newCurrentAsset) {
-        evt.preventDefault();
-        evt.stopPropagation();
-
-        currentAsset = newCurrentAsset;
-        menu.open = true;
-        menu.position(evt.clientX + 1, evt.clientY);
-    }
-
-    if (!editor.call('users:hasFlag', 'hasPcuiAssetsPanel')) {
-        // folders
-        editor.call('assets:panel:folders').innerElement.addEventListener('contextmenu', (evt) => onContextMenu(evt), false);
-
-        // files
-        editor.call('assets:panel:files').innerElement.addEventListener('contextmenu', (evt) => onContextMenu(evt, null), false);
-    }
-
-
     editor.method('assets:contextmenu:add', function (data) {
         var item = new ui.MenuItem({
             text: data.text,

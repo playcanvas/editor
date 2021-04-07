@@ -96,6 +96,8 @@ Object.assign(pcui, (function () {
 
             this._field('type').on('change', this._toggleFields.bind(this));
 
+            this._handleTypeChange(this._field('type'));
+
             this._suppressToggleFields = false;
 
             this._importAmmoPanel = editor.call('attributes:appendImportAmmo', this);
@@ -112,6 +114,56 @@ Object.assign(pcui, (function () {
 
         _field(name) {
             return this._attributesInspector.getField(`components.collision.${name}`);
+        }
+
+        _handleTypeChange(fieldType) {
+            // when the type changes we need to change the height of the collision
+            // component to 2 if it's a capsule or 1 if it's a cylinder or cone.
+            fieldType.binding.on('history:init', (context) => {
+                // remember previous heights
+                if (['cone', 'capsule', 'cylinder'].includes(fieldType.value)) {
+                    context.prevHeights = context.observers.map(entity => entity.get('components.collision.height'));
+                }
+            });
+
+            fieldType.binding.on('history:undo', (context) => {
+                if (!context.prevHeights) return;
+
+                context.observers.forEach((entity, i) => {
+                    entity = entity.latest();
+                    if (!entity) return;
+
+                    const history = entity.history.enabled;
+                    entity.history.enabled = false;
+                    // set height to previous value
+                    entity.set('components.collision.height', context.prevHeights[i]);
+                    entity.history.enabled = history;
+                });
+            });
+
+            fieldType.binding.on('history:redo', (context) => {
+                if (!context.prevHeights) return;
+
+                context.observers.forEach(entity => {
+                    entity = entity.latest();
+                    if (!entity) return;
+
+                    const history = entity.history.enabled;
+                    entity.history.enabled = false;
+                    const type = entity.get('components.collision.type');
+                    const newHeight = (type === 'cone' || type === 'cylinder') ? 1 : 2;
+                    const height = entity.get('components.collision.height');
+                    // if setting to a capsule from a cone/cylinder and height is still the default
+                    // capsule height then change to new height.
+                    // OR if setting to a cylinder/cone from a capsule and height is still the default
+                    // cylinder / cone height then change to new height.
+                    if (newHeight === 1 && height === 2 ||
+                        newHeight === 2 && height === 1) {
+                        entity.set('components.collision.height', newHeight);
+                    }
+                    entity.history.enabled = history;
+                });
+            });
         }
 
         _toggleFields() {

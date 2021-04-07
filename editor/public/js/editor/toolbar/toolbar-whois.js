@@ -16,18 +16,15 @@ editor.once('load', function () {
         }
     });
 
-    if (editor.call('users:hasFlag', 'hasPcuiAssetsPanel')) {
-        var assetPanel = editor.call('layout.assets');
+    var assetPanel = editor.call('layout.assets');
 
-        const adjustPosition = () => {
-            panel.style.bottom = assetPanel.collapsed ? '34px' : '2px';
-        };
+    const adjustPosition = () => {
+        panel.style.bottom = assetPanel.collapsed ? '34px' : '2px';
+    };
 
-        adjustPosition();
-        assetPanel.on('collapse', adjustPosition);
-        assetPanel.on('expand', adjustPosition);
-    }
-
+    adjustPosition();
+    assetPanel.on('collapse', adjustPosition);
+    assetPanel.on('expand', adjustPosition);
 
     editor.on('whoisonline:add', function (id) {
         for (let i = 0; i < panel.innerElement.childNodes.length; i++) {

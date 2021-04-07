@@ -56,7 +56,7 @@ editor.once('load', function () {
             v: 'closed', t: 'Closed Branches'
         }]
     });
-    fieldBranchesFilter.value = 'open';
+    fieldBranchesFilter.value = 'favorite';
     fieldBranchesFilter.flexGrow = 1;
     panelBranchesFilter.append(fieldBranchesFilter);
 

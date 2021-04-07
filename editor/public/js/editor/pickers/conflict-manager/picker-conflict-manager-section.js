@@ -101,10 +101,10 @@ editor.once('load', function () {
      * @param {string} args.name - The name of the field
      * @param {boolean} args.prettify - If true the name will be 'prettified'
      * @param {string} args.type - The type of the field if it's the same for all base, source and destination values
-     * @param {string} args.baseType The type of the base value
-     * @param {String} args.sourceType The type of the source value
-     * @param {String} args.destType The type of the destination value
-     * @param {Object} args.conflict The conflict object
+     * @param {string} args.baseType - The type of the base value
+     * @param {string} args.sourceType - The type of the source value
+     * @param {string} args.destType - The type of the destination value
+     * @param {object} args.conflict - The conflict object
      */
     ConflictSection.prototype.appendField = function (args) {
         var row = new ui.ConflictSectionRow(this._resolver, args);

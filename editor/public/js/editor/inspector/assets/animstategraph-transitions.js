@@ -5,10 +5,8 @@ Object.assign(pcui, (function () {
     const CLASS_ANIMSTATEGRAPH_TRANSITION = CLASS_ANIMSTATEGRAPH + '-transition';
     const CLASS_ANIMSTATEGRAPH_TRANSITIONS = CLASS_ANIMSTATEGRAPH + '-transitions';
 
-    /*
-     * This helper function moves the the position of an item in the given array from the supplied old_index position to the new_index position.
-     * Used by the AnimstategraphTransitions class to update the transitions order when the _onDragEnd event is fired.
-     */
+    // This helper function moves the the position of an item in the given array from the supplied old_index position to the new_index position.
+    // Used by the AnimstategraphTransitions class to update the transitions order when the _onDragEnd event is fired.
     function arrayMove(arr, old_index, new_index) {
         if (new_index >= arr.length) {
             let k = new_index - arr.length + 1;

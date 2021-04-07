@@ -1,59 +1,59 @@
 editor.once('load', function () {
     'use strict';
 
-    var handleWidth = 10;
-    var pivotWidth = 7;
+    const handleWidth = 10;
+    const pivotWidth = 7;
 
-    var COLOR_GRAY = '#B1B8BA';
-    var COLOR_DARKEST = '#20292b';
-    var COLOR_DARK = '#1B282B';
-    var COLOR_GREEN = '#0f0';
-    var COLOR_ORANGE = '#f60';
-    var COLOR_TRANSPARENT_ORANGE = '#ff660099';
-    var COLOR_BLUE = '#00f';
+    const COLOR_GRAY = '#B1B8BA';
+    const COLOR_DARKEST = '#20292b';
+    const COLOR_DARK = '#1B282B';
+    const COLOR_GREEN = '#0f0';
+    const COLOR_ORANGE = '#f60';
+    const COLOR_TRANSPARENT_ORANGE = '#ff660099';
+    const COLOR_BLUE = '#00f';
 
-    var atlasAsset = null;
-    var atlasImage = new Image();
-    var atlasImageLoaded = false;
-    var atlasImageDataCanvas = document.createElement('canvas');
-    var atlasImageData = null;
+    let atlasAsset = null;
+    let atlasImage = new Image();
+    let atlasImageLoaded = false;
+    const atlasImageDataCanvas = document.createElement('canvas');
+    let atlasImageData = null;
 
-    var shiftDown = false;
-    var ctrlDown = false;
-    var leftButtonDown = false;
-    var rightButtonDown = false;
+    let shiftDown = false;
+    let ctrlDown = false;
+    let leftButtonDown = false;
+    let rightButtonDown = false;
 
-    var panning = false;
-    var spriteEditMode = false;
+    let panning = false;
+    let spriteEditMode = false;
 
-    var newFrame = null;
-    var hoveredFrame = null;
-    var oldFrame = null;
+    let newFrame = null;
+    let hoveredFrame = null;
+    let oldFrame = null;
 
-    var selectedHandle = null;
-    var hoveringHandle = null;
-    var startingHandleFrame = null;
-    var startingHandleCoords = { x: 0, y: 0 };
+    let selectedHandle = null;
+    let hoveringHandle = null;
+    let startingHandleFrame = null;
+    const startingHandleCoords = { x: 0, y: 0 };
 
-    var resizeInterval = null;
-    var pivotX = 0;
-    var pivotY = 0;
-    var pivotOffsetX = 0;
-    var pivotOffsetY = 0;
-    var zoomOffsetX = 0;
-    var zoomOffsetY = 0;
-    var prevMouseX = 0;
-    var prevMouseY = 0;
-    var mouseX = 0;
-    var mouseY = 0;
-    var aspectRatio = 1;
-    var canvasRatio = 1;
+    let resizeInterval = null;
+    let pivotX = 0;
+    let pivotY = 0;
+    let pivotOffsetX = 0;
+    let pivotOffsetY = 0;
+    let zoomOffsetX = 0;
+    let zoomOffsetY = 0;
+    let prevMouseX = 0;
+    let prevMouseY = 0;
+    let mouseX = 0;
+    let mouseY = 0;
+    let aspectRatio = 1;
+    let canvasRatio = 1;
 
-    var queuedRender = false;
+    let queuedRender = false;
 
-    var suspendCloseUndo = false;
+    let suspendCloseUndo = false;
 
-    var HANDLE = {
+    const HANDLE = {
         TOP_LEFT: 1,
         TOP_RIGHT: 2,
         BOTTOM_LEFT: 3,
@@ -74,26 +74,26 @@ editor.once('load', function () {
         LEFT: 18
     };
 
-    var events = [];
+    const events = [];
 
     // create UI
-    var root = editor.call('layout.root');
+    const root = editor.call('layout.root');
 
     // overlay
-    var overlay = new ui.Overlay();
+    const overlay = new ui.Overlay();
     overlay.class.add('sprites-editor');
     overlay.hidden = true;
     root.append(overlay);
 
 
-    var panel = new ui.Panel();
+    const panel = new ui.Panel();
     panel.class.add('root-panel');
     panel.flex = true;
     panel.flexDirection = 'row';
     panel.header = 'SPRITE EDITOR';
     overlay.append(panel);
     // close button
-    var btnClose = new ui.Button({
+    const btnClose = new ui.Button({
         text: '&#57650;'
     });
     btnClose.class.add('close');
@@ -102,20 +102,20 @@ editor.once('load', function () {
     });
     panel.headerElement.appendChild(btnClose.element);
 
-    var leftColumns = new ui.Panel();
+    const leftColumns = new ui.Panel();
     leftColumns.class.add('left-columns');
     leftColumns.flex = true;
     leftColumns.flexGrow = true;
     leftColumns.flexDirection = 'column';
     panel.append(leftColumns);
 
-    var leftRows = new ui.Panel();
+    const leftRows = new ui.Panel();
     leftRows.class.add('left-rows');
     leftRows.flex = true;
     leftRows.flexDirection = 'row';
     leftColumns.append(leftRows);
 
-    var leftPanel = new ui.Panel();
+    const leftPanel = new ui.Panel();
     leftPanel.class.add('left-panel');
     // leftPanel.class.add('attributes');
     leftPanel.flexShrink = false;
@@ -130,7 +130,7 @@ editor.once('load', function () {
     leftRows.append(leftPanel);
 
     // middle panel
-    var middlePanel = new ui.Panel();
+    const middlePanel = new ui.Panel();
     middlePanel.class.add('middle-panel');
     middlePanel.flex = true;
     middlePanel.flexGrow = true;
@@ -138,21 +138,21 @@ editor.once('load', function () {
     leftRows.append(middlePanel);
 
     // canvas
-    var canvasPanel = new ui.Panel();
+    const canvasPanel = new ui.Panel();
     canvasPanel.class.add('canvas-panel');
     canvasPanel.flexible = true;
     canvasPanel.flexGrow = true;
     middlePanel.append(canvasPanel);
 
-    var canvas = new ui.Canvas();
+    const canvas = new ui.Canvas();
     canvas.class.add('canvas');
     canvasPanel.append(canvas);
 
     // Canvas Context
-    var ctx = canvas.element.getContext("2d");
+    const ctx = canvas.element.getContext("2d");
 
     // bottom panel
-    var bottomPanel = new ui.Panel('SPRITE ASSETS');
+    const bottomPanel = new ui.Panel('SPRITE ASSETS');
     bottomPanel.class.add('bottom-panel');
     bottomPanel.innerElement.style.height = '219px';
     bottomPanel.foldable = true;
@@ -165,75 +165,17 @@ editor.once('load', function () {
     middlePanel.append(bottomPanel);
 
     // // Canvas control
-    var canvasControl = new ui.Panel();
+    const canvasControl = new ui.Panel();
     canvasControl.flex = true;
     canvasControl.flexDirection = 'row';
     canvasControl.class.add('canvas-control');
     leftColumns.append(canvasControl);
 
-    // var alphaControl = new ui.Panel();
-    // alphaControl.class.add('alpha-control');
-    // alphaControl.flex = true;
-    // alphaControl.flexDirection = 'row';
-    // alphaControl.append(new ui.Label({
-    //     text: 'Alpha'
-    // }));
-    // canvasControl.append(alphaControl);
-
-    // var zoomControl = new ui.Panel();
-    // zoomControl.class.add('slider-control');
-    // zoomControl.flex = true;
-    // zoomControl.flexDirection = 'row';
-    // zoomControl.append(new ui.Label({
-    //     text: 'Zoom'
-    // }));
-
-    // var zoomField = new ui.NumberField({
-    //     min: 1,
-    //     precision: 2,
-    //     placeholder: 'X',
-    // });
-    // zoomField.link(controls, 'zoom');
-    // zoomControl.append(zoomField);
-    // var zoomSlider = new ui.Slider({
-    //     min: 1,
-    //     max: 100,
-    //     precision: 2,
-    // });
-    // zoomSlider.link(controls, 'zoom');
-    // zoomControl.append(zoomSlider);
-    // canvasControl.append(zoomControl);
-
-    // var brightnessControl = new ui.Panel();
-    // brightnessControl.class.add('slider-control');
-    // brightnessControl.flex = true;
-    // brightnessControl.flexDirection = 'row';
-    // brightnessControl.append(new ui.Label({
-    //     text: 'Brightness'
-    // }));
-
-    // var brightnessField = new ui.NumberField({
-    //     min: 0,
-    //     max: 100,
-    //     precision: 1,
-    //     placeholder: '%',
-    // });
-    // brightnessField.link(controls, 'brightness');
-    // brightnessControl.append(brightnessField);
-    // var brightnessSlider = new ui.Slider({
-    //     min: 0,
-    //     max: 100,
-    //     precision: 1,
-    // });
-    // brightnessSlider.link(controls, 'brightness');
-    // brightnessControl.append(brightnessSlider);
-    // canvasControl.append(brightnessControl);
-
     // Right panel
-    var rightPanel = null;
+    let rightPanel = null;
 
     // controls observer (for zoom/brightness).
-    var controls = new Observer({
+    const controls = new Observer({
         zoom: 1,
         brightness: 100
     });
@@ -260,7 +202,7 @@ editor.once('load', function () {
     };
 
     var frameTop = function (frame, topOffset, scaledHeight) {
-        var inverted = 1 - (frame.rect[1] + frame.rect[3]) / atlasImage.height;
+        const inverted = 1 - (frame.rect[1] + frame.rect[3]) / atlasImage.height;
         return topOffset + inverted * scaledHeight;
     };
 
@@ -273,7 +215,7 @@ editor.once('load', function () {
     };
 
     var windowToCanvas = function (windowX, windowY) {
-        var rect = canvas.element.getBoundingClientRect();
+        const rect = canvas.element.getBoundingClientRect();
         return {
             x: Math.round(windowX - rect.left),
             y: Math.round(windowY - rect.top)
@@ -281,10 +223,10 @@ editor.once('load', function () {
     };
 
     var resizeCanvas = function () {
-        var result = false;
+        let result = false;
 
-        var width = canvasPanel.element.clientWidth;
-        var height = canvasPanel.element.clientHeight;
+        const width = canvasPanel.element.clientWidth;
+        const height = canvasPanel.element.clientHeight;
 
         // If it's resolution does not match change it
         if (canvas.width !== width || canvas.height !== height) {
@@ -332,7 +274,7 @@ editor.once('load', function () {
                     return;
                 }
 
-                var spriteAsset = editor.call('picker:sprites:selectedSprite');
+                const spriteAsset = editor.call('picker:sprites:selectedSprite');
                 if (spriteAsset) {
                     if (spriteEditMode) {
                         editor.call('picker:sprites:pickFrames:cancel');
@@ -342,7 +284,7 @@ editor.once('load', function () {
                         });
                     }
                 } else {
-                    var selected = editor.call('picker:sprites:selectedFrame');
+                    let selected = editor.call('picker:sprites:selectedFrame');
                     if (selected) {
                         selected = editor.call('picker:sprites:selectFrames', null, {
                             history: true
@@ -406,9 +348,9 @@ editor.once('load', function () {
             return;
         }
 
-        var p = windowToCanvas(e.clientX, e.clientY);
+        const p = windowToCanvas(e.clientX, e.clientY);
 
-        var selected = editor.call('picker:sprites:selectedFrame');
+        let selected = editor.call('picker:sprites:selectedFrame');
 
         // if a frame is already selected try to select one of its handles
         if (selected && !ctrlDown) {
@@ -426,7 +368,7 @@ editor.once('load', function () {
 
         // if no handle selected try to select the frame under the cursor
         if (!selected || !selectedHandle) {
-            var frameUnderCursor = framesHitTest(p);
+            const frameUnderCursor = framesHitTest(p);
             if (!frameUnderCursor) {
                 // clear selection unless Ctrl is down
                 if (!ctrlDown) {
@@ -436,8 +378,8 @@ editor.once('load', function () {
                     });
                 }
             } else {
-                var keys = spriteEditMode ? editor.call('picker:sprites:newSpriteFrames') : editor.call('picker:sprites:highlightedFrames');
-                var idx = keys.indexOf(frameUnderCursor);
+                let keys = spriteEditMode ? editor.call('picker:sprites:newSpriteFrames') : editor.call('picker:sprites:highlightedFrames');
+                const idx = keys.indexOf(frameUnderCursor);
                 // deselect already highlighted frame if ctrl is pressed
                 if (idx !== -1 && ctrlDown) {
                     keys = keys.slice();
@@ -459,11 +401,11 @@ editor.once('load', function () {
 
         // if no frame selected then start a new frame
         if (!selected && !spriteEditMode && editor.call('permissions:write')) {
-            var diffX = clamp((p.x - imageLeft()) / imageWidth(), 0, 1);
-            var diffY = clamp((1 - (p.y - imageTop()) / imageHeight()), 0, 1);
+            const diffX = clamp((p.x - imageLeft()) / imageWidth(), 0, 1);
+            const diffY = clamp((1 - (p.y - imageTop()) / imageHeight()), 0, 1);
 
-            var x = Math.floor(atlasImage.width * diffX);
-            var y = Math.floor(atlasImage.height * diffY);
+            const x = Math.floor(atlasImage.width * diffX);
+            const y = Math.floor(atlasImage.height * diffY);
             newFrame = {
                 rect: [x, y, 0, 0],
                 pivot: [0.5, 0.5],
@@ -487,11 +429,11 @@ editor.once('load', function () {
             return;
         }
 
-        var p = windowToCanvas(mouseX, mouseY);
+        const p = windowToCanvas(mouseX, mouseY);
 
-        var selected = editor.call('picker:sprites:selectedFrame');
+        const selected = editor.call('picker:sprites:selectedFrame');
 
-        var previousHoveringHandle = hoveringHandle;
+        const previousHoveringHandle = hoveringHandle;
         hoveringHandle = null;
 
         // if a handle is selected then modify the selected frame
@@ -499,11 +441,11 @@ editor.once('load', function () {
             modifyFrame(selectedHandle, newFrame, p);
             queueRender();
         } else if (selected && selectedHandle) {
-            var frame = atlasAsset.get('data.frames.' + selected);
+            const frame = atlasAsset.get('data.frames.' + selected);
             modifyFrame(selectedHandle, frame, p);
 
             // set asset so that other users can see changes too
-            var history = atlasAsset.history.enabled;
+            const history = atlasAsset.history.enabled;
             atlasAsset.history.enabled = false;
             if (selectedHandle === HANDLE.PIVOT) {
                 atlasAsset.set('data.frames.' + selected + '.pivot', frame.pivot);
@@ -514,10 +456,9 @@ editor.once('load', function () {
             atlasAsset.history.enabled = history;
 
             queueRender();
-        }
-        // if no handle is selected then change cursor if the user hovers over a handle
-        else if (selected) {
-            var selectedFrame = atlasAsset.getRaw('data.frames.' + selected);
+        } else if (selected) {
+            // if no handle is selected then change cursor if the user hovers over a handle
+            let selectedFrame = atlasAsset.getRaw('data.frames.' + selected);
             if (selectedFrame) {
                 selectedFrame = selectedFrame._data;
                 hoveringHandle = handlesHitTest(p, selectedFrame);
@@ -527,7 +468,6 @@ editor.once('load', function () {
         if (hoveringHandle !== previousHoveringHandle) {
             updateCursor();
         }
-
     };
 
     var onMouseUp = function (e) {
@@ -544,7 +484,7 @@ editor.once('load', function () {
             stopPanning();
         }
 
-        var selected = editor.call('picker:sprites:selectedFrame');
+        let selected = editor.call('picker:sprites:selectedFrame');
 
         // if we've been editing a new frame then create it
         if (newFrame) {
@@ -552,7 +492,7 @@ editor.once('load', function () {
             // don't generate it if it's too small
             if (newFrame.rect[2] !== 0 && newFrame.rect[3] !== 0) {
                 // generate key name for new frame
-                var key = 1;
+                let key = 1;
                 for (const existingKey in atlasAsset.getRaw('data.frames')._data) {
                     key = Math.max(parseInt(existingKey, 10) + 1, key);
                 }
@@ -569,9 +509,9 @@ editor.once('load', function () {
             hoveringHandle = null;
             setHandle(null);
             queueRender();
-        }
-        // if we have edited the selected frame then commit the changes
-        else if (selected) {
+        } else if (selected) {
+            // if we have edited the selected frame then commit the changes
+
             // clear selected handle
             if (selectedHandle) {
                 setHandle(null);
@@ -579,8 +519,8 @@ editor.once('load', function () {
             }
 
             if (oldFrame) {
-                var frame = atlasAsset.getRaw('data.frames.' + selected)._data;
-                var dirty = false;
+                const frame = atlasAsset.getRaw('data.frames.' + selected)._data;
+                let dirty = false;
                 for (let i = 0; i < 4; i++) {
                     if (oldFrame.rect[i] !== frame.rect[i]) {
                         dirty = true;
@@ -614,9 +554,9 @@ editor.once('load', function () {
     var onWheel = function (e) {
         e.preventDefault();
 
-        var wheel = e.deltaY > 0 ? -0.1 : (e.deltaY < 0 ? 0.1 : 0);
+        const wheel = e.deltaY > 0 ? -0.1 : (e.deltaY < 0 ? 0.1 : 0);
         if (wheel !== 0) {
-            var newZoom = Math.max(0.7, controls.get('zoom') + wheel);
+            const newZoom = Math.max(0.7, controls.get('zoom') + wheel);
             controls.set('zoom', newZoom);
         }
     };
@@ -627,28 +567,28 @@ editor.once('load', function () {
 
     // Modify a frame using the specified handle
     var modifyFrame = function (handle, frame, mousePoint) {
-        var imgWidth = imageWidth();
-        var imgHeight = imageHeight();
-        var imgLeft = imageLeft();
-        var imgTop = imageTop();
+        const imgWidth = imageWidth();
+        const imgHeight = imageHeight();
+        const imgLeft = imageLeft();
+        const imgTop = imageTop();
 
-        var realWidth = atlasImage.width;
-        var realHeight = atlasImage.height;
+        const realWidth = atlasImage.width;
+        const realHeight = atlasImage.height;
 
-        var p = mousePoint;
+        const p = mousePoint;
 
-        var currentX = realWidth * (p.x - imgLeft) / imgWidth;
+        const currentX = realWidth * (p.x - imgLeft) / imgWidth;
         if (currentX < 0 && startingHandleCoords.x <= 0) return;
-        var currentY = realHeight * (p.y - imgTop) / imgHeight;
+        const currentY = realHeight * (p.y - imgTop) / imgHeight;
         if (currentY < 0 && startingHandleCoords.y <= 0) return;
 
-        var dx = Math.floor(currentX - startingHandleCoords.x);
-        var dy = Math.floor(currentY - startingHandleCoords.y);
+        let dx = Math.floor(currentX - startingHandleCoords.x);
+        let dy = Math.floor(currentY - startingHandleCoords.y);
 
         switch (handle) {
             case HANDLE.TOP_LEFT: {
                 // limit x coord between image edges
-                var x = clamp(startingHandleFrame.rect[0] + dx, 0, realWidth);
+                const x = clamp(startingHandleFrame.rect[0] + dx, 0, realWidth);
                 dx = x - startingHandleFrame.rect[0];
                 frame.rect[0] = startingHandleFrame.rect[0] + dx;
                 // adjust width
@@ -735,12 +675,12 @@ editor.once('load', function () {
                 break;
             }
             case HANDLE.BOTTOM_LEFT: {
-                var x = clamp(startingHandleFrame.rect[0] + dx, 0, realWidth);
+                const x = clamp(startingHandleFrame.rect[0] + dx, 0, realWidth);
                 dx = x - startingHandleFrame.rect[0];
                 frame.rect[0] = startingHandleFrame.rect[0] + dx;
                 frame.rect[2] = startingHandleFrame.rect[2] - dx;
 
-                var y = clamp(startingHandleFrame.rect[1] - dy, 0, realHeight);
+                const y = clamp(startingHandleFrame.rect[1] - dy, 0, realHeight);
                 dy = y - startingHandleFrame.rect[1];
                 frame.rect[1] = startingHandleFrame.rect[1] + dy;
                 frame.rect[3] = startingHandleFrame.rect[3] - dy;
@@ -777,7 +717,7 @@ editor.once('load', function () {
             case HANDLE.BOTTOM_RIGHT: {
                 frame.rect[2] = startingHandleFrame.rect[2] + dx;
 
-                var y = clamp(startingHandleFrame.rect[1] - dy, 0, realHeight);
+                const y = clamp(startingHandleFrame.rect[1] - dy, 0, realHeight);
                 dy = y - startingHandleFrame.rect[1];
                 frame.rect[1] = startingHandleFrame.rect[1] + dy;
                 frame.rect[3] = startingHandleFrame.rect[3] - dy;
@@ -839,12 +779,11 @@ editor.once('load', function () {
                     frame.border[2] = Math.max(frame.rect[2] - frame.border[0], 0);
                 }
 
-
                 break;
             }
             case HANDLE.LEFT: {
                 // limit x coord between image edges
-                var x = clamp(startingHandleFrame.rect[0] + dx, 0, realWidth);
+                const x = clamp(startingHandleFrame.rect[0] + dx, 0, realWidth);
                 dx = x - startingHandleFrame.rect[0];
                 frame.rect[0] = startingHandleFrame.rect[0] + dx;
                 // adjust width
@@ -896,7 +835,7 @@ editor.once('load', function () {
                 break;
             }
             case HANDLE.BOTTOM: {
-                var y = clamp(startingHandleFrame.rect[1] - dy, 0, realHeight);
+                const y = clamp(startingHandleFrame.rect[1] - dy, 0, realHeight);
                 dy = y - startingHandleFrame.rect[1];
                 frame.rect[1] = startingHandleFrame.rect[1] + dy;
                 frame.rect[3] = startingHandleFrame.rect[3] - dy;
@@ -959,10 +898,10 @@ editor.once('load', function () {
                 break;
             }
             case HANDLE.PIVOT: {
-                var left = frameLeft(frame, imgLeft, imgWidth);
-                var top = frameTop(frame, imgTop, imgHeight);
-                var width = frameWidth(frame, imgWidth);
-                var height = frameHeight(frame, imgHeight);
+                const left = frameLeft(frame, imgLeft, imgWidth);
+                const top = frameTop(frame, imgTop, imgHeight);
+                const width = frameWidth(frame, imgWidth);
+                const height = frameHeight(frame, imgHeight);
                 frame.pivot[0] = clamp((p.x - left) / width, 0, 1);
                 frame.pivot[1] = clamp(1 - (p.y - top) / height, 0, 1);
                 break;
@@ -972,8 +911,6 @@ editor.once('load', function () {
                 frame.rect[1] = clamp(startingHandleFrame.rect[1] - (dy), 0, realHeight - frame.rect[3]);
                 break;
             }
-
-
         }
     };
 
@@ -1024,12 +961,12 @@ editor.once('load', function () {
         zoomOffsetX = 0;
         zoomOffsetY = 0;
 
-        var x = 0;
-        var y = 0;
+        let x = 0;
+        let y = 0;
 
         // if the mouse cursor is not on the canvas
         // then use canvas center point as zoom pivot
-        var canvasRect = canvas.element.getBoundingClientRect();
+        const canvasRect = canvas.element.getBoundingClientRect();
         if (mouseX < canvasRect.left || mouseX > canvasRect.right ||
             mouseY < canvasRect.top || mouseY > canvasRect.bottom) {
             x = canvas.width / 2;
@@ -1040,8 +977,8 @@ editor.once('load', function () {
         }
 
         // calculate zoom difference percentage
-        var zoomDiff = (value - oldValue);
-        var z = zoomDiff / oldValue;
+        const zoomDiff = (value - oldValue);
+        const z = zoomDiff / oldValue;
 
         // calculate zoom offset based on the current zoom pivot
         zoomOffsetX = -z * (x - imageLeft()) / canvas.width;
@@ -1066,21 +1003,21 @@ editor.once('load', function () {
 
         if (!atlasImageLoaded) return;
 
-        var selected = editor.call('picker:sprites:selectedFrame');
+        let selected = editor.call('picker:sprites:selectedFrame');
 
         // clear selection if no longer exists
         if (selected && !atlasAsset.has('data.frames.' + selected)) {
             selected = editor.call('picker:sprites:selectFrames', null);
         }
 
-        var left = imageLeft();
-        var top = imageTop();
-        var width = imageWidth();
-        var height = imageHeight();
+        const left = imageLeft();
+        const top = imageTop();
+        const width = imageWidth();
+        const height = imageHeight();
 
-        var highlightedFrames = editor.call('picker:sprites:highlightedFrames');
-        var newSpriteFrames = editor.call('picker:sprites:newSpriteFrames');
-        var spriteAsset = editor.call('picker:sprites:selectedSprite');
+        const highlightedFrames = editor.call('picker:sprites:highlightedFrames');
+        const newSpriteFrames = editor.call('picker:sprites:newSpriteFrames');
+        const spriteAsset = editor.call('picker:sprites:selectedSprite');
 
         // disable smoothing
         ctx.mozImageSmoothingEnabled = false;
@@ -1108,12 +1045,12 @@ editor.once('load', function () {
         );
 
         // scroll checkerboard pattern
-        var checkLeft = left;
-        var checkTop = top;
+        const checkLeft = left;
+        const checkTop = top;
         canvas.style.backgroundPosition = checkLeft + 'px ' + checkTop + 'px, ' + (checkLeft + 12) + 'px ' + (checkTop + 12) + 'px';
 
         // draw frames
-        var frames = atlasAsset.getRaw('data.frames')._data;
+        const frames = atlasAsset.getRaw('data.frames')._data;
         ctx.beginPath();
         ctx.strokeStyle = COLOR_GRAY;
         ctx.lineWidth = 1;
@@ -1129,7 +1066,7 @@ editor.once('load', function () {
         ctx.lineWidth = 1;
         ctx.strokeStyle = spriteAsset ? COLOR_ORANGE : COLOR_DARK;
         for (let i = 0, len = highlightedFrames.length; i < len; i++) {
-            var key = highlightedFrames[i];
+            const key = highlightedFrames[i];
             if (selected && selected === key) continue;
 
             // check if frame no longer exists
@@ -1150,7 +1087,7 @@ editor.once('load', function () {
         ctx.lineWidth = 1;
         ctx.strokeStyle = COLOR_DARK;
         for (let i = 0, len = newSpriteFrames.length; i < len; i++) {
-            var key = newSpriteFrames[i];
+            const key = newSpriteFrames[i];
 
             // check if frame no longer exists
             if (!frames[key]) {
@@ -1169,7 +1106,7 @@ editor.once('load', function () {
         ctx.setLineDash([4]);
         if (!spriteEditMode) {
             for (let i = 0, len = highlightedFrames.length; i < len; i++) {
-                var key = highlightedFrames[i];
+                const key = highlightedFrames[i];
                 if (selected && selected === key) continue;
                 renderBorderLines(frames[key]._data, left, top, width, height);
             }
@@ -1177,7 +1114,7 @@ editor.once('load', function () {
         ctx.stroke();
         ctx.setLineDash([]);
 
-        var frame;
+        let frame;
 
         // render hovered frame
         if (hoveredFrame) {
@@ -1214,10 +1151,10 @@ editor.once('load', function () {
     };
 
     var renderFrame = function (frame, left, top, width, height, offset, renderPivot) {
-        var x = frameLeft(frame, left, width);
-        var y = frameTop(frame, top, height);
-        var w = frameWidth(frame, width);
-        var h = frameHeight(frame, height);
+        const x = frameLeft(frame, left, width);
+        const y = frameTop(frame, top, height);
+        const w = frameWidth(frame, width);
+        const h = frameHeight(frame, height);
 
         offset = offset || 0;
 
@@ -1230,25 +1167,25 @@ editor.once('load', function () {
 
         if (renderPivot) {
             // render pivot
-            var px = x + frame.pivot[0] * w;
-            var py = y + (1 - frame.pivot[1]) * h;
+            const px = x + frame.pivot[0] * w;
+            const py = y + (1 - frame.pivot[1]) * h;
             ctx.moveTo(px, py);
             ctx.arc(px, py, pivotWidth, 0, 2 * Math.PI);
         }
     };
 
     var renderBorderLines = function (frame, left, top, width, height) {
-        var x = frameLeft(frame, left, width);
-        var y = frameTop(frame, top, height);
-        var w = frameWidth(frame, width);
-        var h = frameHeight(frame, height);
+        const x = frameLeft(frame, left, width);
+        const y = frameTop(frame, top, height);
+        const w = frameWidth(frame, width);
+        const h = frameHeight(frame, height);
 
-        var borderWidthModifier = width / atlasImage.width;
-        var borderHeightModifier = height / atlasImage.height;
-        var lb = x + frame.border[0] * borderWidthModifier;
-        var bb = y + h - frame.border[1] * borderHeightModifier;
-        var rb = x + w - frame.border[2] * borderWidthModifier;
-        var tb = y + frame.border[3] * borderHeightModifier;
+        const borderWidthModifier = width / atlasImage.width;
+        const borderHeightModifier = height / atlasImage.height;
+        const lb = x + frame.border[0] * borderWidthModifier;
+        const bb = y + h - frame.border[1] * borderHeightModifier;
+        const rb = x + w - frame.border[2] * borderWidthModifier;
+        const tb = y + frame.border[3] * borderHeightModifier;
 
         // left line
         if (frame.border[0]) {
@@ -1276,24 +1213,23 @@ editor.once('load', function () {
     };
 
     var renderHandles = function (frame, left, top, width, height) {
-        var x = frameLeft(frame, left, width);
-        var y = frameTop(frame, top, height);
-        var w = frameWidth(frame, width);
-        var h = frameHeight(frame, height);
-        var px = x + frame.pivot[0] * w;
-        var py = y + (1 - frame.pivot[1]) * h;
-        var i;
+        const x = frameLeft(frame, left, width);
+        const y = frameTop(frame, top, height);
+        const w = frameWidth(frame, width);
+        const h = frameHeight(frame, height);
+        const px = x + frame.pivot[0] * w;
+        const py = y + (1 - frame.pivot[1]) * h;
 
         ctx.fillStyle = COLOR_BLUE;
         ctx.strokeStyle = COLOR_BLUE;
         ctx.lineWidth = 1;
 
-        var borderWidthModifier = width / atlasImage.width;
-        var borderHeightModifier = height / atlasImage.height;
-        var lb = x + frame.border[0] * borderWidthModifier;
-        var bb = y + h - frame.border[1] * borderHeightModifier;
-        var rb = x + w - frame.border[2] * borderWidthModifier;
-        var tb = y + frame.border[3] * borderHeightModifier;
+        const borderWidthModifier = width / atlasImage.width;
+        const borderHeightModifier = height / atlasImage.height;
+        const lb = x + frame.border[0] * borderWidthModifier;
+        const bb = y + h - frame.border[1] * borderHeightModifier;
+        const rb = x + w - frame.border[2] * borderWidthModifier;
+        const tb = y + frame.border[3] * borderHeightModifier;
 
         // border lines
         ctx.beginPath();
@@ -1481,7 +1417,6 @@ editor.once('load', function () {
             );
         }
 
-
         // top right border
         if (frame.border[2] || frame.border[3]) {
             ctx.fillRect(
@@ -1552,12 +1487,12 @@ editor.once('load', function () {
 
         if (!atlasImageLoaded) return;
 
-        var spriteAsset = editor.call('picker:sprites:selectedSprite');
+        const spriteAsset = editor.call('picker:sprites:selectedSprite');
 
         if (spriteAsset) {
             editor.call('picker:sprites:attributes:sprite', { atlasAsset: atlasAsset, atlasImage: atlasImage, spriteAsset: spriteAsset });
         } else {
-            var highlightedFrames = editor.call('picker:sprites:highlightedFrames');
+            const highlightedFrames = editor.call('picker:sprites:highlightedFrames');
             if (highlightedFrames.length) {
                 editor.call('picker:sprites:attributes:frames', { atlasAsset: atlasAsset, atlasImage: atlasImage, frames: highlightedFrames });
                 editor.call('picker:sprites:attributes:frames:relatedSprites', { atlasAsset: atlasAsset, frames: highlightedFrames });
@@ -1574,18 +1509,18 @@ editor.once('load', function () {
     };
 
     var framesHitTest = function (p) {
-        var imgWidth = imageWidth();
-        var imgHeight = imageHeight();
-        var imgLeft = imageLeft();
-        var imgTop = imageTop();
+        const imgWidth = imageWidth();
+        const imgHeight = imageHeight();
+        const imgLeft = imageLeft();
+        const imgTop = imageTop();
 
-        var frames = atlasAsset.getRaw('data.frames')._data;
+        const frames = atlasAsset.getRaw('data.frames')._data;
         for (const key in frames) {
-            var frame = frames[key]._data;
-            var left = frameLeft(frame, imgLeft, imgWidth);
-            var top = frameTop(frame, imgTop, imgHeight);
-            var width = frameWidth(frame, imgWidth);
-            var height = frameHeight(frame, imgHeight);
+            const frame = frames[key]._data;
+            const left = frameLeft(frame, imgLeft, imgWidth);
+            const top = frameTop(frame, imgTop, imgHeight);
+            const width = frameWidth(frame, imgWidth);
+            const height = frameHeight(frame, imgHeight);
 
             if (rectContainsPoint(p, left, top, width, height)) {
                 return key;
@@ -1598,27 +1533,27 @@ editor.once('load', function () {
     var handlesHitTest = function (p, frame) {
         if (! editor.call('permissions:write')) return false;
 
-        var imgWidth = imageWidth();
-        var imgHeight = imageHeight();
-        var imgLeft = imageLeft();
-        var imgTop = imageTop();
+        const imgWidth = imageWidth();
+        const imgHeight = imageHeight();
+        const imgLeft = imageLeft();
+        const imgTop = imageTop();
 
-        var left = frameLeft(frame, imgLeft, imgWidth);
-        var top = frameTop(frame, imgTop, imgHeight);
-        var width = frameWidth(frame, imgWidth);
-        var height = frameHeight(frame, imgHeight);
+        const left = frameLeft(frame, imgLeft, imgWidth);
+        const top = frameTop(frame, imgTop, imgHeight);
+        const width = frameWidth(frame, imgWidth);
+        const height = frameHeight(frame, imgHeight);
 
-        var borderWidthModifier = imgWidth / atlasImage.width;
-        var borderHeightModifier = imgHeight / atlasImage.height;
-        var lb = left + frame.border[0] * borderWidthModifier;
-        var bb = top + height - frame.border[1] * borderHeightModifier;
-        var rb = left + width - frame.border[2] * borderWidthModifier;
-        var tb = top + frame.border[3] * borderHeightModifier;
+        const borderWidthModifier = imgWidth / atlasImage.width;
+        const borderHeightModifier = imgHeight / atlasImage.height;
+        const lb = left + frame.border[0] * borderWidthModifier;
+        const bb = top + height - frame.border[1] * borderHeightModifier;
+        const rb = left + width - frame.border[2] * borderWidthModifier;
+        const tb = top + frame.border[3] * borderHeightModifier;
 
         // pivot
-        var pivotX = left + frame.pivot[0] * width;
-        var pivotY = top + (1 - frame.pivot[1]) * height;
-        var distFromCenter = Math.sqrt((p.x - pivotX) * (p.x - pivotX) + (p.y - pivotY) * (p.y - pivotY));
+        const pivotX = left + frame.pivot[0] * width;
+        const pivotY = top + (1 - frame.pivot[1]) * height;
+        const distFromCenter = Math.sqrt((p.x - pivotX) * (p.x - pivotX) + (p.y - pivotY) * (p.y - pivotY));
         if (distFromCenter < pivotWidth + 1 && distFromCenter > pivotWidth - 3) {
             return HANDLE.PIVOT;
         }
@@ -1740,7 +1675,7 @@ editor.once('load', function () {
 
 
     var showEditor = function (asset) {
-        var _spriteAsset = null;
+        let _spriteAsset = null;
         if (asset.get('type') === 'textureatlas') {
             atlasAsset = asset;
         } else if (asset.get('type') === 'sprite') {
@@ -1821,7 +1756,7 @@ editor.once('load', function () {
     };
 
     var updateCursor = function () {
-        var cls = middlePanel.class;
+        const cls = middlePanel.class;
 
         cls.remove('ew-resize');
         cls.remove('ns-resize');
@@ -1839,7 +1774,7 @@ editor.once('load', function () {
                 cls.add('grab');
             }
         } else {
-            var handle = selectedHandle !== null ? selectedHandle : hoveringHandle;
+            const handle = selectedHandle !== null ? selectedHandle : hoveringHandle;
             if (handle !== null) {
                 switch (handle) {
                     case HANDLE.LEFT:
@@ -2000,19 +1935,19 @@ editor.once('load', function () {
 
     // Focus the selected frame if one exists otherwise resets view
     editor.method('picker:sprites:focus', function () {
-        var selected = editor.call('picker:sprites:selectedFrame');
+        const selected = editor.call('picker:sprites:selectedFrame');
         // if we have a selected frame then focus on that
         // otherwise completely reset view
         if (selected) {
-            var frame = atlasAsset.getRaw('data.frames.' + selected)._data;
+            const frame = atlasAsset.getRaw('data.frames.' + selected)._data;
 
             // these are derived by solving the equations so that frameLeft + frameWidth / 2 === canvas.width / 2
             // and frameTop + frameHeight / 2 === canvas.height / 2
-            var frameWidthPercentage = (frame.rect[0] + frame.rect[2] / 2) / atlasImage.width;
-            var imageWidthPercentage = imageWidth() / canvas.width;
+            const frameWidthPercentage = (frame.rect[0] + frame.rect[2] / 2) / atlasImage.width;
+            const imageWidthPercentage = imageWidth() / canvas.width;
 
-            var frameHeightPercentage = (atlasImage.height - frame.rect[1] - frame.rect[3] * 0.5) / atlasImage.height;
-            var imageHeightPercentage = imageHeight() / canvas.height;
+            const frameHeightPercentage = (atlasImage.height - frame.rect[1] - frame.rect[3] * 0.5) / atlasImage.height;
+            const imageHeightPercentage = imageHeight() / canvas.height;
 
             // set pivotX and pivotY and zero out the other offsets
             pivotX = 0.5 - frameWidthPercentage * imageWidthPercentage;
@@ -2060,7 +1995,7 @@ editor.once('load', function () {
                 overlay.hidden = true;
             },
             redo: function () {
-                var currentAsset = editor.call('assets:get', asset.get('id'));
+                const currentAsset = editor.call('assets:get', asset.get('id'));
                 if (!currentAsset) return;
 
                 showEditor(currentAsset);
@@ -2083,12 +2018,12 @@ editor.once('load', function () {
     // Clean up
     overlay.on('hide', function () {
         if (!suspendCloseUndo) {
-            var currentAsset = atlasAsset;
+            const currentAsset = atlasAsset;
 
             editor.call('history:add', {
                 name: 'close sprite editor',
                 undo: function () {
-                    var asset = editor.call('assets:get', currentAsset.get('id'));
+                    const asset = editor.call('assets:get', currentAsset.get('id'));
                     if (!asset) return;
 
                     showEditor(asset);

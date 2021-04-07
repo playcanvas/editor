@@ -25,11 +25,11 @@ editor.once('viewport:load', function () {
 
     viewport.append(combo);
 
-    editor.method('layout.viewport.camera', function() {
+    editor.method('layout.viewport.camera', function () {
         return combo;
     });
 
-    combo.on('change', function(value) {
+    combo.on('change', function (value) {
         var entity = app.root.findByGuid(value);
         editor.call('camera:set', entity);
     });

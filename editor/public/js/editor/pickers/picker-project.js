@@ -28,6 +28,8 @@ editor.once('load', function () {
     projectImg.style.backgroundImage = 'url("' + (config.project.thumbnails.m || blankImage) + '")';
     leftPanel.append(projectImg);
 
+    var uploadingImage = false;
+
     var uploadProjectImage = function (file) {
         if (! editor.call('permissions:write'))
             return;
@@ -86,7 +88,6 @@ editor.once('load', function () {
     fileInput.accept = 'image/*';
 
     var currentSelection = null;
-    var uploadingImage = false;
 
     projectImg.addEventListener('click', function () {
         if (! editor.call('permissions:write') || leftPanel.disabled)
@@ -141,6 +142,36 @@ editor.once('load', function () {
         overlay.hidden = true;
     });
     rightPanel.headerElement.appendChild(btnClose.element);
+
+    // activate menu option
+    var select = function (name) {
+        if (! name) return;
+
+        if (currentSelection === name)
+            return;
+
+        currentSelection = name;
+
+        // if this is not a scene URL disallow closing the popup
+        if (!config.scene.id) {
+            editor.call('picker:project:setClosable', false);
+        } else {
+            // reset closable state
+            editor.call('picker:project:setClosable', true);
+        }
+
+        // hide all first
+        for (const key in menuOptions) {
+            menuOptions[key].item.class.remove('active');
+            menuOptions[key].panel.hidden = true;
+        }
+
+        // show desired option
+        menuOptions[name].item.class.add('active');
+        menuOptions[name].panel.hidden = false;
+        rightPanel.headerElementTitle.textContent = menuOptions[name].title;
+        rightPanel.innerElement.scrollTop = 0;
+    };
 
     // register new panel / menu option
     editor.method('picker:project:registerMenu', function (name, title, panel) {
@@ -250,42 +281,10 @@ editor.once('load', function () {
         }
     });
 
-    // activate menu option
-    var select = function (name) {
-        if (! name) return;
-
-        if (currentSelection === name)
-            return;
-
-        currentSelection = name;
-
-        // if this is not a scene URL disallow closing the popup
-        if (!config.scene.id) {
-            editor.call('picker:project:setClosable', false);
-        } else {
-            // reset closable state
-            editor.call('picker:project:setClosable', true);
-        }
-
-        // hide all first
-        for (const key in menuOptions) {
-            menuOptions[key].item.class.remove('active');
-            menuOptions[key].panel.hidden = true;
-        }
-
-        // show desired option
-        menuOptions[name].item.class.add('active');
-        menuOptions[name].panel.hidden = false;
-        rightPanel.headerElementTitle.textContent = menuOptions[name].title;
-        rightPanel.innerElement.scrollTop = 0;
-    };
-
     // subscribe to project image
     editor.on('messenger:project.image', function (data) {
         config.project.thumbnails = data.project.thumbnails;
         projectImg.style.backgroundImage = 'url("' + (data.project.thumbnails && data.project.thumbnails.m || blankImage) + '")';
         projectImg.classList.remove('progress');
     });
-
-
 });

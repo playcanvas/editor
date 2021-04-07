@@ -198,7 +198,7 @@ editor.once('load', function () {
     panelNotes.class.add('notes');
     panel.append(panelNotes);
 
-    var label = new ui.Label({ text: 'Release Notes' });
+    label = new ui.Label({ text: 'Release Notes' });
     label.class.add('field-label');
     panelNotes.append(label);
 
@@ -239,7 +239,7 @@ editor.once('load', function () {
         fieldOptionsConcat.value = true;
         fieldOptionsConcat.class.add('tick');
         panelOptionsConcat.append(fieldOptionsConcat);
-        var label = new ui.Label({ text: 'Concatenate Scripts' });
+        label = new ui.Label({ text: 'Concatenate Scripts' });
         panelOptionsConcat.append(label);
 
         // minify scripts
@@ -250,7 +250,7 @@ editor.once('load', function () {
         fieldOptionsMinify.value = true;
         fieldOptionsMinify.class.add('tick');
         panelOptionsMinify.append(fieldOptionsMinify);
-        var label = new ui.Label({ text: 'Minify Scripts' });
+        label = new ui.Label({ text: 'Minify Scripts' });
         panelOptionsMinify.append(label);
 
         // generate sourcemaps
@@ -261,7 +261,7 @@ editor.once('load', function () {
         fieldOptionsSourcemaps.value = false;
         fieldOptionsSourcemaps.class.add('tick');
         panelOptionsSourcemaps.append(fieldOptionsSourcemaps);
-        var label = new ui.Label({ text: 'Generate Source Maps' });
+        label = new ui.Label({ text: 'Generate Source Maps' });
         panelOptionsSourcemaps.append(label);
 
         fieldOptionsConcat.on('change', value => {

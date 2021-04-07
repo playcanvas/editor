@@ -86,7 +86,7 @@ Object.assign(pcui, (function () {
                 v: 3, t: 'Sphere'
             }]
         }
-    }, {        
+    }, {
         type: 'divider'
     }, {
         label: 'Static',
