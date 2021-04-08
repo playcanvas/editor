@@ -450,21 +450,13 @@ editor.once('load', function () {
 
         if (data.type !== 'entity') return;
 
-        const projectUserSettings = editor.call('settings:projectUser');
-
         // paste on root if no parent specified
         if (!parent)
             parent = editor.call('entities:root');
 
-        const canUseBackend = editor.call('users:hasFlag', 'hasPipelineEntityCopy') &&
-            projectUserSettings.get('editor.pipeline.entityCopy') &&
-            data.project === config.project.id;
-
-        const mustUseBackend = canUseBackend &&
+        if (data.project === config.project.id &&
             (data.branch !== config.self.branch.id ||
-                Object.keys(data.hierarchy).length > COPY_OR_DELETE_IN_BACKEND_LIMIT);
-
-        if (mustUseBackend) {
+             Object.keys(data.hierarchy).length > COPY_OR_DELETE_IN_BACKEND_LIMIT)) {
             // TODO support pasting in different projects
             pasteInBackend(data, parent);
             return;

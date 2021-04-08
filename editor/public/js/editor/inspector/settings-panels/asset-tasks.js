@@ -22,13 +22,6 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'settings',
-            label: 'Server-side Entity Copy',
-            type: 'boolean',
-            alias: 'asset-tasks:serverEntityCopy',
-            path: 'editor.pipeline.entityCopy'
-        },
-        {
-            observer: 'settings',
             label: 'Textures POT',
             type: 'boolean',
             alias: 'asset-tasks:texturePot',
@@ -142,7 +135,7 @@ Object.assign(pcui, (function () {
             this._attributesInspector.class.add(CLASS_ATTRIBUTES);
 
             // add sections
-            this._appendSection('Texture Import Settings', this._attributesInspector.getField('editor.pipeline.entityCopy'));
+            this._appendSection('Texture Import Settings', this._attributesInspector.getField('editor.pipeline.defaultAssetPreload'));
             this._appendSection('Model Import Settings', this._attributesInspector.getField('editor.pipeline.textureDefaultToAtlas'));
             this._appendSection('Animation Import Settings', this._attributesInspector.getField('editor.pipeline.useContainers'));
 
@@ -175,10 +168,6 @@ Object.assign(pcui, (function () {
                         this._attributesInspector.getField('editor.pipeline.useContainers').value = false;
                     }
                 });
-            }
-
-            if (!editor.call('users:hasFlag', 'hasPipelineEntityCopy')) {
-                this._attributesInspector.getField('editor.pipeline.entityCopy').parent.hidden = true;
             }
         }
 
