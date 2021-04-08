@@ -6,6 +6,8 @@ editor.once('load', function () {
     var LAYOUT_FIELDS_AND_FILE_CONFLICTS = 2;
     var LAYOUT_FILE_CONFLICTS_ONLY = 3;
 
+    const MERGE_ERROR = 'Error while merging. Please stop the merge and try again.';
+
     var layoutMode = LAYOUT_NONE;
 
     // if true then we are showing a diff instead of a merge
@@ -566,8 +568,11 @@ editor.once('load', function () {
         showMainProgress(spinnerIcon, 'Completing merge...');
 
         editor.call('branches:applyMerge', config.self.branch.merge.id, true, err => {
-            if (err) {
-                onMergeComplete(err);
+            if (err && !/Reqest timed out/.test(err)) {
+                onMergeError(err);
+                setTimeout(function () {
+                    window.location.reload();
+                }, 2000);
             }
         });
     });
@@ -586,8 +591,11 @@ editor.once('load', function () {
         showMainProgress(spinnerIcon, 'Resolving conflicts...');
 
         editor.call('branches:applyMerge', config.self.branch.merge.id, false, err => {
-            if (err) {
-                onMergeComplete(err);
+            if (err && !/Reqest timed out/.test(err)) {
+                onMergeError(err);
+                setTimeout(function () {
+                    window.location.reload();
+                }, 2000);
             }
         });
     });
@@ -609,39 +617,61 @@ editor.once('load', function () {
         });
     };
 
-    // Called when the merge process is completed
-    var onMergeComplete = function (err) {
-        if (err) {
-            // if there was an error show it in the UI and then go back to the conflicts
-            showMainProgress(errorIcon, err);
-            setTimeout(function () {
-                window.location.reload();
-            }, 2000);
-        } else {
-            // if no error then refresh the browser
-            showMainProgress(completedIcon, 'Merge complete - refreshing browser...');
-            setTimeout(function () {
-                window.location.reload();
-            }, 1000);
-        }
+    // Load current merge and its conflicts if any
+    var loadMerge = function () {
+        showMainProgress(spinnerIcon, 'Loading conflicts...');
+        editor.call('branches:getMerge', config.self.branch.merge.id, function (err, data) {
+            if (err) {
+                return showMainProgress(errorIcon, err);
+            }
+
+            onMergeDataLoaded(data);
+        });
     };
 
-    // Called when we get a merge completed message from the messenger
-    var onMsgMergeComplete = function (data) {
-        if (data.dst_branch_id !== config.self.branch.id) return;
-        if (data.status === 'error') {
-            onMergeComplete(data.message);
-        } else {
-            onMergeComplete();
-        }
+    // Load changes of current merge
+    var loadDiff = function () {
+        showMainProgress(spinnerIcon, 'Loading changes...');
+        editor.call('diff:merge', function (err, data) {
+            if (err) {
+                return showMainProgress(errorIcon, err);
+            }
+
+            onMergeDataLoaded(data);
+        });
+    };
+
+    // Called when the merge process is completed
+    var onMergeComplete = function () {
+        // if no error then refresh the browser
+        showMainProgress(completedIcon, 'Merge complete - refreshing browser...');
+        setTimeout(function () {
+            window.location.reload();
+        }, 1000);
+    };
+
+    var onMergeError = function (err) {
+        // if there was an error show it in the UI
+        showMainProgress(errorIcon, err);
     };
 
     // Called when we get a merge progress status message from the messenger
     var onMsgMergeProgress = function (data) {
         if (data.dst_branch_id !== config.self.branch.id) return;
+
         config.self.branch.merge.mergeProgressStatus = data.status;
+
+        if (data.task_failed) {
+            onMergeError(MERGE_ERROR);
+            return;
+        }
+
         if (data.status === MERGE_STATUS_READY_FOR_REVIEW) {
             onReadyForReview();
+        } else if (data.status === MERGE_STATUS_AUTO_ENDED) {
+            loadMerge();
+        } else if (data.status === MERGE_STATUS_APPLY_ENDED) {
+            onMergeComplete();
         }
     };
 
@@ -728,7 +758,6 @@ editor.once('load', function () {
         // editor-blocking picker opened
         editor.emit('picker:open', 'conflict-manager');
 
-        evtMessengerMergeComplete = editor.on('messenger:merge.complete', onMsgMergeComplete);
         evtMessengerMergeProgress = editor.on('messenger:merge.setProgress', onMsgMergeProgress);
 
         setLayoutMode(LAYOUT_NONE);
@@ -737,32 +766,19 @@ editor.once('load', function () {
             if (diffMode) {
                 // in this case we are doing a diff between the current merge
                 // and the destination checkpoint
-                showMainProgress(spinnerIcon, 'Loading changes...');
-                editor.call('diff:merge', function (err, data) {
-                    if (err) {
-                        return showMainProgress(errorIcon, err);
-                    }
-
-                    onMergeDataLoaded(data);
-                });
-
-            } else if (config.self.branch.merge.mergeProgressStatus === MERGE_STATUS_APPLY_STARTED) {
+                loadDiff();
+            } else if (config.self.branch.merge.task_failed) {
+                onMergeError(MERGE_ERROR);
+            } else if (!config.self.branch.merge.mergeProgressStatus ||
+                       config.self.branch.merge.mergeProgressStatus === MERGE_STATUS_APPLY_STARTED ||
+                       config.self.branch.merge.mergeProgressStatus === MERGE_STATUS_AUTO_STARTED) {
                 showMainProgress(spinnerIcon, 'Merging in progress...');
             } else if (config.self.branch.merge.mergeProgressStatus === MERGE_STATUS_READY_FOR_REVIEW) {
                 onReadyForReview();
-
             } else {
-                // get the conflicts of the current merge
-                showMainProgress(spinnerIcon, 'Loading conflicts...');
-                editor.call('branches:getMerge', config.self.branch.merge.id, function (err, data) {
-                    if (err) {
-                        return showMainProgress(errorIcon, err);
-                    }
-
-                    onMergeDataLoaded(data);
-                });
+                // load current merge
+                loadMerge();
             }
-
         } else {
             onMergeDataLoaded(currentMergeObject);
         }

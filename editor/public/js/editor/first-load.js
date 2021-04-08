@@ -14,6 +14,7 @@
             // otherwise if another user started then show the merge in progress overlay
             if (merge.user.id === config.self.id) {
                 switch (merge.mergeProgressStatus) {
+                    case MERGE_STATUS_AUTO_STARTED:
                     case MERGE_STATUS_APPLY_STARTED:
                         editor.call('picker:conflictManager');
                         break;

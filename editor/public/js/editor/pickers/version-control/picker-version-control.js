@@ -269,33 +269,39 @@ editor.once('load', function () {
         var merge = function () {
             showRightSidePanel(panelMergeBranchesProgress);
 
-            editor.call('branches:merge', sourceBranch.id, destinationBranch.id, function (err, data) {
-                panelMergeBranchesProgress.finish(err);
-                if (err) {
-                    togglePanels(true);
-                } else {
-                    // update merge object in config
+            let evtOnMergeCreated = editor.on('messenger:merge.new', data => {
+                if (data.dst_branch_id !== config.self.branch.id) return;
+
+                evtOnMergeCreated.unbind();
+                evtOnMergeCreated = null;
+
+                editor.call('branches:getMerge', data.merge_id, (err, data) => {
                     config.self.branch.merge = data;
 
-                    // if there are merge conflicts then show
-                    // conflict manager
-                    if (data.numConflicts) {
-                        panelMergeBranchesProgress.setMessage('Unable to auto merge - opening conflict manager');
-                        setTimeout(function () {
-                            editor.call('picker:project:close');
-                            editor.call('picker:versioncontrol:mergeOverlay:hide'); // hide this in case it's open
-                            editor.call('picker:conflictManager');
-                        }, 1500);
-                    } else {
-                        // otherwise merge was successful
-                        // so review changes
-                        setTimeout(function () {
-                            editor.call('picker:project:close');
-                            editor.call('picker:versioncontrol:mergeOverlay:hide'); // hide this in case it's open
-                            editor.call('picker:diffManager');
-                        }, 1500);
-                    }
+                    editor.call('picker:project:close');
+                    editor.call('picker:versioncontrol:mergeOverlay:hide'); // hide this in case it's open
+                    editor.call('picker:conflictManager');
+                });
+            });
+
+            editor.call('branches:merge', sourceBranch.id, destinationBranch.id, (err) => {
+                if (err) {
+                    console.error(err);
                 }
+
+                // if we have already hidden this panel then just return
+                if (panel.hidden) return;
+
+                // otherwise show error
+                if (err && !/Request timed out/.test(err)) {
+                    panelMergeBranchesProgress.finish(err);
+                    togglePanels(true);
+
+                    if (evtOnMergeCreated) {
+                        evtOnMergeCreated.unbind();
+                        evtOnMergeCreated = null;
+                    }
+                };
             });
         };
 
