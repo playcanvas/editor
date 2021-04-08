@@ -2,19 +2,19 @@ editor.once('load', function () {
     'use strict';
 
     editor.once('viewport:load', function () {
-        var camerasIndex = { };
-        var editorCameras = { };
-        var currentCamera = null;
-        var defaultCamera = null;
+        const camerasIndex = { };
+        const editorCameras = { };
+        let currentCamera = null;
+        let defaultCamera = null;
 
-        var evtLayersSet = null;
-        var evtLayersInsert = null;
-        var evtLayersRemove = null;
+        let evtLayersSet = null;
+        let evtLayersInsert = null;
+        let evtLayersRemove = null;
 
-        var app = editor.call('viewport:app');
+        const app = editor.call('viewport:app');
         if (! app) return; // webgl not available
 
-        var projectSettings = editor.call('settings:project');
+        const projectSettings = editor.call('settings:project');
 
         editor.method('camera:get', function (name) {
             return editorCameras[name] || null;
@@ -28,26 +28,28 @@ editor.once('load', function () {
             return currentCamera;
         });
 
-        var addGizmoLayers = function (camera, layers) {
+        const addGizmoLayers = function (camera, layers) {
             for (let i = 0; i < layers.length; i++) {
-                var layer = layers[i];
-                var idx = camera.layers.indexOf(layer.id);
+                const layer = layers[i];
+                const idx = camera.layers.indexOf(layer.id);
                 if (idx === -1) {
                     camera.layers.push(layer.id);
                 }
             }
+            // eslint-disable-next-line no-self-assign
             camera.layers = camera.layers; // force update
         };
 
-        var removeGizmoLayers = function (camera, layers) {
+        const removeGizmoLayers = function (camera, layers) {
             for (let i = 0; i < layers.length; i++) {
-                var layer = layers[i];
-                var idx = camera.layers.indexOf(layer.id);
+                const layer = layers[i];
+                const idx = camera.layers.indexOf(layer.id);
                 if (idx !== -1) {
                     camera.layers.splice(idx, 1);
                 }
             }
 
+            // eslint-disable-next-line no-self-assign
             camera.layers = camera.layers; // force update
         };
 
@@ -57,9 +59,9 @@ editor.once('load', function () {
             if (currentCamera === entity || ! entity.camera)
                 return;
 
-            var gizmoLayers = editor.call('gizmo:layers:list');
+            const gizmoLayers = editor.call('gizmo:layers:list');
 
-            var old = currentCamera;
+            const old = currentCamera;
             if (old) {
                 if (old.camera) {
                     old.camera.enabled = false;
@@ -91,7 +93,7 @@ editor.once('load', function () {
             // make sure we re-add editor layers to this camera if this is the selected viewport
             // camera at the moment
             if (! entity.__editorCamera) {
-                var fixLayers = function () {
+                const fixLayers = function () {
                     if (entity !== currentCamera) return;
 
                     setTimeout(function () {
@@ -104,7 +106,7 @@ editor.once('load', function () {
                     });
                 };
 
-                var e = editor.call('entities:get', entity.getGuid());
+                const e = editor.call('entities:get', entity.getGuid());
                 if (e) {
                     evtLayersInsert = e.on('components.camera.layers:insert', fixLayers);
                     evtLayersRemove = e.on('components.camera.layers:remove', fixLayers);
@@ -149,7 +151,7 @@ editor.once('load', function () {
         });
 
 
-        var list = [{
+        const list = [{
             name: 'perspective',
             title: 'Perspective',
             className: 'viewport-camera-perspective',
@@ -201,8 +203,8 @@ editor.once('load', function () {
         }];
 
 
-        var createCamera = function (args) {
-            var entity = new pc.Entity();
+        const createCamera = function (args) {
+            const entity = new pc.Entity();
             entity.__editorCamera = true;
             entity.__editorName = args.name;
             entity.name = args.title;
@@ -213,7 +215,7 @@ editor.once('load', function () {
 
             editorCameras[args.name] = entity;
 
-            var params = {
+            const params = {
                 nearClip: 0.1,
                 farClip: 10000,
                 priority: 0,
@@ -222,7 +224,7 @@ editor.once('load', function () {
                 frustumCulling: true
             };
 
-            var layerOrder = projectSettings.get('layerOrder');
+            const layerOrder = projectSettings.get('layerOrder');
             if (layerOrder) {
                 params.layers = layerOrder.map(function (l) { return parseInt(l.layer, 10); });
             }
@@ -245,7 +247,7 @@ editor.once('load', function () {
 
         // add default cameras
         for (let i = 0; i < list.length; i++) {
-            var entity = createCamera(list[i]);
+            const entity = createCamera(list[i]);
 
             editor.call('camera:add', entity);
 
@@ -257,12 +259,13 @@ editor.once('load', function () {
 
         // when layers change make sure that our Editor cameras have them
         projectSettings.on('layerOrder:insert', function (value) {
-            var id = parseInt(value.get('layer'), 10);
+            const id = parseInt(value.get('layer'), 10);
             for (const key in editorCameras) {
-                var entity = editorCameras[key];
-                var idx = entity.camera.layers.indexOf(id);
+                const entity = editorCameras[key];
+                const idx = entity.camera.layers.indexOf(id);
                 if (idx === -1) {
                     entity.camera.layers.push(id);
+                    // eslint-disable-next-line no-self-assign
                     entity.camera.layers = entity.camera.layers; // force update
                 }
             }
@@ -271,12 +274,13 @@ editor.once('load', function () {
         });
 
         projectSettings.on('layerOrder:remove', function (value) {
-            var id = parseInt(value.get('layer'), 10);
+            const id = parseInt(value.get('layer'), 10);
             for (const key in editorCameras) {
-                var entity = editorCameras[key];
-                var idx = entity.camera.layers.indexOf(id);
+                const entity = editorCameras[key];
+                const idx = entity.camera.layers.indexOf(id);
                 if (idx !== -1) {
                     entity.camera.layers.splice(idx, 1);
+                    // eslint-disable-next-line no-self-assign
                     entity.camera.layers = entity.camera.layers; // force update
                 }
             }

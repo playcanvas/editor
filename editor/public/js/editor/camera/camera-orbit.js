@@ -4,20 +4,20 @@ editor.once('viewport:load', function () {
     // Orbit camera with virtual point of focus
     // Zooming / Flying will not move virtual point forward/backwards
 
-    var orbiting = false;
-    var orbitCamera;
-    var pivot = new pc.Vec3();
-    var distance = 1;
-    var sensivity = 0.2;
-    var pitch = 0;
-    var yaw = 0;
-    var vec2 = new pc.Vec2();
-    var vecA = new pc.Vec3();
-    var quat = new pc.Quat();
+    let orbiting = false;
+    let orbitCamera;
+    const pivot = new pc.Vec3();
+    let distance = 1;
+    const sensivity = 0.2;
+    let pitch = 0;
+    let yaw = 0;
+    const vec2 = new pc.Vec2();
+    const vecA = new pc.Vec3();
+    const quat = new pc.Quat();
 
 
     editor.on('viewport:update', function (dt) {
-        var camera = editor.call('camera:current');
+        const camera = editor.call('camera:current');
 
         if (camera.camera.projection !== pc.PROJECTION_PERSPECTIVE)
             return;
@@ -51,17 +51,16 @@ editor.once('viewport:load', function () {
     editor.on('camera:focus', function (point) {
         pivot.copy(point);
 
-        var camera = editor.call('camera:current');
+        const camera = editor.call('camera:current');
         if (camera.focus)
             camera.focus.copy(pivot);
     });
 
     editor.on('camera:focus:end', function (point, value) {
-        var camera = editor.call('camera:current');
+        const camera = editor.call('camera:current');
         distance = value;
         pivot.copy(camera.forward).scale(distance).add(camera.getPosition());
 
-        var camera = editor.call('camera:current');
         if (camera.focus)
             camera.focus.copy(pivot);
     });
@@ -72,7 +71,7 @@ editor.once('viewport:load', function () {
 
         editor.call('camera:focus:stop');
 
-        var camera = editor.call('camera:current');
+        const camera = editor.call('camera:current');
 
         if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
             orbiting = true;
@@ -82,7 +81,7 @@ editor.once('viewport:load', function () {
             editor.call('camera:history:start', orbitCamera);
 
             // pitch
-            var x = Math.cos(Math.asin(camera.forward.y));
+            const x = Math.cos(Math.asin(camera.forward.y));
             vec2.set(x, camera.forward.y).normalize();
             pitch =  Math.max(-89.99, Math.min(89.99, Math.atan2(vec2.y, vec2.x) / (Math.PI / 180)));
 
