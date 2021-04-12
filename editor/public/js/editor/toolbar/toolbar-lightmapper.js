@@ -1,7 +1,6 @@
 editor.once('load', function () {
     'use strict';
 
-    var app;
     var root = editor.call('layout.root');
     var toolbar = editor.call('layout.toolbar');
 

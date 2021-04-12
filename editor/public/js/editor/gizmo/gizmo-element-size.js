@@ -1,35 +1,35 @@
 editor.once('load', function () {
     'use strict';
 
-    var vecA = new pc.Vec3();
-    var vecB = new pc.Vec3();
-    var vecC = new pc.Vec3();
-    var vecD = new pc.Vec3();
+    const vecA = new pc.Vec3();
+    const vecB = new pc.Vec3();
+    const vecC = new pc.Vec3();
+    const vecD = new pc.Vec3();
 
-    var selectedEntity = null;
+    let selectedEntity = null;
 
-    var evtTapStart = null;
-    var moving = false;
-    var mouseTap = null;
-    var mouseTapMoved = false;
-    var pickStart = new pc.Vec3();
-    var posCameraLast = new pc.Vec3();
+    let evtTapStart = null;
+    let moving = false;
+    let mouseTap = null;
+    let mouseTapMoved = false;
+    const pickStart = new pc.Vec3();
+    const posCameraLast = new pc.Vec3();
 
-    var posStart = [];
-    var posCurrent = [];
-    var sizeStart = [0, 0];
-    var sizeCurrent = [0, 0];
-    var startWorldCorners = [new pc.Vec3(), new pc.Vec3(), new pc.Vec3(), new pc.Vec3()];
-    var worldToEntitySpace = new pc.Mat4();
-    var entitySpaceToParentSpace = new pc.Mat4();
-    var dirty = false;
+    let posStart = [];
+    const posCurrent = [];
+    const sizeStart = [0, 0];
+    const sizeCurrent = [0, 0];
+    const startWorldCorners = [new pc.Vec3(), new pc.Vec3(), new pc.Vec3(), new pc.Vec3()];
+    const worldToEntitySpace = new pc.Mat4();
+    const entitySpaceToParentSpace = new pc.Mat4();
+    let dirty = false;
 
-    var offset = new pc.Vec3();
-    var localOffset = new pc.Vec3();
-    var offsetWithPivot = new pc.Vec3();
+    let offset = new pc.Vec3();
+    const localOffset = new pc.Vec3();
+    const offsetWithPivot = new pc.Vec3();
 
-    var createGizmo = function () {
-        var obj = {
+    const createGizmo = function () {
+        const obj = {
             root: null,
             handles: [null, null, null, null],
             matActive: null,
@@ -40,13 +40,25 @@ editor.once('load', function () {
         obj.root = new pc.Entity();
         obj.root.enabled = false;
 
+        const createMaterial = function (color) {
+            const mat = new pc.BasicMaterial();
+            mat.color = color;
+            if (color.a !== 1) {
+                mat.blend = true;
+                mat.blendSrc = pc.BLENDMODE_SRC_ALPHA;
+                mat.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
+            }
+            mat.update();
+            return mat;
+        };
+
         obj.matInactive = createMaterial(new pc.Color(1, 1, 0, 0.5));
         obj.matActive = createMaterial(new pc.Color(1, 1, 0, 1));
 
-        var layer = editor.call('gizmo:layers', 'Axis Gizmo');
+        const layer = editor.call('gizmo:layers', 'Axis Gizmo');
 
-        var createHandle = function () {
-            var sphere = new pc.Entity();
+        const createHandle = function () {
+            const sphere = new pc.Entity();
             sphere.addComponent('model', {
                 type: 'sphere',
                 layers: [layer.id]
@@ -66,19 +78,7 @@ editor.once('load', function () {
         return obj;
     };
 
-    var createMaterial = function (color) {
-        var mat = new pc.BasicMaterial();
-        mat.color = color;
-        if (color.a !== 1) {
-            mat.blend = true;
-            mat.blendSrc = pc.BLENDMODE_SRC_ALPHA;
-            mat.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
-        }
-        mat.update();
-        return mat;
-    };
-
-    var gizmoEnabled = function () {
+    const gizmoEnabled = function () {
         if (editor.call('gizmo:type') === 'resize' && editor.call('permissions:write') && editor.call('selector:itemsRaw').length === 1) {
             return (selectedEntity && selectedEntity.has('components.element') && selectedEntity.entity);
         }
@@ -87,8 +87,35 @@ editor.once('load', function () {
     };
 
     editor.once('viewport:load', function (app) {
-        var gizmo = createGizmo();
+        const gizmo = createGizmo();
         app.root.addChild(gizmo.root);
+
+        const pickPlane = function (x, y) {
+            const camera = editor.call('camera:current');
+            const entity = selectedEntity.entity;
+
+            const posEntity = startWorldCorners[gizmo.handles.indexOf(gizmo.handle)];
+            const posMouse = camera.camera.screenToWorld(x, y, 1);
+            const rayOrigin = vecA.copy(camera.getPosition());
+            const rayDirection = vecB.set(0, 0, 0);
+
+            vecC.copy(entity.forward);
+            const planeNormal = vecC.scale(-1);
+
+            if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
+                rayDirection.copy(posMouse).sub(rayOrigin).normalize();
+            } else {
+                rayOrigin.add(posMouse);
+                camera.getWorldTransform().transformVector(vecD.set(0, 0, -1), rayDirection);
+            }
+
+            const rayPlaneDot = planeNormal.dot(rayDirection);
+            const planeDist = posEntity.dot(planeNormal);
+            const pointPlaneDist = (planeNormal.dot(rayOrigin) - planeDist) / rayPlaneDot;
+            const pickedPos = rayDirection.scale(-pointPlaneDist).add(rayOrigin);
+
+            return pickedPos;
+        };
 
         editor.on('selector:add', function (item, type) {
             if (type !== 'entity') return;
@@ -109,21 +136,19 @@ editor.once('load', function () {
             if (! gizmo.root.enabled)
                 return;
 
-            var entity = selectedEntity.entity;
+            const entity = selectedEntity.entity;
 
             // scale to screen space
-            var scale = 1;
-            var gizmoSize = 0.2;
-            var camera = editor.call('camera:current');
-            var posCamera = camera.getPosition();
-            var worldCorners = entity.element.worldCorners;
-
-            var parent = entity.parent && entity.parent.element ? entity.parent : entity.element.screen;
+            let scale = 1;
+            const gizmoSize = 0.2;
+            const camera = editor.call('camera:current');
+            const posCamera = camera.getPosition();
+            const worldCorners = entity.element.worldCorners;
 
             for (let i = 0; i < 4; i++) {
                 if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
-                    var dot = vecA.copy(worldCorners[i]).sub(posCamera).dot(camera.forward);
-                    var denom = 1280 / (2 * Math.tan(camera.camera.fov * pc.math.DEG_TO_RAD / 2));
+                    const dot = vecA.copy(worldCorners[i]).sub(posCamera).dot(camera.forward);
+                    const denom = 1280 / (2 * Math.tan(camera.camera.fov * pc.math.DEG_TO_RAD / 2));
                     scale = Math.max(0.0001, (dot / denom) * 150) * gizmoSize;
                 } else {
                     scale = camera.camera.orthoHeight / 3 * gizmoSize;
@@ -135,7 +160,6 @@ editor.once('load', function () {
 
             if (moving && (vecA.copy(posCameraLast).sub(posCamera).length() > 0.01 || mouseTapMoved)) {
                 offset = pickPlane(mouseTap.x, mouseTap.y);
-                // app.renderLines([pickStart, offset], new pc.Color(1, 0, 0));
                 if (offset) {
                     dirty = true;
 
@@ -145,32 +169,25 @@ editor.once('load', function () {
                     sizeCurrent[0] = sizeStart[0];
                     sizeCurrent[1] = sizeStart[1];
 
-                    var pivot = entity.element.pivot;
-                    var px, py, sx, sy;
+                    const pivot = entity.element.pivot;
+                    let px, py, sx, sy;
 
-                    // bottom left
-                    if (gizmo.handle === gizmo.handles[0]) {
+                    if (gizmo.handle === gizmo.handles[0]) { // bottom left
                         px = 1 - pivot.x;
                         py = 1 - pivot.y;
                         sx = -1;
                         sy = -1;
-                    }
-                    // bottom right
-                    else if (gizmo.handle === gizmo.handles[1]) {
+                    } else if (gizmo.handle === gizmo.handles[1]) { // bottom right
                         px = pivot.x;
                         py = 1 - pivot.y;
                         sx = 1;
                         sy = -1;
-                    }
-                    // top right
-                    else if (gizmo.handle === gizmo.handles[2]) {
+                    } else if (gizmo.handle === gizmo.handles[2]) { // top right
                         px = pivot.x;
                         py = pivot.y;
                         sx = 1;
                         sy = 1;
-                    }
-                    // top left
-                    else if (gizmo.handle === gizmo.handles[3]) {
+                    } else if (gizmo.handle === gizmo.handles[3]) { // top left
                         px = 1 - pivot.x;
                         py = pivot.y;
                         sx = -1;
@@ -210,36 +227,7 @@ editor.once('load', function () {
 
         });
 
-        editor.on('viewport:pick:hover', function (node, picked) {
-            if (! node || gizmo.handles.indexOf(node) === -1) {
-                if (gizmo.handle) {
-                    gizmo.handle = null;
-
-                    for (let i = 0; i < 4; i++) {
-                        gizmo.handles[i].model.meshInstances[0].material = gizmo.matInactive;
-                    }
-
-                    if (evtTapStart) {
-                        evtTapStart.unbind();
-                        evtTapStart = null;
-                    }
-                }
-            } else if (! gizmo.handle || gizmo.handle !== node) {
-
-                gizmo.handle = node;
-
-                for (let i = 0; i < 4; i++) {
-                    gizmo.handles[i].model.meshInstances[0].material = (gizmo.handles[i] === node ? gizmo.matActive : gizmo.matInactive);
-                }
-
-                if (! evtTapStart) {
-                    evtTapStart = editor.on('viewport:tap:start', onTapStart);
-                }
-            }
-        });
-
-
-        var onTapStart = function (tap) {
+        const onTapStart = function (tap) {
             if (moving || tap.button !== 0)
                 return;
 
@@ -273,7 +261,7 @@ editor.once('load', function () {
             editor.call('gizmo:scale:visible', false);
         };
 
-        var onTapMove = function (tap) {
+        const onTapMove = function (tap) {
             if (! moving)
                 return;
 
@@ -281,7 +269,7 @@ editor.once('load', function () {
             mouseTapMoved = true;
         };
 
-        var onTapEnd = function (tap) {
+        const onTapEnd = function (tap) {
             if (tap.button !== 0)
                 return;
 
@@ -300,20 +288,20 @@ editor.once('load', function () {
 
             if (selectedEntity) {
                 if (dirty) {
-                    var resourceId = selectedEntity.get('resource_id');
-                    var previousPos = posStart.slice(0);
-                    var newPos = posCurrent.slice(0);
-                    var previousSize = sizeStart.slice(0);
-                    var newSize = sizeCurrent.slice(0);
+                    const resourceId = selectedEntity.get('resource_id');
+                    const previousPos = posStart.slice(0);
+                    const newPos = posCurrent.slice(0);
+                    const previousSize = sizeStart.slice(0);
+                    const newSize = sizeCurrent.slice(0);
 
                     editor.call('history:add', {
                         name: 'entity.element.size',
                         undo: function () {
-                            var item = editor.call('entities:get', resourceId);
+                            const item = editor.call('entities:get', resourceId);
                             if (! item)
                                 return;
 
-                            var history = item.history.enabled;
+                            const history = item.history.enabled;
                             item.history.enabled = false;
                             item.set('position', previousPos);
                             item.set('components.element.width', previousSize[0]);
@@ -321,11 +309,11 @@ editor.once('load', function () {
                             item.history.enabled = history;
                         },
                         redo: function () {
-                            var item = editor.call('entities:get', resourceId);
+                            const item = editor.call('entities:get', resourceId);
                             if (! item)
                                 return;
 
-                            var history = item.history.enabled;
+                            const history = item.history.enabled;
                             item.history.enabled = false;
                             item.set('position', newPos);
                             item.set('components.element.width', newSize[0]);
@@ -339,35 +327,35 @@ editor.once('load', function () {
             }
         };
 
-        var pickPlane = function (x, y) {
-            var camera = editor.call('camera:current');
-            var entity = selectedEntity.entity;
+        editor.on('viewport:pick:hover', function (node, picked) {
+            if (! node || gizmo.handles.indexOf(node) === -1) {
+                if (gizmo.handle) {
+                    gizmo.handle = null;
 
-            var posEntity = startWorldCorners[gizmo.handles.indexOf(gizmo.handle)];
-            var posMouse = camera.camera.screenToWorld(x, y, 1);
-            var rayOrigin = vecA.copy(camera.getPosition());
-            var rayDirection = vecB.set(0, 0, 0);
+                    for (let i = 0; i < 4; i++) {
+                        gizmo.handles[i].model.meshInstances[0].material = gizmo.matInactive;
+                    }
 
-            vecC.copy(entity.forward);
-            var planeNormal = vecC.scale(-1);
+                    if (evtTapStart) {
+                        evtTapStart.unbind();
+                        evtTapStart = null;
+                    }
+                }
+            } else if (! gizmo.handle || gizmo.handle !== node) {
 
-            if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
-                rayDirection.copy(posMouse).sub(rayOrigin).normalize();
-            } else {
-                rayOrigin.add(posMouse);
-                camera.getWorldTransform().transformVector(vecD.set(0, 0, -1), rayDirection);
+                gizmo.handle = node;
+
+                for (let i = 0; i < 4; i++) {
+                    gizmo.handles[i].model.meshInstances[0].material = (gizmo.handles[i] === node ? gizmo.matActive : gizmo.matInactive);
+                }
+
+                if (! evtTapStart) {
+                    evtTapStart = editor.on('viewport:tap:start', onTapStart);
+                }
             }
-
-            var rayPlaneDot = planeNormal.dot(rayDirection);
-            var planeDist = posEntity.dot(planeNormal);
-            var pointPlaneDist = (planeNormal.dot(rayOrigin) - planeDist) / rayPlaneDot;
-            var pickedPos = rayDirection.scale(-pointPlaneDist).add(rayOrigin);
-
-            return pickedPos;
-        };
+        });
 
         editor.on('viewport:tap:move', onTapMove);
         editor.on('viewport:tap:end', onTapEnd);
-
     });
 });

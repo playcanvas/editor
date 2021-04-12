@@ -1,7 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    var getLayerName = function (id, mergeObject) {
+    const getLayerName = function (id, mergeObject) {
         // try to get layer name from destination checkpoint first and if not
         // available try the source checkpoint
         return mergeObject.dstCheckpoint.settings.layers[id] ||
@@ -9,7 +9,7 @@ editor.once('load', function () {
                id;
     };
 
-    var getBatchGroupName = function (id, mergeObject) {
+    const getBatchGroupName = function (id, mergeObject) {
         // try to get batch group name from destination checkpoint first and if not
         // available try the source checkpoint
         return mergeObject.dstCheckpoint.settings.batchGroups[id] ||
@@ -19,12 +19,12 @@ editor.once('load', function () {
 
     // Shows conflicts for project settings
     editor.method('picker:conflictManager:showSettingsConflicts', function (parent, conflicts, mergeObject) {
-        var resolver = new ui.ConflictResolver(conflicts, mergeObject);
+        const resolver = new ui.ConflictResolver(conflicts, mergeObject);
 
         // temp check to see if just all settings have changed with no
         // more details
         if (conflicts.data.length === 1 && conflicts.data[0].path === '') {
-            var sectionSettings = resolver.createSection('PROJECT SETTINGS');
+            const sectionSettings = resolver.createSection('PROJECT SETTINGS');
             sectionSettings.appendField({
                 type: 'object',
                 conflict: conflicts.data[0]
@@ -35,13 +35,13 @@ editor.once('load', function () {
 
         // Build index of conflicts so that the conflicts become
         // a hierarchical object
-        var index = {};
+        const index = {};
         for (let i = 0, len = conflicts.data.length; i < len; i++) {
-            var conflict = conflicts.data[i];
-            var parts = conflict.path.split('.');
-            var target = index;
+            const conflict = conflicts.data[i];
+            const parts = conflict.path.split('.');
+            let target = index;
 
-            for (var p = 0; p < parts.length - 1; p++) {
+            for (let p = 0; p < parts.length - 1; p++) {
                 if (! target.hasOwnProperty(parts[p])) {
                     target[parts[p]] = {};
                 }
@@ -52,7 +52,7 @@ editor.once('load', function () {
         }
 
         // Settings that need no special handling first
-        var sectionProperties = resolver.createSection('SETTINGS');
+        const sectionProperties = resolver.createSection('SETTINGS');
         sectionProperties.appendAllFields({
             schema: 'settings',
             fields: index,
@@ -66,7 +66,7 @@ editor.once('load', function () {
 
         if (index.layers) {
             for (const key in index.layers) {
-                var section = resolver.createSection('LAYER ' + getLayerName(key, mergeObject), true);
+                const section = resolver.createSection('LAYER ' + getLayerName(key, mergeObject), true);
                 section.appendAllFields({
                     schema: 'settings',
                     fields: index.layers[key]
@@ -75,7 +75,7 @@ editor.once('load', function () {
         }
 
         if (index.layerOrder) {
-            var section = resolver.createSection('LAYER ORDER', true);
+            const section = resolver.createSection('LAYER ORDER', true);
             section.appendField({
                 type: 'array:sublayer',
                 conflict: index.layerOrder
@@ -86,7 +86,7 @@ editor.once('load', function () {
         if (index.batchGroups) {
             resolver.createSeparator('BATCH GROUPS');
             for (const key in index.batchGroups) {
-                var section = resolver.createSection('BATCH GROUP ' + getBatchGroupName(key, mergeObject), true);
+                const section = resolver.createSection('BATCH GROUP ' + getBatchGroupName(key, mergeObject), true);
                 section.appendAllFields({
                     schema: 'settings',
                     fields: index.batchGroups[key]
@@ -97,7 +97,7 @@ editor.once('load', function () {
         // Script order
         if (index.scripts) {
             resolver.createSeparator('SCRIPTS LOADING ORDER');
-            var section = resolver.createSection('SCRIPTS', true);
+            const section = resolver.createSection('SCRIPTS', true);
             section.appendField({
                 type: 'array:asset',
                 conflict: index.scripts

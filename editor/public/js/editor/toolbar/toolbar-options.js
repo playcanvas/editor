@@ -1,20 +1,20 @@
 editor.once('load', function () {
     'use strict';
 
-    var controls = editor.call('layout.toolbar.launch');
+    const controls = editor.call('layout.toolbar.launch');
 
-    var panel = new ui.Panel();
+    const panel = new ui.Panel();
     panel.class.add('modes');
     panel.hidden = true;
     controls.append(panel);
 
 
     // show collision
-    var panelCollision = new ui.Panel();
+    const panelCollision = new ui.Panel();
     panelCollision.class.add('field');
     panel.append(panelCollision);
     // field
-    var fieldCollisionVisible = new ui.Checkbox();
+    const fieldCollisionVisible = new ui.Checkbox();
     fieldCollisionVisible.class.add('tick');
     panelCollision.append(fieldCollisionVisible);
     fieldCollisionVisible.value = editor.call('gizmo:collision:visible');
@@ -25,7 +25,7 @@ editor.once('load', function () {
         fieldCollisionVisible.value = visible;
     });
     // label
-    var label = new ui.Label({
+    let label = new ui.Label({
         text: 'Physics Edit Mode'
     });
     label.on('click', function () {
@@ -35,11 +35,11 @@ editor.once('load', function () {
 
 
     // show zones
-    var panelZones = new ui.Panel();
+    const panelZones = new ui.Panel();
     panelZones.class.add('field');
     panel.append(panelZones);
     // field
-    var fieldZonesVisible = new ui.Checkbox();
+    const fieldZonesVisible = new ui.Checkbox();
     fieldZonesVisible.class.add('tick');
     panelZones.append(fieldZonesVisible);
     fieldZonesVisible.value = editor.call('gizmo:zone:visible');
@@ -50,7 +50,7 @@ editor.once('load', function () {
         fieldZonesVisible.value = visible;
     });
     // label
-    var label = new ui.Label({
+    label = new ui.Label({
         text: 'Zones Edit Mode'
     });
     label.on('click', function () {
@@ -60,16 +60,16 @@ editor.once('load', function () {
 
 
     // fullscreen
-    var buttonOptions = new ui.Button({
+    const buttonOptions = new ui.Button({
         text: '&#57652;'
     });
     buttonOptions.class.add('icon', 'options');
     controls.append(buttonOptions);
 
 
-    var timeout;
+    let timeout;
 
-    var onHover = function () {
+    const onHover = function () {
         if (timeout) {
             clearTimeout(timeout);
             timeout = null;
@@ -78,7 +78,7 @@ editor.once('load', function () {
         panel.hidden = false;
     };
 
-    var onBlur = function () {
+    const onBlur = function () {
         if (timeout) {
             clearTimeout(timeout);
             timeout = null;

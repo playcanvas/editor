@@ -1,25 +1,24 @@
 editor.once('load', function () {
     'use strict';
 
-    var canvas = new ui.Canvas({
+    const canvas = new ui.Canvas({
         id: 'canvas-3d',
         useDevicePixelRatio: true
     });
 
-    var keepRendering = false;
-    var editorSettings = editor.call('settings:projectUser');
-    var Application = editor.call('viewport:application');
+    let keepRendering = false;
 
-    // var idleFlagTimeoutId = null;
-    // var idleFlagTimeoutDelay = 250;
+    const editorSettings = editor.call('settings:projectUser');
+    const Application = editor.call('viewport:application');
 
     // Allow anti-aliasing to be forcibly disabled - this is useful for Selenium tests in
     // order to ensure that the generated screenshots are consistent across different GPUs.
-    var disableAntiAliasing = /disableAntiAliasing=true/.test(location.search);
+    const disableAntiAliasing = /disableAntiAliasing=true/.test(location.search);
 
     // create playcanvas application
+    let app;
     try {
-        var app = new Application(canvas.element, {
+        app = new Application(canvas.element, {
             mouse: new pc.Mouse(canvas.element),
             touch: !!('ontouchstart' in window) ? new pc.TouchDevice(canvas.element) : null,
             editorSettings: editorSettings.json().editor,
@@ -53,20 +52,9 @@ editor.once('load', function () {
         return app;
     });
 
-    // function idleTimeout() {
-    //     if (!canvas.class.contains('viewport-idle')) {
-    //         canvas.class.add('viewport-idle');
-    //     }
-    // }
-
     // re-render viewport
     editor.method('viewport:render', function () {
-        // canvas.class.remove('viewport-idle');
-
         app.redraw = true;
-
-        // clearTimeout(idleFlagTimeoutId);
-        // idleFlagTimeoutId = setTimeout(idleTimeout, idleFlagTimeoutDelay);
     });
 
     // returns true if the viewport should continuously render

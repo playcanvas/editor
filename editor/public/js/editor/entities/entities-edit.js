@@ -4,7 +4,7 @@ editor.once('load', function () {
     // An index where the key is the guid
     // of a child entity and the value is the guid of
     // a parent entity
-    var childToParent = {};
+    const childToParent = {};
 
 
     // An index where the key is the guid of
@@ -12,12 +12,12 @@ editor.once('load', function () {
     // representation of the entity at the time when
     // it was deleted. Used to re-create entities from
     // this cache instead of re-creating it from scratch
-    var deletedCache = {};
+    const deletedCache = {};
 
     // Attach event listeners on a new entity.
     // Maintains the childToParent index
     editor.on('entities:add', function (entity) {
-        var children = entity.get('children');
+        const children = entity.get('children');
         for (let i = 0; i < children.length; i++)
             childToParent[children[i]] = entity.get('resource_id');
 
@@ -36,15 +36,15 @@ editor.once('load', function () {
      * @param {string} oldValue - The resource id that we want to replace
      * @param {string} newValue - The new resource id that we want our references to point to
      */
-    var updateEntityReferenceFields = function (entityReferencesMap, oldValue, newValue) {
-        var referencesToThisEntity = entityReferencesMap[oldValue];
+    const updateEntityReferenceFields = function (entityReferencesMap, oldValue, newValue) {
+        const referencesToThisEntity = entityReferencesMap[oldValue];
         if (! referencesToThisEntity) return;
 
         referencesToThisEntity.forEach(function (reference) {
-            var sourceEntity = editor.call('entities:get', reference.sourceEntityGuid);
+            const sourceEntity = editor.call('entities:get', reference.sourceEntityGuid);
             if (! sourceEntity) return;
 
-            var prevHistory = sourceEntity.history.enabled;
+            const prevHistory = sourceEntity.history.enabled;
             sourceEntity.history.enabled = false;
             sourceEntity.set('components.' + reference.componentName + '.' + reference.fieldName, newValue);
             sourceEntity.history.enabled = prevHistory;
@@ -66,12 +66,12 @@ editor.once('load', function () {
      *   fieldName: String
      * }
      */
-    var addEntity = function (entity, parent, select, ind, entityReferencesMap) {
+    const addEntity = function (entity, parent, select, ind, entityReferencesMap) {
         entityReferencesMap = entityReferencesMap || {};
 
         childToParent[entity.get('resource_id')] = parent.get('resource_id');
 
-        var children = entity.get('children');
+        const children = entity.get('children');
         if (children.length)
             entity.set('children', []);
 
@@ -113,7 +113,7 @@ editor.once('load', function () {
 
         // add children too
         children.forEach(function (childIdOrData) {
-            var data;
+            let data;
 
             // If we've been provided an id, we're re-creating children from the deletedCache
             if (typeof childIdOrData === 'string') {
@@ -128,7 +128,7 @@ editor.once('load', function () {
                 throw new Error('Unhandled childIdOrData format');
             }
 
-            var child = new Observer(data);
+            const child = new Observer(data);
             addEntity(child, entity, undefined, undefined, entityReferencesMap);
         });
 
@@ -136,7 +136,7 @@ editor.once('load', function () {
         // (happens when addEntity() is being called during the undoing of a deletion). In order
         // to force components to respond to the setter call even when they are running in other
         // tabs or in the Launch window, we unfortunately have to use a setTimeout() hack :(
-        var guid = entity.get('resource_id');
+        const guid = entity.get('resource_id');
 
         // First set all entity reference fields targeting this guid to null
         updateEntityReferenceFields(entityReferencesMap, guid, null);
@@ -156,9 +156,9 @@ editor.once('load', function () {
      * @param {Observer} entity - The entity
      * @param {object} entityReferencesMap - Holds references to entities that need to be updated when
      * this entity is removed. See addEntity for more.
-     * @param forgetDeletedEntities
+     * @param {boolean} forgetDeletedEntities - When false, entity data is cached on delete.
      */
-    var removeEntity = function (entity, entityReferencesMap, forgetDeletedEntities) {
+    const removeEntity = function (entity, entityReferencesMap, forgetDeletedEntities) {
         entityReferencesMap = entityReferencesMap || {};
         if (!forgetDeletedEntities) {
             deletedCache[entity.get('resource_id')] = entity.json();
@@ -169,7 +169,7 @@ editor.once('load', function () {
 
         // remove children
         entity.get('children').forEach(function (child) {
-            var entity = editor.call('entities:get', child);
+            const entity = editor.call('entities:get', child);
             if (!entity)
                 return;
 
@@ -185,9 +185,9 @@ editor.once('load', function () {
         }
 
         // remove from parent
-        var parentId = childToParent[entity.get('resource_id')];
+        const parentId = childToParent[entity.get('resource_id')];
         if (parentId) {
-            var parent = editor.call('entities:get', parentId);
+            const parent = editor.call('entities:get', parentId);
             if (parent) {
                 parent.history.enabled = false;
                 parent.removeValue('children', entity.get('resource_id'));
