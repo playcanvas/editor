@@ -239,7 +239,7 @@ Object.assign(pcui, (function () {
                 } else {
                     this.parent.closeAsset(this._assets[0]);
                 }
-            } else if (e.keyCode === 46 && this._graph.selectedItem) {
+            } else if (e.keyCode === 46 && this._graph.selectedItem && document.activeElement.constructor.name !== "HTMLInputElement") {
             // del
                 const item = this._graph.selectedItem;
                 switch (item.type) {

@@ -454,9 +454,7 @@ editor.once('load', function () {
         });
 
         // if we have a lot of entities duplicate in the backend
-        if (editor.call('users:hasFlag', 'hasPipelineEntityCopy') &&
-            projectUserSettings.get('editor.pipeline.entityCopy') &&
-            getTotalEntityCount(items) > COPY_OR_DELETE_IN_BACKEND_LIMIT) {
+        if (getTotalEntityCount(items) > COPY_OR_DELETE_IN_BACKEND_LIMIT) {
             duplicateInBackend(items.map(entity => entity.get('resource_id')));
             return;
         }

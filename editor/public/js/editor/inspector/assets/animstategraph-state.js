@@ -70,6 +70,15 @@ Object.assign(pcui, (function () {
 
             this._stateInspector.link(this._assets);
 
+            this._stateInspector.getField(`${path}.name`).onValidate = value => {
+                if (value === '') return false;
+                const nameExists = this._assets[0].get(`data.layers.${this._layer}.states`)
+                .filter(key => key !== state.id)
+                .map(key => this._assets[0].get(`data.states.${key}.name`))
+                .includes(value);
+                return !nameExists;
+            };
+
             this._linkedEntitiesPanel.hidden = false;
             this.disabled = false;
 

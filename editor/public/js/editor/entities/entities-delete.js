@@ -138,10 +138,7 @@ editor.once('load', function () {
         entities = entitiesToDelete;
 
         // if we have a lot of entities delete in the backend
-        if (editor.call('users:hasFlag', 'hasPipelineEntityCopy') &&
-            projectUserSettings.get('editor.pipeline.entityCopy') &&
-            getTotalEntityCount(entitiesToDelete) > COPY_OR_DELETE_IN_BACKEND_LIMIT) {
-
+        if (getTotalEntityCount(entitiesToDelete) > COPY_OR_DELETE_IN_BACKEND_LIMIT) {
             editor.call(
                 'picker:confirm',
                 'Deleting this many entities is not undoable. Are you sure?', () => {

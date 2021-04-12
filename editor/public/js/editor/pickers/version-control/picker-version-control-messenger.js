@@ -171,6 +171,16 @@ editor.once('load', function () {
         if (config.self.branch.merge) {
             config.self.branch.merge.mergeProgressStatus = data.status;
         }
+
+        // if merge finished
+        if (data.status === MERGE_STATUS_APPLY_ENDED) {
+            if (editor.call('picker:isOpen', 'conflict-manager')) return;
+
+            // hide merge overlay and refresh
+            editor.call('picker:versioncontrol:mergeOverlay:hide');
+            overlayMergeCompleted.hidden = false;
+            refresh();
+        }
     });
 
     // show overlay if the current merge has been force stopped
@@ -184,16 +194,6 @@ editor.once('load', function () {
         overlayMergeStopped.setTitle('Merge force stopped by ' + name);
         overlayMergeStopped.hidden = false;
         setTimeout(refresh, 1000); // delay this a bit more
-    });
-
-    // show overlay when merge is complete and refresh browser
-    editor.on('messenger:merge.complete', function (data) {
-        if (data.dst_branch_id !== config.self.branch.id) return;
-        if (editor.call('picker:isOpen', 'conflict-manager')) return;
-
-        editor.call('picker:versioncontrol:mergeOverlay:hide');
-        overlayMergeCompleted.hidden = false;
-        refresh();
     });
 
     // if we stopped the merge but the conflict manager is open then show the overlay behind the conflict manager

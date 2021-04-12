@@ -3,16 +3,16 @@ editor.once('viewport:load', function (app) {
 
     // Panning with left mouse button while shift key is down
 
-    var panning = false;
-    var panCamera;
-    var shiftKey = false;
-    var vecA = new pc.Vec2();
-    var vecB = new pc.Vec3();
-    var vecC = new pc.Vec3();
-    var vecD = new pc.Vec3();
-    var panPoint = new pc.Vec3();
-    var grabbed = false;
-    var panButton = 0;
+    let panning = false;
+    let panCamera;
+    let shiftKey = false;
+    const vecA = new pc.Vec2();
+    const vecB = new pc.Vec3();
+    const vecC = new pc.Vec3();
+    const vecD = new pc.Vec3();
+    const panPoint = new pc.Vec3();
+    let grabbed = false;
+    let panButton = 0;
 
     editor.on('hotkey:shift', function (state) {
         shiftKey = state;
@@ -22,13 +22,13 @@ editor.once('viewport:load', function (app) {
         if (! panning)
             return;
 
-        var camera = editor.call('camera:current');
+        const camera = editor.call('camera:current');
 
         if (grabbed) {
-            var mouseWPos = camera.camera.screenToWorld(vecA.x, vecA.y, 1);
-            var rayOrigin = vecB.copy(camera.getPosition());
-            var rayDirection = vecC.set(0, 0, -1);
-            var planeNormal = vecD.copy(camera.forward);
+            const mouseWPos = camera.camera.screenToWorld(vecA.x, vecA.y, 1);
+            const rayOrigin = vecB.copy(camera.getPosition());
+            const rayDirection = vecC.set(0, 0, -1);
+            const planeNormal = vecD.copy(camera.forward);
 
             if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
                 rayDirection.copy(mouseWPos).sub(rayOrigin).normalize();
@@ -37,10 +37,10 @@ editor.once('viewport:load', function (app) {
                 camera.getWorldTransform().transformVector(rayDirection, rayDirection);
             }
 
-            var rayPlaneDot = planeNormal.dot(rayDirection);
-            var planeDist = panPoint.dot(planeNormal);
-            var pointPlaneDist = (planeNormal.dot(rayOrigin) - planeDist) / rayPlaneDot;
-            var pickedPos = rayDirection.scale(-pointPlaneDist).add(rayOrigin);
+            const rayPlaneDot = planeNormal.dot(rayDirection);
+            const planeDist = panPoint.dot(planeNormal);
+            const pointPlaneDist = (planeNormal.dot(rayOrigin) - planeDist) / rayPlaneDot;
+            const pickedPos = rayDirection.scale(-pointPlaneDist).add(rayOrigin);
 
             vecB.copy(panPoint).sub(pickedPos);
 
@@ -51,7 +51,7 @@ editor.once('viewport:load', function (app) {
         editor.call('viewport:render');
     });
 
-    var onPanStart = function (tap) {
+    const onPanStart = function (tap) {
         if (panning)
             return;
 
@@ -60,8 +60,8 @@ editor.once('viewport:load', function (app) {
         editor.call('camera:focus:stop');
         panning = true;
 
-        var camera = editor.call('camera:current');
-        var point = editor.call('camera:depth:pixelAt', camera.camera, tap.x, tap.y);
+        const camera = editor.call('camera:current');
+        const point = editor.call('camera:depth:pixelAt', camera.camera, tap.x, tap.y);
 
         panCamera = camera;
         editor.call('camera:history:start', panCamera);
@@ -74,10 +74,10 @@ editor.once('viewport:load', function (app) {
             grabbed = true;
         } else {
             // distance to selected entity
-            var aabb = editor.call('selection:aabb');
+            let aabb = editor.call('selection:aabb');
 
             if (aabb) {
-                var dist = aabb.center.clone().sub(camera.getPosition()).length();
+                const dist = aabb.center.clone().sub(camera.getPosition()).length();
                 panPoint.copy(camera.camera.screenToWorld(vecA.x, vecA.y, dist));
                 grabbed = true;
             } else {
@@ -85,7 +85,7 @@ editor.once('viewport:load', function (app) {
                 aabb = editor.call('entities:aabb', editor.call('entities:root'));
 
                 if (editor.call('entities:root')) {
-                    var dist = Math.max(aabb.halfExtents.length(), aabb.center.clone().sub(camera.getPosition()).length());
+                    const dist = Math.max(aabb.halfExtents.length(), aabb.center.clone().sub(camera.getPosition()).length());
                     panPoint.copy(camera.camera.screenToWorld(vecA.x, vecA.y, dist));
                     grabbed = true;
                 } else {
