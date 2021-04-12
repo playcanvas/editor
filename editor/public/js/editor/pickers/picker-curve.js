@@ -609,7 +609,7 @@ editor.once('load', function () {
         var selAnchor = selectedAnchorIndex >= 0 ? (selCurve ? selCurve.keys[selectedAnchorIndex] : null) : null;
         setSelected(selCurve, selAnchor);
 
-        setHovered(null, null);
+        setHovered(null, null);
 
         suspendEvents = suspend;
 
@@ -1272,8 +1272,6 @@ editor.once('load', function () {
 
     // Return the hovered anchor and graph
     function getHoveredAnchor(coords) {
-        var x, y;
-
         var result = {
             graph: null,
             anchor: null
@@ -1294,9 +1292,6 @@ editor.once('load', function () {
                 var curvePointCoords = calculateAnchorCoords([hoveredTime, value]);
 
                 // check coords are close to a radius
-                x = coords[0] - curvePointCoords[0];
-                y = coords[1] - curvePointCoords[1];
-
                 if (areCoordsClose(coords, curvePointCoords, curveHoverRadius)) {
                     result.curve = curve;
                 }
@@ -1339,7 +1334,6 @@ editor.once('load', function () {
                     }
                 }
             }
-
 
             // if the selected curve was disabled select the next enabled one
             if (selectedCurve === curve || selectedCurve === otherCurve) {

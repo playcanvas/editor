@@ -1,31 +1,34 @@
 editor.once('load', function () {
     'use strict';
 
-    var app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    const app = editor.call('viewport:app');
+    if (!app) return; // webgl not available
 
-    var container = new pc.Entity(app);
+    const container = new pc.Entity(app);
     app.root.addChild(container);
 
-    var cameraModel = null;
-    var cameras = { };
-    var userdata = { };
+    let cameraMesh = null;
+    let cameraMeshInstance = null;
 
+    const cameras = { };
+    const userdata = { };
 
     // material default
-    var materialDefault = new pc.BasicMaterial();
+    const materialDefault = new pc.BasicMaterial();
     materialDefault.color = new pc.Color(1, 1, 1, 1);
     materialDefault.update();
+
     // material quad
-    var materialQuad = new pc.BasicMaterial();
+    const materialQuad = new pc.BasicMaterial();
     materialQuad.color = new pc.Color(1, 1, 1, 0.25);
     materialQuad.cull = pc.CULLFACE_NONE;
     materialQuad.blend = true;
     materialQuad.blendSrc = pc.BLENDMODE_SRC_ALPHA;
     materialQuad.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
     materialQuad.update();
+
     // material behind
-    var materialBehind = new pc.BasicMaterial();
+    const materialBehind = new pc.BasicMaterial();
     materialBehind.color = new pc.Color(1, 1, 1, 0.15);
     materialBehind.blend = true;
     materialBehind.blendSrc = pc.BLENDMODE_SRC_ALPHA;
@@ -33,9 +36,8 @@ editor.once('load', function () {
     materialBehind.depthTest = false;
     materialBehind.update();
 
-
     // Subscribes to user data of specified user
-    var addUser = function (userId) {
+    const addUser = function (userId) {
         editor.once('userdata:' + userId + ':raw', function (data) {
             loadUserData(userId, data);
         });
@@ -44,7 +46,7 @@ editor.once('load', function () {
     };
 
     // Removes user camera and unsubscribes from userdata
-    var removeUser = function (userId) {
+    const removeUser = function (userId) {
         if (userId === config.self.id) return;
 
         // unsubscribe from realtime userdata
@@ -62,132 +64,96 @@ editor.once('load', function () {
         }
     };
 
-    var close = 0.25;
-    var far = 0.5;
-    var horiz = 0.5;
-    var vert = 0.375;
+    const close = 0.25;
+    const horiz = 0.5;
+    const vert = 0.375;
 
-    var createCameraModel = function () {
-        var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [
-            { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 }
-        ]);
-        // box
-        var buffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, 12 * 2);
-        var iterator = new pc.VertexIterator(buffer);
+    const createCameraMesh = function () {
+        const far = 0.5;
 
-        // top
-        iterator.element[pc.SEMANTIC_POSITION].set(close * horiz, close * vert, 0);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(horiz, vert, -far);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(horiz, vert, -far);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-horiz, vert, -far);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-horiz, vert, -far);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-close * horiz, close * vert, 0);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-close * horiz, close * vert, 0);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(close * horiz, close * vert, 0);
-        iterator.next();
-        // bottom
-        iterator.element[pc.SEMANTIC_POSITION].set(close * horiz, -close * vert, 0);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(horiz, -vert, -far);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(horiz, -vert, -far);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-horiz, -vert, -far);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-horiz, -vert, -far);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-close * horiz, -close * vert, 0);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-close * horiz, -close * vert, 0);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(close * horiz, -close * vert, 0);
-        iterator.next();
-        // sides
-        iterator.element[pc.SEMANTIC_POSITION].set(close * horiz, -close * vert, 0);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(close * horiz, close * vert, 0);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(horiz, -vert, -far);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(horiz, vert, -far);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-horiz, -vert, -far);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-horiz, vert, -far);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-close * horiz, -close * vert, 0);
-        iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-close * horiz, close * vert, 0);
-        iterator.next();
-        iterator.end();
-        // node
-        var node = new pc.GraphNode();
-        // mesh
-        var mesh = new pc.Mesh();
-        mesh.vertexBuffer = buffer;
-        mesh.indexBuffer[0] = null;
-        mesh.primitive[0].type = pc.PRIMITIVE_LINES;
-        mesh.primitive[0].base = 0;
-        mesh.primitive[0].count = buffer.getNumVertices();
-        mesh.primitive[0].indexed = false;
-        // meshInstance
-        var meshInstance = new pc.MeshInstance(node, mesh, materialDefault);
-        meshInstance.updateKey();
-        // model
-        cameraModel = new pc.Model();
-        cameraModel.graph = node;
-        cameraModel.meshInstances = [meshInstance];
+        const positions = [
+            // top
+            close * horiz, close * vert, 0,
+            horiz, vert, -far,
+            horiz, vert, -far,
+            -horiz, vert, -far,
+            -horiz, vert, -far,
+            -close * horiz, close * vert, 0,
+            -close * horiz, close * vert, 0,
+            close * horiz, close * vert, 0,
+            // bottom
+            close * horiz, -close * vert, 0,
+            horiz, -vert, -far,
+            horiz, -vert, -far,
+            -horiz, -vert, -far,
+            -horiz, -vert, -far,
+            -close * horiz, -close * vert, 0,
+            -close * horiz, -close * vert, 0,
+            close * horiz, -close * vert, 0,
+            // sides
+            close * horiz, -close * vert, 0,
+            close * horiz, close * vert, 0,
+            horiz, -vert, -far,
+            horiz, vert, -far,
+            -horiz, -vert, -far,
+            -horiz, vert, -far,
+            -close * horiz, -close * vert, 0,
+            -close * horiz, close * vert, 0
+        ];
+
+        const mesh = new pc.Mesh(app.graphicsDevice);
+        mesh.setPositions(positions);
+        mesh.update(pc.PRIMITIVE_LINES, true);
+
+        // Create a dummy mesh instance here or the mesh will be destroyed when the number
+        // of user cameras falls to zero
+        cameraMeshInstance = new pc.MeshInstance(mesh, materialDefault);
+
+        return mesh;
     };
 
     // Creates user camera and binds to real time events
-    var loadUserData = function (userId, data) {
-        if (! cameraModel)
-            createCameraModel();
+    const loadUserData = function (userId, data) {
+        if (!cameraMesh) {
+            cameraMesh = createCameraMesh();
+        }
 
         // add user camera
-        var camera = cameras[userId] = new pc.Entity(app);
-        camera.addComponent('model', {
+        const camera = cameras[userId] = new pc.Entity();
+        camera.addComponent('render', {
             castShadows: false,
-            receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            meshInstances: [ new pc.MeshInstance(cameraMesh, materialDefault) ],
+            receiveShadows: false
         });
-        camera.model.model = cameraModel.clone();
         container.addChild(camera);
 
-        var cameraInner = new pc.Entity(app);
-        cameraInner.addComponent('model', {
+        const cameraInner = new pc.Entity();
+        cameraInner.addComponent('render', {
             castShadows: false,
-            receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            meshInstances: [ new pc.MeshInstance(cameraMesh, materialBehind) ],
+            receiveShadows: false
         });
-        cameraInner.model.model = cameraModel.clone();
-        cameraInner.model.model.meshInstances[0].material = materialBehind;
         camera.addChild(cameraInner);
 
-        var cameraQuad = new pc.Entity(app);
-        cameraQuad._userCamera = userId;
-        cameraQuad.addComponent('model', {
+        const cameraQuad = new pc.Entity();
+        cameraQuad.addComponent('render', {
             type: 'plane',
             castShadows: false,
-            receiveShadows: false,
-            castShadowsLightmap: false
+            castShadowsLightmap: false,
+            material: materialQuad,
+            receiveShadows: false
         });
-        cameraQuad.model.material = materialQuad;
+        cameraQuad._userCamera = userId;
         cameraQuad.rotate(90, 0, 0);
         cameraQuad.setLocalScale(close * horiz * 2, 1, close * vert * 2);
         camera.addChild(cameraQuad);
 
-        var pos = data.cameras.perspective.position || [0, 0, 0];
+        const pos = data.cameras.perspective.position || [0, 0, 0];
         camera.setPosition(pos[0], pos[1], pos[2]);
 
-        var rot = data.cameras.perspective.rotation || [0, 0, 0];
+        const rot = data.cameras.perspective.rotation || [0, 0, 0];
         camera.setEulerAngles(rot[0], rot[1], rot[2]);
 
         camera.pos = camera.getPosition().clone();
@@ -196,7 +162,7 @@ editor.once('load', function () {
         editor.call('viewport:render');
 
         // server > client
-        var evt = editor.on('realtime:userdata:' + userId + ':op:cameras', function (op) {
+        let evt = editor.on('realtime:userdata:' + userId + ':op:cameras', function (op) {
             if (op.p.length !== 3 || ! op.oi || op.p[1] !== 'perspective')
                 return;
 
@@ -209,7 +175,7 @@ editor.once('load', function () {
             }
         });
 
-        var unload = function () {
+        const unload = function () {
             if (evt) {
                 evt.unbind();
                 evt = null;
@@ -222,19 +188,16 @@ editor.once('load', function () {
         editor.once('realtime:disconnected', unload);
 
         editor.call('users:loadOne', userId, function (user) {
-            var dataNormal = editor.call('whoisonline:color', user.id, 'data');
-            var colorNormal = new Float32Array([dataNormal[0], dataNormal[1], dataNormal[2], 1]);
-            camera.model.meshInstances[0].setParameter('uColor', colorNormal);
-            camera.model.meshInstances[0].mask = GIZMO_MASK;
+            const userColor = editor.call('whoisonline:color', user.id, 'data');
 
-            var colorBehind = new Float32Array([dataNormal[0], dataNormal[1], dataNormal[2], 0.15]);
-            cameraInner.model.meshInstances[0].setParameter('uColor', colorBehind);
-            cameraInner.model.meshInstances[0].mask = GIZMO_MASK;
+            const colorNormal = new Float32Array([userColor[0], userColor[1], userColor[2], 1]);
+            camera.render.meshInstances[0].setParameter('uColor', colorNormal);
 
-            var dataLight = editor.call('whoisonline:color', user.id, 'data');
-            var colorLight = new Float32Array([dataLight[0], dataLight[1], dataLight[2], 0.25]);
-            cameraQuad.model.meshInstances[0].setParameter('uColor', colorLight);
-            cameraQuad.model.meshInstances[0].mask = GIZMO_MASK;
+            const colorBehind = new Float32Array([userColor[0], userColor[1], userColor[2], 0.15]);
+            cameraInner.render.meshInstances[0].setParameter('uColor', colorBehind);
+
+            const colorQuad = new Float32Array([userColor[0], userColor[1], userColor[2], 0.25]);
+            cameraQuad.render.meshInstances[0].setParameter('uColor', colorQuad);
         });
     };
 
@@ -243,7 +206,7 @@ editor.once('load', function () {
         // ignore the logged in user
         if (userId === config.self.id) return;
 
-        var add = function () {
+        const add = function () {
             // do not add users without read access
             if (editor.call('permissions:read', userId))
                 addUser(userId);
@@ -280,15 +243,14 @@ editor.once('load', function () {
         editor.unbind('permissions:set:' + userId);
     });
 
-    var vecA = new pc.Vec3();
-    var vecB = new pc.Vec3();
-    var quat = new pc.Quat();
+    const vecA = new pc.Vec3();
+    const vecB = new pc.Vec3();
 
     editor.on('viewport:update', function (dt) {
-        var render = false;
+        let render = false;
 
         for (const id in cameras) {
-            var camera = cameras[id];
+            const camera = cameras[id];
 
             if (vecA.copy(camera.getPosition()).sub(camera.pos).length() > 0.01) {
                 vecA.lerp(camera.getPosition(), camera.pos, 4 * dt);
@@ -304,7 +266,7 @@ editor.once('load', function () {
             camera.rot.transformVector(vecB, vecB);
 
             if (vecA.dot(vecB) < 0.999) {
-                quat = camera.getRotation().slerp(camera.getRotation(), camera.rot, 8 * dt);
+                const quat = camera.getRotation().slerp(camera.getRotation(), camera.rot, 8 * dt);
                 camera.setRotation(quat);
                 render = true;
             } else {

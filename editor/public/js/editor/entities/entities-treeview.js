@@ -785,10 +785,10 @@ Object.assign(pcui, (function () {
         }
 
         /**
-         * @param entity
          * @name pcui.EntitiesTreeView#getExpandedState
          * @description Gets dictionary with the expanded state the specified Entity and its children
-         * @returns A dictionary with <resource_id, boolean> entries.
+         * @param {Observer} entity - The entity to query.
+         * @returns {object} A dictionary with <resource_id, boolean> entries.
          */
         getExpandedState(entity) {
             const result = {};

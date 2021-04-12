@@ -369,12 +369,9 @@ editor.once('load', function () {
     var key = function (e) {
         var result;
 
-        // up arrow
-        if (e.keyCode === 38) {
+        if (e.keyCode === 38) { // up arrow
             result = focusNextSuggestion(false);
-        }
-        // down arrow
-        else if (e.keyCode === 40) {
+        } else if (e.keyCode === 40) { // down arrow
             result = focusNextSuggestion(true);
         }
 

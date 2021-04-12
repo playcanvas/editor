@@ -65,8 +65,7 @@ editor.once('load', function () {
         evt.preventDefault();
         evt.stopPropagation();
 
-        // enter > click focused button
-        if (evt.keyCode === 13) {
+        if (evt.keyCode === 13) { // enter > click focused button
             if (document.activeElement === btnYes.element) {
                 if (!btnYes.disabled) {
                     btnYes.emit('click');
@@ -74,10 +73,7 @@ editor.once('load', function () {
             } else if (! btnNo.disabled) {
                 btnNo.emit('click');
             }
-        }
-
-        // tab - focus yes / no buttons
-        else if (evt.keyCode === 9) {
+        } else if (evt.keyCode === 9) { // tab - focus yes / no buttons
             if (document.activeElement === btnYes.element) {
                 btnNo.element.focus();
             } else {

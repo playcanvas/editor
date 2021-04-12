@@ -497,9 +497,7 @@ editor.once('load', function () {
                             jobInProgress = false;
 
                             refreshButtonsState();
-                        }
-                        // handle error
-                        else if (job.status === 'error') {
+                        } else if (job.status === 'error') { // handle error
                             downloadProgressIconWrapper.classList.add('error');
                             downloadProgressTitle.class.add('error');
                             downloadProgressTitle.text = job.messages[0];

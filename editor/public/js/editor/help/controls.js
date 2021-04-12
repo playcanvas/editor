@@ -1,9 +1,9 @@
 editor.once('load', function () {
     'use strict';
 
-    var root = editor.call('layout.root');
+    const root = editor.call('layout.root');
 
-    var overlay = new ui.Overlay();
+    const overlay = new ui.Overlay();
     overlay.class.add('help-controls');
     overlay.style.zIndex = 203;
     overlay.center = true;
@@ -14,7 +14,7 @@ editor.once('load', function () {
     }, { passive: true });
 
     // header
-    var header = new ui.Label({
+    const header = new ui.Label({
         unsafe: true,
         text: '<span class="icon">&#57654;</span>Controls'
     });
@@ -22,7 +22,7 @@ editor.once('load', function () {
     overlay.append(header);
 
     // close
-    var btnClose = new ui.Button();
+    const btnClose = new ui.Button();
     btnClose.class.add('close');
     btnClose.text = '&#57650;';
     btnClose.on('click', function () {
@@ -31,19 +31,19 @@ editor.once('load', function () {
     header.element.appendChild(btnClose.element);
 
     // top image
-    var imgTop = new Image();
+    const imgTop = new Image();
     imgTop.src = 'https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/help-controls.png';
     imgTop.classList.add('top');
     imgTop.draggable = false;
     overlay.append(imgTop);
 
-    var container = new ui.Panel();
+    const container = new ui.Panel();
     container.class.add('container');
     overlay.append(container);
 
-    var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
+    const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
-    var items = [
+    const items = [
         {
             buttons: ['Ctrl', '$+', 'Enter'],
             title: 'Launch',
@@ -138,17 +138,17 @@ editor.once('load', function () {
     }
 
     for (let i = 0; i < items.length; i++) {
-        var row = document.createElement('div');
+        const row = document.createElement('div');
         row.classList.add('row');
 
-        var buttons = document.createElement('div');
+        const buttons = document.createElement('div');
         buttons.classList.add('buttons');
         row.appendChild(buttons);
 
-        for (var n = 0; n < items[i].buttons.length; n++) {
-            var button = document.createElement('div');
-            var divider = items[i].buttons[n].startsWith('$');
-            var sign = '';
+        for (let n = 0; n < items[i].buttons.length; n++) {
+            const button = document.createElement('div');
+            const divider = items[i].buttons[n].startsWith('$');
+            let sign = '';
             if (divider) sign = items[i].buttons[n].slice(1);
 
             button.classList.add(divider ? 'divider' : 'button');
@@ -159,13 +159,13 @@ editor.once('load', function () {
             buttons.appendChild(button);
         }
 
-        var title = document.createElement('div');
+        const title = document.createElement('div');
         title.classList.add('title');
         title.textContent = items[i].title;
         row.appendChild(title);
 
-        for (var n = 0; n < items[i].icons.length; n++) {
-            var icon = document.createElement('div');
+        for (let n = 0; n < items[i].icons.length; n++) {
+            const icon = document.createElement('div');
             icon.classList.add('icon');
             icon.innerHTML = items[i].icons[n];
             title.appendChild(icon);
@@ -181,6 +181,12 @@ editor.once('load', function () {
         overlay.hidden = false;
     });
 
+    const onKey = function (e) {
+        if (e.keyCode === 27) {
+            overlay.hidden = true;
+        }
+    };
+
     overlay.on('show', function () {
         editor.emit('help:controls:open');
         window.addEventListener('keydown', onKey);
@@ -194,12 +200,6 @@ editor.once('load', function () {
 
         editor.emit('picker:close', 'controls');
     });
-
-    var onKey = function (e) {
-        if (e.keyCode === 27) {
-            overlay.hidden = true;
-        }
-    };
 
     // hotkey
     editor.call('hotkey:register', 'help:controls', {

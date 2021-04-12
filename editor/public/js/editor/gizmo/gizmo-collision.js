@@ -1,24 +1,24 @@
 editor.once('load', function () {
     'use strict';
 
-    var app;
+    let app;
     // selected entity gizmos
-    var entities = { };
-    var selected = { };
+    const entities = { };
+    let selected = { };
     // pool of gizmos
-    var pool = [];
+    const pool = [];
     // colors
-    var alphaFront = 0.6;
-    var alphaBehind = 0.2;
-    var colorBehind = new pc.Color(1, 1, 1, 0.05);
-    var colorPrimary = new pc.Color(1, 1, 1);
-    var colorOccluder = new pc.Color(1, 1, 1, 1);
-    var colorDefault = [1, 1, 1];
-    var container;
-    var vecA = new pc.Vec3();
-    var vecB = new pc.Vec3();
+    const alphaFront = 0.6;
+    const alphaBehind = 0.2;
+    const colorBehind = new pc.Color(1, 1, 1, 0.05);
+    const colorPrimary = new pc.Color(1, 1, 1);
+    const colorOccluder = new pc.Color(1, 1, 1, 1);
+    const colorDefault = [1, 1, 1];
+    let container;
+    const vecA = new pc.Vec3();
+    const vecB = new pc.Vec3();
 
-    var materialDefault = new pc.BasicMaterial();
+    const materialDefault = new pc.BasicMaterial();
     materialDefault.name = 'collision';
     materialDefault.color = colorPrimary;
     materialDefault.blend = true;
@@ -26,7 +26,7 @@ editor.once('load', function () {
     materialDefault.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
     materialDefault.update();
 
-    var materialBehind = new pc.BasicMaterial();
+    const materialBehind = new pc.BasicMaterial();
     materialBehind.name = 'collision behind';
     materialBehind.color = colorBehind;
     materialBehind.blend = true;
@@ -36,7 +36,7 @@ editor.once('load', function () {
     materialBehind.depthTest = true;
     materialBehind.update();
 
-    var materialOccluder = new pc.BasicMaterial();
+    const materialOccluder = new pc.BasicMaterial();
     materialOccluder.name = 'collision occluder';
     materialOccluder.color = colorOccluder;
     materialOccluder.redWrite = false;
@@ -47,16 +47,16 @@ editor.once('load', function () {
     materialOccluder.depthTest = true;
     materialOccluder.update();
 
-    var models = { };
-    var materials = { };
-    var poolModels = { 'box': [], 'sphere': [], 'capsule-x': [], 'capsule-y': [], 'capsule-z': [], 'cylinder-x': [], 'cylinder-y': [], 'cylinder-z': [], 'cone-x': [], 'cone-y': [], 'cone-z': [] };
-    var axesNames = { 0: 'x', 1: 'y', 2: 'z' };
-    var shaderCapsule = { };
+    const models = { };
+    const materials = { };
+    const poolModels = { 'box': [], 'sphere': [], 'capsule-x': [], 'capsule-y': [], 'capsule-z': [], 'cylinder-x': [], 'cylinder-y': [], 'cylinder-z': [], 'cone-x': [], 'cone-y': [], 'cone-z': [] };
+    const axesNames = { 0: 'x', 1: 'y', 2: 'z' };
+    const shaderCapsule = { };
 
-    var layerFront = editor.call('gizmo:layers', 'Bright Collision');
-    var layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
+    const layerFront = editor.call('gizmo:layers', 'Bright Collision');
+    const layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
 
-    var visible = false;
+    let visible = false;
     editor.method('gizmo:collision:visible', function (state) {
         if (state === undefined)
             return visible;
@@ -82,7 +82,7 @@ editor.once('load', function () {
         this.type = '';
         this.asset = 0;
         this.entity = null;
-        this.color;
+        this.color = null;
     }
 
     // update lines
@@ -92,8 +92,8 @@ editor.once('load', function () {
         if (! this._link || ! this._link.entity)
             return;
 
-        var select = selected[this._link.get('resource_id')];
-        var collision = this._link.entity.collision;
+        const select = selected[this._link.get('resource_id')];
+        const collision = this._link.entity.collision;
         this.entity.enabled = this._link.entity.enabled && collision && collision.enabled && (select || visible);
         if (! this.entity.enabled) {
             this._link.entity.__noIcon = false;
@@ -104,7 +104,7 @@ editor.once('load', function () {
         this.entity.setPosition(this._link.entity.getPosition());
         this.entity.setRotation(this._link.entity.getRotation());
 
-        var type = collision.type;
+        let type = collision.type;
 
         if (type === 'cylinder' || type === 'capsule' || type === 'cone') {
             type += '-' + axesNames[collision.axis];
@@ -114,8 +114,8 @@ editor.once('load', function () {
             this.type = type;
 
             if (! this.color) {
-                var hash = 0;
-                var string = this._link.entity.getGuid();
+                let hash = 0;
+                const string = this._link.entity.getGuid();
                 for (let i = 0; i < string.length; i++)
                     hash += string.charCodeAt(i);
 
@@ -127,7 +127,7 @@ editor.once('load', function () {
             // set new model based on type
             if (models[this.type]) {
                 // get current model
-                var model = this.entity.model.model;
+                let model = this.entity.model.model;
                 if (model) {
                     // put back in pool
                     layerFront.removeMeshInstances(model.meshInstances);
@@ -147,9 +147,9 @@ editor.once('load', function () {
                     model = models[this.type].clone();
                     model._type = this.type;
 
-                    var color = this.color || colorDefault;
+                    const color = this.color || colorDefault;
 
-                    var old = model.meshInstances[0].material;
+                    let old = model.meshInstances[0].material;
                     model.meshInstances[0].setParameter('offset', 0);
                     // model.meshInstances[0].layer = 12;
                     // model.meshInstances[0].updateKey();
@@ -161,7 +161,7 @@ editor.once('load', function () {
                     model.meshInstances[0].material.color.set(color[0], color[1], color[2], alphaFront);
                     model.meshInstances[0].material.update();
 
-                    var old = model.meshInstances[1].material;
+                    old = model.meshInstances[1].material;
                     model.meshInstances[1].setParameter('offset', 0.001);
                     // model.meshInstances[1].layer = 2;
                     model.meshInstances[1].pick = false;
@@ -215,12 +215,8 @@ editor.once('load', function () {
             }
         }
 
-        var mat = materialBehind;
-        var radius = collision.radius || 0.00001;
-        var height = collision.height || 0.00001;
-
-        if (this.entity.model.model && this.entity.model.meshInstances[1])
-            mat = null;
+        const radius = collision.radius || 0.00001;
+        const height = collision.height || 0.00001;
 
         switch (this.type) {
             case 'sphere':
@@ -258,11 +254,11 @@ editor.once('load', function () {
                 }
 
                 if (this.entity.model.model) {
-                    var picking = ! visible && this._link.entity.model && this._link.entity.model.enabled && this._link.entity.model.type === 'asset' && this._link.entity.model.asset === collision.asset;
+                    const picking = ! visible && this._link.entity.model && this._link.entity.model.enabled && this._link.entity.model.type === 'asset' && this._link.entity.model.asset === collision.asset;
                     if (picking !== this.entity.model.model.__picking) {
                         this.entity.model.model.__picking = picking;
 
-                        var meshes = this.entity.model.meshInstances;
+                        const meshes = this.entity.model.meshInstances;
                         for (let i = 0; i < meshes.length; i++) {
                             if (! meshes[i].__collision)
                                 continue;
@@ -281,7 +277,7 @@ editor.once('load', function () {
         this.unlink();
         this._link = obj;
 
-        var self = this;
+        const self = this;
 
         this.events.push(this._link.once('destroy', function () {
             self.unlink();
@@ -302,10 +298,10 @@ editor.once('load', function () {
         // mesh instances to the front and others to the back layer depending
         // on the __useFrontLayer property
         this.entity.model.addModelToLayers = function () {
-            var frontMeshInstances = this.meshInstances.filter(function (mi) {
+            const frontMeshInstances = this.meshInstances.filter(function (mi) {
                 return mi.__useFrontLayer;
             });
-            var backMeshInstances = this.meshInstances.filter(function (mi) {
+            const backMeshInstances = this.meshInstances.filter(function (mi) {
                 return ! mi.__useFrontLayer;
             });
 
@@ -337,7 +333,7 @@ editor.once('load', function () {
         this.type = '';
         this.asset = 0;
 
-        var model = this.entity.model.model;
+        const model = this.entity.model.model;
         if (model) {
             // put back in pool
             layerFront.removeMeshInstances(model.meshInstances);
@@ -360,7 +356,7 @@ editor.once('load', function () {
         if (asset.resource) {
             this.entity.model.model = createModelCopy(asset.resource, this.color);
         } else {
-            var self = this;
+            const self = this;
 
             this.events.push(asset.once('load', function (asset) {
                 if (self.asset !== asset.id)
@@ -372,13 +368,13 @@ editor.once('load', function () {
     };
 
     editor.on('entities:add', function (entity) {
-        var key = entity.get('resource_id');
+        const key = entity.get('resource_id');
 
-        var addGizmo = function () {
+        const addGizmo = function () {
             if (entities[key])
                 return;
 
-            var gizmo = pool.shift();
+            let gizmo = pool.shift();
             if (! gizmo)
                 gizmo = new Gizmo();
 
@@ -388,7 +384,7 @@ editor.once('load', function () {
             editor.call('viewport:render');
         };
 
-        var removeGizmo = function () {
+        const removeGizmo = function () {
             if (! entities[key])
                 return;
 
@@ -424,7 +420,7 @@ editor.once('load', function () {
         app.root.addChild(container);
 
         // material
-        var defaultVShader = ' \
+        const defaultVShader = ' \
             attribute vec3 aPosition;\n \
             attribute vec3 aNormal;\n \
             varying vec3 vNormal;\n \
@@ -442,7 +438,7 @@ editor.once('load', function () {
                 gl_Position = matrix_viewProjection * posW;\n \
                 vPosition = posW.xyz;\n \
             }\n';
-        var defaultFShader = ' \
+        const defaultFShader = ' \
             precision ' + app.graphicsDevice.precision + ' float;\n \
             varying vec3 vNormal;\n \
             varying vec3 vPosition;\n \
@@ -455,9 +451,9 @@ editor.once('load', function () {
                 gl_FragColor = vec4(uColor.rgb * light * 2.0, uColor.a);\n \
             }\n';
 
-        var shaderDefault;
+        let shaderDefault;
 
-        var _updateShader = materialDefault.updateShader;
+        const _updateShader = materialDefault.updateShader;
 
         materialDefault.updateShader = function (device, scene, objDefs, staticLightList, pass, sortedLights) {
             if (pass === pc.SHADER_FORWARD) {
@@ -482,7 +478,7 @@ editor.once('load', function () {
         materialBehind.updateShader = materialDefault.updateShader;
         materialOccluder.updateShader = materialDefault.updateShader;
 
-        var capsuleVShader = ' \
+        const capsuleVShader = ' \
             attribute vec3 aPosition;\n \
             attribute vec3 aNormal;\n \
             attribute float aSide;\n \
@@ -503,7 +499,7 @@ editor.once('load', function () {
                 gl_Position = matrix_viewProjection * posW;\n \
                 vPosition = posW.xyz;\n \
             }\n';
-        var capsuleFShader = ' \
+        const capsuleFShader = ' \
             precision ' + app.graphicsDevice.precision + ' float;\n \
             varying vec3 vNormal;\n \
             varying vec3 vPosition;\n \
@@ -515,7 +511,7 @@ editor.once('load', function () {
                 gl_FragColor = vec4(uColor.rgb * light * 2.0, uColor.a);\n \
             }\n';
 
-        var capsuleVShaderPick = ' \
+        const capsuleVShaderPick = ' \
             attribute vec3 aPosition;\n \
             attribute vec3 aNormal;\n \
             attribute float aSide;\n \
@@ -530,7 +526,7 @@ editor.once('load', function () {
                 gl_Position = matrix_viewProjection * posW;\n \
             }\n';
 
-        var capsuleFShaderPick = ' \
+        const capsuleFShaderPick = ' \
             precision ' + app.graphicsDevice.precision + ' float;\n \
             uniform vec4 uColor;\n \
             void main(void) {\n \
@@ -538,9 +534,9 @@ editor.once('load', function () {
             }\n';
 
 
-        var makeCapsuleMaterial = function (a) {
-            var matDefault = materials['capsule-' + a] = materialDefault.clone();
-            var _updateShader = matDefault.updateShader;
+        const makeCapsuleMaterial = function (a) {
+            const matDefault = materials['capsule-' + a] = materialDefault.clone();
+            const _updateShader = matDefault.updateShader;
             matDefault.updateShader = function (device, scene, objDefs, staticLightList, pass, sortedLights) {
                 if (pass === pc.SHADER_FORWARD) {
                     if (! shaderCapsule[a]) {
@@ -556,7 +552,7 @@ editor.once('load', function () {
                     }
                     this.shader = shaderCapsule[a];
                 } else if (pass === pc.SHADER_PICK) {
-                    var shaderName = 'pick-' + a;
+                    const shaderName = 'pick-' + a;
                     if (! shaderCapsule[shaderName]) {
                         shaderCapsule[shaderName] = new pc.Shader(device, {
                             attributes: {
@@ -576,11 +572,11 @@ editor.once('load', function () {
 
             matDefault.update();
 
-            var matBehind = materials['capsuleBehind-' + a] = materialBehind.clone();
+            const matBehind = materials['capsuleBehind-' + a] = materialBehind.clone();
             matBehind.updateShader = matDefault.updateShader;
             matBehind.update();
 
-            var matOccluder = materials['capsuleOcclude-' + a] = materialOccluder.clone();
+            const matOccluder = materials['capsuleOcclude-' + a] = materialOccluder.clone();
             matOccluder.updateShader = matDefault.updateShader;
             matOccluder.update();
         };
@@ -588,19 +584,10 @@ editor.once('load', function () {
         for (const key in axesNames)
             makeCapsuleMaterial(axesNames[key]);
 
-        var buffer, iterator, size, length, node, mesh, meshInstance, model, indexBuffer, indices;
-        var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [
-            { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.ELEMENTTYPE_FLOAT32 }
-        ]);
-        var vertexFormatAttr15 = new pc.VertexFormat(app.graphicsDevice, [
-            { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.ELEMENTTYPE_FLOAT32 },
-            { semantic: pc.SEMANTIC_NORMAL, components: 3, type: pc.ELEMENTTYPE_FLOAT32 },
-            { semantic: pc.SEMANTIC_ATTR15, components: 1, type: pc.ELEMENTTYPE_FLOAT32 }
-        ]);
-        var rad = Math.PI / 180;
+        const rad = Math.PI / 180;
 
-        var createModel = function (args) {
-            var mesh;
+        const createModel = function (args) {
+            let mesh;
 
             if (args.mesh) {
                 mesh = args.mesh;
@@ -621,9 +608,9 @@ editor.once('load', function () {
             }
 
             // node
-            var node = new pc.GraphNode();
+            const node = new pc.GraphNode();
             // meshInstance
-            var meshInstance = new pc.MeshInstance(node, mesh, args.matDefault);
+            const meshInstance = new pc.MeshInstance(node, mesh, args.matDefault);
             meshInstance.__editor = true;
             meshInstance.__collision = true;
             // meshInstance.layer = 12;
@@ -632,7 +619,7 @@ editor.once('load', function () {
             meshInstance.receiveShadow = false;
             // meshInstance.updateKey();
             // meshInstanceBehind
-            var meshInstanceBehind = new pc.MeshInstance(node, mesh, args.matBehind);
+            const meshInstanceBehind = new pc.MeshInstance(node, mesh, args.matBehind);
             meshInstanceBehind.__editor = true;
             meshInstanceBehind.pick = false;
             // meshInstanceBehind.layer = 2;
@@ -642,7 +629,7 @@ editor.once('load', function () {
             meshInstanceBehind.receiveShadow = false;
             // meshInstanceBehind.updateKey();
             // meshInstanceOccluder
-            var meshInstanceOccluder = new pc.MeshInstance(node, mesh, args.matOccluder);
+            const meshInstanceOccluder = new pc.MeshInstance(node, mesh, args.matOccluder);
             meshInstanceOccluder.__editor = true;
             meshInstanceOccluder.pick = false;
             // meshInstanceOccluder.layer = 9;
@@ -651,7 +638,7 @@ editor.once('load', function () {
             meshInstanceOccluder.receiveShadow = false;
             // meshInstanceOccluder.updateKey();
             // model
-            var model = new pc.Model();
+            const model = new pc.Model();
             model.graph = node;
             model.meshInstances = [meshInstance, meshInstanceBehind, meshInstanceOccluder];
 
@@ -661,7 +648,7 @@ editor.once('load', function () {
 
         // ================
         // box
-        var positions = [
+        let positions = [
             1, 1, 1,   1, 1, -1,   -1, 1, -1,   -1, 1, 1, // top
             1, 1, 1,   -1, 1, 1,   -1, -1, 1,   1, -1, 1, // front
             1, 1, 1,   1, -1, 1,   1, -1, -1,   1, 1, -1, // right
@@ -669,7 +656,7 @@ editor.once('load', function () {
             -1, 1, 1,   -1, 1, -1,   -1, -1, -1,   -1, -1, 1, // left
             1, -1, 1,   -1, -1, 1,   -1, -1, -1,   1, -1, -1 // bottom
         ];
-        var normals = [
+        let normals = [
             0, 1, 0,   0, 1, 0,   0, 1, 0,   0, 1, 0,
             0, 0, 1,   0, 0, 1,   0, 0, 1,   0, 0, 1,
             1, 0, 0,   1, 0, 0,   1, 0, 0,   1, 0, 0,
@@ -677,7 +664,7 @@ editor.once('load', function () {
             -1, 0, 0,   -1, 0, 0,   -1, 0, 0,   -1, 0, 0,
             0, -1, 0,   0, -1, 0,   0, -1, 0,   0, -1, 0
         ];
-        var indices = [
+        let indices = [
             0, 1, 2, 2, 3, 0,
             4, 5, 6, 6, 7, 4,
             8, 9, 10, 10, 11, 8,
@@ -697,15 +684,15 @@ editor.once('load', function () {
 
         // ================
         // sphere
-        var segments = 64;
+        const segments = 64;
         positions = [];
         normals = [];
         indices = [];
 
         for (let y = 1; y < segments / 2; y++) {
             for (let i = 0; i < segments; i++) {
-                var l = Math.sin((y * (180 / (segments / 2)) + 90) * rad);
-                var c = Math.cos((y * (180 / (segments / 2)) + 90) * rad);
+                const l = Math.sin((y * (180 / (segments / 2)) + 90) * rad);
+                const c = Math.cos((y * (180 / (segments / 2)) + 90) * rad);
                 vecA.set(Math.sin(360 / segments * i * rad) * Math.abs(c), l, Math.cos(360 / segments * i * rad) * Math.abs(c));
                 positions.push(vecA.x, vecA.y, vecA.z);
                 vecA.normalize();
@@ -767,7 +754,7 @@ editor.once('load', function () {
 
         // ================
         // cylinders
-        var axes = {
+        const axes = {
             'x': ['z', 'y', 'x'],
             'y': ['x', 'z', 'y'],
             'z': ['y', 'x', 'z']
@@ -776,10 +763,10 @@ editor.once('load', function () {
             positions = [];
             indices = [];
             normals = [];
-            var segments = 72;
+            const segments = 72;
 
             // side
-            for (var v = 1; v >= -1; v -= 2) {
+            for (let v = 1; v >= -1; v -= 2) {
                 for (let i = 0; i < segments; i++) {
                     vecA[axes[a][0]] = Math.sin(360 / segments * i * rad);
                     vecA[axes[a][1]] = Math.cos(360 / segments * i * rad);
@@ -793,7 +780,7 @@ editor.once('load', function () {
             }
 
             // top/bottom
-            for (var v = 1; v >= -1; v -= 2) {
+            for (let v = 1; v >= -1; v -= 2) {
                 vecA.set(0, 0, 0);
                 vecA[axes[a][2]] = v;
                 positions.push(vecA.x * 0.5, vecA.y * 0.5, vecA.z * 0.5);
@@ -870,10 +857,10 @@ editor.once('load', function () {
         models['capsule-z'].graph.setLocalScale(2.0, 0.5, 2.0);
     });
 
-    var createModelCopy = function (resource, color) {
-        var model = resource.clone();
+    const createModelCopy = function (resource, color) {
+        const model = resource.clone();
 
-        var meshesExtra = [];
+        const meshesExtra = [];
 
         for (let i = 0; i < model.meshInstances.length; i++) {
             model.meshInstances[i].material = materialDefault.clone();
@@ -889,10 +876,10 @@ editor.once('load', function () {
             model.meshInstances[i].setParameter('offset', 0);
             // model.meshInstances[i].updateKey();
 
-            var node = model.meshInstances[i].node;
-            var mesh = model.meshInstances[i].mesh;
+            const node = model.meshInstances[i].node;
+            const mesh = model.meshInstances[i].mesh;
 
-            var meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind.clone());
+            const meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind.clone());
             meshInstanceBehind.material.updateShader = materialBehind.updateShader;
             meshInstanceBehind.material.color.set(color[0], color[1], color[2], alphaBehind);
             meshInstanceBehind.material.update();
@@ -908,7 +895,7 @@ editor.once('load', function () {
             meshInstanceBehind.__useFrontLayer = true;
 
             // meshInstanceOccluder
-            var meshInstanceOccluder = new pc.MeshInstance(node, mesh, materialOccluder);
+            const meshInstanceOccluder = new pc.MeshInstance(node, mesh, materialOccluder);
             meshInstanceOccluder.setParameter('offset', 0);
             meshInstanceOccluder.__editor = true;
             meshInstanceOccluder.pick = false;

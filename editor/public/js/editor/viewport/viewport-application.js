@@ -123,8 +123,7 @@ editor.once('load', function () {
         settings.gridDivisions = parseInt(settings.gridDivisions, 10);
         if (settings.gridDivisions > 0 && settings.gridDivisionSize > 0) {
             var size = settings.gridDivisions * settings.gridDivisionSize;
-            this.grid = new pc.Grid(this.graphicsDevice, size, settings.gridDivisions);
-            this.grid.model.meshInstances[0].aabb.halfExtents.set(size / 2, size / 2, size / 2);
+            this.grid = new EditorGrid(this.graphicsDevice, size, settings.gridDivisions);
             gridLayer.addMeshInstances(this.grid.model.meshInstances);
         }
 
