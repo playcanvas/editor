@@ -56,7 +56,8 @@ editor.once('load', function () {
                 // skip any graph nodes
                 if (index > 0) {
                     var children = obj.entity.children;
-                    for (let i = 0, len = children.length; i < len && index > 0; i++) {
+                    let i = 0;
+                    for (let len = children.length; i < len && index > 0; i++) {
                         if (children[i] instanceof pc.Entity) {
                             index--;
                         }
