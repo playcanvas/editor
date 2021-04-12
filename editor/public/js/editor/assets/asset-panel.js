@@ -683,7 +683,7 @@ Object.assign(pcui, (function () {
         }
 
         _onClickStore() {
-            window.open('https://store.playcanvas.com/', '_blank');
+            window.open(config.url.store, '_blank');
         }
 
         // Shows new asset context menu
