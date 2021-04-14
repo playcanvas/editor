@@ -444,7 +444,19 @@ Object.assign(pcui, (function () {
                     if (updates.states) {
                         Object.keys(updates.states).forEach(stateKey => {
                             if (stateKey.includes('__added')) {
-                                this._graph.createNode(updates.states[stateKey], undefined, true);
+
+                                let state = updates.states[stateKey];
+                                const stateAttributes = {
+                                    name: state.name,
+                                    loop: state.loop,
+                                    speed: state.speed
+                                };
+                                delete state.loop;
+                                delete state.name;
+                                delete state.speed;
+                                state = Object.assign(state, { attributes: stateAttributes });
+
+                                this._graph.createNode(state, undefined, true);
                             }
                             if (stateKey.includes('__deleted')) {
                                 this._graph.deleteNode(updates.states[stateKey].id, true);
