@@ -38,7 +38,8 @@ editor.once('load', function () {
                     defaultAssetPreload: true,
                     animSampleRate: 10,
                     animCurveTolerance: 0,
-                    animEnableCubic: false
+                    animEnableCubic: false,
+                    animUseFbxFilename: false
                 }
             },
             branch: config.self.branch.id,
@@ -130,6 +131,10 @@ editor.once('load', function () {
 
             if (!settings.has('editor.pipeline.animEnableCubic')) {
                 settings.set('editor.pipeline.animEnableCubic', false);
+            }
+
+            if (!settings.has('editor.pipeline.animUseFbxFilename')) {
+                settings.set('editor.pipeline.animUseFbxFilename', false);
             }
 
             settings.history.enabled = history;

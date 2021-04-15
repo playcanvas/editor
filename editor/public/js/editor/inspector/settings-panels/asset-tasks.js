@@ -85,7 +85,21 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'settings',
-            label: 'Sample rate',
+            label: 'Naming Strategy',
+            type: 'select',
+            args: {
+                type: 'boolean',
+                options: [
+                    { v: false, t: 'Use Take Name' },
+                    { v: true, t: 'Use FBX Filename' }
+                ]
+            },
+            alias: 'asset-tasks:animUseFbxFilename',
+            path: 'editor.pipeline.animUseFbxFilename'
+        },
+        {
+            observer: 'settings',
+            label: 'Sample Rate',
             alias: 'asset-tasks:animSampleRate',
             path: 'editor.pipeline.animSampleRate',
             type: 'select',
@@ -109,14 +123,14 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'settings',
-            label: 'Curve tolerance',
+            label: 'Curve Tolerance',
             type: 'number',
             alias: 'asset-tasks:animCurveTolerance',
             path: 'editor.pipeline.animCurveTolerance'
         },
         {
             observer: 'settings',
-            label: 'Cubic curves',
+            label: 'Cubic Curves',
             type: 'boolean',
             alias: 'asset-tasks:animEnableCubic',
             path: 'editor.pipeline.animEnableCubic'
@@ -161,11 +175,17 @@ Object.assign(pcui, (function () {
             if (!editor.call('users:hasFlag', 'hasContainerAssets')) {
                 this._attributesInspector.getField('editor.pipeline.useContainers').parent.hidden = true;
             } else {
-                this._attributesInspector.getField('editor.pipeline.useContainers').parent.hidden = !this._attributesInspector.getField('editor.pipeline.useGlb').value;
-                this._attributesInspector.getField('editor.pipeline.useGlb').on('change', (value) => {
-                    this._attributesInspector.getField('editor.pipeline.useContainers').parent.hidden = !value;
+                const useGlbField = this._attributesInspector.getField('editor.pipeline.useGlb');
+                const useContainersField = this._attributesInspector.getField('editor.pipeline.useContainers');
+                const animUseFbxFilenameField = this._attributesInspector.getField('editor.pipeline.animUseFbxFilename');
+
+                useContainersField.parent.hidden = !useGlbField.value;
+                animUseFbxFilenameField.parent.hidden = !useGlbField.value;
+                useGlbField.on('change', (value) => {
+                    useContainersField.parent.hidden = !value;
+                    animUseFbxFilenameField.parent.hidden = !value;
                     if (!value) {
-                        this._attributesInspector.getField('editor.pipeline.useContainers').value = false;
+                        useContainersField.value = false;
                     }
                 });
             }

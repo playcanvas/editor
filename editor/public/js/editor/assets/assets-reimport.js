@@ -19,6 +19,7 @@ editor.once('load', function () {
                 data.preserveMapping = settings.get('editor.pipeline.preserveMapping');
                 data.useGlb = settings.get('editor.pipeline.useGlb');
                 data.useContainers = settings.get('editor.pipeline.useContainers');
+                data.animUseFbxFilename = settings.get('editor.pipeline.animUseFbxFilename');
             }
         }
 

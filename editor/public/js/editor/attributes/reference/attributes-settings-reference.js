@@ -229,16 +229,20 @@ editor.once('load', function () {
         description: 'Use the new GLB conversion pipeline when uploading models. The new pipeline will generate Container, Render and Template assets out of the uploaded model.'
     }, {
         name: 'asset-tasks:animSampleRate',
-        title: 'Animation sample rate',
+        title: 'Animation Sample Rate',
         description: 'Rate at which to sample animation curves in samples per second. Specify 0 to disable sampling and use input keys instead.'
     }, {
         name: 'asset-tasks:animCurveTolerance',
-        title: 'Animation curve tolerance',
+        title: 'Animation Curve Tolerance',
         description: 'Tolerance to use when optimizing linear animation curve segments. Specify 0 to disable curve optimization.'
     }, {
         name: 'asset-tasks:animEnableCubic',
-        title: 'Animation cubic curves',
+        title: 'Animation Cubic Curves',
         description: 'Output cubic curves when they are encountered. Disable to convert all curves to linear segments.'
+    }, {
+        name: 'asset-tasks:animUseFbxFilename',
+        title: 'Animation Naming Strategy (for GLB only)',
+        description: 'Choose the naming strategy when importing animations. Select \'Use Take Name\' to name the animation after the take name assigned in the FBX file. Select \'Use FBX Filename\' to name the animation after the FBX filename.'
     }, {
         name: 'asset-tasks:defaultAssetPreload',
         title: 'Preload new assets',
