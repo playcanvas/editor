@@ -1,8 +1,20 @@
 editor.once('load', function () {
     'use strict';
 
-    var typing = 0;
-    var users = { };
+    let typing = 0;
+    const users = { };
+
+    const notifyTypers = function () {
+        const typers = [];
+        for (const id in users) {
+            if (! users.hasOwnProperty(id) || ! users[id].typing)
+                continue;
+
+            typers.push(id);
+        }
+
+        editor.emit('chat:typing', typing, typers, msg);
+    };
 
     editor.on('whoisonline:add', function (id) {
         if (users[id])
@@ -33,18 +45,6 @@ editor.once('load', function () {
 
         delete users[id];
     });
-
-    var notifyTypers = function () {
-        var typers = [];
-        for (const id in users) {
-            if (! users.hasOwnProperty(id) || ! users[id].typing)
-                continue;
-
-            typers.push(id);
-        }
-
-        editor.emit('chat:typing', typing, typers, msg);
-    };
 
     editor.method('chat:sync:typing', function (data) {
         if (! users[data.user] || data.user === config.self.id || users[data.user].typing === data.d)

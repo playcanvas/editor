@@ -5,7 +5,7 @@ function Helpers() { }
 Object.assign(Helpers, {
     rgbaStr: function (colour, scale) {
         if (!scale) { scale = 1; }
-        var rgba = colour.map(function (element, index) {
+        let rgba = colour.map(function (element, index) {
             return index < 3 ? Math.round(element * scale) : element;
         } ).join(',');
         for (let i = colour.length; i < 4; ++i) {
@@ -22,23 +22,25 @@ Object.assign(Helpers, {
 
     // rgb(a) -> hsva
     toHsva: function (rgba) {
-        var hsva = rgb2hsv(rgba.map(function (v) { return v * 255; }));
+        const hsva = rgb2hsv(rgba.map(function (v) { return v * 255; }));
         hsva.push(rgba.length > 3 ? rgba[3] : 1);
         return hsva;
     },
 
     // hsv(1) -> rgba
     toRgba: function (hsva) {
-        var rgba = hsv2rgb(hsva).map(function (v) { return v / 255; });
+        const rgba = hsv2rgb(hsva).map(function (v) { return v / 255; });
         rgba.push(hsva.length > 3 ? hsva[3] : 1);
         return rgba;
     },
 
     // calculate the normalized coordinate [x,y] relative to rect
     normalizedCoord: function (widget, x, y) {
-        var rect = widget.element.getBoundingClientRect();
-        return [(x - rect.left) / rect.width,
-            (y - rect.top) / rect.height];
+        const rect = widget.element.getBoundingClientRect();
+        return [
+            (x - rect.left) / rect.width,
+            (y - rect.top) / rect.height
+        ];
     }
 });
 
@@ -99,7 +101,7 @@ function ColorPicker(parent) {
     this.upHandler = genEvtHandler(this, this._onMouseUp);
 
     function numberField(label) {
-        var field = new ui.NumberField({
+        const field = new ui.NumberField({
             precision: 1,
             step: 1,
             min: 0,
@@ -139,11 +141,11 @@ function ColorPicker(parent) {
 
 ColorPicker.prototype = {
     _generateHue: function (canvas) {
-        var ctx = canvas.element.getContext('2d');
-        var w = canvas.pixelWidth;
-        var h = canvas.pixelHeight;
-        var gradient = ctx.createLinearGradient(0, 0, 0, h);
-        for (var t = 0; t <= 6; t += 1) {
+        const ctx = canvas.element.getContext('2d');
+        const w = canvas.pixelWidth;
+        const h = canvas.pixelHeight;
+        const gradient = ctx.createLinearGradient(0, 0, 0, h);
+        for (let t = 0; t <= 6; t += 1) {
             gradient.addColorStop(t / 6, Helpers.rgbaStr(hsv2rgb([t / 6, 1, 1])));
         }
         ctx.fillStyle = gradient;
@@ -151,10 +153,10 @@ ColorPicker.prototype = {
     },
 
     _generateAlpha: function (canvas) {
-        var ctx = canvas.element.getContext('2d');
-        var w = canvas.pixelWidth;
-        var h = canvas.pixelHeight;
-        var gradient = ctx.createLinearGradient(0, 0, 0, h);
+        const ctx = canvas.element.getContext('2d');
+        const w = canvas.pixelWidth;
+        const h = canvas.pixelHeight;
+        const gradient = ctx.createLinearGradient(0, 0, 0, h);
         gradient.addColorStop(0, 'rgb(255, 255, 255)');
         gradient.addColorStop(1, 'rgb(0, 0, 0)');
         ctx.fillStyle = gradient;
@@ -162,11 +164,11 @@ ColorPicker.prototype = {
     },
 
     _generateGradient: function (canvas, clr) {
-        var ctx = canvas.element.getContext('2d');
-        var w = canvas.pixelWidth;
-        var h = canvas.pixelHeight;
+        const ctx = canvas.element.getContext('2d');
+        const w = canvas.pixelWidth;
+        const h = canvas.pixelHeight;
 
-        var gradient = ctx.createLinearGradient(0, 0, w, 0);
+        let gradient = ctx.createLinearGradient(0, 0, w, 0);
         gradient.addColorStop(0, Helpers.rgbaStr([255, 255, 255, 255]));
         gradient.addColorStop(1, Helpers.rgbaStr([clr[0], clr[1], clr[2], 255]));
         ctx.fillStyle = gradient;
@@ -181,10 +183,14 @@ ColorPicker.prototype = {
 
     _onFieldChanged: function () {
         if (!this._changing) {
-            var rgba = [this.rField.value,
+            const rgba = [
+                this.rField.value,
                 this.gField.value,
                 this.bField.value,
-                this.aField.value].map(function (v) { return v / 255; });
+                this.aField.value
+            ].map(function (v) {
+                return v / 255;
+            });
             this.hsva = Helpers.toHsva(rgba);
             this.emit('change', this.color);
         }
@@ -192,9 +198,9 @@ ColorPicker.prototype = {
 
     _onHexChanged: function () {
         if (!this._changing) {
-            var hex = this.hexField.value.trim().toLowerCase();
+            const hex = this.hexField.value.trim().toLowerCase();
             if (/^([0-9a-f]{2}){3,4}$/.test(hex)) {
-                var rgb = [parseInt(hex.substring(0, 2), 16),
+                const rgb = [parseInt(hex.substring(0, 2), 16),
                     parseInt(hex.substring(2, 4), 16),
                     parseInt(hex.substring(4, 6), 16)];
                 this.hsva = rgb2hsv(rgb).concat([this.hsva[3]]);
@@ -221,19 +227,19 @@ ColorPicker.prototype = {
     },
 
     _onMouseMove: function (evt) {
-        var newhsva;
+        let newhsva;
         if (this._dragMode === 1) {
-            var m = Helpers.normalizedCoord(this.colorRect, evt.pageX, evt.pageY);
-            var s = pc.math.clamp(m[0], 0, 1);
-            var v = pc.math.clamp(m[1], 0, 1);
+            const m = Helpers.normalizedCoord(this.colorRect, evt.pageX, evt.pageY);
+            const s = pc.math.clamp(m[0], 0, 1);
+            const v = pc.math.clamp(m[1], 0, 1);
             newhsva = [this.hsva[0], s, 1 - v, this._hsva[3]];
         } else if (this._dragMode === 2) {
-            var m = Helpers.normalizedCoord(this.hueRect, evt.pageX, evt.pageY);
-            var h = pc.math.clamp(m[1], 0, 1);
+            const m = Helpers.normalizedCoord(this.hueRect, evt.pageX, evt.pageY);
+            const h = pc.math.clamp(m[1], 0, 1);
             newhsva = [h, this.hsva[1], this.hsva[2], this.hsva[3]];
         } else {
-            var m = Helpers.normalizedCoord(this.alphaRect, evt.pageX, evt.pageY);
-            var a = pc.math.clamp(m[1], 0, 1);
+            const m = Helpers.normalizedCoord(this.alphaRect, evt.pageX, evt.pageY);
+            const a = pc.math.clamp(m[1], 0, 1);
             newhsva = [this.hsva[0], this.hsva[1], this.hsva[2], 1 - a];
         }
         if (newhsva[0] !== this._hsva[0] ||
@@ -265,18 +271,18 @@ Object.defineProperty(ColorPicker.prototype, 'hsva', {
         return this._hsva;
     },
     set: function (hsva) {
-        var rgb = hsv2rgb(hsva);
-        var hueRgb = hsv2rgb([hsva[0], 1, 1]);
+        const rgb = hsv2rgb(hsva);
+        const hueRgb = hsv2rgb([hsva[0], 1, 1]);
 
         // regenerate gradient canvas if hue changes
         if (hsva[0] !== this._hsva[0]) {
             this._generateGradient(this.colorRect, hueRgb);
         }
 
-        var e = this.colorRect.element;
-        var r = e.getBoundingClientRect();
-        var w = r.width - 2;
-        var h = r.height - 2;
+        const e = this.colorRect.element;
+        const r = e.getBoundingClientRect();
+        const w = r.width - 2;
+        const h = r.height - 2;
 
         this.colorHandle.style.backgroundColor = Helpers.rgbaStr(rgb);
         this.colorHandle.style.left = e.offsetLeft - 7 + Math.floor(w * hsva[1]) + 'px';
@@ -307,7 +313,7 @@ Object.defineProperty(ColorPicker.prototype, 'color', {
         return Helpers.toRgba(this._hsva);
     },
     set: function (clr) {
-        var hsva = Helpers.toHsva(clr);
+        const hsva = Helpers.toHsva(clr);
         if (hsva[0] === 0 && hsva[1] === 0 && this._hsva[0] !== -1) {
             // if the incoming RGB is a shade of grey (without hue),
             // use the current active hue instead.
@@ -335,6 +341,47 @@ Object.defineProperty(ColorPicker.prototype, 'editAlpha', {
 
 editor.once('load', function () {
     'use strict';
+
+    // constants
+    const CONST = {
+        bg: '#2c393c',
+        anchorRadius: 5,
+        selectedRadius: 7
+    };
+
+    // ui widgets
+    const UI = {
+        root: editor.call('layout.root'),
+        overlay: new ui.Overlay(),
+        panel: document.createElement('div'),
+        gradient: new ui.Canvas( { useDevicePixelRatio: true } ),
+        checkerPattern: createCheckerPattern(),
+        anchors: new ui.Canvas( { useDevicePixelRatio: true } ),
+        footer: new ui.Panel(),
+        typeLabel: new ui.Label( { text: 'Type' }),
+        typeCombo: new ui.SelectField({
+            options: { 0: 'placeholder' },
+            type: 'number'
+        }),
+        positionLabel: new ui.Label( { text: 'Position' }),
+        positionEdit: new ui.NumberField( { min: 0, max: 100, step: 1 } ),
+        copyButton: new ui.Button({ text: '&#58193' }),
+        pasteButton: new ui.Button({ text: '&#58184' }),
+        colorPicker: null
+    };
+
+    // current state
+    const STATE = {
+        curves: [],            // holds all the gradient curves (either 3 or 4 of them)
+        keystore: [],          // holds the curve during edit
+        anchors: [],           // holds the times of the anchors
+        hoveredAnchor: -1,     // index of the hovered anchor
+        selectedAnchor: -1,    // index of selected anchor
+        selectedValue: [],     // value being dragged
+        changing: false,       // UI is currently changing
+        draggingAnchor: false,
+        typeMap: { }          // map from curve type dropdown to engine curve enum
+    };
 
     // open the picker
     function open() {
@@ -368,7 +415,7 @@ editor.once('load', function () {
     function onDeleteKey() {
         if (!UI.overlay.hidden) {
             if (STATE.selectedAnchor !== -1) {
-                var deleteTime = STATE.anchors[STATE.selectedAnchor];
+                const deleteTime = STATE.anchors[STATE.selectedAnchor];
                 STATE.selectedAnchor = -1;
                 deleteAnchor(deleteTime);
             }
@@ -377,8 +424,8 @@ editor.once('load', function () {
 
     function onTypeChanged(value) {
         value = STATE.typeMap[value];
-        var paths = [];
-        var values = [];
+        const paths = [];
+        const values = [];
         for (let i = 0; i < STATE.curves.length; ++i) {
             paths.push(i.toString() + '.type');
             values.push(value);
@@ -392,23 +439,21 @@ editor.once('load', function () {
     }
 
     function renderGradient() {
-        var ctx = UI.gradient.element.getContext('2d');
-        var w = UI.gradient.width;
-        var h = UI.gradient.height;
-        var r = UI.gradient.pixelRatio;
+        const ctx = UI.gradient.element.getContext('2d');
+        const w = UI.gradient.width;
+        const h = UI.gradient.height;
+        const r = UI.gradient.pixelRatio;
 
         ctx.setTransform(r, 0, 0, r, 0, 0);
-
-        var s = STATE;
 
         // fill background
         ctx.fillStyle = UI.checkerPattern;
         ctx.fillRect(0, 0, w, h);
 
         // fill gradient
-        var gradient = ctx.createLinearGradient(0, 0, w, 0);
-        for (var t = 0; t <= w; t += 2) {
-            var x = t / w;
+        const gradient = ctx.createLinearGradient(0, 0, w, 0);
+        for (let t = 0; t <= w; t += 2) {
+            const x = t / w;
             gradient.addColorStop(x, Helpers.rgbaStr(evaluateGradient(x), 255));
         }
 
@@ -417,8 +462,8 @@ editor.once('load', function () {
 
         // render the tip of the selected anchor
         if (STATE.selectedAnchor !== -1) {
-            var time = STATE.anchors[STATE.selectedAnchor];
-            var coords = [time * w, h];
+            const time = STATE.anchors[STATE.selectedAnchor];
+            const coords = [time * w, h];
 
             ctx.beginPath();
             ctx.rect(coords[0] - 2,
@@ -439,10 +484,10 @@ editor.once('load', function () {
     }
 
     function renderAnchors() {
-        var ctx = UI.anchors.element.getContext('2d');
-        var w = UI.anchors.width;
-        var h = UI.anchors.height;
-        var r = UI.anchors.pixelRatio;
+        const ctx = UI.anchors.element.getContext('2d');
+        const w = UI.anchors.width;
+        const h = UI.anchors.height;
+        const r = UI.anchors.pixelRatio;
 
         ctx.setTransform(r, 0, 0, r, 0, 0);
 
@@ -450,7 +495,7 @@ editor.once('load', function () {
         ctx.fillRect(0, 0, w, h);
 
         // render plain anchors
-        for (var index = 0; index < STATE.anchors.length; ++index) {
+        for (let index = 0; index < STATE.anchors.length; ++index) {
 
             if (index !== STATE.hoveredAnchor &&
                 index !== STATE.selectedAnchor) {
@@ -469,8 +514,8 @@ editor.once('load', function () {
     }
 
     function renderAnchor(ctx, time, type) {
-        var coords = [time * UI.anchors.width, UI.anchors.height / 2];
-        var radius = (type === "selected" ? CONST.selectedRadius : CONST.anchorRadius);
+        const coords = [time * UI.anchors.width, UI.anchors.height / 2];
+        const radius = (type === "selected" ? CONST.selectedRadius : CONST.anchorRadius);
 
         // render selected arrow
         if (type === "selected") {
@@ -512,7 +557,7 @@ editor.once('load', function () {
     }
 
     function evaluateGradient(time, alphaOverride) {
-        var result = [];
+        const result = [];
         for (let i = 0; i < 3; ++i) {
             result.push(STATE.curves[i].value(time));
         }
@@ -530,10 +575,10 @@ editor.once('load', function () {
 
     function calcAnchorTimes() {
         // get curve anchor points
-        var times = [];
+        let times = [];
         for (let i = 0; i < STATE.curves.length; i++) {
-            var curve = STATE.curves[i];
-            for (var j = 0; j < curve.keys.length; ++j) {
+            const curve = STATE.curves[i];
+            for (let j = 0; j < curve.keys.length; ++j) {
                 times.push(curve.keys[j][0]);
             }
         }
@@ -554,14 +599,14 @@ editor.once('load', function () {
 
     // get the bounding client rect minus padding
     function getClientRect(element) {
-        var styles = window.getComputedStyle(element);
+        const styles = window.getComputedStyle(element);
 
-        var paddingTop = parseFloat(styles.paddingTop);
-        var paddingRight = parseFloat(styles.paddingRight);
-        var paddingBottom = parseFloat(styles.paddingBottom);
-        var paddingLeft = parseFloat(styles.paddingLeft);
+        const paddingTop = parseFloat(styles.paddingTop);
+        const paddingRight = parseFloat(styles.paddingRight);
+        const paddingBottom = parseFloat(styles.paddingBottom);
+        const paddingLeft = parseFloat(styles.paddingLeft);
 
-        var rect = element.getBoundingClientRect();
+        const rect = element.getBoundingClientRect();
 
         return new DOMRect(rect.x + paddingLeft,
             rect.y + paddingTop,
@@ -572,7 +617,7 @@ editor.once('load', function () {
     function anchorsOnMouseDown(e) {
         if (STATE.hoveredAnchor === -1) {
             // user clicked in empty space, create new anchor and select it
-            var coord = calcNormalizedCoord(e.clientX,
+            const coord = calcNormalizedCoord(e.clientX,
                 e.clientY,
                 getClientRect(UI.anchors.element));
             insertAnchor(coord[0], evaluateGradient(coord[0]));
@@ -588,7 +633,7 @@ editor.once('load', function () {
     }
 
     function anchorsOnMouseMove(e) {
-        var coord = calcNormalizedCoord(e.clientX,
+        const coord = calcNormalizedCoord(e.clientX,
             e.clientY,
             getClientRect(UI.anchors.element));
 
@@ -598,17 +643,17 @@ editor.once('load', function () {
                    coord[0] <= 1 &&
                    coord[1] >= 0 &&
                    coord[1] <= 1) {
-            var closest = -1;
-            var closestDist = 0;
-            for (var index = 0; index < STATE.anchors.length; ++index) {
-                var dist = Math.abs(STATE.anchors[index] - coord[0]);
+            let closest = -1;
+            let closestDist = 0;
+            for (let index = 0; index < STATE.anchors.length; ++index) {
+                const dist = Math.abs(STATE.anchors[index] - coord[0]);
                 if (closest === -1 || dist < closestDist) {
                     closest = index;
                     closestDist = dist;
                 }
             }
 
-            var hoveredAnchor = (closest !== -1 && closestDist < 0.02) ? closest : -1;
+            const hoveredAnchor = (closest !== -1 && closestDist < 0.02) ? closest : -1;
             if (hoveredAnchor != STATE.hoveredAnchor) {
                 selectHovered(hoveredAnchor);
                 render();
@@ -638,7 +683,7 @@ editor.once('load', function () {
             UI.positionEdit.value = "";
             UI.colorPicker.color = [0, 0, 0];
         } else {
-            var time = STATE.anchors[index];
+            const time = STATE.anchors[index];
             UI.positionEdit.value = Math.round(time * 100);
             STATE.selectedValue = evaluateGradient(time);
             UI.colorPicker.color = STATE.selectedValue;
@@ -651,11 +696,11 @@ editor.once('load', function () {
         if (STATE.selectedAnchor === -1) {
             return;
         }
-        var time = STATE.anchors[STATE.selectedAnchor];
+        const time = STATE.anchors[STATE.selectedAnchor];
         // make a copy of the curve data before editing starts
         STATE.keystore = [];
         for (let i = 0; i < STATE.curves.length; ++i) {
-            var keys = [];
+            const keys = [];
             STATE.curves[i].keys.forEach(function (element) {
                 if (element[0] !== time) {
                     keys.push([element[0], element[1]] );
@@ -670,8 +715,8 @@ editor.once('load', function () {
             return;
         }
         for (let i = 0; i < STATE.curves.length; ++i) {
-            var curve = STATE.curves[i];
-            var keystore = STATE.keystore[i];
+            const curve = STATE.curves[i];
+            const keystore = STATE.keystore[i];
 
             // merge keystore with the drag anchor (ignoring existing anchors at
             // the current anchor location)
@@ -694,9 +739,9 @@ editor.once('load', function () {
     // insert an anchor at the given time with the given color
     function insertAnchor(time, color) {
         for (let i = 0; i < STATE.curves.length; ++i) {
-            var keys = STATE.curves[i].keys;
+            const keys = STATE.curves[i].keys;
 
-            var j = 0;
+            let j = 0;
             while (j < keys.length) {
                 if (keys[j][0] >= time) {
                     break;
@@ -716,9 +761,9 @@ editor.once('load', function () {
     // delete the anchor(s) at the given time
     function deleteAnchor(time) {
         for (let i = 0; i < STATE.curves.length; ++i) {
-            var curve = STATE.curves[i];
+            const curve = STATE.curves[i];
 
-            for (var j = 0; j < curve.keys.length; ++j) {
+            for (let j = 0; j < curve.keys.length; ++j) {
                 if (curve.keys[j][0] === time) {
                     curve.keys.splice(j, 1);
                     break;
@@ -739,12 +784,12 @@ editor.once('load', function () {
 
     function colorSelectedAnchor(clr, dragging) {
         if (STATE.selectedAnchor !== -1) {
-            var time = STATE.anchors[STATE.selectedAnchor];
+            const time = STATE.anchors[STATE.selectedAnchor];
 
             for (let i = 0; i < STATE.curves.length; ++i) {
-                var curve = STATE.curves[i];
+                const curve = STATE.curves[i];
 
-                for (var j = 0; j < curve.keys.length; ++j) {
+                for (let j = 0; j < curve.keys.length; ++j) {
                     if (curve.keys[j][0] === time) {
                         curve.keys[j][1] = clr[i];
                         break;
@@ -761,11 +806,11 @@ editor.once('load', function () {
     }
 
     function emitCurveChange() {
-        var paths = [];
-        var values = [];
+        const paths = [];
+        const values = [];
         STATE.curves.forEach(function (curve, index) {
             paths.push('0.keys.' + index);
-            var keys = [];
+            const keys = [];
             curve.keys.forEach(function (key) {
                 keys.push(key[0], key[1]);
             });
@@ -775,7 +820,7 @@ editor.once('load', function () {
     }
 
     function doCopy() {
-        var data = {
+        const data = {
             type: STATE.curves[0].type,
             keys: STATE.curves.map(function (c) {
                 return [].concat.apply([], c.keys);
@@ -785,15 +830,15 @@ editor.once('load', function () {
     }
 
     function doPaste() {
-        var data = editor.call('localStorage:get', 'playcanvas_editor_clipboard_gradient');
+        const data = editor.call('localStorage:get', 'playcanvas_editor_clipboard_gradient');
         if (data) {
             // only paste the number of curves we're currently editing
-            var pasteData = {
+            const pasteData = {
                 type: data.type,
                 keys: []
             };
 
-            for (var index = 0; index < STATE.curves.length; ++index) {
+            for (let index = 0; index < STATE.curves.length; ++index) {
                 if (index < data.keys.length) {
                     pasteData.keys.push(data.keys[index]);
                 } else {
@@ -807,10 +852,10 @@ editor.once('load', function () {
     }
 
     function createCheckerPattern() {
-        var canvas = new ui.Canvas();
+        const canvas = new ui.Canvas();
         canvas.width = 16;
         canvas.height = 16;
-        var ctx = canvas.element.getContext('2d');
+        const ctx = canvas.element.getContext('2d');
         ctx.fillStyle = "#949a9c";
         ctx.fillRect(0, 0, 8, 8);
         ctx.fillRect(8, 8, 8, 8);
@@ -829,7 +874,7 @@ editor.once('load', function () {
             return;
 
         // store the curve type
-        var comboItems = {
+        const comboItems = {
             0: 'Step',
             1: 'Linear',
             2: 'Spline'
@@ -852,7 +897,7 @@ editor.once('load', function () {
         // store the curves
         STATE.curves = [];
         value[0].keys.forEach(function (keys) {
-            var curve = new pc.Curve(keys);
+            const curve = new pc.Curve(keys);
             curve.type = value[0].type;
             STATE.curves.push(curve);
         });
@@ -869,47 +914,6 @@ editor.once('load', function () {
 
         UI.colorPicker.editAlpha = STATE.curves.length > 3;
     }
-
-    // constants
-    var CONST = {
-        bg: '#2c393c',
-        anchorRadius: 5,
-        selectedRadius: 7
-    };
-
-    // ui widgets
-    var UI = {
-        root: editor.call('layout.root'),
-        overlay: new ui.Overlay(),
-        panel: document.createElement('div'),
-        gradient: new ui.Canvas( { useDevicePixelRatio: true } ),
-        checkerPattern: createCheckerPattern(),
-        anchors: new ui.Canvas( { useDevicePixelRatio: true } ),
-        footer: new ui.Panel(),
-        typeLabel: new ui.Label( { text: 'Type' }),
-        typeCombo: new ui.SelectField({
-            options: { 0: 'placeholder' },
-            type: 'number'
-        }),
-        positionLabel: new ui.Label( { text: 'Position' }),
-        positionEdit: new ui.NumberField( { min: 0, max: 100, step: 1 } ),
-        copyButton: new ui.Button({ text: '&#58193' }),
-        pasteButton: new ui.Button({ text: '&#58184' }),
-        colorPicker: null
-    };
-
-    // current state
-    var STATE = {
-        curves: [],            // holds all the gradient curves (either 3 or 4 of them)
-        keystore: [],          // holds the curve during edit
-        anchors: [],           // holds the times of the anchors
-        hoveredAnchor: -1,     // index of the hovered anchor
-        selectedAnchor: -1,    // index of selected anchor
-        selectedValue: [],     // value being dragged
-        changing: false,       // UI is currently changing
-        draggingAnchor: false,
-        typeMap: { }          // map from curve type dropdown to engine curve enum
-    };
 
     // initialize overlay
     UI.root.append(UI.overlay);
@@ -933,7 +937,7 @@ editor.once('load', function () {
     // gradient
     UI.panel.appendChild(UI.gradient.element);
     UI.gradient.class.add('picker-gradient-gradient');
-    var r = getClientRect(UI.gradient.element);
+    let r = getClientRect(UI.gradient.element);
     UI.gradient.resize(r.width, r.height);
 
     // anchors

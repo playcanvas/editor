@@ -123,7 +123,7 @@ editor.once('load', function () {
         camera.addComponent('render', {
             castShadows: false,
             castShadowsLightmap: false,
-            meshInstances: [ new pc.MeshInstance(cameraMesh, materialDefault) ],
+            meshInstances: [new pc.MeshInstance(cameraMesh, materialDefault)],
             receiveShadows: false
         });
         container.addChild(camera);
@@ -132,7 +132,7 @@ editor.once('load', function () {
         cameraInner.addComponent('render', {
             castShadows: false,
             castShadowsLightmap: false,
-            meshInstances: [ new pc.MeshInstance(cameraMesh, materialBehind) ],
+            meshInstances: [new pc.MeshInstance(cameraMesh, materialBehind)],
             receiveShadows: false
         });
         camera.addChild(cameraInner);

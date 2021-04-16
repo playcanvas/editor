@@ -2,11 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     const MAX_JOB_LENGTH = 8;
-
     const jobsInProgress = {};
-
-    const projectUserSettings = editor.call('settings:projectUser');
-
 
     // When entities are deleted, we need to do some work to identify references to the
     // deleted entities held by other entities in the graph. For example, if entityA has

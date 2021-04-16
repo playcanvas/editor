@@ -15,6 +15,12 @@ editor.once('load', function () {
         curveset: { keys: [0, 0], type: 2 }
     };
 
+    // Returns path at index of args.paths if that field exists otherwise
+    // returns args.path
+    var pathAt = function (args, index) {
+        return args.paths ? args.paths[index] : args.path;
+    };
+
     // Creates an array widget
     editor.method('attributes:addArrayField', function (args) {
         var events = [];
@@ -401,12 +407,6 @@ editor.once('load', function () {
 
         return panel;
     });
-
-    // Returns path at index of args.paths if that field exists otherwise
-    // returns args.path
-    var pathAt = function (args, index) {
-        return args.paths ? args.paths[index] : args.path;
-    };
 
     // Returns the default value for a new array element
     // based on the args provided

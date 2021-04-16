@@ -301,7 +301,7 @@ editor.once('load', function () {
                         evtOnMergeCreated.unbind();
                         evtOnMergeCreated = null;
                     }
-                };
+                }
             });
         };
 
@@ -1121,5 +1121,4 @@ editor.once('load', function () {
             }
         }
     });
-
 });

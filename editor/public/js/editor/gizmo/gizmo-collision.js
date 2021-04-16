@@ -420,36 +420,44 @@ editor.once('load', function () {
         app.root.addChild(container);
 
         // material
-        const defaultVShader = ' \
-            attribute vec3 aPosition;\n \
-            attribute vec3 aNormal;\n \
-            varying vec3 vNormal;\n \
-            varying vec3 vPosition;\n \
-            uniform float offset;\n \
-            uniform mat4 matrix_model;\n \
-            uniform mat3 matrix_normal;\n \
-            uniform mat4 matrix_view;\n \
-            uniform mat4 matrix_viewProjection;\n \
-            void main(void)\n \
-            {\n \
-                vec4 posW = matrix_model * vec4(aPosition, 1.0);\n \
-                vNormal = normalize(matrix_normal * aNormal);\n \
-                posW += vec4(vNormal * offset, 0.0);\n \
-                gl_Position = matrix_viewProjection * posW;\n \
-                vPosition = posW.xyz;\n \
-            }\n';
-        const defaultFShader = ' \
-            precision ' + app.graphicsDevice.precision + ' float;\n \
-            varying vec3 vNormal;\n \
-            varying vec3 vPosition;\n \
-            uniform vec4 uColor;\n \
-            uniform vec3 view_position;\n \
-            void main(void)\n \
-            {\n \
-                vec3 viewNormal = normalize(view_position - vPosition);\n \
-                float light = dot(vNormal, viewNormal);\n \
-                gl_FragColor = vec4(uColor.rgb * light * 2.0, uColor.a);\n \
-            }\n';
+        const defaultVShader = `
+attribute vec3 aPosition;
+attribute vec3 aNormal;
+
+uniform float offset;
+uniform mat4 matrix_model;
+uniform mat3 matrix_normal;
+uniform mat4 matrix_view;
+uniform mat4 matrix_viewProjection;
+
+varying vec3 vNormal;
+varying vec3 vPosition;
+
+void main(void)
+{
+    vec4 posW = matrix_model * vec4(aPosition, 1.0);
+    vNormal = normalize(matrix_normal * aNormal);
+    posW += vec4(vNormal * offset, 0.0);
+    gl_Position = matrix_viewProjection * posW;
+    vPosition = posW.xyz;
+}
+            `.trim();
+        const defaultFShader = `
+precision ${app.graphicsDevice.precision} float;
+
+varying vec3 vNormal;
+varying vec3 vPosition;
+
+uniform vec4 uColor;
+uniform vec3 view_position;
+
+void main(void)
+{
+    vec3 viewNormal = normalize(view_position - vPosition);
+    float light = dot(vNormal, viewNormal);
+    gl_FragColor = vec4(uColor.rgb * light * 2.0, uColor.a);
+}
+            `.trim();
 
         let shaderDefault;
 
@@ -478,61 +486,79 @@ editor.once('load', function () {
         materialBehind.updateShader = materialDefault.updateShader;
         materialOccluder.updateShader = materialDefault.updateShader;
 
-        const capsuleVShader = ' \
-            attribute vec3 aPosition;\n \
-            attribute vec3 aNormal;\n \
-            attribute float aSide;\n \
-            varying vec3 vNormal;\n \
-            varying vec3 vPosition;\n \
-            uniform float offset;\n \
-            uniform mat4 matrix_model;\n \
-            uniform mat3 matrix_normal;\n \
-            uniform mat4 matrix_viewProjection;\n \
-            uniform float radius;\n \
-            uniform float height;\n \
-            void main(void) {\n \
-                vec3 pos = aPosition * radius;\n \
-                pos.{axis} += aSide * max(height / 2.0 - radius, 0.0);\n \
-                vec4 posW = matrix_model * vec4(pos, 1.0);\n \
-                vNormal = normalize(matrix_normal * aNormal);\n \
-                posW += vec4(vNormal * offset, 0.0);\n \
-                gl_Position = matrix_viewProjection * posW;\n \
-                vPosition = posW.xyz;\n \
-            }\n';
-        const capsuleFShader = ' \
-            precision ' + app.graphicsDevice.precision + ' float;\n \
-            varying vec3 vNormal;\n \
-            varying vec3 vPosition;\n \
-            uniform vec4 uColor;\n \
-            uniform vec3 view_position;\n \
-            void main(void) {\n \
-                vec3 viewNormal = normalize(view_position - vPosition);\n \
-                float light = dot(vNormal, viewNormal);\n \
-                gl_FragColor = vec4(uColor.rgb * light * 2.0, uColor.a);\n \
-            }\n';
+        const capsuleVShader = `
+attribute vec3 aPosition;
+attribute vec3 aNormal;
+attribute float aSide;
 
-        const capsuleVShaderPick = ' \
-            attribute vec3 aPosition;\n \
-            attribute vec3 aNormal;\n \
-            attribute float aSide;\n \
-            uniform mat4 matrix_model;\n \
-            uniform mat4 matrix_viewProjection;\n \
-            uniform float radius;\n \
-            uniform float height;\n \
-            void main(void) {\n \
-                vec3 pos = aPosition * radius;\n \
-                pos.{axis} += aSide * max(height / 2.0 - radius, 0.0);\n \
-                vec4 posW = matrix_model * vec4(pos, 1.0);\n \
-                gl_Position = matrix_viewProjection * posW;\n \
-            }\n';
+uniform float offset;
+uniform mat4 matrix_model;
+uniform mat3 matrix_normal;
+uniform mat4 matrix_viewProjection;
+uniform float radius;
+uniform float height;
 
-        const capsuleFShaderPick = ' \
-            precision ' + app.graphicsDevice.precision + ' float;\n \
-            uniform vec4 uColor;\n \
-            void main(void) {\n \
-                gl_FragColor = uColor;\n \
-            }\n';
+varying vec3 vNormal;
+varying vec3 vPosition;
 
+void main(void)
+{
+    vec3 pos = aPosition * radius;
+    pos.{axis} += aSide * max(height / 2.0 - radius, 0.0);
+    vec4 posW = matrix_model * vec4(pos, 1.0);
+    vNormal = normalize(matrix_normal * aNormal);
+    posW += vec4(vNormal * offset, 0.0);
+    gl_Position = matrix_viewProjection * posW;
+    vPosition = posW.xyz;
+}
+            `.trim();
+
+        const capsuleFShader = `
+precision ${app.graphicsDevice.precision} float;
+
+varying vec3 vNormal;
+varying vec3 vPosition;
+
+uniform vec4 uColor;
+uniform vec3 view_position;
+
+void main(void)
+{
+    vec3 viewNormal = normalize(view_position - vPosition);
+    float light = dot(vNormal, viewNormal);
+    gl_FragColor = vec4(uColor.rgb * light * 2.0, uColor.a);
+}
+            `.trim();
+
+        const capsuleVShaderPick = `
+attribute vec3 aPosition;
+attribute vec3 aNormal;
+attribute float aSide;
+
+uniform mat4 matrix_model;
+uniform mat4 matrix_viewProjection;
+uniform float radius;
+uniform float height;
+
+void main(void)
+{
+    vec3 pos = aPosition * radius;
+    pos.{axis} += aSide * max(height / 2.0 - radius, 0.0);
+    vec4 posW = matrix_model * vec4(pos, 1.0);
+    gl_Position = matrix_viewProjection * posW;
+}
+            `.trim();
+
+        const capsuleFShaderPick = `
+precision ${app.graphicsDevice.precision} float;
+
+uniform vec4 uColor;
+
+void main(void)
+{
+    gl_FragColor = uColor;
+}
+            `.trim();
 
         const makeCapsuleMaterial = function (a) {
             const matDefault = materials['capsule-' + a] = materialDefault.clone();

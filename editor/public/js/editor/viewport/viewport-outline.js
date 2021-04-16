@@ -1,49 +1,50 @@
 editor.once('load', function () {
     'use strict';
 
-    var app = editor.call('viewport:app');
+    const app = editor.call('viewport:app');
     if (! app) return; // webgl not available
 
-    var renderer = app.renderer;
-    var device = renderer.device;
+    const renderer = app.renderer;
+    const device = renderer.device;
 
-    var users = [];
-    var selection = { };
-    var colors = { };
-    var colorUniform = new Float32Array(3);
-    var render = 0;
-    var cleared = false;
-    var visible = true;
-    var viewportLayer = null;
+    const users = [];
+    const selection = { };
+    const colors = { };
+    const colorUniform = new Float32Array(3);
 
-    var targets = [];
-    var textures = [];
+    let render = 0;
+    let cleared = false;
+    let visible = true;
+    let viewportLayer = null;
 
-    var createSolidTex = function (name, r, g, b, a) {
-        var result = new pc.Texture(app.graphicsDevice, { width: 1, height: 1, format: pc.PIXELFORMAT_R8_G8_B8_A8 });
+    let targets = [];
+    let textures = [];
+
+    const createSolidTex = function (name, r, g, b, a) {
+        const result = new pc.Texture(app.graphicsDevice, { width: 1, height: 1, format: pc.PIXELFORMAT_R8_G8_B8_A8 });
         result.name = name;
-        var pixels = result.lock();
+        const pixels = result.lock();
         pixels.set(new Uint8Array([r, g, b, a]));
         result.unlock();
         return result;
     };
 
-    var whiteTex = createSolidTex('outline-tex', 255, 255, 255, 255);
+    const whiteTex = createSolidTex('outline-tex', 255, 255, 255, 255);
 
-    var SHADER_OUTLINE = 24;
+    const SHADER_OUTLINE = 24;
 
-    var isSelectableEntity = function (item) {
+    const isSelectableEntity = function (item) {
 
         if (item && item.entity) {
 
             // model component
-            var modelType = item.get('components.model.type');
+            const modelType = item.get('components.model.type');
             if ((modelType === 'asset' && item.get('components.model.asset')) || modelType !== 'asset') {
                 return true;
             }
 
             // render component
-            var renderType = item.get('components.render.type');
+            const renderType = item.get('components.render.type');
             if ((renderType === 'asset' && item.get('components.render.asset')) || renderType !== 'asset') {
                 return true;
             }
@@ -89,7 +90,7 @@ editor.once('load', function () {
 
         if (data.type === 'entity') {
             for (let i = 0; i < data.ids.length; i++) {
-                var entity = editor.call('entities:get', data.ids[i]);
+                const entity = editor.call('entities:get', data.ids[i]);
 
                 if (isSelectableEntity(entity)) {
                     selection[user].push(entity.entity);
@@ -113,7 +114,7 @@ editor.once('load', function () {
 
         delete selection[id];
         delete colors[id];
-        var ind = users.indexOf(id);
+        const ind = users.indexOf(id);
         users.splice(ind, 1);
     });
 
@@ -126,87 +127,95 @@ editor.once('load', function () {
     });
 
     // ### OVERLAY QUAD MATERIAL ###
-    var chunks = pc.shaderChunks;
-    var shaderFinal = chunks.createShaderFromCode(device, chunks.fullscreenQuadVS, chunks.outputTex2DPS, "outputTex2D");
+    const chunks = pc.shaderChunks;
+    const shaderFinal = chunks.createShaderFromCode(device, chunks.fullscreenQuadVS, chunks.outputTex2DPS, "outputTex2D");
 
     // ### OUTLINE EXTEND SHADER H ###
-    var shaderBlurHPS = ' \
-        precision ' + device.precision + ' float;\n \
-        varying vec2 vUv0;\n \
-        uniform float uOffset;\n \
-        uniform sampler2D source;\n \
-        void main(void)\n \
-        {\n \
-            float diff = 0.0;\n \
-            vec4 pixel;\n \
-            vec4 texel = texture2D(source, vUv0);\n \
-            vec4 firstTexel = texel;\n \
-            \n \
-            pixel = texture2D(source, vUv0 + vec2(uOffset * -2.0, 0.0));\n \
-            texel = max(texel, pixel);\n \
-            diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
-            \n \
-            pixel = texture2D(source, vUv0 + vec2(uOffset * -1.0, 0.0));\n \
-            texel = max(texel, pixel);\n \
-            diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
-            \n \
-            pixel = texture2D(source, vUv0 + vec2(uOffset * +1.0, 0.0));\n \
-            texel = max(texel, pixel);\n \
-            diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
-            \n \
-            pixel = texture2D(source, vUv0 + vec2(uOffset * +2.0, 0.0));\n \
-            texel = max(texel, pixel);\n \
-            diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
-            \n \
-            gl_FragColor = vec4(texel.rgb, min(diff, 1.0));\n \
-        }\n';
-    var shaderBlurH = chunks.createShaderFromCode(device, chunks.fullscreenQuadVS, shaderBlurHPS, "editorOutlineH");
+    const shaderBlurHPS = `
+precision ${device.precision} float;
+
+varying vec2 vUv0;
+
+uniform float uOffset;
+uniform sampler2D source;
+
+void main(void)
+{
+    float diff = 0.0;
+    vec4 pixel;
+    vec4 texel = texture2D(source, vUv0);
+    vec4 firstTexel = texel;
+
+    pixel = texture2D(source, vUv0 + vec2(uOffset * -2.0, 0.0));
+    texel = max(texel, pixel);
+    diff = max(diff, length(firstTexel.rgb - pixel.rgb));
+
+    pixel = texture2D(source, vUv0 + vec2(uOffset * -1.0, 0.0));
+    texel = max(texel, pixel);
+    diff = max(diff, length(firstTexel.rgb - pixel.rgb));
+
+    pixel = texture2D(source, vUv0 + vec2(uOffset * +1.0, 0.0));
+    texel = max(texel, pixel);
+    diff = max(diff, length(firstTexel.rgb - pixel.rgb));
+
+     pixel = texture2D(source, vUv0 + vec2(uOffset * +2.0, 0.0));
+    texel = max(texel, pixel);
+    diff = max(diff, length(firstTexel.rgb - pixel.rgb));
+
+    gl_FragColor = vec4(texel.rgb, min(diff, 1.0));
+}
+        `.trim();
+    const shaderBlurH = chunks.createShaderFromCode(device, chunks.fullscreenQuadVS, shaderBlurHPS, "editorOutlineH");
 
     // ### OUTLINE EXTEND SHADER V ###
-    var shaderBlurVPS = ' \
-        precision ' + device.precision + ' float;\n \
-        varying vec2 vUv0;\n \
-        uniform float uOffset;\n \
-        uniform sampler2D source;\n \
-        void main(void)\n \
-        {\n \
-            vec4 pixel;\n \
-            vec4 texel = texture2D(source, vUv0);\n \
-            vec4 firstTexel = texel;\n \
-            float diff = texel.a;\n \
-            \n \
-            pixel = texture2D(source, vUv0 + vec2(0.0, uOffset * -2.0));\n \
-            texel = max(texel, pixel);\n \
-            diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
-            \n \
-            pixel = texture2D(source, vUv0 + vec2(0.0, uOffset * -1.0));\n \
-            texel = max(texel, pixel);\n \
-            diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
-            \n \
-            pixel = texture2D(source, vUv0 + vec2(0.0, uOffset * +1.0));\n \
-            texel = max(texel, pixel);\n \
-            diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
-            \n \
-            pixel = texture2D(source, vUv0 + vec2(0.0, uOffset * +2.0));\n \
-            texel = max(texel, pixel);\n \
-            diff = max(diff, length(firstTexel.rgb - pixel.rgb));\n \
-            \n \
-            gl_FragColor = vec4(texel.rgb, min(diff, 1.0));\n \
-        }\n';
-    var shaderBlurV = chunks.createShaderFromCode(device, chunks.fullscreenQuadVS, shaderBlurVPS, "editorOutlineV");
+    const shaderBlurVPS = `
+precision ${device.precision} float;
+
+varying vec2 vUv0;
+
+uniform float uOffset;
+uniform sampler2D source;
+
+void main(void)
+{
+    vec4 pixel;
+    vec4 texel = texture2D(source, vUv0);
+    vec4 firstTexel = texel;
+    float diff = texel.a;
+
+    pixel = texture2D(source, vUv0 + vec2(0.0, uOffset * -2.0));
+    texel = max(texel, pixel);
+    diff = max(diff, length(firstTexel.rgb - pixel.rgb));
+
+    pixel = texture2D(source, vUv0 + vec2(0.0, uOffset * -1.0));
+    texel = max(texel, pixel);
+    diff = max(diff, length(firstTexel.rgb - pixel.rgb));
+
+    pixel = texture2D(source, vUv0 + vec2(0.0, uOffset * +1.0));
+    texel = max(texel, pixel);
+    diff = max(diff, length(firstTexel.rgb - pixel.rgb));
+
+    pixel = texture2D(source, vUv0 + vec2(0.0, uOffset * +2.0));
+    texel = max(texel, pixel);
+    diff = max(diff, length(firstTexel.rgb - pixel.rgb));
+
+    gl_FragColor = vec4(texel.rgb, min(diff, 1.0));
+}
+        `.trim();
+    const shaderBlurV = chunks.createShaderFromCode(device, chunks.fullscreenQuadVS, shaderBlurVPS, "editorOutlineV");
 
 
     // ### SETUP THE LAYER ###
     viewportLayer = editor.call('gizmo:layers', 'Viewport Outline');
     viewportLayer.onPostRender = function () {
-        var uColorBuffer = device.scope.resolve('source');
+        const uColorBuffer = device.scope.resolve('source');
         uColorBuffer.setValue(textures[0]);
         device.setBlending(true);
         device.setBlendFunction(pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
         pc.drawQuadWithShader(device, null, shaderFinal, null, null, true);
     };
 
-    var outlineLayer = new pc.Layer({
+    const outlineLayer = new pc.Layer({
         name: "Outline",
         opaqueSortMode: pc.SORTMODE_NONE,
         passThrough: true,
@@ -218,8 +227,8 @@ editor.once('load', function () {
 
         onPostRender: function () {
             // extend pass X
-            var uOffset = device.scope.resolve('uOffset');
-            var uColorBuffer = device.scope.resolve('source');
+            const uOffset = device.scope.resolve('uOffset');
+            const uColorBuffer = device.scope.resolve('source');
             uOffset.setValue(1.0 / device.width / 2.0);
             uColorBuffer.setValue(textures[0]);
             pc.drawQuadWithShader(device, targets[1], shaderBlurH);
@@ -230,12 +239,12 @@ editor.once('load', function () {
             pc.drawQuadWithShader(device, targets[0], shaderBlurV);
         }
     });
-    var outlineComp = new pc.LayerComposition("viewport-outline");
+    const outlineComp = new pc.LayerComposition("viewport-outline");
     outlineComp.pushOpaque(outlineLayer);
 
-    var onUpdateShaderOutline = function (options) {
+    const onUpdateShaderOutline = function (options) {
         if (options.pass !== SHADER_OUTLINE) return options;
-        var outlineOptions = {
+        const outlineOptions = {
             opacityMap: options.opacityMap,
             opacityMapUv: options.opacityMapUv,
             opacityMapChannel: options.opacityMapChannel,
@@ -283,7 +292,7 @@ editor.once('load', function () {
         }
 
 
-        var camera = editor.call('camera:current').camera;
+        const camera = editor.call('camera:current').camera;
 
 
         if (render) {
@@ -295,18 +304,18 @@ editor.once('load', function () {
                 outlineLayer.clearCameras();
                 outlineLayer.addCamera(camera);
             }
-            var meshInstances = outlineLayer.opaqueMeshInstances;
+            const meshInstances = outlineLayer.opaqueMeshInstances;
 
             if (visible) {
-                for (var u = 0; u < users.length; u++) {
-                    var id = parseInt(users[u], 10);
+                for (let u = 0; u < users.length; u++) {
+                    const id = parseInt(users[u], 10);
 
                     if (! selection.hasOwnProperty(id) || ! selection[id].length)
                         continue;
 
-                    var color = colors[id];
+                    let color = colors[id];
                     if (!color) {
-                        var data = editor.call('whoisonline:color', id, 'data');
+                        let data = editor.call('whoisonline:color', id, 'data');
 
                         if (config.self.id === id)
                             data = [1, 1, 1];
@@ -319,14 +328,14 @@ editor.once('load', function () {
                         if (! selection[id][i])
                             continue;
 
-                        var srcMeshInstances = null;
+                        let srcMeshInstances = null;
 
-                        var modelComp = selection[id][i].model;
+                        const modelComp = selection[id][i].model;
                         if (modelComp && modelComp.model) {
                             srcMeshInstances = modelComp.meshInstances;
                         }
 
-                        var renderComp = selection[id][i].render;
+                        const renderComp = selection[id][i].render;
                         if (renderComp) {
                             srcMeshInstances = renderComp.meshInstances;
                         }
@@ -334,9 +343,9 @@ editor.once('load', function () {
                         if (!srcMeshInstances)
                             continue;
 
-                        for (var m = 0; m < srcMeshInstances.length; m++) {
-                            // var opChan = 'r';
-                            var instance = srcMeshInstances[m];
+                        for (let m = 0; m < srcMeshInstances.length; m++) {
+                            // let opChan = 'r';
+                            const instance = srcMeshInstances[m];
 
                             // if (! instance.command && instance.drawToDepth && instance.material && instance.layer === pc.LAYER_WORLD) {
                             if (!instance.command && instance.material) {
