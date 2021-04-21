@@ -1,11 +1,6 @@
 editor.once('load', function () {
     'use strict';
 
-    editor.method('templates:setReparentPath', function (conflict, overrides) {
-
-        return new SetReparentPath(conflict, overrides).run();
-    });
-
     class SetReparentPath {
         constructor(conflict, overrides) {
             this.conflict = conflict;
@@ -58,4 +53,8 @@ editor.once('load', function () {
             return this.overrides.typeToInstData[type].entIdToEntity[id];
         }
     }
+
+    editor.method('templates:setReparentPath', function (conflict, overrides) {
+        return new SetReparentPath(conflict, overrides).run();
+    });
 });

@@ -23,6 +23,9 @@ editor.once('load', function () {
         search.value = '';
     }, false);
 
+    var performSearch = function () {
+        hierarchy.filter = lastSearch;
+    };
 
     // if entity added, check if it maching query
     editor.on('entities:add', function (entity) {
@@ -38,11 +41,6 @@ editor.once('load', function () {
 
         performSearch();
     });
-
-
-    var performSearch = function () {
-        hierarchy.filter = lastSearch;
-    };
 
     search.on('change', function (value) {
         value = value.trim();

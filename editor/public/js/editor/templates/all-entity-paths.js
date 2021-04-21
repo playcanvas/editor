@@ -3,27 +3,6 @@ editor.once('load', function () {
 
     const parentChildren = ['parent', 'children'];
 
-    /**
-     * Given an entity and data about all declared script attribute types
-     * (by script name), return an array of paths to all entity references
-     * inside the provided entity.
-     *
-     * @param {object} entity - The entity
-     * @param {object} scriptAttrs - Data about script attributes by script name
-     * @returns {object[]} An array of paths
-     */
-    editor.method('template:allEntityPaths', function (entity, scriptAttrs) {
-        const paths1 = new ComponentEntityPaths(entity).run();
-
-        const paths2 = new ScriptAttrEntityPaths(entity, scriptAttrs).run();
-
-        const result = paths1.concat(paths2);
-
-        parentChildren.forEach(field => addIfPresent(entity, field, result));
-
-        return result || [];
-    });
-
     const addIfPresent = function (entity, field, result) {
         if (entity[field]) {
             const path = [field];
@@ -162,4 +141,25 @@ editor.once('load', function () {
             ];
         }
     }
+
+    /**
+     * Given an entity and data about all declared script attribute types
+     * (by script name), return an array of paths to all entity references
+     * inside the provided entity.
+     *
+     * @param {object} entity - The entity
+     * @param {object} scriptAttrs - Data about script attributes by script name
+     * @returns {object[]} An array of paths
+     */
+    editor.method('template:allEntityPaths', function (entity, scriptAttrs) {
+        const paths1 = new ComponentEntityPaths(entity).run();
+
+        const paths2 = new ScriptAttrEntityPaths(entity, scriptAttrs).run();
+
+        const result = paths1.concat(paths2);
+
+        parentChildren.forEach(field => addIfPresent(entity, field, result));
+
+        return result || [];
+    });
 });

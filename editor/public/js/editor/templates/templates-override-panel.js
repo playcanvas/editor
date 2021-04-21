@@ -48,6 +48,60 @@ Object.assign(pcui, (function () {
         model: '&#57749;'
     };
 
+    class OverrideGroup extends pcui.Container {
+        constructor(args) {
+            super(args);
+
+            this.class.add(CLASS_OVERRIDE_GROUP);
+
+            const inner = new pcui.Container({
+                flex: true,
+                flexDirection: 'row'
+            });
+
+            this.append(inner);
+
+            if (args.mode === 'empty') {
+
+                inner.class.add(CLASS_OVERRIDE_GROUP_PLACEHOLDER);
+            } else {
+                inner.class.add(CLASS_OVERRIDE_GROUP_CONTENT);
+
+                const icon = new pcui.Label({
+                    class: CLASS_OVERRIDE_GROUP_ICON,
+                    flexShrink: 0,
+                    unsafe: true
+                });
+                this._icon = icon;
+
+                const name = new pcui.Label({
+                    text: args.name,
+                    flexShrink: 1,
+                    class: CLASS_OVERRIDE_GROUP_NAME
+                });
+
+                inner.append(icon);
+                inner.append(name);
+
+                if (args.mode === 'new' || args.mode === 'removed') {
+                    const action = new pcui.Label({
+                        flexShrink: 0,
+                        text: args.mode.toUpperCase(),
+                        class: CLASS_OVERRIDE_GROUP_ACTION
+                    });
+
+                    inner.append(action);
+                }
+            }
+        }
+
+        set icon(value) {
+            if (this._icon) {
+                this._icon.text = value;
+            }
+        }
+    }
+
     class TemplateOverridesView extends pcui.Container {
         constructor(args) {
             super(args);
@@ -1046,60 +1100,6 @@ Object.assign(pcui, (function () {
             window.removeEventListener('click', this._evtWindowClick);
 
             super.destroy();
-        }
-    }
-
-    class OverrideGroup extends pcui.Container {
-        constructor(args) {
-            super(args);
-
-            this.class.add(CLASS_OVERRIDE_GROUP);
-
-            const inner = new pcui.Container({
-                flex: true,
-                flexDirection: 'row'
-            });
-
-            this.append(inner);
-
-            if (args.mode === 'empty') {
-
-                inner.class.add(CLASS_OVERRIDE_GROUP_PLACEHOLDER);
-            } else {
-                inner.class.add(CLASS_OVERRIDE_GROUP_CONTENT);
-
-                const icon = new pcui.Label({
-                    class: CLASS_OVERRIDE_GROUP_ICON,
-                    flexShrink: 0,
-                    unsafe: true
-                });
-                this._icon = icon;
-
-                const name = new pcui.Label({
-                    text: args.name,
-                    flexShrink: 1,
-                    class: CLASS_OVERRIDE_GROUP_NAME
-                });
-
-                inner.append(icon);
-                inner.append(name);
-
-                if (args.mode === 'new' || args.mode === 'removed') {
-                    const action = new pcui.Label({
-                        flexShrink: 0,
-                        text: args.mode.toUpperCase(),
-                        class: CLASS_OVERRIDE_GROUP_ACTION
-                    });
-
-                    inner.append(action);
-                }
-            }
-        }
-
-        set icon(value) {
-            if (this._icon) {
-                this._icon.text = value;
-            }
         }
     }
 

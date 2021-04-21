@@ -5,6 +5,18 @@ editor.once('load', function () {
         return;
     }
 
+    var refreshBrowser = function () {
+        // Do this in a timeout to give some time to the user
+        // to read any information messages.
+        // Also file picker-version-control-messenger.js will actually
+        // refresh the browser first - so this is here really to make sure
+        // the browser is refreshed if for some reason the messenger fails to deliver the message.
+        // That's why the timeout here is larger than what's in picker-version-control-messenger
+        setTimeout(function () {
+            window.location.reload();
+        }, 2000);
+    };
+
     var events = [];
 
     var projectUserSettings = editor.call('settings:projectUser');
@@ -89,9 +101,27 @@ editor.once('load', function () {
     panelRight.flexGrow = 1;
     panel.append(panelRight);
 
+    var showRightSidePanel = function (panel) {
+        // hide all right side panels first
+        var p = panelRight.innerElement.firstChild;
+        while (p && p.ui) {
+            p.ui.hidden = true;
+            p = p.nextSibling;
+        }
+
+        // show specified panel
+        if (panel) {
+            panel.hidden = false;
+        }
+    };
+
     // checkpoints panel
     var panelCheckpoints = editor.call('picker:versioncontrol:widget:checkpoints');
     panelRight.append(panelCheckpoints);
+
+    var panelDiffCheckpoints = editor.call('picker:versioncontrol:widget:diffCheckpoints');
+    panelDiffCheckpoints.hidden = true;
+    panel.append(panelDiffCheckpoints);
 
     panelCheckpoints.on('checkpoint:new', function () {
         showRightSidePanel(panelCreateCheckpoint);
@@ -131,10 +161,6 @@ editor.once('load', function () {
             panel.class.add('diff-checkpoints-selected-' + numSelected);
         }
     });
-
-    var panelDiffCheckpoints = editor.call('picker:versioncontrol:widget:diffCheckpoints');
-    panelDiffCheckpoints.hidden = true;
-    panel.append(panelDiffCheckpoints);
 
     panelDiffCheckpoints.on('show', function () {
         panel.class.add('diff-mode');
@@ -196,6 +222,33 @@ editor.once('load', function () {
     });
     panelCloseBranchProgress.hidden = true;
     panelRight.append(panelCloseBranchProgress);
+
+    // Enable or disable the clickable parts of this picker
+    var togglePanels = function (enabled) {
+        editor.call('picker:project:setClosable', enabled && config.scene.id);
+        editor.call('picker:project:toggleLeftPanel', enabled);
+        // panelBranchesTop.disabled = !enabled;
+        panelBranches.disabled = !enabled;
+        panelBranchesFilter.disabled = !enabled;
+    };
+
+    var createCheckpoint = function (branchId, description, callback) {
+        togglePanels(false);
+        showRightSidePanel(panelCreateCheckpointProgress);
+
+        editor.call('checkpoints:create', branchId, description, function (err, checkpoint) {
+            panelCreateCheckpointProgress.finish(err);
+            if (err) {
+                return togglePanels(true);
+            }
+
+            callback(checkpoint);
+        });
+    };
+
+    var showCheckpoints = function () {
+        showRightSidePanel(panelCheckpoints);
+    };
 
     // Close branch
     panelCloseBranch.on('cancel', function () {
@@ -380,24 +433,6 @@ editor.once('load', function () {
     panelSwitchBranchProgress.hidden = true;
     panelRight.append(panelSwitchBranchProgress);
 
-    var showRightSidePanel = function (panel) {
-        // hide all right side panels first
-        var p = panelRight.innerElement.firstChild;
-        while (p && p.ui) {
-            p.ui.hidden = true;
-            p = p.nextSibling;
-        }
-
-        // show specified panel
-        if (panel) {
-            panel.hidden = false;
-        }
-    };
-
-    var showCheckpoints = function () {
-        showRightSidePanel(panelCheckpoints);
-    };
-
     // new branch button
     // var btnNewBranch = new ui.Button({
     //     text: 'NEW BRANCH'
@@ -553,6 +588,14 @@ editor.once('load', function () {
 
     editor.call('layout.root').append(menuBranches);
 
+    // Select specified branch and show its checkpoints
+    var selectBranch = function (branch) {
+        selectedBranch = branch;
+        showCheckpoints();
+
+        panelCheckpoints.setBranch(branch);
+        panelCheckpoints.loadCheckpoints();
+    };
 
     var createBranchListItem = function (branch) {
         var item = new ui.ListItem({
@@ -671,29 +714,6 @@ editor.once('load', function () {
             item.isFavorite = projectUserSettings.get('favoriteBranches').includes(item.branch.id);
     };
 
-    // Select specified branch and show its checkpoints
-    var selectBranch = function (branch) {
-        selectedBranch = branch;
-        showCheckpoints();
-
-        panelCheckpoints.setBranch(branch);
-        panelCheckpoints.loadCheckpoints();
-    };
-
-    var createCheckpoint = function (branchId, description, callback) {
-        togglePanels(false);
-        showRightSidePanel(panelCreateCheckpointProgress);
-
-        editor.call('checkpoints:create', branchId, description, function (err, checkpoint) {
-            panelCreateCheckpointProgress.finish(err);
-            if (err) {
-                return togglePanels(true);
-            }
-
-            callback(checkpoint);
-        });
-    };
-
     panelDiffCheckpoints.on('diff', function (srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId) {
         panelDiffCheckpoints.hidden = true;
 
@@ -778,27 +798,6 @@ editor.once('load', function () {
             }
         });
     });
-
-    // Enable or disable the clickable parts of this picker
-    var togglePanels = function (enabled) {
-        editor.call('picker:project:setClosable', enabled && config.scene.id);
-        editor.call('picker:project:toggleLeftPanel', enabled);
-        // panelBranchesTop.disabled = !enabled;
-        panelBranches.disabled = !enabled;
-        panelBranchesFilter.disabled = !enabled;
-    };
-
-    var refreshBrowser = function () {
-        // Do this in a timeout to give some time to the user
-        // to read any information messages.
-        // Also file picker-version-control-messenger.js will actually
-        // refresh the browser first - so this is here really to make sure
-        // the browser is refreshed if for some reason the messenger fails to deliver the message.
-        // That's why the timeout here is larger than what's in picker-version-control-messenger
-        setTimeout(function () {
-            window.location.reload();
-        }, 2000);
-    };
 
     var loadBranches = function () {
         // change status of loading button

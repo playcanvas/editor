@@ -1,18 +1,6 @@
 editor.once('load', function () {
     'use strict';
 
-    /**
-     * Perform a deep comparison of two nodes consisting of
-     * ojbects, arrays and scalar values.
-     *
-     * @param {object} node1 - First object to compare
-     * @param {object} node2 - Second object to compare
-     * @returns {boolean} True if the nodes are deep-equal
-     */
-    editor.method('assets:isDeepEqual', function (node1, node2) {
-        return new DeepEqual(node1, node2).run();
-    });
-
     class DeepEqual {
         constructor(node1, node2) {
             this.node1 = node1;
@@ -83,4 +71,16 @@ editor.once('load', function () {
             return this.bothNodes.every(Array.isArray);
         }
     }
+
+    /**
+     * Perform a deep comparison of two nodes consisting of
+     * ojbects, arrays and scalar values.
+     *
+     * @param {object} node1 - First object to compare
+     * @param {object} node2 - Second object to compare
+     * @returns {boolean} True if the nodes are deep-equal
+     */
+    editor.method('assets:isDeepEqual', function (node1, node2) {
+        return new DeepEqual(node1, node2).run();
+    });
 });

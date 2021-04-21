@@ -94,6 +94,34 @@ editor.once('load', function () {
         return result;
     };
 
+    var remapScriptAttribute = function (assetAttr, componentAttr, entity, path, localStorageData, entityMapping) {
+        if (assetAttr.type === 'asset') {
+            if (localStorageData.project === config.project.id) return;
+
+            // remap asset ids
+            if (assetAttr.array) {
+                for (let i = 0; i < componentAttr.length; i++) {
+                    entity.set(`${path}.${i}`, localStorageData.assets[componentAttr[i]]);
+                }
+            } else {
+                entity.set(path, localStorageData.assets[componentAttr]);
+            }
+        } else if (assetAttr.type === 'entity') {
+            // try to remap entities
+            if (assetAttr.array) {
+                for (let i = 0; i < componentAttr.length; i++) {
+                    if (componentAttr[i] && entityMapping[componentAttr[i]]) {
+                        entity.set(`${path}.${i}`, entityMapping[componentAttr[i]]);
+                    }
+                }
+            } else {
+                if (entityMapping[componentAttr]) {
+                    entity.set(path, entityMapping[componentAttr]);
+                }
+            }
+        }
+    };
+
     /**
      * Remaps the resource ids of the entities and their entity references in localStorage
      * with new resource ids, also remaps asset ids.
@@ -290,34 +318,6 @@ editor.once('load', function () {
                 }
             });
         });
-    };
-
-    var remapScriptAttribute = function (assetAttr, componentAttr, entity, path, localStorageData, entityMapping) {
-        if (assetAttr.type === 'asset') {
-            if (localStorageData.project === config.project.id) return;
-
-            // remap asset ids
-            if (assetAttr.array) {
-                for (let i = 0; i < componentAttr.length; i++) {
-                    entity.set(`${path}.${i}`, localStorageData.assets[componentAttr[i]]);
-                }
-            } else {
-                entity.set(path, localStorageData.assets[componentAttr]);
-            }
-        } else if (assetAttr.type === 'entity') {
-            // try to remap entities
-            if (assetAttr.array) {
-                for (let i = 0; i < componentAttr.length; i++) {
-                    if (componentAttr[i] && entityMapping[componentAttr[i]]) {
-                        entity.set(`${path}.${i}`, entityMapping[componentAttr[i]]);
-                    }
-                }
-            } else {
-                if (entityMapping[componentAttr]) {
-                    entity.set(path, entityMapping[componentAttr]);
-                }
-            }
-        }
     };
 
     function pasteInBackend(data, parent) {

@@ -1,25 +1,6 @@
 editor.once('load', function () {
     'use strict';
 
-    /**
-     * Determine if a conflict found by recursive comparison
-     * of an instance and a template asset should be reported as an
-     * override or ignored.
-     * This takes into account that entity id's are expected to be
-     * different. The 'srcToDst' argument provides the expected id mapping.
-     *
-     * @param {object} conflict - The conflict
-     * @param {string} rootId - The guid of the root entity to determine
-     *   if this conflict involves the root entity
-     * @param {object} srcToDst - The guid mapping
-     * @returns {boolean} True if the conflict should be reported as an override
-     */
-    editor.method('template:isValidTemplateConflict',
-        function (conflict, rootId, srcToDst, scriptAttrs) {
-
-            return new IsValidTemplateConflict(conflict, rootId, srcToDst, scriptAttrs).run();
-        });
-
     const ignorePathsForAll = {
         resource_id: 1
     };
@@ -110,4 +91,21 @@ editor.once('load', function () {
             return oneTrue && diffMapped;
         }
     }
+
+    /**
+     * Determine if a conflict found by recursive comparison
+     * of an instance and a template asset should be reported as an
+     * override or ignored.
+     * This takes into account that entity id's are expected to be
+     * different. The 'srcToDst' argument provides the expected id mapping.
+     *
+     * @param {object} conflict - The conflict
+     * @param {string} rootId - The guid of the root entity to determine
+     *   if this conflict involves the root entity
+     * @param {object} srcToDst - The guid mapping
+     * @returns {boolean} True if the conflict should be reported as an override
+     */
+    editor.method('template:isValidTemplateConflict', function (conflict, rootId, srcToDst, scriptAttrs) {
+        return new IsValidTemplateConflict(conflict, rootId, srcToDst, scriptAttrs).run();
+    });
 });

@@ -1,20 +1,82 @@
 editor.once('load', function () {
     'use strict';
 
-    /**
-     * Find template instance overrides via recursive traversal,
-     * given data representing the instance and the template asset.
-     *
-     * @param {object} typeToInstData - A map from type (src or dst)
-     *    to an object with the fields: entities, templIdToEntity, templIdToEntId
-     * @param {object} typeToIdToTempl - A map from type to a map from
-     *    instance id to template id.
-     * @returns {object} An object with fields 'conflicts',
-     *    'addedEntities' and 'deletedEntities'
-     */
-    editor.method('template:findConflicts', function (typeToInstData, typeToIdToTempl, scriptAttrs) {
-        return new FindTemplateConflicts(typeToInstData, typeToIdToTempl, scriptAttrs).run();
-    });
+    class MergePathStore {
+        constructor() {
+            this.store = {};
+        }
+
+        add(path) {
+            const key = editor.call('template:utils', 'pathToStr', path);
+
+            this.store[key] = 1;
+        }
+
+        includes(path) {
+            const key = editor.call('template:utils', 'pathToStr', path);
+
+            return this.store[key];
+        }
+    }
+
+    class StartRecursiveTraversal {
+        constructor(data) {
+            this.data = data;
+        }
+
+        run() {
+            this.knownResultPaths = new MergePathStore();
+
+            ['src', 'dst'].forEach(this.handleType, this);
+        }
+
+        handleType(type) {
+            const h = {
+                type1: type,
+
+                path: [],
+
+                knownResultPaths: this.knownResultPaths
+            };
+
+            Object.assign(h, this.data);
+
+            editor.call('assets:templateNodeTraversal', h);
+        }
+    }
+
+    class TemplateTraversal {
+        constructor(ent, typeToNode, scriptAttrs) {
+            this.ent = ent;
+
+            this.typeToNode = typeToNode;
+
+            this.scriptAttrs = scriptAttrs;
+
+            this.conflicts = [];
+        }
+
+        run() { // ent is always from src
+            this.runTraveral();
+
+            this.conflicts.forEach(h => {
+                h.resource_id = this.ent.resource_id;
+            });
+
+            return this.conflicts;
+        }
+
+        runTraveral() {
+            const h = {
+                typeToRoot: this.typeToNode,
+                conflicts: this.conflicts,
+                entityResourceId: this.ent.resource_id,
+                scriptAttrs: this.scriptAttrs
+            };
+
+            new StartRecursiveTraversal(h).run();
+        }
+    }
 
     class FindTemplateConflicts {
         constructor(typeToInstData, typeToIdToTempl, scriptAttrs) {
@@ -108,80 +170,18 @@ editor.once('load', function () {
         }
     }
 
-    class TemplateTraversal {
-        constructor(ent, typeToNode, scriptAttrs) {
-            this.ent = ent;
-
-            this.typeToNode = typeToNode;
-
-            this.scriptAttrs = scriptAttrs;
-
-            this.conflicts = [];
-        }
-
-        run() { // ent is always from src
-            this.runTraveral();
-
-            this.conflicts.forEach(h => {
-                h.resource_id = this.ent.resource_id;
-            });
-
-            return this.conflicts;
-        }
-
-        runTraveral() {
-            const h = {
-                typeToRoot: this.typeToNode,
-                conflicts: this.conflicts,
-                entityResourceId: this.ent.resource_id,
-                scriptAttrs: this.scriptAttrs
-            };
-
-            new StartRecursiveTraversal(h).run();
-        }
-    }
-
-    class StartRecursiveTraversal {
-        constructor(data) {
-            this.data = data;
-        }
-
-        run() {
-            this.knownResultPaths = new MergePathStore();
-
-            ['src', 'dst'].forEach(this.handleType, this);
-        }
-
-        handleType(type) {
-            const h = {
-                type1: type,
-
-                path: [],
-
-                knownResultPaths: this.knownResultPaths
-            };
-
-            Object.assign(h, this.data);
-
-            editor.call('assets:templateNodeTraversal', h);
-        }
-    }
-
-    class MergePathStore {
-        constructor() {
-            this.store = {};
-        }
-
-        add(path) {
-            const key = editor.call('template:utils', 'pathToStr', path);
-
-            this.store[key] = 1;
-        }
-
-        includes(path) {
-            const key = editor.call('template:utils', 'pathToStr', path);
-
-            return this.store[key];
-        }
-    }
+    /**
+     * Find template instance overrides via recursive traversal,
+     * given data representing the instance and the template asset.
+     *
+     * @param {object} typeToInstData - A map from type (src or dst)
+     *    to an object with the fields: entities, templIdToEntity, templIdToEntId
+     * @param {object} typeToIdToTempl - A map from type to a map from
+     *    instance id to template id.
+     * @returns {object} An object with fields 'conflicts',
+     *    'addedEntities' and 'deletedEntities'
+     */
+    editor.method('template:findConflicts', function (typeToInstData, typeToIdToTempl, scriptAttrs) {
+        return new FindTemplateConflicts(typeToInstData, typeToIdToTempl, scriptAttrs).run();
+    });
 });

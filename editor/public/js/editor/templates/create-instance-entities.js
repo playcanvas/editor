@@ -1,11 +1,6 @@
 editor.once('load', function () {
     'use strict';
 
-    editor.method('template:createInstanceEntities', function (srcEnts, srcToDst, dstToSrc, scriptAttrs) {
-
-        return new CreateInstanceEntities(srcEnts, srcToDst, dstToSrc, scriptAttrs).run();
-    });
-
     class CreateInstanceEntities {
         constructor(srcEnts, srcToDst, dstToSrc, scriptAttrs) {
             this.srcEnts = srcEnts;
@@ -62,4 +57,8 @@ editor.once('load', function () {
             });
         }
     }
+
+    editor.method('template:createInstanceEntities', function (srcEnts, srcToDst, dstToSrc, scriptAttrs) {
+        return new CreateInstanceEntities(srcEnts, srcToDst, dstToSrc, scriptAttrs).run();
+    });
 });

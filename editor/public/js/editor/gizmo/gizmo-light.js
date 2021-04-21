@@ -107,8 +107,6 @@ editor.once('load', function () {
             }
         }
 
-        let material = materialBehind;
-
         switch (this.type) {
             case 'directional':
                 this.entity.setRotation(this._link.entity.getRotation());
@@ -122,13 +120,12 @@ editor.once('load', function () {
                 break;
             case 'spot':
                 this.entity.setRotation(this._link.entity.getRotation());
-                this.entity.model.model.meshInstances[0].setParameter('range', light.range);
-                this.entity.model.model.meshInstances[0].setParameter('innerAngle', light.innerConeAngle);
-                this.entity.model.model.meshInstances[0].setParameter('outerAngle', light.outerConeAngle);
-                this.entity.model.model.meshInstances[1].setParameter('range', light.range);
-                this.entity.model.model.meshInstances[1].setParameter('innerAngle', light.innerConeAngle);
-                this.entity.model.model.meshInstances[1].setParameter('outerAngle', light.outerConeAngle);
-                material = materialSpotBehind;
+                this.entity.model.meshInstances[0].setParameter('range', light.range);
+                this.entity.model.meshInstances[0].setParameter('innerAngle', light.innerConeAngle);
+                this.entity.model.meshInstances[0].setParameter('outerAngle', light.outerConeAngle);
+                this.entity.model.meshInstances[1].setParameter('range', light.range);
+                this.entity.model.meshInstances[1].setParameter('innerAngle', light.innerConeAngle);
+                this.entity.model.meshInstances[1].setParameter('outerAngle', light.outerConeAngle);
                 break;
         }
     };
@@ -302,7 +299,7 @@ void main(void)
         materialSpotBehind.depthTest = false;
         materialSpotBehind.update();
 
-        let buffer, iterator, size, length, node, mesh, meshInstance, model;
+        let buffer, iterator, node, mesh, meshInstance, model;
         const vertexFormat = new pc.VertexFormat(app.graphicsDevice, [
             { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 }
         ]);
@@ -316,8 +313,8 @@ void main(void)
         // directional light
         buffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, 14);
         iterator = new pc.VertexIterator(buffer);
-        size = 0.2;
-        length = -(2 - size * 2);
+        const size = 0.2;
+        const length = -(2 - size * 2);
         // line
         iterator.element[pc.SEMANTIC_POSITION].set(0, 0, 0);
         iterator.next();

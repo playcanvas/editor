@@ -36,6 +36,8 @@ editor.once('load', function () {
     buttonLaunch.class.add('icon');
     launch.append(buttonLaunch);
 
+    var launchOptions = { };
+
     var launchApp = function () {
         var url = config.url.launch + config.scene.id;
 
@@ -87,8 +89,6 @@ editor.once('load', function () {
     });
 
     var layoutRight = editor.call('layout.attributes');
-
-    var launchOptions = { };
 
     var panelOptions = new ui.Panel();
     panelOptions.class.add('options');
@@ -171,10 +171,6 @@ editor.once('load', function () {
             return tooltipText;
         };
 
-        settings.on('editor.localServer:set', function () {
-            tooltipLocal.html = getTooltipText();
-        });
-
         var tooltipLocal = Tooltip.attach({
             target: local.parent.element,
             html: getTooltipText(),
@@ -183,6 +179,10 @@ editor.once('load', function () {
         });
 
         tooltipLocal.class.add('launch-tooltip');
+
+        settings.on('editor.localServer:set', function () {
+            tooltipLocal.html = getTooltipText();
+        });
     } else {
         var optionConcatenate = createOption('concatenate', 'Concatenate Scripts');
         var tooltipConcatenate = Tooltip.attach({
@@ -306,6 +306,14 @@ editor.once('load', function () {
     buttonExpand.on('click', function () {
         editor.call('viewport:expand');
     });
+
+    var tooltipExpand = Tooltip.attach({
+        target: buttonExpand.element,
+        text: 'Hide Panels',
+        align: 'top',
+        root: root
+    });
+
     editor.on('viewport:expand', function (state) {
         if (state) {
             tooltipExpand.text = 'Show Panels';
@@ -316,12 +324,5 @@ editor.once('load', function () {
         }
 
         tooltipExpand.hidden = true;
-    });
-
-    var tooltipExpand = Tooltip.attach({
-        target: buttonExpand.element,
-        text: 'Hide Panels',
-        align: 'top',
-        root: root
     });
 });

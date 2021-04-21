@@ -1,34 +1,34 @@
 editor.once('load', function () {
     'use strict';
-    var app = null;
-    var entities = [];
+    let app = null;
+    let entities = [];
 
-    var BOUNDING_BOX_MIN_EXTENTS = new pc.Vec3(0.01, 0.01, 0.01);
+    const BOUNDING_BOX_MIN_EXTENTS = new pc.Vec3(0.01, 0.01, 0.01);
 
-    var visible = true;
+    let visible = true;
 
-    var color = new pc.Color(1, 1, 1);
-    var colorBehind = new pc.Color(1, 1, 1, 0.2);
+    const color = new pc.Color(1, 1, 1);
+    const colorBehind = new pc.Color(1, 1, 1, 0.2);
 
-    var immediateRenderOptions;
-    var immediateMaskRenderOptions;
+    let immediateRenderOptions;
+    let immediateMaskRenderOptions;
 
-    var points = [];
-    for (var c = 0; c < 32; c++)
+    const points = [];
+    for (let c = 0; c < 32; c++)
         points[c] = new pc.Vec3();
 
     // temp variables for getBoundingBoxForHierarchy
-    var _entityResultBB = new pc.BoundingBox();
+    const _entityResultBB = new pc.BoundingBox();
 
     // temp variables for getBoundingBoxForEntity
-    var _tmpBB = new pc.BoundingBox();
-    var _matA = new pc.Mat4();
+    const _tmpBB = new pc.BoundingBox();
+    const _matA = new pc.Mat4();
 
     // temp variables for entities:getBoundingBoxForEntity
-    var _resultBB = new pc.BoundingBox();
+    const _resultBB = new pc.BoundingBox();
 
     // tmp variable used to render bounding box
-    var _selectionBB = new pc.BoundingBox();
+    const _selectionBB = new pc.BoundingBox();
 
     editor.on('selector:change', function (type, items) {
         if (type === 'entity') {
@@ -52,10 +52,10 @@ editor.once('load', function () {
 
         if (! visible) return;
 
-        var ind = 0;
+        let ind = 0;
         for (let x = -1; x <= 1; x += 2) {
             for (let y = -1; y <= 1; y += 2) {
-                for (var z = -1; z <= 1; z += 2) {
+                for (let z = -1; z <= 1; z += 2) {
                     points[ind * 4].copy(aabb.halfExtents);
                     points[ind * 4].x *= x;
                     points[ind * 4].y *= y;
@@ -85,36 +85,10 @@ editor.once('load', function () {
         }
     });
 
-
-    // Get the bounding box the encloses a hierarchy of entities
-    // {pc.Entity} root - the root entity of the hierarchy
-    var getBoundingBoxForHierarchy = function (root, hierarchyBB) {
-        var bb = getBoundingBoxForEntity(root, _entityResultBB);
-
-        // first time through we initialize with the new boundingbox
-        if (!hierarchyBB) {
-            hierarchyBB = new pc.BoundingBox();
-            hierarchyBB.copy(bb);
-        } else {
-            hierarchyBB.add(bb);
-        }
-
-        var children = root.children;
-        for (let i = 0; i < children.length; i++) {
-            if (children[i].__editor || ! (children[i] instanceof pc.Entity))
-                continue;
-
-            // now we pass in the bounding box to be added to
-            getBoundingBoxForHierarchy(children[i], hierarchyBB);
-        }
-
-        return hierarchyBB;
-    };
-
     // calculate the bounding box for a single entity and return it
     // bounding box is calculated from one of the components
     // attached to the entity in a priority order
-    var getBoundingBoxForEntity = function (entity, resultBB) {
+    const getBoundingBoxForEntity = function (entity, resultBB) {
         // why is this here? to sync the hierarchy?
         entity.getWorldTransform();
 
@@ -125,7 +99,7 @@ editor.once('load', function () {
         // first choice is to use the bounding box of all mesh instances on a model or render component
         if (entity.model || entity.render) {
 
-            var meshInstances;
+            let meshInstances;
             if (entity.model && entity.model.model && entity.model.meshInstances.length) {
                 meshInstances = entity.model.meshInstances;
             }
@@ -154,6 +128,8 @@ editor.once('load', function () {
 
         // next is the collision bounding box
         if (entity.collision) {
+            const axes = ['x', 'y', 'z'];
+
             switch (entity.collision.type) {
                 case 'box':
                     _tmpBB.center.set(0, 0, 0);
@@ -167,7 +143,6 @@ editor.once('load', function () {
                 case 'capsule':
                 case 'cylinder':
                     _tmpBB.halfExtents.set(entity.collision.radius, entity.collision.radius, entity.collision.radius);
-                    var axes = ['x', 'y', 'z'];
                     _tmpBB.halfExtents[axes[entity.collision.axis]] = entity.collision.height / 2;
                     resultBB.setFromTransformedAabb(_tmpBB, entity.getWorldTransform());
                     return resultBB;
@@ -177,7 +152,7 @@ editor.once('load', function () {
         // the an element component
         if (entity.element) {
             // if the element has an aabb (image or text element)
-            var aabb = entity.element.aabb;
+            const aabb = entity.element.aabb;
             if (aabb) {
                 resultBB.copy(aabb);
             } else {
@@ -194,7 +169,7 @@ editor.once('load', function () {
 
         // then sprite component
         if (entity.sprite) {
-            var aabb = entity.sprite.aabb;
+            const aabb = entity.sprite.aabb;
             if (aabb) {
                 resultBB.copy(aabb);
             }
@@ -223,8 +198,8 @@ editor.once('load', function () {
         // then zone
         if (entity.zone) {
             _tmpBB.halfExtents.copy(entity.zone.size).scale(0.5);
-            var position = entity.getPosition();
-            var rotation = entity.getRotation();
+            const position = entity.getPosition();
+            const rotation = entity.getRotation();
             _matA.setTRS(position, rotation, pc.Vec3.ONE);
             resultBB.setFromTransformedAabb(_tmpBB, _matA);
             return resultBB;
@@ -234,6 +209,31 @@ editor.once('load', function () {
         resultBB.center.copy(entity.getPosition());
         resultBB.halfExtents.copy(BOUNDING_BOX_MIN_EXTENTS);
         return resultBB;
+    };
+
+    // Get the bounding box the encloses a hierarchy of entities
+    // {pc.Entity} root - the root entity of the hierarchy
+    const getBoundingBoxForHierarchy = function (root, hierarchyBB) {
+        const bb = getBoundingBoxForEntity(root, _entityResultBB);
+
+        // first time through we initialize with the new boundingbox
+        if (!hierarchyBB) {
+            hierarchyBB = new pc.BoundingBox();
+            hierarchyBB.copy(bb);
+        } else {
+            hierarchyBB.add(bb);
+        }
+
+        const children = root.children;
+        for (let i = 0; i < children.length; i++) {
+            if (children[i].__editor || ! (children[i] instanceof pc.Entity))
+                continue;
+
+            // now we pass in the bounding box to be added to
+            getBoundingBoxForHierarchy(children[i], hierarchyBB);
+        }
+
+        return hierarchyBB;
     };
 
     editor.method('entities:getBoundingBoxForEntity', function (entity) {
@@ -258,14 +258,14 @@ editor.once('load', function () {
                 return;
 
             // firstBB = true;
-            var noEntities = true;
+            let noEntities = true;
 
             for (let i = 0; i < entities.length; i++) {
                 if (! entities[i])
                     continue;
 
                 noEntities = false;
-                var entityBox = getBoundingBoxForHierarchy(entities[i]);
+                const entityBox = getBoundingBoxForHierarchy(entities[i]);
                 if (i === 0) {
                     _selectionBB.copy(entityBox);
                 } else {
