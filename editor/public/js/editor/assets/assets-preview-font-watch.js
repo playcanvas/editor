@@ -1,11 +1,28 @@
 editor.once('load', function () {
     'use strict';
 
-    var app = editor.call('viewport:app');
+    const app = editor.call('viewport:app');
     if (! app) return; // webgl not available
-    var watching = { };
+    const watching = { };
 
-    var subscribe = function (watch) {
+    const trigger = function (watch) {
+        for (const key in watch.callbacks) {
+            watch.callbacks[key].callback();
+        }
+    };
+
+    const loadFont = function (watch, asset, reload) {
+        if (reload && asset) {
+            asset.unload();
+        }
+
+        asset.ready(function () {
+            trigger(watch);
+        });
+        app.assets.load(asset);
+    };
+
+    const subscribe = function (watch) {
         watch.onChange = function (asset, name, value) {
             if (name === 'data') {
                 trigger(watch);
@@ -27,18 +44,16 @@ editor.once('load', function () {
             trigger(watch);
         };
 
-        var asset = app.assets.get(watch.asset.get('id'));
+        const asset = app.assets.get(watch.asset.get('id'));
         if (asset) {
             watch.onAdd(asset);
 
         } else {
             app.assets.once('add:' + watch.asset.get('id'), watch.onAdd);
         }
-
-
     };
 
-    var unsubscribe = function (watch) {
+    const unsubscribe = function (watch) {
         if (watch.engineAsset) {
             watch.engineAsset.off('load', watch.onLoad);
             watch.engineAsset.off('change', watch.onChange);
@@ -49,31 +64,11 @@ editor.once('load', function () {
 
         for (const key in watch.watching)
             watch.watching[key].unbind();
-
-
-    };
-
-    var loadFont = function (watch, asset, reload) {
-        if (reload && asset) {
-            asset.unload();
-        }
-
-        asset.ready(function () {
-            trigger(watch);
-        });
-        app.assets.load(asset);
-    };
-
-
-    var trigger = function (watch) {
-        for (const key in watch.callbacks) {
-            watch.callbacks[key].callback();
-        }
     };
 
 
     editor.method('assets:font:watch', function (args) {
-        var watch = watching[args.asset.get('id')];
+        let watch = watching[args.asset.get('id')];
 
         if (! watch) {
             watch = watching[args.asset.get('id')] = {
@@ -89,7 +84,7 @@ editor.once('load', function () {
             subscribe(watch);
         }
 
-        var item = watch.callbacks[++watch.ind] = {
+        watch.callbacks[++watch.ind] = {
             autoLoad: args.autoLoad,
             callback: args.callback
         };
@@ -98,7 +93,7 @@ editor.once('load', function () {
             watch.autoLoad++;
 
         if (watch.autoLoad === 1) {
-            var asset = app.assets.get(watch.asset.get('id'));
+            const asset = app.assets.get(watch.asset.get('id'));
             if (asset) {
                 watch.engineAsset = asset;
                 loadFont(watch, asset);
@@ -108,9 +103,8 @@ editor.once('load', function () {
         return watch.ind;
     });
 
-
     editor.method('assets:font:unwatch', function (asset, handle) {
-        var watch = watching[asset.get('id')];
+        const watch = watching[asset.get('id')];
         if (! watch) return;
 
         if (! watch.callbacks.hasOwnProperty(handle))

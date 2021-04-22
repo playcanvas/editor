@@ -6,37 +6,6 @@ editor.once('load', function () {
         this.element = null;
     };
 
-    // Creates a field with the specified value based on the specified type
-    ConflictField.create = function (type, value) {
-        switch (type) {
-            case 'asset':
-                return new ConflictFieldAsset(value);
-            case 'curve':
-            case 'curveset':
-                return new ConflictFieldCurve(value);
-            case 'entity':
-                return new ConflictFieldEntity(value);
-            case 'layer':
-            case 'batchGroup':
-                return new ConflictFieldLayer(value);
-            case 'sublayer':
-                return new ConflictFieldSublayer(value);
-            case 'vec2':
-            case 'vec3':
-            case 'vec4':
-                return new ConflictFieldVector(value);
-            case 'rgb':
-            case 'rgba':
-                return new ConflictFieldColor(value);
-            case 'json':
-                return new ConflictFieldJson(value);
-            case 'object':
-                return new ConflictFieldNotRenderable();
-            default:
-                return new ConflictFieldString(value);
-        }
-    };
-
     ConflictField.prototype.onAddedToDom = function () {
         // reset height
         this.element.parent.style.height = '';
@@ -285,6 +254,37 @@ editor.once('load', function () {
             return this._size;
         }
     });
+
+    // Creates a field with the specified value based on the specified type
+    ConflictField.create = function (type, value) {
+        switch (type) {
+            case 'asset':
+                return new ConflictFieldAsset(value);
+            case 'curve':
+            case 'curveset':
+                return new ConflictFieldCurve(value);
+            case 'entity':
+                return new ConflictFieldEntity(value);
+            case 'layer':
+            case 'batchGroup':
+                return new ConflictFieldLayer(value);
+            case 'sublayer':
+                return new ConflictFieldSublayer(value);
+            case 'vec2':
+            case 'vec3':
+            case 'vec4':
+                return new ConflictFieldVector(value);
+            case 'rgb':
+            case 'rgba':
+                return new ConflictFieldColor(value);
+            case 'json':
+                return new ConflictFieldJson(value);
+            case 'object':
+                return new ConflictFieldNotRenderable();
+            default:
+                return new ConflictFieldString(value);
+        }
+    };
 
     window.ui.ConflictField = ConflictField;
     window.ui.ConflictArrayField = ConflictArrayField;

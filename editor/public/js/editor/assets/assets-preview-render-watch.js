@@ -1,13 +1,55 @@
 editor.once('load', function () {
     'use strict';
 
-    var app = editor.call('viewport:app');
+    const app = editor.call('viewport:app');
     if (! app) return; // webgl not available
 
-    var watching = { };
+    const watching = { };
 
-    var subscribe = function (watch) {
-        var currentContainer = null;
+    const trigger = function (watch) {
+        for (const key in watch.callbacks) {
+            watch.callbacks[key].callback();
+        }
+    };
+
+    const load = function (watch, asset, reload) {
+        if (reload && asset) {
+            asset.unload();
+        }
+
+        asset.ready(function () {
+            trigger(watch);
+        });
+        app.assets.load(asset);
+    };
+
+    const unwatchContainer = function (watch, container) {
+        if (watch.onContainerLoad && container) {
+            app.assets.off('load:' + container, watch.onContainerLoad);
+            delete watch.onContainerLoad;
+        }
+
+        if (watch.onContainerAdd && container) {
+            app.assets.off('add:' + container, watch.onContainerAdd);
+            delete watch.onContainerAdd;
+        }
+
+        if (watch.evtContainerRemove) {
+            watch.evtContainerRemove.unbind();
+            delete watch.evtContainerRemove;
+        }
+        if (watch.evtContainerFileSet) {
+            watch.evtContainerFileSet.unbind();
+            delete watch.evtContainerFileSet;
+        }
+        if (watch.evtContainerFileUnset) {
+            watch.evtContainerFileUnset.unbind();
+            delete watch.evtContainerFileUnset;
+        }
+    };
+
+    const subscribe = function (watch) {
+        let currentContainer = null;
 
         watch.onChange = function (asset, name, value) {
             if (name === 'data') {
@@ -16,14 +58,14 @@ editor.once('load', function () {
         };
 
 
-        var watchContainer = function () {
-            var container = watch.asset.get('data.containerAsset');
+        const watchContainer = function () {
+            const container = watch.asset.get('data.containerAsset');
             currentContainer = container;
             if (! container) return;
 
-            var containerAsset = editor.call('assets:get', container);
+            const containerAsset = editor.call('assets:get', container);
             if (containerAsset) {
-                var engineContainer = app.assets.get(container);
+                const engineContainer = app.assets.get(container);
 
                 watch.onContainerLoad = function () {
                     trigger(watch);
@@ -90,7 +132,7 @@ editor.once('load', function () {
             trigger(watch);
         };
 
-        var asset = app.assets.get(watch.asset.get('id'));
+        const asset = app.assets.get(watch.asset.get('id'));
         if (asset) {
             watch.onAdd(asset);
 
@@ -99,33 +141,8 @@ editor.once('load', function () {
         }
     };
 
-    var unwatchContainer = function (watch, container) {
-        if (watch.onContainerLoad && container) {
-            app.assets.off('load:' + container, watch.onContainerLoad);
-            delete watch.onContainerLoad;
-        }
-
-        if (watch.onContainerAdd && container) {
-            app.assets.off('add:' + container, watch.onContainerAdd);
-            delete watch.onContainerAdd;
-        }
-
-        if (watch.evtContainerRemove) {
-            watch.evtContainerRemove.unbind();
-            delete watch.evtContainerRemove;
-        }
-        if (watch.evtContainerFileSet) {
-            watch.evtContainerFileSet.unbind();
-            delete watch.evtContainerFileSet;
-        }
-        if (watch.evtContainerFileUnset) {
-            watch.evtContainerFileUnset.unbind();
-            delete watch.evtContainerFileUnset;
-        }
-    };
-
-    var unsubscribe = function (watch) {
-        var container = watch.asset.get('data.containerAsset');
+    const unsubscribe = function (watch) {
+        const container = watch.asset.get('data.containerAsset');
         unwatchContainer(watch, container);
 
         if (watch.engineAsset) {
@@ -146,27 +163,9 @@ editor.once('load', function () {
 
     };
 
-    var load = function (watch, asset, reload) {
-        if (reload && asset) {
-            asset.unload();
-        }
-
-        asset.ready(function () {
-            trigger(watch);
-        });
-        app.assets.load(asset);
-    };
-
-
-    var trigger = function (watch) {
-        for (const key in watch.callbacks) {
-            watch.callbacks[key].callback();
-        }
-    };
-
 
     editor.method('assets:render:watch', function (args) {
-        var watch = watching[args.asset.get('id')];
+        let watch = watching[args.asset.get('id')];
 
         if (! watch) {
             watch = watching[args.asset.get('id')] = {
@@ -189,7 +188,7 @@ editor.once('load', function () {
             subscribe(watch);
         }
 
-        var item = watch.callbacks[++watch.ind] = {
+        watch.callbacks[++watch.ind] = {
             autoLoad: args.autoLoad,
             callback: args.callback
         };
@@ -198,7 +197,7 @@ editor.once('load', function () {
             watch.autoLoad++;
 
         if (watch.autoLoad === 1) {
-            var asset = app.assets.get(watch.asset.get('id'));
+            const asset = app.assets.get(watch.asset.get('id'));
             if (asset) {
                 watch.engineAsset = asset;
                 load(watch, asset);
@@ -210,7 +209,7 @@ editor.once('load', function () {
 
 
     editor.method('assets:render:unwatch', function (asset, handle) {
-        var watch = watching[asset.get('id')];
+        const watch = watching[asset.get('id')];
         if (! watch) return;
 
         if (! watch.callbacks.hasOwnProperty(handle))

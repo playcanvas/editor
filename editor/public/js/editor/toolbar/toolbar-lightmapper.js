@@ -1,11 +1,15 @@
 editor.once('load', function () {
     'use strict';
 
-    var root = editor.call('layout.root');
-    var toolbar = editor.call('layout.toolbar');
+    const root = editor.call('layout.root');
+    const toolbar = editor.call('layout.toolbar');
+
+    // manage if uv1 is missing
+    let uv1Missing = false;
+    let uv1MissingAssets = { };
 
     // coordinate system
-    var buttonBake = new ui.Button({
+    const buttonBake = new ui.Button({
         text: '&#57745;'
     });
     buttonBake.class.add('pc-icon', 'light-mapper');
@@ -23,9 +27,8 @@ editor.once('load', function () {
         }
     });
 
-
     // tooltip
-    var tooltipBake = Tooltip.attach({
+    const tooltipBake = Tooltip.attach({
         target: buttonBake.element,
         align: 'left',
         root: root
@@ -33,16 +36,14 @@ editor.once('load', function () {
     tooltipBake.class.add('light-mapper');
     tooltipBake.hoverable = true;
 
-
     // header
-    var elHeader = document.createElement('span');
+    const elHeader = document.createElement('span');
     elHeader.classList.add('header');
     elHeader.textContent = 'Light Mapper';
     tooltipBake.innerElement.appendChild(elHeader);
 
-
     // auto toggle
-    var elAuto = document.createElement('div');
+    const elAuto = document.createElement('div');
 
     if (! editor.call('permissions:write'))
         elAuto.style.display = 'none';
@@ -58,7 +59,7 @@ editor.once('load', function () {
     elAuto.classList.add('auto-toggle');
     tooltipBake.innerElement.appendChild(elAuto);
 
-    var checkAuto = new ui.Checkbox();
+    const checkAuto = new ui.Checkbox();
     checkAuto.class.add('tick');
     checkAuto.parent = tooltipBake;
     elAuto.appendChild(checkAuto.element);
@@ -69,18 +70,17 @@ editor.once('load', function () {
         editor.call('lightmapper:auto', value);
     });
 
-    var labelAuto = new ui.Label({ text: 'Auto Rebake' });
+    const labelAuto = new ui.Label({ text: 'Auto Rebake' });
     labelAuto.parent = tooltipBake;
     elAuto.appendChild(labelAuto.element);
 
-
     // uv1 missing
-    var elUV1 = document.createElement('div');
+    const elUV1 = document.createElement('div');
     elUV1.classList.add('uv1');
     elUV1.textContent = 'UV1 is missing on some models. Please upload models with UV1 or use ';
     tooltipBake.innerElement.appendChild(elUV1);
 
-    var btnAutoUnwrap = new ui.Button({
+    const btnAutoUnwrap = new ui.Button({
         text: 'Auto-Unwrap'
     });
     btnAutoUnwrap.parent = tooltipBake;
@@ -89,16 +89,15 @@ editor.once('load', function () {
         if (! uv1Missing)
             return;
 
-        var assetIds = Object.keys(uv1MissingAssets);
+        const assetIds = Object.keys(uv1MissingAssets);
         for (let i = 0; i < assetIds.length; i++) {
             if (! uv1MissingAssets.hasOwnProperty(assetIds[i]))
                 continue;
 
-            var asset = uv1MissingAssets[assetIds[i]];
+            const asset = uv1MissingAssets[assetIds[i]];
             editor.call('assets:model:unwrap', asset);
         }
     });
-
 
     // hotkey ctrl+b
     editor.call('hotkey:register', 'lightmapper:bake', {
@@ -111,11 +110,6 @@ editor.once('load', function () {
             editor.call('entities:shadows:update');
         }
     });
-
-
-    // manage if uv1 is missing
-    var uv1Missing = false;
-    var uv1MissingAssets = { };
 
     editor.on('assets:model:unwrap', function (asset) {
         if (! uv1MissingAssets[asset.get('id')])
@@ -131,7 +125,7 @@ editor.once('load', function () {
 
         uv1MissingAssets = assets;
 
-        var state = Object.keys(assets).length !== 0;
+        const state = Object.keys(assets).length !== 0;
 
         if (uv1Missing === state)
             return;
