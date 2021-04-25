@@ -334,13 +334,13 @@ editor.once('load', function () {
             });
 
             // show matches
-            for (i = matched.length - 1; i >= 0; i--) {
+            for (let i = matched.length - 1; i >= 0; i--) {
                 matched[i].menuItem.class.remove('hidden');
                 menu.innerElement.insertBefore(matched[i].menuItem.element, menu.innerElement.firstChild);
             }
         } else {
             // show all suggestions
-            for (i = suggestions.length - 1; i >= 0; i--) {
+            for (let i = suggestions.length - 1; i >= 0; i--) {
                 suggestions[i].menuItem.class.remove('hidden');
                 menu.innerElement.insertBefore(suggestions[i].menuItem.element, menu.innerElement.firstChild);
             }
