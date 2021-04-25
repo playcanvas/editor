@@ -240,7 +240,9 @@ editor.once('load', function () {
 
             if (dirty) {
                 const pos = getGizmoPosition();
-                editor.call('gizmo:translate:position', pos.x, pos.y, pos.z);
+                if (pos) {
+                    editor.call('gizmo:translate:position', pos.x, pos.y, pos.z);
+                }
             }
         }
 
