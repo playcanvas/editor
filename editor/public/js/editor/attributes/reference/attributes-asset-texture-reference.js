@@ -105,9 +105,13 @@ editor.once('load', function () {
         title: 'ETC (Ericsson Texture Compression)',
         description: 'This format covers well some Android devices as well as Destop. It is very GZIP friendly, download sizes shown are gzip\'ed. WebGL exposes support for ETC1 only whcih only stores RGB so this format is not available for storing Alpha channel. It is Lossy and suffers from RGB channel leaking.'
     }, {
+        name: 'compress:compressionMode',
+        title: 'Compression Mode',
+        description: 'Set the compression mode for the texture. Selecting ETC will generate a significantly smaller Basis file than ASTC but will be of lower quality.'
+    }, {
         name: 'compress:quality',
-        title: 'Compression quality',
-        description: 'Set the compression quality for the texture.'
+        title: 'Compression Quality',
+        description: 'Set the compression quality for the texture. Higher quality compression will look better but will take longer to compress and generate a larger Basis file.'
     }];
 
     for (let i = 0; i < fields.length; i++) {

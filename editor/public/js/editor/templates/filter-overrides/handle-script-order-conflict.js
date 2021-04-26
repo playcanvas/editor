@@ -1,11 +1,6 @@
 editor.once('load', function () {
     'use strict';
 
-    editor.method('templates:handleScriptOrderConflict', function (conflict) {
-
-        return new HandleScriptOrderConflict(conflict).run();
-    });
-
     class HandleScriptOrderConflict {
         constructor(conflict) {
             this.conflict = conflict;
@@ -49,4 +44,8 @@ editor.once('load', function () {
             return this.conflict;
         }
     }
+
+    editor.method('templates:handleScriptOrderConflict', function (conflict) {
+        return new HandleScriptOrderConflict(conflict).run();
+    });
 });

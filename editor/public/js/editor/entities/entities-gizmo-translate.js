@@ -1,43 +1,26 @@
 editor.once('load', function () {
     'use strict';
 
-    var events = [];
-    var items = [];
-    var quat = new pc.Quat();
-    var vecA = new pc.Vec3();
-    var vecB = new pc.Vec3();
-    var vecC = new pc.Vec3();
-    var timeoutUpdatePosition, timeoutUpdateRotation;
-    var coordSystem = 'world';
-    var app;
-    var gizmoMoving = false;
-    var gizmoAxis, gizmoPlane;
-    var movingStart = new pc.Vec3();
-    var linesColorActive = new pc.Color(1, 1, 1, 1);
-    var linesColor = new pc.Color(1, 1, 1, 0.2);
-    var linesColorBehind = new pc.Color(1, 1, 1, 0.05);
-    var immediateRenderOptions;
-    var brightImmediateRenderOptions;
-
-    editor.on('gizmo:coordSystem', function (system) {
-        if (coordSystem === system)
-            return;
-
-        coordSystem = system;
-
-        var pos = getGizmoPosition();
-        if (pos)
-            editor.call('gizmo:translate:position', pos.x, pos.y, pos.z);
-
-        var rot = getGizmoRotation();
-        if (rot)
-            editor.call('gizmo:translate:rotation', rot[0], rot[1], rot[2]);
-
-        editor.call('viewport:render');
-    });
+    let events = [];
+    let items = [];
+    const quat = new pc.Quat();
+    const vecA = new pc.Vec3();
+    const vecB = new pc.Vec3();
+    const vecC = new pc.Vec3();
+    let timeoutUpdatePosition, timeoutUpdateRotation;
+    let coordSystem = 'world';
+    let app;
+    let gizmoMoving = false;
+    let gizmoAxis, gizmoPlane;
+    const movingStart = new pc.Vec3();
+    const linesColorActive = new pc.Color(1, 1, 1, 1);
+    const linesColor = new pc.Color(1, 1, 1, 0.2);
+    const linesColorBehind = new pc.Color(1, 1, 1, 0.05);
+    let immediateRenderOptions;
+    let brightImmediateRenderOptions;
 
     // get position of gizmo based on selected entities
-    var getGizmoPosition = function () {
+    const getGizmoPosition = function () {
         if (! items.length)
             return;
 
@@ -48,15 +31,15 @@ editor.once('load', function () {
                 return null;
             }
         } else if (coordSystem === 'local') {
-            var reference = items[items.length - 1];
-            var parent = reference.parent;
+            let reference = items[items.length - 1];
+            let parent = reference.parent;
             while (parent) {
                 reference = parent;
                 parent = parent.parent;
             }
             vecA.copy(reference.obj.entity.getPosition());
         } else {
-            var selection = editor.call('selection:aabb');
+            const selection = editor.call('selection:aabb');
             if (! selection) return;
             vecA.copy(selection.center);
         }
@@ -64,26 +47,43 @@ editor.once('load', function () {
         return vecA;
     };
 
-    var getGizmoRotation = function () {
+    const getGizmoRotation = function () {
         if (! items.length)
             return;
 
         if (coordSystem === 'local') {
-            var reference = items[items.length - 1];
-            var parent = reference.parent;
+            let reference = items[items.length - 1];
+            let parent = reference.parent;
             while (parent) {
                 reference = parent;
                 parent = parent.parent;
             }
-            var rot = reference.obj.entity.getEulerAngles();
+            const rot = reference.obj.entity.getEulerAngles();
             return [rot.x, rot.y, rot.z];
         }
         return [0, 0, 0];
 
     };
 
+    editor.on('gizmo:coordSystem', function (system) {
+        if (coordSystem === system)
+            return;
+
+        coordSystem = system;
+
+        const pos = getGizmoPosition();
+        if (pos)
+            editor.call('gizmo:translate:position', pos.x, pos.y, pos.z);
+
+        const rot = getGizmoRotation();
+        if (rot)
+            editor.call('gizmo:translate:rotation', rot[0], rot[1], rot[2]);
+
+        editor.call('viewport:render');
+    });
+
     // update gizmo position
-    var updateGizmoPosition = function () {
+    const updateGizmoPosition = function () {
         if (! items.length || timeoutUpdatePosition || gizmoMoving)
             return;
 
@@ -92,14 +92,14 @@ editor.once('load', function () {
         setTimeout(function () {
             timeoutUpdatePosition = false;
 
-            var vec = getGizmoPosition();
+            const vec = getGizmoPosition();
             if (vec)
                 editor.call('gizmo:translate:position', vec.x, vec.y, vec.z);
         });
     };
 
     // update gizmo position
-    var updateGizmoRotation = function () {
+    const updateGizmoRotation = function () {
         if (! items.length || timeoutUpdateRotation)
             return;
 
@@ -108,14 +108,14 @@ editor.once('load', function () {
         setTimeout(function () {
             timeoutUpdateRotation = false;
 
-            var vec = getGizmoRotation();
+            const vec = getGizmoRotation();
             if (vec)
                 editor.call('gizmo:translate:rotation', vec[0], vec[1], vec[2]);
         });
     };
 
     // start translating
-    var onGizmoStart = function (axis, plane) {
+    const onGizmoStart = function (axis, plane) {
         gizmoAxis = axis;
         gizmoPlane = plane;
         gizmoMoving = true;
@@ -123,7 +123,7 @@ editor.once('load', function () {
         movingStart.copy(getGizmoPosition());
 
         for (let i = 0; i < items.length; i++) {
-            var pos = items[i].obj.entity.getPosition();
+            let pos = items[i].obj.entity.getPosition();
             items[i].start[0] = pos.x;
             items[i].start[1] = pos.y;
             items[i].start[2] = pos.z;
@@ -139,14 +139,14 @@ editor.once('load', function () {
     };
 
     // end translating
-    var onGizmoEnd = function () {
+    const onGizmoEnd = function () {
         gizmoMoving = false;
-        var records = [];
+        const records = [];
 
         for (let i = 0; i < items.length; i++) {
             items[i].obj.history.enabled = true;
 
-            var data = {
+            const data = {
                 item: items[i].obj,
                 valueOld: items[i].startLocal.slice(0),
                 value: items[i].obj.get('position')
@@ -159,7 +159,7 @@ editor.once('load', function () {
             name: 'entities.translate',
             undo: function () {
                 for (let i = 0; i < records.length; i++) {
-                    var item = records[i].item.latest();
+                    const item = records[i].item.latest();
                     if (! item) continue;
 
                     item.history.enabled = false;
@@ -169,7 +169,7 @@ editor.once('load', function () {
             },
             redo: function () {
                 for (let i = 0; i < records.length; i++) {
-                    var item = records[i].item.latest();
+                    const item = records[i].item.latest();
                     if (! item) continue;
 
                     item.history.enabled = false;
@@ -181,14 +181,14 @@ editor.once('load', function () {
     };
 
     // translated
-    var onGizmoOffset = function (x, y, z) {
+    const onGizmoOffset = function (x, y, z) {
         timeoutUpdateRotation = true;
 
         for (let i = 0; i < items.length; i++) {
             if (items[i].child)
                 continue;
 
-            var entity = items[i].obj.entity;
+            const entity = items[i].obj.entity;
 
             if (coordSystem === 'local') {
                 vecA.set(x, y, z);
@@ -210,26 +210,26 @@ editor.once('load', function () {
             //     app.systems.collision.onTransformChanged(entity.collision, entity.getPosition(), entity.getRotation(), entity.getLocalScale());
             // }
 
-            var pos = entity.getLocalPosition();
+            const pos = entity.getLocalPosition();
             items[i].obj.set('position', [pos.x, pos.y, pos.z]);
         }
 
         timeoutUpdateRotation = false;
 
-        var pos = getGizmoPosition();
+        const pos = getGizmoPosition();
         editor.call('gizmo:translate:position', pos.x, pos.y, pos.z);
     };
 
-    var onRender = function () {
+    const onRender = function () {
         if (! app) return; // webgl not available
 
         if (! gizmoMoving && items.length) {
-            var dirty = false;
+            let dirty = false;
             for (let i = 0; i < items.length; i++) {
                 if (! items[i].obj.entity)
                     continue;
 
-                var pos = items[i].obj.entity.getPosition();
+                const pos = items[i].obj.entity.getPosition();
                 if (pos.x !== items[i].pos[0] || pos.y !== items[i].pos[1] || pos.z !== items[i].pos[2]) {
                     dirty = true;
                     items[i].pos[0] = pos.x;
@@ -239,16 +239,18 @@ editor.once('load', function () {
             }
 
             if (dirty) {
-                var pos = getGizmoPosition();
-                editor.call('gizmo:translate:position', pos.x, pos.y, pos.z);
+                const pos = getGizmoPosition();
+                if (pos) {
+                    editor.call('gizmo:translate:position', pos.x, pos.y, pos.z);
+                }
             }
         }
 
         if (gizmoMoving && items.length) {
-            var camera = editor.call('camera:current');
-            var pos;
+            const camera = editor.call('camera:current');
+            let pos;
 
-            var len = coordSystem === 'local' ? items.length : 1;
+            const len = coordSystem === 'local' ? items.length : 1;
             for (let i = 0; i < len; i++) {
                 if (items[i].child)
                     continue;
@@ -312,16 +314,16 @@ editor.once('load', function () {
         };
     });
 
-    var updateChildRelation = function () {
-        var itemIds = { };
+    const updateChildRelation = function () {
+        const itemIds = { };
         for (let i = 0; i < items.length; i++) {
             itemIds[items[i].obj.get('resource_id')] = items[i];
         }
 
         for (let i = 0; i < items.length; i++) {
-            var child = false;
-            var parent = items[i].obj.entity._parent;
-            var id = '';
+            let child = false;
+            let parent = items[i].obj.entity._parent;
+            let id = '';
             while (! child && parent) {
                 id = parent.getGuid();
                 if (itemIds[id]) {
@@ -336,11 +338,11 @@ editor.once('load', function () {
         }
     };
 
-    var updateGizmo = function () {
+    const updateGizmo = function () {
         if (! editor.call('permissions:write'))
             return;
 
-        var objects = editor.call('selector:items');
+        const objects = editor.call('selector:items');
 
         for (let i = 0; i < events.length; i++)
             events[i].unbind();
@@ -352,7 +354,7 @@ editor.once('load', function () {
                 if (! objects[i].entity)
                     continue;
 
-                var pos = objects[i].entity.getPosition();
+                const pos = objects[i].entity.getPosition();
 
                 items.push({
                     obj: objects[i],
@@ -364,13 +366,13 @@ editor.once('load', function () {
                 // position
                 events.push(objects[i].on('position:set', updateGizmoPosition));
                 // position.*
-                for (var n = 0; n < 3; n++)
+                for (let n = 0; n < 3; n++)
                     events.push(objects[i].on('position.' + n + ':set', updateGizmoPosition));
 
                 // rotation
                 events.push(objects[i].on('rotation:set', updateGizmoRotation));
                 // rotation.*
-                for (var n = 0; n < 3; n++)
+                for (let n = 0; n < 3; n++)
                     events.push(objects[i].on('rotation.' + n + ':set', updateGizmoRotation));
 
                 events.push(objects[i].on('parent:set', updateChildRelation));
@@ -381,7 +383,7 @@ editor.once('load', function () {
 
             updateChildRelation();
 
-            var rot = getGizmoRotation();
+            const rot = getGizmoRotation();
             editor.call('gizmo:translate:rotation', rot[0], rot[1], rot[2]);
 
             // gizmo start
@@ -392,7 +394,7 @@ editor.once('load', function () {
             events.push(editor.on('gizmo:translate:offset', onGizmoOffset));
 
             // position gizmo
-            var pos = getGizmoPosition();
+            const pos = getGizmoPosition();
             editor.call('gizmo:translate:position', pos.x, pos.y, pos.z);
             // show gizmo
             editor.call('gizmo:translate:toggle', true);

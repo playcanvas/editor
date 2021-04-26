@@ -1,15 +1,15 @@
 editor.once('load', function () {
     'use strict';
 
-    var app;
-    var visible = false;
+    let app;
+    let visible = false;
 
-    var immediateRenderOptions;
+    let immediateRenderOptions;
 
-    var layerFront = editor.call('gizmo:layers', 'Bright Collision');
-    var layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
+    const layerFront = editor.call('gizmo:layers', 'Bright Collision');
+    const layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
 
-    var filterPicker = function (drawCall) {
+    const filterPicker = function (drawCall) {
         if (drawCall.command)
             return true;
 
@@ -19,11 +19,11 @@ editor.once('load', function () {
     // hack: override addModelToLayers to selectively put some
     // mesh instances to the front and others to the back layer depending
     // on the __useFrontLayer property
-    var addModelToLayers = function () {
-        var frontMeshInstances = this.meshInstances.filter(function (mi) {
+    const addModelToLayers = function () {
+        const frontMeshInstances = this.meshInstances.filter(function (mi) {
             return mi.__useFrontLayer;
         });
-        var backMeshInstances = this.meshInstances.filter(function (mi) {
+        const backMeshInstances = this.meshInstances.filter(function (mi) {
             return ! mi.__useFrontLayer;
         });
 
@@ -55,45 +55,45 @@ editor.once('load', function () {
         app = editor.call('viewport:app');
         if (! app) return; // webgl not available
 
-        var container = new pc.Entity();
+        const container = new pc.Entity();
         container.name = 'zones';
         container.__editor = true;
         app.root.addChild(container);
 
         // entity gizmos
-        var entities = { };
-        var selected = { };
+        const entities = { };
+        let selected = { };
 
         // pool of gizmos
-        var pool = [];
-        var models = { };
-        var poolModels = {
+        const pool = [];
+        const models = { };
+        const poolModels = {
             'box': []
         };
-        var zones = 0;
-        var lastZone = null;
-        var historyPositon = new pc.Vec3();
-        var historySize = new pc.Vec3();
-        var points = [];
-        var hoverPoint = null;
-        var dragPoint = null;
-        var dragLength = 0;
-        var dragPos = new pc.Vec3();
-        var dragGizmoType = '';
-        var events = [];
+        let zones = 0;
+        let lastZone = null;
+        const historyPositon = new pc.Vec3();
+        const historySize = new pc.Vec3();
+        let points = [];
+        let hoverPoint = null;
+        let dragPoint = null;
+        let dragLength = 0;
+        const dragPos = new pc.Vec3();
+        let dragGizmoType = '';
+        let events = [];
 
-        var vecA = new pc.Vec3();
-        var vecB = new pc.Vec3();
-        var vecC = new pc.Vec3();
-        var vecD = new pc.Vec3();
-        var quatA = new pc.Quat();
-        var quatB = new pc.Quat();
-        var quatC = new pc.Quat();
+        const vecA = new pc.Vec3();
+        const vecB = new pc.Vec3();
+        const vecC = new pc.Vec3();
+        const vecD = new pc.Vec3();
+        const quatA = new pc.Quat();
+        const quatB = new pc.Quat();
+        const quatC = new pc.Quat();
 
-        var axesInd = { 'x': 0, 'y': 1, 'z': 2 };
-        var axes = ['z', 'x', 'z', 'x', 'y', 'y'];
-        var direction = [-1, 1, 1, -1, 1, -1];
-        var eulers = [
+        const axesInd = { 'x': 0, 'y': 1, 'z': 2 };
+        const axes = ['z', 'x', 'z', 'x', 'y', 'y'];
+        const direction = [-1, 1, 1, -1, 1, -1];
+        const eulers = [
             [-90, 0, 0], // front
             [90, 90, 0], // right
             [90, 0, 0], // back
@@ -101,7 +101,7 @@ editor.once('load', function () {
             [0, 0, 0], // top
             [180, 0, 0]  // bottom
         ];
-        var scales = [
+        const scales = [
             ['x', 'y'], // front
             ['z', 'y'], // right
             ['x', 'y'], // back
@@ -109,7 +109,7 @@ editor.once('load', function () {
             ['x', 'z'], // top
             ['x', 'z']  // bottom
         ];
-        var materials = [
+        const materials = [
             new pc.Color(0, 0, 1),
             new pc.Color(1, 0, 0),
             new pc.Color(0, 0, 1),
@@ -118,53 +118,62 @@ editor.once('load', function () {
             new pc.Color(0, 1, 0)
         ];
         for (let i = 0; i < materials.length; i++) {
-            var color = materials[i];
+            const color = materials[i];
             materials[i] = new pc.BasicMaterial();
             materials[i].color = color;
             materials[i].update();
         }
 
-        var alphaFront = 0.6;
-        var alphaBehind = 0.1;
-        var colorDefault = [1, 1, 1];
-        var colorPrimary = new pc.Color(1, 1, 1, alphaFront);
-        var colorBehind = new pc.Color(1, 1, 1, alphaBehind);
-        var colorOccluder = new pc.Color(1, 1, 1, 1);
+        const alphaFront = 0.6;
+        const alphaBehind = 0.1;
+        const colorDefault = [1, 1, 1];
+        const colorPrimary = new pc.Color(1, 1, 1, alphaFront);
+        const colorBehind = new pc.Color(1, 1, 1, alphaBehind);
+        const colorOccluder = new pc.Color(1, 1, 1, 1);
 
         // material
-        var defaultVShader = ' \
-            attribute vec3 aPosition;\n \
-            attribute vec3 aNormal;\n \
-            varying vec3 vNormal;\n \
-            varying vec3 vPosition;\n \
-            uniform float offset;\n \
-            uniform mat4 matrix_model;\n \
-            uniform mat3 matrix_normal;\n \
-            uniform mat4 matrix_view;\n \
-            uniform mat4 matrix_viewProjection;\n \
-            void main(void)\n \
-            {\n \
-                vec4 posW = matrix_model * vec4(aPosition, 1.0);\n \
-                vNormal = normalize(matrix_normal * aNormal);\n \
-                posW += vec4(vNormal * offset, 0.0);\n \
-                gl_Position = matrix_viewProjection * posW;\n \
-                vPosition = posW.xyz;\n \
-            }\n';
-        var defaultFShader = ' \
-            precision ' + app.graphicsDevice.precision + ' float;\n \
-            varying vec3 vNormal;\n \
-            varying vec3 vPosition;\n \
-            uniform vec4 uColor;\n \
-            uniform vec3 view_position;\n \
-            void main(void)\n \
-            {\n \
-                vec3 viewNormal = normalize(view_position - vPosition);\n \
-                float light = abs(dot(vNormal, viewNormal));\n \
-                gl_FragColor = vec4(uColor.rgb * light * 2.0, uColor.a);\n \
-            }\n';
+        const defaultVShader = `
+attribute vec3 aPosition;
+attribute vec3 aNormal;
 
-        var shaderDefault;
-        var materialDefault = new pc.BasicMaterial();
+uniform float offset;
+uniform mat4 matrix_model;
+uniform mat3 matrix_normal;
+uniform mat4 matrix_view;
+uniform mat4 matrix_viewProjection;
+
+varying vec3 vNormal;
+varying vec3 vPosition;
+
+void main(void)
+{
+    vec4 posW = matrix_model * vec4(aPosition, 1.0);
+    vNormal = normalize(matrix_normal * aNormal);
+    posW += vec4(vNormal * offset, 0.0);
+    gl_Position = matrix_viewProjection * posW;
+    vPosition = posW.xyz;
+}
+            `.trim();
+
+        const defaultFShader = `
+precision ${app.graphicsDevice.precision} float;
+
+varying vec3 vNormal;
+varying vec3 vPosition;
+
+uniform vec4 uColor;
+uniform vec3 view_position;
+
+void main(void)
+{
+    vec3 viewNormal = normalize(view_position - vPosition);
+    float light = abs(dot(vNormal, viewNormal));
+    gl_FragColor = vec4(uColor.rgb * light * 2.0, uColor.a);
+}
+            `.trim();
+
+        let shaderDefault;
+        const materialDefault = new pc.BasicMaterial();
         materialDefault.updateShader = function (device) {
             if (! shaderDefault) {
                 shaderDefault = new pc.Shader(device, {
@@ -186,7 +195,7 @@ editor.once('load', function () {
         materialDefault.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
         materialDefault.update();
 
-        var materialBehind = new pc.BasicMaterial();
+        const materialBehind = new pc.BasicMaterial();
         materialBehind.updateShader = materialDefault.updateShader;
         materialBehind.color = colorBehind;
         materialBehind.blend = true;
@@ -197,7 +206,7 @@ editor.once('load', function () {
         materialBehind.cull = pc.CULLFACE_NONE;
         materialBehind.update();
 
-        var materialOccluder = new pc.BasicMaterial();
+        const materialOccluder = new pc.BasicMaterial();
         materialOccluder.color = colorOccluder;
         materialOccluder.redWrite = false;
         materialOccluder.greenWrite = false;
@@ -208,13 +217,13 @@ editor.once('load', function () {
         materialOccluder.cull = pc.CULLFACE_NONE;
         materialOccluder.update();
 
-        var materialWireframe = new pc.BasicMaterial();
+        const materialWireframe = new pc.BasicMaterial();
         materialWireframe.color = new pc.Color(1, 1, 1, 0.4);
         materialWireframe.depthWrite = false;
         materialWireframe.depthTest = false;
         materialWireframe.update();
 
-        var materialPlaneBehind = new pc.BasicMaterial();
+        const materialPlaneBehind = new pc.BasicMaterial();
         materialPlaneBehind.color = new pc.Color(1, 1, 1, 0.4);
         materialPlaneBehind.blend = true;
         materialPlaneBehind.blendSrc = pc.BLENDMODE_SRC_ALPHA;
@@ -222,7 +231,7 @@ editor.once('load', function () {
         materialPlaneBehind.cull = pc.CULLFACE_NONE;
         materialPlaneBehind.update();
 
-        var materialPlane = new pc.BasicMaterial();
+        const materialPlane = new pc.BasicMaterial();
         materialPlane.color = new pc.Color(1, 1, 1, 0.1);
         materialPlane.blend = true;
         materialPlane.blendSrc = pc.BLENDMODE_SRC_ALPHA;
@@ -231,11 +240,11 @@ editor.once('load', function () {
         materialPlane.cull = pc.CULLFACE_NONE;
         materialPlane.update();
 
-        var handleHighlightMaterial = new pc.BasicMaterial();
+        const handleHighlightMaterial = new pc.BasicMaterial();
         handleHighlightMaterial.color = new pc.Color(1, 1, 1, 0.1);
         handleHighlightMaterial.update();
 
-        var plane = new pc.Entity();
+        const plane = new pc.Entity();
         plane.enabled = false;
         plane.__editor = true;
         plane.addComponent('model', {
@@ -247,9 +256,9 @@ editor.once('load', function () {
         });
         plane.model.addModelToLayers = addModelToLayers;
 
-        var instance = plane.model.meshInstances[0];
+        const instance = plane.model.meshInstances[0];
         instance.material = materialPlane;
-        var instanceBehind = new pc.MeshInstance(instance.node, instance.mesh, materialPlaneBehind);
+        const instanceBehind = new pc.MeshInstance(instance.node, instance.mesh, materialPlaneBehind);
         plane.model.meshInstances.push(instanceBehind);
         instanceBehind.__useFrontLayer = true;
 
@@ -271,8 +280,8 @@ editor.once('load', function () {
             if (! this._link || ! this._link.entity)
                 return;
 
-            var zone = this._link.entity.zone;
-            var select = selected[this._link.get('resource_id')] === this._link;
+            const zone = this._link.entity.zone;
+            const select = selected[this._link.get('resource_id')] === this._link;
 
             this.entity.enabled = this._link.entity.enabled && zone && zone.enabled && (select || visible);
             if (! this.entity.enabled)
@@ -282,8 +291,8 @@ editor.once('load', function () {
                 this.type = 'box';
 
                 if (! this.color && this._link.entity) {
-                    var hash = 0;
-                    var string = this._link.entity.getGuid();
+                    let hash = 0;
+                    const string = this._link.entity.getGuid();
                     for (let i = 0; i < string.length; i++)
                         hash += string.charCodeAt(i);
 
@@ -291,7 +300,7 @@ editor.once('load', function () {
                 }
 
                 if (models[this.type]) {
-                    var model = this.entity.model.model;
+                    let model = this.entity.model.model;
                     if (model) {
                         app.scene.removeModel(model);
                         this.entity.removeChild(model.getGraph());
@@ -303,9 +312,9 @@ editor.once('load', function () {
                         model = models[this.type].clone();
                         model._type = this.type;
 
-                        var color = this.color || colorDefault;
+                        const color = this.color || colorDefault;
 
-                        var old = model.meshInstances[0].material;
+                        let old = model.meshInstances[0].material;
                         model.meshInstances[0].setParameter('offset', 0);
                         // model.meshInstances[0].layer = 12;
                         // model.meshInstances[0].updateKey();
@@ -317,7 +326,7 @@ editor.once('load', function () {
                         model.meshInstances[0].material.color.set(color[0], color[1], color[2], alphaFront);
                         model.meshInstances[0].material.update();
 
-                        var old = model.meshInstances[1].material;
+                        old = model.meshInstances[1].material;
                         model.meshInstances[1].setParameter('offset', 0.001);
                         // model.meshInstances[1].layer = 2;
                         model.meshInstances[1].pick = false;
@@ -365,7 +374,7 @@ editor.once('load', function () {
             this.unlink();
             this._link = obj;
 
-            var self = this;
+            const self = this;
 
             this.events.push(this._link.once('destroy', function () {
                 self.unlink();
@@ -399,7 +408,7 @@ editor.once('load', function () {
             this.events = [];
             this._link = null;
 
-            var model = this.entity.model.model;
+            const model = this.entity.model.model;
             if (model) {
                 // put back in pool
                 app.scene.removeModel(model);
@@ -413,7 +422,7 @@ editor.once('load', function () {
             this.type = '';
         };
 
-        var onPointFocus = function () {
+        const onPointFocus = function () {
             if (hoverPoint)
                 hoverPoint.entity.model.meshInstances[0].material = materials[hoverPoint.ind];
 
@@ -422,7 +431,7 @@ editor.once('load', function () {
             plane.enabled = true;
         };
 
-        var onPointBlur = function () {
+        const onPointBlur = function () {
             if (hoverPoint === this) {
                 hoverPoint.entity.model.meshInstances[0].material = materials[hoverPoint.ind];
                 hoverPoint = null;
@@ -430,7 +439,7 @@ editor.once('load', function () {
             }
         };
 
-        var onPointDragStart = function () {
+        const onPointDragStart = function () {
             if (! editor.call('permissions:write'))
                 return;
 
@@ -448,13 +457,13 @@ editor.once('load', function () {
 
             lastZone._link.history.enabled = false;
 
-            var position = lastZone._link.get('position');
-            var size = lastZone._link.get('components.zone.size');
+            const position = lastZone._link.get('position');
+            const size = lastZone._link.get('components.zone.size');
             historyPositon.set(position[0], position[1], position[2]);
             historySize.set(size[0], size[1], size[2]);
         };
 
-        var onPointDragEnd = function () {
+        const onPointDragEnd = function () {
             dragPoint = null;
             editor.call('gizmo:' + dragGizmoType + ':toggle', true);
 
@@ -466,18 +475,18 @@ editor.once('load', function () {
 
             lastZone._link.history.enabled = true;
 
-            var link = lastZone._link;
+            const link = lastZone._link;
 
-            var newPosition = lastZone._link.get('position');
-            var newSize = lastZone._link.get('components.zone.size');
+            const newPosition = lastZone._link.get('position');
+            const newSize = lastZone._link.get('components.zone.size');
 
-            var prevPosition = [historyPositon.x, historyPositon.y, historyPositon.z];
-            var prevSize = [historySize.x, historySize.y, historySize.z];
+            const prevPosition = [historyPositon.x, historyPositon.y, historyPositon.z];
+            const prevSize = [historySize.x, historySize.y, historySize.z];
 
             editor.call('history:add', {
                 name: 'entity.zone',
                 undo: function () {
-                    var item = link.latest();
+                    const item = link.latest();
                     if (! item) return;
 
                     item.history.enabled = false;
@@ -486,7 +495,7 @@ editor.once('load', function () {
                     item.history.enabled = true;
                 },
                 redo: function () {
-                    var item = link.latest();
+                    const item = link.latest();
                     if (! item) return;
 
                     item.history.enabled = false;
@@ -497,8 +506,8 @@ editor.once('load', function () {
             });
         };
 
-        var onPointDragMove = function (length) {
-            var size = Math.max(0.000000001, dragLength + length);
+        const onPointDragMove = function (length) {
+            const size = Math.max(0.000000001, dragLength + length);
             lastZone._link.set('components.zone.size.' + axesInd[dragPoint.axis], size);
 
             quatA.copy(lastZone._link.entity.getRotation());
@@ -513,9 +522,9 @@ editor.once('load', function () {
             editor.call('viewport:render');
         };
 
-        var pointsCreate = function () {
+        const pointsCreate = function () {
             for (let i = 0; i < 6; i++) {
-                var point = editor.call('gizmo:point:create', axes[i], null, direction[i]);
+                const point = editor.call('gizmo:point:create', axes[i], null, direction[i]);
                 point.ind = i;
                 point.entity.model.meshInstances[0].material = materials[i];
                 point.scale[scales[i][0]] = 2;
@@ -543,7 +552,7 @@ editor.once('load', function () {
                 points[i].entity.enabled = state;
         });
 
-        var pointsDestroy = function () {
+        const pointsDestroy = function () {
             for (let i = 0; i < points.length; i++)
                 editor.call('gizmo:point:recycle', points[i]);
 
@@ -555,11 +564,11 @@ editor.once('load', function () {
             container.removeChild(plane);
         };
 
-        var pointsUpdate = function () {
-            var transform = lastZone.entity.getWorldTransform();
-            var position = transform.getTranslation();
-            var rotation = quatA.setFromMat4(transform);
-            var scale = vecB.copy(lastZone._link.entity.zone.size.clone());
+        const pointsUpdate = function () {
+            const transform = lastZone.entity.getWorldTransform();
+            const position = transform.getTranslation();
+            const rotation = quatA.setFromMat4(transform);
+            const scale = vecB.copy(lastZone._link.entity.zone.size.clone());
 
             // front
             vecA.set(0, 0, -0.5);
@@ -609,24 +618,24 @@ editor.once('load', function () {
 
                 plane.setLocalPosition(hoverPoint.entity.getPosition());
 
-                var angles = eulers[hoverPoint.ind];
+                const angles = eulers[hoverPoint.ind];
                 quatB.setFromEulerAngles(angles[0], angles[1], angles[2]);
                 quatC.copy(rotation).mul(quatB);
                 plane.setLocalRotation(quatC);
 
-                var axes = scales[hoverPoint.ind];
+                const axes = scales[hoverPoint.ind];
                 plane.setLocalScale(scale[axes[0]], 1, scale[axes[1]]);
             }
         };
 
         editor.on('entities:add', function (entity) {
-            var key = entity.get('resource_id');
+            const key = entity.get('resource_id');
 
-            var addGizmo = function () {
+            const addGizmo = function () {
                 if (entities[key])
                     return;
 
-                var gizmo = pool.shift();
+                let gizmo = pool.shift();
                 if (! gizmo)
                     gizmo = new Gizmo();
 
@@ -636,7 +645,7 @@ editor.once('load', function () {
                 editor.call('viewport:render');
             };
 
-            var removeGizmo = function () {
+            const removeGizmo = function () {
                 if (! entities[key])
                     return;
 
@@ -684,16 +693,16 @@ editor.once('load', function () {
             }
 
             if (dragPoint) {
-                var camera = editor.call('camera:current');
-                var transform = lastZone._link.entity.getWorldTransform();
-                var rotation = lastZone.entity.getRotation();
-                var position = dragPoint.entity.getLocalPosition();
-                var scale = lastZone._link.entity.zone.size;
+                const camera = editor.call('camera:current');
+                const transform = lastZone._link.entity.getWorldTransform();
+                const rotation = lastZone.entity.getRotation();
+                const position = dragPoint.entity.getLocalPosition();
+                const scale = lastZone._link.entity.zone.size;
 
-                var a = scales[dragPoint.ind];
+                const a = scales[dragPoint.ind];
 
                 for (let i = 0; i < a.length; i++) {
-                    for (var l = 0; l <= 2; l++) {
+                    for (let l = 0; l <= 2; l++) {
                         vecA.set(0, 0, 0);
                         vecA[a[i]] = scale[a[i]] * 0.5;
                         rotation.transformVector(vecA, vecA);
@@ -713,10 +722,10 @@ editor.once('load', function () {
         });
 
 
-        var createModels = function () {
+        const createModels = function () {
             // ================
             // box
-            var positions = [
+            const positions = [
                 0.5, 0.5, 0.5,   0.5, 0.5, -0.5,   -0.5, 0.5, -0.5,   -0.5, 0.5, 0.5, // top
                 0.5, 0.5, 0.5,   -0.5, 0.5, 0.5,   -0.5, -0.5, 0.5,   0.5, -0.5, 0.5, // front
                 0.5, 0.5, 0.5,   0.5, -0.5, 0.5,   0.5, -0.5, -0.5,   0.5, 0.5, -0.5, // right
@@ -724,7 +733,7 @@ editor.once('load', function () {
                 -0.5, 0.5, 0.5,   -0.5, 0.5, -0.5,   -0.5, -0.5, -0.5,   -0.5, -0.5, 0.5, // left
                 0.5, -0.5, 0.5,   -0.5, -0.5, 0.5,   -0.5, -0.5, -0.5,   0.5, -0.5, -0.5 // bottom
             ];
-            var normals = [
+            const normals = [
                 0, 1, 0,   0, 1, 0,   0, 1, 0,   0, 1, 0,
                 0, 0, 1,   0, 0, 1,   0, 0, 1,   0, 0, 1,
                 1, 0, 0,   1, 0, 0,   1, 0, 0,   1, 0, 0,
@@ -732,7 +741,7 @@ editor.once('load', function () {
                 -1, 0, 0,   -1, 0, 0,   -1, 0, 0,   -1, 0, 0,
                 0, -1, 0,   0, -1, 0,   0, -1, 0,   0, -1, 0
             ];
-            var indices = [
+            const indices = [
                 0, 1, 2, 2, 3, 0,
                 4, 5, 6, 6, 7, 4,
                 8, 9, 10, 10, 11, 8,
@@ -741,12 +750,12 @@ editor.once('load', function () {
                 20, 21, 22, 22, 23, 20
             ];
 
-            var mesh = pc.createMesh(app.graphicsDevice, positions, {
+            const mesh = pc.createMesh(app.graphicsDevice, positions, {
                 normals: normals,
                 indices: indices
             });
 
-            var wireframePositions = [
+            const wireframePositions = [
                 0.5, 0.5, 0.5,    0.5, 0.5, -0.5,   -0.5, 0.5, -0.5,   -0.5, 0.5, 0.5, // top
                 0.5, 0.5, 0.5,   -0.5, 0.5, 0.5,    -0.5, -0.5, 0.5,    0.5, -0.5, 0.5, // front
                 0.5, 0.5, 0.5,    0.5, -0.5, 0.5,    0.5, -0.5, -0.5,   0.5, 0.5, -0.5, // right
@@ -754,13 +763,13 @@ editor.once('load', function () {
                 -0.5, 0.5, 0.5,   -0.5, -0.5, 0.5,   -0.5, -0.5, -0.5,  -0.5, 0.5, -0.5, // right
                 0.5, -0.5, 0.5,   0.5, -0.5, -0.5,  -0.5, -0.5, -0.5,  -0.5, -0.5, 0.5 // bottom
             ];
-            var meshWireframe = pc.createMesh(app.graphicsDevice, wireframePositions);
+            const meshWireframe = pc.createMesh(app.graphicsDevice, wireframePositions);
             meshWireframe.primitive[0].type = pc.PRIMITIVE_LINES;
 
             // node
-            var node = new pc.GraphNode();
+            const node = new pc.GraphNode();
             // meshInstance
-            var meshInstance = new pc.MeshInstance(node, mesh, materialDefault);
+            const meshInstance = new pc.MeshInstance(node, mesh, materialDefault);
             // meshInstance.layer = 12;
             meshInstance.mask = GIZMO_MASK;
             meshInstance.__editor = true;
@@ -770,7 +779,7 @@ editor.once('load', function () {
             meshInstance.setParameter('offset', 0);
             // meshInstance.updateKey();
 
-            var meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind);
+            const meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind);
             // meshInstanceBehind.layer = 2;
             meshInstanceBehind.mask = GIZMO_MASK;
             meshInstanceBehind.__editor = true;
@@ -782,7 +791,7 @@ editor.once('load', function () {
             meshInstanceBehind.setParameter('offset', 0);
             // meshInstanceBehind.updateKey();
 
-            var meshInstanceOccluder = new pc.MeshInstance(node, mesh, materialOccluder);
+            const meshInstanceOccluder = new pc.MeshInstance(node, mesh, materialOccluder);
             // meshInstanceOccluder.layer = 9;
             meshInstanceOccluder.mask = GIZMO_MASK;
             meshInstanceOccluder.__editor = true;
@@ -793,13 +802,13 @@ editor.once('load', function () {
             meshInstanceOccluder.setParameter('offset', 0);
             // meshInstanceOccluder.updateKey();
 
-            var meshInstanceWireframe = new pc.MeshInstance(node, meshWireframe, materialWireframe);
+            const meshInstanceWireframe = new pc.MeshInstance(node, meshWireframe, materialWireframe);
             // meshInstanceWireframe.layer = pc.LAYER_GIZMO;
             meshInstanceWireframe.mask = GIZMO_MASK;
             meshInstanceWireframe.__editor = true;
             // meshInstanceWireframe.updateKey();
             // model
-            var model = new pc.Model();
+            const model = new pc.Model();
             model.graph = node;
             model.meshInstances = [meshInstance, meshInstanceBehind, meshInstanceWireframe, meshInstanceOccluder];
 

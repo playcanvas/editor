@@ -114,7 +114,7 @@ editor.once('load', function () {
         var bubble = editor.call(
             'guide:bubble',
             'Store',
-            '<img width="424" height="133" src="https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/instructions/asset_library.jpg"/><br/><br/>Click the <strong>STORE</strong> button to open the Store. Add free 3D models and assets from the Store into your scene with a single click.',
+            '<img width="424" height="133" src="https://playcanvas.com/static-assets/instructions/asset_library.jpg"/><br/><br/>Click the <strong>STORE</strong> button to open the Store. Add free 3D models and assets from the Store into your scene with a single click.',
             900,
             -10,
             'bottom-right',
@@ -129,7 +129,7 @@ editor.once('load', function () {
         return editor.call(
             'guide:bubble',
             'Main Menu',
-            'The <span style="display:inline-block;background-image:url(\'https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/editor_logo.png\');width:18px;height:18px;background-size:36px 18px;background-position:-18px 0;vertical-align:text-bottom;"></span> main menu and toolbar has every command available in the Editor. If you can’t find a button or remember a hot key, you will always find the command in the menu.',
+            'The <span style="display:inline-block;background-image:url(\'https://playcanvas.com/static-assets/images/editor_logo.png\');width:18px;height:18px;background-size:36px 18px;background-position:-18px 0;vertical-align:text-bottom;"></span> main menu and toolbar has every command available in the Editor. If you can’t find a button or remember a hot key, you will always find the command in the menu.',
             18,
             40,
             'top'

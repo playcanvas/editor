@@ -40,10 +40,10 @@ editor.once('load', function () {
                             }
                         }
                     } else if (msg.data.startsWith('whoisonline:')) {
-                        var parts = msg.data.split(':');
+                        const parts = msg.data.split(':');
                         if (parts.length === 5 && parts[1] === 'scene') {
-                            var data;
-                            var op = parts[3];
+                            let data;
+                            const op = parts[3];
                             if (op === 'set') {
                                 data = JSON.parse(parts[4]);
                             } else if (op === 'add' || op === 'remove') {
@@ -54,9 +54,9 @@ editor.once('load', function () {
                     } else if (msg.data.startsWith('chat:')) {
                         data = msg.data.slice('chat:'.length);
 
-                        var ind = data.indexOf(':');
+                        const ind = data.indexOf(':');
                         if (ind !== -1) {
-                            var op = data.slice(0, ind);
+                            const op = data.slice(0, ind);
                             data = JSON.parse(data.slice(ind + 1));
 
                             if (op === 'typing') {
@@ -66,13 +66,13 @@ editor.once('load', function () {
                             }
                         }
                     } else if (msg.data.startsWith('selection')) {
-                        var data = msg.data.slice('selection:'.length);
+                        const data = msg.data.slice('selection:'.length);
                         editor.emit('selector:sync:raw', data);
                     } else if (msg.data.startsWith('fs:')) {
                         data = msg.data.slice('fs:'.length);
-                        var ind = data.indexOf(':');
+                        const ind = data.indexOf(':');
                         if (ind !== -1) {
-                            var op = data.slice(0, ind);
+                            const op = data.slice(0, ind);
                             if (op === 'paths') {
                                 data = JSON.parse(data.slice(ind + 1));
                                 editor.call('assets:fs:paths:patch', data);

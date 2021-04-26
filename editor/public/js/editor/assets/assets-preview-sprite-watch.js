@@ -1,30 +1,70 @@
 editor.once('load', function () {
     'use strict';
 
-    var app = editor.call('viewport:app');
+    const app = editor.call('viewport:app');
     if (! app) return; // webgl not available
 
-    var watching = { };
+    const watching = { };
 
-    var subscribe = function (watch) {
-        var onChange = function () {
+    const trigger = function (watch) {
+        for (const key in watch.callbacks)
+            watch.callbacks[key].callback();
+    };
+
+    const unwatchAtlas = function (watch, atlas) {
+        if (! atlas) return;
+
+        const engineAtlas = app.assets.get(atlas);
+
+        if (watch.events.onAtlasChange) {
+            if (engineAtlas) {
+                engineAtlas.off('change', watch.events.onAtlasChange);
+            }
+            delete watch.events.onAtlasChange;
+        }
+
+        if (watch.events.onAtlasLoad) {
+            if (engineAtlas) {
+                engineAtlas.off('load', watch.events.onAtlasLoad);
+
+                if (engineAtlas.resource) {
+                    engineAtlas.resource.off('set:frame', watch.events.onAtlasChange);
+                    engineAtlas.resource.off('set:frames', watch.events.onAtlasChange);
+                }
+            }
+            delete watch.events.onAtlasLoad;
+        }
+
+        if (watch.events.onAtlasRemove) {
+            watch.events.onAtlasRemove.unbind();
+            delete watch.events.onAtlasRemove;
+        }
+
+        if (watch.events.onAtlasAdd) {
+            app.assets.off('add:' + atlas, watch.events.onAtlasAdd);
+            delete watch.events.onAtlasAdd;
+        }
+    };
+
+    const subscribe = function (watch) {
+        const onChange = function () {
             trigger(watch);
         };
 
-        var currentAtlas = null;
+        let currentAtlas = null;
 
-        var watchAtlas = function () {
-            var atlas = watch.asset.get('data.textureAtlasAsset');
+        const watchAtlas = function () {
+            const atlas = watch.asset.get('data.textureAtlasAsset');
             currentAtlas = atlas;
             if (! atlas) return;
 
-            var atlasAsset = editor.call('assets:get', atlas);
+            const atlasAsset = editor.call('assets:get', atlas);
             if (atlasAsset) {
-                var engineAtlas = app.assets.get(atlas);
+                const engineAtlas = app.assets.get(atlas);
                 engineAtlas.on('change', onChange);
                 watch.events.onAtlasChange = onChange;
 
-                var onAtlasLoad = function () {
+                const onAtlasLoad = function () {
                     if (engineAtlas.resource) {
                         engineAtlas.resource.off('set:frame', onChange);
                         engineAtlas.resource.on('set:frame', onChange);
@@ -68,43 +108,8 @@ editor.once('load', function () {
         });
     };
 
-    var unwatchAtlas = function (watch, atlas) {
-        if (! atlas) return;
-
-        var engineAtlas = app.assets.get(atlas);
-
-        if (watch.events.onAtlasChange) {
-            if (engineAtlas) {
-                engineAtlas.off('change', watch.events.onAtlasChange);
-            }
-            delete watch.events.onAtlasChange;
-        }
-
-        if (watch.events.onAtlasLoad) {
-            if (engineAtlas) {
-                engineAtlas.off('load', watch.events.onAtlasLoad);
-
-                if (engineAtlas.resource) {
-                    engineAtlas.resource.off('set:frame', watch.events.onAtlasChange);
-                    engineAtlas.resource.off('set:frames', watch.events.onAtlasChange);
-                }
-            }
-            delete watch.events.onAtlasLoad;
-        }
-
-        if (watch.events.onAtlasRemove) {
-            watch.events.onAtlasRemove.unbind();
-            delete watch.events.onAtlasRemove;
-        }
-
-        if (watch.events.onAtlasAdd) {
-            app.assets.off('add:' + atlas, watch.events.onAtlasAdd);
-            delete watch.events.onAtlasAdd;
-        }
-    };
-
-    var unsubscribe = function (watch) {
-        var atlas = watch.asset.get('data.textureAtlasAsset');
+    const unsubscribe = function (watch) {
+        const atlas = watch.asset.get('data.textureAtlasAsset');
         unwatchAtlas(watch, atlas);
         if (watch.events.onSetAtlas) {
             watch.events.onSetAtlas.unbind();
@@ -115,22 +120,18 @@ editor.once('load', function () {
         watch.events = {};
     };
 
-    var trigger = function (watch) {
-        for (const key in watch.callbacks)
-            watch.callbacks[key].callback();
-    };
 
     // used to force the trigger when the asset is known to have changed
     // e.g. when loading the uncompressed texture atlas completes
     editor.method('assets:sprite:watch:trigger', function (asset) {
-        var watch = watching[asset.get('id')];
+        const watch = watching[asset.get('id')];
         if (watch) {
             trigger(watch);
         }
     });
 
     editor.method('assets:sprite:watch', function (args) {
-        var watch = watching[args.asset.get('id')];
+        let watch = watching[args.asset.get('id')];
 
         if (! watch) {
             watch = watching[args.asset.get('id')] = {
@@ -142,7 +143,7 @@ editor.once('load', function () {
             subscribe(watch);
         }
 
-        var item = watch.callbacks[++watch.ind] = {
+        watch.callbacks[++watch.ind] = {
             callback: args.callback
         };
 
@@ -151,7 +152,7 @@ editor.once('load', function () {
 
 
     editor.method('assets:sprite:unwatch', function (asset, handle) {
-        var watch = watching[asset.get('id')];
+        const watch = watching[asset.get('id')];
         if (! watch) return;
 
         if (! watch.callbacks.hasOwnProperty(handle))

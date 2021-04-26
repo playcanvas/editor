@@ -9,6 +9,34 @@ editor.once('load', function () {
 
     const jobsInProgress = {};
 
+    var resolveEntityScriptAttribute = function (newEntity, attributeDef, path, previousValue, duplicatedIdsMap) {
+        var newValue = null;
+        var dirty = false;
+
+        if (attributeDef.array) {
+            // remap entity array
+            newValue = previousValue.slice();
+            for (let i = 0; i < newValue.length; i++) {
+                if (!newValue[i] || !duplicatedIdsMap[newValue[i]]) continue;
+                newValue[i] = duplicatedIdsMap[newValue[i]];
+                dirty = true;
+            }
+        } else {
+            // remap entity
+            if (!duplicatedIdsMap[previousValue]) return;
+            newValue = duplicatedIdsMap[previousValue];
+            dirty = true;
+        }
+
+        // save changes
+        if (dirty) {
+            var prevHistory = newEntity.history.enabled;
+            newEntity.history.enabled = false;
+            newEntity.set(path, newValue);
+            newEntity.history.enabled = prevHistory;
+        }
+    };
+
     /**
      * When an entity that has properties that contain references to some entities
      * within its subtree is duplicated, the expectation of the user is likely that
@@ -157,34 +185,6 @@ editor.once('load', function () {
         }
     };
 
-    var resolveEntityScriptAttribute = function (newEntity, attributeDef, path, previousValue, duplicatedIdsMap) {
-        var newValue = null;
-        var dirty = false;
-
-        if (attributeDef.array) {
-            // remap entity array
-            newValue = previousValue.slice();
-            for (let i = 0; i < newValue.length; i++) {
-                if (!newValue[i] || !duplicatedIdsMap[newValue[i]]) continue;
-                newValue[i] = duplicatedIdsMap[newValue[i]];
-                dirty = true;
-            }
-        } else {
-            // remap entity
-            if (!duplicatedIdsMap[previousValue]) return;
-            newValue = duplicatedIdsMap[previousValue];
-            dirty = true;
-        }
-
-        // save changes
-        if (dirty) {
-            var prevHistory = newEntity.history.enabled;
-            newEntity.history.enabled = false;
-            newEntity.set(path, newValue);
-            newEntity.history.enabled = prevHistory;
-        }
-    };
-
     // Gets the resource id of the parent of the entity with the specified resource id
     var getParent = function (childResourceId) {
         return editor.call('entities:getParentResourceId', childResourceId);
@@ -249,7 +249,7 @@ editor.once('load', function () {
      * @param {Observer} parent - The parent of the new entity
      * @param {number} ind - The index in the parent's children array where we want to insert the new entity
      * @param {object} duplicatedIdsMap - A guid->guid map that contains references from the source resource ids to the new resource ids
-     * @param useUniqueName
+     * @param {boolean} useUniqueName - Controls whether duplicated entity will have a unique name
      * @returns {Observer} The new entity
      */
     var duplicateEntity = function (entity, parent, ind, duplicatedIdsMap, useUniqueName) {

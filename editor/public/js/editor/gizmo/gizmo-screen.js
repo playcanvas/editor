@@ -1,18 +1,18 @@
 editor.once('load', function () {
     'use strict';
 
-    var left = new pc.Vec3();
-    var right = new pc.Vec3();
-    var top = new pc.Vec3();
-    var bottom = new pc.Vec3();
+    const left = new pc.Vec3();
+    const right = new pc.Vec3();
+    const top = new pc.Vec3();
+    const bottom = new pc.Vec3();
 
-    var corners = [];
-    var cornerColors = [];
-    var visible = true;
+    const corners = [];
+    const cornerColors = [];
+    let visible = true;
 
-    var vecA = new pc.Vec2();
+    const vecA = new pc.Vec2();
 
-    var projectSettings = editor.call('settings:project');
+    const projectSettings = editor.call('settings:project');
 
     for (let i = 0; i < 8; i++) {
         corners.push(new pc.Vec3());
@@ -20,15 +20,15 @@ editor.once('load', function () {
     }
 
     editor.once('viewport:load', function (app) {
-        var entities = {};
+        const entities = {};
 
-        var immediateRenderOptions = {
+        const immediateRenderOptions = {
             layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate'),
             mask: GIZMO_MASK
         };
 
         // remember selected entities
-        var selectedEntities = {};
+        const selectedEntities = {};
 
         editor.on('selector:add', function (item, type) {
             if (type === 'entity') {
@@ -43,15 +43,15 @@ editor.once('load', function () {
         });
 
         // Returns true if a child of the entity is selected
-        var isChildSelected = function (entity) {
-            var children = entity.get('children');
+        const isChildSelected = function (entity) {
+            const children = entity.get('children');
             for (let i = 0, len = children.length; i < len; i++) {
                 if (selectedEntities[children[i]])
                     return true;
             }
 
             for (let i = 0, len = children.length; i < len; i++) {
-                var child = editor.call('entities:get', children[i]);
+                const child = editor.call('entities:get', children[i]);
                 if (child && isChildSelected(child)) {
                     return true;
                 }
@@ -69,9 +69,9 @@ editor.once('load', function () {
         });
 
         editor.on('entities:add', function (entity) {
-            var key = entity.get('resource_id');
+            const key = entity.get('resource_id');
 
-            var addGizmo = function () {
+            const addGizmo = function () {
                 if (entities[key])
                     return;
 
@@ -82,18 +82,18 @@ editor.once('load', function () {
                 editor.call('viewport:render');
             };
 
-            var removeGizmo = function () {
+            const removeGizmo = function () {
                 if (! entities[key])
                     return;
 
-                var e = app.root.findByGuid(key);
+                const e = app.root.findByGuid(key);
                 if (e) {
                     // reset scale
-                    var scale = entity.get('scale');
+                    const scale = entity.get('scale');
                     e.setLocalScale(scale[0], scale[1], scale[2]);
 
                     // reset rotation
-                    var rotation = entity.get('rotation');
+                    const rotation = entity.get('rotation');
                     e.setLocalEulerAngles(rotation[0], rotation[1], rotation[2]);
                 }
 
@@ -119,11 +119,11 @@ editor.once('load', function () {
             }
 
             for (const key in entities) {
-                var entity = app.root.findByGuid(key);
+                const entity = app.root.findByGuid(key);
                 if (! entity)
                     continue;
 
-                var isScreenSpace = entities[key].entity.get('components.screen.screenSpace');
+                const isScreenSpace = entities[key].entity.get('components.screen.screenSpace');
 
                 // never cull screen content in editor
                 entity.screen.cull = false;
@@ -137,10 +137,9 @@ editor.once('load', function () {
                         entity.screen.screenSpace = false;
                     }
 
-
-                    var res = entity.screen.resolution;
-                    var w = projectSettings.get('width');
-                    var h = projectSettings.get('height');
+                    const res = entity.screen.resolution;
+                    const w = projectSettings.get('width');
+                    const h = projectSettings.get('height');
                     vecA.set(w, h);
 
                     // reset resolution
@@ -149,25 +148,23 @@ editor.once('load', function () {
                     }
 
                     // reset scale mode
-                    var scaleMode = entities[key].entity.get('components.screen.scaleMode');
+                    const scaleMode = entities[key].entity.get('components.screen.scaleMode');
                     if (entity.screen.scaleMode !== scaleMode) {
                         entity.screen._scaleMode = scaleMode;
                         entity.screen.resolution = vecA; // force update
                     }
-
-
                 } else {
                     // reset scale that might have been
                     // changed if the screen used to be screen space
-                    var scale = entities[key].entity.get('scale');
+                    const scale = entities[key].entity.get('scale');
                     entity.setLocalScale(scale[0], scale[1], scale[2]);
 
-                    var rotation = entities[key].entity.get('rotation');
+                    const rotation = entities[key].entity.get('rotation');
                     entity.setLocalEulerAngles(rotation[0], rotation[1], rotation[2]);
 
                     // reset resolution
-                    var res = entities[key].entity.get('components.screen.resolution');
-                    var currentRes = entity.screen.resolution;
+                    const res = entities[key].entity.get('components.screen.resolution');
+                    const currentRes = entity.screen.resolution;
                     vecA.set(res[0], res[1]);
                     if (currentRes.x !== res[0] || currentRes.y !== res[1]) {
                         entity.screen.resolution = vecA;
@@ -186,14 +183,14 @@ editor.once('load', function () {
                 }
 
                 // calculate corners
-                var position = entity.getPosition();
-                var r = entity.right;
-                var u = entity.up;
-                var scale = entity.getLocalScale();
-                var refResolution = entities[key].entity.get('components.screen.referenceResolution');
+                const position = entity.getPosition();
+                const r = entity.right;
+                const u = entity.up;
+                const scale = entity.getLocalScale();
+                const refResolution = entities[key].entity.get('components.screen.referenceResolution');
 
                 vecA.set(refResolution[0], refResolution[1]);
-                var screenScale = entity.screen.scaleMode === 'blend' ? entity.screen._calcScale(entity.screen.resolution, vecA) || Number.MIN_VALUE : 1;
+                const screenScale = entity.screen.scaleMode === 'blend' ? entity.screen._calcScale(entity.screen.resolution, vecA) || Number.MIN_VALUE : 1;
 
                 left
                 .copy(r)

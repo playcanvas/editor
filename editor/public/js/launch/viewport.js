@@ -102,7 +102,7 @@ editor.once('load', function () {
 
         // img
         var img = document.createElement('img');
-        img.src = 'https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/logo/PLAY_FLAT_ORANGE3.png'
+        img.src = 'https://playcanvas.com/static-assets/images/logo/PLAY_FLAT_ORANGE3.png'
         splash.appendChild(img);
 
         // progress bar

@@ -1,11 +1,6 @@
 editor.once('load', function () {
     'use strict';
 
-    editor.method('templates:handleChildrenConflict', function (conflict, overrides) {
-
-        return new HandleChildrenConflict(conflict, overrides).run();
-    });
-
     class HandleChildrenConflict {
         constructor(conflict, overrides) {
             this.conflict = conflict;
@@ -75,4 +70,8 @@ editor.once('load', function () {
             return this.conflict;
         }
     }
+
+    editor.method('templates:handleChildrenConflict', function (conflict, overrides) {
+        return new HandleChildrenConflict(conflict, overrides).run();
+    });
 });

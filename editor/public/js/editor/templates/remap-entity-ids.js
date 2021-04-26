@@ -1,10 +1,6 @@
 editor.once('load', function () {
     'use strict';
 
-    editor.method('template:remapEntityIds', function (entity, scriptAttrs, srcToDst) {
-        new RemapEntityIds(entity, scriptAttrs, srcToDst).run();
-    });
-
     class RemapEntityIds {
         constructor(entity, scriptAttrs, srcToDst) {
             this.entity = entity;
@@ -51,4 +47,8 @@ editor.once('load', function () {
             );
         }
     }
+
+    editor.method('template:remapEntityIds', function (entity, scriptAttrs, srcToDst) {
+        new RemapEntityIds(entity, scriptAttrs, srcToDst).run();
+    });
 });

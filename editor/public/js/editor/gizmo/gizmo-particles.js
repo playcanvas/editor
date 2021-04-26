@@ -225,7 +225,7 @@ editor.once('load', function () {
         materialDefault.color = colorPrimary;
         materialDefault.update();
 
-        var buffer, iterator, size, length, node, mesh, meshInstance, model;
+        var buffer, iterator, node, mesh, meshInstance, model;
         var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [
             { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 }
         ]);

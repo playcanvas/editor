@@ -56,8 +56,8 @@ editor.once('load', function () {
     });
 
     settings.on('*:set', function (path, value) {
-        var parts = path.split('.');
-        var obj = config.project.settings;
+        const parts = path.split('.');
+        let obj = config.project.settings;
         for (let i = 0; i < parts.length - 1; i++) {
             if (! obj.hasOwnProperty(parts[i]))
                 obj[parts[i]] = {};
@@ -68,7 +68,7 @@ editor.once('load', function () {
         // this is limited to simple structures for now
         // so take care
         if (value instanceof Object) {
-            var path = parts[parts.length - 1];
+            const path = parts[parts.length - 1];
             obj[path] = {};
             for (const key in value) {
                 obj[path][key] = value[key];

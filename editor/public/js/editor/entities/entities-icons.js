@@ -1,18 +1,18 @@
 editor.once('load', function () {
     'use strict';
 
-    var app;
-    var iconsEntity;
-    var textureNames = ['animation', 'audiolistener', 'audiosource', 'sound', 'camera', 'collision', 'light-point', 'light-directional', 'light-spot', 'particlesystem', 'rigidbody', 'script', 'unknown'];
-    var components = ['camera', 'light', 'audiolistener', 'audiosource', 'sound', 'particlesystem', 'script', 'animation', 'model'];
-    var icons = [];
-    var pool = [];
-    var dirtifyKeys = [
+    let app;
+    let iconsEntity;
+    const textureNames = ['animation', 'audiolistener', 'audiosource', 'sound', 'camera', 'collision', 'light-point', 'light-directional', 'light-spot', 'particlesystem', 'rigidbody', 'script', 'unknown'];
+    const components = ['camera', 'light', 'audiolistener', 'audiosource', 'sound', 'particlesystem', 'script', 'animation', 'model'];
+    const icons = [];
+    const pool = [];
+    const dirtifyKeys = [
         'enabled:set',
         'components.model.type:set',
         'components.model.asset:set'
     ];
-    var dirtifyLocalKeys = {
+    const dirtifyLocalKeys = {
         'light': [
             'components.light.color.0:set',
             'components.light.color.1:set',
@@ -20,17 +20,17 @@ editor.once('load', function () {
             'components.light.type:set'
         ]
     };
-    var material = null;
-    var materialBehind = null;
-    var iconColor = new pc.Color(1, 1, 1, 1);
-    var textures = { };
-    var scale = 0.5;
-    var cameraRotation = new pc.Quat();
-    var selectedIds = { };
+    let material = null;
+    let materialBehind = null;
+    const iconColor = new pc.Color(1, 1, 1, 1);
+    const textures = { };
+    let scale = 0.5;
+    const cameraRotation = new pc.Quat();
+    let selectedIds = { };
 
     // icon class
     function Icon() {
-        var self = this;
+        const self = this;
 
         this.entity = null;
         this.behind = null;
@@ -53,7 +53,7 @@ editor.once('load', function () {
 
         if (! app) return; // webgl not available
 
-        var self = this;
+        const self = this;
 
         this.entity = new pc.Entity('front', app);
         this.entity._icon = true;
@@ -61,8 +61,8 @@ editor.once('load', function () {
             return self._link && self._link.entity || null;
         };
 
-        var layerFront = editor.call('gizmo:layers', 'Bright Gizmo');
-        var layerBehind = editor.call('gizmo:layers', 'Dim Gizmo');
+        const layerFront = editor.call('gizmo:layers', 'Bright Gizmo');
+        const layerBehind = editor.call('gizmo:layers', 'Dim Gizmo');
 
         this.entity.addComponent('model', {
             type: 'plane',
@@ -92,9 +92,8 @@ editor.once('load', function () {
             castShadowsLightmap: false,
             layers: [layerBehind.id]
         });
-        // this.behind.model.model.meshInstances[0].layer = pc.LAYER_GIZMO;
-        this.behind.model.model.meshInstances[0].mask = GIZMO_MASK;
-        this.behind.model.model.meshInstances[0].pick = false;
+        this.behind.model.meshInstances[0].mask = GIZMO_MASK;
+        this.behind.model.meshInstances[0].pick = false;
 
         iconsEntity.addChild(this.entity);
     };
@@ -147,7 +146,7 @@ editor.once('load', function () {
             return;
         }
 
-        var component = '';
+        let component = '';
         for (let i = 0; i < components.length; i++) {
             if (! this._link.has('components.' + components[i]))
                 continue;
@@ -165,7 +164,7 @@ editor.once('load', function () {
             this.behind.model.material = materialBehind;
 
             this.color.copy(iconColor);
-            var textureName = component;
+            let textureName = component;
             if (component === 'light') {
                 textureName += '-' + this._link.entity.light.type;
                 this.color.copy(this._link.entity.light.color);
@@ -174,27 +173,27 @@ editor.once('load', function () {
             if (! textureName || ! textures[textureName])
                 textureName = 'unknown';
 
-            this.entity.model.model.meshInstances[0].setParameter('texture_diffuseMap', textures[textureName]);
+            this.entity.model.meshInstances[0].setParameter('texture_diffuseMap', textures[textureName]);
             this.colorUniform[0] = this.color.r;
             this.colorUniform[1] = this.color.g;
             this.colorUniform[2] = this.color.b;
             this.colorUniform[3] = this.color.a;
-            this.entity.model.model.meshInstances[0].setParameter('uColor', this.colorUniform);
+            this.entity.model.meshInstances[0].setParameter('uColor', this.colorUniform);
 
-            this.behind.model.model.meshInstances[0].setParameter('texture_diffuseMap', textures[textureName]);
+            this.behind.model.meshInstances[0].setParameter('texture_diffuseMap', textures[textureName]);
             this.color.a = 0.25;
             this.colorUniform[3] = this.color.a;
-            this.behind.model.model.meshInstances[0].setParameter('uColor', this.colorUniform);
+            this.behind.model.meshInstances[0].setParameter('uColor', this.colorUniform);
 
             if (this.local !== component) {
                 // clear local binds
-                for (var n = 0; n < this.eventsLocal.length; n++)
+                for (let n = 0; n < this.eventsLocal.length; n++)
                     this.eventsLocal[n].unbind();
                 this.eventsLocal = [];
 
                 // add local binds
                 if (dirtifyLocalKeys[component]) {
-                    for (var n = 0; n < dirtifyLocalKeys[component].length; n++)
+                    for (let n = 0; n < dirtifyLocalKeys[component].length; n++)
                         this.eventsLocal.push(this._link.on(dirtifyLocalKeys[component][n], this.dirtify));
                 }
             }
@@ -214,7 +213,7 @@ editor.once('load', function () {
             this.events.push(obj.on('components.' + components[i] + ':unset', this.dirtify));
         }
 
-        var self = this;
+        const self = this;
         this.events.push(obj.once('destroy', function () {
             self.unlink();
         }));
@@ -236,7 +235,7 @@ editor.once('load', function () {
         this.events = [];
         this._link = null;
 
-        var ind = icons.indexOf(this);
+        const ind = icons.indexOf(this);
         icons.splice(ind, 1);
         pool.push(this);
     };
@@ -245,39 +244,50 @@ editor.once('load', function () {
         app = editor.call('viewport:app');
         if (! app) return; // webgl not available
 
-        var shader;
+        let shader;
 
         material = new pc.BasicMaterial();
         material.updateShader = function (device) {
             if (! shader) {
+                const vshader = `
+attribute vec3 vertex_position;
+
+uniform mat4 matrix_model;
+uniform mat4 matrix_viewProjection;
+
+varying vec2 vUv0;
+
+void main(void)
+{
+    mat4 modelMatrix = matrix_model;
+    vec4 positionW = modelMatrix * vec4(vertex_position, 1.0);
+    gl_Position = matrix_viewProjection * positionW;
+    vUv0 = vertex_position.xz + vec2(0.5);
+    vUv0.y = 1.0 - vUv0.y;
+}
+                    `.trim();
+                const fshader = `
+precision ${device.precision} float;
+
+varying vec2 vUv0;
+
+uniform vec4 uColor;
+uniform sampler2D texture_diffuseMap;
+
+void main(void)
+{
+    float alpha = texture2D(texture_diffuseMap, vUv0).b;
+    if (alpha < 0.5) discard;
+    gl_FragColor = vec4(uColor.rgb, uColor.a * alpha);
+}
+                    `.trim();
+
                 shader = new pc.Shader(device, {
                     attributes: {
                         vertex_position: 'POSITION'
                     },
-                    vshader: ' \
-                        attribute vec3 vertex_position;\n \
-                        uniform mat4 matrix_model;\n \
-                        uniform mat4 matrix_viewProjection;\n \
-                        varying vec2 vUv0;\n \
-                        void main(void)\n \
-                        {\n \
-                            mat4 modelMatrix = matrix_model;\n \
-                            vec4 positionW = modelMatrix * vec4(vertex_position, 1.0);\n \
-                            gl_Position = matrix_viewProjection * positionW;\n \
-                            vUv0 = vertex_position.xz + vec2(0.5);\n \
-                            vUv0.y = 1.0 - vUv0.y;\n \
-                        }\n',
-                    fshader: ' \
-                        precision ' + device.precision + ' float;\n \
-                        uniform vec4 uColor;\n \
-                        varying vec2 vUv0;\n \
-                        uniform sampler2D texture_diffuseMap;\n \
-                        void main(void)\n \
-                        {\n \
-                            float alpha = texture2D(texture_diffuseMap, vUv0).b;\n \
-                            if (alpha < 0.5) discard;\n \
-                            gl_FragColor = vec4(uColor.rgb, uColor.a * alpha);\n \
-                        }\n'
+                    vshader: vshader,
+                    fshader: fshader
                 });
             }
 
@@ -304,7 +314,7 @@ editor.once('load', function () {
             textures[textureNames[i]].addressU = pc.ADDRESS_CLAMP_TO_EDGE;
             textures[textureNames[i]].addressV = pc.ADDRESS_CLAMP_TO_EDGE;
 
-            var img = new Image();
+            const img = new Image();
             img.textureName = textureNames[i];
             img.onload = function () {
                 textures[this.textureName].setSource(this);
@@ -313,7 +323,7 @@ editor.once('load', function () {
         }
 
         editor.on('entities:add', function (obj) {
-            var icon = pool.shift();
+            let icon = pool.shift();
             if (! icon)
                 icon = new Icon();
 
@@ -346,7 +356,7 @@ editor.once('load', function () {
         editor.call('viewport:render');
     });
 
-    var settings = editor.call('settings:user');
+    const settings = editor.call('settings:user');
     editor.call('viewport:icons:size', settings.get('editor.iconSize'));
     settings.on('editor.iconSize:set', function (size) {
         editor.call('viewport:icons:size', size);

@@ -1,38 +1,38 @@
 editor.once('load', function () {
     'use strict';
 
-    var app;
+    let app;
     // selected entity gizmos
-    var entities = { };
+    let entities = { };
     // pool of gizmos
-    var pool = [];
+    const pool = [];
     // colors
-    var colorBehind = new pc.Color(1, 1, 1, 0.8);
-    var colorPrimary = new pc.Color(1, 1, 1);
-    var container;
-    var vec = new pc.Vec3();
-    var materialBehind = new pc.BasicMaterial();
+    const colorBehind = new pc.Color(1, 1, 1, 0.8);
+    const colorPrimary = new pc.Color(1, 1, 1);
+    let container;
+    const vec = new pc.Vec3();
+    const materialBehind = new pc.BasicMaterial();
     materialBehind.color = colorBehind;
     materialBehind.blend = true;
     materialBehind.blendSrc = pc.BLENDMODE_SRC_ALPHA;
     materialBehind.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
     materialBehind.depthTest = false;
     materialBehind.update();
-    var materialSpot, materialSpotBehind;
-    var models = { };
-    var poolModels = { 'directional': [], 'point': [], 'point-close': [], 'spot': [] };
+    let materialSpot, materialSpotBehind;
+    const models = { };
+    const poolModels = { 'directional': [], 'point': [], 'point-close': [], 'spot': [] };
 
-    var layerFront = editor.call('gizmo:layers', 'Bright Gizmo');
-    var layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
+    const layerFront = editor.call('gizmo:layers', 'Bright Gizmo');
+    const layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
 
     // hack: override addModelToLayers to selectively put some
     // mesh instances to the front and others to the back layer depending
     // on the __useFrontLayer property
-    var addModelToLayers = function () {
-        var frontMeshInstances = this.meshInstances.filter(function (mi) {
+    const addModelToLayers = function () {
+        const frontMeshInstances = this.meshInstances.filter(function (mi) {
             return mi.__useFrontLayer;
         });
-        var backMeshInstances = this.meshInstances.filter(function (mi) {
+        const backMeshInstances = this.meshInstances.filter(function (mi) {
             return ! mi.__useFrontLayer;
         });
 
@@ -55,14 +55,14 @@ editor.once('load', function () {
         if (! this._link || ! this._link.entity)
             return;
 
-        var light = this._link.entity.light;
+        const light = this._link.entity.light;
         this.entity.enabled = this._link.entity.enabled && light && light.enabled;
         if (! this.entity.enabled)
             return;
 
         this.entity.setPosition(this._link.entity.getPosition());
 
-        var type = light.type;
+        let type = light.type;
 
         // close point light, switch to triple circle
         if (type === 'point' && vec.copy(this.entity.getPosition()).sub(editor.call('camera:current').getPosition()).length() < light.range)
@@ -74,7 +74,7 @@ editor.once('load', function () {
             // set new model based on type
             if (models[this.type]) {
                 // get current model
-                var model = this.entity.model.model;
+                let model = this.entity.model.model;
                 if (model) {
                     // put back in pool
                     layerBack.removeMeshInstances(model.meshInstances);
@@ -107,8 +107,6 @@ editor.once('load', function () {
             }
         }
 
-        var material = materialBehind;
-
         switch (this.type) {
             case 'directional':
                 this.entity.setRotation(this._link.entity.getRotation());
@@ -122,33 +120,16 @@ editor.once('load', function () {
                 break;
             case 'spot':
                 this.entity.setRotation(this._link.entity.getRotation());
-                this.entity.model.model.meshInstances[0].setParameter('range', light.range);
-                this.entity.model.model.meshInstances[0].setParameter('innerAngle', light.innerConeAngle);
-                this.entity.model.model.meshInstances[0].setParameter('outerAngle', light.outerConeAngle);
-                this.entity.model.model.meshInstances[1].setParameter('range', light.range);
-                this.entity.model.model.meshInstances[1].setParameter('innerAngle', light.innerConeAngle);
-                this.entity.model.model.meshInstances[1].setParameter('outerAngle', light.outerConeAngle);
-                material = materialSpotBehind;
+                this.entity.model.meshInstances[0].setParameter('range', light.range);
+                this.entity.model.meshInstances[0].setParameter('innerAngle', light.innerConeAngle);
+                this.entity.model.meshInstances[0].setParameter('outerAngle', light.outerConeAngle);
+                this.entity.model.meshInstances[1].setParameter('range', light.range);
+                this.entity.model.meshInstances[1].setParameter('innerAngle', light.innerConeAngle);
+                this.entity.model.meshInstances[1].setParameter('outerAngle', light.outerConeAngle);
                 break;
         }
-
-        // // render behind model
-        // if (this.entity.enabled && this.entity.model.model) {
-        //     // var instance = new pc.MeshInstance(this.entity, this.entity.model.model.meshInstances[0].mesh, material);
-        //     // instance.__useFrontLayer = true;
-        //     // instance.mask = 8;
-        //     // instance.pick = false;
-        //     if (this.type === 'spot') {
-        //         // instance.layer = pc.LAYER_GIZMO;
-        //         this.entity.model.model.meshInstances[1]
-        //         instance.setParameter('range', light.range);
-        //         instance.setParameter('innerAngle', light.innerConeAngle);
-        //         instance.setParameter('outerAngle', light.outerConeAngle);
-        //     }
-
-        //     // app.scene.immediateDrawCalls.push(instance);
-        // }
     };
+
     // link to entity
     Gizmo.prototype.link = function (obj) {
         if (! app) return; // webgl not available
@@ -156,7 +137,7 @@ editor.once('load', function () {
         this.unlink();
         this._link = obj;
 
-        var self = this;
+        const self = this;
 
         this.events.push(this._link.once('destroy', function () {
             self.unlink();
@@ -187,7 +168,7 @@ editor.once('load', function () {
         this._link = null;
         this.type = '';
 
-        var model = this.entity.model.model;
+        const model = this.entity.model.model;
         if (model) {
             // put back in pool
             layerBack.removeMeshInstances(model.meshInstances);
@@ -212,11 +193,11 @@ editor.once('load', function () {
         }
 
         // index selection
-        var ids = { };
+        const ids = { };
         for (let i = 0; i < items.length; i++)
             ids[items[i].get('resource_id')] = items[i];
 
-        var render = false;
+        let render = false;
 
         // remove
         for (const key in entities) {
@@ -234,7 +215,7 @@ editor.once('load', function () {
             if (entities[key])
                 continue;
 
-            var gizmo = pool.shift();
+            let gizmo = pool.shift();
             if (! gizmo)
                 gizmo = new Gizmo();
 
@@ -256,11 +237,11 @@ editor.once('load', function () {
         app.root.addChild(container);
 
         // material
-        var material = new pc.BasicMaterial();
+        const material = new pc.BasicMaterial();
         material.color = colorPrimary;
         material.update();
 
-        var shaderSpot;
+        let shaderSpot;
 
         materialSpot = new pc.BasicMaterial();
         materialSpot.updateShader = function (device) {
@@ -270,32 +251,38 @@ editor.once('load', function () {
                         vertex_position: 'POSITION',
                         outer: 'ATTR15'
                     },
-                    vshader: ' \
-                        attribute vec3 vertex_position;\n \
-                        attribute float outer;\n \
-                        uniform mat4 matrix_model;\n \
-                        uniform mat4 matrix_viewProjection;\n \
-                        uniform float range;\n \
-                        uniform float innerAngle;\n \
-                        uniform float outerAngle;\n \
-                        void main(void)\n \
-                        {\n \
-                            mat4 modelMatrix = matrix_model;\n \
-                            vec4 positionW = vec4(vertex_position, 1.0);\n \
-                            float radius = (outer * (sin(radians(outerAngle)) * range)) + ((1.0 - outer) * (sin(radians(innerAngle)) * range));\n \
-                            positionW.xz *= radius;\n \
-                            positionW.y *= range * ((outer * cos(radians(outerAngle))) + ((1.0 - outer) * cos(radians(innerAngle))));\n \
-                            positionW = modelMatrix * positionW;\n \
-                            gl_Position = matrix_viewProjection * positionW;\n \
-                        }\n',
-                    fshader: ' \
-                        precision ' + device.precision + ' float;\n \
-                        uniform vec4 uColor;\n \
-                        void main(void)\n \
-                        {\n \
-                            gl_FragColor = uColor;\n \
-                            gl_FragColor = clamp(gl_FragColor, 0.0, 1.0);\n \
-                        }\n'
+                    vshader: `
+attribute vec3 vertex_position;
+attribute float outer;
+
+uniform mat4 matrix_model;
+uniform mat4 matrix_viewProjection;
+uniform float range;
+uniform float innerAngle;
+uniform float outerAngle;
+
+void main(void)
+{
+    mat4 modelMatrix = matrix_model;
+    vec4 positionW = vec4(vertex_position, 1.0);
+    float radius = (outer * (sin(radians(outerAngle)) * range)) + ((1.0 - outer) * (sin(radians(innerAngle)) * range));
+    positionW.xz *= radius;
+    positionW.y *= range * ((outer * cos(radians(outerAngle))) + ((1.0 - outer) * cos(radians(innerAngle))));
+    positionW = modelMatrix * positionW;
+    gl_Position = matrix_viewProjection * positionW;
+}
+                        `.trim(),
+                    fshader: `
+precision ${device.precision} float;
+
+uniform vec4 uColor;
+
+void main(void)
+{
+    gl_FragColor = uColor;
+    gl_FragColor = clamp(gl_FragColor, 0.0, 1.0);
+}
+                    `.trim()
                 });
             }
             this.shader = shaderSpot;
@@ -312,22 +299,22 @@ editor.once('load', function () {
         materialSpotBehind.depthTest = false;
         materialSpotBehind.update();
 
-        var buffer, iterator, size, length, node, mesh, material, meshInstance, model;
-        var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [
+        let buffer, iterator, node, mesh, meshInstance, model;
+        const vertexFormat = new pc.VertexFormat(app.graphicsDevice, [
             { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 }
         ]);
-        var vertexFormatSpot = new pc.VertexFormat(app.graphicsDevice, [
+        const vertexFormatSpot = new pc.VertexFormat(app.graphicsDevice, [
             { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 },
             { semantic: pc.SEMANTIC_ATTR15, components: 1, type: pc.TYPE_FLOAT32 }
         ]);
-        var rad = Math.PI / 180;
+        const rad = Math.PI / 180;
 
         // ================
         // directional light
         buffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, 14);
         iterator = new pc.VertexIterator(buffer);
-        size = 0.2;
-        length = -(2 - size * 2);
+        const size = 0.2;
+        const length = -(2 - size * 2);
         // line
         iterator.element[pc.SEMANTIC_POSITION].set(0, 0, 0);
         iterator.next();
@@ -376,7 +363,7 @@ editor.once('load', function () {
         meshInstance.pick = false;
         // meshInstance.updateKey();
 
-        var meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind);
+        let meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind);
         meshInstanceBehind.__useFrontLayer = true;
         meshInstanceBehind.mask = GIZMO_MASK;
         meshInstanceBehind.pick = false;
@@ -389,7 +376,7 @@ editor.once('load', function () {
 
         // ================
         // point light
-        var segments = 72;
+        const segments = 72;
         buffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, segments * 2);
         iterator = new pc.VertexIterator(buffer);
         // xz axis
@@ -430,7 +417,6 @@ editor.once('load', function () {
 
         // ================
         // point light close
-        var segments = 72;
         buffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, segments * 2 * 3);
         iterator = new pc.VertexIterator(buffer);
         // circles
@@ -479,7 +465,6 @@ editor.once('load', function () {
 
         // ================
         // spot light
-        var segments = 72;
         buffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormatSpot, segments * 2 * 2 + 8);
         iterator = new pc.VertexIterator(buffer);
         // lines

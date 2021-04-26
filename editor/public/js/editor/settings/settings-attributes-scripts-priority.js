@@ -5,8 +5,9 @@ editor.once('load', function () {
         return;
 
     var sceneSettings = editor.call('sceneSettings');
-    var sourcefiles = null;
     var priorityScripts = [];
+
+    var priorityList = new ui.List();
 
     var refreshPriorityList = function () {
         priorityList.clear();
@@ -66,7 +67,7 @@ editor.once('load', function () {
     };
 
     editor.on('sourcefiles:load', function (obs) {
-        sourcefiles = obs;
+
     });
 
     var root = editor.call('layout.root');
@@ -117,7 +118,6 @@ editor.once('load', function () {
     });
     overlay.append(button);
 
-    var priorityList = new ui.List();
     sceneSettings.on("priority_scripts:set", function (scripts) {
         priorityScripts = scripts.slice();
         refreshPriorityList();

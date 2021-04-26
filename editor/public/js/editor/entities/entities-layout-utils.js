@@ -6,11 +6,6 @@ editor.once('load', function () {
         return entity && entity.entity && entity.entity.layoutgroup;
     };
 
-    var getLayoutChild = function (entityId) {
-        var entity = editor.call('entities:get', entityId);
-        return entity && entity.entity && entity.entity.layoutchild;
-    };
-
     function forceSet(entity, path, value) {
         entity.set(path, value, false, false, true);
     }

@@ -266,8 +266,9 @@ Object.assign(pcui, (function () {
                         {
                             compressionBasisPvrWarning: new pcui.InfoBox({
                                 icon: 'E218',
-                                title: 'Texture is not square',
-                                text: 'This texture does not support PVR compression.'
+                                title: 'Texture dimensions are not square and power of two',
+                                text: 'On devices that only support PVR compression, Basis will transcode this texture to 565 uncompressed format. <strong><a href="https://developer.playcanvas.com/en/user-manual/assets/textures/texture-compression/#basis-limitations" target="_blank">Read more</a></strong>',
+                                unsafe: true
                             })
                         },
                         {

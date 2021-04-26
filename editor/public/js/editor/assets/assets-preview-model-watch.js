@@ -1,54 +1,19 @@
 editor.once('load', function () {
     'use strict';
 
-    var app = editor.call('viewport:app');
+    const app = editor.call('viewport:app');
     if (! app) return; // webgl not available
 
-    var watching = { };
+    const watching = { };
 
-    var subscribe = function (watch) {
-        var onChange = function () {
-            loadModel(watch, watch.engineAsset, true);
-        };
-
-        watch.watching.file = watch.asset.on('file.hash:set', function () {
-            setTimeout(onChange, 0);
-        });
-
-        watch.watching.fileUnset = watch.asset.on('file.hash:unset', function () {
-            setTimeout(onChange, 0);
-        });
-
-        watch.onAdd = function (asset) {
-            app.assets.off('add:' + watch.asset.get('id'), watch.onAdd);
-            watch.engineAsset = asset;
-            watch.onAdd = null;
-
-            if (watch.autoLoad) loadModel(watch, asset);
-        };
-
-        var asset = app.assets.get(watch.asset.get('id'));
-        if (asset) {
-            watch.onAdd(asset);
-        } else {
-            app.assets.once('add:' + watch.asset.get('id'), watch.onAdd);
-        }
+    const trigger = function (watch) {
+        for (const key in watch.callbacks)
+            watch.callbacks[key].callback();
     };
 
-    var unsubscribe = function (watch) {
-        if (watch.engineAsset)
-            watch.engineAsset.off('load', watch.onLoad);
-
-        if (watch.onAdd)
-            app.assets.off('add:' + watch.asset.get('id'), watch.onAdd);
-
-        for (const key in watch.watching)
-            watch.watching[key].unbind();
-    };
-
-    var loadModel = function (watch, asset, reload) {
-        var url;
-        var file = watch.asset.get('file');
+    const loadModel = function (watch, asset, reload) {
+        let url;
+        const file = watch.asset.get('file');
 
         if (file && file.url) {
             url = file.url;
@@ -74,14 +39,49 @@ editor.once('load', function () {
         }
     };
 
-    var trigger = function (watch) {
-        for (const key in watch.callbacks)
-            watch.callbacks[key].callback();
+    const subscribe = function (watch) {
+        const onChange = function () {
+            loadModel(watch, watch.engineAsset, true);
+        };
+
+        watch.watching.file = watch.asset.on('file.hash:set', function () {
+            setTimeout(onChange, 0);
+        });
+
+        watch.watching.fileUnset = watch.asset.on('file.hash:unset', function () {
+            setTimeout(onChange, 0);
+        });
+
+        watch.onAdd = function (asset) {
+            app.assets.off('add:' + watch.asset.get('id'), watch.onAdd);
+            watch.engineAsset = asset;
+            watch.onAdd = null;
+
+            if (watch.autoLoad) loadModel(watch, asset);
+        };
+
+        const asset = app.assets.get(watch.asset.get('id'));
+        if (asset) {
+            watch.onAdd(asset);
+        } else {
+            app.assets.once('add:' + watch.asset.get('id'), watch.onAdd);
+        }
+    };
+
+    const unsubscribe = function (watch) {
+        if (watch.engineAsset)
+            watch.engineAsset.off('load', watch.onLoad);
+
+        if (watch.onAdd)
+            app.assets.off('add:' + watch.asset.get('id'), watch.onAdd);
+
+        for (const key in watch.watching)
+            watch.watching[key].unbind();
     };
 
 
     editor.method('assets:model:watch', function (args) {
-        var watch = watching[args.asset.get('id')];
+        let watch = watching[args.asset.get('id')];
 
         if (! watch) {
             watch = watching[args.asset.get('id')] = {
@@ -97,7 +97,7 @@ editor.once('load', function () {
             subscribe(watch);
         }
 
-        var item = watch.callbacks[++watch.ind] = {
+        watch.callbacks[++watch.ind] = {
             autoLoad: args.autoLoad,
             callback: args.callback
         };
@@ -106,7 +106,7 @@ editor.once('load', function () {
             watch.autoLoad++;
 
         if (watch.autoLoad === 1) {
-            var asset = app.assets.get(watch.asset.get('id'));
+            const asset = app.assets.get(watch.asset.get('id'));
             if (asset) {
                 watch.engineAsset = asset;
                 loadModel(watch, asset);
@@ -118,7 +118,7 @@ editor.once('load', function () {
 
 
     editor.method('assets:model:unwatch', function (asset, handle) {
-        var watch = watching[asset.get('id')];
+        const watch = watching[asset.get('id')];
         if (! watch) return;
 
         if (! watch.callbacks.hasOwnProperty(handle))

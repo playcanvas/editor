@@ -2,52 +2,55 @@ editor.once('load', function () {
     'use strict';
 
     editor.method('picker:sprites:frames', function (args) {
-        var events = [];
+        const events = [];
 
-        var atlasAsset = args.atlasAsset;
+        const atlasAsset = args.atlasAsset;
 
-        var panels = {};
-        var selectedKeys = [];
-        var spriteEditModeKeys = [];
-        var spriteEditMode = false;
-        var selectedSprite = null;
+        let panels = {};
+        let selectedKeys = [];
+        let spriteEditModeKeys = [];
+        let spriteEditMode = false;
+        let selectedSprite = null;
 
-        var shiftDown = false;
-        var ctrlDown = false;
+        let shiftDown = false;
+        let ctrlDown = false;
 
-        var scrollSelectionIntoView = true;
+        let scrollSelectionIntoView = true;
 
-        var leftPanel = editor.call('picker:sprites:leftPanel');
+        const leftPanel = editor.call('picker:sprites:leftPanel');
         leftPanel.header = 'FRAMES IN TEXTURE ATLAS';
 
-        var panelFrames = editor.call('attributes:addPanel', {
+        const panelFrames = editor.call('attributes:addPanel', {
             parent: leftPanel
         });
 
-        // var panelFrames = new ui.Panel();
         panelFrames.scroll = true;
         panelFrames.class.add('frames');
-        // panel.append(panelFrames);
 
-        var addFramePanel = function (key, frame, afterPanel, beforePanel) {
-            var frameEvents = [];
+        const addFramePanel = function (key, frame, afterPanel, beforePanel) {
+            const frameEvents = [];
 
-            var panel = new ui.Panel();
+            const panel = new ui.Panel();
             panel.class.add('frame');
             panel.frameKey = key;
 
             panels[key] = panel;
 
             // preview
-            var canvas = new ui.Canvas();
-            var previewWidth = 26;
-            var previewHeight = 26;
+            const canvas = new ui.Canvas();
+            const previewWidth = 26;
+            const previewHeight = 26;
             canvas.class.add('preview');
             canvas.resize(previewWidth, previewHeight);
 
             panel.append(canvas);
 
-            var renderQueued = false;
+            let renderQueued = false;
+
+            const renderPreview = function () {
+                editor.call('picker:sprites:renderFramePreview', frame, canvas.element);
+                renderQueued = false;
+            };
 
             panel.queueRender = function () {
                 if (renderQueued) return;
@@ -55,15 +58,10 @@ editor.once('load', function () {
                 requestAnimationFrame(renderPreview);
             };
 
-            var renderPreview = function () {
-                editor.call('picker:sprites:renderFramePreview', frame, canvas.element);
-                renderQueued = false;
-            };
-
             renderPreview();
 
             // sprite name
-            var fieldName = new ui.Label();
+            const fieldName = new ui.Label();
             fieldName.class.add('name');
             fieldName.value = frame.name;
             panel.append(fieldName);
@@ -73,7 +71,7 @@ editor.once('load', function () {
             }));
 
             // remove frame
-            var btnRemove = new ui.Button();
+            const btnRemove = new ui.Button();
             btnRemove.class.add('remove');
             panel.append(btnRemove);
 
@@ -95,13 +93,13 @@ editor.once('load', function () {
 
                 if (shiftDown) {
                     // if another frame was selected then add range to selection
-                    var keys = spriteEditMode ? spriteEditModeKeys : selectedKeys;
-                    var len = keys.length;
+                    const keys = spriteEditMode ? spriteEditModeKeys : selectedKeys;
+                    const len = keys.length;
                     if (len) {
-                        var diff = parseInt(key, 10) - parseInt(keys[len - 1], 10);
-                        var dir = diff < 0 ? -1 : 1;
-                        var p = panels[keys[len - 1]];
-                        var range = [];
+                        let diff = parseInt(key, 10) - parseInt(keys[len - 1], 10);
+                        const dir = diff < 0 ? -1 : 1;
+                        let p = panels[keys[len - 1]];
+                        const range = [];
                         while (diff !== 0) {
                             p = dir > 0 ? p.element.nextSibling : p.element.previousSibling;
                             if (! p) break;
@@ -131,8 +129,8 @@ editor.once('load', function () {
                     }
                 } else if (ctrlDown) {
                     // if not selected add frame to selection
-                    var keys = spriteEditMode ? spriteEditModeKeys : selectedKeys;
-                    var idx = keys.indexOf(key);
+                    const keys = spriteEditMode ? spriteEditModeKeys : selectedKeys;
+                    const idx = keys.indexOf(key);
                     if (idx === -1) {
                         editor.call('picker:sprites:selectFrames', key, {
                             add: true,
@@ -160,11 +158,11 @@ editor.once('load', function () {
 
             });
 
-            var onMouseEnter = function () {
+            const onMouseEnter = function () {
                 editor.call('picker:sprites:hoverFrame', key);
             };
 
-            var onMouseLeave = function () {
+            const onMouseLeave = function () {
                 editor.call('picker:sprites:hoverFrame', null);
             };
 
@@ -193,54 +191,53 @@ editor.once('load', function () {
         };
 
         // create frames
-        var frames = atlasAsset.getRaw('data.frames')._data;
+        const frames = atlasAsset.getRaw('data.frames')._data;
         for (const key in frames) {
             addFramePanel(key, frames[key]._data);
         }
 
         // keydown
-        var onKeyDown = function (e) {
+        const onKeyDown = function (e) {
             ctrlDown = e.ctrlKey || e.metaKey;
             shiftDown = e.shiftKey;
         };
         window.addEventListener('keydown', onKeyDown);
 
         // keyup
-        var onKeyUp = function (e) {
+        const onKeyUp = function (e) {
             ctrlDown = e.ctrlKey || e.metaKey;
             shiftDown = e.shiftKey;
         };
         window.addEventListener('keyup', onKeyUp);
 
         // listen to atlas set event
-        var checkPath = /^data\.frames(.(\d+))?$/;
         events.push(atlasAsset.on('*:set', function (path, value) {
             if (! path.startsWith('data.frames')) return;
 
-            var parts = path.split('.');
+            const parts = path.split('.');
             if (parts.length === 2) {
                 // if all frames are set then re-create all frame panels
-                for (key in panels) {
+                for (const key in panels) {
                     panels[key].destroy();
                     delete panels[key];
                 }
 
                 panels = {};
 
-                var raw = atlasAsset.getRaw('data.frames')._data;
+                const raw = atlasAsset.getRaw('data.frames')._data;
 
-                for (key in value) {
+                for (const key in value) {
                     addFramePanel(key, raw[key]._data);
                 }
             } else if (parts.length === 3) {
                 // if a frame was set and it doesn't exist create it
-                var key = parts[2];
+                const key = parts[2];
                 if (key) {
                     if (! panels[key]) {
-                        var panelBefore = null;
-                        var panelAfter = null;
+                        let panelBefore = null;
+                        let panelAfter = null;
 
-                        var search = parseInt(key, 10);
+                        const search = parseInt(key, 10);
                         for (const k in panels) {
                             if (search < parseInt(k, 10)) {
                                 panelBefore = panels[k];
@@ -251,13 +248,13 @@ editor.once('load', function () {
                         }
 
 
-                        var raw = atlasAsset.getRaw('data.frames')._data;
+                        const raw = atlasAsset.getRaw('data.frames')._data;
                         addFramePanel(key, raw[key]._data, panelAfter, panelBefore);
                     }
                 }
             } else {
                 // if a field changed then re-render the preview for that frame
-                var key = parts[2];
+                const key = parts[2];
                 if (panels[key]) {
                     panels[key].queueRender();
                 }
@@ -265,12 +262,12 @@ editor.once('load', function () {
         }));
 
         // listen to atlas unset event
-        var checkUnsetPath = /^data\.frames\.(\d+)$/;
+        const checkUnsetPath = /^data\.frames\.(\d+)$/;
         events.push(atlasAsset.on('*:unset', function (path) {
-            var match = path.match(checkUnsetPath);
+            const match = path.match(checkUnsetPath);
             if (! match) return;
 
-            var key = match[1];
+            const key = match[1];
             if (panels[key]) {
                 panels[key].destroy();
                 delete panels[key];
@@ -279,12 +276,12 @@ editor.once('load', function () {
 
         // Listen to framesSelected event to highlight panels
         events.push(editor.on('picker:sprites:framesSelected', function (keys) {
-            var index = {};
-            var key;
+            const index = {};
+            let key;
 
             if (spriteEditMode) {
                 // unhighlight old keys
-                var highlighted = panelFrames.innerElement.querySelectorAll('.frame.highlighted');
+                const highlighted = panelFrames.innerElement.querySelectorAll('.frame.highlighted');
                 for (let i = 0, len = highlighted.length; i < len; i++) {
                     if (! keys || keys.indexOf(highlighted[i].ui.frameKey) === -1) {
                         highlighted[i].ui.class.remove('highlighted');
@@ -298,7 +295,7 @@ editor.once('load', function () {
                 }
 
             } else {
-                var selected = panelFrames.innerElement.querySelectorAll('.frame.selected');
+                const selected = panelFrames.innerElement.querySelectorAll('.frame.selected');
                 for (let i = 0, len = selected.length; i < len; i++) {
                     if (! keys || keys.indexOf(selected[i].ui.frameKey) === -1) {
                         selected[i].ui.class.remove('selected');
@@ -322,7 +319,7 @@ editor.once('load', function () {
                     if (! panels[key]) continue;
 
                     if (scrollSelectionIntoView) {
-                        var scroll = false;
+                        let scroll = false;
                         if (i === 0) {
                             scroll = spriteEditMode ? ! panels[key].class.contains('highlighted') : ! panels[key].class.contains('selected');
                             if (scroll) {
@@ -357,9 +354,9 @@ editor.once('load', function () {
 
         events.push(editor.on('picker:sprites:spriteSelected', function (spriteAsset) {
             selectedSprite = spriteAsset;
-            var keys = spriteEditMode ? spriteEditModeKeys : selectedKeys;
+            const keys = spriteEditMode ? spriteEditModeKeys : selectedKeys;
             for (let i = 0, len = keys.length; i < len; i++) {
-                var panel = panels[keys[i]];
+                const panel = panels[keys[i]];
                 if (! panel) continue;
 
                 if (selectedSprite) {

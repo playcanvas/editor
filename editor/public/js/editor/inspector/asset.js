@@ -297,8 +297,12 @@ Object.assign(pcui, (function () {
         }
 
         _onClickOpenInViewer(evt) {
-            const glbUrls = this._assets.map(asset => `https://${window.location.hostname}${asset.get('file.url')}`).join('&load=');
-            window.open(encodeURI(`/viewer?load=${glbUrls}`));
+            const hostname = window.location.hostname;
+            const loadParam = this._assets.map(asset => {
+                const fileUrl = asset.get('file.url');
+                return encodeURIComponent(`https://${hostname}${fileUrl}`);
+            }).join('&load=');
+            window.open(`/viewer?load=${loadParam}`);
         }
 
         _onClickEditAsset(evt) {

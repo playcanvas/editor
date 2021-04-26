@@ -1,7 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    var cursorType = '';
+    let cursorType = '';
 
     editor.method('cursor:set', function (type) {
         if (cursorType === type)
@@ -21,8 +21,8 @@ editor.once('load', function () {
         document.body.style.cursor = '';
     });
 
-    var hiddenTime = 0;
-    var tooltip = new ui.Label({
+    let hiddenTime = 0;
+    const tooltip = new ui.Label({
         unsafe: true
     });
     tooltip.class.add('cursor-tooltip');
@@ -30,18 +30,18 @@ editor.once('load', function () {
     tooltip.hidden = true;
     editor.call('layout.root').append(tooltip);
 
-    var lastX = 0;
-    var lastY = 0;
+    let lastX = 0;
+    let lastY = 0;
 
     // move tooltip
-    var onMove = function (evt) {
+    const onMove = function (evt) {
         lastX = evt.clientX;
         lastY = evt.clientY;
 
         if (tooltip.hidden && (Date.now() - hiddenTime) > 100)
             return;
 
-        tooltip.style.transform = 'translate(' + evt.clientX + 'px,' + evt.clientY + 'px)';
+        tooltip.style.transform = `translate(${evt.clientX}px,${evt.clientY}px)`;
     };
     window.addEventListener('mousemove', onMove, false);
     window.addEventListener('dragover', onMove, false);
@@ -51,7 +51,7 @@ editor.once('load', function () {
         if (text) tooltip.text = text;
         tooltip.hidden = ! text;
 
-        tooltip.style.transform = 'translate(' + lastX + 'px,' + lastY + 'px)';
+        tooltip.style.transform = `translate(${lastX}px,${lastY}px)`;
 
         if (! text)
             hiddenTime = Date.now();

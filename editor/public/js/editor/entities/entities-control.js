@@ -1,11 +1,14 @@
 editor.once('load', function () {
     'use strict';
 
-    var root = editor.call('layout.root');
-    var panel = editor.call('layout.hierarchy');
+    const root = editor.call('layout.root');
+    const panel = editor.call('layout.hierarchy');
+
+    const menuEntities = ui.Menu.fromData(editor.call('menu:entities:new'));
+    root.append(menuEntities);
 
     // controls
-    var controls = new pcui.Container({
+    const controls = new pcui.Container({
         class: 'hierarchy-controls',
         flex: true,
         flexDirection: 'row',
@@ -20,13 +23,13 @@ editor.once('load', function () {
     panel.header.append(controls);
 
     // controls add
-    var btnAdd = new ui.Button({
+    const btnAdd = new ui.Button({
         text: '&#57632;'
     });
     btnAdd.class.add('add');
     btnAdd.on('click', function () {
         menuEntities.open = true;
-        var rect = btnAdd.element.getBoundingClientRect();
+        const rect = btnAdd.element.getBoundingClientRect();
         menuEntities.position(rect.left, rect.top);
     });
     controls.append(btnAdd);
@@ -39,21 +42,21 @@ editor.once('load', function () {
     });
 
     // controls duplicate
-    var btnDuplicate = new ui.Button({
+    const btnDuplicate = new ui.Button({
         text: '&#57638;'
     });
     btnDuplicate.disabled = true;
     btnDuplicate.class.add('duplicate');
     btnDuplicate.on('click', function () {
-        var type = editor.call('selector:type');
-        var items = editor.call('selector:items');
+        const type = editor.call('selector:type');
+        const items = editor.call('selector:items');
 
         if (type === 'entity' && items.length)
             editor.call('entities:duplicate', items);
     });
     controls.append(btnDuplicate);
 
-    var tooltipDuplicate = Tooltip.attach({
+    const tooltipDuplicate = Tooltip.attach({
         target: btnDuplicate.element,
         text: 'Duplicate Entity',
         align: 'top',
@@ -61,17 +64,14 @@ editor.once('load', function () {
     });
     tooltipDuplicate.class.add('innactive');
 
-    var menuEntities = ui.Menu.fromData(editor.call('menu:entities:new'));
-    root.append(menuEntities);
-
     // controls delete
-    var btnDelete = new ui.Button({
+    const btnDelete = new ui.Button({
         text: '&#57636;'
     });
     btnDelete.class.add('delete');
     btnDelete.style.fontWeight = 200;
     btnDelete.on('click', function () {
-        var type = editor.call('selector:type');
+        const type = editor.call('selector:type');
 
         if (type !== 'entity')
             return;
@@ -80,7 +80,7 @@ editor.once('load', function () {
     });
     controls.append(btnDelete);
 
-    var tooltipDelete = Tooltip.attach({
+    const tooltipDelete = Tooltip.attach({
         target: btnDelete.element,
         text: 'Delete Entity',
         align: 'top',
@@ -97,7 +97,7 @@ editor.once('load', function () {
     });
 
     editor.on('attributes:inspect[*]', function (type, items) {
-        var root = editor.call('entities:root');
+        const root = editor.call('entities:root');
 
         if (type === 'entity' && items[0] !== root) {
             btnDelete.enabled = true;

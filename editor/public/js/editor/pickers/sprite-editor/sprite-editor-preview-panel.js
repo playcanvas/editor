@@ -2,20 +2,18 @@ editor.once('load', function () {
     'use strict';
 
     editor.method('picker:sprites:attributes:frames:preview', function (args) {
-        var parent = editor.call('picker:sprites:rightPanel');
+        const parent = editor.call('picker:sprites:rightPanel');
 
-        var atlasAsset = args.atlasAsset;
-        var atlasImage = args.atlasImage;
-        var frames = args.frames;
-        var frameObservers = frames.map(function (f) { return atlasAsset.getRaw('data.frames.' + f); });
+        const atlasAsset = args.atlasAsset;
+        let frames = args.frames;
+        let frameObservers = frames.map(function (f) { return atlasAsset.getRaw('data.frames.' + f); });
 
-        var events = [];
+        const events = [];
 
-        var previewContainer = document.createElement('div');
+        let previewContainer = document.createElement('div');
         previewContainer.classList.add('asset-preview-container');
 
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d');
+        const canvas = document.createElement('canvas');
         canvas.width = 256;
         canvas.height = 256;
         canvas.classList.add('asset-preview');
@@ -33,55 +31,37 @@ editor.once('load', function () {
         parent.class.add('asset-preview');
         parent.element.insertBefore(previewContainer, parent.innerElement);
 
-        var panelControls = new ui.Panel();
+        const panelControls = new ui.Panel();
         panelControls.class.add('preview-controls');
         previewContainer.appendChild(panelControls.element);
 
-        var time = 0;
-        var playing = true;
-        var fps = 10;
-        var frame = 0;
-        var lastTime = Date.now();
+        let time = 0;
+        let playing = true;
+        const fps = 10;
+        let frame = 0;
+        let lastTime = Date.now();
 
-        // var btnPlay = new ui.Button({
-        //     text: '&#57649;'
-        // });
-        // panelControls.append(btnPlay);
-
-        // btnPlay.on('click', function() {
-        //     playing = !playing;
-
-        //     if (playing) {
-        //         lastTime = Date.now();
-        //         btnPlay.class.add('active', 'pinned');
-        //     } else {
-        //         btnPlay.class.remove('active', 'pinned');
-        //     }
-
-        //     queueRender();
-        // });
-
-        var renderQueued;
+        let renderQueued;
 
         // queue up the rendering to prevent too oftern renders
-        var queueRender = function () {
+        const queueRender = function () {
             if (renderQueued) return;
             renderQueued = true;
             requestAnimationFrame(renderPreview);
         };
 
-        var renderPreview = function () {
+        const renderPreview = function () {
             if (! previewContainer) return;
 
             if (renderQueued)
                 renderQueued = false;
 
             if (playing) {
-                var now = Date.now();
+                const now = Date.now();
                 time += (now - lastTime) / 1000;
 
                 frame = Math.floor(time * fps);
-                var numFrames = frames.length;
+                const numFrames = frames.length;
                 if (frame >= numFrames) {
                     frame = 0;
                     time -= numFrames / fps;
@@ -94,15 +74,15 @@ editor.once('load', function () {
             canvas.height = canvas.clientHeight;
 
             // render
-            var frameData = frameObservers[frame] && frameObservers[frame]._data;
+            const frameData = frameObservers[frame] && frameObservers[frame]._data;
             editor.call('picker:sprites:renderFramePreview', frameData, canvas, frameObservers, true);
 
             if (playing) {
                 queueRender();
             }
         };
-        renderPreview();
 
+        renderPreview();
 
         // render on resize
         events.push(parent.on('resize', queueRender));

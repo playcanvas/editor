@@ -1,19 +1,23 @@
 editor.once('load', function () {
     'use strict';
 
-    var app = editor.call('viewport:app');
+    const app = editor.call('viewport:app');
     if (! app) return; // webgl not available
-    var watching = { };
+    const watching = { };
 
+    const trigger = function (watch, slot) {
+        for (const key in watch.callbacks)
+            watch.callbacks[key].callback(slot);
+    };
 
-    var addTextureWatch = function (watch, slot, id) {
+    const addTextureWatch = function (watch, slot, id) {
         watch.textures[slot] = {
             id: id,
             fn: function () {
                 trigger(watch, slot);
             },
             addFn: function () {
-                var asset = app.assets.get(id);
+                const asset = app.assets.get(id);
                 if (asset) {
                     asset.on('change', watch.textures[slot].fn);
 
@@ -25,22 +29,22 @@ editor.once('load', function () {
         };
         app.assets.on('load:' + id, watch.textures[slot].fn);
 
-        var asset = app.assets.get(id);
+        let asset = app.assets.get(id);
         if (asset) {
             asset.on('change', watch.textures[slot].fn);
         } else {
             app.assets.on('add:' + id, watch.textures[slot].addFn);
         }
 
-        var obj = editor.call('assets:get', id);
+        const obj = editor.call('assets:get', id);
         if (obj) obj.on('thumbnails.s:set', watch.textures[slot].fn);
 
         if (watch.autoLoad) {
-            var asset = app.assets.get(id);
+            asset = app.assets.get(id);
             if (asset && ! asset.resource)
                 app.assets.load(asset);
 
-            var asset = app.assets.get(watch.asset.get('id'));
+            asset = app.assets.get(watch.asset.get('id'));
             if (asset && (! asset.resource || ! asset.loadFaces)) {
                 asset.loadFaces = true;
                 app.assets.load(asset);
@@ -48,25 +52,25 @@ editor.once('load', function () {
         }
     };
 
-    var removeTextureWatch = function (watch, slot) {
+    const removeTextureWatch = function (watch, slot) {
         if (! watch.textures[slot])
             return;
 
-        var id = watch.textures[slot].id;
+        const id = watch.textures[slot].id;
 
         app.assets.off('load:' + id, watch.textures[slot].fn);
         app.assets.off('add:' + id, watch.textures[slot].addFn);
 
-        var asset = app.assets.get(id);
+        const asset = app.assets.get(id);
         if (asset) asset.off('change', watch.textures[slot].fn);
 
-        var obj = editor.call('assets:get', id);
+        const obj = editor.call('assets:get', id);
         if (obj) obj.unbind('thumbnails.s:set', watch.textures[slot].fn);
 
         delete watch.textures[slot];
     };
 
-    var addSlotWatch = function (watch, slot) {
+    const addSlotWatch = function (watch, slot) {
         watch.watching[slot] = watch.asset.on('data.textures.' + slot + ':set', function (value) {
             if (watch.textures[slot]) {
                 if (value !== watch.textures[slot].id) {
@@ -81,9 +85,9 @@ editor.once('load', function () {
         });
     };
 
-    var subscribe = function (watch) {
+    const subscribe = function (watch) {
         for (let i = 0; i < 6; i++) {
-            var textureId = watch.asset.get('data.textures.' + i);
+            const textureId = watch.asset.get('data.textures.' + i);
             if (textureId)
                 addTextureWatch(watch, i, textureId);
         }
@@ -91,7 +95,7 @@ editor.once('load', function () {
         watch.watching.all = watch.asset.on('data.textures:set', function (value) {
             if (value) {
                 for (let i = 0; i < 6; i++) {
-                    var id = value[i];
+                    const id = value[i];
                     if (watch.textures[i]) {
                         if (id !== watch.textures[i].id) {
                             removeTextureWatch(watch, i);
@@ -115,7 +119,7 @@ editor.once('load', function () {
             addSlotWatch(watch, i);
 
         watch.retryTimeout = null;
-        var retries = 5;
+        let retries = 5;
 
         watch.onAdd = function (asset) {
             if (! watch.autoLoad)
@@ -153,7 +157,7 @@ editor.once('load', function () {
         app.assets.on('error:' + watch.asset.get('id'), watch.onError);
     };
 
-    var unsubscribe = function (watch) {
+    const unsubscribe = function (watch) {
         for (const key in watch.textures)
             removeTextureWatch(watch, key);
 
@@ -170,14 +174,9 @@ editor.once('load', function () {
         app.assets.off('error:' + watch.asset.get('id'), watch.onError);
     };
 
-    var trigger = function (watch, slot) {
-        for (const key in watch.callbacks)
-            watch.callbacks[key].callback(slot);
-    };
-
 
     editor.method('assets:cubemap:watch', function (args) {
-        var watch = watching[args.asset.get('id')];
+        let watch = watching[args.asset.get('id')];
 
         if (! watch) {
             watch = watching[args.asset.get('id')] = {
@@ -195,7 +194,7 @@ editor.once('load', function () {
             subscribe(watch);
         }
 
-        var item = watch.callbacks[++watch.ind] = {
+        watch.callbacks[++watch.ind] = {
             autoLoad: args.autoLoad,
             callback: args.callback
         };
@@ -204,7 +203,7 @@ editor.once('load', function () {
             watch.autoLoad++;
 
         if (watch.autoLoad === 1) {
-            var asset = app.assets.get(watch.asset.get('id'));
+            const asset = app.assets.get(watch.asset.get('id'));
             if (asset && (! asset.loadFaces || ! asset.resource)) {
                 asset.loadFaces = true;
                 app.assets.load(asset);
@@ -216,7 +215,7 @@ editor.once('load', function () {
 
 
     editor.method('assets:cubemap:unwatch', function (asset, handle) {
-        var watch = watching[asset.get('id')];
+        const watch = watching[asset.get('id')];
         if (! watch) return;
 
         if (! watch.callbacks.hasOwnProperty(handle))

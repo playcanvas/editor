@@ -1,16 +1,33 @@
 editor.once('load', function () {
     'use strict';
 
-    /**
-     * Given an array of entities, return data about all their
-     * script attributes by script name
-     *
-     * @param {object[]} entities - The entities
-     * @returns {object} Data about script attributes by script name
-     */
-    editor.method('template:getScriptAttributes', function (entities) {
-        return new GetScriptAttributes(entities).run();
-    });
+    class AttributesFromScriptAssets {
+        constructor(assets) {
+            this.assets = assets;
+
+            this.scriptNameToAttributes = {};
+        }
+
+        run() {
+            this.assets.forEach(this.handleScriptData, this);
+
+            return this.scriptNameToAttributes;
+        }
+
+        handleScriptData(asset) {
+            const data = asset.get('data') || {};
+
+            const scripts = data.scripts || {};
+
+            const names = Object.keys(scripts);
+
+            names.forEach(name => {
+                const attrs = scripts[name].attributes;
+
+                this.scriptNameToAttributes[name] = attrs;
+            });
+        }
+    }
 
     class GetScriptAttributes {
         constructor(entities) {
@@ -46,31 +63,14 @@ editor.once('load', function () {
         }
     }
 
-    class AttributesFromScriptAssets {
-        constructor(assets) {
-            this.assets = assets;
-
-            this.scriptNameToAttributes = {};
-        }
-
-        run() {
-            this.assets.forEach(this.handleScriptData, this);
-
-            return this.scriptNameToAttributes;
-        }
-
-        handleScriptData(asset) {
-            const data = asset.get('data') || {};
-
-            const scripts = data.scripts || {};
-
-            const names = Object.keys(scripts);
-
-            names.forEach(name => {
-                const attrs = scripts[name].attributes;
-
-                this.scriptNameToAttributes[name] = attrs;
-            });
-        }
-    }
+    /**
+     * Given an array of entities, return data about all their
+     * script attributes by script name
+     *
+     * @param {object[]} entities - The entities
+     * @returns {object} Data about script attributes by script name
+     */
+    editor.method('template:getScriptAttributes', function (entities) {
+        return new GetScriptAttributes(entities).run();
+    });
 });

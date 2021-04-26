@@ -1,9 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    var scriptBoilerplate = "var {className} = pc.createScript('{scriptName}');\n\n// initialize code called once per entity\n{className}.prototype.initialize = function() {\n    \n};\n\n// update code called every frame\n{className}.prototype.update = function(dt) {\n    \n};\n\n// swap method called for script hot-reloading\n// inherit your script state here\n// {className}.prototype.swap = function(old) { };\n\n// to learn more about script anatomy, please read:\n// http://developer.playcanvas.com/en/user-manual/scripting/";
-    var filenameValid = /^([^0-9.#<>$+%!`&='{}@\\/:*?"<>|\n])([^#<>$+%!`&='{}@\\/:*?"<>|\n])*$/i;
-
+    const filenameValid = /^([^0-9.#<>$+%!`&='{}@\\/:*?"<>|\n])([^#<>$+%!`&='{}@\\/:*?"<>|\n])*$/i;
 
     editor.method('assets:create:script', function (args) {
         if (! editor.call('permissions:write'))
@@ -11,18 +9,18 @@ editor.once('load', function () {
 
         args = args || { };
 
-        var filename = args.filename || 'script.js';
+        const filename = args.filename || 'script.js';
 
         if (args.boilerplate) {
-            var name = filename.slice(0, -3);
-            var className = args.className || '';
-            var scriptName = args.scriptName || '';
+            const name = filename.slice(0, -3);
+            let className = args.className || '';
+            let scriptName = args.scriptName || '';
 
             if (! className || ! scriptName) {
                 // tokenize filename
-                var tokens = [];
-                var string = name.replace(/([^A-Z])([A-Z][^A-Z])/g, '$1 $2').replace(/([A-Z0-9]{2,})/g, ' $1');
-                var parts = string.split(/(\s|\-|_|\.)/g);
+                const tokens = [];
+                const string = name.replace(/([^A-Z])([A-Z][^A-Z])/g, '$1 $2').replace(/([A-Z0-9]{2,})/g, ' $1');
+                const parts = string.split(/(\s|\-|_|\.)/g);
 
                 // filter valid tokens
                 for (let i = 0; i < parts.length; i++) {
@@ -57,10 +55,29 @@ editor.once('load', function () {
             if (! filenameValid.test(className))
                 className = 'Script';
 
-            args.content = scriptBoilerplate.replace(/\{className\}/g, className).replace(/\{scriptName\}/g, scriptName);
+            args.content = `
+var ${className} = pc.createScript('${scriptName}');
+
+// initialize code called once per entity
+${className}.prototype.initialize = function() {
+    
+};
+
+// update code called every frame
+${className}.prototype.update = function(dt) {
+    
+};
+
+// swap method called for script hot-reloading
+// inherit your script state here
+// ${className}.prototype.swap = function(old) { };
+
+// to learn more about script anatomy, please read:
+// https://developer.playcanvas.com/en/user-manual/scripting/
+                `.trim();
         }
 
-        var asset = {
+        const asset = {
             name: filename,
             type: 'script',
             source: false,
@@ -81,8 +98,15 @@ editor.once('load', function () {
         editor.call('assets:create', asset, function (err, assetId) {
             if (err) return;
 
-            var onceAssetLoad = function (asset) {
-                var url = asset.get('file.url');
+            const onParse = function (asset) {
+                editor.call('scripts:parse', asset, function (err, result) {
+                    if (args.callback)
+                        args.callback(err, asset, result);
+                });
+            };
+
+            const onceAssetLoad = function (asset) {
+                const url = asset.get('file.url');
                 if (url) {
                     onParse(asset);
                 } else {
@@ -92,14 +116,7 @@ editor.once('load', function () {
                 }
             };
 
-            var onParse = function (asset) {
-                editor.call('scripts:parse', asset, function (err, result) {
-                    if (args.callback)
-                        args.callback(err, asset, result);
-                });
-            };
-
-            var asset = editor.call('assets:get', assetId);
+            const asset = editor.call('assets:get', assetId);
             if (asset) {
                 onceAssetLoad(asset);
             } else {

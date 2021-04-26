@@ -15,18 +15,6 @@ editor.once('load', function () {
         'name'
     ];
 
-    editor.method('template:utils', function () {
-        const a = Array.from(arguments);
-
-        return callUtilMethod(TemplateUtils, a);
-    });
-
-    editor.method('template:attrUtils', function () {
-        const a = Array.from(arguments);
-
-        return callUtilMethod(AttrUtils, a);
-    });
-
     const callUtilMethod = function (klass, args) {
         const method = args[0];
 
@@ -484,9 +472,11 @@ editor.once('load', function () {
 
             const inds = AttrUtils.arrayIndsFromAttr(attrInEnt);
 
-            inds ?
-                AttrUtils.addPathsForJsonAr(dst, names, pref, inds) :
+            if (inds) {
+                AttrUtils.addPathsForJsonAr(dst, names, pref, inds);
+            } else {
                 AttrUtils.addEntNamePaths(dst, names, pref, null);
+            }
         },
 
         arrayIndsFromAttr: function (attrInEnt) {
@@ -607,4 +597,16 @@ editor.once('load', function () {
                 Array.isArray(data.node2);
         }
     };
+
+    editor.method('template:utils', function () {
+        const a = Array.from(arguments);
+
+        return callUtilMethod(TemplateUtils, a);
+    });
+
+    editor.method('template:attrUtils', function () {
+        const a = Array.from(arguments);
+
+        return callUtilMethod(AttrUtils, a);
+    });
 });

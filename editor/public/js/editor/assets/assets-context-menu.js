@@ -1,24 +1,24 @@
 editor.once('load', function () {
     'use strict';
 
-    var currentAsset = null;
-    var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
-    var root = editor.call('layout.root');
+    let currentAsset = null;
+    const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
+    const root = editor.call('layout.root');
 
-    var customMenuItems = [];
+    const customMenuItems = [];
 
     const LEGACY_SCRIPTS_ID = 'legacyScripts';
 
     // menu
-    var menu = new ui.Menu();
+    const menu = new ui.Menu();
     root.append(menu);
 
     // menu related only to creating assets
-    var menuCreate = new ui.Menu();
+    const menuCreate = new ui.Menu();
     if (editor.call('permissions:write')) root.append(menuCreate);
 
     // edit
-    var menuItemNewScript = new ui.MenuItem({
+    const menuItemNewScript = new ui.MenuItem({
         text: 'New Script',
         icon: '&#57864;',
         value: 'script'
@@ -39,14 +39,14 @@ editor.once('load', function () {
 
 
     // new asset
-    var menuItemNew = new ui.MenuItem({
+    const menuItemNew = new ui.MenuItem({
         text: 'New Asset',
         icon: '&#57632;',
         value: 'new'
     });
     if (editor.call('permissions:write')) menu.append(menuItemNew);
 
-    var downloadable = {
+    const downloadable = {
         'texture': 1,
         'textureatlas': 1,
         'html': 1,
@@ -58,7 +58,7 @@ editor.once('load', function () {
         'text': 1
     };
 
-    var icons = {
+    const icons = {
         'upload': '&#57909;',
         'folder': '&#57657;',
         'css': '&#57864;',
@@ -80,7 +80,7 @@ editor.once('load', function () {
         'animstategraph': '&#58386;'
     };
 
-    var ICONS = {
+    const ICONS = {
         REFERENCES: '&#57622;',
         TEXTURE_ATLAS: '&#58162;',
         SPRITE_ASSET: '&#58261;',
@@ -96,7 +96,7 @@ editor.once('load', function () {
         OPEN_IN_VIEWER: '&#57623;'
     };
 
-    var assets = {
+    const assets = {
         'upload': 'Upload',
         'folder': 'Folder',
         'css': 'CSS',
@@ -121,15 +121,15 @@ editor.once('load', function () {
         return editor.call('assets:panel:currentFolder') === 'scripts';
     }
 
-    var addNewMenuItem = function (menu, key, title) {
+    const addNewMenuItem = function (menu, key, title) {
         // new folder
-        var item = new ui.MenuItem({
+        const item = new ui.MenuItem({
             text: title,
             icon: icons[key] || '',
             value: key
         });
         item.on('select', function () {
-            var args = { };
+            const args = { };
 
             if (currentAsset && currentAsset.get('type') === 'folder') {
                 args.parent = currentAsset;
@@ -164,7 +164,7 @@ editor.once('load', function () {
         }
     };
 
-    var keys = Object.keys(assets);
+    const keys = Object.keys(assets);
     for (let i = 0; i < keys.length; i++) {
         if (! assets.hasOwnProperty(keys[i]))
             continue;
@@ -175,7 +175,7 @@ editor.once('load', function () {
 
 
     // related
-    var menuItemReferences = new ui.MenuItem({
+    const menuItemReferences = new ui.MenuItem({
         text: 'References',
         icon: ICONS.REFERENCES,
         value: 'references'
@@ -183,7 +183,7 @@ editor.once('load', function () {
     menu.append(menuItemReferences);
 
     // Create Atlas
-    var menuItemTextureToAtlas = new ui.MenuItem({
+    const menuItemTextureToAtlas = new ui.MenuItem({
         text: 'Create Texture Atlas',
         icon: ICONS.TEXTURE_ATLAS,
         value: 'texture-to-atlas'
@@ -195,7 +195,7 @@ editor.once('load', function () {
     });
 
     // Create Sprite From Atlas
-    var menuItemCreateSprite = new ui.MenuItem({
+    const menuItemCreateSprite = new ui.MenuItem({
         text: 'Create Sprite Asset',
         icon: ICONS.SPRITE_ASSET,
         value: 'atlas-to-sprite'
@@ -209,7 +209,7 @@ editor.once('load', function () {
     });
 
     // Create Sliced Sprite From Atlas
-    var menuItemCreateSlicedSprite = new ui.MenuItem({
+    const menuItemCreateSlicedSprite = new ui.MenuItem({
         text: 'Create Sliced Sprite Asset',
         icon: ICONS.SPRITE_ASSET,
         value: 'atlas-to-sliced-sprite'
@@ -224,21 +224,18 @@ editor.once('load', function () {
     });
 
     // copy
-    var menuItemCopy = new ui.MenuItem({
+    const menuItemCopy = new ui.MenuItem({
         text: 'Copy',
         icon: ICONS.COPY,
         value: 'copy'
     });
     menuItemCopy.on('select', function () {
-        var id = parseInt(currentAsset.get('id'), 10);
-
-        var asset = currentAsset;
-        var multiple = false;
+        const asset = currentAsset;
+        let multiple = false;
 
         if (asset) {
-            var assetType = asset.get('type');
-            var type = editor.call('selector:type');
-            var items;
+            const type = editor.call('selector:type');
+            let items;
 
             if (type === 'asset') {
                 items = editor.call('selector:items');
@@ -261,7 +258,7 @@ editor.once('load', function () {
 
     // paste
     // copy
-    var menuItemPaste = new ui.MenuItem({
+    const menuItemPaste = new ui.MenuItem({
         text: 'Paste',
         icon: ICONS.PASTE,
         value: 'paste'
@@ -284,7 +281,7 @@ editor.once('load', function () {
     });
 
     // replace
-    var replaceAvailable = {
+    const replaceAvailable = {
         'material': true,
         'texture': true,
         'textureatlas': true,
@@ -300,20 +297,18 @@ editor.once('load', function () {
         'text': true,
         'animstategraph': true
     };
-    var menuItemReplace = new ui.MenuItem({
+    const menuItemReplace = new ui.MenuItem({
         text: 'Replace',
         icon: ICONS.REPLACE,
         value: 'replace'
     });
     menuItemReplace.on('select', function () {
-        var id = parseInt(currentAsset.get('id'), 10);
-
         editor.call('picker:asset', {
             type: currentAsset.get('type'),
             currentAsset: currentAsset
         });
 
-        var evtPick = editor.once('picker:asset', function (asset) {
+        let evtPick = editor.once('picker:asset', function (asset) {
             editor.call('assets:replace', currentAsset, asset);
             evtPick = null;
         });
@@ -327,20 +322,18 @@ editor.once('load', function () {
     });
     if (editor.call('permissions:write')) menu.append(menuItemReplace);
 
-    var menuItemReplaceTextureToSprite = new ui.MenuItem({
+    const menuItemReplaceTextureToSprite = new ui.MenuItem({
         text: 'Convert Texture To Sprite',
         icon: ICONS.SPRITE_ASSET,
         value: 'replaceTextureToSprite'
     });
     menuItemReplaceTextureToSprite.on('select', function () {
-        var id = parseInt(currentAsset.get('id'), 10);
-
         editor.call('picker:asset', {
             type: 'sprite',
             currentAsset: currentAsset
         });
 
-        var evtPick = editor.once('picker:asset', function (asset) {
+        let evtPick = editor.once('picker:asset', function (asset) {
             editor.call('assets:replaceTextureToSprite', currentAsset, asset);
             evtPick = null;
         });
@@ -358,7 +351,7 @@ editor.once('load', function () {
     // todo: merge these 2 items.
 
     // extract. Used for source assets.
-    var menuItemExtract = new ui.MenuItem({
+    const menuItemExtract = new ui.MenuItem({
         text: 'Re-Import',
         icon: ICONS.REIMPORT,
         value: 'extract'
@@ -370,7 +363,7 @@ editor.once('load', function () {
 
 
     // re-import. Used for target assets.
-    var menuItemReImport = new ui.MenuItem({
+    const menuItemReImport = new ui.MenuItem({
         text: 'Re-Import',
         icon: ICONS.REIMPORT,
         value: 're-import'
@@ -381,7 +374,7 @@ editor.once('load', function () {
     if (editor.call('permissions:write')) menu.append(menuItemReImport);
 
     // download
-    var menuItemDownload = new ui.MenuItem({
+    const menuItemDownload = new ui.MenuItem({
         text: 'Download',
         icon: ICONS.DOWNLOAD,
         value: 'download'
@@ -393,7 +386,7 @@ editor.once('load', function () {
 
 
     // edit
-    var menuItemEdit = new ui.MenuItem({
+    const menuItemEdit = new ui.MenuItem({
         text: editor.call('permissions:write') ? 'Edit' : 'View',
         icon: ICONS.EDIT,
         value: 'edit'
@@ -405,7 +398,7 @@ editor.once('load', function () {
 
 
     // duplicate
-    var menuItemDuplicate = new ui.MenuItem({
+    const menuItemDuplicate = new ui.MenuItem({
         text: 'Duplicate',
         icon: ICONS.DUPLICATE,
         value: 'duplicate'
@@ -417,20 +410,20 @@ editor.once('load', function () {
 
 
     // delete
-    var menuItemDelete = new ui.MenuItem({
+    const menuItemDelete = new ui.MenuItem({
         text: 'Delete',
         icon: ICONS.DELETE,
         value: 'delete'
     });
     menuItemDelete.style.fontWeight = 200;
     menuItemDelete.on('select', function () {
-        var asset = currentAsset;
-        var multiple = false;
+        const asset = currentAsset;
+        let multiple = false;
 
         if (asset) {
-            var assetType = asset.get('type');
-            var type = editor.call('selector:type');
-            var items;
+            const assetType = asset.get('type');
+            const type = editor.call('selector:type');
+            let items;
 
             if (type === 'asset') {
                 items = editor.call('selector:items');
@@ -456,7 +449,7 @@ editor.once('load', function () {
     if (editor.call('permissions:write')) menu.append(menuItemDelete);
 
     // move-to-store
-    var menuItemMoveToStore = new ui.MenuItem({
+    const menuItemMoveToStore = new ui.MenuItem({
         text: 'Move To Store',
         icon: ICONS.EDIT,
         value: 'add_to_store'
@@ -467,14 +460,16 @@ editor.once('load', function () {
     if (editor.call('permissions:write')) menu.append(menuItemMoveToStore);
 
     // open-in-viewer
-    var menuItemOpenInViewer = new ui.MenuItem({
+    const menuItemOpenInViewer = new ui.MenuItem({
         text: 'Open In Viewer',
         icon: ICONS.OPEN_IN_VIEWER,
         value: 'open_in_viewer'
     });
     menuItemOpenInViewer.on('select', function () {
-        const url = encodeURIComponent(`https://${window.location.hostname}${currentAsset.get('file.url')}`);
-        window.open(`/viewer?load=${url}`);
+        const hostname = window.location.hostname;
+        const fileUrl = currentAsset.get('file.url');
+        const loadParam = encodeURIComponent(`https://${hostname}${fileUrl}`);
+        window.open(`/viewer?load=${loadParam}`);
     });
     menu.append(menuItemOpenInViewer);
 
@@ -523,7 +518,7 @@ editor.once('load', function () {
             if (currentAsset.get('type') === 'material' || currentAsset.get('type') === 'sprite') {
                 menuItemEdit.hidden = true;
                 if (editor.call('selector:type') === 'asset') {
-                    var items = editor.call('selector:items');
+                    const items = editor.call('selector:items');
                     menuItemDuplicate.hidden = (items.length > 1 && items.indexOf(currentAsset) !== -1);
                 } else {
                     menuItemDuplicate.hidden = false;
@@ -535,7 +530,7 @@ editor.once('load', function () {
             // edit
             if (! currentAsset.get('source') && ['html', 'css', 'json', 'text', 'script', 'shader'].indexOf(currentAsset.get('type')) !== -1) {
                 if (editor.call('selector:type') === 'asset') {
-                    var items = editor.call('selector:items');
+                    const items = editor.call('selector:items');
                     menuItemEdit.hidden = (items.length > 1 && items.indexOf(currentAsset) !== -1);
                 } else {
                     menuItemEdit.hidden = false;
@@ -558,9 +553,9 @@ editor.once('load', function () {
                 menuItemExtract.hidden = true;
 
                 // re-import
-                var sourceId = currentAsset.get('source_asset_id');
+                const sourceId = currentAsset.get('source_asset_id');
                 if (sourceId) {
-                    var source = editor.call('assets:get', sourceId);
+                    const source = editor.call('assets:get', sourceId);
                     if (source) {
                         if (source.get('type') === 'scene' && (['texture', 'material'].indexOf(currentAsset.get('type')) !== -1 || ! source.get('meta'))) {
                             menuItemReImport.hidden = true;
@@ -579,7 +574,7 @@ editor.once('load', function () {
                 }
 
                 // references
-                var ref = editor.call('assets:used:index')[currentAsset.get('id')];
+                const ref = editor.call('assets:used:index')[currentAsset.get('id')];
                 if (ref && ref.count && ref.ref) {
                     menuItemReferences.hidden = false;
                     menuItemReplace.hidden = !replaceAvailable[currentAsset.get('type')];
@@ -588,11 +583,11 @@ editor.once('load', function () {
                     while (menuItemReferences.innerElement.firstChild)
                         menuItemReferences.innerElement.firstChild.ui.destroy();
 
-                    var menuItems = [];
+                    const menuItems = [];
 
-                    var addReferenceItem = function (type, id) {
-                        var menuItem = new ui.MenuItem();
-                        var item = null;
+                    const addReferenceItem = function (type, id) {
+                        const menuItem = new ui.MenuItem();
+                        let item = null;
 
                         if (type === 'editorSettings') {
                             menuItem.text = 'Scene Settings';
@@ -621,8 +616,8 @@ editor.once('load', function () {
                             editor.call('selector:set', type, [item]);
 
                             if (type === 'asset') {
-                                var folder = null;
-                                var path = item.get('path') || [];
+                                let folder = null;
+                                const path = item.get('path') || [];
                                 if (path.length)
                                     folder = editor.call('assets:get', path[path.length - 1]);
 
@@ -641,7 +636,7 @@ editor.once('load', function () {
                     for (const key in ref.ref)
                         addReferenceItem(ref.ref[key].type, key);
 
-                    var typeSort = {
+                    const typeSort = {
                         'editorSettings': 1,
                         'asset': 2,
                         'entity': 3
@@ -715,10 +710,10 @@ editor.once('load', function () {
     // for each asset added
     editor.on('assets:add', function (asset) {
         // get grid item
-        var item = editor.call('assets:panel:get', asset.get('id'));
+        const item = editor.call('assets:panel:get', asset.get('id'));
         if (! item) return;
 
-        var contextMenuHandler = function (evt) {
+        const contextMenuHandler = function (evt) {
             evt.stopPropagation();
             evt.preventDefault();
 
@@ -736,7 +731,7 @@ editor.once('load', function () {
     });
 
     editor.method('assets:contextmenu:attach', function (element, asset) {
-        var contextMenuHandler = function (evt) {
+        const contextMenuHandler = function (evt) {
             evt.stopPropagation();
             evt.preventDefault();
 
@@ -758,7 +753,7 @@ editor.once('load', function () {
 
     editor.on('sourcefiles:add', function (asset) {
         // get grid item
-        var item = editor.call('assets:panel:get', asset.get('filename'));
+        const item = editor.call('assets:panel:get', asset.get('filename'));
         if (! item) return;
 
         // attach contextmenu event
@@ -773,7 +768,7 @@ editor.once('load', function () {
     });
 
     editor.method('assets:contextmenu:add', function (data) {
-        var item = new ui.MenuItem({
+        const item = new ui.MenuItem({
             text: data.text,
             icon: data.icon,
             value: data.value
@@ -783,7 +778,7 @@ editor.once('load', function () {
             data.select.call(item, currentAsset);
         });
 
-        var parent = data.parent || menu;
+        const parent = data.parent || menu;
         parent.append(item);
 
         if (data.filter)

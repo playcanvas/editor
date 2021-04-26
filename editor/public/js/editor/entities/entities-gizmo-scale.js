@@ -1,28 +1,28 @@
 editor.once('load', function () {
     'use strict';
 
-    var events = [];
-    var items = [];
-    var quat = new pc.Quat();
-    var vecA = new pc.Vec3();
-    var vecB = new pc.Vec3();
-    var vecC = new pc.Vec3();
-    var timeoutUpdatePosition, timeoutUpdateRotation;
-    var app;
-    var gizmoMoving = false;
-    var gizmoAxis, gizmoMiddle;
-    var linesColorActive = new pc.Color(1, 1, 1, 1);
-    var linesColorBehind = new pc.Color(1, 1, 1, 0.05);
-    var immediateRenderOptions;
-    var brightRenderOptions;
+    let events = [];
+    let items = [];
+    const quat = new pc.Quat();
+    const vecA = new pc.Vec3();
+    const vecB = new pc.Vec3();
+    const vecC = new pc.Vec3();
+    let timeoutUpdatePosition, timeoutUpdateRotation;
+    let app;
+    let gizmoMoving = false;
+    let gizmoAxis, gizmoMiddle;
+    const linesColorActive = new pc.Color(1, 1, 1, 1);
+    const linesColorBehind = new pc.Color(1, 1, 1, 0.05);
+    let immediateRenderOptions;
+    let brightRenderOptions;
 
     // get position of gizmo based on selected entities
-    var getGizmoPosition = function () {
+    const getGizmoPosition = function () {
         if (! items.length)
             return;
 
-        var reference = items[items.length - 1];
-        var parent = reference.parent;
+        let reference = items[items.length - 1];
+        let parent = reference.parent;
         while (parent) {
             reference = parent;
             parent = parent.parent;
@@ -32,23 +32,23 @@ editor.once('load', function () {
         return vecA;
     };
 
-    var getGizmoRotation = function () {
+    const getGizmoRotation = function () {
         if (! items.length)
             return;
 
-        var reference = items[items.length - 1];
-        var parent = reference.parent;
+        let reference = items[items.length - 1];
+        let parent = reference.parent;
         while (parent) {
             reference = parent;
             parent = parent.parent;
         }
-        var rot = reference.obj.entity.getEulerAngles();
+        const rot = reference.obj.entity.getEulerAngles();
 
         return [rot.x, rot.y, rot.z];
     };
 
     // update gizmo position
-    var updateGizmoPosition = function () {
+    const updateGizmoPosition = function () {
         if (! items.length || timeoutUpdatePosition)
             return;
 
@@ -57,14 +57,14 @@ editor.once('load', function () {
         setTimeout(function () {
             timeoutUpdatePosition = false;
 
-            var vec = getGizmoPosition();
+            const vec = getGizmoPosition();
             if (vec)
                 editor.call('gizmo:scale:position', vec.x, vec.y, vec.z);
         });
     };
 
     // update gizmo position
-    var updateGizmoRotation = function () {
+    const updateGizmoRotation = function () {
         if (! items.length || timeoutUpdateRotation)
             return;
 
@@ -73,20 +73,20 @@ editor.once('load', function () {
         setTimeout(function () {
             timeoutUpdateRotation = false;
 
-            var vec = getGizmoRotation();
+            const vec = getGizmoRotation();
             if (vec)
                 editor.call('gizmo:scale:rotation', vec[0], vec[1], vec[2]);
         });
     };
 
     // start translating
-    var onGizmoStart = function (axis, middle) {
+    const onGizmoStart = function (axis, middle) {
         gizmoAxis = axis;
         gizmoMiddle = middle;
         gizmoMoving = true;
 
         for (let i = 0; i < items.length; i++) {
-            var scale = items[i].obj.get('scale');
+            const scale = items[i].obj.get('scale');
             items[i].start[0] = scale[0];
             items[i].start[1] = scale[1];
             items[i].start[2] = scale[2];
@@ -96,9 +96,9 @@ editor.once('load', function () {
     };
 
     // end translating
-    var onGizmoEnd = function () {
+    const onGizmoEnd = function () {
         gizmoMoving = false;
-        var records = [];
+        const records = [];
 
         for (let i = 0; i < items.length; i++) {
             items[i].obj.history.enabled = true;
@@ -114,7 +114,7 @@ editor.once('load', function () {
             name: 'entities.scale',
             undo: function () {
                 for (let i = 0; i < records.length; i++) {
-                    var item = records[i].item.latest();
+                    const item = records[i].item.latest();
                     if (! item)
                         continue;
 
@@ -125,7 +125,7 @@ editor.once('load', function () {
             },
             redo: function () {
                 for (let i = 0; i < records.length; i++) {
-                    var item = records[i].item.latest();
+                    const item = records[i].item.latest();
                     if (! item)
                         continue;
 
@@ -138,7 +138,7 @@ editor.once('load', function () {
     };
 
     // scaled
-    var onGizmoOffset = function (x, y, z) {
+    const onGizmoOffset = function (x, y, z) {
         for (let i = 0; i < items.length; i++) {
             if (items[i].child)
                 continue;
@@ -151,11 +151,11 @@ editor.once('load', function () {
         }
     };
 
-    var onRender = function () {
+    const onRender = function () {
         if (! app) return; // webgl not available
 
         if (gizmoMoving) {
-            var camera = editor.call('camera:current');
+            const camera = editor.call('camera:current');
 
             for (let i = 0; i < items.length; i++) {
                 if (items[i].child)
@@ -190,12 +190,12 @@ editor.once('load', function () {
                 }
             }
         } else {
-            var dirty = false;
+            let dirty = false;
             for (let i = 0; i < items.length; i++) {
                 if (! items[i].obj.entity)
                     continue;
 
-                var pos = items[i].obj.entity.getPosition();
+                const pos = items[i].obj.entity.getPosition();
                 if (pos.x !== items[i].pos[0] || pos.y !== items[i].pos[1] || pos.z !== items[i].pos[2]) {
                     dirty = true;
                     items[i].pos[0] = pos.x;
@@ -205,7 +205,7 @@ editor.once('load', function () {
             }
 
             if (dirty) {
-                var pos = getGizmoPosition();
+                const pos = getGizmoPosition();
                 editor.call('gizmo:scale:position', pos.x, pos.y, pos.z);
             }
         }
@@ -223,16 +223,16 @@ editor.once('load', function () {
         };
     });
 
-    var updateChildRelation = function () {
-        var itemIds = { };
+    const updateChildRelation = function () {
+        const itemIds = { };
         for (let i = 0; i < items.length; i++) {
             itemIds[items[i].obj.get('resource_id')] = items[i];
         }
 
         for (let i = 0; i < items.length; i++) {
-            var child = false;
-            var parent = items[i].obj.entity._parent;
-            var id = '';
+            let child = false;
+            let parent = items[i].obj.entity._parent;
+            let id = '';
             while (! child && parent) {
                 id = parent.getGuid();
                 if (itemIds[id]) {
@@ -247,11 +247,11 @@ editor.once('load', function () {
         }
     };
 
-    var updateGizmo = function () {
+    const updateGizmo = function () {
         if (! editor.call('permissions:write'))
             return;
 
-        var objects = editor.call('selector:items');
+        const objects = editor.call('selector:items');
 
         for (let i = 0; i < events.length; i++)
             events[i].unbind();
@@ -263,7 +263,7 @@ editor.once('load', function () {
                 if (! objects[i].entity)
                     continue;
 
-                var pos = objects[i].entity.getPosition();
+                const pos = objects[i].entity.getPosition();
 
                 items.push({
                     obj: objects[i],
@@ -274,13 +274,13 @@ editor.once('load', function () {
                 // position
                 events.push(objects[i].on('position:set', updateGizmoPosition));
                 // position.*
-                for (var n = 0; n < 3; n++)
+                for (let n = 0; n < 3; n++)
                     events.push(objects[i].on('position.' + n + ':set', updateGizmoPosition));
 
                 // rotation
                 events.push(objects[i].on('rotation:set', updateGizmoRotation));
                 // rotation.*
-                for (var n = 0; n < 3; n++)
+                for (let n = 0; n < 3; n++)
                     events.push(objects[i].on('rotation.' + n + ':set', updateGizmoRotation));
 
                 events.push(objects[i].on('parent:set', updateChildRelation));
@@ -291,7 +291,7 @@ editor.once('load', function () {
 
             updateChildRelation();
 
-            var rot = getGizmoRotation();
+            const rot = getGizmoRotation();
             editor.call('gizmo:scale:rotation', rot[0], rot[1], rot[2]);
 
             // gizmo start
@@ -302,7 +302,7 @@ editor.once('load', function () {
             events.push(editor.on('gizmo:scale:offset', onGizmoOffset));
 
             // position gizmo
-            var pos = getGizmoPosition();
+            const pos = getGizmoPosition();
             editor.call('gizmo:scale:position', pos.x, pos.y, pos.z);
             // show gizmo
             editor.call('gizmo:scale:toggle', true);
