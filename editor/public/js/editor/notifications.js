@@ -4,7 +4,7 @@ editor.once('load', function () {
     var TIMEOUT = 5000;
     var TIMEOUT_OVERLAP = 500;
     var last;
-    var logo = 'https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/platform/images/logo/playcanvas-logo-360.jpg';
+    var logo = 'https://playcanvas.com/static-assets/platform/images/logo/playcanvas-logo-360.jpg';
     var visible = ! document.hidden;
 
     document.addEventListener('visibilitychange', function () {

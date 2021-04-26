@@ -32,7 +32,7 @@ editor.once('load', function () {
 
     // top image
     const imgTop = new Image();
-    imgTop.src = 'https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/help-controls.png';
+    imgTop.src = 'https://playcanvas.com/static-assets/images/help-controls.png';
     imgTop.classList.add('top');
     imgTop.draggable = false;
     overlay.append(imgTop);

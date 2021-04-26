@@ -48,7 +48,7 @@ pc.script.createLoadingScreen(function (app) {
         splash.style.display = 'none';
 
         var logo = document.createElement('img');
-        logo.src = 'https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/images/play_text_252_white.png';
+        logo.src = 'https://playcanvas.com/static-assets/images/play_text_252_white.png';
         splash.appendChild(logo);
         logo.onload = function () {
             splash.style.display = 'block';
