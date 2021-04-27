@@ -6,7 +6,11 @@ editor.once('load', function () {
             editor.call('camera:add', entity.entity);
 
         entity.on('components.camera:set', function () {
-            editor.call('camera:add', entity.entity);
+            // wait a frame for camera to be added
+            // to the engine entity and then call camera:add
+            requestAnimationFrame(() => {
+                editor.call('camera:add', entity.entity);
+            });
         });
 
         entity.on('components.camera:unset', function () {

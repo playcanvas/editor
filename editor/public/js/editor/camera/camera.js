@@ -126,6 +126,7 @@ editor.once('load', function () {
 
             if (entity.camera) {
                 entity.camera.enabled = false;
+                editor.call('viewport:render');
             }
 
             editor.emit('camera:add', entity);

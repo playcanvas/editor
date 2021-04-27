@@ -107,6 +107,15 @@ editor.once('load', function () {
         }
     };
 
+    let frameRequest = null;
+    const deferUpdate = function () {
+        if (frameRequest) {
+            cancelAnimationFrame(frameRequest);
+        }
+
+        frameRequest = requestAnimationFrame(updateCameraState);
+    };
+
     btnPin.on('click', function (evt) {
         evt.stopPropagation();
 
@@ -172,7 +181,8 @@ editor.once('load', function () {
 
         if (type === 'entity' && items.length === 1) {
             selectedEntity = items[0];
-            events.push(selectedEntity.on('components.camera:set', updateCameraState));
+            // wait a frame before updating camera so that camera exists in the engine entity
+            events.push(selectedEntity.on('components.camera:set', deferUpdate));
             events.push(selectedEntity.on('components.camera:unset', updateCameraState));
             events.push(selectedEntity.on('destroy', updateCameraState));
         } else {
