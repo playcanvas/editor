@@ -200,9 +200,10 @@ editor.once('load', function () {
 
                 this.entity.setLocalScale(1, 1, 1);
             } else if (this.type === 'mesh') {
-                this.asset = collision.asset;
+                const isRender = !!collision.renderAsset;
+                this.asset = isRender ? collision.renderAsset : collision.asset;
                 this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
-                this.createWireframe(collision.asset);
+                this.createWireframe(this.asset, isRender);
                 if (! this.asset) {
                     this.entity.enabled = false;
                     this.entity.model.model = null;
@@ -243,16 +244,27 @@ editor.once('load', function () {
             case 'mesh':
                 this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
 
-                if (collision.asset !== this.asset) {
-                    this.asset = collision.asset;
-                    this.createWireframe(collision.asset);
+                // if the asset has changed
+                const isRender = !!collision.renderAsset;
+                const asset = isRender ? collision.renderAsset : collision.asset;
+                if (asset !== this.asset) {
+
+                    this.asset = asset;
+                    this.createWireframe(this.asset, isRender);
                     if (! this.asset) {
                         this.entity.enabled = false;
-                        this.entity.model.model = null;
+
+                        if (isRender) {
+                            this.entity.render.meshInstances = [];
+                        } else {
+                            this.entity.model.model = null;
+                        }
                         return;
                     }
                 }
 
+                // when model collision mesh gets clicked on again, the mesh instance of the model is selected
+                // Note: render does not have an equivalent of this and so this is not implemented
                 if (this.entity.model.model) {
                     const picking = ! visible && this._link.entity.model && this._link.entity.model.enabled && this._link.entity.model.type === 'asset' && this._link.entity.model.asset === collision.asset;
                     if (picking !== this.entity.model.model.__picking) {
@@ -285,19 +297,10 @@ editor.once('load', function () {
 
         this.color = null;
 
-        this.entity = new pc.Entity();
-        this.entity.__editor = true;
-        this.entity.addComponent('model', {
-            castShadows: false,
-            receiveShadows: false,
-            castShadowsLightmap: false,
-            layers: [layerFront.id, layerBack.id]
-        });
-
         // hack: override addModelToLayers to selectively put some
         // mesh instances to the front and others to the back layer depending
         // on the __useFrontLayer property
-        this.entity.model.addModelToLayers = function () {
+        const customAddMeshInstancesToLayers = function () {
             const frontMeshInstances = this.meshInstances.filter(function (mi) {
                 return mi.__useFrontLayer;
             });
@@ -309,12 +312,34 @@ editor.once('load', function () {
             layerFront.addMeshInstances(backMeshInstances);
         };
 
+        this.entity = new pc.Entity();
+        this.entity.__editor = true;
+
+        // model component
+        this.entity.addComponent('model', {
+            castShadows: false,
+            receiveShadows: false,
+            castShadowsLightmap: false,
+            layers: [layerFront.id, layerBack.id]
+        });
+        this.entity.model.addModelToLayers = customAddMeshInstancesToLayers;
+
+        // render component
+        this.entity.addComponent('render', {
+            castShadows: false,
+            receiveShadows: false,
+            castShadowsLightmap: false,
+            layers: [layerFront.id, layerBack.id]
+        });
+        this.entity.render.addToLayers = customAddMeshInstancesToLayers;
+
         this.entity._getEntity = function () {
             return self._link.entity;
         };
 
         container.addChild(this.entity);
     };
+
     // unlink
     Gizmo.prototype.unlink = function () {
         if (! app) return; // webgl not available
@@ -345,8 +370,9 @@ editor.once('load', function () {
 
         this.entity.destroy();
     };
+
     // create wireframe
-    Gizmo.prototype.createWireframe = function (asset) {
+    Gizmo.prototype.createWireframe = function (asset, isRender) {
         if (! app) return; // webgl not available
 
         asset = app.assets.get(asset);
@@ -354,7 +380,11 @@ editor.once('load', function () {
             return null;
 
         if (asset.resource) {
-            this.entity.model.model = createModelCopy(asset.resource, this.color);
+            if (isRender) {
+                this.entity.render.meshInstances = createRenderCopy(asset.resource, this.color);
+            } else {
+                this.entity.model.model = createModelCopy(asset.resource, this.color);
+            }
         } else {
             const self = this;
 
@@ -362,7 +392,11 @@ editor.once('load', function () {
                 if (self.asset !== asset.id)
                     return;
 
-                self.entity.model.model = createModelCopy(asset.resource, this.color);
+                if (isRender) {
+                    this.entity.render.meshInstances = createRenderCopy(asset.resource, this.color);
+                } else {
+                    self.entity.model.model = createModelCopy(asset.resource, this.color);
+                }
             }));
         }
     };
@@ -883,59 +917,72 @@ void main(void)
         models['capsule-z'].graph.setLocalScale(2.0, 0.5, 2.0);
     });
 
-    const createModelCopy = function (resource, color) {
-        const model = resource.clone();
+    // prepares mesh instances to be rendered as collision meshes
+    var prepareMeshInstances = function (meshInstances, color) {
 
         const meshesExtra = [];
 
-        for (let i = 0; i < model.meshInstances.length; i++) {
-            model.meshInstances[i].material = materialDefault.clone();
-            model.meshInstances[i].material.updateShader = materialDefault.updateShader;
-            model.meshInstances[i].material.color.set(color[0], color[1], color[2], alphaFront);
-            model.meshInstances[i].material.update();
-            // model.meshInstances[i].layer = 12;
-            model.meshInstances[i].__editor = true;
-            model.meshInstances[i].__collision = true;
-            model.meshInstances[i].castShadow = false;
-            // model.meshInstances[i].castLightmapShadow = false;
-            model.meshInstances[i].receiveShadow = false;
-            model.meshInstances[i].setParameter('offset', 0);
-            // model.meshInstances[i].updateKey();
+        for (let i = 0; i < meshInstances.length; i++) {
 
-            const node = model.meshInstances[i].node;
-            const mesh = model.meshInstances[i].mesh;
+            // clone original instance and set it up
+            meshInstances[i].material = materialDefault.clone();
+            meshInstances[i].material.updateShader = materialDefault.updateShader;
+            meshInstances[i].material.color.set(color[0], color[1], color[2], alphaFront);
+            meshInstances[i].material.update();
+            meshInstances[i].__editor = true;
+            meshInstances[i].__collision = true;
+            meshInstances[i].castShadow = false;
+            meshInstances[i].receiveShadow = false;
+            meshInstances[i].setParameter('offset', 0);
 
-            const meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBehind.clone());
+            const node = meshInstances[i].node;
+            const mesh = meshInstances[i].mesh;
+
+            // additional instance for behind the mesh
+            const meshInstanceBehind = new pc.MeshInstance(mesh, materialBehind.clone(), node);
             meshInstanceBehind.material.updateShader = materialBehind.updateShader;
             meshInstanceBehind.material.color.set(color[0], color[1], color[2], alphaBehind);
             meshInstanceBehind.material.update();
             meshInstanceBehind.setParameter('offset', 0);
             meshInstanceBehind.__editor = true;
             meshInstanceBehind.pick = false;
-            // meshInstanceBehind.layer = 2;
             meshInstanceBehind.drawToDepth = false;
             meshInstanceBehind.castShadow = false;
-            // meshInstanceBehind.castLightmapShadow = false;
             meshInstanceBehind.receiveShadow = false;
-            // meshInstanceBehind.updateKey();
             meshInstanceBehind.__useFrontLayer = true;
 
-            // meshInstanceOccluder
-            const meshInstanceOccluder = new pc.MeshInstance(node, mesh, materialOccluder);
+            // additional instance for meshInstanceOccluder
+            const meshInstanceOccluder = new pc.MeshInstance(mesh, materialOccluder, node);
             meshInstanceOccluder.setParameter('offset', 0);
             meshInstanceOccluder.__editor = true;
             meshInstanceOccluder.pick = false;
-            // meshInstanceOccluder.layer = 9;
             meshInstanceOccluder.castShadow = false;
-            // meshInstanceOccluder.castLightmapShadow = false;
             meshInstanceOccluder.receiveShadow = false;
-            // meshInstanceOccluder.updateKey();
 
             meshesExtra.push(meshInstanceBehind, meshInstanceOccluder);
         }
 
-        model.meshInstances = model.meshInstances.concat(meshesExtra);
+        return meshInstances.concat(meshesExtra);
+    };
 
+    // returns an array of meshInstances
+    var createRenderCopy = function (resource, color) {
+        let meshInstances = [];
+        const meshes = resource.meshes;
+        for (let i = 0; i < meshes.length; i++) {
+            const material = materialDefault.clone();
+            const meshInstance = new pc.MeshInstance(meshes[i], material);
+            meshInstances.push(meshInstance);
+        }
+
+        meshInstances = prepareMeshInstances(meshInstances, color);
+        return meshInstances;
+    };
+
+    var createModelCopy = function (resource, color) {
+        const model = resource.clone();
+        const meshInstances = prepareMeshInstances(model.meshInstances, color);
+        model.meshInstances = meshInstances;
         return model;
     };
 
