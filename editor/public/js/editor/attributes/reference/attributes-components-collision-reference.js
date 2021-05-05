@@ -13,6 +13,11 @@ editor.once('load', function () {
         description: 'The model asset that will be used as a source for the triangle-based collision mesh.',
         url: 'http://developer.playcanvas.com/api/pc.CollisionComponent.html#asset'
     }, {
+        title: 'renderAsset',
+        subTitle: '{Number}',
+        description: 'The render asset that will be used as a source for the triangle-based collision mesh.',
+        url: 'http://developer.playcanvas.com/api/pc.CollisionComponent.html#renderAsset'
+    }, {
         title: 'axis',
         subTitle: '{Number}',
         description: 'Aligns the capsule/cylinder with the local-space X, Y or Z axis of the entity',

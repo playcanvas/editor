@@ -66,11 +66,18 @@ Object.assign(pcui, (function () {
             }]
         }
     }, {
-        label: 'Asset',
+        label: 'Model Asset',
         path: 'components.collision.asset',
         type: 'asset',
         args: {
             assetType: 'model'
+        }
+    }, {
+        label: 'Render Asset',
+        path: 'components.collision.renderAsset',
+        type: 'asset',
+        args: {
+            assetType: 'render'
         }
     }];
 
@@ -95,6 +102,8 @@ Object.assign(pcui, (function () {
             this.append(this._attributesInspector);
 
             this._field('type').on('change', this._toggleFields.bind(this));
+            this._field('asset').on('change', this._toggleFields.bind(this));
+            this._field('renderAsset').on('change', this._toggleFields.bind(this));
 
             this._handleTypeChange(this._field('type'));
 
@@ -174,7 +183,17 @@ Object.assign(pcui, (function () {
             this._field('radius').parent.hidden = ['sphere', 'capsule', 'cylinder', 'cone'].indexOf(fieldType.value) === -1;
             this._field('height').parent.hidden = ['capsule', 'cylinder', 'cone'].indexOf(fieldType.value) === -1;
             this._field('axis').parent.hidden = ['capsule', 'cylinder', 'cone'].indexOf(fieldType.value) === -1;
-            this._field('asset').hidden = fieldType.value !== 'mesh';
+
+            const modelAsset = this._field('asset').value;
+            const renderAsset = this._field('renderAsset').value;
+
+            this._field('asset').hidden = fieldType.value !== 'mesh' || !!renderAsset;
+
+            if (editor.call('users:hasFlag', 'hasContainerAssets')) {
+                this._field('renderAsset').hidden = fieldType.value !== 'mesh' || !!modelAsset;
+            } else {
+                this._field('renderAsset').hidden = true;
+            }
         }
 
         link(entities) {

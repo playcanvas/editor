@@ -38,6 +38,7 @@ editor.once('load', function () {
             'components.model.materialAsset': true,
             'components.model.asset': true,
             'components.collision.asset': true,
+            'components.collision.renderAsset': true,
             'components.particlesystem.colorMapAsset': true,
             'components.particlesystem.normalMapAsset': true,
             'components.particlesystem.mesh': true,
