@@ -205,7 +205,9 @@ editor.once('load', function () {
         }
 
         assetsPanel.suspendFiltering = false;
+        assetsPanel.validateAssetsFn = args.validateAssetsFn;
         assetsPanel.filter();
+        assetsPanel.validateAssetsFn = null;
 
         // show asset panel in front
         assetsPanel.style.zIndex = 102;

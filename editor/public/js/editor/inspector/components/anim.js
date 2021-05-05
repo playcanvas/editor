@@ -121,7 +121,11 @@ Object.assign(pcui, (function () {
                             assets: this._assets,
                             binding: new pcui.BindingTwoWay({
                                 history: this._args.history
-                            })
+                            }),
+                            validateAssetFn: (asset) => {
+                                const filename = asset.get('file.filename') || '';
+                                return !!filename.toLowerCase().match(/.glb$/);
+                            }
                         });
                         const statePanel = new pcui.Panel({
                             collapsible: true,

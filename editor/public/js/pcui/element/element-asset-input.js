@@ -33,6 +33,7 @@ Object.assign(pcui, (function () {
          * the default Editor asset picker will be used.
          * @param {Function} [args.selectAssetFn] A function that selects the asset id passed as a parameter. If none is provided the default
          * Editor selector will be used.
+         * @param {Function} [args.validateAssetFn] A function that validates whether an asset is selectable by this asset input
          */
         constructor(args) {
             args = Object.assign({}, args);
@@ -102,6 +103,7 @@ Object.assign(pcui, (function () {
             this._assetType = args.assetType;
             this._pickAssetFn = args.pickAssetFn || this._defaultPickAssetFn.bind(this);
             this._selectAssetFn = args.selectAssetFn || this._defaultSelectAssetFn.bind(this);
+            this._validateAssetFn = args.validateAssetFn;
 
             this.dragEnterFn = args.dragEnterFn;
             this.dragLeaveFn = args.dragLeaveFn;
@@ -134,7 +136,7 @@ Object.assign(pcui, (function () {
                         parseInt(dropData.id, 10) !== this.value) {
 
                         const asset = this._assets.get(dropData.id);
-                        return !!asset && !asset.get('source');
+                        return !!asset && !asset.get('source') && this.validateAsset(asset);
                     }
                 },
                 drop: (type, dropData) => {
@@ -175,7 +177,8 @@ Object.assign(pcui, (function () {
             // TODO: use less global functions here
             editor.call('picker:asset', {
                 type: this._assetType || '*',
-                currentAsset: this._assets.get(this.value)
+                currentAsset: this._assets.get(this.value),
+                validateAssetsFn: this._validateAssetFn
             });
 
             let evt = editor.once('picker:asset', (asset) => {
@@ -292,6 +295,10 @@ Object.assign(pcui, (function () {
             this._dragLeaveFn = null;
 
             super.destroy();
+        }
+
+        validateAsset(asset) {
+            return this._validateAssetFn ? this._validateAssetFn(asset) : true;
         }
 
         get text() {
