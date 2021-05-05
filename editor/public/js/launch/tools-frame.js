@@ -485,14 +485,14 @@ editor.once('load', function() {
     cameras.addEventListener('change', function() {
         if (cameras.value === 'none') {
             rowCameraSkip.style.display = 'none';
-            pc.skipRenderCamera = null;
+            pc.ForwardRenderer.skipRenderCamera = null;
         } else {
             rowCameraSkip.style.display = '';
 
             var entity = app.root.findByGuid(cameras.value);
             if (entity && entity.camera) {
-                pc.skipRenderCamera = entity.camera.camera;
-                pc.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
+                pc.ForwardRenderer.skipRenderCamera = entity.camera.camera;
+                pc.ForwardRenderer.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
             }
         }
     });
@@ -518,7 +518,7 @@ editor.once('load', function() {
     cameraSkipFramesLeft0.textContent = '|<';
     cameraSkipFramesLeft0.addEventListener('click', function() {
         cameraSkipFrames.value = '0';
-        pc.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
+        pc.ForwardRenderer.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
     });
     rowCameraSkip.appendChild(cameraSkipFramesLeft0);
 
@@ -527,7 +527,7 @@ editor.once('load', function() {
     cameraSkipFramesLeft10.textContent = '<<';
     cameraSkipFramesLeft10.addEventListener('click', function() {
         cameraSkipFrames.value = Math.max(0, (parseInt(cameraSkipFrames.value, 10) || 0) - 10);
-        pc.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
+        pc.ForwardRenderer.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
     });
     rowCameraSkip.appendChild(cameraSkipFramesLeft10);
 
@@ -536,7 +536,7 @@ editor.once('load', function() {
     cameraSkipFramesLeft1.textContent = '<';
     cameraSkipFramesLeft1.addEventListener('click', function() {
         cameraSkipFrames.value = Math.max(0, (parseInt(cameraSkipFrames.value, 10) || 0) - 1);
-        pc.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
+        pc.ForwardRenderer.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
     });
     rowCameraSkip.appendChild(cameraSkipFramesLeft1);
 
@@ -549,8 +549,7 @@ editor.once('load', function() {
         evt.stopPropagation();
     });
     cameraSkipFrames.addEventListener('change', function() {
-        pc.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
-        pc.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
+        pc.ForwardRenderer.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
     }, false);
     cameraSkipFrames.addEventListener('keydown', function(evt) {
         var inc = 0;
@@ -568,7 +567,7 @@ editor.once('load', function() {
         evt.stopPropagation();
 
         cameraSkipFrames.value = Math.max(0, Math.min(Number.MAX_SAFE_INTEGER, (parseInt(cameraSkipFrames.value, 10) || 0) + inc));
-        pc.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
+        pc.ForwardRenderer.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
     });
 
     var cameraSkipFramesRight1 = document.createElement('div');
@@ -576,7 +575,7 @@ editor.once('load', function() {
     cameraSkipFramesRight1.textContent = '>';
     cameraSkipFramesRight1.addEventListener('click', function() {
         cameraSkipFrames.value = Math.min(Number.MAX_SAFE_INTEGER, (parseInt(cameraSkipFrames.value, 10) || 0) + 1);
-        pc.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
+        pc.ForwardRenderer.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
     });
     rowCameraSkip.appendChild(cameraSkipFramesRight1);
 
@@ -585,7 +584,7 @@ editor.once('load', function() {
     cameraSkipFramesRight10.textContent = '>>';
     cameraSkipFramesRight10.addEventListener('click', function() {
         cameraSkipFrames.value = Math.min(Number.MAX_SAFE_INTEGER, (parseInt(cameraSkipFrames.value, 10) || 0) + 10);
-        pc.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
+        pc.ForwardRenderer.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
     });
     rowCameraSkip.appendChild(cameraSkipFramesRight10);
 
