@@ -20,7 +20,7 @@ editor.once('load', function () {
     }, {
         title: 'rootBone',
         subTitle: '{pc.Entity}',
-        description: 'The entity that this anim component should use as the root of the animation hierarchy.',
+        description: 'The anim state graph asset that will control the animation playback for this entity.',
         url: 'http://developer.playcanvas.com/api/pc.AnimComponent.html#rootBone'
     }, {
         title: 'stateGraphAsset',

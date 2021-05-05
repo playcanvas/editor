@@ -179,14 +179,6 @@ editor.once('load', function () {
             }
         }
 
-        // filter out anim (which is currently flagged)
-        if (!editor.call('users:hasFlag', 'hasAnimComponent')) {
-            idx = result.indexOf('anim');
-            if (idx !== -1) {
-                result.splice(idx, 1);
-            }
-        }
-
         // filter out render component
         if (!editor.call('users:hasFlag', 'hasContainerAssets')) {
             idx = result.indexOf('render');

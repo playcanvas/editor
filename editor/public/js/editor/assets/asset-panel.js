@@ -1970,6 +1970,10 @@ Object.assign(pcui, (function () {
                 return false;
             }
 
+            if (this.validateAssetsFn && !this.validateAssetsFn(element.asset)) {
+                return false;
+            }
+
             const name = element.asset.get('name');
 
             const searchQuery = this._searchInput.value;

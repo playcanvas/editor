@@ -106,15 +106,12 @@ editor.once('load', function () {
         'material': 'Material',
         'script': 'Script',
         'shader': 'Shader',
-        'text': 'Text'
+        'text': 'Text',
+        'animstategraph': 'Anim State Graph'
     };
 
     if (editor.call('users:hasFlag', 'hasBundles')) {
         assets.bundle = 'Asset Bundle';
-    }
-
-    if (editor.call('users:hasFlag', 'hasAnimComponent')) {
-        assets.animstategraph = 'Anim State Graph';
     }
 
     function isCurrentFolderLegacyScripts() {
