@@ -167,6 +167,160 @@ Object.assign(pcui, (function () {
         return result;
     }
 
+    class SpriteClipInspector extends pcui.Panel {
+        constructor(args) {
+            args = Object.assign({
+                collapsible: true,
+                headerText: args.clipName
+            }, args);
+
+            super(args);
+
+            this.class.add(CLASS_CLIP);
+
+            this._entities = null;
+
+            this._spriteInspector = args.spriteInspector;
+            this._templateOverridesInspector = args.templateOverridesInspector;
+
+            this._clipKeys = args.clipKeys;
+
+            this._attrs = utils.deepCopy(CLIP_ATTRIBUTES);
+            // replace '$' with the actual clip key
+            this._attrs.forEach(attr => {
+                attr.paths = args.clipKeys.map(key => attr.path.replace('$', key));
+                delete attr.path;
+            });
+
+            this._inspector = new pcui.AttributesInspector({
+                attributes: this._attrs,
+                assets: args.assets,
+                history: args.history,
+                templateOverridesInspector: this._templateOverridesInspector
+            });
+
+            this.append(this._inspector);
+
+            if (this._templateOverridesInspector) {
+                this._templateOverridesInspector.registerElementForPath(`components.sprite.clips.${args.clipKeys[0]}`, this);
+            }
+
+            const fieldName = this._inspector.getField(this._getPathTo('name'));
+            fieldName.on('change', this._onClipNameChange.bind(this));
+        }
+
+        _getPathTo(field) {
+            return `components.sprite.clips.${this._clipKeys[0]}.${field}`;
+        }
+
+        _onClipNameChange(value) {
+            this.headerText = value;
+        }
+
+        _onClickRemove(evt) {
+            super._onClickRemove(evt);
+
+            let prev = {};
+
+            // copy for redo / undo
+            const clipKeys = this._clipKeys.slice();
+            const entities = this._entities.slice();
+
+            const redo = () => {
+                prev = {};
+
+                entities.forEach((e, i) => {
+                    const entity = e.latest();
+                    if (!entity || !entity.has('components.sprite')) return;
+
+                    const path = `components.sprite.clips.${clipKeys[i]}`;
+                    if (!entity.has(path)) return;
+
+                    const clip = entity.get(path);
+                    const autoPlayClip = entity.get('components.sprite.autoPlayClip');
+                    prev[e.get('resource_id')] = { clip, autoPlayClip };
+
+                    const history = entity.history.enabled;
+                    entity.history.enabled = false;
+
+                    entity.unset(path);
+
+                    // if this is the clip to be autoPlayed then unset it
+                    if (autoPlayClip === clip.name) {
+                        entity.set('components.sprite.autoPlayClip', null);
+                    }
+
+                    entity.history.enabled = history;
+                });
+            };
+
+            const undo = () => {
+                entities.forEach((e, i) => {
+                    const entity = e.latest();
+                    if (!entity || !entity.has('components.sprite') || !prev[e.get('resource_id')]) return;
+
+                    const record = prev[e.get('resource_id')];
+                    if (!record) return;
+
+                    const history = entity.history.enabled;
+                    entity.history.enabled = false;
+                    entity.set(`components.sprite.clips.${clipKeys[i]}`, record.clip);
+                    if (record.autoPlayClip === record.clip.name) {
+                        entity.set('components.sprite.autoPlayClip', record.autoPlayClip);
+                    }
+                    entity.history.enabled = history;
+                });
+            };
+
+            editor.call('history:add', {
+                name: 'delete entities.components.sprite.clips',
+                undo: undo,
+                redo: redo
+            });
+
+            redo();
+        }
+
+        link(entities) {
+            this.unlink();
+
+            this._entities = entities;
+
+            this._inspector.link(entities);
+
+            const fieldName = this._inspector.getField(this._getPathTo('name'));
+
+            // if the name already exists show error
+            fieldName.onValidate = (value) => {
+                if (!value) {
+                    return false;
+                }
+
+                const groupedClips = getClipsGroupedByName(entities);
+                if (groupedClips[value]) {
+                    return false;
+                }
+
+                return true;
+            };
+        }
+
+        unlink() {
+            this._entities = null;
+            this._inspector.unlink();
+        }
+
+        destroy() {
+            if (this._destroyed) return;
+
+            if (this._templateOverridesInspector) {
+                this._templateOverridesInspector.unregisterElementForPath(`components.sprite.clips.${this._clipKeys[0]}`);
+            }
+
+            super.destroy();
+        }
+    }
+
     class SpriteComponentInspector extends pcui.ComponentInspector {
         constructor(args) {
             args = Object.assign({}, args);
@@ -495,160 +649,6 @@ Object.assign(pcui, (function () {
             this._clipInspectors = {};
 
             this._btnAddClip.hidden = true;
-        }
-    }
-
-    class SpriteClipInspector extends pcui.Panel {
-        constructor(args) {
-            args = Object.assign({
-                collapsible: true,
-                headerText: args.clipName
-            }, args);
-
-            super(args);
-
-            this.class.add(CLASS_CLIP);
-
-            this._entities = null;
-
-            this._spriteInspector = args.spriteInspector;
-            this._templateOverridesInspector = args.templateOverridesInspector;
-
-            this._clipKeys = args.clipKeys;
-
-            this._attrs = utils.deepCopy(CLIP_ATTRIBUTES);
-            // replace '$' with the actual clip key
-            this._attrs.forEach(attr => {
-                attr.paths = args.clipKeys.map(key => attr.path.replace('$', key));
-                delete attr.path;
-            });
-
-            this._inspector = new pcui.AttributesInspector({
-                attributes: this._attrs,
-                assets: args.assets,
-                history: args.history,
-                templateOverridesInspector: this._templateOverridesInspector
-            });
-
-            this.append(this._inspector);
-
-            if (this._templateOverridesInspector) {
-                this._templateOverridesInspector.registerElementForPath(`components.sprite.clips.${args.clipKeys[0]}`, this);
-            }
-
-            const fieldName = this._inspector.getField(this._getPathTo('name'));
-            fieldName.on('change', this._onClipNameChange.bind(this));
-        }
-
-        _getPathTo(field) {
-            return `components.sprite.clips.${this._clipKeys[0]}.${field}`;
-        }
-
-        _onClipNameChange(value) {
-            this.headerText = value;
-        }
-
-        _onClickRemove(evt) {
-            super._onClickRemove(evt);
-
-            let prev = {};
-
-            // copy for redo / undo
-            const clipKeys = this._clipKeys.slice();
-            const entities = this._entities.slice();
-
-            const redo = () => {
-                prev = {};
-
-                entities.forEach((e, i) => {
-                    const entity = e.latest();
-                    if (!entity || !entity.has('components.sprite')) return;
-
-                    const path = `components.sprite.clips.${clipKeys[i]}`;
-                    if (!entity.has(path)) return;
-
-                    const clip = entity.get(path);
-                    const autoPlayClip = entity.get('components.sprite.autoPlayClip');
-                    prev[e.get('resource_id')] = { clip, autoPlayClip };
-
-                    const history = entity.history.enabled;
-                    entity.history.enabled = false;
-
-                    entity.unset(path);
-
-                    // if this is the clip to be autoPlayed then unset it
-                    if (autoPlayClip === clip.name) {
-                        entity.set('components.sprite.autoPlayClip', null);
-                    }
-
-                    entity.history.enabled = history;
-                });
-            };
-
-            const undo = () => {
-                entities.forEach((e, i) => {
-                    const entity = e.latest();
-                    if (!entity || !entity.has('components.sprite') || !prev[e.get('resource_id')]) return;
-
-                    const record = prev[e.get('resource_id')];
-                    if (!record) return;
-
-                    const history = entity.history.enabled;
-                    entity.history.enabled = false;
-                    entity.set(`components.sprite.clips.${clipKeys[i]}`, record.clip);
-                    if (record.autoPlayClip === record.clip.name) {
-                        entity.set('components.sprite.autoPlayClip', record.autoPlayClip);
-                    }
-                    entity.history.enabled = history;
-                });
-            };
-
-            editor.call('history:add', {
-                name: 'delete entities.components.sprite.clips',
-                undo: undo,
-                redo: redo
-            });
-
-            redo();
-        }
-
-        link(entities) {
-            this.unlink();
-
-            this._entities = entities;
-
-            this._inspector.link(entities);
-
-            const fieldName = this._inspector.getField(this._getPathTo('name'));
-
-            // if the name already exists show error
-            fieldName.onValidate = (value) => {
-                if (!value) {
-                    return false;
-                }
-
-                const groupedClips = getClipsGroupedByName(entities);
-                if (groupedClips[value]) {
-                    return false;
-                }
-
-                return true;
-            };
-        }
-
-        unlink() {
-            this._entities = null;
-            this._inspector.unlink();
-        }
-
-        destroy() {
-            if (this._destroyed) return;
-
-            if (this._templateOverridesInspector) {
-                this._templateOverridesInspector.unregisterElementForPath(`components.sprite.clips.${this._clipKeys[0]}`);
-            }
-
-            super.destroy();
         }
     }
 

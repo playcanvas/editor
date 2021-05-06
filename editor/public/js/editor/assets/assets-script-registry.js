@@ -19,6 +19,82 @@ editor.once('load', function () {
     var scriptsPrimary = {};
 
 
+    var primaryScriptSet = function (asset, script) {
+        if (asset === null && scriptsPrimary[script]) {
+            // unset
+            asset = scriptsPrimary[script];
+            delete scriptsPrimary[script];
+            editor.emit('assets:scripts:primary:unset', asset, script);
+            editor.emit('assets[' + asset.get('id') + ']:scripts:primary:unset', script);
+            editor.emit('assets:scripts[' + script + ']:primary:unset', asset);
+            editor.emit('assets[' + asset.get('id') + ']:scripts[' + script + ']:primary:unset');
+        } else if (asset && asset.get('preload') && (!scriptsPrimary[script] || scriptsPrimary[script] !== asset)) {
+            // set
+            scriptsPrimary[script] = asset;
+            editor.emit('assets:scripts:primary:set', asset, script);
+            editor.emit('assets[' + asset.get('id') + ']:scripts:primary:set', script);
+            editor.emit('assets:scripts[' + script + ']:primary:set', asset);
+            editor.emit('assets[' + asset.get('id') + ']:scripts[' + script + ']:primary:set');
+        }
+    };
+
+    var checkCollisions = function (asset, script) {
+        var collides = [];
+
+        if (collisionScripts[script]) {
+            for (const key in collisionScripts[script]) {
+                if (!collisionScripts[script].hasOwnProperty(key))
+                    continue;
+
+                if (collisionScripts[script][key].get('preload'))
+                    collides.push(collisionScripts[script][key]);
+            }
+        }
+
+        if (collides.length > 1) {
+            // collision occurs
+            if (!collisionStates[script])
+                collisionStates[script] = {};
+
+            for (let i = 0; i < collides.length; i++) {
+                var key = collides[i].get('id');
+                if (collisionStates[script][key])
+                    continue;
+
+                collisionStates[script][key] = collides[i];
+                editor.emit('assets:scripts:collide', collides[i], script);
+                editor.emit('assets[' + key + ']:scripts:collide', script);
+                editor.emit('assets:scripts[' + script + ']:collide', collides[i]);
+                editor.emit('assets[' + key + ']:scripts[' + script + ']:collide');
+            }
+
+            primaryScriptSet(null, script);
+        } else {
+            // no collision
+            if (collisionStates[script]) {
+                for (const key in collisionStates[script]) {
+                    if (!collisionStates[script].hasOwnProperty(key))
+                        continue;
+
+                    editor.emit('assets:scripts:resolve', collisionStates[script][key], script);
+                    editor.emit('assets[' + key + ']:scripts:resolve', script);
+                    editor.emit('assets:scripts[' + script + ']:resolve', collisionStates[script][key]);
+                    editor.emit('assets[' + key + ']:scripts[' + script + ']:resolve');
+                }
+
+                delete collisionStates[script];
+            }
+
+            if (collides.length === 1) {
+                primaryScriptSet(collides[0], script);
+            } else if (asset && asset.get('preload')) {
+                primaryScriptSet(asset, script);
+            } else {
+                primaryScriptSet(null, script);
+            }
+        }
+    };
+
     var addScript = function (asset, script) {
         var assetId = asset.get('id');
 
@@ -98,87 +174,9 @@ editor.once('load', function () {
         // console.log('assets:scripts:remove', asset.json(), script);
     };
 
-    var checkCollisions = function (asset, script) {
-        var collides = [];
-
-        if (collisionScripts[script]) {
-            for (const key in collisionScripts[script]) {
-                if (!collisionScripts[script].hasOwnProperty(key))
-                    continue;
-
-                if (collisionScripts[script][key].get('preload'))
-                    collides.push(collisionScripts[script][key]);
-            }
-        }
-
-        if (collides.length > 1) {
-            // collision occurs
-            if (!collisionStates[script])
-                collisionStates[script] = {};
-
-            for (let i = 0; i < collides.length; i++) {
-                var key = collides[i].get('id');
-                if (collisionStates[script][key])
-                    continue;
-
-                collisionStates[script][key] = collides[i];
-                editor.emit('assets:scripts:collide', collides[i], script);
-                editor.emit('assets[' + key + ']:scripts:collide', script);
-                editor.emit('assets:scripts[' + script + ']:collide', collides[i]);
-                editor.emit('assets[' + key + ']:scripts[' + script + ']:collide');
-            }
-
-            primaryScriptSet(null, script);
-        } else {
-            // no collision
-            if (collisionStates[script]) {
-                for (const key in collisionStates[script]) {
-                    if (!collisionStates[script].hasOwnProperty(key))
-                        continue;
-
-                    editor.emit('assets:scripts:resolve', collisionStates[script][key], script);
-                    editor.emit('assets[' + key + ']:scripts:resolve', script);
-                    editor.emit('assets:scripts[' + script + ']:resolve', collisionStates[script][key]);
-                    editor.emit('assets[' + key + ']:scripts[' + script + ']:resolve');
-                }
-
-                delete collisionStates[script];
-            }
-
-            if (collides.length === 1) {
-                primaryScriptSet(collides[0], script);
-            } else if (asset && asset.get('preload')) {
-                primaryScriptSet(asset, script);
-            } else {
-                primaryScriptSet(null, script);
-            }
-        }
-    };
-
-    var primaryScriptSet = function (asset, script) {
-        if (asset === null && scriptsPrimary[script]) {
-            // unset
-            asset = scriptsPrimary[script];
-            delete scriptsPrimary[script];
-            editor.emit('assets:scripts:primary:unset', asset, script);
-            editor.emit('assets[' + asset.get('id') + ']:scripts:primary:unset', script);
-            editor.emit('assets:scripts[' + script + ']:primary:unset', asset);
-            editor.emit('assets[' + asset.get('id') + ']:scripts[' + script + ']:primary:unset');
-        } else if (asset && asset.get('preload') && (!scriptsPrimary[script] || scriptsPrimary[script] !== asset)) {
-            // set
-            scriptsPrimary[script] = asset;
-            editor.emit('assets:scripts:primary:set', asset, script);
-            editor.emit('assets[' + asset.get('id') + ']:scripts:primary:set', script);
-            editor.emit('assets:scripts[' + script + ']:primary:set', asset);
-            editor.emit('assets[' + asset.get('id') + ']:scripts[' + script + ']:primary:set');
-        }
-    };
-
     editor.on('assets:add', function (asset) {
         if (asset.get('type') !== 'script')
             return;
-
-        var assetId = asset.get('id');
 
         // index scripts
         var scripts = asset.get('data.scripts');

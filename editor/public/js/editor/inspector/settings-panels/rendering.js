@@ -1,9 +1,6 @@
 Object.assign(pcui, (function () {
     'use strict';
 
-    const CLASS_ROOT = 'rendering-settings-panel';
-    const CLASS_DIVIDER = CLASS_ROOT + '-divider';
-
     const ATTRIBUTES = [
         {
             observer: 'sceneSettings',

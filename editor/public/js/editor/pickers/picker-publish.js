@@ -7,7 +7,7 @@ editor.once('load', function () {
     panel.flex = true;
 
     // register panel with project popup
-    var panelButton = editor.call('picker:project:registerMenu', 'publish', 'Publish', panel);
+    editor.call('picker:project:registerMenu', 'publish', 'Publish', panel);
 
     // hide button if the user doesn't have the right permissions
     if (! editor.call('permissions:read')) {

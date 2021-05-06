@@ -9,17 +9,6 @@ editor.once('load', function () {
     var sceneSettingsLoaded = false;
     var updating;
 
-    // queue settings apply
-    var queueApplySettings = function () {
-        if (! sceneSettingsLoaded || updating || ! assetsLoaded)
-            return;
-
-        updating = true;
-
-        editor.call('viewport:render');
-        editor.once('viewport:update', applySettings);
-    };
-
     // apply settings
     var applySettings = function () {
         if (! app) return;
@@ -38,6 +27,17 @@ editor.once('load', function () {
         }
 
         editor.call('viewport:render');
+    };
+
+    // queue settings apply
+    var queueApplySettings = function () {
+        if (! sceneSettingsLoaded || updating || ! assetsLoaded)
+            return;
+
+        updating = true;
+
+        editor.call('viewport:render');
+        editor.once('viewport:update', applySettings);
     };
 
     // on settings change

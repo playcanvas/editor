@@ -256,7 +256,6 @@ editor.once('load', function () {
             if (currentFolder && currentFolder.get)
                 path = currentFolder.get('path').concat(parseInt(currentFolder.get('id'), 10));
 
-            var source = false;
             var ext = files[i].name.split('.');
             if (ext.length === 1)
                 continue;

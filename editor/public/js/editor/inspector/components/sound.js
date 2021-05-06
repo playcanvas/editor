@@ -147,6 +147,106 @@ Object.assign(pcui, (function () {
 
     const CLASS_SLOT = 'sound-component-inspector-slot';
 
+    class SoundSlotInspector extends pcui.Panel {
+        constructor(args) {
+            args = Object.assign({
+                headerText: args.slot.name || 'New Slot',
+                collapsible: true
+            }, args);
+
+            super(args);
+
+            this.class.add(CLASS_SLOT);
+
+            this._entities = null;
+            this._slotEvents = [];
+
+            this._templateOverridesInspector = args.templateOverridesInspector;
+
+            this._slotKey = args.slotKey;
+
+            this._attrs = utils.deepCopy(SLOT_ATTRIBUTES);
+            // replace '$' with the actual slot key
+            this._attrs.forEach(attr => {
+                attr.path = attr.path.replace('$', args.slotKey);
+            });
+
+            this._inspector = new pcui.AttributesInspector({
+                attributes: this._attrs,
+                assets: args.assets,
+                history: args.history,
+                templateOverridesInspector: this._templateOverridesInspector
+            });
+
+            this.append(this._inspector);
+
+            if (this._templateOverridesInspector) {
+                this._templateOverridesInspector.registerElementForPath(`components.sound.slots.${this._slotKey}`, this);
+            }
+
+            const fieldName = this._inspector.getField(this._getPathTo('name'));
+            fieldName.on('change', value => {
+                this.headerText = value;
+            });
+        }
+
+        _getPathTo(field) {
+            return `components.sound.slots.${this._slotKey}.${field}`;
+        }
+
+        _onClickRemove(evt) {
+            super._onClickRemove(evt);
+            if (this._entities && this._entities.length) {
+                this._entities[0].unset(`components.sound.slots.${this._slotKey}`);
+            }
+        }
+
+        link(entities) {
+            this.unlink();
+
+            this._entities = entities;
+
+            this._inspector.link(entities);
+
+            const fieldName = this._inspector.getField(this._getPathTo('name'));
+
+            // if the name already exists show error
+            fieldName.onValidate = (value) => {
+                if (!value) return false;
+
+                const slots = entities[0].get('components.sound.slots');
+                for (const key in slots) {
+                    if (slots[key].name === value) {
+                        return false;
+                    }
+                }
+
+                return true;
+            };
+        }
+
+        unlink() {
+            if (!this._entities) return;
+
+            this._entities = null;
+
+            this._slotEvents.forEach(e => e.unbind());
+            this._slotEvents.length = 0;
+
+            this._inspector.unlink();
+        }
+
+        destroy() {
+            if (this._destroyed) return;
+
+            if (this._templateOverridesInspector) {
+                this._templateOverridesInspector.unregisterElementForPath(`components.sound.slots.${this._slotKey}`);
+            }
+
+            super.destroy();
+        }
+    }
+
     class SoundComponentInspector extends pcui.ComponentInspector {
         constructor(args) {
             args = Object.assign({}, args);
@@ -302,106 +402,6 @@ Object.assign(pcui, (function () {
             this._slotInspectors = {};
 
             this._btnAddSlot.hidden = true;
-        }
-    }
-
-    class SoundSlotInspector extends pcui.Panel {
-        constructor(args) {
-            args = Object.assign({
-                headerText: args.slot.name || 'New Slot',
-                collapsible: true
-            }, args);
-
-            super(args);
-
-            this.class.add(CLASS_SLOT);
-
-            this._entities = null;
-            this._slotEvents = [];
-
-            this._templateOverridesInspector = args.templateOverridesInspector;
-
-            this._slotKey = args.slotKey;
-
-            this._attrs = utils.deepCopy(SLOT_ATTRIBUTES);
-            // replace '$' with the actual slot key
-            this._attrs.forEach(attr => {
-                attr.path = attr.path.replace('$', args.slotKey);
-            });
-
-            this._inspector = new pcui.AttributesInspector({
-                attributes: this._attrs,
-                assets: args.assets,
-                history: args.history,
-                templateOverridesInspector: this._templateOverridesInspector
-            });
-
-            this.append(this._inspector);
-
-            if (this._templateOverridesInspector) {
-                this._templateOverridesInspector.registerElementForPath(`components.sound.slots.${this._slotKey}`, this);
-            }
-
-            const fieldName = this._inspector.getField(this._getPathTo('name'));
-            fieldName.on('change', value => {
-                this.headerText = value;
-            });
-        }
-
-        _getPathTo(field) {
-            return `components.sound.slots.${this._slotKey}.${field}`;
-        }
-
-        _onClickRemove(evt) {
-            super._onClickRemove(evt);
-            if (this._entities && this._entities.length) {
-                this._entities[0].unset(`components.sound.slots.${this._slotKey}`);
-            }
-        }
-
-        link(entities) {
-            this.unlink();
-
-            this._entities = entities;
-
-            this._inspector.link(entities);
-
-            const fieldName = this._inspector.getField(this._getPathTo('name'));
-
-            // if the name already exists show error
-            fieldName.onValidate = (value) => {
-                if (!value) return false;
-
-                const slots = entities[0].get('components.sound.slots');
-                for (const key in slots) {
-                    if (slots[key].name === value) {
-                        return false;
-                    }
-                }
-
-                return true;
-            };
-        }
-
-        unlink() {
-            if (!this._entities) return;
-
-            this._entities = null;
-
-            this._slotEvents.forEach(e => e.unbind());
-            this._slotEvents.length = 0;
-
-            this._inspector.unlink();
-        }
-
-        destroy() {
-            if (this._destroyed) return;
-
-            if (this._templateOverridesInspector) {
-                this._templateOverridesInspector.unregisterElementForPath(`components.sound.slots.${this._slotKey}`);
-            }
-
-            super.destroy();
         }
     }
 

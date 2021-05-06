@@ -31,12 +31,6 @@ editor.once('load', function () {
     panelSwitch.append(btnSwitch);
     overlay.innerElement.querySelector('.right').ui.append(panelSwitch);
 
-    // switch to branch
-    btnSwitch.on('click', function () {
-        overlay.innerElement.classList.add('hidden'); // hide the inner contents of the overlay but not the whole overlay
-        editor.call('branches:checkout', dropdownBranches.value, refresh);
-    });
-
     // If we are currently in a scene this will first request the
     // scene from the server. If the scene no longer exists then we will
     // refresh to the Project URL. If the scene exists then just refresh the browser window
@@ -55,6 +49,12 @@ editor.once('load', function () {
             }
         }, 1000);
     };
+
+    // switch to branch
+    btnSwitch.on('click', function () {
+        overlay.innerElement.classList.add('hidden'); // hide the inner contents of the overlay but not the whole overlay
+        editor.call('branches:checkout', dropdownBranches.value, refresh);
+    });
 
     // bottom buttons panel
     var panelButtons = new ui.Panel();

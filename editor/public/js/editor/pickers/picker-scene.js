@@ -31,14 +31,144 @@ editor.once('load', function () {
     var events = [];
     var scenes = [];
 
+    var dropdownScene = null;
+    var dropdownMenu = null;
+
     var toggleProgress = function (toggle) {
         loading.hidden = !toggle;
         progressBar.hidden = !toggle;
         container.hidden = toggle || !scenes.length;
     };
 
+    var onSceneDeleted = function (sceneId) {
+        // if loaded scene deleted do not allow closing popup
+        if (!config.scene.id || parseInt(config.scene.id, 10) === parseInt(sceneId, 10)) {
+            editor.call('picker:project:setClosable', false);
+        }
+
+        if (panel.hidden) return;
+
+        var row = document.getElementById('picker-scene-' + sceneId);
+        if (row) {
+            row.parentElement.removeChild(row);
+        }
+
+        for (let i = 0; i < scenes.length; i++) {
+            if (parseInt(scenes[i].id, 10) === parseInt(sceneId, 10)) {
+                // close dropdown menu if current scene deleted
+                if (dropdownScene === scenes[i])
+                    dropdownMenu.open = false;
+
+                scenes.splice(i, 1);
+                break;
+            }
+        }
+
+        if (! scenes.length) {
+            container.hidden = true;
+        }
+    };
+
+    var destroyTooltips = function () {
+        tooltips.forEach(function (tooltip) {
+            tooltip.destroy();
+        });
+        tooltips = [];
+    };
+
+    var destroyEvents = function () {
+        events.forEach(function (evt) {
+            evt.unbind();
+        });
+        events = [];
+    };
+
+    // sort by case insensitive alphabetical order
+    var sortScenes = function (scenes) {
+        scenes.sort(function (a, b) {
+            const aname = a.name.toLowerCase();
+            const bname = b.name.toLowerCase();
+
+            if (aname < bname) return -1;
+            if (aname > bname) return 1;
+
+            // then sort by item_id
+            if (a.id < b.id) return -1;
+            if (a.id > b.id) return 1;
+
+            return 0;
+        });
+    };
+
+    // create row for scene
+    var createSceneEntry = function (scene) {
+        var row = new ui.ListItem();
+        row.element.id = 'picker-scene-' + scene.id;
+
+        container.append(row);
+
+        if (config.scene.id && parseInt(scene.id, 10) === parseInt(config.scene.id, 10))
+            row.class.add('current');
+
+        // scene name
+        var name = new ui.Label({
+            text: scene.name
+        });
+        name.class.add('name');
+
+        row.element.appendChild(name.element);
+
+        // scene date
+        var date = new ui.Label({
+            text: editor.call('datetime:convert', scene.modified)
+        });
+        date.class.add('date');
+        row.element.appendChild(date.element);
+
+        // dropdown
+        var dropdown = new ui.Button({
+            text: '&#57689;'
+        });
+        dropdown.class.add('dropdown');
+        row.element.appendChild(dropdown.element);
+
+        dropdown.on('click', function () {
+            dropdown.class.add('clicked');
+            dropdown.element.innerHTML = '&#57687;';
+
+            dropdownScene = scene;
+            dropdownMenu.open = true;
+            var rect = dropdown.element.getBoundingClientRect();
+            dropdownMenu.position(rect.right - dropdownMenu.innerElement.clientWidth, rect.bottom);
+        });
+
+        if (parseInt(config.scene.id, 10) !== parseInt(scene.id, 10)) {
+            events.push(row.on('click', function (e) {
+                if (e.target === row.element || e.target === name.element || e.target === date.element) {
+                    if (parseInt(config.scene.id, 10) === parseInt(scene.id, 10))
+                        return;
+
+                    editor.call('picker:scene:close');
+                    editor.call('scene:load', scene.uniqueId);
+                }
+            }));
+        }
+
+        return row;
+    };
+
+    var refreshScenes = function () {
+        dropdownMenu.open = false;
+        destroyTooltips();
+        destroyEvents();
+        container.element.innerHTML = '';
+        sortScenes(scenes);
+        container.hidden = scenes.length === 0;
+        scenes.forEach(createSceneEntry);
+    };
+
     // dropdown menu for each scene
-    var dropdownMenu = ui.Menu.fromData({
+    dropdownMenu = ui.Menu.fromData({
         'scene-duplicate': {
             title: 'Duplicate Scene',
             filter: function () {
@@ -91,8 +221,6 @@ editor.once('load', function () {
     });
 
     editor.call('layout.root').append(dropdownMenu);
-
-    var dropdownScene = null;
 
     // disables / enables field depending on permissions
     var handlePermissions = function (field) {
@@ -219,90 +347,6 @@ editor.once('load', function () {
         }
     });
 
-    // create row for scene
-    var createSceneEntry = function (scene) {
-        var row = new ui.ListItem();
-        row.element.id = 'picker-scene-' + scene.id;
-
-        container.append(row);
-
-        if (config.scene.id && parseInt(scene.id, 10) === parseInt(config.scene.id, 10))
-            row.class.add('current');
-
-        // scene name
-        var name = new ui.Label({
-            text: scene.name
-        });
-        name.class.add('name');
-
-        row.element.appendChild(name.element);
-
-        // scene date
-        var date = new ui.Label({
-            text: editor.call('datetime:convert', scene.modified)
-        });
-        date.class.add('date');
-        row.element.appendChild(date.element);
-
-        // dropdown
-        var dropdown = new ui.Button({
-            text: '&#57689;'
-        });
-        dropdown.class.add('dropdown');
-        row.element.appendChild(dropdown.element);
-
-        dropdown.on('click', function () {
-            dropdown.class.add('clicked');
-            dropdown.element.innerHTML = '&#57687;';
-
-            dropdownScene = scene;
-            dropdownMenu.open = true;
-            var rect = dropdown.element.getBoundingClientRect();
-            dropdownMenu.position(rect.right - dropdownMenu.innerElement.clientWidth, rect.bottom);
-        });
-
-        if (parseInt(config.scene.id, 10) !== parseInt(scene.id, 10)) {
-            events.push(row.on('click', function (e) {
-                if (e.target === row.element || e.target === name.element || e.target === date.element) {
-                    if (parseInt(config.scene.id, 10) === parseInt(scene.id, 10))
-                        return;
-
-                    editor.call('picker:scene:close');
-                    editor.call('scene:load', scene.uniqueId);
-                }
-            }));
-        }
-
-        return row;
-    };
-
-    // sort by case insensitive alphabetical order
-    var sortScenes = function (scenes) {
-        scenes.sort(function (a, b) {
-            const aname = a.name.toLowerCase();
-            const bname = b.name.toLowerCase();
-
-            if (aname < bname) return -1;
-            if (aname > bname) return 1;
-
-            // then sort by item_id
-            if (a.id < b.id) return -1;
-            if (a.id > b.id) return 1;
-
-            return 0;
-        });
-    };
-
-    var refreshScenes = function () {
-        dropdownMenu.open = false;
-        destroyTooltips();
-        destroyEvents();
-        container.element.innerHTML = '';
-        sortScenes(scenes);
-        container.hidden = scenes.length === 0;
-        scenes.forEach(createSceneEntry);
-    };
-
     // call picker
     editor.method('picker:scene', function () {
         editor.call('picker:project', 'scenes');
@@ -312,36 +356,6 @@ editor.once('load', function () {
     editor.method('picker:scene:close', function () {
         editor.call('picker:project:close');
     });
-
-    var onSceneDeleted = function (sceneId) {
-        // if loaded scene deleted do not allow closing popup
-        if (!config.scene.id || parseInt(config.scene.id, 10) === parseInt(sceneId, 10)) {
-            editor.call('picker:project:setClosable', false);
-        }
-
-        if (panel.hidden) return;
-
-        var row = document.getElementById('picker-scene-' + sceneId);
-        if (row) {
-            row.parentElement.removeChild(row);
-        }
-
-        for (let i = 0; i < scenes.length; i++) {
-            if (parseInt(scenes[i].id, 10) === parseInt(sceneId, 10)) {
-                // close dropdown menu if current scene deleted
-                if (dropdownScene === scenes[i])
-                    dropdownMenu.open = false;
-
-                scenes.splice(i, 1);
-                break;
-            }
-        }
-
-        if (! scenes.length) {
-            container.hidden = true;
-        }
-
-    };
 
     // subscribe to messenger scene.delete
     editor.on('messenger:scene.delete', function (data) {
@@ -362,19 +376,4 @@ editor.once('load', function () {
             refreshScenes();
         });
     });
-
-    var destroyTooltips = function () {
-        tooltips.forEach(function (tooltip) {
-            tooltip.destroy();
-        });
-        tooltips = [];
-    };
-
-    var destroyEvents = function () {
-        events.forEach(function (evt) {
-            evt.unbind();
-        });
-        events = [];
-    };
-
 });

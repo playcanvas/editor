@@ -22,405 +22,6 @@ Object.assign(pcui, (function () {
         curve: '{pc.Curve}'
     };
 
-    class ScriptComponentInspector extends pcui.ComponentInspector {
-        constructor(args) {
-            args = Object.assign({}, args);
-            args.component = 'script';
-
-            super(args);
-
-            this._scriptPanels = {};
-
-            this._argsAssets = args.assets;
-            this._argsEntities = args.entities;
-
-            this._editorEvents = [];
-
-            this._selectScript = new pcui.SelectInput({
-                placeholder: '+ ADD SCRIPT',
-                allowInput: true,
-                allowCreate: true,
-                createLabelText: 'Create Script',
-                createFn: this._onCreateScript.bind(this),
-                optionsFn: this._updateDropDown.bind(this)
-            });
-            this.append(this._selectScript);
-
-            this._selectScript.on('change', this._onSelectScript.bind(this));
-
-            this._containerScripts = new pcui.Container({
-                flex: true,
-                class: CLASS_SCRIPT_CONTAINER
-            });
-            this._containerScripts.style.margin = '6px';
-            this.append(this._containerScripts);
-
-            this._containerScripts.on('child:dragend', this._onDragEnd.bind(this));
-
-            this._dirtyScripts = new Set();
-            this._dirtyScriptsTimeout = null;
-
-            if (this._templateOverridesInspector) {
-                this._templateOverridesInspector.registerElementForPath(`components.script.order`, this, this._tooltipGroup);
-            }
-
-            this._updateScriptsTimeout = null;
-        }
-
-        _createScriptPanel(scriptName) {
-            const panel = new ScriptInspector({
-                componentInspector: this,
-                scriptName: scriptName,
-                flex: true,
-                collapsible: true,
-                removable: true,
-                assets: this._argsAssets,
-                entities: this._argsEntities,
-                templateOverridesInspector: this._templateOverridesInspector,
-                history: this._history,
-                class: CLASS_SCRIPT
-            });
-
-            this._scriptPanels[scriptName] = panel;
-
-            if (this._templateOverridesInspector) {
-                this._templateOverridesInspector.registerElementForPath(`components.script.scripts.${scriptName}`, panel);
-                panel.once('destroy', () => {
-                    this._templateOverridesInspector.unregisterElementForPath(`components.script.scripts.${scriptName}`);
-                });
-            }
-
-            this._containerScripts.append(panel);
-
-            return panel;
-        }
-
-        _deferUpdateDirtyScripts() {
-            if (this._dirtyScriptsTimeout) {
-                cancelAnimationFrame(this._dirtyScriptsTimeout);
-            }
-
-            this._dirtyScriptsTimeout = requestAnimationFrame(this._updateDirtyScripts.bind(this));
-        }
-
-        _updateDirtyScripts() {
-            if (this._dirtyScriptsTimeout) {
-                cancelAnimationFrame(this._dirtyScriptsTimeout);
-            }
-
-            this._dirtyScriptsTimeout = null;
-
-            if (this._dirtyScripts.size) {
-                this._updateScripts(this._dirtyScripts);
-            }
-
-            this._dirtyScripts = new Set();
-        }
-
-        _updateScripts(filterScriptsSet) {
-            if (!this._entities) return;
-
-            const entitiesPerScript = {};
-
-            this._entities.forEach((e, i) => {
-                const order = e.get('components.script.order');
-                if (!order) return;
-
-                order.forEach((script, j) => {
-                    if (filterScriptsSet && !filterScriptsSet.has(script)) return;
-
-                    if (!entitiesPerScript[script]) {
-                        entitiesPerScript[script] = [e];
-                    } else {
-                        entitiesPerScript[script].push(e);
-                    }
-
-                    if (!this._scriptPanels[script]) {
-                        this._createScriptPanel(script);
-                    }
-
-                    if (i === 0) {
-                        this._containerScripts.move(this._scriptPanels[script], j);
-                    }
-                });
-            });
-
-            for (const script in entitiesPerScript) {
-                const panel = this._scriptPanels[script];
-                panel.sortable = this._entities.length === 1;
-                panel.headerText = entitiesPerScript[script].length === this._entities.length ? script : script + ' *';
-                panel.link(entitiesPerScript[script]);
-            }
-
-            if (filterScriptsSet) {
-                filterScriptsSet.forEach(script => {
-                    if (!entitiesPerScript[script]) {
-                        this._scriptPanels[script].destroy();
-                        delete this._scriptPanels[script];
-                    }
-                });
-            }
-        }
-
-        _updateDropDown() {
-            if (!this._entities) return [];
-
-            const unparsed = this._findUnparsedScripts();
-
-            this._parseUnparsedScripts(unparsed);
-
-            return this._findDropdownScripts();
-        }
-
-        _findUnparsedScripts() {
-            let assets = this._argsAssets.array();
-
-            assets = assets.filter(a => a.get('type') === 'script');
-
-            return assets.filter(a => {
-                return a.get('data.lastParsedHash') === '0' &&
-                    a.get('file.hash');
-            });
-        }
-
-        _parseUnparsedScripts(assets) {
-            assets.forEach(a => editor.call('scripts:parse', a, err => {
-                a.set('data.lastParsedHash', a.get('file.hash'));
-            }));
-        }
-
-        _findDropdownScripts() {
-            const scripts = editor.call('assets:scripts:list');
-
-            // do not allow scripts that already exist to be created
-            this._selectScript.invalidOptions = scripts;
-
-            // remove scripts that are added in all entities
-            const counts = {};
-            this._entities.forEach(e => {
-                const order = e.get('components.script.order');
-                if (!order) return;
-
-                order.forEach(script => {
-                    if (!counts[script]) {
-                        counts[script] = 1;
-                    } else {
-                        counts[script]++;
-                    }
-                });
-            });
-
-            // sort list
-            scripts.sort((a, b) => {
-                if (a.toLowerCase() > b.toLowerCase()) {
-                    return 1;
-                } else if (a.toLowerCase() < b.toLowerCase()) {
-                    return -1;
-                }
-
-                return 0;
-            });
-
-            const result = scripts.filter(s => {
-                return counts[s] !== this._entities.length;
-            }).map(s => {
-                return {
-                    v: s,
-                    t: s
-                };
-            });
-
-            return result;
-        }
-
-        _onSelectScript(script) {
-            if (!script) return;
-
-            this._selectScript.value = null;
-
-            this._selectScript.blur();
-
-            this._addScriptToEntities(script);
-        }
-
-        _onCreateScript(script) {
-            this._selectScript.blur();
-
-            const filename = editor.call('picker:script-create:validate', script);
-
-            const onFilename = (filename) => {
-                editor.call('assets:create:script', {
-                    filename: filename,
-                    boilerplate: true,
-                    noSelect: true,
-                    callback: (err, asset, result) => {
-                        if (result && result.scripts) {
-                            const keys = Object.keys(result.scripts);
-                            if (keys.length === 1) {
-                                this._addScriptToEntities(keys[0]);
-                            }
-                        }
-                    }
-                });
-            };
-
-            if (filename) {
-                onFilename(filename);
-            } else {
-                editor.call('picker:script-create', onFilename, script);
-            }
-        }
-
-        _addScriptToEntities(script) {
-            const entities = this._entities.slice();
-
-            let changed = {};
-
-            const undo = () => {
-                entities.forEach(e => {
-                    e = e.latest();
-                    if (!e || !changed[e.get('resource_id')] || !e.has('components.script')) return;
-
-                    const history = e.history.enabled;
-                    e.history.enabled = false;
-                    e.unset(`components.script.scripts.${script}`);
-                    e.removeValue('components.script.order', script);
-                    e.history.enabled = history;
-                });
-
-            };
-
-            const redo = () => {
-                changed = {};
-                entities.forEach(e => {
-                    e = e.latest();
-                    if (!e || !e.has('components.script') || e.has(`components.script.scripts.${script}`)) return;
-
-                    changed[e.get('resource_id')] = true;
-                    const history = e.history.enabled;
-                    e.history.enabled = false;
-                    e.set(`components.script.scripts.${script}`, {
-                        enabled: true,
-                        attributes: {}
-                    });
-                    e.insert('components.script.order', script);
-                    e.history.enabled = history;
-                });
-            };
-
-            redo();
-
-            if (this._history && Object.keys(changed).length) {
-                this._history.add({
-                    name: 'entities.components.script.scripts.' + script,
-                    undo: undo,
-                    redo: redo
-                });
-            }
-        }
-
-        _onDragEnd(scriptInspector, newIndex, oldIndex) {
-            if (!this._entities || this._entities.length !== 1 || newIndex === oldIndex) return;
-
-            this._entities[0].move('components.script.order', oldIndex, newIndex);
-        }
-
-        _onScriptAddOrRemove() {
-            if (this._updateScriptsTimeout) return;
-
-            this._updateScriptsTimeout = setTimeout(() => {
-                this._updateScriptsTimeout = null;
-                this._selectScript.options = this._findDropdownScripts();
-            });
-        }
-
-        clearParseErrors() {
-            for (const key in this._scriptPanels) {
-                this._scriptPanels[key].containerErrors.clear();
-                this._scriptPanels[key].containerErrors.hidden = true;
-            }
-        }
-
-        onParseError(error, scriptName) {
-            if (!this._scriptPanels[scriptName]) return;
-
-            const label = new pcui.Label({
-                class: pcui.CLASS_ERROR,
-                text: error
-            });
-
-            this._scriptPanels[scriptName].containerErrors.append(label);
-            this._scriptPanels[scriptName].containerErrors.hidden = false;
-        }
-
-        link(entities) {
-            super.link(entities);
-
-            this._updateScripts();
-
-            entities.forEach(e => {
-                this._entityEvents.push(e.on('components.script.order:remove', value => {
-                    this._dirtyScripts.add(value);
-                    this._deferUpdateDirtyScripts();
-                }));
-
-                this._entityEvents.push(e.on('components.script.order:insert', value => {
-                    this._dirtyScripts.add(value);
-                    this._deferUpdateDirtyScripts();
-                }));
-
-                this._entityEvents.push(e.on('components.script.order:move', value => {
-                    this._dirtyScripts.add(value);
-                    this._deferUpdateDirtyScripts();
-                }));
-
-                this._entityEvents.push(e.on('components.script.order:set', value => {
-                    if (!value) return;
-
-                    value.forEach(script => {
-                        this._dirtyScripts.add(script);
-                    });
-                    this._deferUpdateDirtyScripts();
-                }));
-            });
-
-            this._editorEvents.push(editor.on('assets:scripts:add', this._onScriptAddOrRemove.bind(this)));
-            this._editorEvents.push(editor.on('assets:scripts:remove', this._onScriptAddOrRemove.bind(this)));
-        }
-
-        unlink() {
-            super.unlink();
-
-            this._editorEvents.forEach(evt => evt.unbind());
-            this._editorEvents.length = 0;
-
-            this._selectScript.close();
-            this._selectScript.value = '';
-            this._containerScripts.clear();
-            this._scriptPanels = {};
-            this._dirtyScripts = new Set();
-
-            if (this._dirtyScriptsTimeout) {
-                cancelAnimationFrame(this._dirtyScriptsTimeout);
-            }
-
-            if (this._updateScriptsTimeout) {
-                clearTimeout(this._updateScriptsTimeout);
-                this._updateScriptsTimeout = null;
-            }
-        }
-
-        destroy() {
-            if (this._destroyed) return;
-
-            if (this._templateOverridesInspector) {
-                this._templateOverridesInspector.unregisterElementForPath(`components.script.order`);
-            }
-
-            super.destroy();
-        }
-    }
-
     class ScriptInspector extends pcui.Panel {
         constructor(args) {
             super(args);
@@ -951,6 +552,405 @@ Object.assign(pcui, (function () {
 
             this._editorEvents.forEach(e => e.unbind());
             this._editorEvents.length = 0;
+
+            super.destroy();
+        }
+    }
+
+    class ScriptComponentInspector extends pcui.ComponentInspector {
+        constructor(args) {
+            args = Object.assign({}, args);
+            args.component = 'script';
+
+            super(args);
+
+            this._scriptPanels = {};
+
+            this._argsAssets = args.assets;
+            this._argsEntities = args.entities;
+
+            this._editorEvents = [];
+
+            this._selectScript = new pcui.SelectInput({
+                placeholder: '+ ADD SCRIPT',
+                allowInput: true,
+                allowCreate: true,
+                createLabelText: 'Create Script',
+                createFn: this._onCreateScript.bind(this),
+                optionsFn: this._updateDropDown.bind(this)
+            });
+            this.append(this._selectScript);
+
+            this._selectScript.on('change', this._onSelectScript.bind(this));
+
+            this._containerScripts = new pcui.Container({
+                flex: true,
+                class: CLASS_SCRIPT_CONTAINER
+            });
+            this._containerScripts.style.margin = '6px';
+            this.append(this._containerScripts);
+
+            this._containerScripts.on('child:dragend', this._onDragEnd.bind(this));
+
+            this._dirtyScripts = new Set();
+            this._dirtyScriptsTimeout = null;
+
+            if (this._templateOverridesInspector) {
+                this._templateOverridesInspector.registerElementForPath(`components.script.order`, this, this._tooltipGroup);
+            }
+
+            this._updateScriptsTimeout = null;
+        }
+
+        _createScriptPanel(scriptName) {
+            const panel = new ScriptInspector({
+                componentInspector: this,
+                scriptName: scriptName,
+                flex: true,
+                collapsible: true,
+                removable: true,
+                assets: this._argsAssets,
+                entities: this._argsEntities,
+                templateOverridesInspector: this._templateOverridesInspector,
+                history: this._history,
+                class: CLASS_SCRIPT
+            });
+
+            this._scriptPanels[scriptName] = panel;
+
+            if (this._templateOverridesInspector) {
+                this._templateOverridesInspector.registerElementForPath(`components.script.scripts.${scriptName}`, panel);
+                panel.once('destroy', () => {
+                    this._templateOverridesInspector.unregisterElementForPath(`components.script.scripts.${scriptName}`);
+                });
+            }
+
+            this._containerScripts.append(panel);
+
+            return panel;
+        }
+
+        _deferUpdateDirtyScripts() {
+            if (this._dirtyScriptsTimeout) {
+                cancelAnimationFrame(this._dirtyScriptsTimeout);
+            }
+
+            this._dirtyScriptsTimeout = requestAnimationFrame(this._updateDirtyScripts.bind(this));
+        }
+
+        _updateDirtyScripts() {
+            if (this._dirtyScriptsTimeout) {
+                cancelAnimationFrame(this._dirtyScriptsTimeout);
+            }
+
+            this._dirtyScriptsTimeout = null;
+
+            if (this._dirtyScripts.size) {
+                this._updateScripts(this._dirtyScripts);
+            }
+
+            this._dirtyScripts = new Set();
+        }
+
+        _updateScripts(filterScriptsSet) {
+            if (!this._entities) return;
+
+            const entitiesPerScript = {};
+
+            this._entities.forEach((e, i) => {
+                const order = e.get('components.script.order');
+                if (!order) return;
+
+                order.forEach((script, j) => {
+                    if (filterScriptsSet && !filterScriptsSet.has(script)) return;
+
+                    if (!entitiesPerScript[script]) {
+                        entitiesPerScript[script] = [e];
+                    } else {
+                        entitiesPerScript[script].push(e);
+                    }
+
+                    if (!this._scriptPanels[script]) {
+                        this._createScriptPanel(script);
+                    }
+
+                    if (i === 0) {
+                        this._containerScripts.move(this._scriptPanels[script], j);
+                    }
+                });
+            });
+
+            for (const script in entitiesPerScript) {
+                const panel = this._scriptPanels[script];
+                panel.sortable = this._entities.length === 1;
+                panel.headerText = entitiesPerScript[script].length === this._entities.length ? script : script + ' *';
+                panel.link(entitiesPerScript[script]);
+            }
+
+            if (filterScriptsSet) {
+                filterScriptsSet.forEach(script => {
+                    if (!entitiesPerScript[script]) {
+                        this._scriptPanels[script].destroy();
+                        delete this._scriptPanels[script];
+                    }
+                });
+            }
+        }
+
+        _updateDropDown() {
+            if (!this._entities) return [];
+
+            const unparsed = this._findUnparsedScripts();
+
+            this._parseUnparsedScripts(unparsed);
+
+            return this._findDropdownScripts();
+        }
+
+        _findUnparsedScripts() {
+            let assets = this._argsAssets.array();
+
+            assets = assets.filter(a => a.get('type') === 'script');
+
+            return assets.filter(a => {
+                return a.get('data.lastParsedHash') === '0' &&
+                    a.get('file.hash');
+            });
+        }
+
+        _parseUnparsedScripts(assets) {
+            assets.forEach(a => editor.call('scripts:parse', a, err => {
+                a.set('data.lastParsedHash', a.get('file.hash'));
+            }));
+        }
+
+        _findDropdownScripts() {
+            const scripts = editor.call('assets:scripts:list');
+
+            // do not allow scripts that already exist to be created
+            this._selectScript.invalidOptions = scripts;
+
+            // remove scripts that are added in all entities
+            const counts = {};
+            this._entities.forEach(e => {
+                const order = e.get('components.script.order');
+                if (!order) return;
+
+                order.forEach(script => {
+                    if (!counts[script]) {
+                        counts[script] = 1;
+                    } else {
+                        counts[script]++;
+                    }
+                });
+            });
+
+            // sort list
+            scripts.sort((a, b) => {
+                if (a.toLowerCase() > b.toLowerCase()) {
+                    return 1;
+                } else if (a.toLowerCase() < b.toLowerCase()) {
+                    return -1;
+                }
+
+                return 0;
+            });
+
+            const result = scripts.filter(s => {
+                return counts[s] !== this._entities.length;
+            }).map(s => {
+                return {
+                    v: s,
+                    t: s
+                };
+            });
+
+            return result;
+        }
+
+        _onSelectScript(script) {
+            if (!script) return;
+
+            this._selectScript.value = null;
+
+            this._selectScript.blur();
+
+            this._addScriptToEntities(script);
+        }
+
+        _onCreateScript(script) {
+            this._selectScript.blur();
+
+            const filename = editor.call('picker:script-create:validate', script);
+
+            const onFilename = (filename) => {
+                editor.call('assets:create:script', {
+                    filename: filename,
+                    boilerplate: true,
+                    noSelect: true,
+                    callback: (err, asset, result) => {
+                        if (result && result.scripts) {
+                            const keys = Object.keys(result.scripts);
+                            if (keys.length === 1) {
+                                this._addScriptToEntities(keys[0]);
+                            }
+                        }
+                    }
+                });
+            };
+
+            if (filename) {
+                onFilename(filename);
+            } else {
+                editor.call('picker:script-create', onFilename, script);
+            }
+        }
+
+        _addScriptToEntities(script) {
+            const entities = this._entities.slice();
+
+            let changed = {};
+
+            const undo = () => {
+                entities.forEach(e => {
+                    e = e.latest();
+                    if (!e || !changed[e.get('resource_id')] || !e.has('components.script')) return;
+
+                    const history = e.history.enabled;
+                    e.history.enabled = false;
+                    e.unset(`components.script.scripts.${script}`);
+                    e.removeValue('components.script.order', script);
+                    e.history.enabled = history;
+                });
+
+            };
+
+            const redo = () => {
+                changed = {};
+                entities.forEach(e => {
+                    e = e.latest();
+                    if (!e || !e.has('components.script') || e.has(`components.script.scripts.${script}`)) return;
+
+                    changed[e.get('resource_id')] = true;
+                    const history = e.history.enabled;
+                    e.history.enabled = false;
+                    e.set(`components.script.scripts.${script}`, {
+                        enabled: true,
+                        attributes: {}
+                    });
+                    e.insert('components.script.order', script);
+                    e.history.enabled = history;
+                });
+            };
+
+            redo();
+
+            if (this._history && Object.keys(changed).length) {
+                this._history.add({
+                    name: 'entities.components.script.scripts.' + script,
+                    undo: undo,
+                    redo: redo
+                });
+            }
+        }
+
+        _onDragEnd(scriptInspector, newIndex, oldIndex) {
+            if (!this._entities || this._entities.length !== 1 || newIndex === oldIndex) return;
+
+            this._entities[0].move('components.script.order', oldIndex, newIndex);
+        }
+
+        _onScriptAddOrRemove() {
+            if (this._updateScriptsTimeout) return;
+
+            this._updateScriptsTimeout = setTimeout(() => {
+                this._updateScriptsTimeout = null;
+                this._selectScript.options = this._findDropdownScripts();
+            });
+        }
+
+        clearParseErrors() {
+            for (const key in this._scriptPanels) {
+                this._scriptPanels[key].containerErrors.clear();
+                this._scriptPanels[key].containerErrors.hidden = true;
+            }
+        }
+
+        onParseError(error, scriptName) {
+            if (!this._scriptPanels[scriptName]) return;
+
+            const label = new pcui.Label({
+                class: pcui.CLASS_ERROR,
+                text: error
+            });
+
+            this._scriptPanels[scriptName].containerErrors.append(label);
+            this._scriptPanels[scriptName].containerErrors.hidden = false;
+        }
+
+        link(entities) {
+            super.link(entities);
+
+            this._updateScripts();
+
+            entities.forEach(e => {
+                this._entityEvents.push(e.on('components.script.order:remove', value => {
+                    this._dirtyScripts.add(value);
+                    this._deferUpdateDirtyScripts();
+                }));
+
+                this._entityEvents.push(e.on('components.script.order:insert', value => {
+                    this._dirtyScripts.add(value);
+                    this._deferUpdateDirtyScripts();
+                }));
+
+                this._entityEvents.push(e.on('components.script.order:move', value => {
+                    this._dirtyScripts.add(value);
+                    this._deferUpdateDirtyScripts();
+                }));
+
+                this._entityEvents.push(e.on('components.script.order:set', value => {
+                    if (!value) return;
+
+                    value.forEach(script => {
+                        this._dirtyScripts.add(script);
+                    });
+                    this._deferUpdateDirtyScripts();
+                }));
+            });
+
+            this._editorEvents.push(editor.on('assets:scripts:add', this._onScriptAddOrRemove.bind(this)));
+            this._editorEvents.push(editor.on('assets:scripts:remove', this._onScriptAddOrRemove.bind(this)));
+        }
+
+        unlink() {
+            super.unlink();
+
+            this._editorEvents.forEach(evt => evt.unbind());
+            this._editorEvents.length = 0;
+
+            this._selectScript.close();
+            this._selectScript.value = '';
+            this._containerScripts.clear();
+            this._scriptPanels = {};
+            this._dirtyScripts = new Set();
+
+            if (this._dirtyScriptsTimeout) {
+                cancelAnimationFrame(this._dirtyScriptsTimeout);
+            }
+
+            if (this._updateScriptsTimeout) {
+                clearTimeout(this._updateScriptsTimeout);
+                this._updateScriptsTimeout = null;
+            }
+        }
+
+        destroy() {
+            if (this._destroyed) return;
+
+            if (this._templateOverridesInspector) {
+                this._templateOverridesInspector.unregisterElementForPath(`components.script.order`);
+            }
 
             super.destroy();
         }
