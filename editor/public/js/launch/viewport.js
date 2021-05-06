@@ -15,19 +15,13 @@ editor.once('load', function () {
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     var canvas;
     var app;
+    var scriptPrefix;
 
     var layerIndex = {};
 
-    // update progress bar
-    var setProgress = function (value) {
-        var bar = document.getElementById('progress-bar');
-        value = Math.min(1, Math.max(0, value));
-        bar.style.width = value * 100 + '%';
-    };
-
     // respond to resize window
     var reflow = function () {
-        var size = app.resizeCanvas(canvas.width, canvas.height);
+        app.resizeCanvas(canvas.width, canvas.height);
         canvas.style.width = '';
         canvas.style.height = '';
 
@@ -84,7 +78,6 @@ editor.once('load', function () {
         canvas = document.createElement('canvas');
         canvas.setAttribute('id', 'application-canvas');
         canvas.setAttribute('tabindex', 0);
-        // canvas.style.visibility = 'hidden';
 
         // Disable I-bar cursor on click+drag
         canvas.onselectstart = function () { return false; };
@@ -92,32 +85,6 @@ editor.once('load', function () {
         document.body.appendChild(canvas);
 
         return canvas;
-    };
-
-    var showSplash = function () {
-        // splash
-        var splash = document.createElement('div');
-        splash.id = 'application-splash';
-        document.body.appendChild(splash);
-
-        // img
-        var img = document.createElement('img');
-        img.src = 'https://playcanvas.com/static-assets/images/logo/PLAY_FLAT_ORANGE3.png'
-        splash.appendChild(img);
-
-        // progress bar
-        var container = document.createElement('div');
-        container.id = 'progress-container';
-        splash.appendChild(container);
-
-        var bar = document.createElement('div');
-        bar.id = 'progress-bar';
-        container.appendChild(bar);
-    };
-
-    var hideSplash = function () {
-        var splash = document.getElementById('application-splash');
-        splash.parentElement.removeChild(splash);
     };
 
     var createLoadingScreen = function () {
@@ -167,7 +134,7 @@ editor.once('load', function () {
         });
     };
 
-    var canvas = createCanvas();
+    canvas = createCanvas();
 
     // convert library properties into URLs
     var libraryUrls = [];
@@ -177,7 +144,7 @@ editor.once('load', function () {
 
     var queryParams = (new pc.URI(window.location.href)).getQuery();
 
-    var scriptPrefix = config.project.scriptPrefix;
+    scriptPrefix = config.project.scriptPrefix;
 
     // queryParams.local can be true or it can be a URL
     if (queryParams.local)
@@ -221,8 +188,8 @@ editor.once('load', function () {
         graphicsDeviceOptions: {
             preferWebGl2: preferWebGl2,
             powerPreference: powerPreference,
-            antialias: config.project.settings.antiAlias === false ? false : true,
-            alpha: config.project.settings.transparentCanvas === false ? false : true,
+            antialias: config.project.settings.antiAlias !== false,
+            alpha: config.project.settings.transparentCanvas !== false,
             preserveDrawingBuffer: !!config.project.settings.preserveDrawingBuffer
         }
     });
@@ -236,6 +203,7 @@ editor.once('load', function () {
     }
 
     if (queryParams.ministats) {
+        // eslint-disable-next-line no-unused-vars
         var miniStats = new pcx.MiniStats(app);
     }
 
@@ -253,8 +221,8 @@ editor.once('load', function () {
     // batch groups
     var batchGroups = config.project.settings.batchGroups;
     if (batchGroups) {
-        for (var id in batchGroups) {
-            var grp = batchGroups[id];
+        for (var batchGroupId in batchGroups) {
+            var grp = batchGroups[batchGroupId];
             app.batcher.addGroup(grp.name, grp.dynamic, grp.maxAabbSize, grp.id, grp.layers);
         }
     }
@@ -301,14 +269,14 @@ editor.once('load', function () {
         if (engineAsset) {
             app.setAreaLightLuts(engineAsset);
         } else {
-            app.assets.on('add:' + id, function() {
+            app.assets.on('add:' + id, function () {
                 var engineAsset = app.assets.get(id);
                 app.setAreaLightLuts(engineAsset);
             });
         }
     }
 
-    editor.call('editor:loadModules', config.wasmModules, "", function() {
+    editor.call('editor:loadModules', config.wasmModules, "", function () {
         app._loadLibraries(libraryUrls, function (err) {
             libraries = true;
             if (err) log.error(err);
@@ -397,7 +365,7 @@ editor.once('load', function () {
         if (engineAsset) {
             app.setAreaLightLuts(engineAsset);
         } else {
-            app.assets.on('add:' + id, function() {
+            app.assets.on('add:' + id, function () {
                 var engineAsset = app.assets.get(id);
                 app.setAreaLightLuts(engineAsset);
             });
@@ -455,17 +423,16 @@ editor.once('load', function () {
         } else if (path.startsWith('layers')) {
             parts = path.split('.');
             // create layer
+            var layer;
             if (parts.length === 2) {
-                var layer = createLayer(parts[1], value);
+                layer = createLayer(parts[1], value);
                 layerIndex[layer.id] = layer;
                 var existing = app.scene.layers.getLayerById(layer.id);
                 if (existing) {
                     app.scene.layers.remove(existing);
                 }
-            }
-            // change layer property
-            else if (parts.length === 3) {
-                var layer = layerIndex[parts[1]];
+            } else if (parts.length === 3) { // change layer property
+                layer = layerIndex[parts[1]];
                 if (layer) {
                     layer[parts[2]] = value;
                 }
@@ -475,7 +442,7 @@ editor.once('load', function () {
 
             if (parts.length === 3) {
                 if (parts[2] === 'enabled') {
-                    var subLayerId = parseInt(parts[1]);
+                    var subLayerId = parseInt(parts[1], 10);
                     // Unlike Editor, DON'T add 2 to subLayerId here
                     app.scene.layers.subLayerEnabled[subLayerId] = value;
                     editor.call('viewport:render');
@@ -575,6 +542,7 @@ editor.once('load', function () {
 
     if (legacyScripts) {
         editor.on('sourcefiles:load', function (scripts) {
+            // eslint-disable-next-line no-unused-vars
             scriptList = scripts;
             sourcefiles = true;
             init();

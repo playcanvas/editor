@@ -1,19 +1,21 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var enabled = editor.call('tools:enabled');
     var app = editor.call('viewport:app');
     if (! app) return; // webgl not available
 
-    editor.on('tools:state', function(state) {
+    editor.on('tools:state', function (state) {
         enabled = state;
     });
+
+    var fieldsCustom = { };
 
     var panel = document.createElement('div');
     panel.classList.add('frame');
     editor.call('tools:root').appendChild(panel);
 
-    var addPanel = function(args) {
+    var addPanel = function (args) {
         var element = document.createElement('div');
         element.classList.add('panel');
         panel.appendChild(element);
@@ -23,7 +25,7 @@ editor.once('load', function() {
         element._header.textContent = args.title;
         element.appendChild(element._header);
 
-        element._header.addEventListener('click', function() {
+        element._header.addEventListener('click', function () {
             if (element.classList.contains('folded')) {
                 element.classList.remove('folded');
             } else {
@@ -34,7 +36,7 @@ editor.once('load', function() {
         return element;
     };
 
-    var addField = function(args) {
+    var addField = function (args) {
         var row = document.createElement('div');
         row.classList.add('row');
 
@@ -48,15 +50,19 @@ editor.once('load', function() {
         row._field.textContent = args.value || '-';
         row.appendChild(row._field);
 
+        // eslint-disable-next-line accessor-pairs
         Object.defineProperty(row, 'value', {
-            set: function(value) {
+            set: function (value) {
                 this._field.textContent = value !== undefined ? value : '';
             }
         });
 
         return row;
     };
-    editor.method('tools:frame:field:add', function(name, title, value) {
+
+    var panelApp;
+
+    editor.method('tools:frame:field:add', function (name, title, value) {
         var field = addField({
             title: title,
             value: value
@@ -64,7 +70,8 @@ editor.once('load', function() {
         fieldsCustom[name] = field;
         panelApp.appendChild(field);
     });
-    editor.method('tools:frame:field:value', function(name, value) {
+
+    editor.method('tools:frame:field:value', function (name, value) {
         if (! fieldsCustom[name])
             return;
 
@@ -73,7 +80,7 @@ editor.once('load', function() {
 
 
     // convert number of bytes to human form
-    var bytesToHuman = function(bytes) {
+    var bytesToHuman = function (bytes) {
         if (isNaN(bytes) || bytes === 0) return '0 B';
         var k = 1000;
         var sizes = ['b', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb', 'Eb', 'Zb', 'Yb'];
@@ -115,346 +122,344 @@ editor.once('load', function() {
         title: 'VRAM'
     });
     // app
-    var panelApp = addPanel({
+    panelApp = addPanel({
         title: 'App'
     });
 
 
-    var fieldsCustom = { };
-
     var fields = [{
-        key: [ 'frame', 'fps' ],
+        key: ['frame', 'fps'],
         panel: panelFrame,
         title: 'FPS',
         update: false
     }, {
-        key: [ 'frame', 'ms' ],
+        key: ['frame', 'ms'],
         panel: panelFrame,
         title: 'MS',
-        format: function(value) {
+        format: function (value) {
             return value.toFixed(2);
         }
     }, {
-        key: [ 'frame', 'cameras' ],
+        key: ['frame', 'cameras'],
         title: 'Cameras',
         panel: panelFrame
     }, {
-        key: [ 'frame', 'cullTime' ],
+        key: ['frame', 'cullTime'],
         title: 'Cull Time',
         panel: panelFrame,
-        format: function(value) {
+        format: function (value) {
             return value.toFixed(3);
         }
     }, {
-        key: [ 'frame', 'sortTime' ],
+        key: ['frame', 'sortTime'],
         title: 'Sort Time',
         panel: panelFrame,
-        format: function(value) {
+        format: function (value) {
             return value.toFixed(3);
         }
     }, {
-        key: [ 'frame', 'shaders' ],
+        key: ['frame', 'shaders'],
         title: 'Shaders',
         panel: panelFrame
     }, {
-        key: [ 'frame', 'materials' ],
+        key: ['frame', 'materials'],
         title: 'Materials',
         panel: panelFrame
     }, {
-        key: [ 'frame', 'triangles' ],
+        key: ['frame', 'triangles'],
         title: 'Triangles',
         panel: panelFrame,
-        format: function(value) {
+        format: function (value) {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'frame', 'otherPrimitives' ],
+        key: ['frame', 'otherPrimitives'],
         title: 'Other Primitives',
         panel: panelFrame
     }, {
-        key: [ 'frame', 'shadowMapUpdates' ],
+        key: ['frame', 'shadowMapUpdates'],
         title: 'ShadowMaps Updates',
         panel: panelFrame
     }, {
-        key: [ 'frame', 'shadowMapTime' ],
+        key: ['frame', 'shadowMapTime'],
         title: 'ShadowMaps Time',
         panel: panelFrame,
-        format: function(value) {
+        format: function (value) {
             return value.toFixed(2);
         }
     }, {
-        key: [ 'frame', 'updateTime' ],
+        key: ['frame', 'updateTime'],
         title: 'Update Time',
         panel: panelFrame,
-        format: function(value) {
+        format: function (value) {
             return value.toFixed(2);
         }
     }, {
-        key: [ 'frame', 'physicsTime' ],
+        key: ['frame', 'physicsTime'],
         title: 'Physics Time',
         panel: panelFrame,
-        format: function(value) {
+        format: function (value) {
             return value.toFixed(2);
         }
     }, {
-        key: [ 'frame', 'renderTime' ],
+        key: ['frame', 'renderTime'],
         title: 'Render Time',
         panel: panelFrame,
-        format: function(value) {
+        format: function (value) {
             return value.toFixed(2);
         }
     }, {
-        key: [ 'frame', 'forwardTime' ],
+        key: ['frame', 'forwardTime'],
         title: 'Forward Time',
         panel: panelFrame,
-        format: function(value) {
+        format: function (value) {
             return value.toFixed(2);
         }
     }, {
-        key: [ 'scene', 'meshInstances' ],
+        key: ['scene', 'meshInstances'],
         title: 'Mesh Instances',
         panel: panelScene
     }, {
-        key: [ 'scene', 'drawCalls' ],
+        key: ['scene', 'drawCalls'],
         title: 'Draw Calls (potential)',
         panel: panelScene
     }, {
-        key: [ 'scene', 'lights' ],
+        key: ['scene', 'lights'],
         title: 'Lights',
         panel: panelScene
     }, {
-        key: [ 'scene', 'dynamicLights' ],
+        key: ['scene', 'dynamicLights'],
         title: 'Lights (Dynamic)',
         panel: panelScene
     }, {
-        key: [ 'scene', 'bakedLights' ],
+        key: ['scene', 'bakedLights'],
         title: 'Lights (Baked)',
         panel: panelScene
     }, {
-        key: [ 'drawCalls', 'total' ],
+        key: ['drawCalls', 'total'],
         title: 'Total',
         panel: panelDrawCalls,
-        format: function(value) {
+        format: function (value) {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'drawCalls', 'forward' ],
+        key: ['drawCalls', 'forward'],
         title: 'Forward',
         panel: panelDrawCalls,
-        format: function(value) {
+        format: function (value) {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'drawCalls', 'skinned' ],
+        key: ['drawCalls', 'skinned'],
         title: 'Skinned',
         panel: panelDrawCalls,
-        format: function(value) {
+        format: function (value) {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'drawCalls', 'shadow' ],
+        key: ['drawCalls', 'shadow'],
         title: 'Shadow',
         panel: panelDrawCalls,
-        format: function(value) {
+        format: function (value) {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'drawCalls', 'depth' ],
+        key: ['drawCalls', 'depth'],
         title: 'Depth',
         panel: panelDrawCalls,
-        format: function(value) {
+        format: function (value) {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'drawCalls', 'instanced' ],
+        key: ['drawCalls', 'instanced'],
         title: 'Instanced',
         panel: panelDrawCalls,
-        format: function(value) {
+        format: function (value) {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'drawCalls', 'removedByInstancing' ],
+        key: ['drawCalls', 'removedByInstancing'],
         title: 'Instancing Benefit',
         panel: panelDrawCalls,
-        format: function(value) {
+        format: function (value) {
             return '-' + value.toLocaleString();
         }
     }, {
-        key: [ 'drawCalls', 'immediate' ],
+        key: ['drawCalls', 'immediate'],
         title: 'Immediate',
         panel: panelDrawCalls,
-        format: function(value) {
+        format: function (value) {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'drawCalls', 'misc' ],
+        key: ['drawCalls', 'misc'],
         title: 'Misc',
         panel: panelDrawCalls,
-        format: function(value) {
+        format: function (value) {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'batcher', 'createTime' ],
+        key: ['batcher', 'createTime'],
         title: 'Create Time',
         panel: panelBatching,
-        format: function(value) {
+        format: function (value) {
             return value.toFixed(2);
         }
     }, {
-        key: [ 'batcher', 'updateLastFrameTime' ],
+        key: ['batcher', 'updateLastFrameTime'],
         title: 'Update Last Frame Time',
         panel: panelBatching,
-        format: function(value) {
+        format: function (value) {
             return value.toFixed(2);
         }
     }, {
-        key: [ 'particles', 'updatesPerFrame' ],
+        key: ['particles', 'updatesPerFrame'],
         title: 'Updates',
         panel: panelParticles
     }, {
-        key: [ 'particles', 'frameTime' ],
+        key: ['particles', 'frameTime'],
         title: 'Update Time',
         panel: panelParticles,
-        format: function(value) {
+        format: function (value) {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'shaders', 'linked' ],
+        key: ['shaders', 'linked'],
         title: 'Linked',
         panel: panelShaders,
-        format: function(value) {
+        format: function (value) {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'shaders', 'vsCompiled' ],
+        key: ['shaders', 'vsCompiled'],
         title: 'Compiled VS',
         panel: panelShaders,
-        format: function(value) {
+        format: function (value) {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'shaders', 'fsCompiled' ],
+        key: ['shaders', 'fsCompiled'],
         title: 'Compiled FS',
         panel: panelShaders,
-        format: function(value) {
+        format: function (value) {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'shaders', 'materialShaders' ],
+        key: ['shaders', 'materialShaders'],
         title: 'Materials',
         panel: panelShaders,
-        format: function(value) {
+        format: function (value) {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'shaders', 'compileTime' ],
+        key: ['shaders', 'compileTime'],
         title: 'Compile Time',
         panel: panelShaders,
-        format: function(value) {
+        format: function (value) {
             return value.toFixed(3);
         }
     }, {
-        key: [ 'lightmapper', 'renderPasses' ],
+        key: ['lightmapper', 'renderPasses'],
         title: 'Render Passes',
         panel: panelLightmap,
-        format: function(value) {
+        format: function (value) {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'lightmapper', 'lightmapCount' ],
+        key: ['lightmapper', 'lightmapCount'],
         title: 'Textures',
         panel: panelLightmap,
-        format: function(value) {
+        format: function (value) {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'lightmapper', 'shadersLinked' ],
+        key: ['lightmapper', 'shadersLinked'],
         title: 'Shaders Linked',
         panel: panelLightmap,
-        format: function(value) {
+        format: function (value) {
             return value.toLocaleString();
         }
     }, {
-        key: [ 'lightmapper', 'totalRenderTime' ],
+        key: ['lightmapper', 'totalRenderTime'],
         title: 'Total Render Time',
         panel: panelLightmap,
-        format: function(value) {
+        format: function (value) {
             return value.toFixed(3);
         }
     }, {
-        key: [ 'lightmapper', 'forwardTime' ],
+        key: ['lightmapper', 'forwardTime'],
         title: 'Forward Time',
         panel: panelLightmap,
-        format: function(value) {
+        format: function (value) {
             return value.toFixed(3);
         }
     }, {
-        key: [ 'lightmapper', 'fboTime' ],
+        key: ['lightmapper', 'fboTime'],
         title: 'FBO Time',
         panel: panelLightmap,
-        format: function(value) {
+        format: function (value) {
             return value.toFixed(3);
         }
     }, {
-        key: [ 'lightmapper', 'shadowMapTime' ],
+        key: ['lightmapper', 'shadowMapTime'],
         title: 'ShadowMap Time',
         panel: panelLightmap,
-        format: function(value) {
+        format: function (value) {
             return value.toFixed(3);
         }
     }, {
-        key: [ 'lightmapper', 'compileTime' ],
+        key: ['lightmapper', 'compileTime'],
         title: 'Shader Compile Time',
         panel: panelLightmap,
-        format: function(value) {
+        format: function (value) {
             return value.toFixed(3);
         }
     }, {
-        key: [ 'vram', 'ib' ],
+        key: ['vram', 'ib'],
         title: 'Index Buffers',
         panel: panelVram,
         format: bytesToHuman
     }, {
-        key: [ 'vram', 'vb' ],
+        key: ['vram', 'vb'],
         title: 'Vertex Buffers',
         panel: panelVram,
         format: bytesToHuman
     }, {
-        key: [ 'vram', 'texShadow' ],
+        key: ['vram', 'texShadow'],
         title: 'Shadowmaps',
         panel: panelVram,
         format: bytesToHuman
     }, {
-        key: [ 'vram', 'texLightmap' ],
+        key: ['vram', 'texLightmap'],
         title: 'Lightmaps',
         panel: panelVram,
         format: bytesToHuman
     }, {
-        key: [ 'vram', 'texAsset' ],
+        key: ['vram', 'texAsset'],
         title: 'Texture Assets',
         panel: panelVram,
         format: bytesToHuman
     }, {
-        key: [ 'vram', 'tex' ],
+        key: ['vram', 'tex'],
         title: 'Textures Other',
         panel: panelVram,
-        format: function(bytes) {
+        format: function (bytes) {
             return bytesToHuman(bytes - (app.stats.vram.texLightmap + app.stats.vram.texShadow + app.stats.vram.texAsset));
         }
     }, {
-        key: [ 'vram', 'tex' ],
+        key: ['vram', 'tex'],
         title: 'Textures Total',
         panel: panelVram,
         format: bytesToHuman
     }, {
-        key: [ 'vram', 'totalUsed' ],
+        key: ['vram', 'totalUsed'],
         title: 'Total',
         panel: panelVram,
         format: bytesToHuman
     }];
 
     // create fields
-    for(var i = 0; i < fields.length; i++) {
+    for (var i = 0; i < fields.length; i++) {
         fields[i].field = addField({
             title: fields[i].title || fields[i].key[1]
         });
@@ -473,16 +478,19 @@ editor.once('load', function() {
     var title = document.createElement('div');
     title.classList.add('title');
     title.textContent = 'Camera Drawcalls Limit';
-    title.style.fontSize = '11px'
+    title.style.fontSize = '11px';
     row.appendChild(title);
+
+    var cameraSkipFrames;
+    var rowCameraSkip;
 
     var cameras = document.createElement('select');
     cameras.classList.add('cameras');
     row.appendChild(cameras);
-    cameras.addEventListener('mousedown', function(evt) {
+    cameras.addEventListener('mousedown', function (evt) {
         evt.stopPropagation();
     });
-    cameras.addEventListener('change', function() {
+    cameras.addEventListener('change', function () {
         if (cameras.value === 'none') {
             rowCameraSkip.style.display = 'none';
             pc.ForwardRenderer.skipRenderCamera = null;
@@ -498,7 +506,7 @@ editor.once('load', function() {
     });
 
     var cameraIndex = { };
-    var cameraAddQueue = [ ];
+    var cameraAddQueue = [];
 
     var cameraNone = document.createElement('option');
     cameraNone.value = 'none';
@@ -508,7 +516,7 @@ editor.once('load', function() {
 
 
     // frames control
-    var rowCameraSkip = document.createElement('div');
+    rowCameraSkip = document.createElement('div');
     rowCameraSkip.classList.add('row');
     rowCameraSkip.style.display = 'none';
     panelDrawCalls.appendChild(rowCameraSkip);
@@ -516,7 +524,7 @@ editor.once('load', function() {
     var cameraSkipFramesLeft0 = document.createElement('div');
     cameraSkipFramesLeft0.classList.add('drawcallsLimitButton');
     cameraSkipFramesLeft0.textContent = '|<';
-    cameraSkipFramesLeft0.addEventListener('click', function() {
+    cameraSkipFramesLeft0.addEventListener('click', function () {
         cameraSkipFrames.value = '0';
         pc.ForwardRenderer.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
     });
@@ -525,7 +533,7 @@ editor.once('load', function() {
     var cameraSkipFramesLeft10 = document.createElement('div');
     cameraSkipFramesLeft10.classList.add('drawcallsLimitButton');
     cameraSkipFramesLeft10.textContent = '<<';
-    cameraSkipFramesLeft10.addEventListener('click', function() {
+    cameraSkipFramesLeft10.addEventListener('click', function () {
         cameraSkipFrames.value = Math.max(0, (parseInt(cameraSkipFrames.value, 10) || 0) - 10);
         pc.ForwardRenderer.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
     });
@@ -534,24 +542,24 @@ editor.once('load', function() {
     var cameraSkipFramesLeft1 = document.createElement('div');
     cameraSkipFramesLeft1.classList.add('drawcallsLimitButton');
     cameraSkipFramesLeft1.textContent = '<';
-    cameraSkipFramesLeft1.addEventListener('click', function() {
+    cameraSkipFramesLeft1.addEventListener('click', function () {
         cameraSkipFrames.value = Math.max(0, (parseInt(cameraSkipFrames.value, 10) || 0) - 1);
         pc.ForwardRenderer.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
     });
     rowCameraSkip.appendChild(cameraSkipFramesLeft1);
 
-    var cameraSkipFrames = document.createElement('input');
+    cameraSkipFrames = document.createElement('input');
     cameraSkipFrames.classList.add('framesSkip');
     cameraSkipFrames.type = 'text';
     cameraSkipFrames.value = '0';
     rowCameraSkip.appendChild(cameraSkipFrames);
-    cameraSkipFrames.addEventListener('mousedown', function(evt) {
+    cameraSkipFrames.addEventListener('mousedown', function (evt) {
         evt.stopPropagation();
     });
     cameraSkipFrames.addEventListener('change', function() {
         pc.ForwardRenderer.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
     }, false);
-    cameraSkipFrames.addEventListener('keydown', function(evt) {
+    cameraSkipFrames.addEventListener('keydown', function (evt) {
         var inc = 0;
 
         if (evt.keyCode === 38) {
@@ -573,7 +581,7 @@ editor.once('load', function() {
     var cameraSkipFramesRight1 = document.createElement('div');
     cameraSkipFramesRight1.classList.add('drawcallsLimitButton');
     cameraSkipFramesRight1.textContent = '>';
-    cameraSkipFramesRight1.addEventListener('click', function() {
+    cameraSkipFramesRight1.addEventListener('click', function () {
         cameraSkipFrames.value = Math.min(Number.MAX_SAFE_INTEGER, (parseInt(cameraSkipFrames.value, 10) || 0) + 1);
         pc.ForwardRenderer.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
     });
@@ -582,14 +590,14 @@ editor.once('load', function() {
     var cameraSkipFramesRight10 = document.createElement('div');
     cameraSkipFramesRight10.classList.add('drawcallsLimitButton');
     cameraSkipFramesRight10.textContent = '>>';
-    cameraSkipFramesRight10.addEventListener('click', function() {
+    cameraSkipFramesRight10.addEventListener('click', function () {
         cameraSkipFrames.value = Math.min(Number.MAX_SAFE_INTEGER, (parseInt(cameraSkipFrames.value, 10) || 0) + 10);
         pc.ForwardRenderer.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
     });
     rowCameraSkip.appendChild(cameraSkipFramesRight10);
 
 
-    var cameraAdd = function(id) {
+    var cameraAdd = function (id) {
         if (cameraAddQueue) {
             cameraAddQueue.push(id);
             return;
@@ -609,7 +617,7 @@ editor.once('load', function() {
         cameras.appendChild(option);
     };
 
-    var cameraRemove = function(id) {
+    var cameraRemove = function (id) {
         if (! cameraIndex[id])
             return;
 
@@ -620,16 +628,16 @@ editor.once('load', function() {
         delete cameraIndex[id];
     };
 
-    editor.on('entities:add', function(obj) {
+    editor.on('entities:add', function (obj) {
         var id = obj.get('resource_id');
 
-        obj.on('components.camera:set', function() {
+        obj.on('components.camera:set', function () {
             cameraAdd(id);
         });
-        obj.on('components.camera:unset', function() {
+        obj.on('components.camera:unset', function () {
             cameraRemove(id);
         });
-        obj.on('name:set', function(value) {
+        obj.on('name:set', function (value) {
             if (! cameraIndex[id])
                 return;
 
@@ -640,22 +648,22 @@ editor.once('load', function() {
             cameraAdd(id);
     });
 
-    app.on('start', function() {
+    app.on('start', function () {
         if (cameraAddQueue) {
             var queue = cameraAddQueue;
             cameraAddQueue = null;
 
-            for(var i = 0; i < queue.length; i++)
+            for (var i = 0; i < queue.length; i++)
                 cameraAdd(queue[i]);
         }
     });
 
     // update frame fields
-    app.on('frameEnd', function() {
+    app.on('frameEnd', function () {
         if (! enabled)
             return;
 
-        for(var i = 0; i < fields.length; i++) {
+        for (var i = 0; i < fields.length; i++) {
             if (fields[i].ignore)
                 continue;
 

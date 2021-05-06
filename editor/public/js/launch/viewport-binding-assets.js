@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
@@ -16,7 +16,7 @@ editor.once('load', function() {
         var timeout;
         var updatedFields = { };
 
-        var onChange = function(path, value) {
+        var onChange = function (path, value) {
             var realtimeAsset = app.assets.get(asset.get('id'));
             var parts = path.split('.');
 
@@ -34,7 +34,7 @@ editor.once('load', function() {
                     if (key === 'file' && asset.get('type') === 'script' && realtimeAsset.data && realtimeAsset.data.scripts) {
                         var swappable = false;
 
-                        for(var script in realtimeAsset.data.scripts) {
+                        for (var script in realtimeAsset.data.scripts) {
                             var scriptType = app.scripts.get(script);
                             if (scriptType && scriptType.prototype.hasOwnProperty('swap')) {
                                 swappable = true;
@@ -57,16 +57,18 @@ editor.once('load', function() {
 
         // attach update handler
         asset.on('*:set', function (path, value) {
+            var realtimeAsset;
+
             // handle i18n changes
             if (regexI18n.test(path)) {
                 var parts = path.split('.');
-                var realtimeAsset = app.assets.get(asset.get('id'));
+                realtimeAsset = app.assets.get(asset.get('id'));
                 if (realtimeAsset) {
                     realtimeAsset.addLocalizedAssetId(parts[1], value);
                 }
             } else if (asset.get('type') === 'textureatlas') {
                 // handle texture atlases specifically for better performance
-                var realtimeAsset = app.assets.get(asset.get('id'));
+                realtimeAsset = app.assets.get(asset.get('id'));
                 if (! realtimeAsset) return;
 
                 var match = path.match(regexFrameUpdate);
@@ -95,9 +97,11 @@ editor.once('load', function() {
             }
         });
         asset.on('*:unset', function (path, value) {
+            var realtimeAsset;
+
             // handle deleting i18n
             if (regexI18n.test(path)) {
-                var realtimeAsset = app.assets.get(asset.get('id'));
+                realtimeAsset = app.assets.get(asset.get('id'));
                 if (realtimeAsset) {
                     var parts = path.split('.');
                     realtimeAsset.removeLocalizedAssetId(parts[1]);
@@ -105,7 +109,7 @@ editor.once('load', function() {
 
             } else if (asset.get('type') === 'textureatlas') {
                 // handle deleting frames from texture atlas
-                var realtimeAsset = app.assets.get(asset.get('id'));
+                realtimeAsset = app.assets.get(asset.get('id'));
                 if (! realtimeAsset) return;
 
                 var match = path.match(regexFrameRemove);
@@ -148,11 +152,11 @@ editor.once('load', function() {
         }
 
         // tags add
-        asset.on('tags:insert', function(tag) {
+        asset.on('tags:insert', function (tag) {
             app.assets.get(asset.get('id')).tags.add(tag);
         });
         // tags remove
-        asset.on('tags:remove', function(tag) {
+        asset.on('tags:remove', function (tag) {
             app.assets.get(asset.get('id')).tags.remove(tag);
         });
     };

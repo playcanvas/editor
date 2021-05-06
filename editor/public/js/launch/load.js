@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var auth = false;
@@ -7,11 +7,14 @@ editor.once('load', function() {
     var reconnectAttempts = 0;
     var reconnectInterval = 1;
 
+    var connect;
+    var reconnect;
+
     editor.method('realtime:connection', function () {
         return connection;
     });
 
-    var connect = function () {
+    connect = function () {
         if (reconnectAttempts > 8) {
             editor.emit('realtime:cannotConnect');
             return;
@@ -22,11 +25,12 @@ editor.once('load', function() {
 
         var shareDbMessage = connection.socket.onmessage;
 
-        connection.socket.onmessage = function(msg) {
+        connection.socket.onmessage = function (msg) {
             try {
                 if (msg.data.startsWith('auth')) {
                     if (!auth) {
                         auth = true;
+                        // eslint-disable-next-line no-unused-vars
                         data = JSON.parse(msg.data.slice(4));
 
                         editor.emit('realtime:authenticated');
@@ -40,7 +44,7 @@ editor.once('load', function() {
 
         };
 
-        connection.on('connected', function() {
+        connection.on('connected', function () {
             reconnectAttempts = 0;
             reconnectInterval = 1;
 
@@ -51,7 +55,7 @@ editor.once('load', function() {
             editor.emit('realtime:connected');
         });
 
-        connection.on('error', function(msg) {
+        connection.on('error', function (msg) {
             editor.emit('realtime:error', msg);
         });
 
@@ -75,7 +79,7 @@ editor.once('load', function() {
         };
     };
 
-    var reconnect = function () {
+    reconnect = function () {
         // create new socket...
         socket = new WebSocket(config.url.realtime.http);
         // ... and new sharedb connection

@@ -1,9 +1,9 @@
-(function() {
+(function () {
     'use strict';
 
     var visible = ! document.hidden;
 
-    document.addEventListener('visibilitychange', function() {
+    document.addEventListener('visibilitychange', function () {
         if (visible === ! document.hidden)
             return;
 
@@ -16,12 +16,12 @@
         editor.emit('visibility', visible);
     }, false);
 
-    editor.method('visibility', function() {
+    editor.method('visibility', function () {
         return visible;
     });
 
     // first load
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         editor.emit('load');
     }, false);
 })();

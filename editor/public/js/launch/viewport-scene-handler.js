@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
@@ -114,7 +114,7 @@ editor.once('load', function() {
                 };
             }
 
-            var id = parseInt(url.original.replace("/api/", "").replace(".json", ""));
+            var id = parseInt(url.original.replace("/api/", "").replace(".json", ""), 10);
             if (typeof(id) === "number") {
                 loadSceneByItemId(id, function (err, scene) {
                     if (err) {

@@ -1,4 +1,4 @@
-editor.on('load', function() {
+editor.on('load', function () {
     'use strict';
 
     if (typeof(Messenger) === 'undefined')
@@ -8,15 +8,15 @@ editor.on('load', function() {
 
     messenger.connect(config.url.messenger.ws);
 
-    messenger.on('connect', function() {
+    messenger.on('connect', function () {
         this.authenticate(null, 'designer');
     });
 
-    messenger.on('welcome', function() {
+    messenger.on('welcome', function () {
         this.projectWatch(config.project.id);
     });
 
-    messenger.on('message', function(evt) {
+    messenger.on('message', function (evt) {
         editor.emit('messenger:' + evt.name, evt.data);
     });
 });

@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var syncPaths = [
@@ -15,20 +15,20 @@ editor.once('load', function() {
     ];
 
 
-    editor.on('entities:add', function(entity) {
+    editor.on('entities:add', function (entity) {
         if (entity.sync)
             return;
 
         entity.sync = new ObserverSync({
             item: entity,
-            prefix: [ 'entities', entity.get('resource_id') ],
+            prefix: ['entities', entity.get('resource_id')],
             paths: syncPaths
         });
     });
 
 
     // server > client
-    editor.on('realtime:op:entities', function(op) {
+    editor.on('realtime:op:entities', function (op) {
         var entity = null;
         if (op.p[1])
             entity = editor.call('entities:get', op.p[1]);

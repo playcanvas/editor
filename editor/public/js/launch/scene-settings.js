@@ -1,9 +1,9 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var sceneSettings = new Observer();
 
-    editor.once('scene:raw', function(data) {
+    editor.once('scene:raw', function (data) {
         sceneSettings.patch(data.settings);
 
         editor.emit("sceneSettings:load", sceneSettings);

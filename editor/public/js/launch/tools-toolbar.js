@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     // variables
@@ -11,7 +11,7 @@ editor.once('load', function() {
     btnClose.innerHTML = '&#57650;';
     btnClose.classList.add('button');
     toolbar.appendChild(btnClose);
-    btnClose.addEventListener('click', function() {
+    btnClose.addEventListener('click', function () {
         editor.call('tools:disable');
     });
 });
