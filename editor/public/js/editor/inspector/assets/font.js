@@ -3,7 +3,6 @@ Object.assign(pcui, (function () {
 
     const CLASS_ROOT = 'asset-font-inspector';
     const CLASS_LOCALE_PANEL = CLASS_ROOT + '-locale-panel';
-    const CLASS_LOCALE_REMOVE_BUTTON = CLASS_ROOT + '-locale-remove-button';
     const CLASS_CHARACTER_RANGE = CLASS_ROOT + '-character-range';
     const CLASS_CHARACTER_RANGE_LABEL = CLASS_CHARACTER_RANGE + '-label';
     const CLASS_CHARACTER_RANGE_BUTTON = CLASS_CHARACTER_RANGE + '-button';

@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var icon = document.createElement('img');
@@ -25,5 +25,5 @@ editor.once('load', function() {
 
     editor.on('realtime:error', function (err) {
         log.error(err);
-    })
+    });
 });

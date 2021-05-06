@@ -31,6 +31,93 @@ editor.once('viewport:load', function () {
 
     var layer = editor.call('gizmo:layers', 'Axis Gizmo');
 
+    var pickPlane = function (x, y) {
+        var camera = editor.call('camera:current');
+        var mouseWPos = camera.camera.screenToWorld(x, y, 1);
+        var posGizmo = vecE.copy(dragPoint.position);
+        var rayOrigin = vecA.copy(camera.getPosition());
+        var rayDirection = vecB.set(0, 0, 0);
+        var planeNormal = vecC.set(0, 0, 0);
+        planeNormal[dragPoint.axis] = 1;
+
+        if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
+            rayDirection.copy(mouseWPos).sub(rayOrigin).normalize();
+        } else {
+            rayOrigin.add(mouseWPos);
+            camera.getWorldTransform().transformVector(vecD.set(0, 0, -1), rayDirection);
+        }
+
+        quatA.copy(dragPoint.rotation);
+
+        // rotate vector by gizmo rotation
+        quatA.transformVector(planeNormal, planeNormal);
+
+        vecD.copy(rayOrigin).sub(posGizmo).normalize();
+        planeNormal.copy(vecD.sub(planeNormal.scale(planeNormal.dot(vecD))).normalize());
+
+        var rayPlaneDot = planeNormal.dot(rayDirection);
+        var planeDist = posGizmo.dot(planeNormal);
+        var pointPlaneDist = (planeNormal.dot(rayOrigin) - planeDist) / rayPlaneDot;
+        var pickedPos = rayDirection.scale(-pointPlaneDist).add(rayOrigin);
+
+        // single axis
+        planeNormal.set(0, 0, 0);
+        planeNormal[dragPoint.axis] = 1;
+        quatA.transformVector(planeNormal, planeNormal);
+        pickedPos.copy(planeNormal.scale(planeNormal.dot(pickedPos)));
+
+        quatA.invert().transformVector(pickedPos, pickedPos);
+
+        var v = pickedPos[dragPoint.axis];
+        pickedPos.set(0, 0, 0);
+        pickedPos[dragPoint.axis] = v;
+
+        return pickedPos;
+    };
+
+    var onTapStart = function (tap) {
+        if (tap.button !== 0 || ! hoverPoint)
+            return;
+
+        editor.emit('camera:toggle', false);
+
+        mouseTap = tap;
+        dragPoint = hoverPoint;
+
+        pickStart.copy(pickPlane(mouseTap.x, mouseTap.y));
+        dragPoint.entity.enabled = false;
+
+        editor.emit('gizmo:point:start', dragPoint);
+        dragPoint.emit('dragStart');
+        editor.call('viewport:pick:state', false);
+    };
+
+    var onTapMove = function (tap) {
+        if (! dragPoint)
+            return;
+
+        mouseTap = tap;
+    };
+
+    var onTapEnd = function (tap) {
+        if (tap.button !== 0)
+            return;
+
+        editor.emit('camera:toggle:true', true);
+
+        if (! dragPoint)
+            return;
+
+        mouseTap = tap;
+
+        dragPoint.entity.enabled = true;
+        editor.emit('gizmo:point:end', dragPoint);
+        dragPoint.emit('dragEnd');
+        dragPoint = null;
+
+        editor.call('viewport:pick:state', true);
+    };
+
     function Gizmo(axis, dir) {
         Events.call(this);
         this.entity = null;
@@ -147,94 +234,6 @@ editor.once('viewport:load', function () {
             }
         }
     });
-
-    var pickPlane = function (x, y) {
-        var camera = editor.call('camera:current');
-        var scale = 1;
-        var mouseWPos = camera.camera.screenToWorld(x, y, 1);
-        var posGizmo = vecE.copy(dragPoint.position);
-        var rayOrigin = vecA.copy(camera.getPosition());
-        var rayDirection = vecB.set(0, 0, 0);
-        var planeNormal = vecC.set(0, 0, 0);
-        planeNormal[dragPoint.axis] = 1;
-
-        if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
-            rayDirection.copy(mouseWPos).sub(rayOrigin).normalize();
-        } else {
-            rayOrigin.add(mouseWPos);
-            camera.getWorldTransform().transformVector(vecD.set(0, 0, -1), rayDirection);
-        }
-
-        quatA.copy(dragPoint.rotation);
-
-        // rotate vector by gizmo rotation
-        quatA.transformVector(planeNormal, planeNormal);
-
-        vecD.copy(rayOrigin).sub(posGizmo).normalize();
-        planeNormal.copy(vecD.sub(planeNormal.scale(planeNormal.dot(vecD))).normalize());
-
-        var rayPlaneDot = planeNormal.dot(rayDirection);
-        var planeDist = posGizmo.dot(planeNormal);
-        var pointPlaneDist = (planeNormal.dot(rayOrigin) - planeDist) / rayPlaneDot;
-        var pickedPos = rayDirection.scale(-pointPlaneDist).add(rayOrigin);
-
-        // single axis
-        planeNormal.set(0, 0, 0);
-        planeNormal[dragPoint.axis] = 1;
-        quatA.transformVector(planeNormal, planeNormal);
-        pickedPos.copy(planeNormal.scale(planeNormal.dot(pickedPos)));
-
-        quatA.invert().transformVector(pickedPos, pickedPos);
-
-        var v = pickedPos[dragPoint.axis];
-        pickedPos.set(0, 0, 0);
-        pickedPos[dragPoint.axis] = v;
-
-        return pickedPos;
-    };
-
-    var onTapStart = function (tap) {
-        if (tap.button !== 0 || ! hoverPoint)
-            return;
-
-        editor.emit('camera:toggle', false);
-
-        mouseTap = tap;
-        dragPoint = hoverPoint;
-
-        pickStart.copy(pickPlane(mouseTap.x, mouseTap.y));
-        dragPoint.entity.enabled = false;
-
-        editor.emit('gizmo:point:start', dragPoint);
-        dragPoint.emit('dragStart');
-        editor.call('viewport:pick:state', false);
-    };
-
-    var onTapMove = function (tap) {
-        if (! dragPoint)
-            return;
-
-        mouseTap = tap;
-    };
-
-    var onTapEnd = function (tap) {
-        if (tap.button !== 0)
-            return;
-
-        editor.emit('camera:toggle:true', true);
-
-        if (! dragPoint)
-            return;
-
-        mouseTap = tap;
-
-        dragPoint.entity.enabled = true;
-        editor.emit('gizmo:point:end', dragPoint);
-        dragPoint.emit('dragEnd');
-        dragPoint = null;
-
-        editor.call('viewport:pick:state', true);
-    };
 
     editor.on('viewport:mouse:move', onTapMove);
     editor.on('viewport:tap:end', onTapEnd);

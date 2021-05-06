@@ -29,11 +29,6 @@ editor.once('load', function () {
         }
     });
 
-    hierarchy.on('deselect', function (item) {
-        if (overlay.hidden || !item.entity || item.entity !== currentEntity)
-            return;
-    });
-
     // picked entity
     hierarchy.on('select', function (item) {
         if (overlay.hidden || item.entity === currentEntity)

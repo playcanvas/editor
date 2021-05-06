@@ -1,7 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    var currentEntity = null;
+    // var currentEntity = null;
     var root = editor.call('layout.root');
 
     // create data for entity menu
@@ -93,7 +93,7 @@ editor.once('load', function () {
         if (! editor.call('permissions:write'))
             return;
 
-        currentEntity = entity;
+        // currentEntity = entity;
         menu.open = true;
         menu.position(x + 1, y);
     });

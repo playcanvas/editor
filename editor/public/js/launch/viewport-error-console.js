@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     // console
@@ -9,10 +9,10 @@ editor.once('load', function() {
 
     var errorCount = 0;
 
-    panel.addEventListener('mousedown', function(evt) {
+    panel.addEventListener('mousedown', function (evt) {
         evt.stopPropagation();
     }, false);
-    panel.addEventListener('click', function(evt) {
+    panel.addEventListener('click', function (evt) {
         evt.stopPropagation();
     }, false);
 
@@ -70,9 +70,9 @@ editor.once('load', function() {
 
         panel.classList.remove('hidden');
         return element;
-    }
+    };
 
-    var onError = function(msg, url, line, col, e) {
+    var onError = function (msg, url, line, col, e) {
         if (url) {
             // check if this is a playcanvas script
             var codeEditorUrl = '';
@@ -156,7 +156,7 @@ editor.once('load', function() {
 
     // redirect console.error to the in-game console
     var consoleError = console.error;
-    console.error = function(...args) {
+    console.error = function (...args) {
         var errorPassed = false;
         consoleError(...args);
 
@@ -173,10 +173,10 @@ editor.once('load', function() {
                         var parts = m[0].slice(1, -1).split(':');
 
                         if (parts.length === 2) {
-                            var line = parseInt(parts[0], 10);
-                            var col = parseInt(parts[1], 10);
+                            var lineNumber = parseInt(parts[0], 10);
+                            var colNumber = parseInt(parts[1], 10);
 
-                            onError(msg, url, line, col, item);
+                            onError(msg, url, lineNumber, colNumber, item);
                             errorPassed = true;
                         }
                     }

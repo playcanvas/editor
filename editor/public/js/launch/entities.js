@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var entities = new ObserverList({
@@ -12,7 +12,7 @@ editor.once('load', function() {
     }
 
     // on adding
-    entities.on('add', function(obj) {
+    entities.on('add', function (obj) {
         editor.emit('entities:add', obj);
     });
 
@@ -24,7 +24,7 @@ editor.once('load', function() {
     });
 
     // on removing
-    entities.on('remove', function(obj) {
+    entities.on('remove', function (obj) {
         editor.emit('entities:remove', obj);
     });
 
@@ -42,8 +42,8 @@ editor.once('load', function() {
         return entities.get(resourceId);
     });
 
-    editor.on('scene:raw', function(data) {
-        for(var key in data.entities) {
+    editor.on('scene:raw', function (data) {
+        for (var key in data.entities) {
             entities.add(new Observer(data.entities[key]));
         }
 

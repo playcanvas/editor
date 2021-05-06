@@ -1,4 +1,4 @@
-var now = function() {
+var now = function () {
     return performance.timing.navigationStart + performance.now();
 };
 
@@ -7,7 +7,7 @@ if (! performance || ! performance.now || ! performance.timing)
 
 var start = now();
 
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     // times
@@ -16,15 +16,15 @@ editor.once('load', function() {
     var timeHover = 0;
 
     var epoc = ! window.performance || ! performance.now || ! performance.timing;
-    editor.method('tools:epoc', function() {
+    editor.method('tools:epoc', function () {
         return epoc;
     });
 
-    editor.method('tools:time:now', function() { return now() - timeBeginning; });
-    editor.method('tools:time:beginning', function() { return timeBeginning; });
-    editor.method('tools:time:hover', function() { return timeHover; });
+    editor.method('tools:time:now', function () { return now() - timeBeginning; });
+    editor.method('tools:time:beginning', function () { return timeBeginning; });
+    editor.method('tools:time:hover', function () { return timeHover; });
 
-    editor.method('tools:time:toHuman', function(ms, precision) {
+    editor.method('tools:time:toHuman', function (ms, precision) {
         var s = ms / 1000;
         var m = ('00' + Math.floor(s / 60)).slice(-2);
         if (precision) {
@@ -40,12 +40,12 @@ editor.once('load', function() {
     root.id = 'dev-tools';
     root.style.display = 'none';
     document.body.appendChild(root);
-    editor.method('tools:root', function() {
+    editor.method('tools:root', function () {
         return root;
     });
 
     // variabled
-    var updateInterval;
+    // var updateInterval;
     var enabled = false;
 
     if (location.search && location.search.indexOf('profile=true') !== -1)
@@ -55,7 +55,7 @@ editor.once('load', function() {
         root.style.display = 'block';
 
     // view
-    var scale = .2; // how many pixels in a ms
+    var scale = 0.2; // how many pixels in a ms
     var capacity = 0; // how many ms can fit
     var scroll = {
         time: 0, // how many ms start from
@@ -69,9 +69,11 @@ editor.once('load', function() {
         }
     };
 
-    editor.method('tools:enabled', function() { return enabled; });
+    var resize;
 
-    editor.method('tools:enable', function() {
+    editor.method('tools:enabled', function () { return enabled; });
+
+    editor.method('tools:enable', function () {
         if (enabled)
             return;
 
@@ -87,7 +89,7 @@ editor.once('load', function() {
         // }, 1000 / 60);
     });
 
-    editor.method('tools:disable', function() {
+    editor.method('tools:disable', function () {
         if (! enabled)
             return;
 
@@ -99,8 +101,8 @@ editor.once('load', function() {
     });
 
     // methods to access view params
-    editor.method('tools:time:capacity', function() { return capacity; });
-    editor.method('tools:scroll:time', function() { return scroll.time; });
+    editor.method('tools:time:capacity', function () { return capacity; });
+    editor.method('tools:scroll:time', function () { return scroll.time; });
 
     // size
     var left = 300;
@@ -108,7 +110,7 @@ editor.once('load', function() {
     var width = 0;
     var height = 0;
     // resizing
-    var resize = function() {
+    resize = function () {
         var rect = root.getBoundingClientRect();
 
         if (width === rect.width && height === rect.height)
@@ -125,10 +127,10 @@ editor.once('load', function() {
     window.addEventListener('orientationchange', resize, false);
     setInterval(resize, 500);
     resize();
-    editor.method('tools:size:width', function() { return width; });
-    editor.method('tools:size:height', function() { return height; });
+    editor.method('tools:size:width', function () { return width; });
+    editor.method('tools:size:height', function () { return height; });
 
-    editor.on('tools:clear', function() {
+    editor.on('tools:clear', function () {
         timeBeginning = now();
         timeNow = 0;
         timeHover = 0;
@@ -145,7 +147,17 @@ editor.once('load', function() {
         hover: false
     };
 
-    var update = function() {
+    var flushMouse = function () {
+        if (mouse.up)
+            mouse.up = false;
+
+        if (mouse.click) {
+            mouse.click = false;
+            mouse.down = true;
+        }
+    };
+
+    var update = function () {
         timeNow = now() - timeBeginning;
 
         if (scroll.auto)
@@ -196,7 +208,7 @@ editor.once('load', function() {
         flushMouse();
     };
 
-    root.addEventListener('mousemove', function(evt) {
+    root.addEventListener('mousemove', function (evt) {
         evt.stopPropagation();
 
         var rect = root.getBoundingClientRect();
@@ -210,7 +222,7 @@ editor.once('load', function() {
         }
     }, false);
 
-    root.addEventListener('mousedown', function(evt) {
+    root.addEventListener('mousedown', function (evt) {
         evt.stopPropagation();
         evt.preventDefault();
 
@@ -220,7 +232,7 @@ editor.once('load', function() {
         mouse.click = true;
     }, false);
 
-    root.addEventListener('mouseup', function(evt) {
+    root.addEventListener('mouseup', function (evt) {
         evt.stopPropagation();
 
         if (evt.button !== 0 || ! mouse.down)
@@ -230,7 +242,7 @@ editor.once('load', function() {
         mouse.up = true;
     }, false);
 
-    root.addEventListener('mouseleave', function(evt) {
+    root.addEventListener('mouseleave', function (evt) {
         mouse.hover = false;
         timeHover = 0;
         if (! mouse.down)
@@ -240,7 +252,7 @@ editor.once('load', function() {
         mouse.up = true;
     }, false);
 
-    root.addEventListener('mousewheel', function(evt) {
+    root.addEventListener('mousewheel', function (evt) {
         evt.stopPropagation();
 
         if (! mouse.hover)
@@ -255,7 +267,7 @@ editor.once('load', function() {
     }, false);
 
     // alt + t
-    window.addEventListener('keydown', function(evt) {
+    window.addEventListener('keydown', function (evt) {
         if (evt.keyCode === 84 && evt.altKey) {
             if (enabled) {
                 editor.call('tools:disable');
@@ -265,23 +277,12 @@ editor.once('load', function() {
         }
     }, false);
 
-    var flushMouse = function() {
-        if (mouse.up)
-            mouse.up = false;
-
-        if (mouse.click) {
-            mouse.click = false;
-            mouse.down = true;
-        }
-    };
-
     var app = editor.call('viewport:app');
     if (! app) return; // webgl not available
 
-    var frame = 0;
     var frameLast = 0;
 
-    var onFrame = function() {
+    var onFrame = function () {
         requestAnimationFrame(onFrame);
 
         if (enabled) {

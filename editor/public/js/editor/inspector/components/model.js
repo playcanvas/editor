@@ -95,6 +95,118 @@ Object.assign(pcui, (function () {
 
     const REGEX_MAPPING = /^components.model.mapping.(\d+)$/;
 
+    // Custom binding for asset field so that when we change the asset we
+    // reset the model's mapping
+    class AssetElementToObserversBinding extends pcui.BindingElementToObservers {
+        constructor(assets, args) {
+            super(args);
+            this._assets = assets;
+        }
+
+        clone() {
+            return new AssetElementToObserversBinding(this._assets, {
+                history: this._history,
+                historyPrefix: this._historyPrefix,
+                historyPostfix: this._historyPostfix,
+                historyName: this._historyName,
+                historyCombine: this._historyCombine
+            });
+        }
+
+        // Override setValue to set additional fields
+        setValue(value) {
+            if (this.applyingChange) return;
+            if (!this._observers) return;
+
+            this.applyingChange = true;
+
+            // make copy of observers if we are using history
+            // so that we can undo on the same observers in the future
+            const observers = this._observers.slice();
+            const paths = this._paths.slice();
+
+            let previous = {};
+
+            const undo = () => {
+                for (let i = 0; i < observers.length; i++) {
+                    const latest = observers[i].latest();
+                    if (!latest || !latest.has('components.model')) continue;
+
+                    let history = false;
+                    if (latest.history) {
+                        history = latest.history.enabled;
+                        latest.history.enabled = false;
+                    }
+
+                    const path = this._pathAt(paths, i);
+
+                    const prevEntry = previous[latest.get('resource_id')];
+
+                    latest.set(path, prevEntry.value);
+
+                    if (prevEntry.hasOwnProperty('mapping')) {
+                        latest.set('components.model.mapping', prevEntry.mapping);
+                    }
+
+                    if (history) {
+                        latest.history.enabled = true;
+                    }
+                }
+            };
+
+            const redo = () => {
+                previous = {};
+
+                for (let i = 0; i < observers.length; i++) {
+                    const latest = observers[i].latest();
+                    if (!latest || !latest.has('components.model')) continue;
+
+                    let history = false;
+                    if (latest.history) {
+                        history = latest.history.enabled;
+                        latest.history.enabled = false;
+                    }
+
+                    const path = this._pathAt(paths, i);
+                    const oldValue = latest.get(path);
+
+                    const entry = {
+                        value: oldValue
+                    };
+
+                    latest.set(path, value);
+
+                    if (value !== oldValue && latest.get('components.model.mapping')) {
+                        const mapping = latest.get('components.model.mapping');
+                        if (mapping) {
+                            entry.mapping = mapping;
+                            latest.unset('components.model.mapping');
+                        }
+                    }
+
+                    previous[latest.get('resource_id')] = entry;
+
+                    if (history) {
+                        latest.history.enabled = true;
+                    }
+                }
+            };
+
+            if (this._history) {
+                this._history.add({
+                    name: this._getHistoryActionName(paths),
+                    redo: redo,
+                    undo: undo
+                });
+
+            }
+
+            redo();
+
+            this.applyingChange = false;
+        }
+    }
+
     class ModelComponentInspector extends pcui.ComponentInspector {
         constructor(args) {
             args = Object.assign({}, args);
@@ -487,118 +599,6 @@ Object.assign(pcui, (function () {
                 this._timeoutRefreshMappings = null;
             }
             this._dirtyMappings = {};
-        }
-    }
-
-    // Custom binding for asset field so that when we change the asset we
-    // reset the model's mapping
-    class AssetElementToObserversBinding extends pcui.BindingElementToObservers {
-        constructor(assets, args) {
-            super(args);
-            this._assets = assets;
-        }
-
-        clone() {
-            return new AssetElementToObserversBinding(this._assets, {
-                history: this._history,
-                historyPrefix: this._historyPrefix,
-                historyPostfix: this._historyPostfix,
-                historyName: this._historyName,
-                historyCombine: this._historyCombine
-            });
-        }
-
-        // Override setValue to set additional fields
-        setValue(value) {
-            if (this.applyingChange) return;
-            if (!this._observers) return;
-
-            this.applyingChange = true;
-
-            // make copy of observers if we are using history
-            // so that we can undo on the same observers in the future
-            const observers = this._observers.slice();
-            const paths = this._paths.slice();
-
-            let previous = {};
-
-            const undo = () => {
-                for (let i = 0; i < observers.length; i++) {
-                    const latest = observers[i].latest();
-                    if (!latest || !latest.has('components.model')) continue;
-
-                    let history = false;
-                    if (latest.history) {
-                        history = latest.history.enabled;
-                        latest.history.enabled = false;
-                    }
-
-                    const path = this._pathAt(paths, i);
-
-                    const prevEntry = previous[latest.get('resource_id')];
-
-                    latest.set(path, prevEntry.value);
-
-                    if (prevEntry.hasOwnProperty('mapping')) {
-                        latest.set('components.model.mapping', prevEntry.mapping);
-                    }
-
-                    if (history) {
-                        latest.history.enabled = true;
-                    }
-                }
-            };
-
-            const redo = () => {
-                previous = {};
-
-                for (let i = 0; i < observers.length; i++) {
-                    const latest = observers[i].latest();
-                    if (!latest || !latest.has('components.model')) continue;
-
-                    let history = false;
-                    if (latest.history) {
-                        history = latest.history.enabled;
-                        latest.history.enabled = false;
-                    }
-
-                    const path = this._pathAt(paths, i);
-                    const oldValue = latest.get(path);
-
-                    const entry = {
-                        value: oldValue
-                    };
-
-                    latest.set(path, value);
-
-                    if (value !== oldValue && latest.get('components.model.mapping')) {
-                        const mapping = latest.get('components.model.mapping');
-                        if (mapping) {
-                            entry.mapping = mapping;
-                            latest.unset('components.model.mapping');
-                        }
-                    }
-
-                    previous[latest.get('resource_id')] = entry;
-
-                    if (history) {
-                        latest.history.enabled = true;
-                    }
-                }
-            };
-
-            if (this._history) {
-                this._history.add({
-                    name: this._getHistoryActionName(paths),
-                    redo: redo,
-                    undo: undo
-                });
-
-            }
-
-            redo();
-
-            this.applyingChange = false;
         }
     }
 

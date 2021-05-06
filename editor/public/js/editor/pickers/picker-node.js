@@ -117,8 +117,6 @@ editor.once('load', function () {
                 }
             }
         });
-
-
     };
 
     var addClickEvent = function (field, index) {

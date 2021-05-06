@@ -9,30 +9,9 @@ editor.once('load', function () {
     var hoverSkybox = null;
     var hoverMaterial = null;
     var hoverCubemap = null;
-    var hoverEntity = undefined;
+    var hoverEntity;
     var hoverMeshInstance = null;
     var hoverSkyboxFields = ['cubeMap', 'prefilteredCubeMap128', 'prefilteredCubeMap64', 'prefilteredCubeMap32', 'prefilteredCubeMap16', 'prefilteredCubeMap8', 'prefilteredCubeMap4'];
-
-    var onPickHover = function (node, picked) {
-        var meshInstance = null;
-
-        if (node && node._icon)
-            node = node._getEntity();
-
-        if (! node) {
-            onHover(null);
-            return;
-        }
-
-        if (picked instanceof pc.MeshInstance)
-            meshInstance = picked;
-
-        if (node.model && meshInstance && (! meshInstance.node._parent || ! meshInstance.node._parent._icon)) {
-            onHover(node, meshInstance);
-        } else {
-            onHover(null);
-        }
-    };
 
     var onLeave = function () {
         if (hoverSkybox) {
@@ -50,10 +29,6 @@ editor.once('load', function () {
 
             editor.call('viewport:render');
         }
-    };
-
-    var onCubemapLoad = function () {
-        setCubemap();
     };
 
     var setCubemap = function () {
@@ -101,6 +76,31 @@ editor.once('load', function () {
         hoverEntity = entity;
         hoverMeshInstance = meshInstance;
 
+        setCubemap();
+    };
+
+    var onPickHover = function (node, picked) {
+        var meshInstance = null;
+
+        if (node && node._icon)
+            node = node._getEntity();
+
+        if (! node) {
+            onHover(null);
+            return;
+        }
+
+        if (picked instanceof pc.MeshInstance)
+            meshInstance = picked;
+
+        if (node.model && meshInstance && (! meshInstance.node._parent || ! meshInstance.node._parent._icon)) {
+            onHover(node, meshInstance);
+        } else {
+            onHover(null);
+        }
+    };
+
+    var onCubemapLoad = function () {
         setCubemap();
     };
 

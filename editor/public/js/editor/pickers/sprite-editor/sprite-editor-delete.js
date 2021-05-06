@@ -20,8 +20,8 @@ editor.once('load', function () {
 
         var numKeys = keys.length;
 
+        var oldFrames = {};
         if (history) {
-            var oldFrames = {};
             for (let i = 0; i < numKeys; i++) {
                 oldFrames[keys[i]] = atlasAsset.get('data.frames.' + keys[i]);
             }

@@ -11,28 +11,6 @@ editor.once('load', function () {
     var timeDelay = 500;
     var queued = false;
 
-
-    editor.on('lightmapper:baked', function () {
-        queued = false;
-        timeLast = Date.now();
-    });
-
-
-    editor.method('lightmapper:auto', function (value) {
-        if (value === undefined)
-            return state;
-
-        if (state === value)
-            return;
-
-        state = value;
-        editor.emit('lightmapper:auto', state);
-
-        rebakeScene();
-    });
-    editor.emit('lightmapper:auto', state);
-
-
     // track entities model assets loading state to re-bake
     var rebakeEntity = function (entity, force) {
         if (! (state || force))
@@ -111,6 +89,27 @@ editor.once('load', function () {
             editor.call('entities:shadows:update');
         });
     };
+
+
+    editor.on('lightmapper:baked', function () {
+        queued = false;
+        timeLast = Date.now();
+    });
+
+
+    editor.method('lightmapper:auto', function (value) {
+        if (value === undefined)
+            return state;
+
+        if (state === value)
+            return;
+
+        state = value;
+        editor.emit('lightmapper:auto', state);
+
+        rebakeScene();
+    });
+    editor.emit('lightmapper:auto', state);
 
 
     editor.on('viewport:update', function () {

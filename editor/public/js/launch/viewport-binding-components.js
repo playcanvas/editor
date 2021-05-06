@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
@@ -18,7 +18,7 @@ editor.once('load', function() {
 
     editor.on('entities:add', function (obj) {
         // subscribe to changes
-        obj.on('*:set', function(path, value) {
+        obj.on('*:set', function (path, value) {
             if (obj._silent || ! path.startsWith('components'))
                 return;
 
@@ -29,11 +29,12 @@ editor.once('load', function() {
             var parts = path.split('.');
             var component = parts[1];
             var property = parts[2];
+            var data;
 
             if (!entity[component]) {
                 if (!property) {
                     // add component
-                    var data = runtimeComponentData(component, value);
+                    data = runtimeComponentData(component, value);
                     app.systems[component].addComponent(entity, data);
 
                     // render
@@ -49,7 +50,7 @@ editor.once('load', function() {
 
                     if (parts.length === 4) {
                         // new script
-                        var data = obj.get('components.script.scripts.' + parts[3]);
+                        data = obj.get('components.script.scripts.' + parts[3]);
                         entity.script.create(parts[3], data);
                     } else if (script && parts.length === 5 && parts[4] === 'enabled') {
                         // enabled
@@ -79,7 +80,6 @@ editor.once('load', function() {
                     }
 
                     value = obj.get('components.' + component + '.' + property);
-                    var oldValue = entity[component][property];
                     entity[component][property] = editor.call('components:convertValue', component, property, value);
                 }
             }

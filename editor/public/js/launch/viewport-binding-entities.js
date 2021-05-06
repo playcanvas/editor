@@ -1,10 +1,8 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
     if (! app) return; // webgl not available
-
-    var initialEntitiesLoaded = false;
 
     // entities awaiting parent
     var awaitingParent = { };
@@ -12,7 +10,7 @@ editor.once('load', function() {
     // queue for hierarchy resync
     var awaitingResyncHierarchy = false;
 
-    var resyncHierarchy = function() {
+    var resyncHierarchy = function () {
         awaitingResyncHierarchy = false;
 
         // sync hierarchy
@@ -51,7 +49,7 @@ editor.once('load', function() {
 
         // add components
         var components = obj.json().components;
-        for(var key in components)
+        for (var key in components)
             app.systems[key].addComponent(entity, components[key]);
 
         // parenting
@@ -69,7 +67,7 @@ editor.once('load', function() {
             if (! parent) {
                 // if parent not available, then await
                 if (! awaitingParent[obj.get('parent')])
-                    awaitingParent[obj.get('parent')] = [ ];
+                    awaitingParent[obj.get('parent')] = [];
 
                 // add to awaiting children
                 awaitingParent[obj.get('parent')].push(obj);
@@ -82,7 +80,7 @@ editor.once('load', function() {
         // check if there are awaiting children
         if (awaitingParent[obj.get('resource_id')]) {
             // add all awaiting children
-            for(var i = 0; i < awaitingParent[obj.get('resource_id')].length; i++) {
+            for (var i = 0; i < awaitingParent[obj.get('resource_id')].length; i++) {
                 var awaiting = awaitingParent[obj.get('resource_id')][i];
                 entity.addChild(app.root.getByGuid(awaiting.get('resource_id')));
             }
@@ -109,8 +107,37 @@ editor.once('load', function() {
             processEntity(obj);
         }
 
+        var resetPhysics = function (entity) {
+            var pos = obj.get('position');
+            var rot = obj.get('rotation');
+            var scale = obj.get('scale');
+
+            // if the entity has an element component
+            // then only set z and let the rest be handled
+            // by the element component (unless autoWidth or autoHeight is true in which case we need to be able to modify position)
+            if (! entity.element || entity.element.autoWidth || entity.element.autoHeight) {
+                entity.setLocalPosition(pos[0], pos[1], pos[2]);
+            } else {
+                var localPos = entity.getLocalPosition();
+                entity.setLocalPosition(localPos.x, localPos.y, pos[2]);
+            }
+
+            entity.setLocalEulerAngles(rot[0], rot[1], rot[2]);
+            entity.setLocalScale(scale[0], scale[1], scale[2]);
+
+            if (entity.enabled) {
+                if (entity.rigidbody && entity.rigidbody.enabled) {
+                    entity.rigidbody.syncEntityToBody();
+
+                    // Reset velocities
+                    entity.rigidbody.linearVelocity = pc.Vec3.ZERO;
+                    entity.rigidbody.angularVelocity = pc.Vec3.ZERO;
+                }
+            }
+        };
+
         // subscribe to changes
-        obj.on('*:set', function(path, value) {
+        obj.on('*:set', function (path, value) {
             var entity = app.root.findByGuid(obj.get('resource_id'));
             if (! entity)
                 return;
@@ -160,35 +187,6 @@ editor.once('load', function() {
             }
         });
 
-        var resetPhysics = function (entity) {
-            var pos = obj.get('position');
-            var rot = obj.get('rotation');
-            var scale = obj.get('scale');
-
-            // if the entity has an element component
-            // then only set z and let the rest be handled
-            // by the element component (unless autoWidth or autoHeight is true in which case we need to be able to modify position)
-            if (! entity.element || entity.element.autoWidth || entity.element.autoHeight) {
-                entity.setLocalPosition(pos[0], pos[1], pos[2]);
-            } else {
-                var localPos = entity.getLocalPosition();
-                entity.setLocalPosition(localPos.x, localPos.y, pos[2]);
-            }
-
-            entity.setLocalEulerAngles(rot[0], rot[1], rot[2]);
-            entity.setLocalScale(scale[0], scale[1], scale[2]);
-
-            if (entity.enabled) {
-                if (entity.rigidbody && entity.rigidbody.enabled) {
-                    entity.rigidbody.syncEntityToBody();
-
-                    // Reset velocities
-                    entity.rigidbody.linearVelocity = pc.Vec3.ZERO;
-                    entity.rigidbody.angularVelocity = pc.Vec3.ZERO;
-                }
-            }
-        };
-
         var reparent = function (child, index) {
             var childEntity = editor.call('entities:get', child);
             if (!childEntity)
@@ -203,8 +201,9 @@ editor.once('load', function() {
 
                 // skip any graph nodes
                 if (index > 0) {
+                    var i;
                     var children = parentEntity.children;
-                    for (var i = 0, len = children.length; i < len && index > 0; i++) {
+                    for (i = 0, len = children.length; i < len && index > 0; i++) {
                         if (children[i] instanceof pc.Entity) {
                             index--;
                         }
@@ -228,9 +227,5 @@ editor.once('load', function() {
             entity.destroy();
             editor.call('viewport:render');
         }
-    });
-
-    editor.on('entities:load', function () {
-        initialEntitiesLoaded = true;
     });
 });

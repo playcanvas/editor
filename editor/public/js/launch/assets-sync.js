@@ -14,6 +14,25 @@ editor.once('load', function () {
     var concatenatedScriptsUrl = '/projects/' + config.project.id + '/concatenated-scripts/scripts.js?branchId=' + config.self.branch.id;
     var useBundles = (queryParams.useBundles !== 'false');
 
+    var getFileUrl = function (folders, id, revision, filename, useBundles) {
+        if (useBundles) {
+            // if we are using bundles then this URL should be the URL
+            // in the tar archive
+            return ['files/assets', id, revision, filename].join('/');
+        }
+
+        var path = '';
+        for (var i = 0; i < folders.length; i++) {
+            var folder = editor.call('assets:get', folders[i]);
+            if (folder) {
+                path += encodeURIComponent(folder.get('name')) + '/';
+            } else {
+                path += (assetNames[folders[i]] || 'unknown') + '/';
+            }
+        }
+        return 'assets/files/' + path + encodeURIComponent(filename) + '?id=' + id + '&branchId=' + config.self.branch.id;
+    };
+
     editor.method('loadAsset', function (uniqueId, callback) {
         var connection = editor.call('realtime:connection');
 
@@ -33,6 +52,8 @@ editor.once('load', function () {
 
         // ready to sync
         doc.on('load', function () {
+            var key;
+
             var assetData = doc.data;
             if (! assetData) {
                 log.error('Could not load asset: ' + uniqueId);
@@ -65,7 +86,7 @@ editor.once('load', function () {
                 }
 
                 if (assetData.file.variants) {
-                    for (var key in assetData.file.variants) {
+                    for (key in assetData.file.variants) {
                         assetData.file.variants[key].url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.variants[key].filename);
                     }
                 }
@@ -101,12 +122,8 @@ editor.once('load', function () {
                         _asset.addLocalizedAssetId(locale, assetData.i18n[locale]);
                     }
                 }
-
-                if (asset.get('type') !== 'script' || ! asset.get('preload')) {
-                    // app.assets.add(_asset);
-                }
             } else {
-                for (var key in assetData)
+                for (key in assetData)
                     asset.set(key, assetData[key]);
             }
 
@@ -119,12 +136,14 @@ editor.once('load', function () {
     });
 
     var createEngineAsset = function (asset, wasmAssetIds) {
+        var sync;
+
         // if engine asset already exists return
         if (app.assets.get(asset.get('id'))) return;
 
         // handle bundle assets
         if (useBundles && asset.get('type') === 'bundle') {
-            var sync = asset.sync.enabled;
+            sync = asset.sync.enabled;
             asset.sync.enabled = false;
 
             // get the assets in this bundle
@@ -175,7 +194,7 @@ editor.once('load', function () {
             if (editor.call('assets:bundles:containAsset', asset.get('id'))) {
                 var file = asset.get('file');
                 if (file) {
-                    var sync = asset.sync.enabled;
+                    sync = asset.sync.enabled;
                     asset.sync.enabled = false;
 
                     asset.set('file.url', getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), file.filename, true));
@@ -236,10 +255,10 @@ editor.once('load', function () {
         // get the set of wasm asset ids i.e. the wasm module ids and linked glue/fallback
         // script ids. the list is used to suppress the asset system from the loading
         // the scripts again.
-        var getWasmAssetIds = function() {
+        var getWasmAssetIds = function () {
             var result = { };
             editor.call('assets:list')
-            .forEach(function(a) {
+            .forEach(function (a) {
                 var asset = a.asset;
                 if (asset.type !== 'wasm' || !asset.data) {
                     return;
@@ -304,7 +323,7 @@ editor.once('load', function () {
                     });
 
                     // create runtime asset for every asset observer
-                    assets.forEach(function(a) { createEngineAsset(a, wasmAssetIds); });
+                    assets.forEach(function (a) { createEngineAsset(a, wasmAssetIds); });
 
                     editor.call('assets:progress', 1);
                     editor.emit('assets:load');
@@ -360,25 +379,6 @@ editor.once('load', function () {
             delete docs[id];
         }
     });
-
-    var getFileUrl = function (folders, id, revision, filename, useBundles) {
-        if (useBundles) {
-            // if we are using bundles then this URL should be the URL
-            // in the tar archive
-            return ['files/assets', id, revision, filename].join('/');
-        }
-
-        var path = '';
-        for (var i = 0; i < folders.length; i++) {
-            var folder = editor.call('assets:get', folders[i]);
-            if (folder) {
-                path += encodeURIComponent(folder.get('name')) + '/';
-            } else {
-                path += (assetNames[folders[i]] || 'unknown') + '/';
-            }
-        }
-        return 'assets/files/' + path + encodeURIComponent(filename) + '?id=' + id + '&branchId=' + config.self.branch.id;
-    };
 
     // hook sync to new assets
     editor.on('assets:add', function (asset) {

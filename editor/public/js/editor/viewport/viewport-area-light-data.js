@@ -2,7 +2,6 @@ editor.once('load', function () {
     'use strict';
 
     var projectSettings = editor.call('settings:project');
-    var projectUserSettings = editor.call('settings:projectUser');
 
     var app = editor.call('viewport:app');
 
@@ -42,5 +41,4 @@ editor.once('load', function () {
             }
         }
     });
-
 });
