@@ -210,7 +210,7 @@ editor.once('load', function () {
                 return editor.call('permissions:write');
             },
             select: function () {
-                editor.call('picker:confirm', 'Are you sure you want to delete this Scene?');
+                editor.call('picker:confirm', `Are you sure you want to permanently delete scene '${dropdownScene.name}'?`);
                 editor.once('picker:confirm:yes', function () {
                     var id = dropdownScene.id;
                     onSceneDeleted(id);
