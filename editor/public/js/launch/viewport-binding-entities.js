@@ -201,7 +201,7 @@ editor.once('load', function () {
 
                 // skip any graph nodes
                 if (index > 0) {
-                    var i;
+                    var i, len;
                     var children = parentEntity.children;
                     for (i = 0, len = children.length; i < len && index > 0; i++) {
                         if (children[i] instanceof pc.Entity) {
