@@ -118,6 +118,7 @@ editor.once('load', function () {
         if (this.grid) {
             gridLayer.removeMeshInstances(this.grid.model.meshInstances);
             this.grid.destroy();
+            this.grid = null;
         }
 
         settings.gridDivisions = parseInt(settings.gridDivisions, 10);
