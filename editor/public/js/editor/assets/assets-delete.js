@@ -5,13 +5,21 @@ editor.once('load', function () {
         if (! editor.call('permissions:write'))
             return;
 
-        var msg = 'Delete Asset?';
+        let msg = 'Permanently delete asset?';
 
-        if (items.length === 1 && items[0].get('type') === 'folder')
-            msg = 'Delete Folder?';
+        if (items.length === 1) {
+            const item = items[0];
+            const name = item.get('name');
+            const type = item.get('type');
 
-        if (items.length > 1)
-            msg = 'Delete ' + items.length + ' Assets?';
+            if (type === 'folder') {
+                msg = `Permanently delete folder '${name}'?`;
+            } else {
+                msg = `Permanently delete asset '${name}'?`;
+            }
+        } else if (items.length > 1) {
+            msg = `Permanently delete ${items.length} assets?`;
+        }
 
         editor.call('picker:confirm', msg, function () {
             if (! editor.call('permissions:write'))
