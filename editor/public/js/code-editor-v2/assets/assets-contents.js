@@ -16,23 +16,13 @@ editor.once('load', function () {
 
         var key = getKey(asset);
 
-        // try {
-            // localStorage.setItem(key, JSON.stringify(data));
-        // } catch (ex) {
-            memoryCache[key] = data;
-        // }
+        memoryCache[key] = data;
     };
 
     var load = function (asset) {
         var key = getKey(asset);
 
-        // try {
-            // var data = localStorage.getItem(key);
-            // if (data)
-                // return JSON.parse(data);
-        // } catch (ex) {
-            return memoryCache[key];
-        // }
+        return memoryCache[key];
     };
 
     var loadRequests = {};
@@ -54,7 +44,7 @@ editor.once('load', function () {
             auth: true,
             notJson: true
         })
-        .on('load', function(status, data) {
+        .on('load', function (status, data) {
             // replace \r and \r\n with \n like codemirror does
             data = data.replace(/\r\n?/g, '\n');
 

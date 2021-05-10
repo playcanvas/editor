@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var scriptBoilerplate = "var {className} = pc.createScript('{scriptName}');\n\n// initialize code called once per entity\n{className}.prototype.initialize = function() {\n    \n};\n\n// update code called every frame\n{className}.prototype.update = function(dt) {\n    \n};\n\n// swap method called for script hot-reloading\n// inherit your script state here\n// {className}.prototype.swap = function(old) { };\n\n// to learn more about script anatomy, please read:\n// http://developer.playcanvas.com/en/user-manual/scripting/";
@@ -20,12 +20,12 @@ editor.once('load', function() {
 
             if (! className || ! scriptName) {
                 // tokenize filename
-                var tokens = [ ];
+                var tokens = [];
                 var string = name.replace(/([^A-Z])([A-Z][^A-Z])/g, '$1 $2').replace(/([A-Z0-9]{2,})/g, ' $1');
                 var parts = string.split(/(\s|\-|_|\.)/g);
 
                 // filter valid tokens
-                for(var i = 0; i < parts.length; i++) {
+                for (let i = 0; i < parts.length; i++) {
                     parts[i] = parts[i].toLowerCase().trim();
                     if (parts[i] && parts[i] !== '-' && parts[i] !== '_' && parts[i] !== '.')
                         tokens.push(parts[i]);
@@ -35,13 +35,13 @@ editor.once('load', function() {
                     if (! scriptName) {
                         scriptName = tokens[0];
 
-                        for(var i = 1; i < tokens.length; i++) {
+                        for (let i = 1; i < tokens.length; i++) {
                             scriptName += tokens[i].charAt(0).toUpperCase() + tokens[i].slice(1);
                         }
                     }
 
                     if (! className) {
-                        for(var i = 0; i < tokens.length; i++) {
+                        for (let i = 0; i < tokens.length; i++) {
                             className += tokens[i].charAt(0).toUpperCase() + tokens[i].slice(1);
                         }
                     }
@@ -67,7 +67,7 @@ editor.once('load', function() {
             preload: true,
             parent: (args.parent !== undefined) ? args.parent : editor.call('assets:selected:folder'),
             filename: filename,
-            file: new Blob([ args.content || '' ], { type: 'text/javascript' }),
+            file: new Blob([args.content || ''], { type: 'text/javascript' }),
             data: {
                 scripts: { },
                 loading: false
@@ -78,10 +78,17 @@ editor.once('load', function() {
             }
         };
 
-        editor.call('assets:create', asset, function(err, assetId) {
+        editor.call('assets:create', asset, function (err, assetId) {
             if (err) return;
 
-            var onceAssetLoad = function(asset) {
+            var onParse = function (asset) {
+                editor.call('scripts:parse', asset, function (err, result) {
+                    if (args.callback)
+                        args.callback(err, asset, result);
+                });
+            };
+
+            var onceAssetLoad = function (asset) {
                 if (asset.get('file.filename')) {
                     onParse(asset);
                 } else {
@@ -89,13 +96,6 @@ editor.once('load', function() {
                         onParse(asset);
                     });
                 }
-            };
-
-            var onParse = function(asset) {
-                editor.call('scripts:parse', asset, function(err, result) {
-                    if (args.callback)
-                        args.callback(err, asset, result);
-                });
             };
 
             var asset = editor.call('assets:get', assetId);
@@ -107,6 +107,3 @@ editor.once('load', function() {
         }, args.noSelect);
     });
 });
-
-
-

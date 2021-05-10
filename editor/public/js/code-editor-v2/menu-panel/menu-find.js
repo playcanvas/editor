@@ -15,5 +15,4 @@ editor.once('load', function () {
     panel.append(btnFind);
 
     editor.call('menu:register', 'find', btnFind, menuFind);
-
 });

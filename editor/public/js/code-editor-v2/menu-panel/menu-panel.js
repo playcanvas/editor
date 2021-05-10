@@ -60,7 +60,6 @@ editor.once('load', function () {
         });
         shortcut.renderChanges = false;
         shortcut.class.add('shortcut');
-        item.elementTitle.appendChild(shortcut.element)
+        item.elementTitle.appendChild(shortcut.element);
     });
-
 });

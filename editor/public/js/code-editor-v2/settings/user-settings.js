@@ -63,7 +63,7 @@ editor.once('load', function () {
         paths: Object.keys(settings._data)
     });
     settings.sync.on('op', function (op) {
-        doc.submitOp([ op ]);
+        doc.submitOp([op]);
     });
 
     editor.on('realtime:disconnected', function () {

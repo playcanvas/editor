@@ -31,5 +31,4 @@ editor.once('load', function () {
         menu.open = false;
         window.open('/editor/project/' + config.project.id);
     });
-
 });

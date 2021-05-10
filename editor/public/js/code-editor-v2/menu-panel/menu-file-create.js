@@ -46,7 +46,6 @@ editor.once('load', function () {
                 return editor.call('editor:command:create', type);
             }
         }));
-
     });
 
 
@@ -83,7 +82,6 @@ editor.once('load', function () {
                     return editor.call('editor:command:create', type, selection[0]);
             }
         }));
-
     });
 
 
@@ -99,7 +97,7 @@ editor.once('load', function () {
         if (! editor.call('editor:command:can:create', folder)) return;
 
         if (type === 'script') {
-            editor.call('picker:script-create', function(filename) {
+            editor.call('picker:script-create', function (filename) {
                 editor.call('assets:create:script', {
                     filename: filename,
                     boilerplate: true,
@@ -111,7 +109,5 @@ editor.once('load', function () {
                 parent: folder
             });
         }
-
     });
-
 });

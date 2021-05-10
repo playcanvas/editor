@@ -65,15 +65,15 @@ editor.once('load', function () {
 
     // when we change documents reset whoisonline panel
     editor.on('documents:focus', function (id) {
-        var whoisonline = editor.call('whoisonline:get', id);
+        const whoisonline = editor.call('whoisonline:get', id);
 
         // clear old
-        for (var id in itemsIndex) {
+        for (const id in itemsIndex) {
             if (whoisonline[id]) {
                 continue;
-            };
+            }
 
-            var item = itemsIndex[id];
+            const item = itemsIndex[id];
             wioPanel.remove(item);
             delete itemsIndex[id];
 
@@ -83,10 +83,9 @@ editor.once('load', function () {
             }
         }
 
-        for (var id in whoisonline) {
+        for (const id in whoisonline) {
             if (! itemsIndex[id])
                 createItem(id);
         }
     });
-
 });

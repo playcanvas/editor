@@ -85,5 +85,4 @@ editor.once('load', function () {
         cm.execCommand('unfoldAll');
         cm.focus();
     });
-
 });

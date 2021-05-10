@@ -46,9 +46,9 @@ this.onmessage = function (evt) {
             if (index === newLines[mid] || low === hi) {
                 break;
             } else if (index > newLines[mid]) {
-                low = mid+1;
+                low = mid + 1;
             } else if (index < newLines[mid]) {
-                hi = mid-1;
+                hi = mid - 1;
             }
         }
 
@@ -65,11 +65,11 @@ this.onmessage = function (evt) {
         } else if (index > newLines[mid]) {
             line = mid + 1;
             char = index - newLines[mid] - 1;
-            substring = text.substring(newLines[mid] + 1, newLines[mid+1]);
+            substring = text.substring(newLines[mid] + 1, newLines[mid + 1]);
         } else if (index <= newLines[mid]) {
             line = mid;
-            char = mid > 0 ? index - newLines[mid-1] - 1 : index;
-            substring = text.substring(mid > 0 ? newLines[mid-1] + 1 : 0, newLines[mid]);
+            char = mid > 0 ? index - newLines[mid - 1] - 1 : index;
+            substring = text.substring(mid > 0 ? newLines[mid - 1] + 1 : 0, newLines[mid]);
         }
 
         results.matches.push({

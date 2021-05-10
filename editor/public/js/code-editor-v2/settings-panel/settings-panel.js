@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var settings = editor.call('editor:settings');
@@ -70,7 +70,7 @@ editor.once('load', function() {
         if (tooltip) {
             Tooltip.attach({
                 target: label.element,
-                html:  tooltip,
+                html: tooltip,
                 align: 'right',
                 root: root
             });
@@ -101,8 +101,7 @@ editor.once('load', function() {
         editor.emit('picker:settings:open');
     });
 
-    panel.on('hide', function() {
+    panel.on('hide', function () {
         editor.emit('picker:settings:close');
     });
-
 });

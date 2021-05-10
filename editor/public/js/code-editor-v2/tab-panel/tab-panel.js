@@ -44,7 +44,7 @@ editor.once('load', function () {
         if (asset.get('type') === 'folder')
             return;
 
-        var id = asset.get('id')
+        var id = asset.get('id');
 
         var isNew = !tabsIndex[id];
 
@@ -171,7 +171,7 @@ editor.once('load', function () {
 
                 grabTab(entry, e);
             }
-        }
+        };
 
         var onMouseEnter = function (e) {
             tab.class.add('hovered');
@@ -300,12 +300,12 @@ editor.once('load', function () {
         // but first get their coords before we start
         // changing them
         var widths = [];
-        for (var i = 0; i < tabOrder.length; i++) {
+        for (let i = 0; i < tabOrder.length; i++) {
             tabPositions.push(tabOrder[i].tab.element.offsetLeft);
             widths.push(tabOrder[i].tab.element.offsetWidth);
         }
 
-        for (var i = 0; i < tabOrder.length; i++) {
+        for (let i = 0; i < tabOrder.length; i++) {
             tabOrder[i].tab.element.style.position = 'absolute';
             tabOrder[i].tab.element.style.left = tabPositions[i] + 'px';
             tabOrder[i].tab.element.style.width = widths[i] + 'px';
@@ -319,7 +319,7 @@ editor.once('load', function () {
             if (! grabbedTab)
                 return;
 
-            for (var i = 0; i < tabOrder.length; i++) {
+            for (let i = 0; i < tabOrder.length; i++) {
                 if (tabOrder[i] !== grabbedTab)
                     tabOrder[i].tab.class.add('animated');
             }
@@ -330,7 +330,7 @@ editor.once('load', function () {
 
         window.addEventListener('mouseup', releaseTab);
         window.addEventListener('mousemove', moveTab);
-    }
+    };
 
     var releaseTab = function () {
         window.removeEventListener('mouseup', releaseTab);
@@ -338,7 +338,7 @@ editor.once('load', function () {
 
         grabbedTab.tab.class.remove('grabbed');
 
-        for (var i = 0; i < tabOrder.length; i++) {
+        for (let i = 0; i < tabOrder.length; i++) {
             tabOrder[i].tab.style.position = '';
             tabOrder[i].tab.style.left = '';
             tabOrder[i].tab.style.top = '';
@@ -367,8 +367,8 @@ editor.once('load', function () {
         var searchRight = true;
 
         // first search left
-        for (var i = index - 1; i >= 0; i--) {
-            var el = tabOrder[i].tab.element;
+        for (let i = index - 1; i >= 0; i--) {
+            const el = tabOrder[i].tab.element;
             if (tabPositions[i] + el.offsetWidth / 2 > x) {
                 searchRight = false;
 
@@ -385,8 +385,6 @@ editor.once('load', function () {
                 tabPositions[index] = tabPositions[i] + grabbedTab.tab.element.offsetWidth;
 
                 index = i;
-
-
             } else {
                 break;
             }
@@ -394,8 +392,8 @@ editor.once('load', function () {
 
         // then search right
         if (searchRight) {
-            for (var i = index + 1, len = tabOrder.length; i < len; i++) {
-                var el = tabOrder[i].tab.element;
+            for (let i = index + 1, len = tabOrder.length; i < len; i++) {
+                const el = tabOrder[i].tab.element;
                 if (tabPositions[i] < x + width / 2) {
 
                     // swap DOM
@@ -414,7 +412,6 @@ editor.once('load', function () {
                 } else {
                     break;
                 }
-
             }
         }
     };
@@ -553,6 +550,4 @@ editor.once('load', function () {
         if (entry)
             entry.tab.class.add('error');
     });
-
-
 });

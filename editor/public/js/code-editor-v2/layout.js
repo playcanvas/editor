@@ -9,7 +9,7 @@ editor.on('load', function () {
     root.flexWrap = 'nowrap';
     document.body.appendChild(root.element);
     // expose
-    editor.method('layout.root', function() { return root; });
+    editor.method('layout.root', function () { return root; });
 
 
     var top = new ui.Panel();
@@ -57,7 +57,7 @@ editor.on('load', function () {
 
     middle.append(left);
     // expose
-    editor.method('layout.left', function() { return left; });
+    editor.method('layout.left', function () { return left; });
 
     // center
     var center = new ui.Panel();
@@ -96,7 +96,7 @@ editor.on('load', function () {
     right.hidden = true;
     middle.append(right);
     // expose
-    editor.method('layout.attributes', function() { return right; });
+    editor.method('layout.attributes', function () { return right; });
 
     // bottom (status)
     var bottom = new ui.Panel();
@@ -104,7 +104,7 @@ editor.on('load', function () {
     // bottom.flexShrink = false;
     root.append(bottom);
     // expose
-    editor.method('layout.statusBar', function() { return bottom; });
+    editor.method('layout.statusBar', function () { return bottom; });
 
     // disable context menu for everything but the code view
     root.element.addEventListener('contextmenu', function (e) {
@@ -112,5 +112,4 @@ editor.on('load', function () {
             e.preventDefault();
         }
     });
-
 });

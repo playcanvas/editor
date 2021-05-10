@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var validTypes = [
@@ -37,7 +37,7 @@ editor.once('load', function() {
     });
 
     // remove multiple
-    editor.on('messenger:assets.delete', function(data) {
+    editor.on('messenger:assets.delete', function (data) {
         for (var i = 0; i < data.assets.length; i++) {
             var asset = editor.call('assets:getUnique', parseInt(data.assets[i], 10));
             if (! asset) continue;

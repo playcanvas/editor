@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var callback = null;
@@ -25,7 +25,7 @@ editor.once('load', function() {
     validate.class.add('validate');
     overlay.append(validate);
 
-    input.element.addEventListener('keydown', function(evt) {
+    input.element.addEventListener('keydown', function (evt) {
         if (overlay.hidden) return;
 
         if (evt.keyCode === 13) {
@@ -56,23 +56,23 @@ editor.once('load', function() {
 
 
     // on overlay hide
-    overlay.on('hide', function() {
+    overlay.on('hide', function () {
         editor.emit('picker:script-create:close');
     });
 
-    editor.method('picker:script-create:validate', function(filename) {
+    editor.method('picker:script-create:validate', function (filename) {
         if (! filename || ! filenameValid.test(filename)) {
             return false;
-        } else {
-            if (! filename.endsWith('.js'))
-                filename += '.js';
-
-            return filename;
         }
+
+        if (! filename.endsWith('.js'))
+            filename += '.js';
+
+        return filename;
     });
 
     // call picker
-    editor.method('picker:script-create', function(fn, string) {
+    editor.method('picker:script-create', function (fn, string) {
         callback = fn || null;
 
         // show overlay
@@ -80,13 +80,13 @@ editor.once('load', function() {
         validate.hidden = true;
         input.value = string || '';
 
-        setTimeout(function() {
+        setTimeout(function () {
             input.elementInput.focus();
         }, 100);
     });
 
     // close picker
-    editor.method('picker:script-create:close', function() {
+    editor.method('picker:script-create:close', function () {
         overlay.hidden = true;
     });
 });

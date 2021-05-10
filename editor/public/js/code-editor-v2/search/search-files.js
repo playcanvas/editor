@@ -1,5 +1,5 @@
 editor.once('load', function () {
-    'use strict;'
+    'use strict';
 
     var worker;
 

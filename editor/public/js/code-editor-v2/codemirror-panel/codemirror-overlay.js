@@ -1,8 +1,6 @@
 editor.once('load', function () {
     'use strict';
 
-    var cm = editor.call('editor:codemirror');
-
     // Creates a codemirror overlay which uses a regex
     // to search each line for matches and add overlay elements
     // on each find result
@@ -20,6 +18,6 @@ editor.once('load', function () {
                     stream.skipToEnd();
                 }
             }
-        }
+        };
     });
 });

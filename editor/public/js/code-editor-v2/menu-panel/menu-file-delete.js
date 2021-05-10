@@ -65,7 +65,5 @@ editor.once('load', function () {
         var selected = editor.call('assets:selected');
         if (selected.length)
             editor.call('assets:delete:picker', selected);
-
     });
-
 });

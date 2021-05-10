@@ -13,7 +13,6 @@ editor.once('load', function () {
         editor.call('status:connection', 'Connected');
     });
 
-    var timeout;
     var remainingTime;
 
     var retry = function () {

@@ -2,7 +2,6 @@ editor.once('load', function () {
     'use strict';
 
     var menu = editor.call('menu:edit');
-    var codePanel = editor.call('layout.code');
     var mac = navigator.userAgent.indexOf('Mac OS X') !== -1;
 
     var group = menu.createItem('selection', {
@@ -54,7 +53,7 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item, 'Shift+'+editor.call('hotkey:ctrl:string') + '+Space');
+    editor.call('menu:item:setShortcut', item, 'Shift+' + editor.call('hotkey:ctrl:string') + '+Space');
     group.append(item);
 
     // select between brackets
@@ -67,7 +66,7 @@ editor.once('load', function () {
             return editor.call('editor:command:selectBrackets');
         }
     });
-    editor.call('menu:item:setShortcut', item, 'Shift+'+editor.call('hotkey:ctrl:string') + '+M');
+    editor.call('menu:item:setShortcut', item, 'Shift+' + editor.call('hotkey:ctrl:string') + '+M');
     group.append(item);
 
     // select lines upward
@@ -188,5 +187,4 @@ editor.once('load', function () {
         cm.execCommand('singleSelection');
         cm.focus();
     });
-
 });

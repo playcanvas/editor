@@ -322,7 +322,7 @@ editor.once('load', function () {
     editor.method('picker:replace:open', function () {
         editor.call('picker:search:open');
         replaceField.focus();
-    })
+    });
 
     // Esc hotkey
     editor.call('hotkey:register', 'search-close', {
@@ -393,7 +393,7 @@ editor.once('load', function () {
             regexp = new RegExp(
                 pattern,
                 (overrides.caseSensitive !== undefined ? overrides.caseSensitive : caseSensitive) ?
-                'g' : 'gi'
+                    'g' : 'gi'
             );
             error.hidden = true;
         } catch (e) {

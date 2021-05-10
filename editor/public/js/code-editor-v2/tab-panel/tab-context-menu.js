@@ -39,7 +39,7 @@ editor.once('load', function () {
         select: function () {
             editor.call('tabs:close', currentTab.id);
         }
-    }))
+    }));
 
     // close other tabs
     menu.append(menu.createItem('close-other', {
@@ -69,7 +69,7 @@ editor.once('load', function () {
         },
         select: function () {
             var tabs = editor.call('tabs:list');
-        var idx = tabs.indexOf(currentTab);
+            var idx = tabs.indexOf(currentTab);
             if (idx === -1) return;
             var i = tabs.length;
             while (i-- && i > idx) {

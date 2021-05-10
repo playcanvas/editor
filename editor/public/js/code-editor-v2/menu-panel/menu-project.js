@@ -14,6 +14,5 @@ editor.once('load', function () {
 
     panel.append(btnProject);
 
-
     editor.call('menu:register', 'project', btnProject, menuProject);
 });

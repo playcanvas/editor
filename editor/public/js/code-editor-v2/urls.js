@@ -32,7 +32,7 @@ editor.once('load', function () {
 
         clearTimeout(timeout);
         timeout = setTimeout(updateUrl);
-    }
+    };
 
     editor.on('tabs:open', deferredUpdate);
     editor.on('tabs:close', deferredUpdate);
@@ -65,7 +65,5 @@ editor.once('load', function () {
 
             editor.call('integration:selectWhenReady', config.tabs[i], options);
         }
-
     }
-
 });

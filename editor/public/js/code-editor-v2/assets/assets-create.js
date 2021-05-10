@@ -76,11 +76,11 @@ editor.once('load', function () {
         };
 
         Ajax(data)
-        .on('load', function(status, data) {
+        .on('load', function (status, data) {
             if (fn)
                 fn(null, data);
         })
-        .on('error', function(status, data) {
+        .on('error', function (status, data) {
             if (/Disk allowance/.test(data))
                 data += '. <a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
 
@@ -109,14 +109,14 @@ editor.once('load', function () {
 
         // cancel select after add
         // if another asset is selected
-        editor.once('select:asset', function() {
+        editor.once('select:asset', function () {
             if (evtAssetAdd) {
                 evtAssetAdd.unbind();
                 evtAssetAdd = null;
             }
         });
 
-        editor.call('assets:uploadFile', data, function(err, res) {
+        editor.call('assets:uploadFile', data, function (err, res) {
             if (err) {
                 editor.call('status:error', err);
                 return fn && fn(err);

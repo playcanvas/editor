@@ -7,11 +7,11 @@ editor.once('load', function () {
     };
 
     Ajax(data)
-    .on('load', function(status, data) {
+    .on('load', function (status, data) {
         def = data;
         editor.emit('tern:load');
     })
-    .on('error', function(status, data) {
+    .on('error', function (status, data) {
         editor.emit('tern:error', status);
     });
 

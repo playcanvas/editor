@@ -1,23 +1,22 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     var uniqueIdToItemId = {};
 
     var assets = new ObserverList({
         index: 'id',
-        sorted: function(a, b) {
-            var f = (b._data['type'] === 'folder') - (a._data['type'] === 'folder');
+        sorted: function (a, b) {
+            var f = (b._data.type === 'folder') - (a._data.type === 'folder');
 
             if (f !== 0)
                 return f;
 
-            if (a._data['name'].toLowerCase() > b._data['name'].toLowerCase()) {
+            if (a._data.name.toLowerCase() > b._data.name.toLowerCase()) {
                 return 1;
-            } else if (a._data['name'].toLowerCase() < b._data['name'].toLowerCase()) {
+            } else if (a._data.name.toLowerCase() < b._data.name.toLowerCase()) {
                 return -1;
-            } else {
-                return 0;
             }
+            return 0;
         }
     });
 
@@ -29,12 +28,12 @@ editor.once('load', function() {
     }
 
     // return assets ObserverList
-    editor.method('assets:raw', function() {
+    editor.method('assets:raw', function () {
         return assets;
     });
 
     // allow adding assets
-    editor.method('assets:add', function(asset) {
+    editor.method('assets:add', function (asset) {
         uniqueIdToItemId[asset.get('uniqueId')] = asset.get('id');
 
         // function to get latest version of asset observer
@@ -45,24 +44,23 @@ editor.once('load', function() {
         if (pos === null)
             return;
 
-        asset.on('name:set', function(name, nameOld) {
+        asset.on('name:set', function (name, nameOld) {
             name = name.toLowerCase();
             nameOld = nameOld.toLowerCase();
 
             var ind = assets.data.indexOf(this);
-            var pos = assets.positionNextClosest(this, function(a, b) {
-                var f = (b._data['type'] === 'folder') - (a._data['type'] === 'folder');
+            var pos = assets.positionNextClosest(this, function (a, b) {
+                var f = (b._data.type === 'folder') - (a._data.type === 'folder');
 
                 if (f !== 0)
                     return f;
 
-                if ((a === b ? nameOld : a._data['name'].toLowerCase()) > name) {
+                if ((a === b ? nameOld : a._data.name.toLowerCase()) > name) {
                     return 1;
-                } else if ((a === b ? nameOld : a._data['name'].toLowerCase()) < name) {
+                } else if ((a === b ? nameOld : a._data.name.toLowerCase()) < name) {
                     return -1;
-                } else {
-                    return 0;
                 }
+                return 0;
             });
 
             if (pos === -1 && (ind + 1) == assets.data.length)
@@ -84,7 +82,7 @@ editor.once('load', function() {
     });
 
     // allow removing assets
-    editor.method('assets:remove', function(asset) {
+    editor.method('assets:remove', function (asset) {
         assets.remove(asset);
     });
 
@@ -95,23 +93,23 @@ editor.once('load', function() {
     });
 
     // get asset by id
-    editor.method('assets:get', function(id) {
+    editor.method('assets:get', function (id) {
         return assets.get(id);
     });
 
     // get asset by unique id
-    editor.method('assets:getUnique', function(uniqueId) {
+    editor.method('assets:getUnique', function (uniqueId) {
         var id = uniqueIdToItemId[uniqueId];
         return id ? assets.get(id) : null;
     });
 
     // find assets by function
-    editor.method('assets:find', function(fn) {
+    editor.method('assets:find', function (fn) {
         return assets.find(fn);
     });
 
     // find one asset by function
-    editor.method('assets:findOne', function(fn) {
+    editor.method('assets:findOne', function (fn) {
         return assets.findOne(fn);
     });
 
@@ -124,7 +122,7 @@ editor.once('load', function() {
     });
 
     // publish remove asset
-    assets.on('remove', function(asset) {
+    assets.on('remove', function (asset) {
         asset.destroy();
         editor.emit('assets:remove', asset);
         delete uniqueIdToItemId[asset.get('uniqueId')];

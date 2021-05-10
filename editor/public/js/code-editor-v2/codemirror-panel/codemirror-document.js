@@ -211,5 +211,4 @@ editor.once('load', function () {
         var entry = viewIndex[id];
         return entry ? entry.view : null;
     });
-
 });

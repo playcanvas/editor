@@ -126,5 +126,4 @@ editor.once('load', function () {
             cm.focus();
         }
     });
-
 });

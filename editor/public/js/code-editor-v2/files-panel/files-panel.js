@@ -29,7 +29,7 @@ editor.once('load', function () {
 
     var refreshTreePermissions = function () {
         tree.draggable = isTreeEditable();
-    }
+    };
 
     refreshTreePermissions();
 
@@ -38,12 +38,12 @@ editor.once('load', function () {
     editor.on('realtime:disconnected', refreshTreePermissions);
 
     var resizeQueued = false;
-    var resizeTree = function() {
+    var resizeTree = function () {
         resizeQueued = false;
         tree.element.style.width = '';
         tree.element.style.width = (panel.innerElement.scrollWidth - 5) + 'px';
     };
-    var resizeQueue = function() {
+    var resizeQueue = function () {
         if (resizeQueued) return;
         resizeQueued = true;
         requestAnimationFrame(resizeTree);
@@ -62,7 +62,7 @@ editor.once('load', function () {
     treeRoot.class.add('type-folder');
     tree.append(treeRoot);
     treeRoot.open = true;
-    treeRoot.on('select', function() {
+    treeRoot.on('select', function () {
         this.selected = false;
     });
     editor.call('files:contextmenu:attach', treeRoot);
@@ -238,7 +238,7 @@ editor.once('load', function () {
                     waitingParent[folder].push(item);
                 }
             }
-        }
+        };
 
         addItem(item, asset.get('path'));
 
@@ -308,7 +308,7 @@ editor.once('load', function () {
     tree.on('select', function (item) {
         // open items till parent
         var parent = item.parent;
-        while(parent && parent instanceof ui.TreeItem) {
+        while (parent && parent instanceof ui.TreeItem) {
             parent.open = true;
             parent = parent.parent;
         }
@@ -354,7 +354,7 @@ editor.once('load', function () {
     editor.method('files:select', function (id) {
         var item = itemIndex[id];
         if (item) {
-            tree.clear()
+            tree.clear();
             item.selected = true;
         }
     });
@@ -437,5 +437,4 @@ editor.once('load', function () {
             item.class.remove('dirty');
         }
     });
-
 });
