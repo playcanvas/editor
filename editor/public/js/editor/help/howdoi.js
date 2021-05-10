@@ -13,6 +13,13 @@ editor.once('load', function () {
 
     var settingsLoaded = false;
     var tipsLoaded = false;
+
+    var checkShow = function () {
+        if (tipsLoaded && settingsLoaded) {
+            panel.hidden = !settings.get('editor.howdoi');
+        }
+    };
+
     editor.once('help:howdoi:load', function () {
         tipsLoaded = true;
         checkShow();
@@ -23,10 +30,35 @@ editor.once('load', function () {
         checkShow();
     });
 
-    var checkShow = function () {
-        if (tipsLoaded && settingsLoaded) {
-            panel.hidden = !settings.get('editor.howdoi');
+    // position widget between top elements in viewport
+    var positionWidget = function () {
+        var canvas = editor.call('viewport:canvas');
+        if (! canvas) return;
+
+        var canvasRect = canvas.element.getBoundingClientRect();
+
+        var titleWidget = document.querySelector('.widget-title');
+        var titleWidgetRect = titleWidget ? titleWidget.getBoundingClientRect() : null;
+
+        var topLeftWidth = titleWidgetRect ? titleWidgetRect.right - canvasRect.left : 0;
+
+        var topControls = document.querySelector('.viewport-camera');
+        var topControlsRect = topControls ? topControls.getBoundingClientRect() : null;
+
+        var topRightWidth = topControlsRect ? canvasRect.left + canvasRect.width - topControlsRect.left : 0;
+
+        var width = canvasRect.width - topLeftWidth - topRightWidth - 20;
+        if (width < 150) {
+            panel.class.add('hidden');
+        } else {
+            panel.class.remove('hidden');
+
+            if (width > 400)
+                width = 400;
         }
+
+        panel.style.width = width + 'px';
+        panel.style.left = (topLeftWidth + (((topControlsRect.left - titleWidgetRect.right) - width) / 2)) + 'px';
     };
 
     // events when panel is shown
@@ -40,22 +72,6 @@ editor.once('load', function () {
         editor.on('scene:name', positionWidget);
         editor.on('viewport:resize', positionWidget);
         positionWidget();
-    });
-
-    // events when panel is hidden
-    panel.on('hide', function () {
-        editor.emit('help:howdoi:close');
-
-        var history = settings.history.enabled;
-        settings.history.enabled = false;
-        settings.set('editor.howdoi', false);
-        settings.history.enabled = history;
-
-        editor.unbind('scene:name', positionWidget);
-        editor.unbind('viewport:resize', positionWidget);
-
-        if (!config.self.flags.tips.howdoi)
-            editor.call('guide:bubble:show', 'howdoi', bubble, 200, true);
     });
 
     // bubble that appears after closing the widget for the first time
@@ -74,6 +90,22 @@ editor.once('load', function () {
         bubble.element.style.bottom = '164px';
         return bubble;
     };
+
+    // events when panel is hidden
+    panel.on('hide', function () {
+        editor.emit('help:howdoi:close');
+
+        var history = settings.history.enabled;
+        settings.history.enabled = false;
+        settings.set('editor.howdoi', false);
+        settings.history.enabled = history;
+
+        editor.unbind('scene:name', positionWidget);
+        editor.unbind('viewport:resize', positionWidget);
+
+        if (!config.self.flags.tips.howdoi)
+            editor.call('guide:bubble:show', 'howdoi', bubble, 200, true);
+    });
 
     // open / close panel depending on settings
     settings.on('editor.howdoi:set', function (value) {
@@ -106,6 +138,15 @@ editor.once('load', function () {
     menu.elementOverlay.parentElement.removeChild(menu.elementOverlay);
 
     var suggestions = [];
+
+    // Store event for when viewing (or not viewing) a topic
+    var storeEvent = function (search, topic) {
+        Ajax.post('/editor/scene/{{scene.id}}/events', {
+            name: 'editor:help',
+            title: topic,
+            text: search
+        });
+    };
 
     // method to register new suggestions
     editor.method('help:howdoi:register', function (data) {
@@ -228,23 +269,7 @@ editor.once('load', function () {
         menu.open = false;
     });
 
-    // Store event for when viewing (or not viewing) a topic
-    var storeEvent = function (search, topic) {
-        Ajax.post('/editor/scene/{{scene.id}}/events', {
-            name: 'editor:help',
-            title: topic,
-            text: search
-        });
-    };
-
-    // filter suggestions as the user types
-    input.on('change', function (value) {
-        filterSuggestions(value);
-    });
-
     var filterSuggestions = function (text) {
-        var valid;
-
         // sort suggestions by title first
         suggestions.sort(function (a, b) {
             if (a.data.title < b.data.title)
@@ -253,8 +278,7 @@ editor.once('load', function () {
             if (a.data.title > b.data.title)
                 return 1;
 
-            if (a.data.title === b.data.title)
-                return 0;
+            return 0;
         });
 
         if (text) {
@@ -349,37 +373,10 @@ editor.once('load', function () {
 
     };
 
-
-    // handle clicking outside menu in order to close it
-    var click = function (e) {
-        var parent = e.target;
-        while (parent) {
-            if (parent === panel.innerElement) {
-                input.elementInput.focus();
-                return;
-            }
-
-            parent = parent.parentElement;
-        }
-
-        menu.open = false;
-    };
-
-    // handle arrow keys to focus next / previous suggestion
-    var key = function (e) {
-        var result;
-
-        if (e.keyCode === 38) { // up arrow
-            result = focusNextSuggestion(false);
-        } else if (e.keyCode === 40) { // down arrow
-            result = focusNextSuggestion(true);
-        }
-
-        if (result) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-    };
+    // filter suggestions as the user types
+    input.on('change', function (value) {
+        filterSuggestions(value);
+    });
 
     // Focus next or previous suggestion
     var focusNextSuggestion = function (forward) {
@@ -423,6 +420,37 @@ editor.once('load', function () {
         }
 
         return true;
+    };
+
+    // handle clicking outside menu in order to close it
+    var click = function (e) {
+        var parent = e.target;
+        while (parent) {
+            if (parent === panel.innerElement) {
+                input.elementInput.focus();
+                return;
+            }
+
+            parent = parent.parentElement;
+        }
+
+        menu.open = false;
+    };
+
+    // handle arrow keys to focus next / previous suggestion
+    var key = function (e) {
+        var result;
+
+        if (e.keyCode === 38) { // up arrow
+            result = focusNextSuggestion(false);
+        } else if (e.keyCode === 40) { // down arrow
+            result = focusNextSuggestion(true);
+        }
+
+        if (result) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
     };
 
     // handle open event
@@ -481,37 +509,4 @@ editor.once('load', function () {
             editor.call('help:howdoi');
         }
     });
-
-    // position widget between top elements in viewport
-    var positionWidget = function () {
-        var canvas = editor.call('viewport:canvas');
-        if (! canvas) return;
-
-        var canvasRect = canvas.element.getBoundingClientRect();
-
-        var titleWidget = document.querySelector('.widget-title');
-        var titleWidgetRect = titleWidget ? titleWidget.getBoundingClientRect() : null;
-
-        var topLeftWidth = titleWidgetRect ? titleWidgetRect.right - canvasRect.left : 0;
-
-        var topControls = document.querySelector('.viewport-camera');
-        var topControlsRect = topControls ? topControls.getBoundingClientRect() : null;
-
-        var topRightWidth = topControlsRect ? canvasRect.left + canvasRect.width - topControlsRect.left : 0;
-
-        var width = canvasRect.width - topLeftWidth - topRightWidth - 20;
-        if (width < 150) {
-            panel.class.add('hidden');
-        } else {
-            panel.class.remove('hidden');
-
-            if (width > 400)
-                width = 400;
-        }
-
-
-        panel.style.width = width + 'px';
-        panel.style.left = (topLeftWidth + (((topControlsRect.left - titleWidgetRect.right) - width) / 2)) + 'px';
-    };
-
 });

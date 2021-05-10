@@ -434,7 +434,7 @@ editor.once('load', function () {
         }
 
         if (args.name) {
-            var label = new ui.Label({
+            const label = new ui.Label({
                 text: args.name
             });
             label.class.add('label-field');
@@ -466,7 +466,7 @@ editor.once('load', function () {
 
         // if we provide multiple paths for a single Observer then turn args.link into an array
         if (args.paths && args.paths instanceof Array && args.link && ! (args.link instanceof Array)) {
-            var link = args.link;
+            const link = args.link;
             args.link = [];
             for (let i = 0; i < args.paths.length; i++) {
                 args.link.push(link);
@@ -475,7 +475,7 @@ editor.once('load', function () {
 
         var linkField = args.linkField = function () {
             if (args.link) {
-                var link = function (field, path) {
+                const link = function (field, path) {
                     var data = {
                         field: field,
                         type: args.type,
@@ -523,7 +523,7 @@ editor.once('load', function () {
             }
         };
 
-        var unlinkField = args.unlinkField = function () {
+        args.unlinkField = function () {
             for (let i = 0; i < args.linkEvents.length; i++)
                 args.linkEvents[i].unbind();
 
@@ -781,6 +781,22 @@ editor.once('load', function () {
                     }
                 };
 
+                var sortTags = function () {
+                    tagList.sort(function (a, b) {
+                        if (args.tagToString) {
+                            a = args.tagToString(a);
+                            b = args.tagToString(b);
+                        }
+
+                        if (a > b) {
+                            return 1;
+                        } else if (a < b) {
+                            return -1;
+                        }
+                        return 0;
+                    });
+                };
+
                 var insertElement = function (tag) {
                     if (! tagItems[tag]) {
                         sortTags();
@@ -822,23 +838,6 @@ editor.once('load', function () {
                     } else {
                         tagItems[tag].classList.add('partial');
                     }
-                };
-
-                var sortTags = function () {
-                    tagList.sort(function (a, b) {
-                        if (args.tagToString) {
-                            a = args.tagToString(a);
-                            b = args.tagToString(b);
-                        }
-
-                        if (a > b) {
-                            return 1;
-                        } else if (a < b) {
-                            return -1;
-                        }
-                        return 0;
-
-                    });
                 };
 
                 if (args.placeholder)
@@ -1025,19 +1024,16 @@ editor.once('load', function () {
                 var colorPickerOn = false;
                 field.on('click', function () {
                     colorPickerOn = true;
-                    var first = true;
 
                     // set picker color
                     editor.call('picker:color', field.value);
 
                     // picking starts
                     var evtColorPickStart = editor.on('picker:color:start', function () {
-                        first = true;
                     });
 
                     // picked color
                     var evtColorPick = editor.on('picker:color', function (color) {
-                        first = false;
                         field.value = color;
                     });
 
@@ -1556,11 +1552,11 @@ editor.once('load', function () {
 
                 // Warning: Curve fields do not currently support multiselect
                 if (args.link) {
-                    var link = args.link;
+                    let link = args.link;
                     if (args.link instanceof Array)
                         link = args.link[0];
 
-                    var path = pathAt(args, 0);
+                    const path = pathAt(args, 0);
 
                     field.link(link, args.canRandomize ? [path, path + '2'] : [path]);
                 }
@@ -1714,10 +1710,10 @@ editor.once('load', function () {
                 field.text = args.text || '';
 
                 if (args.link) {
-                    var link = args.link;
+                    let link = args.link;
                     if (args.link instanceof Array)
                         link = args.link[0];
-                    var path = pathAt(args, 0);
+                    const path = pathAt(args, 0);
                     field.link(link, [path]);
                 }
 
@@ -1874,7 +1870,7 @@ editor.once('load', function () {
 
         // nothing selected
         if (items.length === 0) {
-            var label = new ui.Label({ text: 'Select anything to Inspect' });
+            const label = new ui.Label({ text: 'Select anything to Inspect' });
             label.style.display = 'block';
             label.style.textAlign = 'center';
             root.append(label);

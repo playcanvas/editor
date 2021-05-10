@@ -25,31 +25,6 @@ editor.once('load', function () {
     // elements
     var assetsPanel = editor.call('layout.assets');
 
-    var pluralize = function (word) {
-        return word + ' assets';
-    };
-
-    // empty filter messages
-    var getNoResultsMessage = function (type, filter) {
-        var result;
-
-        if (legacyScripts && type === 'script') {
-            result = 'There are no scripts. Click on the <span class="font-icon" style="font-size: 18px">&#57632;</span> button to add one';
-        } else if (type === 'material' || type === 'cubemap' || type === 'text' || type === 'json' || type === 'html' || type === 'shader' || type === 'css' || (!legacyScripts && type === 'script')) {
-            result = 'There are no ' + pluralize(type) + ' in this folder. Click on the <span class="font-icon" style="font-size: 18px">&#57632;</span> button to add one';
-        } else {
-            result = 'There are no ' + pluralize(type) + ' in this folder. Add one by uploading a ' + type + ' file';
-        }
-
-        if (filter) {
-            result += ' or change your search term.';
-        } else {
-            result += '.';
-        }
-
-        return result;
-    };
-
     // esc to close
     editor.call('hotkey:register', 'picker:assets:close', {
         key: 'esc',

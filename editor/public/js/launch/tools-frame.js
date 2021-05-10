@@ -556,7 +556,7 @@ editor.once('load', function () {
     cameraSkipFrames.addEventListener('mousedown', function (evt) {
         evt.stopPropagation();
     });
-    cameraSkipFrames.addEventListener('change', function() {
+    cameraSkipFrames.addEventListener('change', function () {
         pc.ForwardRenderer.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
     }, false);
     cameraSkipFrames.addEventListener('keydown', function (evt) {

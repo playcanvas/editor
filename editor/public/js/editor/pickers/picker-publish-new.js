@@ -220,6 +220,11 @@ editor.once('load', function () {
         refreshButtonsState();
     });
 
+    var fieldOptionsConcat;
+    var fieldOptionsMinify;
+    var fieldOptionsPreload;
+    var fieldOptionsSourcemaps;
+    var fieldOptionsOptimizeSceneFormat;
 
     if (! legacyScripts) {
         // options
@@ -235,7 +240,7 @@ editor.once('load', function () {
         var panelOptionsConcat = new ui.Panel();
         panelOptionsConcat.class.add('field');
         panelOptions.append(panelOptionsConcat);
-        var fieldOptionsConcat = new ui.Checkbox();
+        fieldOptionsConcat = new ui.Checkbox();
         fieldOptionsConcat.value = true;
         fieldOptionsConcat.class.add('tick');
         panelOptionsConcat.append(fieldOptionsConcat);
@@ -246,7 +251,7 @@ editor.once('load', function () {
         var panelOptionsMinify = new ui.Panel();
         panelOptionsMinify.class.add('field');
         panelOptions.append(panelOptionsMinify);
-        var fieldOptionsMinify = new ui.Checkbox();
+        fieldOptionsMinify = new ui.Checkbox();
         fieldOptionsMinify.value = true;
         fieldOptionsMinify.class.add('tick');
         panelOptionsMinify.append(fieldOptionsMinify);
@@ -257,7 +262,7 @@ editor.once('load', function () {
         var panelOptionsSourcemaps = new ui.Panel();
         panelOptionsSourcemaps.class.add('field');
         panelOptions.append(panelOptionsSourcemaps);
-        var fieldOptionsSourcemaps = new ui.Checkbox();
+        fieldOptionsSourcemaps = new ui.Checkbox();
         fieldOptionsSourcemaps.value = false;
         fieldOptionsSourcemaps.class.add('tick');
         panelOptionsSourcemaps.append(fieldOptionsSourcemaps);
@@ -275,26 +280,26 @@ editor.once('load', function () {
 
         // create preload bundle
         if (editor.call('users:hasFlag', 'hasPreloadBundling')) {
-            var panelOptionsPreload = new ui.Panel();
+            const panelOptionsPreload = new ui.Panel();
             panelOptionsPreload.class.add('field');
             panelOptions.append(panelOptionsPreload);
-            var fieldOptionsPreload = new ui.Checkbox();
+            fieldOptionsPreload = new ui.Checkbox();
             fieldOptionsPreload.value = true;
             fieldOptionsPreload.class.add('tick');
             panelOptionsPreload.append(fieldOptionsPreload);
-            var labelPreload = new ui.Label({ text: 'Create Preload Bundles' });
+            const labelPreload = new ui.Label({ text: 'Create Preload Bundles' });
             panelOptionsPreload.append(labelPreload);
         }
 
         if (editor.call('users:hasFlag', 'hasOptimizeSceneFormat')) {
-            var panelOptionsOptimizeFormat = new ui.Panel();
+            const panelOptionsOptimizeFormat = new ui.Panel();
             panelOptionsOptimizeFormat.class.add('field');
             panelOptions.append(panelOptionsOptimizeFormat);
-            var fieldOptionsOptimizeSceneFormat = new ui.Checkbox();
+            fieldOptionsOptimizeSceneFormat = new ui.Checkbox();
             fieldOptionsOptimizeSceneFormat.value = false;
             fieldOptionsOptimizeSceneFormat.class.add('tick');
             panelOptionsOptimizeFormat.append(fieldOptionsOptimizeSceneFormat);
-            var labelPreload = new ui.Label({ text: 'Optimize Scene Format' });
+            const labelPreload = new ui.Label({ text: 'Optimize Scene Format' });
             panelOptionsOptimizeFormat.append(labelPreload);
         }
     }
