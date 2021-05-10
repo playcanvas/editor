@@ -143,5 +143,4 @@ editor.once('load', function () {
             }
         }
     });
-
 });

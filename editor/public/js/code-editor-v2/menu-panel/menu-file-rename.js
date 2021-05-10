@@ -14,12 +14,11 @@ editor.once('load', function () {
 
             var selected = editor.call('files:contextmenu:selected');
             if (selected.length < 1)
-              return;
+                return;
 
             var treeItem = editor.call('files:getTreeItem', selected[0].get('id'));
             if (treeItem)
-              treeItem._onRename();
+                treeItem._onRename();
         }
-    }));;
+    }));
 });
-

@@ -36,5 +36,4 @@ editor.once('load', function () {
             window.open('/api/assets/' + id + '/download?branchId=' + config.self.branch.id);
         }
     });
-
 });

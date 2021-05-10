@@ -96,18 +96,18 @@ editor.once('load', function () {
     // result.op - the operation
     // result.time - the time when the operation was created (used to concatenate adjacent operations)
     var customOp = function (op) {
-        return {op: op, time: Date.now()};
+        return { op: op, time: Date.now() };
     };
 
     // Creates local copy of insert op
     var createInsertOp = function (pos, text) {
-        return customOp(pos? [pos, text] : [text]);
+        return customOp(pos ? [pos, text] : [text]);
     };
 
     // Creates local copy of remove operation
     var createRemoveOp = function (pos, length, text) {
         var result = customOp(
-            pos ? [pos, {d: length}] : [{d: length}]
+            pos ? [pos, { d: length }] : [{ d: length }]
         );
 
         // if text exists remember if it's whitespace
@@ -133,8 +133,8 @@ editor.once('load', function () {
     // create 2 ops if anchor and head are different or 1 if they are the same (which is just a cursor..)
     var createCursorOpsFromSelection = function (selection, entry) {
         return selection.anchor === selection.head ?
-               createCursorOp(selection.anchor, entry) :
-               [createCursorOp(selection.anchor, entry), createCursorOp(selection.head, entry)];
+            createCursorOp(selection.anchor, entry) :
+            [createCursorOp(selection.anchor, entry), createCursorOp(selection.head, entry)];
     };
 
     // transform dummy ops with remote op
@@ -143,7 +143,7 @@ editor.once('load', function () {
             var data = ops[i];
             if (data.length) {
                 for (var j = 0; j < data.length; j++) {
-                    data[j].op = transform(data[j].op, remoteOp, 'right', entry)
+                    data[j].op = transform(data[j].op, remoteOp, 'right', entry);
                 }
             } else {
                 data.op = transform(data.op, remoteOp, 'right', entry);
@@ -163,7 +163,7 @@ editor.once('load', function () {
     var restoreSelections = function (cursorOps, entry) {
         for (var i = 0, len = cursorOps.length; i < len; i++) {
             var data = cursorOps[i];
-            var start,end;
+            var start, end;
 
             if (data.length) {
                 start = posFromCursorOp(data[0], entry);
@@ -202,7 +202,7 @@ editor.once('load', function () {
         remoteOp.op = initialRemoteOp;
         i = redo.length;
         while (i--) {
-            var localOp = redo[i] ;
+            var localOp = redo[i];
             var old = localOp.op;
             localOp.op = transform(localOp.op, remoteOp.op, 'left', entry);
 
@@ -221,7 +221,6 @@ editor.once('load', function () {
         entry.doc.submitOp(op, function (err) {
             if (err) {
                 editor.emit('documents:error', entry.id, err);
-                return;
             }
         });
 
@@ -232,7 +231,7 @@ editor.once('load', function () {
             CodeMirror.Pos(entry.view.firstLine(), 0),
             CodeMirror.Pos(entry.view.lastLine(), 0)
         ).filter(function (mark) {
-            return mark.__isFold
+            return mark.__isFold;
         });
 
         // transform folded positions with op
@@ -349,7 +348,7 @@ editor.once('load', function () {
         // try to concatenate new op with latest op in the undo stack
         var timeSinceLastEdit = localOp.time - entry.lastEditTime;
         if (timeSinceLastEdit <= MERGE_EDITS_DELAY || entry.forceConcatenate) {
-            var prev = entry.undo[entry.undo.length-1];
+            var prev = entry.undo[entry.undo.length - 1];
             if (prev && canConcatOps(prev, localOp, entry)) {
                 concat(prev, localOp, entry);
                 return;
@@ -374,7 +373,7 @@ editor.once('load', function () {
         var entry = {
             id: asset.get('id'),
             doc: doc, // our document
-            context: doc.type.api(function() { return doc.data; }, function(component, options, callback) { return doc.submitOp(component, options, callback); }),
+            context: doc.type.api(function () { return doc.data; }, function (component, options, callback) { return doc.submitOp(component, options, callback); }),
             view: editor.call('views:get', asset.get('id')),
             undo: [], // undo stack
             redo: [], // redo stack
@@ -438,7 +437,7 @@ editor.once('load', function () {
 
             // add remote operation to the edits stack
             var remoteOp = createRemoveOp(pos, length);
-            transformStacks(remoteOp, entry)
+            transformStacks(remoteOp, entry);
 
             // get selections before we change the contents
             var selections = entry.view.listSelections();
@@ -508,7 +507,7 @@ editor.once('load', function () {
             var snapshot = focusedDocument.context.get() || '';
             var curr = focusedDocument.undo.pop();
 
-            var inverseOp = {op: invert(curr.op, snapshot, focusedDocument)};
+            var inverseOp = { op: invert(curr.op, snapshot, focusedDocument) };
             focusedDocument.redo.push(inverseOp);
 
             applyCustomOp(curr.op, focusedDocument);
@@ -533,7 +532,7 @@ editor.once('load', function () {
             var snapshot = focusedDocument.context.get() || '';
             var curr = focusedDocument.redo.pop();
 
-            var inverseOp = {op: invert(curr.op, snapshot, focusedDocument)};
+            var inverseOp = { op: invert(curr.op, snapshot, focusedDocument) };
             focusedDocument.undo.push(inverseOp);
 
             applyCustomOp(curr.op, focusedDocument);
@@ -558,7 +557,5 @@ editor.once('load', function () {
 
         if (entry === focusedDocument)
             cm.focus();
-
     });
-
 });

@@ -137,19 +137,13 @@ editor.once('load', function () {
             e.stopPropagation();
             openSelection();
             editor.call('picker:fuzzy:close');
-        }
-        // esc or tab
-        else if (e.keyCode === 27 || e.keyCode === 9) {
+        } else if (e.keyCode === 27 || e.keyCode === 9) { // esc or tab
             e.preventDefault();
             e.stopPropagation();
             editor.call('picker:fuzzy:close');
-        }
-        // up
-        else if (e.keyCode === 38) {
+        } else if (e.keyCode === 38) { // up
             selectIndex(selectedIndex - 1);
-        }
-        // down
-        else if (e.keyCode === 40) {
+        } else if (e.keyCode === 40) { // down
             selectIndex(selectedIndex + 1);
         }
     };
@@ -170,7 +164,7 @@ editor.once('load', function () {
     };
 
     var fuzzySearch = function () {
-        var assets = editor.call('assets:raw').data;
+        const assets = editor.call('assets:raw').data;
 
         var pattern = fieldSearch.value;
         var plen = pattern.length;
@@ -217,7 +211,7 @@ editor.once('load', function () {
 
         while (n < nameLength && p < patternLength) {
             if (name[n] === pattern[p]) {
-                score += 1 / (n+1);
+                score += 1 / (n + 1);
                 p++;
             } else {
                 var otherCase = name[n].toUpperCase();
@@ -225,7 +219,7 @@ editor.once('load', function () {
                     otherCase = name[n].toLowerCase();
 
                 if (otherCase === pattern[p]) {
-                    score += 0.9 / (n+1);
+                    score += 0.9 / (n + 1);
                     p++;
                 }
             }
@@ -246,7 +240,7 @@ editor.once('load', function () {
         // first add whatever is in the stack except the selected one
         var i = selectionStack.length - 1;
         while (--i >= 0) {
-            var asset;
+            let asset;
             if (selectionStack[i] === FIND_RESULTS) {
                 asset = findInFilesFakeAsset;
             } else {
@@ -262,7 +256,7 @@ editor.once('load', function () {
         // add the selected one
         i = selectionStack.length - 1;
         if (i >= 0) {
-            var asset;
+            let asset;
             if (selectionStack[i] === FIND_RESULTS) {
                 asset = findInFilesFakeAsset;
             } else {
@@ -276,10 +270,10 @@ editor.once('load', function () {
         }
 
         // go through the rest of the assets and add them alphabetically
-        var otherAssets = [];
-        var assets = editor.call('assets:raw').data;
-        for (var i = 0, len = assets.length; i < len; i++) {
-            var asset = assets[i];
+        const otherAssets = [];
+        const assets = editor.call('assets:raw').data;
+        for (let i = 0, len = assets.length; i < len; i++) {
+            const asset = assets[i];
             if (asset.get('type') === 'folder' || skipAssets[asset.get('id')]) continue;
             otherAssets.push(asset);
         }
@@ -376,7 +370,7 @@ editor.once('load', function () {
         }
 
         for (var i = 0, len = results.length; i < len; i++) {
-            var asset = results[i];
+            const asset = results[i];
             menuResults.append(createResultItem(asset));
         }
     };

@@ -74,8 +74,11 @@ editor.once('load', function () {
         var i = list.length - 1;
         var candidate = list[i];
 
-        while (candidate && ignoreType && ignoreType === candidate.type && candidate.items.equals(ignore))
-            candidate = list[--i];
+        if (ignoreType) {
+            while (candidate && candidate.type === ignoreType && candidate.items.equals(ignore)) {
+                candidate = list[--i];
+            }
+        }
 
         return candidate || null;
     };

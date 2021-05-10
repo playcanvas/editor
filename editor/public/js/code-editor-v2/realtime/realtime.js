@@ -1,7 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    var RECONNECT_INTERVAL = 1
+    var RECONNECT_INTERVAL = 1;
     var reconnectInterval = RECONNECT_INTERVAL;
 
     var connection;
@@ -80,7 +80,7 @@ editor.once('load', function () {
             var onShareDbMessage = connection.socket.onmessage;
 
             // Message handler
-            connection.socket.onmessage = function(msg) {
+            connection.socket.onmessage = function (msg) {
                 try {
                     if (msg.data.startsWith('auth')) {
                         if (! isAuthenticated) {
@@ -171,11 +171,9 @@ editor.once('load', function () {
     });
 
     // connect to C3
-    // if (! editor.call('editor:resolveConflictMode')) { // no need to connect in resolveConflict mode
-        if (editor.call('visibility')) {
-            connect();
-        } else {
-            editor.once('visible', connect);
-        }
-    // }
+    if (editor.call('visibility')) {
+        connect();
+    } else {
+        editor.once('visible', connect);
+    }
 });

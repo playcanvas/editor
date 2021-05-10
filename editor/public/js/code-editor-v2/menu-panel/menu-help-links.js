@@ -61,5 +61,4 @@ editor.once('load', function () {
         menu.open = false;
         window.open('http://forum.playcanvas.com/');
     });
-
 });

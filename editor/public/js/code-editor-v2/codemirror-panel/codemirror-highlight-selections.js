@@ -8,11 +8,24 @@ editor.once('load', function () {
     var className = 'highlighted';
     var previousSelection = '';
 
-    var scheduleHighlight = function () {
-        if (timeout)
-            clearTimeout(timeout);
+    var isWord = function (from, to) {
+        const str = cm.getRange(from, to);
+        if (str.match(/^\w+$/) !== null) {
+            if (from.ch > 0) {
+                const pos = { line: from.line, ch: from.ch - 1 };
+                const chr = cm.getRange(pos, from);
+                if (chr.match(/\W/) === null) return false;
+            }
+            if (to.ch < cm.getLine(from.line).length) {
+                const pos = { line: to.line, ch: to.ch + 1 };
+                const chr = cm.getRange(to, pos);
+                if (chr.match(/\W/) === null) return false;
+            }
 
-        timeout = setTimeout(highlight, delay);
+            return true;
+        }
+
+        return false;
     };
 
     var unhighlight = function () {
@@ -43,24 +56,11 @@ editor.once('load', function () {
         });
     };
 
-    var isWord = function (from, to) {
-        var str = cm.getRange(from, to);
-        if (str.match(/^\w+$/) !== null) {
-            if (from.ch > 0) {
-                var pos = {line: from.line, ch: from.ch - 1};
-                var chr = cm.getRange(pos, from);
-                if (chr.match(/\W/) === null) return false;
-            }
-            if (to.ch < cm.getLine(from.line).length) {
-                var pos = {line: to.line, ch: to.ch + 1};
-                var chr = cm.getRange(to, pos);
-                if (chr.match(/\W/) === null) return false;
-            }
+    var scheduleHighlight = function () {
+        if (timeout)
+            clearTimeout(timeout);
 
-            return true;
-        }
-
-        return false;
+        timeout = setTimeout(highlight, delay);
     };
 
     // highlight words when our cursor changes
@@ -85,5 +85,4 @@ editor.once('load', function () {
 
     // enable highlighting when the search overlay is closed
     editor.on('editor:search:overlay:close', enableHighlighting);
-
 });

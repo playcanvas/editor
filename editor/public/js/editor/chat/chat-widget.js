@@ -61,13 +61,11 @@ editor.once('load', function () {
     notify.on('click', function () {
         var permission = editor.call('notify:state');
 
-        if (permission === 'denied') {
-
-        } else if (permission === 'granted') {
+        if (permission === 'granted') {
             var granted = editor.call('localStorage:get', 'editor:notifications:chat');
             editor.call('localStorage:set', 'editor:notifications:chat', ! granted);
             editor.emit('chat:notify', ! granted);
-        } else {
+        } else if (permission !== 'denied') {
             editor.call('notify:permission');
         }
     });
@@ -142,6 +140,7 @@ editor.once('load', function () {
 
 
     editor.on('chat:typing', function (count, ids) {
+        var color;
         if (count === 0) {
             if (typersLast) typersLast.classList.remove('active');
             typersLast = null;
@@ -151,7 +150,7 @@ editor.once('load', function () {
             typersSingle.classList.add('active');
             // user
             var user = editor.call('users:get', ids[0]);
-            var color = editor.call('whoisonline:color', user && user.id, 'hex');
+            color = editor.call('whoisonline:color', user && user.id, 'hex');
             typersSingleUser.textContent = user && user.username || 'user';
             typersSingleUser.style.color = color;
         } else if (count === 2) {
@@ -160,12 +159,12 @@ editor.once('load', function () {
             typersDouble.classList.add('active');
             // userA
             var userA = editor.call('users:get', ids[0]);
-            var color = editor.call('whoisonline:color', userA && userA.id, 'hex');
+            color = editor.call('whoisonline:color', userA && userA.id, 'hex');
             typersDoubleUserA.textContent = userA && userA.username || 'user';
             typersDoubleUserA.style.color = color;
             // userB
             var userB = editor.call('users:get', ids[1]);
-            var color = editor.call('whoisonline:color', userB && userB.id, 'hex');
+            color = editor.call('whoisonline:color', userB && userB.id, 'hex');
             typersDoubleUserB.textContent = userB && userB.username || 'userB';
             typersDoubleUserB.style.color = color;
         } else {
@@ -201,6 +200,7 @@ editor.once('load', function () {
         if (! number.classList.contains('typing'))
             number.textContent = messagesNumber;
     });
+
     editor.on('chat:typing', function (typing, ids) {
         if (! panel.folded)
             return;
@@ -221,6 +221,35 @@ editor.once('load', function () {
             number.style.color = '';
         }
     });
+
+    // messages
+    var messages = new ui.Panel();
+    messages.class.add('messages');
+    messages.innerElement.classList.add('selectable');
+    messages.scroll = true;
+    panel.append(messages);
+
+    messages.innerElement.addEventListener('contextmenu', function (evt) {
+        if (evt.target.tagName !== 'A')
+            return;
+
+        evt.stopPropagation();
+    });
+
+    var messageDivider = document.createElement('div');
+    messageDivider.classList.add('divider');
+
+    // input
+    var typing = false;
+    var typingTimeout = null;
+    var typingTimeoutDelay = 1000;
+    var input = new ui.TextField();
+    input.blurOnEnter = false;
+    input.keyChange = true;
+    input.renderChanges = false;
+    input.placeholder = '>';
+    panel.append(input);
+
     panel.on('unfold', function () {
         messagesNumber = 0;
         number.textContent = '0';
@@ -243,37 +272,9 @@ editor.once('load', function () {
         }, 200);
     });
 
-    // messages
-    var messages = new ui.Panel();
-    messages.class.add('messages');
-    messages.innerElement.classList.add('selectable');
-    messages.scroll = true;
-    panel.append(messages);
-
-    messages.innerElement.addEventListener('contextmenu', function (evt) {
-        if (evt.target.tagName !== 'A')
-            return;
-
-        evt.stopPropagation();
-    });
-
     editor.method('chat:messagesPanel', function () {
         return messages;
     });
-
-    var messageDivider = document.createElement('div');
-    messageDivider.classList.add('divider');
-
-    // input
-    var typing = false;
-    var typingTimeout = null;
-    var typingTimeoutDelay = 1000;
-    var input = new ui.TextField();
-    input.blurOnEnter = false;
-    input.keyChange = true;
-    input.renderChanges = false;
-    input.placeholder = '>';
-    panel.append(input);
 
     editor.method('chat:inputField', function () {
         return input;
@@ -283,11 +284,6 @@ editor.once('load', function () {
     clear.innerHTML = '&#57650;';
     clear.classList.add('clear');
     input.element.appendChild(clear);
-
-    clear.addEventListener('click', function () {
-        input.value = '';
-        onTypingEnd();
-    }, false);
 
     var onTypingEnd = function () {
         if (typingTimeout) {
@@ -301,6 +297,11 @@ editor.once('load', function () {
         typing = false;
         editor.call('chat:typing', false);
     };
+
+    clear.addEventListener('click', function () {
+        input.value = '';
+        onTypingEnd();
+    }, false);
 
     input.on('change', function (value) {
         value = value.trim();

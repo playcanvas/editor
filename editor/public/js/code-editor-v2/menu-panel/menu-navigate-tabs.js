@@ -87,5 +87,4 @@ editor.once('load', function () {
 
         editor.call('files:select', select.id);
     });
-
 });

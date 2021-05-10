@@ -18,5 +18,4 @@ editor.once('load', function () {
     editor.method('editor:command:launchBuild', function () {
         window.open(config.project.playUrl);
     });
-
 });

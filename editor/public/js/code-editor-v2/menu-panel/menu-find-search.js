@@ -100,5 +100,4 @@ editor.once('load', function () {
             cm.execCommand('findPrev');
         }
     });
-
 });

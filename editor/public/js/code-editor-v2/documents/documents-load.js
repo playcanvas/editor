@@ -187,11 +187,9 @@ editor.once('load', function () {
 
     // handle reconnections
     editor.on('realtime:authenticated', function () {
-        var connection = editor.call('realtime:connection');
-
         // resume docs
-        for (var id in documentsIndex) {
-            var doc = documentsIndex[id].doc;
+        for (const id in documentsIndex) {
+            const doc = documentsIndex[id].doc;
             if (!doc.subscribed) {
                 doc.subscribe();
             }
@@ -199,8 +197,8 @@ editor.once('load', function () {
         }
 
         // load any queued documents
-        for (var id in queuedLoad) {
-            var asset = editor.call('assets:get', id);
+        for (const id in queuedLoad) {
+            const asset = editor.call('assets:get', id);
             if (! asset || asset.get('file.filename')) {
                 queuedLoad[id].unbind();
                 delete queuedLoad[id];

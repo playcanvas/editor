@@ -4,8 +4,6 @@ editor.once('load', function () {
     var menu = editor.call('menu:find');
     var codePanel = editor.call('layout.code');
     var ctrl = editor.call('hotkey:ctrl:string');
-    var cm = editor.call('editor:codemirror');
-    var mac = navigator.userAgent.indexOf('Mac OS X') !== -1;
 
     // Find in files
     var item = menu.createItem('find-in-files', {
@@ -32,5 +30,4 @@ editor.once('load', function () {
     editor.method('editor:command:findInFiles', function () {
         editor.call('picker:search:files:open');
     });
-
 });

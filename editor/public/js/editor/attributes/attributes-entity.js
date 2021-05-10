@@ -46,6 +46,8 @@ editor.once('load', function () {
 
     }
 
+    var entityInspector;
+
     // legacy
     editor.method('attributes:entity.panelComponents', function () {
         if (useLegacyComponentInspectors) return panelComponents;
@@ -215,7 +217,7 @@ editor.once('load', function () {
 
 
     if (!useLegacyComponentInspectors) {
-        var entityInspector = new pcui.EntityInspector({
+        entityInspector = new pcui.EntityInspector({
             assets: editor.call('assets:raw'),
             entities: editor.call('entities:raw'),
             projectSettings: editor.call('settings:project'),

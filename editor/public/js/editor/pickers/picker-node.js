@@ -119,13 +119,6 @@ editor.once('load', function () {
         });
     };
 
-    var addClickEvent = function (field, index) {
-        field.addEventListener('click', function () {
-            addMapping(index, currentAsset.get('data.mapping.' + index + '.material'));
-            overlay.hidden = true;
-        });
-    };
-
     var isAlreadyOverriden = function (index) {
         var len = currentEntities.length;
         var overrideCount = 0;

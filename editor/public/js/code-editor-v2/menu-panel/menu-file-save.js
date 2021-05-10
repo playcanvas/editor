@@ -87,6 +87,27 @@ editor.once('load', function () {
         return false;
     });
 
+    // Save document
+    var save = function (id) {
+        savingIndex[id] = true;
+
+        editor.emit('editor:command:save:start', id);
+
+        var doc = editor.call('documents:get', id);
+
+        var uniqueId = parseInt(doc.id, 10);
+
+        if (doc.hasPending()) {
+            // wait for pending data to be sent and
+            // acknowledged by the server before saving
+            doc.once('nothing pending', function () {
+                editor.call('realtime:send', 'doc:save:', uniqueId);
+            });
+        } else {
+            editor.call('realtime:send', 'doc:save:', uniqueId);
+        }
+    };
+
     // Save
     editor.method('editor:command:save', function (id) {
         if (! editor.call('editor:command:can:save', id))
@@ -207,28 +228,6 @@ editor.once('load', function () {
             editor.call('status:clear');
         }
     });
-
-    // Save document
-    var save = function (id) {
-        savingIndex[id] = true;
-
-        editor.emit('editor:command:save:start', id);
-
-        var doc = editor.call('documents:get', id);
-
-        var uniqueId = parseInt(doc.id, 10);
-
-        if (doc.hasPending()) {
-            // wait for pending data to be sent and
-            // acknowledged by the server before saving
-            doc.once('nothing pending', function () {
-                editor.call('realtime:send', 'doc:save:', uniqueId);
-            });
-        } else {
-            editor.call('realtime:send', 'doc:save:', uniqueId);
-        }
-    };
-
 
     editor.on('editor:command:save:start', function (id) {
         var asset = editor.call('assets:get', id);

@@ -1,4 +1,4 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     editor.method('assets:create:json', function (args) {
@@ -14,7 +14,7 @@ editor.once('load', function() {
             preload: true,
             parent: (args.parent !== undefined) ? args.parent : editor.call('assets:selected:folder'),
             filename: 'asset.json',
-            file: new Blob([ '{ }' ], { type: 'application/json' }),
+            file: new Blob(['{ }'], { type: 'application/json' }),
             scope: {
                 type: 'project',
                 id: config.project.id

@@ -42,7 +42,6 @@ editor.once('load', function () {
         } else {
             highlight(id, options || {});
         }
-
     };
 
     var highlight = function (id, options) {

@@ -77,7 +77,6 @@ editor.once('load', function () {
                     editor.emit('documents:close', selected[i].get('id'));
                 }
             }
-
         }
     }));
 
@@ -124,5 +123,4 @@ editor.once('load', function () {
         }
         editor.call('tabs:batchClose:end');
     });
-
 });

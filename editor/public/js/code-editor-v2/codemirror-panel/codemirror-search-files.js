@@ -10,11 +10,6 @@ editor.once('load', function () {
     var codePanel = editor.call('layout.code');
     var contextLimit = 128;
 
-    // options for decorating line numbers
-    var lineDecoration = {
-        className: 'search-results-line'
-    };
-
     // options for decorating matches
     var matchDecoration = {
         className: 'search-results-match'
@@ -31,7 +26,7 @@ editor.once('load', function () {
         setTimeout(function () {
             cm.focus();
         });
-    }
+    };
 
     // create new doc and start adding results to it
     editor.on('editor:search:files:start', function () {
@@ -118,7 +113,7 @@ editor.once('load', function () {
     // here because codemirror eats the dblclick event
     // depending on where you click
     var onMouseDown = function (cm, e) {
-        var pos = cm.coordsChar({left: e.clientX, top: e.clientY});
+        var pos = cm.coordsChar({ left: e.clientX, top: e.clientY });
         var line = cm.getLineHandle(pos.line);
 
         var sameLine = true;
@@ -130,7 +125,7 @@ editor.once('load', function () {
 
         if (! lastMouseDown) {
             lastMouseDown = Date.now();
-            return;
+
         } else {
             if (Date.now() - lastMouseDown < 300 && sameLine) {
                 // double click
@@ -163,7 +158,7 @@ editor.once('load', function () {
             setTimeout(function () {
                 editor.call('picker:search:open', true); // true for instant change mode to normal find
                 cm.focus();
-            })
+            });
         }
     };
 
@@ -191,9 +186,9 @@ editor.once('load', function () {
 
         // find maximum line length so that we
         // can align stuff better
-        var maxLine = 0;
-        for (var i = 0; i < len; i++) {
-            var match = results.matches[i];
+        let maxLine = 0;
+        for (let i = 0; i < len; i++) {
+            const match = results.matches[i];
             if (match.line + 1 > maxLine)
                 maxLine = match.line + 1;
         }
@@ -204,7 +199,6 @@ editor.once('load', function () {
         // and if their distance is more than 'contextLimit' they will be separated
         // with dots.
         var space = ' ';
-        var maxLineLength = maxLine.toString().length;
         var previousMatchLine = null;
         var previousEndingDots = null;
         var previousEndPosition = null;
@@ -249,10 +243,10 @@ editor.once('load', function () {
             }
 
             // add dots in the beginning
-            var addStartingDots = false;
+            let addStartingDots = false;
             if (! previousEndingDots) {
-                for (var s = 0; s < from; s++) {
-                if (match.text[s] !== space) {
+                for (let s = 0; s < from; s++) {
+                    if (match.text[s] !== space) {
                         addStartingDots = true;
                         break;
                     }
@@ -260,8 +254,8 @@ editor.once('load', function () {
             }
 
             // add dots to the end
-            var addEndingDots = false;
-            for (var s = textLen - 1; s > to; s--) {
+            let addEndingDots = false;
+            for (let s = textLen - 1; s > to; s--) {
                 if (match.text[s] !== space) {
                     addEndingDots = true;
                 }

@@ -24,9 +24,9 @@ editor.once('load', function () {
 
         if (selected.indexOf(currentAsset) !== -1) {
             return selected;
-        } else {
-            return [currentAsset];
         }
+
+        return [currentAsset];
     });
 
     // show context menu for tree item

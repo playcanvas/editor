@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     // set window name if necessary
@@ -18,7 +18,7 @@
     CodeEditor.prototype = Object.create(Events.prototype);
 
 
-    CodeEditor.prototype.method = function(name, fn) {
+    CodeEditor.prototype.method = function (name, fn) {
         if (this._hooks[name] !== undefined) {
             throw new Error('can\'t override hook: ' + name);
         }
@@ -26,18 +26,18 @@
     };
 
 
-    CodeEditor.prototype.methodRemove = function(name) {
+    CodeEditor.prototype.methodRemove = function (name) {
         delete this._hooks[name];
     };
 
 
-    CodeEditor.prototype.call = function(name) {
+    CodeEditor.prototype.call = function (name) {
         if (this._hooks[name]) {
             var args = Array.prototype.slice.call(arguments, 1);
 
             try {
                 return this._hooks[name].apply(null, args);
-            } catch(ex) {
+            } catch (ex) {
                 console.info('%c%s %c(editor.method error)', 'color: #06f', name, 'color: #f00');
                 log.error(ex);
             }
@@ -50,7 +50,7 @@
 
     var visible = ! document.hidden;
 
-    document.addEventListener('visibilitychange', function() {
+    document.addEventListener('visibilitychange', function () {
         if (visible === ! document.hidden)
             return;
 
@@ -63,13 +63,13 @@
         editor.emit('visibility', visible);
     }, false);
 
-    editor.method('visibility', function() {
+    editor.method('visibility', function () {
         return visible;
     });
 
 
     // first load
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         editor.emit('load');
         editor.emit('start');
 
@@ -82,12 +82,12 @@
 
 
 // config
-(function() {
+(function () {
     'use strict';
 
-    var applyConfig = function(path, value) {
+    var applyConfig = function (path, value) {
         if (typeof(value) === 'object') {
-            for(var key in value) {
+            for (var key in value) {
                 applyConfig((path ? path + '.' : '') + key, value[key]);
             }
         } else {

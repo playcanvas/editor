@@ -450,5 +450,4 @@ editor.once('load', function () {
     editor.method('editor:merge:goToPrevConflict', function () {
         mergeFileEditor.goToPrevConflict();
     });
-
 });

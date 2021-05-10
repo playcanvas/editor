@@ -38,12 +38,10 @@ editor.once('load', function () {
     editor.method('editor:command:goToAnything', function () {
         if (! isFuzzyOpen) {
             editor.call('picker:fuzzy:open');
-        }
-        else {
+        } else {
             editor.call('picker:fuzzy:close');
             if (editor.call('documents:getFocused'))
                 cm.focus();
         }
     });
-
 });

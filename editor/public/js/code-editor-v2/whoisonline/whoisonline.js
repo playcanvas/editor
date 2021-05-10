@@ -1,19 +1,19 @@
 editor.once('load', function () {
-    var whoisonline = { };
+    let whoisonline = { };
 
     editor.method('whoisonline:set', function (assetId, list) {
-        var index = {};
-        for (var i = 0; i < list.length; i++)
+        const index = {};
+        for (let i = 0; i < list.length; i++)
             index[list[i]] = true;
 
-        var existing = whoisonline[assetId] || {};
-        for (var key in existing) {
+        const existing = whoisonline[assetId] || {};
+        for (const key in existing) {
             if (! index[key]) {
                 editor.emit('whoisonline:remove', assetId, key);
             }
         }
 
-        for (var key in index) {
+        for (const key in index) {
             if (! existing[key]) {
                 editor.emit('whoisonline:add', assetId, key);
             }
@@ -46,7 +46,7 @@ editor.once('load', function () {
     editor.on('documents:close', function (id) {
         if (! whoisonline[id]) return;
 
-        for (var key in whoisonline[id]) {
+        for (const key in whoisonline[id]) {
             editor.call('whoisonline:remove', id, key);
         }
 
@@ -55,8 +55,8 @@ editor.once('load', function () {
 
     // remove all users if we are disconnected
     editor.on('realtime:disconnected', function () {
-        for (var assetId in whoisonline) {
-            for (var key in whoisonline[assetId]) {
+        for (const assetId in whoisonline) {
+            for (const key in whoisonline[assetId]) {
                 editor.call('whoisonline:remove', assetId, key);
             }
         }

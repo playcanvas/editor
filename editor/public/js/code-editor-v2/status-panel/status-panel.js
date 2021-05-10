@@ -78,5 +78,4 @@ editor.once('load', function () {
         connection.text = text;
         connection.class.add('error');
     });
-
 });

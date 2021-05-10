@@ -362,11 +362,8 @@ editor.once('load', function () {
     editor.method('assets:upload:picker', function (args) {
         args = args || {};
 
-        var parent = args.parent || editor.call('assets:panel:currentFolder');
-
         var fileInput = document.createElement('input');
         fileInput.type = 'file';
-        // fileInput.accept = '';
         fileInput.multiple = true;
         fileInput.style.display = 'none';
         editor.call('layout.assets').append(fileInput);

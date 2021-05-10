@@ -15,5 +15,4 @@ editor.once('load', function () {
     editor.on('editor:readonly:change', function (isReadonly) {
         readonly.hidden = ! isReadonly;
     });
-
 });

@@ -72,7 +72,7 @@ editor.once('load', function () {
         // so perform a clean search
         else {
             regex = editor.call('picker:search:regex');
-            if(! regex)
+            if (! regex)
                 return;
 
             cm.operation(function () {
@@ -92,7 +92,7 @@ editor.once('load', function () {
 
                 // re-scan for cursor changes
                 cm.on('cursorActivity', onCursorActivity);
-           });
+            });
         }
     };
 
@@ -144,7 +144,7 @@ editor.once('load', function () {
         } else {
             cm.setSelection(posFrom, posTo);
         }
-        cm.scrollIntoView({from: posFrom, to: posTo}, 20);
+        cm.scrollIntoView({ from: posFrom, to: posTo }, 20);
         return cursor;
     };
 
@@ -218,7 +218,7 @@ editor.once('load', function () {
             fullWord = true;
         }
 
-        editor.call('picker:search:set', underCursor.text, {isRegex: false, matchWholeWords: fullWord});
+        editor.call('picker:search:set', underCursor.text, { isRegex: false, matchWholeWords: fullWord });
 
         cm.off('cursorActivity', onCursorActivity);
         cm.operation(function () {
@@ -244,7 +244,7 @@ editor.once('load', function () {
             resetSearchPositions(underCursor.to);
         }
 
-        editor.call('picker:search:set', underCursor.text, {isRegex: false, matchWholeWords: fullWord});
+        editor.call('picker:search:set', underCursor.text, { isRegex: false, matchWholeWords: fullWord });
 
         cm.off('cursorActivity', onCursorActivity);
         cm.operation(function () {
@@ -269,7 +269,7 @@ editor.once('load', function () {
             resetSearchPositions(underCursor.from);
         }
 
-        editor.call('picker:search:set', underCursor.text, {isRegex: false, matchWholeWords: fullWord});
+        editor.call('picker:search:set', underCursor.text, { isRegex: false, matchWholeWords: fullWord });
 
         cm.off('cursorActivity', onCursorActivity);
         cm.operation(function () {
@@ -295,13 +295,13 @@ editor.once('load', function () {
 
         // only do full words with this - won't work in all cases like if you select non-word characters
         // but that's also kinda how sublime works.
-        editor.call('picker:search:set', underCursor.text, {isRegex: false, matchWholeWords: true});
+        editor.call('picker:search:set', underCursor.text, { isRegex: false, matchWholeWords: true });
 
         var cursor = cm.getSearchCursor(regex);
         var matches = [];
         var primaryIndex = -1;
         while (cursor.findNext()) {
-            matches.push({anchor: cursor.from(), head: cursor.to()});
+            matches.push({ anchor: cursor.from(), head: cursor.to() });
             if (cursor.from().line <= underCursor.from.line && cursor.from().ch <= underCursor.from.ch) {
                 primaryIndex++;
             }
@@ -329,7 +329,7 @@ editor.once('load', function () {
             var cursor = findNext(reverse);
             if (cursor) {
                 var match = cm.getRange(cursor.from(), cursor.to()).match(regex);
-                cursor.replace(text.replace(/\$(\d)/g, function(_, i) {return match[i];}));
+                cursor.replace(text.replace(/\$(\d)/g, function (_, i) { return match[i]; }));
                 findNext(reverse);
             }
 
@@ -357,12 +357,11 @@ editor.once('load', function () {
 
         var text = editor.call('picker:replace:text') || '';
 
-        cm.operation(function() {
+        cm.operation(function () {
             for (var cursor = cm.getSearchCursor(regex); cursor.findNext();) {
                 var match = cm.getRange(cursor.from(), cursor.to()).match(regex);
-                cursor.replace(text.replace(/\$(\d)/g, function(_, i) {return match[i];}));
+                cursor.replace(text.replace(/\$(\d)/g, function (_, i) { return match[i]; }));
             }
         });
     };
-
 });
