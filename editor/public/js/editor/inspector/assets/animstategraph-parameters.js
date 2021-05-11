@@ -131,6 +131,10 @@ Object.assign(pcui, (function () {
                         }
                     });
 
+                    if ([pc.ANIM_PARAMETER_BOOLEAN, pc.ANIM_PARAMETER_TRIGGER].includes(value)) {
+                        this._assets[0].set(`data.parameters.${paramId}.value`, !!param.value);
+                    }
+
                     asset.history.enabled = historyEnabled;
                 };
 
@@ -152,6 +156,10 @@ Object.assign(pcui, (function () {
                         const value = prevConditionPredicate.value;
                         asset.set(`data.transitions.${transition}.conditions.${condition}.predicate`, value);
                     });
+
+                    if ([pc.ANIM_PARAMETER_BOOLEAN, pc.ANIM_PARAMETER_TRIGGER].includes(value)) {
+                        this._assets[0].set(`data.parameters.${paramId}.value`, param.value);
+                    }
 
                     asset.history.enabled = historyEnabled;
                 };
