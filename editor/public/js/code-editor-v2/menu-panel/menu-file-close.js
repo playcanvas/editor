@@ -3,7 +3,9 @@ editor.once('load', function () {
 
     var menu = editor.call('menu:file');
 
-    var item = menu.createItem('close', {
+    var item;
+
+    item = menu.createItem('close', {
         title: 'Close File',
         filter: function () {
             return editor.call('editor:command:can:close');
@@ -16,7 +18,7 @@ editor.once('load', function () {
     editor.call('menu:item:setShortcut', item, 'Alt+W');
     menu.append(item);
 
-    var item = menu.createItem('close-selected', {
+    item = menu.createItem('close-selected', {
         title: 'Close Selected Files',
         filter: function () {
             return editor.call('editor:command:can:closeSelected');

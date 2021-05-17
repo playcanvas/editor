@@ -14,8 +14,10 @@ editor.once('load', function () {
         return focusedTab && (!focusedTab.asset || !!editor.call('documents:getFocused'));
     };
 
+    var item;
+
     // Find Under
-    var item = menu.createItem('find-under', {
+    item = menu.createItem('find-under', {
         title: 'Quick Find',
         filter: canSearch,
         select: function () {
@@ -46,7 +48,7 @@ editor.once('load', function () {
     });
 
     // Find Under Previous
-    var item = menu.createItem('find-under-prev', {
+    item = menu.createItem('find-under-prev', {
         title: 'Quick Find Previous',
         filter: canSearch,
         select: function () {
@@ -64,7 +66,7 @@ editor.once('load', function () {
     });
 
     // Find All Under
-    var item = menu.createItem('find-all-under', {
+    item = menu.createItem('find-all-under', {
         title: 'Quick Find All',
         filter: canSearch,
         select: function () {
@@ -99,7 +101,7 @@ editor.once('load', function () {
     });
 
     // Select next occurrence
-    var item = menu.createItem('select-next-occurrence', {
+    item = menu.createItem('select-next-occurrence', {
         title: 'Quick Add Next',
         filter: canSearch,
         select: function () {

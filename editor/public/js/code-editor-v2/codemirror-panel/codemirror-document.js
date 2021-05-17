@@ -15,6 +15,21 @@ editor.once('load', function () {
         shader: 'glsl'
     };
 
+    var refreshReadonly = function () {
+        var readonly = editor.call('editor:isReadOnly');
+        var wasReadonly = cm.isReadOnly();
+        if (readonly) {
+            cm.setOption('readOnly', true);
+            cm.setOption('cursorBlinkRate', -1);
+        } else {
+            cm.setOption('readOnly', false);
+            cm.setOption('cursorBlinkRate', 530);
+        }
+
+        if (readonly !== wasReadonly)
+            editor.emit('editor:readonly:change', readonly);
+    };
+
     // when we select an asset
     // if the asset is not loaded hide
     // the code panel until it's loaded
@@ -187,21 +202,6 @@ editor.once('load', function () {
                  editor.call('errors:hasRealtime') ||
                  editor.call('documents:hasError', focusedView.asset.get('id'));
     });
-
-    var refreshReadonly = function () {
-        var readonly = editor.call('editor:isReadOnly');
-        var wasReadonly = cm.isReadOnly();
-        if (readonly) {
-            cm.setOption('readOnly', true);
-            cm.setOption('cursorBlinkRate', -1);
-        } else {
-            cm.setOption('readOnly', false);
-            cm.setOption('cursorBlinkRate', 530);
-        }
-
-        if (readonly !== wasReadonly)
-            editor.emit('editor:readonly:change', readonly);
-    };
 
     // set code editor to readonly if necessary
     editor.on('permissions:writeState', refreshReadonly);

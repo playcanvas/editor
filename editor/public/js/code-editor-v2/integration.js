@@ -6,17 +6,33 @@ editor.once('load', function () {
     var codePanel = editor.call('layout.code');
     var cm = editor.call('editor:codemirror');
 
-    editor.once('files:load', function () {
-        filePanelReady = true;
-
-        for (var i = 0, len = queue.length; i < len; i++) {
-            selectAndHighlight(queue[i].id, queue[i].options);
-        }
-
-        queue.length = 0;
-    });
-
     var events = {};
+
+    var highlight = function (id, options) {
+        var line = options.line || 1;
+        var col = options.col || 1;
+        var view = editor.call('views:get', id);
+        if (! view) return;
+
+        setTimeout(function () {
+            view.setCursor(line - 1, col - 1);
+
+            if (options.error) {
+                codePanel.class.add('error');
+                var clearError = function () {
+                    codePanel.class.remove('error');
+                    cm.off('beforeSelectionChange', clearError);
+                };
+                cm.on('beforeSelectionChange', clearError);
+            }
+
+            cm.scrollIntoView(null, document.body.clientHeight / 2);
+            cm.focus();
+        });
+
+        if (options.callback)
+            options.callback();
+    };
 
     var selectAndHighlight = function (id, options) {
         if (events[id])
@@ -44,31 +60,15 @@ editor.once('load', function () {
         }
     };
 
-    var highlight = function (id, options) {
-        var line = options.line || 1;
-        var col = options.col || 1;
-        var view = editor.call('views:get', id);
-        if (! view) return;
+    editor.once('files:load', function () {
+        filePanelReady = true;
 
-        setTimeout(function () {
-            view.setCursor(line - 1, col - 1);
+        for (var i = 0, len = queue.length; i < len; i++) {
+            selectAndHighlight(queue[i].id, queue[i].options);
+        }
 
-            if (options.error) {
-                codePanel.class.add('error');
-                var clearError = function () {
-                    codePanel.class.remove('error');
-                    cm.off('beforeSelectionChange', clearError);
-                };
-                cm.on('beforeSelectionChange', clearError);
-            }
-
-            cm.scrollIntoView(null, document.body.clientHeight / 2);
-            cm.focus();
-        });
-
-        if (options.callback)
-            options.callback();
-    };
+        queue.length = 0;
+    });
 
     // Meant to be called by other tabs to select an asset
     // and go to the highlighted lines / column when it's ready

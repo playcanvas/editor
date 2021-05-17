@@ -201,6 +201,46 @@ editor.once('load', function () {
         }
     });
 
+    // Updates our regular expression.
+    // Optionally pass override options for the regexp
+    var updateQuery = function (overrides) {
+        queryDirty = true;
+
+        var pattern = searchField.value;
+        previousText = pattern;
+        if (! pattern) {
+            regexp = null;
+            return;
+        }
+
+        overrides = overrides || {};
+
+        var isRawRegex = overrides.isRegex !== undefined ? overrides.isRegex : isRegex;
+
+        if (!isRawRegex) {
+            // replace characters for regex
+            pattern = pattern.replace(/[|\\{}()[\]^$+*?.]/g, "\\$&");
+        }
+
+        if (overrides.matchWholeWords !== undefined ? overrides.matchWholeWords : matchWholeWords) {
+            pattern = '\\b' + pattern + '\\b';
+        }
+
+        try {
+            regexp = new RegExp(
+                pattern,
+                (overrides.caseSensitive !== undefined ? overrides.caseSensitive : caseSensitive) ?
+                    'g' : 'gi'
+            );
+            error.hidden = true;
+        } catch (e) {
+            log.error(e);
+            regexp = null;
+            error.text = 'Invalid Regular Expression';
+            error.hidden = false;
+        }
+    };
+
     var openPicker = function () {
         if (! open) {
             open = true;
@@ -363,46 +403,6 @@ editor.once('load', function () {
             cm.execCommand('viewSearch');
         }
     });
-
-    // Updates our regular expression.
-    // Optionally pass override options for the regexp
-    var updateQuery = function (overrides) {
-        queryDirty = true;
-
-        var pattern = searchField.value;
-        previousText = pattern;
-        if (! pattern) {
-            regexp = null;
-            return;
-        }
-
-        overrides = overrides || {};
-
-        var isRawRegex = overrides.isRegex !== undefined ? overrides.isRegex : isRegex;
-
-        if (!isRawRegex) {
-            // replace characters for regex
-            pattern = pattern.replace(/[|\\{}()[\]^$+*?.]/g, "\\$&");
-        }
-
-        if (overrides.matchWholeWords !== undefined ? overrides.matchWholeWords : matchWholeWords) {
-            pattern = '\\b' + pattern + '\\b';
-        }
-
-        try {
-            regexp = new RegExp(
-                pattern,
-                (overrides.caseSensitive !== undefined ? overrides.caseSensitive : caseSensitive) ?
-                    'g' : 'gi'
-            );
-            error.hidden = true;
-        } catch (e) {
-            log.error(e);
-            regexp = null;
-            error.text = 'Invalid Regular Expression';
-            error.hidden = false;
-        }
-    };
 
     var cancelDelayedSearch = function () {
         if (searchTimeout) {

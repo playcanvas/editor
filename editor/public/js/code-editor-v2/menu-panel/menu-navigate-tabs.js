@@ -3,8 +3,10 @@ editor.once('load', function () {
 
     var menu = editor.call('menu:navigate');
 
+    var item;
+
     // Next tab
-    var item = menu.createItem('next-tab', {
+    item = menu.createItem('next-tab', {
         title: 'Next Tab',
         filter: function () {
             return editor.call('tabs:list').length;
@@ -41,7 +43,7 @@ editor.once('load', function () {
     });
 
     // Previous tab
-    var item = menu.createItem('previous-tab', {
+    item = menu.createItem('previous-tab', {
         title: 'Previous Tab',
         filter: function () {
             return editor.call('tabs:list').length;

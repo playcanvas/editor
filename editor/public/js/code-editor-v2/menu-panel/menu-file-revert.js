@@ -38,27 +38,6 @@ editor.once('load', function () {
         }
     }));
 
-    var ctxMenu = editor.call('files:contextmenu');
-    ctxMenu.append(ctxMenu.createItem('revert', {
-        title: 'Revert',
-        filter: function () {
-            var selected = editor.call('files:contextmenu:selected');
-            for (var i = 0; i < selected.length; i++) {
-                if (editor.call('editor:command:can:revert', selected[i].get('id')))
-                    return true;
-            }
-        },
-        select: function () {
-            var selected = editor.call('files:contextmenu:selected');
-            for (var i = 0; i < selected.length; i++) {
-                if (editor.call('editor:command:can:revert', selected[i].get('id'))) {
-                    revert(selected[i].get('id'));
-                }
-            }
-        }
-    }));
-
-
     var revert = function (id) {
         var asset = editor.call('assets:get', id);
         if (! asset) return;
@@ -79,6 +58,27 @@ editor.once('load', function () {
             editor.call('editor:command:save', id);
         });
     };
+
+    var ctxMenu = editor.call('files:contextmenu');
+    ctxMenu.append(ctxMenu.createItem('revert', {
+        title: 'Revert',
+        filter: function () {
+            var selected = editor.call('files:contextmenu:selected');
+            for (var i = 0; i < selected.length; i++) {
+                if (editor.call('editor:command:can:revert', selected[i].get('id')))
+                    return true;
+            }
+        },
+        select: function () {
+            var selected = editor.call('files:contextmenu:selected');
+            for (var i = 0; i < selected.length; i++) {
+                if (editor.call('editor:command:can:revert', selected[i].get('id'))) {
+                    revert(selected[i].get('id'));
+                }
+            }
+        }
+    }));
+
 
     // True if you can revert
     editor.method('editor:command:can:revert', function (id) {

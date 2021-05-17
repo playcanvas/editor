@@ -47,23 +47,6 @@ editor.once('load', function () {
                 reconnectInterval++;
         };
 
-        // Handle initial messages until we are authenticated
-        var onMessage = function (msg) {
-            // put any irrelevant messages in the buffer
-            if (! msg.data.startsWith('auth')) {
-                msgBuffer.push(msg);
-                return;
-            }
-
-            // handle authentication
-            isAuthenticated = true;
-
-            createShareDbConnection();
-
-            editor.emit('realtime:connected');
-            editor.emit('realtime:authenticated');
-        };
-
         var createShareDbConnection = function () {
             if (! connection) {
                 // if we are connecting for the first time
@@ -88,10 +71,10 @@ editor.once('load', function () {
                             editor.emit('realtime:authenticated');
                         }
                     } else if (msg.data.startsWith('fs:')) {
-                        data = msg.data.slice('fs:'.length);
-                        var ind = data.indexOf(':');
+                        let data = msg.data.slice('fs:'.length);
+                        const ind = data.indexOf(':');
                         if (ind !== -1) {
-                            var op = data.slice(0, ind);
+                            const op = data.slice(0, ind);
                             if (op === 'paths') {
                                 data = JSON.parse(data.slice(ind + 1));
                                 editor.call('assets:fs:paths:patch', data);
@@ -100,11 +83,11 @@ editor.once('load', function () {
                             onShareDbMessage(msg);
                         }
                     } else if (msg.data.startsWith('whoisonline:')) {
-                        var parts = msg.data.split(':');
+                        const parts = msg.data.split(':');
                         if (parts.length === 5 && parts[1] === 'doc') {
-                            var data;
-                            var doc = parts[2];
-                            var op = parts[3];
+                            let data;
+                            const doc = parts[2];
+                            const op = parts[3];
                             if (op === 'set') {
                                 data = JSON.parse(parts[4]);
                             } else if (op === 'add' || op === 'remove') {
@@ -113,7 +96,7 @@ editor.once('load', function () {
                             editor.call('whoisonline:' + op, doc, data);
                         }
                     } else if (msg.data.startsWith('doc:save:')) {
-                        var parts = msg.data.split(':');
+                        const parts = msg.data.split(':');
                         if (parts.length === 4) {
                             if (parts[2] === 'success') {
                                 editor.emit('documents:save:success', parseInt(parts[3], 10));
@@ -142,6 +125,23 @@ editor.once('load', function () {
                 connection.socket.onmessage(msgBuffer[i]);
             }
             msgBuffer.length = 0;
+        };
+
+        // Handle initial messages until we are authenticated
+        var onMessage = function (msg) {
+            // put any irrelevant messages in the buffer
+            if (! msg.data.startsWith('auth')) {
+                msgBuffer.push(msg);
+                return;
+            }
+
+            // handle authentication
+            isAuthenticated = true;
+
+            createShareDbConnection();
+
+            editor.emit('realtime:connected');
+            editor.emit('realtime:authenticated');
         };
 
         // create new socket

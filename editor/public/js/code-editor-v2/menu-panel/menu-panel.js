@@ -55,11 +55,11 @@ editor.once('load', function () {
 
     // Add shortcut label to a menu item
     editor.method('menu:item:setShortcut', function (item, shortcut) {
-        var shortcut = new ui.Label({
+        var label = new ui.Label({
             text: shortcut
         });
-        shortcut.renderChanges = false;
-        shortcut.class.add('shortcut');
-        item.elementTitle.appendChild(shortcut.element);
+        label.renderChanges = false;
+        label.class.add('shortcut');
+        item.elementTitle.appendChild(label.element);
     });
 });

@@ -37,38 +37,210 @@ editor.once('load', function () {
     // pseudo-id of find in files tab
     var FIND_IN_FILES = 'Find Results';
 
-    // unhide tabs panel when asset
-    // is selected and create tab for asset
-    // or focus existing tab
-    editor.on('select:asset', function (asset) {
-        if (asset.get('type') === 'folder')
+    var updateDirty = function (id, dirty) {
+        var entry = tabsIndex[id];
+        if (entry) {
+            if (dirty) {
+                entry.tab.class.add('dirty');
+            } else {
+                entry.tab.class.remove('dirty');
+
+            }
+        }
+    };
+
+    // focus a tab
+    var focusTab = function (id) {
+        var entry = tabsIndex[id];
+        if (focusedTab === entry) {
             return;
+        }
 
-        var id = asset.get('id');
+        panel.class.remove('invisible');
 
-        var isNew = !tabsIndex[id];
+        if (focusedTab) {
+            focusedTab.tab.class.remove('focused');
+        }
 
-        if (isNew) {
+        focusedTab = entry;
 
-            // if we have a global error skip opening a new tab
-            if (editor.call('errors:hasRealtime'))
+        focusedTab.tab.class.add('focused');
+
+        if (entry.asset) {
+            updateDirty(id, editor.call('documents:isDirty', id));
+        } else {
+            // unfocus any documents
+            editor.emit('documents:unfocus');
+        }
+
+        editor.emit('tabs:focus', focusedTab);
+    };
+
+    // Closes a tab
+    var closeTab = function (id) {
+        var tab = tabsIndex[id];
+        if (! tab) return;
+
+        tab.tab.destroy();
+
+        var order = tabOrder.indexOf(tab);
+
+        if (temporaryTab === tab)
+            temporaryTab = null;
+
+        // remove tab
+        delete tabsIndex[id];
+        tabOrder.splice(order, 1);
+
+        // emit event
+        editor.emit('tabs:close', tab);
+
+        // focus previous tab or next tab if
+        // this was the first tab
+        if (focusedTab === tab) {
+            focusedTab = null;
+
+            if (! batchClose) {
+                var next = tabOrder[order - 1] || tabOrder[order];
+
+                if (next) {
+                    if (next.asset) {
+                        editor.call('files:select', next.id);
+                    } else {
+                        focusTab(next.id);
+                    }
+                } else {
+                    panel.class.add('invisible');
+                }
+            }
+        }
+    };
+
+    var moveTab = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var x = Math.max(0, grabbedX + e.clientX - grabbedMouseX);
+        grabbedTab.tab.style.left = x + 'px';
+
+        // search if we need to swap places with other tabs
+        var index = tabOrder.indexOf(grabbedTab);
+
+        var width = grabbedTab.tab.element.offsetWidth;
+
+        var searchRight = true;
+
+        // first search left
+        for (let i = index - 1; i >= 0; i--) {
+            const el = tabOrder[i].tab.element;
+            if (tabPositions[i] + el.offsetWidth / 2 > x) {
+                searchRight = false;
+
+                // swap DOM
+                panel.appendBefore(grabbedTab.tab, tabOrder[i].tab);
+
+                // move tab to the right
+                el.style.left = tabPositions[i] + grabbedTab.tab.element.offsetWidth + 'px';
+
+                // swap
+                tabOrder[index] = tabOrder[i];
+                tabOrder[i] = grabbedTab;
+
+                tabPositions[index] = tabPositions[i] + grabbedTab.tab.element.offsetWidth;
+
+                index = i;
+            } else {
+                break;
+            }
+        }
+
+        // then search right
+        if (searchRight) {
+            for (let i = index + 1, len = tabOrder.length; i < len; i++) {
+                const el = tabOrder[i].tab.element;
+                if (tabPositions[i] < x + width / 2) {
+
+                    // swap DOM
+                    panel.appendAfter(grabbedTab.tab, tabOrder[i].tab);
+
+                    // move tab to the left
+                    el.style.left = tabPositions[i] - grabbedTab.tab.element.offsetWidth + 'px';
+
+                    // swap
+                    tabOrder[index] = tabOrder[i];
+                    tabOrder[i] = grabbedTab;
+
+                    tabPositions[index] = tabPositions[i] - grabbedTab.tab.element.offsetWidth;
+
+                    index = i;
+                } else {
+                    break;
+                }
+            }
+        }
+    };
+
+    var releaseTab = function () {
+        window.removeEventListener('mouseup', releaseTab);
+        window.removeEventListener('mousemove', moveTab);
+
+        grabbedTab.tab.class.remove('grabbed');
+
+        for (let i = 0; i < tabOrder.length; i++) {
+            tabOrder[i].tab.style.position = '';
+            tabOrder[i].tab.style.left = '';
+            tabOrder[i].tab.style.top = '';
+            tabOrder[i].tab.style.width = '';
+            tabOrder[i].tab.class.remove('animated');
+        }
+
+        editor.emit('tabs:reorder', grabbedTab, tabOrder);
+
+        grabbedTab = null;
+        tabPositions.length = 0;
+    };
+
+    var grabTab = function (tab, e) {
+        grabbedTab = tab;
+
+        grabbedMouseX = e.clientX;
+        grabbedX = grabbedTab.tab.element.offsetLeft;
+
+        // turn all tabs to absolute positioning
+        // but first get their coords before we start
+        // changing them
+        var widths = [];
+        for (let i = 0; i < tabOrder.length; i++) {
+            tabPositions.push(tabOrder[i].tab.element.offsetLeft);
+            widths.push(tabOrder[i].tab.element.offsetWidth);
+        }
+
+        for (let i = 0; i < tabOrder.length; i++) {
+            tabOrder[i].tab.element.style.position = 'absolute';
+            tabOrder[i].tab.element.style.left = tabPositions[i] + 'px';
+            tabOrder[i].tab.element.style.width = widths[i] + 'px';
+            tabOrder[i].tab.element.style.top = '0';
+        }
+
+        // add animated class to other tabs
+        // in order for them to be animated while moving around
+        // Do it in a timeout because of a Safari bug
+        setTimeout(function () {
+            if (! grabbedTab)
                 return;
 
-            createTab(id, asset);
-        }
+            for (let i = 0; i < tabOrder.length; i++) {
+                if (tabOrder[i] !== grabbedTab)
+                    tabOrder[i].tab.class.add('animated');
+            }
+        });
 
-        focusTab(id);
 
-        // If this is a new tab then make it temporary
-        // and close old temporary
-        if (isNew && ! lockTemporary) {
-            if (temporaryTab)
-                editor.emit('documents:close', temporaryTab.id);
+        grabbedTab.tab.class.add('grabbed');
 
-            temporaryTab = tabsIndex[id];
-            temporaryTab.tab.class.add('temporary');
-        }
-    });
+        window.addEventListener('mouseup', releaseTab);
+        window.addEventListener('mousemove', moveTab);
+    };
 
     // creates a tab
     var createTab = function (id, asset) {
@@ -205,216 +377,44 @@ editor.once('load', function () {
         editor.emit('tabs:open', entry);
     };
 
-    // focus a tab
-    var focusTab = function (id) {
-        var entry = tabsIndex[id];
-        if (focusedTab === entry) {
-            return;
-        }
-
-        panel.class.remove('invisible');
-
-        if (focusedTab) {
-            focusedTab.tab.class.remove('focused');
-        }
-
-        focusedTab = entry;
-
-        focusedTab.tab.class.add('focused');
-
-        if (entry.asset) {
-            updateDirty(id, editor.call('documents:isDirty', id));
-        } else {
-            // unfocus any documents
-            editor.emit('documents:unfocus');
-        }
-
-        editor.emit('tabs:focus', focusedTab);
-    };
-
-    // Closes a tab
-    var closeTab = function (id) {
-        var tab = tabsIndex[id];
-        if (! tab) return;
-
-        tab.tab.destroy();
-
-        var order = tabOrder.indexOf(tab);
-
-        if (temporaryTab === tab)
-            temporaryTab = null;
-
-        // remove tab
-        delete tabsIndex[id];
-        tabOrder.splice(order, 1);
-
-        // emit event
-        editor.emit('tabs:close', tab);
-
-        // focus previous tab or next tab if
-        // this was the first tab
-        if (focusedTab === tab) {
-            focusedTab = null;
-
-            if (! batchClose) {
-                var next = tabOrder[order - 1] || tabOrder[order];
-
-                if (next) {
-                    if (next.asset) {
-                        editor.call('files:select', next.id);
-                    } else {
-                        focusTab(next.id);
-                    }
-                } else {
-                    panel.class.add('invisible');
-                }
-            }
-        }
-    };
-
-    var updateDirty = function (id, dirty) {
-        var entry = tabsIndex[id];
-        if (entry) {
-            if (dirty) {
-                entry.tab.class.add('dirty');
-            } else {
-                entry.tab.class.remove('dirty');
-
-            }
-        }
-    };
-
     var toggleProgress = function (id, toggle) {
         var tab = tabsIndex[id];
         if (tab && tab.progress)
             tab.progress.hidden = !toggle;
     };
 
-    var grabTab = function (tab, e) {
-        grabbedTab = tab;
+    // unhide tabs panel when asset
+    // is selected and create tab for asset
+    // or focus existing tab
+    editor.on('select:asset', function (asset) {
+        if (asset.get('type') === 'folder')
+            return;
 
-        grabbedMouseX = e.clientX;
-        grabbedX = grabbedTab.tab.element.offsetLeft;
+        var id = asset.get('id');
 
-        // turn all tabs to absolute positioning
-        // but first get their coords before we start
-        // changing them
-        var widths = [];
-        for (let i = 0; i < tabOrder.length; i++) {
-            tabPositions.push(tabOrder[i].tab.element.offsetLeft);
-            widths.push(tabOrder[i].tab.element.offsetWidth);
-        }
+        var isNew = !tabsIndex[id];
 
-        for (let i = 0; i < tabOrder.length; i++) {
-            tabOrder[i].tab.element.style.position = 'absolute';
-            tabOrder[i].tab.element.style.left = tabPositions[i] + 'px';
-            tabOrder[i].tab.element.style.width = widths[i] + 'px';
-            tabOrder[i].tab.element.style.top = '0';
-        }
+        if (isNew) {
 
-        // add animated class to other tabs
-        // in order for them to be animated while moving around
-        // Do it in a timeout because of a Safari bug
-        setTimeout(function () {
-            if (! grabbedTab)
+            // if we have a global error skip opening a new tab
+            if (editor.call('errors:hasRealtime'))
                 return;
 
-            for (let i = 0; i < tabOrder.length; i++) {
-                if (tabOrder[i] !== grabbedTab)
-                    tabOrder[i].tab.class.add('animated');
-            }
-        });
-
-
-        grabbedTab.tab.class.add('grabbed');
-
-        window.addEventListener('mouseup', releaseTab);
-        window.addEventListener('mousemove', moveTab);
-    };
-
-    var releaseTab = function () {
-        window.removeEventListener('mouseup', releaseTab);
-        window.removeEventListener('mousemove', moveTab);
-
-        grabbedTab.tab.class.remove('grabbed');
-
-        for (let i = 0; i < tabOrder.length; i++) {
-            tabOrder[i].tab.style.position = '';
-            tabOrder[i].tab.style.left = '';
-            tabOrder[i].tab.style.top = '';
-            tabOrder[i].tab.style.width = '';
-            tabOrder[i].tab.class.remove('animated');
+            createTab(id, asset);
         }
 
-        editor.emit('tabs:reorder', grabbedTab, tabOrder);
+        focusTab(id);
 
-        grabbedTab = null;
-        tabPositions.length = 0;
-    };
+        // If this is a new tab then make it temporary
+        // and close old temporary
+        if (isNew && ! lockTemporary) {
+            if (temporaryTab)
+                editor.emit('documents:close', temporaryTab.id);
 
-    var moveTab = function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        var x = Math.max(0, grabbedX + e.clientX - grabbedMouseX);
-        grabbedTab.tab.style.left = x + 'px';
-
-        // search if we need to swap places with other tabs
-        var index = tabOrder.indexOf(grabbedTab);
-
-        var width = grabbedTab.tab.element.offsetWidth;
-
-        var searchRight = true;
-
-        // first search left
-        for (let i = index - 1; i >= 0; i--) {
-            const el = tabOrder[i].tab.element;
-            if (tabPositions[i] + el.offsetWidth / 2 > x) {
-                searchRight = false;
-
-                // swap DOM
-                panel.appendBefore(grabbedTab.tab, tabOrder[i].tab);
-
-                // move tab to the right
-                el.style.left = tabPositions[i] + grabbedTab.tab.element.offsetWidth + 'px';
-
-                // swap
-                tabOrder[index] = tabOrder[i];
-                tabOrder[i] = grabbedTab;
-
-                tabPositions[index] = tabPositions[i] + grabbedTab.tab.element.offsetWidth;
-
-                index = i;
-            } else {
-                break;
-            }
+            temporaryTab = tabsIndex[id];
+            temporaryTab.tab.class.add('temporary');
         }
-
-        // then search right
-        if (searchRight) {
-            for (let i = index + 1, len = tabOrder.length; i < len; i++) {
-                const el = tabOrder[i].tab.element;
-                if (tabPositions[i] < x + width / 2) {
-
-                    // swap DOM
-                    panel.appendAfter(grabbedTab.tab, tabOrder[i].tab);
-
-                    // move tab to the left
-                    el.style.left = tabPositions[i] - grabbedTab.tab.element.offsetWidth + 'px';
-
-                    // swap
-                    tabOrder[index] = tabOrder[i];
-                    tabOrder[i] = grabbedTab;
-
-                    tabPositions[index] = tabPositions[i] - grabbedTab.tab.element.offsetWidth;
-
-                    index = i;
-                } else {
-                    break;
-                }
-            }
-        }
-    };
+    });
 
     // hide progress when document is loaded
     editor.on('documents:load', function (doc, asset, docEntry) {

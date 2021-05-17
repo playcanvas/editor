@@ -23,6 +23,33 @@ editor.once('load', function () {
         posTo = originalFrom;
     };
 
+    // Hide existing search overlay
+    var hideSearchOverlay = function () {
+        regex = null;
+
+        if (overlay) {
+            cm.removeOverlay(overlay);
+            overlay = null;
+            editor.emit('editor:search:overlay:close');
+        }
+    };
+
+    var showSearchOverlay = function () {
+        var newRegex = editor.call('picker:search:regex');
+        if (regex === newRegex) return;
+
+        hideSearchOverlay();
+
+        regex = newRegex;
+
+        if (regex) {
+            overlay = editor.call('editor:codemirror:overlay', regex, className);
+            cm.addOverlay(overlay);
+
+            editor.emit('editor:search:overlay:open');
+        }
+    };
+
     // When the user changes their cursor position
     // update our internal positions
     var onCursorActivity = function () {
@@ -48,81 +75,6 @@ editor.once('load', function () {
         resetSearchPositions();
     });
 
-    // Either performs clean search or finds next/prev occurrence
-    var doSearch = function (reverse, addToSelection) {
-        // if we have a regex and the overlay is being displayed
-        // then find next / prev
-        if (regex && overlay) {
-            // Move each position to either the start
-            // or the end of the current selection depending
-            // on whether we are searching forward or reverse
-            if (reverse) {
-                posFrom = cm.getCursor('from');
-            } else {
-                posTo = cm.getCursor('to');
-            }
-
-            cm.off('cursorActivity', onCursorActivity);
-            cm.operation(function () {
-                findNext(reverse, addToSelection);
-            });
-            cm.on('cursorActivity', onCursorActivity);
-        }
-        // either we don't have a regex or the overlay is closed
-        // so perform a clean search
-        else {
-            regex = editor.call('picker:search:regex');
-            if (! regex)
-                return;
-
-            cm.operation(function () {
-                // we don't want any cursor changes to affect our positions
-                cm.off('cursorActivity', onCursorActivity);
-
-                // hide overlay and let findNext
-                // re-enable it
-                hideSearchOverlay();
-
-                // reset positions to original
-                // and restart findNext
-                posFrom = originalFrom;
-                posTo = originalFrom;
-
-                findNext(reverse, addToSelection);
-
-                // re-scan for cursor changes
-                cm.on('cursorActivity', onCursorActivity);
-            });
-        }
-    };
-
-    var showSearchOverlay = function () {
-        var newRegex = editor.call('picker:search:regex');
-        if (regex === newRegex) return;
-
-        hideSearchOverlay();
-
-        regex = newRegex;
-
-        if (regex) {
-            overlay = editor.call('editor:codemirror:overlay', regex, className);
-            cm.addOverlay(overlay);
-
-            editor.emit('editor:search:overlay:open');
-        }
-    };
-
-    // Hide existing search overlay
-    var hideSearchOverlay = function () {
-        regex = null;
-
-        if (overlay) {
-            cm.removeOverlay(overlay);
-            overlay = null;
-            editor.emit('editor:search:overlay:close');
-        }
-    };
-
     // Find next occurrence of our regex and select
     // the match
     var findNext = function (reverse, addToSelection) {
@@ -146,6 +98,53 @@ editor.once('load', function () {
         }
         cm.scrollIntoView({ from: posFrom, to: posTo }, 20);
         return cursor;
+    };
+
+    // Either performs clean search or finds next/prev occurrence
+    var doSearch = function (reverse, addToSelection) {
+        // if we have a regex and the overlay is being displayed
+        // then find next / prev
+        if (regex && overlay) {
+            // Move each position to either the start
+            // or the end of the current selection depending
+            // on whether we are searching forward or reverse
+            if (reverse) {
+                posFrom = cm.getCursor('from');
+            } else {
+                posTo = cm.getCursor('to');
+            }
+
+            cm.off('cursorActivity', onCursorActivity);
+            cm.operation(function () {
+                findNext(reverse, addToSelection);
+            });
+            cm.on('cursorActivity', onCursorActivity);
+        } else {
+            // either we don't have a regex or the overlay is closed
+            // so perform a clean search
+            regex = editor.call('picker:search:regex');
+            if (! regex)
+                return;
+
+            cm.operation(function () {
+                // we don't want any cursor changes to affect our positions
+                cm.off('cursorActivity', onCursorActivity);
+
+                // hide overlay and let findNext
+                // re-enable it
+                hideSearchOverlay();
+
+                // reset positions to original
+                // and restart findNext
+                posFrom = originalFrom;
+                posTo = originalFrom;
+
+                findNext(reverse, addToSelection);
+
+                // re-scan for cursor changes
+                cm.on('cursorActivity', onCursorActivity);
+            });
+        }
     };
 
     // Returns {from: Pos, to: Pos, text: string, newSelection: bool}.

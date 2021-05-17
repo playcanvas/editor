@@ -24,7 +24,7 @@ this.onmessage = function (evt) {
     var newLinesLength = 0;
     var findNewLines = /\n/g;
 
-    while (match = findNewLines.exec(text)) {
+    while (match = findNewLines.exec(text)) { // eslint-disable-line no-cond-assign
         newLines.push(match.index);
         newLinesLength++;
     }
@@ -34,7 +34,7 @@ this.onmessage = function (evt) {
     query.lastIndex = 0;
 
     // start matching
-    while (match = query.exec(text)) {
+    while (match = query.exec(text)) { // eslint-disable-line no-cond-assign
 
         // binary search the line of the match
         var index = match.index;
