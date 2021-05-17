@@ -51,7 +51,7 @@ editor.once('load', function () {
         });
 
         editor.call('users:loadOne', id, function (user) {
-            link.href = '/' + user.username;
+            link.href = '/user/' + user.username;
             link.tooltip.text = user.username;
             link.style.backgroundColor = editor.call('whoisonline:color', user.id, 'hex');
         });
