@@ -1,6 +1,9 @@
 editor.once('load', function () {
     'use strict';
 
+    var cm = null;
+    var tern = null;
+
     var panel = editor.call('layout.code');
     panel.toggleCode = function (toggle) {
         if (toggle) {
@@ -11,8 +14,6 @@ editor.once('load', function () {
     };
 
     var element = panel.innerElement;
-    var cm = null;
-    var tern = null;
 
     var settings = editor.call('editor:settings');
 
@@ -53,11 +54,25 @@ editor.once('load', function () {
         lineNumbers: true
     };
 
+    var isTernEnabled = function () {
+        if (! tern || cm.isReadOnly())
+            return false;
+
+        var focused = editor.call('documents:getFocused');
+        if (! focused) return false;
+
+        var asset = editor.call('assets:get', focused);
+        if (! asset || asset.get('type') !== 'script') return false;
+
+        return true;
+    };
+
     // set up key bindings
     options.extraKeys = {};
 
     var mac = navigator.userAgent.indexOf('Mac OS X') !== -1;
 
+    // eslint-disable-next-line dot-notation
     options.extraKeys['Esc'] = function (cm) {
         var selections = cm.listSelections();
 
@@ -84,7 +99,7 @@ editor.once('load', function () {
     options.extraKeys['Shift-Ctrl-Z'] = function (cm) { editor.call('editor:command:redo'); };
     options.extraKeys['Ctrl-Y'] = function (cm) { editor.call('editor:command:redo'); };
     options.extraKeys['Ctrl-S'] = function (cm) { editor.call('editor:command:save'); };
-    options.extraKeys['Tab'] = function (cm) { editor.call('editor:command:indent'); };
+    options.extraKeys['Tab'] = function (cm) { editor.call('editor:command:indent'); }; // eslint-disable-line dot-notation
     options.extraKeys['Shift-Tab'] = function (cm) { editor.call('editor:command:unindent'); };
     options.extraKeys['Ctrl-I'] = function (cm) { editor.call('editor:command:autoindent'); };
     options.extraKeys['Ctrl-/'] = function (cm) { editor.call('editor:command:toggleComment'); };
@@ -106,12 +121,12 @@ editor.once('load', function () {
     options.extraKeys['Alt-Down'] = function (cm) { cm.execCommand('goLineDown'); cm.execCommand('goLineEnd'); };
 
     // auto complete keys
-    options.extraKeys['Ctrl-Space'] = function (cm) { isTernEnabled() && tern.complete(cm); };
-    options.extraKeys['Ctrl-O'] = function (cm) { isTernEnabled() && tern.showDocs(cm); };
-    options.extraKeys['Alt-.'] = function (cm) { isTernEnabled() && tern.jumpToDef(cm); };
-    options.extraKeys['Alt-,'] = function (cm) { isTernEnabled() && tern.jumpBack(cm); };
-    options.extraKeys['Ctrl-Q'] = function (cm) { isTernEnabled() && tern.rename(cm); };
-    options.extraKeys['Ctrl-.'] = function (cm) { isTernEnabled() && tern.selectName(cm); };
+    options.extraKeys['Ctrl-Space'] = function (cm) { if (isTernEnabled()) tern.complete(cm); };
+    options.extraKeys['Ctrl-O'] = function (cm) { if (isTernEnabled()) tern.showDocs(cm); };
+    options.extraKeys['Alt-.'] = function (cm) { if (isTernEnabled()) tern.jumpToDef(cm); };
+    options.extraKeys['Alt-,'] = function (cm) { if (isTernEnabled()) tern.jumpBack(cm); };
+    options.extraKeys['Ctrl-Q'] = function (cm) { if (isTernEnabled()) tern.rename(cm); };
+    options.extraKeys['Ctrl-.'] = function (cm) { if (isTernEnabled()) tern.selectName(cm); };
 
     if (mac) {
         options.extraKeys['Cmd-Z'] = function (cm) { editor.call('editor:command:undo'); };
@@ -125,7 +140,7 @@ editor.once('load', function () {
         options.extraKeys['Alt-Ctrl-]'] = function (cm) { editor.call('editor:command:unfold'); };
         options.extraKeys['Cmd-K Cmd-J'] = function (cm) { editor.call('editor:command:unfoldAll'); };
         options.extraKeys['Cmd-Backspace'] = function (cm) { editor.call('editor:command:deleteBeginning'); };
-        options.extraKeys['Cmd-O'] = function (cm) { isTernEnabled() && tern.showDocs(cm); };
+        options.extraKeys['Cmd-O'] = function (cm) { if (isTernEnabled()) tern.showDocs(cm); };
 
         options.extraKeys['Cmd-F'] = function (cm) { editor.call('editor:command:find'); };
         options.extraKeys['Shift-Cmd-F'] = function (cm) { editor.call('editor:command:findInFiles'); };
@@ -144,7 +159,7 @@ editor.once('load', function () {
         options.extraKeys['Shift-Ctrl-]'] = function (cm) { editor.call('editor:command:unfold'); };
         options.extraKeys['Ctrl-Shift-Backspace'] = function (cm) { editor.call('editor:command:deleteBeginning'); };
 
-        options.extraKeys['F3'] = function (cm) { editor.call('editor:command:findNext'); };
+        options.extraKeys['F3'] = function (cm) { editor.call('editor:command:findNext'); }; // eslint-disable-line dot-notation
         options.extraKeys['Shift-F3'] = function (cm) { editor.call('editor:command:findPrevious'); };
         options.extraKeys['Ctrl-H'] = function (cm) { editor.call('editor:command:replace'); };
         options.extraKeys['Shift-Ctrl-H'] = function (cm) { editor.call('editor:command:replaceNext'); };
@@ -183,19 +198,6 @@ editor.once('load', function () {
     editor.method('editor:codemirror', function () {
         return cm;
     });
-
-    var isTernEnabled = function () {
-        if (! tern || cm.isReadOnly())
-            return false;
-
-        var focused = editor.call('documents:getFocused');
-        if (! focused) return false;
-
-        var asset = editor.call('assets:get', focused);
-        if (! asset || asset.get('type') !== 'script') return false;
-
-        return true;
-    };
 
     // wait for tern definitions to be loaded
     editor.on('tern:load', function () {

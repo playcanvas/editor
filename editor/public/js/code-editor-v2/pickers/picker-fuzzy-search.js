@@ -130,6 +130,67 @@ editor.once('load', function () {
         }
     });
 
+    var pick = function (assetId) {
+        if (assetId === FIND_RESULTS) {
+            editor.call('tabs:findInFiles:focus');
+            return;
+        }
+
+        // open new file in new tab (if it's not open already)
+        editor.call('tabs:temp:lock');
+        editor.call('files:select', assetId);
+        editor.call('tabs:temp:unlock');
+
+        // if the file is the temp tab then make it stick
+        if (editor.call('tabs:isTemp', assetId))
+            editor.call('tabs:temp:stick');
+    };
+
+    var openSelection = function () {
+        var children = menuResults.innerElement.childNodes;
+        var selected = children[selectedIndex];
+        if (! selected) return;
+
+        pick(selected.ui._assetId);
+    };
+
+    var selectIndex = function (index) {
+        var children = menuResults.innerElement.childNodes;
+        if (! children.length) return;
+
+        if (index < 0)
+            index = 0;
+        else if (index > children.length - 1)
+            index = children.length - 1;
+
+        var item;
+        if (selectedIndex === index) {
+            item = children[index];
+            if (! item || item.classList.contains('selected'))
+                return;
+        }
+
+        item = children[selectedIndex];
+        if (item)
+            item.classList.remove('selected');
+
+        item = children[index];
+        if (! item) return;
+
+        item.classList.add('selected');
+
+        // scroll if necessary
+        var container = item.parentElement;
+        var containerBottom = container.scrollTop + container.offsetHeight;
+        var itemBottom = item.offsetTop + item.offsetHeight;
+        if (itemBottom > containerBottom)
+            container.scrollTop += itemBottom - containerBottom;
+        else if (item.offsetTop < container.scrollTop)
+            container.scrollTop -= container.scrollTop - item.offsetTop;
+
+        selectedIndex = index;
+    };
+
     var onKeyDown = function (e) {
         // enter
         if (e.keyCode === 13) {
@@ -148,19 +209,108 @@ editor.once('load', function () {
         }
     };
 
-    // Handle input
-    fieldSearch.elementInput.addEventListener('input', function (e) {
-        if (panel.hidden) return;
+    var createResultItem = function (asset, index) {
+        var item = menuResults.createItem(asset.get('id'), {
+            select: function () {
+                pick(asset.get('id'));
+                editor.call('picker:fuzzy:close');
+            }
+        });
 
-        filterAssets();
-    });
+        var path = asset.get('path');
+        if (path && path.length) {
+            for (var i = 0, len = path.length; i < len; i++) {
+                var a = editor.call('assets:get', path[i]);
+                path[i] = a ? a.get('name') : a.get('id');
+            }
 
-    var filterAssets = function () {
-        if (fieldSearch.value) {
-            fuzzySearch();
+            path = path.join('/');
         } else {
-            stackBasedSearch();
+            path = '/';
         }
+
+        item.elementTitle.innerHTML =
+            '<div class="name">' +
+            asset.get('name') +
+            '<span class="path">' +
+            path +
+            '</span></div>';
+        item._assetId = asset.get('id');
+        return item;
+    };
+
+    var refreshResults = function (results) {
+        var children = menuResults.innerElement.childNodes;
+        var item = children ? children[0] : null;
+        while (item) {
+            var next = item.nextSibling;
+            item.ui.destroy();
+            item = next;
+        }
+
+        for (var i = 0, len = results.length; i < len; i++) {
+            const asset = results[i];
+            menuResults.append(createResultItem(asset));
+        }
+    };
+
+    // calculate score:
+    // Higher score for more matches close to the beginning
+    var calculateScore = function (name, pattern, patternLength) {
+        var score = 0;
+        var nameLength = name.length;
+        var n = 0;
+        var p = 0;
+
+        while (n < nameLength && p < patternLength) {
+            if (name[n] === pattern[p]) {
+                score += 1 / (n + 1);
+                p++;
+            } else {
+                var otherCase = name[n].toUpperCase();
+                if (otherCase === name[n])
+                    otherCase = name[n].toLowerCase();
+
+                if (otherCase === pattern[p]) {
+                    score += 0.9 / (n + 1);
+                    p++;
+                }
+            }
+
+            n++;
+        }
+
+        if (p < patternLength)
+            score = 0;
+
+        return score;
+    };
+
+    // Sorts search results by score
+    var sortByScore = function (a, b) {
+        var aid = a.get('id');
+        var bid = b.get('id');
+        if (scoreIndex[aid] !== undefined && scoreIndex[bid] !== undefined)
+            return scoreIndex[bid] - scoreIndex[aid];
+
+        if (scoreIndex[aid] === undefined && scoreIndex[bid] !== undefined)
+            return 1;
+
+        if (scoreIndex[bid] === undefined && scoreIndex[aid] !== undefined)
+            return -1;
+
+        return 0;
+    };
+
+    // Sorts by case insensitive name
+    var sortByName = function (a, b) {
+        var aname = a.get('name').toLowerCase();
+        var bname = b.get('name').toLowerCase();
+        if (aname < bname)
+            return -1;
+        if (aname > bname)
+            return 1;
+        return 0;
     };
 
     var fuzzySearch = function () {
@@ -199,38 +349,6 @@ editor.once('load', function () {
 
         // select first node
         selectIndex(0);
-    };
-
-    // calculate score:
-    // Higher score for more matches close to the beginning
-    var calculateScore = function (name, pattern, patternLength) {
-        var score = 0;
-        var nameLength = name.length;
-        var n = 0;
-        var p = 0;
-
-        while (n < nameLength && p < patternLength) {
-            if (name[n] === pattern[p]) {
-                score += 1 / (n + 1);
-                p++;
-            } else {
-                var otherCase = name[n].toUpperCase();
-                if (otherCase === name[n])
-                    otherCase = name[n].toLowerCase();
-
-                if (otherCase === pattern[p]) {
-                    score += 0.9 / (n + 1);
-                    p++;
-                }
-            }
-
-            n++;
-        }
-
-        if (p < patternLength)
-            score = 0;
-
-        return score;
     };
 
     var stackBasedSearch = function () {
@@ -286,137 +404,18 @@ editor.once('load', function () {
         selectIndex(0);
     };
 
-    // Sorts search results by score
-    var sortByScore = function (a, b) {
-        var aid = a.get('id');
-        var bid = b.get('id');
-        if (scoreIndex[aid] !== undefined && scoreIndex[bid] !== undefined)
-            return scoreIndex[bid] - scoreIndex[aid];
-
-        if (scoreIndex[aid] === undefined && scoreIndex[bid] !== undefined)
-            return 1;
-
-        if (scoreIndex[bid] === undefined && scoreIndex[aid] !== undefined)
-            return -1;
-
-        return 0;
-    };
-
-    // Sorts by case insensitive name
-    var sortByName = function (a, b) {
-        var aname = a.get('name').toLowerCase();
-        var bname = b.get('name').toLowerCase();
-        if (aname < bname)
-            return -1;
-        if (aname > bname)
-            return 1;
-        return 0;
-    };
-
-    var pick = function (assetId) {
-        if (assetId === FIND_RESULTS) {
-            editor.call('tabs:findInFiles:focus');
-            return;
-        }
-
-        // open new file in new tab (if it's not open already)
-        editor.call('tabs:temp:lock');
-        editor.call('files:select', assetId);
-        editor.call('tabs:temp:unlock');
-
-        // if the file is the temp tab then make it stick
-        if (editor.call('tabs:isTemp', assetId))
-            editor.call('tabs:temp:stick');
-
-    };
-
-    var createResultItem = function (asset, index) {
-        var item = menuResults.createItem(asset.get('id'), {
-            select: function () {
-                pick(asset.get('id'));
-                editor.call('picker:fuzzy:close');
-            }
-        });
-
-        var path = asset.get('path');
-        if (path && path.length) {
-            for (var i = 0, len = path.length; i < len; i++) {
-                var a = editor.call('assets:get', path[i]);
-                path[i] = a ? a.get('name') : a.get('id');
-            }
-
-            path = path.join('/');
+    var filterAssets = function () {
+        if (fieldSearch.value) {
+            fuzzySearch();
         } else {
-            path = '/';
-        }
-
-        item.elementTitle.innerHTML =
-            '<div class="name">' +
-            asset.get('name') +
-            '<span class="path">' +
-            path +
-            '</span></div>';
-        item._assetId = asset.get('id');
-        return item;
-    };
-
-    var refreshResults = function (results) {
-        var children = menuResults.innerElement.childNodes;
-        var item = children ? children[0] : null;
-        while (item) {
-            var next = item.nextSibling;
-            item.ui.destroy();
-            item = next;
-        }
-
-        for (var i = 0, len = results.length; i < len; i++) {
-            const asset = results[i];
-            menuResults.append(createResultItem(asset));
+            stackBasedSearch();
         }
     };
 
-    var selectIndex = function (index) {
-        var children = menuResults.innerElement.childNodes;
-        if (! children.length) return;
+    // Handle input
+    fieldSearch.elementInput.addEventListener('input', function (e) {
+        if (panel.hidden) return;
 
-        if (index < 0)
-            index = 0;
-        else if (index > children.length - 1)
-            index = children.length - 1;
-
-        var item;
-        if (selectedIndex === index) {
-            item = children[index];
-            if (! item || item.classList.contains('selected'))
-                return;
-        }
-
-        item = children[selectedIndex];
-        if (item)
-            item.classList.remove('selected');
-
-        item = children[index];
-        if (! item) return;
-
-        item.classList.add('selected');
-
-        // scroll if necessary
-        var container = item.parentElement;
-        var containerBottom = container.scrollTop + container.offsetHeight;
-        var itemBottom = item.offsetTop + item.offsetHeight;
-        if (itemBottom > containerBottom)
-            container.scrollTop += itemBottom - containerBottom;
-        else if (item.offsetTop < container.scrollTop)
-            container.scrollTop -= container.scrollTop - item.offsetTop;
-
-        selectedIndex = index;
-    };
-
-    var openSelection = function () {
-        var children = menuResults.innerElement.childNodes;
-        var selected = children[selectedIndex];
-        if (! selected) return;
-
-        pick(selected.ui._assetId);
-    };
+        filterAssets();
+    });
 });

@@ -66,6 +66,62 @@ editor.once('load', function () {
         cm.getWrapperElement().classList.remove('hide-find-in-files');
     });
 
+    // Open asset on double click
+    var onDblClick = function (line) {
+        if (line._assetId) {
+            // go to line and column if clicking on a match
+            if (line._line !== undefined || line._col !== undefined) {
+                editor.call('integration:selectWhenReady', line._assetId, {
+                    line: line._line,
+                    col: line._col
+                });
+            } else {
+                // if clicking on the asset name then just open the asset
+                editor.call('files:select', line._assetId);
+            }
+
+            // open the regular find
+            setTimeout(function () {
+                editor.call('picker:search:open', true); // true for instant change mode to normal find
+                cm.focus();
+            });
+        }
+    };
+
+    // do a custom double click detection
+    // here because codemirror eats the dblclick event
+    // depending on where you click
+    var lastMouseDown = null;
+    var lastLineClicked = null;
+
+    var onMouseDown = function (cm, e) {
+        var pos = cm.coordsChar({ left: e.clientX, top: e.clientY });
+        var line = cm.getLineHandle(pos.line);
+
+        var sameLine = true;
+        if (lastLineClicked) {
+            sameLine = (lastLineClicked === line);
+        }
+
+        lastLineClicked = line;
+
+        if (! lastMouseDown) {
+            lastMouseDown = Date.now();
+
+        } else {
+            if (Date.now() - lastMouseDown < 300 && sameLine) {
+                // double click
+                lastMouseDown = null;
+                lastLineClicked = null;
+                e.preventDefault();
+                onDblClick(line);
+            } else {
+                lastMouseDown = Date.now();
+            }
+
+        }
+    };
+
     // release mousedown event if we switch documents
     cm.on('swapDoc', function (cm) {
         cm.off('mousedown', onMouseDown);
@@ -105,62 +161,6 @@ editor.once('load', function () {
             setDoc();
         }
     });
-
-    var lastMouseDown = null;
-    var lastLineClicked = null;
-
-    // do a custom double click detection
-    // here because codemirror eats the dblclick event
-    // depending on where you click
-    var onMouseDown = function (cm, e) {
-        var pos = cm.coordsChar({ left: e.clientX, top: e.clientY });
-        var line = cm.getLineHandle(pos.line);
-
-        var sameLine = true;
-        if (lastLineClicked) {
-            sameLine = (lastLineClicked === line);
-        }
-
-        lastLineClicked = line;
-
-        if (! lastMouseDown) {
-            lastMouseDown = Date.now();
-
-        } else {
-            if (Date.now() - lastMouseDown < 300 && sameLine) {
-                // double click
-                lastMouseDown = null;
-                lastLineClicked = null;
-                e.preventDefault();
-                onDblClick(line);
-            } else {
-                lastMouseDown = Date.now();
-            }
-
-        }
-    };
-
-    // Open asset on double click
-    var onDblClick = function (line) {
-        if (line._assetId) {
-            // go to line and column if clicking on a match
-            if (line._line !== undefined || line._col !== undefined) {
-                editor.call('integration:selectWhenReady', line._assetId, {
-                    line: line._line,
-                    col: line._col
-                });
-            } else {
-                // if clicking on the asset name then just open the asset
-                editor.call('files:select', line._assetId);
-            }
-
-            // open the regular find
-            setTimeout(function () {
-                editor.call('picker:search:open', true); // true for instant change mode to normal find
-                cm.focus();
-            });
-        }
-    };
 
     // Add results to document
     editor.on('editor:search:files:results', function (results, done, total) {
@@ -225,7 +225,7 @@ editor.once('load', function () {
             // on the same line - meaning matches that are close together
             var end = i;
 
-            for (var j = end + 1; j < len; j++) {
+            for (let j = end + 1; j < len; j++) {
                 var nextMatch = results.matches[j];
                 if (nextMatch.line === match.line) {
                     var nextFrom = nextMatch.char - contextLimit;
@@ -324,7 +324,7 @@ editor.once('load', function () {
             }
 
             // mark matches on text
-            for (var j = i; j <= end; j++) {
+            for (let j = i; j <= end; j++) {
                 match = results.matches[j];
 
                 var matchFrom = match.char - from;

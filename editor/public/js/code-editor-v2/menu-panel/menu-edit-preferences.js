@@ -2,8 +2,6 @@ editor.once('load', function () {
     'use strict';
 
     var menu = editor.call('menu:edit');
-    var el = editor.call('editor:codemirror').getWrapperElement();
-    var style = window.getComputedStyle(el, null);
 
     var group = menu.createItem('preferences', {
         title: 'Preferences',

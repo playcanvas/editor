@@ -24,7 +24,7 @@ editor.once('load', function () {
         itemsIndex[id] = item;
 
         editor.call('users:loadOne', id, function (user) {
-            item.href = '/' + user.username;
+            item.href = '/user/' + user.username;
 
             tooltips[id] = Tooltip.attach({
                 target: item,

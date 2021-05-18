@@ -114,23 +114,6 @@ editor.once('load', function () {
         }
     };
 
-    // append item to parent in alphabetical order
-    // if item is a folder also append any other items
-    // that were waiting for this folder to be added
-    var append = function (item, parent) {
-        appendAlphabetically(item, parent);
-
-        var id = item._assetId;
-        var items = waitingParent[id];
-        if (items) {
-            delete waitingParent[id];
-
-            for (var i = 0; i < items.length; i++) {
-                append(items[i], item);
-            }
-        }
-    };
-
     // Append item to parent keeping order alphabetical.
     // Puts folders first.
     var appendAlphabetically = function (item, parent) {
@@ -143,8 +126,6 @@ editor.once('load', function () {
         var low = 0;
         var hi = children.length - 1;
         var mid, node, nodeText, nodeFolder;
-
-        var done = false;
 
         while (low <= hi) {
             mid = Math.floor((low + hi) / 2);
@@ -182,6 +163,23 @@ editor.once('load', function () {
                 parent.appendBefore(item, node);
             } else {
                 parent.appendAfter(item, node);
+            }
+        }
+    };
+
+    // append item to parent in alphabetical order
+    // if item is a folder also append any other items
+    // that were waiting for this folder to be added
+    var append = function (item, parent) {
+        appendAlphabetically(item, parent);
+
+        var id = item._assetId;
+        var items = waitingParent[id];
+        if (items) {
+            delete waitingParent[id];
+
+            for (var i = 0; i < items.length; i++) {
+                append(items[i], item);
             }
         }
     };

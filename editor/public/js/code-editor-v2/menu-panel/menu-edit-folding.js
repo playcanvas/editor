@@ -5,8 +5,6 @@ editor.once('load', function () {
     var ctrl = editor.call('hotkey:ctrl:string');
     var cm = editor.call('editor:codemirror');
 
-    var mac = navigator.userAgent.indexOf('Mac OS X') !== -1;
-
     var group = menu.createItem('folding', {
         title: 'Folding'
     });
@@ -17,8 +15,10 @@ editor.once('load', function () {
         return editor.call('editor:resolveConflictMode') || !!editor.call('documents:getFocused');
     };
 
+    var item;
+
     // Fold
-    var item = menu.createItem('fold', {
+    item = menu.createItem('fold', {
         title: 'Fold',
         filter: canFold,
         select: function () {
@@ -44,7 +44,7 @@ editor.once('load', function () {
     });
 
     // Unfold
-    var item = menu.createItem('unfold', {
+    item = menu.createItem('unfold', {
         title: 'Unfold',
         filter: canFold,
         select: function () {
@@ -70,7 +70,7 @@ editor.once('load', function () {
     });
 
     // Unfold All
-    var item = menu.createItem('unfold-all', {
+    item = menu.createItem('unfold-all', {
         title: 'Unfold All',
         filter: canFold,
         select: function () {

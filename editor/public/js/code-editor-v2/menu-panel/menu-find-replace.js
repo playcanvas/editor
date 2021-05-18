@@ -26,8 +26,10 @@ editor.once('load', function () {
         return false;
     };
 
+    var item;
+
     // Replace
-    var item = menu.createItem('replace', {
+    item = menu.createItem('replace', {
         title: 'Replace',
         filter: function () {
             return !!editor.call('documents:getFocused') && !cm.isReadOnly();
@@ -59,7 +61,7 @@ editor.once('load', function () {
     });
 
     // Replace Next
-    var item = menu.createItem('replace-next', {
+    item = menu.createItem('replace-next', {
         title: 'Replace Next',
         filter: canReplace,
         select: function (e) {
@@ -94,7 +96,7 @@ editor.once('load', function () {
     });
 
     // Replace Previous
-    var item = menu.createItem('replace-prev', {
+    item = menu.createItem('replace-prev', {
         title: 'Replace Previous',
         filter: canReplace,
         select: function (e) {
@@ -112,7 +114,7 @@ editor.once('load', function () {
     });
 
     // Replace All
-    var item = menu.createItem('replace-all', {
+    item = menu.createItem('replace-all', {
         title: 'Replace All',
         filter: canReplace,
         select: function (e) {

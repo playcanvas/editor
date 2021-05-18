@@ -14,8 +14,10 @@ editor.once('load', function () {
         return focusedTab && (!focusedTab.asset || !!editor.call('documents:getFocused'));
     };
 
+    var item;
+
     // Find
-    var item = menu.createItem('find', {
+    item = menu.createItem('find', {
         title: 'Find',
         filter: canFind,
         select: function () {
@@ -44,7 +46,7 @@ editor.once('load', function () {
     });
 
     // Find Next
-    var item = menu.createItem('find-next', {
+    item = menu.createItem('find-next', {
         title: 'Find Next',
         filter: canFind,
         select: function (e) {
@@ -73,7 +75,7 @@ editor.once('load', function () {
     });
 
     // Find Previous
-    var item = menu.createItem('find-previous', {
+    item = menu.createItem('find-previous', {
         title: 'Find Previous',
         filter: canFind,
         select: function () {

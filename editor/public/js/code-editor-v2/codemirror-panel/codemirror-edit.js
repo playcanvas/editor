@@ -46,7 +46,7 @@ editor.once('load', function () {
         }
 
         var prevDelete = false;
-        for (var i = 0; i < prevLen; i++) {
+        for (let i = 0; i < prevLen; i++) {
             if (typeof(prev.op[i]) === 'object') {
                 prevDelete = true;
                 break;
@@ -54,7 +54,7 @@ editor.once('load', function () {
         }
 
         var nextDelete = false;
-        for (var i = 0; i < nextLen; i++) {
+        for (let i = 0; i < nextLen; i++) {
             if (typeof(next.op[i]) === 'object') {
                 nextDelete = true;
                 break;
@@ -139,10 +139,10 @@ editor.once('load', function () {
 
     // transform dummy ops with remote op
     var transformCursorOps = function (ops, remoteOp, entry) {
-        for (var i = 0, len = ops.length; i < len; i++) {
+        for (let i = 0, len = ops.length; i < len; i++) {
             var data = ops[i];
             if (data.length) {
-                for (var j = 0; j < data.length; j++) {
+                for (let j = 0; j < data.length; j++) {
                     data[j].op = transform(data[j].op, remoteOp, 'right', entry);
                 }
             } else {
@@ -161,7 +161,7 @@ editor.once('load', function () {
 
     // restore selections after remote ops
     var restoreSelections = function (cursorOps, entry) {
-        for (var i = 0, len = cursorOps.length; i < len; i++) {
+        for (let i = 0, len = cursorOps.length; i < len; i++) {
             var data = cursorOps[i];
             var start, end;
 
@@ -181,14 +181,13 @@ editor.once('load', function () {
     var transformStacks = function (remoteOp, entry) {
         var undo = entry.undo;
         var redo = entry.redo;
-        var doc = entry.doc;
 
         var i = undo.length;
         var initialRemoteOp = remoteOp.op;
 
         while (i--) {
-            var localOp = undo[i];
-            var old = localOp.op;
+            const localOp = undo[i];
+            const old = localOp.op;
             localOp.op = transform(localOp.op, remoteOp.op, 'left', entry);
 
             // remove noop
@@ -202,8 +201,8 @@ editor.once('load', function () {
         remoteOp.op = initialRemoteOp;
         i = redo.length;
         while (i--) {
-            var localOp = redo[i];
-            var old = localOp.op;
+            const localOp = redo[i];
+            const old = localOp.op;
             localOp.op = transform(localOp.op, remoteOp.op, 'left', entry);
 
             // remove noop
@@ -238,8 +237,8 @@ editor.once('load', function () {
         var foldOps;
         if (folds.length) {
             foldOps = [];
-            for (var i = 0; i < folds.length; i++) {
-                var pos = CodeMirror.Pos(folds[i].lines[0].lineNo(), 0);
+            for (let i = 0; i < folds.length; i++) {
+                const pos = CodeMirror.Pos(folds[i].lines[0].lineNo(), 0);
                 foldOps.push(createCursorOp(pos, entry));
             }
 
@@ -252,8 +251,8 @@ editor.once('load', function () {
 
         // restore folds because after cm.setValue they will all be lost
         if (foldOps) {
-            for (var i = 0; i < foldOps.length; i++) {
-                var pos = posFromCursorOp(foldOps[i], entry);
+            for (let i = 0; i < foldOps.length; i++) {
+                const pos = posFromCursorOp(foldOps[i], entry);
                 cm.foldCode(pos);
             }
         }
@@ -282,6 +281,30 @@ editor.once('load', function () {
         if (cursorCoords.top >= scrollInfo.top && cursorCoords.top <= scrollInfo.top + scrollInfo.clientHeight) {
             cm.scrollTo(scrollInfo.left, scrollInfo.top);
         }
+    };
+
+    // add local op to undo history
+    var addToHistory = function (localOp, entry) {
+        // try to concatenate new op with latest op in the undo stack
+        var timeSinceLastEdit = localOp.time - entry.lastEditTime;
+        if (timeSinceLastEdit <= MERGE_EDITS_DELAY || entry.forceConcatenate) {
+            var prev = entry.undo[entry.undo.length - 1];
+            if (prev && canConcatOps(prev, localOp, entry)) {
+                concat(prev, localOp, entry);
+                return;
+            }
+        }
+
+        // cannot concatenate so push new op
+        entry.undo.push(localOp);
+
+        // make sure our undo stack doens't get too big
+        if (entry.undo.length > MAX_UNDO_SIZE) {
+            entry.undo.splice(0, 1);
+        }
+
+        // update lastEditTime
+        entry.lastEditTime = Date.now();
     };
 
     // Convert a CodeMirror change into an op understood by share.js
@@ -341,30 +364,6 @@ editor.once('load', function () {
         setTimeout(function () {
             entry.forceConcatenate = false;
         });
-    };
-
-    // add local op to undo history
-    var addToHistory = function (localOp, entry) {
-        // try to concatenate new op with latest op in the undo stack
-        var timeSinceLastEdit = localOp.time - entry.lastEditTime;
-        if (timeSinceLastEdit <= MERGE_EDITS_DELAY || entry.forceConcatenate) {
-            var prev = entry.undo[entry.undo.length - 1];
-            if (prev && canConcatOps(prev, localOp, entry)) {
-                concat(prev, localOp, entry);
-                return;
-            }
-        }
-
-        // cannot concatenate so push new op
-        entry.undo.push(localOp);
-
-        // make sure our undo stack doens't get too big
-        if (entry.undo.length > MAX_UNDO_SIZE) {
-            entry.undo.splice(0, 1);
-        }
-
-        // update lastEditTime
-        entry.lastEditTime = Date.now();
     };
 
     editor.on('documents:load', function (doc, asset, docEntry) {
@@ -541,7 +540,7 @@ editor.once('load', function () {
         cm.focus();
     });
 
-    // set the value on a view and specifly if you want to force concatenating it with previous ops
+    // set the value on a view and specify if you want to force concatenating it with previous ops
     editor.method('views:setValue', function (id, value, forceConcatenate) {
         var entry = documentIndex[id];
         if (! entry) return;

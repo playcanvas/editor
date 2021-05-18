@@ -16,8 +16,10 @@ editor.once('load', function () {
     group.class.add('text');
     menu.append(group);
 
+    var item;
+
     // Insert line before
-    var item = menu.createItem('insert-line-before', {
+    item = menu.createItem('insert-line-before', {
         title: 'Insert Line Before',
         filter: function () {
             return editor.call('editor:command:can:insertLineBefore');
@@ -39,7 +41,7 @@ editor.once('load', function () {
     });
 
     // Insert line after
-    var item = menu.createItem('insert-line-after', {
+    item = menu.createItem('insert-line-after', {
         title: 'Insert Line After',
         filter: function () {
             return editor.call('editor:command:can:insertLineAfter');
@@ -60,7 +62,7 @@ editor.once('load', function () {
     });
 
     // Delete word backward
-    var item = menu.createItem('delete-word-backward', {
+    item = menu.createItem('delete-word-backward', {
         title: 'Delete Word Backward',
         filter: function () {
             return editor.call('editor:command:can:deleteWordBackward');
@@ -82,7 +84,7 @@ editor.once('load', function () {
     });
 
     // Delete word forward
-    var item = menu.createItem('delete-word-forward', {
+    item = menu.createItem('delete-word-forward', {
         title: 'Delete Word Forward',
         filter: function () {
             return editor.call('editor:command:can:deleteWordForward');
@@ -104,7 +106,7 @@ editor.once('load', function () {
     });
 
     // Delete Beginning
-    var item = menu.createItem('delete-beginning', {
+    item = menu.createItem('delete-beginning', {
         title: 'Delete To Beginning',
         filter: function () {
             return editor.call('editor:command:can:deleteBeginning');
@@ -126,7 +128,7 @@ editor.once('load', function () {
     });
 
     // Delete End
-    var item = menu.createItem('delete-end', {
+    item = menu.createItem('delete-end', {
         title: 'Delete To End',
         filter: function () {
             return editor.call('editor:command:can:deleteEnd');
