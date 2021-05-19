@@ -172,23 +172,19 @@ Object.assign(pcui, (function () {
                 }
             }
 
-            if (!editor.call('users:hasFlag', 'hasContainerAssets')) {
-                this._attributesInspector.getField('editor.pipeline.useContainers').parent.hidden = true;
-            } else {
-                const useGlbField = this._attributesInspector.getField('editor.pipeline.useGlb');
-                const useContainersField = this._attributesInspector.getField('editor.pipeline.useContainers');
-                const animUseFbxFilenameField = this._attributesInspector.getField('editor.pipeline.animUseFbxFilename');
+            const useGlbField = this._attributesInspector.getField('editor.pipeline.useGlb');
+            const useContainersField = this._attributesInspector.getField('editor.pipeline.useContainers');
+            const animUseFbxFilenameField = this._attributesInspector.getField('editor.pipeline.animUseFbxFilename');
 
-                useContainersField.parent.hidden = !useGlbField.value;
-                animUseFbxFilenameField.parent.hidden = !useGlbField.value;
-                useGlbField.on('change', (value) => {
-                    useContainersField.parent.hidden = !value;
-                    animUseFbxFilenameField.parent.hidden = !value;
-                    if (!value) {
-                        useContainersField.value = false;
-                    }
-                });
-            }
+            useContainersField.parent.hidden = !useGlbField.value;
+            animUseFbxFilenameField.parent.hidden = !useGlbField.value;
+            useGlbField.on('change', (value) => {
+                useContainersField.parent.hidden = !value;
+                animUseFbxFilenameField.parent.hidden = !value;
+                if (!value) {
+                    useContainersField.value = false;
+                }
+            });
         }
 
         _appendSection(title, attributeElement) {

@@ -102,7 +102,7 @@ editor.once('load', function () {
 
         var settings = editor.call('settings:projectUser');
         var component;
-        if (editor.call('users:hasFlag', 'hasContainerAssets') && settings.get('editor.pipeline.useContainers')) {
+        if (settings.get('editor.pipeline.useContainers')) {
             component = 'render';
         } else {
             component = 'model';
