@@ -189,11 +189,7 @@ Object.assign(pcui, (function () {
 
             this._field('asset').hidden = fieldType.value !== 'mesh' || !!renderAsset;
 
-            if (editor.call('users:hasFlag', 'hasContainerAssets')) {
-                this._field('renderAsset').hidden = fieldType.value !== 'mesh' || !!modelAsset;
-            } else {
-                this._field('renderAsset').hidden = true;
-            }
+            this._field('renderAsset').hidden = fieldType.value !== 'mesh' || !!modelAsset;
         }
 
         link(entities) {

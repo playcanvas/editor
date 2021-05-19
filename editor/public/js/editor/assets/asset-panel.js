@@ -30,66 +30,35 @@ Object.assign(pcui, (function () {
     const CLASS_LEGACY_SCRIPTS_FOLDER = CLASS_ROOT + '-legacy-scripts';
 
     // asset types (used for filtering)
-    let TYPES;
-    if (editor.call('users:hasFlag', 'hasContainerAssets')) {
-        TYPES = {
-            all: 'All',
-            animation: 'Animation',
-            audio: 'Audio',
-            bundle: 'Asset Bundle',
-            binary: 'Binary',
-            cubemap: 'Cubemap',
-            css: 'Css',
-            font: 'Font',
-            fontSource: 'Font (source)',
-            folderSource: 'Folder',
-            json: 'Json',
-            html: 'Html',
-            material: 'Material',
-            model: 'Model',
-            sceneSource: 'Model (source)',
-            script: 'Script',
-            shader: 'Shader',
-            sprite: 'Sprite',
-            template: 'Template',
-            text: 'Text',
-            texture: 'Texture',
-            textureSource: 'Texture (source)',
-            textureatlas: 'Texture Atlas',
-            textureatlasSource: 'Texture Atlas (source)',
-            wasm: 'Wasm'
-        };
-    } else {
-        TYPES = {
-            all: 'All',
-            animation: 'Animation',
-            audio: 'Audio',
-            bundle: 'Asset Bundle',
-            binary: 'Binary',
-            container: 'Container',
-            cubemap: 'Cubemap',
-            css: 'Css',
-            font: 'Font',
-            fontSource: 'Font (source)',
-            folderSource: 'Folder',
-            json: 'Json',
-            html: 'Html',
-            material: 'Material',
-            model: 'Model',
-            render: 'Render',
-            sceneSource: 'Model (source)',
-            script: 'Script',
-            shader: 'Shader',
-            sprite: 'Sprite',
-            template: 'Template',
-            text: 'Text',
-            texture: 'Texture',
-            textureSource: 'Texture (source)',
-            textureatlas: 'Texture Atlas',
-            textureatlasSource: 'Texture Atlas (source)',
-            wasm: 'Wasm'
-        };
-    }
+    const TYPES = {
+        all: 'All',
+        animation: 'Animation',
+        audio: 'Audio',
+        bundle: 'Asset Bundle',
+        binary: 'Binary',
+        container: 'Container',
+        cubemap: 'Cubemap',
+        css: 'Css',
+        font: 'Font',
+        fontSource: 'Font (source)',
+        folderSource: 'Folder',
+        json: 'Json',
+        html: 'Html',
+        material: 'Material',
+        model: 'Model',
+        render: 'Render',
+        sceneSource: 'Model (source)',
+        script: 'Script',
+        shader: 'Shader',
+        sprite: 'Sprite',
+        template: 'Template',
+        text: 'Text',
+        texture: 'Texture',
+        textureSource: 'Texture (source)',
+        textureatlas: 'Texture Atlas',
+        textureatlasSource: 'Texture Atlas (source)',
+        wasm: 'Wasm'
+    };
 
     // types of assets that can be double clicked
     const DBL_CLICKABLES = {
