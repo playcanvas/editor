@@ -78,7 +78,7 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'settings',
-            label: 'Create Container Assets',
+            label: 'Import Hierarchy',
             type: 'boolean',
             alias: 'asset-tasks:useContainers',
             path: 'editor.pipeline.useContainers'

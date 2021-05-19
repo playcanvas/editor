@@ -225,8 +225,8 @@ editor.once('load', function () {
         description: 'Create model assets in GLB format.'
     }, {
         name: 'asset-tasks:useContainers',
-        title: 'Create Container Assets',
-        description: 'Use the new GLB conversion pipeline when uploading models. The new pipeline will generate Container, Render and Template assets out of the uploaded model.'
+        title: 'Import Hierarchy',
+        description: 'Generate a template asset when importing 3D assets (FBX etc). The template asset will contain the full entity hierarchy from the imported file.'
     }, {
         name: 'asset-tasks:animSampleRate',
         title: 'Animation Sample Rate',
