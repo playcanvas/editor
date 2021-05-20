@@ -649,7 +649,8 @@ editor.once('load', function () {
             }
         });
 
-        item.isFavorite = projectUserSettings.get('favoriteBranches').includes(branch.id);
+        const favorites = projectUserSettings.get('favoriteBranches');
+        item.isFavorite = favorites && favorites.includes(branch.id);
 
         dropdown.on('click', function (e) {
             e.stopPropagation();
