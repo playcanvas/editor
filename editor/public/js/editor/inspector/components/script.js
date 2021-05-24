@@ -261,7 +261,7 @@ Object.assign(pcui, (function () {
                     const history = e.history.enabled;
                     e.history.enabled = false;
                     e.set(`components.script.scripts.${this._scriptName}`, prev[e.get('resource_id')].script);
-                    e.insert('components.script.order', this._scriptName, prev[e.get('resource_id')].order);
+                    e.insert('components.script.order', this._scriptName, prev[e.get('resource_id')].order, undefined, false, false);
                     e.history.enabled = history;
                 });
             };
@@ -838,7 +838,7 @@ Object.assign(pcui, (function () {
                         enabled: true,
                         attributes: {}
                     });
-                    e.insert('components.script.order', script);
+                    e.insert('components.script.order', script, undefined, false, false);
                     e.history.enabled = history;
                 });
             };
