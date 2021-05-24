@@ -3,7 +3,7 @@ editor.once('load', function () {
 
     // cache
     var loaded = {};
-    var isLoading = false;
+    var sceneLoadingCount = 0;
     var loadScene = function (id, callback, settingsOnly) {
         if (loaded[id]) {
             if (callback)
@@ -12,7 +12,7 @@ editor.once('load', function () {
             return;
         }
 
-        isLoading = true;
+        ++sceneLoadingCount;
 
         var connection = editor.call('realtime:connection');
         var scene = connection.get('scenes', '' + id);
@@ -21,6 +21,8 @@ editor.once('load', function () {
         scene.on('error', function (err) {
             if (callback)
                 callback(new Error(err));
+
+            --sceneLoadingCount;
         });
 
         // ready to sync
@@ -53,7 +55,7 @@ editor.once('load', function () {
                 callback(null, snapshot);
             }
 
-            isLoading = false;
+            --sceneLoadingCount;
         });
 
         // subscribe for realtime events
@@ -62,7 +64,7 @@ editor.once('load', function () {
 
     editor.method('loadScene', loadScene);
     editor.method('isLoadingScene', function () {
-        return isLoading;
+        return sceneLoadingCount > 0;
     });
 
     editor.on('realtime:authenticated', function () {
