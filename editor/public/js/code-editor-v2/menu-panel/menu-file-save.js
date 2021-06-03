@@ -97,14 +97,35 @@ editor.once('load', function () {
 
         var uniqueId = parseInt(doc.id, 10);
 
+        function doSave() {
+            const asset = editor.call('assets:get', id);
+            if (!asset) return;
+
+            // check if file is different first
+            editor.call('assets:contents:get', asset, (err, content) => {
+                if (err) {
+                    console.error(err);
+                    editor.emit('documents:save:error', uniqueId);
+                    return;
+                }
+
+                if (doc.data === content) {
+                    // if file is the same then do not send save message
+                    editor.emit('documents:dirty', id, false);
+                    editor.emit('documents:save:success', uniqueId);
+                } else {
+                    // file is different so send save message
+                    editor.call('realtime:send', 'doc:save:', uniqueId);
+                }
+            });
+        }
+
         if (doc.hasPending()) {
             // wait for pending data to be sent and
             // acknowledged by the server before saving
-            doc.once('nothing pending', function () {
-                editor.call('realtime:send', 'doc:save:', uniqueId);
-            });
+            doc.once('nothing pending',  doSave);
         } else {
-            editor.call('realtime:send', 'doc:save:', uniqueId);
+            doSave();
         }
     };
 

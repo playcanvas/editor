@@ -615,7 +615,12 @@ editor.once('load', function () {
             if (!editor.call('permissions:write'))
                 return;
 
+            if (primaryScene === scene.id) return;
+
             primaryScene = scene.id;
+            // auto select new primary scene
+            select.value = true;
+
             refreshScenes();
         });
 
