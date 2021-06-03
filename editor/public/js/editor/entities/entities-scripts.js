@@ -75,10 +75,6 @@ editor.once('load', function () {
 
         entity.on('components.script.order:insert', function (script, index, remote) {
             self.add(entity, script);
-
-            if (!remote && editor.call('permissions:write')) {
-                self.setDefaultAttrs(entity, script);
-            }
         });
 
         entity.on('components.script.order:remove', function (script) {
@@ -93,23 +89,6 @@ editor.once('load', function () {
                     self.remove(entity, scriptOrder[i]);
                 }
             }
-        });
-    };
-
-    EntitiesScriptsIndex.prototype.setDefaultAttrs = function (entity, script) {
-        const h = {
-            script_task_type: 'set_entity_defaults',
-            job_id: editor.call('utils:makeGuid'),
-            project_id: config.project.id,
-            branch_id: config.self.branch.id,
-            script_added_to_ent: script,
-            dst_scene_id: config.scene.id,
-            dst_ent_id: entity.get('resource_id')
-        };
-
-        editor.call('realtime:send', 'pipeline', {
-            name: 'script-attributes',
-            data: h
         });
     };
 

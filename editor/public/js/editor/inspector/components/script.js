@@ -841,6 +841,8 @@ Object.assign(pcui, (function () {
                     e.insert('components.script.order', script, undefined, false, false);
                     e.history.enabled = history;
                 });
+
+                this._setDefaultAttributes(Object.keys(changed), script);
             };
 
             redo();
@@ -852,6 +854,21 @@ Object.assign(pcui, (function () {
                     redo: redo
                 });
             }
+        }
+
+        _setDefaultAttributes(resourceIds, script) {
+            editor.call('realtime:send', 'pipeline', {
+                name: 'script-attributes',
+                data: {
+                    script_task_type: 'set_entity_defaults',
+                    job_id: editor.call('utils:makeGuid'),
+                    project_id: config.project.id,
+                    branch_id: config.self.branch.id,
+                    script_added_to_ent: script,
+                    dst_scene_id: config.scene.id,
+                    dst_ent_ids: resourceIds
+                }
+            });
         }
 
         _onDragEnd(scriptInspector, newIndex, oldIndex) {
