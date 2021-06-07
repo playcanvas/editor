@@ -151,7 +151,7 @@ Object.assign(pcui, (function () {
             this._addTextures(assets[0].get('meta.textures'));
             this._assetEvents.push(assets[0].on('meta.textures:set', () => {
                 this._removeTextures();
-                this.addTextures(assets[0].get('meta.textures'));
+                this._addTextures(assets[0].get('meta.textures'));
             }));
             this._assetEvents.push(assets[0].on('meta.textures:unset', () => {
                 this._removeTextures();
