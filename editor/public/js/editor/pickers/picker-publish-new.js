@@ -291,19 +291,17 @@ editor.once('load', function () {
             panelOptionsPreload.append(labelPreload);
         }
 
-        if (editor.call('users:hasFlag', 'hasOptimizeSceneFormat')) {
-            const panelOptionsOptimizeFormat = new ui.Panel();
-            panelOptionsOptimizeFormat.class.add('field');
-            panelOptions.append(panelOptionsOptimizeFormat);
-            fieldOptionsOptimizeSceneFormat = new ui.Checkbox();
-            fieldOptionsOptimizeSceneFormat.value = false;
-            fieldOptionsOptimizeSceneFormat.class.add('tick');
-            panelOptionsOptimizeFormat.append(fieldOptionsOptimizeSceneFormat);
-            const labelPreload = new ui.Label({ text: 'Optimize Scene Format' });
-            panelOptionsOptimizeFormat.append(labelPreload);
-        }
+        // optimize scene format
+        const panelOptionsOptimizeFormat = new ui.Panel();
+        panelOptionsOptimizeFormat.class.add('field');
+        panelOptions.append(panelOptionsOptimizeFormat);
+        fieldOptionsOptimizeSceneFormat = new ui.Checkbox();
+        fieldOptionsOptimizeSceneFormat.value = false;
+        fieldOptionsOptimizeSceneFormat.class.add('tick');
+        panelOptionsOptimizeFormat.append(fieldOptionsOptimizeSceneFormat);
+        const labelPreload = new ui.Label({ text: 'Optimize Scene Format' });
+        panelOptionsOptimizeFormat.append(labelPreload);
     }
-
 
     // scenes
     var panelScenes = new ui.Panel();
