@@ -46,7 +46,7 @@ editor.once('load', function () {
 
     // Gathers all dependencies for this entity
     var gatherDependencies = function (entity, data) {
-        var i;
+        var i, len;
         var key;
         var containsStar = /\.\*\./;
 
