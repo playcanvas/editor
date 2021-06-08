@@ -18,7 +18,10 @@ editor.once('load', function () {
             return;
         }
 
-        editor.call('loadAsset', uniqueId);
+        editor.call('loadAsset', {
+            uniqueId: uniqueId,
+            createdAt: data.asset.createdAt
+        });
     };
 
     // create new asset

@@ -20,6 +20,9 @@ editor.once('load', function () {
         name: 'size',
         description: 'Size of an asset. Keeping this value as tiny as possible will lead to faster application loading and less bandwidth required to launch the app.'
     }, {
+        name: 'created',
+        description: 'Date the asset was created'
+    }, {
         title: 'tags',
         subTitle: '{pc.Tags}',
         description: 'Interface for tagging assets. Allows to find assets by tags using app.assets.findByTag method.',
