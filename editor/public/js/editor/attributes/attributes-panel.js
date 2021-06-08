@@ -433,8 +433,9 @@ editor.once('load', function () {
             (args.parent || root).append(panel);
         }
 
+        let label;
         if (args.name) {
-            const label = new ui.Label({
+            label = new ui.Label({
                 text: args.name
             });
             label.class.add('label-field');
