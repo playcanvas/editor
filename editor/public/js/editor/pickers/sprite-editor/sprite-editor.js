@@ -21,6 +21,7 @@ editor.once('load', function () {
     let shiftDown = false;
     let ctrlDown = false;
     let leftButtonDown = false;
+    let middleButtonDown = false;
 
     let panning = false;
     let spriteEditMode = false;
@@ -1374,17 +1375,19 @@ editor.once('load', function () {
     var onMouseDown = function (e) {
         if (e.button === 0) {
             leftButtonDown = true;
+        } else if (e.button === 1) {
+            middleButtonDown = true;
         }
 
         ctrlDown = e.ctrlKey || e.metaKey;
 
-        if (e.button !== 0) return;
-
         // start panning with left button and shift
-        if (!panning && leftButtonDown && shiftDown) {
+        if (!panning && (leftButtonDown && shiftDown || middleButtonDown)) {
             startPanning(e.clientX, e.clientY);
             return;
         }
+
+        if (e.button !== 0) return;
 
         const p = windowToCanvas(e.clientX, e.clientY);
 
@@ -1511,14 +1514,16 @@ editor.once('load', function () {
     var onMouseUp = function (e) {
         if (e.button === 0) {
             leftButtonDown = false;
+        } else if (e.button === 1) {
+            middleButtonDown = false;
+        }
+
+        // stop panning
+        if (panning && !leftButtonDown && !middleButtonDown) {
+            stopPanning();
         }
 
         if (e.button !== 0) return;
-
-        // stop panning
-        if (panning && !leftButtonDown) {
-            stopPanning();
-        }
 
         let selected = editor.call('picker:sprites:selectedFrame');
 
@@ -1852,6 +1857,7 @@ editor.once('load', function () {
         atlasImage = new Image();
 
         leftButtonDown = false;
+        middleButtonDown = false;
         shiftDown = false;
 
         if (spriteEditMode) {

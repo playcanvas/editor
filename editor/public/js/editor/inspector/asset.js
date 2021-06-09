@@ -87,6 +87,14 @@ Object.assign(pcui, (function () {
         args: {
             renderChanges: false
         }
+    }, {
+        label: 'Created',
+        type: 'label',
+        path: 'createdAt',
+        alias: 'created',
+        args: {
+            renderChanges: false
+        }
     }];
 
     ATTRIBUTES.forEach(attr => {
@@ -347,6 +355,14 @@ Object.assign(pcui, (function () {
             });
         }
 
+        _updateDates(assets) {
+            if (!this._assets) return;
+
+            this._attributesInspector.getField('createdAt').values = this._assets.map(asset => {
+                return asset.get('createdAt') &&  editor.call('datetime:convert', asset.get('createdAt'));
+            });
+        }
+
         _updateOpenInViewerButton() {
             const assetFilenames = this._assets.map(asset => {
                 return asset.get('file.filename');
@@ -433,6 +449,8 @@ Object.assign(pcui, (function () {
                 return asset.get('type');
             });
             this._updateFileSize();
+            this._updateDates();
+
             assets.forEach(asset => {
                 this._assetEvents.push(asset.on('file.size:set', this._updateFileSize.bind(this)));
             });

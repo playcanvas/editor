@@ -329,24 +329,43 @@ Object.assign(pcui, (function () {
         }
     ];
 
+    // returns true if the dimensions are power of two and false otherwise.
+    const isPOT = (width, height) => {
+        return ((width & (width - 1)) === 0) && ((height & (height - 1)) === 0);
+    }
+
+    // get the asset alpha flag
+    const getAssetAlpha = (asset) => {
+        return asset.get('meta.compress.alpha') && (asset.get('meta.alpha') || ((asset.get('meta.type') || '').toLowerCase() === 'truecoloralpha'));
+    }
+
+    // this function checks whether a variant of a texture is dirty compared to user
+    // controlled settings.
     const checkCompressRequired = (asset, format) => {
-        if (! asset.get('file'))
+        if (!asset.get('file'))
             return false;
+
+        // check width, height and POT
+        const width = asset.get('meta.width');
+        const height = asset.get('meta.height');
+        if (!width || !height || !isPOT(width, height)) {
+            return false;
+        }
 
         const data = asset.get('file.variants.' + format);
         const rgbm = asset.get('data.rgbm');
-        const alpha = asset.get('meta.compress.alpha') && (asset.get('meta.alpha') || ((asset.get('meta.type') || '').toLowerCase() === 'truecoloralpha')) || rgbm;
+        const alpha = getAssetAlpha(asset) || rgbm;
         const normals = !!asset.get('meta.compress.normals');
         const compress = asset.get('meta.compress.' + format);
         const mipmaps = asset.get('data.mipmaps');
         const compressionMode = asset.get('meta.compress.compressionMode');
         const quality = asset.get('meta.compress.quality');
 
-        if (!! data !== compress) {
+        if (!!data !== compress) {
             if (format === 'etc1' && alpha)
                 return false;
 
-            if (rgbm && ! data)
+            if (rgbm && !data)
                 return false;
 
             return true;
@@ -556,10 +575,9 @@ Object.assign(pcui, (function () {
             this._setupPvrWarning();
             this._btnGetMeta.on('click', this._handleBtnGetMetaClick);
 
-            if (this._btnCompressBasis) {
-                this._btnCompressBasis.on('click', this._handleBtnCompressBasisClick);
-                this._btnCompressBasis.disabled = true;
-            }
+            this._btnCompressBasis.on('click', this._handleBtnCompressBasisClick);
+            this._btnCompressBasis.disabled = true;
+
             this._btnCompressLegacy.on('click', this._handleBtnCompressLegacyClick);
             this._btnCompressLegacy.disabled = true;
         }
@@ -674,9 +692,7 @@ Object.assign(pcui, (function () {
         _checkCompression() {
             const assets = this._assets;
             if (!editor.call('permissions:write') || !Array.isArray(assets) || !assets.length) {
-                if (this._btnCompressBasis) {
-                    this._btnCompressBasis.disabled = true;
-                }
+                this._btnCompressBasis.disabled = true;
                 this._btnCompressLegacy.disabled = true;
                 return;
             };
@@ -704,12 +720,11 @@ Object.assign(pcui, (function () {
                 }
             }
 
-            if (this._btnCompressBasis) {
-                this._btnCompressBasis.disabled = !differentBasis;
-            }
+            this._btnCompressBasis.disabled = !differentBasis;
             this._btnCompressLegacy.disabled = !differentLegacy;
         }
 
+        // set the enable state of the compression format checkboxes based on the selected textures
         _checkFormats() {
             const assets = this._assets;
             const writeAccess = editor.call('permissions:write');
@@ -729,7 +744,7 @@ Object.assign(pcui, (function () {
             let basisSelected = false;
             let hasLegacy = false;
 
-            for(let i = 0; i < assets.length; i++) {
+            for (let i = 0; i < assets.length; i++) {
                 if (assets[i].has('meta.width')) {
                     if (width === -1) {
                         width = assets[i].get('meta.width');
@@ -740,7 +755,7 @@ Object.assign(pcui, (function () {
                     }
                 }
 
-                if (! assets[i].get('file'))
+                if (!assets[i].get('file'))
                     continue;
 
                 if (rgbm === -1) {
@@ -787,11 +802,10 @@ Object.assign(pcui, (function () {
                 // we display a warning
                 // NOTE: ideally the basis transcoder would optionally resize the compressed image to
                 // be square POT, but this isn't currently possible.
-                const thisWidth = assets[i].get('meta.width');
-                const thisHeight = assets[i].get('meta.height');
-                const thisPOT = ((thisWidth & (thisWidth - 1)) === 0) && ((thisHeight & (thisHeight - 1)) === 0);
                 if (!showBasisPvrWarning) {
-                    showBasisPvrWarning = thisBasis && (!thisPOT || thisWidth !== thisHeight);
+                    const thisWidth = assets[i].get('meta.width');
+                    const thisHeight = assets[i].get('meta.height');
+                    showBasisPvrWarning = thisBasis && (!isPOT(thisWidth, thisHeight) || thisWidth !== thisHeight);
                 }
             }
 
@@ -818,13 +832,7 @@ Object.assign(pcui, (function () {
             if (rgbm !== 1) {
                 if (width > 0 && height > 0) {
                     // size available
-                    if ((width & (width - 1)) === 0 && (height & (height - 1)) === 0) {
-                        // pot
-                        fieldDxt.disabled = false;
-                    } else {
-                        // non pot
-                        fieldDxt.disabled = true;
-                    }
+                    fieldDxt.disable = !isPOT(width, height);
                 } else if (width === -1) {
                     // no size available
                     fieldDxt.disabled = true;
@@ -904,29 +912,15 @@ Object.assign(pcui, (function () {
                 const toDelete = [ ];
 
                 for(let format of formats) {
-                    if (format === 'original')
-                        continue;
-
-                    if (checkCompressRequired(assets[i], format)) {
-                        const width = assets[i].get('meta.width');
-                        const height = assets[i].get('meta.height');
-
-                        // no width/height
-                        if (! width || ! height)
-                            continue;
-
-                        // non pot
-                        if ((width & (width - 1)) !== 0 || (height & (height - 1)) !== 0)
-                            continue;
-
+                    if (format !== 'original' && checkCompressRequired(assets[i], format)) {
                         let compress = assets[i].get('meta.compress.' + format);
 
+                        // FIXME: why don't we allow a texture flagged as rgbm be compressed?
                         if (assets[i].get('data.rgbm'))
                             compress = false;
 
-                        if (compress && format === 'etc1') {
-                            if (assets[i].get('meta.compress.alpha') && (assets[i].get('meta.alpha') || (assets[i].get('meta.type') || '').toLowerCase() === 'truecoloralpha'))
-                                compress = false;
+                        if (compress && format === 'etc1' && getAssetAlpha(assets[i])) {
+                            compress = false;
                         }
 
                         if (compress) {
@@ -954,7 +948,7 @@ Object.assign(pcui, (function () {
                         asset: parseInt(assets[i].get('uniqueId'), 10),
                         options: {
                             formats: variants,
-                            alpha: assets[i].get('meta.compress.alpha') && (assets[i].get('meta.alpha') || assets[i].get('meta.type').toLowerCase() === 'truecoloralpha'),
+                            alpha: getAssetAlpha(assets[i]),
                             mipmaps: assets[i].get('data.mipmaps'),
                             normals: !!assets[i].get('meta.compress.normals')
                         }

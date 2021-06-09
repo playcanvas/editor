@@ -385,6 +385,23 @@ editor.once('load', function () {
         });
         panelItem.append(label);
 
+        // shortcut button to view changes
+        var btnViewChanges = new pcui.Button({
+            text: 'VIEW CHANGES',
+            size: 'small',
+            class: 'btn-view-changes'
+        });
+        btnViewChanges.style.width = '110px';
+        panelItem.append(btnViewChanges);
+        btnViewChanges.on('click', () => {
+            panel.emit('diff',
+                config.self.branch.id,
+                null,
+                config.self.branch.id,
+                config.self.branch.latestCheckpointId
+            );
+        });
+
         // select
         var checkboxSelect = new ui.Checkbox();
         checkboxSelect.class.add('tick');

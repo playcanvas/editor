@@ -35,8 +35,9 @@ editor.once('load', function () {
         return '/api/assets/' + id + '/file/' + encodeURIComponent(filename) + '?branchId=' + config.self.branch.id;
     };
 
-    editor.method('loadAsset', function (uniqueId, callback) {
+    editor.method('loadAsset', function (asset, callback) {
         var connection = editor.call('realtime:connection');
+        const uniqueId = parseInt(asset.uniqueId, 10);
 
         var doc = connection.get('assets', '' + uniqueId);
 
@@ -75,6 +76,7 @@ editor.once('load', function () {
             // notify of asset load
             assetData.id = parseInt(assetData.item_id, 10);
             assetData.uniqueId = uniqueId;
+            assetData.createdAt = asset.createdAt;
 
             // delete unnecessary fields
             delete assetData.item_id;
@@ -98,11 +100,11 @@ editor.once('load', function () {
                 };
             }
 
-            var asset = new Observer(assetData, options);
-            editor.call('assets:add', asset);
+            var observer = new Observer(assetData, options);
+            editor.call('assets:add', observer);
 
             if (callback)
-                callback(asset);
+                callback(observer);
         });
 
         // subscribe for realtime events
@@ -134,8 +136,8 @@ editor.once('load', function () {
 
         var count = 0;
 
-        var load = function (uniqueId) {
-            editor.call('loadAsset', uniqueId, function () {
+        var load = function (asset) {
+            editor.call('loadAsset', asset, function () {
                 count++;
                 editor.call('assets:progress', (count / data.length) * 0.5 + 0.5);
                 if (count >= data.length) {
@@ -157,7 +159,7 @@ editor.once('load', function () {
                 // start bulk subscribe
                 connection.startBulk();
                 for (let i = startBatch; i < startBatch + batchSize && i < total; i++) {
-                    load(data[i].uniqueId);
+                    load(data[i]);
                 }
                 // end bulk subscribe and send message to server
                 connection.endBulk();

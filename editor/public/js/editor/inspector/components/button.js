@@ -106,6 +106,15 @@ Object.assign(pcui, (function () {
 
             super(args);
 
+            this._inputWarning = new pcui.InfoBox({
+                icon: 'E218',
+                title: 'Warning!',
+                text: 'This button will not be active as this entity\'s element component does not have input enabled.'
+            });
+            this.append(this._inputWarning);
+
+            this._evts = [];
+
             this._attributesInspector = new pcui.AttributesInspector({
                 assets: args.assets,
                 entities: args.entities,
@@ -159,16 +168,28 @@ Object.assign(pcui, (function () {
 
         link(entities) {
             super.link(entities);
+            this._entities = entities;
             this._suppressToggleFields = true;
             this._attributesInspector.link(entities);
             this._suppressToggleFields = false;
 
             this._toggleFields();
+
+            const updateInputWarning = () => {
+                this._inputWarning.hidden = entities.length !== 1 || entities[0].get('components.element.useInput') || !entities[0].get('components.button.active');
+            };
+            this._evts.push(entities[0].on('components.element.useInput:set', updateInputWarning));
+            this._evts.push(entities[0].on('components.button.active:set', updateInputWarning));
+            updateInputWarning();
         }
 
         unlink() {
             super.unlink();
-            this._attributesInspector.unlink();
+            if (this._entities) {
+                this._attributesInspector.unlink();
+                this._evts.forEach(e => e.unbind());
+                this._evts = [];
+            }
         }
     }
 
