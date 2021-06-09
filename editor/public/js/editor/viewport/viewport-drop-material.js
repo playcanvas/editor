@@ -160,6 +160,8 @@ editor.once('load', function () {
             if (! entity)
                 return;
 
+            let resourceId;
+
             if (hoverEntity.model) {
                 if (entity.get('components.model.type') === 'asset') {
                     const ind = hoverEntity.model.model.meshInstances.indexOf(hoverMeshInstance);
@@ -241,7 +243,7 @@ editor.once('load', function () {
                         // null instead of unsetting it
                         const history = entity.history.enabled;
                         entity.history.enabled = false;
-                        const resourceId = entity.get('resource_id');
+                        resourceId = entity.get('resource_id');
 
                         const undo = {};
                         const redo = {};
@@ -341,7 +343,6 @@ editor.once('load', function () {
                     redo: redo
                 });
             }
-
         },
         over: function (type, data) {
             if (! config.scene.id)
