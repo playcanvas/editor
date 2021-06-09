@@ -715,7 +715,7 @@ editor.once('load', function () {
             item.isFavorite = projectUserSettings.get('favoriteBranches').includes(item.branch.id);
     };
 
-    panelDiffCheckpoints.on('diff', function (srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId) {
+    function viewDiff(srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId) {
         panelDiffCheckpoints.hidden = true;
 
         togglePanels(false);
@@ -736,7 +736,10 @@ editor.once('load', function () {
                 editor.call('picker:diffManager', diff);
             }
         });
-    });
+    }
+
+    panelDiffCheckpoints.on('diff',  viewDiff);
+    panelCheckpoints.on('diff', viewDiff);
 
     // show create branch panel
     // btnNewBranch.on('click', function () {

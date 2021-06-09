@@ -8157,7 +8157,6 @@ strong {
                         }
 
                         &.current-state {
-                            display: none;
                             padding-top: 10px;
                             padding-bottom: 10px;
 
@@ -8192,10 +8191,6 @@ strong {
 
                         &:first-child {
                             border-top: 0;
-                        }
-
-                        &.current-state {
-                            display: none;
                         }
                     }
 
@@ -8401,16 +8396,15 @@ strong {
                         }
 
                         &.current-state {
-                            display: inherit;
-
                             + .date {
                               border-top: 1px solid $border-primary;
                             }
-                        }
-                    }
 
-                    > .date.current-state {
-                        display: inherit;
+                            .btn-view-changes {
+                                display: none;
+                            }
+
+                        }
                     }
                 }
             }
