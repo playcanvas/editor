@@ -8756,8 +8756,20 @@ strong {
                                         @extend .font-bold;
                                         @extend .font-smooth;
 
+                                        > .title {
+                                            float: none;
+                                            display: block;
+                                            direction: rtl; // to put ellipsis on the left
+                                            text-align: left;
+                                            max-width: calc(100% - 72px);
+                                            overflow: hidden;
+                                            text-overflow: ellipsis;
+                                        }
+
                                         > .ui-label.num-conflicts {
-                                            float: right;
+                                            position: absolute;
+                                            top: 2px;
+                                            right: -3px;
                                             margin-right: 10px;
                                             color: $text-dark;
                                             @extend .font-bold;
