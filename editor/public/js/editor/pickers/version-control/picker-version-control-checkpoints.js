@@ -395,10 +395,10 @@ editor.once('load', function () {
         panelItem.append(btnViewChanges);
         btnViewChanges.on('click', () => {
             panel.emit('diff',
-                config.self.branch.id,
+                panel.branch.id,
                 null,
-                config.self.branch.id,
-                config.self.branch.latestCheckpointId
+                panel.branch.id,
+                panel.branch.latestCheckpointId
             );
         });
 
