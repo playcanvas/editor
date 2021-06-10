@@ -271,11 +271,18 @@ Object.assign(pcui, (function () {
         path: 'components.particlesystem.animLoop',
         type: 'boolean'
     }, {
-        label: 'Mesh',
+        label: 'Model Asset',
         path: 'components.particlesystem.mesh',
         type: 'asset',
         args: {
             assetType: 'model'
+        }
+    }, {
+        label: 'Render Asset',
+        path: 'components.particlesystem.renderAsset',
+        type: 'asset',
+        args: {
+            assetType: 'render'
         }
     }, {
         label: 'Local Velocity',
@@ -372,6 +379,8 @@ Object.assign(pcui, (function () {
                 'orientation',
                 'colorMapAsset',
                 'normalMapAsset',
+                'mesh',
+                'renderAsset',
                 'randomizeAnimIndex'
             ].forEach(field => {
                 const fieldAttribute = this._field(field);
@@ -464,6 +473,11 @@ Object.assign(pcui, (function () {
 
                 this._field('animIndex').disabled = this._field('randomizeAnimIndex').value;
             }
+
+            this._field('mesh').hidden = !!this._field('renderAsset').value;
+            // this._field('renderAsset').hidden = !!this._field('mesh').value;
+            // TODO: unhide once engine is released
+            this._field('renderAsset').hidden = true;
         }
 
         _onClickPlay() {

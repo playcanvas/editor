@@ -166,9 +166,14 @@ editor.once('load', function () {
         url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#loop'
     }, {
         title: 'mesh',
-        subTitle: '{pc.Mesh}',
+        subTitle: '{pc.Asset}',
         description: 'A model asset. The first mesh found in the model is used to represent all particles rather than a flat billboard.',
         url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#mesh'
+    }, {
+        title: 'renderAsset',
+        subTitle: '{pc.Asset}',
+        description: 'A render asset which can be used instead of the model asset to render a mesh-based particle.',
+        url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#renderAsset'
     }, {
         title: 'normalMap',
         subTitle: '{pc.Texture}',
