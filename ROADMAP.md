@@ -15,13 +15,13 @@ Welcome to the PlayCanvas product roadmap. It covers calendar year 2021.
 | Clustered lighting                           | Graphics            | Complete       | Apr 2021  |
 | Depth buffer management refactor             | Graphics            | Complete       | Apr 2021  |
 | Apply script parse updates on back-end       | Editor              | Complete       | May 2021  |
-| Engine examples browser                      | Developer Resources | Complete       | May 2021  |
+| Engine examples browser                      | Developer Resources | Complete       | Jun 2021  |
 | Cascaded shadow maps                         | Graphics            | Complete       | Jun 2021  |
 | Animation events                             | Animation           | Complete       | Jun 2021  |
 | Node-based shader editor (closed beta)       | Graphics            | In Development | Jun 2021  |
 | Animation masks / state layers               | Animation           | In Development | Jun 2021  |
 | Runtime lightmapper improvements             | Graphics            | In Development | Jun 2021  |
-| Open source pcui-graph plugin                | PCUI                | Not Started    | Jun 2021  |
+| Open source pcui-graph plugin                | PCUI                | Not Started    | Jul 2021  |
 | Async loading of templates                   | Templates           | Not Started    | Jun 2021  |
 | Revert merge                                 | Version Control     | Not Started    | Jun 2021  |
 | Immediate primitive rendering                | Graphics            | In Development | Jul 2021  |
@@ -44,7 +44,7 @@ Welcome to the PlayCanvas product roadmap. It covers calendar year 2021.
 | Editor plugins (closed beta)                 | Editor              | Not Started    | Nov 2021  |
 | Preview animation in Editor viewport         | Animation           | Not Started    | Nov 2021  |
 | Template variants                            | Templates           | Not Started    | Nov 2021  |
-| WebGPU support (publicly discussing)         | Graphics            | Not Started    | Dec 2021  |
+| WebGPU support (PoC)                         | Graphics            | Not Started    | Dec 2021  |
 | Move dashboard into the Editor               | Editor              | Not Started    | Dec 2021  |
 | Template editor                              | Templates           | Not Started    | Dec 2021  |
 | Post effect editor                           | Graphics            | Not Started    | Dec 2021  |
