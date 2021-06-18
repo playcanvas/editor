@@ -1,5 +1,5 @@
 editor.once('load', function () {
-    'use sctrict';
+    'use strict';
 
     editor.on('entities:add:entity', function (entity) {
         if (entity.get('components.camera'))
