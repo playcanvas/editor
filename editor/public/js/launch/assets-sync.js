@@ -78,6 +78,13 @@ editor.once('load', function () {
             delete assetData.item_id;
             delete assetData.branch_id;
 
+            if (assetData.type === 'template' && !assetData.preload) {
+                // handle async template
+                assetData.file = {
+                    filename: assetData.name + '.json'
+                };
+            }
+
             if (assetData.file) {
                 if (concatenateScripts && assetData.type === 'script' && assetData.preload && !assetData.data.loadingType) {
                     assetData.file.url = concatenatedScriptsUrl;
