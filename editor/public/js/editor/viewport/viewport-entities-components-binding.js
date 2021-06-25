@@ -99,6 +99,16 @@ editor.once('load', function () {
                             callSetter = false;
                         }
                     }
+                } else if (component === 'model' || component === 'render') {
+                    if (property === 'aabbCenter' || property === 'aabbHalfExtents') {
+                        const aabbCenter = obj.get(`components.${component}.aabbCenter`);
+                        const aabbHalfExtents = obj.get(`components.${component}.aabbHalfExtents`);
+
+                        if (aabbCenter && aabbHalfExtents) {
+                            entity[component].customAabb = new pc.BoundingBox(new pc.Vec3(aabbCenter), new pc.Vec3(aabbHalfExtents));
+                        }
+                        callSetter = false;
+                    }
                 }
 
                 if (callSetter) {
@@ -151,6 +161,12 @@ editor.once('load', function () {
 
             if (component === 'script')
                 return;
+
+            if (component === 'model' || component === 'render') {
+                if (property === 'aabbCenter' || property === 'aabbHalfExtents') {
+                    entity[component].customAabb = null;
+                }
+            }
 
             if (property) {
                 // edit component property

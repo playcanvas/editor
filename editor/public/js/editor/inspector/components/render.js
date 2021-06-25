@@ -66,6 +66,25 @@ Object.assign(pcui, (function () {
             min: 0
         }
     }, {
+        label: 'Override AABB',
+        alias: 'components.render.customAabb',
+        type: 'boolean',
+        reference: 'render:customAabb',
+        args: {
+            renderChanges: false
+        }
+    }, {
+        label: 'AABB Center',
+        path: 'components.render.aabbCenter',
+        type: 'vec3'
+    }, {
+        label: 'AABB Half Extents',
+        path: 'components.render.aabbHalfExtents',
+        type: 'vec3',
+        args: {
+            min: 0
+        }
+    }, {
         label: 'Batch Group',
         path: 'components.render.batchGroupId',
         type: 'batchgroup'
@@ -92,6 +111,7 @@ Object.assign(pcui, (function () {
 
     ATTRIBUTES.forEach(attr => {
         if (!attr.path) return;
+        if (attr.reference) return;
         const parts = attr.path.split('.');
         attr.reference = `render:${parts[parts.length - 1]}`;
     });
@@ -123,14 +143,16 @@ Object.assign(pcui, (function () {
             this._field('lightmapped').parent.append(this._labelUv1Missing);
 
             this._suppressToggleFields = false;
-
             this._suppressAssetChange = false;
+            this._suppressCustomAabb = false;
 
-            ['type', 'asset', 'lightmapped', 'lightmapSizeMultiplier'].forEach(field => {
+            ['type', 'asset', 'lightmapped', 'lightmapSizeMultiplier', 'customAabb'].forEach(field => {
                 this._field(field).on('change', this._toggleFields.bind(this));
             });
 
             this._field('materialAssets').on('change', this._onMaterialsChange.bind(this));
+
+            this._field('customAabb').on('change', this._onCustomAabbChange.bind(this));
 
             this._changeMaterialsOnChange(this._field('asset'));
             this._changeMaterialsOnChange(this._field('type'));
@@ -295,6 +317,98 @@ Object.assign(pcui, (function () {
             }
 
             this._field('rootBone').parent.hidden = !showRootBone;
+
+            const customAabb = this._field('customAabb').value;
+            this._field('aabbCenter').parent.hidden = !customAabb;
+            this._field('aabbHalfExtents').parent.hidden = !customAabb;
+
+        }
+
+        _onCustomAabbChange(value) {
+            if (!this._entities) return;
+            if (this._suppressCustomAabb) return;
+
+            let prev;
+
+            const redo = () => {
+                prev = {};
+                this._entities.forEach(e => {
+                    e = e.latest();
+                    if (!e || !e.has('components.render')) return;
+
+                    const history = e.history.enabled;
+                    e.history.enabled = false;
+                    if (value) {
+                        if (!e.has('components.render.aabbCenter')) {
+                            prev[e.get('resource_id')] = {};
+                            e.set('components.render.aabbCenter', [0, 0, 0]);
+                            e.set('components.render.aabbHalfExtents', [0.5, 0.5, 0.5]);
+                        }
+                    } else {
+                        if (e.has('components.render.aabbCenter')) {
+                            prev[e.get('resource_id')] = {
+                                center: e.get('components.render.aabbCenter'),
+                                halfExtents: e.get('components.render.aabbHalfExtents')
+                            };
+
+                            e.unset('components.render.aabbCenter');
+                            e.unset('components.render.aabbHalfExtents');
+                        }
+                    }
+                    e.history.enabled = history;
+                });
+            };
+
+            const undo = () => {
+                this._entities.forEach(e => {
+                    e = e.latest();
+                    if (!e || !e.has('components.render')) return;
+
+                    const previous = prev[e.get('resource_id')];
+                    if (!previous) return;
+
+                    const history = e.history.enabled;
+                    e.history.enabled = false;
+                    if (previous.center) {
+                        e.set('components.render.aabbCenter', previous.center);
+                    } else {
+                        e.unset('components.render.aabbCenter');
+                    }
+
+                    if (previous.halfExtents) {
+                        e.set('components.render.aabbHalfExtents', previous.halfExtents);
+                    } else {
+                        e.unset('components.render.aabbHalfExtents');
+                    }
+                    e.history.enabled = history;
+                });
+            };
+
+            redo();
+
+            if (this._history) {
+                this._history.add({
+                    name: 'entities.render.customAabb',
+                    undo: undo,
+                    redo: redo
+                });
+            }
+        }
+
+
+        _refreshCustomAabb() {
+            if (!this._entities) return;
+
+            this._suppressCustomAabb = true;
+            this._suppressToggleFields = true;
+
+            const customAabbs = this._entities.map(e => e.has('components.render.aabbCenter'));
+            this._field('customAabb').values = customAabbs;
+
+            this._suppressCustomAabb = false;
+            this._suppressToggleFields = false;
+
+            this._toggleFields();
         }
 
         link(entities) {
@@ -302,11 +416,15 @@ Object.assign(pcui, (function () {
 
             this._suppressToggleFields = true;
             this._suppressAssetChange = true;
+            this._suppressCustomAabb = true;
 
             this._attributesInspector.link(entities);
 
+            this._refreshCustomAabb();
+
             this._suppressAssetChange = false;
             this._suppressToggleFields = false;
+            this._suppressCustomAabb = false;
 
             this._field('materialAssets').forEachArrayElement((assetInput, index) => {
                 assetInput.dragEnterFn = (type, dropData) => {
@@ -333,6 +451,7 @@ Object.assign(pcui, (function () {
             });
 
             this._toggleFields();
+
         }
 
         unlink() {
