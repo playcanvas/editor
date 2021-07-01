@@ -69,6 +69,25 @@ Object.assign(pcui, (function () {
             min: 0
         }
     }, {
+        label: 'Custom AABB',
+        alias: 'components.model.customAabb',
+        type: 'boolean',
+        reference: 'model:customAabb',
+        args: {
+            renderChanges: false
+        }
+    }, {
+        label: 'AABB Center',
+        path: 'components.model.aabbCenter',
+        type: 'vec3'
+    }, {
+        label: 'AABB Half Extents',
+        path: 'components.model.aabbHalfExtents',
+        type: 'vec3',
+        args: {
+            min: 0
+        }
+    }, {
         label: 'Batch Group',
         path: 'components.model.batchGroupId',
         type: 'batchgroup'
@@ -86,6 +105,7 @@ Object.assign(pcui, (function () {
     }];
 
     ATTRIBUTES.forEach(attr => {
+        if (attr.reference) return;
         if (!attr.path) return;
         const parts = attr.path.split('.');
         attr.reference = `model:${parts[parts.length - 1]}`;
@@ -267,12 +287,14 @@ Object.assign(pcui, (function () {
             this._mappingInspectors = {};
 
             this._suppressToggleFields = false;
-
             this._suppressAssetChange = false;
+            this._suppressCustomAabb = false;
 
-            ['type', 'asset', 'lightmapped', 'lightmapSizeMultiplier'].forEach(field => {
+            ['type', 'asset', 'lightmapped', 'lightmapSizeMultiplier', 'customAabb'].forEach(field => {
                 this._field(field).on('change', this._toggleFields.bind(this));
             });
+
+            this._field('customAabb').on('change', this._onCustomAabbChange.bind(this));
 
             this._field('asset').on('change', this._onAssetChange.bind(this));
 
@@ -467,6 +489,21 @@ Object.assign(pcui, (function () {
             });
         }
 
+        _refreshCustomAabb() {
+            if (!this._entities) return;
+
+            this._suppressCustomAabb = true;
+            this._suppressToggleFields = true;
+
+            const customAabbs = this._entities.map(e => e.has('components.model.aabbCenter'));
+            this._field('customAabb').values = customAabbs;
+
+            this._suppressCustomAabb = false;
+            this._suppressToggleFields = false;
+
+            this._toggleFields();
+        }
+
         _getLightmapSize() {
             const app = editor.call('viewport:app');
             let value = '?';
@@ -539,6 +576,81 @@ Object.assign(pcui, (function () {
 
             this._field('asset').hidden = this._field('type').value !== 'asset';
             this._field('materialAsset').hidden = this._field('type').value === 'asset' || this._field('type').value === null;
+
+            const customAabb = this._field('customAabb').value;
+            this._field('aabbCenter').parent.hidden = !customAabb;
+            this._field('aabbHalfExtents').parent.hidden = !customAabb;
+        }
+
+        _onCustomAabbChange(value) {
+            if (!this._entities) return;
+            if (this._suppressCustomAabb) return;
+
+            let prev;
+
+            const redo = () => {
+                prev = {};
+                this._entities.forEach(e => {
+                    e = e.latest();
+                    if (!e || !e.has('components.model')) return;
+
+                    const history = e.history.enabled;
+                    e.history.enabled = false;
+                    if (value) {
+                        if (!e.has('components.model.aabbCenter')) {
+                            prev[e.get('resource_id')] = {};
+                            e.set('components.model.aabbCenter', [0, 0, 0]);
+                            e.set('components.model.aabbHalfExtents', [0.5, 0.5, 0.5]);
+                        }
+                    } else {
+                        if (e.has('components.model.aabbCenter')) {
+                            prev[e.get('resource_id')] = {
+                                center: e.get('components.model.aabbCenter'),
+                                halfExtents: e.get('components.model.aabbHalfExtents')
+                            };
+
+                            e.unset('components.model.aabbCenter');
+                            e.unset('components.model.aabbHalfExtents');
+                        }
+                    }
+                    e.history.enabled = history;
+                });
+            };
+
+            const undo = () => {
+                this._entities.forEach(e => {
+                    e = e.latest();
+                    if (!e || !e.has('components.model')) return;
+
+                    const previous = prev[e.get('resource_id')];
+                    if (!previous) return;
+
+                    const history = e.history.enabled;
+                    e.history.enabled = false;
+                    if (previous.center) {
+                        e.set('components.model.aabbCenter', previous.center);
+                    } else {
+                        e.unset('components.model.aabbCenter');
+                    }
+
+                    if (previous.halfExtents) {
+                        e.set('components.model.aabbHalfExtents', previous.halfExtents);
+                    } else {
+                        e.unset('components.model.aabbHalfExtents');
+                    }
+                    e.history.enabled = history;
+                });
+            };
+
+            redo();
+
+            if (this._history) {
+                this._history.add({
+                    name: 'entities.model.customAabb',
+                    undo: undo,
+                    redo: redo
+                });
+            }
         }
 
         link(entities) {
@@ -546,6 +658,7 @@ Object.assign(pcui, (function () {
 
             this._suppressToggleFields = true;
             this._suppressAssetChange = true;
+            this._suppressCustomAabb = true;
 
             this._attributesInspector.link(entities);
 
@@ -553,6 +666,8 @@ Object.assign(pcui, (function () {
             for (const key in mappings) {
                 this._createMappingInspector(key, mappings[key]);
             }
+
+            const customAabbValues = [];
 
             entities.forEach(e => {
                 this._entityEvents.push(e.on('*:set', (path) => {
@@ -580,8 +695,16 @@ Object.assign(pcui, (function () {
                 this._entityEvents.push(e.on('components.model.mapping:unset', () => {
                     this._refreshMappings();
                 }));
+
+                customAabbValues.push(e.has('components.model.aabbCenter'));
+
+                this._entityEvents.push(e.on('components.model.aabbCenter:set', this._refreshCustomAabb.bind(this)));
+                this._entityEvents.push(e.on('components.model.aabbCenter:unset', this._refreshCustomAabb.bind(this)));
             });
 
+            this._field('customAabb').values = customAabbValues;
+
+            this._suppressCustomAabb = false;
             this._suppressAssetChange = false;
             this._suppressToggleFields = false;
 

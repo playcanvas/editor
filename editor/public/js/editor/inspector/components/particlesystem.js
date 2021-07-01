@@ -475,9 +475,7 @@ Object.assign(pcui, (function () {
             }
 
             this._field('mesh').hidden = !!this._field('renderAsset').value;
-            // this._field('renderAsset').hidden = !!this._field('mesh').value;
-            // TODO: unhide once engine is released
-            this._field('renderAsset').hidden = true;
+            this._field('renderAsset').hidden = !!this._field('mesh').value;
         }
 
         _onClickPlay() {

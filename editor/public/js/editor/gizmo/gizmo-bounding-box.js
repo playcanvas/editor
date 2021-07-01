@@ -89,8 +89,6 @@ editor.once('load', function () {
     // bounding box is calculated from one of the components
     // attached to the entity in a priority order
     const getBoundingBoxForEntity = function (entity, resultBB) {
-        // why is this here? to sync the hierarchy?
-        entity.getWorldTransform();
 
         // clear result box
         resultBB.center.set(0, 0, 0);
@@ -108,14 +106,13 @@ editor.once('load', function () {
             }
 
             if (meshInstances) {
+                let first = true;
                 for (let i = 0; i < meshInstances.length; i++) {
                     if (meshInstances[i]._hidden)
                         continue;
 
-                    // not sure why this is here, probably to force hierachy to sync
-                    meshInstances[i].node.getWorldTransform();
-
-                    if (i === 0) {
+                    if (first) {
+                        first = false;
                         resultBB.copy(meshInstances[i].aabb);
                     } else {
                         resultBB.add(meshInstances[i].aabb);

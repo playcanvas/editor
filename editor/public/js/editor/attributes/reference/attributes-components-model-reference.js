@@ -67,6 +67,18 @@ editor.once('load', function () {
         subTitle: '{Number[]}',
         description: 'The layers that this model belongs to. When a model belongs to multiple layers it will be rendered multiple times.',
         url: 'http://developer.playcanvas.com/api/pc.ModelComponent.html#layers'
+    }, {
+        name: 'customAabb',
+        title: 'Custom AABB',
+        description: 'If true, then a user provided bounding box will be used for visibility culling of attached mesh instances. This is an optimization allowing an oversized bounding box to be specified for skinned characters in order to avoid per frame bounding box computations based on bone positions.'
+    }, {
+        name: 'aabbCenter',
+        title: 'AABB Center',
+        description: 'The center of the AABB to be used when Override AABB is enabled.'
+    }, {
+        name: 'aabbHalfExtents',
+        title: 'AABB Half Extents',
+        description: 'The half extents of the AABB to be used when Override AABB is enabled.'
     }];
 
     for (let i = 0; i < fields.length; i++) {

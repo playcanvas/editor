@@ -67,6 +67,18 @@ editor.once('load', function () {
         subTitle: '{pc.Entity}',
         description: 'A reference to the entity to be used as the root bone for any skinned meshes that are rendered by this component.',
         url: 'http://developer.playcanvas.com/api/pc.RenderComponent.html#rootBone'
+    }, {
+        name: 'customAabb',
+        title: 'Custom AABB',
+        description: 'If true, then a user provided bounding box will be used for visibility culling of attached mesh instances. This is an optimization allowing an oversized bounding box to be specified for skinned characters in order to avoid per frame bounding box computations based on bone positions.'
+    }, {
+        name: 'aabbCenter',
+        title: 'AABB Center',
+        description: 'The center of the AABB to be used when Override AABB is enabled.'
+    }, {
+        name: 'aabbHalfExtents',
+        title: 'AABB Half Extents',
+        description: 'The half extents of the AABB to be used when Override AABB is enabled.'
     }];
 
     for (let i = 0; i < fields.length; i++) {
