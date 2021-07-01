@@ -810,8 +810,11 @@ Object.assign(pcui, (function () {
             const entities = this._entities.slice();
 
             let changed = {};
+            let cancelPipelineJob = false;
 
             const undo = () => {
+                cancelPipelineJob = true;
+
                 entities.forEach(e => {
                     e = e.latest();
                     if (!e || !changed[e.get('resource_id')] || !e.has('components.script')) return;
@@ -826,6 +829,8 @@ Object.assign(pcui, (function () {
             };
 
             const redo = () => {
+                cancelPipelineJob = false;
+
                 changed = {};
                 entities.forEach(e => {
                     e = e.latest();
@@ -842,7 +847,20 @@ Object.assign(pcui, (function () {
                     e.history.enabled = history;
                 });
 
-                this._setDefaultAttributes(Object.keys(changed), script);
+                const scene = editor.call('realtime:scene');
+                if (scene) {
+                    // wait for scene script ops to finish before
+                    // starting script attribute pipeline job
+                    scene.whenNothingPending(() => {
+                        if (cancelPipelineJob) {
+                            return;
+                        }
+
+                        this._setDefaultAttributes(Object.keys(changed), script);
+                    });
+                } else {
+                    this._setDefaultAttributes(Object.keys(changed), script);
+                }
             };
 
             redo();

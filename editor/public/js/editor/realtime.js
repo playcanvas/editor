@@ -209,6 +209,10 @@ editor.once('load', function () {
                 socket.send(name + JSON.stringify(data));
         });
 
+        editor.method('realtime:scene', function () {
+            return scene;
+        });
+
         editor.on('realtime:disconnected', function () {
             editor.emit('permissions:writeState', false);
         });
