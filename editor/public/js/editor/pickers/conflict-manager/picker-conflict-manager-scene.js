@@ -226,6 +226,32 @@ editor.once('load', function () {
                                     });
                                 }
                             }
+                        } else if (component === 'anim') {
+                            sectionEntity.appendAllFields({
+                                schema: 'scene',
+                                fields: entity.components[component],
+                                except: ['animationAssets']
+                            });
+
+                            const animAssets = entity.components.anim.animationAssets;
+                            if (animAssets && Object.keys(animAssets).length) {
+                                sectionEntity.appendTitle('Animation Assets');
+                                for (const key in animAssets) {
+                                    if (animAssets[key].asset) {
+                                        sectionEntity.appendField({
+                                            name: key,
+                                            type: 'asset',
+                                            conflict: animAssets[key].asset
+                                        });
+                                    } else {
+                                        sectionEntity.appendField({
+                                            name: key,
+                                            type: 'object',
+                                            conflict: animAssets[key]
+                                        });
+                                    }
+                                }
+                            }
                         } else {
                             // add component fields
                             sectionEntity.appendAllFields({
