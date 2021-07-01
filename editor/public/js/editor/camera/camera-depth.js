@@ -1,66 +1,66 @@
 editor.once('viewport:load', function () {
     'use strict';
 
-    var depthTarget;
-    var app = editor.call('viewport:app');
+    const app = editor.call('viewport:app');
     if (! app) return; // webgl not available
 
-    var scene = app.scene;
-    var renderer = app.renderer;
-    var device = renderer.device;
-    var rendered = false;
-    var canvas = editor.call('viewport:canvas');
+    const scene = app.scene;
+    const renderer = app.renderer;
+    const device = app.graphicsDevice;
+    const canvas = editor.call('viewport:canvas');
+
+    let depthTarget;
+    let rendered = false;
 
     editor.on('viewport:preUpdate', function () {
         rendered = false;
     });
 
     editor.method('camera:depth:render', function (camera) {
-        var rect = camera.camera._rect;
-        // TODO rect width/height are referenced by name pre engine release 1.33.0 & by dimension post release.
-        var rectWidth = rect.z || rect.width;
-        var rectHeight = rect.w || rect.height;
-        var width = Math.floor(rectWidth * device.width);
-        var height = Math.floor(rectHeight * device.height);
+        const rect = camera.rect;
+        const rectWidth = rect.z;
+        const rectHeight = rect.w;
+        const width = Math.floor(rectWidth * device.width);
+        const height = Math.floor(rectHeight * device.height);
 
         if (depthTarget && (depthTarget.width !== width || depthTarget.height !== height)) {
             depthTarget.destroy();
             depthTarget = null;
         }
 
-        if (! depthTarget) {
-            var colorBuffer = new pc.Texture(device, {
+        if (!depthTarget) {
+            const colorBuffer = new pc.Texture(device, {
                 format: pc.PIXELFORMAT_R8_G8_B8_A8,
+                minFilter: pc.FILTER_NEAREST,
+                magFilter: pc.FILTER_NEAREST,
+                addressU: pc.ADDRESS_CLAMP_TO_EDGE,
+                addressV: pc.ADDRESS_CLAMP_TO_EDGE,
                 width: width,
                 height: height
             });
-            colorBuffer.minFilter = pc.FILTER_NEAREST;
-            colorBuffer.magFilter = pc.FILTER_NEAREST;
-            colorBuffer.addressU = pc.ADDRESS_CLAMP_TO_EDGE;
-            colorBuffer.addressV = pc.ADDRESS_CLAMP_TO_EDGE;
             depthTarget = new pc.RenderTarget(device, colorBuffer, {
                 depth: true
             });
         }
 
-        var cam = camera.camera;
+        const cam = camera.camera;
         renderer.setCamera(cam);
         renderer.clearView(cam, depthTarget, true);
 
-        var oldBlending = device.getBlending();
+        const oldBlending = device.getBlending();
         device.setBlending(false);
 
-        var drawCalls = scene.drawCalls;
-        var drawCallsCount = drawCalls.length;
+        const drawCalls = scene.drawCalls;
+        const drawCallsCount = drawCalls.length;
 
         for (let i = 0; i < drawCallsCount; i++) {
-            var meshInstance = drawCalls[i];
+            const meshInstance = drawCalls[i];
             if (! meshInstance.command && meshInstance.material && meshInstance.material.blendType === pc.BLEND_NONE) {
-                var mesh = meshInstance.mesh;
+                const mesh = meshInstance.mesh;
 
                 renderer.modelMatrixId.setValue(meshInstance.node.worldTransform.data);
 
-                var material = meshInstance.material;
+                const material = meshInstance.material;
                 if (material.opacityMap) {
                     renderer.opacityMapId.setValue(material.opacityMap);
                     renderer.alphaTestId.setValue(material.alphaTest);
@@ -69,7 +69,7 @@ editor.once('viewport:load', function () {
                 if (meshInstance.skinInstance) {
                     renderer._skinDrawCalls++;
                     if (device.supportsBoneTextures) {
-                        var boneTexture = meshInstance.skinInstance.boneTexture;
+                        const boneTexture = meshInstance.skinInstance.boneTexture;
                         renderer.boneTextureId.setValue(boneTexture);
                         renderer.boneTextureSizeId.setValue([boneTexture.width, boneTexture.height, 1.0 / boneTexture.width, 1.0 / boneTexture.height]);
                     } else {
@@ -77,14 +77,14 @@ editor.once('viewport:load', function () {
                     }
                 }
 
-                var shader = meshInstance._shader[pc.SHADER_DEPTH];
+                let shader = meshInstance._shader[pc.SHADER_DEPTH];
                 if (!shader) {
-                    app.renderer.updateShader(meshInstance, meshInstance._shaderDefs, null, pc.SHADER_DEPTH);
+                    renderer.updateShader(meshInstance, meshInstance._shaderDefs, null, pc.SHADER_DEPTH);
                     shader = meshInstance._shader[pc.SHADER_DEPTH];
                 }
                 device.setShader(shader);
 
-                var style = meshInstance.renderStyle;
+                const style = meshInstance.renderStyle;
 
                 device.setVertexBuffer(mesh.vertexBuffer, 0);
                 device.setIndexBuffer(mesh.indexBuffer[style]);
@@ -108,30 +108,27 @@ editor.once('viewport:load', function () {
         x *= canvas.pixelRatio;
         y *= canvas.pixelRatio;
 
-        var prevRenderTarget = device.renderTarget;
+        const prevRenderTarget = device.renderTarget;
 
         device.setRenderTarget(depthTarget);
         device.updateBegin();
 
-        var pixels = new Uint8Array(4);
+        const pixels = new Uint8Array(4);
         device.readPixels(x, depthTarget.height - y, 1, 1, pixels);
 
         device.updateEnd();
 
         device.setRenderTarget(prevRenderTarget);
 
-        var bitShift = new pc.Vec4(1.0 / (256.0 * 256.0 * 256.0), 1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0);
-        var color = new pc.Vec4(pixels[0], pixels[1], pixels[2], pixels[3]);
-        var colorDistance = color.dot(bitShift);
+        const bitShift = new pc.Vec4(1.0 / (256.0 * 256.0 * 256.0), 1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0);
+        const color = new pc.Vec4(pixels[0], pixels[1], pixels[2], pixels[3]);
+        const colorDistance = color.dot(bitShift);
 
         if (colorDistance >= 255)
             return null;
 
-        var distance = (camera.nearClip || 0.0001) + (camera.farClip * (colorDistance / 255.0));
-        var point = new pc.Vec3();
+        const distance = (camera.nearClip || 0.0001) + (camera.farClip * (colorDistance / 255.0));
 
-        camera.camera.screenToWorld(x, y, distance, depthTarget.width, depthTarget.height, point);
-
-        return point;
+        return camera.camera.screenToWorld(x, y, distance, depthTarget.width, depthTarget.height);
     });
 });

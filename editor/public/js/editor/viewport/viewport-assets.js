@@ -1,16 +1,16 @@
 editor.once('load', function () {
     'use strict';
 
-    var app = editor.call('viewport:app');
+    const app = editor.call('viewport:app');
     if (! app) return;
 
-    var assets = app.assets;
+    const assets = app.assets;
 
     editor.call('assets:registry:bind', assets);
 
-    var regexFrameUpdate = /^data\.frames\.(\d+)/;
-    var regexFrameRemove = /^data\.frames\.(\d+)$/;
-    var regexI18n = /^i18n\.[^\.]+?$/;
+    const regexFrameUpdate = /^data\.frames\.(\d+)/;
+    const regexFrameRemove = /^data\.frames\.(\d+)$/;
+    const regexI18n = /^i18n\.[^\.]+?$/;
 
     // add assets to asset registry
     editor.on('assets:add', function (asset) {
@@ -18,7 +18,7 @@ editor.once('load', function () {
         if (asset.get('source'))
             return;
 
-        var assetEngine = assets.get(asset.get('id'));
+        const assetEngine = assets.get(asset.get('id'));
         // render on asset load
         assetEngine.on('load', function () {
             editor.call('viewport:render');
@@ -33,15 +33,15 @@ editor.once('load', function () {
 
             // handle i18n changes
             if (regexI18n.test(path)) {
-                var parts = path.split('.');
+                const parts = path.split('.');
                 assetEngine.addLocalizedAssetId(parts[1], value);
 
             } else if (asset.get('type') === 'textureatlas') {
                 // handle frame changes for texture atlas
-                var match = path.match(regexFrameUpdate);
+                const match = path.match(regexFrameUpdate);
                 if (match) {
-                    var frameKey = match[1];
-                    var frame = asset.get('data.frames.' + frameKey);
+                    const frameKey = match[1];
+                    const frame = asset.get('data.frames.' + frameKey);
 
                     if (assetEngine.resource) {
                         if (frame) {
@@ -65,14 +65,14 @@ editor.once('load', function () {
 
         asset.on('*:unset', function (path) {
             if (regexI18n.test(path)) {
-                var parts = path.split('.');
+                const parts = path.split('.');
                 assetEngine.removeLocalizedAssetId(parts[1]);
 
                 editor.call('viewport:render');
             } else if (asset.get('type') === 'textureatlas') {
-                var match = path.match(regexFrameRemove);
+                const match = path.match(regexFrameRemove);
                 if (match) {
-                    var frameKey = match[1];
+                    const frameKey = match[1];
 
                     if (assetEngine.resource) {
                         assetEngine.resource.removeFrame(frameKey);
@@ -88,7 +88,7 @@ editor.once('load', function () {
         });
 
         if (asset.get('type') === 'sprite') {
-            var updateFrameKeys = function () {
+            const updateFrameKeys = function () {
                 if (assetEngine.resource) {
                     assetEngine.resource.frameKeys = asset.get('data.frameKeys');
                 }
@@ -115,8 +115,8 @@ editor.once('load', function () {
     });
 
     // patch update for materials to re-render the viewport
-    var update = pc.PhongMaterial.prototype.update;
-    pc.PhongMaterial.prototype.update = function () {
+    const update = pc.StandardMaterial.prototype.update;
+    pc.StandardMaterial.prototype.update = function () {
         update.call(this);
         editor.call('viewport:render');
     };
