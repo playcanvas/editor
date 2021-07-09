@@ -153,6 +153,32 @@ Object.assign(pcui, (function () {
             }]
         }
     }, {
+        label: 'Cascades',
+        path: 'components.light.numCascades',
+        type: 'select',
+        args: {
+            type: 'number',
+            options: [{
+                v: 1, t: '1'
+            }, {
+                v: 2, t: '2'
+            }, {
+                v: 3, t: '3'
+            }, {
+                v: 4, t: '4'
+            }]
+        }
+    }, {
+        label: 'Cascade Distribution',
+        path: 'components.light.cascadeDistribution',
+        type: 'number',
+        args: {
+            precision: 2,
+            step: 0.01,
+            min: 0,
+            max: 1
+        }
+    }, {
         label: 'Distance',
         path: 'components.light.shadowDistance',
         type: 'number',
@@ -342,7 +368,8 @@ Object.assign(pcui, (function () {
                 'shadowType',
                 'shadowUpdateMode',
                 'affectDynamic',
-                'shape'
+                'shape',
+                'numCascades'
             ].forEach(field => {
                 this._field(field).on('change', this._toggleFields.bind(this));
             });
@@ -383,6 +410,7 @@ Object.assign(pcui, (function () {
             const castShadows = this._field('castShadows').value;
             const shadowType = this._field('shadowType').value;
             const cookie = this._field('cookieAsset').value;
+            const numCascades = this._field('numCascades').value;
 
             const hasShapes = editor.call('settings:project').get('areaLightDataAsset');
             const shape = this._field('shape').value;
@@ -436,6 +464,9 @@ Object.assign(pcui, (function () {
             ].forEach(field => {
                 this._field(field).parent.hidden = !castShadows;
             });
+
+            this._field('numCascades').parent.hidden = !(castShadows  && isDirectional);
+            this._field('cascadeDistribution').parent.hidden = !(castShadows && isDirectional && numCascades > 1);
 
             this._field('shadowUpdateMode').parent.hidden = !castShadows || this._field('bake').value && !this._field('affectDynamic').value;
 

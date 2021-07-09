@@ -68,6 +68,16 @@ editor.once('load', function () {
         description: 'The shadow distance is the maximum distance from the camera beyond which shadows that come from Directional Lights are no longer visible. Smaller values produce more detailed shadows. The closer the limit the less shadow data has to be mapped to, and represented by, any shadow map; shadow map pixels are mapped spatially and so the less distance the shadow map has to cover, the smaller the pixels and so the more resolution any shadow has.',
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#shadowDistance'
     }, {
+        title: 'numCascades',
+        subTitle: '{Number}',
+        description: 'Number of shadow cascades.',
+        url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#numCascades'
+    }, {
+        title: 'cascadeDistribution',
+        subTitle: '{Number}',
+        description: 'The distribution of subdivision of the camera frustum for individual shadow cascades.',
+        url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#cascadeDistribution'
+    }, {
         title: 'shadowResolution',
         subTitle: '{Number}',
         description: 'The size of the texture used for the shadow map.',
