@@ -212,7 +212,7 @@ Object.assign(pcui, (function () {
             root: {
                 texturePanel: new pcui.Panel({
                     headerText: 'TEXTURE',
-                    collapsible: true,
+                    collapsible: true
                 })
             },
             children: [
@@ -229,7 +229,7 @@ Object.assign(pcui, (function () {
                             btnGetMeta: new pcui.Button({
                                 text: 'CALCULATE META',
                                 icon: 'E131',
-                                flexGrow: 1,
+                                flexGrow: 1
                             })
                         }
                     ]
@@ -247,7 +247,7 @@ Object.assign(pcui, (function () {
             root: {
                 compressionPanel: new pcui.Panel({
                     headerText: 'COMPRESSION',
-                    collapsible: true,
+                    collapsible: true
                 })
             },
             children: [
@@ -332,12 +332,12 @@ Object.assign(pcui, (function () {
     // returns true if the dimensions are power of two and false otherwise.
     const isPOT = (width, height) => {
         return ((width & (width - 1)) === 0) && ((height & (height - 1)) === 0);
-    }
+    };
 
     // get the asset alpha flag
     const getAssetAlpha = (asset) => {
         return asset.get('meta.compress.alpha') && (asset.get('meta.alpha') || ((asset.get('meta.type') || '').toLowerCase() === 'truecoloralpha'));
-    }
+    };
 
     // this function checks whether a variant of a texture is dirty compared to user
     // controlled settings.
@@ -381,11 +381,11 @@ Object.assign(pcui, (function () {
             if (data && alpha)
                 return true;
 
-            if (! data && alpha)
+            if (!data && alpha)
                 return false;
         }
 
-        if (data && ((data.opt & 4) !== 0) !== ! mipmaps)
+        if (data && ((data.opt & 4) !== 0) !== !mipmaps)
             return true;
 
         if (format === 'basis' && data) {
@@ -397,7 +397,7 @@ Object.assign(pcui, (function () {
         }
 
         return false;
-    }
+    };
 
     // custom binding to change multiple paths per observer
     // this has been kept as agnostic as possible to hopefully
@@ -530,7 +530,7 @@ Object.assign(pcui, (function () {
 
         updateSize() {
             const format = this._format;
-            this.text = (! format.size && ! format.vram)
+            this.text = (!format.size && !format.vram)
                 ? '-'
                 : `${bytesToHuman(format.size)} [VRAM ${bytesToHuman(format.vram)}]`;
         }
@@ -564,8 +564,10 @@ Object.assign(pcui, (function () {
             this._handleBtnCompressBasisClick = this._handleBtnCompressBasisClick.bind(this);
             this._handleBtnCompressLegacyClick = this._handleBtnCompressLegacyClick.bind(this);
             this._handleBtnGetMetaClick = this._handleBtnGetMetaClick.bind(this);
+            this._handleAssetChangeWebGl1PotWarnings = this._handleAssetChangeWebGl1PotWarnings.bind(this);
             this._showHideLegacyUi = this._showHideLegacyUi.bind(this);
             this._updatePvrWarning = this._updatePvrWarning.bind(this);
+            this._updateWebGl1PowerOfTwoWarnings = this._updateWebGl1PowerOfTwoWarnings.bind(this);
 
             this.buildDom(DOM(this));
             this._setupCompressionSubheads();
@@ -580,19 +582,40 @@ Object.assign(pcui, (function () {
 
             this._btnCompressLegacy.on('click', this._handleBtnCompressLegacyClick);
             this._btnCompressLegacy.disabled = true;
+
+            // Add WebGL1 warnings below the relevant settings in the inspector
+            this._webgl1NonPotWithMipmapsWarning = new pcui.InfoBox({
+                icon: 'E218',
+                title: 'Texture dimensions are not power of two (POT) and Mipmaps are enabled',
+                text: 'Only WebGL2 supports mipmap generation on non power of two textures in width and height. (E.g. 256 x 256, 512 x 1024). Visit <strong><a href="https://caniuse.com/webgl2" target="_blank">can I use webgl2</a></strong> to see current browser support. Expect browsers that only support WebGL1 to render differently. Please use textures with dimensions of POT wherever possible for best compatibility.',
+                unsafe: true
+            });
+
+            const mipmapsField = this._textureAttributesInspector.getField('data.mipmaps');
+            mipmapsField.parent.parent.appendAfter(this._webgl1NonPotWithMipmapsWarning.dom, mipmapsField.parent.dom);
+
+            this._webgl1NonPotWithoutAddressClampWarning = new pcui.InfoBox({
+                icon: 'E218',
+                title: 'Texture dimensions are not power of two (POT) and Address UV are not clamped',
+                text: 'Only WebGL2 supports Address UV modes \'Repeat\' or \'Mirror Repeat\' on non power of two textures in width and height. (E.g. 256 x 256, 512 x 1024). Visit <strong><a href="https://caniuse.com/webgl2" target="_blank">can I use webgl2</a></strong> to see current browser support. Expect browsers that only support WebGL1 to render differently. Please use textures with dimensions of POT wherever possible for best compatibility.',
+                unsafe: true
+            });
+
+            const addressVField = this._textureAttributesInspector.getField('data.addressv');
+            addressVField.parent.parent.appendAfter(this._webgl1NonPotWithoutAddressClampWarning.dom, addressVField.parent.dom);
         }
 
         _btnGetMetaVisibility() {
             const assets = this._assets;
 
             let visible = false;
-            for(let i = 0; i < assets.length; i++) {
-                if (! visible && ! assets[i].get('meta')) {
+            for (let i = 0; i < assets.length; i++) {
+                if (!visible && !assets[i].get('meta')) {
                     visible = true;
                     break;
                 }
             }
-            this._btnGetMeta.hidden = ! visible;
+            this._btnGetMeta.hidden = !visible;
         }
 
         _calculateSize(format) {
@@ -601,8 +624,8 @@ Object.assign(pcui, (function () {
 
             formats[format].size = 0;
             formats[format].vram = 0;
-            for(let i = 0; i < assets.length; i++) {
-                if (! assets[i].get('file') || ! assets[i].get('meta'))
+            for (let i = 0; i < assets.length; i++) {
+                if (!assets[i].get('file') || !assets[i].get('meta'))
                     continue;
 
                 // slighly different handling for original size
@@ -673,20 +696,20 @@ Object.assign(pcui, (function () {
 
             let state = false;
             let different = false;
-            for(let i = 0; i < assets.length; i++) {
+            for (let i = 0; i < assets.length; i++) {
                 const alpha = assets[i].get('meta.alpha') || false;
                 const trueColorAlpha = (assets[i].get('meta.type') || '').toLowerCase() === 'truecoloralpha';
                 const rgbm = assets[i].get('data.rgbm');
 
                 if (i === 0) {
-                    state = (alpha || trueColorAlpha) && ! rgbm;
-                } else if (state !== ((alpha || trueColorAlpha) && ! rgbm)) {
+                    state = (alpha || trueColorAlpha) && !rgbm;
+                } else if (state !== ((alpha || trueColorAlpha) && !rgbm)) {
                     different = true;
                     break;
                 }
             }
 
-            compressAlphaField.disabled = ! different && ! state;
+            compressAlphaField.disabled = !different && !state;
         };
 
         _checkCompression() {
@@ -699,11 +722,11 @@ Object.assign(pcui, (function () {
 
             let differentBasis = false;
             let differentLegacy = false;
-            for(let i = 0; i < assets.length; i++) {
-                if (! assets[i].get('file') || !! assets[i].get('task'))
+            for (let i = 0; i < assets.length; i++) {
+                if (!assets[i].get('file') || !!assets[i].get('task'))
                     continue;
 
-                for(let key in this._compressionFormats) {
+                for (let key in this._compressionFormats) {
                     if (key === 'original')
                         continue;
 
@@ -853,10 +876,10 @@ Object.assign(pcui, (function () {
         _handleAssetChangeCompression(path) {
             if (this._compressionChangeTicking ||
                 (path !== 'task' &&
-                ! path.startsWith('meta') &&
-                ! path.startsWith('file') &&
-                ! path.startsWith('data.rgbm') &&
-                ! path.startsWith('data.mipmaps')))
+                    !path.startsWith('meta') &&
+                    !path.startsWith('file') &&
+                    !path.startsWith('data.rgbm') &&
+                    !path.startsWith('data.mipmaps')))
                 return;
 
             this._compressionChangeTicking = true;
@@ -883,10 +906,10 @@ Object.assign(pcui, (function () {
         _handleBtnGetMetaClick() {
             const assets = this._assets;
 
-            if (! editor.call('permissions:write'))
+            if (!editor.call('permissions:write'))
                 return;
 
-            for(let i = 0; i < assets.length; i++) {
+            for (let i = 0; i < assets.length; i++) {
                 if (assets[i].get('meta'))
                     continue;
 
@@ -904,14 +927,14 @@ Object.assign(pcui, (function () {
                 return;
             };
 
-            for(let i = 0; i < assets.length; i++) {
-                if (! assets[i].get('file'))
+            for (let i = 0; i < assets.length; i++) {
+                if (!assets[i].get('file'))
                     continue;
 
-                const variants = [ ];
-                const toDelete = [ ];
+                const variants = [];
+                const toDelete = [];
 
-                for(let format of formats) {
+                for (let format of formats) {
                     if (format !== 'original' && checkCompressRequired(assets[i], format)) {
                         let compress = assets[i].get('meta.compress.' + format);
 
@@ -977,6 +1000,19 @@ Object.assign(pcui, (function () {
             }
         }
 
+        _handleAssetChangeWebGl1PotWarnings(path) {
+            if (path !== 'task' &&
+                !path.startsWith('meta.width') &&
+                !path.startsWith('meta.height') &&
+                !path.startsWith('file') &&
+                !path.startsWith('data.addressu') &&
+                !path.startsWith('data.addressv') &&
+                !path.startsWith('data.mipmaps'))
+                return;
+
+            this._updateWebGl1PowerOfTwoWarnings();
+        }
+
         _setupBasis() {
             const BASIS_STORE_NAME = 'basis.js';
             const BASIS_WASM_FILENAME = 'basis';
@@ -1000,16 +1036,16 @@ Object.assign(pcui, (function () {
         _setupImportButton(panel, moduleStoreName, wasmFilename) {
             if (!this._containerImportBasis) {
                 this._containerImportBasis = new pcui.Container({
-                   flex: true,
-                   flexDirection: 'row',
-                   alignItems: 'center'
-               });
-               this._containerImportBasis.class.add('pcui-subpanel');
+                    flex: true,
+                    flexDirection: 'row',
+                    alignItems: 'center'
+                });
+                this._containerImportBasis.class.add('pcui-subpanel');
 
-               this._labelImportBasis = new pcui.Label({
-                   text: 'Basis Not Found'
-               });
-               this._containerImportBasis.append(this._labelImportBasis);
+                this._labelImportBasis = new pcui.Label({
+                    text: 'Basis Not Found'
+                });
+                this._containerImportBasis.append(this._labelImportBasis);
 
                 this._btnImportBasis = new pcui.Button({
                     text: 'IMPORT BASIS',
@@ -1029,7 +1065,7 @@ Object.assign(pcui, (function () {
                     if (name === moduleStoreName) {
                         this._containerImportBasis.hidden = true;
                     }
-                }
+                };
                 events.push(editor.on('onModuleImported', handleModuleImported));
 
                 this._containerImportBasis.once('destroy', () => {
@@ -1051,7 +1087,7 @@ Object.assign(pcui, (function () {
                         'data.minfilter': v => `${v}_mip_${v}`
                     },
                     history: args.history,
-                    historyName: 'assets.filtering',
+                    historyName: 'assets.filtering'
                 }),
                 bindingObserversToElement: new pcui.BindingObserversToElement({
                     customUpdate: (element, observers, paths) => {
@@ -1061,14 +1097,14 @@ Object.assign(pcui, (function () {
                         let value = '';
                         let valueDifferent = false;
                         const firstMergedValue = getMergedValue(observers[0]);
-                        for(let i = 1; i < observers.length; i++) {
+                        for (let i = 1; i < observers.length; i++) {
                             if (firstMergedValue !== getMergedValue(observers[i])) {
                                 valueDifferent = true;
                                 break;
                             }
                         }
 
-                        if (! valueDifferent) {
+                        if (!valueDifferent) {
                             if (observers[0].get('data.minfilter') === 'linear_mip_linear' && observers[0].get('data.magfilter') === 'linear') {
                                 value = 'linear';
                             } else if (observers[0].get('data.minfilter') === 'nearest_mip_nearest' && observers[0].get('data.magfilter') === 'nearest') {
@@ -1080,7 +1116,7 @@ Object.assign(pcui, (function () {
                     },
                     history: args.history
                 })
-            })
+            });
         }
 
         _setupLegacy() {
@@ -1105,7 +1141,7 @@ Object.assign(pcui, (function () {
                     reference: ref
                 })).attach({
                     target: this._texturePanel.header
-                })
+                });
             }
 
             ref = editor.call('attributes:reference:get', 'asset:texture:compression');
@@ -1114,7 +1150,7 @@ Object.assign(pcui, (function () {
                     reference: ref
                 })).attach({
                     target: this._compressionPanel.header
-                })
+                });
             }
         }
 
@@ -1142,10 +1178,10 @@ Object.assign(pcui, (function () {
                     return this._compressionBasisAttributesInspector.getField(`meta.compress.${format}`);
 
                 return this._compressionLegacyAttributesInspector.getField(`meta.compress.${format}`);
-            }
+            };
 
-            for(let key in this._compressionFormats) {
-                const field = getCompressionField(key)
+            for (let key in this._compressionFormats) {
+                const field = getCompressionField(key);
 
                 if (field) {
                     const sizeLabel = new SizeLabel({
@@ -1188,6 +1224,34 @@ Object.assign(pcui, (function () {
             this._pvrWarningLabel.hidden = hidden;
         }
 
+        _updateWebGl1PowerOfTwoWarnings() {
+            this._webgl1NonPotWithoutAddressClampWarning.hidden = true;
+            this._webgl1NonPotWithMipmapsWarning.hidden = true;
+
+            const assets = this._assets;
+            // Show the warnings if any of the assets have an issue
+
+            for (let i = 0; i < assets.length; i++) {
+                let asset = assets[i];
+                if (!isPOT(asset.get('meta.width'), asset.get('meta.height'))) {
+                    if (asset.get('data.mipmaps')) {
+                        this._webgl1NonPotWithMipmapsWarning.hidden = false;
+                        break;
+                    }
+                }
+            }
+
+            for (let i = 0; i < assets.length; i++) {
+                let asset = assets[i];
+                if (!isPOT(asset.get('meta.width'), asset.get('meta.height'))) {
+                    if (asset.get('data.addressu') !== 'clamp' || asset.get('data.addressv') !== 'clamp') {
+                        this._webgl1NonPotWithoutAddressClampWarning.hidden = false;
+                        break;
+                    }
+                }
+            }
+        }
+
         link(assets) {
             this.unlink();
             this._assets = assets;
@@ -1202,12 +1266,13 @@ Object.assign(pcui, (function () {
 
             // initial checks
             this._btnGetMetaVisibility();
-            for(let key in this._compressionFormats) {
+            for (let key in this._compressionFormats) {
                 this._calculateSize(key);
             }
             this._checkFormats();
             this._checkCompression();
             this._checkCompressAlpha();
+            this._updateWebGl1PowerOfTwoWarnings();
 
             // needs to be called after this._checkFormats to determine this._hasLegacy
             this._setupLegacy();
@@ -1219,12 +1284,14 @@ Object.assign(pcui, (function () {
                 this._assetEvents.push(asset.on('*:set', this._handleAssetChangeCompression));
                 this._assetEvents.push(asset.on('*:unset', this._handleAssetChangeCompression));
 
+                this._assetEvents.push(asset.on('*:set', this._handleAssetChangeWebGl1PotWarnings));
+
                 // show/hide Get Meta Button
                 this._assetEvents.push(asset.on('meta:set', () => {
                     this._btnGetMetaVisibility();
                     // asset meta migration...
                     // this should probably eventually be moved to the pipline job
-                    if (asset.get('meta') && ! asset.has('meta.compress')) {
+                    if (asset.get('meta') && !asset.has('meta.compress')) {
                         setTimeout(() => {
                             const alpha = asset.get('meta.alpha') || (asset.get('meta.type').toLowerCase() || '') === 'truecoloralpha' || false;
                             asset.set('meta.compress', {
@@ -1238,13 +1305,13 @@ Object.assign(pcui, (function () {
                                 basis: false,
                                 quality: 128
                             });
-                        })
+                        });
                     }
                 }));
-                this._assetEvents.push(asset.on('meta:unset', () => this._btnGetMeta.hidden = false ));
+                this._assetEvents.push(asset.on('meta:unset', () => this._btnGetMeta.hidden = false));
 
                 // recalculate size
-                for(let key in this._compressionFormats) {
+                for (let key in this._compressionFormats) {
                     this._assetEvents.push(asset.on(`file.variants.${key}.size:set`, () => this._queueSizeCalculate(key)));
                     this._assetEvents.push(asset.on(`file.variants.${key}.size:unset`, () => this._queueSizeCalculate(key)));
                     this._assetEvents.push(asset.on(`file.variants.${key}.sizeGzip:set`, () => this._queueSizeCalculate(key)));
