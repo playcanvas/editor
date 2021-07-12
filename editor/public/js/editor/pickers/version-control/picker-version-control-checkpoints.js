@@ -83,7 +83,7 @@ editor.once('load', function () {
     });
     listItemLoadMore.element.appendChild(btnLoadMore.element);
 
-    // checkpoints for which context menu is currenty open
+    // checkpoints for which context menu is currently open
     var currentCheckpoint = null;
 
     var currentCheckpointListRequest = null;
@@ -92,6 +92,13 @@ editor.once('load', function () {
     // checkpoints context menu
     var menuCheckpoints = new ui.Menu();
     menuCheckpoints.class.add('version-control');
+
+    // view changes between this checkpoint and previous
+    var menuCheckpointsViewChanges = new ui.MenuItem({
+        text: 'View Changes',
+        value: 'view-changes'
+    });
+    menuCheckpoints.append(menuCheckpointsViewChanges);
 
     // restore checkpoint
     var menuCheckpointsRestore = new ui.MenuItem({
@@ -476,6 +483,30 @@ editor.once('load', function () {
         panel.emit('checkpoint:branch', currentCheckpoint);
     });
 
+    // view changes in checkpoint
+    menuCheckpointsViewChanges.on('select', function () {
+        let previousCheckpoint = null;
+
+        // Find the previous checkpoint to current checkpoint
+        for (let i = 0, len = panel.checkpoints.length - 1; i < len; i++) {
+            if (currentCheckpoint.id === panel.checkpoints[i].id) {
+                previousCheckpoint = panel.checkpoints[i + 1];
+                break;
+            }
+        }
+
+        if (previousCheckpoint) {
+            panel.emit('diff',
+                panel.branch.id,
+                currentCheckpoint.id,
+                panel.branch.id,
+                previousCheckpoint.id
+            );
+        } else {
+            log.error(`Trying to view changes in checkpoint: '${currentCheckpoint.id}'. Cannot find previous checkpoint to diff against.`);
+        }
+    });
+
     menuCheckpoints.on('open', function (open) {
         if (! currentCheckpoint) return;
 
@@ -483,6 +514,13 @@ editor.once('load', function () {
         if (open) {
             menuCheckpointsRestore.hidden = panel.branch.id !== config.self.branch.id || ! editor.call('permissions:write');
             menuCheckpointsBranch.hidden = ! editor.call('permissions:write');
+
+            // Don't show view changes if this is the last checkpoint in the list
+            // because we can't get the previous checkpoint id until the user loads
+            // more checkpoints and this also protects us trying to view changes from
+            // the first checkpoint in a branch
+            var lastPanelCheckpoint = panel.checkpoints[panel.checkpoints.length - 1];
+            menuCheckpointsViewChanges.hidden = currentCheckpoint.id === lastPanelCheckpoint.id;
         }
 
         // when the checkpoints context menu is closed 'unclick' dropdowns
