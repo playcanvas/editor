@@ -49,7 +49,8 @@ editor.once('load', function () {
                 recompress(toRecompress);
             }, {
                 yesText: 'Recompress now',
-                noText: 'Recompress later'
+                noText: 'Recompress later',
+                noDismiss: true
             });
         }
 
