@@ -69,9 +69,12 @@ Object.assign(pcui, (function () {
                 }
             }
 
-            if (asset.has(`file.variants.${format}`) && !asset.get(`file.variants.${format}.noFlip`)) {
-                return true;
+            if (editor.call('users:hasFlag', 'hasRecompressFlippedTextures')) {
+                if (asset.has(`file.variants.${format}`) && !asset.get(`file.variants.${format}.noFlip`)) {
+                    return true;
+                }
             }
+
 
             return false;
         }
