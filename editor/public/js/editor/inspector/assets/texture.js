@@ -252,6 +252,13 @@ Object.assign(pcui, (function () {
             },
             children: [
                 {
+                    recompressWarning: new pcui.InfoBox({
+                        icon: 'E218',
+                        title: 'Warning',
+                        text: 'This texture must be recompressed due to a non-backwards compatible engine change. This texture will appear upside down if it isn\'t recompressed.'
+                    })
+                },
+                {
                     root: {
                         compressionBasisContainer: new pcui.Container()
                     },
@@ -329,75 +336,6 @@ Object.assign(pcui, (function () {
         }
     ];
 
-    // returns true if the dimensions are power of two and false otherwise.
-    const isPOT = (width, height) => {
-        return ((width & (width - 1)) === 0) && ((height & (height - 1)) === 0);
-    };
-
-    // get the asset alpha flag
-    const getAssetAlpha = (asset) => {
-        return asset.get('meta.compress.alpha') && (asset.get('meta.alpha') || ((asset.get('meta.type') || '').toLowerCase() === 'truecoloralpha'));
-    };
-
-    // this function checks whether a variant of a texture is dirty compared to user
-    // controlled settings.
-    const checkCompressRequired = (asset, format) => {
-        if (!asset.get('file'))
-            return false;
-
-        // check width, height and POT
-        const width = asset.get('meta.width');
-        const height = asset.get('meta.height');
-        if (!width || !height || !isPOT(width, height)) {
-            return false;
-        }
-
-        const data = asset.get('file.variants.' + format);
-        const rgbm = asset.get('data.rgbm');
-        const alpha = getAssetAlpha(asset) || rgbm;
-        const normals = !!asset.get('meta.compress.normals');
-        const compress = asset.get('meta.compress.' + format);
-        const mipmaps = asset.get('data.mipmaps');
-        const compressionMode = asset.get('meta.compress.compressionMode');
-        const quality = asset.get('meta.compress.quality');
-
-        if (!!data !== compress) {
-            if (format === 'etc1' && alpha)
-                return false;
-
-            if (rgbm && !data)
-                return false;
-
-            return true;
-        } else if (format !== 'basis' && data && ((((data.opt & 1) !== 0) != alpha))) {
-            return true;
-        }
-
-        if (data && format === 'pvr') {
-            const bpp = asset.get('meta.compress.pvrBpp');
-            if (data && ((data.opt & 128) !== 0 ? 4 : 2) !== bpp)
-                return true;
-        } else if (format === 'etc1') {
-            if (data && alpha)
-                return true;
-
-            if (!data && alpha)
-                return false;
-        }
-
-        if (data && ((data.opt & 4) !== 0) !== !mipmaps)
-            return true;
-
-        if (format === 'basis' && data) {
-            if ((!!(data.opt & 8) !== normals) ||
-                (data.quality === undefined) || (data.quality !== quality) ||
-                (data.compressionMode === undefined) || (data.compressionMode !== compressionMode)) {
-                return true;
-            }
-        }
-
-        return false;
-    };
 
     // custom binding to change multiple paths per observer
     // this has been kept as agnostic as possible to hopefully
@@ -730,7 +668,7 @@ Object.assign(pcui, (function () {
                     if (key === 'original')
                         continue;
 
-                    if (checkCompressRequired(assets[i], key)) {
+                    if (pcui.TextureCompressor.checkCompressRequired(assets[i], key)) {
                         if (key === 'basis') {
                             differentBasis = true;
                         } else {
@@ -828,7 +766,7 @@ Object.assign(pcui, (function () {
                 if (!showBasisPvrWarning) {
                     const thisWidth = assets[i].get('meta.width');
                     const thisHeight = assets[i].get('meta.height');
-                    showBasisPvrWarning = thisBasis && (!isPOT(thisWidth, thisHeight) || thisWidth !== thisHeight);
+                    showBasisPvrWarning = thisBasis && (!pcui.TextureCompressor.isPOT(thisWidth, thisHeight) || thisWidth !== thisHeight);
                 }
             }
 
@@ -855,7 +793,7 @@ Object.assign(pcui, (function () {
             if (rgbm !== 1) {
                 if (width > 0 && height > 0) {
                     // size available
-                    fieldDxt.disable = !isPOT(width, height);
+                    fieldDxt.disable = !pcui.TextureCompressor.isPOT(width, height);
                 } else if (width === -1) {
                     // no size available
                     fieldDxt.disabled = true;
@@ -927,77 +865,7 @@ Object.assign(pcui, (function () {
                 return;
             };
 
-            for (let i = 0; i < assets.length; i++) {
-                if (!assets[i].get('file'))
-                    continue;
-
-                const variants = [];
-                const toDelete = [];
-
-                for (let format of formats) {
-                    if (format !== 'original' && checkCompressRequired(assets[i], format)) {
-                        let compress = assets[i].get('meta.compress.' + format);
-
-                        // FIXME: why don't we allow a texture flagged as rgbm be compressed?
-                        if (assets[i].get('data.rgbm'))
-                            compress = false;
-
-                        if (compress && format === 'etc1' && getAssetAlpha(assets[i])) {
-                            compress = false;
-                        }
-
-                        if (compress) {
-                            variants.push(format);
-                        } else {
-                            toDelete.push(format);
-                        }
-                    }
-                }
-
-                if (toDelete.length) {
-                    editor.call('realtime:send', 'pipeline', {
-                        name: 'delete-variant',
-                        data: {
-                            asset: parseInt(assets[i].get('uniqueId'), 10),
-                            options: {
-                                formats: toDelete
-                            }
-                        }
-                    });
-                }
-
-                if (variants.length) {
-                    const task = {
-                        asset: parseInt(assets[i].get('uniqueId'), 10),
-                        options: {
-                            formats: variants,
-                            alpha: getAssetAlpha(assets[i]),
-                            mipmaps: assets[i].get('data.mipmaps'),
-                            normals: !!assets[i].get('meta.compress.normals')
-                        }
-                    };
-
-                    if (variants.indexOf('pvr') !== -1)
-                        task.options.pvrBpp = assets[i].get('meta.compress.pvrBpp');
-
-                    if (variants.indexOf('basis') !== -1) {
-                        task.options.compressionMode = assets[i].get('meta.compress.compressionMode');
-                        task.options.quality = assets[i].get('meta.compress.quality');
-                    }
-
-                    const sourceId = assets[i].get('source_asset_id');
-                    if (sourceId) {
-                        const sourceAsset = editor.call('assets:get', sourceId);
-                        if (sourceAsset)
-                            task.source = parseInt(sourceAsset.get('uniqueId'), 10);
-                    }
-
-                    editor.call('realtime:send', 'pipeline', {
-                        name: 'compress',
-                        data: task
-                    });
-                }
-            }
+            pcui.TextureCompressor.compress(assets, formats);
         }
 
         _handleAssetChangeWebGl1PotWarnings(path) {
@@ -1233,7 +1101,7 @@ Object.assign(pcui, (function () {
 
             for (let i = 0; i < assets.length; i++) {
                 let asset = assets[i];
-                if (!isPOT(asset.get('meta.width'), asset.get('meta.height'))) {
+                if (!pcui.TextureCompressor.isPOT(asset.get('meta.width'), asset.get('meta.height'))) {
                     if (asset.get('data.mipmaps')) {
                         this._webgl1NonPotWithMipmapsWarning.hidden = false;
                         break;
@@ -1243,7 +1111,7 @@ Object.assign(pcui, (function () {
 
             for (let i = 0; i < assets.length; i++) {
                 let asset = assets[i];
-                if (!isPOT(asset.get('meta.width'), asset.get('meta.height'))) {
+                if (!pcui.TextureCompressor.isPOT(asset.get('meta.width'), asset.get('meta.height'))) {
                     if (asset.get('data.addressu') !== 'clamp' || asset.get('data.addressv') !== 'clamp') {
                         this._webgl1NonPotWithoutAddressClampWarning.hidden = false;
                         break;
@@ -1260,6 +1128,25 @@ Object.assign(pcui, (function () {
             this._compressionLegacyAttributesInspector.link(assets);
             if (this._compressionBasisAttributesInspector) {
                 this._compressionBasisAttributesInspector.link(assets);
+            }
+
+            if (editor.call('users:hasFlag', 'hasRecompressFlippedTextures')) {
+                if (assets.length > 1) {
+                    this._recompressWarning.hidden = true;
+                } else {
+                    const variants = [...LEGACY_COMPRESSION_PARAMS, 'basis'];
+                    let hideWarning = true;
+                    variants.forEach(variant => {
+                        if (!hideWarning) return;
+                        if (assets[0].has(`file.variants.${variant}`) && !assets[0].get(`file.variants.${variant}.noFlip`)) {
+                            hideWarning = false;
+                        }
+                    });
+
+                    this._recompressWarning.hidden = hideWarning;
+                }
+            } else {
+                this._recompressWarning.hidden = true;
             }
 
             this._setupBasis();
