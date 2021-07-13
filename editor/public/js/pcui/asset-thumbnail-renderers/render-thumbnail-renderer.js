@@ -204,6 +204,7 @@ Object.assign(pcui, (function () {
             layer.removeLight(scene.lightEntity.light);
             layer.removeCamera(scene.cameraEntity.camera);
             layer.removeMeshInstances(scene.renderEntity.render.meshInstances);
+            scene.renderEntity.render.asset = null;
             layer.renderTarget = null;
             scene.previewRoot.enabled = false;
         }
