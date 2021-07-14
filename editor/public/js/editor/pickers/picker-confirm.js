@@ -99,15 +99,16 @@ editor.once('load', function () {
     editor.method('picker:confirm', function (text, fn, options) {
         label.text = text || 'Are you sure?';
         callback = fn || null;
+        options = options || {};
 
-        if (options && options.yesText !== undefined) {
+        if (options.yesText !== undefined) {
             btnYes.text = options.yesText;
         } else {
             btnYes.text = 'Yes';
         }
         btnYes.hidden = !btnYes.text;
 
-        if (options && options.noText !== undefined) {
+        if (options.noText !== undefined) {
             btnNo.text = options.noText;
         } else {
             btnNo.text = 'No';
