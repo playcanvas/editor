@@ -144,8 +144,9 @@ editor.once('load', function () {
 
     // Set the checkpoints to be displayed
     panel.setCheckpoints = function (checkpoints) {
+        const scrollTop = panelCheckpoints.element.scrollTop;
+
         listCheckpoints.clear();
-        panelCheckpoints.element.scrollTop = 0;
         lastCheckpointDateDisplayed = null;
 
         var length = checkpoints && checkpoints.length;
@@ -162,8 +163,9 @@ editor.once('load', function () {
             checkpointsSkip = null;
         }
 
-
         listCheckpoints.append(listItemLoadMore);
+
+        panelCheckpoints.element.scrollTop = scrollTop;
     };
 
     // Show button to load more checkpoints or not

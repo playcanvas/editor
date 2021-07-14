@@ -938,6 +938,7 @@ editor.once('load', function () {
                         description: data.description
                     });
                     panelCheckpoints.setCheckpoints(existingCheckpoints);
+                    panelCheckpoints.element.scrollTop = 0;
                 }
             }
         }));
