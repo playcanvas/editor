@@ -4,6 +4,10 @@ editor.once("load", function () {
     const WHITELISTED_FOR_EVERYONE = {
     };
 
+    const NO_EXCEPTION_FOR_SUPERUSERS = {
+        'hasRecompressFlippedTextures': true
+    };
+
     editor.method('users:hasOpenedEditor', function () {
         return (config.self && config.self.flags.openedEditor);
     });
@@ -13,8 +17,20 @@ editor.once("load", function () {
     });
 
     editor.method('users:hasFlag', function (flag) {
-        if (WHITELISTED_FOR_EVERYONE[flag]) return true;
+        if (WHITELISTED_FOR_EVERYONE[flag]) {
+            return true;
+        }
 
-        return (config.self && config.self.flags[flag] || config.self.flags.superUser);
+        if (config.self) {
+            if (config.self.flags[flag]) {
+                return true;
+            }
+
+            if (config.self.flags.superUser && !NO_EXCEPTION_FOR_SUPERUSERS[flag]) {
+                return true;
+            }
+        }
+
+        return false;
     });
 });

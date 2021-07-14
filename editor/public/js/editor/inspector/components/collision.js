@@ -93,6 +93,15 @@ Object.assign(pcui, (function () {
 
             super(args);
 
+            this._variedTransformScalesWarning = new pcui.InfoBox({
+                icon: 'E218',
+                title: 'Warning!',
+                text: 'This entity has a non-uniform scale. Mesh collision will not work as expected.'
+            });
+            this.append(this._variedTransformScalesWarning);
+
+            this._evts = [];
+
             this._attributesInspector = new pcui.AttributesInspector({
                 assets: args.assets,
                 history: args.history,
@@ -194,15 +203,40 @@ Object.assign(pcui, (function () {
 
         link(entities) {
             super.link(entities);
+            this._entities = entities;
             this._suppressToggleFields = true;
             this._attributesInspector.link(entities);
             this._suppressToggleFields = false;
             this._toggleFields();
+
+            const updateVariedTransformScalesWarning = () => {
+                if (entities.length !== 1 || entities[0].get('components.collision.type') !== 'mesh') {
+                    this._variedTransformScalesWarning.hidden = true;
+                    return;
+                }
+
+                const scale = entities[0].get('scale');
+                if (scale[0] === scale[1] && scale[1] === scale[2]) {
+                    this._variedTransformScalesWarning.hidden = true;
+                    return;
+                }
+                this._variedTransformScalesWarning.hidden = false;
+            };
+            this._evts.push(entities[0].on('*:set', (path) => {
+                if (path === 'components.collision.type' || path.indexOf('scale.') === 0) {
+                    updateVariedTransformScalesWarning();
+                }
+            }));
+            updateVariedTransformScalesWarning();
         }
 
         unlink() {
             super.unlink();
-            this._attributesInspector.unlink();
+            if (this._entities) {
+                this._attributesInspector.unlink();
+                this._evts.forEach(e => e.unbind());
+                this._evts = [];
+            }
         }
     }
 

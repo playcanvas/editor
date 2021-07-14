@@ -66,7 +66,7 @@ Object.assign(pcui, (function () {
             min: 0
         }
     }, {
-        label: 'Override AABB',
+        label: 'Custom AABB',
         alias: 'components.render.customAabb',
         type: 'boolean',
         reference: 'render:customAabb',
@@ -418,9 +418,15 @@ Object.assign(pcui, (function () {
             this._suppressAssetChange = true;
             this._suppressCustomAabb = true;
 
+            const customAabbs = this._entities.map(e => e.has('components.render.aabbCenter'));
+            this._field('customAabb').values = customAabbs;
+
             this._attributesInspector.link(entities);
 
-            this._refreshCustomAabb();
+            entities.forEach(e => {
+                this._entityEvents.push(e.on('components.render.aabbCenter:set', this._refreshCustomAabb.bind(this)));
+                this._entityEvents.push(e.on('components.render.aabbCenter:unset', this._refreshCustomAabb.bind(this)));
+            });
 
             this._suppressAssetChange = false;
             this._suppressToggleFields = false;

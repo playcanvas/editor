@@ -47,7 +47,7 @@ editor.once('load', function () {
     editor.call('hotkey:register', 'picker:confirm:no', {
         key: 'esc',
         callback: function () {
-            if (overlay.hidden)
+            if (overlay.hidden || !overlay.clickable)
                 return;
 
             // do this in a timeout so that other Esc listeners
@@ -113,6 +113,8 @@ editor.once('load', function () {
             btnNo.text = 'No';
         }
         btnNo.hidden = !btnNo.text;
+
+        overlay.clickable = !options.noDismiss;
 
         // show overlay
         overlay.hidden = false;

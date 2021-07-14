@@ -64,6 +64,14 @@ editor.once('load', function () {
                 if (! entity.has('components.light.shadowType'))
                     entity.set('components.light.shadowType', 0);
 
+                // numCascades
+                if (! entity.has('components.light.numCascades'))
+                    entity.set('components.light.numCascades', 1);
+
+                // cascadeDistribution
+                if (! entity.has('components.light.cascadeDistribution'))
+                    entity.set('components.light.cascadeDistribution', 0.5);
+
                 // vsmBlurMode
                 if (! entity.has('components.light.vsmBlurMode'))
                     entity.set('components.light.vsmBlurMode', 0);

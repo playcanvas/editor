@@ -170,6 +170,8 @@ Object.assign(pcui, (function () {
                     this._entities[0].set('components.anim.animationAssets', {});
                     this._entities[0].history.enabled = prevHistoryEnabled;
                 }
+            } else {
+                this._clearAnimationSlots();
             }
             this._entities[0].on('components.anim.stateGraphAsset:set', () => {
                 this._stateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
