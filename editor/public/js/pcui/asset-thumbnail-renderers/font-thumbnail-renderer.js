@@ -192,9 +192,9 @@ Object.assign(pcui, (function () {
 
             // calculate scene.uvs
             const x1 = (charData.x + ox * charData.scale) / font.data.info.maps[map].width;
-            const y1 = 1 - (charData.y + charData.height - oy * charData.scale) / font.data.info.maps[map].height;
+            const y1 = (charData.y + charData.height - oy * charData.scale) / font.data.info.maps[map].height;
             const x2 = (charData.x + (ox + charData.xadvance) * charData.scale) / font.data.info.maps[map].width;
-            const y2 = 1 - (charData.y + oy * charData.scale) / font.data.info.maps[map].height;
+            const y2 = (charData.y + oy * charData.scale) / font.data.info.maps[map].height;
 
             scene.uvs.push(x1, y1);
             scene.uvs.push(x2, y1);
