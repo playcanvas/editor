@@ -84,8 +84,10 @@ Object.assign(pcui, (function () {
          *
          * @param {Observer[]} assets - The texture assets
          * @param {string[]} formats - The compression formats
+         * @param {boolean} force - Force recompression. If false then the method will
+         * check if recompression is needed first.
          */
-        static compress(assets, formats) {
+        static compress(assets, formats, force) {
             for (let i = 0; i < assets.length; i++) {
                 if (!assets[i].get('file'))
                     continue;
@@ -94,7 +96,7 @@ Object.assign(pcui, (function () {
                 const toDelete = [];
 
                 for (const format of formats) {
-                    if (format !== 'original' && this.checkCompressRequired(assets[i], format)) {
+                    if (format !== 'original' && (force || this.checkCompressRequired(assets[i], format))) {
                         let compress = assets[i].get('meta.compress.' + format);
 
                         // FIXME: why don't we allow a texture flagged as rgbm be compressed?
