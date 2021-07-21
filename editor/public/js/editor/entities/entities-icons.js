@@ -263,7 +263,6 @@ void main(void)
     vec4 positionW = modelMatrix * vec4(vertex_position, 1.0);
     gl_Position = matrix_viewProjection * positionW;
     vUv0 = vertex_position.xz + vec2(0.5);
-    vUv0.y = 1.0 - vUv0.y;
 }
                     `.trim();
                 const fshader = `
