@@ -2,81 +2,111 @@ Object.assign(pcui, (function () {
     'use strict';
 
     class TextureCompressor {
-        // get the asset alpha flag
-        static getAssetAlpha(asset) {
-            return asset.get('meta.compress.alpha') && (asset.get('meta.alpha') || ((asset.get('meta.type') || '').toLowerCase() === 'truecoloralpha'));
-        }
-
         // returns true if the dimensions are power of two and false otherwise.
         static isPOT(width, height) {
             return ((width & (width - 1)) === 0) && ((height & (height - 1)) === 0);
         }
 
-        // this function checks whether a variant of a texture is dirty compared to user
-        // controlled settings.
-        static checkCompressRequired(asset, format) {
-            if (!asset.get('file'))
-                return false;
+        // returns true if the texture has an alpha channel
+        static hasAlpha(asset) {
+            return asset.get('meta.alpha') || ((asset.get('meta.type') || '').toLowerCase() === 'truecoloralpha');
+        }
 
-            // check width, height and POT
+        // get the asset alpha flag
+        static getAssetAlpha(asset) {
+            return this.hasAlpha(asset) && asset.get('meta.compress.alpha');
+        }
+
+        // determine whether the image may be compressed to the supplied format
+        // given platform and compression format restrictions
+        static isCompressAllowed(asset, format) {
+            // only allow POT textures to be compressed due to WebGL1 restrictions (for now)
             const width = asset.get('meta.width');
             const height = asset.get('meta.height');
             if (!width || !height || !this.isPOT(width, height)) {
                 return false;
             }
 
-            const data = asset.get('file.variants.' + format);
+            // etc1 can't store alpha
+            const alpha = this.getAssetAlpha(asset);
+            if (format === 'etc1' && alpha) {
+                return false;
+            }
+
+            // FIXME: for some reason we disallow rgbm to be compressed
             const rgbm = asset.get('data.rgbm');
-            const alpha = this.getAssetAlpha(asset) || rgbm;
-            const normals = !!asset.get('meta.compress.normals');
-            const compress = asset.get('meta.compress.' + format);
-            const mipmaps = asset.get('data.mipmaps');
-            const compressionMode = asset.get('meta.compress.compressionMode');
-            const quality = asset.get('meta.compress.quality');
+            if (rgbm) {
+                return false;
+            }
 
-            if (!!data !== compress) {
-                if (format === 'etc1' && alpha)
-                    return false;
+            return true;
+        }
 
-                if (rgbm && !data)
-                    return false;
+        // check whether a variant of a texture asset is dirty compared to the current user selection
+        // (and so requires recompression)
+        static checkRecompressRequired(asset, format) {
+            // get the existing variant structure
+            const variant = asset.get('file.variants.' + format);
 
-                return true;
-            } else if (format !== 'basis' && data && ((((data.opt & 1) !== 0) != alpha))) {
+            // extract flags of the variant in question
+            const variantHasAlpha = !!(variant.opt & 1);
+            const variantHasMipmaps =  !(variant.opt & 4);  // NOTE: mipmap flag indicates NO mipmaps
+            const variantHasNormals = !!(variant.opt & 8);
+            const variantHasPVR4Bpp = !!(variant.opt & 128);
+
+            // check mipmaps dirty
+            if (variantHasMipmaps !== asset.get('data.mipmaps')) {
                 return true;
             }
 
-            if (data && format === 'pvr') {
-                const bpp = asset.get('meta.compress.pvrBpp');
-                if (data && ((data.opt & 128) !== 0 ? 4 : 2) !== bpp)
+            if (format === 'basis') {
+                // normals dirty
+                if (variantHasNormals !== asset.get('meta.compress.normals')) {
                     return true;
-            } else if (format === 'etc1') {
-                if (data && alpha)
+                }
+
+                // quality dirty
+                if (variant.quality !== asset.get('meta.compress.quality')) {
                     return true;
+                }
 
-                if (!data && alpha)
-                    return false;
-            }
+                // compression mode dirty
+                if (variant.compressionMode !== asset.get('meta.compress.compressionMode')) {
+                    return true;
+                }
+            } else {
+                // alpha dirty
+                if (variantHasAlpha !== this.getAssetAlpha(asset)) {
+                    return true;
+                }
 
-            if (data && ((data.opt & 4) !== 0) !== !mipmaps)
-                return true;
-
-            if (format === 'basis' && data) {
-                if ((!!(data.opt & 8) !== normals) ||
-                    (data.quality === undefined) || (data.quality !== quality) ||
-                    (data.compressionMode === undefined) || (data.compressionMode !== compressionMode)) {
+                // pvr bpp dirty
+                if (format === 'pvr' && ((variantHasPVR4Bpp ? 4 : 2) !== asset.get('meta.compress.pvrBpp'))) {
                     return true;
                 }
             }
 
-            if (editor.call('users:hasFlag', 'hasRecompressFlippedTextures')) {
-                if (asset.has(`file.variants.${format}`) && !asset.get(`file.variants.${format}.noFlip`)) {
-                    return true;
-                }
+            // check whether the compressed texture requires flipY due to https://github.com/playcanvas/engine/pull/3335
+            if (editor.call('users:hasFlag', 'hasRecompressFlippedTextures') &&
+                asset.has(`file.variants.${format}`) &&
+                !asset.get(`file.variants.${format}.noFlip`)) {
+                return true;
             }
-
 
             return false;
+        }
+
+        // determine the type of processing required for the asset: returns either 'none', 'delete' or 'compress'
+        static determineRequiredProcessing(asset, format, force) {
+            const variantRequested = asset.get('meta.compress.' + format) &&
+                                     this.isCompressAllowed(asset, format);
+            const variantExists = !!asset.get('file.variants.' + format);
+
+            if (variantRequested !== variantExists) {
+                return variantRequested ? 'compress' : 'delete';
+            }
+
+            return (variantExists && (force || this.checkRecompressRequired(asset, format))) ? 'compress' : 'none';
         }
 
         /**
@@ -89,28 +119,25 @@ Object.assign(pcui, (function () {
          */
         static compress(assets, formats, force) {
             for (let i = 0; i < assets.length; i++) {
-                if (!assets[i].get('file'))
+                const asset = assets[i];
+
+                if (!asset.get('file'))
                     continue;
 
                 const variants = [];
                 const toDelete = [];
 
                 for (const format of formats) {
-                    if (format !== 'original' && (force || this.checkCompressRequired(assets[i], format))) {
-                        let compress = assets[i].get('meta.compress.' + format);
-
-                        // FIXME: why don't we allow a texture flagged as rgbm be compressed?
-                        if (assets[i].get('data.rgbm'))
-                            compress = false;
-
-                        if (compress && format === 'etc1' && this.getAssetAlpha(assets[i])) {
-                            compress = false;
-                        }
-
-                        if (compress) {
-                            variants.push(format);
-                        } else {
-                            toDelete.push(format);
+                    if (format !== 'original') {
+                        switch (this.determineRequiredProcessing(asset, format, force)) {
+                            case 'compress':
+                                variants.push(format);
+                                break;
+                            case 'delete':
+                                toDelete.push(format);
+                                break;
+                            default:
+                                break;
                         }
                     }
                 }
@@ -119,7 +146,7 @@ Object.assign(pcui, (function () {
                     editor.call('realtime:send', 'pipeline', {
                         name: 'delete-variant',
                         data: {
-                            asset: parseInt(assets[i].get('uniqueId'), 10),
+                            asset: parseInt(asset.get('uniqueId'), 10),
                             options: {
                                 formats: toDelete
                             }
@@ -129,25 +156,25 @@ Object.assign(pcui, (function () {
 
                 if (variants.length) {
                     const task = {
-                        asset: parseInt(assets[i].get('uniqueId'), 10),
+                        asset: parseInt(asset.get('uniqueId'), 10),
                         options: {
                             formats: variants,
-                            alpha: this.getAssetAlpha(assets[i]),
-                            mipmaps: assets[i].get('data.mipmaps'),
-                            normals: !!assets[i].get('meta.compress.normals'),
+                            alpha: this.getAssetAlpha(asset),
+                            mipmaps: asset.get('data.mipmaps'),
+                            normals: !!asset.get('meta.compress.normals'),
                             noFlip: editor.call('users:hasFlag', 'hasRecompressFlippedTextures')
                         }
                     };
 
                     if (variants.indexOf('pvr') !== -1)
-                        task.options.pvrBpp = assets[i].get('meta.compress.pvrBpp');
+                        task.options.pvrBpp = asset.get('meta.compress.pvrBpp');
 
                     if (variants.indexOf('basis') !== -1) {
-                        task.options.compressionMode = assets[i].get('meta.compress.compressionMode');
-                        task.options.quality = assets[i].get('meta.compress.quality');
+                        task.options.compressionMode = asset.get('meta.compress.compressionMode');
+                        task.options.quality = asset.get('meta.compress.quality');
                     }
 
-                    const sourceId = assets[i].get('source_asset_id');
+                    const sourceId = asset.get('source_asset_id');
                     if (sourceId) {
                         const sourceAsset = editor.call('assets:get', sourceId);
                         if (sourceAsset)

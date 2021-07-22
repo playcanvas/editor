@@ -619,37 +619,6 @@ Object.assign(pcui, (function () {
             }, 0);
         }
 
-        // enable/disable alpha compression field
-        _checkCompressAlpha() {
-            if (!this._compressionLegacyAttributesInspector) return;
-
-            const compressAlphaField = this._compressionLegacyAttributesInspector.getField('meta.compress.alpha');
-            if (!compressAlphaField) return;
-
-            const assets = this._assets;
-            if (!Array.isArray(assets) || !assets.length) {
-                compressAlphaField.disabled = true;
-                return;
-            };
-
-            let state = false;
-            let different = false;
-            for (let i = 0; i < assets.length; i++) {
-                const alpha = assets[i].get('meta.alpha') || false;
-                const trueColorAlpha = (assets[i].get('meta.type') || '').toLowerCase() === 'truecoloralpha';
-                const rgbm = assets[i].get('data.rgbm');
-
-                if (i === 0) {
-                    state = (alpha || trueColorAlpha) && !rgbm;
-                } else if (state !== ((alpha || trueColorAlpha) && !rgbm)) {
-                    different = true;
-                    break;
-                }
-            }
-
-            compressAlphaField.disabled = !different && !state;
-        };
-
         _checkCompression() {
             const assets = this._assets;
             if (!editor.call('permissions:write') || !Array.isArray(assets) || !assets.length) {
@@ -668,7 +637,7 @@ Object.assign(pcui, (function () {
                     if (key === 'original')
                         continue;
 
-                    if (pcui.TextureCompressor.checkCompressRequired(assets[i], key)) {
+                    if (pcui.TextureCompressor.determineRequiredProcessing(assets[i], key, false) !== 'none') {
                         if (key === 'basis') {
                             differentBasis = true;
                         } else {
@@ -689,91 +658,60 @@ Object.assign(pcui, (function () {
         _checkFormats() {
             const assets = this._assets;
             const writeAccess = editor.call('permissions:write');
-            const fieldDxt = this._compressionLegacyAttributesInspector.getField(`meta.compress.dxt`);
-            const fieldEtc1 = this._compressionLegacyAttributesInspector.getField(`meta.compress.etc1`);
-            const fieldOriginal = this._compressionLegacyAttributesInspector.getField(`compress.original`);
-            const fieldPvr = this._compressionLegacyAttributesInspector.getField(`meta.compress.pvr`);
-            const fieldPvrBpp = this._compressionLegacyAttributesInspector.getField(`meta.compress.pvrBpp`);
 
-            let width = -1;
-            let height = -1;
-            let rgbm = -1;
-            let alpha = -1;
-            let alphaValid = -1;
+            let hasAlpha = -1;
+            let selectedAlpha = false;
             let displayExt = '';
             let showBasisPvrWarning = false;
-            let basisSelected = false;
-            let hasLegacy = false;
+
+            const compressionFormats = ['dxt', 'pvr', 'etc1', 'etc2', 'basis'];
+            const allowed = {};
+            const selected = {};
 
             for (let i = 0; i < assets.length; i++) {
-                if (assets[i].has('meta.width')) {
-                    if (width === -1) {
-                        width = assets[i].get('meta.width');
-                        height = assets[i].get('meta.height');
-                    } else if (width !== assets[i].get('meta.width') || height !== assets[i].get('meta.height')) {
-                        width = -2;
-                        height = -2;
-                    }
-                }
+                const asset = assets[i];
 
-                if (!assets[i].get('file'))
+                if (!asset.get('file'))
                     continue;
 
-                if (rgbm === -1) {
-                    rgbm = assets[i].get('data.rgbm') ? 1 : 0;
-                } else if (rgbm !== -2) {
-                    if (rgbm !== (assets[i].get('data.rgbm') ? 1 : 0))
-                        rgbm = -2;
+                const hasAlphaTmp = pcui.TextureCompressor.hasAlpha(asset) ? 1 : 0;
+                if (hasAlpha === -1) {
+                    hasAlpha = hasAlphaTmp;
+                } else if (hasAlpha !== -2) {
+                    if (hasAlpha !== hasAlphaTmp)
+                    hasAlpha = -2;
                 }
 
-                if (alpha === -1) {
-                    alpha = assets[i].get('meta.compress.alpha') ? 1 : 0;
-                } else if (alpha !== -2) {
-                    if (alpha !== (assets[i].get('meta.compress.alpha') ? 1 : 0))
-                        alpha = -2;
-                }
-
-                const alphaValidTmp = (assets[i].get('meta.alpha') || (assets[i].get('meta.type') || '').toLowerCase() === 'truecoloralpha') ? 1 : 0;
-                if (alphaValid === -1) {
-                    alphaValid = alphaValidTmp;
-                } else if (alphaValid !== -2) {
-                    if (alphaValid !== alphaValidTmp)
-                        alphaValid = -2;
-                }
-
-                let ext = assets[i].get('file.url');
-                ext = ext.slice(ext.lastIndexOf('.') + 1).toUpperCase();
-                ext = ext.split('?')[0];
+                selectedAlpha ||= asset.get('meta.compress.alpha');
 
                 if (displayExt !== 'various') {
+                    let ext = asset.get('file.url');
+                    ext = ext.slice(ext.lastIndexOf('.') + 1).toUpperCase();
+                    ext = ext.split('?')[0];
                     displayExt = displayExt && displayExt !== ext ? 'various' : ext;
                 }
 
-                if (!hasLegacy) {
-                    for (let j = 0; j < LEGACY_COMPRESSION_PARAMS.length; j++) {
-                        hasLegacy = assets[i].get(`meta.compress.${LEGACY_COMPRESSION_PARAMS[j]}`);
-                        if (hasLegacy) break;
-                    }
-                }
-
-                const thisBasis = assets[i].get('meta.compress.basis');
-                basisSelected = basisSelected || thisBasis;
+                // update allowed and selected flags
+                compressionFormats.forEach((format) => {
+                    allowed[format] = allowed[format] || pcui.TextureCompressor.isCompressAllowed(asset, format);
+                    selected[format] = selected[format] || asset.get(`meta.compress.${format}`);
+                });
 
                 // PVR format only supports square power-of-two textures. If basis is selected then
                 // we display a warning
                 // NOTE: ideally the basis transcoder would optionally resize the compressed image to
                 // be square POT, but this isn't currently possible.
-                if (!showBasisPvrWarning) {
-                    const thisWidth = assets[i].get('meta.width');
-                    const thisHeight = assets[i].get('meta.height');
-                    showBasisPvrWarning = thisBasis && (!pcui.TextureCompressor.isPOT(thisWidth, thisHeight) || thisWidth !== thisHeight);
+                if (!showBasisPvrWarning && asset.get('meta.compress.basis')) {
+                    const thisWidth = asset.get('meta.width');
+                    const thisHeight = asset.get('meta.height');
+                    showBasisPvrWarning = (!pcui.TextureCompressor.isPOT(thisWidth, thisHeight) || thisWidth !== thisHeight);
                 }
             }
 
-            this._hasLegacy = hasLegacy;
+            this._hasLegacy = selected.dxt || selected.pvr || selected.etc1 || selected.etc2 || false;
 
             // enable/disable basis controls based on whether basis is enabled
-            const basisUiDisabled = !writeAccess || !basisSelected;
+            const basisUiDisabled = !writeAccess || !selected.basis;
             if (this._compressionBasisAttributesInspector) {
                 this._compressionBasisAttributesInspector.getField('meta.compress.normals').disabled = basisUiDisabled;
                 this._compressionBasisAttributesInspector.getField('meta.compress.compressionMode').disabled = basisUiDisabled;
@@ -788,25 +726,23 @@ Object.assign(pcui, (function () {
                 this._compressionBasisPvrWarning.hidden = !showBasisPvrWarning;
             }
 
+            // update enable state of compression format selector
+            // we enable the compression option if any one of the selected textures are allowed
+            // to be compressed
+            const alphaField = this._compressionLegacyAttributesInspector.getField('meta.compress.alpha');
+            const fieldOriginal = this._compressionLegacyAttributesInspector.getField(`compress.original`);
+            const fieldDxt = this._compressionLegacyAttributesInspector.getField(`meta.compress.dxt`);
+            const fieldPvr = this._compressionLegacyAttributesInspector.getField(`meta.compress.pvr`);
+            const fieldPvrBpp = this._compressionLegacyAttributesInspector.getField(`meta.compress.pvrBpp`);
+            const fieldEtc1 = this._compressionLegacyAttributesInspector.getField(`meta.compress.etc1`);
+            const fieldEtc2 = this._compressionLegacyAttributesInspector.getField(`meta.compress.etc2`);
+
+            alphaField.disabled = (hasAlpha === 0) && !selectedAlpha;
             fieldOriginal.value = displayExt;
-
-            if (rgbm !== 1) {
-                if (width > 0 && height > 0) {
-                    // size available
-                    fieldDxt.disable = !pcui.TextureCompressor.isPOT(width, height);
-                } else if (width === -1) {
-                    // no size available
-                    fieldDxt.disabled = true;
-                } else if (width === -2) {
-                    // various sizes
-                    fieldDxt.disabled = false;
-                }
-            } else {
-                fieldDxt.disabled = true;
-            }
-
-            fieldPvr.disabled = fieldPvrBpp.disabled = rgbm !== -2 && (fieldDxt.disabled || rgbm === 1);
-            fieldEtc1.disabled = fieldPvr.disabled || (alpha === 1 && alphaValid !== 0);
+            fieldDxt.disabled = !allowed.dxt && !selected.dxt;
+            fieldPvr.disabled = fieldPvrBpp.disabled = !allowed.pvr && !selected.pvr;
+            fieldEtc1.disabled = !allowed.etc1 && !selected.etc1;
+            fieldEtc2.disabled = !allowed.etc2 && !selected.etc2;
 
             this._updatePvrWarning();
         }
@@ -825,7 +761,6 @@ Object.assign(pcui, (function () {
                 this._compressionChangeTicking = false;
                 this._checkFormats();
                 this._checkCompression();
-                this._checkCompressAlpha();
                 this._updateLegacy();
             }, 0);
         };
@@ -1158,7 +1093,6 @@ Object.assign(pcui, (function () {
             }
             this._checkFormats();
             this._checkCompression();
-            this._checkCompressAlpha();
             this._updateWebGl1PowerOfTwoWarnings();
 
             // needs to be called after this._checkFormats to determine this._hasLegacy
@@ -1180,9 +1114,8 @@ Object.assign(pcui, (function () {
                     // this should probably eventually be moved to the pipline job
                     if (asset.get('meta') && !asset.has('meta.compress')) {
                         setTimeout(() => {
-                            const alpha = asset.get('meta.alpha') || (asset.get('meta.type').toLowerCase() || '') === 'truecoloralpha' || false;
                             asset.set('meta.compress', {
-                                alpha: alpha,
+                                alpha: pcui.TextureCompressor.hasAlpha(asset),
                                 normals: false,
                                 dxt: false,
                                 pvr: false,
