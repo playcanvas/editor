@@ -682,7 +682,7 @@ Object.assign(pcui, (function () {
                     hasAlpha = -2;
                 }
 
-                selectedAlpha ||= asset.get('meta.compress.alpha');
+                selectedAlpha = selectedAlpha || asset.get('meta.compress.alpha');
 
                 if (displayExt !== 'various') {
                     let ext = asset.get('file.url');
