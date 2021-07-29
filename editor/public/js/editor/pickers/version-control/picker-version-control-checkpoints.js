@@ -100,6 +100,13 @@ editor.once('load', function () {
     });
     menuCheckpoints.append(menuCheckpointsViewChanges);
 
+    // branch from checkpoint
+    var menuCheckpointsBranch = new ui.MenuItem({
+        text: 'New Branch',
+        value: 'new-branch'
+    });
+    menuCheckpoints.append(menuCheckpointsBranch);
+
     // restore checkpoint
     var menuCheckpointsRestore = new ui.MenuItem({
         text: 'Restore',
@@ -107,12 +114,12 @@ editor.once('load', function () {
     });
     menuCheckpoints.append(menuCheckpointsRestore);
 
-    // branch from checkpoint
-    var menuCheckpointsBranch = new ui.MenuItem({
-        text: 'New Branch',
-        value: 'new-branch'
+    // hard reset to checkpoint
+    var menuCheckpointsHardReset = new ui.MenuItem({
+        text: 'Hard Reset',
+        value: 'hard-reset-checkpoint'
     });
-    menuCheckpoints.append(menuCheckpointsBranch);
+    menuCheckpoints.append(menuCheckpointsHardReset);
 
     editor.call('layout.root').append(menuCheckpoints);
 
@@ -480,6 +487,11 @@ editor.once('load', function () {
         panel.emit('checkpoint:restore', currentCheckpoint);
     });
 
+    // hard reset checkpoint
+    menuCheckpointsHardReset.on('select', function () {
+        panel.emit('checkpoint:hardReset', currentCheckpoint);
+    });
+
     // branch from checkpoint
     menuCheckpointsBranch.on('select', function () {
         panel.emit('checkpoint:branch', currentCheckpoint);
@@ -515,6 +527,7 @@ editor.once('load', function () {
         // filter menu options
         if (open) {
             menuCheckpointsRestore.hidden = panel.branch.id !== config.self.branch.id || ! editor.call('permissions:write');
+            menuCheckpointsHardReset.hidden = menuCheckpointsRestore.hidden;
             menuCheckpointsBranch.hidden = ! editor.call('permissions:write');
 
             // Don't show view changes if this is the last checkpoint in the list

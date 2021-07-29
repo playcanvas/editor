@@ -42,6 +42,17 @@ editor.once('load', function () {
         }, callback);
     });
 
+    editor.method('checkpoints:hardReset', function (id, destinationBranchId, callback) {
+        return request({
+            url: '{{url.api}}/checkpoints/' + id + '/hardreset',
+            auth: true,
+            method: 'POST',
+            data: {
+                branchId: destinationBranchId
+            }
+        }, callback);
+    });
+
     editor.method('checkpoints:list', function (args, callback) {
         var url = '{{url.api}}/branches/' + args.branch + '/checkpoints';
         var separator = '?';

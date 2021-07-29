@@ -132,6 +132,11 @@ editor.once('load', function () {
         panelRestoreCheckpoint.setCheckpoint(checkpoint);
     });
 
+    panelCheckpoints.on('checkpoint:hardReset', function (checkpoint) {
+        showRightSidePanel(panelHardResetCheckpoint);
+        panelHardResetCheckpoint.setCheckpoint(checkpoint);
+    });
+
     panelCheckpoints.on('checkpoint:branch', function (checkpoint) {
         showRightSidePanel(panelCreateBranch);
         panelCreateBranch.setSourceBranch(panelCheckpoints.branch);
@@ -421,7 +426,37 @@ editor.once('load', function () {
         } else {
             restore();
         }
+    });
 
+    var panelHardResetCheckpoint = editor.call('picker:versioncontrol:widget:hardResetCheckpoint');
+    panelHardResetCheckpoint.hidden = true;
+    panelRight.append(panelHardResetCheckpoint);
+
+    // hard reset progress
+    var panelHardResetCheckpointProgress = editor.call('picker:versioncontrol:createProgressWidget', {
+        progressText: 'Performing hard reset to checkpoint',
+        finishText: 'Finished - refreshing the browser',
+        errorText: 'Failed to hard reset to checkpoint'
+    });
+    panelHardResetCheckpointProgress.hidden = true;
+    panelRight.append(panelHardResetCheckpointProgress);
+
+    panelHardResetCheckpoint.on('cancel', function () {
+        showCheckpoints();
+    });
+
+    panelHardResetCheckpoint.on('confirm', function () {
+        togglePanels(false);
+
+        showRightSidePanel(panelHardResetCheckpointProgress);
+        editor.call('checkpoints:hardReset', panelHardResetCheckpoint.checkpoint.id, config.self.branch.id, function (err, data) {
+            panelHardResetCheckpointProgress.finish(err);
+            if (err) {
+                togglePanels(true);
+            } else {
+                refreshBrowser();
+            }
+        });
     });
 
     // switch branch progress
