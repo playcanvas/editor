@@ -100,12 +100,26 @@ editor.once('load', function () {
     });
     menuCheckpoints.append(menuCheckpointsViewChanges);
 
+    Tooltip.attach({
+        target: menuCheckpointsViewChanges.element,
+        text: 'View changes between this checkpoint and the previous checkpoint.',
+        align: 'right',
+        root: editor.call('layout.root')
+    });
+
     // branch from checkpoint
     var menuCheckpointsBranch = new ui.MenuItem({
         text: 'New Branch',
         value: 'new-branch'
     });
     menuCheckpoints.append(menuCheckpointsBranch);
+
+    Tooltip.attach({
+        target: menuCheckpointsBranch.element,
+        text: 'Create a new branch from this checkpoint.',
+        align: 'right',
+        root: editor.call('layout.root')
+    });
 
     // restore checkpoint
     var menuCheckpointsRestore = new ui.MenuItem({
@@ -114,12 +128,26 @@ editor.once('load', function () {
     });
     menuCheckpoints.append(menuCheckpointsRestore);
 
+    Tooltip.attach({
+        target: menuCheckpointsRestore.element,
+        text: 'Change the current state of project to be the same as this checkpoint.',
+        align: 'right',
+        root: editor.call('layout.root')
+    });
+
     // hard reset to checkpoint
     var menuCheckpointsHardReset = new ui.MenuItem({
         text: 'Hard Reset',
         value: 'hard-reset-checkpoint'
     });
     menuCheckpoints.append(menuCheckpointsHardReset);
+
+    Tooltip.attach({
+        target: menuCheckpointsHardReset.element,
+        text: 'Deletes all checkpoints after this checkpoint. Useful if you want to undo a merge.',
+        align: 'right',
+        root: editor.call('layout.root')
+    });
 
     editor.call('layout.root').append(menuCheckpoints);
 
