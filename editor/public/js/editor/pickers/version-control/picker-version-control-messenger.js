@@ -23,6 +23,16 @@ editor.once('load', function () {
         icon: editor.call('picker:versioncontrol:svg:completed', 50)
     });
 
+    var overlayHardResetInProgress = editor.call('picker:versioncontrol:createOverlay', {
+        message: 'Please wait while hard reset to checkpoint is in progress.',
+        icon: editor.call('picker:versioncontrol:svg:completed', 50)
+    });
+
+    var overlayHardResetDone = editor.call('picker:versioncontrol:createOverlay', {
+        message: 'Refreshing browser window...',
+        icon: editor.call('picker:versioncontrol:svg:completed', 50)
+    });
+
     var overlayBranchClosed = editor.call('picker:versioncontrol:createOverlay', {
         title: 'This branch has been closed.',
         message: 'Switching to master branch...',
@@ -130,6 +140,27 @@ editor.once('load', function () {
         } else {
             // hide the overlay
             overlayRestoringCheckpoint.hidden = true;
+        }
+    });
+
+    // show overlay when hard reset starts
+    editor.on('messenger:checkpoint.hardResetStarted', function (data) {
+        if (data.branch_id !== config.self.branch.id) return;
+        overlayHardResetInProgress.setTitle(truncateFullName(data.user_full_name) + ' is hard resetting to checkpoint ' + data.checkpoint_id.substring(0, 7));
+        overlayHardResetInProgress.hidden = false;
+    });
+
+    // show overlay when hard reset finishes
+    editor.on('messenger:checkpoint.hardResetEnded', function (data) {
+        if (data.branch_id !== config.self.branch.id) return;
+        if (data.status === 'success') {
+            overlayHardResetInProgress.hidden = true;
+            overlayHardResetDone.setTitle(truncateFullName(data.user_full_name) + ' performed hard reset to checkpoint ' + data.checkpoint_id.substring(0, 7));
+            overlayHardResetDone.hidden = false;
+            refresh();
+        } else {
+            // hide the overlay
+            overlayHardResetInProgress.hidden = true;
         }
     });
 

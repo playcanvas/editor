@@ -100,12 +100,12 @@ editor.once('load', function () {
     });
     menuCheckpoints.append(menuCheckpointsViewChanges);
 
-    // restore checkpoint
-    var menuCheckpointsRestore = new ui.MenuItem({
-        text: 'Restore',
-        value: 'restore-checkpoint'
+    Tooltip.attach({
+        target: menuCheckpointsViewChanges.element,
+        text: 'View changes between this checkpoint and the previous checkpoint.',
+        align: 'right',
+        root: editor.call('layout.root')
     });
-    menuCheckpoints.append(menuCheckpointsRestore);
 
     // branch from checkpoint
     var menuCheckpointsBranch = new ui.MenuItem({
@@ -113,6 +113,41 @@ editor.once('load', function () {
         value: 'new-branch'
     });
     menuCheckpoints.append(menuCheckpointsBranch);
+
+    Tooltip.attach({
+        target: menuCheckpointsBranch.element,
+        text: 'Create a new branch from this checkpoint.',
+        align: 'right',
+        root: editor.call('layout.root')
+    });
+
+    // restore checkpoint
+    var menuCheckpointsRestore = new ui.MenuItem({
+        text: 'Restore',
+        value: 'restore-checkpoint'
+    });
+    menuCheckpoints.append(menuCheckpointsRestore);
+
+    Tooltip.attach({
+        target: menuCheckpointsRestore.element,
+        text: 'Change the current state of project to be the same as this checkpoint.',
+        align: 'right',
+        root: editor.call('layout.root')
+    });
+
+    // hard reset to checkpoint
+    var menuCheckpointsHardReset = new ui.MenuItem({
+        text: 'Hard Reset',
+        value: 'hard-reset-checkpoint'
+    });
+    menuCheckpoints.append(menuCheckpointsHardReset);
+
+    Tooltip.attach({
+        target: menuCheckpointsHardReset.element,
+        text: 'Deletes all checkpoints after this checkpoint. Useful if you want to undo a merge.',
+        align: 'right',
+        root: editor.call('layout.root')
+    });
 
     editor.call('layout.root').append(menuCheckpoints);
 
@@ -480,6 +515,11 @@ editor.once('load', function () {
         panel.emit('checkpoint:restore', currentCheckpoint);
     });
 
+    // hard reset checkpoint
+    menuCheckpointsHardReset.on('select', function () {
+        panel.emit('checkpoint:hardReset', currentCheckpoint);
+    });
+
     // branch from checkpoint
     menuCheckpointsBranch.on('select', function () {
         panel.emit('checkpoint:branch', currentCheckpoint);
@@ -515,6 +555,7 @@ editor.once('load', function () {
         // filter menu options
         if (open) {
             menuCheckpointsRestore.hidden = panel.branch.id !== config.self.branch.id || ! editor.call('permissions:write');
+            menuCheckpointsHardReset.hidden = menuCheckpointsRestore.hidden;
             menuCheckpointsBranch.hidden = ! editor.call('permissions:write');
 
             // Don't show view changes if this is the last checkpoint in the list

@@ -7806,7 +7806,7 @@ strong {
                             }
                         }
 
-                        &.close-branch {
+                        &.close-branch, &.hard-reset-checkpoint {
                             .ui-panel.main {
                                 > .content {
                                     flex-direction: column;
