@@ -158,7 +158,7 @@ Object.assign(pcui, (function () {
                 undo
             });
             redo();
-
+            this.collapsed = false;
         }
 
         _deleteLayer(layerId) {
