@@ -25,7 +25,7 @@ Object.assign(pcui, (function () {
 
     const ATTRIBUTES = [{
         label: 'Type',
-        alias: 'components.element.type',
+        path: 'components.element.type',
         type: 'select',
         args: {
             type: 'string',
@@ -616,6 +616,7 @@ Object.assign(pcui, (function () {
             this._field('text').input.setAttribute('dir', 'auto');
 
             [
+                'type',
                 'localized',
                 'key',
                 'autoWidth',
@@ -635,7 +636,6 @@ Object.assign(pcui, (function () {
             this._field('localized').on('change', this._onFieldLocalizedChange.bind(this));
             this._field('anchor').on('change', this._onFieldAnchorChange.bind(this));
             this._field('pivot').on('change', this._onFieldPivotChange.bind(this));
-            this._field('type').on('change', this._onFieldTypeChange.bind(this));
             this._field('preset').on('change', this._onFieldPresetChange.bind(this));
             this._field('fontAsset').on('change', this._onFieldFontAssetChange.bind(this));
 
@@ -687,23 +687,6 @@ Object.assign(pcui, (function () {
         _field(name) {
             return this._attributesInspector.getField(`components.element.${name}`);
         }
-
-        _updateAssetFields(type) {
-            const font = this._field('fontAsset');
-            const texture = this._field('textureAsset');
-            const sprite = this._field('spriteAsset');
-            const material = this._field('materialAsset');
-            if (['image', 'group'].includes(type) && font.value) {
-                font.value = null;
-            } else if (['text', 'group'] && texture.value) {
-                texture.value = null;
-            } else if (['text', 'group'] && sprite.value) {
-                sprite.value = null;
-            } else if (['text', 'group'] && material.value) {
-                material.value = null;
-            }
-        }
-
 
         _toggleFields() {
             if (this._suppressToggleFields) return;
@@ -770,61 +753,6 @@ Object.assign(pcui, (function () {
 
             margins[1].disabled = !verticalSplit;
             margins[3].disabled = margins[1].disabled;
-        }
-
-        _onFieldTypeChange(value) {
-            if (!value || this._suppressTypeEvents) return;
-
-            if (!this._entities) return;
-
-            // copy current entities for undo / redo
-            const entities = this._entities.slice();
-
-            let prevValues = this._entities.map(entity => entity.get('components.element.type'));
-
-            const undo = () => {
-                for (let i = 0; i < entities.length; i++) {
-                    const entity = entities[i].latest();
-                    if (!entity || !entity.has('components.element')) continue;
-
-                    const history = entity.history.enabled;
-                    entity.history.enabled = false;
-                    entity.set('components.element.type', prevValues[i]);
-                    this._suppressTypeEvents = true;
-                    this._updateType();
-                    this._suppressTypeEvents = false;
-                    this._updateAssetFields(prevValues[i]);
-                    this._toggleFields();
-                    entity.history.enabled = history;
-                }
-            };
-
-            const redo = () => {
-                for (var i = 0; i < entities.length; i++) {
-                    const entity = entities[i].latest();
-                    if (!entity || !entity.has('components.element')) continue;
-
-                    const history = entity.history.enabled;
-                    entity.history.enabled = false;
-                    entity.set('components.element.type', value);
-                    this._suppressTypeEvents = true;
-                    this._updateType();
-                    this._suppressTypeEvents = false;
-                    this._updateAssetFields(value);
-                    this._toggleFields();
-                    entity.history.enabled = history;
-                }
-            };
-
-            redo();
-
-            if (this._history) {
-                this._history.add({
-                    name: 'entities.components.element.type',
-                    undo: undo,
-                    redo: redo
-                });
-            }
         }
 
         _onFieldPresetChange(value) {
@@ -1029,10 +957,6 @@ Object.assign(pcui, (function () {
             return 'custom';
         }
 
-        _updateType() {
-            this._field('type').values = this._entities.map(entity => entity.get('components.element.type'));
-        }
-
         _updatePreset() {
             this._field('preset').value = this._getCurrentPresetValue();
         }
@@ -1120,7 +1044,6 @@ Object.assign(pcui, (function () {
             this._suppressToggleFields = false;
 
             this._toggleFields();
-            this._updateType();
         }
 
         unlink() {
