@@ -61,7 +61,7 @@ editor.once('load', function () {
 
         if (this.type === 'script') {
             this.cm.setOption('lint', {
-                esversion: 6
+                esversion: 11
             });
         } else {
             this.cm.setOption('lint', false);

@@ -347,6 +347,7 @@ Object.assign(pcui, (function () {
             });
             this._suppressAddParamEvent = false;
             this._addParamPanel(key);
+            this.collapsed = false;
         }
 
         _removeParameterList() {

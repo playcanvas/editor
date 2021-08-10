@@ -92,6 +92,68 @@ Object.assign(pcui, (function () {
             this._queuedRender = false;
 
             this._frameRequest = null;
+
+            this._evts = {};
+
+            // when any of the mesh instance material mappings change, reload the materials
+            this._evts.setMaterialMappingsEvent = this._asset.on('*:set', (path) => {
+                if (path.includes('data.mapping')) {
+                    this.loadMaterials();
+                }
+            });
+
+            // load in materials for this models mesh instances
+            this.loadMaterials();
+
+        }
+
+        addMeshInstanceMaterial(materialObserver) {
+            const app = editor.call('viewport:app');
+            const materialAsset = app.assets.get(materialObserver.get('id'));
+            materialAsset.data = materialObserver.get('data');
+            materialAsset.once('load', () => {
+                // for each 'map' in the material, check if they're yet to load and queue a rerender
+                Object.keys(materialObserver.get('data')).filter(k => k.indexOf('Map') === k.length - 3).forEach(map => {
+                    const mapId = materialObserver.get(`data.${map}`);
+                    if (mapId) {
+                        const mapAsset = app.assets.get(mapId);
+                        if (!mapAsset.loaded) {
+                            mapAsset.once('load', () => {
+                                this.queueRender();
+                            });
+                        }
+                    }
+                });
+                this.queueRender();
+            });
+            if (materialAsset.loaded) {
+                materialAsset.reload();
+            } else {
+                app.assets.load(materialAsset);
+            }
+        }
+
+        loadMaterials() {
+            if (!this._asset) return;
+            // for each mapped mesh instance in the model
+            Object.keys(this._asset.get('data.mapping') || {}).forEach((i) => {
+                // get the current material id
+                const materialId = this._asset.get(`data.mapping.${i}.material`);
+                if (materialId) {
+                    // find the material observer for this material id
+                    const materialObserver = editor.call('assets:get', materialId);
+                    // create a material from this material observer and set it
+                    this.addMeshInstanceMaterial(materialObserver);
+                    // when when material observer changes, recreate the material (also clear the prev event for this mesh instance)
+                    if (this._evts[`setMeshInstanceMaterialEvent.${i}`]) {
+                        this._evts[`setMeshInstanceMaterialEvent.${i}`].unbind();
+                    }
+                    this._evts[`setMeshInstanceMaterialEvent.${i}`] = materialObserver.on('*:set', () => {
+                        this.addMeshInstanceMaterial(materialObserver);
+                    });
+                }
+            });
+            this.queueRender();
         }
 
         queueRender() {
@@ -158,7 +220,18 @@ Object.assign(pcui, (function () {
                     model.meshInstances[i].skinInstance.updateMatrices(model.meshInstances[i].node);
                 }
 
-                model.meshInstances[i].material = scene.material;
+                let material;
+                const materialId = this._asset.get(`data.mapping.${i}.material`);
+                if (materialId) {
+                    const materialAsset = app.assets.get(materialId);
+                    if (materialAsset.resource) {
+                        material = materialAsset.resource;
+                    }
+                }
+                if (!material) {
+                    material = scene.material;
+                }
+                model.meshInstances[i].material = material;
 
                 if (first) {
                     first = false;
@@ -229,6 +302,9 @@ Object.assign(pcui, (function () {
                 editor.call('assets:model:unwatch', this._asset, this._watch);
                 this._watch = null;
             }
+
+            Object.values(this._evts, (e) => e.unbind());
+            this._evts = {};
 
             this._asset = null;
             this._canvas = null;
