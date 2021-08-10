@@ -32,7 +32,7 @@ editor.once('load', function () {
         scrollPastEnd: true,
         keyMap: 'sublime',
         lint: {
-            esversion: 6
+            esversion: 11
         },
 
         readOnly: true,
