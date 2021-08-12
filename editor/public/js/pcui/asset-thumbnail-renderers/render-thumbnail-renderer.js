@@ -94,6 +94,7 @@ Object.assign(pcui, (function () {
         addMeshInstanceMaterial(materialObserver) {
             const app = editor.call('viewport:app');
             const materialAsset = app.assets.get(materialObserver.get('id'));
+            if (!materialAsset) return;
             materialAsset.data = materialObserver.get('data');
             materialAsset.once('load', () => {
                 // for each 'map' in the material, check if they're yet to load and queue a rerender
@@ -183,6 +184,7 @@ Object.assign(pcui, (function () {
                     }
                     const materialObserver = materialObserverResult[0][1];
                     const materialAsset = app.assets.get(materialObserver.get('id'));
+                    if (!materialAsset) return null;
                     if (!materialAsset.loaded) {
                         materialAsset.once('load', (asset) => {
                             Object.values(asset.resource._assetReferences).forEach(assetReference => {
