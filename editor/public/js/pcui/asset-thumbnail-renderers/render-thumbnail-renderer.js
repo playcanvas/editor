@@ -171,7 +171,7 @@ Object.assign(pcui, (function () {
             const materialMappings = containerObserver.get('meta.mappings');
 
             const containerAsset = app.assets.get(this._asset.get('data.containerAsset'));
-            if (containerAsset.resource) {
+            if (containerAsset.resource && containerAsset.resource.model) {
                 const firstMeshInstanceIndex = containerAsset.resource.model.resource.meshInstances.findIndex(a => a.node.name === this._asset.get('name'));
                 const meshInstanceCount = this._asset.get('meta.meshInstances');
                 const meshInstanceMaterialMappings = materialMappings.slice(firstMeshInstanceIndex, firstMeshInstanceIndex + meshInstanceCount);
