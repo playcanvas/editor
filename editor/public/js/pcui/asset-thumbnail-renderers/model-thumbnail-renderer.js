@@ -143,15 +143,17 @@ Object.assign(pcui, (function () {
                 if (materialId) {
                     // find the material observer for this material id
                     const materialObserver = editor.call('assets:get', materialId);
-                    // create a material from this material observer and set it
-                    this.addMeshInstanceMaterial(materialObserver);
-                    // when when material observer changes, recreate the material (also clear the prev event for this mesh instance)
-                    if (this._evts[`setMeshInstanceMaterialEvent.${i}`]) {
-                        this._evts[`setMeshInstanceMaterialEvent.${i}`].unbind();
-                    }
-                    this._evts[`setMeshInstanceMaterialEvent.${i}`] = materialObserver.on('*:set', () => {
+                    if (materialObserver) {
+                        // create a material from this material observer and set it
                         this.addMeshInstanceMaterial(materialObserver);
-                    });
+                        // when when material observer changes, recreate the material (also clear the prev event for this mesh instance)
+                        if (this._evts[`setMeshInstanceMaterialEvent.${i}`]) {
+                            this._evts[`setMeshInstanceMaterialEvent.${i}`].unbind();
+                        }
+                        this._evts[`setMeshInstanceMaterialEvent.${i}`] = materialObserver.on('*:set', () => {
+                            this.addMeshInstanceMaterial(materialObserver);
+                        });
+                    }
                 }
             });
             this.queueRender();
@@ -225,7 +227,7 @@ Object.assign(pcui, (function () {
                 const materialId = this._asset.get(`data.mapping.${i}.material`);
                 if (materialId) {
                     const materialAsset = app.assets.get(materialId);
-                    if (material && materialAsset.resource) {
+                    if (materialAsset && materialAsset.resource) {
                         material = materialAsset.resource;
                     }
                 }

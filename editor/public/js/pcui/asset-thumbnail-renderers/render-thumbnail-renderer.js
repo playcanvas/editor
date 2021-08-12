@@ -178,7 +178,9 @@ Object.assign(pcui, (function () {
                 const materialAssets = meshInstanceMaterialMappings.map((m, i) => {
                     // TODO we shouldn't rely on a material having a specific name here. Ideally we'd have access to material id's here
                     const materialName = containerObserver.get(`meta.materials.${m}.name`);
-                    const materialObserverResult = editor.call('assets:find', (a) => a.get('name') === materialName);
+                    const materialObserverResult = editor.call('assets:find', (asset) => {
+                        return asset.get('name') === materialName && asset.get('type') === 'material';
+                    });
                     if (materialObserverResult.length === 0) {
                         return scene.material;
                     }
