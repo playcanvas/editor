@@ -212,8 +212,8 @@ Object.assign(pcui, (function () {
                 }
             }
 
-            for (const key in this._watchMaterials) {
-                if (!mappingIndex.has(key)) {
+            for (const key in this._materialWatches) {
+                if (!mappingIndex.has(parseInt(key, 10))) {
                     this._unwatchMaterial(key);
                 }
             }
