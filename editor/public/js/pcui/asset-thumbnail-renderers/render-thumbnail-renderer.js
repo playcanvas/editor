@@ -15,8 +15,6 @@ Object.assign(pcui, (function () {
     };
 
     function initializeScene() {
-        const app = pc.Application.getApplication();
-
         // material
         scene.material = new pc.StandardMaterial();
         scene.material.useSkybox = false;
@@ -81,40 +79,89 @@ Object.assign(pcui, (function () {
                 callback: this._queueRenderHandler
             });
 
+            this._materialWatches = {};
+
             this._rotationX = -15;
             this._rotationY = 45;
 
             this._queuedRender = false;
 
             this._frameRequest = null;
-
-            this._evts = {};
         }
 
-        addMeshInstanceMaterial(materialObserver) {
-            const app = editor.call('viewport:app');
-            const materialAsset = app.assets.get(materialObserver.get('id'));
-            if (!materialAsset) return;
-            materialAsset.data = materialObserver.get('data');
-            materialAsset.once('load', () => {
-                // for each 'map' in the material, check if they're yet to load and queue a rerender
-                Object.keys(materialObserver.get('data')).filter(k => k.indexOf('Map') === k.length - 3).forEach(map => {
-                    const mapId = materialObserver.get(`data.${map}`);
-                    if (mapId) {
-                        const mapAsset = app.assets.get(mapId);
-                        if (!mapAsset.loaded) {
-                            mapAsset.once('load', () => {
-                                this.queueRender();
-                            });
-                        }
+        _watchMaterials() {
+            const app = pc.Application.getApplication();
+
+            // load in the materials
+            const containerObserver = editor.call('assets:get', editor.call('assets:get', this._asset.get('data.containerAsset')).get('source_asset_id'));
+            const materialMappings = containerObserver.get('meta.mappings');
+
+            const containerAsset = app.assets.get(this._asset.get('data.containerAsset'));
+            if (containerAsset && containerAsset.resource && containerAsset.resource.model) {
+                const firstMeshInstanceIndex = containerAsset.resource.model.resource.meshInstances.findIndex(a => a.node.name === this._asset.get('name'));
+                const meshInstanceCount = this._asset.get('meta.meshInstances');
+                const meshInstanceMaterialMappings = materialMappings.slice(firstMeshInstanceIndex, firstMeshInstanceIndex + meshInstanceCount);
+                const materialAssets = meshInstanceMaterialMappings.map((m, i) => {
+                    // TODO we shouldn't rely on a material having a specific name here. Ideally we'd have access to material id's here
+                    const materialName = containerObserver.get(`meta.materials.${m}.name`);
+                    const materialObserverResult = editor.call('assets:find', (a) => a.get('source_asset_id') === containerObserver.get('id').toString() && a.get('name') === materialName);
+                    if (materialObserverResult.length === 0) {
+                        return scene.material;
+                    }
+                    const materialObserver = materialObserverResult[0][1];
+                    const materialAsset = app.assets.get(materialObserver.get('id')) || scene.material;
+                    return materialAsset;
+                });
+
+                scene.renderEntity.render.materialAssets = materialAssets;
+
+                for (const id in this._materialWatches) {
+                    if (!materialAssets.find(m => parseInt(m.id, 10) === parseInt(id, 10))) {
+                        this._unwatchMaterial(id);
+                    }
+                }
+
+                materialAssets.forEach(asset => {
+                    if (asset === scene.material) return;
+
+                    if (!this._materialWatches[asset.id]) {
+                        this._watchMaterial(asset.id);
                     }
                 });
-                this.queueRender();
-            });
-            if (materialAsset.loaded) {
-                materialAsset.reload();
+
             } else {
-                app.assets.load(materialAsset);
+                this._unwatchMaterials();
+
+                scene.renderEntity.render.material = scene.material;
+                if (containerAsset) {
+                    containerAsset.once('load', this.queueRender.bind(this));
+                }
+            }
+        }
+
+        _watchMaterial(id) {
+            const material = editor.call('assets:get', id);
+            if (material) {
+                this._materialWatches[id] = editor.call('assets:material:watch', {
+                    asset: material,
+                    loadMaterial: true,
+                    autoLoad: true,
+                    callback: this._queueRenderHandler
+                });
+            }
+        }
+
+        _unwatchMaterial(id) {
+            const material = editor.call('assets:get', id);
+            if (material) {
+                editor.call('assets:material:unwatch', material, this._materialWatches[id]);
+            }
+            delete this._materialWatches[id];
+        }
+
+        _unwatchMaterials() {
+            for (const id in this._materialWatches) {
+                this._unwatchMaterial(id);
             }
         }
 
@@ -166,56 +213,7 @@ Object.assign(pcui, (function () {
 
             scene.renderEntity.render.asset = renderAsset;
 
-            // load in the materials
-            const containerObserver = editor.call('assets:get', editor.call('assets:get', this._asset.get('data.containerAsset')).get('source_asset_id'));
-            const materialMappings = containerObserver.get('meta.mappings');
-
-            const containerAsset = app.assets.get(this._asset.get('data.containerAsset'));
-            if (containerAsset.resource && containerAsset.resource.model) {
-                const firstMeshInstanceIndex = containerAsset.resource.model.resource.meshInstances.findIndex(a => a.node.name === this._asset.get('name'));
-                const meshInstanceCount = this._asset.get('meta.meshInstances');
-                const meshInstanceMaterialMappings = materialMappings.slice(firstMeshInstanceIndex, firstMeshInstanceIndex + meshInstanceCount);
-                const materialAssets = meshInstanceMaterialMappings.map((m, i) => {
-                    // TODO we shouldn't rely on a material having a specific name here. Ideally we'd have access to material id's here
-                    const materialName = containerObserver.get(`meta.materials.${m}.name`);
-                    const materialObserverResult = editor.call('assets:find', (asset) => {
-                        return asset.get('name') === materialName && asset.get('type') === 'material';
-                    });
-                    if (materialObserverResult.length === 0) {
-                        return scene.material;
-                    }
-                    const materialObserver = materialObserverResult[0][1];
-                    const materialAsset = app.assets.get(materialObserver.get('id'));
-                    if (!materialAsset) return null;
-                    if (!materialAsset.loaded) {
-                        materialAsset.once('load', (asset) => {
-                            Object.values(asset.resource._assetReferences).forEach(assetReference => {
-                                const textureAsset = assetReference.asset;
-                                if (!textureAsset.loaded) {
-                                    textureAsset.once('load', () => {
-                                        this.queueRender();
-                                    });
-                                }
-                            });
-                            this.queueRender();
-                        });
-                        app.assets.load(materialAsset);
-                    }
-
-                    // when when material observer changes, recreate the material (also clear the prev event for this mesh instance)
-                    if (this._evts[`setMeshInstanceMaterialEvent.${i}`]) {
-                        this._evts[`setMeshInstanceMaterialEvent.${i}`].unbind();
-                    }
-                    this._evts[`setMeshInstanceMaterialEvent.${i}`] = materialObserver.on('*:set', () => {
-                        this.addMeshInstanceMaterial(materialObserver);
-                    });
-                    return materialAsset;
-                });
-                scene.renderEntity.render.materialAssets = materialAssets;
-            } else {
-                scene.renderEntity.render.material = scene.material;
-                containerAsset.once('load', this.queueRender.bind(this));
-            }
+            this._watchMaterials();
 
             let first = true;
 
@@ -296,11 +294,10 @@ Object.assign(pcui, (function () {
                 this._watch = null;
             }
 
+            this._unwatchMaterials();
+
             this._asset = null;
             this._canvas = null;
-
-            Object.values(this._evts, (e) => e.unbind());
-            this._evts = {};
 
             if (this._frameRequest) {
                 cancelAnimationFrame(this._frameRequest);
