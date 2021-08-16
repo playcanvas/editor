@@ -94,69 +94,54 @@ Object.assign(pcui, (function () {
             this._frameRequest = null;
 
             this._evts = {};
+            this._materialWatches = {};
 
             // when any of the mesh instance material mappings change, reload the materials
             this._evts.setMaterialMappingsEvent = this._asset.on('*:set', (path) => {
-                if (path.includes('data.mapping')) {
-                    this.loadMaterials();
+                if (path.startsWith('data.mapping')) {
+                    this.queueRender();
                 }
             });
-
-            // load in materials for this models mesh instances
-            this.loadMaterials();
-
         }
 
-        addMeshInstanceMaterial(materialObserver) {
-            const app = editor.call('viewport:app');
-            const materialAsset = app.assets.get(materialObserver.get('id'));
-            if (!materialAsset) return;
-            materialAsset.data = materialObserver.get('data');
-            materialAsset.once('load', () => {
-                // for each 'map' in the material, check if they're yet to load and queue a rerender
-                Object.keys(materialObserver.get('data')).filter(k => k.indexOf('Map') === k.length - 3).forEach(map => {
-                    const mapId = materialObserver.get(`data.${map}`);
-                    if (mapId) {
-                        const mapAsset = app.assets.get(mapId);
-                        if (!mapAsset.loaded) {
-                            mapAsset.once('load', () => {
-                                this.queueRender();
-                            });
-                        }
-                    }
-                });
-                this.queueRender();
-            });
-            if (materialAsset.loaded) {
-                materialAsset.reload();
-            } else {
-                app.assets.load(materialAsset);
+        _watchMaterials() {
+            this._unwatchMaterials();
+
+            const mapping = this._asset.get('data.mapping');
+            if (!mapping) return;
+
+            for (const key in mapping) {
+                const materialId = mapping[key].material;
+                if (materialId) {
+                    this._watchMaterial(materialId);
+                }
             }
         }
 
-        loadMaterials() {
-            if (!this._asset) return;
-            // for each mapped mesh instance in the model
-            Object.keys(this._asset.get('data.mapping') || {}).forEach((i) => {
-                // get the current material id
-                const materialId = this._asset.get(`data.mapping.${i}.material`);
-                if (materialId) {
-                    // find the material observer for this material id
-                    const materialObserver = editor.call('assets:get', materialId);
-                    if (materialObserver) {
-                        // create a material from this material observer and set it
-                        this.addMeshInstanceMaterial(materialObserver);
-                        // when when material observer changes, recreate the material (also clear the prev event for this mesh instance)
-                        if (this._evts[`setMeshInstanceMaterialEvent.${i}`]) {
-                            this._evts[`setMeshInstanceMaterialEvent.${i}`].unbind();
-                        }
-                        this._evts[`setMeshInstanceMaterialEvent.${i}`] = materialObserver.on('*:set', () => {
-                            this.addMeshInstanceMaterial(materialObserver);
-                        });
-                    }
-                }
-            });
-            this.queueRender();
+        _watchMaterial(id) {
+            const material = editor.call('assets:get', id);
+            if (material) {
+                this._materialWatches[id] = editor.call('assets:material:watch', {
+                    asset: material,
+                    autoLoad: true,
+                    loadMaterial: true,
+                    callback: this._queueRenderHandler
+                });
+            }
+        }
+
+        _unwatchMaterial(id) {
+            const material = editor.call('assets:get', id);
+            if (material) {
+                editor.call('assets:material:unwatch', material, this._materialWatches[id]);
+            }
+            delete this._materialWatches[id];
+        }
+
+        _unwatchMaterials() {
+            for (const id in this._materialWatches) {
+                this._unwatchMaterial(id);
+            }
         }
 
         queueRender() {
@@ -215,6 +200,23 @@ Object.assign(pcui, (function () {
             model.lights = [scene.lightEntity.light.light];
 
             let first = true;
+
+            const mapping = this._asset.get('data.mapping');
+            const mappingIndex = new Set();
+            for (const key in mapping) {
+                if (mapping[key].material) {
+                    mappingIndex.add(mapping[key].material);
+                    if (!this._materialWatches[mapping[key].material]) {
+                        this._watchMaterial(mapping[key].material);
+                    }
+                }
+            }
+
+            for (const key in this._materialWatches) {
+                if (!mappingIndex.has(parseInt(key, 10))) {
+                    this._unwatchMaterial(key);
+                }
+            }
 
             // generate aabb for model
             for (let i = 0; i < model.meshInstances.length; i++) {
@@ -306,7 +308,11 @@ Object.assign(pcui, (function () {
                 this._watch = null;
             }
 
-            Object.values(this._evts, (e) => e.unbind());
+            this._unwatchMaterials();
+
+            for (const key in this._evts) {
+                this._evts[key].unbind();
+            }
             this._evts = {};
 
             this._asset = null;

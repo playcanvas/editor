@@ -12,6 +12,15 @@ editor.once('load', function () {
             watch.callbacks[key].callback(slot);
     };
 
+    function onMaterialLoad() {
+        trigger(this);
+    }
+
+    function onMaterialAdd(asset) {
+        asset.on('load', onMaterialLoad, this);
+        app.assets.load(asset);
+    }
+
     const addTextureWatch = function (watch, slot, id) {
         watch.textures[slot] = {
             id: id,
@@ -125,6 +134,7 @@ editor.once('load', function () {
             watch = watching[args.asset.get('id')] = {
                 asset: args.asset,
                 autoLoad: 0,
+                autoLoadMaterial: 0,
                 textures: { },
                 watching: { },
                 ind: 0,
@@ -149,6 +159,20 @@ editor.once('load', function () {
             }
         }
 
+        if (args.loadMaterial) {
+            watch.autoLoadMaterial++;
+        }
+
+        if (watch.autoLoadMaterial === 1) {
+            const materialAsset = app.assets.get(args.asset.get('id'));
+            if (materialAsset) {
+                materialAsset.on('load', onMaterialLoad, watch);
+                app.assets.load(materialAsset);
+            } else {
+                app.assets.on('add[' + args.asset.get('id') + ']', onMaterialAdd, watch);
+            }
+        }
+
         return watch.ind;
     });
 
@@ -162,6 +186,18 @@ editor.once('load', function () {
 
         if (watch.callbacks[handle].autoLoad)
             watch.autoLoad--;
+
+        if (watch.autoLoadMaterial) {
+            watch.autoLoadMaterial--;
+
+            if (watch.autoLoadMaterial === 0) {
+                app.assets.off('add[' + asset.get('id') + ']', onMaterialAdd, watch);
+                const materialAsset = app.assets.get(asset.get('id'));
+                if (materialAsset) {
+                    materialAsset.off('load', onMaterialLoad, watch);
+                }
+            }
+        }
 
         delete watch.callbacks[handle];
 
