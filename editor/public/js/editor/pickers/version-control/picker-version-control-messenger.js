@@ -50,6 +50,17 @@ editor.once('load', function () {
         icon: editor.call('picker:versioncontrol:svg:completed', 50)
     });
 
+    var overlayDeletingBranch = editor.call('picker:versioncontrol:createOverlay', {
+        title: 'Deleting branch',
+        message: 'Please wait while this branch is being deleted.',
+        icon: editor.call('picker:versioncontrol:svg:spinner', 50)
+    });
+
+    var overlayDeletedBranch = editor.call('picker:versioncontrol:createOverlay', {
+        title: 'This branch has been deleted.',
+        message: 'Refreshing browser window...',
+        icon: editor.call('picker:versioncontrol:svg:completed', 50)
+    });
 
     // don't let the user's full name be too big
     var truncateFullName = function (fullName) {
@@ -143,6 +154,26 @@ editor.once('load', function () {
         }
     });
 
+    // show overlay when branch is deleting
+    editor.on('messenger:branch.deleteStarted', function (data) {
+        if (data.branch_id !== config.self.branch.id) return;
+        overlayDeletingBranch.setTitle(truncateFullName(data.user_full_name) + ' is deleting this branch');
+        overlayDeletingBranch.hidden = false;
+    });
+
+    // show overlay when branch finished deleting
+    editor.on('messenger:branch.deleteEnded', function (data) {
+        if (data.branch_id !== config.self.branch.id) return;
+        if (data.status === 'success') {
+            overlayDeletingBranch.hidden = true;
+            overlayDeletedBranch.setTitle(truncateFullName(data.user_full_name) + ' deleted this branch');
+            overlayDeletedBranch.hidden = false;
+            refresh();
+        } else {
+            overlayDeletingBranch.hidden = true;
+        }
+    });
+
     // show overlay when hard reset starts
     editor.on('messenger:checkpoint.hardResetStarted', function (data) {
         if (data.branch_id !== config.self.branch.id) return;
@@ -168,6 +199,7 @@ editor.once('load', function () {
     editor.on('messenger:branch.close', function (data) {
         if (data.branch_id !== config.self.branch.id) return;
 
+        overlayDeletingBranch.hidden = true;
         overlayBranchClosed.hidden = false;
 
         // check out master branch and then refresh the browser
