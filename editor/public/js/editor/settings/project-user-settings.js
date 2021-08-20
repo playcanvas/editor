@@ -17,6 +17,7 @@ editor.once('load', function () {
                     0.118,
                     1
                 ],
+                showFog: false,
                 gridDivisions: 8,
                 gridDivisionSize: 1,
                 snapIncrement: 1,
@@ -135,6 +136,10 @@ editor.once('load', function () {
 
             if (!settings.has('editor.pipeline.animUseFbxFilename')) {
                 settings.set('editor.pipeline.animUseFbxFilename', false);
+            }
+
+            if (!settings.has('editor.showFog')) {
+                settings.set('editor.showFog', false);
             }
 
             settings.history.enabled = history;

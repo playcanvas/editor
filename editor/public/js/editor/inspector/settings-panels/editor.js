@@ -64,6 +64,13 @@ Object.assign(pcui, (function () {
             type: 'rgba'
         },
         {
+            observer: 'settings',
+            label: 'Show Fog',
+            path: 'editor.showFog',
+            alias: 'showFog',
+            type: 'boolean'
+        },
+        {
             observer: 'userSettings',
             label: 'Icons Size',
             path: 'editor.iconSize',
