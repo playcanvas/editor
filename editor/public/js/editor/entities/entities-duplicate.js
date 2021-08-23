@@ -268,6 +268,16 @@ editor.once('load', function () {
         editor.call('entities:updateChildToParentIndex', entity.get('resource_id'), parent.get('resource_id'));
         duplicatedIdsMap[originalResourceId] = entity.get('resource_id');
 
+        // create new guids for any missing entities in template_ent_ids
+        const templateEntIds = entity.get('template_ent_ids');
+        if (templateEntIds) {
+            for (const key in templateEntIds) {
+                if (!duplicatedIdsMap[key] && !editor.call('entities:get', key)) {
+                    duplicatedIdsMap[key] = pc.guid.create();
+                }
+            }
+        }
+
         // call add event
         editor.call('entities:add', entity);
 

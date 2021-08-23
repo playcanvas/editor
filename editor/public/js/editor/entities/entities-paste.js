@@ -476,6 +476,17 @@ editor.once('load', function () {
             mapping[guid] = pc.guid.create();
         }
 
+        for (const guid in data.hierarchy) {
+            // create new guids for any missing entities in template_ent_ids
+            if (data.hierarchy[guid].template_ent_ids) {
+                for (const key in data.hierarchy[guid].template_ent_ids) {
+                    if (!mapping[key]) {
+                        mapping[key] = pc.guid.create();
+                    }
+                }
+            }
+        }
+
         // add all entities with different resource ids
         var newEntities = [];
         var selectedEntities = [];
