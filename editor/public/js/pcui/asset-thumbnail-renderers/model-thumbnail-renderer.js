@@ -277,7 +277,14 @@ Object.assign(pcui, (function () {
             newLayers.push(layer.id);
             scene.cameraEntity.camera.layers = newLayers;
 
+            // disable fog
+            const backupFogType = app.scene.fog;
+            app.scene.fog = pc.FOG_NONE;
+
             app.renderer.renderComposition(layerComposition);
+
+            // restore fog settings
+            app.scene.fog = backupFogType;
 
             // restore camera layers
             scene.cameraEntity.camera.layers = backupLayers;

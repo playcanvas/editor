@@ -9,6 +9,10 @@ editor.once('load', function () {
     let keepRendering = false;
 
     const editorSettings = editor.call('settings:projectUser');
+
+    // Passing the observer as the render settings are not available yet
+    const sceneSettingsObserver = editor.call('sceneSettings');
+
     const Application = editor.call('viewport:application');
 
     // Allow anti-aliasing to be forcibly disabled - this is useful for Selenium tests in
@@ -25,7 +29,8 @@ editor.once('load', function () {
             graphicsDeviceOptions: {
                 antialias: !disableAntiAliasing,
                 alpha: false
-            }
+            },
+            sceneSettingsObserver: sceneSettingsObserver
         });
 
         app.enableBundles = false;

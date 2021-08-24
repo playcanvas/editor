@@ -21,6 +21,9 @@ editor.once('load', function () {
         name: 'clearColor',
         description: 'Set the Camera Clear Color of your preference to affect Editor. This color will not affect the game.'
     }, {
+        name: 'showFog',
+        description: 'Renders fog in the viewport.'
+    }, {
         name: 'iconSize',
         description: 'Size of icons displayed in Editor viewport'
     }, {

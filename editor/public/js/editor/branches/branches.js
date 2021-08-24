@@ -85,6 +85,15 @@ editor.once('load', function () {
         }, callback);
     });
 
+    // Delete branch
+    editor.method('branches:delete', function (id, callback) {
+        request({
+            url: '{{url.api}}/branches/' + id,
+            method: 'DELETE',
+            auth: true
+        }, callback);
+    });
+
     // Start merging branches
     editor.method('branches:merge', function (sourceId, destinationId, callback) {
         request({

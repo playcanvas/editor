@@ -16,6 +16,7 @@ editor.once('load', function () {
 
         this.grid = null;
         this.setEditorSettings(options.editorSettings);
+        this.sceneSettingsObserver = options.sceneSettingsObserver;
 
         this.picker = new pc.Picker(this, 1, 1);
         this.shading = pc.RENDERSTYLE_SOLID;
@@ -50,6 +51,8 @@ editor.once('load', function () {
         // render current camera
         var cameraEntity = editor.call('camera:current');
         if (cameraEntity && cameraEntity.camera) {
+            let showFog = true;
+
             if (cameraEntity.__editorCamera) {
                 var clearColor = this.editorSettings.cameraClearColor;
                 cameraEntity.camera.clearColor = new pc.Color(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
@@ -57,8 +60,10 @@ editor.once('load', function () {
                     cameraEntity.camera.nearClip = this.editorSettings.cameraNearClip || 0.0001;
                     cameraEntity.camera.farClip = this.editorSettings.cameraFarClip;
                 }
+                showFog = this.editorSettings.showFog;
             }
 
+            this.scene.fog = showFog ? this.sceneSettingsObserver.get('render.fog') : pc.FOG_NONE;
             cameraEntity.camera.rect = rect;
         }
 

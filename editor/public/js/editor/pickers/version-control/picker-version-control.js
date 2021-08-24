@@ -298,6 +298,43 @@ editor.once('load', function () {
     panelOpenBranchProgress.hidden = true;
     panelRight.append(panelOpenBranchProgress);
 
+    var panelDeleteBranch = editor.call('picker:versioncontrol:widget:deleteBranch');
+    panelDeleteBranch.hidden = true;
+    panelRight.append(panelDeleteBranch);
+
+    // delete branch progress panel
+    var panelDeleteBranchProgress = editor.call('picker:versioncontrol:createProgressWidget', {
+        progressText: 'Deleting branch',
+        finishText: 'Branch deleted',
+        errorText: 'Failed to delete branch'
+    });
+    panelDeleteBranchProgress.hidden = true;
+    panelRight.append(panelDeleteBranchProgress);
+
+    // Delete branch
+    panelDeleteBranch.on('cancel', function () {
+        showCheckpoints();
+    });
+    panelDeleteBranch.on('confirm', function (data) {
+        togglePanels(false);
+
+        showRightSidePanel(panelDeleteBranchProgress);
+
+        editor.call('branches:delete', panelDeleteBranch.branch.id, function (err) {
+            panelDeleteBranchProgress.finish(err);
+            // if there was an error re-add the item to the list
+            if (err) {
+                togglePanels(true);
+            } else {
+                // remove item from list
+                setTimeout(function () {
+                    togglePanels(true);
+                    showCheckpoints();
+                }, 1000);
+            }
+        });
+    });
+
     // merge branches panel
     var panelMergeBranches = editor.call('picker:versioncontrol:widget:mergeBranches');
     panelMergeBranches.hidden = true;
@@ -607,6 +644,20 @@ editor.once('load', function () {
         });
     });
 
+    // delete branch
+    var menuBranchesDelete = new ui.MenuItem({
+        text: 'Delete This Branch',
+        value: 'delete-branch'
+    });
+    menuBranches.append(menuBranchesDelete);
+
+    menuBranchesDelete.on('select', function () {
+        if (contextBranch) {
+            showRightSidePanel(panelDeleteBranch);
+            panelDeleteBranch.setBranch(contextBranch);
+        }
+    });
+
     // Filter context menu items
     menuBranches.on('open', function () {
         var writeAccess = editor.call('permissions:write');
@@ -614,6 +665,7 @@ editor.once('load', function () {
         menuBranchesFavorite.text = (menuBranches.contextBranchIsFavorite ? 'Unf' : 'F') + 'avorite This Branch';
 
         menuBranchesClose.hidden = !writeAccess || !contextBranch || contextBranch.closed || contextBranch.id === config.project.masterBranch || contextBranch.id === projectUserSettings.get('branch');
+        menuBranchesDelete.hidden = !writeAccess || !contextBranch || contextBranch.id === config.project.masterBranch || contextBranch.id === projectUserSettings.get('branch');
         menuBranchesOpen.hidden = !writeAccess || !contextBranch || !contextBranch.closed;
 
         menuBranchesFavorite.hidden = !writeAccess || !contextBranch || contextBranch.id === projectUserSettings.get('branch');
@@ -1009,15 +1061,8 @@ editor.once('load', function () {
             }
         }));
 
-        // when a branch is closed remove it from the list and select the next one
-        events.push(editor.on('messenger:branch.close', function (data) {
-            if (fieldBranchesFilter.value === 'closed') {
-                return;
-            }
-
-            // we are seeing the open branches view so remove this branch from the list
-            // and select the next branch
-            var item = getBranchListItem(data.branch_id);
+        function removeBranchAndSelectNext(branchId, delay) {
+            var item = getBranchListItem(branchId);
             if (! item) return;
 
             var nextItem = null;
@@ -1036,18 +1081,40 @@ editor.once('load', function () {
             // select next or previous sibling
             if (nextItem && nextItem !== loadMoreListItem.element) {
 
-                // if the progress panel is open it means we are the ones
-                // closing the branch (or some other branch..) - so wait a bit
-                // so that we can show the progress end message before selecting another branch
-                if (! panelCloseBranchProgress.hidden) {
+                if (delay) {
                     setTimeout(function () {
                         nextItem.ui.selected = true;
-                    }, 500);
+                    }, delay);
                 } else {
-                    // otherwise immediately select the next branch
                     nextItem.ui.selected = true;
                 }
             }
+        }
+
+        // when a branch is closed remove it from the list and select the next one
+        events.push(editor.on('messenger:branch.close', function (data) {
+            if (fieldBranchesFilter.value === 'closed') {
+                return;
+            }
+
+            // if the progress panel is open it means we are the ones
+            // closing the branch (or some other branch..) - so wait a bit
+            // so that we can show the progress end message before selecting another branch
+            const delay = (panelCloseBranchProgress.hidden ? 0 : 500);
+
+            // we are seeing the open branches view so remove this branch from the list
+            // and select the next branch
+            removeBranchAndSelectNext(data.branch_id, delay);
+        }));
+
+        // when a branch is deleted remove it from the list and select the next one
+        events.push(editor.on('messenger:branch.delete', function (data) {
+            // if the progress panel is open it means we are the ones
+            // deleting the branch (or some other branch..) - so wait a bit
+            // so that we can show the progress end message before selecting another branch
+            const delay = (panelDeleteBranchProgress.hidden ? 0 : 500);
+
+            removeBranchAndSelectNext(data.branch_id, delay);
         }));
 
         events.push(editor.on('messenger:branch.open', function (data) {

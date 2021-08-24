@@ -58,6 +58,8 @@ editor.once('load', function () {
 
                 if (!previewLayer) {
                     previewLayer = editor.call('gizmo:layers', 'Camera Preview');
+                    const fogType = editor.call('sceneSettings').get('render.fog');
+
                     previewLayer.onPostRender = function () {
                         if (!previewCamera || !previewCamera.entity || !previewCamera.data) return;
                         const entityEnabled = previewCamera.entity.enabled;
@@ -68,6 +70,7 @@ editor.once('load', function () {
                         editorCamera.enabled = false;
 
                         previewLayer.enabled = false;
+                        app.scene.fog = fogType;
                         app.renderer.renderComposition(app.scene.layers);
                         previewLayer.enabled = true;
 
