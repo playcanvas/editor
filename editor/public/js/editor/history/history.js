@@ -1,7 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    var history = new pcui.History();
+    var history = new observer.History();
 
     /**
      * Returns the history object.
