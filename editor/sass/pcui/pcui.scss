@@ -6,30 +6,29 @@
 
 // pcui controls
 @import '../../node_modules/@playcanvas/pcui/src/scss/pcui-common';
-@import '../../node_modules/@playcanvas/pcui/src/components/Element/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/TextInput/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/TextAreaInput/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/NumericInput/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/SliderInput/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/VectorInput/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/BooleanInput/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/BooleanInput/toggle-style';
-@import '../../node_modules/@playcanvas/pcui/src/components/Label/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/Button/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/Code/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/Container/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/Panel/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/Overlay/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/Divider/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/InfoBox/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/SelectInput/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/Spinner/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/Progress/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/ContextMenu/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/TreeView/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/LabelGroup/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/GridView/style';
-@import '../../node_modules/@playcanvas/pcui/src/components/GridViewItem/style';
+@import '../../node_modules/@playcanvas/pcui/src/Element/style';
+@import '../../node_modules/@playcanvas/pcui/src/TextInput/style';
+@import '../../node_modules/@playcanvas/pcui/src/TextAreaInput/style';
+@import '../../node_modules/@playcanvas/pcui/src/NumericInput/style';
+@import '../../node_modules/@playcanvas/pcui/src/SliderInput/style';
+@import '../../node_modules/@playcanvas/pcui/src/VectorInput/style';
+@import '../../node_modules/@playcanvas/pcui/src/BooleanInput/style';
+@import '../../node_modules/@playcanvas/pcui/src/Label/style';
+@import '../../node_modules/@playcanvas/pcui/src/Button/style';
+@import '../../node_modules/@playcanvas/pcui/src/Code/style';
+@import '../../node_modules/@playcanvas/pcui/src/Container/style';
+@import '../../node_modules/@playcanvas/pcui/src/Panel/style';
+@import '../../node_modules/@playcanvas/pcui/src/Overlay/style';
+@import '../../node_modules/@playcanvas/pcui/src/Divider/style';
+@import '../../node_modules/@playcanvas/pcui/src/InfoBox/style';
+@import '../../node_modules/@playcanvas/pcui/src/SelectInput/style';
+@import '../../node_modules/@playcanvas/pcui/src/Spinner/style';
+@import '../../node_modules/@playcanvas/pcui/src/Progress/style';
+@import '../../node_modules/@playcanvas/pcui/src/ContextMenu/style';
+@import '../../node_modules/@playcanvas/pcui/src/TreeView/style';
+@import '../../node_modules/@playcanvas/pcui/src/LabelGroup/style';
+@import '../../node_modules/@playcanvas/pcui/src/GridView/style';
+@import '../../node_modules/@playcanvas/pcui/src/GridViewItem/style';
 
 // editor specific pcui controls
 @import 'pcui-common';
@@ -49,7 +48,7 @@
 
 // array input should come after the other PCUI controls so that its styles
 // override them
-@import '../../node_modules/@playcanvas/pcui/src/components/ArrayInput/style';
+@import '../../node_modules/@playcanvas/pcui/src/ArrayInput/style';
 
 // this should always be last
 @import '../../node_modules/@playcanvas/pcui/src/scss/pcui-hidden';

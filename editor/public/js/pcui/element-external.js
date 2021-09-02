@@ -36,7 +36,11 @@ Object.assign(pcui, (function () {
         TreeView: pcuiExternal.TreeView,
         GridView: pcuiExternal.GridView,
         GridViewItem: pcuiExternal.GridViewItem,
-        VectorInput: pcuiExternal.VectorInput
+        VectorInput: pcuiExternal.VectorInput,
+        BindingBase: pcuiExternal.BindingBase,
+        BindingElementToObservers: pcuiExternal.BindingElementToObservers,
+        BindingObserversToElement: pcuiExternal.BindingObserversToElement,
+        BindingTwoWay: pcuiExternal.BindingTwoWay
     };
 
 })());

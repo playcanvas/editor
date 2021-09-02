@@ -5,6 +5,7 @@ editor.once('load', function () {
     var syncPaths = [
         'name',
         'preload',
+        'tags',
         'scope',
         'data',
         'meta',

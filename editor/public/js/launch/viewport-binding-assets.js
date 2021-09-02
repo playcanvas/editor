@@ -66,6 +66,16 @@ editor.once('load', function () {
                 if (realtimeAsset) {
                     realtimeAsset.addLocalizedAssetId(parts[1], value);
                 }
+            } else if (path.startsWith('tags')) {
+                if (path === 'tags') {
+                    realtimeAsset = app.assets.get(asset.get('id'));
+                    if (!realtimeAsset) return;
+
+                    realtimeAsset.tags.clear();
+                    value.forEach(tag => {
+                        realtimeAsset.tags.add(tag);
+                    });
+                }
             } else if (asset.get('type') === 'textureatlas') {
                 // handle texture atlases specifically for better performance
                 realtimeAsset = app.assets.get(asset.get('id'));
