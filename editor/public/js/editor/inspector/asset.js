@@ -47,6 +47,10 @@ Object.assign(pcui, (function () {
             renderChanges: false
         }
     }, {
+        label: 'Exclude',
+        path: 'exclude',
+        type: 'boolean'
+    }, {
         label: 'Preload',
         path: 'preload',
         alias: 'preload',
@@ -116,6 +120,13 @@ Object.assign(pcui, (function () {
             'legacyScripts'
         ],
         'source_asset_id': [
+            'folder.source',
+            'scene.source',
+            'texture.source',
+            'font.source',
+            'legacyScripts'
+        ],
+        'exclude': [
             'folder.source',
             'scene.source',
             'texture.source',
