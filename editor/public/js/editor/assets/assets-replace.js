@@ -58,6 +58,16 @@ editor.once('load', function () {
                     this.set(obj, 'components.animation.assets.' + ind);
                 }
             }
+
+            // anim
+            const anim = obj.get('components.anim');
+            if (anim && anim.animationAssets) {
+                for (const key in anim.animationAssets) {
+                    if (anim.animationAssets[key].asset === this.oldId) {
+                        this.set(obj, 'components.anim.animationAssets.' + key + '.asset');
+                    }
+                }
+            }
         }
     };
 

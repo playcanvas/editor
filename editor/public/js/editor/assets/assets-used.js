@@ -59,6 +59,15 @@ editor.once('load', function () {
         }
     };
 
+    const pathsCache = {};
+    function splitPath(path) {
+        if (!pathsCache[path]) {
+            pathsCache[path] = path.split('.');
+        }
+
+        return pathsCache[path];
+    }
+
     const updateAsset = function (referer, type, oldId, newId) {
         if (oldId && index[oldId] !== undefined) {
             index[oldId].count--;
@@ -185,45 +194,34 @@ editor.once('load', function () {
         },
         'font': function (path, value, valueOld) {
             if (!path.startsWith('i18n')) return;
-            const parts = path.split('.');
-            if (parts.length === 1) {
-                if (valueOld) {
-                    for (const key in valueOld) {
-                        updateAsset(this.get('id'), 'asset', valueOld[key], value && value[key] || undefined);
-                    }
-                }
-                if (value) {
-                    for (const key in value) {
-                        updateAsset(this.get('id', 'asset', valueOld && valueOld[key] || undefined, value[key]));
-                    }
-                }
-            } else if (parts.length === 2) {
+            const parts = splitPath(path);
+            if (parts.length === 2) {
                 updateAsset(this.get('id'), 'asset', valueOld, value);
             }
         },
         'entity': function (path, value, valueOld) {
             if (path.startsWith('components.animation.assets.')) {
-                const parts = path.split('.');
+                const parts = splitPath(path);
                 if (parts.length !== 4)
                     return;
             } else if (path.startsWith('components.model.mapping.')) {
-                const parts = path.split('.');
+                const parts = splitPath(path);
                 if (parts.length !== 4)
                     return;
             } else if (path.startsWith('components.sound.slots')) {
-                const parts = path.split('.');
+                const parts = splitPath(path);
                 if (parts.length !== 5 || parts[4] !== 'asset')
                     return;
             } else if (path.startsWith('components.sprite.clips')) {
-                const parts = path.split('.');
+                const parts = splitPath(path);
                 if (parts.length !== 5 || parts[4] !== 'spriteAsset')
                     return;
             } else if (path.startsWith('components.render.materialAssets')) {
-                const parts = path.split('.');
+                const parts = splitPath(path);
                 if (parts.length !== 4)
                     return;
             } else if (!legacyScripts && path.startsWith('components.script.scripts')) {
-                const parts = path.split('.');
+                const parts = splitPath(path);
                 if (parts.length === 6 && parts[4] === 'attributes') {
                     const primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
                     if (primaryScript) {
@@ -244,7 +242,25 @@ editor.once('load', function () {
                 } else {
                     return;
                 }
-            } else if (!keys.entity[path]) {
+            } else if (path.startsWith('components.anim.animationAssets')) {
+                const parts = splitPath(path);
+                if (parts.length === 3) {
+                    if (valueOld) {
+                        for (const key in valueOld) {
+                            updateAsset(this.get('resource_id'), 'entity', valueOld[key].asset, null);
+                        }
+                    }
+                    if (value) {
+                        for (const key in value) {
+                            updateAsset(this.get('resource_id'), 'entity', null, value[key].asset);
+                        }
+                    }
+                } else if (parts.length === 4) {
+                    updateAsset(this.get('resource_id'), 'entity', valueOld && valueOld.asset, value.asset);
+                } else if (parts.length === 5) {
+                    updateAsset(this.get('resource_id'), 'entity', valueOld, value);
+                }
+            }  else if (!keys.entity[path]) {
                 return;
             }
 
@@ -258,19 +274,19 @@ editor.once('load', function () {
         },
         'entity-unset': function (path, value) {
             if (path.startsWith('components.model.mapping.')) {
-                const parts = path.split('.');
+                const parts = splitPath(path);
                 if (parts.length !== 4)
                     return;
             } else if (path.startsWith('components.sound.slots')) {
-                const parts = path.split('.');
+                const parts = splitPath(path);
                 if (parts.length !== 5 || parts[4] !== 'asset')
                     return;
             } else if (path.startsWith('components.sprite.clips')) {
-                const parts = path.split('.');
+                const parts = splitPath(path);
                 if (parts.length !== 5 || parts[4] !== 'spriteAsset')
                     return;
             } else if (!legacyScripts && path.startsWith('components.script.scripts')) {
-                const parts = path.split('.');
+                const parts = splitPath(path);
                 if (parts.length === 6 && parts[4] === 'attributes') {
                     const primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
                     if (primaryScript) {
@@ -318,6 +334,11 @@ editor.once('load', function () {
                 } else {
                     return;
                 }
+            } else if (path.startsWith('components.anim.animationAssets')) {
+                const parts = splitPath(path);
+                if (parts.length === 5) {
+                    updateAsset(this.get('resource_id'), 'entity', value, null);
+                }
             } else if (!keys.entity[path]) {
                 return;
             }
@@ -332,11 +353,11 @@ editor.once('load', function () {
         },
         'entity-insert': function (path, value) {
             if (legacyScripts && path.startsWith('components.script.scripts.')) {
-                const parts = path.split('.');
+                const parts = splitPath(path);
                 if (parts.length !== 7 || parts[4] !== 'attributes' || parts[6] !== 'value' || this.get(parts.slice(0, 6).join('.') + '.type') !== 'asset')
                     return;
             } else if (!legacyScripts && path.startsWith('components.script.scripts')) {
-                const parts = path.split('.');
+                const parts = splitPath(path);
                 if (parts.length === 6 && parts[4] === 'attributes') {
                     const primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
                     if (primaryScript) {
@@ -363,11 +384,11 @@ editor.once('load', function () {
         },
         'entity-remove': function (path, value) {
             if (legacyScripts && path.startsWith('components.script.scripts.')) {
-                const parts = path.split('.');
+                const parts = splitPath(path);
                 if (parts.length !== 7 || parts[4] !== 'attributes' || parts[6] !== 'value' || this.get(parts.slice(0, 6).join('.') + '.type') !== 'asset')
                     return;
             } else if (!legacyScripts && path.startsWith('components.script.scripts')) {
-                const parts = path.split('.');
+                const parts = splitPath(path);
                 if (parts.length === 6 && parts[4] === 'attributes') {
                     const primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
                     if (primaryScript) {
@@ -592,6 +613,13 @@ editor.once('load', function () {
                         }
                     }
                 }
+            }
+        }
+
+        const animationAssets = entity.get('components.anim.animationAssets');
+        if (animationAssets) {
+            for (const key in animationAssets) {
+                updateAsset(entity.get('resource_id'), 'entity', null, animationAssets[key].asset);
             }
         }
     });
