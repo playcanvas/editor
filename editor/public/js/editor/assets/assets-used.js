@@ -48,7 +48,8 @@ editor.once('load', function () {
             'components.element.fontAsset': true,
             'components.light.cookieAsset': true,
             'components.sprite.spriteAsset': true,
-            'components.render.asset': true
+            'components.render.asset': true,
+            'components.anim.stateGraphAsset': true
         },
         'entity-lists': {
             'components.animation.assets': true,

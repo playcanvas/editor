@@ -61,6 +61,19 @@ editor.once('load', function () {
         }
     };
 
+    AssetReplace.prototype.handleAnimStateGraph = function () {
+        // entity
+        for (let i = 0; i < this.entities.length; i++) {
+            var obj = this.entities[i];
+
+            // anim
+            const anim = obj.get('components.anim');
+            if (anim && anim.stateGraphAsset === this.oldId) {
+                this.set(obj, 'components.anim.stateGraphAsset');
+            }
+        }
+    };
+
     AssetReplace.prototype.handleAudio = function () {
         // entity
         for (let i = 0; i < this.entities.length; i++) {
@@ -576,6 +589,9 @@ editor.once('load', function () {
         switch (this.asset.get('type')) {
             case 'animation':
                 this.handleAnimation();
+                break;
+            case 'animstategraph':
+                this.handleAnimStateGraph();
                 break;
             case 'audio':
                 this.handleAudio();
