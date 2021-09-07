@@ -19,24 +19,6 @@ editor.once('load', function () {
 
     var layerIndex = {};
 
-    // respond to resize window
-    var reflow = function () {
-        app.resizeCanvas(canvas.width, canvas.height);
-        canvas.style.width = '';
-        canvas.style.height = '';
-
-        var fillMode = app._fillMode;
-
-        if (fillMode === pc.FILLMODE_NONE || fillMode === pc.FILLMODE_KEEP_ASPECT) {
-            if ((fillMode === pc.FILLMODE_NONE && canvas.clientHeight < window.innerHeight) || (canvas.clientWidth / canvas.clientHeight >= window.innerWidth / window.innerHeight)) {
-                canvas.style.marginTop = Math.floor((window.innerHeight - canvas.clientHeight) / 2) + 'px';
-            } else {
-                canvas.style.marginTop = '';
-            }
-        }
-    };
-
-
     // try to start preload and initialization of application after load event
     var init = function () {
         if (!done && assets && hierarchy && settings && (!legacyScripts || sourcefiles) && libraries && loadingScreen) {
@@ -72,19 +54,6 @@ editor.once('load', function () {
                 });
             });
         }
-    };
-
-    var createCanvas = function () {
-        canvas = document.createElement('canvas');
-        canvas.setAttribute('id', 'application-canvas');
-        canvas.setAttribute('tabindex', 0);
-
-        // Disable I-bar cursor on click+drag
-        canvas.onselectstart = function () { return false; };
-
-        document.body.appendChild(canvas);
-
-        return canvas;
     };
 
     var createLoadingScreen = function () {
@@ -134,7 +103,7 @@ editor.once('load', function () {
         });
     };
 
-    canvas = createCanvas();
+    canvas = pcBootstrap.createCanvas();
 
     // convert library properties into URLs
     var libraryUrls = [];
@@ -513,10 +482,11 @@ editor.once('load', function () {
         }
     });
 
-    window.addEventListener('resize', reflow, false);
-    window.addEventListener('orientationchange', reflow, false);
+    pcBootstrap.reflow(app, canvas);
+    pcBootstrap.reflowHandler = function () { pcBootstrap.reflow(app, canvas); };
 
-    reflow();
+    window.addEventListener('resize', pcBootstrap.reflowHandler, false);
+    window.addEventListener('orientationchange', pcBootstrap.reflowHandler, false);
 
     // get application
     editor.method('viewport:app', function () {
