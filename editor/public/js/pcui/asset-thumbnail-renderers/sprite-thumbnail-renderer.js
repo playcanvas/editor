@@ -191,11 +191,9 @@ Object.assign(pcui, (function () {
             const app = pc.Application.getApplication();
 
             const engineAtlas = app.assets.get(atlasId);
-            if (!engineAtlas || !engineAtlas.resource || !engineAtlas.resource.texture) {
+            if (!engineAtlas || !engineAtlas.file) {
                 return this._cancelRender();
             }
-
-            const atlasTexture = engineAtlas.resource.texture;
 
             let leftBound = Number.POSITIVE_INFINITY;
             let rightBound = Number.NEGATIVE_INFINITY;
@@ -225,7 +223,7 @@ Object.assign(pcui, (function () {
 
             const x = frame.rect[0];
             // convert bottom left WebGL coord to top left pixel coord
-            const y = atlasTexture.height - frame.rect[1] - frame.rect[3];
+            const y = (0 || atlas.get('meta.height')) - frame.rect[1] - frame.rect[3];
             const w = frame.rect[2];
             const h = frame.rect[3];
 
@@ -264,32 +262,28 @@ Object.assign(pcui, (function () {
             ctx.imageSmoothingEnabled = false;
 
             let img;
-            if (atlasTexture._compressed && engineAtlas.file) {
-                let entry = imageCache.get(engineAtlas.file.hash);
-                if (entry) {
-                    if (entry.status === 'loaded') {
-                        img = entry.value;
-                    } else {
-                        this._events.push(entry.once('loaded', entry => {
-                            editor.call('assets:sprite:watch:trigger', this._asset);
-                        }));
-                    }
-
+            let entry = imageCache.get(engineAtlas.file.hash);
+            if (entry) {
+                if (entry.status === 'loaded') {
+                    img = entry.value;
                 } else {
-
-                    // create an image element from the asset source file
-                    // used in the preview if the texture contains compressed data
-                    img = new Image();
-                    img.src = engineAtlas.file.url;
-
-                    // insert image into cache which fires an event when the image is loaded
-                    entry = imageCache.insert(engineAtlas.file.hash, img);
                     this._events.push(entry.once('loaded', entry => {
                         editor.call('assets:sprite:watch:trigger', this._asset);
                     }));
                 }
+
             } else {
-                img = atlasTexture.getSource();
+
+                // create an image element from the asset source file
+                // used in the preview if the texture contains compressed data
+                img = new Image();
+                img.src = engineAtlas.file.url;
+
+                // insert image into cache which fires an event when the image is loaded
+                entry = imageCache.insert(engineAtlas.file.hash, img);
+                this._events.push(entry.once('loaded', entry => {
+                    editor.call('assets:sprite:watch:trigger', this._asset);
+                }));
             }
 
             if (!img) {
