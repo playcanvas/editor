@@ -182,6 +182,24 @@ editor.once('load', function () {
 
             updateAsset(this.get('id'), 'asset', valueOld, value);
         },
+        'font': function (path, value, valueOld) {
+            if (!path.startsWith('i18n')) return;
+            const parts = path.split('.');
+            if (parts.length === 1) {
+                if (valueOld) {
+                    for (const key in valueOld) {
+                        updateAsset(this.get('id'), 'asset', valueOld[key], value && value[key] || undefined);
+                    }
+                }
+                if (value) {
+                    for (const key in value) {
+                        updateAsset(this.get('id', 'asset', valueOld && valueOld[key] || undefined, value[key]));
+                    }
+                }
+            } else if (parts.length === 2) {
+                updateAsset(this.get('id'), 'asset', valueOld, value);
+            }
+        },
         'entity': function (path, value, valueOld) {
             if (path.startsWith('components.animation.assets.')) {
                 const parts = path.split('.');
@@ -462,6 +480,9 @@ editor.once('load', function () {
 
         if (onSetMethods[type]) {
             asset.on('*:set', onSetMethods[type]);
+            asset.on('*:unset', (path, valueOld) => {
+                onSetMethods[type].call(asset, path, undefined, valueOld);
+            });
 
             if (onSetMethods[type + '-insert'])
                 asset.on('*:insert', onSetMethods[type + '-insert']);
@@ -469,14 +490,22 @@ editor.once('load', function () {
             if (onSetMethods[type + '-remove'])
                 asset.on('*:remove', onSetMethods[type + '-remove']);
 
-            for (const key in keys[type])
-                updateAsset(asset.get('id'), 'asset', null, asset.get(key));
+            if (keys[type]) {
+                for (const key in keys[type]) {
+                    updateAsset(asset.get('id'), 'asset', null, asset.get(key));
+                }
+            }
 
             if (type === 'model') {
                 const mapping = asset.get('data.mapping');
                 if (mapping) {
                     for (let i = 0; i < mapping.length; i++)
                         updateAsset(asset.get('id'), 'asset', null, mapping[i].material);
+                }
+            } else if (type === 'font') {
+                const i18n = asset.get('i18n') || {};
+                for (const key in i18n) {
+                    updateAsset(asset.get('id'), 'asset', null, i18n[key]);
                 }
             }
         }
