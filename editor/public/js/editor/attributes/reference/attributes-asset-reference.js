@@ -33,7 +33,7 @@ editor.once('load', function () {
     }, {
         title: 'exclude',
         subTitle: '{Boolean}',
-        description: 'Exclude asset from build. If true the asset will not be included in builds at all.'
+        description: 'Exclude asset from the project. If true, the asset will not be available at runtime and not be included in published builds.'
     }, {
         title: 'preload',
         subTitle: '{Boolean}',
