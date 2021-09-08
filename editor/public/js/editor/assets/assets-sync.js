@@ -4,6 +4,7 @@ editor.once('load', function () {
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     var syncPaths = [
         'name',
+        'exclude',
         'preload',
         'tags',
         'scope',

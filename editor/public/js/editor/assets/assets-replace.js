@@ -36,7 +36,7 @@ editor.once('load', function () {
 
         if (history) {
             this.records.push({
-                get: obj.history._getItemFn,
+                get: obj.latest.bind(obj),
                 path: path
             });
         }
@@ -57,6 +57,29 @@ editor.once('load', function () {
                     // components.animation.assets.?
                     this.set(obj, 'components.animation.assets.' + ind);
                 }
+            }
+
+            // anim
+            const anim = obj.get('components.anim');
+            if (anim && anim.animationAssets) {
+                for (const key in anim.animationAssets) {
+                    if (anim.animationAssets[key].asset === this.oldId) {
+                        this.set(obj, 'components.anim.animationAssets.' + key + '.asset');
+                    }
+                }
+            }
+        }
+    };
+
+    AssetReplace.prototype.handleAnimStateGraph = function () {
+        // entity
+        for (let i = 0; i < this.entities.length; i++) {
+            var obj = this.entities[i];
+
+            // anim
+            const anim = obj.get('components.anim');
+            if (anim && anim.stateGraphAsset === this.oldId) {
+                this.set(obj, 'components.anim.stateGraphAsset');
             }
         }
     };
@@ -426,7 +449,40 @@ editor.once('load', function () {
                 }
             }
         }
+    };
 
+    AssetReplace.prototype.handleFont = function () {
+        var obj;
+        var i;
+
+        // entity
+        for (i = 0; i < this.entities.length; i++) {
+            obj = this.entities[i];
+
+            // text element
+            var element = obj.get('components.element');
+            if (element && element.fontAsset === this.oldId) {
+                // components.element.fontAsset
+                this.set(obj, 'components.element.fontAsset');
+            }
+        }
+
+        // localized font assets
+        const assets = editor.call('assets:find', asset =>
+            asset.get('type') === 'font' &&
+            !asset.get('source') &&
+            Object.keys(asset.get('i18n')).length > 0
+        );
+
+        assets.forEach(item => {
+            obj = item[1];
+            const i18n = obj.get('i18n');
+            for (const key in i18n) {
+                if (i18n[key] === this.oldId) {
+                    this.set(obj, 'i18n.' + key);
+                }
+            }
+        });
     };
 
     AssetReplace.prototype.replaceScriptAttributes = function () {
@@ -544,11 +600,17 @@ editor.once('load', function () {
             case 'animation':
                 this.handleAnimation();
                 break;
+            case 'animstategraph':
+                this.handleAnimStateGraph();
+                break;
             case 'audio':
                 this.handleAudio();
                 break;
             case 'cubemap':
                 this.handleCubemap();
+                break;
+            case 'font':
+                this.handleFont();
                 break;
             case 'material':
                 this.handleMaterial();

@@ -67,6 +67,7 @@ editor.once('load', function () {
         'json': '&#57864;',
         'layers': '&#57992',
         'material': '&#57749;',
+        'font': '&#58374;',
         'script': '&#57864;',
         'shader': '&#57864;',
         'text': '&#57864;',
@@ -292,7 +293,8 @@ editor.once('load', function () {
         'sprite': true,
         'json': true,
         'text': true,
-        'animstategraph': true
+        'animstategraph': true,
+        'font': true
     };
     const menuItemReplace = new ui.MenuItem({
         text: 'Replace',

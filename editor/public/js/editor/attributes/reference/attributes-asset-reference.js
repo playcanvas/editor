@@ -31,6 +31,10 @@ editor.once('load', function () {
         name: 'runtime',
         description: 'If this asset is runtime-friendly and can be used within the app.'
     }, {
+        title: 'exclude',
+        subTitle: '{Boolean}',
+        description: 'Exclude asset from the project. If true, the asset will not be available at runtime and not be included in published builds.'
+    }, {
         title: 'preload',
         subTitle: '{Boolean}',
         description: 'If true the asset will be loaded during the preload phase of application set up.',

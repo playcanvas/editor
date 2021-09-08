@@ -37,13 +37,9 @@ editor.once('load', function () {
                 hoverEntity.model.material = hoverEntity._materialBeforeHover;
             }
         } else if (hoverEntity.render) {
-            if (hoverEntity.render.type === 'asset' && hoverEntity.render.meshInstances.length)  {
-                const materials = hoverEntity.render.materialAssets;
-                materials[hoverEntity._materialIndHover] = hoverEntity._materialBeforeHover;
-                hoverEntity.render.materialAssets = materials;
-            } else {
-                hoverEntity.render.material = hoverEntity._materialBeforeHover;
-            }
+            const materials = hoverEntity.render.materialAssets;
+            materials[hoverEntity._materialIndHover] = hoverEntity._materialBeforeHover;
+            hoverEntity.render.materialAssets = materials;
         }
 
         delete hoverEntity._materialBeforeHover;
@@ -92,23 +88,16 @@ editor.once('load', function () {
                     editor.call('viewport:render');
                 }
             } else if (hoverEntity.render) {
-                if (hoverEntity.render.type === 'asset' && hoverEntity.render.meshInstances.length) {
-                    const ind = hoverEntity.render.meshInstances.indexOf(hoverMeshInstance);
-                    if (ind !== -1) {
-                        hoverEntity._materialBeforeHover = hoverEntity.render.materialAssets[ind];
-                        hoverEntity._materialIndHover = ind;
-                        const materials = hoverEntity.render.materialAssets;
-                        materials[ind] = hoverMaterial;
-                        hoverEntity.render.materialAssets = materials;
+                const ind = hoverEntity.render.meshInstances.indexOf(hoverMeshInstance);
+                if (ind !== -1) {
+                    hoverEntity._materialBeforeHover = hoverEntity.render.materialAssets[ind];
+                    hoverEntity._materialIndHover = ind;
+                    const materials = hoverEntity.render.materialAssets;
+                    materials[ind] = hoverMaterial;
+                    hoverEntity.render.materialAssets = materials;
 
-                        editor.call('viewport:render');
-                    }
-                } else {
-                    hoverEntity._materialBeforeHover = hoverEntity.render.material;
-                    hoverEntity.render.material = hoverMaterial.resource;
                     editor.call('viewport:render');
                 }
-
             }
 
         }

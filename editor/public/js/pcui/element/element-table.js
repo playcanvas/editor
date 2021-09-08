@@ -736,9 +736,12 @@ Object.assign(pcui, (function () {
             this._sortObservers();
 
             const newIndex = this._observers.indexOf(observer);
-            if (newIndex === index) return;
-
-            this.body.dom.insertBefore(row.dom, this.body.dom.childNodes[newIndex]);
+            // newIndex === index requires no changes
+            if (newIndex > index) {
+                this.body.dom.insertBefore(row.dom, this.body.dom.childNodes[newIndex + 1]);
+            } else if (newIndex < index) {
+                this.body.dom.insertBefore(row.dom, this.body.dom.childNodes[newIndex]);
+            }
         }
 
         /**

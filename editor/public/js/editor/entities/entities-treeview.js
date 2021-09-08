@@ -271,7 +271,6 @@ Object.assign(pcui, (function () {
         _onEntitiesMouseEnter(evt) {
             this._dropType = this._dropManager.dropType;
             this._dropData = this._dropManager.dropData;
-
             if (!this._isDraggingValidAssetType(this._dropType, this._dropData)) return;
 
             if (this._dropData) {
@@ -496,7 +495,13 @@ Object.assign(pcui, (function () {
         _onEntitiesMouseLeave(evt) {
             window.removeEventListener('mouseup', this._domEvtEntitiesMouseUp);
 
-            this.isDragging = false;
+            const dropType = this._dropType;
+            const dropData = this._dropData;
+            this._dropType = null;
+            this._dropData = null;
+            if (this._isDraggingValidAssetType(dropType, dropData)) {
+                this.isDragging = false;
+            }
         }
 
         _isDraggingValidAssetType(dropType, dropData) {
