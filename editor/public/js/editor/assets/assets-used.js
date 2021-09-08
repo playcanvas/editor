@@ -339,7 +339,7 @@ editor.once('load', function () {
                 if (parts.length === 5) {
                     updateAsset(this.get('resource_id'), 'entity', value, null);
                 }
-            } else if (!keys.entity[path]) {
+            } else if (!keys.entity[path] && !keys['entity-lists'][path]) {
                 return;
             }
 
