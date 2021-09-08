@@ -188,12 +188,11 @@ Object.assign(pcui, (function () {
 
             const ctx = this._canvas.getContext('2d');
 
-            const app = pc.Application.getApplication();
-
-            const engineAtlas = app.assets.get(atlasId);
-            if (!engineAtlas || !engineAtlas.file) {
+            let atlasUrl = atlas.get('file.url');
+            if (!atlasUrl) {
                 return this._cancelRender();
             }
+            atlasUrl = atlasUrl.appendQuery('t=' + atlas.get('file.hash'));
 
             let leftBound = Number.POSITIVE_INFINITY;
             let rightBound = Number.NEGATIVE_INFINITY;
@@ -262,7 +261,7 @@ Object.assign(pcui, (function () {
             ctx.imageSmoothingEnabled = false;
 
             let img;
-            let entry = imageCache.get(engineAtlas.file.hash);
+            let entry = imageCache.get(atlas.get('file.hash'));
             if (entry) {
                 if (entry.status === 'loaded') {
                     img = entry.value;
@@ -277,10 +276,10 @@ Object.assign(pcui, (function () {
                 // create an image element from the asset source file
                 // used in the preview if the texture contains compressed data
                 img = new Image();
-                img.src = engineAtlas.file.url;
+                img.src = atlasUrl;
 
                 // insert image into cache which fires an event when the image is loaded
-                entry = imageCache.insert(engineAtlas.file.hash, img);
+                entry = imageCache.insert(atlas.get('file.hash'), img);
                 this._events.push(entry.once('loaded', entry => {
                     editor.call('assets:sprite:watch:trigger', this._asset);
                 }));
