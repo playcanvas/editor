@@ -52,6 +52,7 @@ editor.once('load', function () {
         text: 'COMPLETE MERGE'
     });
     panelLeft.append(btnComplete);
+    btnComplete.class.add('confirm');
 
     // right panel
     var panelRight = new ui.Panel();
@@ -598,6 +599,15 @@ editor.once('load', function () {
                 }, 2000);
             }
         });
+    });
+
+    // Change style of review merge button when enabled
+    btnReview.on('enable', function () {
+        btnReview.class.add('confirm');
+    });
+
+    btnReview.on('disable', function () {
+        btnReview.class.remove('confirm');
     });
 
     // Called when the merge progress status changes to ready for review
