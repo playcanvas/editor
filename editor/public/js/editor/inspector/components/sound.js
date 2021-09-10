@@ -364,6 +364,9 @@ Object.assign(pcui, (function () {
                     var matches = path.match(/^components.sound.slots.(\d+)$/);
                     if (! matches) return;
 
+                    // if inspector already exists then do not create a new one
+                    if (this._slotInspectors[matches[1]]) return;
+
                     this._createSlotInspector(entities[0], matches[1], value);
                 }));
 

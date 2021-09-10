@@ -64,6 +64,8 @@ Object.assign(pcui, (function () {
 
             this.class.add(CLASS_ROOT);
 
+            this._history = args.history;
+
             this._projectSettings = args.projectSettings;
 
             if (!editor.call('settings:project').get('useLegacyScripts')) {
@@ -89,6 +91,12 @@ Object.assign(pcui, (function () {
             });
             this.append(this._attributesInspector);
 
+            const containerComponentButtons = new pcui.Container({
+                flex: true,
+                flexDirection: 'row'
+            });
+            this.append(containerComponentButtons);
+
             // add component button
             const btnAddComponent = new pcui.Button({
                 text: 'ADD COMPONENT',
@@ -96,9 +104,19 @@ Object.assign(pcui, (function () {
                 flexGrow: 1,
                 class: CLASS_ADD_COMPONENT
             });
-            this.append(btnAddComponent);
+            containerComponentButtons.append(btnAddComponent);
 
             btnAddComponent.on('click', this._onClickAddComponent.bind(this));
+
+            // cog button
+            const btnCog = new pcui.Button({
+                icon: 'E134'
+            });
+            btnCog.style.fontSize = '16px';
+            btnCog.style.marginLeft = '0';
+            containerComponentButtons.append(btnCog);
+
+            this._menuCog = this._createCogMenu(btnCog);
 
             // add component inspectors
             this._componentInspectors = {};
@@ -127,6 +145,8 @@ Object.assign(pcui, (function () {
             this._entities = null;
             this._entityEvents = [];
 
+            this._localStorage = new pcui.LocalStorage();
+
             // add component menu
             this._menuAddComponent = this._createAddComponentMenu();
 
@@ -141,6 +161,50 @@ Object.assign(pcui, (function () {
             if (editor.call('picker:isOpen')) return;
             this._attributesInspector.getField('name').flash();
             this._attributesInspector.getField('name').focus();
+        }
+
+        _createCogMenu(target) {
+            const menu = new ui.Menu();
+
+            const menuItemPaste = new ui.MenuItem({
+                text: 'Paste Component',
+                icon: '&#58184;',
+                value: 'component-paste'
+            });
+            menu.append(menuItemPaste);
+            menuItemPaste.on('select', this._onClickPasteComponent.bind(this));
+
+            const menuItemDelete = new ui.MenuItem({
+                text: 'Delete All Components',
+                icon: '&#57636;',
+                value: 'component-delete'
+            });
+            menu.append(menuItemDelete);
+            menuItemDelete.on('select', this._onClickRemoveComponents.bind(this));
+
+            menu.on('open', () => {
+                menuItemPaste.disabled = !this._localStorage.has('copy-component');
+                let deleteDisabled = true;
+                for (const entity of this._entities) {
+                    if (Object.keys(entity.get('components')).length > 0) {
+                        deleteDisabled = false;
+                        break;
+                    }
+                }
+
+                menuItemDelete.disabled = deleteDisabled;
+            });
+
+            editor.call('layout.root').append(menu);
+
+            target.on('click', () => {
+                const rect = target.dom.getBoundingClientRect();
+                menu.position(rect.right, rect.bottom);
+                menu.open = true;
+            });
+
+            return menu;
+
         }
 
         _createAddComponentMenu() {
@@ -186,6 +250,64 @@ Object.assign(pcui, (function () {
             editor.call('layout.root').append(menu);
 
             return menu;
+        }
+
+        _onClickPasteComponent() {
+            let data = this._localStorage.get('copy-component');
+            if (!data) return;
+            data = JSON.parse(data);
+
+            const component = this._localStorage.get('copy-component-name');
+            if (!component) return;
+
+            editor.call('entities:pasteComponent', this._entities, component, data);
+        }
+
+        _onClickRemoveComponents() {
+            const entities = this._entities.slice();
+
+            let previous = {};
+            const redo = () => {
+                previous = {};
+                entities.forEach(e => {
+                    e = e.latest();
+                    if (!e) return;
+
+                    const history = e.history.enabled;
+                    e.history.enabled = false;
+
+                    previous[e.get('resource_id')] = e.get('components');
+                    for (const component in previous[e.get('resource_id')]) {
+                        e.unset('components.' + component);
+                    }
+
+                    e.history.enabled = history;
+                });
+            };
+
+            const undo = () => {
+                entities.forEach(e => {
+                    e = e.latest();
+                    if (!e) return;
+
+                    const history = e.history.enabled;
+                    e.history.enabled = false;
+
+                    for (const component in previous[e.get('resource_id')]) {
+                        e.set('components.' + component, previous[e.get('resource_id')][component]);
+                    }
+
+                    e.history.enabled = history;
+                });
+            };
+
+            redo();
+
+            this._history.add({
+                name: `entities.remove components`,
+                undo: undo,
+                redo: redo
+            });
         }
 
         _onClickAddComponent(evt) {
@@ -362,6 +484,8 @@ Object.assign(pcui, (function () {
         destroy() {
             if (this._destroyed) return;
 
+            this._menuAddComponent.destroy();
+            this._menuCog.destroy();
             editor.call('hotkey:unregister', 'entities:rename:f2');
 
             super.destroy();
