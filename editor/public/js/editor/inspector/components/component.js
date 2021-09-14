@@ -9,7 +9,6 @@ Object.assign(pcui, (function () {
         constructor(args) {
             args = Object.assign({}, args);
             args.flex = true;
-            args.removable = true;
             super(args);
 
             this.class.add(CLASS_ROOT);
@@ -62,6 +61,16 @@ Object.assign(pcui, (function () {
                 enableGroup.text = value ? 'ON' : 'OFF';
             });
 
+            // add cog button
+            this._btnCog = new pcui.Button({
+                icon: 'E134'
+            });
+            this._btnCog.style.fontSize = '16px';
+            this.header.append(this._btnCog);
+
+            this._localStorage = new pcui.LocalStorage();
+            this._contextMenu = this._createContextMenu(this._btnCog);
+
             this._templateOverridesInspector = args.templateOverridesInspector;
             if (this._templateOverridesInspector) {
                 this._templateOverridesInspector.registerElementForPath(`components.${this._component}`, this, this._tooltipGroup);
@@ -72,10 +81,66 @@ Object.assign(pcui, (function () {
             this._entityEvents = [];
         }
 
-        // Remove component on click
-        _onClickRemove(evt) {
-            super._onClickRemove(evt);
+        _createContextMenu(target) {
+            const menu = new ui.Menu();
 
+            const menuItemCopy = new ui.MenuItem({
+                text: 'Copy',
+                icon: '&#58193;',
+                value: 'component-copy'
+            });
+            menuItemCopy.on('select', this._onClickCopy.bind(this));
+            menu.append(menuItemCopy);
+
+            const menuItemPaste = new ui.MenuItem({
+                text: 'Paste',
+                icon: '&#58184;',
+                value: 'component-paste'
+            });
+            menu.append(menuItemPaste);
+            menuItemPaste.on('select', this._onClickPaste.bind(this));
+
+            const menuItemDelete = new ui.MenuItem({
+                text: 'Delete',
+                icon: '&#57636;',
+                value: 'component-delete'
+            });
+            menu.append(menuItemDelete);
+            menuItemDelete.on('select', this._onClickRemove.bind(this));
+
+            menu.on('open', () => {
+                menuItemCopy.disabled = (!this._entities || this._entities.length !== 1);
+                menuItemPaste.disabled = !this._localStorage.has('copy-component') || this._localStorage.get('copy-component-name') !== this._component;
+            });
+
+            editor.call('layout.root').append(menu);
+
+            target.on('click', () => {
+                const rect = target.dom.getBoundingClientRect();
+                menu.position(rect.right, rect.bottom);
+                menu.open = true;
+            });
+
+            return menu;
+        }
+
+        _onClickCopy() {
+            const data = this._entities[0].get('components.' + this._component);
+            this._localStorage.set('copy-component', JSON.stringify(data));
+            this._localStorage.set('copy-component-name', this._component);
+        }
+
+        _onClickPaste() {
+            let data = this._localStorage.get('copy-component');
+            if (!data) return;
+
+            data = JSON.parse(data);
+
+            editor.call('entities:pasteComponent', this._entities, this._component, data);
+        }
+
+        // Remove component on click
+        _onClickRemove() {
             if (!this._entities) return;
 
             // make copy of entities for undo / redo
@@ -148,6 +213,8 @@ Object.assign(pcui, (function () {
                 this._templateOverridesInspector.unregisterElementForPath(`components.${this._component}`);
                 this._templateOverridesInspector.unregisterElementForPath(`components.${this._component}.enabled`);
             }
+
+            this._contextMenu.destroy();
 
             super.destroy();
         }

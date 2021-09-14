@@ -173,10 +173,10 @@ Object.assign(pcui, (function () {
             } else {
                 this._clearAnimationSlots();
             }
-            this._entities[0].on('components.anim.stateGraphAsset:set', () => {
+            this._entityEvents.push(this._entities[0].on('components.anim.stateGraphAsset:set', () => {
                 this._stateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
                 this._addAnimationAssetSlots();
-            });
+            }));
         }
 
         unlink() {

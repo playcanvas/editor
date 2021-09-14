@@ -8603,6 +8603,11 @@ strong {
                             font-size: 12px;
                             text-align: center;
                         }
+
+                        .confirm {
+                            background-color: $text-active;
+                            color: $text-primary;
+                        }
                     }
                 }
 

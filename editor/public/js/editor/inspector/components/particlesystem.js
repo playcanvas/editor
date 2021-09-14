@@ -445,8 +445,6 @@ Object.assign(pcui, (function () {
         _toggleFields() {
             if (this._suppressToggleFields) return;
 
-            this._field('screenSpace').parent.hidden = !editor.call('users:hasFlag', 'hasUIParticles');
-
             const emitterShape = this._field('emitterShape').value;
 
             this._field('preWarm').parent.hidden = !this._field('loop').value;

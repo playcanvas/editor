@@ -280,7 +280,7 @@ editor.once('load', function () {
     var refreshResolutionProperties = function () {
         app.setCanvasResolution(config.project.settings.resolutionMode, config.project.settings.width, config.project.settings.height);
         app.setCanvasFillMode(config.project.settings.fillMode, config.project.settings.width, config.project.settings.height);
-        reflow();
+        pcBootstrap.resizeCanvas(app, canvas);
     };
 
     projectSettings.on('width:set', function (value) {

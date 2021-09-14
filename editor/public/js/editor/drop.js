@@ -4,6 +4,39 @@ editor.once('load', function () {
     const dropManager = new pcui.DropManager();
     editor.call('layout.root').append(dropManager);
 
+    const attributesPanel = editor.call('layout.attributes');
+
+    // Handle scrolling on the attributes panel while drop targets are active.
+    // In this case the wheel/scroll events will not pass through to the attributes panel
+    // so do manual scrolling with javascript
+    dropManager.dom.addEventListener('wheel', e => {
+        if (attributesPanel.hidden || attributesPanel.collapsed) return;
+
+        const rect = attributesPanel.dom.getBoundingClientRect();
+        // if mouse on top of attributes panel...
+        if (e.x >= rect.left && e.x <= rect.right && e.y >= rect.top && e.y <= rect.bottom) {
+            // scroll attributes panel
+            const oldTop = attributesPanel.content.dom.scrollTop;
+            attributesPanel.content.dom.scrollTop += e.deltaY;
+            const diff = attributesPanel.content.dom.scrollTop - oldTop;
+
+            // scroll all drop targets that are targeting attribute panel children
+            dropManager.domContent.childNodes.forEach(child => {
+                if (child.ui && !child.ui.hidden && child.ui._domTargetElement && attributesPanel.dom.contains(child.ui._domTargetElement)) {
+                    let top = child.style.top;
+                    if (top.endsWith('px')) {
+                        top = parseFloat(top.substring(0, top.length - 2));
+                    } else {
+                        top = 0;
+                    }
+
+                    top -= diff;
+                    child.style.top = top + 'px';
+                }
+            });
+        }
+    });
+
     editor.method('drop:target', function (obj) {
         const dropTarget = new pcui.DropTarget(obj.ref, {
             dropType: obj.type,

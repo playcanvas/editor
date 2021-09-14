@@ -29,28 +29,35 @@ editor.once('load', function () {
             return record;
         });
 
+        // disable selection history
+        const selectorHistory = editor.call('selector:history');
+        editor.call('selector:history', false);
+
+        const selectorType = editor.call('selector:type');
+        const selected = editor.call('selector:items');
+
+        // first remove entities from old parent
+        records.forEach(record => {
+            const history = record.parentOld.history.enabled;
+            record.parentOld.history.enabled = false;
+            record.parentOld.removeValue('children', record.resourceId);
+            record.parentOld.history.enabled = history;
+        });
+
+        // then insert entity under new parent
         records.forEach((record, i) => {
+            const history = {
+                parent: record.parent.history.enabled,
+                parentOld: record.parentOld.history.enabled,
+                entity: record.entity.history.enabled
+            };
             record.parent.history.enabled = false;
             record.parentOld.history.enabled = false;
             record.entity.history.enabled = false;
 
-            if (record.parent === record.parentOld) {
-                // move
-                record.parent.removeValue('children', record.resourceId);
-                record.parent.insert('children', record.resourceId, record.indNew + ((record.indNew > record.indOld) ? (records.length - 1 - i) : 0));
-            } else {
-                // remove from old parent
-                record.parentOld.removeValue('children', record.resourceId);
-
-                // add to new parent children
-                if (record.indNew !== -1) {
-                    // before other item
-                    record.parent.insert('children', record.resourceId, record.indNew);
-                } else {
-                    // at the end
-                    record.parent.insert('children', record.resourceId);
-                }
-
+            const index = (record.indNew !== -1 && record.indNew <= record.parent.getRaw('children').length ? record.indNew : undefined);
+            record.parent.insert('children', record.resourceId, index);
+            if (record.parent !== record.parentOld) {
                 // set parent
                 record.entity.set('parent', record.parent.get('resource_id'));
             }
@@ -65,14 +72,26 @@ editor.once('load', function () {
                 record.entity.set('rotation', [localRotation.x, localRotation.y, localRotation.z]);
             }
 
-            record.parent.history.enabled = true;
-            record.parentOld.history.enabled = true;
-            record.entity.history.enabled = true;
+            record.parent.history.enabled = history.parent;
+            record.parentOld.history.enabled = history.parentOld;
+            record.entity.history.enabled = history.entity;
+        });
+
+        // restore selection
+        if (selectorType === 'entity') {
+            editor.call('selector:set', 'entity', selected);
+        }
+
+        // restore selector history in a timeout (because
+        // selection events get added to history in a timeout)
+        setTimeout(() => {
+            editor.call('selector:history', selectorHistory);
         });
 
         editor.call('history:add', {
             name: 'reparent entities',
             undo: function () {
+                const validRecords = [];
                 for (let i = 0; i < records.length; i++) {
                     const record = records[i];
                     var entity = record.entity.latest();
@@ -84,7 +103,7 @@ editor.once('load', function () {
                     var parentOld = record.parentOld.latest();
                     if (!parentOld) continue;
 
-                    if (parent.get('children').indexOf(record.resourceId) === -1 || (parentOld.get('children').indexOf(record.resourceId) !== -1 && parentOld !== parent)) {
+                    if (parent.getRaw('children').indexOf(record.resourceId) === -1 || (parentOld.getRaw('children').indexOf(record.resourceId) !== -1 && parentOld !== parent)) {
                         return;
                     }
 
@@ -103,14 +122,43 @@ editor.once('load', function () {
                     if (deny)
                         continue;
 
+                    validRecords.push(records[i]);
+                }
+
+                if (!validRecords.length) return;
+
+                const selectorType = editor.call('selector:type');
+                const selected = editor.call('selector:items');
+                const selectorHistory = editor.call('selector:history');
+                editor.call('selector:history', false);
+
+                // first remove all entities from their current parents
+                for (const record of validRecords) {
+                    const entity = record.entity.latest();
+                    const parent = editor.call('entities:get', entity.get('parent'));
+
+                    const history = parent.history.enabled;
                     parent.history.enabled = false;
                     parent.removeValue('children', record.resourceId);
-                    parent.history.enabled = true;
+                    parent.history.enabled = history;
+                }
+
+                // then insert entities under their old parents
+                for (const record of validRecords) {
+                    const entity = record.entity.latest();
+                    const parentOld = record.parentOld.latest();
+                    const history = {
+                        parentOld: parentOld.history.enabled,
+                        entity: entity.history.enabled
+                    };
 
                     parentOld.history.enabled = false;
-                    var off = parent !== parentOld ? 0 : ((record.indNew < record.indOld) ? (records.length - 1 - i) : 0);
-                    parentOld.insert('children', record.resourceId, record.indOld === -1 ? undefined : record.indOld + off);
-                    parentOld.history.enabled = true;
+                    if (record.indOld !== -1 && record.indOld <= parentOld.getRaw('children').length) {
+                        parentOld.insert('children', record.resourceId, record.indOld);
+                    } else {
+                        parentOld.insert('children', record.resourceId);
+                    }
+                    parentOld.history.enabled = history.parentOld;
 
                     entity.history.enabled = false;
                     entity.set('parent', record.parentOld.get('resource_id'));
@@ -125,21 +173,32 @@ editor.once('load', function () {
                         entity.set('rotation', [localRotation.x, localRotation.y, localRotation.z]);
                     }
 
-                    entity.history.enabled = true;
+                    entity.history.enabled = history.entity;
 
                     editor.call('viewport:render');
                 }
+
+                if (selectorType === 'entity') {
+                    editor.call('selector:set', 'entity', selected);
+                }
+
+                setTimeout(() => {
+                    editor.call('selector:history', selectorHistory);
+                });
             },
 
             redo: function () {
+                const validRecords = [];
                 for (let i = 0; i < records.length; i++) {
                     const record = records[i];
                     var entity = editor.call('entities:get', record.resourceId);
                     if (! entity) continue;
 
-                    var parent = editor.call('entities:get', record.parent.get('resource_id'));
+                    var parent = record.parent.latest();
+                    if (!parent) continue;
+
                     var parentOld = editor.call('entities:get', entity.get('parent'));
-                    if (! parentOld || ! parent) continue;
+                    if (! parentOld) continue;
 
                     if (parentOld.get('children').indexOf(record.resourceId) === -1 || (parent.get('children').indexOf(record.resourceId) !== -1 && parent !== parentOld))
                         continue;
@@ -159,14 +218,40 @@ editor.once('load', function () {
                     if (deny)
                         continue;
 
+                    validRecords.push(record);
+                }
+
+                if (!validRecords.length) return;
+
+                const selectorType = editor.call('selector:type');
+                const selected = editor.call('selector:items');
+                const selectorHistory = editor.call('selector:history');
+                editor.call('selector:history', false);
+
+                for (const record of validRecords) {
+                    const entity = record.entity.latest();
+                    const parentOld = editor.call('entities:get', entity.get('parent'));
+                    const history = parentOld.history.enabled;
                     parentOld.history.enabled = false;
                     parentOld.removeValue('children', record.resourceId);
-                    parentOld.history.enabled = true;
+                    parentOld.history.enabled = history;
+                }
+
+                for (const record of validRecords) {
+                    const entity = record.entity.latest();
+                    const parent = record.parent.latest();
+                    const history = {
+                        parent: parent.history.enabled,
+                        entity: entity.history.enabled
+                    };
 
                     parent.history.enabled = false;
-                    var off = parent !== parentOld ? 0 : ((record.indNew > record.indOld) ? (records.length - 1 - i) : 0);
-                    parent.insert('children', record.resourceId, record.indNew + off);
-                    parent.history.enabled = true;
+                    if (record.indNew !== -1 && record.indNew <= parent.getRaw('children').length) {
+                        parent.insert('children', record.resourceId, record.indNew);
+                    } else {
+                        parent.insert('children', record.resourceId);
+                    }
+                    parent.history.enabled = history.parent;
 
                     entity.history.enabled = false;
                     entity.set('parent', record.parent.get('resource_id'));
@@ -181,10 +266,18 @@ editor.once('load', function () {
                         entity.set('rotation', [localRotation.x, localRotation.y, localRotation.z]);
                     }
 
-                    entity.history.enabled = true;
+                    entity.history.enabled = history.entity;
 
                     editor.call('viewport:render');
                 }
+
+                if (selectorType === 'entity') {
+                    editor.call('selector:set', 'entity', selected);
+                }
+
+                setTimeout(() => {
+                    editor.call('selector:history', selectorHistory);
+                });
             }
         });
 
