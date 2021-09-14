@@ -21,11 +21,11 @@ Welcome to the PlayCanvas product roadmap. It covers calendar year 2021.
 | Node-based shader editor (closed beta)       | Graphics            | Complete       | Jun 2021  |
 | Async loading of templates                   | Templates           | Complete       | Jun 2021  |
 | Back-end of copying between branches         | Version Control     | Complete       | Jul 2021  |
-| Animation masks / state layers               | Animation           | In Development | Aug 2021  |
-| Revert merge                                 | Version Control     | In Development | Aug 2021  |
-| Runtime lightmapper improvements             | Graphics            | In Development | Aug 2021  |
-| Open source pcui-graph plugin                | PCUI                | In Development | Aug 2021  |
-| Hard reset in version control                | Version Control     | In Development | Aug 2021  |
+| Animation masks / state layers               | Animation           | Complete       | Aug 2021  |
+| Revert merge                                 | Version Control     | Complete       | Aug 2021  |
+| Runtime lightmapper improvements             | Graphics            | Complete       | Aug 2021  |
+| Open source pcui-graph plugin                | PCUI                | Complete       | Aug 2021  |
+| Hard reset in version control                | Version Control     | Complete       | Aug 2021  |
 | Logged out access to Editor                  | Editor              | In Development | Aug 2021  |
 | Editor API (closed beta)                     | Editor              | In Development | Sep 2021  |
 | Animation blend tree editor                  | Animation           | Not Started    | Sep 2021  |
