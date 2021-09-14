@@ -20,6 +20,69 @@ editor.once('load', function () {
     editor.on('entities:add', function (obj) {
         var app;
 
+        function setProperty(entity, component, property, value) {
+            var callSetter = true;
+            // edit component property
+            value = obj.get('components.' + component + '.' + property);
+
+            if (component === 'particlesystem') {
+                if (property === 'enabled') {
+                    value = false;
+                } else if (property === 'autoPlay') {
+                    value = true;
+                }
+            } else if (component === 'animation') {
+                if (property === 'enabled') {
+                    value = false;
+                }
+            } else if (component === 'sprite') {
+                if (property === 'autoPlayClip') {
+                    // stop current clip so that we can show the new one
+                    if (entity.sprite) {
+                        entity.sprite.stop();
+                    }
+                }
+            } else if (component === 'camera') {
+                // do not let cameras get enabled by changes to the observer
+                // because we want to control which cameras are being rendered manually
+                if (property === 'enabled') {
+                    value = false;
+                }
+            } else if (component === 'element') {
+                // Only propagate values to the margin or anchor if the value has
+                // actually been modified. Doing so in other cases gives the element
+                // the impression that the user has intentionally changed the margin,
+                // which in turn will change its width/height unnecessarily.
+                if (property === 'margin' || property === 'anchor') {
+                    var existing = entity.element[property];
+
+                    if (approxEqual(value[0], existing.x) &&
+                        approxEqual(value[1], existing.y) &&
+                        approxEqual(value[2], existing.z) &&
+                        approxEqual(value[3], existing.w)) {
+                        callSetter = false;
+                    }
+                }
+            } else if (component === 'model' || component === 'render') {
+                if (property === 'aabbCenter' || property === 'aabbHalfExtents') {
+                    const aabbCenter = obj.get(`components.${component}.aabbCenter`);
+                    const aabbHalfExtents = obj.get(`components.${component}.aabbHalfExtents`);
+
+                    if (aabbCenter && aabbHalfExtents) {
+                        entity[component].customAabb = new pc.BoundingBox(new pc.Vec3(aabbCenter), new pc.Vec3(aabbHalfExtents));
+                    }
+                    callSetter = false;
+                }
+            }
+
+            if (callSetter) {
+                entity[component][property] = editor.call('components:convertValue', component, property, value);
+            }
+
+            // render
+            editor.call('viewport:render');
+        }
+
         // subscribe to changes
         obj.on('*:set', function (path, value) {
             if (obj._silent || ! path.startsWith('components'))
@@ -31,7 +94,6 @@ editor.once('load', function () {
             var parts = path.split('.');
             var component = parts[1];
             var property = parts[2];
-            var callSetter = true;
 
             // ignore script component
             if (component === 'script')
@@ -57,70 +119,16 @@ editor.once('load', function () {
                     // render
                     editor.call('viewport:render');
                 }
-            } else if (property) {
-                // edit component property
-                value = obj.get('components.' + component + '.' + property);
-
-                if (component === 'particlesystem') {
-                    if (property === 'enabled') {
-                        value = false;
-                    } else if (property === 'autoPlay') {
-                        value = true;
-                    }
-                } else if (component === 'animation') {
-                    if (property === 'enabled') {
-                        value = false;
-                    }
-                } else if (component === 'sprite') {
-                    if (property === 'autoPlayClip') {
-                        // stop current clip so that we can show the new one
-                        if (entity.sprite) {
-                            entity.sprite.stop();
-                        }
-                    }
-                } else if (component === 'camera') {
-                    // do not let cameras get enabled by changes to the observer
-                    // because we want to control which cameras are being rendered manually
-                    if (property === 'enabled') {
-                        value = false;
-                    }
-                } else if (component === 'element') {
-                    // Only propagate values to the margin or anchor if the value has
-                    // actually been modified. Doing so in other cases gives the element
-                    // the impression that the user has intentionally changed the margin,
-                    // which in turn will change its width/height unnecessarily.
-                    if (property === 'margin' || property === 'anchor') {
-                        var existing = entity.element[property];
-
-                        if (approxEqual(value[0], existing.x) &&
-                            approxEqual(value[1], existing.y) &&
-                            approxEqual(value[2], existing.z) &&
-                            approxEqual(value[3], existing.w)) {
-                            callSetter = false;
-                        }
-                    }
-                } else if (component === 'model' || component === 'render') {
-                    if (property === 'aabbCenter' || property === 'aabbHalfExtents') {
-                        const aabbCenter = obj.get(`components.${component}.aabbCenter`);
-                        const aabbHalfExtents = obj.get(`components.${component}.aabbHalfExtents`);
-
-                        if (aabbCenter && aabbHalfExtents) {
-                            entity[component].customAabb = new pc.BoundingBox(new pc.Vec3(aabbCenter), new pc.Vec3(aabbHalfExtents));
-                        }
-                        callSetter = false;
-                    }
+            } else if (!property) {
+                for (const field in value) {
+                    setProperty(entity, component, field, value[field]);
                 }
-
-                if (callSetter) {
-                    entity[component][property] = editor.call('components:convertValue', component, property, value);
-                }
-
-                // render
-                editor.call('viewport:render');
+            } else {
+                setProperty(entity, component, property, value);
             }
         });
 
-        var setComponentProperty = function (path, value) {
+        var onInsertOrRemove = function (path, value) {
             if (obj._silent || ! path.startsWith('components'))
                 return;
 
@@ -145,8 +153,8 @@ editor.once('load', function () {
             }
         };
 
-        obj.on('*:insert', setComponentProperty);
-        obj.on('*:remove', setComponentProperty);
+        obj.on('*:insert', onInsertOrRemove);
+        obj.on('*:remove', onInsertOrRemove);
 
         obj.on('*:unset', function (path) {
             if (obj._silent || ! path.startsWith('components'))
