@@ -9,7 +9,6 @@ editor.once('load', function () {
         dropManager: editor.call('editor:dropManager'),
         history: editor.call('editor:history'),
         assets: editor.call('assets:raw'),
-        scrollable: true,
         onContextMenu: function (evt, item) {
             const open = editor.call('entities:contextmenu:open', item.entity, evt.clientX, evt.clientY);
 
