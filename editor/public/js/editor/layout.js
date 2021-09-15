@@ -77,6 +77,7 @@ editor.on('load', function () {
         enabled: true,
         width: editor.call('localStorage:get', 'editor:layout:hierarchy:width') || 256,
         panelType: 'normal',
+        scrollable: true,
         collapsible: true,
         collapseHorizontally: true,
         collapsed: editor.call('localStorage:get', 'editor:layout:hierarchy:collapse') || window.innerWidth <= 480,

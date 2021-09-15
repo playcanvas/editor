@@ -389,6 +389,7 @@ Object.assign(pcui, (function () {
 
             this._foldersView = new pcui.TreeView({
                 allowReordering: false,
+                dragScrollElement: this._containerFolders,
                 onReparent: this._onFolderTreeReparent.bind(this)
             });
             this._containerFolders.append(this._foldersView);
