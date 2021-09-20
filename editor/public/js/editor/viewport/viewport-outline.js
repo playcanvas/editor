@@ -315,7 +315,7 @@ void main(void)
 
                     let color = colors[id];
                     if (!color) {
-                        let data = editor.call('whoisonline:color', id, 'data');
+                        let data = editor.call('users:color', id, 'data');
 
                         if (config.self.id === id)
                             data = [1, 1, 1];

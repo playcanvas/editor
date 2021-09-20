@@ -188,7 +188,7 @@ editor.once('load', function () {
         editor.once('realtime:disconnected', unload);
 
         editor.call('users:loadOne', userId, function (user) {
-            const userColor = editor.call('whoisonline:color', user.id, 'data');
+            const userColor = editor.call('users:color', user.id, 'data');
 
             const colorNormal = new Float32Array([userColor[0], userColor[1], userColor[2], 1]);
             camera.render.meshInstances[0].setParameter('uColor', colorNormal);

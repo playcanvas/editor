@@ -62,7 +62,7 @@ editor.once('load', function () {
     };
 
 
-    editor.on('whoisonline:add', function (id) {
+    function addUser(id) {
         var hash = id % 14;
         if (Math.floor(hash / 2) !== hash / 2)
             hash = (hash + Math.floor(pallete.length / 2)) % 14;
@@ -79,14 +79,14 @@ editor.once('load', function () {
                 hex: rgbToHex(Math.round(rgb[0] * 255), Math.round(rgb[1] * 255), Math.round(rgb[2] * 255))
             }
         };
-    });
+    }
 
-    editor.on('whoisonline:remove', function (id) {
-        delete users[id];
-    });
-
-    editor.method('whoisonline:color', function (id, type) {
+    editor.method('users:color', function (id, type) {
         type = type || 'data';
+        if (!users[id]) {
+            addUser(id);
+        }
+
         var color = users[id] && users[id].color || colorDefault;
         return color[type];
     });

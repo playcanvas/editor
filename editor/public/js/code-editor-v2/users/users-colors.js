@@ -50,7 +50,7 @@ editor.once('load', function () {
         return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
     };
 
-    editor.method('whoisonline:color', function (id, type) {
+    editor.method('users:color', function (id, type) {
         type = type || 'data';
 
         if (! users[id]) {

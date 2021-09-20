@@ -16,25 +16,38 @@ editor.once('load', function () {
         editor.emit('chat:typing', typing, typers, msg);
     };
 
-    editor.on('whoisonline:add', function (id) {
-        if (users[id])
-            return;
+    editor.on('relay:room:join', function (data) {
+        if (data.name !== 'project-' + config.project.id) return;
 
-        users[id] = {
-            id: id,
-            typing: 0,
-            username: ''
-        };
-
-        editor.call('users:loadOne', id, function (user) {
-            if (! users[id])
+        function addUser(id) {
+            if (users[id])
                 return;
 
-            users[id].username = user.username;
-        });
+            users[id] = {
+                id: id,
+                typing: 0,
+                username: ''
+            };
+
+            editor.call('users:loadOne', id, function (user) {
+                if (! users[id])
+                    return;
+
+                users[id].username = user.username;
+            });
+        }
+
+        if (data.users) {
+            data.users.forEach(addUser);
+        } else {
+            addUser(data.userId);
+        }
     });
 
-    editor.on('whoisonline:remove', function (id) {
+    editor.on('relay:room:leave', function (data) {
+        if (data.name !== 'project-' + config.project.id) return;
+
+        const id = data.userId;
         if (! users[id])
             return;
 
@@ -47,10 +60,10 @@ editor.once('load', function () {
     });
 
     editor.method('chat:sync:typing', function (data) {
-        if (! users[data.user] || data.user === config.self.id || users[data.user].typing === data.d)
+        if (! users[data.from] || data.from === config.self.id || users[data.from].typing === data.d)
             return;
 
-        users[data.user].typing = data.d;
+        users[data.from].typing = data.d;
 
         if (data.d) {
             typing++;
@@ -62,9 +75,18 @@ editor.once('load', function () {
     });
 
     editor.method('chat:typing', function (state) {
-        editor.call('realtime:send', 'chat', {
-            t: 'typing',
+        editor.call('relay:broadcast', 'project-' + config.project.id, {
+            chat: 'typing',
             d: state ? 1 : 0
         });
+    });
+
+    editor.on('relay:room:msg', data => {
+        if (data.msg.chat === 'typing') {
+            editor.call('chat:sync:typing', {
+                from: data.from,
+                d: data.msg.d
+            });
+        }
     });
 });

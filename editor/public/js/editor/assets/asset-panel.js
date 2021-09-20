@@ -1410,7 +1410,7 @@ Object.assign(pcui, (function () {
 
             userEntry = {
                 elements: [],
-                color: editor.call('whoisonline:color', userId, 'hex') || randomColor()
+                color: editor.call('users:color', userId, 'hex') || randomColor()
             };
             this._usersIndex[userId] = userEntry;
 

@@ -14,6 +14,10 @@ editor.once('load', function () {
             return connection;
         });
 
+        editor.method('realtime:authenticated', () => {
+            return auth;
+        });
+
         var connect = function () {
             if (reconnectAttempts > 4) {
                 editor.emit('realtime:cannotConnect');
@@ -40,31 +44,31 @@ editor.once('load', function () {
                             }
                         }
                     } else if (msg.data.startsWith('whoisonline:')) {
-                        const parts = msg.data.split(':');
-                        if (parts.length === 5 && parts[1] === 'scene') {
-                            let data;
-                            const op = parts[3];
-                            if (op === 'set') {
-                                data = JSON.parse(parts[4]);
-                            } else if (op === 'add' || op === 'remove') {
-                                data = parseInt(parts[4], 10);
-                            }
-                            editor.call('whoisonline:' + op, data);
-                        }
+                        // const parts = msg.data.split(':');
+                        // if (parts.length === 5 && parts[1] === 'scene') {
+                        //     let data;
+                        //     const op = parts[3];
+                        //     if (op === 'set') {
+                        //         data = JSON.parse(parts[4]);
+                        //     } else if (op === 'add' || op === 'remove') {
+                        //         data = parseInt(parts[4], 10);
+                        //     }
+                        //     editor.call('whoisonline:' + op, data);
+                        // }
                     } else if (msg.data.startsWith('chat:')) {
-                        data = msg.data.slice('chat:'.length);
+                        // data = msg.data.slice('chat:'.length);
 
-                        const ind = data.indexOf(':');
-                        if (ind !== -1) {
-                            const op = data.slice(0, ind);
-                            data = JSON.parse(data.slice(ind + 1));
+                        // const ind = data.indexOf(':');
+                        // if (ind !== -1) {
+                        //     const op = data.slice(0, ind);
+                        //     data = JSON.parse(data.slice(ind + 1));
 
-                            if (op === 'typing') {
-                                editor.call('chat:sync:typing', data);
-                            } else if (op === 'msg') {
-                                editor.call('chat:sync:msg', data);
-                            }
-                        }
+                        //     if (op === 'typing') {
+                        //         editor.call('chat:sync:typing', data);
+                        //     } else if (op === 'msg') {
+                        //         editor.call('chat:sync:msg', data);
+                        //     }
+                        // }
                     } else if (msg.data.startsWith('selection')) {
                         const data = msg.data.slice('selection:'.length);
                         editor.emit('selector:sync:raw', data);

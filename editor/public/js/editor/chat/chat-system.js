@@ -83,13 +83,6 @@ editor.once('load', function () {
         return items;
     };
 
-    editor.on('whoisonline:remove', function (id) {
-        if (lastUser === id) {
-            lastUser = null;
-            lastMessage = 0;
-        }
-    });
-
     editor.method('chat:post', function (type, string) {
         if (type !== 'system' && typeof(type) !== 'number')
             return;
@@ -138,7 +131,7 @@ editor.once('load', function () {
                 username.classList.add('username', 'selectable');
                 username.textContent = (user ? user.username : '') + ': ';
                 if (type !== config.self.id)
-                    username.style.color = editor.call('whoisonline:color', user.id, 'hex');
+                    username.style.color = editor.call('users:color', user.id, 'hex');
                 element.insertBefore(username, text);
             } else {
                 element.classList.add('multi');
@@ -167,7 +160,7 @@ editor.once('load', function () {
     });
 
     editor.method('chat:sync:msg', function (data) {
-        editor.call('chat:post', data.user, data.d);
+        editor.call('chat:post', data.from, data.d);
     });
 
     editor.method('chat:send', function (message) {
@@ -175,9 +168,27 @@ editor.once('load', function () {
         if (! message)
             return;
 
-        editor.call('realtime:send', 'chat', {
-            t: 'msg',
+        editor.call('relay:broadcast', 'project-' + config.project.id, {
+            chat: 'msg',
             d: message
         });
+    });
+
+    editor.on('relay:room:leave', function (data) {
+        if (data.name !== 'project-' + config.project.id) return;
+
+        if (lastUser === data.userId) {
+            lastUser = null;
+            lastMessage = 0;
+        }
+    });
+
+    editor.on('relay:room:msg', data => {
+        if (data.msg.chat === 'msg') {
+            editor.call('chat:sync:msg', {
+                from: data.from,
+                d: data.msg.d
+            });
+        }
     });
 });

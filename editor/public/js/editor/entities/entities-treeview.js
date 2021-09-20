@@ -217,7 +217,7 @@ Object.assign(pcui, (function () {
             // create new entry in userSelectionMarkers for user
             if (! this._userSelectionMarkers[user]) {
                 this._userSelectionMarkers[user] = {
-                    color: editor.call('whoisonline:color', user, 'hex'), // color we will use for this user's selections
+                    color: editor.call('users:color', user, 'hex'), // color we will use for this user's selections
                     markers: [], // holds markers for each entity the user has selected
                     pool: [] // pool of markers created for this user to reuse to avoid recreating them on every selection
                 };
