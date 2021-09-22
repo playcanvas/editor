@@ -21,7 +21,7 @@ editor.once('load', function() {
     var editingContext = null;
 
     var onError = function (err) {
-        log.error(err);
+        console.error(err);
         hasError = true;
         editor.emit('permissions:writeState', false);
         editor.emit('realtime:error', err);
@@ -192,18 +192,18 @@ editor.once('load', function() {
                                 loadAsset();
                         }
                     } else if (msg.data.startsWith('whoisonline:')) {
-                        var parts = msg.data.split(':');
-                        if (parts.length === 5 && parts[1] === 'doc') {
-                            var data;
-                            var doc = parts[2];
-                            var op = parts[3];
-                            if (op === 'set') {
-                                data = JSON.parse(parts[4]);
-                            } else if (op === 'add' || op === 'remove') {
-                                data = parseInt(parts[4], 10);
-                            }
-                            editor.call('whoisonline:' + op, data);
-                        }
+                        // var parts = msg.data.split(':');
+                        // if (parts.length === 5 && parts[1] === 'doc') {
+                        //     var data;
+                        //     var doc = parts[2];
+                        //     var op = parts[3];
+                        //     if (op === 'set') {
+                        //         data = JSON.parse(parts[4]);
+                        //     } else if (op === 'add' || op === 'remove') {
+                        //         data = parseInt(parts[4], 10);
+                        //     }
+                        //     editor.call('whoisonline:' + op, data);
+                        // }
                     }
                     else if (!msg.data.startsWith('fs:') && !msg.data.startsWith('doc:save:')) {
                         shareDbMessage(msg);

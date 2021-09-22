@@ -92,13 +92,19 @@ Object.assign(pcui, (function () {
 
             this.buildDom(DOM(this));
 
+            this._suspendSceneNameEvt = false;
+
             // Setup Scene Name attribute
             this._sceneName = 'Untitled';
             editor.on('scene:raw', (data) => {
                 editor.emit('scene:name', data.name);
                 this._sceneName = data.name;
                 const sceneNameField = this._sceneAttributes.getField('name');
+
+                const suspend = this._suspendSceneNameEvt;
+                this._suspendSceneNameEvt = true;
                 sceneNameField.value = this._sceneName;
+                this._suspendSceneNameEvt = suspend;
             });
             editor.on('realtime:scene:op:name', (op) => {
                 editor.emit('scene:name', op.oi);
@@ -135,6 +141,9 @@ Object.assign(pcui, (function () {
             const sceneNameField = this._sceneAttributes.getField('name');
             sceneNameField.value = this._sceneName;
             this._settingsEvents.push(sceneNameField.on('change', newSceneName => {
+                if (this._suspendSceneNameEvt) return;
+                if (!editor.call('permissions:write')) return;
+
                 editor.call('realtime:scene:op', {
                     p: ['name'],
                     od: this._sceneName || '',

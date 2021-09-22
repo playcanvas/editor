@@ -83,18 +83,18 @@ editor.once('load', function () {
                             onShareDbMessage(msg);
                         }
                     } else if (msg.data.startsWith('whoisonline:')) {
-                        const parts = msg.data.split(':');
-                        if (parts.length === 5 && parts[1] === 'doc') {
-                            let data;
-                            const doc = parts[2];
-                            const op = parts[3];
-                            if (op === 'set') {
-                                data = JSON.parse(parts[4]);
-                            } else if (op === 'add' || op === 'remove') {
-                                data = parseInt(parts[4], 10);
-                            }
-                            editor.call('whoisonline:' + op, doc, data);
-                        }
+                        // const parts = msg.data.split(':');
+                        // if (parts.length === 5 && parts[1] === 'doc') {
+                        //     let data;
+                        //     const doc = parts[2];
+                        //     const op = parts[3];
+                        //     if (op === 'set') {
+                        //         data = JSON.parse(parts[4]);
+                        //     } else if (op === 'add' || op === 'remove') {
+                        //         data = parseInt(parts[4], 10);
+                        //     }
+                        //     editor.call('whoisonline:' + op, doc, data);
+                        // }
                     } else if (msg.data.startsWith('doc:save:')) {
                         const parts = msg.data.split(':');
                         if (parts.length === 4) {

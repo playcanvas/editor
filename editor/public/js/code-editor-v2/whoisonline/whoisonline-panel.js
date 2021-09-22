@@ -15,7 +15,7 @@ editor.once('load', function () {
 
         var img = new Image();
         img.onload = function () {
-            item.style.borderColor = editor.call('whoisonline:color', id, 'hex');
+            item.style.borderColor = editor.call('users:color', id, 'hex');
         };
 
         img.src = '/api/users/' + id + '/thumbnail?size=28';
@@ -48,7 +48,8 @@ editor.once('load', function () {
 
     editor.on('whoisonline:remove', function (assetId, userId) {
         // check if this is the focused document
-        if (editor.call('documents:getFocused') !== assetId)
+        const focused = editor.call('documents:getFocused');
+        if (focused && focused !== assetId)
             return;
 
         var item = itemsIndex[userId];
