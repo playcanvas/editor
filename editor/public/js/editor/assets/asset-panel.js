@@ -516,7 +516,6 @@ Object.assign(pcui, (function () {
             this._eventsEditor = [];
             this._eventsEditor.push(editor.on('selector:change', this._onSelectorChange.bind(this)));
             this._eventsEditor.push(editor.on('sourcefiles:add', this._onAddLegacyScript.bind(this)));
-            this._eventsEditor.push(editor.on('sourcefiles:remove', this._onRemoveLegacyScript.bind(this)));
             this._eventsEditor.push(editor.on('selector:sync', this._onSelectorSync.bind(this)));
             this._eventsEditor.push(editor.on('whoisonline:remove', this._onWhoIsOnlineRemove.bind(this)));
 
@@ -1446,16 +1445,6 @@ Object.assign(pcui, (function () {
 
             this._addAsset(fakeAsset, -1, true);
         }
-
-        _onRemoveLegacyScript(script) {
-            const asset = this._legacyScriptsIndex[script.get('filename')];
-            if (asset) {
-                this._removeAsset(asset);
-            }
-
-            delete this._legacyScriptsIndex[script.get('filename')];
-        }
-
         _addAsset(asset, index, addToDetailsView) {
             const id = asset.get('id');
 

@@ -1,6 +1,8 @@
 editor.once('load', function () {
     'use strict';
 
+    const settings = editor.call('settings:project');
+
     editor.method('assets:delete:picker', function (items) {
         if (! editor.call('permissions:write'))
             return;
@@ -43,7 +45,16 @@ editor.once('load', function () {
         if (editor.call('animstategraph:editor:open'))
             return;
 
-        editor.call('assets:delete:picker', editor.call('selector:items'));
+        const items = editor.call('selector:items');
+        if (settings.get('useLegacyScripts')) {
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].get('type') === 'script') {
+                    return;
+                }
+            }
+        }
+
+        editor.call('assets:delete:picker', items);
     };
     // delete
     editor.call('hotkey:register', 'asset:delete', {

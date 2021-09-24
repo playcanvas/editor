@@ -24,9 +24,7 @@ editor.once('load', function () {
         value: 'script'
     });
     menuItemNewScript.on('select', function () {
-        if (legacyScripts) {
-            editor.call('sourcefiles:new');
-        } else {
+        if (!legacyScripts) {
             editor.call('picker:script-create', function (filename) {
                 editor.call('assets:create:script', {
                     filename: filename,
@@ -163,6 +161,12 @@ editor.once('load', function () {
     };
 
     const keys = Object.keys(assets);
+    if (legacyScripts) {
+        const scriptsIdx = keys.indexOf('script');
+        if (scriptsIdx !== -1) {
+            keys.splice(scriptsIdx, 1);
+        }
+    }
     for (let i = 0; i < keys.length; i++) {
         if (! assets.hasOwnProperty(keys[i]))
             continue;
@@ -420,21 +424,19 @@ editor.once('load', function () {
         let multiple = false;
 
         if (asset) {
-            const assetType = asset.get('type');
             const type = editor.call('selector:type');
             let items;
 
             if (type === 'asset') {
                 items = editor.call('selector:items');
                 for (let i = 0; i < items.length; i++) {
+                    const assetType = items[i].get('type');
                     // if the asset that was right-clicked is in the selection
                     // then include all the other selected items in the delete
                     // otherwise only delete the right-clicked item
                     if (assetType === 'script' && legacyScripts) {
-                        if (items[i].get('filename') === asset.get('filename')) {
-                            multiple = true;
-                            break;
-                        }
+                        // do not allow deleting legacy scripts
+                        return;
                     } else if (items[i].get('id') === asset.get('id')) {
                         multiple = true;
                         break;
@@ -489,6 +491,10 @@ editor.once('load', function () {
             }
         }
         menuItemNew.hidden = ! menuItemNewScript.hidden;
+
+        if (legacyScripts) {
+            menuItemNewScript.hidden = true;
+        }
 
         if (menuItemPaste && isCurrentFolderLegacyScripts()) {
             menuItemPaste.hidden = true;
@@ -546,7 +552,7 @@ editor.once('load', function () {
             menuItemCreateSlicedSprite.hidden = menuItemCreateSprite.hidden;
 
             // delete
-            menuItemDelete.hidden = (currentAsset && currentAsset.get('id') === LEGACY_SCRIPTS_ID);
+            menuItemDelete.hidden = (currentAsset && (currentAsset.get('id') === LEGACY_SCRIPTS_ID || (legacyScripts && currentAsset.get('type') === 'script')));
 
             if (! currentAsset.get('source')) {
                 menuItemExtract.hidden = true;
@@ -671,7 +677,7 @@ editor.once('load', function () {
             }
 
             // move-to-store
-            menuItemMoveToStore.hidden = !editor.call("users:isSuperUser") || !currentAsset || currentAsset.get('id') === LEGACY_SCRIPTS_ID;
+            menuItemMoveToStore.hidden = !editor.call("users:isSuperUser") || !currentAsset || currentAsset.get('id') === LEGACY_SCRIPTS_ID || (legacyScripts && currentAsset.get('type') === 'script');
 
             // open-in-viewer
             if (currentAsset && currentAsset.get('file.filename') && (currentAsset.get('file.filename').match(/\.glb$/) !== null)) {

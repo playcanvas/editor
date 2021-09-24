@@ -14,7 +14,7 @@ editor.once('load', function () {
     panel.style.maxWidth = '550px';
 
     const text = new pcui.Label({
-        text: 'This project uses a deprecated scripting system and will become read-only on 1st of March. See <a target="_blank" href="https://forum.playcanvas.com/t/important-deprecation-of-legacy-script-projects/15795">this</a> forum post for more information. Contact <a target="_blank" href="mailto:support@playcanvas.com">support@playcanvas.com</a> if you have any questions.',
+        text: 'This project uses a deprecated scripting system that is read-only since 1st of March. See <a target="_blank" href="https://forum.playcanvas.com/t/important-deprecation-of-legacy-script-projects/15795">this</a> forum post for more information. Contact <a target="_blank" href="mailto:support@playcanvas.com">support@playcanvas.com</a> if you have any questions.',
         unsafe: true
     });
     text.style.whiteSpace = 'normal';

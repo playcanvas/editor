@@ -19,7 +19,7 @@ editor.once('load', function () {
     });
 
     editor.method('editor:isReadonly', function () {
-        return !editor.call('permissions:write') || config.project.repositories.current !== 'directory';
+        return true;
     });
 
     editor.method('editor:save', function () {

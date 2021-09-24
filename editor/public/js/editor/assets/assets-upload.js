@@ -58,21 +58,6 @@ editor.once('load', function () {
         return config.owner.size + totalSize <= config.owner.diskAllowance;
     });
 
-    editor.method('assets:upload:script', function (file) {
-        var reader = new FileReader();
-
-        reader.addEventListener('load', function () {
-            editor.call('sourcefiles:create', file.name, reader.result, function (err) {
-                if (err)
-                    return;
-
-                editor.call('assets:panel:currentFolder', 'scripts');
-            });
-        }, false);
-
-        reader.readAsText(file);
-    });
-
     var appendCommon = function (form, args) {
         // NOTE
         // non-file form data should be above file,
@@ -263,7 +248,8 @@ editor.once('load', function () {
             ext = ext[ext.length - 1].toLowerCase();
 
             if (legacyScripts && ext === 'js') {
-                editor.call('assets:upload:script', files[i]);
+                editor.call('status:error', 'Cannot upload scripts in this project because it uses a deprecated scripting system that is now read-only.');
+                return;
             } else {
                 var type = extToType[ext] || 'binary';
 
