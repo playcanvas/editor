@@ -63,6 +63,16 @@ editor.once('load', function () {
                         callSetter = false;
                     }
                 }
+                // Changing an element's 'type' fundamentally changes the way it renderers and uses its configuration.
+                // In order to make sure all textures and other resources are cleared, we'll remove the component
+                // and add it again. Note that, since all properties were already saved at the 'scene' level,
+                // the new component will retain all user data.
+                else if (property === 'type') {
+                    entity.removeComponent('element');
+                    entity.addComponent('element', obj.get('components.element'));
+                    // no need to call setter because the new 'element' component was already created with the correct 'type'
+                    callSetter = false;
+                }
             } else if (component === 'model' || component === 'render') {
                 if (property === 'aabbCenter' || property === 'aabbHalfExtents') {
                     const aabbCenter = obj.get(`components.${component}.aabbCenter`);

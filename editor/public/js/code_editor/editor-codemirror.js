@@ -360,7 +360,7 @@ editor.once('load', function () {
 
     // set readonly if writeState becomes false (like when we're disconnected from sharedb)
     editor.on('permissions:writeState', function (state) {
-        toggleReadOnly(!state);
+        toggleReadOnly(editor.call('editor:isReadonly'));
     });
 
     // return document content

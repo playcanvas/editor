@@ -277,12 +277,7 @@ editor.once('load', function () {
 
         for (let i = 0; i < list.length; i++) {
             if (legacyScripts && list[i].get('type') === 'script') {
-                editor.emit('sourcefiles:remove', list[i]);
-                Ajax({
-                    url: '{{url.api}}/projects/' + config.project.id + '/repositories/directory/sourcefiles/' + list[i].get('filename'),
-                    auth: true,
-                    method: 'DELETE'
-                });
+                continue;
             } else {
                 assets.push(list[i]);
             }

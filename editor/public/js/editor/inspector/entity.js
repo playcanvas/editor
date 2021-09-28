@@ -213,8 +213,13 @@ Object.assign(pcui, (function () {
             const componentsSchema = editor.call('components:schema');
             const components = editor.call('components:list');
             for (let i = 0; i < components.length; i++) {
+                let title = componentsSchema[components[i]].$title;
+                if (title === 'Model' || title === 'Animation') {
+                    title += ' (legacy)';
+                }
+
                 menu.append(new ui.MenuItem({
-                    text: componentsSchema[components[i]].$title,
+                    text: title,
                     value: components[i]
                 }));
             }

@@ -33,8 +33,13 @@ editor.once('load', function () {
     panel.append(progressBar);
 
     // no builds message
+    let noBuildsText = 'You have not published any builds.';
+    if (!projectSettings.get('useLegacyScripts')) {
+        noBuildsText += ' Click PUBLISH to create a new build.';
+    }
+
     var noBuilds = new ui.Label({
-        text: 'You have not published any builds. Click PUBLISH to create a new build.'
+        text: noBuildsText
     });
     noBuilds.hidden = true;
     noBuilds.style.padding = '15px';

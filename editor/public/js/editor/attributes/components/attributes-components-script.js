@@ -858,6 +858,9 @@ editor.once('load', function () {
                 refreshScriptAttributes(script.get('url'));
             });
 
+            // hide refresh attributes for legacy scripts
+            fieldRefreshAttributes.hidden = true;
+
             // attributes panel
             var attributes = new ui.Panel();
             panelScript.append(attributes);

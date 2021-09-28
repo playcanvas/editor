@@ -170,6 +170,13 @@ editor.once('load', function () {
                     if (assetId)
                         entity.model.asset = assetId;
                 });
+            } else if (path === 'components.element.type') {
+                // Changing an element's 'type' fundamentally changes the way it renderers and uses its configuration.
+                // In order to make sure all textures and other resources are cleared, we'll remove the component
+                // and add it again. Note that, since all properties were already saved at the 'scene' level,
+                // the new component will retain all user data.
+                entity.removeComponent('element');
+                entity.addComponent('element', obj.get('components.element'));
             }
         });
 

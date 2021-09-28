@@ -100,19 +100,10 @@ editor.once('load', function () {
             components: {}
         };
 
-        var settings = editor.call('settings:projectUser');
-        var component;
-        if (settings.get('editor.pipeline.useContainers')) {
-            component = 'render';
-        } else {
-            component = 'model';
-        }
-
+        var component = 'render';
         data.components[component] = editor.call('components:getDefault', component);
         data.components[component].type = type;
-        if (component === 'render') {
-            data.components.render.materialAssets = [null];
-        }
+        data.components.render.materialAssets = [null];
 
         applyAdditions(data, additions);
 
@@ -257,19 +248,19 @@ editor.once('load', function () {
                     }
                 }
             },
-            'add-new-model': {
-                title: 'Model',
-                className: 'menu-item-add-model',
-                icon: componentsLogos.model,
+            'add-new-render': {
+                title: 'Render',
+                className: 'menu-item-add-render',
+                icon: componentsLogos.render,
                 select: function () {
-                    var component = editor.call('components:getDefault', 'model');
+                    var component = editor.call('components:getDefault', 'render');
                     component.type = 'asset';
 
                     editor.call('entities:new', {
-                        name: 'Model',
+                        name: 'Render',
                         parent: getParentFn(),
                         components: {
-                            model: component
+                            render: component
                         }
                     });
                 }
@@ -291,12 +282,12 @@ editor.once('load', function () {
             'primitive-sub-menu': {
                 title: 'Primitive',
                 className: 'menu-item-primitive-sub-menu',
-                icon: componentsLogos.model,
+                icon: componentsLogos.render,
                 items: {
                     'add-new-box': {
                         title: 'Box',
                         className: 'menu-item-add-box-primitive',
-                        icon: componentsLogos.model,
+                        icon: componentsLogos.render,
                         select: function () {
                             var data = createPrimitiveEntityData('box', {
                                 name: 'Box',
@@ -308,7 +299,7 @@ editor.once('load', function () {
                     'add-new-capsule': {
                         title: 'Capsule',
                         className: 'menu-item-add-capsule-primitive',
-                        icon: componentsLogos.model,
+                        icon: componentsLogos.render,
                         select: function () {
                             var data = createPrimitiveEntityData('capsule', {
                                 name: 'Capsule',
@@ -320,7 +311,7 @@ editor.once('load', function () {
                     'add-new-cone': {
                         title: 'Cone',
                         className: 'menu-item-add-cone-primitive',
-                        icon: componentsLogos.model,
+                        icon: componentsLogos.render,
                         select: function () {
                             var data = createPrimitiveEntityData('cone', {
                                 name: 'Cone',
@@ -332,7 +323,7 @@ editor.once('load', function () {
                     'add-new-cylinder': {
                         title: 'Cylinder',
                         className: 'menu-item-add-cylinder-primitive',
-                        icon: componentsLogos.model,
+                        icon: componentsLogos.render,
                         select: function () {
                             var data = createPrimitiveEntityData('cylinder', {
                                 name: 'Cylinder',
@@ -345,7 +336,7 @@ editor.once('load', function () {
                     'add-new-plane': {
                         title: 'Plane',
                         className: 'menu-item-add-plane-primitive',
-                        icon: componentsLogos.model,
+                        icon: componentsLogos.render,
                         select: function () {
                             var data = createPrimitiveEntityData('plane', {
                                 name: 'Plane',
@@ -357,7 +348,7 @@ editor.once('load', function () {
                     'add-new-sphere': {
                         title: 'Sphere',
                         className: 'menu-item-add-sphere-primitive',
-                        icon: componentsLogos.model,
+                        icon: componentsLogos.render,
                         select: function () {
                             var data = createPrimitiveEntityData('sphere', {
                                 name: 'Sphere',

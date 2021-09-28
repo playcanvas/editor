@@ -1,6 +1,11 @@
 editor.once('load', function () {
     'use strict';
 
+    const settings = editor.call('settings:project');
+    if (settings.get('useLegacyScripts')) {
+        return;
+    }
+
     // main panel
     var panel = new ui.Panel();
     panel.class.add('picker-publish');
