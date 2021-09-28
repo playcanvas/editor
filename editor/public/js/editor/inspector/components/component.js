@@ -20,7 +20,12 @@ Object.assign(pcui, (function () {
             this.header.class.add(CLASS_COMPONENT_ICON);
             this.header.class.add(`type-${args.component}`);
 
-            this.headerText = args.component.toUpperCase();
+            let title = args.component.toUpperCase();
+            if (args.component === 'animation' ||
+                args.component === 'model') {
+                title += ' (LEGACY)';
+            }
+            this.headerText = title;
 
             this._history = args.history;
 

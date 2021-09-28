@@ -31,8 +31,12 @@ editor.once('load', function () {
     };
 
     const makeAddComponentMenuItem = function (key, components, logos) {
+        let title = components[key].$title;
+        if (title === 'Model' || title === 'Animation') {
+            title += ' (legacy)';
+        }
         const data = {
-            title: components[key].$title,
+            title: title,
             icon: logos[key],
             filter: function () {
                 // if any entity in the selection does not have the component
