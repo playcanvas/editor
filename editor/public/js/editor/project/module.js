@@ -6,7 +6,7 @@ editor.once('load', function () {
         var moduleAssets = editor.call('assets:find', function (item) {
             var name = item.get('name');
             var type = item.get('type');
-            return name.indexOf(wasmFilename) >= 0 && (type === 'script' || type === 'wasm');
+            return name && name.indexOf(wasmFilename) >= 0 && (type === 'script' || type === 'wasm');
         });
         return moduleAssets.length > 0;
     });

@@ -612,8 +612,8 @@ Object.assign(pcui, (function () {
             if (a === LEGACY_SCRIPTS_FOLDER_ASSET) return -1;
             if (b === LEGACY_SCRIPTS_FOLDER_ASSET) return 1;
 
-            const nameA = a.get('name').toLowerCase();
-            const nameB = b.get('name').toLowerCase();
+            const nameA = (a.get('name') || '').toLowerCase();
+            const nameB = (b.get('name') || '').toLowerCase();
             if (nameA < nameB) return ascending ? -1 : 1;
             if (nameA > nameB) return ascending ? 1 : -1;
             return 0;
@@ -1241,7 +1241,10 @@ Object.assign(pcui, (function () {
 
             let type = TYPES[typeKey];
             if (!type) {
-                type = asset.get('type')[0].toUpperCase() + asset.get('type').substring(1);
+                type = asset.get('type') || '';
+                if (type) {
+                    type = type[0].toUpperCase() + type.substring(1);
+                }
             }
 
             const labelType = new pcui.Label({
