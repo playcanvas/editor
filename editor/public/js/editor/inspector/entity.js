@@ -215,7 +215,7 @@ Object.assign(pcui, (function () {
             for (let i = 0; i < components.length; i++) {
                 let title = componentsSchema[components[i]].$title;
                 if (title === 'Model' || title === 'Animation') {
-                    title += ' (deprecated)';
+                    title += ' (legacy)';
                 }
 
                 menu.append(new ui.MenuItem({
