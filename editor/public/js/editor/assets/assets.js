@@ -25,13 +25,22 @@ editor.once('load', function () {
             if (f !== 0)
                 return f;
 
-            if (a._data.name.toLowerCase() > b._data.name.toLowerCase()) {
+            let aName = a._data.name;
+            if (aName) {
+                aName = aName.toLowerCase();
+            }
+
+            let bName = b._data.name;
+            if (bName) {
+                bName = bName.toLowerCase();
+            }
+
+            if (aName > bName) {
                 return 1;
-            } else if (a._data.name.toLowerCase() < b._data.name.toLowerCase()) {
+            } else if (aName < bName) {
                 return -1;
             }
             return 0;
-
         }
     });
 
@@ -60,8 +69,8 @@ editor.once('load', function () {
             return;
 
         asset.on('name:set', function (name, nameOld) {
-            name = name.toLowerCase();
-            nameOld = nameOld.toLowerCase();
+            name = (name || '').toLowerCase();
+            nameOld = (nameOld || '').toLowerCase();
 
             var ind = assets.data.indexOf(this);
             var pos = assets.positionNextClosest(this, function (a, b) {
@@ -70,9 +79,9 @@ editor.once('load', function () {
                 if (f !== 0)
                     return f;
 
-                if ((a === b ? nameOld : a._data.name.toLowerCase()) > name) {
+                if ((a === b ? nameOld : (a._data.name || '').toLowerCase()) > name) {
                     return 1;
-                } else if ((a === b ? nameOld : a._data.name.toLowerCase()) < name) {
+                } else if ((a === b ? nameOld : (a._data.name || '').toLowerCase()) < name) {
                     return -1;
                 }
                 return 0;
