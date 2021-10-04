@@ -36,6 +36,22 @@ Object.assign(pcui, (function () {
             max: 10
         }
     }, {
+        label: 'Use Mouse Wheel',
+        path: 'components.scrollview.useMouseWheel',
+        type: 'boolean'
+        
+    }, {
+        label: 'Mouse Wheel Sensitivity',
+        path: 'components.scrollview.mouseWheelSensitivity',
+        type: 'vec2',
+        args: {
+            precision: 2,
+            step: 0.1,
+            placeholder: ['↔', '↕']
+        }
+    }, {
+        type: 'divider'
+    }, {
         label: 'Viewport',
         path: 'components.scrollview.viewportEntity',
         type: 'entity'
@@ -118,7 +134,7 @@ Object.assign(pcui, (function () {
             });
             this.append(this._attributesInspector);
 
-            ['scrollMode', 'vertical', 'horizontal'].forEach(field => {
+            ['scrollMode', 'useMouseWheel', 'vertical', 'horizontal'].forEach(field => {
                 this._field(field).on('change', this._toggleFields.bind(this));
             });
 
@@ -133,10 +149,12 @@ Object.assign(pcui, (function () {
             if (this._suppressToggleFields) return;
 
             const isBounceMode = this._field('scrollMode').value === SCROLL_MODE_BOUNCE;
+            const useMouseWheel = this._field('useMouseWheel').value === true;
             const verticalScrollingEnabled = this._field('vertical').value === true;
             const horizontalScrollingEnabled = this._field('horizontal').value === true;
 
             this._field('bounceAmount').parent.hidden = !isBounceMode;
+            this._field('mouseWheelSensitivity').parent.hidden = !useMouseWheel;
             this._field('verticalScrollbarEntity').parent.hidden = !verticalScrollingEnabled;
             this._field('verticalScrollbarVisibility').parent.hidden = !verticalScrollingEnabled;
             this._field('horizontalScrollbarEntity').parent.hidden = !horizontalScrollingEnabled;

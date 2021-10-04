@@ -33,6 +33,16 @@ editor.once('load', function () {
         description: 'Controls how freely the content should move if thrown, i.e. by flicking on a phone or by flinging the scroll wheel on a mouse. A value of 1 means that content will stop immediately; 0 means that content will continue moving forever (or until the bounds of the content are reached, depending on the scrollMode).',
         url: 'http://developer.playcanvas.com/api/pc.ScrollViewComponent.html#friction'
     }, {
+        title: 'useMouseWheel',
+        subTitle: '{Boolean}',
+        description: 'Whether to use mouse wheel for scrolling (horizontally and vertically) when mouse is within bounds.',
+        url: 'http://developer.playcanvas.com/api/pc.ScrollViewComponent.html#useMouseWheel'
+    }, {
+        title: 'mouseWheelSensitivity',
+        subTitle: '{pc.Vec2}',
+        description: 'Mouse wheel horizontal and vertical sensitivity. Only used if \'Use Mouse Wheel\' is set. Setting a direction to 0 will disable mouse wheel scrolling in that direction. 1 is a default sensitivity that is considered to feel good. The values can be set higher or lower than 1 to tune the sensitivity. Defaults to [1, 1].',
+        url: 'http://developer.playcanvas.com/api/pc.ScrollViewComponent.html#mouseWheelSensitivity'
+    }, {
         title: 'horizontalScrollbarVisibility',
         subTitle: '{pc.SCROLLBAR_VISIBILITY}',
         description: 'Controls whether the horizontal scrollbar should be visible all the time, or only visible when the content exceeds the size of the viewport.',
