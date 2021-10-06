@@ -250,6 +250,16 @@ editor.once('load', function () {
                 }
             }
 
+            // scrollview
+            if (entity.has('components.scrollview')) {
+                if (!entity.has('components.scrollview.useMouseWheel')) {
+                    entity.set('components.scrollview.useMouseWheel', true);
+                }
+                if (!entity.has('components.scrollview.mouseWheelSensitivity')) {
+                    entity.set('components.scrollview.mouseWheelSensitivity', [1, 1]);
+                }
+            }
+
             // sprite
             if (entity.has('components.sprite')) {
                 if (! entity.has('components.sprite.width')) {
