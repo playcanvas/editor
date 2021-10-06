@@ -25,7 +25,7 @@ Object.assign(pcui, (function () {
 
     const ATTRIBUTES = [{
         label: 'Type',
-        alias: 'components.element.type',
+        path: 'components.element.type',
         type: 'select',
         args: {
             type: 'string',
@@ -369,8 +369,8 @@ Object.assign(pcui, (function () {
         _hasSplitAnchor(entity) {
             const anchor = entity.get('components.element.anchor');
             return !anchor ||
-                Math.abs(anchor[0] - anchor[2]) > 0.01 ||
-                Math.abs(anchor[1] - anchor[3]) > 0.01;
+                   Math.abs(anchor[0] - anchor[2]) > 0.01 ||
+                   Math.abs(anchor[1] - anchor[3]) > 0.01;
         }
 
         // Override setValue to set additional fields
@@ -495,7 +495,6 @@ Object.assign(pcui, (function () {
             this.applyingChange = false;
         }
     }
-
     class SpriteFrameElementToObserversBinding extends ImageAssetElementToObserversBinding {
 
         // Override setValue to set additional fields
@@ -617,6 +616,7 @@ Object.assign(pcui, (function () {
             this._field('text').input.setAttribute('dir', 'auto');
 
             [
+                'type',
                 'localized',
                 'key',
                 'autoWidth',
@@ -636,7 +636,6 @@ Object.assign(pcui, (function () {
             this._field('localized').on('change', this._onFieldLocalizedChange.bind(this));
             this._field('anchor').on('change', this._onFieldAnchorChange.bind(this));
             this._field('pivot').on('change', this._onFieldPivotChange.bind(this));
-            this._field('type').on('change', this._onFieldTypeChange.bind(this));
             this._field('preset').on('change', this._onFieldPresetChange.bind(this));
             this._field('fontAsset').on('change', this._onFieldFontAssetChange.bind(this));
 
@@ -651,18 +650,18 @@ Object.assign(pcui, (function () {
             this._field('spriteAsset').binding = new pcui.BindingTwoWay({
                 history: args.history,
                 bindingElementToObservers: new ImageAssetElementToObserversBinding(args.assets, {
-                        history: args.history
-                    },
-                    this.entities
+                    history: args.history
+                },
+                this.entities
                 )
             });
             // update binding of spriteFrame field
             this._field('spriteFrame').binding = new pcui.BindingTwoWay({
                 history: args.history,
                 bindingElementToObservers: new SpriteFrameElementToObserversBinding(args.assets, {
-                        history: args.history
-                    },
-                    this.entities
+                    history: args.history
+                },
+                this.entities
                 )
             });
 
@@ -754,81 +753,6 @@ Object.assign(pcui, (function () {
 
             margins[1].disabled = !verticalSplit;
             margins[3].disabled = margins[1].disabled;
-        }
-
-        _onFieldTypeChange(value) {
-            if (!value || this._suppressTypeEvents) return;
-
-            if (!this._entities) return;
-
-            // copy current entities for undo / redo
-            const entities = this._entities.slice();
-
-            const previousValues = this._entities.map(entity => {
-                return {
-                    type: entity.get('components.element.type'),
-                    fontAsset: entity.get('components.element.fontAsset'),
-                    textureAsset: entity.get('components.element.textureAsset'),
-                    spriteAsset: entity.get('components.element.spriteAsset'),
-                    materialAsset: entity.get('components.element.materialAsset')
-                };
-            });
-
-            const undo = () => {
-                for (let i = 0; i < entities.length; i++) {
-                    const entity = entities[i].latest();
-                    if (!entity || !entity.has('components.element')) continue;
-
-                    const history = entity.history.enabled;
-                    entity.history.enabled = false;
-                    // This has to be done in this specific order as setting the type will clear
-                    // the asset ids
-                    entity.set('components.element.type', previousValues[i].type);
-                    entity.set('components.element.fontAsset', previousValues[i].fontAsset);
-                    entity.set('components.element.textureAsset', previousValues[i].textureAsset);
-                    entity.set('components.element.spriteAsset', previousValues[i].spriteAsset);
-                    entity.set('components.element.materialAsset', previousValues[i].materialAsset);
-
-                    this._suppressTypeEvents = true;
-                    this._updateType();
-                    this._suppressTypeEvents = false;
-
-                    this._toggleFields();
-                    entity.history.enabled = history;
-                }
-            };
-
-            const redo = () => {
-                for (var i = 0; i < entities.length; i++) {
-                    const entity = entities[i].latest();
-                    if (!entity || !entity.has('components.element')) continue;
-
-                    const history = entity.history.enabled;
-                    entity.history.enabled = false;
-                    entity.set('components.element.type', value);
-                    entity.set('components.element.fontAsset', null);
-                    entity.set('components.element.textureAsset', null);
-                    entity.set('components.element.spriteAsset', null);
-                    entity.set('components.element.materialAsset', null);
-
-                    this._suppressTypeEvents = true;
-                    this._updateType();
-                    this._suppressTypeEvents = false;
-
-                    this._toggleFields();
-                    entity.history.enabled = history;
-                }
-            };
-
-            redo();
-
-            if (this._history) {
-                this._history.add({
-                    name: 'entities.components.element.type',
-                    undo: undo,
-                    redo: redo
-                });
-            }
         }
 
         _onFieldPresetChange(value) {
@@ -1033,12 +957,6 @@ Object.assign(pcui, (function () {
             return 'custom';
         }
 
-        _updateType() {
-            if (this._entities) {
-                this._field('type').values = this._entities.map(entity => entity.get('components.element.type'));
-            }
-        }
-
         _updatePreset() {
             this._field('preset').value = this._getCurrentPresetValue();
         }
@@ -1126,7 +1044,6 @@ Object.assign(pcui, (function () {
             this._suppressToggleFields = false;
 
             this._toggleFields();
-            this._updateType();
         }
 
         unlink() {
