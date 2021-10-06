@@ -42,6 +42,8 @@ editor.once('load', function () {
     };
 
     editor.on('selector:change', function (type, items) {
+        if (type === 'entity' || type === 'asset') return;
+
         if (! selectorHistory) {
             newType = type;
             newItems = items;
@@ -60,5 +62,6 @@ editor.once('load', function () {
             return selectorHistory;
 
         selectorHistory = toggle;
+        editor.selection.history.enabled = toggle;
     });
 });

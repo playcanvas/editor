@@ -9,6 +9,8 @@ editor.once('load', function () {
 
     // make titles for each component
     for (componentName in schema) {
+        if (componentName.startsWith('$')) continue;
+
         var title;
         switch (componentName) {
             case 'audiosource':
@@ -121,6 +123,8 @@ editor.once('load', function () {
 
         return 0;
     });
+
+    list = list.filter(item => !item.startsWith('$'));
 
     editor.method('components:convertValue', function (component, property, value) {
         var result = value;

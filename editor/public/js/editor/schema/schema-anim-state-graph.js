@@ -9,7 +9,7 @@ editor.once('load', function () {
      */
     editor.method('schema:animstategraph:getDefaultData', function (existingData) {
         var result = {};
-        var schema = config.schema.animStateGraphData;
+        var schema = config.schema.animstategraphData;
 
         for (const key in schema) {
             if (key.startsWith('$')) continue;

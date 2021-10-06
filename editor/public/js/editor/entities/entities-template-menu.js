@@ -96,9 +96,9 @@ editor.once('load', function () {
                 let newEntityId;
 
                 function undo() {
-                    const entity = editor.call('entities:get', newEntityId);
+                    const entity = editor.entities.get(newEntityId);
                     if (entity) {
-                        editor.call('entities:removeEntity', entity);
+                        entity.delete({ history: false });
                     }
                 }
 

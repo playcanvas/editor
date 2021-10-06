@@ -52,9 +52,10 @@ editor.once('load', function () {
             // means that they'll also be correctly resolved if the user undoes the
             // button creation and then redoes it.
             postCreationCallback: function (button) {
+                const history = button.history.enabled;
                 button.history.enabled = false;
-                button.set('components.button.imageEntity', button.entity.getGuid());
-                button.history.enabled = true;
+                button.set('components.button.imageEntity', button.get('resource_id'));
+                button.history.enabled = history;
             }
         };
 
@@ -81,9 +82,10 @@ editor.once('load', function () {
                 element: containerData
             },
             postCreationCallback: function (scrollbar) {
+                const history = scrollbar.history.enabled;
                 scrollbar.history.enabled = false;
-                scrollbar.set('components.scrollbar.handleEntity', scrollbar.entity.findByName('Handle').getGuid());
-                scrollbar.history.enabled = true;
+                scrollbar.set('components.scrollbar.handleEntity', scrollbar.findByName('Handle').get('resource_id'));
+                scrollbar.history.enabled = history;
             },
             children: [
                 handleData
@@ -530,12 +532,13 @@ editor.once('load', function () {
                                     })
                                 },
                                 postCreationCallback: function (scrollView) {
+                                    const history = scrollView.history.enabled;
                                     scrollView.history.enabled = false;
-                                    scrollView.set('components.scrollview.viewportEntity', scrollView.entity.findByName('Viewport').getGuid());
-                                    scrollView.set('components.scrollview.contentEntity', scrollView.entity.findByName('Content').getGuid());
-                                    scrollView.set('components.scrollview.verticalScrollbarEntity', scrollView.entity.findByName('VerticalScrollbar').getGuid());
-                                    scrollView.set('components.scrollview.horizontalScrollbarEntity', scrollView.entity.findByName('HorizontalScrollbar').getGuid());
-                                    scrollView.history.enabled = true;
+                                    scrollView.set('components.scrollview.viewportEntity', scrollView.findByName('Viewport').get('resource_id'));
+                                    scrollView.set('components.scrollview.contentEntity', scrollView.findByName('Content').get('resource_id'));
+                                    scrollView.set('components.scrollview.verticalScrollbarEntity', scrollView.findByName('VerticalScrollbar').get('resource_id'));
+                                    scrollView.set('components.scrollview.horizontalScrollbarEntity', scrollView.findByName('HorizontalScrollbar').get('resource_id'));
+                                    scrollView.history.enabled = history;
                                 },
                                 children: [
                                     {

@@ -9,7 +9,7 @@ editor.once('load', function () {
      * @param {number} timeoutMs - Number of ms to wait before stopping to wait
      * @param {Function} callback - The callback to call when all entities have been added.
      * The signature is (Observer[]) => void where the observers are the new entities.
-     * @param {ObserverList} [entities] - The entities observer list (editor.call will be used instead if none provided)
+     * @param {api.Entities} [entities] - The entities api
      * @returns {Function} Returns a cancel function which can be called to cancel calling the
      * callback when the entities are added.
      */

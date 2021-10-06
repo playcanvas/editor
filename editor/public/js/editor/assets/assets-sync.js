@@ -33,86 +33,6 @@ editor.once('load', function () {
         lastIdleCheck = t;
     }, IDLE_CHECK_DELAY);
 
-    var getFileUrl = function (id, revision, filename) {
-        return '/api/assets/' + id + '/file/' + encodeURIComponent(filename) + '?branchId=' + config.self.branch.id;
-    };
-
-    editor.method('loadAsset', function (asset, callback) {
-        var connection = editor.call('realtime:connection');
-        const uniqueId = parseInt(asset.uniqueId, 10);
-
-        var doc = connection.get('assets', '' + uniqueId);
-
-        docs[uniqueId] = doc;
-
-        // error
-        doc.on('error', function (err) {
-            if (connection.state === 'connected') {
-                console.log(err);
-                return;
-            }
-
-            editor.emit('realtime:assets:error', err);
-        });
-
-        // ready to sync
-        doc.on('load', function () {
-            var assetData = doc.data;
-            if (! assetData) {
-                log.error('Could not load asset: ' + uniqueId);
-                editor.call('status:error', 'Could not load asset: ' + uniqueId);
-                doc.unsubscribe();
-                doc.destroy();
-                return callback && callback();
-            }
-
-            // notify of operations
-            doc.on('op', function (ops, local) {
-                if (local) return;
-
-                for (let i = 0; i < ops.length; i++) {
-                    editor.emit('realtime:op:assets', ops[i], uniqueId);
-                }
-            });
-
-            // notify of asset load
-            assetData.id = parseInt(assetData.item_id, 10);
-            assetData.uniqueId = uniqueId;
-            assetData.createdAt = asset.createdAt;
-
-            // delete unnecessary fields
-            delete assetData.item_id;
-            delete assetData.branch_id;
-
-            if (assetData.file) {
-                assetData.file.url = getFileUrl(assetData.id, assetData.revision, assetData.file.filename);
-
-                if (assetData.file.variants) {
-                    for (const key in assetData.file.variants) {
-                        assetData.file.variants[key].url = getFileUrl(assetData.id, assetData.revision, assetData.file.variants[key].filename);
-                    }
-                }
-            }
-
-            // allow duplicate values in data.frameKeys of sprite asset
-            var options = null;
-            if (assetData.type === 'sprite') {
-                options = {
-                    pathsWithDuplicates: ['data.frameKeys']
-                };
-            }
-
-            var observer = new Observer(assetData, options);
-            editor.call('assets:add', observer);
-
-            if (callback)
-                callback(observer);
-        });
-
-        // subscribe for realtime events
-        doc.subscribe();
-    });
-
     editor.method('assets:fs:paths:patch', function (data) {
         var connection = editor.call('realtime:connection');
         var assets = connection.collections.assets;
@@ -133,48 +53,6 @@ editor.once('load', function () {
         }
     });
 
-    var onLoad = function (data) {
-        editor.call('assets:progress', 0.5);
-
-        var count = 0;
-
-        var load = function (asset) {
-            editor.call('loadAsset', asset, function () {
-                count++;
-                editor.call('assets:progress', (count / data.length) * 0.5 + 0.5);
-                if (count >= data.length) {
-                    editor.call('assets:progress', 1);
-                    editor.emit('assets:load');
-                }
-            });
-        };
-
-        if (data.length) {
-            var connection = editor.call('realtime:connection');
-
-            // do bulk subsribe in batches of 'batchSize' assets
-            var batchSize = 256;
-            var startBatch = 0;
-            var total = data.length;
-
-            while (startBatch < total) {
-                // start bulk subscribe
-                connection.startBulk();
-                for (let i = startBatch; i < startBatch + batchSize && i < total; i++) {
-                    load(data[i]);
-                }
-                // end bulk subscribe and send message to server
-                connection.endBulk();
-
-                startBatch += batchSize;
-            }
-
-        } else {
-            editor.call('assets:progress', 1);
-            editor.emit('assets:load');
-        }
-    };
-
     // load all assets
     editor.on('realtime:authenticated', function () {
         editor.call('assets:clear');
@@ -185,19 +63,7 @@ editor.once('load', function () {
         }
 
         function loadAll() {
-            Ajax({
-                url: '{{url.api}}/projects/{{project.id}}/assets?branchId={{self.branch.id}}&view=designer',
-                auth: true
-            })
-            .on('load', function (status, data) {
-                onLoad(data);
-            })
-            .on('progress', function (progress) {
-                editor.call('assets:progress', 0.1 + progress * 0.4);
-            })
-            .on('error', function (status, evt) {
-                console.log(status, evt);
-            });
+            editor.assets.loadAllAndSubscribe();
         }
 
         if (wasIdle) {
@@ -219,7 +85,7 @@ editor.once('load', function () {
     editor.call('assets:progress', 0.1);
 
     var onAssetSelect = function (asset) {
-        editor.call('selector:set', 'asset', [asset]);
+        editor.selection.set([asset.apiAsset]);
 
         // navigate to folder too
         var path = asset.get('path');
@@ -287,32 +153,6 @@ editor.once('load', function () {
             editor.call('assets:fs:delete', assets);
     });
 
-    editor.on('assets:remove', function (asset) {
-        var id = asset.get('uniqueId');
-        if (docs[id]) {
-            docs[id].unsubscribe();
-            docs[id].destroy();
-            delete docs[id];
-        }
-    });
-
-    var assetSetThumbnailPaths = function (asset) {
-        if (asset.get('type') !== 'texture' && asset.get('type') !== 'textureatlas')
-            return;
-
-        if (asset.get('has_thumbnail')) {
-            asset.set('thumbnails', {
-                's': '/api/assets/' + asset.get('id') + '/thumbnail/small?branchId=' + config.self.branch.id,
-                'm': '/api/assets/' + asset.get('id') + '/thumbnail/medium?branchId=' + config.self.branch.id,
-                'l': '/api/assets/' + asset.get('id') + '/thumbnail/large?branchId=' + config.self.branch.id,
-                'xl': '/api/assets/' + asset.get('id') + '/thumbnail/xlarge?branchId=' + config.self.branch.id
-            });
-        } else {
-            asset.unset('thumbnails');
-        }
-    };
-
-    // hook sync to new assets
     editor.on('assets:add', function (asset) {
         if (asset.sync)
             return;
@@ -327,49 +167,18 @@ editor.once('load', function () {
             editor.call('realtime:assets:op', op, asset.get('uniqueId'));
         });
 
-        // set thumbnails
-        assetSetThumbnailPaths(asset);
-
-        var setting = false;
-
-        asset.on('*:set', function (path, value) {
-            if (setting || ! path.startsWith('file') || path.endsWith('.url') || ! asset.get('file'))
-                return;
-
-            setting = true;
-
-            var parts = path.split('.');
-
-            if ((parts.length === 1 || parts.length === 2) && parts[1] !== 'variants') {
-                // reset file url
-                asset.set('file.url', getFileUrl(asset.get('id'), asset.get('revision'), asset.get('file.filename')));
-                // set thumbnails
-                assetSetThumbnailPaths(asset);
-            } else if (parts.length >= 3 && parts[1] === 'variants') {
-                var format = parts[2];
-                asset.set('file.variants.' + format + '.url', getFileUrl(asset.get('id'), asset.get('revision'), asset.get('file.variants.' + format + '.filename')));
-            }
-
-            setting = false;
-        });
-
-        asset.on('has_thumbnail:set', function (value) {
-            assetSetThumbnailPaths(asset);
-        });
     });
 
     // write asset operations
     editor.method('realtime:assets:op', function (op, uniqueId) {
-        if (! editor.call('permissions:write') || !docs[uniqueId])
+        if (!editor.call('permissions:write'))
             return;
 
-        // console.trace();
-        // console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-        // console.log(op);
+        const asset = editor.realtime.assets.get(uniqueId);
+        if (!asset) return;
 
-        docs[uniqueId].submitOp([op]);
+        asset.submitOp(op);
     });
-
 
     // server > client
     editor.on('realtime:op:assets', function (op, uniqueId) {

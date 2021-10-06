@@ -36,30 +36,29 @@ editor.once('load', function () {
 
     editor.method('entities:addObserverSync', addObserverSync);
 
-
     // server > client
     editor.on('realtime:scene:op:entities', function (op) {
         var entity = null;
         if (op.p[1])
-            entity = editor.call('entities:get', op.p[1]);
+            entity = editor.entities.get(op.p[1]);
 
         if (op.p.length === 2) {
             if (op.hasOwnProperty('od')) {
                 // delete entity
                 if (entity) {
-                    editor.call('entities:remove', entity);
+                    editor.entities.serverRemove(entity);
                 } else {
                     console.log('delete operation entity not found', op);
                 }
             } else if (op.hasOwnProperty('oi')) {
                 // new entity
-                editor.call('entities:add', new Observer(op.oi));
+                editor.entities.serverAdd(op.oi);
             } else {
                 console.log('unknown operation', op);
             }
         } else if (entity) {
             // write operation
-            entity.sync.write(op);
+            entity._observer.sync.write(op);
         } else {
             console.log('unknown operation', op);
         }

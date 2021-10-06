@@ -1,5 +1,5 @@
 editor.once('load', function () {
-    const clipboard = new pcui.Clipboard('playcanvas_editor_clipboard');
+    const clipboard = editor.clipboard;
 
     // get current clipboard instance
     editor.method('clipboard', function () {

@@ -2,219 +2,105 @@ editor.once('load', function () {
     'use strict';
 
     editor.once('start', function () {
-        var auth = false;
+        editor.realtime.on('cannotConnect', () => {
+            editor.emit('realtime:cannotConnect');
+        });
 
-        var socket, connection;
-        var scene = null;
-        var data;
-        var reconnectAttempts = 0;
-        var reconnectInterval = 3;
+        editor.realtime.on('connecting', (attempts) => {
+            editor.emit('realtime:connecting', attempts);
+        });
+
+        editor.realtime.on('nextAttempt', interval => {
+            editor.emit('realtime:nextAttempt', interval);
+        });
+
+        editor.realtime.on('connected', () => {
+            editor.emit('realtime:connected');
+        });
+
+        editor.realtime.on('error', err => {
+            editor.emit('realtime:error', err);
+        });
+
+        editor.realtime.on('error:bs', err => {
+            editor.call('status:error', err);
+        });
+
+        editor.realtime.on('error:scene', err => {
+            editor.emit('realtime:scene:error', err);
+        });
+
+        editor.realtime.on('error:asset', err => {
+            editor.emit('realtime:asset:error', err);
+        });
+
+        editor.realtime.on('disconnect', reason => {
+            editor.emit('realtime:disconnected', reason);
+        });
+
+        editor.realtime.on('authenticated', () => {
+            editor.emit('realtime:authenticated');
+
+            if (config.scene.uniqueId) {
+                editor.realtime.scenes.load(config.scene.uniqueId);
+            }
+        });
+
+        editor.realtime.on('whoisonline', (op, data) => {
+            editor.call('whoisonline:' + op, data);
+        });
+
+        editor.realtime.on('chat:typing', data => {
+            editor.call('chat:sync:typing', data);
+        });
+
+        editor.realtime.on('chat:msg', data => {
+            editor.call('chat:sync:msg', data);
+        });
+
+        editor.realtime.on('selection', data => {
+            editor.emit('selector:sync:raw', data);
+        });
+
+        editor.realtime.on('fs:paths', data => {
+            editor.call('assets:fs:paths:patch', data);
+        });
+
+        editor.realtime.on('scene:op', (path, op) => {
+            editor.emit('realtime:scene:op:' + path, op);
+        });
+
+        editor.realtime.on('asset:op', (op, uniqueId) => {
+            editor.emit('realtime:op:assets', op, uniqueId);
+        });
+
+        editor.realtime.on('load:scene', scene => {
+            editor.emit('scene:load', scene.id, scene.uniqueId);
+            editor.emit('scene:raw', scene.data);
+        });
 
         editor.method('realtime:connection', function () {
-            return connection;
+            return editor.realtime.connection.sharedb;
         });
-
-        editor.method('realtime:authenticated', () => {
-            return auth;
-        });
-
-        var connect = function () {
-            if (reconnectAttempts > 4) {
-                editor.emit('realtime:cannotConnect');
-                return;
-            }
-
-            reconnectAttempts++;
-            editor.emit('realtime:connecting', reconnectAttempts);
-
-            var shareDbMessage = connection.socket.onmessage;
-
-            connection.socket.onmessage = function (msg) {
-                try {
-                    if (msg.data.startsWith('auth')) {
-                        if (!auth) {
-                            auth = true;
-                            data = JSON.parse(msg.data.slice(4));
-
-                            editor.emit('realtime:authenticated');
-
-                            // load scene
-                            if (! scene && config.scene.uniqueId) {
-                                editor.call('realtime:loadScene', config.scene.uniqueId);
-                            }
-                        }
-                    } else if (msg.data.startsWith('whoisonline:')) {
-                        // const parts = msg.data.split(':');
-                        // if (parts.length === 5 && parts[1] === 'scene') {
-                        //     let data;
-                        //     const op = parts[3];
-                        //     if (op === 'set') {
-                        //         data = JSON.parse(parts[4]);
-                        //     } else if (op === 'add' || op === 'remove') {
-                        //         data = parseInt(parts[4], 10);
-                        //     }
-                        //     editor.call('whoisonline:' + op, data);
-                        // }
-                    } else if (msg.data.startsWith('chat:')) {
-                        // data = msg.data.slice('chat:'.length);
-
-                        // const ind = data.indexOf(':');
-                        // if (ind !== -1) {
-                        //     const op = data.slice(0, ind);
-                        //     data = JSON.parse(data.slice(ind + 1));
-
-                        //     if (op === 'typing') {
-                        //         editor.call('chat:sync:typing', data);
-                        //     } else if (op === 'msg') {
-                        //         editor.call('chat:sync:msg', data);
-                        //     }
-                        // }
-                    } else if (msg.data.startsWith('selection')) {
-                        const data = msg.data.slice('selection:'.length);
-                        editor.emit('selector:sync:raw', data);
-                    } else if (msg.data.startsWith('fs:')) {
-                        data = msg.data.slice('fs:'.length);
-                        const ind = data.indexOf(':');
-                        if (ind !== -1) {
-                            const op = data.slice(0, ind);
-                            if (op === 'paths') {
-                                data = JSON.parse(data.slice(ind + 1));
-                                editor.call('assets:fs:paths:patch', data);
-                            }
-                        } else {
-                            shareDbMessage(msg);
-                        }
-                    } else {
-                        shareDbMessage(msg);
-                    }
-                } catch (e) {
-                    log.error(e);
-                }
-
-            };
-
-            connection.on('connected', function () {
-                reconnectAttempts = 0;
-                reconnectInterval = 3;
-
-                this.socket.send('auth' + JSON.stringify({
-                    accessToken: config.accessToken
-                }));
-
-                editor.emit('realtime:connected');
-            });
-
-            connection.on('error', function (msg) {
-                if (connection.state === 'connected')
-                    return;
-                editor.emit('realtime:error', msg);
-            });
-
-            connection.on('bs error', function (msg) {
-                editor.call('status:error', msg);
-            });
-
-            var onConnectionClosed = connection.socket.onclose;
-            connection.socket.onclose = function (reason) {
-                auth = false;
-
-                if (scene) {
-                    scene.unsubscribe();
-                    scene.destroy();
-                    scene = null;
-                }
-
-                editor.emit('realtime:disconnected', reason);
-                onConnectionClosed(reason);
-
-                // try to reconnect after a while
-                editor.emit('realtime:nextAttempt', reconnectInterval);
-
-                if (editor.call('visibility')) {
-                    setTimeout(reconnect, reconnectInterval * 1000);
-                } else {
-                    editor.once('visible', reconnect);
-                }
-
-                reconnectInterval++;
-            };
-        };
-
-        var reconnect = function () {
-            // create new socket...
-            socket = new WebSocket(config.url.realtime.http);
-            // ... and new sharedb connection
-            connection = new window.share.Connection(socket);
-            // connect again
-            connect();
-        };
-
-        if (editor.call('visibility')) {
-            reconnect();
-        } else {
-            editor.once('visible', reconnect);
-        }
-
-        var emitOp = function (type, op) {
-            // console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-            // console.log(op);
-
-            if (op.p[0])
-                editor.emit('realtime:' + type + ':op:' + op.p[0], op);
-        };
 
         editor.method('realtime:loadScene', function (uniqueId) {
-            scene = connection.get('scenes', '' + uniqueId);
-
-            // error
-            scene.on('error', function (err) {
-                editor.emit('realtime:scene:error', err);
-            });
-
-            // ready to sync
-            scene.on('load', function () {
-                // notify of operations
-                scene.on('op', function (ops, local) {
-                    if (local) return;
-
-                    for (let i = 0; i < ops.length; i++)
-                        emitOp('scene', ops[i]);
-                });
-
-                // notify of scene load
-                editor.emit('scene:load', scene.data.item_id, uniqueId);
-                editor.emit('scene:raw', scene.data);
-            });
-
-            // subscribe for realtime events
-            scene.subscribe();
+            editor.realtime.scenes.load(uniqueId);
         });
 
         // write scene operations
         editor.method('realtime:scene:op', function (op) {
-            if (! editor.call('permissions:write') || ! scene)
+            if (! editor.call('permissions:write') || ! editor.realtime.scenes.current)
                 return;
 
-            // console.trace();
-            // console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-            // console.log(op)
-
-            try {
-                scene.submitOp([op]);
-            } catch (e) {
-                log.error(e);
-                editor.emit('realtime:scene:error', e);
-            }
+            editor.realtime.scenes.current.submitOp(op);
         });
 
         editor.method('realtime:send', function (name, data) {
-            // console.log(name, data);
-            if (socket.readyState === 1)
-                socket.send(name + JSON.stringify(data));
+            editor.realtime.connection.sendMessage(name, data);
         });
 
         editor.method('realtime:scene', function () {
-            return scene;
+            return editor.realtime.scenes.current;
         });
 
         editor.on('realtime:disconnected', function () {
@@ -226,13 +112,17 @@ editor.once('load', function () {
         });
 
         editor.on('scene:unload', function (id, uniqueId) {
-            if (scene) {
-                scene.unsubscribe();
-                scene.destroy();
-                scene = null;
-
-                connection.socket.send('close:scene:' + uniqueId);
+            if (editor.realtime.scenes.current) {
+                editor.realtime.scenes.current.unload();
             }
         });
+
+        if (editor.call('visibility')) {
+            editor.realtime.connection.connect(config.url.realtime.http);
+        } else {
+            editor.once('visible', () => {
+                editor.realtime.connection.connect(config.url.realtime.http);
+            });
+        }
     });
 });

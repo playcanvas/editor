@@ -29,10 +29,10 @@ editor.once('load', function () {
         let newEntityId;
 
         function undo() {
-            const newEntity = editor.call('entities:get', newEntityId);
+            const newEntity = editor.entities.get(newEntityId);
 
             if (newEntity) {
-                editor.call('entities:removeEntity', newEntity, null, true);
+                newEntity.delete({ history: false });
             }
 
             newEntityId = null;
@@ -48,10 +48,17 @@ editor.once('load', function () {
             const parentId = srcToDst[deletedEntity.parent];
             const parentEnt = entities.get(parentId);
 
+            const parentChildren = asset.get(`data.entities.${deletedEntity.parent}.children`);
+            let childIndex;
+            if (parentChildren) {
+                childIndex = parentChildren.indexOf(deletedEntity.resource_id);
+            }
+
             const opts = {
                 subtreeRootId: deletedEntity.resource_id,
                 dstToSrc: dstToSrc,
-                srcToDst: srcToDst
+                srcToDst: srcToDst,
+                childIndex: childIndex
             };
 
             editor.call('template:addInstance', asset, parentEnt, opts, entityId => {
@@ -519,6 +526,7 @@ editor.once('load', function () {
     });
 
     editor.method('templates:revertAll', function (entity) {
+
         const templateId = entity.get('template_id');
         const templateEntIds = entity.get('template_ent_ids');
         if (!templateId || !templateEntIds) return false;
@@ -535,28 +543,58 @@ editor.once('load', function () {
 
         const childIndex = parent.get('children').indexOf(entity.get('resource_id'));
 
-        // remove entity and then re-add instance from
-        // the template keeping the same ids as before
-        editor.call('entities:removeEntity', entity);
+        let prev;
 
-        setTimeout(function () {
-            const srcToDst = editor.call('template:utils', 'invertMap', templateEntIds);
+        function undo() {
+            if (!parent.latest()) return;
 
-            const opts = {
-                dstToSrc: templateEntIds,
-                srcToDst: srcToDst,
-                childIndex: childIndex
-            };
+            if (entity) {
+                entity.apiEntity.delete({ history: false });
+                entity = editor.entities.create(prev, { history: false, index: childIndex, select: true });
+                entity = entity._observer;
+            }
 
-            editor.call('template:addInstance', asset, parent, opts, entityId => {
-                editor.call('entities:waitToExist', [entityId], 5000, entities => {
-                    // use timeout to make sure treeview has been updated
-                    setTimeout(() => {
-                        afterAddInstance(entities[0], entitiesPanelState, ignorePathValues);
+            prev = null;
+        }
+
+        function redo() {
+            if (!parent.latest()) return;
+
+            // remove entity and then re-add instance from
+            // the template keeping the same ids as before
+            prev = entity.apiEntity.jsonHierarchy();
+            entity.apiEntity.delete({ history: false });
+
+            setTimeout(function () {
+                const srcToDst = editor.call('template:utils', 'invertMap', templateEntIds);
+
+                const opts = {
+                    dstToSrc: templateEntIds,
+                    srcToDst: srcToDst,
+                    childIndex: childIndex
+                };
+
+                editor.call('template:addInstance', asset, parent, opts, entityId => {
+                    editor.call('entities:waitToExist', [entityId], 5000, entities => {
+                        entity = entities[0];
+                        // use timeout to make sure treeview has been updated
+                        setTimeout(() => {
+                            afterAddInstance(entities[0], entitiesPanelState, ignorePathValues);
+                        });
                     });
                 });
-            });
-        }, 0);
+            }, 0);
+        }
+
+        redo();
+
+        editor.history.add({
+            name: 'revert all',
+            undo: undo,
+            redo: redo
+        });
+
+
 
 
         return true;
