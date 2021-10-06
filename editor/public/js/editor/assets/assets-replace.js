@@ -175,6 +175,16 @@ editor.once('load', function () {
                 }
             }
 
+            // render
+            var render = obj.get('components.render');
+            if (render) {
+                for (let j = 0; j < render.materialAssets.length; j++) {
+                    if (render.materialAssets[j] === this.oldId) {
+                        this.set(obj, 'components.render.materialAssets.' + j);
+                    }
+                }
+            }
+
             // element
             var element = obj.get('components.element');
             if (element && element.materialAsset === this.oldId) {
