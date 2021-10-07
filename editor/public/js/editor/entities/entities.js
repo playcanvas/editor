@@ -1,32 +1,14 @@
 editor.once('load', function () {
     'use strict';
 
-    var entities = new ObserverList({
-        index: 'resource_id'
+    const entities = editor.entities._entities;
+
+    editor.entities.on('add', (entity, isRoot) => {
+        editor.emit('entities:add', entity._observer, isRoot);
     });
 
-    var entityRoot = null;
-
-    function createLatestFn(resourceId) {
-        return function () {
-            return entities.get(resourceId);
-        };
-    }
-
-    // on adding
-    entities.on('add', function (entity) {
-        editor.emit('entities:add', entity, entity === entityRoot);
-    });
-
-    // on removing
-    entities.on('remove', function (entity) {
-        if (entity === entityRoot) {
-            entityRoot = null;
-        }
-
-        editor.emit('entities:remove', entity);
-        entity.destroy();
-        entity.entity = null;
+    editor.entities.on('remove', entity => {
+        editor.emit('entities:remove', entity._observer);
     });
 
     // return entities ObserverList
@@ -36,29 +18,17 @@ editor.once('load', function () {
 
     // allow adding entity
     editor.method('entities:add', function (entity) {
-        if (! entity.get('parent')) {
-            if (entityRoot) {
-                // this is a bad scene it has more than one entities
-                // with a null parent.. Check for a bad scene merge.
-                editor.call('status:error', `More than one root entities in Scene. Current root is Entity "${entityRoot.get('name')}" [${entity.get('resource_id')}] but Entity "${entity.get('name')}" [${entity.get('resource_id')}] also has a null parent`);
-            }
-
-            entityRoot = entity;
-        }
-
-        entities.add(entity);
-
-        // function to get latest version of entity observer
-        entity.latestFn = createLatestFn(entity.get('resource_id'));
+        editor.entities.add(entity.apiEntity);
     });
 
-    // allow remove entity
+    // // allow remove entity
     editor.method('entities:remove', function (entity) {
-        entities.remove(entity);
+        throw new Error('entities:remove: Not implemented');
     });
 
     // remove all entities
     editor.method('entities:clear', function () {
+        editor.entities.clear();
         entities.clear();
         editor.emit('entities:clear');
     });
@@ -77,7 +47,7 @@ editor.once('load', function () {
 
     // get root entity
     editor.method('entities:root', function () {
-        return entityRoot;
+        return editor.entities.root && editor.entities.root._observer;
     });
 
 });

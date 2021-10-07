@@ -70,6 +70,17 @@ editor.once('load', function () {
         }
     });
 
+    editor.selection.on('add', item => {
+        editor.emit('selector:add', item._observer, item instanceof api.Entity ? 'entity' : 'asset');
+    });
+
+    editor.selection.on('remove', item => {
+        editor.emit('selector:remove', item._observer, item instanceof api.Entity ? 'entity' : 'asset');
+    });
+
+    editor.selection.on('change', items => {
+        editor.emit('selector:change', items[0] instanceof api.Entity ? 'entity' : 'asset', items.map(item => item._observer));
+    });
 
     // removing
     selector.on('remove', function (item) {
@@ -90,6 +101,16 @@ editor.once('load', function () {
 
     // selecting item (toggle)
     editor.method('selector:toggle', function (type, item) {
+        if (item.apiEntity) {
+            editor.selection.toogle(item.apiEntity);
+            return;
+        }
+
+        if (item.apiAsset) {
+            editor.selection.toggle(item.apiAsset);
+            return;
+        }
+
         if (! enabled)
             return;
 
@@ -108,6 +129,14 @@ editor.once('load', function () {
 
     // selecting list of items
     editor.method('selector:set', function (type, items) {
+        if (type === 'entity') {
+            editor.selection.set(items.map(item => item.apiEntity));
+            return;
+        } else if (type === 'assset') {
+            editor.selection.set(items.map(item => item.apiAsset));
+            return;
+        }
+
         if (! enabled)
             return;
 
@@ -148,6 +177,16 @@ editor.once('load', function () {
 
     // selecting item
     editor.method('selector:add', function (type, item) {
+        if (item.apiEntity) {
+            editor.selection.add(item.apiEntity);
+            return;
+        }
+
+        if (item.apiAsset) {
+            editor.selection.add(item.apiAsset);
+            return;
+        }
+
         if (! enabled)
             return;
 
@@ -164,6 +203,16 @@ editor.once('load', function () {
 
     // deselecting item
     editor.method('selector:remove', function (item) {
+        if (item.apiEntity) {
+            editor.selection.remove(item.apiEntity);
+            return;
+        }
+
+        if (item.apiAsset) {
+            editor.selection.remove(item.apiAsset);
+            return;
+        }
+
         if (! enabled)
             return;
 
@@ -176,6 +225,8 @@ editor.once('load', function () {
 
     // deselecting
     editor.method('selector:clear', function (item) {
+        editor.selection.clear();
+        return;
         if (! enabled)
             return;
 
@@ -185,18 +236,28 @@ editor.once('load', function () {
 
     // return select type
     editor.method('selector:type', function () {
+        if (editor.selection.items[0] instanceof api.Entity) {
+            return 'entity';
+        } else if (editor.selection.items[0] instanceof api.Asset) {
+            return 'asset';
+        }
+
         return selector.type;
     });
 
 
     // return selected count
     editor.method('selector:count', function () {
+        return editor.selection.count || selector.length;
         return selector.length;
     });
 
 
     // return selected items
     editor.method('selector:items', function () {
+        if (editor.selection.count) {
+            return editor.selection.items.map(item => item._observer);
+        }
         return selector.array();
     });
 
@@ -207,11 +268,12 @@ editor.once('load', function () {
 
     // return if it has item
     editor.method('selector:has', function (item) {
-        return selector.has(item);
+        return editor.selection.has(item.apiEntity) || editor.selection.has(item.apiAsset) || selector.has(item);
     });
 
 
     editor.method('selector:enabled', function (state) {
+        editor.selection.enabled = state;
         enabled = state;
     });
 });

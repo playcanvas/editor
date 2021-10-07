@@ -18,9 +18,11 @@ editor.once('load', function () {
             return;
         }
 
-        editor.call('loadAsset', {
-            uniqueId: uniqueId,
-            createdAt: data.asset.createdAt
+        asset = new api.Asset({
+            uniqueId: uniqueId
+        });
+        asset.loadAndSubscribe().then(() => {
+            editor.assets.add(asset);
         });
     };
 

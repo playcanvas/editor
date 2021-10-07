@@ -187,7 +187,7 @@ Object.assign(pcui, (function () {
 
             // select entities in the new selection
             entities.forEach(entity => {
-                const item = this._treeItemIndex[entity.get('resource_id')];
+                const item = this.getTreeItemForEntity(entity.get('resource_id'));
                 if (item && !item.selected) {
                     item.selected = true;
                 }
@@ -225,7 +225,7 @@ Object.assign(pcui, (function () {
 
             // create marker for each selection
             data.ids.forEach(resourceId => {
-                const item = this._treeItemIndex[resourceId];
+                const item = this.getTreeItemForEntity(resourceId);
                 if (!item) return;
 
                 let marker = this._userSelectionMarkers[user].pool.pop();
@@ -351,7 +351,7 @@ Object.assign(pcui, (function () {
                 newEntityIds.forEach(id => {
                     const entity = this._entities.get(id);
                     if (entity) {
-                        editor.call('entities:removeEntity', entity);
+                        entity.apiEntity.delete({ history: false });
                     }
                 });
 
@@ -367,7 +367,9 @@ Object.assign(pcui, (function () {
 
             const redo = () => {
                 newEntityIds = [];
-                parent = parent.latest();
+                if (parent) {
+                    parent = parent.latest();
+                }
                 if (!parent) return;
 
                 const templates = [];
@@ -454,7 +456,7 @@ Object.assign(pcui, (function () {
                 noHistory: true
             });
 
-            return newEntity;
+            return newEntity.get('resource_id');
         }
 
         _instantiateDraggedSpriteAsset(asset, parentEntity, childIndex) {
@@ -489,7 +491,7 @@ Object.assign(pcui, (function () {
                 noHistory: true
             });
 
-            return newEntity;
+            return newEntity.get('resource_id');
         }
 
         _onEntitiesMouseLeave(evt) {
@@ -582,14 +584,14 @@ Object.assign(pcui, (function () {
 
             // add child
             events.push(entity.on('children:insert', (childId, index) => {
-                const item = this._treeItemIndex[childId];
+                const item = this.getTreeItemForEntity(childId);
                 if (!item) return;
 
                 if (item.parent) {
                     item.parent.remove(item);
                 }
 
-                const next = this._treeItemIndex[entity.get(`children.${index + 1}`)];
+                const next = this.getTreeItemForEntity(entity.get(`children.${index + 1}`));
                 if (next) {
                     treeViewItem.appendBefore(item, next);
                 } else {
@@ -599,7 +601,7 @@ Object.assign(pcui, (function () {
 
             // remove child
             events.push(entity.on('children:remove', childId => {
-                const item = this._treeItemIndex[childId];
+                const item = this.getTreeItemForEntity(childId);
                 if (!item) return;
 
                 treeViewItem.remove(item);
@@ -607,19 +609,19 @@ Object.assign(pcui, (function () {
 
             // move child
             events.push(entity.on('children:move', (childId, index) => {
-                var item = this._treeItemIndex[childId];
+                var item = this.getTreeItemForEntity(childId);
                 if (!item)
                     return;
 
                 treeViewItem.remove(item);
 
-                let next = this._treeItemIndex[entity.get('children.' + (index + 1))];
+                let next = this.getTreeItemForEntity(entity.get('children.' + (index + 1)));
                 let after = null;
                 if (next === item) {
                     next = null;
 
                     if (index > 0) {
-                        after = this._treeItemIndex[entity.get('children.' + index)];
+                        after = this.getTreeItemForEntity(entity.get('children.' + index));
                     }
                 }
 
@@ -651,8 +653,9 @@ Object.assign(pcui, (function () {
 
             // add children
             entity.get('children').forEach(childId => {
-                if (this._treeItemIndex[childId]) {
-                    treeViewItem.append(this._treeItemIndex[childId]);
+                const item = this.getTreeItemForEntity(childId);
+                if (item) {
+                    treeViewItem.append(item);
                 } else {
                     const child = this._entities.get(childId);
                     if (child) {
@@ -675,7 +678,7 @@ Object.assign(pcui, (function () {
         }
 
         _resetTemplateIcons(entity) {
-            const item = this._treeItemIndex[entity.get('resource_id')];
+            const item = this.getTreeItemForEntity(entity.get('resource_id'));
 
             if (item) {
                 if (entity.get('template_id')) {
@@ -711,9 +714,10 @@ Object.assign(pcui, (function () {
                 delete this._eventsEntity[resourceId];
             }
 
-            if (this._treeItemIndex[resourceId]) {
-                this._treeItemIndex[resourceId].destroy();
+            const item = this.getTreeItemForEntity(resourceId);
+            if (item) {
                 delete this._treeItemIndex[resourceId];
+                item.destroy();
             }
         }
 
@@ -742,7 +746,8 @@ Object.assign(pcui, (function () {
          * @returns {pcui.TreeViewItem} The tree view item.
          */
         getTreeItemForEntity(resourceId) {
-            return this._treeItemIndex[resourceId];
+            const item = this._treeItemIndex[resourceId];
+            return item && !item.destroyed ? item : null;
         }
 
         /**
@@ -751,8 +756,9 @@ Object.assign(pcui, (function () {
          * @param {string} resourceId - The entity resource id
          */
         highlightEntity(resourceId) {
-            if (this._treeItemIndex[resourceId]) {
-                this._treeItemIndex[resourceId].class.add(CLASS_HIGHLIGHT);
+            const item = this.getTreeItemForEntity(resourceId);
+            if (item) {
+                item.class.add(CLASS_HIGHLIGHT);
             }
         }
 
@@ -762,8 +768,9 @@ Object.assign(pcui, (function () {
          * @param {string} resourceId - The entity resource id
          */
         unhighlightEntity(resourceId) {
-            if (this._treeItemIndex[resourceId]) {
-                this._treeItemIndex[resourceId].class.remove(CLASS_HIGHLIGHT);
+            const item = this.getTreeItemForEntity(resourceId);
+            if (item) {
+                item.class.remove(CLASS_HIGHLIGHT);
             }
         }
 
@@ -801,7 +808,7 @@ Object.assign(pcui, (function () {
             const recurse = (entity) => {
                 if (!entity) return;
 
-                const item = this._treeItemIndex[entity.get('resource_id')];
+                const item = this.getTreeItemForEntity(entity.get('resource_id'));
                 if (item) {
                     result[entity.get('resource_id')] = item.open;
                 }
@@ -824,7 +831,7 @@ Object.assign(pcui, (function () {
          */
         restoreExpandedState(state) {
             for (const resourceId in state) {
-                const item = this._treeItemIndex[resourceId];
+                const item = this.getTreeItemForEntity(resourceId);
                 if (item) {
                     item.open = state[resourceId];
                 }

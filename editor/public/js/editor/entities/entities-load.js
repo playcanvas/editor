@@ -28,7 +28,7 @@ editor.on('load', function () {
 
         // list
         for (const key in data.entities) {
-            editor.call('entities:add',  new Observer(data.entities[key]));
+            editor.entities.serverAdd(data.entities[key]);
             p.progress = (++i / total) * 0.8 + 0.1;
         }
 

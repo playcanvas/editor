@@ -81,9 +81,9 @@ editor.once('load', function () {
                 }
 
                 newEntityIds.forEach(id => {
-                    const entity = editor.call('entities:get', id);
+                    const entity = editor.entities.get(id);
                     if (entity) {
-                        editor.call('entities:removeEntity', entity);
+                        entity.delete({ history: false });
                     }
                 });
 

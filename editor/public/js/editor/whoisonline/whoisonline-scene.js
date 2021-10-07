@@ -8,7 +8,7 @@ editor.once('load', function () {
     });
 
     editor.on('relay:connected', () => {
-        if (config.scene.uniqueId && editor.call('realtime:authenticated')) {
+        if (config.scene.uniqueId && editor.realtime.connection.authenticated) {
             onSceneLoad(config.scene.uniqueId);
         }
     });

@@ -62,11 +62,11 @@ editor.once('load', function () {
 
             // parent
             let parent = null;
-            if (editor.call('selector:type') === 'entity')
-                parent = editor.call('selector:items')[0];
-
-            if (! parent)
-                parent = editor.call('entities:root');
+            if (editor.selection.items[0] instanceof api.Entity) {
+                parent = editor.selection.items[0];
+            } else {
+                parent = editor.entities.root;
+            }
 
             const entities = [];
             data = [];
@@ -107,7 +107,7 @@ editor.once('load', function () {
                 vecC.copy(vecB).sub(aabb.center);
 
                 const tmp = new pc.Entity();
-                parent.entity.addChild(tmp);
+                parent._observer.entity.addChild(tmp);
                 tmp.setPosition(vecC);
                 vecC.copy(tmp.getLocalPosition());
                 tmp.destroy();
@@ -116,7 +116,7 @@ editor.once('load', function () {
                 distance = vecA.copy(camera.getPosition()).sub(vecB).length();
             } else {
                 vecC.set(0, 0, 0);
-                vecB.copy(parent.entity.getPosition()).add(aabb.center);
+                vecB.copy(parent._observer.entity.getPosition()).add(aabb.center);
                 distance = aabb.halfExtents.length() * 2.2;
             }
 
@@ -142,85 +142,42 @@ editor.once('load', function () {
                 }
 
                 // new entity
-                const entity = editor.call('entities:new', {
+                const entity = editor.entities.create({
                     parent: parent,
                     name: name,
                     position: [vecC.x, vecC.y, vecC.z],
                     components: {
                         sprite: component
-                    },
-                    noSelect: true,
-                    noHistory: true
-                });
+                    }
+                }, { history: false });
 
                 entities.push(entity);
                 data.push(entity.json());
             }
 
-            editor.call('selector:history', false);
-            editor.call('selector:set', 'entity', entities);
-            editor.once('selector:change', function () {
-                editor.call('selector:history', true);
-            });
+            let previousSelection = editor.selection.items;
+            editor.selection.set(entities, { history: false });
 
-            const selectorType = editor.call('selector:type');
-            const selectorItems = editor.call('selector:items');
-            if (selectorType === 'entity') {
-                for (let i = 0; i < selectorItems.length; i++)
-                    selectorItems[i] = selectorItems[i].get('resource_id');
-            }
-
-            const parentId = parent.get('resource_id');
-            const resourceIds = [];
-            for (let i = 0; i < entities.length; i++)
-                resourceIds.push(entities[i].get('resource_id'));
-
-            editor.call('history:add', {
+            editor.history.add({
                 name: 'new sprite entities ' + entities.length,
                 undo: function () {
-                    for (let i = 0; i < resourceIds.length; i++) {
-                        const entity = editor.call('entities:get', resourceIds[i]);
-                        if (! entity)
-                            continue;
-
-                        editor.call('entities:removeEntity', entity);
-                    }
-
-                    if (selectorType === 'entity' && selectorItems.length) {
-                        const items = [];
-                        for (let i = 0; i < selectorItems.length; i++) {
-                            const item = editor.call('entities:get', selectorItems[i]);
-                            if (item)
-                                items.push(item);
-                        }
-
-                        if (items.length) {
-                            editor.call('selector:history', false);
-                            editor.call('selector:set', selectorType, items);
-                            editor.once('selector:change', function () {
-                                editor.call('selector:history', true);
-                            });
-                        }
-                    }
+                    editor.entities.delete(entities, { history: false });
+                    editor.selection.set(previousSelection, { history: false });
                 },
                 redo: function () {
-                    const parent = editor.call('entities:get', parentId);
-                    if (! parent)
-                        return;
+                    if (!parent) return;
+                    parent = parent.latest();
+                    if (!parent) return;
 
-                    const entities = [];
+                    entities.length = 0;
 
                     for (let i = 0; i < data.length; i++) {
-                        const entity = new Observer(data[i]);
+                        const entity = editor.entities.create(data[i], { history: false });
                         entities.push(entity);
-                        editor.call('entities:addEntity', entity, parent, false);
                     }
 
-                    editor.call('selector:history', false);
-                    editor.call('selector:set', 'entity', entities);
-                    editor.once('selector:change', function () {
-                        editor.call('selector:history', true);
-                    });
+                    previousSelection = editor.selection.items;
+                    editor.selection.set(entities, { history: false });
 
                     editor.call('viewport:render');
                     editor.call('camera:focus', vecB, distance);

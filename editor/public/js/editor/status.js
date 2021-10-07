@@ -75,4 +75,12 @@ editor.once('load', function () {
 
         updateJobs();
     });
+
+    editor.jobs.on('start', (id) => {
+        editor.call('status:job', id, 1);
+    });
+
+    editor.jobs.on('finish', (id) => {
+        editor.call('status:job', id);
+    });
 });
