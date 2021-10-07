@@ -1,6 +1,8 @@
 editor.on('start', function () {
     'use strict';
 
+    if (!editor.messenger) return;
+
     editor.messenger.connect(config.url.messenger.ws);
 
     editor.messenger.on('connect', () => {
