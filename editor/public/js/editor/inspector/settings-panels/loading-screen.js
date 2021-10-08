@@ -116,13 +116,18 @@ Object.assign(pcui, (function () {
         }
 
         _clickCreateDefault() {
+            const folder = editor.call('sourcefiles:loadingScreen:skeleton');
             editor.call('picker:script-create', (filename) => {
-                editor.call('assets:create:script', {
-                    filename,
-                    content: editor.call('sourcefiles:loadingScreen:skeleton'),
-                    callback: (_, asset) => {
-                        this._setLoadingScreen(asset);
-                    }
+                editor.assets.createScript({
+                    folder: folder && folder.apiAsset,
+                    filename: filename,
+                    text: editor.call('sourcefiles:loadingScreen:skeleton')
+                })
+                .then(asset => {
+                    this._setLoadingScreen(asset._observer);
+                })
+                .catch(err => {
+                    editor.call('status:error', err);
                 });
             });
         }

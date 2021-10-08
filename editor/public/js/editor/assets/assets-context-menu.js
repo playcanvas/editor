@@ -3,6 +3,7 @@ editor.once('load', function () {
 
     let currentAsset = null;
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
+    const projectUserSettings = editor.call('settings:projectUser');
     const root = editor.call('layout.root');
 
     const customMenuItems = [];
@@ -26,9 +27,15 @@ editor.once('load', function () {
     menuItemNewScript.on('select', function () {
         if (!legacyScripts) {
             editor.call('picker:script-create', function (filename) {
-                editor.call('assets:create:script', {
-                    filename: filename,
-                    boilerplate: true
+                editor.assets.createScript({
+                    folder: folder,
+                    filename: filename
+                })
+                .then((asset) => {
+                    editor.selection.set([asset]);
+                })
+                .catch(err => {
+                    editor.call('status:error', err);
                 });
             });
         }
@@ -109,8 +116,22 @@ editor.once('load', function () {
         'animstategraph': 'Anim State Graph'
     };
 
+    const assetCreateCallback = {
+        'folder': 'createFolder',
+        'css': 'createCss',
+        'cubemap': 'createCubemap',
+        'html': 'createHtml',
+        'json': 'createJson',
+        'material': 'createMaterial',
+        'script': 'createScript',
+        'shader': 'createShader',
+        'text': 'createText',
+        'animstategraph': 'createAnimStateGraph'
+    };
+
     if (editor.call('users:hasFlag', 'hasBundles')) {
         assets.bundle = 'Asset Bundle';
+        assetCreateCallback.bundle = 'createBundle';
     }
 
     function isCurrentFolderLegacyScripts() {
@@ -126,11 +147,21 @@ editor.once('load', function () {
         });
         item.on('select', function () {
             const args = { };
+            const preload = projectUserSettings.get('editor.pipeline.defaultAssetPreload');
+            let folder = null;
 
             if (currentAsset && currentAsset.get('type') === 'folder') {
                 args.parent = currentAsset;
+                folder = currentAsset.apiAsset;
             } else if (currentAsset === undefined) {
                 args.parent = null;
+            }
+
+            if (!folder) {
+                folder = editor.call('assets:panel:currentFolder');
+                if (folder) {
+                    folder = folder.apiAsset;
+                }
             }
 
             if (key === 'upload') {
@@ -140,14 +171,31 @@ editor.once('load', function () {
                     editor.call('sourcefiles:new');
                 } else {
                     editor.call('picker:script-create', function (filename) {
-                        editor.call('assets:create:script', {
+                        editor.assets.createScript({
                             filename: filename,
-                            boilerplate: true
+                            folder: folder
+                        })
+                        .then((asset) => {
+                            editor.selection.set([asset]);
+                        })
+                        .catch(err => {
+                            editor.call('status:error', err);
                         });
                     });
                 }
             } else {
-                editor.call('assets:create:' + key, args);
+                if (assetCreateCallback[key]) {
+                    editor.assets[assetCreateCallback[key]]({
+                        folder: folder,
+                        preload
+                    })
+                    .then((asset) => {
+                        editor.selection.set([asset]);
+                    })
+                    .catch(err => {
+                        editor.call('status:error', err);
+                    });
+                }
             }
         });
         menu.append(item);
@@ -597,7 +645,7 @@ editor.once('load', function () {
                         if (type === 'editorSettings') {
                             menuItem.text = 'Scene Settings';
                             menuItem.icon = ICONS.SCENE_SETTINGS;
-                            item = editor.call('settings:projectUser');
+                            item = projectUserSettings;
                             if (! item) return;
                         } else {
                             if (type === 'entity') {

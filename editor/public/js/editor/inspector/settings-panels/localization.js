@@ -33,7 +33,14 @@ Object.assign(pcui, (function () {
             super(args);
 
             const createNewAssetEvt = this._attributesInspector.getField('createAsset').on('click', () => {
-                editor.call('assets:create:i18n');
+                const folder = editor.call('assets:panel:currentFolder');
+                editor.assets.createI18n({
+                    name: 'Localization',
+                    folder: folder && folder.apiAsset
+                })
+                .catch(err => {
+                    editor.call('status:error', err);
+                });
             });
 
             this.once('destroy', () => {

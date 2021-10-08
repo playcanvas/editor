@@ -43,7 +43,11 @@ editor.once('load', function () {
             return selection.length === 1 && selection[0].get('parent');
         },
         select: function () {
-            editor.call('assets:create:template', getSelection()[0]);
+            const folder = editor.call('assets:panel:currentFolder');
+            editor.assets.createTemplate({
+                folder: folder && folder.apiAsset,
+                entity: getSelection()[0].apiEntity
+            });
         }
     };
 

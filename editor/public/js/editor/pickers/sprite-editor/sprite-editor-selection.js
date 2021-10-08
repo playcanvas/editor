@@ -232,80 +232,62 @@ editor.once('load', function () {
             name = 'New Sprite';
         }
 
-        editor.call('assets:create:sprite', {
+        const folder = editor.call('assets:panel:currentFolder');
+
+        editor.assets.createSprite({
             name: name,
             pixelsPerUnit: ppu,
             renderMode: renderMode,
             frameKeys: highlightedFrames,
-            textureAtlasAsset: atlasAsset.get('id'),
-            noSelect: true,
-            fn: function (err, id) {
-                var asset = editor.call('assets:get', id);
-                if (asset) {
-                    selectSprite(asset);
-                    if (args && args.callback) {
-                        args.callback(asset);
-                    }
-                } else {
-                    editor.once('assets:add[' + id + ']', function (asset) {
-                        // do this in a timeout in order to wait for
-                        // assets:add to be raised first
-                        requestAnimationFrame(function () {
-                            selectSprite(asset);
-                            if (args && args.callback) {
-                                args.callback(asset);
-                            }
-                        });
-                    });
-                }
+            textureAtlas: atlasAsset.apiAsset,
+            folder: folder && folder.apiAsset
+        })
+        .then(sprite => {
+            selectSprite(sprite._observer);
+            if (args && args.callback) {
+                args.callback(sprite._observer);
             }
+
+        })
+        .catch(err => {
+            editor.call('status:error', err);
         });
     });
 
     // Create sprite assets for each selected frame
     editor.method('picker:sprites:spritesFromFrames', function (args) {
+        const folder = editor.call('assets:panel:currentFolder');
+
         var frameCounter = 0;
-        for (let i = 0; i < highlightedFrames.length; i++) {
-            var name = atlasAsset.get('data.frames.' + highlightedFrames[i] + '.name');
+        highlightedFrames.forEach((frame, i) => {
+            let name = atlasAsset.get(`data.frames.${frame}.name`);
             if (!name) {
                 name = 'New Sprite ' + i;
             }
             // rendermode: 0 - simple
-            editor.call('assets:create:sprite', {
+            editor.assets.createSprite({
                 name: name,
                 pixelsPerUnit: 100,
                 renderMode: 0,
-                frameKeys: [highlightedFrames[i]],
-                textureAtlasAsset: atlasAsset.get('id'),
-                noSelect: true,
-                fn: function (err, id) {
-                    var asset = editor.call('assets:get', id);
-                    if (asset) {
-                        frameCounter++;
-                        if (frameCounter === highlightedFrames.length) {
-                            selectSprite(asset);
-                            if (args && args.callback) {
-                                args.callback(asset);
-                            }
+                frameKeys: [frame],
+                textureAtlas: atlasAsset.apiAsset,
+                folder: folder && folder.apiAsset
+            })
+            .then(sprite => {
+                frameCounter++;
+                if (frameCounter === highlightedFrames.length) {
+                    setTimeout(() => {
+                        selectSprite(sprite._observer);
+                        if (args && args.callback) {
+                            args.callback(sprite._observer);
                         }
-                    } else {
-                        editor.once('assets:add[' + id + ']', function (asset) {
-                            // do this in a timeout in order to wait for
-                            // assets:add to be raised first
-                            requestAnimationFrame(function () {
-                                frameCounter++;
-                                if (frameCounter === highlightedFrames.length) {
-                                    selectSprite(asset);
-                                    if (args && args.callback) {
-                                        args.callback(asset);
-                                    }
-                                }
-                            });
-                        });
-                    }
+                    });
                 }
+            })
+            .catch(err => {
+                editor.call('status:error', err);
             });
-        }
+        });
     });
 
     var startSpriteEditMode = function () {
