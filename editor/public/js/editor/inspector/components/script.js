@@ -782,20 +782,24 @@ Object.assign(pcui, (function () {
             this._selectScript.blur();
 
             const filename = editor.call('picker:script-create:validate', script);
+            const folder = editor.call('assets:panel:currentFolder');
 
             const onFilename = (filename) => {
-                editor.call('assets:create:script', {
-                    filename: filename,
-                    boilerplate: true,
-                    noSelect: true,
-                    callback: (err, asset, result) => {
-                        if (result && result.scripts) {
-                            const keys = Object.keys(result.scripts);
-                            if (keys.length === 1) {
-                                this._addScriptToEntities(keys[0]);
-                            }
+                editor.assets.createScript({
+                    folder: folder && folder.apiAsset,
+                    filename: filename
+                })
+                .then(asset => {
+                    const scripts = asset.get('data.scripts');
+                    if (scripts) {
+                        const keys = Object.keys(scripts);
+                        if (keys.length === 1) {
+                            this._addScriptToEntities(keys[0]);
                         }
                     }
+                })
+                .catch(err => {
+                    editor.call('status:error', err);
                 });
             };
 

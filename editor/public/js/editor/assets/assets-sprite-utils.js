@@ -96,13 +96,21 @@ editor.once('load', function () {
             name = name.substring(0, lastDot);
         }
 
-        editor.call('assets:create:sprite', {
+        const folder = editor.call('assets:panel:currentFolder');
+
+        editor.assets.createSprite({
             name: name,
             pixelsPerUnit: ppu,
             renderMode: renderMode,
             frameKeys: [frame],
-            textureAtlasAsset: asset.get('id'),
-            fn: args && args.callback
+            textureAtlas: asset.apiAsset,
+            folder: folder && folder.apiAsset
+        })
+        .then(sprite => {
+            editor.selection.set([sprite]);
+        })
+        .catch(err => {
+            editor.call('status:error', err);
         });
     });
 
