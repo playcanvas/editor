@@ -132,7 +132,7 @@ editor.once('load', function () {
         if (type === 'entity') {
             editor.selection.set(items.map(item => item.apiEntity));
             return;
-        } else if (type === 'assset') {
+        } else if (type === 'asset') {
             editor.selection.set(items.map(item => item.apiAsset));
             return;
         }
