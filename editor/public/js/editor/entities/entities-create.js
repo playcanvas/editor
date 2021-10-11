@@ -22,7 +22,7 @@ editor.once('load', function () {
      * @returns {Observer} The new entity
      */
     editor.method('entities:new', function (defaultData) {
-        if (typeof defaultData.parent !== 'string') {
+        if (defaultData.parent && typeof defaultData.parent !== 'string') {
             defaultData.parent = defaultData.parent.apiEntity;
         }
 
