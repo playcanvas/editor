@@ -13,7 +13,7 @@ editor.once('load', function () {
             typers.push(id);
         }
 
-        editor.emit('chat:typing', typing, typers, msg);
+        editor.emit('chat:typing', typing, typers);
     };
 
     editor.on('relay:room:join', function (data) {
