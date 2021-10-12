@@ -37,6 +37,8 @@ Object.assign(pcui, (function () {
         GridView: pcuiExternal.GridView,
         GridViewItem: pcuiExternal.GridViewItem,
         VectorInput: pcuiExternal.VectorInput,
+        Menu: pcuiExternal.Menu,
+        MenuItem: pcuiExternal.MenuItem,
         BindingBase: pcuiExternal.BindingBase,
         BindingElementToObservers: pcuiExternal.BindingElementToObservers,
         BindingObserversToElement: pcuiExternal.BindingObserversToElement,
