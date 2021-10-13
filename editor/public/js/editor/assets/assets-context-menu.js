@@ -483,8 +483,10 @@ editor.once('load', function () {
                     // then include all the other selected items in the delete
                     // otherwise only delete the right-clicked item
                     if (assetType === 'script' && legacyScripts) {
-                        // do not allow deleting legacy scripts
-                        return;
+                        if (items[i].get('filename') === asset.get('filename')) {
+                            multiple = true;
+                            break;
+                        }
                     } else if (items[i].get('id') === asset.get('id')) {
                         multiple = true;
                         break;
@@ -600,7 +602,7 @@ editor.once('load', function () {
             menuItemCreateSlicedSprite.hidden = menuItemCreateSprite.hidden;
 
             // delete
-            menuItemDelete.hidden = (currentAsset && (currentAsset.get('id') === LEGACY_SCRIPTS_ID || (legacyScripts && currentAsset.get('type') === 'script')));
+            menuItemDelete.hidden = (currentAsset && currentAsset.get('id') === LEGACY_SCRIPTS_ID);
 
             if (! currentAsset.get('source')) {
                 menuItemExtract.hidden = true;

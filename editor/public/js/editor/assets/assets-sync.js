@@ -143,7 +143,12 @@ editor.once('load', function () {
 
         for (let i = 0; i < list.length; i++) {
             if (legacyScripts && list[i].get('type') === 'script') {
-                continue;
+                editor.emit('sourcefiles:remove', list[i]);
+                Ajax({
+                    url: '{{url.api}}/projects/' + config.project.id + '/repositories/directory/sourcefiles/' + list[i].get('filename'),
+                    auth: true,
+                    method: 'DELETE'
+                });
             } else {
                 assets.push(list[i]);
             }
