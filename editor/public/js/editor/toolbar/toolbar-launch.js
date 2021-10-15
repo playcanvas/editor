@@ -72,6 +72,10 @@ editor.once('load', function () {
             query.push('ministats=true');
         }
 
+        if (config.url.useCustomEngine) {
+            query.push('use_local_engine=' + config.url.engine);
+        }
+
         if (query.length)
             url += '?' + query.join('&');
 
