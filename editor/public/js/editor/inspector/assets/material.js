@@ -1449,6 +1449,7 @@ Object.assign(pcui, (function () {
     }
 
     const REGEX_EXT = /\.[a-z]+$/;
+    const REGEX_MAP_OFFSET_OR_TILING = /^data.\w+?Map(?:Offset|Tiling).*$/;
 
     class MaterialAssetInspector extends pcui.Container {
         constructor(args) {
@@ -1478,7 +1479,8 @@ Object.assign(pcui, (function () {
             this._assets = null;
             this._suppressToggleFields = false;
             this._suppressOffsetAndTilingFields = false;
-            this._suppressTimeout = null;
+            this._suppressToggleFieldsTimeout = null;
+            this._suppressUpdateAllOffsetAndTilingsTimeout = false;
 
             this._collapsedStates = {};
             this._collapseEvents = [];
@@ -1506,10 +1508,10 @@ Object.assign(pcui, (function () {
 
             for (const map in MAPS) {
                 const inspector = this[`_${MAPS[map]}`];
-                const field = inspector.getField(`data.${map}Map`);
-                field.on('change', value => this._onTextureChange(map, value));
-                field.dragEnterFn = (type, data) => this._onTextureDragEnter(`${map}Map`, type, data);
-                field.dragLeaveFn = () => this._onTextureDragLeave(`${map}Map`);
+                const texField = inspector.getField(`data.${map}Map`);
+                texField.on('change', value => this._onTextureChange(map, value));
+                texField.dragEnterFn = (type, data) => this._onTextureDragEnter(`${map}Map`, type, data);
+                texField.dragLeaveFn = () => this._onTextureDragLeave(`${map}Map`);
             }
 
             this._envInspector.getField('data.cubeMap').on('change', toggleFields);
@@ -1678,6 +1680,48 @@ Object.assign(pcui, (function () {
             this._suppressToggleFields = suppressToggleFields;
 
             this._toggleFields();
+        }
+
+
+        _updateAllOffsetsOrTilingsUiState(renderChanges) {
+            if (!this._assets) return;
+
+            const suppress = this._suppressToggleFields;
+            this._suppressToggleFields = false;
+
+            // only uncheck apply to all field - do not check it otherwise
+            // user who is editing material will lose focus of the offset / tiling
+            // field they are editing once they set it to a value that equals all the other
+            // offset / tilings
+            const applyToAll = this._getApplyToAllValue();
+            if (!applyToAll) {
+                const applyToAllMaps = this._offsetTilingInspector.getField('applyToAllMaps');
+                applyToAllMaps.renderChanges = !!renderChanges;
+                applyToAllMaps.value = false;
+                applyToAllMaps.renderChanges = true;
+            }
+
+            if (applyToAll) {
+                this._suppressOffsetAndTilingFields = true;
+
+                const offset = this._offsetTilingInspector.getField('offset');
+                offset.renderChanges = !!renderChanges;
+                offset.value = this._assets[0].get('data.diffuseMapOffset');
+                offset.renderChanges = true;
+
+                const tiling = this._offsetTilingInspector.getField('tiling');
+                tiling.renderChanges = !!renderChanges;
+                tiling.value = this._assets[0].get('data.diffuseMapTiling');
+                tiling.renderChanges = true;
+
+                this._suppressOffsetAndTilingFields = false;
+            }
+
+            this._suppressToggleFields = suppress;
+
+            if (!this._suppressToggleFields) {
+                this._toggleFields();
+            }
         }
 
         _updateAllOffsetsOrTilings(value, isOffset) {
@@ -1971,9 +2015,9 @@ Object.assign(pcui, (function () {
                     // change event before we can reset the suppressToggleFields flag.
                     // This is because the observer->element binding updates the element
                     // in a timeout.
-                    if (!this._suppressTimeout) {
-                        this._suppressTimeout = setTimeout(() => {
-                            this._suppressTimeout = null;
+                    if (!this._suppressToggleFieldsTimeout) {
+                        this._suppressToggleFieldsTimeout = setTimeout(() => {
+                            this._suppressToggleFieldsTimeout = null;
                             this._suppressToggleFields = false;
                             this._toggleFields();
                         });
@@ -2126,28 +2170,11 @@ Object.assign(pcui, (function () {
             applyToAllMaps.value = this._getApplyToAllValue();
             applyToAllMaps.renderChanges = true;
 
-            this._suppressOffsetAndTilingFields = true;
-
-            const offset = this._offsetTilingInspector.getField('offset');
-            offset.renderChanges = false;
-            offset.value = this._assets[0].get('data.diffuseMapOffset');
-            offset.renderChanges = true;
-
-            const tiling = this._offsetTilingInspector.getField('tiling');
-            tiling.renderChanges = false;
-            tiling.value = this._assets[0].get('data.diffuseMapTiling');
-            tiling.renderChanges = true;
-
-            this._suppressOffsetAndTilingFields = false;
+            this._updateAllOffsetsOrTilingsUiState(false);
 
             this._suppressToggleFields = false;
 
             this._toggleFields();
-
-            if (this._suppressTimeout) {
-                clearTimeout(this._suppressTimeout);
-                this._suppressTimeout = null;
-            }
 
             // set collapsed states for panels
             const collapsedStatesId = this._assets.map(asset => asset.get('id')).sort((a, b) => a - b).join(',');
@@ -2207,6 +2234,21 @@ Object.assign(pcui, (function () {
                 }));
             }
 
+            // subscribe to offset / tiling changes to update the state of
+            // apply to all fields
+            this._assets.forEach(asset => {
+                this._assetEvents.push(asset.on('*:set', (path) => {
+                    if (REGEX_MAP_OFFSET_OR_TILING.test(path)) {
+                        if (this._suppressUpdateAllOffsetAndTilingsTimeout) return;
+
+                        this._suppressUpdateAllOffsetAndTilingsTimeout = setTimeout(() => {
+                            this._suppressUpdateAllOffsetAndTilingsTimeout = null;
+                            this._updateAllOffsetsOrTilingsUiState(true);
+                        });
+                    }
+                }));
+            });
+
             // update fresnel model when shader changes
             this._assets.forEach(asset => {
                 this._assetEvents.push(asset.on('data.shader:set', value => {
@@ -2252,6 +2294,16 @@ Object.assign(pcui, (function () {
             this._envInspector.unlink();
             this._lightmapInspector.unlink();
             this._otherInspector.unlink();
+
+            if (this._suppressToggleFieldsTimeout) {
+                clearTimeout(this._suppressToggleFieldsTimeout);
+                this._suppressToggleFieldsTimeout = null;
+            }
+
+            if (this._suppressUpdateAllOffsetAndTilingsTimeout) {
+                clearTimeout(this._suppressUpdateAllOffsetAndTilingsTimeout);
+                this._suppressUpdateAllOffsetAndTilingsTimeout = null;
+            }
         }
 
         destroy() {
