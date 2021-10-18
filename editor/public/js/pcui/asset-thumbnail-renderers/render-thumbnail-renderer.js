@@ -94,10 +94,15 @@ Object.assign(pcui, (function () {
 
             // load in the materials
             const containerObserver = editor.call('assets:get', editor.call('assets:get', this._asset.get('data.containerAsset')).get('source_asset_id'));
-            const materialMappings = containerObserver.get('meta.mappings');
+
+            let materialMappings;
+
+            if (containerObserver) {
+                materialMappings = containerObserver.get('meta.mappings');
+            }
 
             const containerAsset = app.assets.get(this._asset.get('data.containerAsset'));
-            if (containerAsset && containerAsset.resource && containerAsset.resource.model) {
+            if (containerObserver && containerAsset && containerAsset.resource && containerAsset.resource.model) {
                 const firstMeshInstanceIndex = containerAsset.resource.model.resource.meshInstances.findIndex(a => a.node.name === this._asset.get('name'));
                 const meshInstanceCount = this._asset.get('meta.meshInstances');
                 const meshInstanceMaterialMappings = materialMappings.slice(firstMeshInstanceIndex, firstMeshInstanceIndex + meshInstanceCount);
@@ -137,7 +142,7 @@ Object.assign(pcui, (function () {
             } else {
                 this._unwatchMaterials();
 
-                scene.renderEntity.render.material = scene.material;
+                scene.renderEntity.render.materialAssets = [];
                 if (containerAsset) {
                     containerAsset.once('load', this.queueRender.bind(this));
                 }
