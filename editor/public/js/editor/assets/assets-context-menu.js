@@ -492,10 +492,9 @@ editor.once('load', function () {
                         break;
                     }
                 }
-
-                editor.call('assets:delete:picker', multiple ? items : [asset]);
             }
 
+            editor.call('assets:delete:picker', multiple ? items : [asset]);
         }
 
     });
