@@ -246,56 +246,7 @@ Object.assign(pcui, (function () {
 
             if (!this._entities) return;
 
-            const entities = this._entities.slice();
-
-            let prev = {};
-
-            const undo = () => {
-                entities.forEach(e => {
-                    e = e.latest();
-                    if (!e) return;
-
-                    if (!prev[e.get('resource_id')]) return;
-                    if (!e.has('components.script') || e.get('components.script.order').indexOf(this._scriptName) !== -1) return;
-
-                    const history = e.history.enabled;
-                    e.history.enabled = false;
-                    e.set(`components.script.scripts.${this._scriptName}`, prev[e.get('resource_id')].script);
-                    e.insert('components.script.order', this._scriptName, prev[e.get('resource_id')].order, undefined, false, false);
-                    e.history.enabled = history;
-                });
-            };
-
-            const redo = () => {
-                prev = {};
-                entities.forEach(e => {
-                    e = e.latest();
-                    if (!e) return;
-
-                    if (!e.has(`components.script.scripts.${this._scriptName}`)) return;
-
-                    prev[e.get('resource_id')] = {
-                        script: e.get(`components.script.scripts.${this._scriptName}`),
-                        order: e.get('components.script.order').indexOf(this._scriptName)
-                    };
-
-                    const history = e.history.enabled;
-                    e.history.enabled = false;
-                    e.unset(`components.script.scripts.${this._scriptName}`);
-                    e.removeValue('components.script.order', this._scriptName);
-                    e.history.enabled = history;
-                });
-            };
-
-            redo();
-
-            if (this._history) {
-                this._history.add({
-                    name: 'entities.components.script.scripts.' + this._scriptName,
-                    undo: undo,
-                    redo: redo
-                });
-            }
+            editor.entities.removeScript(this._entities.map(e => e.apiEntity), this._scriptName);
         }
 
         _convertAttributeDataToInspectorData(attributeName, attributePath, attributeData) {
@@ -811,86 +762,7 @@ Object.assign(pcui, (function () {
         }
 
         _addScriptToEntities(script) {
-            const entities = this._entities.slice();
-
-            let changed = {};
-            let cancelPipelineJob = false;
-
-            const undo = () => {
-                cancelPipelineJob = true;
-
-                entities.forEach(e => {
-                    e = e.latest();
-                    if (!e || !changed[e.get('resource_id')] || !e.has('components.script')) return;
-
-                    const history = e.history.enabled;
-                    e.history.enabled = false;
-                    e.unset(`components.script.scripts.${script}`);
-                    e.removeValue('components.script.order', script);
-                    e.history.enabled = history;
-                });
-
-            };
-
-            const redo = () => {
-                cancelPipelineJob = false;
-
-                changed = {};
-                entities.forEach(e => {
-                    e = e.latest();
-                    if (!e || !e.has('components.script') || e.has(`components.script.scripts.${script}`)) return;
-
-                    changed[e.get('resource_id')] = true;
-                    const history = e.history.enabled;
-                    e.history.enabled = false;
-                    e.set(`components.script.scripts.${script}`, {
-                        enabled: true,
-                        attributes: {}
-                    });
-                    e.insert('components.script.order', script, undefined, false, false);
-                    e.history.enabled = history;
-                });
-
-                const scene = editor.call('realtime:scene');
-                if (scene) {
-                    // wait for scene script ops to finish before
-                    // starting script attribute pipeline job
-                    scene.whenNothingPending(() => {
-                        if (cancelPipelineJob) {
-                            return;
-                        }
-
-                        this._setDefaultAttributes(Object.keys(changed), script);
-                    });
-                } else {
-                    this._setDefaultAttributes(Object.keys(changed), script);
-                }
-            };
-
-            redo();
-
-            if (this._history && Object.keys(changed).length) {
-                this._history.add({
-                    name: 'entities.components.script.scripts.' + script,
-                    undo: undo,
-                    redo: redo
-                });
-            }
-        }
-
-        _setDefaultAttributes(resourceIds, script) {
-            editor.call('realtime:send', 'pipeline', {
-                name: 'script-attributes',
-                data: {
-                    script_task_type: 'set_entity_defaults',
-                    job_id: editor.call('utils:makeGuid'),
-                    project_id: config.project.id,
-                    branch_id: config.self.branch.id,
-                    script_added_to_ent: script,
-                    dst_scene_id: config.scene.id,
-                    dst_ent_ids: resourceIds
-                }
-            });
+            editor.entities.addScript(this._entities.map(e => e.apiEntity), script);
         }
 
         _onDragEnd(scriptInspector, newIndex, oldIndex) {
