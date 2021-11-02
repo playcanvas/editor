@@ -28,11 +28,6 @@ editor.once('load', function () {
         removeJob(data.job_id);
     });
 
-    editor.on('messenger:template.instance', data => {
-        const result = data.multTaskResults.map(d => d.newRootId);
-        removeJob(data.job_id, result);
-    });
-
     function checkCircularReferences(entity, templateIds) {
         const templateId = entity.get('template_id');
 
@@ -97,47 +92,6 @@ editor.once('load', function () {
             parent = editor.call('entities:get', parent.get('parent'));
         }
     }
-
-    editor.method('template:addMultipleInstances', function (data, parent, childIndex, callback) {
-        const jobId = randomGuid();
-
-        const taskData = {
-            projectId: config.project.id,
-            branchId: config.self.branch.id,
-            parentId: parent.get('resource_id'),
-            sceneId: config.scene.uniqueId,
-            jobId: jobId,
-            children: parent.get('children'),
-            childIndex: childIndex,
-            templates: data.map(d => {
-                return {
-                    id: parseInt(d.asset.get('uniqueId'), 10),
-                    opts: d.opts
-                };
-            })
-        };
-
-        editor.call('realtime:send', 'pipeline', {
-            name: 'template-instance',
-            data: taskData
-        });
-
-        addJob(jobId, callback);
-
-        return true;
-    });
-
-    editor.method('template:addInstance', function (asset, parent, opts, callback) {
-        if (!editor.call('permissions:write')) {
-            return;
-        }
-
-        return editor.call('template:addMultipleInstances', [{ asset, opts }], parent, opts.childIndex, entityIds => {
-            if (callback) {
-                callback(entityIds[0]);
-            }
-        });
-    });
 
     editor.method('templates:apply', function (root) {
         if (!editor.call('permissions:write')) {

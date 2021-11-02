@@ -93,43 +93,17 @@ editor.once('load', function () {
                 type: 'template'
             });
 
-            let parent = getSelection()[0];
+            const parent = getSelection()[0];
             if (!parent) return;
 
             var evtPick = editor.once('picker:asset', function (asset) {
-                let newEntityId;
-
-                function undo() {
-                    const entity = editor.entities.get(newEntityId);
-                    if (entity) {
-                        entity.delete({ history: false });
-                    }
-                }
-
-                function redo() {
-                    if (parent) {
-                        parent = parent.latest();
-                    }
-
-                    if (!parent) return;
-
-                    const childIndex = parent.get('children').length;
-                    editor.call('template:addInstance', asset, parent, { childIndex }, entityId => {
-                        newEntityId = entityId;
-                        const newEntity = editor.call('entities:get', newEntityId);
-                        if (newEntity) {
-                            selectEntity(newEntity);
-                        }
-                    });
-                }
-
-                editor.call('history:add', {
-                    name: 'add template instance',
-                    undo: undo,
-                    redo: redo
+                asset.apiAsset.instantiateTemplate(parent.apiEntity, {
+                    select: true,
+                    index: parent.get('children').length
+                })
+                .catch(err => {
+                    editor.call('status:error', err);
                 });
-
-                redo();
             });
 
             editor.once('picker:asset:close', function () {

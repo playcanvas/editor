@@ -345,7 +345,6 @@ Object.assign(pcui, (function () {
             if (!assets.length) return;
 
             let newEntityIds;
-            let cancelWaitForEntities;
 
             const undo = () => {
                 newEntityIds.forEach(id => {
@@ -356,11 +355,6 @@ Object.assign(pcui, (function () {
                 });
 
                 newEntityIds = null;
-
-                if (cancelWaitForEntities) {
-                    cancelWaitForEntities();
-                    cancelWaitForEntities = null;
-                }
 
                 editor.call('viewport:render');
             };
@@ -391,11 +385,7 @@ Object.assign(pcui, (function () {
                     this._instantiateDraggedTemplateAssets(templates, parent, childIndex, entityIds => {
                         if (newEntityIds) {
                             newEntityIds = newEntityIds.concat(entityIds);
-
-                            cancelWaitForEntities = editor.call('entities:waitToExist', newEntityIds, TIME_WAIT_ENTITIES, () => {
-                                cancelWaitForEntities = null;
-                                this._selectEntitiesById(newEntityIds);
-                            }, this._entities);
+                            this._selectEntitiesById(newEntityIds);
                         }
                     });
                 }
@@ -419,16 +409,13 @@ Object.assign(pcui, (function () {
                 childIndex = parentEntity.get('children').length;
             }
 
-            editor.call('template:addMultipleInstances',
-                assets.map((asset) => {
-                    return {
-                        asset: asset
-                    };
-                }),
-                parentEntity,
-                childIndex,
-                callback
-            );
+            editor.assets.instantiateTemplates(assets.map(a => a.apiAsset), parentEntity.apiEntity, {
+                index: childIndex,
+                history: false
+            })
+            .then(newEntities => {
+                callback(newEntities.map(e => e.get('resource_id')));
+            });
         }
 
         _instantiateDraggedModelAsset(asset, parentEntity, childIndex) {

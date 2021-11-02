@@ -54,15 +54,20 @@ editor.once('load', function () {
                 childIndex = parentChildren.indexOf(deletedEntity.resource_id);
             }
 
-            const opts = {
-                subtreeRootId: deletedEntity.resource_id,
-                dstToSrc: dstToSrc,
-                srcToDst: srcToDst,
-                childIndex: childIndex
-            };
-
-            editor.call('template:addInstance', asset, parentEnt, opts, entityId => {
-                newEntityId = entityId;
+            asset.apiAsset.instantiateTemplate(parentEnt.apiEntity, {
+                index: childIndex,
+                history: false,
+                extraData: {
+                    subtreeRootId: deletedEntity.resource_id,
+                    dstToSrc: dstToSrc,
+                    srcToDst: srcToDst
+                }
+            })
+            .then(newEntity => {
+                newEntityId = newEntity.get('resource_id');
+            })
+            .catch(err => {
+                editor.call('status:error', err);
             });
         }
 
@@ -467,11 +472,7 @@ editor.once('load', function () {
         });
         entity.history.enabled = true;
 
-        editor.call('selector:history', false);
-        editor.call('selector:set', 'entity', [entity]);
-        editor.once('selector:change', function () {
-            editor.call('selector:history', true);
-        });
+        editor.selection.set([entity.apiEntity], { history: false });
 
         restoreEntitiesPanelState(entitiesPanelState);
     }
@@ -549,12 +550,13 @@ editor.once('load', function () {
             if (!parent.latest()) return;
 
             if (entity) {
-                entity.apiEntity.delete({ history: false });
-                entity = editor.entities.create(prev, { history: false, index: childIndex, select: true });
-                entity = entity._observer;
-            }
+                entity.apiEntity.delete({ history: false }).then(() => {
+                    entity = editor.entities.create(prev, { history: false, index: childIndex, select: true });
+                    entity = entity._observer;
 
-            prev = null;
+                    prev = null;
+                });
+            }
         }
 
         function redo() {
@@ -566,21 +568,19 @@ editor.once('load', function () {
             entity.apiEntity.delete({ history: false });
 
             setTimeout(function () {
-                const srcToDst = editor.call('template:utils', 'invertMap', templateEntIds);
-
-                const opts = {
-                    dstToSrc: templateEntIds,
-                    srcToDst: srcToDst,
-                    childIndex: childIndex
-                };
-
-                editor.call('template:addInstance', asset, parent, opts, entityId => {
-                    editor.call('entities:waitToExist', [entityId], 5000, entities => {
-                        entity = entities[0];
-                        // use timeout to make sure treeview has been updated
-                        setTimeout(() => {
-                            afterAddInstance(entities[0], entitiesPanelState, ignorePathValues);
-                        });
+                asset.apiAsset.instantiateTemplate(parent.apiEntity, {
+                    history: false,
+                    index: childIndex,
+                    extraData: {
+                        dstToSrc: templateEntIds,
+                        srcToDst: editor.call('template:utils', 'invertMap', templateEntIds)
+                    }
+                })
+                .then(newEntity => {
+                    entity = newEntity._observer;
+                    // use timeout to make sure treeview has been updated
+                    setTimeout(() => {
+                        afterAddInstance(entity, entitiesPanelState, ignorePathValues);
                     });
                 });
             }, 0);
@@ -593,8 +593,6 @@ editor.once('load', function () {
             undo: undo,
             redo: redo
         });
-
-
 
 
         return true;

@@ -61,9 +61,6 @@ editor.once('load', function () {
                 parent = editor.call('entities:root');
             }
 
-            let newEntityIds;
-            let cancelWaitForEntities;
-
             const ctrlDown = editor.call('hotkey:ctrl');
             let cameraPos, cameraForward;
 
@@ -74,30 +71,12 @@ editor.once('load', function () {
                 cameraPos = camera.getPosition().clone();
             }
 
-            function undo() {
-                if (cancelWaitForEntities) {
-                    cancelWaitForEntities();
-                    cancelWaitForEntities = null;
-                }
-
-                newEntityIds.forEach(id => {
-                    const entity = editor.entities.get(id);
-                    if (entity) {
-                        entity.delete({ history: false });
-                    }
-                });
-
-                newEntityIds = null;
-                editor.call('viewport:render');
-            }
-
-            function onInstancesAdded(entities, ctrlDown) {
-                editor.call('selector:history', false);
-                editor.call('selector:set', 'entity', entities);
-                editor.once('selector:change', () => {
-                    editor.call('selector:history', true);
-                });
-
+            editor.assets.instantiateTemplates(assets.map(a => a.apiAsset), parent.apiEntity, {
+                index: parent.get('children').length,
+                select: true
+            })
+            .then(entities => {
+                entities = entities.map(e => e._observer);
                 const vec = new pc.Vec3();
 
                 if (ctrlDown) {
@@ -123,39 +102,11 @@ editor.once('load', function () {
 
                 editor.call('viewport:render');
                 editor.call('viewport:focus');
-            }
 
-            function redo() {
-                newEntityIds = [];
-                let entitiesToSelect = [];
-
-                const childIndex = parent.get('children').length;
-
-                // add instances
-                editor.call('template:addMultipleInstances', assets.map(asset => { return { asset }; }), parent, childIndex, entityIds => {
-                    if (newEntityIds) {
-                        newEntityIds = newEntityIds.concat(entityIds);
-
-                        cancelWaitForEntities = editor.call('entities:waitToExist', newEntityIds, 5000, entities => {
-                            cancelWaitForEntities = null;
-                            entitiesToSelect = entitiesToSelect.concat(entities);
-                            onInstancesAdded(entitiesToSelect, ctrlDown);
-                        });
-                    }
-                });
-
-                if (entitiesToSelect.length) {
-                    onInstancesAdded(entitiesToSelect, ctrlDown);
-                }
-            }
-
-            editor.call('history:add', {
-                name: 'add template instance',
-                undo: undo,
-                redo: redo
+            })
+            .catch(err => {
+                editor.call('status:error', err);
             });
-
-            redo();
         }
     });
 });
