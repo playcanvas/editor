@@ -13,6 +13,7 @@ Object.assign(pcui, (function () {
             this._projectSettings = args.projectSettings;
             this._userSettings = args.userSettings;
             this._sceneSettings = args.sceneSettings;
+            this._sessionSettings = args.sessionSettings;
 
             this.collapsed = true;
 
@@ -24,6 +25,7 @@ Object.assign(pcui, (function () {
                     projectSettings: args.projectSettings,
                     userSettings: args.userSettings,
                     sceneSettings: args.sceneSettings,
+                    sessionSettings: args.sessionSettings,
                     attributes: this._generateAttributeReferences(args.attributes, args.splitReferencePath)
                 });
                 this._attributesInspector.link([]);

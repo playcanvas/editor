@@ -220,6 +220,26 @@ editor.once('load', function () {
         refreshButtonsState();
     });
 
+    // engine version
+    const panelEngineVersion = new ui.Panel();
+    label = new ui.Label({ text: 'Engine Version' });
+    label.class.add('field-label');
+    panelEngineVersion.append(label);
+
+    const engineVersionDropdown = new pcui.SelectInput({
+        value: editor.call('settings:session').get('engineVersion'),
+        options: config.engineVersions.map(data => {
+            const keys = Object.keys(data);
+            return {
+                t: keys[0],
+                v: data[keys[0]]
+            };
+        })
+    });
+    engineVersionDropdown.style.margin = '0';
+    panelEngineVersion.append(engineVersionDropdown);
+    panel.append(panelEngineVersion);
+
     var fieldOptionsConcat;
     var fieldOptionsMinify;
     var fieldOptionsPreload;
@@ -423,6 +443,10 @@ editor.once('load', function () {
         if (fieldOptionsOptimizeSceneFormat)
             data.optimize_scene_format = fieldOptionsOptimizeSceneFormat.value;
 
+        if (engineVersionDropdown.value !== 'current') {
+            data.engine_version = engineVersionDropdown.value;
+        }
+
         editor.call('apps:new', data, function () {
             jobInProgress = false;
             editor.call('picker:builds');
@@ -460,6 +484,10 @@ editor.once('load', function () {
             preload_bundle: fieldOptionsPreload ? fieldOptionsPreload.value : false,
             optimize_scene_format: fieldOptionsOptimizeSceneFormat ? fieldOptionsOptimizeSceneFormat.value : false
         };
+
+        if (engineVersionDropdown.value !== 'current') {
+            data.engine_version = engineVersionDropdown.value;
+        }
 
         // ajax call
         editor.call('apps:download', data, function (job) {
@@ -754,6 +782,7 @@ editor.once('load', function () {
         inputDescription.value = config.project.description;
         inputVersion.value = '';
         inputNotes.value = '';
+        engineVersionDropdown.value = editor.call('settings:session').get('engineVersion');
         imageS3Key = null;
         if (config.project.thumbnails.xl) {
             imageS3Key = config.project.thumbnails.xl.substring(config.url.images.length + 1);

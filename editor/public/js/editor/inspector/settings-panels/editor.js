@@ -91,6 +91,22 @@ Object.assign(pcui, (function () {
             }
         },
         {
+            observer: 'sessionSettings',
+            label: 'Engine Version',
+            path: 'engineVersion',
+            type: 'select',
+            args: {
+                type: 'string',
+                options: config.engineVersions.map(data => {
+                    const keys = Object.keys(data);
+                    return {
+                        t: keys[0],
+                        v: data[keys[0]]
+                    };
+                })
+            }
+        },
+        {
             observer: 'settings',
             label: 'Locale',
             path: 'editor.locale',

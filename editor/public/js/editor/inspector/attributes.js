@@ -22,6 +22,7 @@ Object.assign(pcui, (function () {
             this._projectSettings = args.projectSettings;
             this._userSettings = args.userSettings;
             this._sceneSettings = args.sceneSettings;
+            this._sessionSettings = args.sessionSettings;
 
             this._fields = {};
             this._fieldAttributes = {};

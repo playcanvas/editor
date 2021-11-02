@@ -8,7 +8,8 @@ editor.once('load', function () {
         settings: editor.call('settings:projectUser'),
         projectSettings: editor.call('settings:project'),
         userSettings: editor.call('settings:user'),
-        sceneSettings: editor.call('sceneSettings')
+        sceneSettings: editor.call('sceneSettings'),
+        sessionSettings: editor.call('settings:session')
     };
 
     const settingsContainer = new pcui.Settings(settingsArgs);
@@ -127,7 +128,8 @@ Object.assign(pcui, (function () {
                     settings: args.settings,
                     projectSettings: args.projectSettings,
                     userSettings: args.userSettings,
-                    sceneSettings: args.sceneSettings
+                    sceneSettings: args.sceneSettings,
+                    sessionSettings: args.sessionSettings
                 });
                 this._settingsPanels[setting] = panel;
 

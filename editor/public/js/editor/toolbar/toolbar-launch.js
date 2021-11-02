@@ -74,6 +74,11 @@ editor.once('load', function () {
 
         if (config.url.useCustomEngine) {
             query.push('use_local_engine=' + config.url.engine);
+        } else {
+            const engineVersion = editor.call('settings:session').get('engineVersion');
+            if (engineVersion && engineVersion !== 'current') {
+                query.push('version=' + engineVersion);
+            }
         }
 
         if (query.length)
