@@ -4,7 +4,7 @@ editor.once('load', function () {
     const root = editor.call('layout.root');
     const panel = editor.call('layout.hierarchy');
 
-    const menuEntities = ui.Menu.fromData(editor.call('menu:entities:new'));
+    const menuEntities = new pcui.Menu({ items: editor.call('menu:entities:new') });
     root.append(menuEntities);
 
     // controls
@@ -28,7 +28,7 @@ editor.once('load', function () {
     });
     btnAdd.class.add('add');
     btnAdd.on('click', function () {
-        menuEntities.open = true;
+        menuEntities.hidden = false;
         const rect = btnAdd.element.getBoundingClientRect();
         menuEntities.position(rect.left, rect.top);
     });

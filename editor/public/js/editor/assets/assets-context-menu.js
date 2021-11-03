@@ -6,26 +6,23 @@ editor.once('load', function () {
     const projectUserSettings = editor.call('settings:projectUser');
     const root = editor.call('layout.root');
 
-    const customMenuItems = [];
-
     const LEGACY_SCRIPTS_ID = 'legacyScripts';
 
     // menu
-    const menu = new ui.Menu();
+    const menu = new pcui.Menu();
     root.append(menu);
 
     // menu related only to creating assets
-    const menuCreate = new ui.Menu();
+    const menuCreate = new pcui.Menu();
     if (editor.call('permissions:write')) root.append(menuCreate);
 
     // edit
-    const menuItemNewScript = new ui.MenuItem({
+    const menuItemNewScript = new pcui.MenuItem({
         text: 'New Script',
-        icon: '&#57864;',
-        value: 'script'
-    });
-    menuItemNewScript.on('select', function () {
-        if (!legacyScripts) {
+        icon: 'E208',
+        onSelect: () => {
+            if (legacyScripts) return;
+
             editor.call('picker:script-create', function (filename) {
                 editor.assets.createScript({
                     folder: folder,
@@ -42,12 +39,10 @@ editor.once('load', function () {
     });
     if (editor.call('permissions:write')) menu.append(menuItemNewScript);
 
-
     // new asset
-    const menuItemNew = new ui.MenuItem({
+    const menuItemNew = new pcui.MenuItem({
         text: 'New Asset',
-        icon: '&#57632;',
-        value: 'new'
+        icon: 'E120'
     });
     if (editor.call('permissions:write')) menu.append(menuItemNew);
 
@@ -64,42 +59,42 @@ editor.once('load', function () {
     };
 
     const icons = {
-        'upload': '&#57909;',
-        'folder': '&#57657;',
-        'css': '&#57864;',
-        'cubemap': '&#57879;',
-        'html': '&#57864;',
-        'json': '&#57864;',
-        'layers': '&#57992',
-        'material': '&#57749;',
-        'font': '&#58374;',
-        'script': '&#57864;',
-        'shader': '&#57864;',
-        'text': '&#57864;',
-        'texture': '&#57857;',
-        'textureatlas': '&#57857;',
-        'model': '&#57735;',
-        'scene': '&#57735;',
-        'animation': '&#57875;',
-        'audio': '&#57872;',
-        'bundle': '&#58384;',
-        'animstategraph': '&#58386;'
+        'upload': 'E235',
+        'folder': 'E139',
+        'css': 'E208',
+        'cubemap': 'E217',
+        'html': 'E208',
+        'json': 'E208',
+        'layers': 'E288',
+        'material': 'E195',
+        'font': 'E406',
+        'script': 'E208',
+        'shader': 'E208',
+        'text': 'E208',
+        'texture': 'E201',
+        'textureatlas': 'E201',
+        'model': 'E187',
+        'scene': 'E187',
+        'animation': 'E213',
+        'audio': 'E210',
+        'bundle': 'E410',
+        'animstategraph': 'E412'
     };
 
     const ICONS = {
-        REFERENCES: '&#57622;',
-        TEXTURE_ATLAS: '&#58162;',
-        SPRITE_ASSET: '&#58261;',
-        COPY: '&#58193;',
-        PASTE: '&#58184;',
-        REPLACE: '&#57640;',
-        REIMPORT: '&#57889;',
-        DOWNLOAD: '&#57896;',
-        EDIT: '&#57648;',
-        DUPLICATE: '&#57638;',
-        DELETE: '&#57636;',
-        SCENE_SETTINGS: '&#57652;',
-        OPEN_IN_VIEWER: '&#57623;'
+        REFERENCES: 'E116',
+        TEXTURE_ATLAS: 'E332',
+        SPRITE_ASSET: 'E395',
+        COPY: 'E351',
+        PASTE: 'E348',
+        REPLACE: 'E128',
+        REIMPORT: 'E221',
+        DOWNLOAD: 'E228',
+        EDIT: 'E130',
+        DUPLICATE: 'E126',
+        DELETE: 'E124',
+        SCENE_SETTINGS: 'E134',
+        OPEN_IN_VIEWER: 'E117'
     };
 
     const assets = {
@@ -140,40 +135,52 @@ editor.once('load', function () {
 
     const addNewMenuItem = function (menu, key, title) {
         // new folder
-        const item = new ui.MenuItem({
+        const item = new pcui.MenuItem({
             text: title,
-            icon: icons[key] || '',
-            value: key
-        });
-        item.on('select', function () {
-            const args = { };
-            const preload = projectUserSettings.get('editor.pipeline.defaultAssetPreload');
-            let folder = null;
+            icon: icons[key] || null,
+            onSelect: () => {
+                const args = {};
+                const preload = projectUserSettings.get('editor.pipeline.defaultAssetPreload');
+                let folder = null;
 
-            if (currentAsset && currentAsset.get('type') === 'folder') {
-                args.parent = currentAsset;
-                folder = currentAsset.apiAsset;
-            } else if (currentAsset === undefined) {
-                args.parent = null;
-            }
-
-            if (!folder) {
-                folder = editor.call('assets:panel:currentFolder');
-                if (folder) {
-                    folder = folder.apiAsset;
+                if (currentAsset && currentAsset.get('type') === 'folder') {
+                    args.parent = currentAsset;
+                    folder = currentAsset.apiAsset;
+                } else if (currentAsset === undefined) {
+                    args.parent = null;
                 }
-            }
 
-            if (key === 'upload') {
-                editor.call('assets:upload:picker', args);
-            } else if (key === 'script') {
-                if (legacyScripts) {
-                    editor.call('sourcefiles:new');
+                if (!folder) {
+                    folder = editor.call('assets:panel:currentFolder');
+                    if (folder) {
+                        folder = folder.apiAsset;
+                    }
+                }
+
+                if (key === 'upload') {
+                    editor.call('assets:upload:picker', args);
+                } else if (key === 'script') {
+                    if (legacyScripts) {
+                        editor.call('sourcefiles:new');
+                    } else {
+                        editor.call('picker:script-create', function (filename) {
+                            editor.assets.createScript({
+                                filename: filename,
+                                folder: folder
+                            })
+                            .then((asset) => {
+                                editor.selection.set([asset]);
+                            })
+                            .catch(err => {
+                                editor.call('status:error', err);
+                            });
+                        });
+                    }
                 } else {
-                    editor.call('picker:script-create', function (filename) {
-                        editor.assets.createScript({
-                            filename: filename,
-                            folder: folder
+                    if (assetCreateCallback[key]) {
+                        editor.assets[assetCreateCallback[key]]({
+                            folder: folder,
+                            preload
                         })
                         .then((asset) => {
                             editor.selection.set([asset]);
@@ -181,20 +188,7 @@ editor.once('load', function () {
                         .catch(err => {
                             editor.call('status:error', err);
                         });
-                    });
-                }
-            } else {
-                if (assetCreateCallback[key]) {
-                    editor.assets[assetCreateCallback[key]]({
-                        folder: folder,
-                        preload
-                    })
-                    .then((asset) => {
-                        editor.selection.set([asset]);
-                    })
-                    .catch(err => {
-                        editor.call('status:error', err);
-                    });
+                    }
                 }
             }
         });
@@ -225,100 +219,89 @@ editor.once('load', function () {
 
 
     // related
-    const menuItemReferences = new ui.MenuItem({
+    const menuItemReferences = new pcui.MenuItem({
         text: 'References',
-        icon: ICONS.REFERENCES,
-        value: 'references'
+        icon: ICONS.REFERENCES
     });
     menu.append(menuItemReferences);
 
     // Create Atlas
-    const menuItemTextureToAtlas = new ui.MenuItem({
+    const menuItemTextureToAtlas = new pcui.MenuItem({
         text: 'Create Texture Atlas',
         icon: ICONS.TEXTURE_ATLAS,
-        value: 'texture-to-atlas'
+        onSelect: () => {
+            editor.call('assets:textureToAtlas', currentAsset);
+        }
     });
     if (editor.call('permissions:write')) menu.append(menuItemTextureToAtlas);
 
-    menuItemTextureToAtlas.on('select', function () {
-        editor.call('assets:textureToAtlas', currentAsset);
-    });
-
     // Create Sprite From Atlas
-    const menuItemCreateSprite = new ui.MenuItem({
+    const menuItemCreateSprite = new pcui.MenuItem({
         text: 'Create Sprite Asset',
         icon: ICONS.SPRITE_ASSET,
-        value: 'atlas-to-sprite'
+        onSelect: () => {
+            editor.call('assets:atlasToSprite', {
+                asset: currentAsset
+            });
+        }
     });
     if (editor.call('permissions:write')) menu.append(menuItemCreateSprite);
 
-    menuItemCreateSprite.on('select', function () {
-        editor.call('assets:atlasToSprite', {
-            asset: currentAsset
-        });
-    });
-
     // Create Sliced Sprite From Atlas
-    const menuItemCreateSlicedSprite = new ui.MenuItem({
+    const menuItemCreateSlicedSprite = new pcui.MenuItem({
         text: 'Create Sliced Sprite Asset',
         icon: ICONS.SPRITE_ASSET,
-        value: 'atlas-to-sliced-sprite'
+        onSelect: () => {
+            editor.call('assets:atlasToSprite', {
+                asset: currentAsset,
+                sliced: true
+            });
+        }
     });
     if (editor.call('permissions:write')) menu.append(menuItemCreateSlicedSprite);
 
-    menuItemCreateSlicedSprite.on('select', function () {
-        editor.call('assets:atlasToSprite', {
-            asset: currentAsset,
-            sliced: true
-        });
-    });
-
     // copy
-    const menuItemCopy = new ui.MenuItem({
+    const menuItemCopy = new pcui.MenuItem({
         text: 'Copy',
         icon: ICONS.COPY,
-        value: 'copy'
-    });
-    menuItemCopy.on('select', function () {
-        const asset = currentAsset;
-        let multiple = false;
+        onSelect: () => {
+            const asset = currentAsset;
+            let multiple = false;
 
-        if (asset) {
-            const type = editor.call('selector:type');
-            let items;
+            if (asset) {
+                const type = editor.call('selector:type');
+                let items;
 
-            if (type === 'asset') {
-                items = editor.call('selector:items');
-                for (let i = 0; i < items.length; i++) {
-                    // if the asset that was right-clicked is in the selection
-                    // then include all the other selected items
-                    // otherwise only copy the right-clicked item
-                    if (items[i].get('id') === asset.get('id')) {
-                        multiple = true;
-                        break;
+                if (type === 'asset') {
+                    items = editor.call('selector:items');
+                    for (let i = 0; i < items.length; i++) {
+                        // if the asset that was right-clicked is in the selection
+                        // then include all the other selected items
+                        // otherwise only copy the right-clicked item
+                        if (items[i].get('id') === asset.get('id')) {
+                            multiple = true;
+                            break;
+                        }
                     }
                 }
+
+                editor.call('assets:copy', multiple ? items : [asset]);
             }
-
-            editor.call('assets:copy', multiple ? items : [asset]);
         }
-
     });
     menu.append(menuItemCopy);
 
     // paste
     // copy
-    const menuItemPaste = new ui.MenuItem({
+    const menuItemPaste = new pcui.MenuItem({
         text: 'Paste',
         icon: ICONS.PASTE,
-        value: 'paste'
-    });
-    menuItemPaste.on('select', function (value, hasChildren, mouseEvt) {
-        if (currentAsset && currentAsset.get('type') !== 'folder') return;
+        onSelect: () => {
+            if (currentAsset && currentAsset.get('type') !== 'folder') return;
 
-        const keepFolderStructure = mouseEvt && mouseEvt.shiftKey;
-        editor.call('assets:paste', currentAsset === null ? editor.call('assets:panel:currentFolder') : currentAsset, keepFolderStructure);
-
+            const keepFolderStructure = editor.call('hotkey:shift');
+            editor.call('assets:paste', currentAsset === null ? editor.call('assets:panel:currentFolder') : currentAsset, keepFolderStructure);
+        }
     });
     menu.append(menuItemPaste);
 
@@ -348,53 +331,51 @@ editor.once('load', function () {
         'animstategraph': true,
         'font': true
     };
-    const menuItemReplace = new ui.MenuItem({
+    const menuItemReplace = new pcui.MenuItem({
         text: 'Replace',
         icon: ICONS.REPLACE,
-        value: 'replace'
-    });
-    menuItemReplace.on('select', function () {
-        editor.call('picker:asset', {
-            type: currentAsset.get('type'),
-            currentAsset: currentAsset
-        });
+        onSelect: () => {
+            editor.call('picker:asset', {
+                type: currentAsset.get('type'),
+                currentAsset: currentAsset
+            });
 
-        let evtPick = editor.once('picker:asset', function (asset) {
-            editor.call('assets:replace', currentAsset, asset);
-            evtPick = null;
-        });
-
-        editor.once('picker:asset:close', function () {
-            if (evtPick) {
-                evtPick.unbind();
+            let evtPick = editor.once('picker:asset', function (asset) {
+                editor.call('assets:replace', currentAsset, asset);
                 evtPick = null;
-            }
-        });
+            });
+
+            editor.once('picker:asset:close', function () {
+                if (evtPick) {
+                    evtPick.unbind();
+                    evtPick = null;
+                }
+            });
+        }
     });
     if (editor.call('permissions:write')) menu.append(menuItemReplace);
 
-    const menuItemReplaceTextureToSprite = new ui.MenuItem({
+    const menuItemReplaceTextureToSprite = new pcui.MenuItem({
         text: 'Convert Texture To Sprite',
         icon: ICONS.SPRITE_ASSET,
-        value: 'replaceTextureToSprite'
-    });
-    menuItemReplaceTextureToSprite.on('select', function () {
-        editor.call('picker:asset', {
-            type: 'sprite',
-            currentAsset: currentAsset
-        });
+        onSelect: () => {
+            editor.call('picker:asset', {
+                type: 'sprite',
+                currentAsset: currentAsset
+            });
 
-        let evtPick = editor.once('picker:asset', function (asset) {
-            editor.call('assets:replaceTextureToSprite', currentAsset, asset);
-            evtPick = null;
-        });
-
-        editor.once('picker:asset:close', function () {
-            if (evtPick) {
-                evtPick.unbind();
+            let evtPick = editor.once('picker:asset', function (asset) {
+                editor.call('assets:replaceTextureToSprite', currentAsset, asset);
                 evtPick = null;
-            }
-        });
+            });
+
+            editor.once('picker:asset:close', function () {
+                if (evtPick) {
+                    evtPick.unbind();
+                    evtPick = null;
+                }
+            });
+        }
     });
     if (editor.call('permissions:write')) menu.append(menuItemReplaceTextureToSprite);
 
@@ -402,131 +383,118 @@ editor.once('load', function () {
     // todo: merge these 2 items.
 
     // extract. Used for source assets.
-    const menuItemExtract = new ui.MenuItem({
+    const menuItemExtract = new pcui.MenuItem({
         text: 'Re-Import',
         icon: ICONS.REIMPORT,
-        value: 'extract'
-    });
-    menuItemExtract.on('select', function () {
-        editor.call('assets:reimport', currentAsset.get('id'), currentAsset.get('type'));
+        onSelect: () => {
+            editor.call('assets:reimport', currentAsset.get('id'), currentAsset.get('type'));
+        }
     });
     if (editor.call('permissions:write')) menu.append(menuItemExtract);
 
-
     // re-import. Used for target assets.
-    const menuItemReImport = new ui.MenuItem({
+    const menuItemReImport = new pcui.MenuItem({
         text: 'Re-Import',
         icon: ICONS.REIMPORT,
-        value: 're-import'
-    });
-    menuItemReImport.on('select', function () {
-        editor.call('assets:reimport', currentAsset.get('id'), currentAsset.get('type'));
+        onSelect: () => {
+            editor.call('assets:reimport', currentAsset.get('id'), currentAsset.get('type'));
+        }
     });
     if (editor.call('permissions:write')) menu.append(menuItemReImport);
 
     // download
-    const menuItemDownload = new ui.MenuItem({
+    const menuItemDownload = new pcui.MenuItem({
         text: 'Download',
         icon: ICONS.DOWNLOAD,
-        value: 'download'
-    });
-    menuItemDownload.on('select', function () {
-        window.open(currentAsset.get('file.url'));
+        onSelect: () => {
+            window.open(currentAsset.get('file.url'));
+        }
     });
     menu.append(menuItemDownload);
 
-
     // edit
-    const menuItemEdit = new ui.MenuItem({
+    const menuItemEdit = new pcui.MenuItem({
         text: editor.call('permissions:write') ? 'Edit' : 'View',
         icon: ICONS.EDIT,
-        value: 'edit'
-    });
-    menuItemEdit.on('select', function () {
-        editor.call('assets:edit', currentAsset);
+        onSelect: () => {
+            editor.call('assets:edit', currentAsset);
+        }
     });
     menu.append(menuItemEdit);
 
-
     // duplicate
-    const menuItemDuplicate = new ui.MenuItem({
+    const menuItemDuplicate = new pcui.MenuItem({
         text: 'Duplicate',
         icon: ICONS.DUPLICATE,
-        value: 'duplicate'
-    });
-    menuItemDuplicate.on('select', function () {
-        editor.call('assets:duplicate', currentAsset);
+        onSelect: () => {
+            editor.call('assets:duplicate', currentAsset);
+        }
     });
     if (editor.call('permissions:write')) menu.append(menuItemDuplicate);
 
-
     // delete
-    const menuItemDelete = new ui.MenuItem({
+    const menuItemDelete = new pcui.MenuItem({
         text: 'Delete',
         icon: ICONS.DELETE,
-        value: 'delete'
-    });
-    menuItemDelete.style.fontWeight = 200;
-    menuItemDelete.on('select', function () {
-        const asset = currentAsset;
-        let multiple = false;
+        onSelect: () => {
+            const asset = currentAsset;
+            let multiple = false;
 
-        if (asset) {
-            const type = editor.call('selector:type');
-            let items;
+            if (asset) {
+                const type = editor.call('selector:type');
+                let items;
 
-            if (type === 'asset') {
-                items = editor.call('selector:items');
-                for (let i = 0; i < items.length; i++) {
-                    const assetType = items[i].get('type');
-                    // if the asset that was right-clicked is in the selection
-                    // then include all the other selected items in the delete
-                    // otherwise only delete the right-clicked item
-                    if (assetType === 'script' && legacyScripts) {
-                        if (items[i].get('filename') === asset.get('filename')) {
+                if (type === 'asset') {
+                    items = editor.call('selector:items');
+                    for (let i = 0; i < items.length; i++) {
+                        const assetType = items[i].get('type');
+                        // if the asset that was right-clicked is in the selection
+                        // then include all the other selected items in the delete
+                        // otherwise only delete the right-clicked item
+                        if (assetType === 'script' && legacyScripts) {
+                            if (items[i].get('filename') === asset.get('filename')) {
+                                multiple = true;
+                                break;
+                            }
+                        } else if (items[i].get('id') === asset.get('id')) {
                             multiple = true;
                             break;
                         }
-                    } else if (items[i].get('id') === asset.get('id')) {
-                        multiple = true;
-                        break;
                     }
                 }
-            }
 
-            editor.call('assets:delete:picker', multiple ? items : [asset]);
+                editor.call('assets:delete:picker', multiple ? items : [asset]);
+            }
         }
 
     });
     if (editor.call('permissions:write')) menu.append(menuItemDelete);
 
     // move-to-store
-    const menuItemMoveToStore = new ui.MenuItem({
+    const menuItemMoveToStore = new pcui.MenuItem({
         text: 'Move To Store',
         icon: ICONS.EDIT,
-        value: 'add_to_store'
-    });
-    menuItemMoveToStore.on('select', function () {
-        editor.call('assets:move-to-store', currentAsset);
+        onSelect: () => {
+            editor.call('assets:move-to-store', currentAsset);
+        }
     });
     if (editor.call('permissions:write')) menu.append(menuItemMoveToStore);
 
     // open-in-viewer
-    const menuItemOpenInViewer = new ui.MenuItem({
+    const menuItemOpenInViewer = new pcui.MenuItem({
         text: 'Open In Viewer',
         icon: ICONS.OPEN_IN_VIEWER,
-        value: 'open_in_viewer'
-    });
-    menuItemOpenInViewer.on('select', function () {
-        const hostname = window.location.hostname;
-        const fileUrl = currentAsset.get('file.url');
-        const loadParam = encodeURIComponent(`https://${hostname}${fileUrl}`);
-        window.open(`/viewer?load=${loadParam}`);
+        onSelect: () => {
+            const hostname = window.location.hostname;
+            const fileUrl = currentAsset.get('file.url');
+            const loadParam = encodeURIComponent(`https://${hostname}${fileUrl}`);
+            window.open(`/viewer?load=${loadParam}`);
+        }
     });
     menu.append(menuItemOpenInViewer);
 
     // filter buttons
-    menu.on('open', function () {
+    menu.on('show', function () {
         if (currentAsset && currentAsset.get('id') === LEGACY_SCRIPTS_ID) {
             menuItemNewScript.hidden = false;
             if (menuItemPaste) {
@@ -636,13 +604,12 @@ editor.once('load', function () {
                     menuItemReplace.hidden = !replaceAvailable[currentAsset.get('type')];
                     menuItemReplaceTextureToSprite.hidden = !editor.call('users:hasFlag', 'hasTextureToSprite') || (currentAsset.get('type') !== 'texture');
 
-                    while (menuItemReferences.innerElement.firstChild)
-                        menuItemReferences.innerElement.firstChild.ui.destroy();
+                    menuItemReferences.clear();
 
                     const menuItems = [];
 
                     const addReferenceItem = function (type, id) {
-                        const menuItem = new ui.MenuItem();
+                        const menuItem = new pcui.MenuItem();
                         let item = null;
 
                         if (type === 'editorSettings') {
@@ -653,7 +620,7 @@ editor.once('load', function () {
                         } else {
                             if (type === 'entity') {
                                 item = editor.call('entities:get', id);
-                                menuItem.icon = '&#57734;';
+                                menuItem.icon = 'E186';
                             } else if (type === 'asset') {
                                 item = editor.call('assets:get', id);
                                 menuItem.icon = icons[item.get('type')] || '';
@@ -753,13 +720,6 @@ editor.once('load', function () {
             menuItemMoveToStore.hidden = true;
             menuItemOpenInViewer.hidden = true;
         }
-
-        for (let i = 0; i < customMenuItems.length; i++) {
-            if (! customMenuItems[i].filter)
-                continue;
-
-            customMenuItems[i].hidden = ! customMenuItems[i].filter(currentAsset);
-        }
     });
 
 
@@ -774,7 +734,7 @@ editor.once('load', function () {
             evt.preventDefault();
 
             currentAsset = asset;
-            menu.open = true;
+            menu.hidden = false;
             menu.position(evt.clientX + 1, evt.clientY);
         };
 
@@ -792,7 +752,7 @@ editor.once('load', function () {
             evt.preventDefault();
 
             currentAsset = asset;
-            menu.open = true;
+            menu.hidden = false;
             menu.position(evt.clientX + 1, evt.clientY);
         };
 
@@ -818,30 +778,39 @@ editor.once('load', function () {
             evt.preventDefault();
 
             currentAsset = asset;
-            menu.open = true;
+            menu.hidden = false;
             menu.position(evt.clientX + 1, evt.clientY);
         });
     });
 
-    editor.method('assets:contextmenu:add', function (data) {
-        const item = new ui.MenuItem({
+    function createCustomContextMenu(data, parent) {
+        const item = new pcui.MenuItem({
             text: data.text,
             icon: data.icon,
-            value: data.value
+            onIsVisible: () => {
+                if (data.onIsVisible) {
+                    return data.onIsVisible.call(item, currentAsset);
+                }
+
+                return true;
+            },
+            onSelect: () => {
+                if (data.onSelect) {
+                    data.onSelect.call(item, currentAsset);
+                }
+            }
         });
 
-        item.on('select', function () {
-            data.select.call(item, currentAsset);
-        });
+        if (data.items) {
+            data.items.forEach(child => createCustomContextMenu(child, item));
+        }
 
-        const parent = data.parent || menu;
         parent.append(item);
 
-        if (data.filter)
-            item.filter = data.filter;
-
-        customMenuItems.push(item);
-
         return item;
+    }
+
+    editor.method('assets:contextmenu:add', function (data) {
+        return createCustomContextMenu(data, menu);
     });
 });

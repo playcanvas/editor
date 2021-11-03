@@ -164,66 +164,75 @@ Object.assign(pcui, (function () {
         }
 
         _createCogMenu(target) {
-            const menu = new ui.Menu();
-
-            const menuItemPaste = new ui.MenuItem({
-                text: 'Paste Component',
-                icon: '&#58184;',
-                value: 'component-paste'
-            });
-            menu.append(menuItemPaste);
-            menuItemPaste.on('select', this._onClickPasteComponent.bind(this));
-
-            const menuItemDelete = new ui.MenuItem({
-                text: 'Delete All Components',
-                icon: '&#57636;',
-                value: 'component-delete'
-            });
-            menu.append(menuItemDelete);
-            menuItemDelete.on('select', this._onClickRemoveComponents.bind(this));
-
-            menu.on('open', () => {
-                menuItemPaste.disabled = !this._localStorage.has('copy-component');
-                let deleteDisabled = true;
-                for (const entity of this._entities) {
-                    if (Object.keys(entity.get('components')).length > 0) {
-                        deleteDisabled = false;
-                        break;
+            const menu = new pcui.Menu({
+                items: [{
+                    text: 'Paste Component',
+                    icon: 'E348',
+                    onSelect: () => {
+                        this._onClickPasteComponent();
+                    },
+                    onIsEnabled: () => {
+                        return this._localStorage.has('copy-component');
                     }
-                }
+                }, {
+                    text: 'Delete All Components',
+                    icon: 'E124',
+                    onSelect: () => {
+                        this._onClickRemoveComponents();
+                    },
+                    onIsEnabled: () => {
+                        let deleteDisabled = true;
+                        for (const entity of this._entities) {
+                            if (Object.keys(entity.get('components')).length > 0) {
+                                deleteDisabled = false;
+                                break;
+                            }
+                        }
 
-                menuItemDelete.disabled = deleteDisabled;
+                        return !deleteDisabled;
+                    }
+                }]
             });
 
             editor.call('layout.root').append(menu);
 
             target.on('click', () => {
                 const rect = target.dom.getBoundingClientRect();
+                menu.hidden = false;
                 menu.position(rect.right, rect.bottom);
-                menu.open = true;
             });
 
             return menu;
 
         }
 
+        // add component menu
         _createAddComponentMenu() {
-            // add component menu
-            const menu = new ui.Menu();
+            const menu = new pcui.Menu();
             const componentsSchema = editor.call('components:schema');
             const components = editor.call('components:list');
-            for (let i = 0; i < components.length; i++) {
-                let title = componentsSchema[components[i]].$title;
+
+            const logos = editor.call('components:logos');
+
+            const items = {};
+            components.forEach(component => {
+                let title = componentsSchema[component].$title;
                 if (title === 'Model' || title === 'Animation') {
                     title += ' (legacy)';
                 }
 
-                menu.append(new ui.MenuItem({
+                items[component] = new pcui.MenuItem({
                     text: title,
-                    value: components[i]
-                }));
-            }
-            menu.on('open', () => {
+                    icon: logos[component],
+                    onSelect: () => {
+                        editor.call('entities:addComponent', this._entities, component);
+                    }
+                });
+
+                menu.append(items[component]);
+            });
+
+            menu.on('show', () => {
                 const entities = this._entities;
                 if (!this._entities) return;
 
@@ -238,19 +247,15 @@ Object.assign(pcui, (function () {
                             break;
                         }
                     }
-                    menu.findByPath([components[i]]).disabled = different ? false : disabled;
+
+                    items[components[i]].disabled = different ? false : disabled;
 
                     if (components[i] === 'audiosource') {
-                        menu.findByPath([components[i]]).hidden = ! legacyAudio;
+                        items[components[i]].hidden = ! legacyAudio;
                     }
                 }
             });
 
-            menu.on('select', path => {
-                if (!this._entities) return;
-                const component = path[0];
-                editor.call('entities:addComponent', this._entities, component);
-            });
 
             editor.call('layout.root').append(menu);
 
@@ -318,8 +323,8 @@ Object.assign(pcui, (function () {
         _onClickAddComponent(evt) {
             if (this.readOnly) return;
 
+            this._menuAddComponent.hidden = false;
             this._menuAddComponent.position(evt.clientX, evt.clientY);
-            this._menuAddComponent.open = true;
         }
 
         _onSetComponent(component) {

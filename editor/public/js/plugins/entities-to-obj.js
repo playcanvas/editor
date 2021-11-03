@@ -99,9 +99,8 @@ editor.once('plugins:load:entities-to-obj', function() {
     var onEntitiesLoaded = function() {
         editor.call('entities:contextmenu:add', {
             text: 'Export to OBJ',
-            icon: '&#57896;',
-            value: 'export-to-obj',
-            select: function(selection) {
+            icon: 'E228',
+            onSelect: function (selection) {
                 var obj = editor.call('plugins:entities-to-obj', selection);
                 if (! obj) return;
 
@@ -113,7 +112,7 @@ editor.once('plugins:load:entities-to-obj', function() {
                 element.click();
                 document.body.removeChild(element);
             },
-            filter: function(selection) {
+            onIsEnabled: function (selection) {
                 for(var i = 0; i < selection.length; i++) {
                     if (selection[i].entity && selection[i].entity.model)
                         return true;

@@ -1,7 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    const templateItems = {};
+    const templateItems = [];
 
     // Get Entites on which to apply the result of the context menu
     // If the entity that is clicked on is part of a selection, then the entire
@@ -34,57 +34,53 @@ editor.once('load', function () {
         });
     }
 
-    templateItems.new_template = {
-        title: 'New Template',
-        className: 'menu-item-template',
-        icon: '&#57632;',
-        filter: function () {
+    templateItems.push({
+        text: 'New Template',
+        icon: 'E120',
+        onIsEnabled: function () {
             const selection = getSelection();
             return selection.length === 1 && selection[0].get('parent');
         },
-        select: function () {
+        onSelect: function () {
             const folder = editor.call('assets:panel:currentFolder');
             editor.assets.createTemplate({
                 folder: folder && folder.apiAsset,
                 entity: getSelection()[0].apiEntity
             });
         }
-    };
+    });
 
-    templateItems.template_apply = {
-        title: 'Apply to Template',
-        className: 'menu-item-template-apply',
-        icon: '&#57651;',
-        filter: function () {
+    templateItems.push({
+        text: 'Apply to Template',
+        icon: 'E133',
+        onIsEnabled: function () {
             const selection = getSelection();
             return selection.length === 1 && selection[0].get('template_id');
         },
-        select: function () {
+        onSelect: function () {
             editor.call('templates:apply', getSelection()[0]);
         }
-    };
+    });
 
-    templateItems.template_unlink = {
-        title: 'Unlink From Template',
-        className: 'menu-item-template-unlink',
-        icon: '&#58200;',
-        filter: function () {
+    templateItems.push({
+        text: 'Unlink From Template',
+        icon: 'E358',
+        onIsEnabled: function () {
             const selection = getSelection();
             return selection.length === 1 && selection[0].get('template_id');
         },
-        select: function () {
+        onSelect: function () {
             editor.call('templates:unlink', getSelection()[0]);
         }
-    };
+    });
 
-    templateItems.template_instance = {
-        title: 'Add Instance',
-        className: 'menu-item-template-instance',
-        icon: '&#57632;',
-        filter: function () {
+    templateItems.push({
+        text: 'Add Instance',
+        icon: 'E120',
+        onIsEnabled: function () {
             return getSelection().length === 1;
         },
-        select: function () {
+        onSelect: function () {
             if (!editor.call('permissions:write')) {
                 return;
             }
@@ -113,7 +109,7 @@ editor.once('load', function () {
                 }
             });
         }
-    };
+    });
 
     editor.method('menu:entities:template', function () {
         return templateItems;

@@ -6,13 +6,6 @@ editor.once('plugins:load:asset-texture-lod', function() {
 
     var slots = [ 'aoMap', 'diffuseMap', 'emissiveMap', 'glossMap', 'clearCoatMap', 'clearCoatGlossMap', 'clearCoatNormalMap', 'lightMap', 'metalnessMap', 'opacityMap', 'specularMap', 'normalMap' ];
 
-
-    var menuItem = editor.call('assets:contextmenu:add', {
-        text: 'Texture LoD',
-        icon: '&#57857;',
-        value: 'texture-lod',
-    });
-
     var convertFilter = function(current) {
         if (! current)
             return false;
@@ -34,80 +27,64 @@ editor.once('plugins:load:asset-texture-lod', function() {
     };
 
     editor.call('assets:contextmenu:add', {
-        text: 'Convert (x2, x4)',
-        icon: '&#57857;',
-        value: 'texture-lod-convert',
-        parent: menuItem,
-        select: function(current) {
-            var items = [ current ];
+        text: 'Texture LoD',
+        icon: 'E201',
+        items: [{
+            text: 'Convert (x2, x4)',
+            icon: 'E201',
+            onSelect: function(current) {
+                var items = [ current ];
 
-            if (editor.call('selector:type') === 'asset' && editor.call('selector:items').indexOf(current) !== -1)
-                items = editor.call('selector:items');
+                if (editor.call('selector:type') === 'asset' && editor.call('selector:items').indexOf(current) !== -1)
+                    items = editor.call('selector:items');
 
-            editor.call('plugin:texture-lod:convert', items, [{
-                size: 2,
-                name: 'mid'
+                editor.call('plugin:texture-lod:convert', items, [{
+                    size: 2,
+                    name: 'mid'
+                }, {
+                    size: 4,
+                    name: 'low'
+                }]);
+            },
+            onIsEnabled: convertFilter
+        }, {
+            text: 'Convert (x4, x8)',
+            icon: 'E201',
+            onSelect: function (current) {
+                var items = [current];
+
+                if (editor.call('selector:type') === 'asset' && editor.call('selector:items').indexOf(current) !== -1)
+                    items = editor.call('selector:items');
+
+                editor.call('plugin:texture-lod:convert', items, [{
+                    size: 4,
+                    name: 'mid'
+                }, {
+                    size: 8,
+                    name: 'low'
+                }]);
+            },
+            onIsEnabled: convertFilter
+        }, {
+            text: 'Swap Textures',
+            items: [{
+                text: 'Original',
+                value: 'texture-lod-original',
+                onSelect: function() {
+                    editor.call('plugin:texture-lod:switch', 'original');
+                }
             }, {
-                size: 4,
-                name: 'low'
-            }]);
-        },
-        filter: convertFilter
-    });
-
-    editor.call('assets:contextmenu:add', {
-        text: 'Convert (x4, x8)',
-        icon: '&#57857;',
-        value: 'texture-lod-convert-low',
-        parent: menuItem,
-        select: function(current) {
-            var items = [ current ];
-
-            if (editor.call('selector:type') === 'asset' && editor.call('selector:items').indexOf(current) !== -1)
-                items = editor.call('selector:items');
-
-            editor.call('plugin:texture-lod:convert', items, [{
-                size: 4,
-                name: 'mid'
+                text: 'Medium',
+                onSelect: function () {
+                    editor.call('plugin:texture-lod:switch', 'medium');
+                }
             }, {
-                size: 8,
-                name: 'low'
-            }]);
-        },
-        filter: convertFilter
-    });
-
-    var menuItemSwap = editor.call('assets:contextmenu:add', {
-        text: 'Swap Textures',
-        value: 'texture-lod-swap',
-        parent: menuItem
-    });
-
-    editor.call('assets:contextmenu:add', {
-        text: 'Original',
-        value: 'texture-lod-original',
-        parent: menuItemSwap,
-        select: function() {
-            editor.call('plugin:texture-lod:switch', 'original');
-        }
-    });
-
-    editor.call('assets:contextmenu:add', {
-        text: 'Medium',
-        value: 'texture-lod-medium',
-        parent: menuItemSwap,
-        select: function() {
-            editor.call('plugin:texture-lod:switch', 'medium');
-        }
-    });
-
-    editor.call('assets:contextmenu:add', {
-        text: 'Low',
-        value: 'texture-lod-low',
-        parent: menuItemSwap,
-        select: function() {
-            editor.call('plugin:texture-lod:switch', 'low');
-        }
+                text: 'Low',
+                onSelect: function () {
+                    editor.call('plugin:texture-lod:switch', 'low');
+                }
+            }]
+        }]
     });
 
     editor.method('plugin:texture-lod:switch', function(quality) {

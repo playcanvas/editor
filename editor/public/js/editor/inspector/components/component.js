@@ -87,43 +87,35 @@ Object.assign(pcui, (function () {
         }
 
         _createContextMenu(target) {
-            const menu = new ui.Menu();
-
-            const menuItemCopy = new ui.MenuItem({
-                text: 'Copy',
-                icon: '&#58193;',
-                value: 'component-copy'
-            });
-            menuItemCopy.on('select', this._onClickCopy.bind(this));
-            menu.append(menuItemCopy);
-
-            const menuItemPaste = new ui.MenuItem({
-                text: 'Paste',
-                icon: '&#58184;',
-                value: 'component-paste'
-            });
-            menu.append(menuItemPaste);
-            menuItemPaste.on('select', this._onClickPaste.bind(this));
-
-            const menuItemDelete = new ui.MenuItem({
-                text: 'Delete',
-                icon: '&#57636;',
-                value: 'component-delete'
-            });
-            menu.append(menuItemDelete);
-            menuItemDelete.on('select', this._onClickRemove.bind(this));
-
-            menu.on('open', () => {
-                menuItemCopy.disabled = (!this._entities || this._entities.length !== 1);
-                menuItemPaste.disabled = !this._localStorage.has('copy-component') || this._localStorage.get('copy-component-name') !== this._component;
+            const menu = new pcui.Menu({
+                items: [{
+                    text: 'Copy',
+                    icon: 'E351',
+                    onSelect: this._onClickCopy.bind(this),
+                    onIsEnabled: () => {
+                        return (this._entities && this._entities.length === 1);
+                    }
+                }, {
+                    text: 'Paste',
+                    icon: 'E348',
+                    onSelect: this._onClickPaste.bind(this),
+                    onIsEnabled: () => {
+                        return this._localStorage.has('copy-component') &&
+                               this._localStorage.get('copy-component-name') === this._component;
+                    }
+                }, {
+                    text: 'Delete',
+                    icon: 'E124',
+                    onSelect: this._onClickRemove.bind(this)
+                }]
             });
 
             editor.call('layout.root').append(menu);
 
             target.on('click', () => {
                 const rect = target.dom.getBoundingClientRect();
+                menu.hidden = false;
                 menu.position(rect.right, rect.bottom);
-                menu.open = true;
             });
 
             return menu;

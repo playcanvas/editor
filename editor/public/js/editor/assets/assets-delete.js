@@ -1,6 +1,8 @@
 editor.once('load', function () {
     'use strict';
 
+    const settings = editor.call('settings:project');
+
     editor.method('assets:delete:picker', function (items) {
         if (! editor.call('permissions:write'))
             return;
@@ -9,8 +11,12 @@ editor.once('load', function () {
 
         if (items.length === 1) {
             const item = items[0];
-            const name = item.get('name');
             const type = item.get('type');
+
+            let name = item.get('name');
+            if (!name && type === 'script' && settings.get('useLegacyScripts')) {
+                name = item.get('filename');
+            }
 
             if (type === 'folder') {
                 msg = `Permanently delete folder '${name}'?`;

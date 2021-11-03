@@ -1,4 +1,4 @@
-editor.once('load', function () {
+editor.once('load', () => {
     'use strict';
 
     var componentsLogos = editor.call('components:logos');
@@ -114,483 +114,415 @@ editor.once('load', function () {
 
     editor.method('menu:entities:new', function (getParentFn) {
         if (! getParentFn)
-            getParentFn = function () { return editor.call('entities:selectedFirst'); };
+            getParentFn = () => { return editor.call('entities:selectedFirst'); };
 
-        return {
-            'add-new-entity': {
-                title: 'Entity',
-                className: 'menu-item-add-entity',
-                icon: '&#57632;',
-                select: function () {
-                    editor.call('entities:new', { parent: getParentFn() });
+        return [{
+            // add new entity
+            text: 'Entity',
+            icon: 'E120',
+            onSelect: () => {
+                editor.call('entities:new', { parent: getParentFn() });
+            }
+        }, {
+            text: 'Audio',
+            icon: componentsLogos.sound,
+            items: [{
+                text: 'Audio Listener',
+                icon: componentsLogos.audiolistener,
+                onSelect: () => {
+                    editor.call('entities:new', {
+                        name: 'Audio Listener',
+                        parent: getParentFn(),
+                        components: {
+                            audiolistener: editor.call('components:getDefault', 'audiolistener')
+                        }
+                    });
                 }
-            },
-            'audio-sub-menu': {
-                title: 'Audio',
-                className: 'menu-item-audio-sub-menu',
+            }, {
+                text: 'Audio Source',
+                icon: componentsLogos.audiosource,
+                onIsVisible: () => {
+                    return editor.call('settings:project').get('useLegacyAudio');
+                },
+                onSelect: () => {
+                    editor.call('entities:new', {
+                        name: 'Audio Source',
+                        parent: getParentFn(),
+                        components: {
+                            audiosource: editor.call('components:getDefault', 'audiosource')
+                        }
+                    });
+                }
+            }, {
+                text: 'Sound',
                 icon: componentsLogos.sound,
-                items: {
-                    'add-new-listener': {
-                        title: 'Audio Listener',
-                        className: 'menu-item-add-audio-listener',
-                        icon: componentsLogos.audiolistener,
-                        select: function () {
-                            editor.call('entities:new', {
-                                name: 'Audio Listener',
-                                parent: getParentFn(),
-                                components: {
-                                    audiolistener: editor.call('components:getDefault', 'audiolistener')
-                                }
-                            });
-                        }
-                    },
-                    'add-new-audiosource': {
-                        title: 'Audio Source',
-                        className: 'menu-item-add-audio-source',
-                        icon: componentsLogos.audiosource,
-                        hide: function () {
-                            return ! editor.call('settings:project').get('useLegacyAudio');
-                        },
-                        select: function () {
-                            editor.call('entities:new', {
-                                name: 'Audio Source',
-                                parent: getParentFn(),
-                                components: {
-                                    audiosource: editor.call('components:getDefault', 'audiosource')
-                                }
-                            });
-                        }
-                    },
-                    'add-new-sound': {
-                        title: 'Sound',
-                        className: 'menu-item-add-sound',
-                        icon: componentsLogos.sound,
-                        select: function () {
-                            editor.call('entities:new', {
-                                name: 'Sound',
-                                parent: getParentFn(),
-                                components: {
-                                    sound: editor.call('components:getDefault', 'sound')
-                                }
-                            });
-                        }
-                    }
-                }
-            },
-            'add-new-camera': {
-                title: 'Camera',
-                className: 'menu-item-add-camera',
-                icon: componentsLogos.camera,
-                select: function () {
+                onSelect: () => {
                     editor.call('entities:new', {
-                        name: 'Camera',
+                        name: 'Sound',
                         parent: getParentFn(),
                         components: {
-                            camera: editor.call('components:getDefault', 'camera')
+                            sound: editor.call('components:getDefault', 'sound')
                         }
                     });
                 }
-            },
-            'light-sub-menu': {
-                title: 'Light',
-                className: 'menu-item-light-sub-menu',
+            }]
+        }, {
+            text: 'Camera',
+            icon: componentsLogos.camera,
+            onSelect: () => {
+                editor.call('entities:new', {
+                    name: 'Camera',
+                    parent: getParentFn(),
+                    components: {
+                        camera: editor.call('components:getDefault', 'camera')
+                    }
+                });
+            }
+        }, {
+            text: 'Light',
+            icon: componentsLogos.point,
+            items: [{
+                text: 'Directional Light',
+                icon: componentsLogos.directional,
+                onSelect: () => {
+                    var component = editor.call('components:getDefault', 'light');
+                    component.type = 'directional';
+
+                    editor.call('entities:new', {
+                        name: 'Directional Light',
+                        parent: getParentFn(),
+                        components: {
+                            light: component
+                        }
+                    });
+                }
+            }, {
+                text: 'Point Light',
                 icon: componentsLogos.point,
-                items: {
-                    'add-new-directional': {
-                        title: 'Directional Light',
-                        className: 'menu-item-add-directional-light',
-                        icon: componentsLogos.directional,
-                        select: function () {
-                            var component = editor.call('components:getDefault', 'light');
-                            component.type = 'directional';
-
-                            editor.call('entities:new', {
-                                name: 'Directional Light',
-                                parent: getParentFn(),
-                                components: {
-                                    light: component
-                                }
-                            });
-                        }
-                    },
-                    'add-new-point': {
-                        title: 'Point Light',
-                        className: 'menu-item-add-point-light',
-                        icon: componentsLogos.point,
-                        select: function () {
-                            var component = editor.call('components:getDefault', 'light');
-                            component.type = 'point';
-                            component.shadowResolution = 256;
-
-                            editor.call('entities:new', {
-                                name: 'Point Light',
-                                parent: getParentFn(),
-                                components: {
-                                    light: component
-                                }
-                            });
-                        }
-                    },
-                    'add-new-spot': {
-                        title: 'Spot Light',
-                        className: 'menu-item-add-spot-light',
-                        icon: componentsLogos.spot,
-                        select: function () {
-                            var component = editor.call('components:getDefault', 'light');
-                            component.type = 'spot';
-
-                            editor.call('entities:new', {
-                                name: 'Spot Light',
-                                parent: getParentFn(),
-                                components: {
-                                    light: component
-                                }
-                            });
-                        }
-                    }
-                }
-            },
-            'add-new-render': {
-                title: 'Render',
-                className: 'menu-item-add-render',
-                icon: componentsLogos.render,
-                select: function () {
-                    var component = editor.call('components:getDefault', 'render');
-                    component.type = 'asset';
+                onSelect: () => {
+                    var component = editor.call('components:getDefault', 'light');
+                    component.type = 'point';
+                    component.shadowResolution = 256;
 
                     editor.call('entities:new', {
-                        name: 'Render',
+                        name: 'Point Light',
                         parent: getParentFn(),
                         components: {
-                            render: component
+                            light: component
                         }
                     });
                 }
-            },
-            'add-new-particles': {
-                title: 'Particle System',
-                className: 'menu-item-add-particle-system',
-                icon: componentsLogos.particlesystem,
-                select: function () {
+            }, {
+                text: 'Spot Light',
+                icon: componentsLogos.spot,
+                onSelect: () => {
+                    var component = editor.call('components:getDefault', 'light');
+                    component.type = 'spot';
+
                     editor.call('entities:new', {
-                        name: 'Particle System',
+                        name: 'Spot Light',
                         parent: getParentFn(),
                         components: {
-                            particlesystem: editor.call('components:getDefault', 'particlesystem')
+                            light: component
                         }
                     });
                 }
-            },
-            'primitive-sub-menu': {
-                title: 'Primitive',
-                className: 'menu-item-primitive-sub-menu',
-                icon: componentsLogos.render,
-                items: {
-                    'add-new-box': {
-                        title: 'Box',
-                        className: 'menu-item-add-box-primitive',
-                        icon: componentsLogos.render,
-                        select: function () {
-                            var data = createPrimitiveEntityData('box', {
-                                name: 'Box',
-                                parent: getParentFn()
-                            });
-                            editor.call('entities:new', data);
-                        }
-                    },
-                    'add-new-capsule': {
-                        title: 'Capsule',
-                        className: 'menu-item-add-capsule-primitive',
-                        icon: componentsLogos.render,
-                        select: function () {
-                            var data = createPrimitiveEntityData('capsule', {
-                                name: 'Capsule',
-                                parent: getParentFn()
-                            });
-                            editor.call('entities:new', data);
-                        }
-                    },
-                    'add-new-cone': {
-                        title: 'Cone',
-                        className: 'menu-item-add-cone-primitive',
-                        icon: componentsLogos.render,
-                        select: function () {
-                            var data = createPrimitiveEntityData('cone', {
-                                name: 'Cone',
-                                parent: getParentFn()
-                            });
-                            editor.call('entities:new', data);
-                        }
-                    },
-                    'add-new-cylinder': {
-                        title: 'Cylinder',
-                        className: 'menu-item-add-cylinder-primitive',
-                        icon: componentsLogos.render,
-                        select: function () {
-                            var data = createPrimitiveEntityData('cylinder', {
-                                name: 'Cylinder',
-                                parent: getParentFn()
-                            });
-                            editor.call('entities:new', data);
-                        }
-                    },
+            }]
+        }, {
+            text: 'Render',
+            icon: componentsLogos.render,
+            onSelect: () => {
+                var component = editor.call('components:getDefault', 'render');
+                component.type = 'asset';
 
-                    'add-new-plane': {
-                        title: 'Plane',
-                        className: 'menu-item-add-plane-primitive',
-                        icon: componentsLogos.render,
-                        select: function () {
-                            var data = createPrimitiveEntityData('plane', {
-                                name: 'Plane',
-                                parent: getParentFn()
-                            });
-                            editor.call('entities:new', data);
-                        }
-                    },
-                    'add-new-sphere': {
-                        title: 'Sphere',
-                        className: 'menu-item-add-sphere-primitive',
-                        icon: componentsLogos.render,
-                        select: function () {
-                            var data = createPrimitiveEntityData('sphere', {
-                                name: 'Sphere',
-                                parent: getParentFn()
-                            });
-                            editor.call('entities:new', data);
-                        }
+                editor.call('entities:new', {
+                    name: 'Render',
+                    parent: getParentFn(),
+                    components: {
+                        render: component
                     }
+                });
+            }
+        }, {
+            text: 'Particle System',
+            icon: componentsLogos.particlesystem,
+            onSelect: () => {
+                editor.call('entities:new', {
+                    name: 'Particle System',
+                    parent: getParentFn(),
+                    components: {
+                        particlesystem: editor.call('components:getDefault', 'particlesystem')
+                    }
+                });
+            }
+        }, {
+            text: 'Primitive',
+            icon: componentsLogos.render,
+            items: [{
+                text: 'Box',
+                icon: componentsLogos.render,
+                onSelect: () => {
+                    var data = createPrimitiveEntityData('box', {
+                        name: 'Box',
+                        parent: getParentFn()
+                    });
+                    editor.call('entities:new', data);
                 }
-            },
-            'sprite-sub-menu': {
-                title: 'Sprite',
-                className: 'menu-item-sprite-sub-menu',
+            }, {
+                text: 'Capsule',
+                icon: componentsLogos.render,
+                onSelect: () => {
+                    var data = createPrimitiveEntityData('capsule', {
+                        name: 'Capsule',
+                        parent: getParentFn()
+                    });
+                    editor.call('entities:new', data);
+                }
+            }, {
+                text: 'Cone',
+                icon: componentsLogos.render,
+                onSelect: () => {
+                    var data = createPrimitiveEntityData('cone', {
+                        name: 'Cone',
+                        parent: getParentFn()
+                    });
+                    editor.call('entities:new', data);
+                }
+            }, {
+                text: 'Cylinder',
+                icon: componentsLogos.render,
+                onSelect: () => {
+                    var data = createPrimitiveEntityData('cylinder', {
+                        name: 'Cylinder',
+                        parent: getParentFn()
+                    });
+                    editor.call('entities:new', data);
+                }
+            }, {
+                text: 'Plane',
+                icon: componentsLogos.render,
+                onSelect: () => {
+                    var data = createPrimitiveEntityData('plane', {
+                        name: 'Plane',
+                        parent: getParentFn()
+                    });
+                    editor.call('entities:new', data);
+                }
+            }, {
+                text: 'Sphere',
+                icon: componentsLogos.render,
+                onSelect: () => {
+                    var data = createPrimitiveEntityData('sphere', {
+                        name: 'Sphere',
+                        parent: getParentFn()
+                    });
+                    editor.call('entities:new', data);
+                }
+            }]
+        }, {
+            text: 'Sprite',
+            icon: componentsLogos.sprite,
+            items: [{
+                text: 'Sprite',
                 icon: componentsLogos.sprite,
-                items: {
-                    'add-new-sprite': {
-                        title: 'Sprite',
-                        className: 'menu-item-add-sprite',
-                        icon: componentsLogos.sprite,
-                        select: function () {
-                            var data = editor.call('components:getDefault', 'sprite');
-                            editor.call('entities:new', {
-                                name: 'Sprite',
-                                parent: getParentFn(),
-                                components: {
-                                    sprite: data
-                                }
-                            });
+                onSelect: () => {
+                    var data = editor.call('components:getDefault', 'sprite');
+                    editor.call('entities:new', {
+                        name: 'Sprite',
+                        parent: getParentFn(),
+                        components: {
+                            sprite: data
                         }
-                    },
-                    'add-new-animated-sprite': {
-                        title: 'Animated Sprite',
-                        className: 'menu-item-add-animated-sprite',
-                        icon: componentsLogos.sprite,
-                        select: function () {
-                            var data = editor.call('components:getDefault', 'sprite');
-                            data.type = 'animated';
-                            data.clips = {
-                                '0': {
-                                    name: 'Clip 1',
-                                    fps: 10,
-                                    loop: true,
-                                    autoPlay: true,
-                                    spriteAsset: null
-                                }
-                            };
-                            data.autoPlayClip = 'Clip 1';
-                            editor.call('entities:new', {
-                                name: 'Animated Sprite',
-                                parent: getParentFn(),
-                                components: {
-                                    sprite: data
-                                }
-                            });
-                        }
-                    }
+                    });
                 }
-            },
-            'ui-sub-menu': {
-                title: 'User Interface',
-                className: 'menu-item-ui-sub-menu',
-                icon: componentsLogos.userinterface,
-                items: {
-                    'add-new-2d-screen': {
-                        title: '2D Screen',
-                        className: 'menu-item-add-2d-screen-ui',
-                        icon: componentsLogos['2d-screen'],
-                        select: function () {
-                            var data = editor.call('components:getDefault', 'screen');
-                            data.screenSpace = true;
-
-                            editor.call('entities:new', {
-                                name: '2D Screen',
-                                parent: getParentFn(),
-                                components: {
-                                    screen: data
-                                }
-                            });
+            }, {
+                text: 'Animated Sprite',
+                icon: componentsLogos.sprite,
+                onSelect: () => {
+                    var data = editor.call('components:getDefault', 'sprite');
+                    data.type = 'animated';
+                    data.clips = {
+                        '0': {
+                            name: 'Clip 1',
+                            fps: 10,
+                            loop: true,
+                            autoPlay: true,
+                            spriteAsset: null
                         }
-                    },
-                    'add-new-3d-screen': {
-                        title: '3D Screen',
-                        className: 'menu-item-add-3d-screen-ui',
-                        icon: componentsLogos['3d-screen'],
-                        select: function () {
-                            var data = editor.call('components:getDefault', 'screen');
-                            data.screenSpace = false;
-
-                            editor.call('entities:new', {
-                                name: '3D Screen',
-                                parent: getParentFn(),
-                                scale: [0.01, 0.01, 0.01],
-                                components: {
-                                    screen: data
-                                }
-                            });
+                    };
+                    data.autoPlayClip = 'Clip 1';
+                    editor.call('entities:new', {
+                        name: 'Animated Sprite',
+                        parent: getParentFn(),
+                        components: {
+                            sprite: data
                         }
-                    },
-                    'add-new-text': {
-                        title: 'Text Element',
-                        className: 'menu-item-add-text-element-ui',
-                        icon: componentsLogos['text-element'],
-                        select: function () {
-                            editor.call('entities:new', {
+                    });
+                }
+            }]
+        }, {
+            text: 'User Interface',
+            icon: componentsLogos.userinterface,
+            items: [{
+                text: '2D Screen',
+                icon: componentsLogos['2d-screen'],
+                onSelect: () => {
+                    var data = editor.call('components:getDefault', 'screen');
+                    data.screenSpace = true;
+
+                    editor.call('entities:new', {
+                        name: '2D Screen',
+                        parent: getParentFn(),
+                        components: {
+                            screen: data
+                        }
+                    });
+                }
+            }, {
+                text: '3D Screen',
+                icon: componentsLogos['3d-screen'],
+                onSelect: () => {
+                    var data = editor.call('components:getDefault', 'screen');
+                    data.screenSpace = false;
+
+                    editor.call('entities:new', {
+                        name: '3D Screen',
+                        parent: getParentFn(),
+                        scale: [0.01, 0.01, 0.01],
+                        components: {
+                            screen: data
+                        }
+                    });
+                }
+            }, {
+                text: 'Text Element',
+                icon: componentsLogos['text-element'],
+                onSelect: () => {
+                    editor.call('entities:new', {
+                        name: 'Text',
+                        parent: getParentFn(),
+                        components: {
+                            element: createTextElementComponentData()
+                        }
+                    });
+                }
+            }, {
+                text: 'Image Element',
+                icon: componentsLogos['image-element'],
+                onSelect: () => {
+                    editor.call('entities:new', {
+                        name: 'Image',
+                        parent: getParentFn(),
+                        components: {
+                            element: createImageElementComponentData()
+                        }
+                    });
+                }
+            }, {
+                text: 'Element Group',
+                icon: componentsLogos['group-element'],
+                onSelect: () => {
+                    var data = editor.call('components:getDefault', 'element');
+                    data.type = 'group';
+                    editor.call('entities:new', {
+                        name: 'Group',
+                        parent: getParentFn(),
+                        components: {
+                            element: createGroupElementComponentData()
+                        }
+                    });
+                }
+            }, {
+                text: 'Button Element',
+                icon: componentsLogos.button,
+                onSelect: () => {
+                    editor.call('entities:new', createButtonEntityData({
+                        name: 'Button',
+                        parent: getParentFn(),
+                        children: [
+                            {
                                 name: 'Text',
-                                parent: getParentFn(),
                                 components: {
                                     element: createTextElementComponentData()
                                 }
-                            });
-                        }
-                    },
-                    'add-new-image': {
-                        title: 'Image Element',
-                        className: 'menu-item-add-image-element-ui',
-                        icon: componentsLogos['image-element'],
-                        select: function () {
-                            editor.call('entities:new', {
-                                name: 'Image',
-                                parent: getParentFn(),
+                            }
+                        ]
+                    }));
+                }
+            }, {
+                text: 'Scroll View Element',
+                icon: componentsLogos.scrollview,
+                onSelect: () => {
+                    var viewportSize = 200;
+                    var scrollbarSize = 20;
+
+                    editor.call('entities:new', {
+                        name: 'ScrollView',
+                        parent: getParentFn(),
+                        components: {
+                            scrollview: editor.call('components:getDefault', 'scrollview'),
+                            element: createGroupElementComponentData({
+                                width: viewportSize,
+                                height: viewportSize,
+                                pivot: [0, 1]
+                            })
+                        },
+                        postCreationCallback: function (scrollView) {
+                            const history = scrollView.history.enabled;
+                            scrollView.history.enabled = false;
+                            scrollView.set('components.scrollview.viewportEntity', scrollView.findByName('Viewport').get('resource_id'));
+                            scrollView.set('components.scrollview.contentEntity', scrollView.findByName('Content').get('resource_id'));
+                            scrollView.set('components.scrollview.verticalScrollbarEntity', scrollView.findByName('VerticalScrollbar').get('resource_id'));
+                            scrollView.set('components.scrollview.horizontalScrollbarEntity', scrollView.findByName('HorizontalScrollbar').get('resource_id'));
+                            scrollView.history.enabled = history;
+                        },
+                        children: [
+                            {
+                                name: 'Viewport',
                                 components: {
-                                    element: createImageElementComponentData()
-                                }
-                            });
-                        }
-                    },
-                    'add-new-group': {
-                        title: 'Element Group',
-                        className: 'menu-item-add-element-group-ui',
-                        icon: componentsLogos['group-element'],
-                        select: function () {
-                            var data = editor.call('components:getDefault', 'element');
-                            data.type = 'group';
-                            editor.call('entities:new', {
-                                name: 'Group',
-                                parent: getParentFn(),
-                                components: {
-                                    element: createGroupElementComponentData()
-                                }
-                            });
-                        }
-                    },
-                    'add-new-button': {
-                        title: 'Button Element',
-                        className: 'menu-item-add-button-element-ui',
-                        icon: componentsLogos.button,
-                        select: function () {
-                            editor.call('entities:new', createButtonEntityData({
-                                name: 'Button',
-                                parent: getParentFn(),
+                                    element: createImageElementComponentData({
+                                        anchor: [0, 0, 1, 1],
+                                        margin: [0, scrollbarSize, scrollbarSize, 0],
+                                        pivot: [0, 1],
+                                        color: [0.2, 0.2, 0.2],
+                                        mask: true
+                                    })
+                                },
                                 children: [
                                     {
-                                        name: 'Text',
+                                        name: 'Content',
                                         components: {
-                                            element: createTextElementComponentData()
+                                            element: createGroupElementComponentData({
+                                                anchor: [0, 1, 0, 1],
+                                                margin: [0, 0, 0, 0],
+                                                width: viewportSize * 2,
+                                                height: viewportSize * 2,
+                                                pivot: [0, 1],
+                                                useInput: true
+                                            })
                                         }
                                     }
                                 ]
-                            }));
-                        }
-                    },
-                    'add-new-scroll-view': {
-                        title: 'Scroll View Element',
-                        className: 'menu-item-add-scroll-view-element-ui',
-                        icon: componentsLogos.scrollview,
-                        select: function () {
-                            var viewportSize = 200;
-                            var scrollbarSize = 20;
-
-                            editor.call('entities:new', {
-                                name: 'ScrollView',
-                                parent: getParentFn(),
-                                components: {
-                                    scrollview: editor.call('components:getDefault', 'scrollview'),
-                                    element: createGroupElementComponentData({
-                                        width: viewportSize,
-                                        height: viewportSize,
-                                        pivot: [0, 1]
-                                    })
-                                },
-                                postCreationCallback: function (scrollView) {
-                                    const history = scrollView.history.enabled;
-                                    scrollView.history.enabled = false;
-                                    scrollView.set('components.scrollview.viewportEntity', scrollView.findByName('Viewport').get('resource_id'));
-                                    scrollView.set('components.scrollview.contentEntity', scrollView.findByName('Content').get('resource_id'));
-                                    scrollView.set('components.scrollview.verticalScrollbarEntity', scrollView.findByName('VerticalScrollbar').get('resource_id'));
-                                    scrollView.set('components.scrollview.horizontalScrollbarEntity', scrollView.findByName('HorizontalScrollbar').get('resource_id'));
-                                    scrollView.history.enabled = history;
-                                },
-                                children: [
-                                    {
-                                        name: 'Viewport',
-                                        components: {
-                                            element: createImageElementComponentData({
-                                                anchor: [0, 0, 1, 1],
-                                                margin: [0, scrollbarSize, scrollbarSize, 0],
-                                                pivot: [0, 1],
-                                                color: [0.2, 0.2, 0.2],
-                                                mask: true
-                                            })
-                                        },
-                                        children: [
-                                            {
-                                                name: 'Content',
-                                                components: {
-                                                    element: createGroupElementComponentData({
-                                                        anchor: [0, 1, 0, 1],
-                                                        margin: [0, 0, 0, 0],
-                                                        width: viewportSize * 2,
-                                                        height: viewportSize * 2,
-                                                        pivot: [0, 1],
-                                                        useInput: true
-                                                    })
-                                                }
-                                            }
-                                        ]
-                                    },
-                                    createScrollbarEntityData(ORIENTATION_HORIZONTAL, {
-                                        name: 'HorizontalScrollbar'
-                                    }),
-                                    createScrollbarEntityData(ORIENTATION_VERTICAL, {
-                                        name: 'VerticalScrollbar'
-                                    })
-                                ]
-                            });
-                        }
-                    },
-                    'add-new-scrollbar': {
-                        title: 'Scrollbar Element',
-                        className: 'menu-item-add-scrollbar-element-ui',
-                        icon: componentsLogos.scrollbar,
-                        select: function () {
-                            editor.call('entities:new', createScrollbarEntityData(ORIENTATION_VERTICAL, {
-                                name: 'Scrollbar',
-                                parent: getParentFn()
-                            }));
-                        }
-                    }
+                            },
+                            createScrollbarEntityData(ORIENTATION_HORIZONTAL, {
+                                name: 'HorizontalScrollbar'
+                            }),
+                            createScrollbarEntityData(ORIENTATION_VERTICAL, {
+                                name: 'VerticalScrollbar'
+                            })
+                        ]
+                    });
                 }
-            }
-        };
+            }, {
+                text: 'Scrollbar Element',
+                icon: componentsLogos.scrollbar,
+                onSelect: () => {
+                    editor.call('entities:new', createScrollbarEntityData(ORIENTATION_VERTICAL, {
+                        name: 'Scrollbar',
+                        parent: getParentFn()
+                    }));
+                }
+            }]
+        }];
     });
 });

@@ -36,9 +36,9 @@ editor.once('load', function () {
             title += ' (legacy)';
         }
         const data = {
-            title: title,
+            text: title,
             icon: logos[key],
-            filter: function () {
+            onIsEnabled: () => {
                 // if any entity in the selection does not have the component
                 // then it should be available to add
                 const selection = getSelection();
@@ -53,15 +53,15 @@ editor.once('load', function () {
                 return false;
             },
 
-            select: function () {
+            onSelect: () => {
                 const selection = getSelection();
-                editor.call('entities:addComponent', selection, this._value);
+                editor.call('entities:addComponent', selection, key);
             }
         };
 
         if (key === 'audiosource') {
-            data.hide = function () {
-                return !editor.call('settings:project').get('useLegacyAudio');
+            data.onIsVisible = () => {
+                return editor.call('settings:project').get('useLegacyAudio');
             };
         }
 
@@ -72,19 +72,19 @@ editor.once('load', function () {
         // Create empty menu with sub-menus
         const items = {
             'audio-sub-menu': {
-                title: 'Audio',
+                text: 'Audio',
                 icon: logos.sound,
-                items: {}
+                items: []
             },
             'ui-sub-menu': {
-                title: 'User Interface',
+                text: 'User Interface',
                 icon: logos.userinterface,
-                items: {}
+                items: []
             },
             'physics-sub-menu': {
-                title: 'Physics',
+                text: 'Physics',
                 icon: logos.rigidbody,
-                items: {}
+                items: []
             }
         };
 
@@ -96,7 +96,7 @@ editor.once('load', function () {
             const key = list[i];
             const submenu = getSubMenu(key);
             if (submenu) {
-                items[submenu].items[key] = makeAddComponentMenuItem(key, components, logos);
+                items[submenu].items.push(makeAddComponentMenuItem(key, components, logos));
             } else {
                 items[key] = makeAddComponentMenuItem(key, components, logos);
             }
@@ -104,9 +104,9 @@ editor.once('load', function () {
 
         // sort alphabetically and add to new object to be returned
         const orderedKeys = Object.keys(items).sort();
-        const sorted = {};
+        const sorted = [];
         for (let i = 0; i < orderedKeys.length; i++) {
-            sorted[orderedKeys[i]] = items[orderedKeys[i]];
+            sorted.push(items[orderedKeys[i]]);
         }
 
         return sorted;
