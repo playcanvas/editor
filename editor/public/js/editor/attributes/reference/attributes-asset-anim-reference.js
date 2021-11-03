@@ -20,7 +20,7 @@ editor.once('load', function () {
         {
             name: 'exitTime',
             title: 'Exit Time',
-            description: 'If provided, this transition will only be active for the exact frame during which the source states progress passes the time specified. Given as a normalised value of the source states duration. Values less than 1 will be checked every animation loop.'
+            description: 'If provided, this transition will only be active for the exact frame during which the source states progress passes the time specified. Given as a normalized value of the source states duration. Values less than 1 will be checked every animation loop.'
         },
         {
             name: 'priority',
@@ -30,7 +30,7 @@ editor.once('load', function () {
         {
             name: 'transitionOffset',
             title: 'Transition Offset',
-            description: 'If provided, the destination state will begin playing its animation at this time. Given in normalised time based on the destinations states duration. Must be between 0 and 1.'
+            description: 'If provided, the destination state will begin playing its animation at this time. Given in normalized time based on the destinations states duration. Must be between 0 and 1.'
         },
         {
             name: 'interruptionSource',

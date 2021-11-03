@@ -25,7 +25,7 @@ editor.once('load', function () {
     }, {
         title: 'falloffMode',
         subTitle: '{pc.LIGHTFALLOFF_*}',
-        description: 'Controls the rate at which a light attentuates from its position.',
+        description: 'Controls the rate at which a light attenuates from its position.',
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#falloffMode'
     }, {
         title: 'innerConeAngle',

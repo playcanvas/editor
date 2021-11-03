@@ -258,7 +258,7 @@ editor.once('load', function () {
         name: 'layers',
         title: 'layers',
         subTitle: '{Number[]}',
-        description: 'The layers that this particle sytem belongs to. When a particle system belongs to multiple layers it will be rendered multiple times.',
+        description: 'The layers that this particle system belongs to. When a particle system belongs to multiple layers it will be rendered multiple times.',
         url: 'http://developer.playcanvas.com/api/pc.ParticleSystemComponent.html#layers'
     }];
 

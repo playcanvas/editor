@@ -45,7 +45,7 @@ editor.once('load', function () {
     }, {
         title: 'restitution',
         subTitle: '{Number}',
-        description: 'The amount of energy lost when two objects collide, this determines the bounciness of the object.',
+        description: 'Controls the amount of energy lost when two rigid bodies collide. The restitution of two colliding bodies are multiplied together and this value is then used to scale each body\'s velocity. So if restitution for both bodies is 1, no energy is lost. If one body has a restitution of 0, both bodies will lose all energy. You can informally think of restitution as a measure of how bouncy a body is.',
         url: 'http://developer.playcanvas.com/api/pc.RigidBodyComponent.html#restitution'
     }, {
         title: 'type',

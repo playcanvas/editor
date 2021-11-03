@@ -40,7 +40,7 @@ editor.once('load', function () {
     }, {
         title: 'type',
         subTitle: '{String}',
-        description: 'The type of collision primitive. Can be: box, sphere, capsulse, cylinder, mesh.',
+        description: 'The type of collision primitive. Can be: box, sphere, capsule, cylinder, mesh.',
         url: 'http://developer.playcanvas.com/api/pc.CollisionComponent.html#type'
     }];
 

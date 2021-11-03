@@ -61,7 +61,7 @@ editor.once('load', function () {
         description: 'If picture has alpha data.'
     }, {
         title: 'interlaced',
-        description: 'If picture is Interlaced. This picture (PNG, JPG) format feature is unavailable for WebGL but is available for use in DOM, making pictures to appear before fully loaded, and load progresively.'
+        description: 'If picture is Interlaced. This picture (PNG, JPG) format feature is unavailable for WebGL but is available for use in DOM, making pictures to appear before fully loaded, and load progressively.'
     }, {
         title: 'rgbm',
         subTitle: '{Boolean}',
@@ -95,7 +95,7 @@ editor.once('load', function () {
     }, {
         name: 'compress:pvr',
         title: 'PVTC (PowerVR Texture Compression)',
-        description: 'Widely available on iOS devices. It is very GZIP friendly, download sizes shown are gzip\'ed. Version 1 of compresison offers four formats to WebGL, differs in BPP and extra Alpha channel. Texture resolution must be square and power of two otherwise will be upscaled to nearest pot square. This format allows to store alpha. Compression is Lossy and does leak RGB channel values, as well as Alpha channel but much less than RGB.'
+        description: 'Widely available on iOS devices. It is very GZIP friendly, download sizes shown are gzip\'ed. Version 1 of compression offers four formats to WebGL, differs in BPP and extra Alpha channel. Texture resolution must be square and power of two otherwise will be upscaled to nearest pot square. This format allows to store alpha. Compression is Lossy and does leak RGB channel values, as well as Alpha channel but much less than RGB.'
     }, {
         name: 'compress:pvrBpp',
         title: 'PVR Bits Per Pixel',
@@ -103,7 +103,7 @@ editor.once('load', function () {
     }, {
         name: 'compress:etc',
         title: 'ETC (Ericsson Texture Compression)',
-        description: 'This format covers well some Android devices as well as Destop. It is very GZIP friendly, download sizes shown are gzip\'ed. WebGL exposes support for ETC1 only whcih only stores RGB so this format is not available for storing Alpha channel. It is Lossy and suffers from RGB channel leaking.'
+        description: 'This format covers well some Android devices as well as Desktop. It is very GZIP friendly, download sizes shown are gzip\'ed. WebGL exposes support for ETC1 only which only stores RGB so this format is not available for storing Alpha channel. It is Lossy and suffers from RGB channel leaking.'
     }, {
         name: 'compress:compressionMode',
         title: 'Compression Mode',

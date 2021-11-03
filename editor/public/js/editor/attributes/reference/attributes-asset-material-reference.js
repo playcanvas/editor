@@ -69,7 +69,7 @@ editor.once('load', function () {
     }, {
         title: 'bumpiness',
         subTitle: '{Number}',
-        description: 'The strength of the applied normal map. This is a value between 0 (the normal map has no effect) and 2 (the effect of the normal map is exagerrated). It defaults to 1.',
+        description: 'The strength of the applied normal map. This is a value between 0 (the normal map has no effect) and 2 (the effect of the normal map is exaggerated). It defaults to 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#bumpiness'
     }, {
         title: 'conserveEnergy',
@@ -389,7 +389,7 @@ editor.once('load', function () {
     }, {
         title: 'opacity',
         subTitle: '{Number}',
-        description: 'The opacity of the material. This is a value between 0 (completely transparent) and 1 (complately opaque. It defaults to 1.',
+        description: 'The opacity of the material. This is a value between 0 (completely transparent) and 1 (completely opaque. It defaults to 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#opacity'
     }, {
         title: 'opacityMap',
@@ -428,7 +428,7 @@ editor.once('load', function () {
     }, {
         title: 'reflectivity',
         subTitle: '{Number}',
-        description: 'A factor to determin what portion of light is reflected from the material. This value defaults to 1 (full reflectivity).',
+        description: 'A factor to determine what portion of light is reflected from the material. This value defaults to 1 (full reflectivity).',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#reflectivity'
     }, {
         title: 'refraction',
@@ -516,7 +516,7 @@ editor.once('load', function () {
     }, {
         title: 'alphaTest',
         subTitle: '{Number}',
-        description: 'The alpha test reference value to control which fragements are written to the currently active render target based on alpha value. All fragments with an alpha value of less than the alphaTest reference value will be discarded. alphaTest defaults to 0 (all fragments pass).',
+        description: 'The alpha test reference value to control which fragments are written to the currently active render target based on alpha value. All fragments with an alpha value of less than the alphaTest reference value will be discarded. alphaTest defaults to 0 (all fragments pass).',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#alphaTest'
     }, {
         title: 'alphaToCoverage',
@@ -637,7 +637,7 @@ editor.once('load', function () {
     }, {
         title: 'clearCoatBumpiness',
         subTitle: '{Number}',
-        description: 'The strength of the applied normal map. This is a value between 0 (the normal map has no effect) and 2 (the effect of the normal map is exagerrated). It defaults to 1.',
+        description: 'The strength of the applied normal map. This is a value between 0 (the normal map has no effect) and 2 (the effect of the normal map is exaggerated). It defaults to 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatBumpiness'
     }, {
         title: 'clearCoatNormalMap',
@@ -662,7 +662,7 @@ editor.once('load', function () {
     }, {
         title: 'opacityFadesSpecular',
         subTitle: '{Boolean}',
-        description: 'Controls whether Specular is faded out by material Opacity which is sometomes not desired for shiny translucent materials such as glass',
+        description: 'Controls whether Specular is faded out by material Opacity which is sometimes not desired for shiny translucent materials such as glass',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#opacityFadesSpecular'
     }, {
         title: 'alphaFade',
