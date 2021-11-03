@@ -34,8 +34,6 @@ editor.once('load', function () {
 
     editor.on('entities:add', addObserverSync);
 
-    editor.method('entities:addObserverSync', addObserverSync);
-
     // server > client
     editor.on('realtime:scene:op:entities', function (op) {
         var entity = null;

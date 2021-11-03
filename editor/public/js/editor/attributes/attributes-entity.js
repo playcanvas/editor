@@ -1,57 +1,12 @@
 editor.once('load', function () {
     'use strict';
 
-    const useLegacyComponentInspectors = false;
-
-    var panelComponents;
     const projectSettings = editor.call('settings:project');
-
-    // add component menu
-    if (useLegacyComponentInspectors) {
-        var menuAddComponent = new ui.Menu();
-        var components = editor.call('components:schema');
-        var list = editor.call('components:list');
-        for (let i = 0; i < list.length; i++) {
-            menuAddComponent.append(new ui.MenuItem({
-                text: components[list[i]].$title,
-                value: list[i]
-            }));
-        }
-        menuAddComponent.on('open', function () {
-            var items = editor.call('selector:items');
-
-            var legacyAudio = editor.call('settings:project').get('useLegacyAudio');
-            for (let i = 0; i < list.length; i++) {
-                var different = false;
-                var disabled = items[0].has('components.' + list[i]);
-
-                for (var n = 1; n < items.length; n++) {
-                    if (disabled !== items[n].has('components.' + list[i])) {
-                        var different = true;
-                        break;
-                    }
-                }
-                this.findByPath([list[i]]).disabled = different ? false : disabled;
-
-                if (list[i] === 'audiosource')
-                    this.findByPath([list[i]]).hidden = ! legacyAudio;
-            }
-        });
-        menuAddComponent.on('select', function (path) {
-            var items = editor.call('selector:items');
-            var component = path[0];
-            editor.call('entities:addComponent', items, component);
-        });
-        editor.call('layout.root').append(menuAddComponent);
-
-    }
 
     var entityInspector;
 
     // legacy
     editor.method('attributes:entity.panelComponents', function () {
-        if (useLegacyComponentInspectors) return panelComponents;
-
         return entityInspector;
     });
 
@@ -64,7 +19,7 @@ editor.once('load', function () {
 
         // panel
         var panel = editor.call('attributes:addPanel', {
-            parent: useLegacyComponentInspectors ? panelComponents : entityInspector,
+            parent: entityInspector,
             name: title
         });
         panel.class.add('component', 'entity', name);
@@ -184,11 +139,6 @@ editor.once('load', function () {
         return panel;
     });
 
-    var items = null;
-    var argsList = [];
-    var argsFieldsChanges = [];
-    var inspectEvents = [];
-
     var templateOverrides = new pcui.TemplateOverridesView({
         flex: true,
         assets: editor.call('assets:raw'),
@@ -215,184 +165,29 @@ editor.once('load', function () {
         editor.call('layout.attributes').enabled = editor.call('permissions:write');
     });
 
-
-    if (!useLegacyComponentInspectors) {
-        entityInspector = new pcui.EntityInspector({
-            assets: editor.call('assets:raw'),
-            entities: editor.call('entities:raw'),
-            projectSettings: editor.call('settings:project'),
-            history: editor.call('editor:history'),
-            templateOverridesDiffView: templateOverrides
-        });
-    }
-
+    entityInspector = new pcui.EntityInspector({
+        assets: editor.call('assets:raw'),
+        entities: editor.call('entities:raw'),
+        projectSettings: editor.call('settings:project'),
+        history: editor.call('editor:history'),
+        templateOverridesDiffView: templateOverrides
+    });
 
     // before clearing inspector, preserve elements
     editor.on('attributes:beforeClear', function () {
-        if (!useLegacyComponentInspectors) {
-            entityInspector.unlink();
-            if (entityInspector.parent) {
-                entityInspector.parent.remove(entityInspector);
+        entityInspector.unlink();
+        if (entityInspector.parent) {
+            entityInspector.parent.remove(entityInspector);
+        }
+
+        // destroy legacy script inspector
+        if (projectSettings.get('useLegacyScripts')) {
+            const legacyScriptInspector = entityInspector.dom.querySelector('.ui-panel.script');
+            if (legacyScriptInspector) {
+                legacyScriptInspector.ui.destroy();
             }
-
-            // destroy legacy script inspector
-            if (projectSettings.get('useLegacyScripts')) {
-                const legacyScriptInspector = entityInspector.dom.querySelector('.ui-panel.script');
-                if (legacyScriptInspector) {
-                    legacyScriptInspector.ui.destroy();
-                }
-            }
-
-            return;
         }
-
-        if (! items || ! items.panel.parent)
-            return;
-
-        if (items.panelTemplate) {
-            items.panelTemplate.parent.remove(items.panelTemplate);
-        }
-
-        // remove panel from inspector
-        items.panel.parent.remove(items.panel);
-
-        // clear components
-        items.panelComponents.parent.remove(items.panelComponents);
-        items.panelComponents.clear();
-
-        // unlink fields
-        for (let i = 0; i < argsList.length; i++) {
-            argsList[i].link = null;
-            argsList[i].unlinkField();
-        }
-
     });
-
-    // initialize fields
-    var initialize = function () {
-        items = { };
-
-        var root = editor.call('attributes.rootPanel');
-
-        // template panel
-        if (!editor.call('settings:project').get('useLegacyScripts')) {
-            items.panelTemplate = templateInspector;
-            root.append(items.panelTemplate);
-        }
-
-        // panel
-        var panel = items.panel = editor.call('attributes:addPanel');
-        panel.class.add('component');
-
-
-        // enabled
-        var argsEnabled = {
-            parent: panel,
-            name: 'Enabled',
-            type: 'checkbox',
-            path: 'enabled'
-        };
-        items.fieldEnabled = editor.call('attributes:addField', argsEnabled);
-        editor.call('attributes:reference:attach', 'entity:enabled', items.fieldEnabled.parent.innerElement.firstChild.ui);
-        argsList.push(argsEnabled);
-        argsFieldsChanges.push(items.fieldEnabled);
-
-
-        // name
-        var argsName = {
-            parent: panel,
-            name: 'Name',
-            type: 'string',
-            trim: true,
-            path: 'name'
-        };
-        items.fieldName = editor.call('attributes:addField', argsName);
-        items.fieldName.class.add('entity-name');
-        editor.call('attributes:reference:attach', 'entity:name', items.fieldName.parent.innerElement.firstChild.ui);
-        argsList.push(argsName);
-        argsFieldsChanges.push(items.fieldName);
-
-
-        // tags
-        var argsTags = {
-            parent: panel,
-            name: 'Tags',
-            placeholder: 'Add Tag',
-            type: 'tags',
-            tagType: 'string',
-            path: 'tags'
-        };
-        items.fieldTags = editor.call('attributes:addField', argsTags);
-        editor.call('attributes:reference:attach', 'entity:tags', items.fieldTags.parent.parent.innerElement.firstChild.ui);
-        argsList.push(argsTags);
-
-
-        // position
-        var argsPosition = {
-            parent: panel,
-            name: 'Position',
-            placeholder: ['X', 'Y', 'Z'],
-            precision: 3,
-            step: 0.05,
-            type: 'vec3',
-            path: 'position'
-        };
-        items.fieldPosition = editor.call('attributes:addField', argsPosition);
-        editor.call('attributes:reference:attach', 'entity:position', items.fieldPosition[0].parent.innerElement.firstChild.ui);
-        argsList.push(argsPosition);
-        argsFieldsChanges = argsFieldsChanges.concat(items.fieldPosition);
-
-        // rotation
-        var argsRotation = {
-            parent: panel,
-            name: 'Rotation',
-            placeholder: ['X', 'Y', 'Z'],
-            precision: 2,
-            step: 0.1,
-            type: 'vec3',
-            path: 'rotation'
-        };
-        items.fieldRotation = editor.call('attributes:addField', argsRotation);
-        editor.call('attributes:reference:attach', 'entity:rotation', items.fieldRotation[0].parent.innerElement.firstChild.ui);
-        argsList.push(argsRotation);
-        argsFieldsChanges = argsFieldsChanges.concat(items.fieldRotation);
-
-
-        // scale
-        var argsScale = {
-            parent: panel,
-            name: 'Scale',
-            placeholder: ['X', 'Y', 'Z'],
-            precision: 3,
-            step: 0.05,
-            type: 'vec3',
-            path: 'scale'
-        };
-        items.fieldScale = editor.call('attributes:addField', argsScale);
-        editor.call('attributes:reference:attach', 'entity:scale', items.fieldScale[0].parent.innerElement.firstChild.ui);
-        argsList.push(argsScale);
-        argsFieldsChanges = argsFieldsChanges.concat(items.fieldScale);
-
-
-        // components
-        panelComponents = items.panelComponents = editor.call('attributes:addPanel');
-
-        // add component
-        var btnAddComponent = items.btnAddComponent = new ui.Button();
-
-        btnAddComponent.hidden = ! editor.call('permissions:write');
-        editor.on('permissions:writeState', function (state) {
-            btnAddComponent.hidden = ! state;
-        });
-
-        btnAddComponent.text = 'Add Component';
-        btnAddComponent.class.add('add-component');
-        btnAddComponent.on('click', function (evt) {
-            menuAddComponent.position(evt.clientX, evt.clientY);
-            menuAddComponent.open = true;
-        });
-        panel.append(btnAddComponent);
-    };
 
     // link data to fields when inspecting
     editor.on('attributes:inspect[entity]', function (entities) {
@@ -404,131 +199,13 @@ editor.once('load', function () {
 
         var root = editor.call('attributes.rootPanel');
 
-        if (!useLegacyComponentInspectors) {
-            if (!entityInspector.parent)
-                root.append(entityInspector);
+        if (!entityInspector.parent)
+            root.append(entityInspector);
 
-            entityInspector.link(entities);
-
-            return;
-        }
-
-
-        if (! items)
-            initialize();
-
-        if (items.panelTemplate && ! items.panelTemplate.parent)
-            root.append(items.panelTemplate);
-
-        if (! items.panel.parent)
-            root.append(items.panel);
-
-        if (! items.panelComponents.parent)
-            root.append(items.panelComponents);
-
-        // disable renderChanges
-        for (let i = 0; i < argsFieldsChanges.length; i++)
-            argsFieldsChanges[i].renderChanges = false;
-
-        // link fields
-        for (let i = 0; i < argsList.length; i++) {
-            argsList[i].link = entities;
-            argsList[i].linkField();
-        }
-
-        // enable renderChanges
-        for (let i = 0; i < argsFieldsChanges.length; i++)
-            argsFieldsChanges[i].renderChanges = true;
-
-        onInspect(entities);
+        entityInspector.link(entities);
     });
 
     editor.on('attributes:clear', function () {
-        if (!useLegacyComponentInspectors) {
-            entityInspector.unlink();
-            return;
-        }
-
-        onUninspect();
+        entityInspector.unlink();
     });
-
-    var toggleFields = function (selectedEntities) {
-        var disablePositionXY = false;
-        var disableRotation = false;
-        var disableScale = false;
-
-        for (let i = 0, len = selectedEntities.length; i < len; i++) {
-            var entity = selectedEntities[i];
-
-            // disable rotation / scale for 2D screens
-            if (entity.get('components.screen.screenSpace')) {
-                disableRotation = true;
-                disableScale = true;
-            }
-
-            // disable position on the x/y axis for elements that are part of a layout group
-            if (editor.call('entities:layout:isUnderControlOfLayoutGroup', entity)) {
-                disablePositionXY = true;
-            }
-        }
-
-        items.fieldPosition[0].enabled = !disablePositionXY;
-        items.fieldPosition[1].enabled = !disablePositionXY;
-
-        for (let i = 0; i < 3; i++) {
-            items.fieldRotation[i].enabled = !disableRotation;
-            items.fieldScale[i].enabled = !disableScale;
-
-            items.fieldRotation[i].renderChanges = !disableRotation;
-            items.fieldScale[i].renderChanges = !disableScale;
-        }
-
-        if (items.panelTemplate) {
-            if (selectedEntities.length === 1) {
-                items.panelTemplate.link([selectedEntities[0]]);
-            } else {
-                items.panelTemplate.unlink();
-            }
-        }
-    };
-
-    var onInspect = function (entities) {
-        onUninspect();
-
-        var addEvents = function (entity) {
-            inspectEvents.push(entity.on('*:set', function (path) {
-                if (/components.screen.screenSpace/.test(path) ||
-                    /^parent/.test(path) ||
-                    /components.layoutchild.excludeFromLayout/.test(path)) {
-                    toggleFieldsIfNeeded(entity);
-                }
-            }));
-        };
-
-        var toggleFieldsIfNeeded = function (entity) {
-            if (editor.call('selector:has', entity))
-                toggleFields(editor.call('selector:items'));
-        };
-
-
-        for (let i = 0, len = entities.length; i < len; i++) {
-            addEvents(entities[i]);
-        }
-
-        toggleFields(entities);
-    };
-
-    var onUninspect = function () {
-        for (let i = 0; i < inspectEvents.length; i++) {
-            inspectEvents[i].unbind();
-        }
-
-        inspectEvents.length = 0;
-
-        if (items && items.panelTemplate) {
-            templateOverrides.hidden = true;
-            items.panelTemplate.hidden = true;
-            items.panelTemplate.unlink();
-        }
-    };
 });

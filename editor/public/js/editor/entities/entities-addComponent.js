@@ -8,45 +8,50 @@ editor.once('load', function () {
      * @param {string} component - The name of the component
      */
     editor.method('entities:addComponent', function (entities, component) {
-        var componentData = editor.call('components:getDefault', component);
-        var records = [];
-
-        for (let i = 0; i < entities.length; i++) {
-            if (entities[i].has('components.' + component))
-                continue;
-
-            records.push({
-                item: entities[i],
-                value: componentData
+        function redo() {
+            entities = entities.map(e => e.latest()).filter(e => !!e && !e.has('components.' + component));
+            entities.forEach(e => {
+                const history = e.history.enabled;
+                e.history.enabled = false;
+                try {
+                    e.apiEntity.addComponent(component);
+                } catch (err) {
+                    console.error(err);
+                    editor.call(
+                        'status:error',
+                        `Could not add ${component} component to entity ${e.get('resource_id')}`
+                    );
+                }
+                e.history.enabled = history;
             });
-
-            entities[i].history.enabled = false;
-            entities[i].set('components.' + component, componentData);
-            entities[i].history.enabled = true;
         }
 
-        editor.call('history:add', {
+        function undo() {
+            entities.forEach(e => {
+                e = e.latest();
+                if (!e) return;
+
+                const history = e.history.enabled;
+                e.history.enabled = false;
+                try {
+                    e.apiEntity.removeComponent(component);
+                } catch (err) {
+                    console.error(err);
+                    editor.call(
+                        'status:error',
+                        `Could not remove ${component} component from entity ${e.get('resource_id')}`
+                    );
+                }
+                e.history.enabled = history;
+            });
+        }
+
+        redo();
+
+        editor.history.add({
             name: 'entities.' + component,
-            undo: function () {
-                for (let i = 0; i < records.length; i++) {
-                    var item = records[i].item.latest();
-                    if (!item)
-                        continue;
-                    item.history.enabled = false;
-                    item.unset('components.' + component);
-                    item.history.enabled = true;
-                }
-            },
-            redo: function () {
-                for (let i = 0; i < records.length; i++) {
-                    var item = records[i].item.latest();
-                    if (!item)
-                        continue;
-                    item.history.enabled = false;
-                    item.set('components.' + component, records[i].value);
-                    item.history.enabled = true;
-                }
-            }
+            undo: undo,
+            redo: redo
         });
     });
 });

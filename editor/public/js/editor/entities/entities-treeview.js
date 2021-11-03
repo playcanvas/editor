@@ -9,8 +9,6 @@ Object.assign(pcui, (function () {
     const CLASS_USER_SELECTION_MARKER = CLASS_ROOT + '-user-marker';
     const CLASS_USER_SELECTION_MARKER_CONTAINER = CLASS_USER_SELECTION_MARKER + '-container';
 
-    const TIME_WAIT_ENTITIES = 5000;
-
     /**
      * @name pcui.EntitiesTreeView
      * @classdesc Represents the Entity TreeView that shows the Scene hierarchy.
