@@ -30,9 +30,6 @@ editor.once('load', function () {
         name: 'showSkeleton',
         description: 'Set whether to render the bone structure of selected entity skeleton in the viewport'
     }, {
-        name: 'localServer',
-        description: 'Set a URL to use as the local server. When you click on "Launch Local" all your scripts will be loaded from this URL.'
-    }, {
         name: 'engineVersion',
         description: 'The engine to use when you click Launch or when you publish or download a build. This setting is only valid during your current session and is not shared amongst team members.'
     }, {

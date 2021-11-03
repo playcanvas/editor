@@ -82,15 +82,6 @@ Object.assign(pcui, (function () {
             }
         },
         {
-            observer: 'settings',
-            label: 'Local Server',
-            path: 'editor.localServer',
-            type: 'string',
-            args: {
-                onValidate: value => /^http(s)?:\/\/\S+/.test(value)
-            }
-        },
-        {
             observer: 'sessionSettings',
             label: 'Engine Version',
             path: 'engineVersion',

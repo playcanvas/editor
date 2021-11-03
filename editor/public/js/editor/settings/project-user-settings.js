@@ -21,7 +21,6 @@ editor.once('load', function () {
                 gridDivisions: 8,
                 gridDivisionSize: 1,
                 snapIncrement: 1,
-                localServer: 'http://localhost:51000',
                 launchDebug: true,
                 launchMinistats: false,
                 locale: 'en-US',

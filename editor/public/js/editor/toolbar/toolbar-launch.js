@@ -43,11 +43,6 @@ editor.once('load', function () {
 
         var query = [];
 
-        if (launchOptions.local) {
-            url = url.replace(/^https/, 'http');
-            query.push('local=' + settings.get('editor.localServer'));
-        }
-
         if (launchOptions.webgl1) {
             query.push('webgl1=true');
         }
@@ -166,33 +161,7 @@ editor.once('load', function () {
     tooltipDebug.class.add('launch-tooltip');
 
 
-    if (legacyScripts) {
-        var local = createOption('local', 'Use Local Server');
-
-        var getTooltipText = function () {
-            var tooltipText = 'Enable this if you want to load scripts from your local server.';
-            if (settings.get('editor.localServer')) {
-                tooltipText +=  ' If enabled scripts will be loaded from <a href="' +
-                       settings.get('editor.localServer') + '" target="_blank">' + settings.get('editor.localServer') + '</a>.';
-            }
-
-            tooltipText += ' You can change your Local Server URL from the Editor settings.';
-            return tooltipText;
-        };
-
-        var tooltipLocal = Tooltip.attach({
-            target: local.parent.element,
-            html: getTooltipText(),
-            align: 'right',
-            root: root
-        });
-
-        tooltipLocal.class.add('launch-tooltip');
-
-        settings.on('editor.localServer:set', function () {
-            tooltipLocal.html = getTooltipText();
-        });
-    } else {
+    if (!legacyScripts) {
         var optionConcatenate = createOption('concatenate', 'Concatenate Scripts');
         var tooltipConcatenate = Tooltip.attach({
             target: optionConcatenate.parent.element,

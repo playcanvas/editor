@@ -115,10 +115,6 @@ editor.once('load', function () {
 
     scriptPrefix = config.project.scriptPrefix;
 
-    // queryParams.local can be true or it can be a URL
-    if (queryParams.local)
-        scriptPrefix = queryParams.local === 'true' ? 'http://localhost:51000' : queryParams.local;
-
     // WebGL 1.0 enforced?
     var preferWebGl2 = config.project.settings.preferWebGl2;
     if (queryParams.hasOwnProperty('webgl1')) {
