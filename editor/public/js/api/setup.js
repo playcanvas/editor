@@ -69,7 +69,7 @@ editor.once('load', function () {
                 if (err) {
                     reject(err);
                 } else {
-                    resolve();
+                    resolve(Object.keys(result.scripts || {}));
                 }
             });
         });
