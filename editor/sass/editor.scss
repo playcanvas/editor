@@ -8487,7 +8487,15 @@ strong {
             font-size: 12px;
             line-height: 1.1;
         }
+
+        &.vc-graph:before {
+            content: '\E399';
+        }
     }
+}
+
+.ui-panel.vc-graph-panel .joint-element {
+    cursor: pointer !important;
 }
 
 .ui-overlay.picker-conflict-manager {

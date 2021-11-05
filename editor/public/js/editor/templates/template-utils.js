@@ -15,14 +15,6 @@ editor.once('load', function () {
         'name'
     ];
 
-    const callUtilMethod = function (klass, args) {
-        const method = args[0];
-
-        const rest = args.slice(1);
-
-        return klass[method].apply(null, rest);
-    };
-
     const TemplateUtils = {
         STOP_TEMPL_ATTR_TYPES: {
             curve: 1,
@@ -550,15 +542,23 @@ editor.once('load', function () {
         }
     };
 
+    editor.method('utils:callMethod', function (klass, args) {
+        const method = args[0];
+
+        const rest = args.slice(1);
+
+        return klass[method].apply(null, rest);
+    });
+
     editor.method('template:utils', function () {
         const a = Array.from(arguments);
 
-        return callUtilMethod(TemplateUtils, a);
+        return editor.call('utils:callMethod', TemplateUtils, a);
     });
 
     editor.method('template:attrUtils', function () {
         const a = Array.from(arguments);
 
-        return callUtilMethod(AttrUtils, a);
+        return editor.call('utils:callMethod', AttrUtils, a);
     });
 });

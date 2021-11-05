@@ -658,6 +658,22 @@ editor.once('load', function () {
         }
     });
 
+    // vc graph
+    var menuVcGraph = new ui.MenuItem({
+        text: 'Version Control Graph',
+        value: 'show-vc-graph'
+    });
+
+    if (editor.call('users:hasFlag', 'hasVersionControlGraph')) {
+        menuBranches.append(menuVcGraph);
+    }
+
+    menuVcGraph.on('select', function () {
+        if (contextBranch) {
+            editor.call('vcgraph:showGraphPanel', contextBranch.id);
+        }
+    });
+
     // Filter context menu items
     menuBranches.on('open', function () {
         var writeAccess = editor.call('permissions:write');

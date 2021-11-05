@@ -54,18 +54,15 @@ editor.once('load', function () {
     });
 
     editor.method('checkpoints:list', function (args, callback) {
-        var url = '{{url.api}}/branches/' + args.branch + '/checkpoints';
-        var separator = '?';
+        let url = '{{url.api}}/branches/' + args.branch + '/checkpoints';
+        let separator = '?';
 
-        if (args.limit) {
-            url += separator + 'limit=' + args.limit;
-            separator = '&';
-        }
-
-        if (args.skip) {
-            url += separator + 'skip=' + args.skip;
-            separator = '&';
-        }
+        ['limit', 'skip', 'graphStartId', 'task_type'].forEach(field => {
+            if (args[field]) {
+                url += `${separator}${field}=${args[field]}`;
+                separator = '&';
+            }
+        });
 
         return request({
             url: url,

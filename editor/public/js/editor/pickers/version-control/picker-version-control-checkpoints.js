@@ -55,6 +55,16 @@ editor.once('load', function () {
     btnNewCheckpoint.class.add('icon', 'create');
     panelBranchActions.append(btnNewCheckpoint);
 
+    // version control graph
+    var btnVcGraph = new ui.Button({
+        text: 'Graph'
+    });
+    btnVcGraph.class.add('icon', 'vc-graph');
+
+    if (editor.call('users:hasFlag', 'hasVersionControlGraph')) {
+        panelBranchActions.append(btnVcGraph);
+    }
+
     var toggleTopButtons = function () {
         btnFavorite.disabled = ! panel.branch || panel.branch.closed || ! editor.call('permissions:write');
         btnNewCheckpoint.disabled = ! editor.call('permissions:write') || ! panel.branch || panel.branch.id !== config.self.branch.id;
@@ -483,6 +493,50 @@ editor.once('load', function () {
         var currentStateListItem = createCurrentStateListItem();
         currentStateListItem.class.add('current-state');
     };
+
+    const graphPanel = new ui.Panel();
+    graphPanel.class.add('picker-version-control');
+    graphPanel.class.add('vc-graph-panel');
+    graphPanel.flex = true;
+    graphPanel.hidden = true;
+    graphPanel.dom.setAttribute('style', `
+        position: fixed;
+        z-index: 301;
+        height: 95%;
+        width: 95%;
+        transform: translate(-50%, -50%);
+        left: 50%;
+        top: 50%;
+    `);
+
+    editor.call('layout.root').append(graphPanel);
+
+    btnVcGraph.on('click', function () {
+        editor.call('vcgraph:showGraphPanel', panel.branch.id);
+    });
+
+    editor.method('vcgraph:showGraphPanel', function (branchId) {
+        graphPanel.hidden = !graphPanel.hidden;
+        const graphContainer = new pcui.Container();
+        const closeGraphButton = new pcui.Button({text: 'CLOSE'});
+        closeGraphButton.dom.setAttribute('style', `
+            position: absolute;
+            right: 0;
+        `);
+        closeGraphButton.on('click', () => {
+            graphPanel.hidden = true;
+            graphPanel.clear();
+        });
+
+        graphPanel.append(graphContainer);
+        graphContainer.dom.setAttribute('style', `
+            width: 100%;
+            height: 100%;
+            background-color: #364346;
+        `);
+
+        editor.call('vcgraph:showInitial', branchId, graphContainer, closeGraphButton);
+    });
 
     btnFavorite.on('click', function () {
         if (!panel.branch) return;

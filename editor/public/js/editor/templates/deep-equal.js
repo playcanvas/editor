@@ -37,12 +37,8 @@ editor.once('load', function () {
 
         compareMapsRecursively(keys1) {
             return keys1.every(k1 => {
-
-                const v1 = this.node1[k1];
-
-                const v2 = this.node2[k1];
-
-                return new DeepEqual(v1, v2).run();
+                return this.node2.hasOwnProperty(k1) &&
+                    new DeepEqual(this.node1[k1], this.node2[k1]).run();
             });
         }
 
