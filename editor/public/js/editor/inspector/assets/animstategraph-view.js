@@ -218,14 +218,14 @@ Object.assign(pcui, (function () {
             switch (item.type) {
                 case 'NODE': {
                     const node = this._assets[0].get(`data.states.${item.id}`);
-                    this._graph.selectNode(node, true);
-                    this._onSelectNode(node);
+                    this._graph.selectNode(node);
+                    this._onSelectNode({ node });
                     break;
                 }
                 case 'EDGE': {
                     const edge = this._assets[0].get(`data.transitions.${item.edgeId}`);
-                    this._graph.selectEdge(edge, item.edgeId, true);
-                    this._onSelectEdge(edge);
+                    this._graph.selectEdge(edge, item.edgeId);
+                    this._onSelectEdge({ edge });
                     break;
                 }
             }
@@ -233,14 +233,14 @@ Object.assign(pcui, (function () {
 
         _keyboardListener(e) {
             if (e.keyCode === 27) {
-            // esc
+                // esc
                 if (this._graph.selectedItem) {
                     this._graph.deselectItem();
                 } else {
                     this.parent.closeAsset(this._assets[0]);
                 }
             } else if (e.keyCode === 46 && this._graph.selectedItem && document.activeElement.constructor.name !== "HTMLInputElement") {
-            // del
+                // del
                 const item = this._graph.selectedItem;
                 switch (item.type) {
                     case 'NODE': {
@@ -440,7 +440,7 @@ Object.assign(pcui, (function () {
         _handleIncomingUpdates(path, newValue, oldValue) {
             if (!this._suppressGraphDataEvents) {
                 if (path === 'data') {
-                    const updates = this._graph.diff(oldValue, newValue);
+                    const updates = window.diff.default(oldValue, newValue);
                     if (updates.states) {
                         Object.keys(updates.states).forEach(stateKey => {
                             if (stateKey.includes('__added')) {
@@ -507,15 +507,19 @@ Object.assign(pcui, (function () {
         _createGraph() {
             this._graphElement.setAttribute('style', 'display: block;');
             const initialGraphData = this._generateGraphData(this._selectedLayer);
-            this._graph = new pcuiGraph.Graph({
+            this._graph = new pcuiGraph.Graph(animSchema, {
                 dom: this._graphElement,
-                graphData: initialGraphData,
-                graphSchema: animSchema,
+                initialData: initialGraphData,
                 contextMenuItems: animContextMenuItems,
-                config: {
-                    adjustVertices: true,
-                    readOnly: this.parent.readOnly,
-                    incrementNodeNames: true
+                readOnly: this.parent.readOnly,
+                includeFonts: false,
+                incrementNodeNames: true,
+                passiveUIEvents: true,
+                useGlobalPCUI: true,
+                defaultStyles: {
+                    background: {
+                        gridSize: 10
+                    }
                 }
             });
         }
@@ -535,101 +539,82 @@ Object.assign(pcui, (function () {
             this._suppressGraphDataEvents = false;
         }
 
-        _onAddNode(node) {
-            this._suppressGraphEvents(() => {
-                const data = this._assets[0].get(`data`);
-                data.states[node.id] = Object.assign({}, node, node.attributes);
-                delete data.states[node.id].attributes;
-                if (!data.layers[this._selectedLayer].states.includes(node.id)) {
-                    data.layers[this._selectedLayer].states.push(node.id);
-                }
-                this._assets[0].set('data', data);
-            });
+        _onAddNode({ node }) {
+            const data = this._assets[0].get(`data`);
+            data.states[node.id] = Object.assign({}, node, node.attributes);
+            delete data.states[node.id].attributes;
+            if (!data.layers[this._selectedLayer].states.includes(node.id)) {
+                data.layers[this._selectedLayer].states.push(node.id);
+            }
+            this._assets[0].set('data', data);
         }
 
-        _onDeleteNode(node, edges) {
-            this._suppressGraphEvents(() => {
-                const data = this._assets[0].get(`data`);
-                if (data.layers[this._selectedLayer].states.includes(node.id)) {
-                    data.layers[this._selectedLayer].states.splice(data.layers[this._selectedLayer].states.indexOf(node.id), 1);
+        _onDeleteNode({ node, edges }) {
+            const data = this._assets[0].get(`data`);
+            if (data.layers[this._selectedLayer].states.includes(node.id)) {
+                data.layers[this._selectedLayer].states.splice(data.layers[this._selectedLayer].states.indexOf(node.id), 1);
+            }
+            delete data.states[node.id];
+            edges.forEach(edge => {
+                edge = Number(edge);
+                if (data.layers[this._selectedLayer].transitions.includes(edge)) {
+                    data.layers[this._selectedLayer].transitions.splice(data.layers[this._selectedLayer].transitions.indexOf(edge), 1);
                 }
-                delete data.states[node.id];
-                edges.forEach(edge => {
-                    edge = Number(edge);
-                    if (data.layers[this._selectedLayer].transitions.includes(edge)) {
-                        data.layers[this._selectedLayer].transitions.splice(data.layers[this._selectedLayer].transitions.indexOf(edge), 1);
-                    }
 
-                    const edgeData = data.transitions[edge];
-                    if (edgeData && this._parent._transitionsContainer._edge === `${edgeData.from}-${edgeData.to}`) {
-                        this._parent._transitionsContainer.unlink();
-                    }
-                    delete data.transitions[edge];
-                });
-                this._assets[0].set('data', data);
+                const edgeData = data.transitions[edge];
+                if (edgeData && this._parent._transitionsContainer._edge === `${edgeData.from}-${edgeData.to}`) {
+                    this._parent._transitionsContainer.unlink();
+                }
+                delete data.transitions[edge];
             });
+            this._assets[0].set('data', data);
             if (this._parent._stateContainer._stateName === node.name) {
                 this._parent._stateContainer.unlink();
             }
         }
 
-        _onUpdateNodePosition(node) {
-            this._suppressGraphEvents(() => {
-                const state = this._assets[0].get(`data.states.${node.id}`);
-                state.posX = node.posX;
-                state.posY = node.posY;
-                this._assets[0].set(`data.states.${node.id}`, state);
-            });
+        _onUpdateNodePosition({ node }) {
+            const state = this._assets[0].get(`data.states.${node.id}`);
+            state.posX = node.posX;
+            state.posY = node.posY;
+            this._assets[0].set(`data.states.${node.id}`, state);
         }
 
-        _onUpdateNodeAttribute(node, attribute) {
-            this._suppressGraphEvents(() => {
-                const state = this._assets[0].get(`data.states.${node.id}`);
-                state[attribute] = node.attributes[attribute];
-                this._assets[0].set(`data.states.${node.id}`, state);
-            });
+        _onUpdateNodeAttribute({ node, attribute }) {
+            const state = this._assets[0].get(`data.states.${node.id}`);
+            state[attribute] = node.attributes[attribute];
+            this._assets[0].set(`data.states.${node.id}`, state);
         }
 
-        _onAddEdge(edge, edgeId) {
+        _onAddEdge({ edge, edgeId }) {
             edgeId = Number(edgeId);
-            this._suppressGraphEvents(() => {
-                const data = this._assets[0].get(`data`);
-                if (!data.layers[this._selectedLayer].transitions.includes(edgeId)) {
-                    data.layers[this._selectedLayer].transitions.push(edgeId);
-                }
-                data.transitions[edgeId] = Object.assign({}, edge);
-                this._assets[0].set('data', data);
-            });
-        }
-
-        _onDeleteEdge(edgeId, suppressEvents) {
-            edgeId = Number(edgeId);
-            const deleteEdge = () => {
-                const data = this._assets[0].get(`data`);
-
-                if (data.layers[this._selectedLayer].transitions.includes(edgeId)) {
-                    data.layers[this._selectedLayer].transitions.splice(data.layers[this._selectedLayer].transitions.indexOf(edgeId), 1);
-                }
-                delete data.transitions[edgeId];
-                this._assets[0].set('data', data);
-            };
-            if (suppressEvents) {
-                this._suppressGraphEvents(() => {
-                    deleteEdge();
-                });
-            } else {
-                deleteEdge();
+            const data = this._assets[0].get(`data`);
+            if (!data.layers[this._selectedLayer].transitions.includes(edgeId)) {
+                data.layers[this._selectedLayer].transitions.push(edgeId);
             }
+            data.transitions[edgeId] = Object.assign({}, edge);
+            this._assets[0].set('data', data);
         }
 
-        _onSelectNode(node) {
+        _onDeleteEdge({ edgeId }) {
+            edgeId = Number(edgeId);
+            const data = this._assets[0].get(`data`);
+
+            if (data.layers[this._selectedLayer].transitions.includes(edgeId)) {
+                data.layers[this._selectedLayer].transitions.splice(data.layers[this._selectedLayer].transitions.indexOf(edgeId), 1);
+            }
+            delete data.transitions[edgeId];
+            this._assets[0].set('data', data);
+        }
+
+        _onSelectNode({ node }) {
             this._parent._transitionsContainer.unlink();
             this._parent._transitionsContainer.hidden = true;
             this._parent._stateContainer.link(this._assets, this._selectedLayer, `data.states.${node.id}`);
             this._parent._stateContainer.hidden = false;
         }
 
-        _onSelectEdge(edge) {
+        _onSelectEdge({ edge }) {
             this._parent._stateContainer.unlink();
             this._parent._stateContainer.hidden = true;
             this._parent._transitionsContainer.link(this._assets, this._selectedLayer, edge);
@@ -650,29 +635,17 @@ Object.assign(pcui, (function () {
 
             this._createGraph();
 
-            this._graph.on(GRAPH_ACTIONS.ADD_NODE, (node) => {
-                this._onAddNode(node);
-            });
+            this._graph.on(GRAPH_ACTIONS.ADD_NODE, this._onAddNode.bind(this));
 
-            this._graph.on(GRAPH_ACTIONS.DELETE_NODE, ({ node, edges }) => {
-                this._onDeleteNode(node, edges);
-            });
+            this._graph.on(GRAPH_ACTIONS.DELETE_NODE, this._onDeleteNode.bind(this));
 
-            this._graph.on(GRAPH_ACTIONS.UPDATE_NODE_POSITION, (node) => {
-                this._onUpdateNodePosition(node);
-            });
+            this._graph.on(GRAPH_ACTIONS.UPDATE_NODE_POSITION, this._onUpdateNodePosition.bind(this));
 
-            this._graph.on(GRAPH_ACTIONS.UPDATE_NODE_ATTRIBUTE, ({ node, attribute }) => {
-                this._onUpdateNodeAttribute(node, attribute);
-            });
+            this._graph.on(GRAPH_ACTIONS.UPDATE_NODE_ATTRIBUTE, this._onUpdateNodeAttribute.bind(this));
 
-            this._graph.on(GRAPH_ACTIONS.ADD_EDGE, ({ edge, edgeId }) => {
-                this._onAddEdge(edge, edgeId);
-            });
+            this._graph.on(GRAPH_ACTIONS.ADD_EDGE, this._onAddEdge.bind(this));
 
-            this._graph.on(GRAPH_ACTIONS.DELETE_EDGE, ({ edgeId }) => {
-                this._onDeleteEdge(edgeId, true);
-            });
+            this._graph.on(GRAPH_ACTIONS.DELETE_EDGE, this._onDeleteEdge.bind(this));
 
             this._graph.on(GRAPH_ACTIONS.SELECT_NODE, ({ node, prevItem }) => {
                 if (this._suppressGraphDataEvents) return;
@@ -681,8 +654,8 @@ Object.assign(pcui, (function () {
                     redo: () => {
                         if (this._assets[0].get('id') !== assetId) return;
                         this._suppressGraphEvents(() => {
-                            this._onSelectNode(node);
-                            this._graph.selectNode(node, true);
+                            this._onSelectNode({ node });
+                            this._graph.selectNode(node);
                         });
                     },
                     undo: () => {
@@ -692,26 +665,27 @@ Object.assign(pcui, (function () {
                                 switch (prevItem.type) {
                                     case 'NODE': {
                                         const prevNode = this._graph._graphData.get(`data.nodes.${prevItem.id}`);
-                                        this._graph.selectNode(prevNode, true);
-                                        this._onSelectNode(prevNode);
+                                        this._graph.selectNode(prevNode);
+                                        this._onSelectNode({ prevNode });
                                         break;
                                     }
                                     case 'EDGE': {
                                         const prevEdge = this._graph._graphData.get(`data.edges.${prevItem.edgeId}`);
-                                        this._graph.selectEdge(prevEdge, prevItem.edgeId, true);
-                                        this._onSelectEdge(prevEdge);
+                                        this._graph.selectEdge(prevEdge, prevItem.edgeId);
+                                        this._onSelectEdge({ prevEdge });
                                         break;
                                     }
                                 }
                             } else {
                                 this._onDeselectItem();
-                                this._graph.deselectItem(true);
+                                this._graph.deselectItem();
                             }
                         });
                     },
                     name: 'select node'
                 });
-                this._onSelectNode(node);
+                this._onSelectNode({ node });
+                this._graph.selectNode(node);
             });
 
             this._graph.on(GRAPH_ACTIONS.SELECT_EDGE, ({ edge, edgeId }) => {
@@ -721,20 +695,21 @@ Object.assign(pcui, (function () {
                     redo: () => {
                         if (this._assets[0].get('id') !== assetId) return;
                         this._suppressGraphEvents(() => {
-                            this._onSelectEdge(edge);
-                            this._graph.selectEdge(edge, edgeId, true);
+                            this._onSelectEdge({ edge });
+                            this._graph.selectEdge({ edge, edgeId });
                         });
                     },
                     undo: () => {
                         if (this._assets[0].get('id') !== assetId) return;
                         this._suppressGraphEvents(() => {
                             this._onDeselectItem();
-                            this._graph.deselectItem(true);
+                            this._graph.deselectItem();
                         });
                     },
                     name: 'select edge'
                 });
-                this._onSelectEdge(edge);
+                this._onSelectEdge({ edge });
+                this._graph.selectEdge(edge, edgeId);
             });
 
             this._graph.on(GRAPH_ACTIONS.DESELECT_ITEM, ({ type, id, edgeId }) => {
@@ -745,7 +720,7 @@ Object.assign(pcui, (function () {
                         if (this._assets[0].get('id') !== assetId) return;
                         this._suppressGraphEvents(() => {
                             this._onDeselectItem();
-                            this._graph.deselectItem(true);
+                            this._graph.deselectItem();
                         });
                     },
                     undo: () => {
@@ -755,14 +730,14 @@ Object.assign(pcui, (function () {
                                 case 'NODE': {
 
                                     const node = this._graph._graphData.get(`data.nodes.${id}`);
-                                    this._graph.selectNode(node, true);
-                                    this._onSelectNode(node);
+                                    this._graph.selectNode(node);
+                                    this._onSelectNode({ node });
                                     break;
                                 }
                                 case 'EDGE': {
                                     const edge = this._graph._graphData.get(`data.edges.${edgeId}`);
-                                    this._graph.selectEdge(edge, edgeId, true);
-                                    this._onSelectEdge(edge);
+                                    this._graph.selectEdge(edge, edgeId);
+                                    this._onSelectEdge({ edge });
                                     break;
                                 }
                             }
@@ -771,6 +746,7 @@ Object.assign(pcui, (function () {
                     name: 'deselect item'
                 });
                 this._onDeselectItem();
+                this._graph.deselectItem();
             });
 
             const getGraphSettings = () => {

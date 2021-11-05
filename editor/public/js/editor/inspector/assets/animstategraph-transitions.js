@@ -212,7 +212,7 @@ Object.assign(pcui, (function () {
                 transitionPanel.disabled = transition.defaultTransition;
 
                 transitionPanel.on('click:remove', () => {
-                    this._view._onDeleteEdge(transitionId);
+                    this._view._onDeleteEdge({ edgeId: transitionId });
                     if (this._assets) {
                         this.link(this._assets, layer, edge);
                     }
