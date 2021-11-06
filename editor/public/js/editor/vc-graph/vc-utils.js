@@ -3,14 +3,14 @@ editor.once('load', function () {
 
     const COORD_OFFSETS = { x: 80, y: 50 };
 
-    const COORD_COEFS = { x: 250, y: 95 };
+    const COORD_COEFS = { x: 265, y: 105 };
 
     const GRAPH_DEFAULTS = {
         passiveUIEvents: false,
         includeFonts: false,
         useGlobalPCUI: true,
         defaultStyles: {
-            initialScale: 0.65,
+            initialScale: 0.6,
             background: {
                 color: '#20292B',
                 gridSize: 1
@@ -26,8 +26,8 @@ editor.once('load', function () {
 
     const NODE_DEFAULTS = {
         textColor: '#20292b',
-        baseHeight: 65,
-        baseWidth: 180,
+        baseHeight: 70,
+        baseWidth: 190,
         textAlignMiddle: true,
         includeIcon: false
     };

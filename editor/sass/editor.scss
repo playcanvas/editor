@@ -8494,8 +8494,15 @@ strong {
     }
 }
 
-.ui-panel.vc-graph-panel .joint-element {
-    cursor: pointer !important;
+.ui-panel.vc-graph-panel {
+    .joint-element {
+        cursor: pointer;
+    }
+
+    .v-line {
+        font-family: Arial, sans-serif;
+        font-size: 13px;
+    }
 }
 
 .ui-overlay.picker-conflict-manager {
