@@ -663,7 +663,7 @@ Object.assign(pcui, (function () {
             const menu = editor.call('assets:contextmenu:create');
             const rect = this._btnNew.dom.getBoundingClientRect();
             menu.position(rect.right, rect.top);
-            menu.open = true;
+            menu.hidden = false;
         }
 
         // Shows asset delete picker
