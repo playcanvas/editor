@@ -7,3 +7,80 @@
     margin: 6px;
 }
 
+.anim-component-mask-button-container {
+    flex-direction: row;
+}
+
+.anim-component-edit-mask-button {
+    margin-bottom: 0px;
+    flex-grow: 1;
+}
+.anim-component-delete-mask-button {
+    margin-bottom: 0px;
+    margin-left: 0px;
+}
+
+.anim-component-boolean-input-item {
+    .pcui-treeview-item-contents {
+        .pcui-boolean-input {
+            margin-left: 4px;
+            min-width: 14px;
+            z-index: 1;
+        }
+    }
+}
+
+.anim-component-boolean-input-item > .pcui-treeview-item-contents > .pcui-treeview-item-icon:after {
+    display: none;
+}
+
+.anim-component-boolean-input-item.root-item > .pcui-treeview-item-contents:before {
+    display: none;
+}
+
+.anim-component-mask-inspector-close-button {
+    position: fixed;
+    right: 0px;
+    top: 0px;
+    width: 32px;
+    height: 32px;
+    color: rgba(255,255,255,0.75);
+    background-color: $bcg-dark;
+    border: none;
+    margin: 0;
+}
+
+.anim-component-mask-inspector-add-all-button {
+    width: calc(50% - 9px);
+    margin-right: 0;
+}
+
+.anim-component-mask-inspector-remove-all-button {
+    width: calc(50% - 9px);
+    margin-right: 0;
+}
+
+.anim-component-mask-inspector-toggle-selected-button {
+    width: calc(100% - 12px);
+    margin-top: 0px;
+}
+
+.anim-component-mask-inspector-close-button[data-icon]:before {
+    font-size: 28px;
+    position: absolute;
+    left: 2px;
+    top: -2px;
+    line-height: 34px;
+}
+
+.anim-component-mask-inspector {
+    height: 100%;
+}
+
+.anim-component-mask-inspector .pcui-treeview {
+    overflow: scroll;
+    height: calc(100% - 40px);
+    position: absolute;
+    width: 100%;
+    min-width: inherit !important;
+}

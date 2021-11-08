@@ -134,7 +134,9 @@ Object.assign(pcui, (function () {
             layers[key] = {
                 name: name || `New Layer`,
                 states: [startStateId, anyStateId, endStateId, stateId],
-                transitions: [transitionId]
+                transitions: [transitionId],
+                blendType: 'OVERWRITE',
+                weight: 1
             };
             data.layers = layers;
 
@@ -263,6 +265,33 @@ Object.assign(pcui, (function () {
                             args: {
                                 type: 'string',
                                 options: []
+                            }
+                        },
+                        {
+                            label: 'Blend Type',
+                            path: `data.layers.${layerKey}.blendType`,
+                            type: 'select',
+                            args: {
+                                type: 'string',
+                                options: [
+                                    {
+                                        v: 'OVERWRITE',
+                                        t: 'Overwrite'
+                                    },
+                                    {
+                                        v: 'ADDITIVE',
+                                        t: 'Additive'
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            label: 'Blend Weight',
+                            path: `data.layers.${layerKey}.weight`,
+                            type: 'slider',
+                            args: {
+                                min: 0,
+                                max: 1
                             }
                         }
                     ]
