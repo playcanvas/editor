@@ -225,7 +225,7 @@ Object.assign(pcui, (function () {
                 case 'EDGE': {
                     const edge = this._assets[0].get(`data.transitions.${item.edgeId}`);
                     this._graph.selectEdge(edge, item.edgeId);
-                    this._onSelectEdge({ edge });
+                    this.onSelectEdge({ edge });
                     break;
                 }
             }
@@ -614,7 +614,7 @@ Object.assign(pcui, (function () {
             this._parent._stateContainer.hidden = false;
         }
 
-        _onSelectEdge({ edge }) {
+        onSelectEdge({ edge }) {
             this._parent._stateContainer.unlink();
             this._parent._stateContainer.hidden = true;
             this._parent._transitionsContainer.link(this._assets, this._selectedLayer, edge);
@@ -626,6 +626,27 @@ Object.assign(pcui, (function () {
             this._parent._stateContainer.hidden = true;
             this._parent._transitionsContainer.unlink();
             this._parent._transitionsContainer.hidden = true;
+        }
+
+        selectEdgeEvent(edge, edgeId) {
+            if (this._suppressGraphDataEvents) return;
+            this.parent.history.add({
+                redo: () => {
+                    this._suppressGraphEvents(() => {
+                        this.onSelectEdge({ edge });
+                        this._graph.selectEdge(edge, edgeId);
+                    });
+                },
+                undo: () => {
+                    this._suppressGraphEvents(() => {
+                        this._onDeselectItem();
+                        this._graph.deselectItem();
+                    });
+                },
+                name: 'select edge'
+            });
+            this._graph.selectEdge(edge, edgeId);
+            this.onSelectEdge({ edge });
         }
 
         link(assets, layer) {
@@ -672,7 +693,7 @@ Object.assign(pcui, (function () {
                                     case 'EDGE': {
                                         const prevEdge = this._graph._graphData.get(`data.edges.${prevItem.edgeId}`);
                                         this._graph.selectEdge(prevEdge, prevItem.edgeId);
-                                        this._onSelectEdge({ prevEdge });
+                                        this.onSelectEdge({ prevEdge });
                                         break;
                                     }
                                 }
@@ -689,27 +710,7 @@ Object.assign(pcui, (function () {
             });
 
             this._graph.on(GRAPH_ACTIONS.SELECT_EDGE, ({ edge, edgeId }) => {
-                if (this._suppressGraphDataEvents) return;
-                const assetId = this._assets[0].get('id');
-                this.parent.history.add({
-                    redo: () => {
-                        if (this._assets[0].get('id') !== assetId) return;
-                        this._suppressGraphEvents(() => {
-                            this._onSelectEdge({ edge });
-                            this._graph.selectEdge({ edge, edgeId });
-                        });
-                    },
-                    undo: () => {
-                        if (this._assets[0].get('id') !== assetId) return;
-                        this._suppressGraphEvents(() => {
-                            this._onDeselectItem();
-                            this._graph.deselectItem();
-                        });
-                    },
-                    name: 'select edge'
-                });
-                this._onSelectEdge({ edge });
-                this._graph.selectEdge(edge, edgeId);
+                this.selectEdgeEvent(edge, edgeId);
             });
 
             this._graph.on(GRAPH_ACTIONS.DESELECT_ITEM, ({ type, id, edgeId }) => {
@@ -737,7 +738,7 @@ Object.assign(pcui, (function () {
                                 case 'EDGE': {
                                     const edge = this._graph._graphData.get(`data.edges.${edgeId}`);
                                     this._graph.selectEdge(edge, edgeId);
-                                    this._onSelectEdge({ edge });
+                                    this.onSelectEdge({ edge });
                                     break;
                                 }
                             }

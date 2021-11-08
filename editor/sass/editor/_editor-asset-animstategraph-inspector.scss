@@ -1,21 +1,59 @@
 .asset-animstategraph-inspector {
     .asset-animstategraph-inspector-parameter, .asset-animstategraph-inspector-layer, .asset-animstategraph-inspector-state, .asset-animstategraph-inspector-transition {
-        margin: 6px;
-        border: 1px solid #293538;
+        margin: $element-margin;
+        border: 1px solid $bcg-darkest;
     }
 }
 
 .asset-animstategraph-inspector-transitions {
     overflow: visible;
     .asset-animstategraph-inspector-transition {
-        margin: 6px;
-        border: 1px solid #293538;
+        margin: $element-margin;
+        border: 1px solid $bcg-darkest;
         overflow: visible;
     }
 
     > .pcui-button {
         width: calc(100% - 12px);
     }
+}
+
+.asset-animstategraph-inspector-state-transition {
+    background-color: $bcg-dark;
+    border-left: 1px solid $bcg-darker;
+    border-top: 1px solid $bcg-darker;
+    border-right: 1px solid $bcg-darker;
+    margin: 0px $element-margin;
+    flex-grow: 1;
+    cursor: pointer;
+    width: calc(100% - 12px);
+    line-height: 22px;
+    padding-left: 25px;
+    position: relative;
+    font-size: 11px;
+}
+
+.asset-animstategraph-inspector-state-transition:hover {
+    background-color: $bcg-darker;
+}
+
+.asset-animstategraph-inspector-state-transition:before {
+    content: '\E166';
+    font-family: 'pc-icon';
+    font-size: 16px;
+    margin-top: $element-margin;
+    position: absolute;
+    top: -5px;
+    left: 4px;
+}
+
+.asset-animstategraph-inspector-state-transition:first-child {
+    margin-top: $element-margin;
+}
+
+.asset-animstategraph-inspector-state-transition:last-child {
+    border-bottom: 1px solid $bcg-darker;
+    margin-bottom: $element-margin;
 }
 
 .asset-animstategraph-inspector-open-button {
@@ -73,7 +111,7 @@
 }
 
 .asset-animstategraph-inspector-container {
-    margin: 6px;
+    margin: $element-margin;
 }
 
 .pcui-animstategraph-condition {

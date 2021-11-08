@@ -3,12 +3,20 @@ Object.assign(pcui, (function () {
 
     const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
     const CLASS_ANIMSTATEGRAPH_STATE = CLASS_ANIMSTATEGRAPH + '-state';
+    const CLASS_ANIMSTATEGRAPH_STATE_TRANSITION = CLASS_ANIMSTATEGRAPH_STATE + '-transition';
     class AnimstategraphState extends pcui.Container {
         constructor(args, view) {
             super(args);
             this._args = args;
             this._view = view;
             this._assets = null;
+            this._assetEvents = [];
+
+            this._transitionsPanel = new pcui.Panel({
+                headerText: 'TRANSITIONS',
+                collapsible: true
+            });
+            this.append(this._transitionsPanel);
 
             this._linkedEntitiesPanel = new pcui.Panel({
                 headerText: 'LINKED ENTITIES',
@@ -16,6 +24,34 @@ Object.assign(pcui, (function () {
                 history: ''
             });
             this.append(this._linkedEntitiesPanel);
+        }
+
+        _loadTransitions() {
+            const state = this._assets[0].get(this._path);
+            this._transitionsPanel.clear();
+            let hasTransitions = false;
+            const data = this._assets[0].get('data');
+            data.layers[this._layer].transitions.sort((a, b) => {
+                const stateA = data.states[data.transitions[a].to];
+                const stateB = data.states[data.transitions[b].to];
+                if (!stateA || !stateB) return 1;
+                return stateA.name > stateB.name ? 1 : -1;
+            }).forEach(transitionId => {
+                const transition = data.transitions[transitionId];
+                if (transition.from !== state.id) return;
+                hasTransitions = true;
+                const toStateName = data.states[transition.to].name;
+                const transitionLabel = new pcui.Label({
+                    text: `${toStateName}`,
+                    class: CLASS_ANIMSTATEGRAPH_STATE_TRANSITION,
+                    ignoreParent: true
+                });
+                this._transitionsPanel.append(transitionLabel);
+                this._assetEvents.push(transitionLabel.on('click', () => {
+                    this._view.selectEdgeEvent(transition, transition.id);
+                }));
+            });
+            this._transitionsPanel.hidden = !hasTransitions;
         }
 
         link(assets, layer, path) {
@@ -78,6 +114,13 @@ Object.assign(pcui, (function () {
                 .includes(value);
                 return !nameExists;
             };
+
+            this._loadTransitions();
+            this._assetEvents.push(this._assets[0].on('*:set', (path) => {
+                if (path.startsWith('data.transitions')) {
+                    this._loadTransitions();
+                }
+            }));
 
             this._linkedEntitiesPanel.hidden = false;
             this.disabled = false;
@@ -151,6 +194,9 @@ Object.assign(pcui, (function () {
                 this._linkEntitiesEvent.unbind();
                 this._linkEntitiesEvent = null;
             }
+
+            this._assetEvents.forEach(event => event.unbind());
+            this._assetEvents.length = 0;
 
             this.parent.headerText = 'INSPECTOR';
             this._enabled = false;
