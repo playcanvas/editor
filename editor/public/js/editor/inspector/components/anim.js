@@ -105,7 +105,7 @@ Object.assign(pcui, (function () {
             const mask = {};
 
             const addEntityAndChildPaths = (entity) => {
-                const path = `${rootEntity.name}${entity.path.replace(rootEntity.path, '')}`;
+                const path = `${rootEntity.name}${entity.path.replace(rootEntity.path, '')}`.replace(/\./g, '%2E');
                 mask[path] = { value: true };
                 entity.children.forEach(child => {
                     addEntityAndChildPaths(child);
@@ -287,7 +287,7 @@ Object.assign(pcui, (function () {
 
             Object.keys(mask).forEach(path => {
                 const pathArr = path.split('/');
-                const name = pathArr[pathArr.length - 1];
+                const name = decodeURI(pathArr[pathArr.length - 1]);
                 const parent = items[pathArr.splice(0, pathArr.length - 1).join('/')] || maskTreeView;
                 const item = createBooleanTreeViewItem(name, path, { class: [CLASS_BOOLEAN_INPUT_ITEM] });
                 parent.append(item);
