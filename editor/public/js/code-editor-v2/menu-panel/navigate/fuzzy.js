@@ -40,9 +40,6 @@ editor.once('load', function () {
             editor.call('picker:fuzzy:open');
         } else {
             editor.call('picker:fuzzy:close');
-            if (editor.call('documents:getFocused')) {
-                monacoEditor.focus();
-            }
         }
     });
 });

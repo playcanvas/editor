@@ -82,6 +82,11 @@ editor.once('load', function () {
         });
     });
 
+    // focus editor when go-to-file closes
+    editor.on('picker:fuzzy:close', () => {
+        monacoEditor.focus();
+    });
+
     // expose
     editor.method('editor:monaco', function () {
         return monacoEditor;
