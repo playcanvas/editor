@@ -5,7 +5,7 @@ editor.once('load', function () {
     var panel = editor.call('layout.top');
 
     var menuProject = new ui.Menu();
-    menuProject.position(215, 33);
+    menuProject.position(245, 33);
     root.append(menuProject);
 
     var btnProject = new ui.Button({

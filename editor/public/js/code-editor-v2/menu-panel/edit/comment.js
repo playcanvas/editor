@@ -2,17 +2,12 @@ editor.once('load', function () {
     'use strict';
 
     var menu = editor.call('menu:edit');
-    var cm = editor.call('editor:codemirror');
-    var mac = navigator.userAgent.indexOf('Mac OS X') !== -1;
+    var me = editor.call('editor:monaco');
+    var ctrl = editor.call('hotkey:ctrl:string');
 
     var canEditLine = function () {
-        return editor.call('editor:resolveConflictMode') || editor.call('documents:getFocused') && !cm.isReadOnly();
+        return editor.call('editor:resolveConflictMode') || editor.call('documents:getFocused') && !editor.call('editor:isReadOnly');
     };
-
-    var group = menu.createItem('command', {
-        title: 'Comment'
-    });
-    menu.append(group);
 
     // toggle comment
     var item = menu.createItem('toggle-comment', {
@@ -23,13 +18,13 @@ editor.once('load', function () {
         }
     });
     item.class.add('noBorder');
-    editor.call('menu:item:setShortcut', item, 'Ctrl+/');
-    group.append(item);
+    editor.call('menu:item:setShortcut', item, ctrl + '+/');
+    menu.append(item);
 
     editor.method('editor:command:toggleComment', function () {
         if (! canEditLine()) return;
-        cm.execCommand('toggleCommentIndented');
-        cm.focus();
+        me.focus();
+        me.trigger(null, 'editor.action.commentLine');
     });
 
     // toggle comment
@@ -40,16 +35,12 @@ editor.once('load', function () {
             return editor.call('editor:command:toggleBlockComment');
         }
     });
-    editor.call('menu:item:setShortcut', item, mac ? 'Alt+Cmd+/' : 'Shift+Ctrl+/');
-    group.append(item);
+    editor.call('menu:item:setShortcut', item, 'Shift+Alt+A');
+    menu.append(item);
 
     editor.method('editor:command:toggleBlockComment', function () {
         if (! canEditLine()) return;
-        var from = cm.getCursor('from');
-        var to = cm.getCursor('to');
-        cm.blockComment(from, to, {
-            fullLines: CodeMirror.cmpPos(from, to) === 0
-        });
-        cm.focus();
+        me.focus();
+        me.trigger(null, 'editor.action.blockComment');
     });
 });

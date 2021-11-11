@@ -1,34 +1,28 @@
 editor.once('load', function () {
     'use strict';
 
-    var panel = editor.call('layout.code');
+    const panel = editor.call('layout.code');
 
-    var cm = editor.call('editor:codemirror');
-    var viewIndex = {};
-    var focusedView = null;
+    var monacoEditor = editor.call('editor:monaco');
+    const viewIndex = {};
+    let focusedView = null;
 
-    var modes = {
+    const modes = {
         script: 'javascript',
-        json: 'javascript',
-        html: 'htmlmixed',
+        json: 'json',
+        html: 'html',
         css: 'css',
-        shader: 'glsl'
+        shader: 'javascript'
     };
 
-    var refreshReadonly = function () {
+    function refreshReadonly() {
         var readonly = editor.call('editor:isReadOnly');
-        var wasReadonly = cm.isReadOnly();
-        if (readonly) {
-            cm.setOption('readOnly', true);
-            cm.setOption('cursorBlinkRate', -1);
-        } else {
-            cm.setOption('readOnly', false);
-            cm.setOption('cursorBlinkRate', 530);
-        }
+        var wasReadonly = monacoEditor.getOption('readOnly');
+        monacoEditor.updateOptions({ readOnly: readonly });
 
         if (readonly !== wasReadonly)
             editor.emit('editor:readonly:change', readonly);
-    };
+    }
 
     // when we select an asset
     // if the asset is not loaded hide
@@ -41,9 +35,9 @@ editor.once('load', function () {
         }
     });
 
-    // When document is loaded create codemirror document
+    // When document is loaded create document
     // and add entry to index
-    editor.on('documents:load', function (doc, asset, docEntry) {
+    editor.on('documents:load', function (doc, asset) {
         var id = asset.get('id');
         if (viewIndex[id]) return;
 
@@ -52,41 +46,32 @@ editor.once('load', function () {
         if (modes[type]) {
             mode = modes[type];
         } else {
-            mode = 'text';
+            mode = null;
         }
 
         var entry = {
             doc: doc,
             type: type,
             asset: asset,
-            view: CodeMirror.Doc(doc.data, mode),
+            view: monaco.editor.createModel(doc.data, mode),
             suppressChanges: false,
-            scrollInfo: null
+            viewState: null
         };
 
-        // emit change
-        // use 'beforeChange' event so that
-        // we capture the state of the document before it's changed.
-        // This is so that we send correct operations to sharedb.
-        entry.view.on('beforeChange', function (view, change) {
+        // emit change event
+        entry.view.onDidChangeContent(evt => {
             if (entry.suppressChanges) return;
 
-            editor.emit('views:change', id, view, change);
-        });
-
-        // called after a change has been made
-        entry.view.on('change', function (view, change) {
-            if (entry.suppressChanges) return;
-
-            editor.emit('views:afterChange', id, view, change);
+            editor.emit('views:change', id, entry.view, evt);
         });
 
         viewIndex[id] = entry;
 
-        editor.emit('views:new:' + id, entry.view);
+        editor.emit('views:new', id, entry.view, type);
+        editor.emit('views:new:' + id, entry.view, type);
     });
 
-    // Focus document in code mirror
+    // Focus document
     editor.on('documents:focus', function (id) {
         if (! viewIndex[id]) {
             // This happens on some rare occasions not sure why yet...
@@ -96,10 +81,10 @@ editor.once('load', function () {
         // unhide code
         panel.toggleCode(true);
 
-        // remember scrolling info for the current view
+        // remember view state for the current view
         // so we can restore it after switching back to it
         if (focusedView) {
-            focusedView.scrollInfo = cm.getScrollInfo();
+            focusedView.viewState = monacoEditor.saveViewState();
         }
 
         if (focusedView && viewIndex[id] === focusedView) {
@@ -116,48 +101,37 @@ editor.once('load', function () {
             focusedView.view.setValue(content);
             focusedView.suppressChanges = false;
 
-            if (! editor.call('documents:isDirty', id))
-                focusedView.view.markClean();
         } else {
             focusedView = viewIndex[id];
 
-            // set doc to code mirror
-            cm.swapDoc(focusedView.view);
+            // set doc to monaco
+            monacoEditor.setModel(focusedView.view);
 
             // change mode options
             if (focusedView.type === 'text') {
-                cm.setOption('lineWrapping', true);
-                cm.setOption('foldGutter', false);
-                cm.setOption('gutters', ['CodeMirror-pc-gutter']);
-            } else {
-                cm.setOption('lineWrapping', false);
-                cm.setOption('foldGutter', true);
-                cm.setOption('gutters', ['CodeMirror-lint-markers', 'CodeMirror-foldgutter']);
-            }
-
-            if (focusedView.type === 'script') {
-                cm.setOption('lint', {
-                    esversion: 11
+                monacoEditor.updateOptions({
+                    wordWrap: 'on',
+                    lineNumbers: true,
+                    folding: false
                 });
             } else {
-                cm.setOption('lint', false);
+                monacoEditor.updateOptions({
+                    wordWrap: 'off',
+                    lineNumbers: true,
+                    folding: true
+                });
             }
-
-            cm.refresh();
         }
 
         refreshReadonly();
 
-        // reset cursor
-        cm.setSelections(focusedView.view.listSelections());
-
         // focus editor
         setTimeout(function () {
-            cm.focus();
+            monacoEditor.focus();
 
-            // set scroll position
-            if (focusedView.scrollInfo) {
-                cm.scrollTo(focusedView.scrollInfo.left, focusedView.scrollInfo.top);
+            // restore state
+            if (focusedView.viewState) {
+                monacoEditor.restoreViewState(focusedView.viewState);
             }
         });
     });
@@ -170,12 +144,16 @@ editor.once('load', function () {
             // but suppress changes to the doc
             // to avoid sending them to sharedb
             focusedView.suppressChanges = true;
-            cm.setValue('');
-            cm.clearHistory();
+            monacoEditor.setValue('');
 
             panel.toggleCode(false);
 
             focusedView = null;
+        }
+
+        const entry = viewIndex[id];
+        if (entry && entry.view) {
+            entry.view.dispose();
         }
 
         delete viewIndex[id];
@@ -189,7 +167,7 @@ editor.once('load', function () {
 
     // Get focused document
     editor.method('editor:focusedView', function () {
-        return focusedView;
+        return focusedView && focusedView.view;
     });
 
     editor.on('documents:error', function () {
@@ -206,7 +184,7 @@ editor.once('load', function () {
     // set code editor to readonly if necessary
     editor.on('permissions:writeState', refreshReadonly);
 
-    // Returns the codemirror view for an id
+    // Returns the monaco view for an id
     editor.method('views:get', function (id) {
         var entry = viewIndex[id];
         return entry ? entry.view : null;

@@ -3,7 +3,7 @@ editor.once('load', function () {
 
     var menu = editor.call('menu:navigate');
     var ctrl = editor.call('hotkey:ctrl:string');
-    var cm = editor.call('editor:codemirror');
+    var monacoEditor = editor.call('editor:monaco');
     var isFuzzyOpen = false;
 
     editor.on('picker:fuzzy:open', function () {
@@ -15,10 +15,10 @@ editor.once('load', function () {
     });
 
     // Go to anything
-    var item = menu.createItem('go-to-anything', {
-        title: 'Go To Anything',
+    var item = menu.createItem('go-to-file', {
+        title: 'Go To File',
         select: function () {
-            editor.call('editor:command:goToAnything');
+            editor.call('editor:command:goToFile');
         }
     });
     editor.call('menu:item:setShortcut', item, ctrl + '+P');
@@ -26,22 +26,23 @@ editor.once('load', function () {
 
     // hotkey
     if (! editor.call('editor:resolveConflictMode')) {
-        editor.call('hotkey:register', 'go-to-anything', {
+        editor.call('hotkey:register', 'go-to-file', {
             key: 'p',
             ctrl: true,
             callback: function () {
-                editor.call('editor:command:goToAnything');
+                editor.call('editor:command:goToFile');
             }
         });
     }
 
-    editor.method('editor:command:goToAnything', function () {
+    editor.method('editor:command:goToFile', function () {
         if (! isFuzzyOpen) {
             editor.call('picker:fuzzy:open');
         } else {
             editor.call('picker:fuzzy:close');
-            if (editor.call('documents:getFocused'))
-                cm.focus();
+            if (editor.call('documents:getFocused')) {
+                monacoEditor.focus();
+            }
         }
     });
 });

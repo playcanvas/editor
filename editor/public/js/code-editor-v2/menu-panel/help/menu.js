@@ -5,7 +5,7 @@ editor.once('load', function () {
     var panel = editor.call('layout.top');
 
     var menuHelp = new ui.Menu();
-    menuHelp.position(279, 33);
+    menuHelp.position(310, 33);
     root.append(menuHelp);
 
     var btnHelp = new ui.Button({

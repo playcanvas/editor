@@ -5,7 +5,7 @@ editor.once('load', function () {
     var panel = editor.call('layout.top');
 
     var menuNavigate = new ui.Menu();
-    menuNavigate.position(138, 33);
+    menuNavigate.position(168, 33);
     root.append(menuNavigate);
 
     var btnNavigate = new ui.Button({

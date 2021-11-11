@@ -50,7 +50,7 @@ editor.once('load', function () {
         }
     };
 
-    editor.method('editor:search:files', function (regex, filter) {
+    editor.method('editor:search:files', function (regex) {
         editor.emit('editor:search:files:start');
 
         lastSearchId++;

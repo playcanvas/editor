@@ -3,8 +3,7 @@ editor.once('load', function () {
 
     var filePanelReady = false;
     var queue = [];
-    var codePanel = editor.call('layout.code');
-    var cm = editor.call('editor:codemirror');
+    var monacoEditor = editor.call('editor:monaco');
 
     var events = {};
 
@@ -15,23 +14,28 @@ editor.once('load', function () {
         if (! view) return;
 
         setTimeout(function () {
-            view.setCursor(line - 1, col - 1);
+            if (view !== editor.call('editor:focusedView')) return;
+
+            monacoEditor.setPosition({
+                lineNumber: line,
+                column: col
+            });
 
             if (options.error) {
-                codePanel.class.add('error');
-                var clearError = function () {
-                    codePanel.class.remove('error');
-                    cm.off('beforeSelectionChange', clearError);
-                };
-                cm.on('beforeSelectionChange', clearError);
+                monaco.editor.setTheme('playcanvas-error');
+                let evtCursorChanged = monacoEditor.onDidChangeCursorPosition(() => {
+                    monaco.editor.setTheme('playcanvas');
+
+                    evtCursorChanged.dispose();
+                    evtCursorChanged = null;
+                });
             }
 
-            cm.scrollIntoView(null, document.body.clientHeight / 2);
-            cm.focus();
-        });
+            monacoEditor.focus();
 
-        if (options.callback)
-            options.callback();
+            if (options.callback)
+                options.callback();
+        });
     };
 
     var selectAndHighlight = function (id, options) {

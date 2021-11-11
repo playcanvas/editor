@@ -45,7 +45,7 @@ editor.once('load', function () {
             notJson: true
         })
         .on('load', function (status, data) {
-            // replace \r and \r\n with \n like codemirror does
+            // replace \r and \r\n with \n
             data = data.replace(/\r\n?/g, '\n');
 
             // store in cache

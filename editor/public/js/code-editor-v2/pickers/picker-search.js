@@ -3,7 +3,7 @@ editor.once('load', function () {
 
     var parent = editor.call('layout.center');
     var codePanel = editor.call('layout.code');
-    var cm = editor.call('editor:codemirror');
+    const monacoEditor = editor.call('editor:monaco');
 
     var panel = new ui.Panel();
     panel.flex = true;
@@ -40,9 +40,10 @@ editor.once('load', function () {
     searchField.class.add('search');
     searchField.renderChanges = false;
     searchField.keyChange = true;
-    searchField.elementInput.placeholder = 'Find';
+    searchField.elementInput.placeholder = 'Find in files';
     // prevent default behaviour on browser shortcuts
     searchField.elementInput.classList.add('hotkeys');
+    searchField.elementInput.addEventListener('keydown', onInputKeyDown);
     panel.append(searchField);
 
     var error = new ui.Label();
@@ -50,53 +51,11 @@ editor.once('load', function () {
     error.hidden = true;
     searchField.element.appendChild(error.element);
 
-    var btnFindPrev = new ui.Button({
-        'text': '&#57698;'
-    });
-    btnFindPrev.class.add('icon');
-    btnFindPrev.element.tabIndex = -1;
-    panel.append(btnFindPrev);
-
-    var btnFindNext = new ui.Button({
-        'text': '&#57700;'
-    });
-    btnFindNext.class.add('icon');
-    btnFindNext.element.tabIndex = -1;
-    panel.append(btnFindNext);
-
     var btnFindInFiles = new ui.Button({
         'text': 'Find'
     });
     btnFindInFiles.element.tabIndex = -1;
     panel.append(btnFindInFiles);
-
-    var replaceField = new ui.TextField();
-    replaceField.class.add('replace');
-    replaceField.renderChanges = false;
-    replaceField.keyChange = true;
-    replaceField.elementInput.placeholder = 'Replace';
-    replaceField.elementInput.classList.add('hotkeys');
-    panel.append(replaceField);
-
-    replaceField.on('input:focus', function () {
-        replaceField.class.add('focused');
-    });
-
-    replaceField.on('input:blur', function () {
-        replaceField.class.remove('focused');
-    });
-
-    var btnReplace = new ui.Button({
-        text: 'Replace'
-    });
-    btnReplace.element.tabIndex = -1;
-    panel.append(btnReplace);
-
-    var btnReplaceAll = new ui.Button({
-        text: 'Replace All'
-    });
-    btnReplaceAll.element.tabIndex = -1;
-    panel.append(btnReplaceAll);
 
     // Tooltips
     Tooltip.attach({
@@ -120,28 +79,6 @@ editor.once('load', function () {
         root: editor.call('layout.root')
     });
 
-    Tooltip.attach({
-        target: btnFindPrev.element,
-        text: 'Find Previous',
-        align: 'bottom',
-        root: editor.call('layout.root')
-    });
-
-    Tooltip.attach({
-        target: btnFindNext.element,
-        text: 'Find Next',
-        align: 'bottom',
-        root: editor.call('layout.root')
-    });
-
-    Tooltip.attach({
-        target: replaceField.element,
-        text: 'Use $0-9 to insert the text of capturing groups.',
-        align: 'bottom',
-        root: editor.call('layout.root')
-    });
-
-
     var regexp = null;
     var caseSensitive = false;
     var isRegex = false;
@@ -151,7 +88,6 @@ editor.once('load', function () {
     var searchTimeout = null;
 
     var open = false;
-    var findInFiles = false;
     var suspendChangeEvt = false;
 
     // Returns the picker panel
@@ -168,29 +104,6 @@ editor.once('load', function () {
         panel.style.height = '0px';
         codePanel.style.height = 'calc(100% - 32px)';
     };
-
-    var toggleFindInFilesMode = function (toggle) {
-        findInFiles = toggle;
-        if (findInFiles) {
-            searchField.elementInput.placeholder = 'Find in files';
-            replaceField.hidden = true;
-            btnReplace.hidden = true;
-            btnReplaceAll.hidden = true;
-            btnFindNext.hidden = true;
-            btnFindPrev.hidden = true;
-            btnFindInFiles.hidden = false;
-        } else {
-            searchField.elementInput.placeholder = 'Find';
-            replaceField.hidden = false;
-            btnReplace.hidden = false;
-            btnReplaceAll.hidden = false;
-            btnFindNext.hidden = false;
-            btnFindPrev.hidden = false;
-            btnFindInFiles.hidden = true;
-        }
-    };
-
-    toggleFindInFilesMode(false);
 
     var onTransitionEnd;
 
@@ -241,25 +154,35 @@ editor.once('load', function () {
         }
     };
 
+    function onKeyDown(evt) {
+        // close picker on esc
+        if (evt.keyCode === 27) {
+            editor.call('picker:search:close');
+        }
+    }
+
+    function onInputKeyDown(evt) {
+        // select input text on ctrl + shift + f
+        if (evt.ctrlKey || evt.metaKey) {
+            if (evt.shiftKey && evt.keyCode === 70) {
+                searchField.elementInput.select();
+            }
+        }
+    }
+
     var openPicker = function () {
         if (! open) {
             open = true;
             panel.hidden = false;
             growPicker();
-            if (findInFiles) {
-                editor.emit('picker:search:files:open');
-            } else {
-                editor.emit('picker:search:open');
-            }
+            editor.emit('picker:search:open');
         }
 
         // set search field to selected text in the editor
         // if there is any otherwise keep existing search field value
-        if (cm.somethingSelected()) {
-            var from = cm.getCursor('from');
-            var to = cm.getCursor('to');
+        if (!monacoEditor.getSelection().isEmpty()) {
             suspendChangeEvt = true;
-            searchField.value = cm.getRange(from, to);
+            searchField.value = monacoEditor.getModel().getValueInRange(monacoEditor.getSelection());
             suspendChangeEvt = false;
         }
 
@@ -268,74 +191,20 @@ editor.once('load', function () {
 
         // update search query and view search overlay
         updateQuery();
-        cm.execCommand('viewSearch');
+        // cm.execCommand('viewSearch');
+
+        window.addEventListener('keydown', onKeyDown);
     };
 
-    // Open and focus search picker
     editor.method('picker:search:open', function (instantToggleMode) {
         onTransitionEnd = null;
-
-        if (findInFiles) {
-            if (open && !instantToggleMode) {
-                onTransitionEnd = function () {
-                    open = false;
-                    editor.emit('picker:search:files:close');
-                    toggleFindInFilesMode(false);
-                    openPicker();
-                };
-                if (panel.style.height !== '0px') {
-                    shrinkPicker();
-                } else {
-                    onTransitionEnd();
-                }
-            } else {
-                if (open) {
-                    open = false;
-                    editor.emit('picker:search:files:close');
-                }
-
-                toggleFindInFilesMode(false);
-                openPicker();
-            }
-        } else {
-            openPicker();
-        }
-    });
-
-    // Make this work in find-in-files mode
-    editor.method('picker:search:files:open', function (instantToggleMode) {
-        onTransitionEnd = null;
-
-        if (! findInFiles) {
-            if (open && !instantToggleMode) {
-                onTransitionEnd = function () {
-                    open = false;
-                    editor.emit('picker:search:close');
-                    toggleFindInFilesMode(true);
-                    openPicker();
-                };
-                if (panel.style.height !== '0px') {
-                    shrinkPicker();
-                } else {
-                    onTransitionEnd();
-                }
-            } else {
-                if (open) {
-                    open = false;
-                    editor.emit('picker:search:close');
-                }
-                onTransitionEnd = null;
-                toggleFindInFilesMode(true);
-                openPicker();
-            }
-        } else {
-            onTransitionEnd = null;
-            openPicker();
-        }
+        openPicker();
     });
 
     // Close picker and focus editor
     editor.method('picker:search:close', function () {
+        window.removeEventListener('keydown', onKeyDown);
+
         onTransitionEnd = null;
         if (! open) return;
 
@@ -347,21 +216,11 @@ editor.once('load', function () {
         shrinkPicker();
 
         // clear search too
-        cm.execCommand('clearSearch');
+        // cm.execCommand('clearSearch');
 
-        cm.focus();
+        monacoEditor.focus();
 
-        if (findInFiles) {
-            editor.emit('picker:search:files:close');
-        } else {
-            editor.emit('picker:search:close');
-        }
-    });
-
-    // Open and focus replace picker
-    editor.method('picker:replace:open', function () {
-        editor.call('picker:search:open');
-        replaceField.focus();
+        editor.emit('picker:search:close');
     });
 
     // Esc hotkey
@@ -381,11 +240,6 @@ editor.once('load', function () {
         return regexp;
     });
 
-    // Return replace string
-    editor.method('picker:replace:text', function () {
-        return replaceField.value;
-    });
-
     // Set search term externally.
     editor.method('picker:search:set', function (text, options) {
         var dirty = false;
@@ -400,7 +254,7 @@ editor.once('load', function () {
         if (dirty || options) {
             // update search query and view search overlay
             updateQuery(options);
-            cm.execCommand('viewSearch');
+            // cm.execCommand('viewSearch');
         }
     });
 
@@ -416,23 +270,16 @@ editor.once('load', function () {
 
         if (queryDirty) {
             queryDirty = false;
-            cm.execCommand('clearSearch');
+            // cm.execCommand('clearSearch');
         }
 
-        if (findInFiles) {
-            if (regexp)
-                editor.call('editor:search:files', regexp);
-        } else {
-            if (reverse) {
-                cm.execCommand('findPrev');
-            } else {
-                cm.execCommand('findNext');
-            }
+        if (regexp) {
+            editor.call('editor:search:files', regexp);
         }
 
-
-        if (open)
+        if (open) {
             searchField.focus();
+        }
     };
 
     // execute search
@@ -449,21 +296,6 @@ editor.once('load', function () {
             updateQuery();
 
             cancelDelayedSearch();
-
-            if (findInFiles) return;
-
-            // if the current asset is large then defer searching
-            // otherwise do it right away
-            var focused = editor.call('documents:getFocused');
-            if (focused) {
-                var asset = editor.call('assets:get', focused);
-                if (asset && asset.get('file.size') > 10000) {
-                    searchTimeout = setTimeout(search, 300);
-                    return;
-                }
-            }
-
-            search();
         }
     });
 
@@ -471,9 +303,6 @@ editor.once('load', function () {
     optionRegex.on('click', function () {
         isRegex = !isRegex;
         updateQuery();
-
-        if (! findInFiles)
-            search();
 
         if (isRegex) {
             optionRegex.class.add('toggled');
@@ -486,9 +315,6 @@ editor.once('load', function () {
         caseSensitive = !caseSensitive;
         updateQuery();
 
-        if (! findInFiles)
-            search();
-
         if (caseSensitive) {
             optionCase.class.add('toggled');
         } else {
@@ -500,9 +326,6 @@ editor.once('load', function () {
         matchWholeWords = !matchWholeWords;
         updateQuery();
 
-        if (! findInFiles)
-            search();
-
         if (matchWholeWords) {
             optionWholeWords.class.add('toggled');
         } else {
@@ -510,51 +333,9 @@ editor.once('load', function () {
         }
     });
 
-    // search buttons
-    btnFindPrev.on('click', function () {
-        search(true);
-    });
-
-    btnFindNext.on('click', function () {
-        search();
-    });
-
     btnFindInFiles.on('click', function () {
         search();
     });
-
-    // replace buttons
-    btnReplace.on('click', function () {
-        cm.execCommand('replace');
-    });
-
-    btnReplaceAll.on('click', function () {
-        cm.execCommand('replaceAll');
-        cm.focus();
-    });
-
-    // replace field
-    replaceField.elementInput.addEventListener('keydown', function (e) {
-        if (e.keyCode === 13) {
-            if (e.shiftKey) {
-                cm.execCommand('replacePrev');
-            } else {
-                cm.execCommand('replace');
-            }
-            replaceField.focus();
-        }
-    });
-
-    // permissions
-    var refreshPermissions = function () {
-        replaceField.hidden = !editor.call('permissions:write');
-        btnReplace.hidden = !editor.call('permissions:write');
-        btnReplaceAll.hidden = !editor.call('permissions:write');
-    };
-
-    refreshPermissions();
-
-    editor.on('permissions:set', refreshPermissions);
 
     // stop search timeout when documents are focused / unfocused
     editor.on('documents:focus', cancelDelayedSearch);

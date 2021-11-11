@@ -55,6 +55,21 @@ editor.once('load', function () {
 
     // Add shortcut label to a menu item
     editor.method('menu:item:setShortcut', function (item, shortcut) {
+        // replace common things with icons
+        if (editor.call('editor:mac')) {
+            shortcut = shortcut.replace(/Ctrl/g, '⌃');
+        }
+
+        shortcut = shortcut
+        .replace(/\+/g, ' ')
+        .replace(/Shift/g, '⇧')
+        .replace(/Alt/g, '⌥')
+        .replace(/Cmd/g, '⌘')
+        .replace(/Right Arrow/g, '→')
+        .replace(/Left Arrow/g, '←')
+        .replace(/Up Arrow/g, '↑')
+        .replace(/Down Arrow/g, '↓');
+
         var label = new ui.Label({
             text: shortcut
         });
