@@ -276,7 +276,7 @@ editor.once('load', function () {
             }
 
             // cut text with context
-            const text = match.text.substring(from, to);
+            let text = match.text.substring(from, to);
 
             // add dots
             if (addStartingDots) {
