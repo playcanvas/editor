@@ -337,7 +337,7 @@ editor.once('load', function () {
 
                 const matchFrom = match.char - from;
 
-                const lastLine = addNewLine ? model.getLineCount() - 1 : modelg.getLineCount();
+                const lastLine = addNewLine ? model.getLineCount() - 1 : model.getLineCount();
 
                 // decorate match
                 decorations.push({
