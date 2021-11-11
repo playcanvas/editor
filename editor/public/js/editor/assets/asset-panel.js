@@ -133,6 +133,8 @@ Object.assign(pcui, (function () {
             });
 
             this._asset = null;
+
+            this._evtName = null;
         }
 
         showProgress() {
@@ -160,6 +162,11 @@ Object.assign(pcui, (function () {
 
             this._asset = asset;
 
+            this._labelText.dom.title = asset.get('name');
+            this._evtName = asset.on('name:set', (value) => {
+                this._labelText.dom.title = value;
+            });
+
             this.class.add('type-' + this._asset.get('type'));
 
             // pass the whole asset observer as the value
@@ -182,6 +189,11 @@ Object.assign(pcui, (function () {
             if (!this._asset) return;
 
             super.unlink();
+
+            if (this._evtName) {
+                this._evtName.unbind();
+                this._evtName = null;
+            }
 
             this.classRemove(CLASS_ASSET_SOURCE);
             this.classRemove(CLASS_ASSET_NOT_REFERENCED);
