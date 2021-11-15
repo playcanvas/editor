@@ -107,20 +107,26 @@ editor.once('load', function () {
             // set doc to monaco
             monacoEditor.setModel(focusedView.view);
 
+            const options = {
+                lineNumbers: true
+            };
+
             // change mode options
             if (focusedView.type === 'text') {
-                monacoEditor.updateOptions({
-                    wordWrap: 'on',
-                    lineNumbers: true,
-                    folding: false
-                });
+                options.wordWrap = 'on';
+                options.folding = false;
             } else {
-                monacoEditor.updateOptions({
-                    wordWrap: 'off',
-                    lineNumbers: true,
-                    folding: true
-                });
+                options.wordWrap = 'off';
+                options.folding = true;
             }
+
+            monacoEditor.updateOptions(options);
+
+            // only allow linting for script assets
+            monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+                noSemanticValidation: true,
+                noSyntaxValidation: (focusedView.type !== 'script')
+            });
         }
 
         refreshReadonly();

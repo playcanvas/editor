@@ -16,10 +16,13 @@ editor.once('load', function () {
         setTimeout(function () {
             if (view !== editor.call('editor:focusedView')) return;
 
-            monacoEditor.setPosition({
-                lineNumber: line,
-                column: col
-            });
+            const pos = new monaco.Position(line, col);
+            monacoEditor.setPosition(pos);
+
+            monacoEditor.revealRangeInCenterIfOutsideViewport(
+                monaco.Range.fromPositions(pos, pos),
+                monaco.editor.ScrollType.Immediate
+            );
 
             if (options.error) {
                 monaco.editor.setTheme('playcanvas-error');

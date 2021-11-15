@@ -231,7 +231,10 @@ editor.once('load', function () {
             if (foundPos !== null) {
                 var pos = this.model.getPositionAt(foundPos);
                 this.monacoEditor.setPosition(pos);
-                // cm.scrollIntoView(pos, 300);
+                this.monacoEditor.revealRangeInCenterIfOutsideViewport(
+                    monaco.Range.fromPositions(pos, pos),
+                    monaco.editor.ScrollType.Smooth
+                );
             }
         }
 
@@ -263,7 +266,10 @@ editor.once('load', function () {
             if (foundPos !== null) {
                 var pos = this.model.getPositionAt(foundPos);
                 this.monacoEditor.setPosition(pos);
-                // cm.scrollIntoView(pos, 300);
+                this.monacoEditor.revealRangeInCenterIfOutsideViewport(
+                    monaco.Range.fromPositions(pos, pos),
+                    monaco.editor.ScrollType.Smooth
+                );
             }
         }
 
