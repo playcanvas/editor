@@ -663,19 +663,22 @@ editor.once('load', function () {
         if (! enabled)
             return;
 
-        for (var i = 0; i < fields.length; i++) {
+        for (let i = 0; i < fields.length; i++) {
             if (fields[i].ignore)
                 continue;
 
-            if (! app.stats.hasOwnProperty(fields[i].key[0]) || ! app.stats[fields[i].key[0]].hasOwnProperty(fields[i].key[1]))
-                continue;
+            const key0 = fields[i].key[0];
+            const key1 = fields[i].key[1];
 
-            var value = app.stats[fields[i].key[0]][fields[i].key[1]];
+            if (key0 in app.stats && app.stats[key0] && key1 in app.stats[key0]) {
 
-            if (fields[i].format)
-                value = fields[i].format(value);
+                let value = app.stats[key0][key1];
 
-            fields[i].field.value = value;
+                if (fields[i].format)
+                    value = fields[i].format(value);
+
+                fields[i].field.value = value;
+            }
         }
     });
 });
