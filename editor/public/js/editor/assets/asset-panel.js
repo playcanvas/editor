@@ -2126,6 +2126,24 @@ Object.assign(pcui, (function () {
             this.currentFolder = folder;
         }
 
+        /**
+         * Selects the specified asset in the asset panel
+         *
+         * @param {Observer} asset - The asset
+         */
+        select(asset) {
+            this._setAssetSelected(asset, true);
+        }
+
+        /**
+         * Deselects the specified asset in the asset panel
+         *
+         * @param {Observer} asset - The asset
+         */
+        deselect(asset) {
+            this._setAssetSelected(asset, false);
+        }
+
         destroy() {
             if (this._destroyed) return;
 

@@ -60,6 +60,8 @@ editor.once('load', function () {
             editor.emit('picker:asset', asset);
         }
 
+        assetsPanel.deselect(asset);
+
         if (!allowMultiSelection) {
             // hide picker
             overlay.hidden = true;
