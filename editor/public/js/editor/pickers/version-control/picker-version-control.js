@@ -358,6 +358,7 @@ editor.once('load', function () {
         var destinationBranch = panelMergeBranches.destinationBranch;
         var createSourceCheckpoint = panelMergeBranches.createSourceCheckpoint;
         var createTargetCheckpoint = panelMergeBranches.createTargetCheckpoint;
+        var closeSourceBranch = panelMergeBranches.closeSourceBranch;
 
         togglePanels(false);
 
@@ -379,7 +380,7 @@ editor.once('load', function () {
                 });
             });
 
-            editor.call('branches:merge', sourceBranch.id, destinationBranch.id, (err) => {
+            editor.call('branches:merge', sourceBranch.id, destinationBranch.id, closeSourceBranch, (err) => {
                 if (err) {
                     console.error(err);
                 }

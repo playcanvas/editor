@@ -95,14 +95,15 @@ editor.once('load', function () {
     });
 
     // Start merging branches
-    editor.method('branches:merge', function (sourceId, destinationId, callback) {
+    editor.method('branches:merge', function (sourceId, destinationId, closeSourceBranch, callback) {
         request({
             url: '{{url.api}}/merge',
             method: 'POST',
             auth: true,
             data: {
                 srcBranchId: sourceId,
-                dstBranchId: destinationId
+                dstBranchId: destinationId,
+                srcBranchClose: closeSourceBranch
             }
         }, callback);
     });

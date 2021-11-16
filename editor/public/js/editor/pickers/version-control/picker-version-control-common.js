@@ -10,6 +10,8 @@
  * @param {string} [args.targetCheckpointHelp] - The text of the help tooltip in the target checkpoint panel
  * @param {boolean} [args.createSourceCheckpoint] - If true then this box will also contain a panel to take a checkpoint in the source branch
  * @param {string} [args.sourceCheckpointHelp] - The text of the help tooltip in the source checkpoint panel
+ * @param {boolean} [args.closeSourceBranch] - If true then this box will also contain a checkbox to close the source branch after merging
+ * @param {string} [args.closeSourceBranchHelp] - The text of the help tooltip in the close source branch panel
  * @param {boolean} [args.noIcon] - If true the box header will not have a top left icon
  */
 var VersionControlSidePanelBox = function (args) {
@@ -59,6 +61,19 @@ var VersionControlSidePanelBox = function (args) {
 
         this.checkboxSourceCheckpoint.on('change', value => {
             this.emit('createSourceCheckpoint', value);
+        });
+    }
+
+    if (args && args.closeSourceBranch) {
+        [this.panelSourceClose, this.checkboxSourceClose] = this._createCheckbox(
+            'Close branch after merging?',
+            args.closeSourceBranchHelp
+        );
+        this.panelSourceClose.style.paddingTop = '0';
+        this.panelSourceClose.style.borderTop = '0';
+
+        this.checkboxSourceClose.on('change', value => {
+            this.emit('closeSourceBranch', value);
         });
     }
 };
@@ -113,6 +128,9 @@ VersionControlSidePanelBox.prototype.append = function (panel) {
     if (this.panelSourceCheckpoint) {
         this.panel.remove(this.panelSourceCheckpoint);
     }
+    if (this.panelSourceClose) {
+        this.panel.remove(this.panelSourceClose);
+    }
 
     this.panel.append(panel);
     this.children.push(panel);
@@ -123,6 +141,9 @@ VersionControlSidePanelBox.prototype.append = function (panel) {
     }
     if (this.panelSourceCheckpoint) {
         this.panel.append(this.panelSourceCheckpoint);
+    }
+    if (this.panelSourceClose) {
+        this.panel.append(this.panelSourceClose);
     }
 };
 
@@ -147,6 +168,9 @@ VersionControlSidePanelBox.prototype.setCheckpoint = function (checkpoint) {
         if (this.panelSourceCheckpoint && !this.panelSourceCheckpoint.parent) {
             this.panel.append(this.panelSourceCheckpoint);
         }
+        if (this.panelSourceClose && !this.panelSourceClose.parent) {
+            this.panel.append(this.panelSourceClose);
+        }
     }
 
 };
@@ -164,6 +188,10 @@ VersionControlSidePanelBox.prototype.clear = function () {
     if (this.panelSourceCheckpoint) {
         panel.remove(this.panelSourceCheckpoint);
         this.checkboxSourceCheckpoint.value = false;
+    }
+    if (this.panelSourceClose) {
+        panel.remove(this.panelSourceClose);
+        this.checkboxSourceClose.value = false;
     }
 
     this.children.forEach(function (child) {

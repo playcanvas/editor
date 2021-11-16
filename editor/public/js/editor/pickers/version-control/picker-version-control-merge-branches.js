@@ -4,7 +4,9 @@ editor.once('load', function () {
     var boxFrom = new ui.VersionControlSidePanelBox({
         headerNote: 'Merge from',
         createSourceCheckpoint: true,
-        sourceCheckpointHelp: 'Tick to create a checkpoint in the source branch before merging.'
+        sourceCheckpointHelp: 'Tick to create a checkpoint in the source branch before merging.',
+        closeSourceBranch: true,
+        closeSourceBranchHelp: 'Tick to close the source branch after merging.'
     });
 
     var labelArrow = new ui.Label({
@@ -43,6 +45,10 @@ editor.once('load', function () {
         panel.createSourceCheckpoint = value;
     });
 
+    boxFrom.on('closeSourceBranch', function (value) {
+        panel.closeSourceBranch = value;
+    });
+
     boxInto.on('createTargetCheckpoint', function (value) {
         panel.createTargetCheckpoint = value;
     });
@@ -69,6 +75,11 @@ editor.once('load', function () {
 
         var box = isSourceBranch ? boxFrom : boxInto;
         box.header = branch.name;
+
+        if (isSourceBranch && box.panelSourceClose) {
+            // do not show close branch if branch is permanent (like master)
+            box.panelSourceClose.hidden = branch.permanent;
+        }
 
         // get checkpoint from server
         var request = editor.call('checkpoints:get', branch.latestCheckpointId, function (err, checkpoint) {
