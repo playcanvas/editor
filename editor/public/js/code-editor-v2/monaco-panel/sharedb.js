@@ -319,6 +319,10 @@ editor.once('load', function () {
 
         monacoEditor.restoreViewState(state);
         monacoEditor.setPosition(cursorPos);
+        monacoEditor.revealRangeInCenterIfOutsideViewport(
+            monaco.Range.fromPositions(cursorPos, cursorPos),
+            monaco.editor.ScrollType.Immediate
+        );
     }
 
     // load document from sharedb
