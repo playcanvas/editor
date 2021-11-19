@@ -516,6 +516,7 @@ Object.assign(pcui, (function () {
                 incrementNodeNames: true,
                 passiveUIEvents: true,
                 useGlobalPCUI: true,
+                adjustVertices: true,
                 defaultStyles: {
                     background: {
                         gridSize: 10
