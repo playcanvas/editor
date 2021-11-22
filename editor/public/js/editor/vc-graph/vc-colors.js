@@ -4,6 +4,7 @@ editor.once('load', function () {
     // Matching darker and lighter colors suitable as the
     // stroke and fill values of graph nodes
     const DARKER_COLORS = [
+        "#4bfc57", // selected node marker
         "#fc4b98",
         "#4bcbfc",
         "#fcf94b",
@@ -307,6 +308,7 @@ editor.once('load', function () {
     ];
 
     const LIGHTER_COLORS = [
+        "#4bfc57", // selected node marker
         "#fcdeeb",
         "#def4fc",
         "#fcfbde",

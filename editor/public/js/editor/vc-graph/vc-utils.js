@@ -32,6 +32,20 @@ editor.once('load', function () {
         includeIcon: false
     };
 
+    const SELECTED_MARK = {
+        id: 'selected_node_mark',
+        type: 0,
+        defaults: {
+            baseHeight: 30,
+            baseWidth: 30,
+            includeIcon: false
+        },
+        offset: {
+            x: 0.65,
+            y: -0.1
+        }
+    };
+
     const EDGE_DEFAULTS = {
         strokeWidth: 3,
         connectionStyle: 'smoothInOut'
@@ -87,6 +101,29 @@ editor.once('load', function () {
             h.isNodeRendered = true;
         },
 
+        placeSelectedMark: function (graph, nodeCoords) {
+            const markCoords = {
+                coords: {
+                    x: nodeCoords.x + SELECTED_MARK.offset.x,
+                    y: nodeCoords.y + SELECTED_MARK.offset.y
+                }
+            };
+
+            const h = {
+                id: SELECTED_MARK.id,
+                name: '',
+                nodeType: SELECTED_MARK.type,
+                posX: VcUtils.transformCoord(markCoords, 'x'),
+                posY: VcUtils.transformCoord(markCoords, 'y'),
+            };
+
+            graph.createNode(h);
+        },
+
+        rmSelectedMark: function (graph) {
+            graph.deleteNode(SELECTED_MARK.id);
+        },
+
         vcNodeText: function (node, data) {
             const h = node.checkpointData;
 
@@ -129,7 +166,7 @@ editor.once('load', function () {
 
             const dateStr = VcUtils.epochToStr(time);
 
-            const s = `${id} ${dateStr} ${node.user_full_name}`;
+            const s = `${id} ${dateStr} ${node.checkpointData.user_full_name}`;
 
             return VcUtils.truncateLine(s, CHARS_PER_LINE);
         },
@@ -305,7 +342,7 @@ editor.once('load', function () {
             const edgeDefaults = VcUtils.makeEdgeDefaults(styles.length);
 
             styles.forEach((h, i) => {
-                res.nodes[i] = VcUtils.vcNodeSchema(h.fill, h.stroke);
+                res.nodes[i] = VcUtils.vcNodeSchema(h.fill, h.stroke, i);
 
                 res.edges[i] = VcUtils.vcEdgeSchema(h.stroke, edgeDefaults);
             });
@@ -334,7 +371,7 @@ editor.once('load', function () {
             return a;
         },
 
-        vcNodeSchema: function (fill, stroke) {
+        vcNodeSchema: function (fill, stroke, i) {
             const h = {
                 fill: fill,
                 stroke: stroke,
@@ -342,7 +379,9 @@ editor.once('load', function () {
                 strokeHover: stroke
             };
 
-            return Object.assign(h, NODE_DEFAULTS);
+            const def = i ? NODE_DEFAULTS : SELECTED_MARK.defaults;
+
+            return Object.assign(h, def);
         },
 
         vcEdgeSchema: function (stroke, defaults) {
@@ -396,9 +435,11 @@ editor.once('load', function () {
         },
 
         setColorForBranch: function (h) {
-            const n = VcUtils.strToHashCode(h.name);
+            let n = VcUtils.strToHashCode(h.name);
 
-            h.vcBranchColor = n % editor.call('vcgraph:numStyles');
+            n = n % editor.call('vcgraph:numStyles');
+
+            h.vcBranchColor = Math.max(1, n); // 0 is the special marker node
         },
 
         groupByPath: function (a, path) {
@@ -540,6 +581,37 @@ editor.once('load', function () {
             }
 
             return Math.abs(hash);
+        },
+
+        vcNodeClick: function (id, expandCallback, data) {
+            const node = data.idToNode[id];
+
+            const coords = VcUtils.nodeToScreenCoords(node, data.graph);
+
+            const h = {
+                onExpandSelect: function () {
+                    VcUtils.expandVcNode(node, expandCallback);
+                }
+            };
+
+            Object.assign(h, node);
+
+            editor.call('vcgraph:showNodeMenu', data.vcNodeMenu, h, data, coords);
+        },
+
+        expandVcNode: function (node, callback) {
+            const h = {
+                branch: node.branchId,
+                graphStartId: node.id
+            };
+
+            VcUtils.backendGraphTask(h, callback);
+        },
+
+        backendGraphTask: function (h, callback) {
+            h.task_type = 'vc_graph_for_branch';
+
+            editor.call('checkpoints:list', h, callback);
         }
     };
 

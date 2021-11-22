@@ -48,13 +48,6 @@ editor.once('load', function () {
     btnDiff.class.add('icon', 'diff');
     panelBranchActions.append(btnDiff);
 
-    // new checkpoint button
-    var btnNewCheckpoint = new ui.Button({
-        text: 'Checkpoint'
-    });
-    btnNewCheckpoint.class.add('icon', 'create');
-    panelBranchActions.append(btnNewCheckpoint);
-
     // version control graph
     var btnVcGraph = new ui.Button({
         text: 'Graph'
@@ -64,6 +57,13 @@ editor.once('load', function () {
     if (editor.call('users:hasFlag', 'hasVersionControlGraph')) {
         panelBranchActions.append(btnVcGraph);
     }
+
+    // new checkpoint button
+    var btnNewCheckpoint = new ui.Button({
+        text: 'Checkpoint'
+    });
+    btnNewCheckpoint.class.add('icon', 'create');
+    panelBranchActions.append(btnNewCheckpoint);
 
     var toggleTopButtons = function () {
         btnFavorite.disabled = ! panel.branch || panel.branch.closed || ! editor.call('permissions:write');
@@ -494,12 +494,12 @@ editor.once('load', function () {
         currentStateListItem.class.add('current-state');
     };
 
-    const graphPanel = new ui.Panel();
-    graphPanel.class.add('picker-version-control');
-    graphPanel.class.add('vc-graph-panel');
-    graphPanel.flex = true;
-    graphPanel.hidden = true;
-    graphPanel.dom.setAttribute('style', `
+    const vcGraphPanel = new ui.Panel();
+    vcGraphPanel.class.add('picker-version-control');
+    vcGraphPanel.class.add('vc-graph-panel');
+    vcGraphPanel.flex = true;
+    vcGraphPanel.hidden = true;
+    vcGraphPanel.dom.setAttribute('style', `
         position: fixed;
         z-index: 301;
         height: 95%;
@@ -509,33 +509,44 @@ editor.once('load', function () {
         top: 50%;
     `);
 
-    editor.call('layout.root').append(graphPanel);
+    editor.call('layout.root').append(vcGraphPanel);
+
+    const vcNodeMenu = editor.call('vcgraph:makeNodeMenu', panel);
+    editor.call('layout.root').append(vcNodeMenu);
 
     btnVcGraph.on('click', function () {
         editor.call('vcgraph:showGraphPanel', panel.branch.id);
     });
 
+    editor.method('vcgraph:closeGraphPanel', function () {
+        vcGraphPanel.hidden = true;
+        vcGraphPanel.clear();
+    });
+
     editor.method('vcgraph:showGraphPanel', function (branchId) {
-        graphPanel.hidden = !graphPanel.hidden;
-        const graphContainer = new pcui.Container();
-        const closeGraphButton = new pcui.Button({text: 'CLOSE'});
-        closeGraphButton.dom.setAttribute('style', `
+        vcGraphPanel.hidden = !vcGraphPanel.hidden;
+        const vcGraphContainer = new pcui.Container();
+        const vcGraphCloseBtn = new pcui.Button({text: 'CLOSE'});
+        vcGraphCloseBtn.dom.setAttribute('style', `
             position: absolute;
             right: 0;
         `);
-        closeGraphButton.on('click', () => {
-            graphPanel.hidden = true;
-            graphPanel.clear();
-        });
 
-        graphPanel.append(graphContainer);
-        graphContainer.dom.setAttribute('style', `
+        vcGraphCloseBtn.on('click', () => editor.call('vcgraph:closeGraphPanel'));
+
+        vcGraphPanel.append(vcGraphContainer);
+        vcGraphContainer.dom.setAttribute('style', `
             width: 100%;
             height: 100%;
-            background-color: #364346;
+            background-color: #20292B;
         `);
 
-        editor.call('vcgraph:showInitial', branchId, graphContainer, closeGraphButton);
+        editor.call('vcgraph:showInitial', {
+            branchId,
+            vcGraphContainer,
+            vcGraphCloseBtn,
+            vcNodeMenu
+        });
     });
 
     btnFavorite.on('click', function () {
@@ -576,7 +587,7 @@ editor.once('load', function () {
 
     // branch from checkpoint
     menuCheckpointsBranch.on('select', function () {
-        panel.emit('checkpoint:branch', currentCheckpoint);
+        panel.emit('checkpoint:branch', currentCheckpoint, null);
     });
 
     // view changes in checkpoint

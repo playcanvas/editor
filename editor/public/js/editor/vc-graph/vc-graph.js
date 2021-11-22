@@ -8,12 +8,14 @@ editor.once('load', function () {
      * when possible to save horizontal space (compact branches).
      */
     class VcGraphLogic {
-        constructor(initData, container, closeBtn) {
+        constructor(initData, params) {
             this.initData = initData;
 
-            this.container = container;
+            this.container = params.vcGraphContainer;
 
-            this.closeBtn = closeBtn;
+            this.closeBtn = params.vcGraphCloseBtn;
+
+            this.vcNodeMenu = params.vcNodeMenu;
 
             this.idToNode = {};
 
@@ -59,49 +61,42 @@ editor.once('load', function () {
             this.helper('vcgraph:utils', 'assignBranchColors');
 
             this.startNode = this.idToNode[data.graphStartId];
+
+            this.isGraphLoading = false;
+
+            this.vcNodeMenu.hidden = true;
         }
 
         handleClick(id) {
-            const node = this.idToNode[id];
-
-            const screenCoords = editor.call(
+            this.helper(
                 'vcgraph:utils',
-                'nodeToScreenCoords',
-                node,
-                this.graph
-            );
-
-            editor.call(
-                'vcgraph:showNodeMenu',
-                node,
-                screenCoords,
+                'vcNodeClick',
+                id,
                 (err, data) => this.handleNewData(data)
             );
         }
 
-        helper(method1, method2) {
+        helper(...args) {
             const h = {
                 graph: this.graph,
                 renderedEdges: this.renderedEdges,
                 idToNode: this.idToNode,
                 branches: this.branches,
-                startNode: this.startNode
+                startNode: this.startNode,
+                vcNodeMenu: this.vcNodeMenu
             };
 
-            return method2 ?
-                editor.call(method1, method2, h) :
-                editor.call(method1, h);
+            editor.call(...args, h);
         }
     }
 
-    editor.method('vcgraph:showInitial', function (branchId, container, closeBtn) {
-        const params = {
-            branch: branchId,
-            task_type: 'vc_graph_for_branch'
-        };
+    editor.method('vcgraph:showInitial', function (params) {
+        const h = { branch: params.branchId };
 
-        editor.call('checkpoints:list', params, (err, data) => {
-            new VcGraphLogic(data, container, closeBtn).run();
+        editor.call('vcgraph:showNodeMenu', params.vcNodeMenu);
+
+        editor.call('vcgraph:utils', 'backendGraphTask', h, (err, data) => {
+            new VcGraphLogic(data, params).run();
         });
     });
 });

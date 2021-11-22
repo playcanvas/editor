@@ -137,9 +137,9 @@ editor.once('load', function () {
         panelHardResetCheckpoint.setCheckpoint(checkpoint);
     });
 
-    panelCheckpoints.on('checkpoint:branch', function (checkpoint) {
+    panelCheckpoints.on('checkpoint:branch', function (checkpoint, branch) {
         showRightSidePanel(panelCreateBranch);
-        panelCreateBranch.setSourceBranch(panelCheckpoints.branch);
+        panelCreateBranch.setSourceBranch(branch || panelCheckpoints.branch);
         panelCreateBranch.setCheckpoint(checkpoint);
     });
 
@@ -890,7 +890,7 @@ editor.once('load', function () {
         var params = {
             name: data.name,
             projectId: config.project.id,
-            sourceBranchId: panelCheckpoints.branch.id
+            sourceBranchId: data.sourceBranchId
         };
 
         if (panelCreateBranch.checkpoint) {
@@ -1032,15 +1032,8 @@ editor.once('load', function () {
             if (panelCheckpoints.branch.id === data.branch_id) {
                 var existingCheckpoints = panelCheckpoints.checkpoints;
                 if (existingCheckpoints) {
-                    existingCheckpoints.unshift({
-                        id: data.checkpoint_id,
-                        user: {
-                            id: data.user_id,
-                            fullName: data.user_full_name
-                        },
-                        createdAt: new Date(data.created_at),
-                        description: data.description
-                    });
+                    const h = editor.call('picker:versioncontrol:transformCheckpointData', data);
+                    existingCheckpoints.unshift(h);
                     panelCheckpoints.setCheckpoints(existingCheckpoints);
                     panelCheckpoints.element.scrollTop = 0;
                 }
@@ -1224,6 +1217,18 @@ editor.once('load', function () {
     // Show the picker
     editor.method('picker:versioncontrol', function () {
         editor.call('picker:project', 'version control');
+    });
+
+    editor.method('picker:versioncontrol:transformCheckpointData', function (data) {
+        return {
+            id: data.checkpoint_id,
+            user: {
+                id: data.user_id,
+                fullName: data.user_full_name
+            },
+            createdAt: new Date(data.created_at),
+            description: data.description
+        };
     });
 
     // hotkey to create new checkpoint
