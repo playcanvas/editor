@@ -362,7 +362,7 @@ Object.assign(pcui, (function () {
                     posX: 50,
                     posY: 125
                 };
-                this._onAddNode(state);
+                this._onAddNode({ node: state });
                 graphData.nodes[stateId] = state;
                 anyStateKey = stateId;
             }
@@ -376,7 +376,7 @@ Object.assign(pcui, (function () {
                     posX: 50,
                     posY: 200
                 };
-                this._onAddNode(state);
+                this._onAddNode({ node: state });
                 graphData.nodes[stateId] = state;
                 endStateKey = stateId;
             }
