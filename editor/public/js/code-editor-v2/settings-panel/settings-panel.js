@@ -77,6 +77,15 @@ editor.once('load', function () {
         }
     };
 
+    var fieldTheme = new ui.SelectField({
+        options: editor.call('editor:themes'),
+        type: 'string'
+    });
+    fieldTheme.flexGrow = 1;
+    fieldTheme.style.minWidth = '80px';
+    fieldTheme.elementOptions.style.maxHeight = '240px';
+    addField('Editor Theme:', fieldTheme, 'ide.theme', 'The code editor theme.');
+
     var fieldFontSize = new ui.NumberField({
         min: 1,
         placeholder: 'pixels'

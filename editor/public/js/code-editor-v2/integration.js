@@ -25,9 +25,11 @@ editor.once('load', function () {
             );
 
             if (options.error) {
-                monaco.editor.setTheme('playcanvas-error');
+                const settings = editor.call('editor:settings');
+                monaco.editor.setTheme(`${settings.get('ide.theme')}-error`);
+
                 let evtCursorChanged = monacoEditor.onDidChangeCursorPosition(() => {
-                    monaco.editor.setTheme('playcanvas');
+                    monaco.editor.setTheme(settings.get('ide.theme'));
 
                     evtCursorChanged.dispose();
                     evtCursorChanged = null;
