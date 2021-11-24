@@ -1,4 +1,4 @@
-// Initialize API globals
+// Initialize API globals - order matters
 api.globals.accessToken = config.accessToken;
 api.globals.projectId = config.project.id;
 api.globals.branchId = config.self.branch.id;
@@ -6,6 +6,7 @@ api.globals.history = new api.History();
 api.globals.selection = new api.Selection();
 api.globals.schema = new api.Schema(config.schema);
 api.globals.realtime = new api.Realtime();
+api.globals.settings = new api.Settings();
 api.globals.messenger = new api.Messenger(new Messenger());
 api.globals.assets = new api.Assets({
     autoSubscribe: true
@@ -24,6 +25,7 @@ editor.once('load', function () {
         'realtime',
         'assets',
         'entities',
+        'settings',
         'messenger',
         'jobs',
         'clipboard'
