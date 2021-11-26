@@ -28,7 +28,7 @@ editor.once('load', function () {
                 return;
             }
 
-            var selected = editor.call('selector:itemsRaw');
+            var selected = editor.selection.items;
             for (let i = 0, len = selected.length; i < len; i++) {
                 var item = selected[i];
 

@@ -248,11 +248,6 @@ editor.once('load', function () {
         return selector.array();
     });
 
-    // return selected items without making copy of array
-    editor.method('selector:itemsRaw', function () {
-        return selector.data;
-    });
-
     // return if it has item
     editor.method('selector:has', function (item) {
         return editor.selection.has(item.apiEntity) || editor.selection.has(item.apiAsset) || selector.has(item);

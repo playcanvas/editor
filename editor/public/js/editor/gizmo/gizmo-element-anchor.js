@@ -145,7 +145,7 @@ editor.once('load', function () {
         };
 
         var gizmoEnabled = function () {
-            if (editor.call('selector:itemsRaw').length > 1)
+            if (editor.selection.items.length > 1)
                 return false;
 
             return visible &&

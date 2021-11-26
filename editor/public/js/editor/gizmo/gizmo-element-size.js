@@ -79,7 +79,7 @@ editor.once('load', function () {
     };
 
     const gizmoEnabled = function () {
-        if (editor.call('gizmo:type') === 'resize' && editor.call('permissions:write') && editor.call('selector:itemsRaw').length === 1) {
+        if (editor.call('gizmo:type') === 'resize' && editor.call('permissions:write') && editor.selection.items.length === 1) {
             return (selectedEntity && selectedEntity.has('components.element') && selectedEntity.entity);
         }
 
