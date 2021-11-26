@@ -140,23 +140,10 @@ editor.once('load', function () {
         if (! enabled)
             return;
 
+        editor.selection.clear();
         selector.clear();
 
         if (! type || ! items.length)
-            return;
-
-        // make sure items still exist
-        if (type === 'asset') {
-            items = items.filter(function (item) {
-                return (legacyScripts && item.get('type') === 'script') || !! editor.call('assets:get', item.get('id'));
-            });
-        } else if (type === 'entity') {
-            items = items.filter(function (item) {
-                return !! editor.call('entities:get', item.get('resource_id'));
-            });
-        }
-
-        if (! items.length)
             return;
 
         // type
@@ -226,7 +213,7 @@ editor.once('load', function () {
     // deselecting
     editor.method('selector:clear', function (item) {
         editor.selection.clear();
-        return;
+
         if (! enabled)
             return;
 
