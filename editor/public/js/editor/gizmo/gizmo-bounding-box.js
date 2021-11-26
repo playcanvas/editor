@@ -148,19 +148,12 @@ editor.once('load', function () {
 
         // the an element component
         if (entity.element) {
-            // if the element has an aabb (image or text element)
-            const aabb = entity.element.aabb;
-            if (aabb) {
-                resultBB.copy(aabb);
-            } else {
-                resultBB.center.copy(entity.getPosition());
-                // otherwise for group element use the world corners
-                entity.element.worldCorners.forEach(function (corner) {
-                    _tmpBB.center.copy(corner);
-                    _tmpBB.halfExtents.set(0, 0, 0);
-                    resultBB.add(_tmpBB);
-                });
-            }
+            resultBB.center.copy(entity.getPosition());
+            entity.element.worldCorners.forEach(function (corner) {
+                _tmpBB.center.copy(corner);
+                _tmpBB.halfExtents.set(0, 0, 0);
+                resultBB.add(_tmpBB);
+            });
             return resultBB;
         }
 
