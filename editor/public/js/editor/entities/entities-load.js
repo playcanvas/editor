@@ -28,6 +28,11 @@ editor.on('load', function () {
 
         // list
         for (const key in data.entities) {
+            // consistency check
+            if (data.entities[key].template_ent_ids && !data.entities[key].template_ent_ids[key]) {
+                console.error(`Entity ${key} has invalid template references and needs to be recreated`);
+            }
+
             editor.entities.serverAdd(data.entities[key]);
             p.progress = (++i / total) * 0.8 + 0.1;
         }
