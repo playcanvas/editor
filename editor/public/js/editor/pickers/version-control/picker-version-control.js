@@ -821,7 +821,6 @@ editor.once('load', function () {
 
     function viewDiff(srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId) {
         panelDiffCheckpoints.hidden = true;
-
         togglePanels(false);
         showRightSidePanel(panelGenerateDiffProgress);
         editor.call('diff:create', srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId, function (err, diff) {
@@ -832,6 +831,7 @@ editor.once('load', function () {
             if (!err && diff.numConflicts === 0) {
                 panelGenerateDiffProgress.setMessage("There are no changes");
                 setTimeout(function () {
+                    editor.call('vcgraph:moveToForeground');
                     showCheckpoints();
                 }, 1500);
             } else if (! err) {

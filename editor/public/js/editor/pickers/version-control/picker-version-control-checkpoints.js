@@ -3,6 +3,8 @@ editor.once('load', function () {
 
     var events = [];
 
+    const VC_GRAPH_ZINDEX = { inForeground: 301, inBackground: 299 };
+
     var projectUserSettings = editor.call('settings:projectUser');
 
     var diffMode = false;
@@ -501,7 +503,7 @@ editor.once('load', function () {
     vcGraphPanel.hidden = true;
     vcGraphPanel.dom.setAttribute('style', `
         position: fixed;
-        z-index: 301;
+        z-index: ${VC_GRAPH_ZINDEX.inForeground};
         height: 95%;
         width: 95%;
         transform: translate(-50%, -50%);
@@ -519,8 +521,21 @@ editor.once('load', function () {
     });
 
     editor.method('vcgraph:closeGraphPanel', function () {
+        editor.call('vcgraph:moveToForeground');
         vcGraphPanel.hidden = true;
         vcGraphPanel.clear();
+    });
+
+    editor.method('vcgraph:moveToBackground', function () {
+        vcGraphPanel.style.zIndex = VC_GRAPH_ZINDEX.inBackground;
+    });
+
+    editor.method('vcgraph:moveToForeground', function () {
+        vcGraphPanel.style.zIndex = VC_GRAPH_ZINDEX.inForeground;
+    });
+
+    editor.method('vcgraph:isHidden', function () {
+        return vcGraphPanel.hidden;
     });
 
     editor.method('vcgraph:showGraphPanel', function (branchId) {
@@ -529,7 +544,8 @@ editor.once('load', function () {
         const vcGraphCloseBtn = new pcui.Button({text: 'CLOSE'});
         vcGraphCloseBtn.dom.setAttribute('style', `
             position: absolute;
-            right: 0;
+            top: 6px;
+            right: 5px;
         `);
 
         vcGraphCloseBtn.on('click', () => editor.call('vcgraph:closeGraphPanel'));
@@ -538,7 +554,7 @@ editor.once('load', function () {
         vcGraphContainer.dom.setAttribute('style', `
             width: 100%;
             height: 100%;
-            background-color: #20292B;
+            background-color: #293234;
         `);
 
         editor.call('vcgraph:showInitial', {

@@ -8505,6 +8505,12 @@ strong {
     }
 }
 
+.pcui-menu.vc-node-menu {
+    .pcui-menu-item {
+        background-color: #293234;
+    }
+}
+
 .ui-overlay.picker-conflict-manager {
     z-index: 300; // larger than drop-area's
 

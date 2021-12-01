@@ -81,7 +81,6 @@ editor.on('load', function () {
         collapsible: true,
         collapseHorizontally: true,
         collapsed: editor.call('localStorage:get', 'editor:layout:hierarchy:collapse') || window.innerWidth <= 480,
-        scrollable: true,
         resizable: 'right',
         resizeMin: 196,
         resizeMax: 512

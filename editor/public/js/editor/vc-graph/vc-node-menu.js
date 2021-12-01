@@ -68,6 +68,8 @@ editor.once('load', function () {
 
         m.vcMainPanel = mainPanel;
 
+        m.class.add('vc-node-menu');
+
         return m;
     });
 
@@ -118,13 +120,15 @@ editor.once('load', function () {
         },
 
         viewChangesTask: function (menu) {
+            VcMenuUtils.selectForCompare(menu);
+
             const h2 = VcMenuUtils.parentForCompare(menu);
 
             VcMenuUtils.startDiffTask(menu, menu.node, h2);
         },
 
         startDiffTask: function (menu, h1, h2) {
-            editor.call('vcgraph:closeGraphPanel');
+            editor.call('vcgraph:moveToBackground');
 
             menu.vcMainPanel.emit('diff', h1.branchId, h1.id, h2.branchId, h2.id);
         },

@@ -139,7 +139,9 @@ editor.once('load', function () {
     });
     btnClose.class.add('close');
     btnClose.on('click', function () {
-        overlay.hidden = true;
+        if (currentSelection !== 'version control' || editor.call('vcgraph:isHidden')) {
+            overlay.hidden = true;
+        }
     });
     rightPanel.headerElement.appendChild(btnClose.element);
 
@@ -209,6 +211,13 @@ editor.once('load', function () {
     // open popup
     editor.method('picker:project', function (option) {
         overlay.hidden = false;
+
+        if (option === 'version control') {
+            overlay.setCloseCallback(() => editor.call('vcgraph:isHidden'));
+        } else {
+            overlay.setCloseCallback(null);
+        }
+
         select(option || defaultMenuOption);
     });
 

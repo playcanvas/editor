@@ -20,7 +20,15 @@ function Overlay(args) {
 }
 Overlay.prototype = Object.create(ui.ContainerElement.prototype);
 
+Overlay.prototype.setCloseCallback = function(callback) {
+    this._closeCallback = callback;
+};
+
 Overlay.prototype._onMouseDown = function(evt) {
+    if (this.ui._closeCallback && !this.ui._closeCallback()) {
+        return false;
+    }
+
     if (! this.ui.clickable)
         return false;
 

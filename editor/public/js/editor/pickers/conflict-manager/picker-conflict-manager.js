@@ -242,6 +242,7 @@ editor.once('load', function () {
             editor.call('branches:forceStopMerge', currentMergeObject.id);
             overlay.hidden = true;
             editor.call('picker:versioncontrol');
+            editor.call('vcgraph:moveToForeground');
         }
     });
     panel.headerElement.appendChild(btnClose.element);
