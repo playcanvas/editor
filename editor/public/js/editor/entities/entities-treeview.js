@@ -283,7 +283,7 @@ Object.assign(pcui, (function () {
 
             if (!this.isDragging) return;
 
-            const dragOverItem = this._dragOverItem;
+            let dragOverItem = this._dragOverItem;
             const dragArea = this._dragArea;
             const dropType = this._dropType;
             const dropData = this._dropData;
@@ -293,7 +293,17 @@ Object.assign(pcui, (function () {
 
             this.isDragging = false;
 
-            if (!this.dom.contains(evt.target) || !dragOverItem) return;
+            if (!this.dom.contains(evt.target)) {
+                return;
+            }
+
+            if (!dragOverItem) {
+                if (!this._rootItem) {
+                    return;
+                }
+
+                dragOverItem = this._rootItem;
+            }
 
             this._instantiateDraggedAssets(dragOverItem, dragArea, dropType, dropData);
         }
