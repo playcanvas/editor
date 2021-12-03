@@ -515,11 +515,7 @@ editor.once('load', function () {
                     if (match) {
                         revertDeletedJsonScriptAttributeArrayElement(entity, override);
                     } else {
-                        const val = override.entity_ref_paths ?
-                            editor.call('template:attrUtils', 'remapDstForRevert', override) :
-                            override.dst_value;
-
-                        entity.set(override.path, val);
+                        setRemappedDstVal(override, entity);
                     }
                 }
             }
@@ -598,5 +594,17 @@ editor.once('load', function () {
         return true;
     });
 
+    function setRemappedDstVal(override, entity) {
+        const v = override.entity_ref_paths ?
+            editor.call('template:attrUtils', 'remapDstForRevert', override) :
+            override.dst_value;
 
+        entity.set(override.path, v);
+
+        if (override.path === 'template_id') {
+            const h = editor.call('template:attrUtils', 'remapNestedIdMap', override);
+
+            entity.set('template_ent_ids', h);
+        }
+    }
 });

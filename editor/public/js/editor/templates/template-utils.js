@@ -483,6 +483,12 @@ editor.once('load', function () {
             return TemplateUtils.getNodeAtPath(dstEnt, path);
         },
 
+        remapNestedIdMap: function (override) {
+            const dstToSrc = TemplateUtils.invertMap(override.srcToDst);
+
+            return TemplateUtils.remapOrAssignKeys(override.idMapInAsset, dstToSrc);
+        },
+
         insideArrayAtMissingIndex: function (data) {
             const p1 = data.parent1;
 

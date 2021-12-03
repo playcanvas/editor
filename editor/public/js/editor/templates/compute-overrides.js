@@ -29,6 +29,8 @@ editor.once('load', function () {
 
             this.filterInvalidConflicts();
 
+            this.addMapToTemplIdConflicts();
+
             return this.overrides;
         }
 
@@ -118,6 +120,20 @@ editor.once('load', function () {
                 conflict,
                 this.scriptAttrs
             );
+        }
+
+        addMapToTemplIdConflicts() {
+            const a = this.overrides.conflicts.filter(h => {
+                return h.path === 'template_id';
+            });
+
+            a.forEach(h => {
+                const id = h.srcToDst[h.resource_id];
+
+                const m = id && this.asset.entities[id].template_ent_ids;
+
+                h.idMapInAsset = m || {};
+            });
         }
     }
 
