@@ -50,9 +50,7 @@ editor.once('load', function () {
             var view = editor.call('views:get', id);
             if (! view) return;
 
-            // force concatenation of ops so that
-            // otherwise the user will have to undo 2 times to get to the previous result
-            editor.call('views:setValue', id, content, true);
+            view.setValue(content);
 
             // save result
             editor.call('editor:command:save', id);
