@@ -12,7 +12,7 @@ editor.once('load', function () {
         json: 'json',
         html: 'html',
         css: 'css',
-        shader: 'javascript'
+        shader: 'glsl'
     };
 
     function refreshReadonly() {
