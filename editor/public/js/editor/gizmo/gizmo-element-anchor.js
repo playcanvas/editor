@@ -135,6 +135,10 @@ editor.once('load', function () {
         };
 
         var offsetAnchor = function (value, offset, min, max, snap) {
+            if (!isFinite(offset)) {
+                return value;
+            }
+
             value += offset;
             // value = Math.round(value / snap)  * snap;
             if (value < min + snap)
