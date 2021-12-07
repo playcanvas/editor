@@ -54,6 +54,28 @@ Object.assign(pcui, (function () {
             this._transitionsPanel.hidden = !hasTransitions;
         }
 
+        static validateStateName(stateId, value, asset) {
+            if (!value.match('^[A-Za-z0-9 ]*$')) return false;
+            if (value === '') return false;
+            let nameExists = false;
+            const layers = asset.get(`data.layers`);
+            Object.keys(layers).forEach((layerKey) => {
+                const layer = layers[layerKey];
+                layer.states.forEach((layerStateId) => {
+                    if (layerStateId === stateId) {
+                        const nameInLayer = layer.states
+                        .filter(key => key !== stateId)
+                        .map(key => asset.get(`data.states.${key}.name`))
+                        .includes(value);
+                        if (nameInLayer) {
+                            nameExists = true;
+                        }
+                    }
+                });
+            });
+            return !nameExists;
+        }
+
         link(assets, layer, path) {
             this.unlink();
             this.parent.headerText = 'STATE';
@@ -107,12 +129,7 @@ Object.assign(pcui, (function () {
             this._stateInspector.link(this._assets);
 
             this._stateInspector.getField(`${path}.name`).onValidate = value => {
-                if (value === '') return false;
-                const nameExists = this._assets[0].get(`data.layers.${this._layer}.states`)
-                .filter(key => key !== state.id)
-                .map(key => this._assets[0].get(`data.states.${key}.name`))
-                .includes(value);
-                return !nameExists;
+                return AnimstategraphState.validateStateName(state.id, value, this._assets[0]);
             };
 
             this._loadTransitions();

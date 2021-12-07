@@ -30,7 +30,14 @@ Object.assign(pcui, (function () {
         }
     };
 
-    const animSchema = {
+    const updateNodeHeaderText = (attributes, nodeId, asset) => {
+        if (pcui.AnimstategraphState.validateStateName(nodeId, attributes.name, asset)) {
+            return attributes.name;
+        }
+        return null;
+    };
+
+    const animSchema = (asset) => ({
         nodes: {
             [ANIM_SCHEMA.NODE.STATE]: {
                 name: 'state',
@@ -38,6 +45,7 @@ Object.assign(pcui, (function () {
                 stroke: '#20292b',
                 icon: '',
                 iconColor: '#FFFFFF',
+                headerTextFormatter: (attributes, nodeId) => updateNodeHeaderText(attributes, nodeId, asset),
                 contextMenuItems: [
                     {
                         text: 'Add transition',
@@ -70,6 +78,7 @@ Object.assign(pcui, (function () {
                 stroke: '#20292b',
                 icon: '',
                 iconColor: '#FFFFFF',
+                headerTextFormatter: (attributes, nodeId) => updateNodeHeaderText(attributes, nodeId, asset),
                 contextMenuItems: [
                     {
                         text: 'Add transition',
@@ -170,7 +179,7 @@ Object.assign(pcui, (function () {
                 ]
             }
         }
-    };
+    });
 
     const animContextMenuItems = [
         {
@@ -507,7 +516,7 @@ Object.assign(pcui, (function () {
         _createGraph() {
             this._graphElement.setAttribute('style', 'display: block;');
             const initialGraphData = this._generateGraphData(this._selectedLayer);
-            this._graph = new pcuiGraph.Graph(animSchema, {
+            this._graph = new pcuiGraph.Graph(animSchema(this._assets[0]), {
                 dom: this._graphElement,
                 initialData: initialGraphData,
                 contextMenuItems: animContextMenuItems,
@@ -582,6 +591,11 @@ Object.assign(pcui, (function () {
         }
 
         _onUpdateNodeAttribute({ node, attribute }) {
+            if (attribute === 'name' && !pcui.AnimstategraphState.validateStateName(node.id, node.attributes.name, this._assets[0])) {
+                this._graph.setNodeAttributeErrorState(node.id, attribute, true);
+                return;
+            }
+            this._graph.setNodeAttributeErrorState(node.id, attribute, false);
             const state = this._assets[0].get(`data.states.${node.id}`);
             state[attribute] = node.attributes[attribute];
             this._assets[0].set(`data.states.${node.id}`, state);
