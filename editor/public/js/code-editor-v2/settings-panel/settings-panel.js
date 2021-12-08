@@ -102,6 +102,10 @@ editor.once('load', function () {
     fieldHighlightBrackets.class.add('tick');
     addField('Highlight Brackets:', fieldHighlightBrackets, 'ide.highlightBrackets', 'If enabled causes matching brackets to be highlighted whenever the cursor is next to them.');
 
+    var fieldFormatOnSave = new ui.Checkbox();
+    fieldFormatOnSave.class.add('tick');
+    addField('Format On Save', fieldFormatOnSave, 'ide.formatOnSave', 'If enabled the document will be auto-formatted on save');
+
     panel.on('show', function () {
         editor.emit('picker:settings:open');
     });

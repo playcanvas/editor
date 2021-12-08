@@ -23,6 +23,7 @@ editor.once('load', function () {
             continueComments: true,
             autoCloseBrackets: true,
             highlightBrackets: true,
+            formatOnSave: false,
             theme: 'playcanvas'
         }
     });

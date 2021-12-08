@@ -3,6 +3,8 @@ editor.once('load', function () {
 
     var menu = editor.call('menu:file');
 
+    const settings = editor.call('editor:settings');
+
     // create save menu
     var item = menu.createItem('save', {
         title: 'Save File',
@@ -87,8 +89,17 @@ editor.once('load', function () {
         return false;
     });
 
+    // Actions before saving
+    function beforeSave() {
+        if (settings.get('ide.formatOnSave')) {
+            editor.call('editor:monaco').trigger(null, 'editor.action.formatDocument');
+        }
+    }
+
     // Save document
     var save = function (id) {
+        beforeSave();
+
         savingIndex[id] = true;
 
         editor.emit('editor:command:save:start', id);
