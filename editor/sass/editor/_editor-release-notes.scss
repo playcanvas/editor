@@ -1,0 +1,38 @@
+.popup-release-notes {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    z-index: 1;
+    background: darken($text-active, 5%);
+    height: 32px;
+    align-items: center;
+    padding-left: 3px;
+
+    > .pcui-label {
+        color: $text-primary;
+        font-size: 12px;
+
+        &:before {
+            @extend .font-icon;
+            content: '\E191';
+            margin-right: $element-margin;
+        }
+    }
+
+    &:hover {
+        cursor: pointer;
+        background: $text-active;
+    }
+
+    .pcui-button {
+        float: right;
+        background: transparent;
+        border: 0;
+        margin: 0;
+        transition: none;
+
+        &:hover {
+            background: transparent !important;
+        }
+    }
+}
