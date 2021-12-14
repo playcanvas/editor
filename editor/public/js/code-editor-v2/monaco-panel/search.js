@@ -6,7 +6,6 @@ editor.once('load', function () {
     let totalMatches = 0;
     let totalFiles = 0;
     let tab = null;
-    const codePanel = editor.call('layout.code');
 
     const CONTEXT_LIMIT = 128;
     const SPACE = ' ';
@@ -16,6 +15,8 @@ editor.once('load', function () {
     let onMouseDownEvt;
     let lastMouseDown = null;
     let lastLineClicked = null;
+
+    const codePanel = editor.call('layout.code');
 
     function onMouseDown(evt) {
         const line = evt.target.range.startLineNumber;
@@ -76,6 +77,8 @@ editor.once('load', function () {
         monacoEditor.setModel(model);
         monacoEditor.focus();
         monacoEditor.trigger(null, 'closeFindWidget');
+
+        codePanel.toggleCode(true);
 
         // deselect files in tree view
         editor.call('files:deselectAll');
