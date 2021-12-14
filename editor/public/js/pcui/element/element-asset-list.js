@@ -261,6 +261,7 @@ Object.assign(pcui, (function () {
             this._btnSelectionMode.hidden = false;
             this._labelAddAssets.hidden = true;
             this._containerButtons.hidden = true;
+            this._btnAdd.enabled = false;
 
             this.class.remove(CLASS_ASSET_LIST_SELECTION_MODE);
         }

@@ -53,14 +53,13 @@ editor.once('load', function () {
             return;
         }
 
+        assetSelection.push(asset);
+
         if (allowMultiSelection) {
-            assetSelection.push(asset);
             editor.emit('picker:assets', assetSelection);
         } else {
             editor.emit('picker:asset', asset);
         }
-
-        assetsPanel.deselect(asset);
 
         if (!allowMultiSelection) {
             // hide picker
@@ -110,6 +109,13 @@ editor.once('load', function () {
             editor.emit('picker:assets', assetSelection);
         }
 
+        // deselect selected assets
+        assetSelection.forEach(asset => {
+            assetsPanel.deselect(asset);
+        });
+
+        assetSelection = [];
+
         // emit event
         editor.emit('picker:asset:close');
         // styling
@@ -131,7 +137,7 @@ editor.once('load', function () {
         var type = args.type;
 
         allowMultiSelection = !!args.multi;
-        assetSelection.length = 0;
+        assetSelection = [];
 
         currentType = type;
         currentAsset = args.currentAsset;
