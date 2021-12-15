@@ -1,0 +1,89 @@
+.picker-fix-templates {
+    .pcui-overlay-content {
+        z-index: 1;
+        width: 800px;
+        max-width: 90%;
+
+        > .header {
+            background: $bcg-dark;
+            align-items: center;
+
+            .pcui-label {
+                color: $text-primary;
+            }
+
+            > .icon {
+                @extend .font-icon;
+                background: $error-secondary;
+                color: $text-primary;
+
+                text-align: center;
+                font-size: 20px;
+                width: 32px;
+                display: block;
+                height: 32px;
+                line-height: 32px;
+                margin: 0 5px 0 0;
+            }
+        }
+
+        > .pcui-label {
+            padding: 20px;
+            white-space: normal;
+            color: $text-primary;
+            line-height: 1.5;
+
+            > p {
+                margin-top: 0;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+        }
+
+        .buttons {
+            padding: 5px 20px;
+            border-top: 1px solid $border-primary;
+        }
+
+        .pcui-button.cancel {
+            background: $text-active;
+            color: $text-primary;
+            &:hover {
+                background: darken($text-active, 5%);
+            }
+        }
+    }
+}
+
+.picker-fix-templates-fullscreen {
+    z-index: 10000;
+    background: $bcg-primary;
+    .pcui-overlay-inner {
+        background: transparent;
+    }
+
+    .pcui-overlay-content {
+        box-shadow: none;
+        z-index: 1;
+        width: 800px;
+        max-width: 90%;
+        background: $bcg-darkest;
+        padding: 20px;
+
+        .pcui-label {
+            white-space: normal;
+            line-height: 1.5;
+            color: $text-primary;
+        }
+
+        .pcui-button.cancel {
+            background: $text-active;
+            color: $text-primary;
+            &:hover {
+                background: darken($text-active, 5%);
+            }
+        }
+    }
+}

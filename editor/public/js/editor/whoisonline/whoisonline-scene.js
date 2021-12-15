@@ -2,6 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     let currentRoom;
+    let relayEnabled = true;
 
     editor.on('relay:disconnected', () => {
         currentRoom = null;
@@ -53,6 +54,7 @@ editor.once('load', function () {
     });
 
     function onSceneLoad(uniqueId) {
+        if (!relayEnabled) return;
         if (currentRoom === uniqueId) return;
 
         currentRoom = config.scene.uniqueId;
@@ -73,8 +75,13 @@ editor.once('load', function () {
     });
 
     editor.on('scene:unload', (id, uniqueId) => {
+        if (!relayEnabled) return;
         if (editor.call('relay:isConnected')) {
             onSceneUnload(uniqueId);
         }
+    });
+
+    editor.method('whoisonline:scene:enabled', enabled => {
+        relayEnabled = enabled;
     });
 });

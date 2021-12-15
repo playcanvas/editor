@@ -10,6 +10,18 @@ editor.once('load', function () {
     editor.method('schema:asset:getType', function (path) {
         return editor.call('schema:getTypeForPath', config.schema.asset, path);
     });
+
+    editor.method('schema:asset:getDataType', function (assetType, path) {
+        const schema = config.schema[assetType + 'Data'];
+        if (schema) {
+            // strip data.
+            path = path.substring(5);
+            return editor.call('schema:getTypeForPath', schema, path);
+        }
+
+        return editor.call('schema:asset:getType', path);
+    });
+
     editor.method('schema:assets:list', () => {
         return config.schema.asset.type.$enum;
     });

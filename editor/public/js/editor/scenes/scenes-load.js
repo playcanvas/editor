@@ -26,8 +26,9 @@ editor.once('load', function () {
     // Load scene with specified id. If isNew is true
     // then scene settings will open right after loading the new scene
     editor.method('scene:load', function (uniqueId, isNew) {
-        if (config.scene.id)
+        if (config.scene.id) {
             editor.call('scene:unload');
+        }
 
         if (evtLoadOnAuthenticated) {
             evtLoadOnAuthenticated.unbind();

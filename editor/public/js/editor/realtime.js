@@ -112,9 +112,7 @@ editor.once('load', function () {
         });
 
         editor.on('scene:unload', function (id, uniqueId) {
-            if (editor.realtime.scenes.current) {
-                editor.realtime.scenes.current.unload();
-            }
+            editor.realtime.scenes.unload(uniqueId);
         });
 
         if (editor.call('visibility')) {
