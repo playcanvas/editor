@@ -83,6 +83,8 @@ editor.once('load', function () {
         return candidate || null;
     };
 
+    editor.method('selector:previous', getLast);
+
     var updateTooltipContent = function () {
         var item = getLast();
 

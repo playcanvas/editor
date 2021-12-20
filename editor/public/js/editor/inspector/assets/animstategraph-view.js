@@ -668,6 +668,7 @@ Object.assign(pcui, (function () {
             this.unlink();
             this._assets = assets;
             this._selectedLayer = layer;
+            this._selectedEntity = null;
 
             this._createGraph();
 

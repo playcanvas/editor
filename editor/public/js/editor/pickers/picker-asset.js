@@ -46,10 +46,12 @@ editor.once('load', function () {
         if (!parseInt(asset.get('id'), 10)) {
             // probably a legacy script
             if (overlay.hidden ||
-                (currentType !== '*' && currentType !== "script")) {
+                (currentType !== '*' && !Array.isArray(currentType) && currentType !== "script")) {
                 return;
             }
-        } else if ((currentType !== '*' && asset.get('type') !== currentType) || asset === currentAsset) {
+        } else if ((currentType !== '*' && !Array.isArray(currentType) && asset.get('type') !== currentType) || asset === currentAsset) {
+            return;
+        } else if (Array.isArray(currentType) && !currentType.includes(asset.get('type'))) {
             return;
         }
 
@@ -93,6 +95,7 @@ editor.once('load', function () {
         assetsPanel.searchInput.value = assetsPanelSearch;
         assetsPanel.currentFolder = assetsPanelFolder;
         assetsPanel.suspendFiltering = false;
+        assetsPanel.assetTypes = null;
         assetsPanel.filter();
 
         // fold back assets panel if needed
@@ -165,6 +168,10 @@ editor.once('load', function () {
             pickerType = 'all';
             assetsPanel.dropdownType.value = pickerType;
             assetsPanel.dropdownType.enabled = true;
+        } else if (Array.isArray(pickerType)) {
+            assetsPanel.assetTypes = pickerType;
+            assetsPanel.dropdownType.value = 'all';
+            assetsPanel.dropdownType.enabled = false;
         } else {
             assetsPanel.dropdownType.value = pickerType;
             assetsPanel.dropdownType.enabled = false;

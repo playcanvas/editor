@@ -1,4 +1,5 @@
 .asset-animstategraph-inspector {
+    overflow: visible;
     .asset-animstategraph-inspector-parameter, .asset-animstategraph-inspector-layer, .asset-animstategraph-inspector-state, .asset-animstategraph-inspector-transition {
         margin: $element-margin;
         border: 1px solid $bcg-darkest;
@@ -135,4 +136,9 @@
         right: 0;
         top: 0;
     }
+}
+
+.asset-animstategraph-inspector-state-view-button.active,
+.asset-animstategraph-inspector-state-view-button.active:hover {
+    color: $text-active;
 }

@@ -1,0 +1,47 @@
+.anim-viewer {
+    width: 100%;
+    height: 350px;
+    margin-bottom: 40px;
+    background-color: $bcg-darker;
+
+
+    canvas {
+        transform: scaleY(-1);
+        width: 100%;
+    }
+
+    .message-label {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        white-space: normal;
+    }
+
+    .anim-viewer-ui-container {
+        position: absolute;
+        width: 100%;
+        bottom: -40px;
+        background-color: $bcg-primary;
+
+        .pcui-slider {
+            .pcui-slider-handle {
+                transition: none;
+            }
+        }
+
+        .anim-viewer-slider {
+            width: calc(100% - 75px);
+        }
+
+        .anim-viewer-play-button {
+            min-width: 51px;
+        }
+    }
+}
+
+.anim-viewer.hide {
+    canvas {
+        opacity: 0;
+    }
+}

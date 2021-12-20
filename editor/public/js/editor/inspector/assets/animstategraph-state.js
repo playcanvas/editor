@@ -3,14 +3,16 @@ Object.assign(pcui, (function () {
 
     const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
     const CLASS_ANIMSTATEGRAPH_STATE = CLASS_ANIMSTATEGRAPH + '-state';
+    const CLASS_ANIMSTATEGRAPH_STATE_VIEW_BUTTON = CLASS_ANIMSTATEGRAPH_STATE + '-view-button';
     const CLASS_ANIMSTATEGRAPH_STATE_TRANSITION = CLASS_ANIMSTATEGRAPH_STATE + '-transition';
-    class AnimstategraphState extends pcui.Container {
+    class AnimstategraphState extends pcui.Panel {
         constructor(args, view) {
+            args.headerText = 'STATE';
             super(args);
             this._args = args;
             this._view = view;
             this._assets = null;
-            this._assetEvents = [];
+            this._evts = [];
 
             this._transitionsPanel = new pcui.Panel({
                 headerText: 'TRANSITIONS',
@@ -24,6 +26,21 @@ Object.assign(pcui, (function () {
                 history: ''
             });
             this.append(this._linkedEntitiesPanel);
+        }
+
+        _previewEntity(entityObserver) {
+            const animationAssetId = entityObserver.get(`components.anim.animationAssets.${this._layerName}:${this._stateName}.asset`);
+            if (animationAssetId) {
+                const animationAsset = pc.app.assets.get(animationAssetId).resource;
+                const rootBoneEntity = editor.entities.get(entityObserver.get('components.anim.rootBone'));
+                if (rootBoneEntity) {
+                    this._view._parent._animViewer.loadView(animationAsset, rootBoneEntity._observer.entity.clone());
+                } else {
+                    this._view._parent._animViewer.loadView(animationAsset, entityObserver.entity.clone());
+                }
+            } else {
+                this._view._parent._animViewer.displayMessage('No animation asset assigned to the selected entity.');
+            }
         }
 
         _loadTransitions() {
@@ -47,7 +64,7 @@ Object.assign(pcui, (function () {
                     ignoreParent: true
                 });
                 this._transitionsPanel.append(transitionLabel);
-                this._assetEvents.push(transitionLabel.on('click', () => {
+                this._evts.push(transitionLabel.on('click', () => {
                     this._view.selectEdgeEvent(transition, transition.id);
                 }));
             });
@@ -85,6 +102,7 @@ Object.assign(pcui, (function () {
             this._path = path;
 
             const layerName = this._assets[0].get(`data.layers.${layer}.name`);
+            this._layerName = layerName;
             const state = this._assets[0].get(path);
             if (!state) return;
             this._stateName = state.name;
@@ -133,7 +151,7 @@ Object.assign(pcui, (function () {
             };
 
             this._loadTransitions();
-            this._assetEvents.push(this._assets[0].on('*:set', (path) => {
+            this._evts.push(this._assets[0].on('*:set', (path) => {
                 if (path.startsWith('data.transitions')) {
                     this._loadTransitions();
                 }
@@ -141,27 +159,50 @@ Object.assign(pcui, (function () {
 
             this._linkedEntitiesPanel.hidden = false;
             this.disabled = false;
+            this.header.hidden = false;
 
             // disable editing for start, end and any states
             if (!enabled) {
                 this.disabled = true;
                 this._linkedEntitiesPanel.hidden = true;
+                this.header.hidden = true;
                 return;
             }
 
             this._linkedEntitiesList = [];
             this._linkedEntities = [];
             this._linkedEntityAssets = [];
+
             this._args.entities.forEach(entityObserver => {
-                if (entityObserver.entity.anim && entityObserver.entity.anim.stateGraphAsset && entityObserver.entity.anim.stateGraphAsset === this._assets[0].get('id')) {
+
+                if (entityObserver.get('components.anim.stateGraphAsset') === this._assets[0].get('id')) {
                     const entityPanel = new pcui.Panel({
                         class: CLASS_ANIMSTATEGRAPH_STATE,
                         headerText: entityObserver.entity.name,
                         collapsible: true
                     });
-                    const viewEntityButton = new pcui.Button({ icon: 'E117' });
+                    const viewEntityButton = new pcui.Button({
+                        icon: 'E117',
+                        class: CLASS_ANIMSTATEGRAPH_STATE_VIEW_BUTTON
+                    });
                     entityPanel.header.append(viewEntityButton);
                     viewEntityButton.on('click', () => {
+                        if (this._view._selectedEntity !== entityObserver) {
+                            this._view._selectedEntity = entityObserver;
+                            if (this._view._selectedEntityViewButton) {
+                                this._view._selectedEntityViewButton.class.remove('active');
+                            }
+                            this._view._selectedEntityViewButton = viewEntityButton;
+                            viewEntityButton.class.add('active');
+                            this._previewEntity(entityObserver);
+                        }
+                    });
+                    const openEntityButton = new pcui.Button({
+                        icon: 'E188',
+                        class: CLASS_ANIMSTATEGRAPH_STATE_VIEW_BUTTON
+                    });
+                    entityPanel.header.append(openEntityButton);
+                    openEntityButton.on('click', () => {
                         editor.call('selector:add', 'entity', entityObserver);
                     });
                     const entityAnimationAsset = new pcui.AssetInput({
@@ -181,6 +222,15 @@ Object.assign(pcui, (function () {
                     this._linkedEntitiesList.push(entityPanel);
                     this._linkedEntitiesPanel.append(entityPanel);
                     this._linkedEntitiesPanel.hidden = false;
+
+                    if (!this._view._selectedEntity) {
+                        this._view._selectedEntity = entityObserver;
+                        this._view._selectedEntityViewButton = viewEntityButton;
+                        viewEntityButton.class.add('active');
+                    } else if (this._view._selectedEntity.get('resource_id') === entityObserver.get('resource_id')) {
+                        this._view._selectedEntityViewButton = viewEntityButton;
+                        viewEntityButton.class.add('active');
+                    }
                 }
 
                 this._linkEntitiesEvent = this._assets[0].on(`${path}.name:set`, (value) => {
@@ -188,7 +238,22 @@ Object.assign(pcui, (function () {
                         this._linkedEntityAssets[i].link([entity], `components.anim.animationAssets.${layerName}:${value}.asset`);
                     });
                 });
+
+                this._evts.push(entityObserver.on(`*:set`, (p) => {
+                    if (entityObserver === this._view._selectedEntity && p === `components.anim.animationAssets.${this._layerName}:${this._stateName}.asset`) {
+                        this._previewEntity(entityObserver);
+                    }
+                }));
+
+                if (this._linkedEntities.length === 0) {
+                    this._view._parent._animViewer.displayMessage('Add this anim state graph to an entity\'s anim component to preview it here.');
+                }
             });
+
+            this._view._parent._animViewer.hidden = false;
+            if (this._view._selectedEntity) {
+                this._previewEntity(this._view._selectedEntity);
+            }
         }
 
         unlink() {
@@ -212,11 +277,14 @@ Object.assign(pcui, (function () {
                 this._linkEntitiesEvent = null;
             }
 
-            this._assetEvents.forEach(event => event.unbind());
-            this._assetEvents.length = 0;
+            this._evts.forEach(e => e.unbind());
+            this._evts.length = 0;
 
             this.parent.headerText = 'INSPECTOR';
             this._enabled = false;
+
+            this._view._parent._animViewer.hidden = true;
+            this._view._selectedEntityViewButton = null;
         }
     }
 

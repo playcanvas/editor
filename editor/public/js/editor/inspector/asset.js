@@ -171,6 +171,8 @@ Object.assign(pcui, (function () {
 
             super(args);
 
+            this.args = args;
+
             this.class.add(CLASS_ROOT);
 
             this._projectSettings = args.projectSettings;

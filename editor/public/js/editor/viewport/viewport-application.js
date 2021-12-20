@@ -97,6 +97,7 @@ editor.once('load', function () {
                 editor.emit('viewport:preUpdate', dt);
                 editor.emit('viewport:update', dt);
                 pc.ComponentSystem.fire('toolsUpdate', dt);
+                // pc.ComponentSystem.fire('animationUpdate', dt);
                 editor.emit('viewport:postUpdate', dt);
 
                 editor.emit('viewport:gizmoUpdate', dt);

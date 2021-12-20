@@ -111,8 +111,8 @@ Object.assign(pcui, (function () {
                     const materialName = containerObserver.get(`meta.materials.${m}.name`);
                     const materialObserverResult = editor.call('assets:find', (a) => {
                         return a.get('source_asset_id') === containerObserver.get('id').toString() &&
-                               a.get('name') === materialName &&
-                               a.get('type') === 'material';
+                            a.get('name') === materialName &&
+                            a.get('type') === 'material';
                     });
 
                     if (materialObserverResult.length === 0) {

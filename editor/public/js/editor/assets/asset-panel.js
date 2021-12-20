@@ -224,6 +224,7 @@ Object.assign(pcui, (function () {
      * @property {pcui.Element} activeView The current active view (details or gridview)
      * @property {pcui.Progress} progressBar The progress bar
      * @property {pcui.SelectInput} dropdownType The type dropdown
+     * @property {string[]} assetTypes A specific list of asset types to use during filtering
      * @property {pcui.TextInput} searchInput The search filter text input
      * @property {Observer[]} selectedAssets The selected assets
      * @property {Observer[]} visibleAssets The assets that are currently visible in the asset panel.
@@ -547,6 +548,8 @@ Object.assign(pcui, (function () {
             this._selectedAssets = [];
 
             this.writePermissions = !!args.writePermissions;
+
+            this.assetTypes = null;
 
             if (args.assets) {
                 this.assets = args.assets;
@@ -1944,7 +1947,13 @@ Object.assign(pcui, (function () {
         _filterAssetElement(element) {
             if (!element.asset) return false;
 
-            if (this._dropdownType.value !== 'all') {
+            if (this.assetTypes) {
+                if (!this.assetTypes.includes(element.asset.get('type'))) {
+                    return false;
+                }
+            }
+
+            if (this._dropdownType.value !== 'all' && !this.assetTypes) {
                 if (this._dropdownType.value !== (element.asset.get('source') ? element.asset.get('type') + 'Source' : element.asset.get('type'))) {
                     return false;
                 }

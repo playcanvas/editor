@@ -29,11 +29,9 @@
     grid-area: attributes;
     min-width: 0;
     min-height: 0;
-    > .pcui-container {
-        overflow: auto;
-        > .pcui-panel {
-            overflow: auto;
-        }
+    > .pcui-panel-content {
+        overflow-x: hidden;
+        overflow-y: auto;
     }
 }
 

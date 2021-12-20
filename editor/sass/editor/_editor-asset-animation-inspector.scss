@@ -2,3 +2,25 @@
     margin: 6px;
     border: 1px solid $bcg-darker;
 }
+
+.pcui-asset-animation-inspector-preview {
+    height: inherit;
+    padding-top: 0;
+    .pcui-asset-input {
+        height: 24px;
+        display: flex;
+
+        .pcui-asset-input-thumb {
+            display: none;
+        }
+
+        .pcui-asset-input-label {
+            margin-left: 0;
+            width: 30%;
+        }
+
+        .pcui-asset-input-controls {
+            width: 70%;
+        }
+    }
+}

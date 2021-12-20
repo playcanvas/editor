@@ -48,6 +48,17 @@ Object.assign(pcui, (function () {
             args.inspectorPanelSecondary.append(this._stateContainer);
             this._transitionsContainer = new pcui.AnimstategraphTransitions(args, this._view);
             args.inspectorPanelSecondary.append(this._transitionsContainer);
+            setTimeout(() => {
+                this._app = editor.call('viewport:app');
+                this._animViewer = new pcui.AnimViewer({
+                    app: this._app,
+                    class: 'animstategraph-view-anim-viewer'
+                });
+                args.inspectorPanelSecondary.prepend(this._animViewer);
+                args.inspectorPanelSecondary.on('resize', () => {
+                    this._animViewer._canvas.width = args.inspectorPanelSecondary.dom.offsetWidth - 1;
+                });
+            }, 50);
             this._openEditorButton.on('click', () => {
                 this.history.add({
                     redo: () => {
