@@ -250,13 +250,6 @@ editor.once('load', function () {
         });
     });
 
-
-    // render frames
-    // app.on('frameEnd', function() {
-    //     var e = addEvent(app.stats.frame.renderStart - editor.call('tools:time:beginning'), null, 'render');
-    //     e.t2 = (app.stats.frame.renderStart - editor.call('tools:time:beginning')) + app.stats.frame.renderTime;
-    // });
-
     // subscribe to asset loading start
     app.assets.on('load:start', function (asset) {
         if (! enabled) return;

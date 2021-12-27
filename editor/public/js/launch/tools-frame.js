@@ -470,7 +470,7 @@ editor.once('load', function () {
     }
 
 
-    // controlls for skip rendering
+    // controls to skip rendering of draw calls
     var row = document.createElement('div');
     row.classList.add('row');
     panelDrawCalls.appendChild(row);
@@ -659,7 +659,7 @@ editor.once('load', function () {
     });
 
     // update frame fields
-    app.on('frameEnd', function () {
+    app.on('frameend', function () {
         if (! enabled)
             return;
 
