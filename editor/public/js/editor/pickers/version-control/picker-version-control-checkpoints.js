@@ -56,9 +56,7 @@ editor.once('load', function () {
     });
     btnVcGraph.class.add('icon', 'vc-graph');
 
-    if (editor.call('users:hasFlag', 'hasVersionControlGraph')) {
-        panelBranchActions.append(btnVcGraph);
-    }
+    panelBranchActions.append(btnVcGraph);
 
     // new checkpoint button
     var btnNewCheckpoint = new ui.Button({

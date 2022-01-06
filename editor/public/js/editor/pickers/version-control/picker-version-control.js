@@ -665,9 +665,7 @@ editor.once('load', function () {
         value: 'show-vc-graph'
     });
 
-    if (editor.call('users:hasFlag', 'hasVersionControlGraph')) {
-        menuBranches.append(menuVcGraph);
-    }
+    menuBranches.append(menuVcGraph);
 
     menuVcGraph.on('select', function () {
         if (contextBranch) {

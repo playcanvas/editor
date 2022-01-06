@@ -129,7 +129,7 @@ editor.once('load', function () {
 
             const lines = VcUtils.descriptionLines(h.description, node.id);
 
-            const info = VcUtils.infoLine(node, h.created_at);
+            const info = VcUtils.infoLine(node.id, h.created_at, node.checkpointData.user_full_name);
 
             const branch = VcUtils.branchDescription(node, data);
 
@@ -161,12 +161,18 @@ editor.once('load', function () {
             return s.replace(/\s+/g, ' ');
         },
 
-        infoLine: function (node, time) {
-            const id = node.id.substring(0, NUM_ID_CHARS);
+        infoLine: function (id, time, username) {
+            id = id.substring(0, NUM_ID_CHARS);
 
             const dateStr = VcUtils.epochToStr(time);
 
-            const s = `${id} ${dateStr} ${node.checkpointData.user_full_name}`;
+            const parts = [ id, dateStr ];
+
+            if (username) {
+                parts.push(username);
+            }
+
+            const s = parts.join(' ');
 
             return VcUtils.truncateLine(s, CHARS_PER_LINE);
         },
