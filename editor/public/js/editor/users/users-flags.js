@@ -2,7 +2,8 @@ editor.once("load", function () {
     'use strict';
 
     const WHITELISTED_FOR_EVERYONE = {
-        hasRecompressFlippedTextures: true
+        hasRecompressFlippedTextures: true,
+        hasFixCorruptedTemplates: true
     };
 
     const NO_EXCEPTION_FOR_SUPERUSERS = {
