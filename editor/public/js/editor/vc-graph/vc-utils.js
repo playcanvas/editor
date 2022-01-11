@@ -3,14 +3,14 @@ editor.once('load', function () {
 
     const COORD_OFFSETS = { x: 80, y: 50 };
 
-    const COORD_COEFS = { x: 265, y: 105 };
+    const COORD_COEFS = { x: 265, y: 110 };
 
     const GRAPH_DEFAULTS = {
         passiveUIEvents: false,
         includeFonts: false,
         useGlobalPCUI: true,
         defaultStyles: {
-            initialScale: 0.6,
+            initialScale: 0.675,
             background: {
                 color: '#20292B',
                 gridSize: 1
@@ -26,8 +26,9 @@ editor.once('load', function () {
 
     const NODE_DEFAULTS = {
         textColor: '#20292b',
-        baseHeight: 70,
+        baseHeight: 72,
         baseWidth: 190,
+        lineHeight: 15,
         textAlignMiddle: true,
         includeIcon: false
     };
@@ -60,7 +61,7 @@ editor.once('load', function () {
 
     const VC_EDGE_TYPES = [ 'parent', 'child' ];
 
-    const DESCRIPTION_LINES = 3;
+    const DESCRIPTION_LINES = 2;
 
     const CHARS_PER_LINE = 25;
 
@@ -157,6 +158,12 @@ editor.once('load', function () {
             s = s.replace(/\[[a-z0-9]{7}\]/g, '');
 
             s = s.replace(/"/g, '\'');
+
+            s = s.replace(/, parent checkpoint:.+$/, '');
+
+            s = s.replace(/^(Checkpoint before merging).+$/, '$1');
+
+            s = s.replace(/^(Merged branch.+') into '.*$/, '$1');
 
             return s.replace(/\s+/g, ' ');
         },
