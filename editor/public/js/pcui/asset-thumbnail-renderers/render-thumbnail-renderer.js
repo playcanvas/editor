@@ -92,61 +92,66 @@ Object.assign(pcui, (function () {
         _watchMaterials() {
             const app = pc.Application.getApplication();
 
-            // load in the materials
-            const containerObserver = editor.call('assets:get', editor.call('assets:get', this._asset.get('data.containerAsset')).get('source_asset_id'));
-
+            let containerAssetId;
+            let containerAsset;
+            let containerAssetObserver;
+            let sourceAssetId;
+            let containerObserver;
             let materialMappings;
 
-            if (containerObserver) {
+            try {
+                containerAssetId = this._asset.get('data.containerAsset');
+                containerAsset = app.assets.get(containerAssetId);
+                containerAssetObserver = editor.call('assets:get', containerAssetId);
+                sourceAssetId = containerAssetObserver.get('source_asset_id');
+                containerObserver = editor.call('assets:get', sourceAssetId);
                 materialMappings = containerObserver.get('meta.mappings');
-            }
-
-            const containerAsset = app.assets.get(this._asset.get('data.containerAsset'));
-            if (containerObserver && containerAsset && containerAsset.resource && containerAsset.resource.model) {
-                const firstMeshInstanceIndex = containerAsset.resource.model.resource.meshInstances.findIndex(a => a.node.name === this._asset.get('name'));
-                const meshInstanceCount = this._asset.get('meta.meshInstances');
-                const meshInstanceMaterialMappings = materialMappings.slice(firstMeshInstanceIndex, firstMeshInstanceIndex + meshInstanceCount);
-                const materialAssets = meshInstanceMaterialMappings.map((m, i) => {
-                    // TODO we shouldn't rely on a material having a specific name here. Ideally we'd have access to material id's here
-                    const materialName = containerObserver.get(`meta.materials.${m}.name`);
-                    const materialObserverResult = editor.call('assets:find', (a) => {
-                        return a.get('source_asset_id') === containerObserver.get('id').toString() &&
-                            a.get('name') === materialName &&
-                            a.get('type') === 'material';
-                    });
-
-                    if (materialObserverResult.length === 0) {
-                        return scene.material;
-                    }
-                    const materialObserver = materialObserverResult[0][1];
-                    const materialAsset = app.assets.get(materialObserver.get('id')) || scene.material;
-                    return materialAsset;
-                });
-
-                scene.renderEntity.render.materialAssets = materialAssets;
-
-                for (const id in this._materialWatches) {
-                    if (!materialAssets.find(m => parseInt(m.id, 10) === parseInt(id, 10))) {
-                        this._unwatchMaterial(id);
-                    }
-                }
-
-                materialAssets.forEach(asset => {
-                    if (asset === scene.material) return;
-
-                    if (!this._materialWatches[asset.id]) {
-                        this._watchMaterial(asset.id);
-                    }
-                });
-
-            } else {
+            } catch (e) {
+                // No source asset associated with this render asset. It was most likely deleted from the project. We can't watch for material changes in this instance.
                 this._unwatchMaterials();
-
                 scene.renderEntity.render.materialAssets = [];
                 if (containerAsset) {
                     containerAsset.once('load', this.queueRender.bind(this));
                 }
+                return;
             }
+
+            const model = containerAsset.resource.model.resource;
+            const firstMeshInstanceIndex = model.meshInstances.findIndex(a => a.node.name === this._asset.get('name'));
+            const meshInstanceCount = this._asset.get('meta.meshInstances');
+            const meshInstanceMaterialMappings = materialMappings.slice(firstMeshInstanceIndex, firstMeshInstanceIndex + meshInstanceCount);
+            const materialAssets = meshInstanceMaterialMappings.map((m, i) => {
+                // TODO we shouldn't rely on a material having a specific name here. Ideally we'd have access to material id's here
+                const materialName = containerObserver.get(`meta.materials.${m}.name`);
+                const materialObserverResult = editor.call('assets:find', (a) => {
+                    return a.get('source_asset_id') === containerObserver.get('id').toString() &&
+                        a.get('name') === materialName &&
+                        a.get('type') === 'material';
+                });
+
+                if (materialObserverResult.length === 0) {
+                    return scene.material;
+                }
+                const materialObserver = materialObserverResult[0][1];
+                const materialAsset = app.assets.get(materialObserver.get('id')) || scene.material;
+                return materialAsset;
+            });
+
+            scene.renderEntity.render.materialAssets = materialAssets;
+
+            for (const id in this._materialWatches) {
+                if (!materialAssets.find(m => parseInt(m.id, 10) === parseInt(id, 10))) {
+                    this._unwatchMaterial(id);
+                }
+            }
+
+            materialAssets.forEach(asset => {
+                if (asset === scene.material) return;
+
+                if (!this._materialWatches[asset.id]) {
+                    this._watchMaterial(asset.id);
+                }
+            });
         }
 
         _watchMaterial(id) {
