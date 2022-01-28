@@ -98,6 +98,7 @@ Object.assign(pcui, (function () {
             let sourceAssetId;
             let containerObserver;
             let materialMappings;
+            let model;
 
             try {
                 containerAssetId = this._asset.get('data.containerAsset');
@@ -106,6 +107,8 @@ Object.assign(pcui, (function () {
                 sourceAssetId = containerAssetObserver.get('source_asset_id');
                 containerObserver = editor.call('assets:get', sourceAssetId);
                 materialMappings = containerObserver.get('meta.mappings');
+                // TODO shouldn't rely on the model
+                model = containerAsset.resource.model.resource;
             } catch (e) {
                 // No source asset associated with this render asset. It was most likely deleted from the project. We can't watch for material changes in this instance.
                 this._unwatchMaterials();
@@ -116,7 +119,6 @@ Object.assign(pcui, (function () {
                 return;
             }
 
-            const model = containerAsset.resource.model.resource;
             const firstMeshInstanceIndex = model.meshInstances.findIndex(a => a.node.name === this._asset.get('name'));
             const meshInstanceCount = this._asset.get('meta.meshInstances');
             const meshInstanceMaterialMappings = materialMappings.slice(firstMeshInstanceIndex, firstMeshInstanceIndex + meshInstanceCount);
