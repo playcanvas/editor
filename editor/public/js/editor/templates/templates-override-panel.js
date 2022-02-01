@@ -241,7 +241,6 @@ Object.assign(pcui, (function () {
             }
 
             let labelAlignTop = false;
-
             if (isArray) {
                 labelAlignTop = true;
                 if (type === 'string' && name === 'Tags') {
@@ -976,8 +975,9 @@ Object.assign(pcui, (function () {
                                 this._handleSpriteComponent(fields.components.sprite, override, parts);
                             } else if (component === 'model') {
                                 this._handleModelComponent(fields.components.model, override, parts);
+                            } else if (component === 'anim')  {
+                                this._handleDefaultComponent(override, parts, fields.components[component].properties);
                             }
-
                         }
                     }
                 }
@@ -986,6 +986,12 @@ Object.assign(pcui, (function () {
             this._appendFields(fields, panel);
 
             this._containerOverrides.append(panel);
+        }
+
+        _handleDefaultComponent(override, pathParts, dst) {
+            const name = pathParts.slice(2).join('.');
+            const elements = this._createGridLine(name, 'string', override, false);
+            dst.push(...elements);
         }
 
         _appendFields(fields, panel) {
