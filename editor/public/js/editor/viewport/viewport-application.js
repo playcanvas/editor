@@ -27,12 +27,12 @@ editor.once('load', function () {
         // define the tick method
         this.tick = this.makeTick();
 
-        pc.ComponentSystem.on('toolsUpdate', this.systems.particlesystem.onUpdate, this.systems.particlesystem);
-        pc.ComponentSystem.on('toolsUpdate', this.systems.animation.onUpdate, this.systems.animation);
+        this.systems.on('toolsUpdate', this.systems.particlesystem.onUpdate, this.systems.particlesystem);
+        this.systems.on('toolsUpdate', this.systems.animation.onUpdate, this.systems.animation);
 
         // TODO: remove if once layoutgroups merged
         if (this.systems.layoutgroup) {
-            pc.ComponentSystem.on('toolsUpdate', this.systems.layoutgroup._onPostUpdate, this.systems.layoutgroup);
+            this.systems.on('toolsUpdate', this.systems.layoutgroup._onPostUpdate, this.systems.layoutgroup);
         }
     };
 
@@ -96,8 +96,7 @@ editor.once('load', function () {
                 // Perform ComponentSystem update
                 editor.emit('viewport:preUpdate', dt);
                 editor.emit('viewport:update', dt);
-                pc.ComponentSystem.fire('toolsUpdate', dt);
-                // pc.ComponentSystem.fire('animationUpdate', dt);
+                app.systems.fire('toolsUpdate', dt);
                 editor.emit('viewport:postUpdate', dt);
 
                 editor.emit('viewport:gizmoUpdate', dt);
