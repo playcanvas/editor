@@ -231,6 +231,10 @@ editor.once('load', function () {
         title: 'Import Hierarchy',
         description: 'Generate a template asset when importing 3D assets (FBX etc). The template asset will contain the full entity hierarchy from the imported file.'
     }, {
+        name: 'asset-tasks:createFBXFolder',
+        title: 'Create FBX Folder',
+        description: 'Create a new folder in the current directory when importing an FBX file, which will store all the imported FBX contents.'
+    }, {
         name: 'asset-tasks:animSampleRate',
         title: 'Animation Sample Rate',
         description: 'Rate at which to sample animation curves in samples per second. Specify 0 to disable sampling and use input keys instead.'

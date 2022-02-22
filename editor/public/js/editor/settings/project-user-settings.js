@@ -35,6 +35,7 @@ editor.once('load', function () {
                     overwriteTexture: true,
                     useGlb: false,
                     useContainers: false,
+                    createFBXFolder: false,
                     defaultAssetPreload: true,
                     animSampleRate: 10,
                     animCurveTolerance: 0,

@@ -85,6 +85,13 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'settings',
+            label: 'Create FBX Folder',
+            type: 'boolean',
+            alias: 'asset-tasks:createFBXFolder',
+            path: 'editor.pipeline.createFBXFolder'
+        },
+        {
+            observer: 'settings',
             label: 'Naming Strategy',
             type: 'select',
             args: {
@@ -151,7 +158,7 @@ Object.assign(pcui, (function () {
             // add sections
             this._appendSection('Texture Import Settings', this._attributesInspector.getField('editor.pipeline.defaultAssetPreload'));
             this._appendSection('Model Import Settings', this._attributesInspector.getField('editor.pipeline.textureDefaultToAtlas'));
-            this._appendSection('Animation Import Settings', this._attributesInspector.getField('editor.pipeline.useContainers'));
+            this._appendSection('Animation Import Settings', this._attributesInspector.getField('editor.pipeline.createFBXFolder'));
 
             // reference
             if (!this._panelTooltip) {

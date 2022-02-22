@@ -225,6 +225,153 @@ editor.once('load', function () {
         });
     });
 
+    function getPathFromFolder(folder) {
+        var path = [];
+        if (folder && folder.get)
+            path = folder.get('path').concat(parseInt(folder.get('id'), 10));
+        return path;
+    }
+
+    function createFolder(currentFolder, name, callback) {
+        editor.call('assets:create', {
+            name: name,
+            type: 'folder',
+            source: true,
+            preload: false,
+            data: null,
+            parent: currentFolder,
+            scope: {
+                type: 'project',
+                id: config.project.id
+            }
+        }, (err, assetId) => {
+            if (err) return;
+            var currentFolder = editor.assets.get(assetId)._observer;
+            callback(currentFolder);
+        });
+    }
+
+    function uploadFile(currentFolder, file, multipleFiles) {
+        var path = getPathFromFolder(currentFolder);
+
+        var ext = file.name.split('.');
+        if (ext.length === 1) return;
+
+        ext = ext[ext.length - 1].toLowerCase();
+
+        if (legacyScripts && ext === 'js') {
+            editor.call('status:error', 'Cannot upload scripts in this project because it uses a deprecated scripting system that is now read-only.');
+            return;
+        }
+
+        var type = extToType[ext] || 'binary';
+
+        var source = type !== 'binary' && !targetExtensions[ext];
+
+        // check if we need to convert textures to texture atlases
+        if (type === 'texture' && userSettings.get('editor.pipeline.textureDefaultToAtlas')) {
+            type = 'textureatlas';
+        }
+
+        // can we overwrite another asset?
+        var sourceAsset = null;
+        var candidates = editor.call('assets:find', function (item) {
+            // check files in current folder only
+            if (!item.get('path').equals(path))
+                return false;
+
+            // try locate source when dropping on its targets
+            if (source && !item.get('source') && item.get('source_asset_id')) {
+                var itemSource = editor.call('assets:get', item.get('source_asset_id'));
+                if (itemSource && itemSource.get('type') === type && itemSource.get('name').toLowerCase() === file.name.toLowerCase()) {
+                    sourceAsset = itemSource;
+                    return false;
+                }
+            }
+
+
+            if (item.get('source') === source && item.get('name').toLowerCase() === file.name.toLowerCase()) {
+                // we want the same type or try to replace a texture atlas with the same name if one exists
+                if (item.get('type') === type || (type === 'texture' && item.get('type') === 'textureatlas')) {
+                    return true;
+                }
+            }
+
+            return false;
+        });
+
+        // candidates contains [index, asset] entries. Each entry
+        // represents an asset that could be overwritten by the uploaded asset.
+        // Use the first candidate by default (or undefined if the array is empty).
+        // If we are uploading a texture try to find a textureatlas candidate and
+        // if one exists then overwrite the textureatlas instead.
+        var asset = candidates[0];
+        if (type === 'texture') {
+            for (var j = 0; j < candidates.length; j++) {
+                if (candidates[j][1].get('type') === 'textureatlas') {
+                    asset = candidates[j];
+                    type = 'textureatlas';
+                    break;
+                }
+            }
+        }
+
+        var data = null;
+        if (ext === 'js') {
+            data = {
+                order: 100,
+                scripts: {}
+            };
+        }
+
+        const uploadToFolder = (folder) => {
+            editor.call('assets:uploadFile', {
+                asset: asset ? asset[1] : sourceAsset,
+                file: file,
+                type: type,
+                name: file.name,
+                parent: folder,
+                pipeline: true,
+                data: data,
+                meta: asset ? asset[1].get('meta') : null
+            }, function (err, data) {
+                if (err || ext !== 'js') return;
+
+                var onceAssetLoad = function (asset) {
+                    var url = asset.get('file.url');
+                    if (url) {
+                        editor.call('scripts:parse', asset);
+                    } else {
+                        asset.once('file.url:set', function () {
+                            editor.call('scripts:parse', asset);
+                        });
+                    }
+                };
+
+                var asset = editor.call('assets:get', data.id);
+                if (asset) {
+                    onceAssetLoad(asset);
+                } else {
+                    editor.once('assets:add[' + data.id + ']', onceAssetLoad);
+                }
+            });
+        };
+
+        var settings = editor.call('settings:projectUser');
+        // if we're not replacing a current file, the file is of type FBX and the user has the createFBXFolder option enabled,
+        // we should create a folder for the contents of the FBX
+        if (!asset && file.name.match(/\.fbx$/) && settings.get('editor.pipeline.createFBXFolder')) {
+            createFolder(currentFolder, file.name, (folder) => {
+                if (!multipleFiles) {
+                    currentFolder = editor.call('assets:panel:currentFolder', folder);
+                }
+                uploadToFolder(folder);
+            });
+        } else {
+            uploadToFolder(currentFolder);
+        }
+    }
+
     editor.method('assets:upload:files', function (files) {
         if (!editor.call('assets:canUploadFiles', files)) {
             var msg = 'Disk allowance exceeded. <a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
@@ -232,116 +379,9 @@ editor.once('load', function () {
             return;
         }
 
-
         var currentFolder = editor.call('assets:panel:currentFolder');
-
-        for (let i = 0; i < files.length; i++) {
-            var path = [];
-
-            if (currentFolder && currentFolder.get)
-                path = currentFolder.get('path').concat(parseInt(currentFolder.get('id'), 10));
-
-            var ext = files[i].name.split('.');
-            if (ext.length === 1)
-                continue;
-
-            ext = ext[ext.length - 1].toLowerCase();
-
-            if (legacyScripts && ext === 'js') {
-                editor.call('status:error', 'Cannot upload scripts in this project because it uses a deprecated scripting system that is now read-only.');
-                return;
-            } else {
-                var type = extToType[ext] || 'binary';
-
-                var source = type !== 'binary' && !targetExtensions[ext];
-
-                // check if we need to convert textures to texture atlases
-                if (type === 'texture' && userSettings.get('editor.pipeline.textureDefaultToAtlas')) {
-                    type = 'textureatlas';
-                }
-
-                // can we overwrite another asset?
-                var sourceAsset = null;
-                var candidates = editor.call('assets:find', function (item) {
-                    // check files in current folder only
-                    if (!item.get('path').equals(path))
-                        return false;
-
-                    // try locate source when dropping on its targets
-                    if (source && !item.get('source') && item.get('source_asset_id')) {
-                        var itemSource = editor.call('assets:get', item.get('source_asset_id'));
-                        if (itemSource && itemSource.get('type') === type && itemSource.get('name').toLowerCase() === files[i].name.toLowerCase()) {
-                            sourceAsset = itemSource;
-                            return false;
-                        }
-                    }
-
-
-                    if (item.get('source') === source && item.get('name').toLowerCase() === files[i].name.toLowerCase()) {
-                        // we want the same type or try to replace a texture atlas with the same name if one exists
-                        if (item.get('type') === type || (type === 'texture' && item.get('type') === 'textureatlas')) {
-                            return true;
-                        }
-                    }
-
-                    return false;
-                });
-
-                // candidates contains [index, asset] entries. Each entry
-                // represents an asset that could be overwritten by the uploaded asset.
-                // Use the first candidate by default (or undefined if the array is empty).
-                // If we are uploading a texture try to find a textureatlas candidate and
-                // if one exists then overwrite the textureatlas instead.
-                var asset = candidates[0];
-                if (type === 'texture') {
-                    for (var j = 0; j < candidates.length; j++) {
-                        if (candidates[j][1].get('type') === 'textureatlas') {
-                            asset = candidates[j];
-                            type = 'textureatlas';
-                            break;
-                        }
-                    }
-                }
-
-                var data = null;
-                if (ext === 'js') {
-                    data = {
-                        order: 100,
-                        scripts: {}
-                    };
-                }
-
-                editor.call('assets:uploadFile', {
-                    asset: asset ? asset[1] : sourceAsset,
-                    file: files[i],
-                    type: type,
-                    name: files[i].name,
-                    parent: editor.call('assets:panel:currentFolder'),
-                    pipeline: true,
-                    data: data,
-                    meta: asset ? asset[1].get('meta') : null
-                }, function (err, data) {
-                    if (err || ext !== 'js') return;
-
-                    var onceAssetLoad = function (asset) {
-                        var url = asset.get('file.url');
-                        if (url) {
-                            editor.call('scripts:parse', asset);
-                        } else {
-                            asset.once('file.url:set', function () {
-                                editor.call('scripts:parse', asset);
-                            });
-                        }
-                    };
-
-                    var asset = editor.call('assets:get', data.id);
-                    if (asset) {
-                        onceAssetLoad(asset);
-                    } else {
-                        editor.once('assets:add[' + data.id + ']', onceAssetLoad);
-                    }
-                });
-            }
+        for (var i = 0; i < files.length; i++) {
+            uploadFile(currentFolder, files[i], files.length > 1);
         }
     });
 
