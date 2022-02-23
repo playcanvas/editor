@@ -228,11 +228,7 @@ Object.assign(pcui, (function () {
                 }
             });
 
-            let metaAttributesString = Object.keys(metaAttributes).reduce((attributesString, currAttribute) => {
-                return attributesString + ', ' + currAttribute;
-            }, '');
-            metaAttributesString = metaAttributesString.slice(2, -1);
-
+            const metaAttributesString = Object.keys(metaAttributes).join(', ');
             const metaAttributesField = this._metaAttributesInspector.getField('meta.attributes');
             metaAttributesField.parent.hidden = !metaAttributesString;
             metaAttributesField.style.whiteSpace = 'normal';

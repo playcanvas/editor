@@ -284,7 +284,7 @@ Object.assign(pcui, (function () {
                 const asset = this._assets.get(e.get('components.render.asset'));
                 if (!asset) continue;
 
-                if (!asset.has('meta.attributes.texCoord1')) {
+                if (!asset.has('meta.attributes.TEXCOORD_1')) {
                     missing = true;
                 }
             }

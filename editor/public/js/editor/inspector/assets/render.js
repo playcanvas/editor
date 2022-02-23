@@ -2,12 +2,26 @@ Object.assign(pcui, (function () {
     'use strict';
 
     const META_ATTRIBUTES = [{
-        label: 'Mesh Instances',
-        path: 'meta.meshInstances',
+        label: 'Vertices',
+        alias: 'vertices',
+        path: 'meta.vertices',
+        type: 'label'
+    }, {
+        label: 'Triangles',
+        alias: 'triangles',
+        path: 'meta.triangles',
+        type: 'label'
+    }, {
+        label: 'Meshes',
+        path: 'meta.meshes',
         type: 'label'
     }, {
         label: 'Skinned',
         path: 'meta.skinned',
+        type: 'label'
+    }, {
+        label: 'Attributes',
+        path: 'meta.attributes',
         type: 'label'
     }];
 
@@ -77,6 +91,23 @@ Object.assign(pcui, (function () {
             this.unlink();
             this._metaAttributesInspector.link(assets);
             this._attributesInspector.link(assets);
+
+            // fill attribute meta
+            const metaAttributes = {};
+            assets.forEach(asset => {
+                const currMetaAttributes = asset.get('meta.attributes');
+                if (currMetaAttributes) {
+                    Object.assign(metaAttributes, currMetaAttributes);
+                }
+            });
+
+            const metaAttributesString = Object.keys(metaAttributes).join(', ');
+            const metaAttributesField = this._metaAttributesInspector.getField('meta.attributes');
+            metaAttributesField.parent.hidden = !metaAttributesString;
+            metaAttributesField.style.whiteSpace = 'normal';
+            metaAttributesField.values = assets.map(asset => {
+                return metaAttributesString;
+            });
         }
 
         unlink() {
