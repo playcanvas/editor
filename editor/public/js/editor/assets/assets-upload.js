@@ -246,8 +246,15 @@ editor.once('load', function () {
             }
         }, (err, assetId) => {
             if (err) return;
-            var currentFolder = editor.assets.get(assetId)._observer;
-            callback(currentFolder);
+            var currentFolder;
+            var interval = setInterval(() => {
+                var asset = editor.assets.get(assetId);
+                if (asset) {
+                    currentFolder = asset._observer;
+                    clearInterval(interval);
+                    callback(currentFolder);
+                }
+            }, 200);
         });
     }
 
