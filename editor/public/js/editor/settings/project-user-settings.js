@@ -118,6 +118,10 @@ editor.once('load', function () {
                 settings.set('editor.pipeline.useContainers', false);
             }
 
+            if (!settings.has('editor.pipeline.createFBXFolder')) {
+                settings.set('editor.pipeline.createFBXFolder', true);
+            }
+
             if (!settings.has('editor.pipeline.defaultAssetPreload')) {
                 settings.set('editor.pipeline.defaultAssetPreload', true);
             }
