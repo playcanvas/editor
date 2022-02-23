@@ -251,6 +251,14 @@ editor.once('load', function () {
         title: 'Animation Naming Strategy (for GLB only)',
         description: 'Choose the naming strategy when importing animations. Select \'Use Take Name\' to name the animation after the take name assigned in the FBX file. Select \'Use FBX Filename\' to name the animation after the FBX filename.'
     }, {
+        name: 'asset-tasks:unwrapUv',
+        title: 'Unwrap Uv',
+        description: 'Generate a set of unwrapped uv coordinates.'
+    }, {
+        name: 'asset-tasks:unwrapUvTexelsPerMeter',
+        title: 'Padding',
+        description: 'When uv unwrapping is enabled, the number of texels per meter. Defaults to 16.'
+    }, {
         name: 'asset-tasks:defaultAssetPreload',
         title: 'Preload new assets',
         description: 'Create new assets with the preload option selected. Script assets will be created with preload enabled regardless of this setting.'

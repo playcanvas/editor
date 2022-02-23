@@ -85,6 +85,23 @@ Object.assign(pcui, (function () {
         },
         {
             observer: 'settings',
+            label: 'Unwrap Uv',
+            type: 'boolean',
+            alias: 'asset-tasks:unwrapUv',
+            path: 'editor.pipeline.unwrapUv'
+        },
+        {
+            observer: 'settings',
+            label: 'Texels Per Meter',
+            type: 'number',
+            alias: 'asset-tasks:unwrapUvTexelsPerMeter',
+            path: 'editor.pipeline.unwrapUvTexelsPerMeter',
+            args: {
+                min: 0
+            }
+        },
+        {
+            observer: 'settings',
             label: 'Create FBX Folder',
             type: 'boolean',
             alias: 'asset-tasks:createFBXFolder',
@@ -159,6 +176,11 @@ Object.assign(pcui, (function () {
             this._appendSection('Texture Import Settings', this._attributesInspector.getField('editor.pipeline.defaultAssetPreload'));
             this._appendSection('Model Import Settings', this._attributesInspector.getField('editor.pipeline.textureDefaultToAtlas'));
             this._appendSection('Animation Import Settings', this._attributesInspector.getField('editor.pipeline.createFBXFolder'));
+
+            if (!editor.call('users:hasFlag', 'hasUnwrapUv')) {
+                this._attributesInspector.getField('editor.pipeline.unwrapUv').parent.hidden = true;
+                this._attributesInspector.getField('editor.pipeline.unwrapUvTexelsPerMeter').parent.hidden = true;
+            }
 
             // reference
             if (!this._panelTooltip) {

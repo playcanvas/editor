@@ -40,7 +40,9 @@ editor.once('load', function () {
                     animSampleRate: 10,
                     animCurveTolerance: 0,
                     animEnableCubic: false,
-                    animUseFbxFilename: false
+                    animUseFbxFilename: false,
+                    unwrapUv: false,
+                    unwrapUvTexelsPerMeter: 16
                 }
             },
             branch: config.self.branch.id,
@@ -140,6 +142,14 @@ editor.once('load', function () {
 
             if (!settings.has('editor.pipeline.animUseFbxFilename')) {
                 settings.set('editor.pipeline.animUseFbxFilename', false);
+            }
+
+            if (!settings.has('editor.pipeline.unwrapUv')) {
+                settings.set('editor.pipeline.unwrapUv', false);
+            }
+
+            if (!settings.has('editor.pipeline.unwrapUvTexelsPerMeter')) {
+                settings.set('editor.pipeline.unwrapUvTexelsPerMeter', 16);
             }
 
             if (!settings.has('editor.showFog')) {

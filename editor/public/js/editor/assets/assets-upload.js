@@ -98,6 +98,8 @@ editor.once('load', function () {
                 form.append('animEnableCubic', settings.get('editor.pipeline.animEnableCubic'));
                 form.append('animUseFbxFilename', settings.get('editor.pipeline.animUseFbxFilename'));
                 form.append('useContainers', settings.get('editor.pipeline.useContainers'));
+                form.append('unwrapUv', settings.get('editor.pipeline.unwrapUv'));
+                form.append('unwrapUvTexelsPerMeter', settings.get('editor.pipeline.unwrapUvTexelsPerMeter'));
                 break;
             case 'font':
                 break;
