@@ -41,6 +41,7 @@ Object.assign(pcui, (function () {
                     from: this._edgeData.from,
                     to: this._edgeData.to,
                     edgeType: 1,
+                    exitTime: 1,
                     conditions: {}
                 };
                 data.layers[this._selectedLayer].transitions.push(transitionId);
@@ -138,16 +139,6 @@ Object.assign(pcui, (function () {
                         }
                     },
                     {
-                        label: 'Exit Time',
-                        path: `data.transitions.${transitionId}.exitTime`,
-                        reference: 'asset:anim:transition:exitTime',
-                        type: 'number',
-                        args: {
-                            allowNull: true,
-                            hideSlider: true
-                        }
-                    },
-                    {
                         label: 'Offset',
                         path: `data.transitions.${transitionId}.transitionOffset`,
                         reference: 'asset:anim:transition:transitionOffset',
@@ -190,6 +181,16 @@ Object.assign(pcui, (function () {
                     },
                     {
                         type: 'divider'
+                    },
+                    {
+                        label: 'Exit Time',
+                        path: `data.transitions.${transitionId}.exitTime`,
+                        reference: 'asset:anim:transition:exitTime',
+                        type: 'number',
+                        args: {
+                            allowNull: true,
+                            hideSlider: true
+                        }
                     },
                     {
                         label: 'Conditions',

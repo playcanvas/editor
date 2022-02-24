@@ -20,7 +20,7 @@ editor.once('load', function () {
         {
             name: 'exitTime',
             title: 'Exit Time',
-            description: 'If provided, this transition will only be active for the exact frame during which the source states progress passes the time specified. Given as a normalized value of the source states duration. Values less than 1 will be checked every animation loop.'
+            description: 'The time at which to exit the source state and enter the destination state. Given in normalized time based on the source state\'s duration. Providing no value allows the source state to exit with this transition at any time. A value of less than 1 will make the transition available for exit at that time during every loop of the source state.'
         },
         {
             name: 'priority',
