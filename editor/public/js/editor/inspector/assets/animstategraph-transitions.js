@@ -18,6 +18,15 @@ Object.assign(pcui, (function () {
         return arr;
     }
 
+    class TransitionInspector extends pcui.AttributesInspector {
+        unlink() {
+            Object.keys(this._fields).forEach(k => {
+                this._fields[k].blur();
+            });
+            super.unlink();
+        }
+    }
+
     class AnimstategraphTransitions extends pcui.Container {
         constructor(args, view) {
             super({
@@ -219,7 +228,7 @@ Object.assign(pcui, (function () {
                     }
                 });
 
-                const transitionInspector = new pcui.AttributesInspector({
+                const transitionInspector = new TransitionInspector({
                     assets: this._args.assets,
                     history: this._args.history,
                     attributes: baseAttributes
