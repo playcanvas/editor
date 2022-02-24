@@ -8,9 +8,9 @@ Object.assign(pcui, (function () {
             args = Object.assign({}, args);
             args.headerText = 'META';
             args.class = CLASS_ROOT;
+            args.ignoreParent = true;
 
             super(args);
-
 
             setTimeout(() => {
                 this._app = editor.call('viewport:app');
