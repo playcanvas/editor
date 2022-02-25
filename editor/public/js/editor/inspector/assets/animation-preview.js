@@ -145,14 +145,15 @@ Object.assign(pcui, (function () {
             this._attributesInspector.getField('showSkeleton').value = true;
             this._attributesInspector.getField('showModel').value = true;
 
-            const prevItem = editor.call('selector:previous');
-            if (prevItem && prevItem.type === 'entity' && prevItem.items && prevItem.items[0] && prevItem.items[0].entity) {
-                const entityObserver = prevItem.items[0];
-                const rootBoneEntity = editor.entities.get(entityObserver.get('components.anim.rootBone'));
+            const sessionEntityId = sessionStorage.getItem(`animation-preview-entity-id`);
+            sessionStorage.removeItem(`animation-preview-entity-id`);
+            const entity = editor.entities.get(sessionEntityId);
+            if (entity) {
+                const rootBoneEntity = editor.entities.get(entity.get('components.anim.rootBone'));
                 if (rootBoneEntity) {
                     this.loadWithEntity(rootBoneEntity._observer.entity);
                 } else {
-                    this.loadWithEntity(entityObserver.entity);
+                    this.loadWithEntity(entity._observer.entity);
                 }
                 return;
             }

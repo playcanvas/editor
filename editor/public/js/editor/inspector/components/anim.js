@@ -471,6 +471,9 @@ Object.assign(pcui, (function () {
                                 return !!filename.toLowerCase().match(/.glb$/);
                             }
                         });
+                        stateAsset._thumbnail.on('click', () => {
+                            sessionStorage.setItem(`animation-preview-entity-id`, this._entities[0].get('resource_id'));
+                        });
                         const statePanel = new pcui.Panel({
                             collapsible: true,
                             class: CLASS_STATE,
