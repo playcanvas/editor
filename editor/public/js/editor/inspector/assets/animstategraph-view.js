@@ -591,12 +591,47 @@ Object.assign(pcui, (function () {
         }
 
         _onUpdateNodeAttribute({ node, attribute }) {
-            if (attribute === 'name' && !pcui.AnimstategraphState.validateStateName(node.id, node.attributes.name, this._assets[0])) {
-                this._graph.setNodeAttributeErrorState(node.id, attribute, true);
+            const state = this._assets[0].get(`data.states.${node.id}`);
+            if (attribute === 'name') {
+                if (!pcui.AnimstategraphState.validateStateName(node.id, node.attributes.name, this._assets[0])) {
+                    this._graph.setNodeAttributeErrorState(node.id, attribute, true);
+                    return;
+                }
+                const prevName = state.name;
+                const newName = node.attributes.name;
+                const action = {
+                    redo: () => {
+                        const layerName = this._assets[0].get(`data.layers.${this._selectedLayer}.name`);
+                        this._args.entities.forEach(entityObserver => {
+                            if (entityObserver.get('components.anim.stateGraphAsset') === this._assets[0].get('id')) {
+                                pcui.AnimstategraphState.updateAnimationAssetName(entityObserver, layerName, prevName, newName);
+                            }
+                        });
+                        const historyEnabled = this._assets[0].history.enabled;
+                        this._assets[0].history.enabled = false;
+                        this._assets[0].set(`data.states.${node.id}.name`, newName);
+                        this._assets[0].history.enabled = historyEnabled;
+                    },
+                    undo: () => {
+                        const layerName = this._assets[0].get(`data.layers.${this._selectedLayer}.name`);
+                        this._args.entities.forEach(entityObserver => {
+                            if (entityObserver.get('components.anim.stateGraphAsset') === this._assets[0].get('id')) {
+                                pcui.AnimstategraphState.updateAnimationAssetName(entityObserver, layerName, newName, prevName);
+                            }
+                        });
+                        const historyEnabled = this._assets[0].history.enabled;
+                        this._assets[0].history.enabled = false;
+                        this._assets[0].set(`data.states.${node.id}.name`, prevName);
+                        this._assets[0].history.enabled = historyEnabled;
+                    },
+                    name: 'update name'
+                };
+                this.parent.history.add(action);
+                action.redo();
+                this._graph.setNodeAttributeErrorState(node.id, attribute, false);
                 return;
             }
             this._graph.setNodeAttributeErrorState(node.id, attribute, false);
-            const state = this._assets[0].get(`data.states.${node.id}`);
             state[attribute] = node.attributes[attribute];
             this._assets[0].set(`data.states.${node.id}`, state);
         }

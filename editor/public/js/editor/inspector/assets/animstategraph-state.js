@@ -13,6 +13,7 @@ Object.assign(pcui, (function () {
             this._view = view;
             this._assets = null;
             this._evts = [];
+            this._suppressOnNameChange = false;
 
             this._transitionsPanel = new pcui.Panel({
                 headerText: 'TRANSITIONS',
@@ -93,6 +94,15 @@ Object.assign(pcui, (function () {
             return !nameExists;
         }
 
+        static updateAnimationAssetName(observer, layerName, prevState, newState) {
+            const historyEnabled = observer.history.enabled;
+            observer.history.enabled = false;
+            const prevAsset = observer.get(`components.anim.animationAssets.${layerName}:${prevState}`);
+            observer.unset(`components.anim.animationAssets.${layerName}:${prevState}`);
+            observer.set(`components.anim.animationAssets.${layerName}:${newState}`, prevAsset);
+            observer.history.enabled = historyEnabled;
+        }
+
         link(assets, layer, path) {
             this.unlink();
             this.parent.headerText = 'STATE';
@@ -117,7 +127,7 @@ Object.assign(pcui, (function () {
             const attributes = [
                 {
                     label: 'Name',
-                    path: `${path}.name`,
+                    alias: `${path}.name`,
                     type: 'string',
                     args: {
                         renderChanges: false
@@ -151,9 +161,15 @@ Object.assign(pcui, (function () {
             };
 
             this._loadTransitions();
-            this._evts.push(this._assets[0].on('*:set', (path) => {
-                if (path.startsWith('data.transitions')) {
+            this._evts.push(this._assets[0].on('*:set', (assetPath, value) => {
+                if (assetPath.startsWith('data.transitions')) {
                     this._loadTransitions();
+                }
+                if (assetPath === `${path}.name`) {
+                    this._suppressOnNameChange = true;
+                    this._stateInspector.getField(`${path}.name`).value = value;
+                    this._suppressOnNameChange = false;
+                    this._stateName = value;
                 }
             }));
 
@@ -217,6 +233,15 @@ Object.assign(pcui, (function () {
                     entityAnimationAsset.link([entityObserver], `components.anim.animationAssets.${layerName}:${state.name}.asset`);
                     entityPanel.content.append(entityAnimationAsset);
 
+                    if (!entityObserver.get(`components.anim.animationAssets.${layerName}:${state.name}`)) {
+                        const historyEnabled = entityObserver.history.enabled;
+                        entityObserver.history.enabled = false;
+                        entityObserver.set(`components.anim.animationAssets.${layerName}:${state.name}`, {
+                            asset: null
+                        });
+                        entityObserver.history.enabled = historyEnabled;
+                    }
+
                     this._linkedEntities.push(entityObserver);
                     this._linkedEntityAssets.push(entityAnimationAsset);
                     this._linkedEntitiesList.push(entityPanel);
@@ -249,6 +274,38 @@ Object.assign(pcui, (function () {
                     this._view._parent._animViewer.displayMessage('Add this anim state graph to an entity\'s anim component to preview it here.');
                 }
             });
+
+            this._stateInspector.getField(`${path}.name`).on('change', value => {
+                const prevName = this._stateName;
+                const newName = value;
+                if (prevName === newName || this._suppressOnNameChange) return;
+                const action = {
+                    redo: () => {
+                        this._linkedEntities.forEach(entityObserver => {
+                            AnimstategraphState.updateAnimationAssetName(entityObserver, this._layerName, prevName, newName);
+                        });
+                        const historyEnabled = this._assets[0].history.enabled;
+                        this._assets[0].history.enabled = false;
+                        this._assets[0].set(`data.states.${state.id}.name`, newName);
+                        this._assets[0].history.enabled = historyEnabled;
+                        this._stateName = newName;
+                    },
+                    undo: () => {
+                        this._linkedEntities.forEach(entityObserver => {
+                            AnimstategraphState.updateAnimationAssetName(entityObserver, this._layerName, newName, prevName);
+                        });
+                        const historyEnabled = this._assets[0].history.enabled;
+                        this._assets[0].history.enabled = false;
+                        this._assets[0].set(`data.states.${state.id}.name`, prevName);
+                        this._assets[0].history.enabled = historyEnabled;
+                        this._stateName = prevName;
+                    },
+                    name: 'update name'
+                };
+                this._view.parent.history.add(action);
+                action.redo();
+            });
+            this._stateInspector.getField(`${path}.name`).value = this._stateName;
 
             this._view._parent._animViewer.hidden = false;
             if (this._view._selectedEntity) {
