@@ -103,6 +103,16 @@ editor.once('load', function () {
         description: 'If enabled the light will be rendered into lightmaps.',
         url: 'http://developer.playcanvas.com/api/pc.LightComponent.html#bake'
     }, {
+        title: 'bakeNumSamples',
+        subTitle: '{number}',
+        description: 'Number of samples used to bake this light into the lightmap.',
+        url: 'https://developer.playcanvas.com/api/pc.LightComponent.html#bakeNumSamples'
+    }, {
+        title: 'bakeArea',
+        subTitle: '{number}',
+        description: 'Penumbra angle in degrees, allowing a soft shadow boundary.',
+        url: 'https://developer.playcanvas.com/api/pc.LightComponent.html#bakeArea'
+    }, {
         title: 'bakeDir',
         subTitle: '{Boolean}',
         description: 'If enabled and bake=true, the light\'s direction will contribute to directional lightmaps.',

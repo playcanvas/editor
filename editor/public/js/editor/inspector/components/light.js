@@ -97,16 +97,34 @@ Object.assign(pcui, (function () {
         path: 'components.light.bake',
         type: 'boolean'
     }, {
-        label: 'Lightmap Direction',
+        label: 'Bake Direction',
         path: 'components.light.bakeDir',
+        type: 'boolean'
+    }, {
+        label: 'Bake Samples',
+        path: 'components.light.bakeNumSamples',
+        type: 'number',
+        args: {
+            min: 1,
+            max: 255,
+            step: 1,
+            precision: 0
+        }
+    }, {
+        label: 'Bake Area',
+        path: 'components.light.bakeArea',
+        type: 'slider',
+        args: {
+            min: 0,
+            max: 180
+        }
+    }, {
+        label: 'Affect Lightmapped',
+        path: 'components.light.affectLightmapped',
         type: 'boolean'
     }, {
         label: 'Affect Dynamic',
         path: 'components.light.affectDynamic',
-        type: 'boolean'
-    }, {
-        label: 'Affect Lightmapped',
-        path: 'components.light.affectLightmapped',
         type: 'boolean'
     }, {
         type: 'divider'
@@ -364,6 +382,7 @@ Object.assign(pcui, (function () {
                 'type',
                 'cookieAsset',
                 'bake',
+                'bakeDir',
                 'castShadows',
                 'shadowType',
                 'shadowUpdateMode',
@@ -432,8 +451,17 @@ Object.assign(pcui, (function () {
                 this._field(field).parent.hidden = !isSpot;
             });
 
-            ['bakeDir', 'affectLightmapped'].forEach(field => {
-                this._field(field).parent.disabled = !this._field('bake').value;
+            const bakeEnabled = this._field('bake').value;
+            const bakeDirEnabled = this._field('bakeDir').value;
+
+            this._field('bakeDir').parent.disabled = !bakeEnabled;
+            this._field('bakeNumSamples').parent.disabled = !bakeEnabled || bakeDirEnabled;
+            this._field('bakeArea').parent.disabled = !bakeEnabled || bakeDirEnabled;
+            this._field('affectLightmapped').parent.disabled = bakeEnabled;
+
+            const hasLightmapper = editor.call('users:hasFlag', 'hasLightmapper');
+            ['bakeNumSamples', 'bakeArea'].forEach(field => {
+                this._field(field).parent.hidden = !hasLightmapper || !isDirectional;
             });
 
             [

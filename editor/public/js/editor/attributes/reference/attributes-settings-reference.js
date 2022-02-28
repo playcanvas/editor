@@ -80,7 +80,7 @@ editor.once('load', function () {
         url: 'http://developer.playcanvas.com/api/pc.Scene.html#skyboxMip'
     }, {
         title: 'skyboxRotation',
-        description: 'Rotation of skybox',
+        description: 'Rotation of skybox.',
         url: 'http://developer.playcanvas.com/api/pc.Scene.html#skyboxRotation'
     }, {
         title: 'toneMapping',
@@ -293,6 +293,54 @@ editor.once('load', function () {
         subTitle: '{Number}',
         description: 'The lightmap baking mode. Can be "Color Only" for just a single color lightmap or "Color and Direction" for single color plus dominant light direction (used for bump/specular).',
         url: 'http://developer.playcanvas.com/api/pc.Scene.html#lightmapMode'
+    }, {
+        name: 'project:lightmapFilterEnabled',
+        title: 'lightmapFilterEnabled',
+        subTitle: 'boolean',
+        description: 'Enable bilateral filter on runtime baked lightmaps.',
+        url: 'https://developer.playcanvas.com/api/pc.Scene.html#lightmapFilterEnabled'
+    }, {
+        name: 'project:lightmapFilterRange',
+        title: 'lightmapFilterRange',
+        subTitle: 'number',
+        description: 'A range parameter of the bilateral filter.',
+        url: 'https://developer.playcanvas.com/api/pc.Scene.html#lightmapFilterRange'
+    }, {
+        name: 'project:lightmapFilterSmoothness',
+        title: 'lightmapFilterSmoothness',
+        subTitle: 'number',
+        description: 'A spatial parameter of the bilateral filter.',
+        url: 'https://developer.playcanvas.com/api/pc.Scene.html#lightmapFilterSmoothness'
+    }, {
+        name: 'project:ambientBake',
+        title: 'ambientBake',
+        subTitle: 'boolean',
+        description: 'Enable baking ambient light into lightmaps.',
+        url: 'https://developer.playcanvas.com/api/pc.Scene.html#ambientBake'
+    }, {
+        name: 'project:ambientBakeNumSamples',
+        title: 'ambientBakeNumSamples',
+        subTitle: 'number',
+        description: 'Number of samples to use when baking ambient light.',
+        url: 'https://developer.playcanvas.com/api/pc.Scene.html#ambientBakeNumSamples'
+    }, {
+        name: 'project:ambientBakeSpherePart',
+        title: 'ambientBakeSpherePart',
+        subTitle: 'number',
+        description: 'How much of the sphere to include when baking ambient light.',
+        url: 'https://developer.playcanvas.com/api/pc.Scene.html#ambientBakeSpherePart'
+    }, {
+        name: 'project:ambientBakeOcclusionBrightness',
+        title: 'ambientBakeOcclusionBrightness',
+        subTitle: 'number',
+        description: 'Brightness of the baked ambient occlusion.',
+        url: 'https://developer.playcanvas.com/api/pc.Scene.html#ambientBakeOcclusionBrightness'
+    }, {
+        name: 'project:ambientBakeOcclusionContrast',
+        title: 'ambientBakeOcclusionContrast',
+        subTitle: 'number',
+        description: 'Contrast of the baked ambient occlusion.',
+        url: 'https://developer.playcanvas.com/api/pc.Scene.html#ambientBakeOcclusionContrast'
     }, {
         name: 'batchGroups',
         title: 'Batch Groups',

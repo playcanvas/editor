@@ -1,203 +1,133 @@
 editor.once('load', function () {
     'use strict';
 
-    var app = editor.call('viewport:app');
+    const app = editor.call('viewport:app');
     if (! app) return; // webgl not available
 
-    var entityAssetLoading = { };
-    var bakingNextFrame = false;
-    var state = false;
-    var timeLast = 0;
-    var timeDelay = 500;
-    var queued = false;
+    let autoBake = false;
 
-    // track entities model assets loading state to re-bake
-    var rebakeEntity = function (entity, force) {
-        if (! (state || force))
-            return;
+    // rebake the scene
+    const rebake = (() => {
+        const entSet = new Set();
+        const timeDelay = 250;
+        let timeoutId = null;
 
-        if (! entity.has('components.model'))
-            return;
-
-        var type = entity.get('components.model.type');
-
-        if (type === 'asset') {
-            var assetId = entity.get('components.model.asset');
-            if (! assetId)
-                return;
-
-            var asset = app.assets.get(parseInt(assetId, 10));
-            if (! asset || ! asset.resource) {
-                var loading = entityAssetLoading[entity.get('resource_id')];
-                if (loading) {
-                    if (loading.assetId === assetId)
-                        return;
-
-                    app.assets.off('load:' + loading.assetId, loading.fn);
-                    delete entityAssetLoading[entity.get('resource_id')];
-                }
-
-                loading = {
-                    assetId: assetId,
-                    fn: function (asset) {
-                        delete entityAssetLoading[entity.get('resource_id')];
-
-                        if (asset.id !== parseInt(entity.get('components.model.asset'), 10))
-                            return;
-
-                        rebakeEntity(entity);
-                    }
-                };
-                app.assets.once('load:' + assetId, loading.fn);
-                return;
-            }
-        }
-
-        editor.call('viewport:render');
-        editor.once('viewport:update', function () {
-            // console.log('rebake self');
-            editor.call('lightmapper:bake', [entity]);
+        editor.on('lightmapper:baked', () => {
+            timeoutId = null;
         });
+
+        return (entities) => {
+            // collect entities
+            if (entities) {
+                entities.forEach((e) => entSet.add(e));
+            }
+
+            if (!timeoutId) {
+                timeoutId = setTimeout(() => {
+                    const entArray = entSet.size === 0 ? null : Array.from(entSet);
+                    entSet.clear();
+                    editor.call('lightmapper:bake', entArray);
+                    editor.call('entities:shadows:update');
+                }, timeDelay);
+            }
+        };
+    })();
+
+    const evtRebakeEntity = function () {
+        if (autoBake) {
+            rebake([this]);
+        }
     };
 
-    var rebakeScene = function (force) {
-        if (! (state || force))
-            return;
-
-        if (bakingNextFrame)
-            return;
-
-        if (! force && (Date.now() - timeLast) < timeDelay) {
-            if (! queued) {
-                queued = true;
-                setTimeout(function () {
-                    if (! queued) return;
-                    rebakeScene();
-                }, (timeDelay - (Date.now() - timeLast)) + 16);
-            }
-            return;
+    const evtRebakeLight = function () {
+        if (autoBake && this.get('components.light.bake')) {
+            rebake();
         }
-
-        bakingNextFrame = true;
-        editor.call('viewport:render');
-        editor.once('viewport:update', function () {
-            if (! bakingNextFrame)
-                return;
-
-            bakingNextFrame = false;
-            editor.call('lightmapper:bake');
-            editor.call('entities:shadows:update');
-        });
     };
 
+    const evtRebakeScene = function () {
+        if (autoBake) {
+            rebake();
+        }
+    };
 
-    editor.on('lightmapper:baked', function () {
-        queued = false;
-        timeLast = Date.now();
+    editor.method('lightmapper:auto', (value) => {
+        value = !!value;
+
+        if (value !== autoBake) {
+            autoBake = value;
+            editor.emit('lightmapper:auto', autoBake);
+            evtRebakeScene();
+        }
     });
 
-
-    editor.method('lightmapper:auto', function (value) {
-        if (value === undefined)
-            return state;
-
-        if (state === value)
-            return;
-
-        state = value;
-        editor.emit('lightmapper:auto', state);
-
-        rebakeScene();
-    });
-    editor.emit('lightmapper:auto', state);
-
-
-    editor.on('viewport:update', function () {
-        if (queued && (Date.now() - timeLast) >= timeDelay)
-            rebakeScene();
-    });
-
+    editor.emit('lightmapper:auto', autoBake);
 
     // bake once all assets are loaded on first time-load
-    var loadingAssets = { };
-    var onLoadStart = function (asset) {
-        loadingAssets[asset.id] = true;
-        asset.once('load', function () {
-            delete loadingAssets[asset.id];
-
-            if (Object.keys(loadingAssets).length === 0) {
-                app.assets.off('load:start', onLoadStart);
-                rebakeScene(true);
-            }
-        });
-    };
-    app.assets.on('load:start', onLoadStart);
-
-    // re-bake on scene switches
-    editor.on('scene:load', function () {
-        // needs to wait 3 frames
-        // before it is safe to re-bake
-        // don't ask why :D
-
-        editor.call('viewport:render');
-        editor.once('viewport:update', function () {
-            editor.call('viewport:render');
-            editor.once('viewport:update', function () {
-                rebakeScene(true);
-            });
-        });
+    app.assets.on('load', (asset) => {
+        evtRebakeScene();
     });
-
-    // re-bake on scene settings loaded
-    editor.on('sceneSettings:load', function () {
-        rebakeScene(true);
-    });
-
-
-    var evtRebakeEntity = function () {
-        rebakeEntity(this);
-    };
-    var evtRebakeLight = function () {
-        if (! this.get('components.light.bake'))
-            return;
-
-        rebakeScene();
-    };
-
-    var evtRebakeScene = function () {
-        rebakeScene();
-    };
 
     // subscribe to model, light and scene changes
     // to do rebaking
-    var fieldsLocal = [
+    const fieldsLocal = [
         'components.model.lightmapped',
         'components.model.lightmapSizeMultiplier',
-        'components.model.receiveShadows'
+        'components.model.receiveShadows',
+        'components.render.lightmapped',
+        'components.render.lightmapSizeMultiplier',
+        'components.render.receiveShadows'
     ];
-    var fieldsLight = [
+
+    const fieldsLight = [
         'components.light.color',
         'components.light.intensity',
-        'components.light.range',
-        'components.light.falloffMode',
+        'components.light.type',
         'components.light.castShadows',
+        'components.light.shadowDistance',
         'components.light.shadowResolution',
         'components.light.shadowBias',
-        'components.light.normalOffsetBias'
+        'components.light.numCascades',
+        'components.light.cascadeDistribution',
+        'components.light.normalOffsetBias',
+        'components.light.range',
+        'components.light.innerConeAngle',
+        'components.light.outerConeAngle',
+        'components.light.falloffMode',
+        'components.light.mask',
+        'components.light.affectLightmapped',
+        'components.light.bakeNumSamples',
+        'components.light.bakeArea',
+        'components.light.bakeDir',
+        'components.light.vsmBlurMode',
+        'components.light.vsmBlurSize',
+        'components.light.cookieAsset',
+        'components.light.cookieIntensity',
+        'components.light.cookieFalloff',
+        'components.light.cookieChannel',
+        'components.light.cookieAngle',
+        'components.light.cookieScale',
+        'components.light.cookieOffset'
     ];
-    var fieldsGlobal = [
+
+    const fieldsGlobal = [
         'enabled',
+        'components.light.bake',
         'components.model.enabled',
         'components.model.type',
         'components.model.asset',
         'components.model.castShadowsLightmap',
-        'components.light.bake'
+        'components.render.enabled',
+        'components.render.type',
+        'components.render.asset',
+        'components.render.castShadowsLightmap'
     ];
 
     editor.on('entities:add', function (entity) {
         // model
-        for (let i = 0; i < fieldsLocal.length; i++)
+        for (let i = 0; i < fieldsLocal.length; i++) {
             entity.on(fieldsLocal[i] + ':set', evtRebakeEntity);
+        }
 
         // light
         for (let i = 0; i < fieldsLight.length; i++)
@@ -211,4 +141,25 @@ editor.once('load', function () {
     editor.on('gizmo:translate:end', evtRebakeScene);
     editor.on('gizmo:rotate:end', evtRebakeScene);
     editor.on('gizmo:scale:end', evtRebakeScene);
+
+    // auto-rebake on global lightmap setting changes
+
+    const globals = [
+        'lightmapSizeMultiplier',
+        'lightmapMaxResolution',
+        'lightmapMode',
+        'lightmapFilterEnabled',
+        'lightmapFilterRange',
+        'lightmapFilterSmoothness',
+        'ambientBake',
+        'ambientBakeNumSamples',
+        'ambientBakeSpherePart',
+        'ambientBakeOcclusionBrightness',
+        'ambientBakeOcclusionContrast'
+    ];
+
+    const sceneSettings = editor.call('sceneSettings');
+    globals.forEach((key) => {
+        sceneSettings.on(`render.${key}:set`, evtRebakeScene);
+    });
 });

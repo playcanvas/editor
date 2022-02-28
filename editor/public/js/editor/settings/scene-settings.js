@@ -32,29 +32,29 @@ editor.once('load', function () {
     editor.on('sceneSettings:ready', function () {
         const sceneSettings = editor.settings.scene._observer;
 
-        // lightmapSizeMultiplier
-        if (! sceneSettings.has('render.lightmapSizeMultiplier'))
-            sceneSettings.set('render.lightmapSizeMultiplier', 16);
+        const renderDefaults = {
+            lightmapSizeMultiplier: 16,
+            lightmapMaxResolution: 2048,
+            lightmapMode: 0,
+            skyboxIntensity: 1,
+            skyboxMip: 0,
+            skyboxRotation: [0, 0, 0],
+            lightmapFilterEnabled: false,
+            lightmapFilterRange: 10,
+            lightmapFilterSmoothness: 0.2,
+            ambientBake: false,
+            ambientBakeNumSamples: 1,
+            ambientBakeSpherePart: 0.4,
+            ambientBakeOcclusionBrightness: 0,
+            ambientBakeOcclusionContrast: 0
+        };
 
-        // lightmapMaxResolution
-        if (! sceneSettings.has('render.lightmapMaxResolution'))
-            sceneSettings.set('render.lightmapMaxResolution', 2048);
-
-        // lightmapMode
-        if (! sceneSettings.has('render.lightmapMode'))
-            sceneSettings.set('render.lightmapMode', 0);
-
-        // skyboxIntensity
-        if (! sceneSettings.has('render.skyboxIntensity'))
-            sceneSettings.set('render.skyboxIntensity', 1);
-
-        // skyboxMip
-        if (! sceneSettings.has('render.skyboxMip'))
-            sceneSettings.set('render.skyboxMip', 0);
-
-        // skyboxRotation
-        if (! sceneSettings.has('render.skyboxRotation'))
-            sceneSettings.set('render.skyboxRotation', [0, 0, 0]);
+        for (const key in renderDefaults) {
+            const path = `render.${key}`;
+            if (!sceneSettings.has(path)) {
+                sceneSettings.set(path, renderDefaults[key]);
+            }
+        }
     });
 
     var onUnload = function () {

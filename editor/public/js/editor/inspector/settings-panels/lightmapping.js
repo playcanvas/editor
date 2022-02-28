@@ -38,6 +38,93 @@ Object.assign(pcui, (function () {
                     }
                 ]
             }
+        },
+        {
+            type: 'divider'
+        },
+        {
+            observer: 'sceneSettings',
+            label: 'Filter',
+            alias: 'project:lightmapFilterEnabled',
+            path: 'render.lightmapFilterEnabled',
+            type: 'boolean'
+        },
+        {
+            observer: 'sceneSettings',
+            label: 'Range',
+            alias: 'project:lightmapFilterRange',
+            path: 'render.lightmapFilterRange',
+            type: 'number',
+            args: {
+                min: 0
+            }
+        },
+        {
+            observer: 'sceneSettings',
+            label: 'Smoothness',
+            alias: 'project:lightmapFilterSmoothness',
+            path: 'render.lightmapFilterSmoothness',
+            type: 'slider',
+            args: {
+                min: 0,
+                max: 1
+            }
+        },
+        {
+            type: 'divider'
+        },
+        {
+            observer: 'sceneSettings',
+            label: 'Ambient Bake',
+            alias: 'project:ambientBake',
+            path: 'render.ambientBake',
+            type: 'boolean'
+        },
+        {
+            observer: 'sceneSettings',
+            label: 'Samples',
+            alias: 'project:ambientBakeNumSamples',
+            path: 'render.ambientBakeNumSamples',
+            type: 'number',
+            args: {
+                min: 1,
+                max: 255,
+                step: 1,
+                precision: 0
+            }
+        },
+        {
+            observer: 'sceneSettings',
+            label: 'Sphere Part',
+            alias: 'project:ambientBakeSpherePart',
+            path: 'render.ambientBakeSpherePart',
+            type: 'slider',
+            args: {
+                min: 0,
+                max: 1
+            }
+        },
+        {
+            observer: 'sceneSettings',
+            label: 'Occlusion Brightness',
+            alias: 'project:ambientBakeOcclusionBrightness',
+            path: 'render.ambientBakeOcclusionBrightness',
+            type: 'slider',
+            args: {
+                min: -1,
+                max: 1
+            }
+        },
+        {
+            observer: 'sceneSettings',
+            label: 'Occlusion Contrast',
+            alias: 'project:ambientBakeOcclusionContrast',
+            path: 'render.ambientBakeOcclusionContrast',
+            type: 'slider',
+            args: {
+                min: -1,
+                max: 1
+            }
         }
     ];
 
@@ -48,6 +135,21 @@ Object.assign(pcui, (function () {
             args.attributes = ATTRIBUTES;
 
             super(args);
+
+            const hasLightmapper = editor.call('users:hasFlag', 'hasLightmapper');
+            const inspector = this._attributesInspector;
+            [
+                'render.lightmapFilterEnabled',
+                'render.lightmapFilterRange',
+                'render.lightmapFilterSmoothness',
+                'render.ambientBake',
+                'render.ambientBakeNumSamples',
+                'render.ambientBakeSpherePart',
+                'render.ambientBakeOcclusionBrightness',
+                'render.ambientBakeOcclusionContrast'
+            ].forEach((field) => {
+                inspector.getField(field).parent.hidden = !hasLightmapper;
+            });
         }
     }
 
