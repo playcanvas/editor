@@ -3,11 +3,21 @@ editor.once('load', () => {
         entities = entities.slice();
 
         let previous = {};
+        let previousChildrenLayouts = {};
         const redo = () => {
             previous = {};
+            previousChildrenLayouts = {};
+
             entities.forEach(e => {
                 e = e.latest();
                 if (!e) return;
+
+                // 'layoutgroup' component immediately changes the layout (position, anchor, etc) for the entity's children.
+                // Therefore, before adding the component, store all children layout info for undo
+                if (component === 'layoutgroup') {
+                    const entityChildrenLayouts = editor.call('entities:layout:getElementChildrenLayouts', e.get('children'));
+                    previousChildrenLayouts[e.get('resource_id')] = entityChildrenLayouts;
+                }
 
                 previous[e.get('resource_id')] = e.get('components.' + component);
 
@@ -29,6 +39,12 @@ editor.once('load', () => {
                     e.unset('components.' + component);
                 } else {
                     e.set('components.' + component, previous[e.get('resource_id')]);
+                }
+
+                // if the component was a layoutgroup, restore the old children layout data
+                if (component === 'layoutgroup') {
+                    const entityChildrenLayouts = previousChildrenLayouts[e.get('resource_id')];
+                    editor.call('entities:layout:restoreElementChildrenLayouts', e.get('children'), entityChildrenLayouts);
                 }
                 e.history.enabled = history;
             });
