@@ -669,7 +669,7 @@ editor.once('load', function () {
 
     menuVcGraph.on('select', function () {
         if (contextBranch) {
-            editor.call('vcgraph:showGraphPanel', contextBranch.id);
+            editor.call('vcgraph:showGraphPanel', { branchId: contextBranch.id });
         }
     });
 
@@ -817,11 +817,11 @@ editor.once('load', function () {
             item.isFavorite = projectUserSettings.get('favoriteBranches').includes(item.branch.id);
     };
 
-    function viewDiff(srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId) {
+    function viewDiff(srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId, histItem) {
         panelDiffCheckpoints.hidden = true;
         togglePanels(false);
         showRightSidePanel(panelGenerateDiffProgress);
-        editor.call('diff:create', srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId, function (err, diff) {
+        editor.call('diff:create', srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId, histItem, function (err, diff) {
             panelGenerateDiffProgress.finish(err);
 
             togglePanels(true);

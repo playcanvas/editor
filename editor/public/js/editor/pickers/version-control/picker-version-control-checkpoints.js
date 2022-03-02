@@ -515,7 +515,7 @@ editor.once('load', function () {
     editor.call('layout.root').append(vcNodeMenu);
 
     btnVcGraph.on('click', function () {
-        editor.call('vcgraph:showGraphPanel', panel.branch.id);
+        editor.call('vcgraph:showGraphPanel', { branchId: panel.branch.id });
     });
 
     editor.method('vcgraph:closeGraphPanel', function () {
@@ -536,7 +536,7 @@ editor.once('load', function () {
         return vcGraphPanel.hidden;
     });
 
-    editor.method('vcgraph:showGraphPanel', function (branchId) {
+    editor.method('vcgraph:showGraphPanel', function (h) {
         vcGraphPanel.hidden = !vcGraphPanel.hidden;
         const vcGraphContainer = new pcui.Container();
         const vcGraphCloseBtn = new pcui.Button({text: 'CLOSE'});
@@ -546,7 +546,13 @@ editor.once('load', function () {
             right: 5px;
         `);
 
-        vcGraphCloseBtn.on('click', () => editor.call('vcgraph:closeGraphPanel'));
+        vcGraphCloseBtn.on('click', () => {
+            editor.call('vcgraph:closeGraphPanel');
+
+            if (h.closeVcPicker) {
+                editor.call('picker:project:close');
+            }
+        });
 
         vcGraphPanel.append(vcGraphContainer);
         vcGraphContainer.dom.setAttribute('style', `
@@ -555,12 +561,13 @@ editor.once('load', function () {
             background-color: #293234;
         `);
 
-        editor.call('vcgraph:showInitial', {
-            branchId,
+        Object.assign(h, {
             vcGraphContainer,
             vcGraphCloseBtn,
             vcNodeMenu
         });
+
+        editor.call('vcgraph:showInitial', h);
     });
 
     btnFavorite.on('click', function () {

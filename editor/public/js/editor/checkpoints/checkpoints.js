@@ -53,11 +53,19 @@ editor.once('load', function () {
         }, callback);
     });
 
+    const CH_LIST_TASK_FIELDS = [
+        'task_type',
+        'limit',
+        'skip',
+        'graphStartId',
+        'vcHistItem'
+    ];
+
     editor.method('checkpoints:list', function (args, callback) {
         let url = '{{url.api}}/branches/' + args.branch + '/checkpoints';
         let separator = '?';
 
-        ['limit', 'skip', 'graphStartId', 'task_type'].forEach(field => {
+        CH_LIST_TASK_FIELDS.forEach(field => {
             if (args[field]) {
                 url += `${separator}${field}=${args[field]}`;
                 separator = '&';

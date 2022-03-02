@@ -63,7 +63,7 @@ editor.once('load', function () {
 
     const DESCRIPTION_LINES = 2;
 
-    const CHARS_PER_LINE = 25;
+    const CHARS_PER_LINE = 27;
 
     const TRUNCATE_TOKEN_LIMIT = 7;
 
@@ -126,11 +126,9 @@ editor.once('load', function () {
         },
 
         vcNodeText: function (node, data) {
-            const h = node.checkpointData;
+            const lines = VcUtils.descriptionLines(node, data);
 
-            const lines = VcUtils.descriptionLines(h.description, node.id);
-
-            const info = VcUtils.infoLine(node.id, h.created_at, node.checkpointData.user_full_name);
+            const info = VcUtils.infoLine(node);
 
             const branch = VcUtils.branchDescription(node, data);
 
@@ -139,8 +137,14 @@ editor.once('load', function () {
             return lines.join('\n');
         },
 
-        descriptionLines: function (descr) {
+        descriptionLines: function (node, data) {
+            let descr = node.checkpointData.description;
+
             descr = VcUtils.descriptionCleanUp(descr);
+
+            if (data.vcHistItem) {
+                descr = VcUtils.addHistPrefix(descr, node);
+            }
 
             const lines = editor.call(
                 'vcgraph:splitNodeDescription',
@@ -150,6 +154,30 @@ editor.once('load', function () {
             );
 
             return lines.slice(0, DESCRIPTION_LINES);
+        },
+
+        addHistPrefix: function (descr, h) {
+            let pref = VcUtils.calcHistPrefix(h.histGraphData);
+
+            pref = pref ? `[${pref}] ` : '';
+
+            return pref + descr;
+        },
+
+        calcHistPrefix: function (h) {
+            if (h.vcNoHistData) {
+                return 'no hist';
+            } else if (h.vcAction === 'added') {
+                return '+';
+            } else if (h.vcAction === 'removed') {
+                return 'x';
+            } else if (h.vcEqualToSrc) {
+                return '= src';
+            } else if (h.vcHistTooLarge) {
+                return 'large';
+            } else if (!h.vcAction) {
+                return '=';
+            }
         },
 
         descriptionCleanUp: function (s) {
@@ -168,15 +196,17 @@ editor.once('load', function () {
             return s.replace(/\s+/g, ' ');
         },
 
-        infoLine: function (id, time, username) {
-            id = id.substring(0, NUM_ID_CHARS);
+        infoLine: function (node) {
+            const id = node.id.substring(0, NUM_ID_CHARS);
 
-            const dateStr = VcUtils.epochToStr(time);
+            const h = node.checkpointData;
+
+            const dateStr = VcUtils.epochToStr(h.created_at);
 
             const parts = [ id, dateStr ];
 
-            if (username) {
-                parts.push(username);
+            if (h.user_full_name) {
+                parts.push(h.user_full_name);
             }
 
             const s = parts.join(' ');
@@ -327,6 +357,32 @@ editor.once('load', function () {
             h.isNodeRendered = false;
 
             h.wasRendered = true;
+        },
+
+        permRmNode: function (h, data) {
+            VcUtils.rmEdgesForNode(h, data.renderedEdges, data.graph);
+
+            data.graph.deleteNode(h.id);
+
+            VcUtils.rmAllEdges(h, 'parent', 'child', data);
+
+            VcUtils.rmAllEdges(h, 'child', 'parent', data);
+
+            delete data.idToNode[h.id];
+        },
+
+        rmAllEdges: function (h1, type1, type2, data) {
+            h1[type1].forEach(edge => {
+                const h2 = data.idToNode[edge[type1]];
+
+                h2 && VcUtils.rmOneEdge(h2, type2, h1.id);
+            });
+        },
+
+        rmOneEdge: function (h, type, id) {
+            h[type] = h[type].filter(edge => {
+                return edge[type] !== id;
+            });
         },
 
         initVcGraph: function (container, closeBtn) {
@@ -603,7 +659,7 @@ editor.once('load', function () {
 
             const h = {
                 onExpandSelect: function () {
-                    VcUtils.expandVcNode(node, expandCallback);
+                    VcUtils.expandVcNode(node, data.vcHistItem, expandCallback);
                 }
             };
 
@@ -612,10 +668,11 @@ editor.once('load', function () {
             editor.call('vcgraph:showNodeMenu', data.vcNodeMenu, h, data, coords);
         },
 
-        expandVcNode: function (node, callback) {
+        expandVcNode: function (node, histItem, callback) {
             const h = {
-                branch: node.branchId,
-                graphStartId: node.id
+                branchId: node.branchId,
+                graphStartId: node.id,
+                vcHistItem: histItem
             };
 
             VcUtils.backendGraphTask(h, callback);
@@ -624,7 +681,53 @@ editor.once('load', function () {
         backendGraphTask: function (h, callback) {
             h.task_type = 'vc_graph_for_branch';
 
+            h.branch = h.branchId;
+
             editor.call('checkpoints:list', h, callback);
+        },
+
+        launchItemHist: function (type, id) {
+            const h = {
+                vcHistItem: `${type}-${id}`,
+                closeVcPicker: true,
+                branchId: config.self.branch.id
+            };
+
+            editor.call('picker:versioncontrol');
+
+            editor.call('vcgraph:showGraphPanel', h);
+        },
+
+        equalHistNodes: function (h1, h2) {
+            h1 = VcUtils.cleanHistNode(h1);
+
+            h2 = VcUtils.cleanHistNode(h2);
+
+            return editor.call('assets:isDeepEqual', h1, h2);
+        },
+
+        cleanHistNode: function (h) {
+            const res = { parent: [], child: [] };
+
+            [ 'parent', 'child' ].forEach(s => VcUtils.cleanEdges(res, h, s));
+
+            return res;
+        },
+
+        cleanEdges: function (res, h, field) {
+            res[field] = h[field].map(edge => {
+                return VcUtils.fieldsFromHash(edge, [ 'parent', 'child', 'branch_id' ]);
+            });
+        },
+
+        fieldsFromHash: function (h, a) {
+            const res = {};
+
+            a.forEach(s => {
+                res[s] = h[s];
+            });
+
+            return res;
         }
     };
 

@@ -17,11 +17,15 @@ editor.once('load', function () {
 
             this.vcNodeMenu = params.vcNodeMenu;
 
+            this.vcHistItem = params.vcHistItem;
+
             this.idToNode = {};
 
             this.branches = {};
 
             this.renderedEdges = {};
+
+            this.fullGraph = {};
         }
 
         run() {
@@ -54,17 +58,40 @@ editor.once('load', function () {
         }
 
         setVars(data) {
+            this.isGraphLoading = false;
+
+            if (this.vcHistItem) {
+                this.prepForHist(data);
+            }
+
             this.idToNode = Object.assign({}, data.idToData, this.idToNode);
 
             this.branches = Object.assign({}, data.branches, this.branches);
 
             this.helper('vcgraph:utils', 'assignBranchColors');
 
-            this.startNode = this.idToNode[data.graphStartId];
-
-            this.isGraphLoading = false;
+            this.startNode = this.idToNode[data.graphStartId] ||
+                this.idToNode[this.origStartId];
 
             this.vcNodeMenu.hidden = true;
+        }
+
+        prepForHist(data) {
+            if (!this.origStartId) {
+                this.origStartId = data.graphStartId;
+            }
+
+            this.addToFull(data.idToData);
+
+            const h = editor.call('vcgraph:makeHistGraph', this.fullGraph, this.origStartId);
+
+            data.idToData = this.helper('vcgraph:syncHistGraph', h);
+        }
+
+        addToFull(h) {
+            h = editor.call('template:utils', 'deepClone', h);
+
+            Object.assign(this.fullGraph, h);
         }
 
         handleClick(id) {
@@ -83,20 +110,19 @@ editor.once('load', function () {
                 idToNode: this.idToNode,
                 branches: this.branches,
                 startNode: this.startNode,
-                vcNodeMenu: this.vcNodeMenu
+                vcNodeMenu: this.vcNodeMenu,
+                vcHistItem: this.vcHistItem
             };
 
-            editor.call(...args, h);
+            return editor.call(...args, h);
         }
     }
 
-    editor.method('vcgraph:showInitial', function (params) {
-        const h = { branch: params.branchId };
-
-        editor.call('vcgraph:showNodeMenu', params.vcNodeMenu);
+    editor.method('vcgraph:showInitial', function (h) {
+        editor.call('vcgraph:showNodeMenu', h.vcNodeMenu);
 
         editor.call('vcgraph:utils', 'backendGraphTask', h, (err, data) => {
-            new VcGraphLogic(data, params).run();
+            new VcGraphLogic(data, h).run();
         });
     });
 });

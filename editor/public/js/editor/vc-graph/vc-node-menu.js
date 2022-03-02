@@ -5,7 +5,7 @@ editor.once('load', function () {
 
     const LOADING_COORDS = { x: 110, y: 210, w: 0 };
 
-    const LOADING_MSG_DELAY = 150;
+    const LOADING_MSG_DELAY = 70;
 
     editor.method('vcgraph:makeNodeMenu', function (mainPanel) {
         const m = new pcui.Menu({
@@ -14,6 +14,11 @@ editor.once('load', function () {
                     text: 'View Changes',
                     onSelect: () => VcMenuUtils.viewChangesTask(m),
                     onIsVisible: () => m.node && VcMenuUtils.parentForCompare(m)
+                },
+                {
+                    text: 'View Full Commit',
+                    onSelect: () => VcMenuUtils.fullCommitForHistTask(m),
+                    onIsVisible: () => m.node && m.node.histParentNode
                 },
                 {
                     text: 'Select for Compare',
@@ -116,7 +121,7 @@ editor.once('load', function () {
         compareTask: function (menu) {
             const h1 = menu.vcGraphState.graph.selectedForCompare;
 
-            VcMenuUtils.startDiffTask(menu, h1, menu.node);
+            VcMenuUtils.startDiffTask(menu, h1, menu.node, menu.vcGraphState.vcHistItem);
         },
 
         viewChangesTask: function (menu) {
@@ -124,13 +129,26 @@ editor.once('load', function () {
 
             const h2 = VcMenuUtils.parentForCompare(menu);
 
-            VcMenuUtils.startDiffTask(menu, menu.node, h2);
+            VcMenuUtils.startDiffTask(menu, menu.node, h2, menu.vcGraphState.vcHistItem);
         },
 
-        startDiffTask: function (menu, h1, h2) {
+        fullCommitForHistTask: function (menu) {
+            VcMenuUtils.selectForCompare(menu);
+
+            VcMenuUtils.startDiffTask(menu, menu.node, menu.node.histParentNode, null);
+        },
+
+        startDiffTask: function (menu, h1, h2, histItem) {
             editor.call('vcgraph:moveToBackground');
 
-            menu.vcMainPanel.emit('diff', h1.branchId, h1.id, h2.branchId, h2.id);
+            menu.vcMainPanel.emit(
+                'diff',
+                h1.branchId,
+                h1.id,
+                h2.branchId,
+                h2.id,
+                histItem
+            );
         },
 
         parentForCompare: function (menu) {

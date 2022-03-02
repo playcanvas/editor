@@ -202,6 +202,17 @@ editor.once('load', function () {
             }
         });
 
+        menuData.push({
+            text: 'Item History',
+            icon: 'E399',
+            onIsVisible: function () {
+                return editor.call('permissions:write') && items.length === 1;
+            },
+            onSelect: function () {
+                editor.call('vcgraph:utils', 'launchItemHist', 'entities', items[0].get('resource_id'));
+            }
+        });
+
         // menu
         menu = new pcui.Menu({ items: menuData });
         root.append(menu);

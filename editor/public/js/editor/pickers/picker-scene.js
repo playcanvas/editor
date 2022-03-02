@@ -217,6 +217,15 @@ editor.once('load', function () {
                     editor.call('scenes:delete', id);
                 });
             }
+        },
+        'scene-history': {
+            title: 'Item History',
+            filter: function () {
+                return editor.call('permissions:read');
+            },
+            select: function () {
+                editor.call('vcgraph:utils', 'launchItemHist', 'scenes', dropdownScene.id);
+            }
         }
     });
 

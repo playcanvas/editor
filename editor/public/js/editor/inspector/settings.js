@@ -50,7 +50,8 @@ Object.assign(pcui, (function () {
         'network',
         'assettasks',
         'audio',
-        'scripts'
+        'scripts',
+        'projectHistory'
     ];
 
     const SCENE_ATTRIBUTES = [

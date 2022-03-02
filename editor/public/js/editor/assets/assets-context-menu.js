@@ -94,7 +94,8 @@ editor.once('load', function () {
         DUPLICATE: 'E126',
         DELETE: 'E124',
         SCENE_SETTINGS: 'E134',
-        OPEN_IN_VIEWER: 'E117'
+        OPEN_IN_VIEWER: 'E117',
+        ITEM_HISTORY: 'E399'
     };
 
     const assets = {
@@ -492,6 +493,16 @@ editor.once('load', function () {
         }
     });
     menu.append(menuItemOpenInViewer);
+
+    const menuItemHistory = new pcui.MenuItem({
+        text: 'Item History',
+        icon: ICONS.ITEM_HISTORY,
+        onIsVisible: () => currentAsset,
+        onSelect: () => {
+            editor.call('vcgraph:utils', 'launchItemHist', 'assets', currentAsset.get('id'));
+        }
+    });
+    menu.append(menuItemHistory);
 
     // filter buttons
     menu.on('show', function () {
