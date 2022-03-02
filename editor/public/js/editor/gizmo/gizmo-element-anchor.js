@@ -216,8 +216,8 @@ editor.once('load', function () {
                     resY /= resScale;
                 }
             } else {
-                resX = parent.element.width;
-                resY = parent.element.height;
+                resX = parent.element.calculatedWidth;
+                resY = parent.element.calculatedHeight;
             }
 
             var screenScale = entity.element.screen ? entity.element.screen.getLocalScale() : parent.getLocalScale();
