@@ -369,7 +369,7 @@ editor.once('load', function () {
         var settings = editor.call('settings:projectUser');
         // if we're not replacing a current file, the file is of type FBX and the user has the createFBXFolder option enabled,
         // we should create a folder for the contents of the FBX
-        if (!asset && file.name.match(/\.fbx$/) && settings.get('editor.pipeline.createFBXFolder')) {
+        if (!asset && file.name.match(/\.fbx$/i) && settings.get('editor.pipeline.createFBXFolder')) {
             createFolder(currentFolder, file.name, (folder) => {
                 if (!multipleFiles) {
                     currentFolder = editor.call('assets:panel:currentFolder', folder);
