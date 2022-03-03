@@ -489,7 +489,7 @@ editor.once('load', function () {
             const hostname = window.location.hostname;
             const fileUrl = currentAsset.get('file.url');
             const loadParam = encodeURIComponent(`https://${hostname}${fileUrl}`);
-            window.open(`/viewer?load=${loadParam}`);
+            window.open(`/model-viewer?load=${loadParam}`);
         }
     });
     menu.append(menuItemOpenInViewer);

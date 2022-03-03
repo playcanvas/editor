@@ -323,7 +323,7 @@ Object.assign(pcui, (function () {
                 const fileUrl = asset.get('file.url');
                 return encodeURIComponent(`https://${hostname}${fileUrl}`);
             }).join('&load=');
-            window.open(`/viewer?load=${loadParam}`);
+            window.open(`/model-viewer?load=${loadParam}`);
         }
 
         _onClickEditAsset(evt) {
