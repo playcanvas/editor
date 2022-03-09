@@ -95,12 +95,24 @@ Object.assign(pcui, (function () {
         }
 
         static updateAnimationAssetName(observer, layerName, prevState, newState) {
+            AnimstategraphState.createAnimationAsset(observer, layerName, prevState);
             const historyEnabled = observer.history.enabled;
             observer.history.enabled = false;
             const prevAsset = observer.get(`components.anim.animationAssets.${layerName}:${prevState}`);
             observer.unset(`components.anim.animationAssets.${layerName}:${prevState}`);
             observer.set(`components.anim.animationAssets.${layerName}:${newState}`, prevAsset);
             observer.history.enabled = historyEnabled;
+        }
+
+        static createAnimationAsset(observer, layerName, stateName) {
+            if (!observer.get(`components.anim.animationAssets.${layerName}:${stateName}`)) {
+                const historyEnabled = observer.history.enabled;
+                observer.history.enabled = false;
+                observer.set(`components.anim.animationAssets.${layerName}:${stateName}`, {
+                    asset: null
+                });
+                observer.history.enabled = historyEnabled;
+            }
         }
 
         link(assets, layer, path) {
@@ -233,14 +245,7 @@ Object.assign(pcui, (function () {
                     entityAnimationAsset.link([entityObserver], `components.anim.animationAssets.${layerName}:${state.name}.asset`);
                     entityPanel.content.append(entityAnimationAsset);
 
-                    if (!entityObserver.get(`components.anim.animationAssets.${layerName}:${state.name}`)) {
-                        const historyEnabled = entityObserver.history.enabled;
-                        entityObserver.history.enabled = false;
-                        entityObserver.set(`components.anim.animationAssets.${layerName}:${state.name}`, {
-                            asset: null
-                        });
-                        entityObserver.history.enabled = historyEnabled;
-                    }
+                    AnimstategraphState.createAnimationAsset(entityObserver, layerName, state.name);
 
                     this._linkedEntities.push(entityObserver);
                     this._linkedEntityAssets.push(entityAnimationAsset);
