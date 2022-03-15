@@ -30,8 +30,6 @@ editor.once('load', function () {
 
             this.visited = {};
 
-            this.keepBranches = {};
-
             this.includeInRes = {};
 
             this.histParents = {};
@@ -44,9 +42,7 @@ editor.once('load', function () {
 
             this.handleCheckpoint(this.startCh);
 
-            this.resNodes.forEach(this.rmByBranch, this);
-
-            this.resNodes.forEach(this.rmExcluded, this);
+            this.rmExtraNodes();
 
             this.resNodes.forEach(this.addHistParent, this);
 
@@ -56,7 +52,7 @@ editor.once('load', function () {
         init() {
             this.resGraph = editor.call('template:utils', 'deepClone', this.fullGraph);
 
-            this.resNodes = Object.values(this.resGraph);
+            this.resetResNodes();
 
             this.startCh = this.resGraph[this.startId];
 
@@ -66,8 +62,6 @@ editor.once('load', function () {
         }
 
         handleCheckpoint(h) {
-            this.keepBranches[h.branchId] = true;
-
             const logic = this.makeLogic(h.histGraphData);
 
             this.handleLogic(logic, h);
@@ -137,47 +131,63 @@ editor.once('load', function () {
             return res;
         }
 
-        rmByBranch(h) {
-            if (!this.keepBranches[h.branchId]) {
+        rmExtraNodes() {
+            this.resNodes.forEach(this.rmUnvisited, this);
+
+            this.resetResNodes();
+
+            this.resNodes.forEach(this.rmNodeWithoutChanges, this);
+
+            this.resetResNodes();
+        }
+
+        rmUnvisited(h) {
+            if (!this.visited[h.id]) {
                 this.rmNode(h);
             }
         }
 
-        rmExcluded(h) {
+        // Remove a node not representing any hist change,
+        // if it has a single parent and child, both of the
+        // same branch. Parent and child are then connected by a new edge.
+        rmNodeWithoutChanges(h) {
             const bId = h.branchId;
 
-            const h1 = this.singleNeighbor(h, 'parent');
+            const h1 = this.singleNeighbor(h, 'parent', bId);
 
-            const h2 = this.singleNeighbor(h, 'child');
+            const h2 = this.singleNeighbor(h, 'child', bId);
 
-            const parentOk = (h1 && h1.branchId === bId) ||
-                !h.parent.length; // first ch of project
+            const parentOk = h1 || this.isFirstInProj(h);
 
-            const childOk = h2 && h2.branchId === bId;
-
-            const needRm = this.keepBranches[h.branchId] &&
-                !this.includeInRes[h.id] &&
-                parentOk && childOk;
-
-            const needEdge = needRm && h1;
+            const needRm = !this.includeInRes[h.id] && parentOk && h2;
 
             if (needRm) {
                 this.rmNode(h);
-            }
 
-            if (needEdge) {
-                this.addEdge(h1.child, h1.id, h2.id, bId);
-
-                this.addEdge(h2.parent, h1.id, h2.id, bId);
+                this.connectNodes(h1, h2, bId);
             }
         }
 
-        singleNeighbor(h, type) {
-            const edges = h[type];
+        // Find a neighbor node of 'h1' of 'type' child or parent,
+        // if it has no siblings and is from the same branch 'branchId'
+        singleNeighbor(h1, type, branchId) {
+            const edges = h1[type];
 
             const id = edges.length === 1 && edges[0][type];
 
-            return id && this.resGraph[id];
+            const h2 = id && this.resGraph[id];
+
+            const branchOk = h2 && h2.branchId === branchId;
+
+            return branchOk && h2;
+        }
+
+        connectNodes(h1, h2, branchId) {
+            if (h1 && h2) {
+                this.addEdge(h1.child, h1.id, h2.id, branchId);
+
+                this.addEdge(h2.parent, h1.id, h2.id, branchId);
+            }
         }
 
         rmNode(h) {
@@ -220,6 +230,16 @@ editor.once('load', function () {
             h.child = h.child.filter(edge => {
                 return this.fullGraph[edge.child];
             });
+        }
+
+        resetResNodes() {
+            this.resNodes = Object.values(this.resGraph);
+        }
+
+        isFirstInProj(h) {
+            const orig = this.fullGraph[h.id];
+
+            return !orig.parent.length;
         }
     }
 
