@@ -110,7 +110,6 @@ Object.assign(pcui, (function () {
 
         // All preview objects live under this root
         scene.previewRoot = new pc.Entity();
-        scene.previewRoot._enabledInHierarchy = true;
         scene.previewRoot.enabled = true;
         scene.previewRoot.addChild(node);
         scene.previewRoot.addChild(scene.cameraEntity);
@@ -281,6 +280,7 @@ Object.assign(pcui, (function () {
             const layer = pcui.ThumbnailRendererUtils.layer;
 
             scene.previewRoot.enabled = true;
+            scene.previewRoot._notifyHierarchyStateChanged(scene.previewRoot, true);
 
             scene.cameraEntity.camera.aspectRatio = height / width;
             layer.renderTarget = rt;

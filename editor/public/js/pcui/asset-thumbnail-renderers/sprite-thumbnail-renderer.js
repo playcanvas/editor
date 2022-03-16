@@ -110,7 +110,6 @@ Object.assign(pcui, (function () {
 
         // All preview objects live under this root
         scene.previewRoot = new pc.Entity();
-        scene.previewRoot._enabledInHierarchy = true;
         scene.previewRoot.enabled = true;
         scene.previewRoot.addChild(modelNode);
         scene.previewRoot.addChild(scene.lightEntity);

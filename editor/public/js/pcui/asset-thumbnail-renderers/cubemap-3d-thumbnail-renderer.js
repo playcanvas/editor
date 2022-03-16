@@ -42,7 +42,6 @@ Object.assign(pcui, (function () {
         });
 
         scene.previewRoot = new pc.Entity();
-        scene.previewRoot._enabledInHierarchy = true;
         scene.previewRoot.enabled = true;
         scene.previewRoot.addChild(scene.cameraEntity);
         scene.previewRoot.addChild(scene.lightEntity);
@@ -112,6 +111,7 @@ Object.assign(pcui, (function () {
             const rt = pcui.ThumbnailRendererUtils.getRenderTarget(app, width, height);
 
             scene.previewRoot.enabled = true;
+            scene.previewRoot._notifyHierarchyStateChanged(scene.previewRoot, true);
 
             scene.cameraEntity.camera.aspectRatio = height / width;
             scene.layer.renderTarget = rt;

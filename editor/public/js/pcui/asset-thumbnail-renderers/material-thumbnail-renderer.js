@@ -61,7 +61,6 @@ Object.assign(pcui, (function () {
 
         // All preview objects live under this root
         previewRoot = new pc.Entity();
-        previewRoot._enabledInHierarchy = true;
         previewRoot.enabled = true;
         previewRoot.addChild(box);
         previewRoot.addChild(sphere);
@@ -195,6 +194,7 @@ Object.assign(pcui, (function () {
             const rt = pcui.ThumbnailRendererUtils.getRenderTarget(app, width, height);
 
             previewRoot.enabled = true;
+            previewRoot._notifyHierarchyStateChanged(previewRoot, true);
 
             cameraEntity.camera.aspectRatio = height / width;
 
@@ -267,7 +267,7 @@ Object.assign(pcui, (function () {
             // set up layer
             layer.addCamera(cameraEntity.camera);
             layer.addLight(lightEntity.light);
-            layer.addMeshInstances(sphere.enabled ? sphere.model.meshInstances : box.model.meshInstances);
+            layer.addMeshInstances(sphere._enabled ? sphere.model.meshInstances : box.model.meshInstances);
 
             // add camera to layer
             let backupLayers = cameraEntity.camera.layers.slice();
