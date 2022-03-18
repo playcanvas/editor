@@ -459,11 +459,6 @@ Object.assign(pcui, (function () {
             this._field('bakeArea').parent.disabled = !bakeEnabled || bakeDirEnabled;
             this._field('affectLightmapped').parent.disabled = bakeEnabled;
 
-            const hasLightmapper = editor.call('users:hasFlag', 'hasLightmapper');
-            ['bakeNumSamples', 'bakeArea'].forEach(field => {
-                this._field(field).parent.hidden = !hasLightmapper || !isDirectional;
-            });
-
             [
                 'cookieIntensity',
                 'cookieChannel'

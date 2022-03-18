@@ -135,21 +135,6 @@ Object.assign(pcui, (function () {
             args.attributes = ATTRIBUTES;
 
             super(args);
-
-            const hasLightmapper = editor.call('users:hasFlag', 'hasLightmapper');
-            const inspector = this._attributesInspector;
-            [
-                'render.lightmapFilterEnabled',
-                'render.lightmapFilterRange',
-                'render.lightmapFilterSmoothness',
-                'render.ambientBake',
-                'render.ambientBakeNumSamples',
-                'render.ambientBakeSpherePart',
-                'render.ambientBakeOcclusionBrightness',
-                'render.ambientBakeOcclusionContrast'
-            ].forEach((field) => {
-                inspector.getField(field).parent.hidden = !hasLightmapper;
-            });
         }
     }
 
