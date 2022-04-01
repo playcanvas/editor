@@ -24,6 +24,11 @@ Object.assign(pcui, (function () {
             type: 'entity'
         },
         {
+            label: 'Normalize Weights',
+            path: 'components.anim.normalizeWeights',
+            type: 'boolean'
+        },
+        {
             type: 'divider'
         },
         {
@@ -82,6 +87,20 @@ Object.assign(pcui, (function () {
                 templateOverridesInspector: this._templateOverridesInspector
             });
             this.append(this._attributesInspector);
+
+            this._normalizeWeightsMessage = new pcui.InfoBox({
+                icon: 'E400',
+                title: 'Normalize Weights Migration',
+                text: 'This anim component was created before the normalize weights option was introduced. To maintain the component\'s previous behaviour, normalize weights has been turned on. For more info click '
+            });
+            this._normalizeWeightsMessage.hidden = true;
+            const normalizeWeightsField = this._attributesInspector.getField('components.anim.normalizeWeights');
+            normalizeWeightsField.parent.parent.appendAfter(this._normalizeWeightsMessage, normalizeWeightsField.parent);
+            const normalizeWeightsLink = document.createElement('a');
+            normalizeWeightsLink.setAttribute('href', 'https://forum.playcanvas.com/t/anim-component-layer-blending-update/24557');
+            normalizeWeightsLink.setAttribute('target', '_blank');
+            normalizeWeightsLink.innerText = 'here.';
+            this._normalizeWeightsMessage.dom.children[1].appendChild(normalizeWeightsLink);
 
             this.stateGraphFieldChangeEvent = value => {
                 if (!value) {
@@ -524,6 +543,23 @@ Object.assign(pcui, (function () {
                 this._stateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
                 this._addAnimationAssetSlots();
             }));
+            if (window.sessionStorage.getItem(`${this._entities[0].get('resource_id')}:animNormalizeWeightsMessage`)) {
+                this._normalizeWeightsMessage.hidden = false;
+                const normalizeWeightsField = this._attributesInspector.getField('components.anim.normalizeWeights');
+                normalizeWeightsField.on('change', () => {
+                    window.sessionStorage.removeItem(`${this._entities[0].get('resource_id')}:animNormalizeWeightsMessage`);
+                });
+            } else {
+                this._normalizeWeightsMessage.hidden = true;
+            }
+            if (!entities[0].has('components.anim.normalizeWeights')) {
+                setTimeout(() => {
+                    const prevHistoryEnabled = this._entities[0].history.enabled;
+                    this._entities[0].history.enabled = false;
+                    this._entities[0].set('components.anim.normalizeWeights', false);
+                    this._entities[0].history.enabled = prevHistoryEnabled;
+                }, 0);
+            }
         }
 
         unlink() {

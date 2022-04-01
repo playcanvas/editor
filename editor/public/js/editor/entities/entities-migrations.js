@@ -286,6 +286,14 @@ editor.once('load', function () {
                 }
             }
 
+            // anim
+            if (entity.has('components.anim')) {
+                if (!entity.has('components.anim.normalizeWeights')) {
+                    entity.set('components.anim.normalizeWeights', true);
+                    window.sessionStorage.setItem(`${entity.get('resource_id')}:animNormalizeWeightsMessage`, 'true');
+                }
+            }
+
             // particles
             if (entity.has('components.particlesystem')) {
                 // layers
