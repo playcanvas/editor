@@ -74,6 +74,23 @@ Object.assign(pcui, (function () {
                     prefilteringPanel: new pcui.Panel({ headerText: 'PREFILTERING', flex: true })
                 },
                 children: [{
+                    root: {
+                        prefilterPhongContainer: new pcui.Container({
+                            flex: true,
+                            flexDirection: 'row'
+                        })
+                    },
+                    children: [{
+                        prefilterPhongLabel: new pcui.Label({
+                            text: 'Use legacy phong lobe'
+                        })
+                    }, {
+                        prefilterPhong: new pcui.BooleanInput({
+                            flexShrink: 0,
+                            flexGrow: 0
+                        })
+                    }]
+                }, {
                     prefilterButton: new pcui.Button({ text: 'PREFILTER CUBEMAP' })
                 }, {
                     deletePrefilterButton: new pcui.Button({ text: 'DELETE PREFILTERED DATA' })
@@ -121,6 +138,16 @@ Object.assign(pcui, (function () {
                     reference: ref
                 })).attach({
                     target: this._cubemapPanel.header
+                });
+            }
+
+            const phongRef = editor.call('attributes:reference:get', 'asset:cubemap:useLegacyPhongLobe');
+            if (phongRef) {
+                const tooltip = new pcui.TooltipReference({
+                    reference: phongRef
+                });
+                tooltip.attach({
+                    target: this._prefilterPhongContainer
                 });
             }
         }
@@ -244,7 +271,7 @@ Object.assign(pcui, (function () {
 
         _onClickPrefilterButton() {
             this._prefilterButton.enabled = false;
-            editor.call('assets:cubemaps:prefilter', this._assets[0], (err) => {
+            editor.call('assets:cubemaps:prefilter', this._assets[0], this._prefilterPhong.value, (err) => {
                 this._prefilterButton.enabled = true;
                 if (err)
                     return editor.call('status:error', err);
@@ -261,6 +288,7 @@ Object.assign(pcui, (function () {
             this._errorLabel.text = validationError;
             this._errorLabel.hidden = !validationError;
             this._prefilteringPanel.hidden = !!validationError;
+            this._prefilterPhongContainer.enabled = !this._isPrefiltered();
             this._prefilterButton.hidden = this._isPrefiltered();
             this._deletePrefilterButton.hidden = !this._isPrefiltered();
             this._facesPanel.hidden = this._assets.length > 1;

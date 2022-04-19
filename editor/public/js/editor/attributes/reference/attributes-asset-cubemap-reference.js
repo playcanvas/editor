@@ -35,6 +35,10 @@ editor.once('load', function () {
         name: 'prefilter',
         title: 'Prefiltering',
         description: 'Prefilter button generates a set of low-resolution filtered textures which are used in the environment map of the Physical material. Prefiltering the cube map is essential for using the Physical material.'
+    }, {
+        name: 'useLegacyPhongLobe',
+        title: 'Use Legacy Phong Lobe',
+        description: 'Use the old phong lobe when generating prefiltered lighting data. This option will result in more noisy lighting data, but is kept to be backwards compatible.'
     }];
 
     for (let i = 0; i < fields.length; i++) {
