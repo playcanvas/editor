@@ -173,7 +173,7 @@ editor.once('load', function () {
         var bubble = editor.call(
             'guide:bubble',
             'Sound Component',
-            'The Sound Component allows the Entity to play sounds. To play a sound you need to create a "slot", give it a name and assign an Audio Asset to it. If you set it to Auto Play the slot will begin playback when the application is loaded. Otherwise play it by script. You can create multiple slots to play different sounds. Check out this <a href="http://developer.playcanvas.com/en/tutorials/beginner/basic-audio/" target="_blank">tutorial</a> for more.',
+            'The Sound Component allows the Entity to play sounds. To play a sound you need to create a "slot", give it a name and assign an Audio Asset to it. If you set it to Auto Play the slot will begin playback when the application is loaded. Otherwise play it by script. You can create multiple slots to play different sounds. Check out this <a href="https://developer.playcanvas.com/en/tutorials/basic-audio/" target="_blank">tutorial</a> for more.',
             10,
             10,
             'right',
