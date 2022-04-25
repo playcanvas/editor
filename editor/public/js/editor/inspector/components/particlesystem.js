@@ -358,13 +358,7 @@ Object.assign(pcui, (function () {
                 assets: args.assets,
                 projectSettings: args.projectSettings,
                 history: args.history,
-                attributes: !editor.call('users:hasFlag', 'hasParticleSystemSpriteAnimationUpdates') ?
-                    ATTRIBUTES.filter(attr => ![
-                        'components.particlesystem.animStartFrame',
-                        'components.particlesystem.animNumAnimations',
-                        'components.particlesystem.animIndex',
-                        'components.particlesystem.randomizeAnimIndex'
-                    ].includes(attr.path)) : ATTRIBUTES,
+                attributes: ATTRIBUTES,
                 templateOverridesInspector: this._templateOverridesInspector
             });
             this.append(this._attributesInspector);
@@ -462,15 +456,12 @@ Object.assign(pcui, (function () {
             this._field('animNumFrames').parent.hidden = hideAnimTiles;
             this._field('animSpeed').parent.hidden = hideAnimTiles;
             this._field('animLoop').parent.hidden = hideAnimTiles;
-            const hasParticleSystemSpriteAnimationUpdates = editor.call('users:hasFlag', 'hasParticleSystemSpriteAnimationUpdates');
-            if (hasParticleSystemSpriteAnimationUpdates) {
-                this._field('animStartFrame').parent.hidden = hideAnimTiles;
-                this._field('animNumAnimations').parent.hidden = hideAnimTiles;
-                this._field('animIndex').parent.hidden = hideAnimTiles;
-                this._field('randomizeAnimIndex').parent.hidden = hideAnimTiles;
+            this._field('animStartFrame').parent.hidden = hideAnimTiles;
+            this._field('animNumAnimations').parent.hidden = hideAnimTiles;
+            this._field('animIndex').parent.hidden = hideAnimTiles;
+            this._field('randomizeAnimIndex').parent.hidden = hideAnimTiles;
 
-                this._field('animIndex').disabled = this._field('randomizeAnimIndex').value;
-            }
+            this._field('animIndex').disabled = this._field('randomizeAnimIndex').value;
 
             this._field('mesh').hidden = !!this._field('renderAsset').value;
             this._field('renderAsset').hidden = !!this._field('mesh').value;
