@@ -58,6 +58,71 @@ editor.once('load', function () {
     panelBranchesFilter.flex = true;
     panelBranchesContainer.append(panelBranchesFilter);
 
+    // branches list
+    var selected;
+    var listBranches = new ui.List();
+
+    // search
+    var lastSearch = '';
+
+    var branchNameValid = function (branchName) {
+        if (lastSearch === '') return true;
+        const result =  editor.call('search:items', [[branchName, branchName]], lastSearch);
+        return result.length > 0;
+    };
+
+    var performSearch = function () {
+        branchesSkip = null;
+        Object.values(branches).forEach((branch) => {
+            getBranchListItem(branch.id).hidden = !branchNameValid(branch.name);
+        });
+
+        if (selected) {
+            var item = getBranchListItem(selected.id);
+            if (item) {
+                item.selected = true;
+            }
+        }
+    };
+
+    var search = new ui.TextField({
+        placeholder: 'Search'
+    });
+    search.blurOnEnter = false;
+    search.keyChange = true;
+    search.class.add('search');
+    search.class.add('version-control-search');
+    search.renderChanges = false;
+    panel.prepend(search);
+
+
+    var searchClear = document.createElement('div');
+    searchClear.innerHTML = '&#57650;';
+    searchClear.classList.add('clear');
+    search.element.appendChild(searchClear);
+
+    searchClear.addEventListener('click', function () {
+        search.value = '';
+    }, false);
+
+    search.flexGrow = 1;
+    panelBranchesFilter.append(search);
+
+    search.on('change', function (value) {
+        value = value.trim();
+
+        if (lastSearch === value) return;
+        lastSearch = value;
+
+        if (value) {
+            search.class.add('not-empty');
+        } else {
+            search.class.remove('not-empty');
+        }
+
+        performSearch();
+    });
+
     // filter
     var fieldBranchesFilter = new ui.SelectField({
         options: [{
@@ -75,11 +140,7 @@ editor.once('load', function () {
     // branches main panel
     var panelBranches = new ui.Panel();
     panelBranches.class.add('branches');
-    panelBranches.flexGrow = 1;
     panelBranchesContainer.append(panelBranches);
-
-    // branches list
-    var listBranches = new ui.List();
     panelBranches.append(listBranches);
 
     var loadMoreListItem = new ui.ListItem();
@@ -723,6 +784,9 @@ editor.once('load', function () {
         });
         labelName.class.add('name', 'selectable');
         panel.append(labelName);
+        if (branch.closed) {
+            labelName.class.add('closed-branch');
+        }
 
         var labelBranchId = new ui.Label({
             text: branch.id
@@ -745,8 +809,8 @@ editor.once('load', function () {
             set: function (value) {
                 if (value !== this._isFavorite) {
                     this._isFavorite = Boolean(value);
-                    labelIcon.text = this._isFavorite ? '&#9733;' : '&#58208;';
-                    labelIcon.style.fontSize = this._isFavorite ? '10px' : '8px';
+                    labelIcon.text = this._isFavorite ? '&#9733;' : branch.closed ? '&#57650;' : '&#58208;';
+                    labelIcon.style.fontSize = this._isFavorite ? '10px' : branch.closed ? '12px' : '8px';
                 }
             }
         });
@@ -919,7 +983,6 @@ editor.once('load', function () {
 
         // request branches from server
         editor.call('branches:list', {
-            limit: 40,
             skip: branchesSkip,
             closed: fieldBranchesFilter.value === 'closed',
             favorite: fieldBranchesFilter.value === 'favorite'
@@ -942,6 +1005,9 @@ editor.once('load', function () {
                 // create current branch as first item
                 if (fieldBranchesFilter.value !== 'closed') {
                     createBranchListItem(config.self.branch);
+                    if (!branchNameValid(config.self.branch.name)) {
+                        getBranchListItem(config.self.branch.id).hidden = true;
+                    }
                 }
             }
 
@@ -957,7 +1023,7 @@ editor.once('load', function () {
                 return map;
             }, branches);
 
-            var selected = selectedBranch;
+            selected = selectedBranch;
 
             // create list items for each branch
             data.result.forEach(function (branch) {
@@ -965,6 +1031,9 @@ editor.once('load', function () {
                 // created that first
                 if (branch.id !== config.self.branch.id) {
                     createBranchListItem(branch);
+                    if (!branchNameValid(branch.name)) {
+                        getBranchListItem(branch.id).hidden = true;
+                    }
                 }
             });
 

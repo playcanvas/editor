@@ -155,3 +155,85 @@
         font-size: 12px;
     }
 }
+
+.ui-text-field.search.version-control-search {
+    height: 22px;
+    margin-right: 6px;
+    border: none;
+    background-color: $bcg-darker;
+    position: sticky;
+    left: 0;
+    top: 0;
+    z-index: 2;
+
+    &.active,
+    &:hover,
+    &:focus,
+    &.focus {
+        border-color: $bcg-darkest;
+        background-color: $bcg-darkest;
+        &:before {
+            content: '';
+            padding: 0;
+        }
+        &:after {
+            content: '';
+        }
+    }
+    > input.field {
+        line-height: 24px;
+    }
+    &:before {
+        content: 'Search';
+        position: absolute;
+        color: $text-dark;
+        line-height: 24px;
+        padding: 0 8px;
+        @extend .font-bold;
+        font-size: 12px;
+        font-family: inconsolatamedium, Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
+    }
+    &.not-empty:before {
+        padding: 0;
+        content: '';
+    }
+    &:after {
+        content: '\E129';
+        line-height: 21px;
+        background-color: $bcg-darker;
+        @extend .font-icon;
+        font-size: 14px;
+        text-align: center;
+    }
+    &.not-empty {
+        background-color: $bcg-darkest;
+        > input.field {
+            color: $text-active;
+        }
+        > .clear {
+            display: block;
+        }
+        &:after {
+            content: '';
+        }
+    }
+    > .clear {
+        display: none;
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        text-align: center;
+        color: $error-secondary;
+        @extend .font-icon;
+        font-size: 18px;
+        text-align: center;
+        cursor: pointer;
+    }
+}
+
+.ui-panel.picker-version-control > .content > .ui-panel .branches .ui-list > .ui-list-item .ui-label.name.closed-branch {
+    color: $text-secondary;
+}
