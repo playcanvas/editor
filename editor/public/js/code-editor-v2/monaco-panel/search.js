@@ -99,8 +99,16 @@ editor.once('load', function () {
         // open find in files tab
         tab = editor.call('tabs:findInFiles');
 
-        model = monaco.editor.createModel('Searching files...');
+        model = monaco.editor.createModel('Find in files');
         setModel();
+    });
+
+    editor.on('editor:search:openTab', function () {
+        if (!tab) {
+            editor.emit('editor:search:files:start');
+        } else {
+            editor.call('tabs:findInFiles');
+        }
     });
 
     // end of search
@@ -136,6 +144,7 @@ editor.once('load', function () {
 
             tab = null;
             editor.call('editor:search:files:cancel');
+            editor.call('picker:search:close');
         }
     });
 
@@ -144,16 +153,18 @@ editor.once('load', function () {
     editor.on('tabs:focus', (t) => {
         if (t === tab && model) {
             setModel();
+            editor.call('picker:search:open');
         } else {
             if (onMouseDownEvt) {
                 onMouseDownEvt.dispose();
                 onMouseDownEvt = null;
             }
+            editor.call('picker:search:close');
         }
     });
 
     // Add results to document
-    editor.on('editor:search:files:results', (results, done, total) => {
+    editor.on('editor:search:files:results', (results, done, ignored, total) => {
         if (!model) return;
 
         const asset = editor.call('assets:get', results.id);
@@ -161,7 +172,7 @@ editor.once('load', function () {
 
         // show progress
         model.applyEdits([{
-            text: `${total ? 'Searched' : 'Searching'} (${done} out of ${total} files)`,
+            text: `${total ? 'Searched' : 'Searching'} (${done} out of ${total} searched files; excluded ${ignored} files)`,
             range: new monaco.Range(1, 1, 1, model.getLineMaxColumn(1))
         }]);
 

@@ -27,7 +27,7 @@ editor.once('load', function () {
     panel.append(menuResults);
 
     var findInFilesFakeAsset = null;
-    const FIND_RESULTS = 'Find Results';
+    const FIND_RESULTS = 'Find in Files';
 
     // selected item index
     var selectedIndex = 0;

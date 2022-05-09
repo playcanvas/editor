@@ -5,6 +5,7 @@ editor.once('load', function () {
 
     var todo = 0;
     var done = 0;
+    var ignored = 0;
 
     var lastSearchId = 0;
 
@@ -50,7 +51,7 @@ editor.once('load', function () {
         }
     };
 
-    editor.method('editor:search:files', function (regex) {
+    editor.method('editor:search:files', function (regex, includeRegex, excludeRegex) {
         editor.emit('editor:search:files:start');
 
         lastSearchId++;
@@ -66,7 +67,7 @@ editor.once('load', function () {
             if (currentSearchId !== lastSearchId) return;
 
             done++;
-            editor.emit('editor:search:files:results', evt.data, done, todo);
+            editor.emit('editor:search:files:results', evt.data, done, ignored, todo);
             checkDone();
         };
 
@@ -74,10 +75,31 @@ editor.once('load', function () {
 
         todo = 0;
         done = 0;
+        ignored = 0;
 
         for (var i = 0, len = assets.length; i < len; i++) {
             var asset = assets[i];
             if (asset.get('type') === 'folder') continue;
+
+            // skip path rebuilding if there's no include or exclude regexes
+            if (includeRegex != null || excludeRegex != null) {
+                // rebuild full path to asset in the style 'src/com/playcanvas/script.js'
+                var path = asset.get('path');
+                var assetFullPath = path.map((id) => editor.call('assets:get', id).get('name')).join('/') + (path.length > 0 ? '/' : '') + asset.get('name');
+    
+                // if include is present, discard asset if there's no match to the include regex
+                var includeMatch = assetFullPath.match(includeRegex);
+                if (includeRegex != null && !(includeMatch !== null && includeMatch.length >= 1)) {
+                    ignored++;
+                    continue;
+                }
+                // if exclude is present, discard asset if there is a match to the exclude regex
+                var excludeMatch = assetFullPath.match(excludeRegex);
+                if (excludeRegex != null && excludeMatch !== null && excludeMatch.length >= 1) {
+                    ignored++;
+                    continue;
+                }
+            }
 
             searchAsset(asset, regex, currentSearchId);
         }

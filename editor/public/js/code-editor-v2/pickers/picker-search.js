@@ -5,6 +5,46 @@ editor.once('load', function () {
     var codePanel = editor.call('layout.code');
     const monacoEditor = editor.call('editor:monaco');
 
+    // Filter Panel
+    var filterPanel = new ui.Panel();
+    filterPanel.flex = true;
+    filterPanel.class.add('picker-search');
+    filterPanel.style.height = '0px';
+    filterPanel.hidden = true;
+    parent.append(filterPanel);
+
+    var createFilter = function(text, storageKey) {
+        var filterButton = new ui.Button({
+            text: text
+        });
+        filterButton.element.tabIndex = -1;
+        filterButton.class.add('option');
+        filterButton.style.width = '80px';
+        filterPanel.append(filterButton);
+        
+        var textField = new ui.TextField();
+        textField.class.add('search');
+        textField.renderChanges = false;
+        textField.keyChange = true;
+        textField.elementInput.placeholder = 'e.g. *.js, src/*';
+        // prevent default behaviour on browser shortcuts
+        textField.elementInput.classList.add('hotkeys');
+        textField.elementInput.addEventListener('keydown', onInputKeyDown);
+        filterPanel.append(textField);
+
+        return {
+            filterButton,
+            textField,
+            storageKey,
+            doFilter: false,
+            pattern: '',
+            regexp: null
+        }
+    };
+    var includeFilter = createFilter('Include', 'picker:search:filters:include');
+    var excludeFilter = createFilter('Exclude', 'picker:search:filters:exclude');
+
+    // Main Panel
     var panel = new ui.Panel();
     panel.flex = true;
     panel.class.add('picker-search');
@@ -14,6 +54,14 @@ editor.once('load', function () {
 
     panel.class.add('animate-height');
     codePanel.class.add('animate-height');
+    filterPanel.class.add('animate-height');
+
+    var optionFilter = new ui.Button({
+        text: '...'
+    });
+    optionFilter.element.tabIndex = -1;
+    optionFilter.class.add('option');
+    panel.append(optionFilter);
 
     var optionRegex = new ui.Button({
         text: '.*'
@@ -59,6 +107,13 @@ editor.once('load', function () {
 
     // Tooltips
     Tooltip.attach({
+        target: optionFilter.element,
+        text: 'Filter Options',
+        align: 'bottom',
+        root: editor.call('layout.root')
+    });
+
+    Tooltip.attach({
         target: optionCase.element,
         text: 'Case Sensitive',
         align: 'bottom',
@@ -83,6 +138,7 @@ editor.once('load', function () {
     var caseSensitive = false;
     var isRegex = false;
     var matchWholeWords = false;
+    var filterShow = false;
     var queryDirty = false;
     var previousText = '';
     var searchTimeout = null;
@@ -105,12 +161,31 @@ editor.once('load', function () {
         codePanel.style.height = 'calc(100% - 32px)';
     };
 
+    var growFilter = function () {
+        filterPanel.style.height = '';
+        codePanel.style.height = 'calc(100% - 96px)';
+    };
+
+    var shrinkFilter = function () {
+        filterPanel.style.height = '0px';
+        codePanel.style.height = 'calc(100% - 64px)';
+    };
+
     var onTransitionEnd;
 
     panel.element.addEventListener('transitionend', function (e) {
         if (onTransitionEnd) {
             onTransitionEnd();
             onTransitionEnd = null;
+        }
+    });
+
+    var onFilterPanelTransitionEnd;
+
+    filterPanel.element.addEventListener('transitionend', function (e) {
+        if (onFilterPanelTransitionEnd) {
+            onFilterPanelTransitionEnd();
+            onFilterPanelTransitionEnd = null;
         }
     });
 
@@ -154,6 +229,38 @@ editor.once('load', function () {
         }
     };
 
+    var updateFilterRegex = function (filter) {
+        queryDirty = true;
+
+        filter.pattern = filter.textField.value.trim();
+        if (!filter.pattern) {
+            filter.regexp = null;
+            filter.doFilter = false;
+            filter.filterButton.class.remove('toggled');
+            editor.call('localStorage:set', filter.storageKey, '');
+            return;
+        }
+        filter.doFilter = true;
+
+        try {
+            const regs = '^(.*' +
+                // replace `*` -> `.*` (so users can use only `*` as wildcard), and escape all other regex characters
+                filter.pattern.replace(/[|\\{}()[\]^$+?.]/g, '\\$&').replace(/\*+/g, '.*')
+                // use commas as OR separator, trim blank spaces around them, and sets trailing forward-slash with wildcard
+                .split(',').map((s) => s.trim().replace(/\/$/g, '/.*')).join('|.*') +
+                ')$';
+            filter.regexp = new RegExp(regs);
+            editor.call('localStorage:set', filter.storageKey, filter.pattern);
+
+            filter.filterButton.class.add('toggled');
+        } catch (e) {
+            log.error(e);
+            filter.regexp = null;
+            filter.doFilter = false;
+            filter.filterButton.class.remove('toggled');
+        }
+    };
+
     function onKeyDown(evt) {
         // close picker on esc
         if (evt.keyCode === 27) {
@@ -168,6 +275,24 @@ editor.once('load', function () {
                 searchField.elementInput.select();
             }
         }
+        // search on enter
+        if (evt.keyCode === 13) {
+            search(evt.shiftKey);
+        }
+    }
+
+    var closeFilter = function () {
+        if (!filterShow) return;
+        filterShow = false;
+
+        if (!includeFilter.doFilter && !excludeFilter.doFilter) {
+            optionFilter.class.remove('toggled');
+        }
+
+        shrinkFilter();
+        onFilterPanelTransitionEnd = function () {
+            filterPanel.hidden = true;
+        };
     }
 
     var openPicker = function () {
@@ -198,6 +323,7 @@ editor.once('load', function () {
 
     editor.method('picker:search:open', function (instantToggleMode) {
         onTransitionEnd = null;
+        editor.emit('editor:search:openTab');
         openPicker();
     });
 
@@ -213,6 +339,8 @@ editor.once('load', function () {
         };
 
         open = false;
+
+        closeFilter();
         shrinkPicker();
 
         // clear search too
@@ -274,7 +402,7 @@ editor.once('load', function () {
         }
 
         if (regexp) {
-            editor.call('editor:search:files', regexp);
+            editor.call('editor:search:files', regexp, includeFilter.regexp, excludeFilter.regexp);
         }
 
         if (open) {
@@ -283,12 +411,6 @@ editor.once('load', function () {
     };
 
     // execute search
-    searchField.elementInput.addEventListener('keydown', function (e) {
-        if (e.keyCode === 13) {
-            search(e.shiftKey);
-        }
-    });
-
     searchField.on('change', function (value) {
         if (suspendChangeEvt) return;
 
@@ -299,7 +421,39 @@ editor.once('load', function () {
         }
     });
 
+    includeFilter.textField.on('change', function (value) {
+        if (suspendChangeEvt) return;
+
+        if (includeFilter.pattern !== value) {
+            updateFilterRegex(includeFilter);
+
+            cancelDelayedSearch();
+        }
+    });
+    excludeFilter.textField.on('change', function (value) {
+        if (suspendChangeEvt) return;
+
+        if (excludeFilter.pattern !== value) {
+            updateFilterRegex(excludeFilter);
+
+            cancelDelayedSearch();
+        }
+    });
+
     // option buttons
+    optionFilter.on('click', function () {
+        if (!filterShow) {
+            filterShow = true;
+            optionFilter.class.add('toggled');
+            filterPanel.hidden = false;
+
+            onFilterPanelTransitionEnd = null;
+            growFilter();
+        } else {
+            closeFilter();
+        }
+    });
+
     optionRegex.on('click', function () {
         isRegex = !isRegex;
         updateQuery();
@@ -336,6 +490,13 @@ editor.once('load', function () {
     btnFindInFiles.on('click', function () {
         search();
     });
+
+    // set default filter values
+    includeFilter.textField.value = editor.call('localStorage:get', includeFilter.storageKey) || '';
+    excludeFilter.textField.value = editor.call('localStorage:get', excludeFilter.storageKey) || '';
+    if (includeFilter.pattern || excludeFilter.pattern) {
+        optionFilter.class.add('toggled');
+    }
 
     // stop search timeout when documents are focused / unfocused
     editor.on('documents:focus', cancelDelayedSearch);

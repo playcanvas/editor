@@ -35,7 +35,7 @@ editor.once('load', function () {
     var lockTemporary = false;
 
     // pseudo-id of find in files tab
-    var FIND_IN_FILES = 'Find Results';
+    var FIND_IN_FILES = 'Find in Files';
 
     var updateDirty = function (id, dirty) {
         var entry = tabsIndex[id];
