@@ -1464,8 +1464,6 @@ Object.assign(pcui, (function () {
             this.buildDom(DOM(this));
 
             if (!editor.call('users:hasFlag', 'hasExtendedMatProps')) {
-                this._clearCoatPanel.hidden = true;
-
                 this._opacityInspector.getField('data.opacityFadesSpecular').parent.hidden = true;
             }
 
