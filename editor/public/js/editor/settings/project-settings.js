@@ -218,7 +218,7 @@ editor.once('load', function () {
         }
 
         if (settings.get('powerPreference') === null) {
-            settings.set('powerPreference', 'default');
+            settings.set('powerPreference', 'high-performance');
         }
 
         if (settings.get('maxAssetRetries') === null) {
