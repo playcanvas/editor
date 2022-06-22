@@ -46,6 +46,7 @@ Object.assign(pcui, (function () {
 
         _loadTransitions() {
             const state = this._assets[0].get(this._path);
+            if (!state) return;
             this._transitionsPanel.clear();
             let hasTransitions = false;
             const data = this._assets[0].get('data');
@@ -56,7 +57,7 @@ Object.assign(pcui, (function () {
                 return stateA.name > stateB.name ? 1 : -1;
             }).forEach(transitionId => {
                 const transition = data.transitions[transitionId];
-                if (transition.from !== state.id) return;
+                if (transition.from !== state.id || transition.to === undefined) return;
                 hasTransitions = true;
                 const toStateName = data.states[transition.to].name;
                 const transitionLabel = new pcui.Label({

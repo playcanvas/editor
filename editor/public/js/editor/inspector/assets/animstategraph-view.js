@@ -574,12 +574,14 @@ Object.assign(pcui, (function () {
                 const edgeData = data.transitions[edge];
                 if (edgeData && this._parent._transitionsContainer._edge === `${edgeData.from}-${edgeData.to}`) {
                     this._parent._transitionsContainer.unlink();
+                    this._parent._transitionsContainer.hidden = true;
                 }
                 delete data.transitions[edge];
             });
             this._assets[0].set('data', data);
-            if (this._parent._stateContainer._stateName === node.name) {
+            if (this._parent._stateContainer._stateName === node.attributes.name) {
                 this._parent._stateContainer.unlink();
+                this._parent._stateContainer.hidden = true;
             }
         }
 
@@ -658,6 +660,7 @@ Object.assign(pcui, (function () {
         }
 
         _onSelectNode({ node }) {
+            if(!node) return;
             this._parent._transitionsContainer.unlink();
             this._parent._transitionsContainer.hidden = true;
             this._parent._stateContainer.link(this._assets, this._selectedLayer, `data.states.${node.id}`);
