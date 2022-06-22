@@ -11,7 +11,7 @@ editor.once('load', function () {
 
     var queryParams = (new pc.URI(window.location.href)).getQuery();
     var concatenateScripts = (queryParams.concatenateScripts === 'true');
-    var concatenatedScriptsUrl = '/projects/' + config.project.id + '/concatenated-scripts/scripts.js?branchId=' + config.self.branch.id;
+    var concatenatedScriptsUrl = 'projects/' + config.project.id + '/concatenated-scripts/scripts.js?branchId=' + config.self.branch.id;
     var useBundles = (queryParams.useBundles !== 'false');
 
     var getFileUrl = function (folders, id, revision, filename, useBundles) {
