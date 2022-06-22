@@ -1,5 +1,6 @@
 #layout-toolbar {
     background-color: $bcg-darker;
+    z-index: 1000;
 
     > .ui-button {
         display: block;
@@ -100,5 +101,8 @@
             order: 4;
         }
     }
+}
 
+#layout-toolbar.hide-items > div {
+    display: none;
 }

@@ -31,7 +31,7 @@ editor.once('load', function () {
     assetInspector.on('fullscreenMode:on', () => {
         editor.call('layout.attributes.secondary').hidden = false;
         editor.call('layout.hierarchy').hidden = true;
-        editor.call('layout.toolbar').hidden = true;
+        editor.call('layout.toolbar').class.add('hide-items');
         editor.call('layout.toolbar.launch').hidden = true;
         editor.call('layout.viewport.camera').hidden = true;
         editor.call('viewport:canvas').hidden = true;
@@ -42,7 +42,7 @@ editor.once('load', function () {
     assetInspector.on('fullscreenMode:off', () => {
         editor.call('layout.attributes.secondary').hidden = true;
         editor.call('layout.hierarchy').hidden = false;
-        editor.call('layout.toolbar').hidden = false;
+        editor.call('layout.toolbar').class.remove('hide-items');
         editor.call('layout.toolbar.launch').hidden = false;
         editor.call('layout.viewport.camera').hidden = false;
         editor.call('viewport:canvas').hidden = false;
