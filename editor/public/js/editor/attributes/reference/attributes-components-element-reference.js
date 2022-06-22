@@ -71,13 +71,18 @@ editor.once('load', function () {
         description: 'The material to be used by the element.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#materialAsset'
     }, {
+        title: 'fitMode',
+        subTitle: '{String}',
+        description: 'Set how the content should be fitted and preserve the aspect ratio of the source texture or sprite. Use \'Stretch\' to always stretch the content to fit the entire Element; Use \'Contain\' to resize the content to fit within this Element\'s bounding box; Use \'Cover\' to cover the entire Element\'s bounding box.',
+        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#fitMode'
+    }, {
         title: 'autoWidth',
-        subTitle: '{Booelan}',
+        subTitle: '{Boolean}',
         description: 'Make the width of the element match the width of the text content automatically.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#autoWidth'
     }, {
         title: 'autoHeight',
-        subTitle: '{Booelan}',
+        subTitle: '{Boolean}',
         description: 'Make the height of the element match the height of the text content automatically.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#autoHeight'
     }, {

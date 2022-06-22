@@ -286,6 +286,20 @@ Object.assign(pcui, (function () {
             assetType: 'material'
         }
     }, {
+        label: 'Fit Mode',
+        path: 'components.element.fitMode',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [{
+                v: pc.FITMODE_STRETCH, t: 'Stretch'
+            }, {
+                v: pc.FITMODE_CONTAIN, t: 'Contain'
+            }, {
+                v: pc.FITMODE_COVER, t: 'Cover'
+            }]
+        }
+    },{
         label: 'Use Input',
         path: 'components.element.useInput',
         type: 'boolean'
@@ -623,6 +637,7 @@ Object.assign(pcui, (function () {
                 'autoHeight',
                 'autoFitWidth',
                 'autoFitHeight',
+                'fitMode',
                 'wrapLines',
                 'materialAsset',
                 'spriteAsset',
@@ -741,6 +756,7 @@ Object.assign(pcui, (function () {
             this._field('height').disabled = verticalSplit || (this._field('autoHeight').value && isText);
             this._field('autoWidth').disabled = horizontalSplit;
             this._field('autoHeight').disabled = verticalSplit;
+            this._field('fitMode').parent.hidden = !isImage || (!texture && !sprite) || material;
             this._field('autoFitWidth').disabled = this._field('autoWidth').value;
             this._field('autoFitHeight').disabled = this._field('autoHeight').value;
             this._field('maxFontSize').parent.hidden = !isText || ((this._field('autoFitWidth').disabled || !this._field('autoFitWidth').value) && (this._field('autoFitHeight').disabled || !this._field('autoFitHeight').value));

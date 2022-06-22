@@ -165,6 +165,10 @@ editor.once('load', function () {
                     entity.set('components.element.useInput', false);
                 }
 
+                if (! entity.has('components.element.fitMode')) {
+                    entity.set('components.element.fitMode', pc.FITMODE_STRETCH);
+                }
+
                 if (! entity.has('components.element.autoWidth')) {
                     entity.set('components.element.autoWidth', entity.get('components.element.type') === 'text');
                 }
