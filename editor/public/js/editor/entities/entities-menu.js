@@ -41,6 +41,23 @@ editor.once('load', () => {
         return data;
     };
 
+    var createButtonTextElementComponentData = function (additions) {
+        var data = editor.call('components:getDefault', 'element');
+        data.type = 'text';
+        data.text = 'Text';
+        data.autoWidth = false;
+        data.autoHeight = false;
+        data.autoFitWidth = true;
+        data.autoFitHeight = true;
+        data.anchor = [0, 0, 1, 1];
+        data.margin = [0, 0, 0, 0];
+        data.color = [0, 0, 0];
+
+        applyAdditions(data, additions);
+
+        return data;
+    };
+
     var createButtonEntityData = function (additions) {
         var data = {
             components: {
@@ -443,7 +460,7 @@ editor.once('load', () => {
                             {
                                 name: 'Text',
                                 components: {
-                                    element: createTextElementComponentData()
+                                    element: createButtonTextElementComponentData()
                                 }
                             }
                         ]
