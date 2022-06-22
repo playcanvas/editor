@@ -451,6 +451,10 @@ Object.assign(pcui, (function () {
                 this._field(field).parent.hidden = !isSpot;
             });
 
+            // Avoid inner cone angle from being larger than outer cone angle
+            this._resetInnerConeAngleLimit();
+            this._field('outerConeAngle').on('change', this._resetInnerConeAngleLimit.bind(this));
+
             const bakeEnabled = this._field('bake').value;
             const bakeDirEnabled = this._field('bakeDir').value;
 
@@ -517,6 +521,10 @@ Object.assign(pcui, (function () {
                     entities[i].entity.light.light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
             }
             editor.call('viewport:render');
+        }
+
+        _resetInnerConeAngleLimit() {
+            this._field('innerConeAngle').max = this._field('outerConeAngle').value;
         }
 
         link(entities) {
