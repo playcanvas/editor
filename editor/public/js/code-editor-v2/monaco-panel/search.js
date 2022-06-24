@@ -221,25 +221,17 @@ editor.once('load', function () {
             }
         }
 
+        let lineCount = model.getLineCount();
+        let newText = "";
+
         // The next loop goes through each match and tries to
         // only keep text that is up to 'contextLimit' characters around
         // the match. Multiple matches on the same line will be concatenated
         // and if their distance is more than 'contextLimit' they will be separated
         // with dots.
-        let previousMatchLine = null;
-        let previousEndingDots = null;
-        let previousEndPosition = null;
         let i = 0;
         while (i < len) {
             const match = results.matches[i];
-
-            // this match is on a different line than the previous
-            // match so reset previous variables
-            if (match.line !== previousMatchLine) {
-                previousMatchLine = null;
-                previousEndingDots = null;
-                previousEndPosition = null;
-            }
 
             const textLen = match.text.length;
 
@@ -271,12 +263,10 @@ editor.once('load', function () {
 
             // add dots in the beginning
             let addStartingDots = false;
-            if (! previousEndingDots) {
-                for (let s = 0; s < from; s++) {
-                    if (match.text[s] !== SPACE) {
-                        addStartingDots = true;
-                        break;
-                    }
+            for (let s = 0; s < from; s++) {
+                if (match.text[s] !== SPACE) {
+                    addStartingDots = true;
+                    break;
                 }
             }
 
@@ -285,6 +275,7 @@ editor.once('load', function () {
             for (let s = textLen - 1; s > to; s--) {
                 if (match.text[s] !== SPACE) {
                     addEndingDots = true;
+                    break;
                 }
             }
 
@@ -312,47 +303,28 @@ editor.once('load', function () {
                 to += 3;
             }
 
-            const addNewLine = (end === results.matches.length - 1 || results.matches[end + 1].line !== match.line);
             let matchStart = 1;
 
-            // if this is a new line then
             // add text on the bottom
-            if (previousMatchLine === null) {
-                model.applyEdits([{
-                    text: text + (addNewLine ? '\n' : ''),
-                    range: new monaco.Range(model.getLineCount() + 1, 1, model.getLineCount() + 1, 1)
-                }]);
+            newText += text + '\n';
 
-                previousEndPosition = to - from;
+            // add custom line number
+            lineNumbers[lineCount] = (match.line + 1).toString();
 
-                // add custom line number
-                const line = model.getLineCount() - (addNewLine ? 1 : 0);
-                lineNumbers[line] = (match.line + 1).toString();
-
-                // add asset clickable range so that dbl clicking
-                // on asset takes you to the first match
-                if (i === 0) {
-                    clickableRanges.push({
-                        range: assetRange,
-                        onDblClick: () => onMatchDblClick(asset.get('id'), match)
-                    });
-                }
-
-                // make dbl click take you to match
+            // add asset clickable range so that dbl clicking
+            // on asset takes you to the first match
+            if (i === 0) {
                 clickableRanges.push({
-                    range: new monaco.Range(line, 1, line, model.getLineMaxColumn(line)),
+                    range: assetRange,
                     onDblClick: () => onMatchDblClick(asset.get('id'), match)
                 });
-            } else {
-                // this belongs to the same line as the previous batch of matches
-                // so append text to the same line
-                matchStart = previousEndPosition + 1;
-                model.applyEdits([{
-                    text: text + (addNewLine ? '\n' : ''),
-                    range: new monaco.Range(model.getLineCount() + 1, previousEndPosition + 1, model.getLineCount() + 1, previousEndPosition + 1)
-                }]);
-                previousEndPosition += to - from;
             }
+
+            // make dbl click take you to match
+            clickableRanges.push({
+                range: new monaco.Range(lineCount, 1, lineCount, text.length),
+                onDblClick: () => onMatchDblClick(asset.get('id'), match)
+            });
 
             // mark matches on text
             for (let j = i; j <= end; j++) {
@@ -360,24 +332,28 @@ editor.once('load', function () {
 
                 const matchFrom = match.char - from;
 
-                const lastLine = addNewLine ? model.getLineCount() - 1 : model.getLineCount();
-
                 // decorate match
                 decorations.push({
-                    range: new monaco.Range(lastLine, matchStart + matchFrom, lastLine, matchFrom + match.length + 1),
+                    range: new monaco.Range(lineCount, matchStart + matchFrom, lineCount, matchFrom + match.length + 1),
                     options: {
                         inlineClassName: 'search-results-match'
                     }
                 });
             }
 
-            model.deltaDecorations([], decorations);
-
-            previousMatchLine = match.line;
-            previousEndingDots = addEndingDots;
-
             // go to next batch of matches
             i = end + 1;
+
+            lineCount++;
         }
+
+        const lc = model.getLineCount();
+        const lm = model.getLineMaxColumn(lc);
+
+        model.applyEdits([{
+            text: newText,
+            range: new monaco.Range(lc, lm, lc, lm)
+        }]);
+        model.deltaDecorations([], decorations);
     });
 });
