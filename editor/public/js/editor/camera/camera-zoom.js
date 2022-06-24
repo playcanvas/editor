@@ -142,12 +142,25 @@ editor.once('viewport:load', function () {
         shiftKey = evt.shiftKey;
 
         var delta = (evt.deltaY > 0) ? -2 : (evt.deltaY < 0) ? 2 : 0;
+        var isTrackpad = false;
 
         if (delta !== 0) {
             editor.call('camera:focus:stop');
 
             if (firstUpdate === 3)
                 firstUpdate = 1;
+
+            // Detect whether user is using trackpad
+            if (evt.ctrlKey) {
+                isTrackpad = true;
+                evt.preventDefault();  // Prevent pinch to zoom browser functionality
+            } else {
+                isTrackpad = false;
+            }
+
+            // Adjust speed if using trackpad
+            zoomSpeed = isTrackpad ? 0.04 : 0.1;
+            zoomSpeedFast = isTrackpad ? 0.07 : 0.5;
 
             var speed = delta * (shiftKey ? zoomSpeedFast : zoomSpeed);
             zoomTarget += speed;
@@ -168,5 +181,5 @@ editor.once('viewport:load', function () {
         mouseCoords.y = tap.y;
     });
 
-    window.addEventListener('wheel', onMouseWheel, false);
+    window.addEventListener('wheel', onMouseWheel, { passive: false });
 });
