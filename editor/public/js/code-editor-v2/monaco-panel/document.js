@@ -168,6 +168,12 @@ editor.once('load', function () {
 
     // unfocus
     editor.on('documents:unfocus', function () {
+        // remember view state for the current view
+        // so we can restore it after switching back to it
+        if (focusedView) {
+            focusedView.viewState = monacoEditor.saveViewState();
+        }
+
         focusedView = null;
     });
 

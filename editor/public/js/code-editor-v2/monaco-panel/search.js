@@ -6,6 +6,7 @@ editor.once('load', function () {
     let totalMatches = 0;
     let totalFiles = 0;
     let tab = null;
+    let previousTabState = null;
 
     const CONTEXT_LIMIT = 128;
     const SPACE = ' ';
@@ -55,6 +56,9 @@ editor.once('load', function () {
     }
 
     function onMatchDblClick(assetId, match) {
+        // save state in order to restore later
+        previousTabState = monacoEditor.saveViewState();
+
         editor.call('integration:selectWhenReady', assetId, {
             line: match.line + 1,
             col: match.char + 1,
@@ -62,6 +66,8 @@ editor.once('load', function () {
                 // select match and open native find widget
                 monacoEditor.setSelection(new monaco.Range(match.line + 1, match.char + 1, match.line + 1, match.char + 1 + match.length));
                 monacoEditor.trigger(null, 'actions.find');
+                // focus on document in order to properly save and restore state (scroll, selected line and position, etc)
+                editor.emit('documents:focus', assetId);
             }
         });
     }
@@ -153,6 +159,9 @@ editor.once('load', function () {
     editor.on('tabs:focus', (t) => {
         if (t === tab && model) {
             setModel();
+            if (previousTabState) {
+                monacoEditor.restoreViewState(previousTabState);
+            }
             editor.call('picker:search:open');
         } else {
             if (onMouseDownEvt) {
