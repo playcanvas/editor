@@ -224,7 +224,7 @@ editor.once('load', function () {
 
         var params = {
             branch: panel.branch.id,
-            limit: 20
+            limit: 500
         };
 
         if (checkpointsSkip) {
