@@ -303,4 +303,5 @@ editor.once('load', function () {
 
         tooltipExpand.hidden = true;
     });
+
 });

@@ -13,7 +13,6 @@ editor.once('load', function () {
     });
 
     var projectName = new ui.Label();
-    projectName.text = config.project.name;
     projectName.class.add('project-name');
     projectName.renderChanges = false;
     panel.append(projectName);
@@ -24,7 +23,7 @@ editor.once('load', function () {
 
     Tooltip.attach({
         target: projectName.element,
-        text: 'Project',
+        text: 'Home',
         align: 'top',
         root: root
     });
@@ -41,10 +40,6 @@ editor.once('load', function () {
         root: root
     });
 
-    editor.on('scene:name', function (name) {
-        sceneName.text = name;
-    });
-
     sceneName.on('click', function () {
         editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
     });
@@ -55,10 +50,6 @@ editor.once('load', function () {
 
     editor.on('attributes:inspect[editorSettings]', function () {
         sceneName.class.add('active');
-    });
-
-    editor.on('scene:unload', function () {
-        sceneName.text = '';
     });
 
     if (! config.project.settings.useLegacyScripts) {
@@ -94,6 +85,10 @@ editor.once('load', function () {
     var sceneList = new ui.Label();
     sceneList.class.add('scene-list');
     panel.append(sceneList);
+
+    editor.on('scene:name', function (name) {
+        sceneList.text = name;
+    });
 
     Tooltip.attach({
         target: sceneList.element,
