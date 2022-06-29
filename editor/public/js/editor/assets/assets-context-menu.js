@@ -8,6 +8,16 @@ editor.once('load', function () {
 
     const LEGACY_SCRIPTS_ID = 'legacyScripts';
 
+    const isGlbAsset = (asset) => {
+        const filename = asset.get('file.filename');
+        return filename && String(filename).match(/\.glb$/) !== null;
+    };
+
+    const isTextureAsset = (asset) => {
+        const type = asset.get('type');
+        return type && ['texture', 'textureatlas'].indexOf(type) !== -1;
+    };
+
     // menu
     const menu = new pcui.Menu();
     root.append(menu);
@@ -489,7 +499,11 @@ editor.once('load', function () {
             const hostname = window.location.hostname;
             const fileUrl = currentAsset.get('file.url');
             const loadParam = encodeURIComponent(`https://${hostname}${fileUrl}`);
-            window.open(`/model-viewer?load=${loadParam}`);
+            if (isGlbAsset(currentAsset)) {
+                window.open(`/model-viewer?load=${loadParam}`);
+            } else {
+                window.open(`/texture-tool?load=${loadParam}`);
+            }
         }
     });
     menu.append(menuItemOpenInViewer);
@@ -709,11 +723,7 @@ editor.once('load', function () {
             menuItemMoveToStore.hidden = !editor.call("users:isSuperUser") || !currentAsset || currentAsset.get('id') === LEGACY_SCRIPTS_ID || (legacyScripts && currentAsset.get('type') === 'script');
 
             // open-in-viewer
-            if (currentAsset && currentAsset.get('file.filename') && (currentAsset.get('file.filename').match(/\.glb$/) !== null)) {
-                menuItemOpenInViewer.hidden = false;
-            } else {
-                menuItemOpenInViewer.hidden = true;
-            }
+            menuItemOpenInViewer.hidden = !currentAsset || !(isGlbAsset(currentAsset) || isTextureAsset(currentAsset));
         } else {
             // no asset
             menuItemExtract.hidden = true;

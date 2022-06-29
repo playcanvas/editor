@@ -164,6 +164,16 @@ Object.assign(pcui, (function () {
         ]
     };
 
+    const isGlbAsset = (asset) => {
+        const filename = asset.get('file.filename');
+        return filename && String(filename).match(/\.glb$/) !== null;
+    };
+
+    const isTextureAsset = (asset) => {
+        const type = asset.get('type');
+        return type && ['texture', 'textureatlas'].indexOf(type) !== -1;
+    };
+
     class AssetInspector extends pcui.Container {
         constructor(args) {
             if (!args) args = {};
@@ -323,7 +333,12 @@ Object.assign(pcui, (function () {
                 const fileUrl = asset.get('file.url');
                 return encodeURIComponent(`https://${hostname}${fileUrl}`);
             }).join('&load=');
-            window.open(`/model-viewer?load=${loadParam}`);
+
+            if (isGlbAsset(this._assets[0])) {
+                window.open(`/model-viewer?load=${loadParam}`);
+            } else {
+                window.open(`/texture-tool?load=${loadParam}`);
+            }
         }
 
         _onClickEditAsset(evt) {
@@ -377,20 +392,9 @@ Object.assign(pcui, (function () {
         }
 
         _updateOpenInViewerButton() {
-            const assetFilenames = this._assets.map(asset => {
-                return asset.get('file.filename');
-            });
-            let allGlb = true;
-            for (let i = 0; i < assetFilenames.length; i++) {
-                if (String(assetFilenames[i]).match(/\.glb$/) === null) {
-                    allGlb = false;
-                }
-            }
-            if (allGlb) {
-                this._btnOpenInViewer.hidden = false;
-            } else {
-                this._btnOpenInViewer.hidden = true;
-            }
+            const allGlb = this._assets.every(a => isGlbAsset(a));
+            const allTexture = !allGlb && this._assets.every(a => isTextureAsset(a));
+            this._btnOpenInViewer.hidden = !allGlb && !allTexture;
         }
 
         _updateDownloadButton() {
