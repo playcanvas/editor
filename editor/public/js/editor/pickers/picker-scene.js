@@ -154,6 +154,13 @@ editor.once('load', function () {
             }));
         }
 
+        row.on('click', (event) => {
+            // on middle click, open the scene in a new tab
+            if (event.button === 1) {
+                window.open(`/editor/scene/${dropdownScene.id}`, '_blank');
+            }
+        });
+
         return row;
     };
 
@@ -225,6 +232,15 @@ editor.once('load', function () {
             },
             select: function () {
                 editor.call('vcgraph:utils', 'launchItemHist', 'scenes', dropdownScene.id);
+            }
+        },
+        'open-scene': {
+            title: 'Open in New Tab',
+            filter: () => {
+                return editor.call('permissions:read');
+            },
+            select: () => {
+                window.open(`/editor/scene/${dropdownScene.id}`, '_blank');
             }
         }
     });
