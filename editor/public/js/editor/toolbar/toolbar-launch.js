@@ -7,6 +7,12 @@ editor.once('load', function () {
 
     var settings = editor.call('settings:projectUser');
 
+    var releaseCandidate;
+    var releaseCandidateAvailable = config.engineVersions.length === 3;
+    if (releaseCandidateAvailable) {
+        releaseCandidate = Object.values(config.engineVersions[2])[0];
+    }
+
     // panel
     var panel = new ui.Panel();
     panel.class.add('top-controls');
@@ -33,6 +39,10 @@ editor.once('load', function () {
     var buttonLaunch = new ui.Button({
         text: '&#57649;'
     });
+    var launchText = document.createElement('span');
+    launchText.innerText = 'Launch';
+    buttonLaunch.dom.append(launchText);
+    
     buttonLaunch.class.add('icon');
     launch.append(buttonLaunch);
 
@@ -67,7 +77,10 @@ editor.once('load', function () {
             query.push('ministats=true');
         }
 
-        if (config.url.useCustomEngine) {
+        if (releaseCandidateAvailable && launchOptions.releaseCandidate) {
+            query.push('version=' + releaseCandidate);
+            metrics.increment('launch-release-candidate');
+        } else if (config.url.useCustomEngine) {
             query.push('use_local_engine=' + config.url.engine);
         } else {
             const engineVersion = editor.call('settings:session').get('engineVersion');
@@ -85,14 +98,6 @@ editor.once('load', function () {
     };
 
     buttonLaunch.on('click', launchApp);
-
-    var tooltip = Tooltip.attach({
-        target: launch.element,
-        text: 'Launch',
-        root: root
-    });
-
-    var layoutRight = editor.call('layout.attributes');
 
     var panelOptions = new ui.Panel();
     panelOptions.class.add('options');
@@ -219,6 +224,26 @@ editor.once('load', function () {
         root: root
     }).class.add('launch-tooltip');
 
+    // release-candidate
+    if (releaseCandidateAvailable) {
+        var optionReleaseCandidate = createOption('releaseCandidate', 'Use Release Candidate');
+        optionReleaseCandidate.value = settings.get('editor.launchReleaseCandidate');
+        settings.on('editor.launchReleaseCandidate:set', function (value) {
+            if (value !== optionReleaseCandidate.value) {
+                optionReleaseCandidate.value = value;
+            }
+        });
+        optionReleaseCandidate.on('change', function (value) {
+            settings.set('editor.launchReleaseCandidate', value);
+        });
+        Tooltip.attach({
+            target: optionReleaseCandidate.parent.element,
+            text: `Launch the application using the engine release candidate (version ${releaseCandidate}).`,
+            align: 'right',
+            root: root
+        }).class.add('launch-tooltip');
+    }
+
     editor.method('launch', launchApp);
 
     editor.call('hotkey:register', 'launch', {
@@ -237,8 +262,6 @@ editor.once('load', function () {
     launch.element.addEventListener('mouseenter', function () {
         if (! editor.call('permissions:read') || launch.disabled)
             return;
-
-        tooltip.align = (layoutRight && (layoutRight.hidden || layoutRight.collapsed)) ? 'right' : 'left';
 
         panelOptions.hidden = false;
         if (timeout)

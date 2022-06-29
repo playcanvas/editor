@@ -88,7 +88,9 @@ Object.assign(pcui, (function () {
             type: 'select',
             args: {
                 type: 'string',
-                options: config.engineVersions.map(data => {
+                options: config.engineVersions.filter((data) => {
+                    return !Object.keys(data)[0].includes('Release Candidate');
+                }).map(data => {
                     const keys = Object.keys(data);
                     return {
                         t: keys[0],

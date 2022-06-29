@@ -2980,6 +2980,59 @@ strong {
     }
 }
 
+.ui-select-field.viewport-camera {
+    position: absolute;
+    top: 2px;
+    right: 159px;
+    margin: 2px 0;
+    height: 33px;
+    line-height: 33px;
+    padding: 0px 10px;
+
+    background-color: rgba($bcg-darker, .5);
+    border-color: transparent;
+
+    > .value {
+        min-height: 30px;
+        line-height: 32px;
+        color: rgba($text-primary, .75);
+
+        @extend .font-regular;
+
+        &:after {
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            font-size: 14px;
+            content: '\E183';
+            color: rgba($text-primary, .5);
+        }
+    }
+
+    &:hover {
+        background-color: rgba($bcg-darker, .75);
+        border-color: transparent;
+
+        > .value {
+            color: $text-primary;
+            &:after {
+                content: '\E183';
+                font-size: 14px;
+                color: $text-primary;
+            }
+        }
+    }
+
+    > ul {
+        > li {
+            padding: 0px 9px 0px 10px;
+            line-height: 32px;
+
+            @extend .font-regular;
+        }
+    }
+}
+
 .ui-panel.top-controls {
     position: absolute;
     top: 4px;
@@ -3126,7 +3179,7 @@ strong {
             }
             > .content {
                 > .ui-button {
-                    width: 33px;
+                    width: 83px;
                     height: 33px;
                     line-height: 33px;
                     margin: 0;
@@ -3137,6 +3190,15 @@ strong {
                     text-align: center;
                     color: rgba($text-primary, .75);
                     background-color: rgba($bcg-darker, .5);
+                    display: flex;
+                    align-items: center;
+                    padding-left: 8px; 
+
+                    > span {
+                        margin-left: 6px;
+                        font-family: 'Proxima Nova Regular';
+                        font-size: 12px;
+                    }
                 }
 
                 .ui-panel.options {
@@ -3667,7 +3729,7 @@ strong {
     background-color: transparent;
 
     > .content {
-        > .project-name, > .scene-name, , > .branch-name,  > .scene-list {
+        > .project-name, > .scene-name, > .branch-name,  > .scene-list {
             height: 33px;
             min-height: 33px;
             line-height: 34px;

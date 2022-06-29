@@ -117,6 +117,29 @@ canvas:focus {
     }
 }
 
+#application-tooltip {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 40px;
+    background-color: #2c2c2c;
+    padding: 14px;
+    color: white;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    font-family: 'inconsolatamedium';
+
+    img {
+        margin-left: 14px;
+        cursor: pointer;
+    }
+}
+
+#application-tooltip.hidden {
+    display: none;
+}
+
 .connecting {
     position: absolute;
     right: 5px;

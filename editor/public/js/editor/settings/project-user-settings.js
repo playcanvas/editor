@@ -23,6 +23,7 @@ editor.once('load', function () {
                 snapIncrement: 1,
                 launchDebug: true,
                 launchMinistats: false,
+                launchReleaseCandidate: false,
                 locale: 'en-US',
                 pipeline: {
                     texturePot: true,
@@ -68,6 +69,10 @@ editor.once('load', function () {
 
             if (!settings.has('editor.launchMinistats')) {
                 settings.set('editor.launchMinistats', false);
+            }
+
+            if (!settings.has('editor.launchReleaseCandidate')) {
+                settings.set('editor.launchReleaseCandidate', false);
             }
 
             if (! settings.has('editor.pipeline'))
