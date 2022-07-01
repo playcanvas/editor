@@ -30,6 +30,14 @@ editor.once('viewport:load', function () {
     cameraOptions.hidden = false;
     cameraPanel.append(cameraOptions);
 
+    // Clear out all active cameras
+    var clearRadioButtons = function () {
+        for (const key in viewportCamera.optionElements) {
+            const radioButton = viewportCamera.optionElements[key];
+            radioButton.value = false;
+        }
+    };
+
     // Option Fields UI
     var createOption = function (title, id) {
 
@@ -50,11 +58,7 @@ editor.once('viewport:load', function () {
             var entity = app.root.findByGuid(id);
             editor.call('camera:set', entity);
 
-            // Clear out all active cameras
-            for (const key in viewportCamera.optionElements) {
-                const radioButton = viewportCamera.optionElements[key];
-                radioButton.value = false;
-            }
+            clearRadioButtons();
 
             // Set active camera radio button
             fieldCameraOption.value = true;
@@ -181,9 +185,11 @@ editor.once('viewport:load', function () {
         }
     });
 
-    // Update camera selected title
+    // Update camera selected title and active button
     editor.on('camera:change', function (entity) {
         viewportCamera.active = entity.getGuid();
+        clearRadioButtons();
+        viewportCamera.optionElements[viewportCamera.active].value = true;
         cameraSelected.text = viewportCamera.optionTitles[entity.getGuid()];
     });
 
@@ -209,11 +215,9 @@ editor.once('viewport:load', function () {
         }
 
         var content = cameraOptions.element.firstChild;
-        timeout = setTimeout(function () {
-            if (!inOptions && !inButton) {
-                content.style.display = 'none';
-            }
-        }, 500);
+        if (!inOptions && !inButton) {
+            content.style.display = 'none';
+        }
     };
 
     cameraPanel.element.addEventListener('mouseenter', function () {
