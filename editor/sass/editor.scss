@@ -3051,10 +3051,10 @@ strong {
                 > .ui-panel.camera-options {
                     > .content {
                         position: absolute;
+                        display: none;  // Hidden by default
                         padding: 10px;
                         top: 5px;
                         right: 0;
-                        display: flex;
                         flex-direction: column;
                         align-items: start;
                         text-align: start;
@@ -3063,6 +3063,7 @@ strong {
                     }
 
                     .ui-panel {
+                        width: 100%;
                         background: transparent;
                     }
 
@@ -3228,9 +3229,9 @@ strong {
 .ui-radiobtn {
     position: relative;
     display: inline-block;
-    width: 15px;
+    width: 16px;
     align-self: center;
-    margin-left: 0px;
+    margin-left: 2px;
     margin-right: 3px;
 
     &:hover {
@@ -3247,17 +3248,17 @@ strong {
         top: 50%;
         transform: translate(-50%, -50%);
         border-radius: 50%;
-        width: 15px;
-        min-width: 15px;
-        height: 15px;
-        background-color: rgba($bcg-darker, .75);
+        width: 16px;
+        min-width: 16px;
+        height: 16px;
+        background-color: $bcg-darker;
     }
 
     &:after {
         position: absolute;
-        width: 10px;
-        min-width: 10px;
-        height: 10px;
+        width: 11px;
+        min-width: 11px;
+        height: 11px;
         left: 50%;
         top: 50%;
         border-radius: 50%;
@@ -3268,9 +3269,9 @@ strong {
     &.selected {
 
         &:before {
-            width: 15px;
-            min-width: 15px;
-            height: 15px;
+            width: 16px;
+            min-width: 16px;
+            height: 16px;
             box-sizing: border-box;
             border: 1px solid white;
         }

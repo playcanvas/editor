@@ -27,7 +27,7 @@ editor.once('viewport:load', function () {
 
     const cameraOptions = new ui.Panel();
     cameraOptions.class.add('camera-options');
-    cameraOptions.hidden = true;
+    cameraOptions.hidden = false;
     cameraPanel.append(cameraOptions);
 
     // Option Fields UI
@@ -45,8 +45,8 @@ editor.once('viewport:load', function () {
         fieldCameraOption.value = currentCamera == title;
         panelCameraOption.append(fieldCameraOption);
 
-        // Listen for field option (radio button) clicks
-        fieldCameraOption.element.addEventListener('click', function () {
+        // Listen for field option clicks
+        panelCameraOption.element.addEventListener('click', function () {
             var entity = app.root.findByGuid(id);
             editor.call('camera:set', entity);
 
@@ -198,7 +198,8 @@ editor.once('viewport:load', function () {
             timeout = null;
         }
 
-        cameraOptions.hidden = false;
+        var content = cameraOptions.element.firstChild;
+        content.style.display = 'flex';
     };
 
     const disable = function () {
@@ -207,23 +208,21 @@ editor.once('viewport:load', function () {
             timeout = null;
         }
 
+        var content = cameraOptions.element.firstChild;
         timeout = setTimeout(function () {
-            if (!inOptions && !inButton)
-                cameraOptions.hidden = true;
+            if (!inOptions && !inButton) {
+                content.style.display = 'none';
+            }
         }, 500);
     };
 
     cameraPanel.element.addEventListener('mouseenter', function () {
         inButton = true;
-
-        if (cameraOptions.hidden) {
-            enable();
-        }
+        enable();
     }, false);
 
     cameraPanel.element.addEventListener('mouseleave', function () {
         inButton = false;
-
         disable();
     }, false);
 
