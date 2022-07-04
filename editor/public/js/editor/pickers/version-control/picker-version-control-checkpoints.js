@@ -66,8 +66,8 @@ editor.once('load', function () {
     panelBranchActions.append(btnNewCheckpoint);
 
     var toggleTopButtons = function () {
-        btnFavorite.disabled = ! panel.branch || panel.branch.closed || ! editor.call('permissions:write');
-        btnNewCheckpoint.disabled = ! editor.call('permissions:write') || ! panel.branch || panel.branch.id !== config.self.branch.id;
+        btnFavorite.disabled = !panel.branch || panel.branch.closed || !editor.call('permissions:write');
+        btnNewCheckpoint.disabled = !editor.call('permissions:write') || !panel.branch || panel.branch.id !== config.self.branch.id;
     };
 
     toggleTopButtons();
@@ -379,7 +379,7 @@ editor.once('load', function () {
         dropdown.class.add('dropdown');
         panelListItem.append(dropdown);
 
-        if (! editor.call('permissions:write') || diffMode) {
+        if (!editor.call('permissions:write') || diffMode) {
             dropdown.hidden = true;
         }
 
@@ -636,13 +636,13 @@ editor.once('load', function () {
     });
 
     menuCheckpoints.on('open', function (open) {
-        if (! currentCheckpoint) return;
+        if (!currentCheckpoint) return;
 
         // filter menu options
         if (open) {
-            menuCheckpointsRestore.hidden = panel.branch.id !== config.self.branch.id || ! editor.call('permissions:write');
+            menuCheckpointsRestore.hidden = panel.branch.id !== config.self.branch.id || !editor.call('permissions:write');
             menuCheckpointsHardReset.hidden = menuCheckpointsRestore.hidden;
-            menuCheckpointsBranch.hidden = ! editor.call('permissions:write');
+            menuCheckpointsBranch.hidden = !editor.call('permissions:write');
 
             // Don't show view changes if this is the last checkpoint in the list
             // because we can't get the previous checkpoint id until the user loads
@@ -653,13 +653,13 @@ editor.once('load', function () {
         }
 
         // when the checkpoints context menu is closed 'unclick' dropdowns
-        if (! open) {
+        if (!open) {
             var item = document.getElementById('checkpoint-' + currentCheckpoint.id);
             currentCheckpoint = null;
-            if (! item) return;
+            if (!item) return;
 
             var dropdown = item.querySelector('.clicked');
-            if (! dropdown) return;
+            if (!dropdown) return;
 
             dropdown.classList.remove('clicked');
             dropdown.innerHTML = '&#57689;';
@@ -672,7 +672,7 @@ editor.once('load', function () {
         events.push(editor.on('permissions:writeState', function (writeEnabled) {
             // hide all dropdowns if we no longer have write access
             panel.innerElement.querySelectorAll('.dropdown').forEach(function (dropdown) {
-                dropdown.ui.hidden = ! writeEnabled;
+                dropdown.ui.hidden = !writeEnabled;
             });
 
             // hide new checkpoint button if we no longer have write access

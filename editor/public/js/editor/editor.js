@@ -49,7 +49,7 @@
     'use strict';
 
     var applyConfig = function (path, value) {
-        if (typeof(value) === 'object') {
+        if (typeof value === 'object') {
             for (const key in value) {
                 applyConfig((path ? path + '.' : '') + key, value[key]);
             }

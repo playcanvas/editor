@@ -89,7 +89,7 @@ editor.once('load', function () {
         events.push(projectSettings.on('layerOrder:insert', function (value, index) {
             var id = value.get('layer');
             var layer = layerIndex[id];
-            if (! layer) return;
+            if (!layer) return;
 
             var transparent = value.get('transparent');
 
@@ -110,7 +110,7 @@ editor.once('load', function () {
         events.push(projectSettings.on('layerOrder:remove', function (value) {
             var id = value.get('layer');
             var layer = layerIndex[id];
-            if (! layer) return;
+            if (!layer) return;
 
             var transparent = value.get('transparent');
 
@@ -130,7 +130,7 @@ editor.once('load', function () {
         events.push(projectSettings.on('layerOrder:move', function (value, indNew, indOld) {
             var id = value.get('layer');
             var layer = layerIndex[id];
-            if (! layer) return;
+            if (!layer) return;
 
             editor.call('gizmo:layers:removeFromComposition');
 
@@ -149,10 +149,10 @@ editor.once('load', function () {
         }));
 
         var layers = projectSettings.get('layers');
-        if (! layers) return;
+        if (!layers) return;
 
         var layerOrder = projectSettings.get('layerOrder');
-        if (! layerOrder) return;
+        if (!layerOrder) return;
 
         var i, len;
         var composition = new pc.LayerComposition("viewport-layers");
@@ -164,7 +164,7 @@ editor.once('load', function () {
         for (i = 0, len = layerOrder.length; i < len; i++) {
             var sublayer = layerOrder[i];
             var layer = layerIndex[sublayer.layer];
-            if (! layer) continue;
+            if (!layer) continue;
 
             if (sublayer.transparent) {
                 composition.pushTransparent(layer);

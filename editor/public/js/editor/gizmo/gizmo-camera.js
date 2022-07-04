@@ -25,16 +25,16 @@ editor.once('load', function () {
     }
     // update lines
     Gizmo.prototype.update = function () {
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
-        if (! this._link || ! this._link.entity || editor.call('camera:current') === this._link.entity) {
+        if (!this._link || !this._link.entity || editor.call('camera:current') === this._link.entity) {
             this.visible = false;
             return;
         }
 
         var camera = this._link.entity.camera;
         this.visible = camera && this._link.get('enabled') && this._link.get('components.camera.enabled') && editor.call('camera:current') !== this._link.entity;
-        if (! this.visible)
+        if (!this.visible)
             return;
 
         var nearClip = camera.nearClip || 0.0001;
@@ -96,9 +96,9 @@ editor.once('load', function () {
     };
     // render lines
     Gizmo.prototype.render = function () {
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
-        if (! this.visible)
+        if (!this.visible)
             return;
 
         app.renderLines(this.lines, colorBehind, noDepthImmediateRenderOptions);
@@ -117,7 +117,7 @@ editor.once('load', function () {
     };
     // unlink
     Gizmo.prototype.unlink = function () {
-        if (! this._link)
+        if (!this._link)
             return;
 
         for (let i = 0; i < this.events.length; i++)
@@ -163,7 +163,7 @@ editor.once('load', function () {
                 continue;
 
             var gizmo = pool.shift();
-            if (! gizmo)
+            if (!gizmo)
                 gizmo = new Gizmo();
 
             gizmo.link(ids[key]);

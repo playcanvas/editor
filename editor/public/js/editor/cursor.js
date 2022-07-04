@@ -14,7 +14,7 @@ editor.once('load', function () {
     });
 
     editor.method('cursor:clear', function () {
-        if (! cursorType)
+        if (!cursorType)
             return;
 
         cursorType = '';
@@ -49,11 +49,11 @@ editor.once('load', function () {
     // set tooltip text
     editor.method('cursor:text', function (text) {
         if (text) tooltip.text = text;
-        tooltip.hidden = ! text;
+        tooltip.hidden = !text;
 
         tooltip.style.transform = `translate(${lastX}px,${lastY}px)`;
 
-        if (! text)
+        if (!text)
             hiddenTime = Date.now();
     });
 });

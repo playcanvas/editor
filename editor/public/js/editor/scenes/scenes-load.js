@@ -36,7 +36,7 @@ editor.once('load', function () {
 
         // if we have not been authenticated with shareDb yet
         // then defer loading until we are authenticated
-        if (! realtimeAuthenticated) {
+        if (!realtimeAuthenticated) {
             evtLoadOnAuthenticated = editor.once('realtime:authenticated', function () {
                 evtLoadOnAuthenticated = null;
                 editor.call('scene:load', uniqueId, isNew);

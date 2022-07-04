@@ -64,7 +64,7 @@ editor.once('load', function () {
 
     // returns true if the viewport should continuously render
     editor.method('viewport:keepRendering', function (value) {
-        if (typeof(value) === 'boolean')
+        if (typeof value === 'boolean')
             keepRendering = value;
 
         return keepRendering;

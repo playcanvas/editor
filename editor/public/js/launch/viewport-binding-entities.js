@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     // entities awaiting parent
     var awaitingParent = { };
@@ -53,7 +53,7 @@ editor.once('load', function () {
             app.systems[key].addComponent(entity, components[key]);
 
         // parenting
-        if (! obj.get('parent')) {
+        if (!obj.get('parent')) {
             // root
             app.root.addChild(entity);
 
@@ -64,9 +64,9 @@ editor.once('load', function () {
                 parent = app.root.findByGuid(parent.get('resource_id'));
             }
 
-            if (! parent) {
+            if (!parent) {
                 // if parent not available, then await
-                if (! awaitingParent[obj.get('parent')])
+                if (!awaitingParent[obj.get('parent')])
                     awaitingParent[obj.get('parent')] = [];
 
                 // add to awaiting children
@@ -92,7 +92,7 @@ editor.once('load', function () {
         // queue resync hierarchy
         // done on timeout to allow bulk entity creation
         // without sync after each entity
-        if (! awaitingResyncHierarchy) {
+        if (!awaitingResyncHierarchy) {
             awaitingResyncHierarchy = true;
             setTimeout(resyncHierarchy, 0);
         }
@@ -102,7 +102,7 @@ editor.once('load', function () {
 
     editor.on('entities:add', function (obj) {
         var sceneLoading = editor.call("isLoadingScene");
-        if (! app.root.findByGuid(obj.get('resource_id')) && !sceneLoading) {
+        if (!app.root.findByGuid(obj.get('resource_id')) && !sceneLoading) {
             // create entity if it does not exist and all initial entities have loaded
             processEntity(obj);
         }
@@ -115,7 +115,7 @@ editor.once('load', function () {
             // if the entity has an element component
             // then only set z and let the rest be handled
             // by the element component (unless autoWidth or autoHeight is true in which case we need to be able to modify position)
-            if (! entity.element || entity.element.autoWidth || entity.element.autoHeight) {
+            if (!entity.element || entity.element.autoWidth || entity.element.autoHeight) {
                 entity.setLocalPosition(pos[0], pos[1], pos[2]);
             } else {
                 var localPos = entity.getLocalPosition();
@@ -139,7 +139,7 @@ editor.once('load', function () {
         // subscribe to changes
         obj.on('*:set', function (path, value) {
             var entity = app.root.findByGuid(obj.get('resource_id'));
-            if (! entity)
+            if (!entity)
                 return;
 
             if (path === 'name') {

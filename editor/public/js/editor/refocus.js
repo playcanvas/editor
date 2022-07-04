@@ -16,7 +16,7 @@ editor.once('load', function () {
     window.addEventListener('focus', onClear, true);
 
     window.addEventListener('blur', function (evt) {
-        if (! evt.target || ! evt.target.ui || ! evt.target.ui.focus || ! evt.target.ui.refocusable) {
+        if (!evt.target || !evt.target.ui || !evt.target.ui.focus || !evt.target.ui.refocusable) {
             onClear();
         } else {
             timeout = setTimeout(function () {
@@ -26,7 +26,7 @@ editor.once('load', function () {
     }, true);
 
     window.addEventListener('keydown', function (evt) {
-        if (! last)
+        if (!last)
             return;
 
         if (evt.keyCode === 13) {

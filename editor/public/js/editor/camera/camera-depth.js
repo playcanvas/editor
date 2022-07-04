@@ -2,7 +2,7 @@ editor.once('viewport:load', function () {
     'use strict';
 
     const app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     const scene = app.scene;
     const renderer = app.renderer;
@@ -55,7 +55,7 @@ editor.once('viewport:load', function () {
 
         for (let i = 0; i < drawCallsCount; i++) {
             const meshInstance = drawCalls[i];
-            if (! meshInstance.command && meshInstance.material && meshInstance.material.blendType === pc.BLEND_NONE) {
+            if (!meshInstance.command && meshInstance.material && meshInstance.material.blendType === pc.BLEND_NONE) {
                 const mesh = meshInstance.mesh;
 
                 renderer.modelMatrixId.setValue(meshInstance.node.worldTransform.data);
@@ -102,7 +102,7 @@ editor.once('viewport:load', function () {
 
 
     editor.method('camera:depth:pixelAt', function (camera, x, y) {
-        if (! depthTarget || ! rendered)
+        if (!depthTarget || !rendered)
             editor.call('camera:depth:render', camera);
 
         x *= canvas.pixelRatio;

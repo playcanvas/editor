@@ -115,7 +115,7 @@ editor.once('load', function () {
         asset._textures = [];
 
         var invalidate = function () {
-            if (! asset.get('file'))
+            if (!asset.get('file'))
                 return;
 
             // TODO: do not set the file here but use the asset server
@@ -128,7 +128,7 @@ editor.once('load', function () {
 
             asset._textures[ind] = null;
 
-            if (! id)
+            if (!id)
                 return;
 
             var texture = editor.call('assets:get', id);

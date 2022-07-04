@@ -251,7 +251,7 @@ Object.assign(pcui, (function () {
                     items[components[i]].disabled = different ? false : disabled;
 
                     if (components[i] === 'audiosource') {
-                        items[components[i]].hidden = ! legacyAudio;
+                        items[components[i]].hidden = !legacyAudio;
                     }
                 }
             });

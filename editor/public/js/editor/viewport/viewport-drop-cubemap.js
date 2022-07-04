@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     var canvas = editor.call('viewport:canvas');
     var evtPickHover = null;
@@ -36,7 +36,7 @@ editor.once('load', function () {
             hoverMaterial = hoverMeshInstance.material;
 
             if (hoverMaterial) {
-                if (! hoverMaterial._hoverCubeMap) {
+                if (!hoverMaterial._hoverCubeMap) {
                     hoverMaterial._hoverCubeMap = { };
                     for (let i = 0; i < hoverSkyboxFields.length; i++)
                         hoverMaterial._hoverCubeMap[hoverSkyboxFields[i]] = hoverMaterial[hoverSkyboxFields[i]];
@@ -50,7 +50,7 @@ editor.once('load', function () {
                 editor.call('viewport:render');
             }
         } else {
-            if (! hoverSkybox) {
+            if (!hoverSkybox) {
                 hoverSkybox = [null, null, null, null, null, null];
                 var id = editor.call('sceneSettings').get('render.skybox');
                 if (id) {
@@ -85,7 +85,7 @@ editor.once('load', function () {
         if (node && node._icon)
             node = node._getEntity();
 
-        if (! node) {
+        if (!node) {
             onHover(null);
             return;
         }
@@ -93,7 +93,7 @@ editor.once('load', function () {
         if (picked instanceof pc.MeshInstance)
             meshInstance = picked;
 
-        if (node.model && meshInstance && (! meshInstance.node._parent || ! meshInstance.node._parent._icon)) {
+        if (node.model && meshInstance && (!meshInstance.node._parent || !meshInstance.node._parent._icon)) {
             onHover(node, meshInstance);
         } else {
             onHover(null);
@@ -155,7 +155,7 @@ editor.once('load', function () {
                 return;
 
             hoverCubemap = app.assets.get(parseInt(data.id, 10));
-            if (! hoverCubemap)
+            if (!hoverCubemap)
                 return;
 
             hoverCubemap.loadFaces = true;

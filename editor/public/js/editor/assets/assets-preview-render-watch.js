@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     const app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     const watching = { };
 
@@ -61,7 +61,7 @@ editor.once('load', function () {
         const watchContainer = function () {
             const container = watch.asset.get('data.containerAsset');
             currentContainer = container;
-            if (! container) return;
+            if (!container) return;
 
             const containerAsset = editor.call('assets:get', container);
             if (containerAsset) {
@@ -82,7 +82,7 @@ editor.once('load', function () {
                     watch.onContainerRemove();
                 });
 
-                if (! engineContainer.resource && engineContainer.file) {
+                if (!engineContainer.resource && engineContainer.file) {
                     app.assets.load(engineContainer);
                 }
 
@@ -167,7 +167,7 @@ editor.once('load', function () {
     editor.method('assets:render:watch', function (args) {
         let watch = watching[args.asset.get('id')];
 
-        if (! watch) {
+        if (!watch) {
             watch = watching[args.asset.get('id')] = {
                 asset: args.asset,
                 engineAsset: null,
@@ -210,9 +210,9 @@ editor.once('load', function () {
 
     editor.method('assets:render:unwatch', function (asset, handle) {
         const watch = watching[asset.get('id')];
-        if (! watch) return;
+        if (!watch) return;
 
-        if (! watch.callbacks.hasOwnProperty(handle))
+        if (!watch.callbacks.hasOwnProperty(handle))
             return;
 
         if (watch.callbacks[handle].autoLoad)

@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     editor.on('viewport:pick:clear', function () {
-        if (! editor.call('hotkey:ctrl'))
+        if (!editor.call('hotkey:ctrl'))
             editor.call('selector:clear');
     });
 
@@ -10,18 +10,18 @@ editor.once('load', function () {
         // icon
         if (node._icon || (node.__editor && node._getEntity)) {
             node = node._getEntity();
-            if (! node) return;
+            if (!node) return;
         }
 
         // get entity
         var entity = editor.call('entities:get', node.getGuid());
-        if (! entity) return;
+        if (!entity) return;
 
         // get selector data
         var type = editor.call('selector:type');
         var items = editor.call('selector:items');
 
-        if (type === 'entity' && items.length === 1 && items.indexOf(entity) !== -1 && ! editor.call('hotkey:ctrl')) {
+        if (type === 'entity' && items.length === 1 && items.indexOf(entity) !== -1 && !editor.call('hotkey:ctrl')) {
             // if entity already selected
             // try selecting model asset
             // with highlighting mesh instance
@@ -43,7 +43,7 @@ editor.once('load', function () {
                     } else {
                         // get model asset
                         var asset = editor.call('assets:get', node.model.asset);
-                        if (! asset) break;
+                        if (!asset) break;
 
                         // select model asset
                         editor.call('selector:set', 'asset', [asset]);

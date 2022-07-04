@@ -14,7 +14,7 @@ editor.once('load', function () {
     var resyncHierarchy = function () {
         awaitingResyncHierarchy = false;
 
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
         // sync hierarchy
         app.context.root.syncHierarchy();
@@ -65,7 +65,7 @@ editor.once('load', function () {
     };
 
     var processEntity = function (obj) {
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
         // create entity
         var entity = obj.entity = createEntity(obj);
@@ -86,7 +86,7 @@ editor.once('load', function () {
                 }
 
                 app.context.systems[key].addComponent(entity, components[key]);
-            } else if (! unknowns[key]) {
+            } else if (!unknowns[key]) {
                 unknowns[key] = true;
                 console.log('unknown component "' + key + '", in entity ' + obj.get('resource_id'));
             }
@@ -105,7 +105,7 @@ editor.once('load', function () {
         }
 
         // parenting
-        if (! obj.get('parent')) {
+        if (!obj.get('parent')) {
             // root
             app.context.root.addChild(entity);
         } else {
@@ -119,7 +119,7 @@ editor.once('load', function () {
         // queue resync hierarchy
         // done on timeout to allow bulk entity creation
         // without rerender and sync after each entity
-        if (! awaitingResyncHierarchy) {
+        if (!awaitingResyncHierarchy) {
             awaitingResyncHierarchy = true;
             setTimeout(resyncHierarchy, 0);
         }

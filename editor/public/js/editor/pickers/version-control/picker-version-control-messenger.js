@@ -74,7 +74,7 @@ editor.once('load', function () {
         setTimeout(function () {
             if (config.scene && config.scene.id) {
                 editor.call('scenes:get', config.scene.id, function (err, data) {
-                    if (err || ! data) {
+                    if (err || !data) {
                         window.location = '/editor/project/' + config.project.id + window.location.search;
                     } else {
                         window.location.reload();
@@ -248,7 +248,7 @@ editor.once('load', function () {
 
     // show overlay if the current merge has been force stopped
     editor.on('messenger:merge.delete', function (data) {
-        if (! config.self.branch.merge) return;
+        if (!config.self.branch.merge) return;
         if (config.self.branch.merge.id !== data.merge_id) return;
 
         editor.call('picker:versioncontrol:mergeOverlay:hide');

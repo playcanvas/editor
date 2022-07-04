@@ -31,7 +31,7 @@ editor.once('load', function () {
             undo: function () {
                 for (let i = 0; i < records.length; i++) {
                     var item = records[i].item.latest();
-                    if (! item)
+                    if (!item)
                         continue;
 
                     item.history.enabled = false;
@@ -42,7 +42,7 @@ editor.once('load', function () {
             redo: function () {
                 for (let i = 0; i < records.length; i++) {
                     var item = records[i].item.latest();
-                    if (! item)
+                    if (!item)
                         continue;
 
                     item.history.enabled = false;

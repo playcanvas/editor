@@ -35,7 +35,7 @@ editor.once('load', function () {
 
                         editor.emit('realtime:authenticated');
                     }
-                } else if (! msg.data.startsWith('permissions') && ! msg.data.startsWith('chat') && ! msg.data.startsWith('selection') && ! msg.data.startsWith('whoisonline') && ! msg.data.startsWith('fs:')) {
+                } else if (!msg.data.startsWith('permissions') && !msg.data.startsWith('chat') && !msg.data.startsWith('selection') && !msg.data.startsWith('whoisonline') && !msg.data.startsWith('fs:')) {
                     shareDbMessage(msg);
                 }
             } catch (e) {

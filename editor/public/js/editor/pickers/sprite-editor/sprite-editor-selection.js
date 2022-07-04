@@ -17,16 +17,16 @@ editor.once('load', function () {
     // options.add: Whether to add the frames to the existing selection
     // options.clearSprite: Clear sprite selection if true
     var selectFrames = function (keys, options) {
-        if (keys && ! (keys instanceof Array))
+        if (keys && !(keys instanceof Array))
             keys = [keys];
 
         // check if new selection differs from old
         var dirty = false;
-        if (! keys && selected || ! keys && options && options.clearSprite && spriteAsset) {
+        if (!keys && selected || !keys && options && options.clearSprite && spriteAsset) {
             dirty = true;
-        } else if (keys && ! selected) {
+        } else if (keys && !selected) {
             dirty = true;
-        } else if (selected && spriteAsset && (! options || ! options.clearSprite)) {
+        } else if (selected && spriteAsset && (!options || !options.clearSprite)) {
             dirty = true;
         } else {
             var klen = keys ? keys.length : 0;
@@ -43,7 +43,7 @@ editor.once('load', function () {
             }
         }
 
-        if (! dirty)
+        if (!dirty)
             return;
 
         var prevSelection = selected;
@@ -82,7 +82,7 @@ editor.once('load', function () {
                         highlightedFrames = newKeys.slice();
                     }
 
-                    if (! spriteAsset) {
+                    if (!spriteAsset) {
                         selected = newSelection || newKeys[len - 1];
 
                     }
@@ -133,7 +133,7 @@ editor.once('load', function () {
         spriteAsset = asset;
         editor.emit('picker:sprites:spriteSelected', asset);
 
-        if (! spriteAsset) return;
+        if (!spriteAsset) return;
 
         spriteAsset.on('data.frameKeys:remove', selectSpriteFrames);
         spriteAsset.on('data.frameKeys:insert', selectSpriteFrames);
@@ -153,7 +153,7 @@ editor.once('load', function () {
         if (options && options.history) {
             var prevSprite = spriteAsset;
             var newSprite = asset;
-            var selectedFrames = selected && ! prevSprite ? highlightedFrames : null;
+            var selectedFrames = selected && !prevSprite ? highlightedFrames : null;
 
             var redo = function () {
                 setSprite(asset);
@@ -198,7 +198,7 @@ editor.once('load', function () {
 
     // Create sprite asset from selected frames
     editor.method('picker:sprites:spriteFromSelection', function (args) {
-        if (! highlightedFrames.length )
+        if (!highlightedFrames.length )
             return;
 
         // rendermode: 1 - sliced, 0 - simple
@@ -228,7 +228,7 @@ editor.once('load', function () {
             }
         }
 
-        if (! name) {
+        if (!name) {
             name = 'New Sprite';
         }
 
@@ -335,7 +335,7 @@ editor.once('load', function () {
 
     // Adds picked frames to sprite asset and exits sprite edit mode
     editor.method('picker:sprites:pickFrames:add', function () {
-        if (! spriteAsset) return;
+        if (!spriteAsset) return;
 
         var length = newSpriteFrames.length;
         if (length) {
@@ -386,7 +386,7 @@ editor.once('load', function () {
         editor.call('hotkey:register', 'sprite-editor-delete', {
             key: 'delete',
             callback: function () {
-                if (! spriteAsset && highlightedFrames.length) {
+                if (!spriteAsset && highlightedFrames.length) {
                     editor.call('picker:sprites:deleteFrames', highlightedFrames, {
                         history: true
                     });

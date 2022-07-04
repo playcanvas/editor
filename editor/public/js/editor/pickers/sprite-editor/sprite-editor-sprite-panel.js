@@ -25,9 +25,9 @@ editor.once('load', function () {
         var panel = editor.call('attributes:addPanel', {
             parent: rootPanel
         });
-        panel.disabled = ! editor.call('permissions:write');
+        panel.disabled = !editor.call('permissions:write');
         events.push(editor.on('permissions:writeState', function (canWrite) {
-            panel.disabled = ! canWrite;
+            panel.disabled = !canWrite;
         }));
 
         var fieldId = editor.call('attributes:addField', {
@@ -52,7 +52,7 @@ editor.once('load', function () {
 
         events.push(fieldName.on('change', function (value) {
             rootPanel.header = 'SPRITE ASSET - ' + value;
-            if (value !== spriteAsset.get('name') && ! suspendRenameEvt) {
+            if (value !== spriteAsset.get('name') && !suspendRenameEvt) {
                 suspendRenameEvt = true;
                 editor.call('assets:rename', spriteAsset, value);
                 suspendRenameEvt = false;
@@ -98,9 +98,9 @@ editor.once('load', function () {
         panelEdit.flex = true;
         panelEdit.class.add('buttons');
 
-        panelEdit.disabled = ! editor.call('permissions:write');
+        panelEdit.disabled = !editor.call('permissions:write');
         events.push(editor.on('permissions:writeState', function (canWrite) {
-            panelEdit.disabled = ! canWrite;
+            panelEdit.disabled = !canWrite;
         }));
 
         // add frames tooltip
@@ -183,7 +183,7 @@ editor.once('load', function () {
 
 
             var onDragStart = function (evt) {
-                if (! editor.call('permissions:write')) return;
+                if (!editor.call('permissions:write')) return;
 
                 draggedPanel = panel;
                 draggedIndex = panels.indexOf(panel);
@@ -220,10 +220,10 @@ editor.once('load', function () {
 
                 ctx.clearRect(0, 0, previewWidth, previewHeight);
 
-                if (! atlasImage) return;
+                if (!atlasImage) return;
 
                 var frame = atlasAsset.getRaw('data.frames.' + key);
-                if (! frame) return;
+                if (!frame) return;
                 frame = frame._data;
 
                 var x = frame.rect[0];
@@ -282,7 +282,7 @@ editor.once('load', function () {
 
             panel.on('click', function () {
                 // do not select missing frames
-                if (! atlasAsset.has('data.frames.' + key)) return;
+                if (!atlasAsset.has('data.frames.' + key)) return;
 
                 // select frame
                 editor.call('picker:sprites:selectFrames', key, {
@@ -308,7 +308,7 @@ editor.once('load', function () {
             });
 
             var before = null;
-            if (typeof(index) === 'number')
+            if (typeof index === 'number')
                 before = panelFrames.innerElement.childNodes[index];
 
             if (before) {
@@ -335,7 +335,7 @@ editor.once('load', function () {
         };
 
         var onDragEnd = function () {
-            if (! draggedPanel) return;
+            if (!draggedPanel) return;
 
             var oldIndex = draggedIndex;
             var newIndex = Array.prototype.indexOf.call(panelFrames.innerElement.childNodes, draggedPanel.element);
@@ -358,7 +358,7 @@ editor.once('load', function () {
         }
 
         events.push(spriteAsset.on('data.frameKeys:remove', function (value, index) {
-            if (! panels[index]) return;
+            if (!panels[index]) return;
 
             panels[index].destroy();
             panels.splice(index, 1);
@@ -412,7 +412,7 @@ editor.once('load', function () {
         }));
 
         events.push(atlasAsset.on('*:set', function (path) {
-            if (! path.startsWith('data.frames')) {
+            if (!path.startsWith('data.frames')) {
                 return;
             }
 
@@ -457,7 +457,7 @@ editor.once('load', function () {
         }));
 
         events.push(editor.on('picker:sprites:framesSelected', function (keys) {
-            if (! spriteEditMode) return;
+            if (!spriteEditMode) return;
 
             selectedFrames = keys;
 

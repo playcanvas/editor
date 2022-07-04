@@ -6,7 +6,7 @@ editor.once('load', function () {
         key: 'e',
         ctrl: true,
         callback: function () {
-            if (! editor.call('permissions:write'))
+            if (!editor.call('permissions:write'))
                 return;
 
             if (editor.call('picker:isOpen')) return;
@@ -33,13 +33,13 @@ editor.once('load', function () {
         key: 'd',
         ctrl: true,
         callback: function () {
-            if (! editor.call('permissions:write')) return;
+            if (!editor.call('permissions:write')) return;
             if (editor.call('picker:isOpen')) return;
 
             var type = editor.call('selector:type');
             var items = editor.call('selector:items');
 
-            if (! items.length) return;
+            if (!items.length) return;
 
             if (type === 'entity') {
                 if (items.indexOf(editor.call('entities:root')) !== -1) return;
@@ -55,7 +55,7 @@ editor.once('load', function () {
     var deleteCallback = function () {
         if (editor.call('picker:isOpen')) return;
 
-        if (! editor.call('permissions:write'))
+        if (!editor.call('permissions:write'))
             return;
 
         var type = editor.call('selector:type');
@@ -89,7 +89,7 @@ editor.once('load', function () {
         skipPreventDefault: true,
         callback: function () {
             // write permissions only (perhaps we could also allow read permissions)
-            if (! editor.call('permissions:write'))
+            if (!editor.call('permissions:write'))
                 return;
 
             if (editor.call('picker:isOpen')) return;
@@ -112,7 +112,7 @@ editor.once('load', function () {
         ctrl: true,
         callback: function () {
             // write permissions only (perhaps we could also allow read permissions)
-            if (! editor.call('permissions:write'))
+            if (!editor.call('permissions:write'))
                 return;
 
             if (editor.call('picker:isOpen')) return;

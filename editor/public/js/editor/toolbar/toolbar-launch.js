@@ -199,11 +199,11 @@ editor.once('load', function () {
     });
     tooltipPreferWebGl1.class.add('launch-tooltip');
 
-    if (! editor.call('settings:project').get('preferWebGl2'))
+    if (!editor.call('settings:project').get('preferWebGl2'))
         preferWebGl1.parent.disabled = true;
 
     editor.call('settings:project').on('preferWebGl2:set', function (value) {
-        preferWebGl1.parent.disabled = ! value;
+        preferWebGl1.parent.disabled = !value;
     });
 
     // mini-stats
@@ -260,7 +260,7 @@ editor.once('load', function () {
 
     // show dropdown menu
     launch.element.addEventListener('mouseenter', function () {
-        if (! editor.call('permissions:read') || launch.disabled)
+        if (!editor.call('permissions:read') || launch.disabled)
             return;
 
         panelOptions.hidden = false;
@@ -270,7 +270,7 @@ editor.once('load', function () {
 
     // hide dropdown menu after a delay
     launch.element.addEventListener('mouseleave', function () {
-        if (! editor.call('permissions:write'))
+        if (!editor.call('permissions:write'))
             return;
 
         if (timeout) clearTimeout(timeout);

@@ -10,7 +10,7 @@ editor.once('load', function () {
     });
 
     var checkState = function (item, remove) {
-        if (remove || ! item.entity.entity || ! item.entity.entity.particlesystem) {
+        if (remove || !item.entity.entity || !item.entity.entity.particlesystem) {
             if (item.active) {
                 render--;
                 item.active = false;
@@ -21,8 +21,8 @@ editor.once('load', function () {
             return;
         }
 
-        if (! remove && item.entity.get('components.particlesystem.enabled')) {
-            if (! item.active) {
+        if (!remove && item.entity.get('components.particlesystem.enabled')) {
+            if (!item.active) {
                 render++;
                 item.active = true;
 

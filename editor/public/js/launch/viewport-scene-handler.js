@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     app.loader.removeHandler("scene");
     app.loader.removeHandler("hierarchy");
@@ -35,7 +35,7 @@ editor.once('load', function () {
         load: function (url, callback, settingsOnly) {
             var id = parseInt(url.replace("/api/", "").replace(".json", ""), 10);
 
-            if (typeof(id) === "number" && !isNaN(id)) {
+            if (typeof id === "number" && !isNaN(id)) {
                 // load scene from server to get its unique id
                 loadSceneByItemId(id, function (err, scene) {
                     if (err) {
@@ -68,7 +68,7 @@ editor.once('load', function () {
     SharedHierarchyHandler.prototype = {
         load: function (url, callback, settingsOnly) {
             var id = parseInt(url.replace("/api/", "").replace(".json", ""), 10);
-            if (typeof(id) === "number" && !isNaN(id)) {
+            if (typeof id === "number" && !isNaN(id)) {
                 loadSceneByItemId(id, function (err, scene) {
                     if (err) {
                         return callback(err);
@@ -115,7 +115,7 @@ editor.once('load', function () {
             }
 
             var id = parseInt(url.original.replace("/api/", "").replace(".json", ""), 10);
-            if (typeof(id) === "number") {
+            if (typeof id === "number") {
                 loadSceneByItemId(id, function (err, scene) {
                     if (err) {
                         return callback(err);

@@ -86,7 +86,7 @@ editor.once('load', function () {
             panel.class.remove('chat-minified');
         });
 
-        if (! editor.call('permissions:read'))
+        if (!editor.call('permissions:read'))
             panel.class.add('no-chat');
     }
 

@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var getIds = function (assets) {
-        if (! (assets instanceof Array))
+        if (!(assets instanceof Array))
             assets = [assets];
 
         var ids = [];

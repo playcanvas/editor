@@ -45,7 +45,7 @@ editor.once('load', function () {
     // auto toggle
     const elAuto = document.createElement('div');
 
-    if (! editor.call('permissions:write'))
+    if (!editor.call('permissions:write'))
         elAuto.style.display = 'none';
 
     editor.on('permissions:writeState', function (state) {
@@ -86,12 +86,12 @@ editor.once('load', function () {
     btnAutoUnwrap.parent = tooltipBake;
     elUV1.appendChild(btnAutoUnwrap.element);
     btnAutoUnwrap.on('click', function () {
-        if (! uv1Missing)
+        if (!uv1Missing)
             return;
 
         const assetIds = Object.keys(uv1MissingAssets);
         for (let i = 0; i < assetIds.length; i++) {
-            if (! uv1MissingAssets.hasOwnProperty(assetIds[i]))
+            if (!uv1MissingAssets.hasOwnProperty(assetIds[i]))
                 continue;
 
             const asset = uv1MissingAssets[assetIds[i]];
@@ -112,7 +112,7 @@ editor.once('load', function () {
     });
 
     editor.on('assets:model:unwrap', function (asset) {
-        if (! uv1MissingAssets[asset.get('id')])
+        if (!uv1MissingAssets[asset.get('id')])
             return;
 
         delete uv1MissingAssets[asset.get('id')];

@@ -148,9 +148,9 @@ editor.once('load', function () {
             if (except && except.indexOf(field) !== -1) continue;
 
             var path = fields[field].path;
-            if (! path) continue;
+            if (!path) continue;
 
-            if (! addedTitle && title) {
+            if (!addedTitle && title) {
                 addedTitle = true;
                 this.appendTitle(title);
             }

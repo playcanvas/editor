@@ -268,7 +268,7 @@ editor.once('load', function () {
     // Returns true if the conflict group has any regular data conflicts
     var hasDataConflicts = function (group) {
         for (let i = 0; i < group.data.length; i++) {
-            if (! group.data[i].isTextualMerge) {
+            if (!group.data[i].isTextualMerge) {
                 return true;
             }
         }
@@ -452,7 +452,7 @@ editor.once('load', function () {
         var parent = panelConflicts;
 
         var mode = forceLayoutMode ||  LAYOUT_FIELDS_ONLY;
-        if (! forceLayoutMode) {
+        if (!forceLayoutMode) {
             if (hasFileConflicts(group)) {
                 if (hasDataConflicts(group)) {
                     mode = LAYOUT_FIELDS_AND_FILE_CONFLICTS;
@@ -505,7 +505,7 @@ editor.once('load', function () {
 
             // Check if all the conflicts of a group have been
             // resolved
-            if (! isConflictGroupResolved(group)) return;
+            if (!isConflictGroupResolved(group)) return;
 
             // Check if all conflicts of all groups are now resolved
             // in a timeout. Do it in a timeout in case the user
@@ -518,7 +518,7 @@ editor.once('load', function () {
             }
             timeoutCheckAllResolved = setTimeout(function () {
                 timeoutCheckAllResolved = null;
-                btnReview.disabled = ! checkAllResolved();
+                btnReview.disabled = !checkAllResolved();
             });
         });
 

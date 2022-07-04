@@ -48,9 +48,9 @@ editor.once('load', function () {
     });
 
     editor.method('viewport:render:aabb', function (aabb) {
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
-        if (! visible) return;
+        if (!visible) return;
 
         let ind = 0;
         for (let x = -1; x <= 1; x += 2) {
@@ -216,7 +216,7 @@ editor.once('load', function () {
 
         const children = root.children;
         for (let i = 0; i < children.length; i++) {
-            if (children[i].__editor || ! (children[i] instanceof pc.Entity))
+            if (children[i].__editor || !(children[i] instanceof pc.Entity))
                 continue;
 
             // now we pass in the bounding box to be added to
@@ -244,14 +244,14 @@ editor.once('load', function () {
         };
 
         editor.on('viewport:postUpdate', function () {
-            if (! entities.length)
+            if (!entities.length)
                 return;
 
             // firstBB = true;
             let noEntities = true;
 
             for (let i = 0; i < entities.length; i++) {
-                if (! entities[i])
+                if (!entities[i])
                     continue;
 
                 noEntities = false;
@@ -263,7 +263,7 @@ editor.once('load', function () {
                 }
             }
 
-            if (! noEntities) {
+            if (!noEntities) {
                 _selectionBB.halfExtents.add(BOUNDING_BOX_MIN_EXTENTS);
                 editor.call('viewport:render:aabb', _selectionBB);
             }

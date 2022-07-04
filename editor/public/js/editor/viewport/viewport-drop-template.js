@@ -2,10 +2,10 @@ editor.once('load', function () {
     'use strict';
 
     const canvas = editor.call('viewport:canvas');
-    if (! canvas) return;
+    if (!canvas) return;
 
     var app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     editor.call('drop:target', {
         ref: canvas,
@@ -32,7 +32,7 @@ editor.once('load', function () {
             }
         },
         drop: function (type, data) {
-            if (! config.scene.id)
+            if (!config.scene.id)
                 return;
 
             const assets = [];
@@ -48,7 +48,7 @@ editor.once('load', function () {
                 }
             }
 
-            if (! assets.length)
+            if (!assets.length)
                 return;
 
             // parent
@@ -57,7 +57,7 @@ editor.once('load', function () {
                 parent = editor.call('selector:items')[0];
             }
 
-            if (! parent) {
+            if (!parent) {
                 parent = editor.call('entities:root');
             }
 

@@ -28,7 +28,7 @@ editor.once('load', function () {
         var button = new ui.Button({
             text: item.icon
         });
-        button.hidden = ! editor.call('permissions:write');
+        button.hidden = !editor.call('permissions:write');
         button.op = item.op;
         button.class.add('pc-icon');
 
@@ -68,7 +68,7 @@ editor.once('load', function () {
     var buttonWorld = new ui.Button({
         text: '&#57624;'
     });
-    buttonWorld.hidden = ! editor.call('permissions:write');
+    buttonWorld.hidden = !editor.call('permissions:write');
     buttonWorld.class.add('pc-icon', 'active');
     toolbar.append(buttonWorld);
 
@@ -96,7 +96,7 @@ editor.once('load', function () {
     var buttonSnap = new ui.Button({
         text: '&#57622;'
     });
-    buttonSnap.hidden = ! editor.call('permissions:write');
+    buttonSnap.hidden = !editor.call('permissions:write');
     buttonSnap.class.add('pc-icon');
     buttonSnap.on('click', function () {
         if (this.class.contains('active')) {
@@ -121,11 +121,11 @@ editor.once('load', function () {
 
     editor.on('permissions:writeState', function (state) {
         for (const key in gizmoButtons) {
-            gizmoButtons[key].hidden = ! state;
+            gizmoButtons[key].hidden = !state;
         }
 
-        buttonWorld.hidden = ! state;
-        buttonSnap.hidden = ! state;
+        buttonWorld.hidden = !state;
+        buttonSnap.hidden = !state;
     });
 
 

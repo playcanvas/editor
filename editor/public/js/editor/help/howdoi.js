@@ -33,7 +33,7 @@ editor.once('load', function () {
     // position widget between top elements in viewport
     var positionWidget = function () {
         var canvas = editor.call('viewport:canvas');
-        if (! canvas) return;
+        if (!canvas) return;
 
         var canvasRect = canvas.element.getBoundingClientRect();
 
@@ -288,7 +288,7 @@ editor.once('load', function () {
             var words = text.split(' ');
             words.forEach(function (word) {
                 word = word.replace(/[^\w]/g, ''); // remove invalid chars
-                if (! word.length) return;
+                if (!word.length) return;
 
                 query.push(new RegExp('(^|\\s)' + word.replace(/[^\w]/, ''), 'i'));
             });

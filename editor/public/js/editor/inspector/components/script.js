@@ -290,7 +290,7 @@ Object.assign(pcui, (function () {
                     fieldArgs.assetType = attributeData.assetType;
                 }
             } else if (type === 'number') {
-                if (typeof(attributeData.min) === 'number' && typeof(attributeData.max) === 'number') {
+                if (typeof attributeData.min === 'number' && typeof attributeData.max === 'number') {
                     type = 'slider';
                 }
             } else if (type === 'json') {

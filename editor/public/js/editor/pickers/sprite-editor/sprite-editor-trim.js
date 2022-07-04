@@ -28,7 +28,7 @@ editor.once('load', function () {
 
     // Trim transparent pixels from specified frames
     editor.method('picker:sprites:trimFrames', function (framesToTrim) {
-        if (! editor.call('permissions:write')) return;
+        if (!editor.call('permissions:write')) return;
 
         let prev = {};
 
@@ -53,7 +53,7 @@ editor.once('load', function () {
             const frameData = atlasAsset.getRaw('data.frames')._data;
             for (let i = 0, len = frames.length; i < len; i++) {
                 let frame = frameData[frames[i]];
-                if (! frame) continue;
+                if (!frame) continue;
                 frame = frame._data;
 
                 let left = Math.max(0, frame.rect[0]);
@@ -66,7 +66,7 @@ editor.once('load', function () {
                     let foundPixel = false;
                     for (let y = top; y <= bottom; y++) {
                         left = x;
-                        if (! isPixelEmpty(x, y, width, imageData)) {
+                        if (!isPixelEmpty(x, y, width, imageData)) {
                             foundPixel = true;
                             break;
                         }
@@ -82,7 +82,7 @@ editor.once('load', function () {
                     let foundPixel = false;
                     for (let y = top; y <= bottom; y++) {
                         right = x;
-                        if (! isPixelEmpty(x, y, width, imageData)) {
+                        if (!isPixelEmpty(x, y, width, imageData)) {
                             foundPixel = true;
                             break;
                         }
@@ -98,7 +98,7 @@ editor.once('load', function () {
                     let foundPixel = false;
                     for (let x = left; x <= right; x++) {
                         top = y;
-                        if (! isPixelEmpty(x, y, width, imageData)) {
+                        if (!isPixelEmpty(x, y, width, imageData)) {
                             foundPixel = true;
                             break;
                         }
@@ -114,7 +114,7 @@ editor.once('load', function () {
                     let foundPixel = false;
                     for (let x = left; x <= right; x++) {
                         bottom = y;
-                        if (! isPixelEmpty(x, y, width, imageData)) {
+                        if (!isPixelEmpty(x, y, width, imageData)) {
                             foundPixel = true;
                             break;
                         }

@@ -136,7 +136,7 @@ editor.once('viewport:load', function () {
     });
 
     var onMouseWheel = function (evt) {
-        if (! hovering)
+        if (!hovering)
             return;
 
         shiftKey = evt.shiftKey;

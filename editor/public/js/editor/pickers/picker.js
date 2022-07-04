@@ -19,7 +19,7 @@ editor.once('load', function () {
     });
 
     editor.on('picker:close', function (name) {
-        if (! openPickers[name]) {
+        if (!openPickers[name]) {
             console.warn('picker:close fired for already closed picker ' + name);
             return;
         }
@@ -35,7 +35,7 @@ editor.once('load', function () {
     // If true then a picker that blocks the main Editor is open
     // If the name is specified then only returns true if that picker is open
     editor.method('picker:isOpen', function (name) {
-        if (! name) {
+        if (!name) {
             return editorBlockingPickers > 0;
         }
 

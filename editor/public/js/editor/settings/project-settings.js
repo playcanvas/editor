@@ -43,7 +43,7 @@ editor.once('load', function () {
         data: data
     });
 
-    if (! settings.get('useLegacyScripts')) {
+    if (!settings.get('useLegacyScripts')) {
         pc.script.legacy = false;
     } else {
         pc.script.legacy = true;
@@ -59,7 +59,7 @@ editor.once('load', function () {
         const parts = path.split('.');
         let obj = config.project.settings;
         for (let i = 0; i < parts.length - 1; i++) {
-            if (! obj.hasOwnProperty(parts[i]))
+            if (!obj.hasOwnProperty(parts[i]))
                 obj[parts[i]] = {};
 
             obj = obj[parts[i]];
@@ -122,10 +122,10 @@ editor.once('load', function () {
         settings.history.enabled = false;
         settings.sync.enabled = editor.call('permissions:write');
 
-        if (! settings.get('batchGroups')) {
+        if (!settings.get('batchGroups')) {
             settings.set('batchGroups', {});
         }
-        if (! settings.get('layers')) {
+        if (!settings.get('layers')) {
             settings.set('layers', {
                 0: {
                     name: 'World',

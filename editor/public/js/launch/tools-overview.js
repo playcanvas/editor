@@ -144,7 +144,7 @@ editor.once('load', function () {
             }
         }
 
-        if (! found) {
+        if (!found) {
             var obj = {
                 i: item.i,
                 t: item.t,
@@ -157,7 +157,7 @@ editor.once('load', function () {
     });
 
     editor.on('tools:timeline:update', function (item) {
-        if (! enabled || ! eventsIndex[item.i])
+        if (!enabled || !eventsIndex[item.i])
             return;
 
         eventsIndex[item.i].t2 = item.t2;

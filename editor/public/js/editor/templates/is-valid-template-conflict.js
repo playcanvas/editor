@@ -29,7 +29,7 @@ editor.once('load', function () {
                 return false;
 
             } else if (this.conflict.entity_ref_paths) {
-                return ! editor.call(
+                return !editor.call(
                     'template:attrUtils',
                     'valsEqualAfterRemap',
                     this.conflict,

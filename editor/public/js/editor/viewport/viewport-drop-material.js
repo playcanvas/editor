@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     const app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     const canvas = editor.call('viewport:canvas');
 
@@ -15,7 +15,7 @@ editor.once('load', function () {
     let hoverMeshInstance = null;
 
     var onLeave = function () {
-        if (! hoverEntity)
+        if (!hoverEntity)
             return;
 
         if (hoverEntity.model) {
@@ -109,7 +109,7 @@ editor.once('load', function () {
         if (node && node._icon)
             node = node._getEntity();
 
-        if (! node || ! editor.call('entities:get', node.getGuid())) {
+        if (!node || !editor.call('entities:get', node.getGuid())) {
             onHover(null);
             return;
         }
@@ -117,7 +117,7 @@ editor.once('load', function () {
         if (picked instanceof pc.MeshInstance)
             meshInstance = picked;
 
-        if (meshInstance && (! meshInstance.node._parent || ! meshInstance.node._parent._icon) && (node.model || node.render)) {
+        if (meshInstance && (!meshInstance.node._parent || !meshInstance.node._parent._icon) && (node.model || node.render)) {
             onHover(node, meshInstance);
         } else {
             onHover(null);
@@ -137,16 +137,16 @@ editor.once('load', function () {
         type: 'asset.material',
         hole: true,
         drop: function (type, data) {
-            if (! config.scene.id)
+            if (!config.scene.id)
                 return;
 
             active = false;
 
-            if (! hoverEntity || (! hoverEntity.model && !hoverEntity.render))
+            if (!hoverEntity || (!hoverEntity.model && !hoverEntity.render))
                 return;
 
             let entity = editor.call('entities:get', hoverEntity.getGuid());
-            if (! entity)
+            if (!entity)
                 return;
 
             let resourceId;
@@ -170,12 +170,12 @@ editor.once('load', function () {
 
                             // set mapping and also userMapping
                             asset.set('data.mapping.' + ind + '.material', newMapping);
-                            if (! asset.get('meta')) {
+                            if (!asset.get('meta')) {
                                 asset.set('meta', {
                                     userMapping: {}
                                 });
                             } else {
-                                if (! asset.has('meta.userMapping')) {
+                                if (!asset.has('meta.userMapping')) {
                                     asset.set('meta.userMapping', {});
                                 }
                             }
@@ -188,16 +188,16 @@ editor.once('load', function () {
                                 name: 'assets.' + asset.get('id') + '.data.mapping.' + ind + '.material',
                                 undo: function () {
                                     const item = editor.call('assets:get', asset.get('id'));
-                                    if (! item) return;
+                                    if (!item) return;
 
                                     const history = item.history.enabled;
                                     item.history.enabled = false;
                                     item.set('data.mapping.' + ind + '.material', prevMapping);
 
-                                    if (! prevUserMapping) {
+                                    if (!prevUserMapping) {
                                         item.unset('meta.userMapping.' + ind);
 
-                                        if (! Object.keys(item.get('meta.userMapping')).length) {
+                                        if (!Object.keys(item.get('meta.userMapping')).length) {
                                             item.unset('meta.userMapping');
                                         }
                                     }
@@ -206,17 +206,17 @@ editor.once('load', function () {
                                 },
                                 redo: function () {
                                     const item = editor.call('assets:get', asset.get('id'));
-                                    if (! item) return;
+                                    if (!item) return;
 
                                     const history = item.history.enabled;
                                     item.history.enabled = false;
                                     item.set('data.mapping.' + ind + '.material', newMapping);
-                                    if (! item.get('meta')) {
+                                    if (!item.get('meta')) {
                                         item.set('meta', {
                                             userMapping: {}
                                         });
                                     } else {
-                                        if (! item.has('meta.userMapping')) {
+                                        if (!item.has('meta.userMapping')) {
                                             item.set('meta.userMapping', {});
                                         }
                                     }
@@ -262,7 +262,7 @@ editor.once('load', function () {
                             name: 'entities.' + resourceId + '.components.model.mapping',
                             undo: function () {
                                 const item = editor.call('entities:get', resourceId);
-                                if (! item) return;
+                                if (!item) return;
 
                                 const history = item.history.enabled;
                                 item.history.enabled = false;
@@ -276,7 +276,7 @@ editor.once('load', function () {
                             },
                             redo: function () {
                                 const item = editor.call('entities:get', resourceId);
-                                if (! item) return;
+                                if (!item) return;
 
                                 const history = item.history.enabled;
                                 item.history.enabled = false;
@@ -334,11 +334,11 @@ editor.once('load', function () {
             }
         },
         over: function (type, data) {
-            if (! config.scene.id)
+            if (!config.scene.id)
                 return;
 
             hoverMaterial = app.assets.get(parseInt(data.id, 10));
-            if (! hoverMaterial)
+            if (!hoverMaterial)
                 return;
 
             app.assets.load(hoverMaterial);

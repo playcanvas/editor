@@ -875,7 +875,7 @@ Object.assign(pcui, (function () {
 
         // Called when we drop an asset on a drop target.
         _onAssetDrop(type, data) {
-            if (this._hoveredAsset === undefined || ! type || ! type.startsWith('asset') || !this._writePermissions) {
+            if (this._hoveredAsset === undefined || !type || !type.startsWith('asset') || !this._writePermissions) {
                 return;
             }
 

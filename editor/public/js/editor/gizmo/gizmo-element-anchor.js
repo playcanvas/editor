@@ -115,7 +115,7 @@ editor.once('load', function () {
         editor.on('selector:add', function (item, type) {
             if (type !== 'entity') return;
 
-            if (! selectedEntity) {
+            if (!selectedEntity) {
                 selectedEntity = item;
             }
         });
@@ -170,7 +170,7 @@ editor.once('load', function () {
 
         editor.on('viewport:gizmoUpdate', function (dt) {
             gizmoAnchor.root.enabled = gizmoEnabled();
-            if (! gizmoAnchor.root.enabled)
+            if (!gizmoAnchor.root.enabled)
                 return;
 
             var entity = selectedEntity.entity;
@@ -282,7 +282,7 @@ editor.once('load', function () {
         });
 
         editor.on('viewport:pick:hover', function (node, picked) {
-            if (! node || ! node.handle) {
+            if (!node || !node.handle) {
                 if (gizmoAnchor.handle) {
                     gizmoAnchor.handle = null;
 
@@ -296,14 +296,14 @@ editor.once('load', function () {
                     }
                 }
             } else {
-                if (! gizmoAnchor.handle || gizmoAnchor.handle !== node.handle) {
+                if (!gizmoAnchor.handle || gizmoAnchor.handle !== node.handle) {
                     gizmoAnchor.handle = node.handle;
 
                     for (const key in gizmoAnchor.handles) {
                         setModelMaterial(gizmoAnchor.handles[key].handleModel, gizmoAnchor.handles[key] === gizmoAnchor.handle ? gizmoAnchor.matActive : gizmoAnchor.matInactive);
                     }
 
-                    if (! evtTapStart) {
+                    if (!evtTapStart) {
                         evtTapStart = editor.on('viewport:tap:start', onTapStart);
                     }
                 }
@@ -337,7 +337,7 @@ editor.once('load', function () {
         };
 
         var onTapMove = function (tap) {
-            if (! moving)
+            if (!moving)
                 return;
 
             mouseTap = tap;
@@ -350,7 +350,7 @@ editor.once('load', function () {
 
             editor.emit('camera:toggle', true);
 
-            if (! moving)
+            if (!moving)
                 return;
 
             moving = false;
@@ -372,7 +372,7 @@ editor.once('load', function () {
                         name: 'entity.element.anchor',
                         undo: function () {
                             var item = editor.call('entities:get', resourceId);
-                            if (! item)
+                            if (!item)
                                 return;
 
                             var history = item.history.enabled;
@@ -382,7 +382,7 @@ editor.once('load', function () {
                         },
                         redo: function () {
                             var item = editor.call('entities:get', resourceId);
-                            if (! item)
+                            if (!item)
                                 return;
 
                             var history = item.history.enabled;

@@ -25,9 +25,9 @@ editor.once('load', function () {
         var panel = editor.call('attributes:addPanel', {
             parent: rootPanel
         });
-        panel.disabled = ! editor.call('permissions:write');
+        panel.disabled = !editor.call('permissions:write');
         events.push(editor.on('permissions:writeState', function (canWrite) {
-            panel.disabled = ! canWrite;
+            panel.disabled = !canWrite;
         }));
 
         var fieldName = editor.call('attributes:addField', {
@@ -106,7 +106,7 @@ editor.once('load', function () {
 
             for (let i = 0, len = frames.length; i < len; i++) {
                 var f = frameData[frames[i]];
-                if (! f) continue;
+                if (!f) continue;
                 var rect = f._data.rect;
                 maxPos = Math.min(maxPos, dimension - rect[rectIndex]);
             }
@@ -124,7 +124,7 @@ editor.once('load', function () {
 
             for (let i = 0, len = frames.length; i < len; i++) {
                 var f = frameData[frames[i]];
-                if (! f) continue;
+                if (!f) continue;
                 var rect = f._data.rect;
                 maxSize = Math.min(maxSize, dimension - rect[rectIndex]);
             }
@@ -262,7 +262,7 @@ editor.once('load', function () {
 
             var redo = function () {
                 var asset = editor.call('assets:get', atlasAsset.get('id'));
-                if (! asset) return;
+                if (!asset) return;
 
                 var history = asset.history.enabled;
                 asset.history.enabled = false;
@@ -270,10 +270,10 @@ editor.once('load', function () {
                 var frameData = asset.getRaw('data.frames')._data;
                 for (let i = 0, len = frames.length; i < len; i++) {
                     var frame = frameData[frames[i]];
-                    if (! frame) continue;
+                    if (!frame) continue;
 
                     if (frame._data.rect[rect] !== value) {
-                        if (! prev) prev = {};
+                        if (!prev) prev = {};
 
                         prev[frames[i]] = {
                             value: frame._data.rect[rect],
@@ -300,7 +300,7 @@ editor.once('load', function () {
             var undo = function () {
 
                 var asset = editor.call('assets:get', atlasAsset.get('id'));
-                if (! asset) return;
+                if (!asset) return;
 
                 var history = asset.history.enabled;
                 asset.history.enabled = false;
@@ -308,7 +308,7 @@ editor.once('load', function () {
                 var frameData = asset.getRaw('data.frames')._data;
 
                 for (const key in prev) {
-                    if (! frameData[key]) continue;
+                    if (!frameData[key]) continue;
 
                     asset.set('data.frames.' + key + '.rect.' + rect, prev[key].value);
                     asset.set('data.frames.' + key + '.border.' + border, prev[key].border[0]);
@@ -365,7 +365,7 @@ editor.once('load', function () {
             if (suspendChanges) return;
 
             var newValue = presetValues[parseInt(value, 10)];
-            if (! newValue) return;
+            if (!newValue) return;
 
             var prevValues = {};
             for (let i = 0; i < numFrames; i++) {
@@ -374,7 +374,7 @@ editor.once('load', function () {
 
             var redo = function () {
                 var asset = editor.call('assets:get', atlasAsset.get('id'));
-                if (! asset) return;
+                if (!asset) return;
 
                 var history = asset.history.enabled;
                 asset.history.enabled = false;
@@ -389,7 +389,7 @@ editor.once('load', function () {
 
             var undo = function () {
                 var asset = editor.call('assets:get', atlasAsset.get('id'));
-                if (! asset) return;
+                if (!asset) return;
 
                 var history = asset.history.enabled;
                 asset.history.enabled = false;
@@ -475,7 +475,7 @@ editor.once('load', function () {
 
             for (let i = 0, len = frames.length; i < len; i++) {
                 var f = frameData[frames[i]];
-                if (! f) continue;
+                if (!f) continue;
                 var rect = f._data.rect;
                 var border = f._data.border;
                 maxLeft = Math.min(maxLeft, rect[2] - border[2]);
@@ -499,9 +499,9 @@ editor.once('load', function () {
             name: 'ACTIONS'
         });
         panelButtons.class.add('buttons');
-        panelButtons.disabled = ! editor.call('permissions:write');
+        panelButtons.disabled = !editor.call('permissions:write');
         events.push(editor.on('permissions:writeState', function (canWrite) {
-            panelButtons.disabled = ! canWrite;
+            panelButtons.disabled = !canWrite;
         }));
 
         // new sprite

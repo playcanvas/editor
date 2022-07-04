@@ -495,7 +495,7 @@ Object.assign(
                 if (this._showModel && this._entityMeshInstances) {
                     this._layer.addMeshInstances(this._entityMeshInstances);
                 }
-                if (this._showModel &&this._renderComponents) {
+                if (this._showModel && this._renderComponents) {
                     this._renderComponents.forEach((render) => {
                         render.meshInstances.forEach((meshInstance) => {
                             if(meshInstance.skinInstance) {
@@ -556,10 +556,10 @@ Object.assign(
                 this._layer.removeLight(this._light.light);
                 this._layer.removeCamera(this._camera.camera);
                 this._frontLayer.removeCamera(this._camera.camera);
-                if (this._showModel &&this._entityMeshInstances) {
+                if (this._showModel && this._entityMeshInstances) {
                     this._layer.removeMeshInstances(this._entityMeshInstances);
                 }
-                if (this._showModel &&this._renderComponents) {
+                if (this._showModel && this._renderComponents) {
                     this._renderComponents.forEach((render) => {
                         this._layer.removeMeshInstances(render.meshInstances);
                     });

@@ -33,7 +33,7 @@ editor.once('load', function () {
     panel.flex = true;
 
     // hide version control picker if we are not part of the team
-    if (! editor.call('permissions:read')) {
+    if (!editor.call('permissions:read')) {
         editor.call('picker:project:toggleMenu', 'version control', false);
     }
     editor.on('permissions:set', function () {
@@ -584,18 +584,18 @@ editor.once('load', function () {
 
     // when the branches context menu is closed 'unclick' dropdowns
     menuBranches.on('open', function (open) {
-        if (open || ! contextBranch) return;
+        if (open || !contextBranch) return;
 
         var item = document.getElementById('branch-' + contextBranch.id);
-        if (! item) return;
+        if (!item) return;
 
         var dropdown = item.querySelector('.clicked');
-        if (! dropdown) return;
+        if (!dropdown) return;
 
         dropdown.classList.remove('clicked');
         dropdown.innerHTML = '&#57689;';
 
-        if (! open) {
+        if (!open) {
             contextBranch = null;
             menuBranches.contextBranchIsFavorite = false;
         }
@@ -684,7 +684,7 @@ editor.once('load', function () {
 
     // open branch
     menuBranchesOpen.on('select', function () {
-        if (! contextBranch) return;
+        if (!contextBranch) return;
 
         var branch = contextBranch;
 
@@ -852,7 +852,7 @@ editor.once('load', function () {
             wasItemSelectedBeforeClick = item.selected;
         });
         item.element.addEventListener('mouseup', function () {
-            if (! wasItemSelectedBeforeClick || ! item.selected) return;
+            if (!wasItemSelectedBeforeClick || !item.selected) return;
             wasItemSelectedBeforeClick = false;
 
             if (editor.call('picker:versioncontrol:isErrorWidgetVisible')) {
@@ -896,7 +896,7 @@ editor.once('load', function () {
                     editor.call('vcgraph:moveToForeground');
                     showCheckpoints();
                 }, 1500);
-            } else if (! err) {
+            } else if (!err) {
                 editor.call('picker:project:close');
                 editor.call('picker:versioncontrol:mergeOverlay:hide'); // hide this in case it's open
                 editor.call('picker:diffManager', diff);
@@ -921,7 +921,7 @@ editor.once('load', function () {
         // we need to load the checkpoints if we cancel creating checkpoints
         // because initially we might have opened this picker by showing the create checkpoint
         // panel without having a chance to load the checkpoints first
-        if (! panelCheckpoints.checkpoints)  {
+        if (!panelCheckpoints.checkpoints)  {
             selectBranch(selectedBranch);
         } else {
             showCheckpoints();
@@ -934,7 +934,7 @@ editor.once('load', function () {
 
                 // show checkpoints unless they haven't been loaded yet in which
                 // case re-select the branch which reloads the checkpoints
-                if (! panelCheckpoints.checkpoints) {
+                if (!panelCheckpoints.checkpoints) {
                     selectBranch(selectedBranch);
                 } else {
                     showCheckpoints();
@@ -976,7 +976,7 @@ editor.once('load', function () {
 
         // if we are reloading
         // clear branch from checkpoints so that checkpoints are also hidden
-        if (! branchesSkip) {
+        if (!branchesSkip) {
             panelCheckpoints.setBranch(null);
             selectedBranch = null;
         }
@@ -998,7 +998,7 @@ editor.once('load', function () {
 
 
             // if we are re-loading the branch list then clear the current items
-            if (! branchesSkip) {
+            if (!branchesSkip) {
                 listBranches.clear();
                 branches = {};
 
@@ -1015,7 +1015,7 @@ editor.once('load', function () {
             var lastItem = data.result[data.result.length - 1];
             branchesSkip = lastItem ? lastItem.id : null;
 
-            if (! data.result[0]) return;
+            if (!data.result[0]) return;
 
             // convert array to dict
             branches = data.result.reduce(function (map, branch) {
@@ -1038,7 +1038,7 @@ editor.once('load', function () {
             });
 
             // if we didn't find a proper selection then select our branch
-            if (! selected) {
+            if (!selected) {
                 selected = config.self.branch;
             }
 
@@ -1079,7 +1079,7 @@ editor.once('load', function () {
         events.push(editor.on('permissions:writeState', function (writeEnabled) {
             // hide all dropdowns if we no longer have write access
             panelBranches.innerElement.querySelectorAll('.dropdown').forEach(function (dropdown) {
-                dropdown.ui.hidden = ! writeEnabled || dropdown.ui.branch.id === config.self.branch.id;
+                dropdown.ui.hidden = !writeEnabled || dropdown.ui.branch.id === config.self.branch.id;
             });
         }));
 
@@ -1117,7 +1117,7 @@ editor.once('load', function () {
             // we are seeing the favorite branches view so remove this branch from the list
             // and select the next branch
             var item = getBranchListItem(branchId);
-            if (! item) return;
+            if (!item) return;
 
             var nextItem = null;
             if (item.selected) {
@@ -1125,7 +1125,7 @@ editor.once('load', function () {
                     nextItem = item.element.nextSibling;
                 }
 
-                if (! nextItem) {
+                if (!nextItem) {
                     nextItem = item.element.previousSibling;
                 }
             }
@@ -1140,7 +1140,7 @@ editor.once('load', function () {
 
         function removeBranchAndSelectNext(branchId, delay) {
             var item = getBranchListItem(branchId);
-            if (! item) return;
+            if (!item) return;
 
             var nextItem = null;
             if (item.selected) {
@@ -1148,7 +1148,7 @@ editor.once('load', function () {
                     nextItem = item.element.nextSibling;
                 }
 
-                if (! nextItem) {
+                if (!nextItem) {
                     nextItem = item.element.previousSibling;
                 }
             }
@@ -1203,7 +1203,7 @@ editor.once('load', function () {
             // branch from this list and select the next one or if there
             // are no more branches in this list then view the open branches
             var item = getBranchListItem(data.branch_id);
-            if (! item) return;
+            if (!item) return;
 
             var wasSelected = item.selected;
             var nextItem = null;
@@ -1211,7 +1211,7 @@ editor.once('load', function () {
                 nextItem = item.element.nextSibling;
             }
 
-            if (! nextItem) {
+            if (!nextItem) {
                 nextItem = item.element.previousSibling;
             }
 
@@ -1222,7 +1222,7 @@ editor.once('load', function () {
             var selectNext = function () {
                 if (nextItem && wasSelected) {
                     nextItem.ui.selected = true;
-                } else if (! nextItem) {
+                } else if (!nextItem) {
                     // if no more items exist in the list then view the open list
                     showRightSidePanel(null);
                     fieldBranchesFilter.value = 'open';
@@ -1232,7 +1232,7 @@ editor.once('load', function () {
             // if the progress panel is open it means we are the ones
             // opening the branch (or some other branch..) - so wait a bit
             // so that we can show the progress end message before selecting another branch
-            if (! panelOpenBranchProgress.hidden) {
+            if (!panelOpenBranchProgress.hidden) {
                 setTimeout(selectNext, 500);
             } else {
                 // otherwise immediately select the next branch
@@ -1274,7 +1274,7 @@ editor.once('load', function () {
 
     // Prevent viewport hovering when the picker is shown
     editor.on('viewport:hover', function (state) {
-        if (state && ! panel.hidden) {
+        if (state && !panel.hidden) {
             setTimeout(function () {
                 editor.emit('viewport:hover', false);
             }, 0);
@@ -1303,7 +1303,7 @@ editor.once('load', function () {
         key: 's',
         ctrl: true,
         callback: function (e) {
-            if (! editor.call('permissions:write')) return;
+            if (!editor.call('permissions:write')) return;
             if (editor.call('picker:isOpen:otherThan', 'project')) {
                 return;
             }

@@ -16,7 +16,7 @@ editor.once('load', function () {
         const items = [];
 
         const bits = args.string.match(args.regex);
-        if (! bits) return [args.string];
+        if (!bits) return [args.string];
 
         const parts = args.string.split(args.regex);
 
@@ -53,7 +53,7 @@ editor.once('load', function () {
         });
 
         for (let i = 0; i < items.length; i++) {
-            if (typeof(items[i]) !== 'string')
+            if (typeof items[i] !== 'string')
                 continue;
 
             const emails = stringToElements({
@@ -65,7 +65,7 @@ editor.once('load', function () {
             for (let e = 0; e < emails.length; e++) {
                 let item;
 
-                if (typeof(emails[e]) === 'string') {
+                if (typeof emails[e] === 'string') {
                     item = document.createTextNode(emails[e]);
                 } else {
                     item = emails[e];
@@ -84,7 +84,7 @@ editor.once('load', function () {
     };
 
     editor.method('chat:post', function (type, string) {
-        if (type !== 'system' && typeof(type) !== 'number')
+        if (type !== 'system' && typeof type !== 'number')
             return;
 
         const element = document.createElement('div');
@@ -102,7 +102,7 @@ editor.once('load', function () {
             const date = new Date();
             message = ('00' + date.getHours()).slice(-2) + ':' + ('00' + date.getMinutes()).slice(-2) + ' - ' + string;
             element.classList.add('system');
-        } else if (typeof(type) === 'number') {
+        } else if (typeof type === 'number') {
             element.classList.add('message');
             message = string;
 
@@ -147,7 +147,7 @@ editor.once('load', function () {
             fragment.appendChild(elements[i]);
         text.appendChild(fragment);
 
-        const scrollDown = ! widget.folded && Math.abs((messages.innerElement.scrollHeight - messages.innerElement.clientHeight) - messages.innerElement.scrollTop) < 4;
+        const scrollDown = !widget.folded && Math.abs((messages.innerElement.scrollHeight - messages.innerElement.clientHeight) - messages.innerElement.scrollTop) < 4;
 
         messages.append(element);
 
@@ -165,7 +165,7 @@ editor.once('load', function () {
 
     editor.method('chat:send', function (message) {
         message = message.trim();
-        if (! message)
+        if (!message)
             return;
 
         editor.call('relay:broadcast', 'project-' + config.project.id, {

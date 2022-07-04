@@ -91,11 +91,11 @@ editor.once('load', function () {
 
             // if for some reason the value is undefined (e.g it could have been too big)
             // then show a missing field
-            if (! field && values[i] === undefined) {
+            if (!field && values[i] === undefined) {
                 field = new ui.ConflictFieldNotAvailable();
             }
 
-            if (! field) {
+            if (!field) {
                 if (isArray) {
                     field = new ui.ConflictArrayField(self._types[i], values[i]);
                 } else {
@@ -261,7 +261,7 @@ editor.once('load', function () {
             }
 
             // special handling for sublayers - use the 'layer' field as the id for the field
-            if (! handled && baseType === 'array:sublayer' && base) {
+            if (!handled && baseType === 'array:sublayer' && base) {
                 base.forEach(function (sublayer) {
                     self._convertSublayer(sublayer, indexes.layer[0], indexes.layer[1]);
                 });
@@ -299,7 +299,7 @@ editor.once('load', function () {
             }
 
             // special handling for sublayers - use the 'layer' field as the id for the field
-            if (! handled && srcType === 'array:sublayer' && src) {
+            if (!handled && srcType === 'array:sublayer' && src) {
                 src.forEach(function (sublayer) {
                     self._convertSublayer(sublayer, indexes.layer[0]);
                 });
@@ -333,7 +333,7 @@ editor.once('load', function () {
             }
 
             // special handling for sublayers - use the 'layer' field as the id for the field
-            if (! handled && dstType === 'array:sublayer' && dst) {
+            if (!handled && dstType === 'array:sublayer' && dst) {
                 dst.forEach(function (sublayer) {
                     self._convertSublayer(sublayer, indexes.layer[1]);
                 });
@@ -415,7 +415,7 @@ editor.once('load', function () {
     };
 
     ConflictSectionRow.prototype.unresolve = function () {
-        if (! this._resolved) return;
+        if (!this._resolved) return;
 
         this._resolved = false;
 

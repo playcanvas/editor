@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     var settings = editor.call('settings:project');
     var docs = { };
@@ -55,7 +55,7 @@ editor.once('load', function () {
             var key;
 
             var assetData = doc.data;
-            if (! assetData) {
+            if (!assetData) {
                 log.error('Could not load asset: ' + uniqueId);
                 doc.unsubscribe();
                 doc.destroy();
@@ -177,7 +177,7 @@ editor.once('load', function () {
                     // exist then generate the variant file
                     for (var i = 0, len = assetsWithVariants.length; i < len; i++) {
                         if (assetsWithVariants[i].has('file.variants.' + variant)) {
-                            if (! asset.has('file.variants')) {
+                            if (!asset.has('file.variants')) {
                                 asset.set('file.variants', {});
                             }
 
@@ -285,7 +285,7 @@ editor.once('load', function () {
             var order = settings.get('scripts');
 
             for (var i = 0; i < order.length; i++) {
-                if (! scripts[order[i]])
+                if (!scripts[order[i]])
                     continue;
 
                 var asset = editor.call('assets:get', order[i]);
@@ -300,13 +300,13 @@ editor.once('load', function () {
                 count++;
                 editor.call('assets:progress', (count / total) * 0.5 + 0.5);
 
-                if (! legacyScripts && asset && asset.get('type') === 'script')
+                if (!legacyScripts && asset && asset.get('type') === 'script')
                     scripts[asset.get('id')] = asset;
 
                 if (count === total) {
                     var wasmAssetIds = getWasmAssetIds();
 
-                    if (! legacyScripts)
+                    if (!legacyScripts)
                         loadScripts(wasmAssetIds);
 
                     // sort assets by script first and then by bundle
@@ -399,7 +399,7 @@ editor.once('load', function () {
         var setting = false;
 
         asset.on('*:set', function (path, value) {
-            if (setting || ! path.startsWith('file') || path.endsWith('.url') || ! asset.get('file'))
+            if (setting || !path.startsWith('file') || path.endsWith('.url') || !asset.get('file'))
                 return;
 
             setting = true;

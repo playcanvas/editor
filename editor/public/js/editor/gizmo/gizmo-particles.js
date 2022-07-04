@@ -33,7 +33,7 @@ editor.once('load', function () {
             return mi.__useFrontLayer;
         });
         var backMeshInstances = this.meshInstances.filter(function (mi) {
-            return ! mi.__useFrontLayer;
+            return !mi.__useFrontLayer;
         });
 
         layerFront.addMeshInstances(frontMeshInstances);
@@ -49,14 +49,14 @@ editor.once('load', function () {
     }
     // update lines
     Gizmo.prototype.update = function () {
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
-        if (! this._link || ! this._link.entity)
+        if (!this._link || !this._link.entity)
             return;
 
         var particles = this._link.entity.particlesystem;
         this.entity.enabled = this._link.entity.enabled && particles && particles.enabled;
-        if (! this.entity.enabled)
+        if (!this.entity.enabled)
             return;
 
         this.entity.setPosition(this._link.entity.getPosition());
@@ -83,7 +83,7 @@ editor.once('load', function () {
                 if (poolModels[this.type])
                     model = poolModels[this.type].shift();
 
-                if (! model) {
+                if (!model) {
                     // no in pool
                     model = models[this.type].clone();
                     for (let i = 0; i < model.meshInstances.length; i++) {
@@ -116,7 +116,7 @@ editor.once('load', function () {
     };
     // link to entity
     Gizmo.prototype.link = function (obj) {
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
         this.unlink();
         this._link = obj;
@@ -140,9 +140,9 @@ editor.once('load', function () {
     };
     // unlink
     Gizmo.prototype.unlink = function () {
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
-        if (! this._link)
+        if (!this._link)
             return;
 
         for (let i = 0; i < this.events.length; i++) {
@@ -201,7 +201,7 @@ editor.once('load', function () {
                 continue;
 
             var gizmo = pool.shift();
-            if (! gizmo)
+            if (!gizmo)
                 gizmo = new Gizmo();
 
             gizmo.link(ids[key]);
@@ -215,7 +215,7 @@ editor.once('load', function () {
 
     editor.once('viewport:load', function () {
         app = editor.call('viewport:app');
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
         container = new pc.Entity(app);
         app.root.addChild(container);

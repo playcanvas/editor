@@ -47,7 +47,7 @@ editor.once('load', function () {
             var target = index;
 
             for (var p = 0; p < plen - 1; p++) {
-                if (! target.hasOwnProperty(parts[p])) {
+                if (!target.hasOwnProperty(parts[p])) {
                     target[parts[p]] = {};
                 }
                 target = target[parts[p]];
@@ -121,7 +121,7 @@ editor.once('load', function () {
                 // Components
                 if (entity.components) {
                     for (const component in componentSchema) {
-                        if (! entity.components.hasOwnProperty(component)) continue;
+                        if (!entity.components.hasOwnProperty(component)) continue;
                         sectionEntity.appendTitle(component.toUpperCase() + ' COMPONENT');
 
                         // handle script component so that script attributes appear
@@ -137,7 +137,7 @@ editor.once('load', function () {
                             var scripts = entity.components.script.scripts;
                             if (scripts) {
                                 for (const scriptName in scripts) {
-                                    if (! scripts[scriptName]) continue;
+                                    if (!scripts[scriptName]) continue;
 
                                     sectionEntity.appendTitle(`script: '${scriptName}'`, true);
 
@@ -159,11 +159,11 @@ editor.once('load', function () {
                                     });
 
                                     var attributes = scripts[scriptName].attributes;
-                                    if (! attributes) continue;
+                                    if (!attributes) continue;
 
                                     for (const attributeName in attributes) {
                                         var attribute = attributes[attributeName];
-                                        if (! attribute) continue;
+                                        if (!attribute) continue;
 
                                         appendScriptAttribute(attribute, attributeName, sectionEntity);
                                     }

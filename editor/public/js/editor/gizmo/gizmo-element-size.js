@@ -120,7 +120,7 @@ editor.once('load', function () {
         editor.on('selector:add', function (item, type) {
             if (type !== 'entity') return;
 
-            if (! selectedEntity) {
+            if (!selectedEntity) {
                 selectedEntity = item;
             }
         });
@@ -133,7 +133,7 @@ editor.once('load', function () {
 
         editor.on('viewport:gizmoUpdate', function (dt) {
             gizmo.root.enabled = gizmoEnabled();
-            if (! gizmo.root.enabled)
+            if (!gizmo.root.enabled)
                 return;
 
             const entity = selectedEntity.entity;
@@ -262,7 +262,7 @@ editor.once('load', function () {
         };
 
         const onTapMove = function (tap) {
-            if (! moving)
+            if (!moving)
                 return;
 
             mouseTap = tap;
@@ -275,7 +275,7 @@ editor.once('load', function () {
 
             editor.emit('camera:toggle', true);
 
-            if (! moving)
+            if (!moving)
                 return;
 
             moving = false;
@@ -298,7 +298,7 @@ editor.once('load', function () {
                         name: 'entity.element.size',
                         undo: function () {
                             const item = editor.call('entities:get', resourceId);
-                            if (! item)
+                            if (!item)
                                 return;
 
                             const history = item.history.enabled;
@@ -310,7 +310,7 @@ editor.once('load', function () {
                         },
                         redo: function () {
                             const item = editor.call('entities:get', resourceId);
-                            if (! item)
+                            if (!item)
                                 return;
 
                             const history = item.history.enabled;
@@ -328,7 +328,7 @@ editor.once('load', function () {
         };
 
         editor.on('viewport:pick:hover', function (node, picked) {
-            if (! node || gizmo.handles.indexOf(node) === -1) {
+            if (!node || gizmo.handles.indexOf(node) === -1) {
                 if (gizmo.handle) {
                     gizmo.handle = null;
 
@@ -341,7 +341,7 @@ editor.once('load', function () {
                         evtTapStart = null;
                     }
                 }
-            } else if (! gizmo.handle || gizmo.handle !== node) {
+            } else if (!gizmo.handle || gizmo.handle !== node) {
 
                 gizmo.handle = node;
 
@@ -349,7 +349,7 @@ editor.once('load', function () {
                     gizmo.handles[i].model.meshInstances[0].material = (gizmo.handles[i] === node ? gizmo.matActive : gizmo.matInactive);
                 }
 
-                if (! evtTapStart) {
+                if (!evtTapStart) {
                     evtTapStart = editor.on('viewport:tap:start', onTapStart);
                 }
             }

@@ -42,8 +42,8 @@ editor.once('load', function () {
                 }
             }
 
-            panel.disabled = ! show;
-            panel.hidden = ! show;
+            panel.disabled = !show;
+            panel.hidden = !show;
         };
         var queueCheckPanel = function () {
             if (checkingPanel)
@@ -65,9 +65,9 @@ editor.once('load', function () {
         // remove
         var fieldRemove = new ui.Button();
 
-        fieldRemove.hidden = ! editor.call('permissions:write');
+        fieldRemove.hidden = !editor.call('permissions:write');
         events.push(editor.on('permissions:writeState', function (state) {
-            fieldRemove.hidden = ! state;
+            fieldRemove.hidden = !state;
         }));
 
         fieldRemove.class.add('component-remove');
@@ -90,7 +90,7 @@ editor.once('load', function () {
                 undo: function () {
                     for (let i = 0; i < records.length; i++) {
                         var item = records[i].item.latest();
-                        if (! item)
+                        if (!item)
                             continue;
 
                         item.history.enabled = false;
@@ -101,7 +101,7 @@ editor.once('load', function () {
                 redo: function () {
                     for (let i = 0; i < records.length; i++) {
                         var item = records[i].item.latest();
-                        if (! item)
+                        if (!item)
                             continue;
 
                         item.history.enabled = false;

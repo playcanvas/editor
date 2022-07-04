@@ -431,11 +431,11 @@ editor.once('load', function () {
         var keys = [args.ctrl ? 1 : 0, args.alt ? 1 : 0, args.shift ? 1 : 0];
 
         // map keyCode to key
-        if (typeof(args.key) === 'number')
+        if (typeof args.key === 'number')
             args.key = keyByKeyCode[args.key];
 
         // unknown key
-        if (! args.key) {
+        if (!args.key) {
             log.error('unknown key: ' + name + ', ' + args.key);
             return;
         }
@@ -444,7 +444,7 @@ editor.once('load', function () {
 
         args.index = keys.join('+');
 
-        if (! keyIndex[args.index])
+        if (!keyIndex[args.index])
             keyIndex[args.index] = [];
 
         keyIndex[args.index].push(name);
@@ -453,7 +453,7 @@ editor.once('load', function () {
 
     editor.method('hotkey:unregister', function (name) {
         var hotkey = hotkeys[name];
-        if (! hotkey) return;
+        if (!hotkey) return;
 
         if (keyIndex[hotkey.index].length === 1) {
             delete keyIndex[hotkey.index];
@@ -500,7 +500,7 @@ editor.once('load', function () {
     window.addEventListener('keydown', function (evt) {
         if (evt.target) {
             var tag = evt.target.tagName;
-            if (/(input)|(textarea)/i.test(tag) && ! evt.target.classList.contains('hotkeys'))
+            if (/(input)|(textarea)/i.test(tag) && !evt.target.classList.contains('hotkeys'))
                 return;
         }
 
@@ -516,12 +516,12 @@ editor.once('load', function () {
         if (keyIndex[index]) {
             var skipPreventDefault = false;
             for (let i = 0; i < keyIndex[index].length; i++) {
-                if (! skipPreventDefault && hotkeys[keyIndex[index][i]].skipPreventDefault)
+                if (!skipPreventDefault && hotkeys[keyIndex[index][i]].skipPreventDefault)
                     skipPreventDefault = true;
 
                 hotkeys[keyIndex[index][i]].callback(evt);
             }
-            if (! skipPreventDefault)
+            if (!skipPreventDefault)
                 evt.preventDefault();
         }
     }, false);

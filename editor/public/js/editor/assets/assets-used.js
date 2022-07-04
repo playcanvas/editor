@@ -436,11 +436,11 @@ editor.once('load', function () {
 
                 if (value instanceof Array) {
                     for (let v = 0; v < value.length; v++) {
-                        if (typeof (value[v]) === 'number') {
+                        if (typeof value[v] === 'number') {
                             updateAsset(entity.get('resource_id'), 'entity', null, value[v]);
                         }
                     }
-                } else if (typeof (value) === 'number') {
+                } else if (typeof value === 'number') {
                     updateAsset(entity.get('resource_id'), 'entity', null, value);
                 }
             }
@@ -479,11 +479,11 @@ editor.once('load', function () {
 
                 if (value instanceof Array) {
                     for (let v = 0; v < value.length; v++) {
-                        if (typeof (value[v]) === 'number') {
+                        if (typeof value[v] === 'number') {
                             updateAsset(entity.get('resource_id'), 'entity', value[v], null);
                         }
                     }
-                } else if (typeof (value) === 'number') {
+                } else if (typeof value === 'number') {
                     updateAsset(entity.get('resource_id'), 'entity', value, null);
                 }
             }

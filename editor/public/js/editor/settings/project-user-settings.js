@@ -75,38 +75,38 @@ editor.once('load', function () {
                 settings.set('editor.launchReleaseCandidate', false);
             }
 
-            if (! settings.has('editor.pipeline'))
+            if (!settings.has('editor.pipeline'))
                 settings.set('editor.pipeline', {});
 
-            if (! settings.has('editor.pipeline.texturePot'))
+            if (!settings.has('editor.pipeline.texturePot'))
                 settings.set('editor.pipeline.texturePot', false);
 
-            if (! settings.has('editor.pipeline.searchRelatedAssets'))
+            if (!settings.has('editor.pipeline.searchRelatedAssets'))
                 settings.set('editor.pipeline.searchRelatedAssets', true);
 
-            if (! settings.has('editor.pipeline.preserveMapping'))
+            if (!settings.has('editor.pipeline.preserveMapping'))
                 settings.set('editor.pipeline.preserveMapping', false);
 
-            if (! settings.has('editor.pipeline.textureDefaultToAtlas'))
+            if (!settings.has('editor.pipeline.textureDefaultToAtlas'))
                 settings.set('editor.pipeline.textureDefaultToAtlas', false);
 
-            if (! settings.has('editor.pipeline.overwriteModel'))
+            if (!settings.has('editor.pipeline.overwriteModel'))
                 settings.set('editor.pipeline.overwriteModel', true);
 
-            if (! settings.has('editor.pipeline.overwriteAnimation'))
+            if (!settings.has('editor.pipeline.overwriteAnimation'))
                 settings.set('editor.pipeline.overwriteAnimation', true);
 
-            if (! settings.has('editor.pipeline.overwriteMaterial'))
+            if (!settings.has('editor.pipeline.overwriteMaterial'))
                 settings.set('editor.pipeline.overwriteMaterial', false);
 
-            if (! settings.has('editor.pipeline.overwriteTexture'))
+            if (!settings.has('editor.pipeline.overwriteTexture'))
                 settings.set('editor.pipeline.overwriteTexture', true);
 
-            if (! settings.has('editor.locale')) {
+            if (!settings.has('editor.locale')) {
                 settings.set('editor.locale', 'en-US');
             }
 
-            if (! settings.has('editor.renameDuplicatedEntities')) {
+            if (!settings.has('editor.renameDuplicatedEntities')) {
                 settings.set('editor.renameDuplicatedEntities', false);
             }
 
@@ -177,7 +177,7 @@ editor.once('load', function () {
     editor.on('permissions:set:' + config.self.id, function (accesslevel) {
         if (editor.call('permissions:read')) {
             // reload settings
-            if (! settings.sync) {
+            if (!settings.sync) {
                 settings.history.enabled = true;
                 reload();
             }

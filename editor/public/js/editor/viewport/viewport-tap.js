@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var canvas = editor.call('viewport:canvas');
-    if (! canvas) return;
+    if (!canvas) return;
 
     function Tap(evt, rect, mouse) {
         this.x = this.lx = this.sx = evt.clientX - rect.left;
@@ -12,14 +12,14 @@ editor.once('load', function () {
         this.move = false;
         this.down = true;
         this.button = evt.button;
-        this.mouse = !! mouse;
+        this.mouse = !!mouse;
     }
     Tap.prototype.update = function (evt, rect) {
         var x = evt.clientX - rect.left;
         var y = evt.clientY - rect.top;
 
         // if it's moved
-        if (this.down && ! this.move && (Math.abs(this.sx - x) + Math.abs(this.sy - y)) > 8)
+        if (this.down && !this.move && (Math.abs(this.sx - x) + Math.abs(this.sy - y)) > 8)
             this.move = true;
 
         // moving
@@ -46,7 +46,7 @@ editor.once('load', function () {
     var evtMouseMove = function (evt) {
         var rect = canvas.element.getBoundingClientRect();
         for (let i = 0; i < taps.length; i++) {
-            if (! taps[i].mouse)
+            if (!taps[i].mouse)
                 continue;
 
             taps[i].update(evt, rect);
@@ -61,7 +61,7 @@ editor.once('load', function () {
 
         // render if mouse moved within viewport
         if (evt.clientX >= rect.left && evt.clientX <= rect.right && evt.clientY >= rect.top && evt.clientY <= rect.bottom) {
-            if (! inViewport) {
+            if (!inViewport) {
                 inViewport = true;
                 editor.emit('viewport:hover', true);
             }
@@ -78,14 +78,14 @@ editor.once('load', function () {
 
         for (let i = 0; i < items.length; i++) {
         // if (tapMouse.down) {
-            if (! items[i].mouse || ! items[i].down || items[i].button !== evt.button)
+            if (!items[i].mouse || !items[i].down || items[i].button !== evt.button)
                 continue;
 
             items[i].down = false;
             items[i].update(evt, canvas.element.getBoundingClientRect());
             editor.emit('viewport:tap:end', items[i], evt);
 
-            if (! items[i].move)
+            if (!items[i].move)
                 editor.emit('viewport:tap:click', items[i], evt);
 
             var ind = taps.indexOf(items[i]);

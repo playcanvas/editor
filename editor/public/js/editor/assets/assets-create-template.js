@@ -10,7 +10,7 @@ editor.once('load', function () {
      * @param {object} root - The root entity
      */
     editor.method('assets:create:template', function (root) {
-        if (! editor.call('permissions:write')) {
+        if (!editor.call('permissions:write')) {
             return;
         }
 

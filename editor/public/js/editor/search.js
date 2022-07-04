@@ -168,11 +168,11 @@ editor.once('load', function () {
     editor.method('search:items', function (items, search, args) {
         search = (search || '').toLowerCase().trim();
 
-        if (! search)
+        if (!search)
             return [];
 
         var searchTokens = editor.call('search:stringTokenize', search);
-        if (! searchTokens.length)
+        if (!searchTokens.length)
             return [];
 
         args = args || { };

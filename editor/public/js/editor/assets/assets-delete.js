@@ -4,7 +4,7 @@ editor.once('load', function () {
     const settings = editor.call('settings:project');
 
     editor.method('assets:delete:picker', function (items) {
-        if (! editor.call('permissions:write'))
+        if (!editor.call('permissions:write'))
             return;
 
         let msg = 'Permanently delete asset?';
@@ -28,7 +28,7 @@ editor.once('load', function () {
         }
 
         editor.call('picker:confirm', msg, function () {
-            if (! editor.call('permissions:write'))
+            if (!editor.call('permissions:write'))
                 return;
 
             editor.call('assets:delete', items);
@@ -39,7 +39,7 @@ editor.once('load', function () {
     });
 
     var deleteCallback = function () {
-        if (! editor.call('permissions:write'))
+        if (!editor.call('permissions:write'))
             return;
 
         var type = editor.call('selector:type');

@@ -11,7 +11,7 @@ editor.once('load', function () {
 
     var historyState = function (item, state) {
         if (item.history !== undefined) {
-            if (typeof(item.history) === 'boolean') {
+            if (typeof item.history === 'boolean') {
                 item.history = state;
             } else {
                 item.history.enabled = state;
@@ -474,7 +474,7 @@ editor.once('load', function () {
         var filterAssets = function (filter) {
             var id;
 
-            if (! filter) {
+            if (!filter) {
                 for (id in assetIndex) {
                     assetIndex[id].hidden = false;
                 }

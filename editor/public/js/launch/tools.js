@@ -2,7 +2,7 @@ var now = function () {
     return performance.timing.navigationStart + performance.now();
 };
 
-if (! performance || ! performance.now || ! performance.timing)
+if (!performance || !performance.now || !performance.timing)
     now = Date.now;
 
 var start = now();
@@ -15,7 +15,7 @@ editor.once('load', function () {
     var timeNow = now() - timeBeginning;
     var timeHover = 0;
 
-    var epoc = ! window.performance || ! performance.now || ! performance.timing;
+    var epoc = !window.performance || !performance.now || !performance.timing;
     editor.method('tools:epoc', function () {
         return epoc;
     });
@@ -90,7 +90,7 @@ editor.once('load', function () {
     });
 
     editor.method('tools:disable', function () {
-        if (! enabled)
+        if (!enabled)
             return;
 
         enabled = false;
@@ -193,7 +193,7 @@ editor.once('load', function () {
             editor.emit('tools:scroll:end');
         }
 
-        if (mouse.hover && ! mouse.down) {
+        if (mouse.hover && !mouse.down) {
             if (mouse.y < 23) {
                 timeHover = Math.floor((mouse.x / (width - 300)) * timeNow);
             } else if (mouse.y < 174) {
@@ -226,7 +226,7 @@ editor.once('load', function () {
         evt.stopPropagation();
         evt.preventDefault();
 
-        if (evt.button !== 0 || mouse.click || mouse.down || ! mouse.hover)
+        if (evt.button !== 0 || mouse.click || mouse.down || !mouse.hover)
             return;
 
         mouse.click = true;
@@ -235,7 +235,7 @@ editor.once('load', function () {
     root.addEventListener('mouseup', function (evt) {
         evt.stopPropagation();
 
-        if (evt.button !== 0 || ! mouse.down)
+        if (evt.button !== 0 || !mouse.down)
             return;
 
         mouse.down = false;
@@ -245,7 +245,7 @@ editor.once('load', function () {
     root.addEventListener('mouseleave', function (evt) {
         mouse.hover = false;
         timeHover = 0;
-        if (! mouse.down)
+        if (!mouse.down)
             return;
 
         mouse.down = false;
@@ -255,7 +255,7 @@ editor.once('load', function () {
     root.addEventListener('mousewheel', function (evt) {
         evt.stopPropagation();
 
-        if (! mouse.hover)
+        if (!mouse.hover)
             return;
 
         scroll.time = Math.max(0, Math.min(timeNow - capacity, Math.floor(scroll.time + evt.deltaX / scale)));
@@ -278,7 +278,7 @@ editor.once('load', function () {
     }, false);
 
     var app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     var frameLast = 0;
 

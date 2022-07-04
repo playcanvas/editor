@@ -2,14 +2,14 @@ editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     var uv1MissingAssets = { };
 
 
     // bake
     editor.method('lightmapper:bake', function (entities) {
-        if (! entities) {
+        if (!entities) {
             entities = editor.call('entities:list').filter(function (e) {
                 return e.get('components.model.lightmapped');
             });
@@ -35,26 +35,26 @@ editor.once('load', function () {
 
             // might have no model asset attached
             var assetId = obj.get('components.model.asset');
-            if (! assetId)
+            if (!assetId)
                 continue;
 
             // model asset might be missing
             var asset = editor.call('assets:get', assetId);
-            if (! asset)
+            if (!asset)
                 continue;
 
             // check if asset has uv1
             var uv1 = asset.has('meta.attributes.texCoord1');
-            if (! uv1) {
+            if (!uv1) {
                 // uv1 might be missing
-                if (! uv1MissingAssets[assetId])
+                if (!uv1MissingAssets[assetId])
                     uv1MissingAssets[assetId] = asset;
                 continue;
             }
 
             // check if asset has area
             var area = asset.get('data.area');
-            if (! area && ! areaJobs[assetId]) {
+            if (!area && !areaJobs[assetId]) {
                 // if area not available
                 // recalculate area
                 areaJobs[assetId] = asset;
@@ -80,7 +80,7 @@ editor.once('load', function () {
             return e.get('components.light.castShadows') && e.get('components.light.shadowUpdateMode') === 1 && e.entity && e.entity.light && e.entity.light.shadowUpdateMode === pc.SHADOWUPDATE_THISFRAME;
         });
 
-        if (! entities.length)
+        if (!entities.length)
             return;
 
         for (let i = 0; i < entities.length; i++)

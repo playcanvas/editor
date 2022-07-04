@@ -11,7 +11,7 @@ editor.once('load', function () {
     editor.on('viewport:hover', function (state) {
         inViewport = state;
 
-        if (! inViewport) {
+        if (!inViewport) {
             nameLast = '';
             pickedLast = null;
             nodeLast = null;

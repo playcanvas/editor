@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     const app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     let autoBake = false;
 

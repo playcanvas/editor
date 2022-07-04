@@ -51,7 +51,7 @@ editor.once('load', function () {
         if (this.entity)
             return;
 
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
         const self = this;
 
@@ -99,7 +99,7 @@ editor.once('load', function () {
     };
 
     Icon.prototype.entityDelete = function () {
-        if (! this.entity)
+        if (!this.entity)
             return;
 
         this.entity.destroy();
@@ -109,11 +109,11 @@ editor.once('load', function () {
     };
 
     Icon.prototype.update = function () {
-        if (! this._link || ! this._link.entity)
+        if (!this._link || !this._link.entity)
             return;
 
         // don't render if selected or disabled
-        if (! this._link.entity._enabled || ! this._link.entity._enabledInHierarchy || this._link.entity.__noIcon || scale === 0 || selectedIds[this._link.entity.getGuid()]) {
+        if (!this._link.entity._enabled || !this._link.entity._enabledInHierarchy || this._link.entity.__noIcon || scale === 0 || selectedIds[this._link.entity.getGuid()]) {
             if (this.entity)
                 this.entityDelete();
 
@@ -129,7 +129,7 @@ editor.once('load', function () {
             this.entity.rotateLocal(90, 0, 0);
         }
 
-        if (! this.dirty) return;
+        if (!this.dirty) return;
         this.dirty = false;
 
         // hide icon if model is set
@@ -148,7 +148,7 @@ editor.once('load', function () {
 
         let component = '';
         for (let i = 0; i < components.length; i++) {
-            if (! this._link.has('components.' + components[i]))
+            if (!this._link.has('components.' + components[i]))
                 continue;
 
             component = components[i];
@@ -156,7 +156,7 @@ editor.once('load', function () {
         }
 
         if (component) {
-            if (! this.entity)
+            if (!this.entity)
                 this.entityCreate();
 
             this.entity.enabled = true;
@@ -170,7 +170,7 @@ editor.once('load', function () {
                 this.color.copy(this._link.entity.light.color);
             }
 
-            if (! textureName || ! textures[textureName])
+            if (!textureName || !textures[textureName])
                 textureName = 'unknown';
 
             this.entity.model.meshInstances[0].setParameter('texture_diffuseMap', textures[textureName]);
@@ -223,7 +223,7 @@ editor.once('load', function () {
         this.dirty = true;
     };
     Icon.prototype.unlink = function () {
-        if (! this._link)
+        if (!this._link)
             return;
 
         for (let i = 0; i < this.events.length; i++)
@@ -242,13 +242,13 @@ editor.once('load', function () {
 
     editor.once('viewport:load', function () {
         app = editor.call('viewport:app');
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
         let shader;
 
         material = new pc.BasicMaterial();
         material.updateShader = function (device) {
-            if (! shader) {
+            if (!shader) {
                 const vshader = `
 attribute vec3 vertex_position;
 
@@ -323,7 +323,7 @@ void main(void)
 
         editor.on('entities:add', function (obj) {
             let icon = pool.shift();
-            if (! icon)
+            if (!icon)
                 icon = new Icon();
 
             icon.link(obj);

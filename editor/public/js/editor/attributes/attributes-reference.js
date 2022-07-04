@@ -30,8 +30,8 @@ editor.once('load', function () {
     editor.method('attributes:reference:attach', function (name, target, element, panel) {
         var tooltip = index[name];
 
-        if (! tooltip) {
-            if (! missing[name]) {
+        if (!tooltip) {
+            if (!missing[name]) {
                 missing[name] = true;
                 console.log('reference', name, 'is not defined');
             }
@@ -92,7 +92,7 @@ editor.once('load', function () {
             targetPanel = targetPanel.dom || targetPanel.element;
 
             var show = function () {
-                if (! target || target.hidden) return;
+                if (!target || target.hidden) return;
                 // fix top offset for new framework
                 const topOffset = (element.ui instanceof pcui.Element ? 6 : 16);
                 tooltip.position(targetPanel.getBoundingClientRect().left, element.getBoundingClientRect().top + topOffset);

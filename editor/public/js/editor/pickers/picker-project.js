@@ -31,7 +31,7 @@ editor.once('load', function () {
     var uploadingImage = false;
 
     var uploadProjectImage = function (file) {
-        if (! editor.call('permissions:write'))
+        if (!editor.call('permissions:write'))
             return;
 
         if (uploadingImage)
@@ -62,7 +62,7 @@ editor.once('load', function () {
         filter: function (type, data) {
             return editor.call('permissions:write') &&
                    !leftPanel.disabled &&
-                   ! uploadingImage &&
+                   !uploadingImage &&
                    type === 'files';
         },
         drop: function (type, data) {
@@ -70,10 +70,10 @@ editor.once('load', function () {
                 return;
 
             var file = data[0];
-            if (! file)
+            if (!file)
                 return;
 
-            if (! /^image\//.test(file.type))
+            if (!/^image\//.test(file.type))
                 return;
 
             uploadProjectImage(file);
@@ -90,7 +90,7 @@ editor.once('load', function () {
     var currentSelection = null;
 
     projectImg.addEventListener('click', function () {
-        if (! editor.call('permissions:write') || leftPanel.disabled)
+        if (!editor.call('permissions:write') || leftPanel.disabled)
             return;
 
         fileInput.click();
@@ -147,7 +147,7 @@ editor.once('load', function () {
 
     // activate menu option
     var select = function (name) {
-        if (! name) return;
+        if (!name) return;
 
         if (currentSelection === name)
             return;
@@ -284,8 +284,8 @@ editor.once('load', function () {
 
     // disables / enables a menu option on the left
     editor.method('picker:project:toggleMenu', function (name, enabled) {
-        menuOptions[name].item.hidden = ! enabled;
-        if (! enabled) {
+        menuOptions[name].item.hidden = !enabled;
+        if (!enabled) {
             menuOptions[name].panel.hidden = true;
         }
     });

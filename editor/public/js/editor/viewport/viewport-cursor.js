@@ -11,10 +11,10 @@ editor.once('load', function () {
 
         inViewport = hover;
 
-        if (! inViewport) {
+        if (!inViewport) {
             state = false;
 
-            if (! editor.call('drop:active'))
+            if (!editor.call('drop:active'))
                 editor.call('cursor:set', '');
         }
     });

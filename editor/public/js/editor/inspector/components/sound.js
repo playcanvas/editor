@@ -362,7 +362,7 @@ Object.assign(pcui, (function () {
                 // event for new slots
                 this._entityEvents.push(entities[0].on('*:set', (path, value) => {
                     var matches = path.match(/^components.sound.slots.(\d+)$/);
-                    if (! matches) return;
+                    if (!matches) return;
 
                     // if inspector already exists then do not create a new one
                     if (this._slotInspectors[matches[1]]) return;
@@ -373,7 +373,7 @@ Object.assign(pcui, (function () {
                 // event for deleted slots
                 this._entityEvents.push(entities[0].on('*:unset', (path) => {
                     var matches = path.match(/^components.sound.slots.(\d+)$/);
-                    if (! matches) return;
+                    if (!matches) return;
 
                     const inspector = this._slotInspectors[matches[1]];
                     if (inspector) {

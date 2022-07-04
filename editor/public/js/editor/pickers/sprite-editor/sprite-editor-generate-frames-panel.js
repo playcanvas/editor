@@ -15,10 +15,10 @@ editor.once('load', function () {
             name: 'GENERATE FRAMES'
         });
 
-        panel.disabled = ! editor.call('permissions:write');
+        panel.disabled = !editor.call('permissions:write');
 
         events.push(editor.on('permissions:writeState', function (canWrite) {
-            panel.disabled = ! canWrite;
+            panel.disabled = !canWrite;
         }));
 
         var METHOD_DELETE_EXISTING = 1;
@@ -180,7 +180,7 @@ editor.once('load', function () {
 
             var redo = function () {
                 var asset = editor.call('assets:get', atlasAsset.get('id'));
-                if (! asset) return;
+                if (!asset) return;
                 var history = asset.history.enabled;
                 asset.history.enabled = false;
 
@@ -204,7 +204,7 @@ editor.once('load', function () {
 
             var undo = function () {
                 var asset = editor.call('assets:get', atlasAsset.get('id'));
-                if (! asset) return;
+                if (!asset) return;
                 var history = asset.history.enabled;
                 asset.history.enabled = false;
                 setFrames(asset, oldFrames);
@@ -245,7 +245,7 @@ editor.once('load', function () {
 
                 var redo = function () {
                     var asset = editor.call('assets:get', atlasAsset.get('id'));
-                    if (! asset) return;
+                    if (!asset) return;
                     var history = asset.history.enabled;
                     asset.history.enabled = false;
                     setFrames(asset, {});
@@ -254,7 +254,7 @@ editor.once('load', function () {
 
                 var undo = function () {
                     var asset = editor.call('assets:get', atlasAsset.get('id'));
-                    if (! asset) return;
+                    if (!asset) return;
                     var history = asset.history.enabled;
                     asset.history.enabled = false;
                     setFrames(asset, frames);
@@ -317,7 +317,7 @@ editor.once('load', function () {
                     var left = offsetX + c * (frameWidth + spacingX);
                     var top = offsetY + r * (frameHeight + spacingY) - offsetY - spacingY;
 
-                    if (! isRegionEmpty(left, top + spacingY, frameWidth, frameHeight)) {
+                    if (!isRegionEmpty(left, top + spacingY, frameWidth, frameHeight)) {
                         frames[maxKey] = {
                             name: 'Frame ' + maxKey,
                             rect: [left, Math.floor(imgHeight - (top + spacedHeight)), frameWidth, frameHeight],
@@ -361,7 +361,7 @@ editor.once('load', function () {
                     var left = offsetX + c * (frameWidth + spacingX);
                     var top = offsetY + r * (frameHeight + spacingY) - offsetY - spacingY;
 
-                    if (! isRegionEmpty(left, top + spacingY, frameWidth, frameHeight)) {
+                    if (!isRegionEmpty(left, top + spacingY, frameWidth, frameHeight)) {
                         frames[maxKey] = {
                             name: 'Frame ' + maxKey,
                             rect: [left, Math.floor(imgHeight - (top + spacedHeight)), frameWidth, frameHeight],
@@ -381,7 +381,7 @@ editor.once('load', function () {
 
             for (let x = left; x < right; x++) {
                 for (let y = top; y < bottom; y++) {
-                    if (! isPixelEmpty(x, y)) {
+                    if (!isPixelEmpty(x, y)) {
                         return false;
                     }
                 }

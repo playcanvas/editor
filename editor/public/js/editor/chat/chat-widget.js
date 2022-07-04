@@ -11,9 +11,9 @@ editor.once('load', function () {
     panel.foldable = true;
     panel.folded = true;
     panel.class.add('chat-widget');
-    panel.hidden = ! editor.call('permissions:read') || editor.call('viewport:expand:state');
+    panel.hidden = !editor.call('permissions:read') || editor.call('viewport:expand:state');
     editor.on('permissions:set', function (level) {
-        panel.hidden = ! level || editor.call('viewport:expand:state');
+        panel.hidden = !level || editor.call('viewport:expand:state');
     });
     viewport.append(panel);
 
@@ -63,8 +63,8 @@ editor.once('load', function () {
 
         if (permission === 'granted') {
             var granted = editor.call('localStorage:get', 'editor:notifications:chat');
-            editor.call('localStorage:set', 'editor:notifications:chat', ! granted);
-            editor.emit('chat:notify', ! granted);
+            editor.call('localStorage:set', 'editor:notifications:chat', !granted);
+            editor.emit('chat:notify', !granted);
         } else if (permission !== 'denied') {
             editor.call('notify:permission');
         }
@@ -187,22 +187,22 @@ editor.once('load', function () {
     });
 
     editor.on('chat:post', function (type, msg, element) {
-        if (! panel.folded)
+        if (!panel.folded)
             lastMessage = element;
 
-        if (! panel.folded || type === 'typing')
+        if (!panel.folded || type === 'typing')
             return;
 
         messagesNumber++;
         panel.class.add('notify');
         number.classList.add('notify');
 
-        if (! number.classList.contains('typing'))
+        if (!number.classList.contains('typing'))
             number.textContent = messagesNumber;
     });
 
     editor.on('chat:typing', function (typing, ids) {
-        if (! panel.folded)
+        if (!panel.folded)
             return;
 
         if (typing) {
@@ -291,7 +291,7 @@ editor.once('load', function () {
             typingTimeout = null;
         }
 
-        if (! typing)
+        if (!typing)
             return;
 
         typing = false;
@@ -319,7 +319,7 @@ editor.once('load', function () {
         if (value) {
             input.class.add('not-empty');
 
-            if (! typing) {
+            if (!typing) {
                 typing = true;
                 editor.call('chat:typing', true);
             }

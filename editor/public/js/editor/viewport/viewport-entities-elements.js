@@ -21,7 +21,7 @@ editor.once('load', function () {
     // has - that's because depending on the screen size an element might not have
     // the correct properties when inspected so make sure these are right
     var updateElementProperties = function (entity) {
-        if (! entity.entity || ! entity.has('components.element')) return;
+        if (!entity.entity || !entity.has('components.element')) return;
 
         var history = entity.history.enabled;
         var sync = entity.sync.enabled;
@@ -66,7 +66,7 @@ editor.once('load', function () {
         };
 
         events.push(entity.on('*:set', function (path, value, valueOld, remote) {
-            if (remote || ! entity.entity || ! entity.has('components.element')) return;
+            if (remote || !entity.entity || !entity.has('components.element')) return;
 
             // position change
             if (/^position/.test(path)) {

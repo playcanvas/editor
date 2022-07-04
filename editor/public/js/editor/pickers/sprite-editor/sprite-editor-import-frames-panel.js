@@ -13,10 +13,10 @@ editor.once('load', function () {
         });
         panel.class.add('component');
 
-        panel.disabled = ! editor.call('permissions:write');
+        panel.disabled = !editor.call('permissions:write');
 
         events.push(editor.on('permissions:writeState', function (canWrite) {
-            panel.disabled = ! canWrite;
+            panel.disabled = !canWrite;
         }));
 
         var panelError = new ui.Panel('Invalid JSON file');
@@ -82,7 +82,7 @@ editor.once('load', function () {
         });
 
         hiddenInput.addEventListener('change', function () {
-            if (! hiddenInput.files[0]) return;
+            if (!hiddenInput.files[0]) return;
 
             btnImport.disabled = true;
             btnImport.text = 'PROCESSING...';

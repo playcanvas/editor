@@ -24,23 +24,23 @@ editor.once('load', function () {
     });
 
     var reload = function () {
-        if (! isConnected) return;
+        if (!isConnected) return;
 
         if (config.project.hasPrivateSettings && editor.call('permissions:write')) {
             settings.reload(settings.scopeId);
         }
 
-        if (! config.project.hasPrivateSettings) {
+        if (!config.project.hasPrivateSettings) {
             var pendingChanges = {};
 
             var evtOnSet = settings.on('*:set', function (path, value, valueOld) {
                 // store pending changes until we load document from C3 in order to send
                 // them to the server
-                if (! settings.sync) {
+                if (!settings.sync) {
                     pendingChanges[path] = value;
                 }
 
-                if (! config.project.hasPrivateSettings) {
+                if (!config.project.hasPrivateSettings) {
                     config.project.hasPrivateSettings = true;
                     settings.reload(settings.scopeId);
                 }
@@ -87,7 +87,7 @@ editor.once('load', function () {
         isConnected = false;
     });
 
-    if (! config.project.hasPrivateSettings) {
+    if (!config.project.hasPrivateSettings) {
         editor.on('messenger:settings.create', function (msg) {
             if (config.project.hasPrivateSettings) return; // skip if we've already created the settings locally
 

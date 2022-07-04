@@ -51,7 +51,7 @@ editor.once('load', function () {
         };
 
         const renderPreview = function () {
-            if (! previewContainer) return;
+            if (!previewContainer) return;
 
             if (renderQueued)
                 renderQueued = false;

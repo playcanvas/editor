@@ -303,7 +303,7 @@ editor.once('load', function () {
     };
 
     var onTapMove = function (tap) {
-        if (! moving)
+        if (!moving)
             return;
 
         mouseTap = tap;
@@ -316,7 +316,7 @@ editor.once('load', function () {
 
         editor.emit('camera:toggle', true);
 
-        if (! moving)
+        if (!moving)
             return;
 
         moving = false;
@@ -335,7 +335,7 @@ editor.once('load', function () {
 
     // enable/disable gizmo
     editor.method('gizmo:rotate:toggle', function (state) {
-        if (! gizmo)
+        if (!gizmo)
             return;
 
         gizmo.root.enabled = state && editor.call('permissions:write');
@@ -347,7 +347,7 @@ editor.once('load', function () {
     });
 
     editor.on('permissions:writeState', function (state) {
-        if (! gizmo)
+        if (!gizmo)
             return;
 
         gizmo.root.enabled = enabled && state;
@@ -356,13 +356,13 @@ editor.once('load', function () {
 
     // show/hide gizmo
     editor.method('gizmo:rotate:visible', function (state) {
-        if (! gizmo)
+        if (!gizmo)
             return;
 
         visible = state;
 
         for (let i = 0; i < gizmo.hoverable.length; i++) {
-            if (! gizmo.hoverable[i].model)
+            if (!gizmo.hoverable[i].model)
                 continue;
 
             gizmo.hoverable[i].model.enabled = state;
@@ -393,7 +393,7 @@ editor.once('load', function () {
     // initialize gizmo
     editor.once('viewport:load', function () {
         var app = editor.call('viewport:app');
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
         gizmo = createEntity(app);
         gizmo.root.enabled = false;
@@ -413,10 +413,10 @@ editor.once('load', function () {
         // on picker hover
         editor.on('viewport:pick:hover', function (node, picked) {
             var match = gizmo.hoverable.indexOf(node) !== -1;
-            if (! hover && match) {
+            if (!hover && match) {
                 // hover
                 hover = true;
-            } else if (hover && ! match) {
+            } else if (hover && !match) {
                 // unhover
                 hover = false;
             }
@@ -427,7 +427,7 @@ editor.once('load', function () {
                     if (hoverAxis)
                         gizmo.line[hoverAxis].material = gizmo.line[hoverAxis].mat;
 
-                    if (! hoverAxis && ! evtTapStart)
+                    if (!hoverAxis && !evtTapStart)
                         evtTapStart = editor.on('viewport:tap:start', onTapStart);
 
                     hoverAxis = node.axis;
@@ -532,7 +532,7 @@ editor.once('load', function () {
                     // behind line
                     app.renderMesh(gizmo.line.x.mesh, gizmo.matBehindHover.x, worldTransform, immediateRenderOptions);
                     // front line
-                    if (! moving && gizmo.plane.x.model.enabled) {
+                    if (!moving && gizmo.plane.x.model.enabled) {
                         gizmo.line.x.node.worldTransform = worldTransform;
                         app.renderMeshInstance(gizmo.line.x, immediateRenderOptions);
                     }
@@ -546,7 +546,7 @@ editor.once('load', function () {
                     // behind line
                     app.renderMesh(gizmo.line.y.mesh, gizmo.matBehindHover.y, worldTransform, immediateRenderOptions);
                     // front line
-                    if (! moving && gizmo.plane.y.model.enabled) {
+                    if (!moving && gizmo.plane.y.model.enabled) {
                         gizmo.line.y.node.worldTransform = worldTransform;
                         app.renderMeshInstance(gizmo.line.y, immediateRenderOptions);
                     }
@@ -559,7 +559,7 @@ editor.once('load', function () {
                     // behind line
                     app.renderMesh(gizmo.line.z.mesh, gizmo.matBehindHover.z, worldTransform, immediateRenderOptions);
                     // front line
-                    if (! moving && gizmo.plane.z.model.enabled) {
+                    if (!moving && gizmo.plane.z.model.enabled) {
                         gizmo.line.z.node.worldTransform = worldTransform;
                         app.renderMeshInstance(gizmo.line.z, immediateRenderOptions);
                     }

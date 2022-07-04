@@ -163,7 +163,7 @@ editor.once('load', function () {
 
         // server > client
         let evt = editor.on('realtime:userdata:' + userId + ':op:cameras', function (op) {
-            if (op.p.length !== 3 || ! op.oi || op.p[1] !== 'perspective')
+            if (op.p.length !== 3 || !op.oi || op.p[1] !== 'perspective')
                 return;
 
             if (op.p[2] === 'position') {
@@ -214,7 +214,7 @@ editor.once('load', function () {
             // subscribe to project permission changes
             editor.on('permissions:set:' + userId, function () {
                 if (editor.call('permissions:read', userId)) {
-                    if (! userdata[userId]) {
+                    if (!userdata[userId]) {
                         // WORKAROUND
                         // wait a bit before adding, for userdata to be created at sharedb
                         setTimeout(function () {

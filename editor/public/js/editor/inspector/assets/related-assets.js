@@ -51,7 +51,7 @@ Object.assign(pcui, (function () {
 
         _onClickRelatedAsset(assetId) {
             const asset = editor.call('assets:get', assetId);
-            if (! asset)
+            if (!asset)
                 return;
             editor.call('selector:set', 'asset', [asset]);
         }

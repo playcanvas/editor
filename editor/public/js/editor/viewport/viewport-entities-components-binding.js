@@ -95,11 +95,11 @@ editor.once('load', function () {
 
         // subscribe to changes
         obj.on('*:set', function (path, value) {
-            if (obj._silent || ! path.startsWith('components'))
+            if (obj._silent || !path.startsWith('components'))
                 return;
 
             var entity = obj.entity;
-            if (! entity) return;
+            if (!entity) return;
 
             var parts = path.split('.');
             var component = parts[1];
@@ -123,7 +123,7 @@ editor.once('load', function () {
                     }
 
                     app = editor.call('viewport:app');
-                    if (! app) return; // webgl not available
+                    if (!app) return; // webgl not available
                     app.context.systems[component].addComponent(entity, data);
 
                     // render
@@ -139,11 +139,11 @@ editor.once('load', function () {
         });
 
         var onInsertOrRemove = function (path, value) {
-            if (obj._silent || ! path.startsWith('components'))
+            if (obj._silent || !path.startsWith('components'))
                 return;
 
             var entity = obj.entity;
-            if (! entity) return;
+            if (!entity) return;
 
             var parts = path.split('.');
             var component = parts[1];
@@ -167,11 +167,11 @@ editor.once('load', function () {
         obj.on('*:remove', onInsertOrRemove);
 
         obj.on('*:unset', function (path) {
-            if (obj._silent || ! path.startsWith('components'))
+            if (obj._silent || !path.startsWith('components'))
                 return;
 
             var entity = obj.entity;
-            if (! entity) return;
+            if (!entity) return;
 
             var parts = path.split('.');
             var component = parts[1];
@@ -193,7 +193,7 @@ editor.once('load', function () {
             } else if (entity[component]) {
                 // remove component
                 var app = editor.call('viewport:app');
-                if (! app) return; // webgl not available
+                if (!app) return; // webgl not available
 
                 app.context.systems[component].removeComponent(entity);
             }

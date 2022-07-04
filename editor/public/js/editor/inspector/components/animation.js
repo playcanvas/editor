@@ -91,7 +91,7 @@ Object.assign(pcui, (function () {
             assetId = parseInt(assetId, 10);
 
             for (let i = 0; i < entities.length; i++) {
-                if (! entities[i].entity || ! entities[i].entity.animation)
+                if (!entities[i].entity || !entities[i].entity.animation)
                     continue;
 
                 if (entities[i].entity.animation.assets.indexOf(assetId) === -1) {
@@ -100,7 +100,7 @@ Object.assign(pcui, (function () {
                 }
 
                 const name = entities[i].entity.animation.animationsIndex[assetId];
-                if (! name) continue;
+                if (!name) continue;
 
                 entities[i].entity.animation.play(name);
             }
@@ -108,7 +108,7 @@ Object.assign(pcui, (function () {
 
         _stopAnimation(entities) {
             for (let i = 0; i < entities.length; i++) {
-                if (! entities[i].entity || ! entities[i].entity.animation)
+                if (!entities[i].entity || !entities[i].entity.animation)
                     continue;
 
                 entities[i].entity.animation._stopCurrentAnimation();

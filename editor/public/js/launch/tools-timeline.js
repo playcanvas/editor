@@ -12,7 +12,7 @@ editor.once('load', function () {
     var cacheLightmapper = null;
     var cacheLightmapperEvent = null;
     var app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     // canvas
     var canvas = document.createElement('canvas');
@@ -114,7 +114,7 @@ editor.once('load', function () {
                         break;
                     }
                 }
-                if (! foundY) {
+                if (!foundY) {
                     y = stack.length * (barHeight + barMargin);
                     stack.push(t2 + scrollTime);
                 }
@@ -215,7 +215,7 @@ editor.once('load', function () {
 
     // add event to history
     var addEvent = function (args) {
-        if (! enabled) return;
+        if (!enabled) return;
 
         var e = {
             i: ++counter,
@@ -232,7 +232,7 @@ editor.once('load', function () {
 
     // subscribe to app reload start
     app.once('preload:start', function () {
-        if (! enabled) return;
+        if (!enabled) return;
 
         addEvent({
             time: editor.call('tools:time:now'),
@@ -242,7 +242,7 @@ editor.once('load', function () {
 
     // subscribe to app start
     app.once('start', function () {
-        if (! enabled) return;
+        if (!enabled) return;
 
         addEvent({
             time: editor.call('tools:time:now'),
@@ -252,7 +252,7 @@ editor.once('load', function () {
 
     // subscribe to asset loading start
     app.assets.on('load:start', function (asset) {
-        if (! enabled) return;
+        if (!enabled) return;
 
         cacheAssetLoading[asset.id] = addEvent({
             time: editor.call('tools:time:now'),
@@ -263,7 +263,7 @@ editor.once('load', function () {
 
     // subscribe to asset loading end
     app.assets.on('load', function (asset) {
-        if (! enabled || ! cacheAssetLoading[asset.id])
+        if (!enabled || !cacheAssetLoading[asset.id])
             return;
 
         cacheAssetLoading[asset.id].t2 = editor.call('tools:time:now');
@@ -273,7 +273,7 @@ editor.once('load', function () {
 
 
     var onShaderStart = function (evt) {
-        if (! enabled) return;
+        if (!enabled) return;
 
         var time = evt.timestamp;
         if (editor.call('tools:epoc'))
@@ -290,7 +290,7 @@ editor.once('load', function () {
     };
 
     var onShaderEnd = function (evt) {
-        if (! enabled) return;
+        if (!enabled) return;
 
         var ind = cacheShaderCompile.indexOf(evt.target);
         if (ind === -1)
@@ -307,7 +307,7 @@ editor.once('load', function () {
     };
 
     var onLightmapperStart = function (evt) {
-        if (! enabled) return;
+        if (!enabled) return;
 
         var time = evt.timestamp;
         if (editor.call('tools:epoc'))
@@ -324,7 +324,7 @@ editor.once('load', function () {
     };
 
     var onLightmapperEnd = function (evt) {
-        if (! enabled) return;
+        if (!enabled) return;
 
         if (cacheLightmapper !== evt.target)
             return;

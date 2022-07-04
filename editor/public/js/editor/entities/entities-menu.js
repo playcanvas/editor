@@ -130,7 +130,7 @@ editor.once('load', () => {
     };
 
     editor.method('menu:entities:new', function (getParentFn) {
-        if (! getParentFn)
+        if (!getParentFn)
             getParentFn = () => { return editor.call('entities:selectedFirst'); };
 
         return [{

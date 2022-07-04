@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     var picker = new pc.Picker(app, 1, 1);
     var pickedData = {
@@ -27,13 +27,13 @@ editor.once('load', function () {
     });
 
     editor.on('viewport:update', function () {
-        if (! mouseDown && ! inViewport && pickedData.node) {
+        if (!mouseDown && !inViewport && pickedData.node) {
             pickedData.node = null;
             pickedData.picked = null;
             editor.emit('viewport:pick:hover', null, null);
         }
 
-        if (! inViewport || ! picking)
+        if (!inViewport || !picking)
             return;
 
         // pick
@@ -70,33 +70,33 @@ editor.once('load', function () {
         // pick node
         var picked = picker.getSelection(x, y);
 
-        if (! picked.length || ! picked[0]) {
+        if (!picked.length || !picked[0]) {
             fn(null, null);
         } else {
             var node = picked[0].node;
 
             // traverse to pc.Entity
-            while (! (node instanceof pc.Entity) && node && node.parent) {
+            while (!(node instanceof pc.Entity) && node && node.parent) {
                 node = node.parent;
             }
-            if (! node || !(node instanceof pc.Entity)) return;
+            if (!node || !(node instanceof pc.Entity)) return;
 
             fn(node, picked[0]);
         }
     });
 
     editor.on('viewport:tap:start', function (tap) {
-        if (! tap.mouse) return;
+        if (!tap.mouse) return;
 
         mouseDown = true;
     });
 
     editor.on('viewport:tap:end', function (tap) {
-        if (! tap.mouse) return;
+        if (!tap.mouse) return;
 
         mouseDown = false;
 
-        if (! inViewport && pickedData.node) {
+        if (!inViewport && pickedData.node) {
             pickedData.node = null;
             pickedData.picked = null;
             editor.emit('viewport:pick:hover', null, null);
@@ -109,7 +109,7 @@ editor.once('load', function () {
     });
 
     editor.on('viewport:tap:click', function (tap) {
-        if (! inViewport || (tap.mouse && tap.button !== 0))
+        if (!inViewport || (tap.mouse && tap.button !== 0))
             return;
 
         if (pickedData.node) {

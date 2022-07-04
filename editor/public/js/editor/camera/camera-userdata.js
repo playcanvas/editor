@@ -26,9 +26,9 @@ editor.once('camera:load', function () {
                 if (data.orthoHeight !== orthoHeight)
                     userdata.set('cameras.' + name + '.orthoHeight', orthoHeight);
             }
-        } else if (! camera.__editorCamera) {
+        } else if (!camera.__editorCamera) {
             const obj = editor.call('entities:get', camera.getGuid());
-            if (! obj) return;
+            if (!obj) return;
 
             const pos = camera.getLocalPosition();
             const posOld = obj.get('position');

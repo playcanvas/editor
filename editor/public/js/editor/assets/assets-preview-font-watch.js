@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     const app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
     const watching = { };
 
     const trigger = function (watch) {
@@ -70,7 +70,7 @@ editor.once('load', function () {
     editor.method('assets:font:watch', function (args) {
         let watch = watching[args.asset.get('id')];
 
-        if (! watch) {
+        if (!watch) {
             watch = watching[args.asset.get('id')] = {
                 asset: args.asset,
                 engineAsset: null,
@@ -105,9 +105,9 @@ editor.once('load', function () {
 
     editor.method('assets:font:unwatch', function (asset, handle) {
         const watch = watching[asset.get('id')];
-        if (! watch) return;
+        if (!watch) return;
 
-        if (! watch.callbacks.hasOwnProperty(handle))
+        if (!watch.callbacks.hasOwnProperty(handle))
             return;
 
         if (watch.callbacks[handle].autoLoad)

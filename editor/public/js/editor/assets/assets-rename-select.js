@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var onRename = function () {
-        if (! editor.call('permissions:write'))
+        if (!editor.call('permissions:write'))
             return;
 
         var type = editor.call('selector:type');
@@ -14,12 +14,12 @@ editor.once('load', function () {
             return;
 
         var root = editor.call('attributes.rootPanel');
-        if (! root)
+        if (!root)
             return;
 
         var input = root.dom.querySelector('.ui-text-field.asset-name');
 
-        if (! input || ! input.ui)
+        if (!input || !input.ui)
             return;
 
         input.ui.flash();

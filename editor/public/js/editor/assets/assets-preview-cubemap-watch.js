@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     const app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
     const watching = { };
 
     const trigger = function (watch, slot) {
@@ -41,11 +41,11 @@ editor.once('load', function () {
 
         if (watch.autoLoad) {
             asset = app.assets.get(id);
-            if (asset && ! asset.resource)
+            if (asset && !asset.resource)
                 app.assets.load(asset);
 
             asset = app.assets.get(watch.asset.get('id'));
-            if (asset && (! asset.resource || ! asset.loadFaces)) {
+            if (asset && (!asset.resource || !asset.loadFaces)) {
                 asset.loadFaces = true;
                 app.assets.load(asset);
             }
@@ -53,7 +53,7 @@ editor.once('load', function () {
     };
 
     const removeTextureWatch = function (watch, slot) {
-        if (! watch.textures[slot])
+        if (!watch.textures[slot])
             return;
 
         const id = watch.textures[slot].id;
@@ -122,7 +122,7 @@ editor.once('load', function () {
         let retries = 5;
 
         watch.onAdd = function (asset) {
-            if (! watch.autoLoad)
+            if (!watch.autoLoad)
                 return;
 
             asset.loadFaces = true;
@@ -178,7 +178,7 @@ editor.once('load', function () {
     editor.method('assets:cubemap:watch', function (args) {
         let watch = watching[args.asset.get('id')];
 
-        if (! watch) {
+        if (!watch) {
             watch = watching[args.asset.get('id')] = {
                 asset: args.asset,
                 autoLoad: 0,
@@ -204,7 +204,7 @@ editor.once('load', function () {
 
         if (watch.autoLoad === 1) {
             const asset = app.assets.get(watch.asset.get('id'));
-            if (asset && (! asset.loadFaces || ! asset.resource)) {
+            if (asset && (!asset.loadFaces || !asset.resource)) {
                 asset.loadFaces = true;
                 app.assets.load(asset);
             }
@@ -216,9 +216,9 @@ editor.once('load', function () {
 
     editor.method('assets:cubemap:unwatch', function (asset, handle) {
         const watch = watching[asset.get('id')];
-        if (! watch) return;
+        if (!watch) return;
 
-        if (! watch.callbacks.hasOwnProperty(handle))
+        if (!watch.callbacks.hasOwnProperty(handle))
             return;
 
         if (watch.callbacks[handle].autoLoad)

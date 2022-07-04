@@ -89,7 +89,7 @@ Object.assign(pcui, (function () {
         }
 
         _onClickFace() {
-            if (! editor.call('permissions:write'))
+            if (!editor.call('permissions:write'))
                 return;
 
             const texture = editor.call('assets:get', this._asset.get(`data.textures.${this._args.face}`));
@@ -163,7 +163,7 @@ Object.assign(pcui, (function () {
                                     if (a.get('source') || a.get('type') !== 'texture')
                                         return;
 
-                                    if (! a.get('path').equals(asset.get('path')))
+                                    if (!a.get('path').equals(asset.get('path')))
                                         return;
 
                                     if (a.get('meta.width') !== asset.get('meta.width') || a.get('meta.height') !== asset.get('meta.height'))

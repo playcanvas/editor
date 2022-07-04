@@ -374,7 +374,7 @@ Object.assign(pcui, (function () {
             let largestKey = 1;
             for (let i = 0; i < entities.length; i++) {
                 const clips = entities[i].get('components.sprite.clips');
-                if (! clips) continue;
+                if (!clips) continue;
 
                 for (const key in clips) {
                     largestKey = Math.max(largestKey, parseInt(key, 10) + 1);
@@ -422,7 +422,7 @@ Object.assign(pcui, (function () {
 
                     // find clip by clip name
                     const clips = entity.get('components.sprite.clips');
-                    if (! clips) return;
+                    if (!clips) return;
 
                     let clipKey = null;
                     for (const key in clips) {

@@ -2,13 +2,13 @@ editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     editor.on('entities:add', function (obj) {
         // subscribe to changes
         obj.on('*:set', function (path, value) {
             var entity = obj.entity;
-            if (! entity)
+            if (!entity)
                 return;
 
             if (path === 'name') {
@@ -90,7 +90,7 @@ editor.once('load', function () {
 
     editor.on('entities:remove', function (obj) {
         var entity = obj.entity;
-        if (! entity)
+        if (!entity)
             return;
 
         entity.destroy();

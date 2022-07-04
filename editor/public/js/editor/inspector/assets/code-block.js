@@ -103,7 +103,7 @@ Object.assign(pcui, (function () {
             this.unlink();
             this._assets = assets;
             if (assets[0].has('file.url')) {
-                if (! this._loading) {
+                if (!this._loading) {
                     this._loadData();
                 }
             }

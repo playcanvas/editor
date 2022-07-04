@@ -70,7 +70,7 @@ editor.once('load', function () {
     fileInput.accept = 'image/*';
 
     imageField.addEventListener('click', function () {
-        if (! editor.call('permissions:write'))
+        if (!editor.call('permissions:write'))
             return;
 
         fileInput.click();
@@ -246,7 +246,7 @@ editor.once('load', function () {
     var fieldOptionsSourcemaps;
     var fieldOptionsOptimizeSceneFormat;
 
-    if (! legacyScripts) {
+    if (!legacyScripts) {
         // options
         var panelOptions = new ui.Panel();
         panelOptions.class.add('options');
@@ -800,7 +800,7 @@ editor.once('load', function () {
 
             scenes = items;
             // select primary scene
-            if (! primaryScene && items[0]) {
+            if (!primaryScene && items[0]) {
                 primaryScene = items[0].id;
             }
 
@@ -809,7 +809,7 @@ editor.once('load', function () {
             }
         });
 
-        if (! loadedApps) {
+        if (!loadedApps) {
             editor.call('apps:list', function (apps) {
                 loadedApps = true;
 
@@ -864,7 +864,7 @@ editor.once('load', function () {
     });
 
     editor.on('viewport:hover', function (state) {
-        if (state && ! panel.hidden) {
+        if (state && !panel.hidden) {
             setTimeout(function () {
                 editor.emit('viewport:hover', false);
             }, 0);
@@ -890,7 +890,7 @@ editor.once('load', function () {
             }
         }
 
-        if (! scenes.length) {
+        if (!scenes.length) {
             panelScenes.hidden = true;
             panelNoScenes.hidden = false;
             refreshButtonsState();

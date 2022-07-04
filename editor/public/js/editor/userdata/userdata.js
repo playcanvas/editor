@@ -5,7 +5,7 @@ editor.once('load', function () {
 
     editor.on('userdata:' + config.self.id + ':raw', function (data) {
 
-        if (! userdata.sync) {
+        if (!userdata.sync) {
             userdata.sync = new ObserverSync({
                 item: userdata,
                 paths: ['cameras']

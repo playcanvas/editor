@@ -11,10 +11,10 @@ editor.once('load', function () {
     var bundleAssets = [];
 
     var addToIndex = function (assetIds, bundleAsset) {
-        if (! assetIds) return;
+        if (!assetIds) return;
 
         for (let i = 0; i < assetIds.length; i++) {
-            if (! bundlesIndex[assetIds[i]]) {
+            if (!bundlesIndex[assetIds[i]]) {
                 bundlesIndex[assetIds[i]] = [bundleAsset];
                 editor.emit('assets:bundles:insert', bundleAsset, assetIds[i]);
             } else {
@@ -42,12 +42,12 @@ editor.once('load', function () {
         });
 
         asset.on('data.assets:remove', function (assetId) {
-            if (! bundlesIndex[assetId]) return;
+            if (!bundlesIndex[assetId]) return;
             var idx = bundlesIndex[assetId].indexOf(asset);
             if (idx !== -1) {
                 bundlesIndex[assetId].splice(idx, 1);
                 editor.emit('assets:bundles:remove', asset, assetId);
-                if (! bundlesIndex[assetId].length) {
+                if (!bundlesIndex[assetId].length) {
                     delete bundlesIndex[assetId];
                 }
             }
@@ -70,7 +70,7 @@ editor.once('load', function () {
                 bundlesIndex[id].splice(idx, 1);
                 editor.emit('assets:bundles:remove', asset, id);
 
-                if (! bundlesIndex[id].length) {
+                if (!bundlesIndex[id].length) {
                     delete bundlesIndex[id];
                 }
             }
@@ -141,7 +141,7 @@ editor.once('load', function () {
 
         var undo = function () {
             var asset = editor.call('assets:get', bundleAsset.get('id'));
-            if (! asset) return;
+            if (!asset) return;
 
             var history = asset.history.enabled;
             asset.history.enabled = false;
@@ -153,7 +153,7 @@ editor.once('load', function () {
 
         var redo = function () {
             var asset = editor.call('assets:get', bundleAsset.get('id'));
-            if (! asset) return;
+            if (!asset) return;
 
             var history = asset.history.enabled;
             asset.history.enabled = false;
@@ -185,7 +185,7 @@ editor.once('load', function () {
     editor.method('assets:bundles:removeAssets', function (assets, bundleAsset) {
         var redo = function () {
             var asset = editor.call('assets:get', bundleAsset.get('id'));
-            if (! asset) return;
+            if (!asset) return;
 
             var history = asset.history.enabled;
             asset.history.enabled = false;
@@ -197,7 +197,7 @@ editor.once('load', function () {
 
         var undo = function () {
             var asset = editor.call('assets:get', bundleAsset.get('id'));
-            if (! asset) return;
+            if (!asset) return;
 
             var history = asset.history.enabled;
             asset.history.enabled = false;
@@ -230,7 +230,7 @@ editor.once('load', function () {
         var assets = bundleAsset.get('data.assets');
         for (let i = 0; i < assets.length; i++) {
             var asset = editor.call('assets:get', assets[i]);
-            if (! asset || !asset.has('file.size')) continue;
+            if (!asset || !asset.has('file.size')) continue;
 
             size += asset.get('file.size');
         }

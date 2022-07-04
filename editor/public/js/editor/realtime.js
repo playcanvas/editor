@@ -89,7 +89,7 @@ editor.once('load', function () {
 
         // write scene operations
         editor.method('realtime:scene:op', function (op) {
-            if (! editor.call('permissions:write') || ! editor.realtime.scenes.current)
+            if (!editor.call('permissions:write') || !editor.realtime.scenes.current)
                 return;
 
             editor.realtime.scenes.current.submitOp(op);

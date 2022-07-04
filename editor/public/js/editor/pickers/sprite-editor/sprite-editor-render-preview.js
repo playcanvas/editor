@@ -15,12 +15,12 @@ editor.once('load', function () {
         const height = canvas.height;
         ctx.clearRect(0, 0, width, height);
 
-        if (! frame || ! frame.pivot || ! frame.rect) {
+        if (!frame || !frame.pivot || !frame.rect) {
             return;
         }
 
         const atlasImage = editor.call('picker:sprites:atlasImage');
-        if (! atlasImage) return;
+        if (!atlasImage) return;
 
         const x = frame.rect[0];
         // convert bottom left WebGL coord to top left pixel coord
@@ -43,7 +43,7 @@ editor.once('load', function () {
             let topBound = Number.NEGATIVE_INFINITY;
             for (let i = 0, len = allFrames.length; i < len; i++) {
                 let f = allFrames[i];
-                if (! f) continue;
+                if (!f) continue;
 
                 if (f._data)
                     f = f._data;

@@ -30,13 +30,13 @@ editor.once('load', function () {
     // if entity added, check if it maching query
     editor.on('entities:add', function (entity) {
         var query = search.value.trim();
-        if (! query)
+        if (!query)
             return;
 
         var items = [[entity.get('name'), entity]];
         var result = editor.call('search:items', items, query);
 
-        if (! result.length)
+        if (!result.length)
             return;
 
         performSearch();

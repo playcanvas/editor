@@ -8,7 +8,7 @@ editor.once('load', function () {
 
 
     editor.method('plugins:load', function (name, fn) {
-        if (! name || ! pluginNameCheck.test(name)) {
+        if (!name || !pluginNameCheck.test(name)) {
             if (fn) fn(new Error('invalid plugin name'));
             return;
         }
@@ -61,7 +61,7 @@ editor.once('load', function () {
     });
 
     editor.method('plugins:unload', function (name) {
-        if (! plugins[name])
+        if (!plugins[name])
             return;
 
         document.head.removeChild(plugins[name]);

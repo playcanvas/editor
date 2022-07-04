@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     var defaultSizeSmall = new pc.Vec3(0.2, 0.2, 0.2);
     var aabb = new pc.BoundingBox();
@@ -13,7 +13,7 @@ editor.once('load', function () {
 
         var children = entity.children;
         for (let i = 0; i < children.length; i++) {
-            if (! (children[i] instanceof pc.Entity) || children[i].__editor)
+            if (!(children[i] instanceof pc.Entity) || children[i].__editor)
                 continue;
 
             calculateChildAABB(children[i]);
@@ -28,10 +28,10 @@ editor.once('load', function () {
     });
 
     editor.method('entities:aabb', function (items) {
-        if (! items)
+        if (!items)
             return null;
 
-        if (! (items instanceof Array))
+        if (!(items instanceof Array))
             items = [items];
 
         aabb.center.set(0, 0, 0);
@@ -41,7 +41,7 @@ editor.once('load', function () {
         for (let i = 0; i < items.length; i++) {
             var entity = items[i].entity;
 
-            if (! entity)
+            if (!entity)
                 continue;
 
             aabbA.center.copy(entity.getPosition());
@@ -60,7 +60,7 @@ editor.once('load', function () {
 
     editor.method('viewport:focus', function () {
         var selection = editor.call('selection:aabb');
-        if (! selection) return;
+        if (!selection) return;
 
         var camera = editor.call('camera:current');
 

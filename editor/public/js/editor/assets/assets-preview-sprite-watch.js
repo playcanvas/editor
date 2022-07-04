@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     const app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     const watching = { };
 
@@ -12,7 +12,7 @@ editor.once('load', function () {
     };
 
     const unwatchAtlas = function (watch, atlas) {
-        if (! atlas) return;
+        if (!atlas) return;
 
         const engineAtlas = app.assets.get(atlas);
 
@@ -56,7 +56,7 @@ editor.once('load', function () {
         const watchAtlas = function () {
             const atlas = watch.asset.get('data.textureAtlasAsset');
             currentAtlas = atlas;
-            if (! atlas) return;
+            if (!atlas) return;
 
             const atlasAsset = editor.call('assets:get', atlas);
             if (atlasAsset) {
@@ -84,7 +84,7 @@ editor.once('load', function () {
                     onChange();
                 });
 
-                if (! engineAtlas.resource) {
+                if (!engineAtlas.resource) {
                     app.assets.load(engineAtlas);
                 }
 
@@ -133,7 +133,7 @@ editor.once('load', function () {
     editor.method('assets:sprite:watch', function (args) {
         let watch = watching[args.asset.get('id')];
 
-        if (! watch) {
+        if (!watch) {
             watch = watching[args.asset.get('id')] = {
                 asset: args.asset,
                 events: {},
@@ -153,9 +153,9 @@ editor.once('load', function () {
 
     editor.method('assets:sprite:unwatch', function (asset, handle) {
         const watch = watching[asset.get('id')];
-        if (! watch) return;
+        if (!watch) return;
 
-        if (! watch.callbacks.hasOwnProperty(handle))
+        if (!watch.callbacks.hasOwnProperty(handle))
             return;
 
         delete watch.callbacks[handle];

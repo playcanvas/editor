@@ -106,7 +106,7 @@ var area = function (id, filename) {
 };
 
 onmessage = function (evt) {
-    if (! evt.data.name)
+    if (!evt.data.name)
         return;
 
     switch (evt.data.name) {

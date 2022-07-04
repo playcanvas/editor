@@ -216,7 +216,7 @@ editor.once('load', function () {
         quat.copy(gizmo.root.getRotation());
 
         // single axis
-        if (! hoverMiddle) {
+        if (!hoverMiddle) {
             // vector based on selected axis
             planeNormal.set(0, 0, 0);
             planeNormal[hoverAxis] = 1;
@@ -234,7 +234,7 @@ editor.once('load', function () {
         var pointPlaneDist = (planeNormal.dot(rayOrigin) - planeDist) / rayPlaneDot;
         var pickedPos = rayDirection.scale(-pointPlaneDist).add(rayOrigin);
 
-        if (! hoverMiddle) {
+        if (!hoverMiddle) {
             // single axis
             planeNormal.set(0, 0, 0);
             planeNormal[hoverAxis] = 1;
@@ -282,7 +282,7 @@ editor.once('load', function () {
     };
 
     var onTapMove = function (tap) {
-        if (! moving)
+        if (!moving)
             return;
 
         mouseTap = tap;
@@ -294,7 +294,7 @@ editor.once('load', function () {
 
         editor.emit('camera:toggle', true);
 
-        if (! moving)
+        if (!moving)
             return;
 
         moving = false;
@@ -314,7 +314,7 @@ editor.once('load', function () {
 
     // enable/disable gizmo
     editor.method('gizmo:scale:toggle', function (state) {
-        if (! gizmo)
+        if (!gizmo)
             return;
 
         gizmo.root.enabled = state && editor.call('permissions:write');
@@ -324,7 +324,7 @@ editor.once('load', function () {
     });
 
     editor.on('permissions:writeState', function (state) {
-        if (! gizmo)
+        if (!gizmo)
             return;
 
         gizmo.root.enabled = enabled && state;
@@ -333,13 +333,13 @@ editor.once('load', function () {
 
     // show/hide gizmo
     editor.method('gizmo:scale:visible', function (state) {
-        if (! gizmo)
+        if (!gizmo)
             return;
 
         visible = state;
 
         for (let i = 0; i < gizmo.hoverable.length; i++) {
-            if (! gizmo.hoverable[i].model)
+            if (!gizmo.hoverable[i].model)
                 continue;
 
             gizmo.hoverable[i].model.enabled = state;
@@ -367,7 +367,7 @@ editor.once('load', function () {
     // initialize gizmo
     editor.once('viewport:load', function () {
         var app = editor.call('viewport:app');
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
         immediateRenderOptions = {
             layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate'),
@@ -381,10 +381,10 @@ editor.once('load', function () {
         // on picker hover
         editor.on('viewport:pick:hover', function (node, picked) {
             var match = gizmo.hoverable.indexOf(node) !== -1;
-            if (! hover && match) {
+            if (!hover && match) {
                 // hover
                 hover = true;
-            } else if (hover && ! match) {
+            } else if (hover && !match) {
                 // unhover
                 hover = false;
             }
@@ -402,7 +402,7 @@ editor.once('load', function () {
                         }
                     }
 
-                    if (! hoverAxis && ! evtTapStart)
+                    if (!hoverAxis && !evtTapStart)
                         evtTapStart = editor.on('viewport:tap:start', onTapStart);
 
                     hoverAxis = node.axis;
@@ -490,9 +490,9 @@ editor.once('load', function () {
                 quat.invert();
 
                 // hide lines and boxes if viewed from very angle
-                gizmo.line.x.model.enabled = gizmo.box.x.model.enabled = ! (Math.abs(vecA.z) <= 0.15 && Math.abs(vecA.y) <= 0.15) && visible;
-                gizmo.line.y.model.enabled = gizmo.box.y.model.enabled = ! (Math.abs(vecA.x) <= 0.15 && Math.abs(vecA.z) <= 0.15) && visible;
-                gizmo.line.z.model.enabled = gizmo.box.z.model.enabled = ! (Math.abs(vecA.x) <= 0.15 && Math.abs(vecA.y) <= 0.15) && visible;
+                gizmo.line.x.model.enabled = gizmo.box.x.model.enabled = !(Math.abs(vecA.z) <= 0.15 && Math.abs(vecA.y) <= 0.15) && visible;
+                gizmo.line.y.model.enabled = gizmo.box.y.model.enabled = !(Math.abs(vecA.x) <= 0.15 && Math.abs(vecA.z) <= 0.15) && visible;
+                gizmo.line.z.model.enabled = gizmo.box.z.model.enabled = !(Math.abs(vecA.x) <= 0.15 && Math.abs(vecA.y) <= 0.15) && visible;
 
                 // draw axes lines
                 // line x

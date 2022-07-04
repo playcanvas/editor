@@ -102,7 +102,7 @@ editor.once('load', function () {
 
 
     var updateHex = function () {
-        if (! directInput)
+        if (!directInput)
             return;
 
         changing = true;

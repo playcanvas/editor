@@ -70,7 +70,7 @@ editor.once('load', function () {
                 if (!btnYes.disabled) {
                     btnYes.emit('click');
                 }
-            } else if (! btnNo.disabled) {
+            } else if (!btnNo.disabled) {
                 btnNo.emit('click');
             }
         } else if (evt.keyCode === 9) { // tab - focus yes / no buttons

@@ -21,9 +21,9 @@ editor.once('load', function () {
 
     var setIndex = function (type, item) {
         var key = keyByType(type);
-        if (! key) return;
+        if (!key) return;
 
-        if (! index[type])
+        if (!index[type])
             index[type] = { };
 
         index[type][item.get[key]] = item.once('destroy', function () {
@@ -40,13 +40,13 @@ editor.once('load', function () {
     };
 
     var removeIndex = function (type, item) {
-        if (! index[type]) return;
+        if (!index[type]) return;
 
         var key = keyByType(type);
-        if (! key) return;
+        if (!key) return;
 
         var ind = index[type][item.get[key]];
-        if (! ind) return;
+        if (!ind) return;
 
         ind.unbind();
     };
@@ -64,7 +64,7 @@ editor.once('load', function () {
 
         editor.emit('selector:add', item, this.type);
 
-        if (! evtChange) {
+        if (!evtChange) {
             evtChange = true;
             setTimeout(evtChangeFn, 0);
         }
@@ -92,7 +92,7 @@ editor.once('load', function () {
         if (this.length === 0)
             this.type = null;
 
-        if (! evtChange) {
+        if (!evtChange) {
             evtChange = true;
             setTimeout(evtChangeFn, 0);
         }
@@ -111,7 +111,7 @@ editor.once('load', function () {
             return;
         }
 
-        if (! enabled)
+        if (!enabled)
             return;
 
         if (selector.length && selector.type !== type) {
@@ -137,13 +137,13 @@ editor.once('load', function () {
             return;
         }
 
-        if (! enabled)
+        if (!enabled)
             return;
 
         editor.selection.clear();
         selector.clear();
 
-        if (! type || ! items.length)
+        if (!type || !items.length)
             return;
 
         // type
@@ -174,7 +174,7 @@ editor.once('load', function () {
             return;
         }
 
-        if (! enabled)
+        if (!enabled)
             return;
 
         if (selector.has(item))
@@ -200,10 +200,10 @@ editor.once('load', function () {
             return;
         }
 
-        if (! enabled)
+        if (!enabled)
             return;
 
-        if (! selector.has(item))
+        if (!selector.has(item))
             return;
 
         selector.remove(item);
@@ -214,7 +214,7 @@ editor.once('load', function () {
     editor.method('selector:clear', function (item) {
         editor.selection.clear();
 
-        if (! enabled)
+        if (!enabled)
             return;
 
         selector.clear();

@@ -15,7 +15,7 @@ editor.once('load', function () {
     editor.call('picker:project:registerMenu', 'publish', 'Publish', panel);
 
     // hide button if the user doesn't have the right permissions
-    if (! editor.call('permissions:read')) {
+    if (!editor.call('permissions:read')) {
         editor.call('picker:project:toggleMenu', 'publish', false);
     }
 
@@ -26,7 +26,7 @@ editor.once('load', function () {
 
     // disables / enables field depending on permissions
     var handlePermissions = function (field) {
-        field.disabled = ! editor.call('permissions:write');
+        field.disabled = !editor.call('permissions:write');
         return editor.on('permissions:set:' + config.self.id, function (accessLevel) {
             if (accessLevel === 'write' || accessLevel == 'admin') {
                 field.disabled = false;
@@ -119,7 +119,7 @@ editor.once('load', function () {
     });
 
     editor.on('viewport:hover', function (state) {
-        if (state && ! panel.hidden) {
+        if (state && !panel.hidden) {
             setTimeout(function () {
                 editor.emit('viewport:hover', false);
             }, 0);

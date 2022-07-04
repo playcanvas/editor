@@ -63,22 +63,22 @@ editor.once('load', function () {
 
         // Update number of frames when data.frames changes or when a new frame is added
         atlasAsset.on('*:set', function (path, value) {
-            if (! /^data\.frames(\.\d+)?$/.test(path)) return;
+            if (!/^data\.frames(\.\d+)?$/.test(path)) return;
 
             // do this in a timeout to avoid updating
             // when we add a lot of frames at once
-            if (! timeout)
+            if (!timeout)
                 timeout = setTimeout(updateFrameCount);
 
         });
 
         // Update number of frames when a frame is deleted
         atlasAsset.on('*:unset', function (path) {
-            if (! /^data\.frames\.\d+$/.test(path)) return;
+            if (!/^data\.frames\.\d+$/.test(path)) return;
 
             // do this in a timeout to avoid updating
             // when we add a lot of frames at once
-            if (! timeout)
+            if (!timeout)
                 timeout = setTimeout(updateFrameCount);
         });
 

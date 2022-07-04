@@ -5,13 +5,13 @@ editor.once('load', function () {
     var TIMEOUT_OVERLAP = 500;
     var last;
     var logo = 'https://playcanvas.com/static-assets/platform/images/logo/playcanvas-logo-360.jpg';
-    var visible = ! document.hidden;
+    var visible = !document.hidden;
 
     document.addEventListener('visibilitychange', function () {
-        if (visible === ! document.hidden)
+        if (visible === !document.hidden)
             return;
 
-        visible = ! document.hidden;
+        visible = !document.hidden;
         if (visible) {
             editor.emit('visible');
         } else {
@@ -25,14 +25,14 @@ editor.once('load', function () {
     });
 
     editor.method('notify:state', function () {
-        if (! window.Notification)
+        if (!window.Notification)
             return null;
 
         return Notification.permission;
     });
 
     editor.method('notify:permission', function (fn) {
-        if (! window.Notification)
+        if (!window.Notification)
             return;
 
         if (Notification.permission !== 'denied') {
@@ -45,7 +45,7 @@ editor.once('load', function () {
 
     editor.method('notify', function (args) {
         // no supported
-        if (! window.Notification || ! args.title || visible)
+        if (!window.Notification || !args.title || visible)
             return;
 
         args = args || { };

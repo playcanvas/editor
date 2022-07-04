@@ -37,7 +37,7 @@ editor.once('viewport:load', function () {
     });
 
     editor.on('viewport:tap:end', function (tap) {
-        if (tap.button !== 2 || ! looking)
+        if (tap.button !== 2 || !looking)
             return;
 
         looking = false;
@@ -45,7 +45,7 @@ editor.once('viewport:load', function () {
     });
 
     editor.on('viewport:tap:move', function (tap) {
-        if (! looking || tap.button !== 2)
+        if (!looking || tap.button !== 2)
             return;
 
         var camera = editor.call('camera:current');

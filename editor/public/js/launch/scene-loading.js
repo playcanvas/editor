@@ -83,7 +83,7 @@ editor.once('load', function () {
         // if no scenes have been loaded at
         // all then we are initializing
         // for the first time so load the main scene
-        if (! startedLoading) {
+        if (!startedLoading) {
             editor.call('loadScene', config.scene.uniqueId);
         }
     });

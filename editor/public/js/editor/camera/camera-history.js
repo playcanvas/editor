@@ -14,7 +14,7 @@ editor.once('load', function () {
         }
 
         var obj = editor.call('entities:get', entity.getGuid());
-        if (! obj) return;
+        if (!obj) return;
 
         camera = entity;
         overlapping = 1;
@@ -27,7 +27,7 @@ editor.once('load', function () {
     });
 
     editor.method('camera:history:stop', function (entity) {
-        if (! camera) return;
+        if (!camera) return;
 
         if (entity) {
             if (entity !== camera)
@@ -39,7 +39,7 @@ editor.once('load', function () {
         }
 
         var obj = editor.call('entities:get', camera.getGuid());
-        if (! obj) {
+        if (!obj) {
             camera = null;
             return;
         }
@@ -73,7 +73,7 @@ editor.once('load', function () {
             name: 'camera.user',
             undo: function () {
                 var item = obj.latest();
-                if (! item) return;
+                if (!item) return;
 
                 item.history.enabled = false;
                 item.set('position', posPrev);
@@ -83,7 +83,7 @@ editor.once('load', function () {
             },
             redo: function () {
                 var item = obj.latest();
-                if (! item) return;
+                if (!item) return;
 
                 item.history.enabled = false;
                 item.set('position', posCur);

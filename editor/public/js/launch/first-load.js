@@ -1,13 +1,13 @@
 (function () {
     'use strict';
 
-    var visible = ! document.hidden;
+    var visible = !document.hidden;
 
     document.addEventListener('visibilitychange', function () {
-        if (visible === ! document.hidden)
+        if (visible === !document.hidden)
             return;
 
-        visible = ! document.hidden;
+        visible = !document.hidden;
         if (visible) {
             editor.emit('visible');
         } else {

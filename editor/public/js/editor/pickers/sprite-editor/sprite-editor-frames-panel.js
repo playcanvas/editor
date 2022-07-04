@@ -75,10 +75,10 @@ editor.once('load', function () {
             btnRemove.class.add('remove');
             panel.append(btnRemove);
 
-            btnRemove.disabled = ! editor.call('permissions:write');
+            btnRemove.disabled = !editor.call('permissions:write');
 
             frameEvents.push(editor.on('permissions:writeState', function (canWrite) {
-                btnRemove.disabled = ! canWrite;
+                btnRemove.disabled = !canWrite;
             }));
 
             btnRemove.on('click', function (e) {
@@ -102,7 +102,7 @@ editor.once('load', function () {
                         const range = [];
                         while (diff !== 0) {
                             p = dir > 0 ? p.element.nextSibling : p.element.previousSibling;
-                            if (! p) break;
+                            if (!p) break;
                             p = p.ui;
 
                             range.push(p.frameKey);
@@ -212,7 +212,7 @@ editor.once('load', function () {
 
         // listen to atlas set event
         events.push(atlasAsset.on('*:set', function (path, value) {
-            if (! path.startsWith('data.frames')) return;
+            if (!path.startsWith('data.frames')) return;
 
             const parts = path.split('.');
             if (parts.length === 2) {
@@ -233,7 +233,7 @@ editor.once('load', function () {
                 // if a frame was set and it doesn't exist create it
                 const key = parts[2];
                 if (key) {
-                    if (! panels[key]) {
+                    if (!panels[key]) {
                         let panelBefore = null;
                         let panelAfter = null;
 
@@ -265,7 +265,7 @@ editor.once('load', function () {
         const checkUnsetPath = /^data\.frames\.(\d+)$/;
         events.push(atlasAsset.on('*:unset', function (path) {
             const match = path.match(checkUnsetPath);
-            if (! match) return;
+            if (!match) return;
 
             const key = match[1];
             if (panels[key]) {
@@ -283,7 +283,7 @@ editor.once('load', function () {
                 // unhighlight old keys
                 const highlighted = panelFrames.innerElement.querySelectorAll('.frame.highlighted');
                 for (let i = 0, len = highlighted.length; i < len; i++) {
-                    if (! keys || keys.indexOf(highlighted[i].ui.frameKey) === -1) {
+                    if (!keys || keys.indexOf(highlighted[i].ui.frameKey) === -1) {
                         highlighted[i].ui.class.remove('highlighted');
                     }
                 }
@@ -297,7 +297,7 @@ editor.once('load', function () {
             } else {
                 const selected = panelFrames.innerElement.querySelectorAll('.frame.selected');
                 for (let i = 0, len = selected.length; i < len; i++) {
-                    if (! keys || keys.indexOf(selected[i].ui.frameKey) === -1) {
+                    if (!keys || keys.indexOf(selected[i].ui.frameKey) === -1) {
                         selected[i].ui.class.remove('selected');
                         selected[i].ui.class.remove('sprite-frame');
                     }
@@ -316,12 +316,12 @@ editor.once('load', function () {
                     key = keys[i];
                     index[key] = true;
 
-                    if (! panels[key]) continue;
+                    if (!panels[key]) continue;
 
                     if (scrollSelectionIntoView) {
                         let scroll = false;
                         if (i === 0) {
-                            scroll = spriteEditMode ? ! panels[key].class.contains('highlighted') : ! panels[key].class.contains('selected');
+                            scroll = spriteEditMode ? !panels[key].class.contains('highlighted') : !panels[key].class.contains('selected');
                             if (scroll) {
                                 panelFrames.innerElement.scrollTop = panels[key].element.offsetTop;
                             }
@@ -357,7 +357,7 @@ editor.once('load', function () {
             const keys = spriteEditMode ? spriteEditModeKeys : selectedKeys;
             for (let i = 0, len = keys.length; i < len; i++) {
                 const panel = panels[keys[i]];
-                if (! panel) continue;
+                if (!panel) continue;
 
                 if (selectedSprite) {
                     panel.class.add('sprite-frame');

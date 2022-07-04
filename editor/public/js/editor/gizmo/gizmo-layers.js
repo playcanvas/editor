@@ -15,7 +15,7 @@ editor.once('load', function () {
             console.warn('Layer with name ' + name + ' already exists.');
         }
 
-        if (! data)
+        if (!data)
             data = {};
 
         data.id = id++;
@@ -51,9 +51,9 @@ editor.once('load', function () {
     });
 
     editor.method('gizmo:layers:removeFromComposition', function (composition) {
-        if (! composition) {
+        if (!composition) {
             var app = editor.call('viewport:app');
-            if (! app) return;
+            if (!app) return;
             composition = app.scene.layers;
         }
 
@@ -67,9 +67,9 @@ editor.once('load', function () {
     });
 
     editor.method('gizmo:layers:addToComposition', function (composition) {
-        if (! composition) {
+        if (!composition) {
             var app = editor.call('viewport:app');
-            if (! app) return;
+            if (!app) return;
 
             composition = app.scene.layers;
 
@@ -133,7 +133,7 @@ editor.once('load', function () {
 
     editor.once('viewport:load', function () {
         var app = editor.call('viewport:app');
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
         editor.call('gizmo:layers:addToComposition');
     });

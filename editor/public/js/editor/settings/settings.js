@@ -40,7 +40,7 @@ editor.once('load', function () {
                 delete data.branch_id;
                 delete data.checkpoint_id;
 
-                if (! settings.sync) {
+                if (!settings.sync) {
                     settings.sync = new ObserverSync({
                         item: settings,
                         paths: Object.keys(settings._data)
@@ -91,7 +91,7 @@ editor.once('load', function () {
             doc.subscribe();
         };
 
-        if (! args.deferLoad) {
+        if (!args.deferLoad) {
             editor.on('realtime:authenticated', function () {
                 settings.reload();
             });

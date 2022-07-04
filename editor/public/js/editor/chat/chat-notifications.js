@@ -20,7 +20,7 @@ editor.once('load', function () {
         var granted = editor.call('localStorage:get', 'editor:notifications:chat');
         var visible = editor.call('visibility');
 
-        if (! visible) {
+        if (!visible) {
             number++;
             editor.call('notify:title', '(' + number + ') ' + config.project.name + ' | Editor');
         }
@@ -36,7 +36,7 @@ editor.once('load', function () {
         if (type === 'system') {
             title = 'System Message';
 
-        } else if (typeof(type) === 'number') {
+        } else if (typeof type === 'number') {
             var user = editor.call('users:get', type);
             title = 'Message from ' + (user && ('@' + user.username) || 'a user');
             icon = '/api/users/' + user.id + '/thumbnail?size=128';

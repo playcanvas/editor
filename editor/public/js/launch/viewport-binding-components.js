@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     // converts the data to runtime types
     var runtimeComponentData = function (component, data) {
@@ -82,11 +82,11 @@ editor.once('load', function () {
 
         // subscribe to changes
         obj.on('*:set', function (path, value) {
-            if (obj._silent || ! path.startsWith('components'))
+            if (obj._silent || !path.startsWith('components'))
                 return;
 
             var entity = app.root.findByGuid(obj.get('resource_id'));
-            if (! entity)
+            if (!entity)
                 return;
 
             var parts = path.split('.');
@@ -113,33 +113,33 @@ editor.once('load', function () {
 
 
         obj.on('*:unset', function (path) {
-            if (obj._silent || ! path.startsWith('components'))
+            if (obj._silent || !path.startsWith('components'))
                 return;
 
             var entity = app.root.findByGuid(obj.get('resource_id'));
-            if (! entity) return;
+            if (!entity) return;
 
             var parts = path.split('.');
             var component = parts[1];
             var property = parts[2];
 
             if (property) {
-                if (component === 'script' && property === 'scripts' && ! editor.call('settings:project').get('useLegacyScripts')) {
-                    if (! entity.script || parts.length <= 3)
+                if (component === 'script' && property === 'scripts' && !editor.call('settings:project').get('useLegacyScripts')) {
+                    if (!entity.script || parts.length <= 3)
                         return;
 
                     var script = entity.script[parts[3]];
-                    if (! script)
+                    if (!script)
                         return;
 
                     if (parts.length === 4) {
                         // remove script
                         entity.script.destroy(parts[3]);
-                    } else if (parts.length === 6 && parts[4] === 'attributes' && ! pc.createScript.reservedAttributes[parts[5]]) {
+                    } else if (parts.length === 6 && parts[4] === 'attributes' && !pc.createScript.reservedAttributes[parts[5]]) {
                         // unset attribute
                         delete script[parts[5]];
                         delete script.__attributes[parts[5]];
-                    } else if (parts.length > 6 && parts[4] === 'attributes' && ! pc.createScript.reservedAttributes[parts[5]]) {
+                    } else if (parts.length > 6 && parts[4] === 'attributes' && !pc.createScript.reservedAttributes[parts[5]]) {
                         // update attribute
                         script[parts[5]] = obj.get('components.script.scripts.' + parts[3] + '.attributes.' + parts[5]);
                     }
@@ -157,11 +157,11 @@ editor.once('load', function () {
         });
 
         var setComponentProperty = function (path, value, ind) {
-            if (obj._silent || ! path.startsWith('components'))
+            if (obj._silent || !path.startsWith('components'))
                 return;
 
             var entity = app.root.findByGuid(obj.get('resource_id'));
-            if (! entity) return;
+            if (!entity) return;
 
             var parts = path.split('.');
             var component = parts[1];
@@ -173,14 +173,14 @@ editor.once('load', function () {
                         // update script order
                         entity.script.move(value, ind);
                     } else if (property === 'scripts') {
-                        if (! entity.script || parts.length <= 3)
+                        if (!entity.script || parts.length <= 3)
                             return;
 
                         var script = entity.script[parts[3]];
-                        if (! script)
+                        if (!script)
                             return;
 
-                        if (parts.length > 6 && parts[4] === 'attributes' && ! pc.createScript.reservedAttributes[parts[5]]) {
+                        if (parts.length > 6 && parts[4] === 'attributes' && !pc.createScript.reservedAttributes[parts[5]]) {
                             // update attribute
                             script[parts[5]] = obj.get('components.script.scripts.' + parts[3] + '.attributes.' + parts[5]);
                         }

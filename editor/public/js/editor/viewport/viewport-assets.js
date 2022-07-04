@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     const app = editor.call('viewport:app');
-    if (! app) return;
+    if (!app) return;
 
     const assets = app.assets;
 
@@ -53,7 +53,7 @@ editor.once('load', function () {
                         }
                     }
 
-                    if (! assetEngine.data.frames) {
+                    if (!assetEngine.data.frames) {
                         assetEngine.data.frames = {};
                     }
                     assetEngine.data.frames[frameKey] = frame;

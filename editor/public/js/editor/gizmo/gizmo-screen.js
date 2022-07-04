@@ -83,7 +83,7 @@ editor.once('load', function () {
             };
 
             const removeGizmo = function () {
-                if (! entities[key])
+                if (!entities[key])
                     return;
 
                 const e = app.root.findByGuid(key);
@@ -120,7 +120,7 @@ editor.once('load', function () {
 
             for (const key in entities) {
                 const entity = app.root.findByGuid(key);
-                if (! entity)
+                if (!entity)
                     continue;
 
                 const isScreenSpace = entities[key].entity.get('components.screen.screenSpace');

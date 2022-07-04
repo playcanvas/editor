@@ -42,7 +42,7 @@ editor.once('viewport:load', function () {
     });
 
     editor.on('camera:change', function (camera) {
-        if (! camera.focus)
+        if (!camera.focus)
             return;
 
         pivot.copy(camera.focus);
@@ -96,7 +96,7 @@ editor.once('viewport:load', function () {
     });
 
     editor.on('viewport:tap:end', function (tap) {
-        if (tap.button !== 0 || ! orbiting)
+        if (tap.button !== 0 || !orbiting)
             return;
 
         orbiting = false;
@@ -104,7 +104,7 @@ editor.once('viewport:load', function () {
     });
 
     editor.on('viewport:tap:move', function (tap) {
-        if (! orbiting || tap.button !== 0)
+        if (!orbiting || tap.button !== 0)
             return;
 
         pitch = Math.max(-89.99, Math.min(89.99, pitch - (tap.y - tap.ly) * sensivity));
@@ -114,7 +114,7 @@ editor.once('viewport:load', function () {
     });
 
     editor.on('camera:toggle', function (state) {
-        if (! state && orbiting) {
+        if (!state && orbiting) {
             orbiting = false;
             editor.call('camera:history:stop', orbitCamera);
         }

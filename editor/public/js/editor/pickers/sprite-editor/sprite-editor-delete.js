@@ -6,10 +6,10 @@ editor.once('load', function () {
     // Options can be:
     // - history: if true then make this undoable
     editor.method('picker:sprites:deleteFrames', function (keys, options) {
-        if (! editor.call('permissions:write')) return;
+        if (!editor.call('permissions:write')) return;
 
         var atlasAsset = editor.call('picker:sprites:atlasAsset');
-        if (! atlasAsset)
+        if (!atlasAsset)
             return;
 
         var history = options && options.history;
@@ -29,7 +29,7 @@ editor.once('load', function () {
 
         var redo = function () {
             var asset = editor.call('assets:get', atlasAsset.get('id'));
-            if (! asset) return;
+            if (!asset) return;
             var history = asset.history.enabled;
             asset.history.enabled = false;
 
@@ -47,7 +47,7 @@ editor.once('load', function () {
         if (history) {
             var undo = function () {
                 var asset = editor.call('assets:get', atlasAsset.get('id'));
-                if (! asset) return;
+                if (!asset) return;
                 var history = asset.history.enabled;
                 asset.history.enabled = false;
 

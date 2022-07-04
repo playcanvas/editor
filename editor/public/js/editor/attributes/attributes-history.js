@@ -17,7 +17,7 @@ editor.once('load', function () {
 
     var selectorReturn = function () {
         var item = getLast();
-        if (! item)
+        if (!item)
             return;
 
         // remove last one
@@ -50,7 +50,7 @@ editor.once('load', function () {
 
         updateTooltipContent();
 
-        if (! type || ! items)
+        if (!type || !items)
             return;
 
         var last = getLast();
@@ -65,7 +65,7 @@ editor.once('load', function () {
     });
 
     var getLast = function () {
-        if (! list.length)
+        if (!list.length)
             return;
 
         var ignoreType = editor.call('selector:type');
@@ -88,13 +88,13 @@ editor.once('load', function () {
     var updateTooltipContent = function () {
         var item = getLast();
 
-        if (! item && ! btnBack.hidden) {
+        if (!item && !btnBack.hidden) {
             btnBack.hidden = true;
         } else if (item && btnBack.hidden) {
             btnBack.hidden = false;
         }
 
-        if (item && ! tooltip.hidden) {
+        if (item && !tooltip.hidden) {
             if (item.type === 'entity') {
                 if (item.items.length === 1) {
                     setTooltipText(item.items[0].get('name') + ' [entity]');

@@ -31,7 +31,7 @@ editor.once('load', function () {
     panelTypeName.append(fieldName);
 
     fieldName.elementInput.addEventListener('keydown', function (e) {
-        if (e.keyCode === 13 && ! panel.buttonConfirm.disabled) {
+        if (e.keyCode === 13 && !panel.buttonConfirm.disabled) {
             panel.emit('confirm');
         }
     });
@@ -57,7 +57,7 @@ editor.once('load', function () {
 
     panel.buttonConfirm.disabled = true;
     fieldName.on('change', function () {
-        if (! panel.branch) return;
+        if (!panel.branch) return;
 
         panel.buttonConfirm.disabled = fieldName.value.toLowerCase() !== panel.branch.name.toLowerCase();
     });

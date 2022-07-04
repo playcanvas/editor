@@ -1,5 +1,5 @@
 onmessage = function (evt) {
-    if (! evt.data.name)
+    if (!evt.data.name)
         return;
 
     switch (evt.data.name) {
@@ -47,11 +47,11 @@ var parseScript = function (id, url, engine) {
         }
 
         if (valid) {
-            if (! name) {
+            if (!name) {
                 __results.scriptsInvalid.push('script name must be defined');
                 valid = false;
                 name = 'script';
-            } else if (typeof(name) !== 'string') {
+            } else if (typeof name !== 'string') {
                 __results.scriptsInvalid.push('script name must be a string');
                 valid = false;
                 name = 'script';
@@ -80,17 +80,17 @@ var parseScript = function (id, url, engine) {
             const enumIndex = { };
 
             for (let i = 0; i < args.enum.length; i++) {
-                if (typeof(args.enum[i]) !== 'object' || args.enum[i] instanceof Array) {
+                if (typeof args.enum[i] !== 'object' || args.enum[i] instanceof Array) {
                     return 'option must be an object';
                 } else if (Object.keys(args.enum[i]).length !== 1) {
                     return 'option must have one key';
-                } else if (args.type === 'number' && typeof(parseInt(args.enum[i][Object.keys(args.enum[i])[0]], 10)) !== 'number') {
+                } else if (args.type === 'number' && typeof parseInt(args.enum[i][Object.keys(args.enum[i])[0]], 10) !== 'number') {
                     return 'option value must be a number';
-                } else if (args.type === 'string' && typeof(args.enum[i][Object.keys(args.enum[i])[0]]) !== 'string') {
+                } else if (args.type === 'string' && typeof (args.enum[i][Object.keys(args.enum[i])[0]]) !== 'string') {
                     return 'option value must be a string';
-                } else if (args.type === 'boolean' && typeof(args.enum[i][Object.keys(args.enum[i])[0]]) !== 'boolean') {
+                } else if (args.type === 'boolean' && typeof (args.enum[i][Object.keys(args.enum[i])[0]]) !== 'boolean') {
                     return 'option value must be a boolean';
-                } else if (['rgb', 'rgba', 'vec2', 'vec3', 'vec4'].indexOf(args.type) !== -1 && ! (args.enum[i][Object.keys(args.enum[i])[0]] instanceof Array)) {
+                } else if (['rgb', 'rgba', 'vec2', 'vec3', 'vec4'].indexOf(args.type) !== -1 && !(args.enum[i][Object.keys(args.enum[i])[0]] instanceof Array)) {
                     return 'option value must be an array';
                 }
 
@@ -135,15 +135,15 @@ var parseScript = function (id, url, engine) {
         // attributes
         obj[name].attributes = {
             add: function (attr, args) {
-                if (! valid)
+                if (!valid)
                     return;
 
                 var script = __results.scripts[name];
 
-                if (! attr) {
+                if (!attr) {
                     script.attributesInvalid.push('attribute name must be defined');
                     return;
-                } else if (typeof(attr) !== 'string') {
+                } else if (typeof attr !== 'string') {
                     script.attributesInvalid.push('attribute name must be a string');
                     return;
                 } else if (attr.indexOf('.') !== -1) {
@@ -156,18 +156,18 @@ var parseScript = function (id, url, engine) {
                     return;
                 }
 
-                if (! args) {
+                if (!args) {
                     script.attributesInvalid.push('attribute `' + attr + '` args must be defined');
                     return;
-                } else if (typeof(args) !== 'object') {
+                } else if (typeof args !== 'object') {
                     script.attributesInvalid.push('attribute `' + attr + '` args must be an object');
                     return;
                 }
 
-                if (! args.hasOwnProperty('type')) {
+                if (!args.hasOwnProperty('type')) {
                     script.attributesInvalid.push('attribute `' + attr + '` args.type must be defined');
                     return;
-                } else if (typeof(args.type) !== 'string') {
+                } else if (typeof args.type !== 'string') {
                     script.attributesInvalid.push('attribute `' + attr + '` args.type must be a string');
                     return;
                 } else if (
@@ -296,31 +296,31 @@ var parseScript = function (id, url, engine) {
 
         defaultValidators = {
             vec2: function (value) {
-                if (! (value instanceof Array) || value.length !== 2) {
+                if (!(value instanceof Array) || value.length !== 2) {
                     return 'needs to be an array of 2 numbers';
                 }
                 return null;
             },
             vec3: function (value) {
-                if (! (value instanceof Array) || value.length !== 3) {
+                if (!(value instanceof Array) || value.length !== 3) {
                     return 'needs to be an array of 3 numbers';
                 }
                 return null;
             },
             vec4: function (value) {
-                if (! (value instanceof Array) || value.length !== 4) {
+                if (!(value instanceof Array) || value.length !== 4) {
                     return 'needs to be an array of 4 numbers';
                 }
                 return null;
             },
             rgb: function (value) {
-                if (! (value instanceof Array) || value.length !== 3) {
+                if (!(value instanceof Array) || value.length !== 3) {
                     return 'needs to be an array of 3 numbers';
                 }
                 return null;
             },
             rgba: function (value) {
-                if (! (value instanceof Array) || value.length !== 4) {
+                if (!(value instanceof Array) || value.length !== 4) {
                     return 'needs to be an array of 4 numbers';
                 }
                 return null;
@@ -383,7 +383,7 @@ var parseScript = function (id, url, engine) {
         // extend
         obj[name].extend = function (methods) {
             for (const key in methods) {
-                if (! methods.hasOwnProperty(key))
+                if (!methods.hasOwnProperty(key))
                     continue;
 
                 obj[name].prototype[key] = methods[key];

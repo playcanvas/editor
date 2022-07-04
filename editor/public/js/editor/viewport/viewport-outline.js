@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     const app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     const renderer = app.renderer;
     const device = renderer.device;
@@ -57,7 +57,7 @@ editor.once('load', function () {
         if (selection[config.self.id])
             render -= selection[config.self.id].length;
 
-        if (! selection[config.self.id])
+        if (!selection[config.self.id])
             users.unshift(config.self.id);
 
         selection[config.self.id] = [];
@@ -83,7 +83,7 @@ editor.once('load', function () {
         if (selection[user])
             render -= selection[user].length;
 
-        if (! selection[user])
+        if (!selection[user])
             users.push(user);
 
         selection[user] = [];
@@ -107,7 +107,7 @@ editor.once('load', function () {
     });
 
     editor.on('whoisonline:remove', function (id) {
-        if (! selection[id])
+        if (!selection[id])
             return;
 
         render -= selection[id].length;
@@ -260,7 +260,7 @@ void main(void)
 
     // ### RENDER EVENT ###
     editor.on('viewport:postUpdate', function () {
-        if (! render && cleared) return;
+        if (!render && cleared) return;
 
         if (!render && !cleared) {
             viewportLayer.enabled = false;
@@ -275,7 +275,7 @@ void main(void)
             targets = [];
             textures = [];
         }
-        if (! targets[0]) {
+        if (!targets[0]) {
             for (let i = 0; i < 2; i++) {
                 textures[i] = new pc.Texture(device, {
                     format: pc.PIXELFORMAT_R8_G8_B8_A8,
@@ -310,7 +310,7 @@ void main(void)
                 for (let u = 0; u < users.length; u++) {
                     const id = parseInt(users[u], 10);
 
-                    if (! selection.hasOwnProperty(id) || ! selection[id].length)
+                    if (!selection.hasOwnProperty(id) || !selection[id].length)
                         continue;
 
                     let color = colors[id];
@@ -325,7 +325,7 @@ void main(void)
                     }
 
                     for (let i = 0; i < selection[id].length; i++) {
-                        if (! selection[id][i])
+                        if (!selection[id][i])
                             continue;
 
                         let srcMeshInstances = null;

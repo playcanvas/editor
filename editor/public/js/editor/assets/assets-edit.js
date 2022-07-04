@@ -24,7 +24,7 @@ editor.once('load', function () {
 
     var dblClick = function (key, asset) {
         var gridItem = editor.call('assets:panel:get', asset.get(key));
-        if (! gridItem)
+        if (!gridItem)
             return;
 
         gridItem.element.addEventListener('dblclick', function (evt) {
@@ -33,7 +33,7 @@ editor.once('load', function () {
     };
 
     editor.on('assets:add', function (asset) {
-        if (! types[asset.get('type')])
+        if (!types[asset.get('type')])
             return;
 
         dblClick('id', asset);

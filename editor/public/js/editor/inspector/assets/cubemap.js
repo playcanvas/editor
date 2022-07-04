@@ -182,7 +182,7 @@ Object.assign(pcui, (function () {
                 if (!asset)
                     return 'missing face asset';
 
-                if (!asset.has('meta.width') || ! asset.has('meta.height'))
+                if (!asset.has('meta.width') || !asset.has('meta.height'))
                     return 'no texture resolution data available';
 
                 const w = asset.get('meta.width');

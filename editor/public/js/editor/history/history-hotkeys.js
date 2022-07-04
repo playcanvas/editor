@@ -14,7 +14,7 @@ editor.once('load', function () {
         key: 'z',
         ctrl: true,
         callback: function () {
-            if (! editor.call('permissions:write'))
+            if (!editor.call('permissions:write'))
                 return;
 
             if (editor.call('picker:isOpen:otherThan', hotkeyExceptions)) return;
@@ -29,7 +29,7 @@ editor.once('load', function () {
         ctrl: true,
         shift: true,
         callback: function () {
-            if (! editor.call('permissions:write'))
+            if (!editor.call('permissions:write'))
                 return;
 
             if (editor.call('picker:isOpen:otherThan', hotkeyExceptions)) return;
@@ -43,7 +43,7 @@ editor.once('load', function () {
         key: 'y',
         ctrl: true,
         callback: function () {
-            if (! editor.call('permissions:write'))
+            if (!editor.call('permissions:write'))
                 return;
 
             if (editor.call('picker:isOpen:otherThan', hotkeyExceptions)) return;

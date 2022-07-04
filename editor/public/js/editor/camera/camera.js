@@ -12,7 +12,7 @@ editor.once('load', function () {
         let evtLayersRemove = null;
 
         const app = editor.call('viewport:app');
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
         const projectSettings = editor.call('settings:project');
 
@@ -54,9 +54,9 @@ editor.once('load', function () {
         };
 
         editor.method('camera:set', function (entity) {
-            if (! entity) entity = defaultCamera;
+            if (!entity) entity = defaultCamera;
 
-            if (currentCamera === entity || ! entity.camera)
+            if (currentCamera === entity || !entity.camera)
                 return;
 
             const gizmoLayers = editor.call('gizmo:layers:list');
@@ -92,7 +92,7 @@ editor.once('load', function () {
             // if this is a user's camera and the user changes its layers
             // make sure we re-add editor layers to this camera if this is the selected viewport
             // camera at the moment
-            if (! entity.__editorCamera) {
+            if (!entity.__editorCamera) {
                 const fixLayers = function () {
                     if (entity !== currentCamera) return;
 
@@ -133,7 +133,7 @@ editor.once('load', function () {
         });
 
         editor.method('camera:remove', function (entity) {
-            if (! camerasIndex[entity.getGuid()])
+            if (!camerasIndex[entity.getGuid()])
                 return;
 
             delete camerasIndex[entity.getGuid()];
@@ -252,7 +252,7 @@ editor.once('load', function () {
 
             editor.call('camera:add', entity);
 
-            if (list[i].default && ! defaultCamera) {
+            if (list[i].default && !defaultCamera) {
                 defaultCamera = entity;
                 editor.call('camera:set', entity);
             }

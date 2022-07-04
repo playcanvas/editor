@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     const app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     const watching = { };
 
@@ -18,13 +18,13 @@ editor.once('load', function () {
         if (file && file.url) {
             url = file.url;
 
-            if (app.assets.prefix && ! pc.ABSOLUTE_URL.test(url))
+            if (app.assets.prefix && !pc.ABSOLUTE_URL.test(url))
                 url = app.assets.prefix + url;
 
             url = url.appendQuery('t=' + file.hash);
         }
 
-        if (url && (reload || ! asset._editorPreviewModel)) {
+        if (url && (reload || !asset._editorPreviewModel)) {
             app.assets._loader.load(url, asset.type, function (err, resource, extra) {
                 if (resource instanceof Array) {
                     asset._editorPreviewModel = resource[0];
@@ -33,7 +33,7 @@ editor.once('load', function () {
                 }
                 trigger(watch);
             });
-        } else if (! url && asset._editorPreviewModel) {
+        } else if (!url && asset._editorPreviewModel) {
             asset._editorPreviewModel = null;
             trigger(watch);
         }
@@ -83,7 +83,7 @@ editor.once('load', function () {
     editor.method('assets:model:watch', function (args) {
         let watch = watching[args.asset.get('id')];
 
-        if (! watch) {
+        if (!watch) {
             watch = watching[args.asset.get('id')] = {
                 asset: args.asset,
                 engineAsset: null,
@@ -119,9 +119,9 @@ editor.once('load', function () {
 
     editor.method('assets:model:unwatch', function (asset, handle) {
         const watch = watching[asset.get('id')];
-        if (! watch) return;
+        if (!watch) return;
 
-        if (! watch.callbacks.hasOwnProperty(handle))
+        if (!watch.callbacks.hasOwnProperty(handle))
             return;
 
         if (watch.callbacks[handle].autoLoad)

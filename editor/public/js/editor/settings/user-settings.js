@@ -25,7 +25,7 @@ editor.once('load', function () {
             var history = settings.history.enabled;
             settings.history.enabled = false;
 
-            if (! settings.has('editor.showSkeleton'))
+            if (!settings.has('editor.showSkeleton'))
                 settings.set('editor.showSkeleton', true);
 
             settings.history.enabled = history;

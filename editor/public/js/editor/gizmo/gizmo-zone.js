@@ -24,7 +24,7 @@ editor.once('load', function () {
             return mi.__useFrontLayer;
         });
         const backMeshInstances = this.meshInstances.filter(function (mi) {
-            return ! mi.__useFrontLayer;
+            return !mi.__useFrontLayer;
         });
 
         // layerBack.addMeshInstances(frontMeshInstances);
@@ -35,7 +35,7 @@ editor.once('load', function () {
         if (state === undefined)
             return visible;
 
-        if (visible === !! state)
+        if (visible === !!state)
             return;
 
         visible = state;
@@ -53,7 +53,7 @@ editor.once('load', function () {
 
     editor.once('viewport:load', function () {
         app = editor.call('viewport:app');
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
         const container = new pc.Entity();
         container.name = 'zones';
@@ -175,7 +175,7 @@ void main(void)
         let shaderDefault;
         const materialDefault = new pc.BasicMaterial();
         materialDefault.updateShader = function (device) {
-            if (! shaderDefault) {
+            if (!shaderDefault) {
                 shaderDefault = new pc.Shader(device, {
                     attributes: {
                         aPosition: pc.SEMANTIC_POSITION,
@@ -277,20 +277,20 @@ void main(void)
 
         // update lines
         Gizmo.prototype.update = function () {
-            if (! this._link || ! this._link.entity)
+            if (!this._link || !this._link.entity)
                 return;
 
             const zone = this._link.entity.zone;
             const select = selected[this._link.get('resource_id')] === this._link;
 
             this.entity.enabled = this._link.entity.enabled && zone && zone.enabled && (select || visible);
-            if (! this.entity.enabled)
+            if (!this.entity.enabled)
                 return;
 
             if (this.type !== 'box') {
                 this.type = 'box';
 
-                if (! this.color && this._link.entity) {
+                if (!this.color && this._link.entity) {
                     let hash = 0;
                     const string = this._link.entity.getGuid();
                     for (let i = 0; i < string.length; i++)
@@ -308,7 +308,7 @@ void main(void)
                     }
 
                     model = poolModels[this.type].shift();
-                    if (! model) {
+                    if (!model) {
                         model = models[this.type].clone();
                         model._type = this.type;
 
@@ -399,7 +399,7 @@ void main(void)
 
         // unlink
         Gizmo.prototype.unlink = function () {
-            if (! this._link)
+            if (!this._link)
                 return;
 
             for (let i = 0; i < this.events.length; i++)
@@ -440,7 +440,7 @@ void main(void)
         };
 
         const onPointDragStart = function () {
-            if (! editor.call('permissions:write'))
+            if (!editor.call('permissions:write'))
                 return;
 
             dragPoint = hoverPoint;
@@ -487,7 +487,7 @@ void main(void)
                 name: 'entity.zone',
                 undo: function () {
                     const item = link.latest();
-                    if (! item) return;
+                    if (!item) return;
 
                     item.history.enabled = false;
                     item.set('position', prevPosition);
@@ -496,7 +496,7 @@ void main(void)
                 },
                 redo: function () {
                     const item = link.latest();
-                    if (! item) return;
+                    if (!item) return;
 
                     item.history.enabled = false;
                     item.set('position', newPosition);
@@ -545,7 +545,7 @@ void main(void)
         };
 
         editor.on('permissions:writeState', function (state) {
-            if (! points || ! points.length)
+            if (!points || !points.length)
                 return;
 
             for (let i = 0; i < points.length; i++)
@@ -636,7 +636,7 @@ void main(void)
                     return;
 
                 let gizmo = pool.shift();
-                if (! gizmo)
+                if (!gizmo)
                     gizmo = new Gizmo();
 
                 gizmo.link(entity);
@@ -646,7 +646,7 @@ void main(void)
             };
 
             const removeGizmo = function () {
-                if (! entities[key])
+                if (!entities[key])
                     return;
 
                 pool.push(entities[key]);
@@ -684,7 +684,7 @@ void main(void)
                 entities[key].update();
 
             if (zones === 1) {
-                if (! points.length)
+                if (!points.length)
                     pointsCreate();
 
                 pointsUpdate();

@@ -6,7 +6,7 @@ editor.once('load', function () {
         this._inTools = true;
         pc.app = this;
 
-        if (! this.scene)
+        if (!this.scene)
             this.scene = new pc.Scene();
 
         for (const key in this.systems) {

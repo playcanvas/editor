@@ -165,7 +165,7 @@ editor.once('load', function () {
                             // get link again in case it changed
                             link = link.latest();
 
-                            if (! link) return;
+                            if (!link) return;
 
                             // store previous array
                             var path = pathAt(args, i);
@@ -174,12 +174,12 @@ editor.once('load', function () {
                         });
 
                         args.link.forEach(function (link, i) {
-                            if (! prev[i]) return;
+                            if (!prev[i]) return;
 
                             // get link again in case it changed
                             link = link.latest();
 
-                            if (! link) return;
+                            if (!link) return;
 
                             // copy array and remove
                             // the element at the relevant row
@@ -190,7 +190,7 @@ editor.once('load', function () {
                             var history = link.history.enabled;
                             link.history.enabled = false;
 
-                            if (arr[0] !== null && typeof(arr[0]) === 'object') {
+                            if (arr[0] !== null && typeof arr[0] === 'object') {
                                 link.set(pathAt(args, i), []);
                                 arr.forEach(function (element) {
                                     link.insert(pathAt(args, i), element);
@@ -205,12 +205,12 @@ editor.once('load', function () {
 
                     var undo = function () {
                         args.link.forEach(function (link, i) {
-                            if (! prev[i]) return;
+                            if (!prev[i]) return;
 
                             // get link again in case it changed
                             link = link.latest();
 
-                            if (! link) return;
+                            if (!link) return;
 
                             var path = pathAt(args, i);
 
@@ -219,7 +219,7 @@ editor.once('load', function () {
                             link.history.enabled = false;
 
                             var arr = prev[i];
-                            if (arr[0] !== null && typeof(arr[0]) === 'object') {
+                            if (arr[0] !== null && typeof arr[0] === 'object') {
                                 link.set(pathAt(args, i), []);
                                 arr.forEach(function (element) {
                                     link.insert(pathAt(args, i), element);
@@ -249,7 +249,7 @@ editor.once('load', function () {
                 row++;
 
                 for (let i = 0; i < allArrays.length; i++) {
-                    if (! allArrays[i] || (! (allArrays[i] instanceof Array)) || allArrays[i].length <= row) {
+                    if (!allArrays[i] || (!(allArrays[i] instanceof Array)) || allArrays[i].length <= row) {
                         rowExistsEverywhere = false;
                         break;
                     }
@@ -317,7 +317,7 @@ editor.once('load', function () {
                     // get link again in case it changed
                     link = link.latest();
 
-                    if (! link) return;
+                    if (!link) return;
 
                     // store previous array
                     var path = pathAt(args, i);
@@ -326,12 +326,12 @@ editor.once('load', function () {
                 });
 
                 args.link.forEach(function (link, i) {
-                    if (! prev[i]) return;
+                    if (!prev[i]) return;
 
                     // get link again in case it changed
                     link = link.latest();
 
-                    if (! link) return;
+                    if (!link) return;
 
                     // resize array
                     var arr = prev[i].slice();
@@ -344,7 +344,7 @@ editor.once('load', function () {
                     var history = link.history.enabled;
                     link.history.enabled = false;
 
-                    if (arr[0] !== null && typeof(arr[0]) === 'object') {
+                    if (arr[0] !== null && typeof arr[0] === 'object') {
                         link.set(pathAt(args, i), []);
                         arr.forEach(function (element) {
                             link.insert(pathAt(args, i), element);
@@ -364,12 +364,12 @@ editor.once('load', function () {
                 suspendSizeEvents = true;
 
                 args.link.forEach(function (link, i) {
-                    if (! prev[i]) return;
+                    if (!prev[i]) return;
 
                     // get link again in case it changed
                     link = link.latest();
 
-                    if (! link) return;
+                    if (!link) return;
 
                     var path = pathAt(args, i);
 
@@ -378,7 +378,7 @@ editor.once('load', function () {
                     link.history.enabled = false;
 
                     var arr = prev[i];
-                    if (arr[0] !== null && typeof(arr[0]) === 'object') {
+                    if (arr[0] !== null && typeof arr[0] === 'object') {
                         link.set(pathAt(args, i), []);
                         arr.forEach(function (element) {
                             link.insert(pathAt(args, i), element);

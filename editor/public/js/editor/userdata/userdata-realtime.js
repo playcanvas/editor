@@ -4,7 +4,7 @@ editor.once('load', function () {
     var userData = null;
 
     var loadUserData = function () {
-        if (! userData && config.scene.id) {
+        if (!userData && config.scene.id) {
             userData = editor.call('realtime:subscribe:userdata', config.scene.uniqueId, config.self.id);
         }
     };
@@ -45,7 +45,7 @@ editor.once('load', function () {
 
     // write userdata operations
     editor.method('realtime:userdata:op', function (op) {
-        if (! editor.call('permissions:read') || ! userData)
+        if (!editor.call('permissions:read') || !userData)
             return;
 
         // console.trace();

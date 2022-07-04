@@ -7,7 +7,7 @@ editor.once('load', function () {
     const notifyTypers = function () {
         const typers = [];
         for (const id in users) {
-            if (! users.hasOwnProperty(id) || ! users[id].typing)
+            if (!users.hasOwnProperty(id) || !users[id].typing)
                 continue;
 
             typers.push(id);
@@ -30,7 +30,7 @@ editor.once('load', function () {
             };
 
             editor.call('users:loadOne', id, function (user) {
-                if (! users[id])
+                if (!users[id])
                     return;
 
                 users[id].username = user.username;
@@ -48,7 +48,7 @@ editor.once('load', function () {
         if (data.name !== 'project-' + config.project.id) return;
 
         const id = data.userId;
-        if (! users[id])
+        if (!users[id])
             return;
 
         if (users[id].typing) {
@@ -60,7 +60,7 @@ editor.once('load', function () {
     });
 
     editor.method('chat:sync:typing', function (data) {
-        if (! users[data.from] || data.from === config.self.id || users[data.from].typing === data.d)
+        if (!users[data.from] || data.from === config.self.id || users[data.from].typing === data.d)
             return;
 
         users[data.from].typing = data.d;

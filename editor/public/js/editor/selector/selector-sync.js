@@ -24,7 +24,7 @@ editor.once('load', function () {
         } else if (type === 'asset') {
             for (let i = 0; i < items.length; i++) {
                 var id = items[i].get('id');
-                if (items[i].get('type') === 'script' && ! id) {
+                if (items[i].get('type') === 'script' && !id) {
                     ids.push(items[i].get('filename'));
                 } else {
                     ids.push(id);
@@ -40,7 +40,7 @@ editor.once('load', function () {
         if (lastSelectionType !== selectionType)
             changed = true;
 
-        if (! changed) {
+        if (!changed) {
             if (ids.length !== lastIds.length) {
                 changed = true;
             } else {

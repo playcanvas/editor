@@ -33,7 +33,7 @@ editor.once('load', function () {
             } else {
                 renderCamera = true;
             }
-        } else if (selectedEntity && selectedEntity.entity && ! (currentCamera && selectedEntity.entity === currentCamera) && selectedEntity.has('components.camera')) {
+        } else if (selectedEntity && selectedEntity.entity && !(currentCamera && selectedEntity.entity === currentCamera) && selectedEntity.has('components.camera')) {
             renderCamera = true;
         } else {
             renderCamera = false;
@@ -138,7 +138,7 @@ editor.once('load', function () {
 
     cameraPreviewBorder.addEventListener('click', function () {
         const obj = pinnedCamera || selectedEntity;
-        if (! obj || ! obj.entity || ! editor.call('permissions:write'))
+        if (!obj || !obj.entity || !editor.call('permissions:write'))
             return;
 
         editor.call('camera:set', obj.entity);
@@ -166,7 +166,7 @@ editor.once('load', function () {
     });
 
     editor.on('camera:change', function (camera) {
-        if (camera && ! camera.__editorCamera) {
+        if (camera && !camera.__editorCamera) {
             currentCamera = camera;
         } else {
             currentCamera = null;

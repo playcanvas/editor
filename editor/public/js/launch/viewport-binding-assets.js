@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     var regexFrameUpdate = /^data\.frames\.(\d+)/;
     var regexFrameRemove = /^data\.frames\.(\d+)$/;
@@ -42,7 +42,7 @@ editor.once('load', function () {
                             }
                         }
 
-                        if (! swappable)
+                        if (!swappable)
                             continue;
                     }
 
@@ -79,7 +79,7 @@ editor.once('load', function () {
             } else if (asset.get('type') === 'textureatlas') {
                 // handle texture atlases specifically for better performance
                 realtimeAsset = app.assets.get(asset.get('id'));
-                if (! realtimeAsset) return;
+                if (!realtimeAsset) return;
 
                 var match = path.match(regexFrameUpdate);
                 if (match) {
@@ -95,7 +95,7 @@ editor.once('load', function () {
                         }
                     }
 
-                    if (! realtimeAsset.data.frames) {
+                    if (!realtimeAsset.data.frames) {
                         realtimeAsset.data.frames = {};
                     }
 
@@ -120,7 +120,7 @@ editor.once('load', function () {
             } else if (asset.get('type') === 'textureatlas') {
                 // handle deleting frames from texture atlas
                 realtimeAsset = app.assets.get(asset.get('id'));
-                if (! realtimeAsset) return;
+                if (!realtimeAsset) return;
 
                 var match = path.match(regexFrameRemove);
                 if (match) {

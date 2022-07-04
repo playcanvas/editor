@@ -76,7 +76,7 @@ editor.once('viewport:load', function () {
     });
 
     window.addEventListener('keydown', function (evt) {
-        if (! keysMovement[evt.keyCode] || evt.ctrlKey || evt.metaKey || evt.altKey)
+        if (!keysMovement[evt.keyCode] || evt.ctrlKey || evt.metaKey || evt.altKey)
             return;
 
         if (evt.target && /(input)|(textarea)/i.test(evt.target.tagName))
@@ -98,7 +98,7 @@ editor.once('viewport:load', function () {
 
         direction.set(keys.right - keys.left, keys.up - keys.down, keys.back - keys.forward).normalize();
 
-        if (! flying) {
+        if (!flying) {
             flyCamera = editor.call('camera:current');
             editor.call('camera:history:start', flyCamera);
         }
@@ -110,7 +110,7 @@ editor.once('viewport:load', function () {
     }, false);
 
     window.addEventListener('keyup', function (evt) {
-        if (! flying || ! keysMovement[evt.keyCode] || evt.ctrlKey || evt.metaKey || evt.altKey)
+        if (!flying || !keysMovement[evt.keyCode] || evt.ctrlKey || evt.metaKey || evt.altKey)
             return;
 
         if (evt.target && /(input)|(textarea)/i.test(evt.target.tagName))
@@ -132,7 +132,7 @@ editor.once('viewport:load', function () {
 
         direction.set(keys.right - keys.left, keys.up - keys.down, keys.back - keys.forward).normalize();
 
-        if (! keys.forward && ! keys.left && ! keys.back && ! keys.right && ! keys.up && ! keys.down) {
+        if (!keys.forward && !keys.left && !keys.back && !keys.right && !keys.up && !keys.down) {
             flying = false;
             editor.call('camera:history:stop', flyCamera);
             editor.call('viewport:render');

@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     const app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     const watching = { };
     const slots = ['aoMap', 'diffuseMap', 'emissiveMap', 'glossMap', 'lightMap', 'metalnessMap', 'opacityMap', 'specularMap', 'normalMap', 'cubeMap', 'sphereMap'];
@@ -48,13 +48,13 @@ editor.once('load', function () {
 
         if (watch.autoLoad) {
             asset = app.assets.get(id);
-            if (asset && ! asset.resource)
+            if (asset && !asset.resource)
                 app.assets.load(asset);
         }
     };
 
     const removeTextureWatch = function (watch, slot) {
-        if (! watch.textures[slot])
+        if (!watch.textures[slot])
             return;
 
         app.assets.off('load:' + watch.textures[slot].id, watch.textures[slot].fn);
@@ -87,7 +87,7 @@ editor.once('load', function () {
         }
 
         watch.watching.data = watch.asset.on('*:set', function (path) {
-            if (! path.startsWith('data.'))
+            if (!path.startsWith('data.'))
                 return;
 
             trigger(watch, null);
@@ -130,7 +130,7 @@ editor.once('load', function () {
     editor.method('assets:material:watch', function (args) {
         let watch = watching[args.asset.get('id')];
 
-        if (! watch) {
+        if (!watch) {
             watch = watching[args.asset.get('id')] = {
                 asset: args.asset,
                 autoLoad: 0,
@@ -154,7 +154,7 @@ editor.once('load', function () {
         if (watch.autoLoad === 1) {
             for (const key in watch.textures) {
                 const asset = app.assets.get(watch.textures[key].id);
-                if (asset && ! asset.resource)
+                if (asset && !asset.resource)
                     app.assets.load(asset);
             }
         }
@@ -179,9 +179,9 @@ editor.once('load', function () {
 
     editor.method('assets:material:unwatch', function (asset, handle) {
         const watch = watching[asset.get('id')];
-        if (! watch) return;
+        if (!watch) return;
 
-        if (! watch.callbacks.hasOwnProperty(handle))
+        if (!watch.callbacks.hasOwnProperty(handle))
             return;
 
         if (watch.callbacks[handle].autoLoad)

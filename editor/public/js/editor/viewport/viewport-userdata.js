@@ -2,18 +2,18 @@ editor.once('load', function () {
     'use strict';
 
     editor.on('userdata:load', function (userdata) {
-        if (! editor.call('permissions:read'))
+        if (!editor.call('permissions:read'))
             return;
 
         var cameras = userdata.get('cameras');
 
         if (cameras) {
             for (const name in cameras) {
-                if (! cameras.hasOwnProperty(name))
+                if (!cameras.hasOwnProperty(name))
                     continue;
 
                 var camera = editor.call('camera:get', name);
-                if (! camera)
+                if (!camera)
                     continue;
 
                 var data = cameras[name];

@@ -1,7 +1,7 @@
 editor.on('load', function () {
     'use strict';
 
-    if (typeof(Messenger) === 'undefined')
+    if (typeof Messenger === 'undefined')
         return;
 
     var messenger = new Messenger();

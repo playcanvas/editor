@@ -34,7 +34,7 @@ editor.once('load', function () {
     // Creates new Sprite Asset from Texture Atlas Asset
     editor.method('assets:atlasToSprite', function (args) {
         var asset = args && args.asset;
-        if (! asset || asset.get('type') !== 'textureatlas' || asset.get('source')) return;
+        if (!asset || asset.get('type') !== 'textureatlas' || asset.get('source')) return;
 
         var sliced = args && args.sliced;
 

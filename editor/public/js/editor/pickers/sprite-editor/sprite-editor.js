@@ -831,7 +831,7 @@ editor.once('load', function () {
     };
 
     var handlesHitTest = function (p, frame) {
-        if (! editor.call('permissions:write')) return false;
+        if (!editor.call('permissions:write')) return false;
 
         const imgWidth = imageWidth();
         const imgHeight = imageHeight();

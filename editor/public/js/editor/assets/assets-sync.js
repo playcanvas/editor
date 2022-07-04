@@ -38,7 +38,7 @@ editor.once('load', function () {
         var assets = connection.collections.assets;
 
         for (let i = 0; i < data.length; i++) {
-            if (! assets.hasOwnProperty(data[i].uniqueId))
+            if (!assets.hasOwnProperty(data[i].uniqueId))
                 continue;
 
             // force snapshot path data
@@ -100,7 +100,7 @@ editor.once('load', function () {
     editor.method('assets:create', function (data, fn, noSelect) {
         var evtAssetAdd;
 
-        if (! noSelect) {
+        if (!noSelect) {
             editor.once('selector:change', function () {
                 if (evtAssetAdd) {
                     evtAssetAdd.unbind();
@@ -121,7 +121,7 @@ editor.once('load', function () {
                 return;
             }
 
-            if (! noSelect) {
+            if (!noSelect) {
                 var asset = editor.call('assets:get', res.id);
                 if (asset) {
                     onAssetSelect(asset);
@@ -136,7 +136,7 @@ editor.once('load', function () {
 
     // delete asset
     editor.method('assets:delete', function (list) {
-        if (! (list instanceof Array))
+        if (!(list instanceof Array))
             list = [list];
 
         var assets = [];

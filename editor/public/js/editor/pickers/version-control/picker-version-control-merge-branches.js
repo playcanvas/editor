@@ -71,7 +71,7 @@ editor.once('load', function () {
         var panelField = isSourceBranch ? 'sourceBranch' : 'destinationBranch';
         panel[panelField] = branch;
 
-        if (! branch) return;
+        if (!branch) return;
 
         var box = isSourceBranch ? boxFrom : boxInto;
         box.header = branch.name;

@@ -2,10 +2,10 @@ editor.once('load', function () {
     'use strict';
 
     const canvas = editor.call('viewport:canvas');
-    if (! canvas) return;
+    if (!canvas) return;
 
     const app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     const aabb = new pc.BoundingBox();
     const vecA = new pc.Vec3();
@@ -25,7 +25,7 @@ editor.once('load', function () {
             if (type === 'assets') {
                 for (let i = 0; i < data.ids.length; i++) {
                     const asset = editor.call('assets:get', data.ids[i]);
-                    if (! asset)
+                    if (!asset)
                         return false;
 
                     if (asset.get('type') !== 'sprite')
@@ -41,7 +41,7 @@ editor.once('load', function () {
             }
         },
         drop: function (type, data) {
-            if (! config.scene.id)
+            if (!config.scene.id)
                 return;
 
             const assets = [];
@@ -57,7 +57,7 @@ editor.once('load', function () {
                 }
             }
 
-            if (! assets.length)
+            if (!assets.length)
                 return;
 
             // parent
@@ -75,11 +75,11 @@ editor.once('load', function () {
             let first = true;
             for (let i = 0; i < assets.length; i++) {
                 const assetEngine = app.assets.get(assets[i].get('id'));
-                if (! assetEngine) continue;
+                if (!assetEngine) continue;
 
                 if (assetEngine.resource) {
                     const mi = assetEngine.resource._meshInstance;
-                    if (! mi) continue;
+                    if (!mi) continue;
 
                     if (first) {
                         first = false;

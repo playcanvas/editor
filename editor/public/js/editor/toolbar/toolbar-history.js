@@ -9,7 +9,7 @@ editor.once('load', function () {
     var buttonUndo = new ui.Button({
         text: '&#57620;'
     });
-    buttonUndo.hidden = ! editor.call('permissions:write');
+    buttonUndo.hidden = !editor.call('permissions:write');
     buttonUndo.class.add('pc-icon');
     buttonUndo.enabled = history.canUndo;
     toolbar.append(buttonUndo);
@@ -32,7 +32,7 @@ editor.once('load', function () {
         align: 'left',
         root: root
     });
-    if (! history.canUndo)
+    if (!history.canUndo)
         tooltipUndo.class.add('innactive');
 
 
@@ -40,7 +40,7 @@ editor.once('load', function () {
     var buttonRedo = new ui.Button({
         text: '&#57621;'
     });
-    buttonRedo.hidden = ! editor.call('permissions:write');
+    buttonRedo.hidden = !editor.call('permissions:write');
     buttonRedo.class.add('pc-icon');
     buttonRedo.enabled = history.canRedo;
     toolbar.append(buttonRedo);
@@ -63,10 +63,10 @@ editor.once('load', function () {
         align: 'left',
         root: root
     });
-    if (! history.canRedo)
+    if (!history.canRedo)
         tooltipRedo.class.add('innactive');
 
     editor.on('permissions:writeState', function (state) {
-        buttonUndo.hidden = buttonRedo.hidden = ! state;
+        buttonUndo.hidden = buttonRedo.hidden = !state;
     });
 });

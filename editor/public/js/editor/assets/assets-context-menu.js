@@ -221,7 +221,7 @@ editor.once('load', function () {
         }
     }
     for (let i = 0; i < keys.length; i++) {
-        if (! assets.hasOwnProperty(keys[i]))
+        if (!assets.hasOwnProperty(keys[i]))
             continue;
 
         addNewMenuItem(menuItemNew, keys[i], assets[keys[i]]);
@@ -527,14 +527,14 @@ editor.once('load', function () {
                 menuItemCopy.hidden = true;
             }
         } else {
-            menuItemNewScript.hidden = ! ((currentAsset === null || (currentAsset && currentAsset.get('type') === 'script')) && isCurrentFolderLegacyScripts());
+            menuItemNewScript.hidden = !((currentAsset === null || (currentAsset && currentAsset.get('type') === 'script')) && isCurrentFolderLegacyScripts());
 
             if (menuItemPaste) {
                 menuItemPaste.hidden = false;
                 menuItemCopy.hidden = false;
             }
         }
-        menuItemNew.hidden = ! menuItemNewScript.hidden;
+        menuItemNew.hidden = !menuItemNewScript.hidden;
 
         if (legacyScripts) {
             menuItemNewScript.hidden = true;
@@ -561,7 +561,7 @@ editor.once('load', function () {
         if (currentAsset) {
 
             // download
-            menuItemDownload.hidden = ! ((! config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read'))) && currentAsset.get('type') !== 'folder' && (currentAsset.get('source') || downloadable[currentAsset.get('type')] || (! legacyScripts && currentAsset.get('type') === 'script')) && currentAsset.get('file.url'));
+            menuItemDownload.hidden = !((!config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read'))) && currentAsset.get('type') !== 'folder' && (currentAsset.get('source') || downloadable[currentAsset.get('type')] || (!legacyScripts && currentAsset.get('type') === 'script')) && currentAsset.get('file.url'));
 
             // duplicate
             if (currentAsset.get('type') === 'material' || currentAsset.get('type') === 'sprite') {
@@ -577,7 +577,7 @@ editor.once('load', function () {
             }
 
             // edit
-            if (! currentAsset.get('source') && ['html', 'css', 'json', 'text', 'script', 'shader'].indexOf(currentAsset.get('type')) !== -1) {
+            if (!currentAsset.get('source') && ['html', 'css', 'json', 'text', 'script', 'shader'].indexOf(currentAsset.get('type')) !== -1) {
                 if (editor.call('selector:type') === 'asset') {
                     const items = editor.call('selector:items');
                     menuItemEdit.hidden = (items.length > 1 && items.indexOf(currentAsset) !== -1);
@@ -589,16 +589,16 @@ editor.once('load', function () {
             }
 
             // create atlas
-            menuItemTextureToAtlas.hidden = (currentAsset.get('type') !== 'texture' || currentAsset.get('source') || currentAsset.get('task') || ! editor.call('permissions:write'));
+            menuItemTextureToAtlas.hidden = (currentAsset.get('type') !== 'texture' || currentAsset.get('source') || currentAsset.get('task') || !editor.call('permissions:write'));
 
             // create sprite
-            menuItemCreateSprite.hidden = (currentAsset.get('type') !== 'textureatlas' || currentAsset.get('source') || currentAsset.get('task') || ! editor.call('permissions:write'));
+            menuItemCreateSprite.hidden = (currentAsset.get('type') !== 'textureatlas' || currentAsset.get('source') || currentAsset.get('task') || !editor.call('permissions:write'));
             menuItemCreateSlicedSprite.hidden = menuItemCreateSprite.hidden;
 
             // delete
             menuItemDelete.hidden = (currentAsset && currentAsset.get('id') === LEGACY_SCRIPTS_ID);
 
-            if (! currentAsset.get('source')) {
+            if (!currentAsset.get('source')) {
                 menuItemExtract.hidden = true;
 
                 // re-import
@@ -606,11 +606,11 @@ editor.once('load', function () {
                 if (sourceId) {
                     const source = editor.call('assets:get', sourceId);
                     if (source) {
-                        if (source.get('type') === 'scene' && (['texture', 'material'].indexOf(currentAsset.get('type')) !== -1 || ! source.get('meta'))) {
+                        if (source.get('type') === 'scene' && (['texture', 'material'].indexOf(currentAsset.get('type')) !== -1 || !source.get('meta'))) {
                             menuItemReImport.hidden = true;
-                        } else if (currentAsset.get('type') === 'animation' && ! source.get('meta.animation.available')) {
+                        } else if (currentAsset.get('type') === 'animation' && !source.get('meta.animation.available')) {
                             menuItemReImport.hidden = true;
-                        } else if (currentAsset.get('type') === 'material' && ! currentAsset.has('meta.index')) {
+                        } else if (currentAsset.get('type') === 'material' && !currentAsset.has('meta.index')) {
                             menuItemReImport.hidden = true;
                         } else {
                             menuItemReImport.hidden = false;
@@ -641,7 +641,7 @@ editor.once('load', function () {
                             menuItem.text = 'Scene Settings';
                             menuItem.icon = ICONS.SCENE_SETTINGS;
                             item = projectUserSettings;
-                            if (! item) return;
+                            if (!item) return;
                         } else {
                             if (type === 'entity') {
                                 item = editor.call('entities:get', id);
@@ -650,7 +650,7 @@ editor.once('load', function () {
                                 item = editor.call('assets:get', id);
                                 menuItem.icon = icons[item.get('type')] || '';
                             }
-                            if (! item) return;
+                            if (!item) return;
                             menuItem.text = item.get('name');
                         }
 
@@ -716,7 +716,7 @@ editor.once('load', function () {
                 menuItemReplace.hidden = true;
                 menuItemReplaceTextureToSprite.hidden = true;
                 menuItemReImport.hidden = true;
-                menuItemExtract.hidden = ['scene', 'texture', 'textureatlas'].indexOf(currentAsset.get('type')) === -1 || ! currentAsset.get('meta');
+                menuItemExtract.hidden = ['scene', 'texture', 'textureatlas'].indexOf(currentAsset.get('type')) === -1 || !currentAsset.get('meta');
             }
 
             // move-to-store
@@ -748,7 +748,7 @@ editor.once('load', function () {
     editor.on('assets:add', function (asset) {
         // get grid item
         const item = editor.call('assets:panel:get', asset.get('id'));
-        if (! item) return;
+        if (!item) return;
 
         const contextMenuHandler = function (evt) {
             evt.stopPropagation();
@@ -791,7 +791,7 @@ editor.once('load', function () {
     editor.on('sourcefiles:add', function (asset) {
         // get grid item
         const item = editor.call('assets:panel:get', asset.get('filename'));
-        if (! item) return;
+        if (!item) return;
 
         // attach contextmenu event
         item.element.addEventListener('contextmenu', function (evt) {

@@ -38,7 +38,7 @@ editor.once('load', function () {
         setTimeout(function () {
             if (config.scene && config.scene.id) {
                 editor.call('scenes:get', config.scene.id, function (err, data) {
-                    if (err || ! data) {
+                    if (err || !data) {
                         window.location = '/editor/project/' + config.project.id + window.location.search;
                     } else {
                         window.location.reload();
@@ -64,7 +64,7 @@ editor.once('load', function () {
     var btnForceStopMerge = new ui.Button({
         text: 'FORCE STOP MERGE'
     });
-    btnForceStopMerge.disabled = ! editor.call('permissions:write');
+    btnForceStopMerge.disabled = !editor.call('permissions:write');
     panelButtons.append(btnForceStopMerge);
     btnForceStopMerge.on('click', function () {
         editor.call('picker:confirm', 'Are you sure you want to force stop this merge process?', function () {
@@ -110,7 +110,7 @@ editor.once('load', function () {
 
     overlay.on('show', function () {
         loadBranches(null, function () {
-            if (! branches.length) {
+            if (!branches.length) {
                 return;
             }
 

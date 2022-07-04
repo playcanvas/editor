@@ -52,7 +52,7 @@ editor.once('load', function () {
         sceneName.class.add('active');
     });
 
-    if (! config.project.settings.useLegacyScripts) {
+    if (!config.project.settings.useLegacyScripts) {
         var name = config.self.branch.name;
         if (name.length > 33) {
             name = name.substring(0, 30) + '...';
@@ -74,11 +74,11 @@ editor.once('load', function () {
         });
 
         // hide version control picker if we are not part of the team
-        if (! editor.call('permissions:read')) {
+        if (!editor.call('permissions:read')) {
             branchButton.hidden = true;
         }
         editor.on('permissions:set', function () {
-            branchButton.hidden = ! editor.call('permissions:read');
+            branchButton.hidden = !editor.call('permissions:read');
         });
     }
 

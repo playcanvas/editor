@@ -33,7 +33,7 @@ editor.once('load', function () {
                 var item = selected[i];
 
                 var entity = item.entity;
-                if (! entity || ! entity.element)
+                if (!entity || !entity.element)
                     continue;
 
                 var worldCorners = entity.element.worldCorners;

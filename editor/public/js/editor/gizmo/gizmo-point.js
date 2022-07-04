@@ -2,7 +2,7 @@ editor.once('viewport:load', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     var pool = [];
     var points = [];
@@ -76,7 +76,7 @@ editor.once('viewport:load', function () {
     };
 
     var onTapStart = function (tap) {
-        if (tap.button !== 0 || ! hoverPoint)
+        if (tap.button !== 0 || !hoverPoint)
             return;
 
         editor.emit('camera:toggle', false);
@@ -93,7 +93,7 @@ editor.once('viewport:load', function () {
     };
 
     var onTapMove = function (tap) {
-        if (! dragPoint)
+        if (!dragPoint)
             return;
 
         mouseTap = tap;
@@ -105,7 +105,7 @@ editor.once('viewport:load', function () {
 
         editor.emit('camera:toggle:true', true);
 
-        if (! dragPoint)
+        if (!dragPoint)
             return;
 
         mouseTap = tap;
@@ -130,7 +130,7 @@ editor.once('viewport:load', function () {
     Gizmo.prototype = Object.create(Events.prototype);
 
     Gizmo.prototype.update = function () {
-        if (! this.entity)
+        if (!this.entity)
             return;
 
         var camera = editor.call('camera:current');
@@ -152,7 +152,7 @@ editor.once('viewport:load', function () {
 
     Object.defineProperty(Gizmo.prototype, 'enabled', {
         set: function (value) {
-            if (!! value === !! this.entity)
+            if (!!value === !!this.entity)
                 return;
 
             if (value) {
@@ -176,13 +176,13 @@ editor.once('viewport:load', function () {
             }
         },
         get: function () {
-            return !! this.entity;
+            return !!this.entity;
         }
     });
 
     editor.method('gizmo:point:create', function (axis, position, dir) {
         var item = pool.shift();
-        if (! item)
+        if (!item)
             item = new Gizmo();
 
         item.axis = axis || 'y';
@@ -214,16 +214,16 @@ editor.once('viewport:load', function () {
         if (node && node.__editor && node.point)
             match = points.indexOf(node) !== -1;
 
-        if ((! hoverPoint || hoverPoint !== node) && match && node.point) {
+        if ((!hoverPoint || hoverPoint !== node) && match && node.point) {
             if (hoverPoint)
                 hoverPoint.emit('blur');
 
             hoverPoint = node.point;
             hoverPoint.emit('focus');
 
-            if (! evtTapStart)
+            if (!evtTapStart)
                 evtTapStart = editor.on('viewport:tap:start', onTapStart);
-        } else if (hoverPoint && ! match) {
+        } else if (hoverPoint && !match) {
             if (hoverPoint)
                 hoverPoint.emit('blur');
             hoverPoint = null;
@@ -239,7 +239,7 @@ editor.once('viewport:load', function () {
     editor.on('viewport:tap:end', onTapEnd);
 
     editor.on('viewport:postUpdate', function (dt) {
-        if (! dragPoint)
+        if (!dragPoint)
             return;
 
         var point = pickPlane(mouseTap.x, mouseTap.y);

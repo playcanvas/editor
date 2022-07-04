@@ -40,7 +40,7 @@ editor.once('load', function () {
             undo: function () {
                 for (let i = 0; i < records.length; i++) {
                     var item = records[i].item.latest();
-                    if (! item)
+                    if (!item)
                         continue;
 
                     item.history.enabled = false;
@@ -51,7 +51,7 @@ editor.once('load', function () {
             redo: function () {
                 for (let i = 0; i < records.length; i++) {
                     var item = records[i].item.latest();
-                    if (! item)
+                    if (!item)
                         continue;
 
                     item.history.enabled = false;
@@ -248,7 +248,7 @@ editor.once('load', function () {
     });
 
     editor.method('entities:contextmenu:open', function (item, x, y, ignoreSelection) {
-        if (! menu ) return;
+        if (!menu ) return;
 
         entity = item;
 

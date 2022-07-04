@@ -3,7 +3,7 @@ editor.once('load', function () {
 
     var enabled = editor.call('tools:enabled');
     var app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     editor.on('tools:state', function (state) {
         enabled = state;
@@ -72,7 +72,7 @@ editor.once('load', function () {
     });
 
     editor.method('tools:frame:field:value', function (name, value) {
-        if (! fieldsCustom[name])
+        if (!fieldsCustom[name])
             return;
 
         fieldsCustom[name].value = value;
@@ -607,7 +607,7 @@ editor.once('load', function () {
             return;
 
         var entity = app.root.findByGuid(id);
-        if (! entity)
+        if (!entity)
             return;
 
         var option = cameraIndex[id] = document.createElement('option');
@@ -618,7 +618,7 @@ editor.once('load', function () {
     };
 
     var cameraRemove = function (id) {
-        if (! cameraIndex[id])
+        if (!cameraIndex[id])
             return;
 
         if (cameraIndex[id].selected)
@@ -638,7 +638,7 @@ editor.once('load', function () {
             cameraRemove(id);
         });
         obj.on('name:set', function (value) {
-            if (! cameraIndex[id])
+            if (!cameraIndex[id])
                 return;
 
             cameraIndex.textContent = value;
@@ -660,7 +660,7 @@ editor.once('load', function () {
 
     // update frame fields
     app.on('frameend', function () {
-        if (! enabled)
+        if (!enabled)
             return;
 
         for (let i = 0; i < fields.length; i++) {

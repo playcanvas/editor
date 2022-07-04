@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     editor.method('assets:create:bundle', function (args) {
-        if (! editor.call('permissions:write'))
+        if (!editor.call('permissions:write'))
             return;
 
         args = args || { };

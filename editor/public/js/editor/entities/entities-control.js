@@ -17,7 +17,7 @@ editor.once('load', function () {
     });
 
     editor.on('permissions:writeState', function (state) {
-        controls.hidden = ! state;
+        controls.hidden = !state;
     });
 
     panel.header.append(controls);

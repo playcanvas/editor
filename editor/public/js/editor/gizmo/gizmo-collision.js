@@ -61,10 +61,10 @@ editor.once('load', function () {
         if (state === undefined)
             return visible;
 
-        if (visible === !! state)
+        if (visible === !!state)
             return;
 
-        visible = !! state;
+        visible = !!state;
 
         if (visible) {
             editor.call('gizmo:zone:visible', false);
@@ -87,15 +87,15 @@ editor.once('load', function () {
 
     // update lines
     Gizmo.prototype.update = function () {
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
-        if (! this._link || ! this._link.entity)
+        if (!this._link || !this._link.entity)
             return;
 
         const select = selected[this._link.get('resource_id')];
         const collision = this._link.entity.collision;
         this.entity.enabled = this._link.entity.enabled && collision && collision.enabled && (select || visible);
-        if (! this.entity.enabled) {
+        if (!this.entity.enabled) {
             this._link.entity.__noIcon = false;
             return;
         }
@@ -113,7 +113,7 @@ editor.once('load', function () {
         if (this.type !== type) {
             this.type = type;
 
-            if (! this.color) {
+            if (!this.color) {
                 let hash = 0;
                 const string = this._link.entity.getGuid();
                 for (let i = 0; i < string.length; i++)
@@ -142,7 +142,7 @@ editor.once('load', function () {
                 if (poolModels[this.type])
                     model = poolModels[this.type].shift();
 
-                if (! model) {
+                if (!model) {
                     // no in pool
                     model = models[this.type].clone();
                     model._type = this.type;
@@ -204,7 +204,7 @@ editor.once('load', function () {
                 this.asset = isRender ? collision.renderAsset : collision.asset;
                 this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
                 this.createWireframe(this.asset, isRender);
-                if (! this.asset) {
+                if (!this.asset) {
                     this.entity.enabled = false;
                     this.entity.model.model = null;
                     return;
@@ -251,7 +251,7 @@ editor.once('load', function () {
 
                     this.asset = asset;
                     this.createWireframe(this.asset, isRender);
-                    if (! this.asset) {
+                    if (!this.asset) {
                         this.entity.enabled = false;
 
                         if (isRender) {
@@ -266,16 +266,16 @@ editor.once('load', function () {
                 // when model collision mesh gets clicked on again, the mesh instance of the model is selected
                 // Note: render does not have an equivalent of this and so this is not implemented
                 if (this.entity.model.model) {
-                    const picking = ! visible && this._link.entity.model && this._link.entity.model.enabled && this._link.entity.model.type === 'asset' && this._link.entity.model.asset === collision.asset;
+                    const picking = !visible && this._link.entity.model && this._link.entity.model.enabled && this._link.entity.model.type === 'asset' && this._link.entity.model.asset === collision.asset;
                     if (picking !== this.entity.model.model.__picking) {
                         this.entity.model.model.__picking = picking;
 
                         const meshes = this.entity.model.meshInstances;
                         for (let i = 0; i < meshes.length; i++) {
-                            if (! meshes[i].__collision)
+                            if (!meshes[i].__collision)
                                 continue;
 
-                            meshes[i].pick = ! picking;
+                            meshes[i].pick = !picking;
                         }
                     }
                 }
@@ -284,7 +284,7 @@ editor.once('load', function () {
     };
     // link to entity
     Gizmo.prototype.link = function (obj) {
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
         this.unlink();
         this._link = obj;
@@ -305,7 +305,7 @@ editor.once('load', function () {
                 return mi.__useFrontLayer;
             });
             const backMeshInstances = this.meshInstances.filter(function (mi) {
-                return ! mi.__useFrontLayer;
+                return !mi.__useFrontLayer;
             });
 
             layerBack.addMeshInstances(frontMeshInstances);
@@ -342,9 +342,9 @@ editor.once('load', function () {
 
     // unlink
     Gizmo.prototype.unlink = function () {
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
-        if (! this._link)
+        if (!this._link)
             return;
 
         for (let i = 0; i < this.events.length; i++) {
@@ -373,10 +373,10 @@ editor.once('load', function () {
 
     // create wireframe
     Gizmo.prototype.createWireframe = function (asset, isRender) {
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
         asset = app.assets.get(asset);
-        if (! asset)
+        if (!asset)
             return null;
 
         if (asset.resource) {
@@ -409,7 +409,7 @@ editor.once('load', function () {
                 return;
 
             let gizmo = pool.shift();
-            if (! gizmo)
+            if (!gizmo)
                 gizmo = new Gizmo();
 
             gizmo.link(entity);
@@ -419,7 +419,7 @@ editor.once('load', function () {
         };
 
         const removeGizmo = function () {
-            if (! entities[key])
+            if (!entities[key])
                 return;
 
             pool.push(entities[key]);
@@ -448,7 +448,7 @@ editor.once('load', function () {
 
     editor.once('viewport:load', function () {
         app = editor.call('viewport:app');
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
         container = new pc.Entity(app);
         app.root.addChild(container);
@@ -499,7 +499,7 @@ void main(void)
 
         materialDefault.updateShader = function (device, scene, objDefs, staticLightList, pass, sortedLights) {
             if (pass === pc.SHADER_FORWARD) {
-                if (! shaderDefault) {
+                if (!shaderDefault) {
                     shaderDefault = new pc.Shader(device, {
                         attributes: {
                             aPosition: pc.SEMANTIC_POSITION,
@@ -599,7 +599,7 @@ void main(void)
             const _updateShader = matDefault.updateShader;
             matDefault.updateShader = function (device, scene, objDefs, staticLightList, pass, sortedLights) {
                 if (pass === pc.SHADER_FORWARD) {
-                    if (! shaderCapsule[a]) {
+                    if (!shaderCapsule[a]) {
                         shaderCapsule[a] = new pc.Shader(device, {
                             attributes: {
                                 aPosition: pc.SEMANTIC_POSITION,
@@ -613,7 +613,7 @@ void main(void)
                     this.shader = shaderCapsule[a];
                 } else if (pass === pc.SHADER_PICK) {
                     const shaderName = 'pick-' + a;
-                    if (! shaderCapsule[shaderName]) {
+                    if (!shaderCapsule[shaderName]) {
                         shaderCapsule[shaderName] = new pc.Shader(device, {
                             attributes: {
                                 aPosition: pc.SEMANTIC_POSITION,

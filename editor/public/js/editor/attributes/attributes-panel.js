@@ -43,7 +43,7 @@ editor.once('load', function () {
 
     var historyState = function (item, state) {
         if (item.history !== undefined) {
-            if (typeof(item.history) === 'boolean') {
+            if (typeof item.history === 'boolean') {
                 item.history = state;
             } else {
                 item.history.enabled = state;
@@ -65,7 +65,7 @@ editor.once('load', function () {
         args.field._changing = false;
         var events = [];
 
-        if (! (args.link instanceof Array))
+        if (!(args.link instanceof Array))
             args.link = [args.link];
 
         update = function () {
@@ -76,7 +76,7 @@ editor.once('load', function () {
                 if (value) {
                     for (let i = 1; i < args.link.length; i++) {
                         path = pathAt(args, i);
-                        if (! value.equals(args.link[i].get(path))) {
+                        if (!value.equals(args.link[i].get(path))) {
                             value = null;
                             different = true;
                             break;
@@ -112,7 +112,7 @@ editor.once('load', function () {
 
                 if (countUndefined && countUndefined != args.link.length) {
                     args.field.class.add('star');
-                    if (! /^\* /.test(args.field._title.text))
+                    if (!/^\* /.test(args.field._title.text))
                         args.field._title.text = '* ' + args.field._title.text;
                 } else {
                     args.field.class.remove('star');
@@ -126,7 +126,7 @@ editor.once('load', function () {
                 } else {
                     args.field.class.remove('null');
                 }
-            } else if (args.type === 'entity' || ! args.type) {
+            } else if (args.type === 'entity' || !args.type) {
                 for (let i = 1; i < args.link.length; i++) {
                     path = pathAt(args, i);
                     if (value !== args.link[i].get(path)) {
@@ -145,10 +145,10 @@ editor.once('load', function () {
                 var valueFound = false;
                 for (let i = 0; i < args.link.length; i++) {
                     path = pathAt(args, i);
-                    if (! args.link[i].has(path))
+                    if (!args.link[i].has(path))
                         continue;
 
-                    if (! valueFound) {
+                    if (!valueFound) {
                         valueFound = true;
                         value = args.link[i].get(path);
                     } else {
@@ -209,7 +209,7 @@ editor.once('load', function () {
 
             for (let i = 0; i < args.link.length; i++) {
                 var path = pathAt(args, i);
-                if (! args.link[i].has(path)) continue;
+                if (!args.link[i].has(path)) continue;
 
                 items.push({
                     item: args.link[i],
@@ -223,7 +223,7 @@ editor.once('load', function () {
             args.field._changing = false;
 
             // history
-            if (args.type !== 'rgb' && ! args.slider && ! args.stopHistory) {
+            if (args.type !== 'rgb' && !args.slider && !args.stopHistory) {
                 editor.call('history:add', {
                     name: pathAt(args, 0),
                     undo: function () {
@@ -231,10 +231,10 @@ editor.once('load', function () {
                         for (let i = 0; i < items.length; i++) {
                             var path = pathAt(args, i);
                             var item = items[i].item.latest();
-                            if (! item)
+                            if (!item)
                                 continue;
 
-                            if (! different && items[0].value !== items[i].value)
+                            if (!different && items[0].value !== items[i].value)
                                 different = true;
 
                             historyState(item, false);
@@ -255,7 +255,7 @@ editor.once('load', function () {
                         for (let i = 0; i < items.length; i++) {
                             var path = pathAt(args, i);
                             var item = items[i].item.latest();
-                            if (! item)
+                            if (!item)
                                 continue;
 
                             historyState(item, false);
@@ -311,7 +311,7 @@ editor.once('load', function () {
                     undo: function () {
                         for (let i = 0; i < items.length; i++) {
                             var item = items[i].item.latest();
-                            if (! item)
+                            if (!item)
                                 continue;
 
                             historyState(item, false);
@@ -322,7 +322,7 @@ editor.once('load', function () {
                     redo: function () {
                         for (let i = 0; i < items.length; i++) {
                             var item = items[i].item.latest();
-                            if (! item)
+                            if (!item)
                                 continue;
 
                             historyState(item, false);
@@ -418,7 +418,7 @@ editor.once('load', function () {
     editor.method('attributes:addField', function (args) {
         var panel = args.panel;
 
-        if (! panel) {
+        if (!panel) {
             panel = new ui.Panel();
             panel.flexWrap = 'nowrap';
             panel.WebkitFlexWrap = 'nowrap';
@@ -466,7 +466,7 @@ editor.once('load', function () {
         args.linkEvents = [];
 
         // if we provide multiple paths for a single Observer then turn args.link into an array
-        if (args.paths && args.paths instanceof Array && args.link && ! (args.link instanceof Array)) {
+        if (args.paths && args.paths instanceof Array && args.link && !(args.link instanceof Array)) {
             const link = args.link;
             args.link = [];
             for (let i = 0; i < args.paths.length; i++) {
@@ -488,7 +488,7 @@ editor.once('load', function () {
                         stopHistory: args.stopHistory
                     };
 
-                    if (! path) {
+                    if (!path) {
                         path = args.paths || args.path;
                     }
 
@@ -566,7 +566,7 @@ editor.once('load', function () {
                     field.renderChanges = false;
                     field.on('change', function (value) {
                         if (tagType === 'string') {
-                            if (! value) return;
+                            if (!value) return;
 
                             value = value.trim();
                         }
@@ -583,7 +583,7 @@ editor.once('load', function () {
                     field.renderChanges = false;
 
                     field.element.addEventListener('keydown', function (evt) {
-                        if (evt.keyCode !== 13 || ! field.value)
+                        if (evt.keyCode !== 13 || !field.value)
                             return;
 
                         addTag(field.value.trim());
@@ -597,7 +597,7 @@ editor.once('load', function () {
                     });
                     btnAdd.flexGrow = 0;
                     btnAdd.on('click', function () {
-                        if (! field.value)
+                        if (!field.value)
                             return;
 
                         addTag(field.value.trim());
@@ -624,13 +624,13 @@ editor.once('load', function () {
                 };
 
                 var removeTag = function (tag) {
-                    if (tagType === 'string' && ! tag) {
+                    if (tagType === 'string' && !tag) {
                         return;
                     } else if (tag === null || tag === undefined) {
                         return;
                     }
 
-                    if (! tagIndex.hasOwnProperty(tag))
+                    if (!tagIndex.hasOwnProperty(tag))
                         return;
 
                     var records = [];
@@ -657,7 +657,7 @@ editor.once('load', function () {
                             undo: function () {
                                 for (let i = 0; i < records.length; i++) {
                                     var item = records[i].item.latest();
-                                    if (! item)
+                                    if (!item)
                                         continue;
 
                                     historyState(item, false);
@@ -668,7 +668,7 @@ editor.once('load', function () {
                             redo: function () {
                                 for (let i = 0; i < records.length; i++) {
                                     var item = records[i].item.latest();
-                                    if (! item)
+                                    if (!item)
                                         continue;
 
                                     historyState(item, false);
@@ -712,7 +712,7 @@ editor.once('load', function () {
                             undo: function () {
                                 for (let i = 0; i < records.length; i++) {
                                     var item = records[i].item.latest();
-                                    if (! item)
+                                    if (!item)
                                         continue;
 
                                     historyState(item, false);
@@ -723,7 +723,7 @@ editor.once('load', function () {
                             redo: function () {
                                 for (let i = 0; i < records.length; i++) {
                                     var item = records[i].item.latest();
-                                    if (! item)
+                                    if (!item)
                                         continue;
 
                                     historyState(item, false);
@@ -736,7 +736,7 @@ editor.once('load', function () {
                 };
 
                 var onInsert = function (tag) {
-                    if (! tagIndex.hasOwnProperty(tag)) {
+                    if (!tagIndex.hasOwnProperty(tag)) {
                         tagIndex[tag] = 0;
                         tagList.push(tag);
                     }
@@ -746,12 +746,12 @@ editor.once('load', function () {
                 };
 
                 var onRemove = function (tag) {
-                    if (! tagIndex[tag])
+                    if (!tagIndex[tag])
                         return;
 
                     tagIndex[tag]--;
 
-                    if (! tagIndex[tag]) {
+                    if (!tagIndex[tag]) {
                         tagsPanel.innerElement.removeChild(tagItems[tag]);
                         var ind = tagList.indexOf(tag);
                         if (ind !== -1)
@@ -799,7 +799,7 @@ editor.once('load', function () {
                 };
 
                 var insertElement = function (tag) {
-                    if (! tagItems[tag]) {
+                    if (!tagItems[tag]) {
                         sortTags();
 
                         var item = document.createElement('div');
@@ -849,7 +849,7 @@ editor.once('load', function () {
 
                 args.linkField = function () {
                     if (args.link) {
-                        if (! (args.link instanceof Array))
+                        if (!(args.link instanceof Array))
                             args.link = [args.link];
 
                         for (let i = 0; i < args.link.length; i++) {
@@ -860,17 +860,17 @@ editor.once('load', function () {
                             args.linkEvents.push(args.link[i].on(path + ':insert', onInsert));
                             args.linkEvents.push(args.link[i].on(path + ':remove', onRemove));
 
-                            if (! tags)
+                            if (!tags)
                                 continue;
 
                             for (var t = 0; t < tags.length; t++) {
-                                if (tagType === 'string' && ! tags[t]) {
+                                if (tagType === 'string' && !tags[t]) {
                                     continue;
                                 } else if (tags[t] === null || tags[t] === undefined) {
                                     continue;
                                 }
 
-                                if (! tagIndex.hasOwnProperty(tags[t])) {
+                                if (!tagIndex.hasOwnProperty(tags[t])) {
                                     tagIndex[tags[t]] = 0;
                                     tagList.push(tags[t]);
                                 }
@@ -1148,11 +1148,11 @@ editor.once('load', function () {
                 });
 
                 field.on('click', function () {
-                    if (! this.value)
+                    if (!this.value)
                         return;
 
                     var asset = editor.call('assets:get', this.value);
-                    if (! asset) return;
+                    if (!asset) return;
                     editor.call('selector:set', 'asset', [asset]);
 
                     if (legacyScripts && asset.get('type') === 'script') {
@@ -1190,7 +1190,7 @@ editor.once('load', function () {
 
                     if (empty) {
                         field.image = '';
-                    } else if (! asset) {
+                    } else if (!asset) {
                         field.image = config.url.home + '/editor/scene/img/asset-placeholder-texture.png';
                     } else {
                         if (asset.has('thumbnails.m')) {
@@ -1234,7 +1234,7 @@ editor.once('load', function () {
                             previewRenderer.render();
                         } else {
                             var ctx = field.elementImage.ctx;
-                            if (! ctx)
+                            if (!ctx)
                                 ctx = field.elementImage.ctx = field.elementImage.getContext('2d');
 
                             ctx.clearRect(0, 0, field.elementImage.width, field.elementImage.height);
@@ -1264,15 +1264,15 @@ editor.once('load', function () {
 
                     fieldTitle.text = field.class.contains('null') ? 'various' : 'Empty';
 
-                    btnEdit.disabled = ! value;
-                    btnRemove.disabled = ! value && ! field.class.contains('null');
+                    btnEdit.disabled = !value;
+                    btnRemove.disabled = !value && !field.class.contains('null');
 
                     if (evtThumbnailChange) {
                         evtThumbnailChange.unbind();
                         evtThumbnailChange = null;
                     }
 
-                    if (! value) {
+                    if (!value) {
                         if (field.class.contains('star'))
                             fieldTitle.text = '* ' + fieldTitle.text;
 
@@ -1286,7 +1286,7 @@ editor.once('load', function () {
 
                     var asset = editor.call('assets:get', value);
 
-                    if (! asset)
+                    if (!asset)
                         return updateThumbnail();
 
                     evtThumbnailChange = asset.on('file.hash.m:set', updateThumbnail);
@@ -1309,7 +1309,7 @@ editor.once('load', function () {
                     filter: function (type, data) {
                         var rectA = root.innerElement.getBoundingClientRect();
                         var rectB = panel.element.getBoundingClientRect();
-                        return data.id && (args.kind === '*' || type === 'asset.' + args.kind) && parseInt(data.id, 10) !== field.value && ! editor.call('assets:get', parseInt(data.id, 10)).get('source') && rectB.top > rectA.top && rectB.bottom < rectA.bottom;
+                        return data.id && (args.kind === '*' || type === 'asset.' + args.kind) && parseInt(data.id, 10) !== field.value && !editor.call('assets:get', parseInt(data.id, 10)).get('source') && rectB.top > rectA.top && rectB.bottom < rectA.bottom;
                     },
                     drop: function (type, data) {
                         if ((args.kind !== '*' && type !== 'asset.' + args.kind) || editor.call('assets:get', parseInt(data.id, 10)).get('source'))
@@ -1425,7 +1425,7 @@ editor.once('load', function () {
                 var getCurrentEntity = function () {
                     var entity = null;
                     if (args.link) {
-                        if (! (args.link instanceof Array)) {
+                        if (!(args.link instanceof Array)) {
                             args.link = [args.link];
                         }
 
@@ -1468,7 +1468,7 @@ editor.once('load', function () {
                 // highlight on hover
                 field.on('hover', function () {
                     var entity = getCurrentEntity();
-                    if (! entity) return;
+                    if (!entity) return;
 
                     editor.call('entities:panel:highlight', entity, true);
 
@@ -1588,7 +1588,7 @@ editor.once('load', function () {
                         });
 
                         var evtPickerChanged = editor.on('picker:curve:change', function (paths, values) {
-                            if (! field._link) return;
+                            if (!field._link) return;
 
                             var link = field._link;
 
@@ -1615,7 +1615,7 @@ editor.once('load', function () {
                             var undo = function () {
                                 var item = link.latest();
 
-                                if (! item) return;
+                                if (!item) return;
 
                                 args.keepZoom = true;
 
@@ -1638,7 +1638,7 @@ editor.once('load', function () {
                             var redo = function () {
                                 var item = link.latest();
 
-                                if (! item) return;
+                                if (!item) return;
 
                                 args.keepZoom = true;
 

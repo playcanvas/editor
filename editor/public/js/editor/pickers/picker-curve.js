@@ -125,7 +125,7 @@ editor.once('load', function () {
             curve.type = value;
         });
 
-        if (! suspendEvents) {
+        if (!suspendEvents) {
             var paths = betweenCurves ? ['0.type', '1.type'] : ['0.type'];
             var values = new Array(paths.length).fill(curveType);
             editor.emit('picker:curve:change', paths, values);
@@ -157,21 +157,21 @@ editor.once('load', function () {
 
         var paths, values;
 
-        if (! suspendEvents) {
+        if (!suspendEvents) {
             paths = ['0.betweenCurves'];
             values = [betweenCurves];
         }
 
         if (!betweenCurves) {
             for (i = 0; i < numCurves; i++) {
-                if (! curves[i + numCurves]) continue;
+                if (!curves[i + numCurves]) continue;
 
                 // disable the secondary graph
                 toggleCurve(curves[i + numCurves], false);
 
                 // make keys of secondary graph to be the same
                 // as the primary graph
-                if (! suspendEvents) {
+                if (!suspendEvents) {
                     paths.push(getKeysPath(curves[i + numCurves]));
                     values.push(serializeCurveKeys(curves[i]));
                 }
@@ -179,12 +179,12 @@ editor.once('load', function () {
         } else {
             // enable the secondary graphs if their respective primary graphs are enabled
             for (i = 0; i < numCurves; i++) {
-                if (! curves[i + numCurves]) continue;
+                if (!curves[i + numCurves]) continue;
 
                 // we might have a different value for the secondary graphs
                 // when we re-enable betweenCurves so fire change event
                 // to make sure the different values are saved
-                if (! suspendEvents) {
+                if (!suspendEvents) {
                     paths.push(getKeysPath(curves[i + numCurves]));
                     values.push(serializeCurveKeys(curves[i + numCurves]));
                 }
@@ -197,7 +197,7 @@ editor.once('load', function () {
             }
         }
 
-        if (! suspendEvents)
+        if (!suspendEvents)
             editor.emit('picker:curve:change', paths, values);
 
         changing = false;
@@ -374,7 +374,7 @@ editor.once('load', function () {
         }
 
         for (let i = 0; i < numCurves; i++) {
-            if (! curves[numCurves + i]) continue;
+            if (!curves[numCurves + i]) continue;
 
             if (betweenCurves) {
                 data.secondaryKeys.push(serializeCurveKeys(curves[numCurves + i]));
@@ -401,7 +401,7 @@ editor.once('load', function () {
 
     btnPaste.on('click', function () {
         var data = editor.call('localStorage:get', 'playcanvas_editor_clipboard_curves');
-        if (! data) return;
+        if (!data) return;
 
         var paths = [];
         var values = [];
@@ -478,7 +478,7 @@ editor.once('load', function () {
 
         suspendEvents = suspend;
 
-        if (! suspendEvents)
+        if (!suspendEvents)
             editor.emit('picker:curve:change', paths, values);
 
         if (shouldResetZoom())
@@ -537,7 +537,7 @@ editor.once('load', function () {
 
         suspendEvents = suspend;
 
-        if (! suspendEvents)
+        if (!suspendEvents)
             editor.emit('picker:curve:change', paths, values);
     }
 
@@ -1087,7 +1087,7 @@ editor.once('load', function () {
         var changedCurves = {};
 
         var paths, values;
-        if (! suspendEvents) {
+        if (!suspendEvents) {
             paths = [];
             values = [];
         }
@@ -1113,7 +1113,7 @@ editor.once('load', function () {
         });
 
 
-        if (! suspendEvents) {
+        if (!suspendEvents) {
             for (const index in changedCurves) {
                 var curve = curves[parseInt(index)];
                 if (curve) {
@@ -1122,7 +1122,7 @@ editor.once('load', function () {
                     values.push(val.slice(0));
 
                     // if randomize is false set secondary graph the same as the first
-                    if (! betweenCurves) {
+                    if (!betweenCurves) {
                         var other = getOtherCurve(curve);
                         if (other) {
                             paths.push(getKeysPath(other));
@@ -1143,7 +1143,7 @@ editor.once('load', function () {
     function createAnchor(curve, time, value) {
         var anchor = curve.add(time, value);
 
-        if (! suspendEvents)
+        if (!suspendEvents)
             onCurveKeysChanged(curve);
 
         return anchor;
@@ -1161,7 +1161,7 @@ editor.once('load', function () {
             selectedAnchorIndex = curve.keys.indexOf(selectedAnchor);
         }
 
-        if (! suspendEvents)
+        if (!suspendEvents)
             onCurveKeysChanged(curve);
     }
 
@@ -1176,7 +1176,7 @@ editor.once('load', function () {
         if (curve.keys.length === 0) {
             createAnchor(curve, 0, 0);
         } else {
-            if (! suspendEvents)
+            if (!suspendEvents)
                 onCurveKeysChanged(curve);
         }
     }
@@ -1203,7 +1203,7 @@ editor.once('load', function () {
         var values = [serializeCurveKeys(curve)];
 
         // if randomize is false set secondary graph the same as the first
-        if (! betweenCurves) {
+        if (!betweenCurves) {
             var other = getOtherCurve(curve);
             if (other) {
                 paths.push(getKeysPath(other));
@@ -1447,7 +1447,7 @@ editor.once('load', function () {
                 onCurveKeysChanged(selectedCurve);
             }
         } else if (e.button === 2) {
-            if (! dragging) {
+            if (!dragging) {
                 scrolling = true;
                 mouseY = e.y;
 

@@ -5,9 +5,9 @@ editor.once('load', function () {
     var canvas = editor.call('viewport:canvas');
     var app = editor.call('viewport:app');
 
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
-    if (! canvas)
+    if (!canvas)
         return;
 
     // once canvas resized

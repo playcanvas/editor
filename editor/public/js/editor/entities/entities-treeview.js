@@ -213,7 +213,7 @@ Object.assign(pcui, (function () {
             if (data.type !== 'entity') return;
 
             // create new entry in userSelectionMarkers for user
-            if (! this._userSelectionMarkers[user]) {
+            if (!this._userSelectionMarkers[user]) {
                 this._userSelectionMarkers[user] = {
                     color: editor.call('users:color', user, 'hex'), // color we will use for this user's selections
                     markers: [], // holds markers for each entity the user has selected
@@ -240,7 +240,7 @@ Object.assign(pcui, (function () {
         }
 
         _onUserOffline(userId) {
-            if (! this._userSelectionMarkers[userId])
+            if (!this._userSelectionMarkers[userId])
                 return;
 
             this._userSelectionMarkers[userId].markers.forEach(marker => {

@@ -15,7 +15,7 @@ editor.once('viewport:load', function () {
     editor.method('camera:focus', function (point, distance) {
         var camera = editor.call('camera:current');
 
-        if (! focusing) {
+        if (!focusing) {
             focusCamera = camera;
             editor.call('camera:history:start', focusCamera);
         }
@@ -37,7 +37,7 @@ editor.once('viewport:load', function () {
     });
 
     editor.method('camera:focus:stop', function () {
-        if (! focusing)
+        if (!focusing)
             return;
 
         focusing = false;

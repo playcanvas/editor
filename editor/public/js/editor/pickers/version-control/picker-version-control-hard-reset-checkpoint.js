@@ -45,7 +45,7 @@ editor.once('load', function () {
     panel.class.add('hard-reset-checkpoint');
 
     textField.elementInput.addEventListener('keydown', function (e) {
-        if (e.keyCode === 13 && ! panel.buttonConfirm.disabled) {
+        if (e.keyCode === 13 && !panel.buttonConfirm.disabled) {
             panel.emit('confirm');
         }
     });
@@ -62,7 +62,7 @@ editor.once('load', function () {
     };
 
     textField.on('change', function () {
-        if (! panel.checkpoint) return;
+        if (!panel.checkpoint) return;
 
         panel.buttonConfirm.disabled = (textField.value !== 'hard reset' && textField.value !== '"hard reset"');
     });

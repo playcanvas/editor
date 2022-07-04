@@ -317,7 +317,7 @@ Object.assign(pcui, (function () {
 
         _onClickDownloadAsset(evt) {
             const legacyScripts = this._projectSettings.get('useLegacyScripts');
-            if (this._assets[0].get('type') !== 'folder' && ! (legacyScripts && this._assets[0].get('type') === 'script') && this._assets[0].get('type') !== 'sprite') {
+            if (this._assets[0].get('type') !== 'folder' && !(legacyScripts && this._assets[0].get('type') === 'script') && this._assets[0].get('type') !== 'sprite') {
 
                 if (this._assets[0].get('source') || this._assets[0].get('type') === 'texture' || this._assets[0].get('type') === 'audio') {
                     window.open(this._assets[0].get('file.url'));
@@ -356,7 +356,7 @@ Object.assign(pcui, (function () {
 
             const asset = editor.call('assets:get', sourceId);
 
-            if (! asset)
+            if (!asset)
                 return;
 
             editor.call('selector:set', 'asset', [asset]);

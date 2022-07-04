@@ -3,7 +3,7 @@ editor.once('load', function () {
 
     var sceneSettings = editor.call('sceneSettings');
     var app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
     var assetsLoaded = false;
     var sceneSettingsLoaded = false;
@@ -11,7 +11,7 @@ editor.once('load', function () {
 
     // apply settings
     var applySettings = function () {
-        if (! app) return;
+        if (!app) return;
 
         updating = false;
 
@@ -31,7 +31,7 @@ editor.once('load', function () {
 
     // queue settings apply
     var queueApplySettings = function () {
-        if (! sceneSettingsLoaded || updating || ! assetsLoaded)
+        if (!sceneSettingsLoaded || updating || !assetsLoaded)
             return;
 
         updating = true;

@@ -62,7 +62,7 @@ editor.once('load', function () {
             var checkPath = /^(data|file)\b/;
             var onUpdate = function (path, value) {
                 var match = path.match(checkPath);
-                if (! match) return;
+                if (!match) return;
 
                 // skip firing change when an indidual frame changes
                 // for performance reasons. We handle this elsewhere
@@ -77,7 +77,7 @@ editor.once('load', function () {
 
                 // do this in a timeout to avoid multiple sets of the same
                 // fields
-                if (! timeout) {
+                if (!timeout) {
                     timeout = setTimeout(updateFields);
                 }
 

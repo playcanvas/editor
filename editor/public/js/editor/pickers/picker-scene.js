@@ -64,7 +64,7 @@ editor.once('load', function () {
             }
         }
 
-        if (! scenes.length) {
+        if (!scenes.length) {
             container.hidden = true;
         }
     };
@@ -249,7 +249,7 @@ editor.once('load', function () {
 
     // disables / enables field depending on permissions
     var handlePermissions = function (field) {
-        field.disabled = ! editor.call('permissions:write');
+        field.disabled = !editor.call('permissions:write');
         return editor.on('permissions:set:' + config.self.id, function (accessLevel) {
             if (accessLevel === 'write' || accessLevel == 'admin') {
                 field.disabled = false;
@@ -261,7 +261,7 @@ editor.once('load', function () {
 
     // on closing menu remove 'clicked' class from respective dropdown
     dropdownMenu.on('open', function (open) {
-        if (! open && dropdownScene) {
+        if (!open && dropdownScene) {
             var item = document.getElementById('picker-scene-' + dropdownScene.id);
             if (item) {
                 var clicked = item.querySelector('.clicked');
@@ -284,7 +284,7 @@ editor.once('load', function () {
     panel.append(newScene);
 
     newScene.on('click', function () {
-        if (! editor.call('permissions:write'))
+        if (!editor.call('permissions:write'))
             return;
 
         newScene.disabled = true;
@@ -323,7 +323,7 @@ editor.once('load', function () {
 
         input.elementInput.addEventListener('keydown', function (e) {
             if (e.keyCode === 13) {
-                if (! input.value) return;
+                if (!input.value) return;
 
                 editor.call('picker:scene:close');
                 editor.call('scenes:new', input.value, function (scene) {
@@ -365,7 +365,7 @@ editor.once('load', function () {
     });
 
     editor.on('viewport:hover', function (state) {
-        if (state && ! panel.hidden) {
+        if (state && !panel.hidden) {
             setTimeout(function () {
                 editor.emit('viewport:hover', false);
             }, 0);

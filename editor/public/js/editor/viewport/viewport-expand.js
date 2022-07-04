@@ -11,7 +11,7 @@ editor.once('load', function () {
 
     editor.method('viewport:expand', function (state) {
         if (state === undefined)
-            state = ! expanded;
+            state = !expanded;
 
         if (expanded === state)
             return;

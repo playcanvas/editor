@@ -4,13 +4,13 @@ editor.once('load', function () {
     var unwrapping = { };
 
     editor.method('assets:model:unwrap', function (asset, args, fn) {
-        if (asset.get('type') !== 'model' || ! asset.has('file.filename') || unwrapping[asset.get('id')])
+        if (asset.get('type') !== 'model' || !asset.has('file.filename') || unwrapping[asset.get('id')])
             return;
 
-        if (typeof(args) === 'function')
+        if (typeof args === 'function')
             fn = args;
 
-        if (typeof(args) !== 'object')
+        if (typeof args !== 'object')
             args = { };
 
         args = args || { };
@@ -23,7 +23,7 @@ editor.once('load', function () {
         unwrapping[asset.get('id')] = worker;
 
         worker.onmessage = function (evt) {
-            if (! evt.data.name)
+            if (!evt.data.name)
                 return;
 
             switch (evt.data.name) {
@@ -82,7 +82,7 @@ editor.once('load', function () {
 
     editor.method('assets:model:unwrap:cancel', function (asset) {
         var worker = unwrapping[asset.get('id')];
-        if (! worker)
+        if (!worker)
             return;
 
         worker.terminate();
@@ -96,7 +96,7 @@ editor.once('load', function () {
         }
         var list = [];
         for (const key in unwrapping) {
-            if (! unwrapping.hasOwnProperty(key))
+            if (!unwrapping.hasOwnProperty(key))
                 continue;
 
             list.push(unwrapping[key]);
@@ -107,7 +107,7 @@ editor.once('load', function () {
 
 
     editor.method('assets:model:area', function (asset, fn) {
-        if (asset.get('type') !== 'model' || ! asset.has('file.filename'))
+        if (asset.get('type') !== 'model' || !asset.has('file.filename'))
             return;
 
         var filename = asset.get('file.filename');

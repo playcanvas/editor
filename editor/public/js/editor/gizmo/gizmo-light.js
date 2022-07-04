@@ -29,7 +29,7 @@ editor.once('load', function () {
             return mi.__useFrontLayer;
         });
         const backMeshInstances = this.meshInstances.filter(function (mi) {
-            return ! mi.__useFrontLayer;
+            return !mi.__useFrontLayer;
         });
 
         layerBack.addMeshInstances(frontMeshInstances);
@@ -48,14 +48,14 @@ editor.once('load', function () {
     
         // update lines
         update() {
-            if (! app) return; // webgl not available
+            if (!app) return; // webgl not available
 
-            if (! this._link || ! this._link.entity)
+            if (!this._link || !this._link.entity)
                 return;
 
             const light = this._link.entity.light;
             this.entity.enabled = this._link.entity.enabled && light && light.enabled;
-            if (! this.entity.enabled)
+            if (!this.entity.enabled)
                 return;
 
             this.entity.setPosition(this._link.entity.getPosition());
@@ -97,7 +97,7 @@ editor.once('load', function () {
                     }
                     // get from pool
                     model = poolModels[this.type].shift();
-                    if (! model) {
+                    if (!model) {
                         // no in pool
                         model = models[this.type].clone();
                         for (let i = 0; i < model.meshInstances.length; i++) {
@@ -150,7 +150,7 @@ editor.once('load', function () {
 
         // link to entity
         link(obj) {
-            if (! app) return; // webgl not available
+            if (!app) return; // webgl not available
 
             this.unlink();
             this._link = obj;
@@ -175,9 +175,9 @@ editor.once('load', function () {
 
         // unlink
         unlink() {
-            if (! app) return; // webgl not available
+            if (!app) return; // webgl not available
 
-            if (! this._link)
+            if (!this._link)
                 return;
 
             for (let i = 0; i < this.events.length; i++)
@@ -473,7 +473,7 @@ editor.once('load', function () {
                 continue;
 
             let gizmo = pool.shift();
-            if (! gizmo)
+            if (!gizmo)
                 gizmo = new Gizmo();
 
             gizmo.link(ids[key]);

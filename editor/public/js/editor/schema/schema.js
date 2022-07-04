@@ -10,11 +10,11 @@ editor.once('load', function () {
      * @returns {object} The sub schema
      */
     var pathToSchema = function (path, schema) {
-        if (typeof(path) === 'string') {
+        if (typeof path === 'string') {
             path = path.split('.');
         }
 
-        if (typeof(path) === 'number') {
+        if (typeof path === 'number') {
             path = [path];
         }
 
@@ -98,7 +98,7 @@ editor.once('load', function () {
         var subSchema = pathToSchema(path, schema);
         var type = subSchema && schemaToType(subSchema);
 
-        if (! type) {
+        if (!type) {
             console.warn('Unknown type for ' + path);
             type = 'string';
         }

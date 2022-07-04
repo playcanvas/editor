@@ -20,7 +20,7 @@ editor.once('load', function () {
             value: 'duplicate'
         });
         menuDuplicate.on('select', function () {
-            if (! contextMenuAsset) return;
+            if (!contextMenuAsset) return;
             editor.call('assets:duplicate', contextMenuAsset);
         });
         menu.append(menuDuplicate);
@@ -32,7 +32,7 @@ editor.once('load', function () {
             value: 'delete'
         });
         menuDelete.on('select', function () {
-            if (! contextMenuAsset) return;
+            if (!contextMenuAsset) return;
             editor.call('assets:delete:picker', [contextMenuAsset]);
         });
         menu.append(menuDelete);
@@ -156,7 +156,7 @@ editor.once('load', function () {
 
             // context menu
             var contextMenu = function (e) {
-                if (! editor.call('permissions:write')) return;
+                if (!editor.call('permissions:write')) return;
 
                 contextMenuAsset = asset;
                 menu.open = true;
@@ -192,7 +192,7 @@ editor.once('load', function () {
 
         // Add / modify frame event
         events.push(atlasAsset.on('*:set', function (path) {
-            if (! path.startsWith('data.frames')) {
+            if (!path.startsWith('data.frames')) {
                 return;
             }
 
@@ -212,7 +212,7 @@ editor.once('load', function () {
 
         // Delete frame event
         events.push(atlasAsset.on('*:unset', function (path) {
-            if (! path.startsWith('data.frames')) {
+            if (!path.startsWith('data.frames')) {
                 return;
             }
 
@@ -232,7 +232,7 @@ editor.once('load', function () {
 
         // Sprite selection event
         events.push(editor.on('picker:sprites:spriteSelected', function (sprite) {
-            if (! sprite) {
+            if (!sprite) {
                 grid.selected = [];
             } else {
                 var item = spriteItems[sprite.get('id')];

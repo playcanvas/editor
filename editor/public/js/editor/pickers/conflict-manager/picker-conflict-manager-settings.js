@@ -42,7 +42,7 @@ editor.once('load', function () {
             let target = index;
 
             for (let p = 0; p < parts.length - 1; p++) {
-                if (! target.hasOwnProperty(parts[p])) {
+                if (!target.hasOwnProperty(parts[p])) {
                     target[parts[p]] = {};
                 }
                 target = target[parts[p]];

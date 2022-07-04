@@ -21,7 +21,7 @@ editor.once('load', function () {
 
     fieldDescription.elementInput.addEventListener('keydown', function (e) {
         if (e.keyCode === 13 && (e.ctrlKey || e.metaKey)) {
-            if (! panel.buttonConfirm.disabled) {
+            if (!panel.buttonConfirm.disabled) {
                 create();
             }
         }

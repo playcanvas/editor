@@ -1,7 +1,7 @@
 editor.on('start', function () {
     'use strict';
 
-    if (typeof(RelayServer) === 'undefined')
+    if (typeof RelayServer === 'undefined')
         return;
 
     const relay = new RelayServer();

@@ -21,7 +21,7 @@ editor.once('load', function () {
 
     // get position of gizmo based on selected entities
     const getGizmoPosition = function () {
-        if (! items.length)
+        if (!items.length)
             return;
 
         if (items.length === 1) {
@@ -40,7 +40,7 @@ editor.once('load', function () {
             vecA.copy(reference.obj.entity.getPosition());
         } else {
             const selection = editor.call('selection:aabb');
-            if (! selection) return;
+            if (!selection) return;
             vecA.copy(selection.center);
         }
 
@@ -48,7 +48,7 @@ editor.once('load', function () {
     };
 
     const getGizmoRotation = function () {
-        if (! items.length)
+        if (!items.length)
             return;
 
         if (coordSystem === 'local') {
@@ -84,7 +84,7 @@ editor.once('load', function () {
 
     // update gizmo position
     const updateGizmoPosition = function () {
-        if (! items.length || timeoutUpdatePosition || gizmoMoving)
+        if (!items.length || timeoutUpdatePosition || gizmoMoving)
             return;
 
         timeoutUpdatePosition = true;
@@ -100,7 +100,7 @@ editor.once('load', function () {
 
     // update gizmo position
     const updateGizmoRotation = function () {
-        if (! items.length || timeoutUpdateRotation)
+        if (!items.length || timeoutUpdateRotation)
             return;
 
         timeoutUpdateRotation = true;
@@ -160,7 +160,7 @@ editor.once('load', function () {
             undo: function () {
                 for (let i = 0; i < records.length; i++) {
                     const item = records[i].item.latest();
-                    if (! item) continue;
+                    if (!item) continue;
 
                     item.history.enabled = false;
                     item.set('position', records[i].valueOld);
@@ -170,7 +170,7 @@ editor.once('load', function () {
             redo: function () {
                 for (let i = 0; i < records.length; i++) {
                     const item = records[i].item.latest();
-                    if (! item) continue;
+                    if (!item) continue;
 
                     item.history.enabled = false;
                     item.set('position', records[i].value);
@@ -221,12 +221,12 @@ editor.once('load', function () {
     };
 
     const onRender = function () {
-        if (! app) return; // webgl not available
+        if (!app) return; // webgl not available
 
-        if (! gizmoMoving && items.length) {
+        if (!gizmoMoving && items.length) {
             let dirty = false;
             for (let i = 0; i < items.length; i++) {
-                if (! items[i].obj.entity)
+                if (!items[i].obj.entity)
                     continue;
 
                 const pos = items[i].obj.entity.getPosition();
@@ -269,7 +269,7 @@ editor.once('load', function () {
                 vecC.set(camera.camera.farClip * -2, 0, 0);
                 quat.transformVector(vecC, vecC).add(pos);
                 app.renderLine(vecB, vecC, linesColorBehind, immediateRenderOptions);
-                if ((gizmoAxis === 'x' && ! gizmoPlane) || (gizmoPlane && (gizmoAxis === 'y' || gizmoAxis === 'z'))) {
+                if ((gizmoAxis === 'x' && !gizmoPlane) || (gizmoPlane && (gizmoAxis === 'y' || gizmoAxis === 'z'))) {
                     app.renderLine(vecB, vecC, linesColorActive, brightImmediateRenderOptions);
                 } else {
                     app.renderLine(vecB, vecC, linesColor, brightImmediateRenderOptions);
@@ -281,7 +281,7 @@ editor.once('load', function () {
                 vecC.set(0, camera.camera.farClip * -2, 0);
                 quat.transformVector(vecC, vecC).add(pos);
                 app.renderLine(vecB, vecC, linesColorBehind, immediateRenderOptions);
-                if ((gizmoAxis === 'y' && ! gizmoPlane) || (gizmoPlane && (gizmoAxis === 'x' || gizmoAxis === 'z'))) {
+                if ((gizmoAxis === 'y' && !gizmoPlane) || (gizmoPlane && (gizmoAxis === 'x' || gizmoAxis === 'z'))) {
                     app.renderLine(vecB, vecC, linesColorActive, brightImmediateRenderOptions);
                 } else {
                     app.renderLine(vecB, vecC, linesColor, brightImmediateRenderOptions);
@@ -293,7 +293,7 @@ editor.once('load', function () {
                 vecC.set(0, 0, camera.camera.farClip * -2);
                 quat.transformVector(vecC, vecC).add(pos);
                 app.renderLine(vecB, vecC, linesColorBehind, immediateRenderOptions);
-                if ((gizmoAxis === 'z' && ! gizmoPlane) || (gizmoPlane && (gizmoAxis === 'x' || gizmoAxis === 'y'))) {
+                if ((gizmoAxis === 'z' && !gizmoPlane) || (gizmoPlane && (gizmoAxis === 'x' || gizmoAxis === 'y'))) {
                     app.renderLine(vecB, vecC, linesColorActive, brightImmediateRenderOptions);
                 } else {
                     app.renderLine(vecB, vecC, linesColor, brightImmediateRenderOptions);
@@ -324,7 +324,7 @@ editor.once('load', function () {
             let child = false;
             let parent = items[i].obj.entity._parent;
             let id = '';
-            while (! child && parent) {
+            while (!child && parent) {
                 id = parent.getGuid();
                 if (itemIds[id]) {
                     parent = itemIds[id];
@@ -339,7 +339,7 @@ editor.once('load', function () {
     };
 
     const updateGizmo = function () {
-        if (! editor.call('permissions:write'))
+        if (!editor.call('permissions:write'))
             return;
 
         const objects = editor.call('selector:items');
@@ -351,7 +351,7 @@ editor.once('load', function () {
 
         if (editor.call('selector:type') === 'entity' && editor.call('gizmo:type') === 'translate') {
             for (let i = 0; i < objects.length; i++) {
-                if (! objects[i].entity)
+                if (!objects[i].entity)
                     continue;
 
                 const pos = objects[i].entity.getPosition();
@@ -378,7 +378,7 @@ editor.once('load', function () {
                 events.push(objects[i].on('parent:set', updateChildRelation));
             }
 
-            if (! items.length)
+            if (!items.length)
                 return;
 
             updateChildRelation();

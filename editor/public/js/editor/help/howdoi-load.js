@@ -6,7 +6,7 @@ editor.once('load', function () {
 
     Ajax(data)
     .on('load', function (status, data) {
-        if (! data || !data.length)
+        if (!data || !data.length)
             return;
 
         data.forEach(function (tip) {

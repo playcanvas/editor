@@ -1,7 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    if (! editor.call('settings:project').get('useLegacyScripts'))
+    if (!editor.call('settings:project').get('useLegacyScripts'))
         return;
 
     var scriptAttributeTypes = {
@@ -45,7 +45,7 @@ editor.once('load', function () {
             entitiesWithScripts[entity.get('resource_id')] = entity;
 
         entity.on('components.script:set', function (value) {
-            if (! value)
+            if (!value)
                 return;
 
             entitiesWithScripts[entity.get('resource_id')] = entity;
@@ -62,7 +62,7 @@ editor.once('load', function () {
 
     editor.on('attributes:inspect[entity]', function (entities) {
         var panelComponents = editor.call('attributes:entity.panelComponents');
-        if (! panelComponents)
+        if (!panelComponents)
             return;
 
         var panel = editor.call('attributes:entity:addComponentPanel', {
@@ -77,12 +77,12 @@ editor.once('load', function () {
 
         for (let i = 0; i < entities.length; i++) {
             events.push(entities[i].on('components.script:unset', function (valueOld) {
-                if (! valueOld)
+                if (!valueOld)
                     return;
 
                 for (let i = 0; i < valueOld.scripts.length; i++) {
                     var scriptPanel = scriptsIndex[valueOld.scripts[i].url];
-                    if (! scriptPanel)
+                    if (!scriptPanel)
                         continue;
 
                     scriptPanel.count--;
@@ -135,11 +135,11 @@ editor.once('load', function () {
             var records = [];
             var requestScript = false;
 
-            if (! urlRegex.test(url)) {
-                if (! jsRegex.test(url))
+            if (!urlRegex.test(url)) {
+                if (!jsRegex.test(url))
                     url += '.js';
 
-                if (! scriptNameRegex.test(url) || url.indexOf('..') >= 0)
+                if (!scriptNameRegex.test(url) || url.indexOf('..') >= 0)
                     return false;
 
                 requestScript = true;
@@ -191,11 +191,11 @@ editor.once('load', function () {
                 undo: function () {
                     for (let i = 0; i < records.length; i++) {
                         var item = records[i].item.latest();
-                        if (! item)
+                        if (!item)
                             continue;
 
                         var scripts = item.getRaw('components.script.scripts');
-                        if (! scripts)
+                        if (!scripts)
                             continue;
 
                         for (var s = 0; s < scripts.length; s++) {
@@ -212,7 +212,7 @@ editor.once('load', function () {
                 redo: function () {
                     for (let i = 0; i < records.length; i++) {
                         var item = records[i].item.latest();
-                        if (! item)
+                        if (!item)
                             continue;
 
                         var addScript = true;
@@ -224,7 +224,7 @@ editor.once('load', function () {
                             break;
                         }
 
-                        if (! addScript)
+                        if (!addScript)
                             continue;
 
                         var script = new Observer({
@@ -244,7 +244,7 @@ editor.once('load', function () {
         };
 
         var refreshScriptAttributes = function (url) {
-            if (! editor.call('permissions:write'))
+            if (!editor.call('permissions:write'))
                 return;
 
             var fullUrl = urlRegex.test(url) ? url : editor.call('sourcefiles:url', url) + '?access_token=' + config.accessToken;
@@ -256,7 +256,7 @@ editor.once('load', function () {
                 for (const key in entitiesWithScripts) {
                     var entity = entitiesWithScripts[key];
                     var scripts = entity.getRaw('components.script.scripts');
-                    if (! scripts)
+                    if (!scripts)
                         continue;
 
                     for (let i = 0; i < scripts.length; i++) {
@@ -266,7 +266,7 @@ editor.once('load', function () {
 
                         var oldAttributes = scriptInstance.get('attributes') || { };
                         for (var attributeName in data.attributes) {
-                            if (! data.attributes.hasOwnProperty(attributeName))
+                            if (!data.attributes.hasOwnProperty(attributeName))
                                 continue;
 
                             var value = data.attributes[attributeName].defaultValue;
@@ -278,7 +278,7 @@ editor.once('load', function () {
                                     if (attributeOld.options.type !== attributeNew.options.type) {
                                         // different asset.type
                                         if (attributeNew.options.max === 1) {
-                                            if (typeof(attributeNew.defaultValue) === 'number') {
+                                            if (typeof attributeNew.defaultValue === 'number') {
                                                 value = attributeNew.defaultValue;
                                             } else {
                                                 value = null;
@@ -292,7 +292,7 @@ editor.once('load', function () {
                                         }
                                     } else if (attributeOld.options.max === 1 && attributeNew.options.max !== 1) {
                                         // now multiple assets
-                                        if (attributeOld.value && typeof(attributeOld.value) === 'number') {
+                                        if (attributeOld.value && typeof attributeOld.value === 'number') {
                                             value = [attributeOld.value];
                                         } else if (attributeNew.defaultValue instanceof Array) {
                                             value = attributeNew.defaultValue;
@@ -301,9 +301,9 @@ editor.once('load', function () {
                                         }
                                     } else if (attributeOld.options.max !== 1 && attributeNew.options.max === 1) {
                                         // now single asset
-                                        if ((attributeOld.value instanceof Array) && attributeOld.value.length && attributeOld.value[0] && typeof(attributeOld.value[0]) === 'number') {
+                                        if ((attributeOld.value instanceof Array) && attributeOld.value.length && attributeOld.value[0] && typeof attributeOld.value[0] === 'number') {
                                             value = attributeOld.value[0];
-                                        } else if (typeof(attributeNew.defaultValue) === 'number') {
+                                        } else if (typeof attributeNew.defaultValue === 'number') {
                                             value = attributeNew.defaultValue;
                                         } else {
                                             value = null;
@@ -374,7 +374,7 @@ editor.once('load', function () {
                         list.splice(i, 0, attributes[i]);
                     }
 
-                    if (! panelAttribute)
+                    if (!panelAttribute)
                         continue;
 
                     parent.innerElement.removeChild(panelAttribute.element);
@@ -419,7 +419,7 @@ editor.once('load', function () {
             var scripts = [];
             for (let i = 0; i < entities.length; i++) {
                 var items = entities[i].getRaw('components.script.scripts');
-                if (! items)
+                if (!items)
                     continue;
 
                 for (var s = 0; s < items.length; s++) {
@@ -443,7 +443,7 @@ editor.once('load', function () {
                 reference.description = attribute.displayName;
 
             var type = scriptAttributeTypes[attribute.type];
-            if (attribute.type === 'enumeration' && choices.length >= 2 && typeof(choices[1].v) === 'string') {
+            if (attribute.type === 'enumeration' && choices.length >= 2 && typeof choices[1].v === 'string') {
                 type = 'string';
                 reference.subTitle = scriptAttributeRuntimeTypes[type];
             } else if (attribute.type === 'asset') {
@@ -468,7 +468,7 @@ editor.once('load', function () {
 
             if (scriptAttributeTypes[attribute.type] !== 'assets') {
                 var type = scriptAttributeTypes[attribute.type];
-                if (attribute.type === 'enumeration' && choices.length >= 2 && typeof(choices[1].v) === 'string')
+                if (attribute.type === 'enumeration' && choices.length >= 2 && typeof choices[1].v === 'string')
                     type = 'string';
 
                 var args = {
@@ -651,7 +651,7 @@ editor.once('load', function () {
 
                 // if we change `max` to change between single/multiple
                 var evtMaxAssetChanged = script.on('attributes.' + attribute.name + '.options.max:set', function (value) {
-                    if ((options.single && value === 1) || (! options.single && value !== 1))
+                    if ((options.single && value === 1) || (!options.single && value !== 1))
                         return;
 
                     setTimeout(function () {
@@ -709,7 +709,7 @@ editor.once('load', function () {
             var url = script.get('url');
             var lowerUrl = url.toLowerCase();
             var isExternalUrl = urlRegex.test(lowerUrl);
-            if (! isExternalUrl && ! jsRegex.test(url))
+            if (!isExternalUrl && !jsRegex.test(url))
                 url += '.js';
 
             panelScript._originalTitle = script.get('name') || getFilenameFromUrl(url);
@@ -757,7 +757,7 @@ editor.once('load', function () {
 
                 delete scriptsIndex[script.get('url')];
 
-                if (! records.length)
+                if (!records.length)
                     return;
 
                 editor.call('history:add', {
@@ -765,11 +765,11 @@ editor.once('load', function () {
                     undo: function () {
                         for (let i = 0; i < records.length; i++) {
                             var item = records[i].item.latest();
-                            if (! item)
+                            if (!item)
                                 continue;
 
                             var scripts = item.getRaw('components.script.scripts');
-                            if (! scripts)
+                            if (!scripts)
                                 continue;
 
                             var addScript = true;
@@ -781,7 +781,7 @@ editor.once('load', function () {
                                 }
                             }
 
-                            if (! addScript)
+                            if (!addScript)
                                 continue;
 
                             var script = new Observer(records[i].value);
@@ -796,7 +796,7 @@ editor.once('load', function () {
                     redo: function () {
                         for (let i = 0; i < records.length; i++) {
                             var item = records[i].item.latest();
-                            if (! item)
+                            if (!item)
                                 continue;
 
                             var scripts = item.getRaw('components.script.scripts');
@@ -906,7 +906,7 @@ editor.once('load', function () {
 
         var addScriptPanel = function (script, ind) {
             var panelScript = createScriptPanel(script);
-            if (! panelScript)
+            if (!panelScript)
                 return;
 
             scriptsIndex[script.get('url')] = panelScript;
@@ -962,7 +962,7 @@ editor.once('load', function () {
             // subscribe to scripts:remove
             events.push(entities[i].on('components.script.scripts:remove', function (script, ind) {
                 var scriptPanel = scriptsIndex[script.get('url')];
-                if (! scriptPanel)
+                if (!scriptPanel)
                     return;
 
                 scriptPanel.count--;

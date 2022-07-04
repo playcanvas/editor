@@ -219,7 +219,7 @@ Object.assign(pcui, (function () {
                 if (assets[0].has('meta.meshInstancesNames')) {
                     this._updateGlbMeshInstances();
                 } else {
-                    if (! this._loading) {
+                    if (!this._loading) {
                         this._loadJsonModel();
                     } else {
                         this._updateJsonMeshInstances();

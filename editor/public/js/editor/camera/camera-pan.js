@@ -19,7 +19,7 @@ editor.once('viewport:load', function (app) {
     });
 
     editor.on('viewport:update', function (dt) {
-        if (! panning)
+        if (!panning)
             return;
 
         const camera = editor.call('camera:current');
@@ -99,14 +99,14 @@ editor.once('viewport:load', function (app) {
     editor.method('camera:pan:start', onPanStart);
 
     editor.on('viewport:tap:start', function (tap) {
-        if (panning || ((tap.button !== 0 || ! shiftKey) && tap.button !== 1))
+        if (panning || ((tap.button !== 0 || !shiftKey) && tap.button !== 1))
             return;
 
         onPanStart(tap);
     });
 
     editor.on('viewport:tap:end', function (tap) {
-        if (! panning || tap.button !== panButton)
+        if (!panning || tap.button !== panButton)
             return;
 
         panning = false;
@@ -114,7 +114,7 @@ editor.once('viewport:load', function (app) {
     });
 
     editor.on('viewport:tap:move', function (tap) {
-        if (! panning)
+        if (!panning)
             return;
 
         vecA.x = tap.x;
@@ -124,7 +124,7 @@ editor.once('viewport:load', function (app) {
     });
 
     editor.on('camera:toggle', function (state) {
-        if (! state && panning) {
+        if (!state && panning) {
             panning = false;
             editor.call('camera:history:stop', panCamera);
         }

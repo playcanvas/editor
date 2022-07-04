@@ -12,7 +12,7 @@ editor.once('load', function () {
 
     // disables / enables field depending on permissions
     var handlePermissions = function (field) {
-        field.disabled = ! editor.call('permissions:write');
+        field.disabled = !editor.call('permissions:write');
         return editor.on('permissions:set:' + config.self.id, function (accessLevel) {
             if (accessLevel === 'write' || accessLevel == 'admin') {
                 field.disabled = false;
@@ -87,7 +87,7 @@ editor.once('load', function () {
 
     // on closing menu remove 'clicked' class from respective dropdown
     dropdownMenu.on('open', function (open) {
-        if (! open && dropdownApp) {
+        if (!open && dropdownApp) {
             var item = document.getElementById('app-' + dropdownApp.id);
             if (item) {
                 var clicked = item.querySelector('.clicked');
@@ -198,7 +198,7 @@ editor.once('load', function () {
             text: '&#57891'
         });
         events.push(handlePermissions(primary));
-        if (! primary.disabled && app.task.status !== 'complete')
+        if (!primary.disabled && app.task.status !== 'complete')
             primary.disabled = true;
         primary.class.add('primary');
         item.element.appendChild(primary.element);
@@ -495,7 +495,7 @@ editor.once('load', function () {
                 }
             }
 
-            if (! found) {
+            if (!found) {
                 apps.push(app);
                 refreshApps();
             }
@@ -543,7 +543,7 @@ editor.once('load', function () {
     });
 
     editor.on('viewport:hover', function (state) {
-        if (state && ! panel.hidden) {
+        if (state && !panel.hidden) {
             setTimeout(function () {
                 editor.emit('viewport:hover', false);
             }, 0);

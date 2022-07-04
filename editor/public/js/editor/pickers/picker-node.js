@@ -52,7 +52,7 @@ editor.once('load', function () {
             var history = currentEntities[i].history.enabled;
             currentEntities[i].history.enabled = false;
 
-            if (! currentEntities[i].get('components.model.mapping')) {
+            if (!currentEntities[i].get('components.model.mapping')) {
                 var mapping = {};
                 mapping[index] = parseInt(assetId, 10);
 
@@ -90,7 +90,7 @@ editor.once('load', function () {
             undo: function () {
                 for (let i = 0; i < resourceIds.length; i++) {
                     var item = editor.call('entities:get', resourceIds[i]);
-                    if (! item)
+                    if (!item)
                         continue;
 
                     var history = item.history.enabled;
@@ -107,7 +107,7 @@ editor.once('load', function () {
             redo: function () {
                 for (let i = 0; i < resourceIds.length; i++) {
                     var item = editor.call('entities:get', resourceIds[i]);
-                    if (! item)
+                    if (!item)
                         continue;
 
                     var history = item.history.enabled;
