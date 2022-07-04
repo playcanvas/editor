@@ -18,7 +18,7 @@ Object.assign(pcui, (function () {
         type: 'label'
     }];
 
-    ATTRIBUTES.forEach(attr => {
+    ATTRIBUTES.forEach((attr) => {
         const path = attr.alias || attr.path;
         if (!path) return;
         const parts = path.split('.');
@@ -80,7 +80,7 @@ Object.assign(pcui, (function () {
             events.sort((a, b) => {
                 return this._assets[0].get(`data.events.${a}.time`) - this._assets[0].get(`data.events.${b}.time`);
             });
-            events.forEach(eventKey => {
+            events.forEach((eventKey) => {
                 const event = this._assets[0].get(`data.events.${eventKey}`);
                 const eventPanel = new pcui.Panel({
                     class: CLASS_EVENT_PANEL,

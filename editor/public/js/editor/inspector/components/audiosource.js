@@ -68,7 +68,7 @@ Object.assign(pcui, (function () {
         }
     }];
 
-    ATTRIBUTES.forEach(attr => {
+    ATTRIBUTES.forEach((attr) => {
         if (!attr.path) return;
         const parts = attr.path.split('.');
         attr.reference = `audiosource:${parts[parts.length - 1]}`;

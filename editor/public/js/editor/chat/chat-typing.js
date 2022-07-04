@@ -81,7 +81,7 @@ editor.once('load', function () {
         });
     });
 
-    editor.on('relay:room:msg', data => {
+    editor.on('relay:room:msg', (data) => {
         if (data.msg.chat === 'typing') {
             editor.call('chat:sync:typing', {
                 from: data.from,

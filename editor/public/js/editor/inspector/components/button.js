@@ -94,7 +94,7 @@ Object.assign(pcui, (function () {
         }
     }];
 
-    ATTRIBUTES.forEach(attr => {
+    ATTRIBUTES.forEach((attr) => {
         const parts = attr.path.split('.');
         attr.reference = `button:${parts[parts.length - 1]}`;
     });
@@ -145,7 +145,7 @@ Object.assign(pcui, (function () {
                 'pressedTint',
                 'inactiveTint',
                 'fadeDuration'
-            ].forEach(name => {
+            ].forEach((name) => {
                 this._field(name).parent.hidden = !isTintMode;
             });
 
@@ -153,7 +153,7 @@ Object.assign(pcui, (function () {
                 'hoverSpriteAsset',
                 'pressedSpriteAsset',
                 'inactiveSpriteAsset'
-            ].forEach(name => {
+            ].forEach((name) => {
                 this._field(name).hidden = !isSpriteChangeMode;
             });
 
@@ -161,7 +161,7 @@ Object.assign(pcui, (function () {
                 'hoverSpriteFrame',
                 'pressedSpriteFrame',
                 'inactiveSpriteFrame'
-            ].forEach(name => {
+            ].forEach((name) => {
                 this._field(name).parent.hidden = !isSpriteChangeMode;
             });
         }

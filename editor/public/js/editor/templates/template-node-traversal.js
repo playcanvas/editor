@@ -136,7 +136,7 @@ editor.once('load', function () {
         }
 
         areBothNodesMaps() {
-            return [this.data.node1, this.data.node2].every(h => {
+            return [this.data.node1, this.data.node2].every((h) => {
                 return editor.call('template:utils', 'isMapObj', h);
             });
         }

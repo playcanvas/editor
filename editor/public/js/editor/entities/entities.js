@@ -7,7 +7,7 @@ editor.once('load', function () {
         editor.emit('entities:add', entity._observer, isRoot);
     });
 
-    editor.entities.on('remove', entity => {
+    editor.entities.on('remove', (entity) => {
         editor.emit('entities:remove', entity._observer);
     });
 

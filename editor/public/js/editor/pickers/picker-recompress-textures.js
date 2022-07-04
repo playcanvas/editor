@@ -25,7 +25,7 @@ editor.once('load', function () {
 
             const toRecompress = [];
 
-            editor.call('assets:list').forEach(asset => {
+            editor.call('assets:list').forEach((asset) => {
                 if (asset.get('source')) return;
 
                 const type = asset.get('type');

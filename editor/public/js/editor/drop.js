@@ -9,7 +9,7 @@ editor.once('load', function () {
     // Handle scrolling on the attributes panel while drop targets are active.
     // In this case the wheel/scroll events will not pass through to the attributes panel
     // so do manual scrolling with javascript
-    dropManager.dom.addEventListener('wheel', e => {
+    dropManager.dom.addEventListener('wheel', (e) => {
         if (attributesPanel.hidden || attributesPanel.collapsed) return;
 
         const rect = attributesPanel.dom.getBoundingClientRect();
@@ -21,7 +21,7 @@ editor.once('load', function () {
             const diff = attributesPanel.content.dom.scrollTop - oldTop;
 
             // scroll all drop targets that are targeting attribute panel children
-            dropManager.domContent.childNodes.forEach(child => {
+            dropManager.domContent.childNodes.forEach((child) => {
                 if (child.ui && !child.ui.hidden && child.ui._domTargetElement && attributesPanel.dom.contains(child.ui._domTargetElement)) {
                     let top = child.style.top;
                     if (top.endsWith('px')) {

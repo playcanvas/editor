@@ -11,11 +11,11 @@ editor.once('load', function () {
         return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
     };
 
-    editor.method('attributes:reference:add', args => {
+    editor.method('attributes:reference:add', (args) => {
         referenceIndex[args.name] = args;
     });
 
-    editor.method('attributes:reference:get', name => {
+    editor.method('attributes:reference:get', (name) => {
         if (!referenceIndex[name]) {
             console.warn('Cannot find reference ' + name);
         } else {

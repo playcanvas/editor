@@ -129,7 +129,7 @@ editor.once('load', function () {
         attrErrors() {
             const names = Object.keys(this.parseRes.scripts);
 
-            return names.find(s => {
+            return names.find((s) => {
                 const h = this.parseRes.scripts[s];
 
                 return h.attributesInvalid && h.attributesInvalid.length;

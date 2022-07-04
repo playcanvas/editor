@@ -308,7 +308,7 @@ editor.once('load', function () {
         handleAllCorners: function (data) {
             const a = Object.values(data.idToNode);
 
-            a.forEach(h => {
+            a.forEach((h) => {
                 const oldVal = !!h.isExpandable;
 
                 h.isExpandable = VcUtils.isNodeExpandable(h, data.idToNode);
@@ -372,7 +372,7 @@ editor.once('load', function () {
         },
 
         rmAllEdges: function (h1, type1, type2, data) {
-            h1[type1].forEach(edge => {
+            h1[type1].forEach((edge) => {
                 const h2 = data.idToNode[edge[type1]];
 
                 h2 && VcUtils.rmOneEdge(h2, type2, h1.id);
@@ -380,7 +380,7 @@ editor.once('load', function () {
         },
 
         rmOneEdge: function (h, type, id) {
-            h[type] = h[type].filter(edge => {
+            h[type] = h[type].filter((edge) => {
                 return edge[type] !== id;
             });
         },
@@ -466,7 +466,7 @@ editor.once('load', function () {
         },
 
         forAllEdgeTypes: function (node, callback) {
-            VC_EDGE_TYPES.forEach(type => {
+            VC_EDGE_TYPES.forEach((type) => {
                 callback(node, node[type], type);
             });
         },
@@ -478,7 +478,7 @@ editor.once('load', function () {
         },
 
         iterEdgeType: function (node, edges, type, callback) {
-            edges.forEach(edge => {
+            edges.forEach((edge) => {
                 callback(node, edge, type);
             });
         },
@@ -514,7 +514,7 @@ editor.once('load', function () {
         groupByPath: function (a, path) {
             const res = {};
 
-            a.forEach(h => {
+            a.forEach((h) => {
                 const k = editor.call('template:utils', 'getNodeAtPath', h, path);
 
                 VcUtils.addToArrayField(res, k, h);
@@ -540,7 +540,7 @@ editor.once('load', function () {
         sortGroupsByY: function (groups) {
             const idToMinY = {};
 
-            groups.forEach(a => {
+            groups.forEach((a) => {
                 idToMinY[a[0].branchId] = VcUtils.minByPath(a, ['coords', 'y']);
             });
 
@@ -564,7 +564,7 @@ editor.once('load', function () {
         minByPath: function (a, path) {
             let res;
 
-            a.forEach(h => {
+            a.forEach((h) => {
                 const v = editor.call('template:utils', 'getNodeAtPath', h, path);
 
                 if (res === undefined || v < res) {
@@ -589,7 +589,7 @@ editor.once('load', function () {
                 maxYNode: a[0]
             };
 
-            a.forEach(h => {
+            a.forEach((h) => {
                 const y = h.coords.y;
 
                 if (y < res.minYNode.coords.y) {
@@ -715,7 +715,7 @@ editor.once('load', function () {
         },
 
         cleanEdges: function (res, h, field) {
-            res[field] = h[field].map(edge => {
+            res[field] = h[field].map((edge) => {
                 return VcUtils.fieldsFromHash(edge, [ 'parent', 'child', 'branch_id' ]);
             });
         },
@@ -723,7 +723,7 @@ editor.once('load', function () {
         fieldsFromHash: function (h, a) {
             const res = {};
 
-            a.forEach(s => {
+            a.forEach((s) => {
                 res[s] = h[s];
             });
 

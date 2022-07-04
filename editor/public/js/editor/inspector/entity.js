@@ -50,7 +50,7 @@ Object.assign(pcui, (function () {
         }
     }];
 
-    ATTRIBUTES.forEach(attr => {
+    ATTRIBUTES.forEach((attr) => {
         const parts = attr.path.split('.');
         attr.reference = `entity:${parts[parts.length - 1]}`;
     });
@@ -121,7 +121,7 @@ Object.assign(pcui, (function () {
             // add component inspectors
             this._componentInspectors = {};
             const components = editor.call('components:list');
-            components.forEach(component => {
+            components.forEach((component) => {
                 if (component === 'script' && args.projectSettings.get('useLegacyScripts')) return;
 
                 // check if class exists
@@ -215,7 +215,7 @@ Object.assign(pcui, (function () {
             const logos = editor.call('components:logos');
 
             const items = {};
-            components.forEach(component => {
+            components.forEach((component) => {
                 let title = componentsSchema[component].$title;
                 if (title === 'Model' || title === 'Animation') {
                     title += ' (legacy)';
@@ -279,7 +279,7 @@ Object.assign(pcui, (function () {
             let previous = {};
             const redo = () => {
                 previous = {};
-                entities.forEach(e => {
+                entities.forEach((e) => {
                     e = e.latest();
                     if (!e) return;
 
@@ -296,7 +296,7 @@ Object.assign(pcui, (function () {
             };
 
             const undo = () => {
-                entities.forEach(e => {
+                entities.forEach((e) => {
                     e = e.latest();
                     if (!e) return;
 
@@ -365,7 +365,7 @@ Object.assign(pcui, (function () {
             let disableRotation = false;
             let disableScale = false;
 
-            this._entities.forEach(entity => {
+            this._entities.forEach((entity) => {
                 // disable rotation / scale for 2D screens
                 if (entity.get('components.screen.screenSpace')) {
                     disableRotation = true;
@@ -424,8 +424,8 @@ Object.assign(pcui, (function () {
 
             const components = editor.call('components:list');
 
-            entities.forEach(e => {
-                components.forEach(component => {
+            entities.forEach((e) => {
+                components.forEach((component) => {
                     this._entityEvents.push(e.on(`components.${component}:set`, () => this._onSetComponent(component)));
                     this._entityEvents.push(e.on(`components.${component}:unset`, () => this._onUnsetComponent(component)));
                 });

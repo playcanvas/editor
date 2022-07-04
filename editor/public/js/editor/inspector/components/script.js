@@ -111,7 +111,7 @@ Object.assign(pcui, (function () {
             });
             this.header.append(enableGroup);
 
-            this._fieldEnable.on('change', value => {
+            this._fieldEnable.on('change', (value) => {
                 enableGroup.text = value ? 'On' : 'Off';
             });
 
@@ -160,7 +160,7 @@ Object.assign(pcui, (function () {
             const order = this._asset.get(`data.scripts.${this._scriptName}.attributesOrder`) || [];
 
             // script attributes inspector
-            const inspectorAttributes = order.map(attribute => {
+            const inspectorAttributes = order.map((attribute) => {
                 return this._convertAttributeDataToInspectorData(attribute, attribute, attributes[attribute]);
             });
 
@@ -227,13 +227,13 @@ Object.assign(pcui, (function () {
 
                     this._componentInspector.onParseError(error.message, this._scriptName);
                 } else {
-                    result.scriptsInvalid.forEach(invalidScript => {
+                    result.scriptsInvalid.forEach((invalidScript) => {
                         this._componentInspector.onParseError(invalidScript, this._scriptName);
                     });
 
                     for (const scriptName in result.scripts) {
                         var attrInvalid = result.scripts[scriptName].attributesInvalid;
-                        attrInvalid.forEach(err => {
+                        attrInvalid.forEach((err) => {
                             this._componentInspector.onParseError(err, scriptName);
                         });
                     }
@@ -303,7 +303,7 @@ Object.assign(pcui, (function () {
                         const result = {};
 
                         if (attributeData.schema) {
-                            attributeData.schema.forEach(field => {
+                            attributeData.schema.forEach((field) => {
                                 if (field.hasOwnProperty('default')) {
                                     result[field.name] = utils.deepCopy(field.default);
                                 } else {
@@ -333,7 +333,7 @@ Object.assign(pcui, (function () {
                     if (!fieldArgs.elementArgs) {
                         fieldArgs.elementArgs = {};
                     }
-                    fieldArgs.elementArgs.attributes = attributeData.schema.map(field => {
+                    fieldArgs.elementArgs.attributes = attributeData.schema.map((field) => {
                         return this._convertAttributeDataToInspectorData(field.name, `${attributePath}.${field.name}`, field);
                     });
                     fieldArgs.elementArgs.history = this._history;
@@ -342,7 +342,7 @@ Object.assign(pcui, (function () {
                     fieldArgs.elementArgs.templateOverridesInspector = this._templateOverridesInspector;
 
                 } else {
-                    fieldArgs.attributes = attributeData.schema.map(field => {
+                    fieldArgs.attributes = attributeData.schema.map((field) => {
                         return this._convertAttributeDataToInspectorData(field.name, `${attributePath}.${field.name}`, field);
                     });
                     fieldArgs.history = this._history;
@@ -373,7 +373,7 @@ Object.assign(pcui, (function () {
             }
 
             // add additional properties
-            ['precision', 'step', 'min', 'max', 'placeholder'].forEach(field => {
+            ['precision', 'step', 'min', 'max', 'placeholder'].forEach((field) => {
                 if (attributeData.hasOwnProperty(field)) {
                     data.args[field] = attributeData[field];
                 }
@@ -639,7 +639,7 @@ Object.assign(pcui, (function () {
             }
 
             if (filterScriptsSet) {
-                filterScriptsSet.forEach(script => {
+                filterScriptsSet.forEach((script) => {
                     if (!entitiesPerScript[script]) {
                         this._scriptPanels[script].destroy();
                         delete this._scriptPanels[script];
@@ -663,14 +663,14 @@ Object.assign(pcui, (function () {
 
             assets = assets.filter(a => a.get('type') === 'script');
 
-            return assets.filter(a => {
+            return assets.filter((a) => {
                 return a.get('data.lastParsedHash') === '0' &&
                     a.get('file.hash');
             });
         }
 
         _parseUnparsedScripts(assets) {
-            assets.forEach(a => editor.call('scripts:parse', a, err => {
+            assets.forEach(a => editor.call('scripts:parse', a, (err) => {
                 a.set('data.lastParsedHash', a.get('file.hash'));
             }));
         }
@@ -683,11 +683,11 @@ Object.assign(pcui, (function () {
 
             // remove scripts that are added in all entities
             const counts = {};
-            this._entities.forEach(e => {
+            this._entities.forEach((e) => {
                 const order = e.get('components.script.order');
                 if (!order) return;
 
-                order.forEach(script => {
+                order.forEach((script) => {
                     if (!counts[script]) {
                         counts[script] = 1;
                     } else {
@@ -707,9 +707,9 @@ Object.assign(pcui, (function () {
                 return 0;
             });
 
-            const result = scripts.filter(s => {
+            const result = scripts.filter((s) => {
                 return counts[s] !== this._entities.length;
-            }).map(s => {
+            }).map((s) => {
                 return {
                     v: s,
                     t: s
@@ -740,7 +740,7 @@ Object.assign(pcui, (function () {
                     folder: folder && folder.apiAsset,
                     filename: filename
                 })
-                .then(asset => {
+                .then((asset) => {
                     const scripts = asset.get('data.scripts');
                     if (scripts) {
                         const keys = Object.keys(scripts);
@@ -749,7 +749,7 @@ Object.assign(pcui, (function () {
                         }
                     }
                 })
-                .catch(err => {
+                .catch((err) => {
                     editor.call('status:error', err);
                 });
             };
@@ -804,26 +804,26 @@ Object.assign(pcui, (function () {
 
             this._updateScripts();
 
-            entities.forEach(e => {
-                this._entityEvents.push(e.on('components.script.order:remove', value => {
+            entities.forEach((e) => {
+                this._entityEvents.push(e.on('components.script.order:remove', (value) => {
                     this._dirtyScripts.add(value);
                     this._deferUpdateDirtyScripts();
                 }));
 
-                this._entityEvents.push(e.on('components.script.order:insert', value => {
+                this._entityEvents.push(e.on('components.script.order:insert', (value) => {
                     this._dirtyScripts.add(value);
                     this._deferUpdateDirtyScripts();
                 }));
 
-                this._entityEvents.push(e.on('components.script.order:move', value => {
+                this._entityEvents.push(e.on('components.script.order:move', (value) => {
                     this._dirtyScripts.add(value);
                     this._deferUpdateDirtyScripts();
                 }));
 
-                this._entityEvents.push(e.on('components.script.order:set', value => {
+                this._entityEvents.push(e.on('components.script.order:set', (value) => {
                     if (!value) return;
 
-                    value.forEach(script => {
+                    value.forEach((script) => {
                         this._dirtyScripts.add(script);
                     });
                     this._deferUpdateDirtyScripts();

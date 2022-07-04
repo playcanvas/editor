@@ -116,13 +116,13 @@ Object.assign(pcui, (function () {
     }];
 
     // add reference fields
-    COMPONENT_ATTRIBUTES.forEach(attr => {
+    COMPONENT_ATTRIBUTES.forEach((attr) => {
         if (!attr.path) return;
         const parts = attr.path.split('.');
         attr.reference = `sprite:${parts[parts.length - 1]}`;
     });
 
-    CLIP_ATTRIBUTES.forEach(attr => {
+    CLIP_ATTRIBUTES.forEach((attr) => {
         if (!attr.path) return;
         const parts = attr.path.split('.');
         attr.reference = `spriteAnimation:${parts[parts.length - 1]}`;
@@ -137,7 +137,7 @@ Object.assign(pcui, (function () {
         const result = {};
 
         // first group clips by name
-        entities.forEach(e => {
+        entities.forEach((e) => {
             const clips = e.get('components.sprite.clips');
             if (!clips) return;
 
@@ -187,7 +187,7 @@ Object.assign(pcui, (function () {
 
             this._attrs = utils.deepCopy(CLIP_ATTRIBUTES);
             // replace '$' with the actual clip key
-            this._attrs.forEach(attr => {
+            this._attrs.forEach((attr) => {
                 attr.paths = args.clipKeys.map(key => attr.path.replace('$', key));
                 delete attr.path;
             });
@@ -361,7 +361,7 @@ Object.assign(pcui, (function () {
 
             this._suppressToggleFields = false;
 
-            ['type', 'spriteAsset'].forEach(field => {
+            ['type', 'spriteAsset'].forEach((field) => {
                 this._field(field).on('change', this._toggleFields.bind(this));
             });
         }
@@ -390,7 +390,7 @@ Object.assign(pcui, (function () {
             }
 
             function redo() {
-                entities.forEach(e => {
+                entities.forEach((e) => {
                     const entity = e.latest();
                     if (!entity || !entity.has('components.sprite')) return;
 
@@ -413,7 +413,7 @@ Object.assign(pcui, (function () {
             }
 
             function undo() {
-                entities.forEach(e => {
+                entities.forEach((e) => {
                     const entity = e.latest();
                     if (!entity) return;
 

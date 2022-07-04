@@ -84,7 +84,7 @@ Object.assign(pcui, (function () {
         type: 'boolean'
     }];
 
-    ATTRIBUTES.forEach(attr => {
+    ATTRIBUTES.forEach((attr) => {
         const parts = attr.path.split('.');
         attr.reference = `layoutgroup:${parts[parts.length - 1]}`;
     });

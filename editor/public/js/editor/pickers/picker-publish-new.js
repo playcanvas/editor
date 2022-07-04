@@ -228,7 +228,7 @@ editor.once('load', function () {
 
     const engineVersionDropdown = new pcui.SelectInput({
         value: editor.call('settings:session').get('engineVersion'),
-        options: config.engineVersions.map(data => {
+        options: config.engineVersions.map((data) => {
             const keys = Object.keys(data);
             return {
                 t: keys[0],
@@ -289,12 +289,12 @@ editor.once('load', function () {
         label = new ui.Label({ text: 'Generate Source Maps' });
         panelOptionsSourcemaps.append(label);
 
-        fieldOptionsConcat.on('change', value => {
+        fieldOptionsConcat.on('change', (value) => {
             panelOptionsMinify.hidden = !value;
             panelOptionsSourcemaps.hidden = (!fieldOptionsMinify.value || !value);
         });
 
-        fieldOptionsMinify.on('change', value => {
+        fieldOptionsMinify.on('change', (value) => {
             panelOptionsSourcemaps.hidden = !value;
         });
 

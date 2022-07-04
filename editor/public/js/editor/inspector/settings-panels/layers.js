@@ -153,7 +153,7 @@ Object.assign(pcui, (function () {
             if (!layers) return;
 
             const keepLayerPanels = [];
-            this._layerPanels.forEach(layerPanel => {
+            this._layerPanels.forEach((layerPanel) => {
                 if (layers[layerPanel.layerKey]) {
                     keepLayerPanels.push(layerPanel);
                 } else {
@@ -162,7 +162,7 @@ Object.assign(pcui, (function () {
             });
             this._layerPanels = keepLayerPanels;
 
-            Object.keys(layers).forEach(layerKey => {
+            Object.keys(layers).forEach((layerKey) => {
                 let layerPanel = this._layerPanels.find(layerPanel => layerPanel.layerKey === layerKey);
                 if (!layerPanel) {
                     layerPanel = new pcui.LayersSettingsPanelLayerPanel({

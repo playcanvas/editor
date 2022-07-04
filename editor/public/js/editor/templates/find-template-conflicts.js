@@ -59,7 +59,7 @@ editor.once('load', function () {
         run() { // ent is always from src
             this.runTraveral();
 
-            this.conflicts.forEach(h => {
+            this.conflicts.forEach((h) => {
                 h.resource_id = this.ent.resource_id;
             });
 

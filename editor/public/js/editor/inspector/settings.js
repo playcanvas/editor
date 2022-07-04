@@ -62,7 +62,7 @@ Object.assign(pcui, (function () {
         }
     ];
 
-    SCENE_ATTRIBUTES.forEach(attr => {
+    SCENE_ATTRIBUTES.forEach((attr) => {
         const path = attr.alias || attr.path;
         if (!path) return;
         const parts = path.split('.');
@@ -115,7 +115,7 @@ Object.assign(pcui, (function () {
             // Load settings panels
             this._settingsPanels = [];
 
-            SETTING_TYPES.forEach(setting => {
+            SETTING_TYPES.forEach((setting) => {
                 if (['externalscripts', 'scripts'].includes(setting) && this._args.projectSettings.get('useLegacyScripts'))
                     return;
                 else if (setting === 'audio' && this._args.projectSettings.get('useLegacyAudio') === null)
@@ -143,7 +143,7 @@ Object.assign(pcui, (function () {
         _linkSceneNameField() {
             const sceneNameField = this._sceneAttributes.getField('name');
             sceneNameField.value = this._sceneName;
-            this._settingsEvents.push(sceneNameField.on('change', newSceneName => {
+            this._settingsEvents.push(sceneNameField.on('change', (newSceneName) => {
                 if (this._suspendSceneNameEvt) return;
                 if (!editor.call('permissions:write')) return;
 

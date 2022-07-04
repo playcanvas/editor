@@ -97,7 +97,7 @@ editor.once('load', function () {
         unsafe: true
     });
     content.append(progressText);
-    editor.on('picker:fixCorruptedTemplates:progress', text => {
+    editor.on('picker:fixCorruptedTemplates:progress', (text) => {
         progressText.text = text;
     });
 
@@ -214,7 +214,7 @@ editor.once('load', function () {
 
     setState(STATE_START);
 
-    editor.on('editor:fixCorruptedTemplates:end', result => {
+    editor.on('editor:fixCorruptedTemplates:end', (result) => {
         report = result;
         if (currentState === STATE_FINDING_ISSUES) {
             setState(STATE_FOUND_ISSUES);
@@ -223,7 +223,7 @@ editor.once('load', function () {
         }
     });
 
-    editor.on('editor:fixCorruptedTemplates:error', error => {
+    editor.on('editor:fixCorruptedTemplates:error', (error) => {
         setState(STATE_ERROR, error);
     });
 

@@ -37,7 +37,7 @@ editor.once('load', function () {
     });
 
     // picked asset
-    assetsPanel.on('select', asset => {
+    assetsPanel.on('select', (asset) => {
         if (overlay.hidden) return;
 
         // do not allow selecting source assets
@@ -69,7 +69,7 @@ editor.once('load', function () {
         }
     });
 
-    assetsPanel.on('deselect', asset => {
+    assetsPanel.on('deselect', (asset) => {
         if (overlay.hidden || !asset) return;
 
         if (asset === currentAsset) {
@@ -113,7 +113,7 @@ editor.once('load', function () {
         }
 
         // deselect selected assets
-        assetSelection.forEach(asset => {
+        assetSelection.forEach((asset) => {
             assetsPanel.deselect(asset);
         });
 

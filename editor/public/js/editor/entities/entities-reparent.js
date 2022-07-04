@@ -8,7 +8,7 @@ editor.once('load', function () {
      * being reparented, parent is the new parent and index is the new index under the parent's children
      */
     editor.method('entities:reparent', function (data, preserveTransform) {
-        editor.entities.reparent(data.map(entry => {
+        editor.entities.reparent(data.map((entry) => {
             return {
                 entity: entry.entity.apiEntity,
                 parent: entry.parent.apiEntity,

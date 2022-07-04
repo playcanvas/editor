@@ -99,7 +99,7 @@ Object.assign(pcui, (function () {
             // due to network delays. In that case when the asset is added
             // update the name
             if (!asset) {
-                this._assetEvents.push(editor.once(`assets:add[${assetId}]`, asset => {
+                this._assetEvents.push(editor.once(`assets:add[${assetId}]`, (asset) => {
                     this._assetEvents.push(asset.on('name:set', (name) => {
                         scriptPanel.headerText = name;
                     }));

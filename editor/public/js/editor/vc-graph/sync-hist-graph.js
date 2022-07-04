@@ -56,7 +56,7 @@ editor.once('load', function () {
         }
 
         addEdgesToOld(h1, type1, type2) {
-            h1[type1].forEach(edge => {
+            h1[type1].forEach((edge) => {
                 const id2 = edge[type1];
 
                 const h2 = this.oldGraph[id2];

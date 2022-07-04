@@ -38,7 +38,7 @@ Object.assign(pcui, (function () {
 
             const templates = editor.call('templates:findApplyCandidatesForOverride', this._override, this._entities, this._templateRoot);
 
-            templates.forEach(template => {
+            templates.forEach((template) => {
                 // button to apply override
                 const btnApply = new pcui.Button({
                     text: `APPLY TO "${template.get('name')}"`,

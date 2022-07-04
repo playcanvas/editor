@@ -88,7 +88,7 @@ Object.assign(pcui, (function () {
         type: 'layers'
     }];
 
-    ATTRIBUTES.forEach(attr => {
+    ATTRIBUTES.forEach((attr) => {
         const parts = attr.path.split('.');
         attr.reference = `camera:${parts[parts.length - 1]}`;
     });
@@ -109,7 +109,7 @@ Object.assign(pcui, (function () {
             });
             this.append(this._attributesInspector);
 
-            ['clearColorBuffer', 'projection'].forEach(field => {
+            ['clearColorBuffer', 'projection'].forEach((field) => {
                 this._field(field).on('change', this._toggleFields.bind(this));
             });
 

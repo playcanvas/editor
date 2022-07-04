@@ -105,7 +105,7 @@ Object.assign(pcui, (function () {
         }
     }];
 
-    ATTRIBUTES.forEach(attr => {
+    ATTRIBUTES.forEach((attr) => {
         if (!attr.path) return;
         const parts = attr.path.split('.');
         attr.reference = `scrollview:${parts[parts.length - 1]}`;
@@ -119,7 +119,7 @@ Object.assign(pcui, (function () {
             super(args);
 
             const attrs = utils.deepCopy(ATTRIBUTES);
-            attrs.forEach(attr => {
+            attrs.forEach((attr) => {
                 if (attr.type === 'entity') {
                     attr.args = attr.args || {};
                     attr.args.entities = args.entities;
@@ -134,7 +134,7 @@ Object.assign(pcui, (function () {
             });
             this.append(this._attributesInspector);
 
-            ['scrollMode', 'useMouseWheel', 'vertical', 'horizontal'].forEach(field => {
+            ['scrollMode', 'useMouseWheel', 'vertical', 'horizontal'].forEach((field) => {
                 this._field(field).on('change', this._toggleFields.bind(this));
             });
 

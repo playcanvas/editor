@@ -92,7 +92,7 @@ editor.once('load', function () {
     });
 
     editor.on('realtime:error', onError);
-    editor.on('realtime:scene:error', err => {
+    editor.on('realtime:scene:error', (err) => {
         // this should be ok...
         if (/Exceeded max submit retries/.test(err)) {
             console.info(err);

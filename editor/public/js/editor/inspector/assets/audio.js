@@ -12,14 +12,14 @@ Object.assign(pcui, (function () {
         }
     }];
 
-    ATTRIBUTES.forEach(attr => {
+    ATTRIBUTES.forEach((attr) => {
         const path = attr.alias || attr.path;
         if (!path) return;
         const parts = path.split('.');
         attr.reference = `asset:audio:${parts[parts.length - 1]}`;
     });
 
-    const DOM = (parent) => [
+    const DOM = parent => [
         {
             attributesInspector: new pcui.AttributesInspector({
                 assets: parent.args.assets,
@@ -140,7 +140,7 @@ Object.assign(pcui, (function () {
             this._attributesInspector.unlink();
             this._audioPaused();
 
-            Object.keys(this._assetEvents).forEach(event => {
+            Object.keys(this._assetEvents).forEach((event) => {
                 if (event === 'click')
                     this._assetEvents[event].unbind();
                 else

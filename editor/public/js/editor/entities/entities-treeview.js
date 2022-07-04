@@ -116,7 +116,7 @@ Object.assign(pcui, (function () {
             const preserveTransform = !this._pressedCtrl;
 
             var items = reparentedItems
-            .map(reparented => {
+            .map((reparented) => {
                 return {
                     entity: reparented.item.entity,
                     parent: reparented.newParent.entity,
@@ -169,7 +169,7 @@ Object.assign(pcui, (function () {
 
             // build index of new selection
             const index = {};
-            entities.forEach(entity => {
+            entities.forEach((entity) => {
                 index[entity.get('resource_id')] = true;
             });
 
@@ -184,7 +184,7 @@ Object.assign(pcui, (function () {
             }
 
             // select entities in the new selection
-            entities.forEach(entity => {
+            entities.forEach((entity) => {
                 const item = this.getTreeItemForEntity(entity.get('resource_id'));
                 if (item && !item.selected) {
                     item.selected = true;
@@ -198,7 +198,7 @@ Object.assign(pcui, (function () {
         _onSelectorSync(user, data) {
             // remove existing selection markers for user
             if (this._userSelectionMarkers[user]) {
-                this._userSelectionMarkers[user].markers.forEach(marker => {
+                this._userSelectionMarkers[user].markers.forEach((marker) => {
                     // check if marker has already been destroyed
                     // before adding it to the pool (e.g. if selected entity was deleted)
                     if (!marker.destroyed) {
@@ -222,7 +222,7 @@ Object.assign(pcui, (function () {
             }
 
             // create marker for each selection
-            data.ids.forEach(resourceId => {
+            data.ids.forEach((resourceId) => {
                 const item = this.getTreeItemForEntity(resourceId);
                 if (!item) return;
 
@@ -243,7 +243,7 @@ Object.assign(pcui, (function () {
             if (!this._userSelectionMarkers[userId])
                 return;
 
-            this._userSelectionMarkers[userId].markers.forEach(marker => {
+            this._userSelectionMarkers[userId].markers.forEach((marker) => {
                 marker.destroy();
             });
 
@@ -335,7 +335,7 @@ Object.assign(pcui, (function () {
             if (dropType === 'assets') {
                 assets = dropData.ids
                 .map(id => this._assets.get(id))
-                .filter(asset => {
+                .filter((asset) => {
                     if (!asset) return false;
                     const type = asset.get('type');
                     return type === 'template' || type === 'sprite' || type === 'model';
@@ -355,7 +355,7 @@ Object.assign(pcui, (function () {
             let newEntityIds;
 
             const undo = () => {
-                newEntityIds.forEach(id => {
+                newEntityIds.forEach((id) => {
                     const entity = this._entities.get(id);
                     if (entity) {
                         entity.apiEntity.delete({ history: false });
@@ -375,7 +375,7 @@ Object.assign(pcui, (function () {
                 if (!parent) return;
 
                 const templates = [];
-                assets.forEach(asset => {
+                assets.forEach((asset) => {
                     try {
                         if (asset.get('type') === 'template') {
                             templates.push(asset);
@@ -390,7 +390,7 @@ Object.assign(pcui, (function () {
                 });
 
                 if (templates.length) {
-                    this._instantiateDraggedTemplateAssets(templates, parent, childIndex, entityIds => {
+                    this._instantiateDraggedTemplateAssets(templates, parent, childIndex, (entityIds) => {
                         if (newEntityIds) {
                             newEntityIds = newEntityIds.concat(entityIds);
                             this._selectEntitiesById(newEntityIds);
@@ -421,7 +421,7 @@ Object.assign(pcui, (function () {
                 index: childIndex,
                 history: false
             })
-            .then(newEntities => {
+            .then((newEntities) => {
                 callback(newEntities.map(e => e.get('resource_id')));
             });
         }
@@ -506,7 +506,7 @@ Object.assign(pcui, (function () {
 
             if (dropType === 'assets') {
                 const assets = dropData.ids.map(id => this._assets.get(id));
-                return assets.filter(asset => {
+                return assets.filter((asset) => {
                     if (!asset) return false;
                     const type = asset.get('type');
                     return type === 'template' ||
@@ -538,7 +538,7 @@ Object.assign(pcui, (function () {
             const events = [];
 
             // add component icons
-            this._componentList.forEach(component => {
+            this._componentList.forEach((component) => {
                 if (entity.has(`components.${component}`)) {
                     treeViewItem.iconLabel.class.add(`type-${component}`);
                 }
@@ -568,12 +568,12 @@ Object.assign(pcui, (function () {
             events.push(entity.on('parent:set', resetTemplateIcons));
 
             // name change
-            events.push(entity.on('name:set', name => {
+            events.push(entity.on('name:set', (name) => {
                 treeViewItem.text = name;
             }));
 
             // enabled change
-            events.push(entity.on('enabled:set', enabled => {
+            events.push(entity.on('enabled:set', (enabled) => {
                 treeViewItem.enabled = enabled;
             }));
 
@@ -595,7 +595,7 @@ Object.assign(pcui, (function () {
             }));
 
             // remove child
-            events.push(entity.on('children:remove', childId => {
+            events.push(entity.on('children:remove', (childId) => {
                 const item = this.getTreeItemForEntity(childId);
                 if (!item) return;
 
@@ -647,7 +647,7 @@ Object.assign(pcui, (function () {
             }
 
             // add children
-            entity.get('children').forEach(childId => {
+            entity.get('children').forEach((childId) => {
                 const item = this.getTreeItemForEntity(childId);
                 if (item) {
                     treeViewItem.append(item);

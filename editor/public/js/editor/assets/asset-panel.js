@@ -339,7 +339,7 @@ Object.assign(pcui, (function () {
             // asset type dropdown filter
             const dropdownTypeOptions = Object.keys(TYPES)
             .filter(type => type !== 'bundle' || editor.call('users:hasFlag', 'hasBundles'))
-            .map(type => {
+            .map((type) => {
                 return {
                     v: type,
                     t: TYPES[type]
@@ -450,7 +450,7 @@ Object.assign(pcui, (function () {
                 flexDirection: 'row'
             });
             this._progressBar = new pcui.Progress();
-            this._progressBar.on('change', value => {
+            this._progressBar.on('change', (value) => {
                 if (value >= 100) {
                     // update view mode to show
                     // the appropriate panels and hide the
@@ -1130,7 +1130,7 @@ Object.assign(pcui, (function () {
 
             // folder dbl click
             if (DBL_CLICKABLES[asset.get('type')]) {
-                domDblClick = (evt) => this._onAssetDblClick(evt, asset);
+                domDblClick = evt => this._onAssetDblClick(evt, asset);
                 row.dom.addEventListener('dblclick', domDblClick);
             }
 
@@ -1150,10 +1150,10 @@ Object.assign(pcui, (function () {
                 row.dom.draggable = true;
 
                 // this allows dragging that gets disabled by layout.js
-                onMouseDown = (evt) => evt.stopPropagation();
+                onMouseDown = evt => evt.stopPropagation();
                 row.dom.addEventListener('mousedown', onMouseDown);
 
-                onDragStart = (evt) => this._onAssetDragStart(evt, asset);
+                onDragStart = evt => this._onAssetDragStart(evt, asset);
                 row.dom.addEventListener('dragstart', onDragStart);
             }
 
@@ -1162,7 +1162,7 @@ Object.assign(pcui, (function () {
             editor.call('assets:contextmenu:attach', row, asset.legacyScript || asset);
 
             // clean up
-            row.on('destroy', dom => {
+            row.on('destroy', (dom) => {
                 delete this._rowsIndex[asset.get('id')];
                 if (onMouseDown) {
                     dom.removeEventListener('mousedown', onMouseDown);
@@ -1331,7 +1331,7 @@ Object.assign(pcui, (function () {
         }
 
         _setAssetSelected(asset, selected) {
-            this._applyFnToAssetElements(asset, element => {
+            this._applyFnToAssetElements(asset, (element) => {
                 if (element.selected !== selected) {
                     element.selected = selected;
                 }
@@ -1432,7 +1432,7 @@ Object.assign(pcui, (function () {
             };
             this._usersIndex[userId] = userEntry;
 
-            data.ids.forEach(assetId => {
+            data.ids.forEach((assetId) => {
                 const gridItem = this._gridIndex[assetId];
                 if (gridItem) {
                     this._createUserIndicator(userId, userEntry, gridItem.containerUsers);
@@ -1534,7 +1534,7 @@ Object.assign(pcui, (function () {
 
             // folder dbl click
             if (DBL_CLICKABLES[asset.get('type')]) {
-                domDblClick = (evt) => this._onAssetDblClick(evt, asset);
+                domDblClick = evt => this._onAssetDblClick(evt, asset);
                 item.dom.addEventListener('dblclick', domDblClick);
             }
 
@@ -1563,11 +1563,11 @@ Object.assign(pcui, (function () {
 
                 item.dom.addEventListener('mousedown', onMouseDown);
 
-                onDragStart = (evt) => this._onAssetDragStart(evt, asset);
+                onDragStart = evt => this._onAssetDragStart(evt, asset);
                 item.dom.addEventListener('dragstart', onDragStart);
             }
 
-            item.on('destroy', dom => {
+            item.on('destroy', (dom) => {
                 if (domDblClick) {
                     dom.removeEventListener('dblclick', domDblClick);
                 }
@@ -1716,7 +1716,7 @@ Object.assign(pcui, (function () {
         }
 
         _onAssetTaskChange(asset) {
-            this._applyFnToAssetElements(asset, element => {
+            this._applyFnToAssetElements(asset, (element) => {
                 this._setElementTaskStatus(element, asset);
             });
         }
@@ -1789,7 +1789,7 @@ Object.assign(pcui, (function () {
 
             // add child folders
             if (this._foldersWaitingParent[id]) {
-                this._foldersWaitingParent[id].forEach(childId => {
+                this._foldersWaitingParent[id].forEach((childId) => {
                     const childAsset = this._assets.get(childId);
                     if (childAsset) {
                         this._addFolder(childAsset);
@@ -1864,7 +1864,7 @@ Object.assign(pcui, (function () {
         }
 
         _onFolderTreeReparent(reparentedItems) {
-            const assets = reparentedItems.map(reparented => {
+            const assets = reparentedItems.map((reparented) => {
                 return reparented.item.asset;
             });
 
@@ -2039,7 +2039,7 @@ Object.assign(pcui, (function () {
         }
 
         _onAssetUsedChange(asset, used) {
-            this._applyFnToAssetElements(asset, element => {
+            this._applyFnToAssetElements(asset, (element) => {
                 if (used) {
                     element.classRemove(CLASS_ASSET_NOT_REFERENCED);
                 } else {
@@ -2210,7 +2210,7 @@ Object.assign(pcui, (function () {
                 }
             }
 
-            assets.forEach(asset => {
+            assets.forEach((asset) => {
                 this._addAsset(asset);
             });
 
@@ -2219,7 +2219,7 @@ Object.assign(pcui, (function () {
             this._assetListEvents.push(this._assets.on('add', (asset, _, index) => {
                 this._addAsset(asset, index, true);
             }));
-            this._assetListEvents.push(this._assets.on('remove', asset => {
+            this._assetListEvents.push(this._assets.on('remove', (asset) => {
                 this._removeAsset(asset);
             }));
             this._assetListEvents.push(this._assets.on('move', (asset, index) => {
@@ -2392,7 +2392,7 @@ Object.assign(pcui, (function () {
             const selectedIndex = {};
 
             // build index of selected assets
-            value.forEach(asset => {
+            value.forEach((asset) => {
                 selectedIndex[asset.get('id')] = true;
             });
 
@@ -2411,7 +2411,7 @@ Object.assign(pcui, (function () {
                 // when there are many rows
                 this._detailsView.allowRowFocus = false;
 
-                value.forEach(asset => {
+                value.forEach((asset) => {
                     this._setAssetSelected(asset, true);
                 });
 

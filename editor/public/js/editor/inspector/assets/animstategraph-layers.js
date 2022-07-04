@@ -211,7 +211,7 @@ Object.assign(pcui, (function () {
         _updateDefaultStateSelect(defaultStateSelect, layerKey) {
             const states = this._assets[0].get(`data.layers.${layerKey}.states`);
             if (!states) return;
-            defaultStateSelect.options = states.map(stateKey => {
+            defaultStateSelect.options = states.map((stateKey) => {
                 const state = this._assets[0].get(`data.states`)[stateKey];
                 if (!state) return {};
                 if (state.nodeType === ANIM_SCHEMA.NODE.DEFAULT_STATE) {
@@ -222,7 +222,7 @@ Object.assign(pcui, (function () {
                     t: state.name,
                     nodeType: state.nodeType
                 };
-            }).filter(option => {
+            }).filter((option) => {
                 return option.nodeType === ANIM_SCHEMA.NODE.STATE || option.nodeType === ANIM_SCHEMA.NODE.DEFAULT_STATE;
             });
         }
@@ -320,13 +320,13 @@ Object.assign(pcui, (function () {
                 );
                 attributesInspector.getField('defaultState').on('change', (value) => {
                     const data = this._assets[0].get('data');
-                    data.layers[layerKey].states.forEach(stateKey => {
+                    data.layers[layerKey].states.forEach((stateKey) => {
                         if (data.states[stateKey] && data.states[stateKey].nodeType === ANIM_SCHEMA.NODE.DEFAULT_STATE) {
                             data.states[stateKey].nodeType = ANIM_SCHEMA.NODE.STATE;
                         }
                     });
                     data.states[value].nodeType = ANIM_SCHEMA.NODE.DEFAULT_STATE;
-                    data.layers[layerKey].transitions.forEach(transitionKey => {
+                    data.layers[layerKey].transitions.forEach((transitionKey) => {
                         const transition = data.transitions[transitionKey];
                         if (transition && transition.defaultTransition) {
                             transition.to = Number(value);
@@ -348,7 +348,7 @@ Object.assign(pcui, (function () {
         unlink() {
             super.unlink();
             if (this._layerPanels) {
-                this._layerPanels.forEach(layerPanel => {
+                this._layerPanels.forEach((layerPanel) => {
                     this.remove(layerPanel);
                 });
                 this._layerPanels = [];

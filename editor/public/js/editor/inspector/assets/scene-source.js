@@ -102,7 +102,7 @@ Object.assign(pcui, (function () {
 
         _addTextures(textures) {
             if (textures && textures.length > 0) {
-                textures.forEach(texture => {
+                textures.forEach((texture) => {
                     const textureLabel = new pcui.Label({ text: texture.name, class: CLASS_ASSET });
                     this._getContainer('textures').append(textureLabel);
                 });
@@ -117,7 +117,7 @@ Object.assign(pcui, (function () {
 
         _addMaterials(materials) {
             if (materials && materials.length > 0) {
-                materials.forEach(material => {
+                materials.forEach((material) => {
                     const materialLabel = new pcui.Label({ text: material.name, class: CLASS_ASSET });
                     this._getContainer('materials').append(materialLabel);
                 });

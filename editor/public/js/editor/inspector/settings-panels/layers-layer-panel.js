@@ -67,7 +67,7 @@ Object.assign(pcui, (function () {
 
             this.class.add(CLASS_LAYER_PANEL);
 
-            const nameChangeEvt = this._attributesInspector.getField(`layers.${this._args.layerKey}.name`).on('change', value => {
+            const nameChangeEvt = this._attributesInspector.getField(`layers.${this._args.layerKey}.name`).on('change', (value) => {
                 this.headerText = value;
             });
 

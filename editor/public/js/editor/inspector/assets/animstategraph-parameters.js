@@ -97,10 +97,10 @@ Object.assign(pcui, (function () {
 
                     prevValue = asset.get(`data.parameters.${paramId}.type`);
                     asset.set(`data.parameters.${paramId}.type`, value);
-                    Object.keys(asset.get(`data.transitions`)).forEach(transitionKey => {
+                    Object.keys(asset.get(`data.transitions`)).forEach((transitionKey) => {
                         const transition = asset.get(`data.transitions.${transitionKey}`);
                         if (transition.conditions) {
-                            Object.keys(transition.conditions).forEach(conditionKey => {
+                            Object.keys(transition.conditions).forEach((conditionKey) => {
                                 const condition = transition.conditions[conditionKey];
                                 if (condition.parameterName === asset.get(`data.parameters.${paramId}.name`)) {
                                     let updatedValue;
@@ -144,13 +144,13 @@ Object.assign(pcui, (function () {
                     asset.history.enabled = false;
 
                     asset.set(`data.parameters.${paramId}.type`, prevValue);
-                    prevConditionValues.forEach(prevConditionValue => {
+                    prevConditionValues.forEach((prevConditionValue) => {
                         const transition = prevConditionValue.transition;
                         const condition = prevConditionValue.condition;
                         const value = prevConditionValue.value;
                         asset.set(`data.transitions.${transition}.conditions.${condition}.value`, value);
                     });
-                    prevConditionPredicates.forEach(prevConditionPredicate => {
+                    prevConditionPredicates.forEach((prevConditionPredicate) => {
                         const transition = prevConditionPredicate.transition;
                         const condition = prevConditionPredicate.condition;
                         const value = prevConditionPredicate.value;
@@ -202,10 +202,10 @@ Object.assign(pcui, (function () {
                     this._assets[0].set(`data.parameters.${paramId}.name`, value);
                     nameField.value = value;
 
-                    Object.keys(asset.get(`data.transitions`)).forEach(transitionKey => {
+                    Object.keys(asset.get(`data.transitions`)).forEach((transitionKey) => {
                         const transition = asset.get(`data.transitions.${transitionKey}`);
                         if (transition.conditions) {
-                            Object.keys(transition.conditions).forEach(conditionKey => {
+                            Object.keys(transition.conditions).forEach((conditionKey) => {
                                 const condition = transition.conditions[conditionKey];
                                 if (condition.parameterName === prevName) {
                                     conditionsWithName.push({
@@ -229,7 +229,7 @@ Object.assign(pcui, (function () {
                     this._assets[0].set(`data.parameters.${paramId}.name`, prevName);
                     nameField.value = prevName;
 
-                    conditionsWithName.forEach(conditionWithName => {
+                    conditionsWithName.forEach((conditionWithName) => {
                         const transition = conditionWithName.transition;
                         const condition = conditionWithName.condition;
                         asset.set(`data.transitions.${transition}.conditions.${condition}.parameterName`, prevName);
@@ -294,10 +294,10 @@ Object.assign(pcui, (function () {
                 const asset = this._assets[0].latest();
                 const historyEnabled = asset.history.enabled;
                 asset.history.enabled = false;
-                Object.keys(asset.get('data.transitions')).forEach(transitionKey => {
+                Object.keys(asset.get('data.transitions')).forEach((transitionKey) => {
                     const transition = asset.get(`data.transitions.${transitionKey}`);
                     if (transition.conditions) {
-                        Object.keys(transition.conditions).forEach(conditionKey => {
+                        Object.keys(transition.conditions).forEach((conditionKey) => {
                             const condition = transition.conditions[conditionKey];
                             if (condition.parameterName === param.name) {
                                 if (!conditions[transitionKey]) conditions[transitionKey] = {};
@@ -316,9 +316,9 @@ Object.assign(pcui, (function () {
                 const asset = this._assets[0].latest();
                 const historyEnabled = this._assets[0].history.enabled;
                 asset.history.enabled = false;
-                Object.keys(asset.get('data.transitions')).forEach(transitionKey => {
+                Object.keys(asset.get('data.transitions')).forEach((transitionKey) => {
                     if (conditions[transitionKey]) {
-                        Object.keys(conditions[transitionKey]).forEach(conditionKey => {
+                        Object.keys(conditions[transitionKey]).forEach((conditionKey) => {
                             asset.set(`data.transitions.${transitionKey}.conditions.${conditionKey}`, conditions[transitionKey][conditionKey]);
                         });
                     }
@@ -351,7 +351,7 @@ Object.assign(pcui, (function () {
         }
 
         _removeParameterList() {
-            Object.keys(this._parameterPanels).forEach(panelKey => {
+            Object.keys(this._parameterPanels).forEach((panelKey) => {
                 this.content.remove(this._parameterPanels[panelKey]);
             });
             this._parameterPanels = {};

@@ -48,7 +48,7 @@ var VersionControlSidePanelBox = function (args) {
         );
         this.checkboxTargetCheckpoint.value = true;
 
-        this.checkboxTargetCheckpoint.on('change', value => {
+        this.checkboxTargetCheckpoint.on('change', (value) => {
             this.emit('createTargetCheckpoint', value);
         });
     }
@@ -59,7 +59,7 @@ var VersionControlSidePanelBox = function (args) {
             args.sourceCheckpointHelp
         );
 
-        this.checkboxSourceCheckpoint.on('change', value => {
+        this.checkboxSourceCheckpoint.on('change', (value) => {
             this.emit('createSourceCheckpoint', value);
         });
     }
@@ -72,7 +72,7 @@ var VersionControlSidePanelBox = function (args) {
         this.panelSourceClose.style.paddingTop = '0';
         this.panelSourceClose.style.borderTop = '0';
 
-        this.checkboxSourceClose.on('change', value => {
+        this.checkboxSourceClose.on('change', (value) => {
             this.emit('closeSourceBranch', value);
         });
     }

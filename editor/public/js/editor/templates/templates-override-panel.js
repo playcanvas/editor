@@ -256,7 +256,7 @@ Object.assign(pcui, (function () {
                     };
 
                     if (type === 'json' && value[0]) {
-                        elementArgs.attributes = Object.keys(value[0]).map(key => {
+                        elementArgs.attributes = Object.keys(value[0]).map((key) => {
                             return {
                                 label: key,
                                 type: 'string',
@@ -378,7 +378,7 @@ Object.assign(pcui, (function () {
                         break;
                     case 'json':
                         field = new pcui.AttributesInspector({
-                            attributes: Object.keys(value).map(key => {
+                            attributes: Object.keys(value).map((key) => {
                                 return {
                                     label: key,
                                     type: 'string',
@@ -470,7 +470,7 @@ Object.assign(pcui, (function () {
                         templates = editor.call('templates:findApplyCandidatesForOverride', override, this._entities, this._entity);
                     }
 
-                    templates.forEach(template => {
+                    templates.forEach((template) => {
                         const apply = new pcui.Label({
                             text: `Apply to ${template.get('name')}`
                         });
@@ -787,7 +787,7 @@ Object.assign(pcui, (function () {
 
             const sorted = this._getSortedOverrides();
 
-            sorted.forEach(entry => {
+            sorted.forEach((entry) => {
                 if (entry.addedEntity) {
                     this._showAddedEntity(entry.addedEntity);
                 }
@@ -818,17 +818,17 @@ Object.assign(pcui, (function () {
                 return entry;
             }
 
-            this._overrides.addedEntities.forEach(e => {
+            this._overrides.addedEntities.forEach((e) => {
                 const entry = getEntry(e.resource_id, e.name);
                 entry.addedEntity = e;
             });
 
-            this._overrides.deletedEntities.forEach(e => {
+            this._overrides.deletedEntities.forEach((e) => {
                 const entry = getEntry(e.resource_id, e.name);
                 entry.deletedEntity = e;
             });
 
-            this._overrides.conflicts.forEach(override => {
+            this._overrides.conflicts.forEach((override) => {
                 const entity = this._entities.get(override.resource_id);
                 const entry = getEntry(override.resource_id, entity ? entity.get('name') : override.resource_id);
                 if (!entry.conflicts) {
@@ -844,7 +844,7 @@ Object.assign(pcui, (function () {
                 return 0;
             });
 
-            result.forEach(entry => {
+            result.forEach((entry) => {
                 if (entry.conflicts) {
                     entry.conflicts.sort((a, b) => {
                         if (a.path < b.path) return -1;
@@ -920,7 +920,7 @@ Object.assign(pcui, (function () {
 
 
             // eslint-disable-next-line no-loop-func
-            conflicts.forEach(override => {
+            conflicts.forEach((override) => {
                 const parts = override.path.split('.');
                 let type;
                 let field;

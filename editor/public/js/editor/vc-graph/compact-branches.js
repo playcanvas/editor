@@ -47,7 +47,7 @@ editor.once('load', function () {
 
             const a = Object.values(h);
 
-            a.forEach(branch => {
+            a.forEach((branch) => {
                 this.canMove(branch, dst) && this.moveBranch(branch, dst);
             });
         }
@@ -85,7 +85,7 @@ editor.once('load', function () {
         }
 
         moveBranch(branch, dst) {
-            branch.forEach(h => {
+            branch.forEach((h) => {
                 h.hasNewCoords = true;
 
                 h.coords.x = dst;

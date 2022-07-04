@@ -109,7 +109,7 @@ Object.assign(pcui, (function () {
         }
     }];
 
-    ATTRIBUTES.forEach(attr => {
+    ATTRIBUTES.forEach((attr) => {
         if (!attr.path) return;
         if (attr.reference) return;
         const parts = attr.path.split('.');
@@ -146,7 +146,7 @@ Object.assign(pcui, (function () {
             this._suppressAssetChange = false;
             this._suppressCustomAabb = false;
 
-            ['type', 'asset', 'lightmapped', 'lightmapSizeMultiplier', 'customAabb'].forEach(field => {
+            ['type', 'asset', 'lightmapped', 'lightmapSizeMultiplier', 'customAabb'].forEach((field) => {
                 this._field(field).on('change', this._toggleFields.bind(this));
             });
 
@@ -189,7 +189,7 @@ Object.assign(pcui, (function () {
             });
 
             binding.on('history:redo', (context) => {
-                context.observers.forEach(observer => {
+                context.observers.forEach((observer) => {
                     observer = observer.latest();
                     if (!observer) return;
 
@@ -248,7 +248,7 @@ Object.assign(pcui, (function () {
 
                 let min = Infinity;
                 let max = -Infinity;
-                this._entities.forEach(e => {
+                this._entities.forEach((e) => {
                     if (!e.get('components.render.lightmapped') ||
                         !e.entity || !e.entity.render ||
                         !e.entity.render.asset && e.entity.render.type === 'asset' ||
@@ -332,7 +332,7 @@ Object.assign(pcui, (function () {
 
             const redo = () => {
                 prev = {};
-                this._entities.forEach(e => {
+                this._entities.forEach((e) => {
                     e = e.latest();
                     if (!e || !e.has('components.render')) return;
 
@@ -360,7 +360,7 @@ Object.assign(pcui, (function () {
             };
 
             const undo = () => {
-                this._entities.forEach(e => {
+                this._entities.forEach((e) => {
                     e = e.latest();
                     if (!e || !e.has('components.render')) return;
 
@@ -423,7 +423,7 @@ Object.assign(pcui, (function () {
 
             this._attributesInspector.link(entities);
 
-            entities.forEach(e => {
+            entities.forEach((e) => {
                 this._entityEvents.push(e.on('components.render.aabbCenter:set', this._refreshCustomAabb.bind(this)));
                 this._entityEvents.push(e.on('components.render.aabbCenter:unset', this._refreshCustomAabb.bind(this)));
             });

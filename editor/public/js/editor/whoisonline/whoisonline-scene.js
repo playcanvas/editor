@@ -20,7 +20,7 @@ editor.once('load', function () {
         }
     });
 
-    editor.on('relay:room:join', data => {
+    editor.on('relay:room:join', (data) => {
         if (!data.name.startsWith('scene-')) return;
 
         if (data.name !== 'scene-' + config.scene.uniqueId) {
@@ -39,7 +39,7 @@ editor.once('load', function () {
         }
     });
 
-    editor.on('relay:room:leave', data => {
+    editor.on('relay:room:leave', (data) => {
         if (!data.name.startsWith('scene-')) return;
 
         if (config.scene.uniqueId && data.name !== 'scene-' + config.scene.uniqueId) {
@@ -81,7 +81,7 @@ editor.once('load', function () {
         }
     });
 
-    editor.method('whoisonline:scene:enabled', enabled => {
+    editor.method('whoisonline:scene:enabled', (enabled) => {
         relayEnabled = enabled;
     });
 });

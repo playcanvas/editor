@@ -36,7 +36,7 @@ editor.once('load', function () {
         }
 
         compareMapsRecursively(keys1) {
-            return keys1.every(k1 => {
+            return keys1.every((k1) => {
                 return this.node2.hasOwnProperty(k1) &&
                     new DeepEqual(this.node1[k1], this.node2[k1]).run();
             });
@@ -58,7 +58,7 @@ editor.once('load', function () {
         }
 
         areBothMaps() {
-            return this.bothNodes.every(h => {
+            return this.bothNodes.every((h) => {
                 return editor.call('template:utils', 'isMapObj', h);
             });
         }

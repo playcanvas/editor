@@ -94,7 +94,7 @@ editor.once('load', function () {
 
             this.overrides.srcToDst = this.srcToDst;
 
-            this.overrides.conflicts.forEach(h => {
+            this.overrides.conflicts.forEach((h) => {
                 h.srcToDst = this.srcToDst;
             });
         }
@@ -102,7 +102,7 @@ editor.once('load', function () {
         filterInvalidConflicts() {
             this.overrides.conflicts.forEach(this.markEntityReference, this);
 
-            this.overrides.conflicts = this.overrides.conflicts.filter(h => {
+            this.overrides.conflicts = this.overrides.conflicts.filter((h) => {
                 return editor.call(
                     'template:isValidTemplateConflict',
                     h,
@@ -123,11 +123,11 @@ editor.once('load', function () {
         }
 
         addMapToTemplIdConflicts() {
-            const a = this.overrides.conflicts.filter(h => {
+            const a = this.overrides.conflicts.filter((h) => {
                 return h.path === 'template_id';
             });
 
-            a.forEach(h => {
+            a.forEach((h) => {
                 const id = h.srcToDst[h.resource_id];
 
                 const m = id && this.asset.entities[id].template_ent_ids;
@@ -155,7 +155,7 @@ editor.once('load', function () {
 
         const h = { entities: {} };
 
-        ents.forEach(ent => {
+        ents.forEach((ent) => {
             const id = ent.get('resource_id');
 
             h.entities[id] = ent.json();

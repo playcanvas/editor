@@ -363,7 +363,7 @@ Object.assign(pcui, (function () {
 
             super(args);
             const fogAttribute = this._attributesInspector.getField('render.fog');
-            const fogChangeEvt = fogAttribute.on('change', value => {
+            const fogChangeEvt = fogAttribute.on('change', (value) => {
                 switch (value) {
                     case 'none':
                         this._attributesInspector.getField('render.fog_start').parent.hidden = true;
@@ -412,7 +412,7 @@ Object.assign(pcui, (function () {
                 areaLightDataField.hidden = true;
             }
 
-            areaLightDataField.on('change', value => {
+            areaLightDataField.on('change', (value) => {
                 if (!value) {
                     // show import button again
                     areaLightImportField.hidden = false;
@@ -422,7 +422,7 @@ Object.assign(pcui, (function () {
                 }
             });
 
-            const handleAreaLightLutsImport = name => {
+            const handleAreaLightLutsImport = (name) => {
                 if (name === 'area-light-luts') {
                     var lutAsset = editor.call('project:engineAsset:getEngineAsset', name);
                     if (lutAsset.length > 0) {

@@ -62,7 +62,7 @@ Object.assign(pcui, (function () {
             });
             this.header.append(enableGroup);
 
-            this._fieldEnable.on('change', value => {
+            this._fieldEnable.on('change', (value) => {
                 enableGroup.text = value ? 'ON' : 'OFF';
             });
 

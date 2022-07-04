@@ -37,7 +37,7 @@ editor.once('load', function () {
         editor.emit('assets:move', asset.apiAssets, pos);
     });
 
-    editor.assets.on('load:progress', progress => {
+    editor.assets.on('load:progress', (progress) => {
         editor.call('assets:progress', progress);
     });
 

@@ -69,7 +69,7 @@ Object.assign(pcui, (function () {
         }
     ];
 
-    const DOM = (parent) => [
+    const DOM = parent => [
         {
             root: {
                 metaPanel: new pcui.Panel({
@@ -182,7 +182,7 @@ Object.assign(pcui, (function () {
 
             const fieldPadding = this._unwrapAttributesInspector.getField('padding');
 
-            this._assets.forEach(asset => {
+            this._assets.forEach((asset) => {
                 editor.call('assets:model:unwrap', asset, {
                     padding: fieldPadding.value
                 });
@@ -194,7 +194,7 @@ Object.assign(pcui, (function () {
         }
 
         _onCancelAutoUnwrap() {
-            this._assets.forEach(asset => {
+            this._assets.forEach((asset) => {
                 editor.call('assets:model:unwrap:cancel', asset);
             });
             this._resetAutoUnwrap();
@@ -214,14 +214,14 @@ Object.assign(pcui, (function () {
         _formatMetaAttribute(attribute) {
             const total = this._assets.map(asset => asset.get(attribute)).reduce((a, b) => a + b, 0);
             const formattedTotal = total.toLocaleString();
-            this._metaAttributesInspector.getField(attribute).values = this._assets.map(asset => {
+            this._metaAttributesInspector.getField(attribute).values = this._assets.map((asset) => {
                 return formattedTotal;
             });
         }
 
         _formatMetaAttributesAttribute() {
             const metaAttributes = {};
-            this._assets.forEach(asset => {
+            this._assets.forEach((asset) => {
                 const currMetaAttributes = asset.get('meta.attributes');
                 if (currMetaAttributes) {
                     Object.assign(metaAttributes, currMetaAttributes);
@@ -232,14 +232,14 @@ Object.assign(pcui, (function () {
             const metaAttributesField = this._metaAttributesInspector.getField('meta.attributes');
             metaAttributesField.parent.hidden = !metaAttributesString;
             metaAttributesField.style.whiteSpace = 'normal';
-            metaAttributesField.values = this._assets.map(asset => {
+            metaAttributesField.values = this._assets.map((asset) => {
                 return metaAttributesString;
             });
         }
 
         _formatUV1Attribute() {
             const uv1Field = this._pipelineAttributesInspector.getField('meta.attributes.texCoord1');
-            const assetsTexCoord1Values = this._assets.map(asset => {
+            const assetsTexCoord1Values = this._assets.map((asset) => {
                 return asset.get('meta.attributes.texCoord1');
             });
             const uv1Options = ['unavailable', 'available', 'various'];
@@ -249,7 +249,7 @@ Object.assign(pcui, (function () {
                 }
                 return 2;
             }, this._assets[0].get('meta.attributes.texCoord1') ? 1 : 0);
-            uv1Field.values = this._assets.map(value => {
+            uv1Field.values = this._assets.map((value) => {
                 return uv1Options[uv1FieldValue];
             });
         }
@@ -267,7 +267,7 @@ Object.assign(pcui, (function () {
                 this._pipelinePanel.collapsed = true;
             }
 
-            META_ATTRIBUTES.forEach(attribute => {
+            META_ATTRIBUTES.forEach((attribute) => {
                 if (attribute.path !== 'meta.attributes') {
                     this._formatMetaAttribute(attribute.path);
                 }
@@ -290,7 +290,7 @@ Object.assign(pcui, (function () {
                 if (assetIndex === -1) {
                     return;
                 }
-                META_ATTRIBUTES.forEach(attribute => {
+                META_ATTRIBUTES.forEach((attribute) => {
                     if (attribute.path !== 'meta.attributes') {
                         this._formatMetaAttribute(attribute.path);
                     }

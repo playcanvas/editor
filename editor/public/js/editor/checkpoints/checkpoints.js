@@ -65,7 +65,7 @@ editor.once('load', function () {
         let url = '{{url.api}}/branches/' + args.branch + '/checkpoints';
         let separator = '?';
 
-        CH_LIST_TASK_FIELDS.forEach(field => {
+        CH_LIST_TASK_FIELDS.forEach((field) => {
             if (args[field]) {
                 url += `${separator}${field}=${args[field]}`;
                 separator = '&';

@@ -134,11 +134,11 @@ editor.once('load', function () {
 
     // Checks template assets for corruptions
     function detectCorruptedTemplateAssets() {
-        const corrupted = editor.assets.filter(asset => {
+        const corrupted = editor.assets.filter((asset) => {
             return asset.get('type') === 'template' && isCorruptedTemplateAsset(asset);
         });
 
-        corrupted.forEach(asset => {
+        corrupted.forEach((asset) => {
             console.error(`Template asset ${asset.get('id')} has invalid nested templates and needs to be recreated`);
         });
 
@@ -162,7 +162,7 @@ editor.once('load', function () {
         }
 
         // stop migration if any realtime errors occur
-        evtErrors = ['realtime:disconnected', 'realtime:error', 'realtime:scene:error'].map(name => {
+        evtErrors = ['realtime:disconnected', 'realtime:error', 'realtime:scene:error'].map((name) => {
             return editor.once(name, () => {
                 stopMigration = true;
             });
@@ -320,7 +320,7 @@ editor.once('load', function () {
             return path;
         }
 
-        assets.forEach(asset => {
+        assets.forEach((asset) => {
             const entities = asset.get('data.entities');
             for (const id in entities) {
                 const templateEntIds = entities[id].template_ent_ids;

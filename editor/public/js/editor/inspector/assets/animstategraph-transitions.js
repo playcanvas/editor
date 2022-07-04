@@ -20,7 +20,7 @@ Object.assign(pcui, (function () {
 
     class TransitionInspector extends pcui.AttributesInspector {
         unlink() {
-            Object.keys(this._fields).forEach(k => {
+            Object.keys(this._fields).forEach((k) => {
                 this._fields[k].blur();
             });
             super.unlink();
@@ -65,10 +65,10 @@ Object.assign(pcui, (function () {
         }
 
         _onDragEnd(_, newIndex, oldIndex) {
-            let transitions = this._assets[0].get(`data.layers.${this._selectedLayer}.transitions`).filter(transitionId => {
+            let transitions = this._assets[0].get(`data.layers.${this._selectedLayer}.transitions`).filter((transitionId) => {
                 const transition = this._assets[0].get(`data.transitions.${transitionId}`);
                 return this._edge === `${transition.from}-${transition.to}`;
-            }).map(transitionId => {
+            }).map((transitionId) => {
                 const transition = this._assets[0].get(`data.transitions.${transitionId}`);
                 return {
                     transition,
@@ -117,14 +117,14 @@ Object.assign(pcui, (function () {
             let transitions = this._assets[0].get(`data.layers.${layer}.transitions`);
             if (!Array.isArray(transitions)) return;
 
-            transitions = transitions.map(transitionId => {
+            transitions = transitions.map((transitionId) => {
                 const transition = this._assets[0].get(`data.transitions.${transitionId}`);
                 return {
                     transitionId,
                     transition
                 };
             });
-            transitions = transitions.filter(item => {
+            transitions = transitions.filter((item) => {
                 return !(edge.from !== item.transition.from || edge.to !== item.transition.to);
             });
             transitions.sort((a, b) => {
@@ -134,7 +134,7 @@ Object.assign(pcui, (function () {
             transitions.forEach((item, i)=> {
                 const { transition, transitionId } = item;
                 let parameters = this._assets[0].get(`data.parameters`);
-                parameters = Object.keys(parameters).map(key => { return parameters[key].name; });
+                parameters = Object.keys(parameters).map((key) => { return parameters[key].name; });
 
                 const baseAttributes = [
                     {
@@ -266,7 +266,7 @@ Object.assign(pcui, (function () {
                 const addConditions = () => {
                     if (!this._assets) return;
                     parameters = this._assets[0].get(`data.parameters`);
-                    parameters = Object.keys(parameters).map(key => { return parameters[key].name; });
+                    parameters = Object.keys(parameters).map((key) => { return parameters[key].name; });
                     const transition = this._assets[0].get(`data.transitions.${transitionId}`);
                     if (transitionPanel.conditions) {
                         transitionPanel.remove(transitionPanel.conditions);
@@ -309,7 +309,7 @@ Object.assign(pcui, (function () {
             if (this._assets) {
                 this._assets = null;
                 if (this._transitionPanels) {
-                    this._transitionPanels.forEach(transitionPanel => {
+                    this._transitionPanels.forEach((transitionPanel) => {
                         transitionPanel.inspector.unlink();
                         this._transitionsContainer.remove(transitionPanel);
                     });

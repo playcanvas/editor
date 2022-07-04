@@ -26,7 +26,7 @@ editor.once('load', function () {
     });
 
     function filterRemovableConflicts(overrides, path, method)  {
-        const a = overrides.conflicts.map(h => {
+        const a = overrides.conflicts.map((h) => {
             return h.path === path ?
                 editor.call(method, h, overrides) :
                 h;
@@ -36,7 +36,7 @@ editor.once('load', function () {
     }
 
     function setAllReparentPaths(overrides) {
-        overrides.conflicts.forEach(h => {
+        overrides.conflicts.forEach((h) => {
             if (h.path === 'parent') {
                 editor.call('templates:setReparentPath', h, overrides);
             }
@@ -54,7 +54,7 @@ editor.once('load', function () {
     function setNumOverrides(overrides) {
         overrides.totalOverrides = 0;
 
-        ['conflicts', 'addedEntities', 'deletedEntities'].forEach(k => {
+        ['conflicts', 'addedEntities', 'deletedEntities'].forEach((k) => {
             overrides.totalOverrides += overrides[k].length;
         });
     }

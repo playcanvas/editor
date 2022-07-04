@@ -167,7 +167,7 @@ Object.assign(pcui, (function () {
 
             this._attrs = utils.deepCopy(SLOT_ATTRIBUTES);
             // replace '$' with the actual slot key
-            this._attrs.forEach(attr => {
+            this._attrs.forEach((attr) => {
                 attr.path = attr.path.replace('$', args.slotKey);
             });
 
@@ -185,7 +185,7 @@ Object.assign(pcui, (function () {
             }
 
             const fieldName = this._inspector.getField(this._getPathTo('name'));
-            fieldName.on('change', value => {
+            fieldName.on('change', (value) => {
                 this.headerText = value;
             });
         }

@@ -43,7 +43,7 @@ Object.assign(pcui, (function () {
         alias: 'components.element.preset',
         args: {
             type: 'string',
-            options: Object.keys(PRESETS).map(key => {
+            options: Object.keys(PRESETS).map((key) => {
                 return { v: key, t: PRESETS[key] };
             })
         }
@@ -322,7 +322,7 @@ Object.assign(pcui, (function () {
         }
     }];
 
-    ATTRIBUTES.forEach(attr => {
+    ATTRIBUTES.forEach((attr) => {
         if (attr.type === 'button') return;
 
         const field = attr.path || attr.alias;
@@ -643,7 +643,7 @@ Object.assign(pcui, (function () {
                 'spriteAsset',
                 'textureAsset',
                 'fontAsset'
-            ].forEach(name => {
+            ].forEach((name) => {
                 this._field(name).on('change', this._toggleFields.bind(this));
             });
 
@@ -732,7 +732,7 @@ Object.assign(pcui, (function () {
                 'outlineThickness',
                 'shadowColor',
                 'shadowOffset'
-            ].forEach(field => {
+            ].forEach((field) => {
                 this._field(field).parent.hidden = !isText;
             });
 
@@ -993,7 +993,7 @@ Object.assign(pcui, (function () {
             }
 
             const undo = () => {
-                prev.forEach(entry => {
+                prev.forEach((entry) => {
                     const entity = entry.entity.latest();
                     if (!entity) return;
 
@@ -1004,7 +1004,7 @@ Object.assign(pcui, (function () {
             const redo = () => {
                 prev = [];
 
-                entities.forEach(entity => {
+                entities.forEach((entity) => {
                     entity = entity.latest();
                     if (!entity) return;
 

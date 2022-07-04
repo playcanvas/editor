@@ -19,7 +19,7 @@ editor.once('load', function () {
         return (entities) => {
             // collect entities
             if (entities) {
-                entities.forEach((e) => entSet.add(e));
+                entities.forEach(e => entSet.add(e));
             }
 
             if (!timeoutId) {

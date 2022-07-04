@@ -42,7 +42,7 @@ Object.assign(pcui, (function () {
         }
     ];
 
-    ATTRIBUTES.forEach(attr => {
+    ATTRIBUTES.forEach((attr) => {
         if (!attr.path || attr.alias) return;
         const parts = attr.path ? attr.path.split('.') : attr.alias.split('.');
         attr.reference = `anim:${parts[parts.length - 1]}`;
@@ -102,7 +102,7 @@ Object.assign(pcui, (function () {
             normalizeWeightsLink.innerText = 'here.';
             this._normalizeWeightsMessage.dom.children[1].appendChild(normalizeWeightsLink);
 
-            this.stateGraphFieldChangeEvent = value => {
+            this.stateGraphFieldChangeEvent = (value) => {
                 if (!value) {
                     const prevHistoryEnabled = this._entities[0].history.enabled;
                     this._entities[0].history.enabled = false;
@@ -126,7 +126,7 @@ Object.assign(pcui, (function () {
             const addEntityAndChildPaths = (entity) => {
                 const path = `${rootEntity.name}${entity.path.replace(rootEntity.path, '')}`.replace(/\./g, '%2E');
                 mask[path] = { value: true };
-                entity.children.forEach(child => {
+                entity.children.forEach((child) => {
                     addEntityAndChildPaths(child);
                 });
             };
@@ -231,7 +231,7 @@ Object.assign(pcui, (function () {
 
                 const updateItemAndChildren = (item, value) => {
                     entityObserver.set(`components.anim.masks.${layerId}.mask.${item.path}.value`, value);
-                    item.forEachChild(childItem => {
+                    item.forEachChild((childItem) => {
                         if (childItem instanceof pcui.TreeViewItem) {
                             updateItemAndChildren(childItem, value);
                         }
@@ -304,7 +304,7 @@ Object.assign(pcui, (function () {
 
             const items = {};
 
-            Object.keys(mask).forEach(path => {
+            Object.keys(mask).forEach((path) => {
                 const pathArr = path.split('/');
                 const name = decodeURI(pathArr[pathArr.length - 1]);
                 const parent = items[pathArr.splice(0, pathArr.length - 1).join('/')] || maskTreeView;
@@ -325,11 +325,11 @@ Object.assign(pcui, (function () {
                     e.history.enabled = false;
                     const mask = e.get(`components.anim.masks.${layerId}.mask`);
                     if (selectedItem) {
-                        maskTreeView.selected.forEach(i => {
+                        maskTreeView.selected.forEach((i) => {
                             e.set(`components.anim.masks.${layerId}.mask.${i.path}.value`, value);
                         });
                     } else {
-                        Object.keys(mask).forEach(path => {
+                        Object.keys(mask).forEach((path) => {
                             e.set(`components.anim.masks.${layerId}.mask.${path}.value`, value);
                         });
                     }
@@ -342,11 +342,11 @@ Object.assign(pcui, (function () {
                     e.history.enabled = false;
                     const mask = e.get(`components.anim.masks.${layerId}.mask`);
                     if (selectedItem) {
-                        maskTreeView.selected.forEach(i => {
+                        maskTreeView.selected.forEach((i) => {
                             e.set(`components.anim.masks.${layerId}.mask.${i.path}.value`, !value);
                         });
                     } else {
-                        Object.keys(mask).forEach(path => {
+                        Object.keys(mask).forEach((path) => {
                             e.set(`components.anim.masks.${layerId}.mask.${path}.value`, !value);
                         });
                     }
@@ -465,7 +465,7 @@ Object.assign(pcui, (function () {
                     }
                 }));
 
-                layer.states.forEach(stateId => {
+                layer.states.forEach((stateId) => {
                     const state = stateGraph.get(`data.states.${stateId}`);
                     if (!state) return;
                     if (!['START', 'END', 'ANY'].includes(state.name)) {

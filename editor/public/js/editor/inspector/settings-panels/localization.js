@@ -38,7 +38,7 @@ Object.assign(pcui, (function () {
                     name: 'Localization',
                     folder: folder && folder.apiAsset
                 })
-                .catch(err => {
+                .catch((err) => {
                     editor.call('status:error', err);
                 });
             });

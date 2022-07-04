@@ -56,7 +56,7 @@ Object.assign(pcui, (function () {
                 class: CLASS_RENDER_ORDER_LIST_ITEM
             });
 
-            const evtName = this._projectSettings.on(`layers.${layer.layer}.name:set`, value => {
+            const evtName = this._projectSettings.on(`layers.${layer.layer}.name:set`, (value) => {
                 layerPanel.headerText = value;
             });
             layerPanel.once('destroy', () => {
@@ -80,7 +80,7 @@ Object.assign(pcui, (function () {
                 value: layer.enabled
             });
 
-            enabledCheckbox.on('change', value => {
+            enabledCheckbox.on('change', (value) => {
                 if (this._suspendLayerEvents) return;
                 const projectSettings = this._projectSettings.latest();
                 const order = projectSettings.get('layerOrder');

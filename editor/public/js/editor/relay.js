@@ -18,11 +18,11 @@ editor.on('start', function () {
         editor.emit('relay:disconnected');
     });
 
-    relay.on('message', evt => {
+    relay.on('message', (evt) => {
         editor.emit('relay:' + evt.t, evt);
     });
 
-    relay.on('error', err => {
+    relay.on('error', (err) => {
         console.error('Relay server: ' + err);
         editor.emit('relay:error', err);
     });
@@ -31,14 +31,14 @@ editor.on('start', function () {
         return relay.isConnected;
     });
 
-    editor.method('relay:joinRoom', name => {
+    editor.method('relay:joinRoom', (name) => {
         relay.joinRoom(name, {
             type: 'project',
             id: config.project.id
         });
     });
 
-    editor.method('relay:leaveRoom', name => {
+    editor.method('relay:leaveRoom', (name) => {
         relay.leaveRoom(name);
     });
 

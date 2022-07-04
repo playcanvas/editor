@@ -1,7 +1,7 @@
 Object.assign(pcui, (function () {
     'use strict';
 
-    const getPreviewUrl = asset => {
+    const getPreviewUrl = (asset) => {
         const url = asset.get('file.url');
         const hash = asset.get('file.hash');
         if (!config || !config.url || !config.url.home || !url || !hash)

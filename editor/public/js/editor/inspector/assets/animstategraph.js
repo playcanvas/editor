@@ -6,7 +6,7 @@ Object.assign(pcui, (function () {
     const CLASS_ANIMSTATEGRAPH_CLOSE_BUTTON = CLASS_ANIMSTATEGRAPH + '-close-button';
     const CLASS_ANIMSTATEGRAPH_CLOSE_BUTTON_TOOLTIP = CLASS_ANIMSTATEGRAPH_CLOSE_BUTTON + '-tooltip';
 
-    const DOM = (parent) => [
+    const DOM = parent => [
         {
             layersPanel: new pcui.AnimstategraphLayers(parent, {
                 headerText: 'LAYERS',
@@ -185,7 +185,7 @@ Object.assign(pcui, (function () {
             this._openEditorButton.hidden = false;
 
             if (this._assetEvents) {
-                this._assetEvents.forEach(evt => {
+                this._assetEvents.forEach((evt) => {
                     evt.unbind();
                 });
                 this._assetEvents = [];

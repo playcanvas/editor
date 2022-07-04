@@ -75,7 +75,7 @@ editor.once('load', function () {
                 index: parent.get('children').length,
                 select: true
             })
-            .then(entities => {
+            .then((entities) => {
                 entities = entities.map(e => e._observer);
                 const vec = new pc.Vec3();
 
@@ -94,7 +94,7 @@ editor.once('load', function () {
                     vec.set(0, 0, 0);
                 }
 
-                entities.forEach(e => {
+                entities.forEach((e) => {
                     e.history.enabled = false;
                     e.set('position', [vec.x, vec.y, vec.z]);
                     e.history.enabled = true;
@@ -104,7 +104,7 @@ editor.once('load', function () {
                 editor.call('viewport:focus');
 
             })
-            .catch(err => {
+            .catch((err) => {
                 editor.call('status:error', err);
             });
         }

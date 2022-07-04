@@ -10,7 +10,7 @@ editor.once('load', function () {
             editor.emit('realtime:connecting', attempts);
         });
 
-        editor.realtime.on('nextAttempt', interval => {
+        editor.realtime.on('nextAttempt', (interval) => {
             editor.emit('realtime:nextAttempt', interval);
         });
 
@@ -18,23 +18,23 @@ editor.once('load', function () {
             editor.emit('realtime:connected');
         });
 
-        editor.realtime.on('error', err => {
+        editor.realtime.on('error', (err) => {
             editor.emit('realtime:error', err);
         });
 
-        editor.realtime.on('error:bs', err => {
+        editor.realtime.on('error:bs', (err) => {
             editor.call('status:error', err);
         });
 
-        editor.realtime.on('error:scene', err => {
+        editor.realtime.on('error:scene', (err) => {
             editor.emit('realtime:scene:error', err);
         });
 
-        editor.realtime.on('error:asset', err => {
+        editor.realtime.on('error:asset', (err) => {
             editor.emit('realtime:asset:error', err);
         });
 
-        editor.realtime.on('disconnect', reason => {
+        editor.realtime.on('disconnect', (reason) => {
             editor.emit('realtime:disconnected', reason);
         });
 
@@ -50,19 +50,19 @@ editor.once('load', function () {
             editor.call('whoisonline:' + op, data);
         });
 
-        editor.realtime.on('chat:typing', data => {
+        editor.realtime.on('chat:typing', (data) => {
             editor.call('chat:sync:typing', data);
         });
 
-        editor.realtime.on('chat:msg', data => {
+        editor.realtime.on('chat:msg', (data) => {
             editor.call('chat:sync:msg', data);
         });
 
-        editor.realtime.on('selection', data => {
+        editor.realtime.on('selection', (data) => {
             editor.emit('selector:sync:raw', data);
         });
 
-        editor.realtime.on('fs:paths', data => {
+        editor.realtime.on('fs:paths', (data) => {
             editor.call('assets:fs:paths:patch', data);
         });
 
@@ -74,7 +74,7 @@ editor.once('load', function () {
             editor.emit('realtime:op:assets', op, uniqueId);
         });
 
-        editor.realtime.on('load:scene', scene => {
+        editor.realtime.on('load:scene', (scene) => {
             editor.emit('scene:load', scene.id, scene.uniqueId);
             editor.emit('scene:raw', scene.data);
         });

@@ -106,10 +106,10 @@ editor.once('load', function () {
             textureAtlas: asset.apiAsset,
             folder: folder && folder.apiAsset
         })
-        .then(sprite => {
+        .then((sprite) => {
             editor.selection.set([sprite]);
         })
-        .catch(err => {
+        .catch((err) => {
             editor.call('status:error', err);
         });
     });

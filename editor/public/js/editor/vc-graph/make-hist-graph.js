@@ -120,7 +120,7 @@ editor.once('load', function () {
         handleParents(h) {
             const res = {};
 
-            h.parent.forEach(e => {
+            h.parent.forEach((e) => {
                 const k = e.branch_id === h.branchId ? 'sameBranch' : 'otherBranch';
 
                 res[k] = this.resGraph[e.parent];
@@ -199,7 +199,7 @@ editor.once('load', function () {
         }
 
         rmAllEdges(h1, type1, type2) {
-            h1[type1].forEach(edge => {
+            h1[type1].forEach((edge) => {
                 const h2 = this.resGraph[edge[type1]];
 
                 h2 && this.rmEdge(h2, type2, h1.id);
@@ -207,7 +207,7 @@ editor.once('load', function () {
         }
 
         rmEdge(h, type, id) {
-            h[type] = h[type].filter(edge => {
+            h[type] = h[type].filter((edge) => {
                 return edge[type] !== id;
             });
         }
@@ -227,7 +227,7 @@ editor.once('load', function () {
         }
 
         rmExternalChildren(h) {
-            h.child = h.child.filter(edge => {
+            h.child = h.child.filter((edge) => {
                 return this.fullGraph[edge.child];
             });
         }

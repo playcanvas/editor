@@ -55,7 +55,7 @@ Object.assign(pcui, (function () {
                 const stateB = data.states[data.transitions[b].to];
                 if (!stateA || !stateB) return 1;
                 return stateA.name > stateB.name ? 1 : -1;
-            }).forEach(transitionId => {
+            }).forEach((transitionId) => {
                 const transition = data.transitions[transitionId];
                 if (transition.from !== state.id || transition.to === undefined) return;
                 hasTransitions = true;
@@ -169,7 +169,7 @@ Object.assign(pcui, (function () {
 
             this._stateInspector.link(this._assets);
 
-            this._stateInspector.getField(`${path}.name`).onValidate = value => {
+            this._stateInspector.getField(`${path}.name`).onValidate = (value) => {
                 return AnimstategraphState.validateStateName(state.id, value, this._assets[0]);
             };
 
@@ -202,7 +202,7 @@ Object.assign(pcui, (function () {
             this._linkedEntities = [];
             this._linkedEntityAssets = [];
 
-            this._args.entities.forEach(entityObserver => {
+            this._args.entities.forEach((entityObserver) => {
 
                 if (entityObserver.get('components.anim.stateGraphAsset') === this._assets[0].get('id')) {
                     const entityPanel = new pcui.Panel({
@@ -281,13 +281,13 @@ Object.assign(pcui, (function () {
                 }
             });
 
-            this._stateInspector.getField(`${path}.name`).on('change', value => {
+            this._stateInspector.getField(`${path}.name`).on('change', (value) => {
                 const prevName = this._stateName;
                 const newName = value;
                 if (prevName === newName || this._suppressOnNameChange) return;
                 const action = {
                     redo: () => {
-                        this._linkedEntities.forEach(entityObserver => {
+                        this._linkedEntities.forEach((entityObserver) => {
                             AnimstategraphState.updateAnimationAssetName(entityObserver, this._layerName, prevName, newName);
                         });
                         const historyEnabled = this._assets[0].history.enabled;
@@ -297,7 +297,7 @@ Object.assign(pcui, (function () {
                         this._stateName = newName;
                     },
                     undo: () => {
-                        this._linkedEntities.forEach(entityObserver => {
+                        this._linkedEntities.forEach((entityObserver) => {
                             AnimstategraphState.updateAnimationAssetName(entityObserver, this._layerName, newName, prevName);
                         });
                         const historyEnabled = this._assets[0].history.enabled;
@@ -329,7 +329,7 @@ Object.assign(pcui, (function () {
                 }
             }
             if (this._linkedEntitiesList) {
-                this._linkedEntitiesList.forEach(panel => {
+                this._linkedEntitiesList.forEach((panel) => {
                     this._linkedEntitiesPanel.remove(panel);
                 });
                 this._linkedEntitiesList = [];

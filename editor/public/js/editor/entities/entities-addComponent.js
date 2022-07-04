@@ -14,7 +14,7 @@ editor.once('load', function () {
             previousChildrenLayouts = {};
 
             entities = entities.map(e => e.latest()).filter(e => !!e && !e.has('components.' + component));
-            entities.forEach(e => {
+            entities.forEach((e) => {
                 const history = e.history.enabled;
                 e.history.enabled = false;
 
@@ -39,7 +39,7 @@ editor.once('load', function () {
         }
 
         function undo() {
-            entities.forEach(e => {
+            entities.forEach((e) => {
                 e = e.latest();
                 if (!e) return;
 

@@ -426,7 +426,7 @@ editor.once('load', function () {
         var merge = function () {
             showRightSidePanel(panelMergeBranchesProgress);
 
-            let evtOnMergeCreated = editor.on('messenger:merge.new', data => {
+            let evtOnMergeCreated = editor.on('messenger:merge.new', (data) => {
                 if (data.dst_branch_id !== config.self.branch.id) return;
 
                 evtOnMergeCreated.unbind();

@@ -72,7 +72,7 @@ editor.once('load', function () {
                     if (!realtimeAsset) return;
 
                     realtimeAsset.tags.clear();
-                    value.forEach(tag => {
+                    value.forEach((tag) => {
                         realtimeAsset.tags.add(tag);
                     });
                 }

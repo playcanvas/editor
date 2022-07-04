@@ -216,11 +216,11 @@ editor.once('load', function () {
     function recurseFindGuids(entity, result) {
         result[entity.get('resource_id')] = true;
         var children = entity.getRaw('children');
-        children.forEach(child => {
+        children.forEach((child) => {
             result[child] = true;
         });
 
-        children.forEach(child => {
+        children.forEach((child) => {
             var child = editor.call('entities:get', child);
             if (child) {
                 recurseFindGuids(child, result);
@@ -238,10 +238,10 @@ editor.once('load', function () {
         }
 
         const components = editor.call('components:list');
-        components.forEach(component => {
+        components.forEach((component) => {
             const store = app.systems[component].store;
             const entityFields = editor.call('components:getFieldsOfType', component, 'entity');
-            entityFields.forEach(field => {
+            entityFields.forEach((field) => {
                 if (entity) {
                     for (const id in guids) {
                         if (!store[id]) continue;

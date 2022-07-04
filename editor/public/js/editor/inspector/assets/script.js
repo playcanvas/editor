@@ -44,7 +44,7 @@ Object.assign(pcui, (function () {
             this._scriptAttributeContainer = new pcui.Container({ class: CLASS_CONTAINER });
             const scripts = this._asset.get('data.scripts');
             let hasScripts = false;
-            Object.keys(scripts).forEach(scriptName => {
+            Object.keys(scripts).forEach((scriptName) => {
                 hasScripts = true;
                 this._scriptAttributeContainer[`_${scriptName}Container`] = new pcui.Container({ flex: true });
                 this._scriptAttributeContainer[`_${scriptName}Container`]._scriptLabel = new pcui.Label({ text: scriptName, class: CLASS_SCRIPT });
@@ -53,7 +53,7 @@ Object.assign(pcui, (function () {
                 if (hasCollision)
                     this._scriptAttributeContainer[`_${scriptName}Container`].append(new pcui.Label({ text: `script ${scriptName} is already defined in other asset`, class: [CLASS_SCRIPT, pcui.CLASS_ERROR] }));
                 const attributes = this._asset.get('data.scripts')[scriptName];
-                attributes.attributesOrder.forEach(attributeName => {
+                attributes.attributesOrder.forEach((attributeName) => {
                     const attributeLabel = new pcui.Label({ text: attributeName, class: CLASS_ATTRIBUTE });
                     const attributeData = attributes.attributes[attributeName];
 
@@ -100,7 +100,7 @@ Object.assign(pcui, (function () {
                 }
                 if (result.scriptsInvalid.length > 0) {
                     this._errorContainer.append(new pcui.Label({ text: 'Validation Errors: ', class: [CLASS_SCRIPT, pcui.CLASS_ERROR] }));
-                    result.scriptsInvalid.forEach(invalidScript => {
+                    result.scriptsInvalid.forEach((invalidScript) => {
                         this._errorContainer.append(new pcui.Label({ text: invalidScript, class: [CLASS_SCRIPT, pcui.CLASS_ERROR] }));
                     });
                     this._errorContainer.hidden = false;

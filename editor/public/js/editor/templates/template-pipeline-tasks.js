@@ -24,7 +24,7 @@ editor.once('load', function () {
         }
     }
 
-    editor.on('messenger:template.apply', data => {
+    editor.on('messenger:template.apply', (data) => {
         removeJob(data.job_id);
     });
 

@@ -24,14 +24,14 @@ Object.assign(pcui, (function () {
             if (!assets[0].get(path)) return;
             const selectParameterName = new pcui.SelectInput({
                 type: 'string',
-                options: this._args.parameters.map(param => { return { v: param, t: param }; }),
+                options: this._args.parameters.map((param) => { return { v: param, t: param }; }),
                 value: assets[0].get(path).parameterName
             });
-            selectParameterName.on('change', value => {
+            selectParameterName.on('change', (value) => {
                 const condition = assets[0].get(path);
                 condition.parameterName = value;
                 const params = assets[0].latest().get('data.parameters');
-                Object.keys(params).forEach(paramKey => {
+                Object.keys(params).forEach((paramKey) => {
                     const param = params[paramKey];
                     if (param.name === condition.parameterName && [ANIM_PARAMETER_BOOLEAN, ANIM_PARAMETER_TRIGGER].includes(param.type)) {
                         condition.value = true;
@@ -42,7 +42,7 @@ Object.assign(pcui, (function () {
             this.append(selectParameterName);
 
             let shouldSelectPredicate;
-            Object.keys(assets[0].get('data.parameters')).forEach(paramKey => {
+            Object.keys(assets[0].get('data.parameters')).forEach((paramKey) => {
                 const param = assets[0].get('data.parameters')[paramKey];
                 if (param.name === assets[0].get(path).parameterName && [ANIM_PARAMETER_INTEGER, ANIM_PARAMETER_FLOAT].includes(param.type)) {
                     shouldSelectPredicate = true;
@@ -78,7 +78,7 @@ Object.assign(pcui, (function () {
                 ],
                 value: assets[0].get(path).predicate
             });
-            selectPredicate.on('change', value => {
+            selectPredicate.on('change', (value) => {
                 const condition = assets[0].get(path);
                 condition.predicate = value;
                 assets[0].set(path, condition);
@@ -99,7 +99,7 @@ Object.assign(pcui, (function () {
                         precision: parameter.type === ANIM_PARAMETER_INTEGER ? 0 : undefined,
                         hideSlider: true
                     });
-                    valueInput.on('change', value => {
+                    valueInput.on('change', (value) => {
                         const condition = assets[0].get(path);
                         condition.value = value;
                         assets[0].set(path, condition);
@@ -109,7 +109,7 @@ Object.assign(pcui, (function () {
                     const valueInput = new pcui.BooleanInput({
                         value: assets[0].get(path).value
                     });
-                    valueInput.on('change', value => {
+                    valueInput.on('change', (value) => {
                         const condition = assets[0].get(path);
                         condition.value = value;
                         assets[0].set(path, condition);

@@ -41,7 +41,7 @@ editor.once('load', function () {
                 .then((asset) => {
                     editor.selection.set([asset]);
                 })
-                .catch(err => {
+                .catch((err) => {
                     editor.call('status:error', err);
                 });
             });
@@ -182,7 +182,7 @@ editor.once('load', function () {
                             .then((asset) => {
                                 editor.selection.set([asset]);
                             })
-                            .catch(err => {
+                            .catch((err) => {
                                 editor.call('status:error', err);
                             });
                         });
@@ -196,7 +196,7 @@ editor.once('load', function () {
                         .then((asset) => {
                             editor.selection.set([asset]);
                         })
-                        .catch(err => {
+                        .catch((err) => {
                             editor.call('status:error', err);
                         });
                     }
@@ -779,7 +779,7 @@ editor.once('load', function () {
 
         element.dom.addEventListener('contextmenu', contextMenuHandler);
 
-        element.on('destroy', dom => {
+        element.on('destroy', (dom) => {
             dom.removeEventListener('contextmenu', contextMenuHandler);
         });
     });

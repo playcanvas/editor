@@ -21,7 +21,7 @@ editor.once('load', function () {
 
             const names = Object.keys(scripts);
 
-            names.forEach(name => {
+            names.forEach((name) => {
                 const attrs = scripts[name].attributes;
 
                 this.scriptNameToAttributes[name] = attrs;

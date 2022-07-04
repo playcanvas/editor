@@ -2,7 +2,7 @@ Object.assign(pcui, (function () {
     'use strict';
 
     // util
-    const makeRefAssigner = (prefix = '') => attr => {
+    const makeRefAssigner = (prefix = '') => (attr) => {
         if (attr.hasOwnProperty('reference')) return;
 
         const path = attr.alias || attr.path;
@@ -207,7 +207,7 @@ Object.assign(pcui, (function () {
     ];
     COMPRESSION_LEGACY_ATTRIBUTES.forEach(makeRefAssigner('asset:texture:compress:'));
 
-    const DOM = (parent) => [
+    const DOM = parent => [
         {
             root: {
                 texturePanel: new pcui.Panel({
@@ -404,7 +404,7 @@ Object.assign(pcui, (function () {
                         latest.history.enabled = false;
                     }
                     const prev = previous.get(observers[i]);
-                    paths.forEach(path => {
+                    paths.forEach((path) => {
                         latest.set(path, prev[path]);
                     });
 
@@ -428,7 +428,7 @@ Object.assign(pcui, (function () {
                     }
 
                     const prev = {};
-                    paths.forEach(path => {
+                    paths.forEach((path) => {
                         prev[path] = latest.get(path);
                         latest.set(path, this._formatValue(value, path));
                     });
@@ -864,7 +864,7 @@ Object.assign(pcui, (function () {
                 this._containerImportBasis.disabled = true;
 
                 const events = [];
-                const handleModuleImported = name => {
+                const handleModuleImported = (name) => {
                     if (name === moduleStoreName) {
                         this._containerImportBasis.hidden = true;
                     }
@@ -972,7 +972,7 @@ Object.assign(pcui, (function () {
         }
 
         _setupSizeLabels() {
-            const getCompressionField = format => {
+            const getCompressionField = (format) => {
                 if (format === 'original')
                     return this._compressionLegacyAttributesInspector.getField('compress.original');
 
@@ -1071,7 +1071,7 @@ Object.assign(pcui, (function () {
                 } else {
                     const variants = [...LEGACY_COMPRESSION_PARAMS, 'basis'];
                     let hideWarning = true;
-                    variants.forEach(variant => {
+                    variants.forEach((variant) => {
                         if (!hideWarning) return;
                         if (assets[0].has(`file.variants.${variant}`) && !assets[0].get(`file.variants.${variant}.noFlip`)) {
                             hideWarning = false;
@@ -1100,7 +1100,7 @@ Object.assign(pcui, (function () {
 
             // setup additional listeners
             this._assetEvents.push(editor.on('permissions:writeState', () => this._handleAssetChangeCompression('meta')));
-            assets.forEach(asset => {
+            assets.forEach((asset) => {
                 // retriggers checkCompressAlpha, checkFormats, checkCompression
                 this._assetEvents.push(asset.on('*:set', this._handleAssetChangeCompression));
                 this._assetEvents.push(asset.on('*:unset', this._handleAssetChangeCompression));

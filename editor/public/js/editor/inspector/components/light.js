@@ -356,7 +356,7 @@ Object.assign(pcui, (function () {
         }
     }];
 
-    ATTRIBUTES.forEach(attr => {
+    ATTRIBUTES.forEach((attr) => {
         if (!attr.path) return;
         const parts = attr.path.split('.');
         attr.reference = `light:${parts[parts.length - 1]}`;
@@ -389,7 +389,7 @@ Object.assign(pcui, (function () {
                 'affectDynamic',
                 'shape',
                 'numCascades'
-            ].forEach(field => {
+            ].forEach((field) => {
                 this._field(field).on('change', this._toggleFields.bind(this));
             });
 
@@ -438,7 +438,7 @@ Object.assign(pcui, (function () {
                 this._field('shape').parent.hidden = true;
             }
 
-            ['range', 'falloffMode'].forEach(field => {
+            ['range', 'falloffMode'].forEach((field) => {
                 this._field(field).parent.hidden = isDirectional;
             });
 
@@ -447,7 +447,7 @@ Object.assign(pcui, (function () {
                 this._field('falloffMode').parent.hidden = true;
             }
 
-            ['innerConeAngle', 'outerConeAngle'].forEach(field => {
+            ['innerConeAngle', 'outerConeAngle'].forEach((field) => {
                 this._field(field).parent.hidden = !isSpot;
             });
 
@@ -466,7 +466,7 @@ Object.assign(pcui, (function () {
             [
                 'cookieIntensity',
                 'cookieChannel'
-            ].forEach(field => {
+            ].forEach((field) => {
                 this._field(field).parent.hidden = isDirectional || !cookie;
             });
 
@@ -474,7 +474,7 @@ Object.assign(pcui, (function () {
                 'cookieAngle',
                 'cookieOffset',
                 'cookieScale'
-            ].forEach(field => {
+            ].forEach((field) => {
                 this._field(field).parent.hidden = isDirectional || isPoint || !cookie;
             });
 
@@ -488,7 +488,7 @@ Object.assign(pcui, (function () {
                 'shadowResolution',
                 'shadowDistance',
                 'shadowType'
-            ].forEach(field => {
+            ].forEach((field) => {
                 this._field(field).parent.hidden = !castShadows;
             });
 
@@ -501,14 +501,14 @@ Object.assign(pcui, (function () {
                 'vsmBlurMode',
                 'vsmBlurSize',
                 'vsmBias'
-            ].forEach(field => {
+            ].forEach((field) => {
                 this._field(field).parent.hidden = !castShadows || shadowType === 0 || shadowType === 4;
             });
 
             [
                 'shadowBias',
                 'normalOffsetBias'
-            ].forEach(field => {
+            ].forEach((field) => {
                 this._field(field).parent.hidden = !castShadows || shadowType !== 0 && shadowType !== 4;
             });
 

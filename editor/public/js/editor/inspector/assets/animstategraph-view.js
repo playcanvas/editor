@@ -37,7 +37,7 @@ Object.assign(pcui, (function () {
         return null;
     };
 
-    const animSchema = (asset) => ({
+    const animSchema = asset => ({
         nodes: {
             [ANIM_SCHEMA.NODE.STATE]: {
                 name: 'state',
@@ -451,7 +451,7 @@ Object.assign(pcui, (function () {
                 if (path === 'data') {
                     const updates = window.diff.default(oldValue, newValue);
                     if (updates.states) {
-                        Object.keys(updates.states).forEach(stateKey => {
+                        Object.keys(updates.states).forEach((stateKey) => {
                             if (stateKey.includes('__added')) {
 
                                 let state = updates.states[stateKey];
@@ -478,7 +478,7 @@ Object.assign(pcui, (function () {
                             }
                         });
                     } if (updates.transitions) {
-                        Object.keys(updates.transitions).forEach(transitionKey => {
+                        Object.keys(updates.transitions).forEach((transitionKey) => {
                             if (transitionKey.includes('__added')) {
                                 const key = transitionKey.replace('__added', '');
                                 this._graph.createEdge(updates.transitions[transitionKey], key, true);
@@ -565,7 +565,7 @@ Object.assign(pcui, (function () {
                 data.layers[this._selectedLayer].states.splice(data.layers[this._selectedLayer].states.indexOf(node.id), 1);
             }
             delete data.states[node.id];
-            edges.forEach(edge => {
+            edges.forEach((edge) => {
                 edge = Number(edge);
                 if (data.layers[this._selectedLayer].transitions.includes(edge)) {
                     data.layers[this._selectedLayer].transitions.splice(data.layers[this._selectedLayer].transitions.indexOf(edge), 1);
@@ -604,7 +604,7 @@ Object.assign(pcui, (function () {
                 const action = {
                     redo: () => {
                         const layerName = this._assets[0].get(`data.layers.${this._selectedLayer}.name`);
-                        this._args.entities.forEach(entityObserver => {
+                        this._args.entities.forEach((entityObserver) => {
                             if (entityObserver.get('components.anim.stateGraphAsset') === this._assets[0].get('id')) {
                                 pcui.AnimstategraphState.updateAnimationAssetName(entityObserver, layerName, prevName, newName);
                             }
@@ -616,7 +616,7 @@ Object.assign(pcui, (function () {
                     },
                     undo: () => {
                         const layerName = this._assets[0].get(`data.layers.${this._selectedLayer}.name`);
-                        this._args.entities.forEach(entityObserver => {
+                        this._args.entities.forEach((entityObserver) => {
                             if (entityObserver.get('components.anim.stateGraphAsset') === this._assets[0].get('id')) {
                                 pcui.AnimstategraphState.updateAnimationAssetName(entityObserver, layerName, newName, prevName);
                             }

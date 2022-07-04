@@ -242,14 +242,14 @@ editor.once('load', function () {
             textureAtlas: atlasAsset.apiAsset,
             folder: folder && folder.apiAsset
         })
-        .then(sprite => {
+        .then((sprite) => {
             selectSprite(sprite._observer);
             if (args && args.callback) {
                 args.callback(sprite._observer);
             }
 
         })
-        .catch(err => {
+        .catch((err) => {
             editor.call('status:error', err);
         });
     });
@@ -273,7 +273,7 @@ editor.once('load', function () {
                 textureAtlas: atlasAsset.apiAsset,
                 folder: folder && folder.apiAsset
             })
-            .then(sprite => {
+            .then((sprite) => {
                 frameCounter++;
                 if (frameCounter === highlightedFrames.length) {
                     setTimeout(() => {
@@ -284,7 +284,7 @@ editor.once('load', function () {
                     });
                 }
             })
-            .catch(err => {
+            .catch((err) => {
                 editor.call('status:error', err);
             });
         });

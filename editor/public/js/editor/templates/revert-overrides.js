@@ -63,10 +63,10 @@ editor.once('load', function () {
                     srcToDst: srcToDst
                 }
             })
-            .then(newEntity => {
+            .then((newEntity) => {
                 newEntityId = newEntity.get('resource_id');
             })
-            .catch(err => {
+            .catch((err) => {
                 editor.call('status:error', err);
             });
         }
@@ -368,7 +368,7 @@ editor.once('load', function () {
             // handle children reordering
             // create a new children array using the dst_value
             // and then add back any added entities and remove any missing entities
-            const newOrder = override.dst_value.map(id => {
+            const newOrder = override.dst_value.map((id) => {
                 for (const key in override.srcToDst) {
                     if (override.srcToDst[key] === id) {
                         return key;
@@ -572,7 +572,7 @@ editor.once('load', function () {
                         srcToDst: editor.call('template:utils', 'invertMap', templateEntIds)
                     }
                 })
-                .then(newEntity => {
+                .then((newEntity) => {
                     entity = newEntity._observer;
                     // use timeout to make sure treeview has been updated
                     setTimeout(() => {

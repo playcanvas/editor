@@ -124,7 +124,7 @@ Object.assign(pcui, (function () {
 
             this.buildDom(DOM(this, args));
 
-            Object.keys(FACES).forEach(face => {
+            Object.keys(FACES).forEach((face) => {
                 const cubemapFace = new pcui.CubemapFace(Object.assign(args, { label: FACES[face], face }));
                 this._faces.push(cubemapFace);
                 this._facesPanel.append(cubemapFace);
@@ -153,7 +153,7 @@ Object.assign(pcui, (function () {
         }
 
         _updateFilteringSelect() {
-            this._cubemapAttributesInspector.getField('filtering').values = this._assets.map(asset => {
+            this._cubemapAttributesInspector.getField('filtering').values = this._assets.map((asset) => {
                 if (asset.get('data.minFilter') === 2 && asset.get('data.magFilter') === 0) {
                     return 'nearest';
                 } else if (asset.get('data.minFilter') === 5 && asset.get('data.magFilter') === 1) {
@@ -207,13 +207,13 @@ Object.assign(pcui, (function () {
         }
 
         _updateFilteringForAssets(filterValue) {
-            const currFilterValues = this._assets.map(asset => {
+            const currFilterValues = this._assets.map((asset) => {
                 return {
                     minFilter: asset.get('data.minFilter'),
                     magFilter: asset.get('data.magFilter')
                 };
             });
-            const assets = this._assets.map(asset => {
+            const assets = this._assets.map((asset) => {
                 asset.history.enabled = false;
                 asset.set('data.minFilter', FILTERS[filterValue].minFilter);
                 asset.set('data.magFilter', FILTERS[filterValue].magFilter);
@@ -250,7 +250,7 @@ Object.assign(pcui, (function () {
         _onFilteringSelectChange(filterValue) {
             if (['nearest', 'linear'].includes(filterValue)) {
                 let hasDiveredFromAssets = false;
-                this._assets.forEach(asset => {
+                this._assets.forEach((asset) => {
                     if (asset.get('data.minFilter') !== FILTERS[filterValue].minFilter) {
                         hasDiveredFromAssets = true;
                     }
@@ -305,7 +305,7 @@ Object.assign(pcui, (function () {
 
             // Events
             this._assetEvents.push(this._cubemapAttributesInspector.getField('filtering').on('change', this._onFilteringSelectChange.bind(this)));
-            assets.forEach(asset => {
+            assets.forEach((asset) => {
                 this._assetEvents.push(asset.on('*:set', () => {
                     this._updateLayout();
                 }));

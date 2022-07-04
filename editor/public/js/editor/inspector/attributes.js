@@ -33,7 +33,7 @@ Object.assign(pcui, (function () {
             this._onAttributeChangeHandler = this._onAttributeChange.bind(this);
 
             // entity attributes
-            args.attributes.forEach(attr => {
+            args.attributes.forEach((attr) => {
                 this.addAttribute(attr);
             });
         }
@@ -217,7 +217,7 @@ Object.assign(pcui, (function () {
                             });
                         }
                     } else if (attr.paths) {
-                        attr.paths.forEach(path => {
+                        attr.paths.forEach((path) => {
                             // use first path to get field as subsequent paths
                             // are not going to be used to index the field in the attribute inspector
                             const field = this.getField(attr.paths[0]);
@@ -302,7 +302,7 @@ Object.assign(pcui, (function () {
                     if (attr.path) {
                         this._templateOverridesInspector.unregisterElementForPath(attr.path);
                     } else if (attr.paths) {
-                        attr.paths.forEach(path => {
+                        attr.paths.forEach((path) => {
                             // use first path to get field as subsequent paths
                             // are not going to be used to index the field in the attribute inspector
                             this._templateOverridesInspector.unregisterElementForPath(path);

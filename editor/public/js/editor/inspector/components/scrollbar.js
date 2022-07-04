@@ -39,7 +39,7 @@ Object.assign(pcui, (function () {
         }
     }];
 
-    ATTRIBUTES.forEach(attr => {
+    ATTRIBUTES.forEach((attr) => {
         const parts = attr.path.split('.');
         attr.reference = `scrollbar:${parts[parts.length - 1]}`;
     });
@@ -52,7 +52,7 @@ Object.assign(pcui, (function () {
             super(args);
 
             const attrs = utils.deepCopy(ATTRIBUTES);
-            attrs.forEach(attr => {
+            attrs.forEach((attr) => {
                 if (attr.type === 'entity') {
                     attr.args = attr.args || {};
                     attr.args.entities = args.entities;

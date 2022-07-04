@@ -49,7 +49,7 @@ Object.assign(pcui, (function () {
 
             this._selectExistingButton.on('click', this._clickSelectExisting.bind(this));
             this._createDefaultButton.on('click', this._clickCreateDefault.bind(this));
-            this._attributesInspector.getField('loadingScreenScript').on('change', value => {
+            this._attributesInspector.getField('loadingScreenScript').on('change', (value) => {
                 if (this._projectSettings) {
                     this._projectSettings.set('loadingScreenScript', value ? value.toString() : null);
                 }
@@ -73,7 +73,7 @@ Object.assign(pcui, (function () {
             editor.once('assets:load', () => {
                 this._loadLayout();
             });
-            this._projectSettings.on('*:set', path => {
+            this._projectSettings.on('*:set', (path) => {
                 if (path === 'loadingScreenScript') {
                     this._loadLayout();
                 }
@@ -123,10 +123,10 @@ Object.assign(pcui, (function () {
                     filename: filename,
                     text: editor.call('sourcefiles:loadingScreen:skeleton')
                 })
-                .then(asset => {
+                .then((asset) => {
                     this._setLoadingScreen(asset._observer);
                 })
-                .catch(err => {
+                .catch((err) => {
                     editor.call('status:error', err);
                 });
             });

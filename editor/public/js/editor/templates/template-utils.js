@@ -70,7 +70,7 @@ editor.once('load', function () {
 
             const a = Object.keys(orig);
 
-            a.forEach(id => {
+            a.forEach((id) => {
                 h[id] = id;
             });
 
@@ -82,7 +82,7 @@ editor.once('load', function () {
         },
 
         getNodeAtPath(node, path) {
-            path.forEach(k => {
+            path.forEach((k) => {
                 const useKey = TemplateUtils.isMapObj(node) ||
                     TemplateUtils.isArIndex(node, k);
 
@@ -219,7 +219,7 @@ editor.once('load', function () {
 
             const a = Object.keys(h1);
 
-            a.forEach(k1 => {
+            a.forEach((k1) => {
                 const k2 = srcToDst[k1] || pc.guid.create();
 
                 h2[k2] = h1[k1];
@@ -231,7 +231,7 @@ editor.once('load', function () {
         entArrayToMap: function (ents) {
             const h = {};
 
-            ents.forEach(e => {
+            ents.forEach((e) => {
                 h[e.resource_id] = e;
             });
 
@@ -241,7 +241,7 @@ editor.once('load', function () {
         strArrayToMap: function (a) {
             const h = {};
 
-            a.forEach(s => {
+            a.forEach((s) => {
                 h[s] = 1;
             });
 
@@ -273,7 +273,7 @@ editor.once('load', function () {
         invertMap: function (h1) {
             const h2 = {};
 
-            Object.keys(h1).forEach(k => {
+            Object.keys(h1).forEach((k) => {
                 const v = h1[k];
 
                 h2[v] = k;
@@ -303,7 +303,7 @@ editor.once('load', function () {
 
             const a = overrides.conflicts.filter(h => h.script_name);
 
-            a.forEach(h => {
+            a.forEach((h) => {
                 if (h.missing_in_dst) {
                     h.override_type = 'override_add_script';
 
@@ -429,13 +429,13 @@ editor.once('load', function () {
         },
 
         addPathsForJsonAr: function (dst, names, pref, inds) {
-            inds.forEach(i => {
+            inds.forEach((i) => {
                 AttrUtils.addEntNamePaths(dst, names, pref, i);
             });
         },
 
         addEntNamePaths: function (dst, names, pref, index) {
-            names.forEach(n => {
+            names.forEach((n) => {
                 const a = index === null ? [n] : [index, n];
 
                 const p = pref.concat(a);
@@ -474,7 +474,7 @@ editor.once('load', function () {
 
             dstEnt = TemplateUtils.deepClone(dstEnt);
 
-            h.entity_ref_paths.forEach(p => {
+            h.entity_ref_paths.forEach((p) => {
                 TemplateUtils.remapEntAtPath(dstEnt, p, dstToSrc);
             });
 
@@ -520,7 +520,7 @@ editor.once('load', function () {
         makeAttrFields: function (attrObj, path) {
             const h = {};
 
-            ['src', 'dst'].forEach(type => {
+            ['src', 'dst'].forEach((type) => {
                 const field = type + '_type';
 
                 h[field] = AttrUtils.attrToTypeStr(attrObj, path);

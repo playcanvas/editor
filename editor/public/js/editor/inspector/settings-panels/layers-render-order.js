@@ -58,7 +58,7 @@ Object.assign(pcui, (function () {
                 this._addSubLayerSelect.focus();
             });
 
-            this._addSubLayerSelect.on('change', value => {
+            this._addSubLayerSelect.on('change', (value) => {
                 if (value === '') return;
                 const keyAndTransparency = value.split('.');
                 const key = parseInt(keyAndTransparency[0], 10);
@@ -78,7 +78,7 @@ Object.assign(pcui, (function () {
             this._addSubLayerSelect.on('blur', () => {
                 let shouldClose = true;
 
-                this._addSubLayerSelect._containerOptions.forEachChild(label => {
+                this._addSubLayerSelect._containerOptions.forEachChild((label) => {
                     if (label.dom.parentElement.querySelector(':hover') === label.dom) shouldClose = false;
                 });
                 if (shouldClose) {
@@ -91,7 +91,7 @@ Object.assign(pcui, (function () {
 
             this._layerUpdateEvts = [];
             const events = ['*:set', '*:unset', 'layerOrder:remove', 'layerOrder:insert', 'layerOrder:move'];
-            events.forEach(evt => {
+            events.forEach((evt) => {
                 this._layerUpdateEvts.push(this._projectSettings.on(evt, () => {
                     this._updateAddSublayerOptions();
                 }));
@@ -105,7 +105,7 @@ Object.assign(pcui, (function () {
             if (!layers) return;
 
             const options = Object.keys(layers)
-            .map(layerKey => {
+            .map((layerKey) => {
                 return [{
                     v: layerKey + '.transparent',
                     t: layers[layerKey].name + ' Transparent',
@@ -118,12 +118,12 @@ Object.assign(pcui, (function () {
                     transparent: false
                 }];
             })
-            .filter(layer => {
+            .filter((layer) => {
                 return layer[0].layerKey >= 1000;
             })
             .flat()
-            .filter(layer => {
-                const layerIsInLayerOrder = projectSettings.get('layerOrder').find(option => {
+            .filter((layer) => {
+                const layerIsInLayerOrder = projectSettings.get('layerOrder').find((option) => {
                     return option.layer === parseInt(layer.layerKey, 10) && option.transparent === layer.transparent;
                 });
                 return !layerIsInLayerOrder;

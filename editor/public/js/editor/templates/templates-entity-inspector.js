@@ -294,7 +294,7 @@ Object.assign(pcui, (function () {
 
                     this._entityDropdownMenu.clear();
 
-                    parentTemplates.forEach(entity => {
+                    parentTemplates.forEach((entity) => {
                         const menuItem = new pcui.Label({
                             text: `Apply to ${entity.get('name')}`
                         });
@@ -371,7 +371,7 @@ Object.assign(pcui, (function () {
 
                 this.class.add(CLASS_OVERRIDES_POSITIVE);
                 const entities = {};
-                this._overrides.conflicts.forEach(override => {
+                this._overrides.conflicts.forEach((override) => {
                     if (!entities[override.resource_id]) {
                         entities[override.resource_id] = [];
                     }
@@ -392,7 +392,7 @@ Object.assign(pcui, (function () {
                 }
 
                 // show new entities
-                this._overrides.addedEntities.forEach(entity => {
+                this._overrides.addedEntities.forEach((entity) => {
                     listItems.push(this._createEntityListItem({
                         name: entity.name,
                         resourceId: entity.resource_id,
@@ -401,7 +401,7 @@ Object.assign(pcui, (function () {
                 });
 
                 // show deleted entities
-                this._overrides.deletedEntities.forEach(entity => {
+                this._overrides.deletedEntities.forEach((entity) => {
                     listItems.push(this._createEntityListItem({
                         name: entity.name,
                         removed: entity
@@ -414,7 +414,7 @@ Object.assign(pcui, (function () {
                     if (a.name > b.name) return 1;
                     return 0;
                 })
-                .forEach(l => {
+                .forEach((l) => {
                     this._containerEntitiesList.append(l.item);
                 });
 

@@ -5,7 +5,7 @@ Object.assign(pcui, (function () {
     const CLASS_PICKER_MODE = CLASS_ROOT + '-picker-mode';
     const CLASS_PICKER_LABEL = CLASS_ROOT + '-picker-label';
 
-    const DOM = (parent) => [
+    const DOM = parent => [
         {
             progress: new pcui.Progress({ width: '100%' })
         },
@@ -166,7 +166,7 @@ Object.assign(pcui, (function () {
                 binding.on('history:redo', () => {
                     prevUserMappings = [];
 
-                    binding.observers.forEach(observer => {
+                    binding.observers.forEach((observer) => {
                         const history = observer.history.enabled;
                         observer.history.enabled = false;
 
@@ -183,7 +183,7 @@ Object.assign(pcui, (function () {
                     });
                 });
                 binding.on('history:undo', () => {
-                    binding.observers.forEach(observer => {
+                    binding.observers.forEach((observer) => {
                         const history = observer.history.enabled;
                         observer.history.enabled = false;
 
@@ -238,7 +238,7 @@ Object.assign(pcui, (function () {
 
         unlink() {
             this._assets = [];
-            this._assetElements.forEach(assetElement => {
+            this._assetElements.forEach((assetElement) => {
                 assetElement.destroy();
             });
             this._assetElements = [];

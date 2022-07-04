@@ -70,15 +70,15 @@ editor.once('load', function () {
         }
     });
 
-    editor.selection.on('add', item => {
+    editor.selection.on('add', (item) => {
         editor.emit('selector:add', item._observer, item instanceof api.Entity ? 'entity' : 'asset');
     });
 
-    editor.selection.on('remove', item => {
+    editor.selection.on('remove', (item) => {
         editor.emit('selector:remove', item._observer, item instanceof api.Entity ? 'entity' : 'asset');
     });
 
-    editor.selection.on('change', items => {
+    editor.selection.on('change', (items) => {
         editor.emit('selector:change', items[0] instanceof api.Entity ? 'entity' : 'asset', items.map(item => item._observer));
     });
 

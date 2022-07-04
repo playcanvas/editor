@@ -124,7 +124,7 @@ editor.on('load', function () {
     });
 
     // save changes to viewmode to localStorage
-    assetsPanel.on('viewMode', value => {
+    assetsPanel.on('viewMode', (value) => {
         editor.call('localStorage:set', 'editor:assets:viewMode', value);
     });
 

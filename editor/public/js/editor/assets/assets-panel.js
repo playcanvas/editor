@@ -15,7 +15,7 @@ editor.once('load', function () {
         editor.call('assets:contextmenu:attach', assetsPanel.gridView, null);
     });
 
-    editor.on('permissions:writeState', value => {
+    editor.on('permissions:writeState', (value) => {
         assetsPanel.writePermissions = value;
     });
 

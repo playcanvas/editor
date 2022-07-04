@@ -34,13 +34,13 @@ editor.once('load', function () {
         }
 
         rmAdded() {
-            this.conflict.src_value = this.conflict.src_value.filter(id => {
+            this.conflict.src_value = this.conflict.src_value.filter((id) => {
                 return !this.addedIds[id];
             });
         }
 
         rmReparented() {
-            this.conflict.src_value = this.conflict.src_value.filter(srcId => {
+            this.conflict.src_value = this.conflict.src_value.filter((srcId) => {
                 const dstId = this.overrides.srcToDst[srcId];
 
                 return this.conflict.dst_value.includes(dstId);
@@ -53,7 +53,7 @@ editor.once('load', function () {
         }
 
         sameSrcDstOrder() {
-            let a = this.conflict.dst_value.map(dstId => {
+            let a = this.conflict.dst_value.map((dstId) => {
                 const srcId = this.dstToSrc[dstId];
 
                 return this.conflict.src_value.includes(srcId) && srcId;

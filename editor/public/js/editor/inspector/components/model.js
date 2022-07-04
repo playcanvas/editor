@@ -104,7 +104,7 @@ Object.assign(pcui, (function () {
         }
     }];
 
-    ATTRIBUTES.forEach(attr => {
+    ATTRIBUTES.forEach((attr) => {
         if (attr.reference) return;
         if (!attr.path) return;
         const parts = attr.path.split('.');
@@ -290,7 +290,7 @@ Object.assign(pcui, (function () {
             this._suppressAssetChange = false;
             this._suppressCustomAabb = false;
 
-            ['type', 'asset', 'lightmapped', 'lightmapSizeMultiplier', 'customAabb'].forEach(field => {
+            ['type', 'asset', 'lightmapped', 'lightmapSizeMultiplier', 'customAabb'].forEach((field) => {
                 this._field(field).on('change', this._toggleFields.bind(this));
             });
 
@@ -329,7 +329,7 @@ Object.assign(pcui, (function () {
 
         _groupMappingsByKey() {
             const result = {};
-            this._entities.forEach(e => {
+            this._entities.forEach((e) => {
                 const mapping = e.get('components.model.mapping');
                 if (!mapping) return;
 
@@ -393,11 +393,11 @@ Object.assign(pcui, (function () {
                 allowDragDrop: true,
                 // update viewport materials on drag enter
                 dragEnterFn: (dropType, dropData) => {
-                    previousMappings = entities.map(e => {
+                    previousMappings = entities.map((e) => {
                         return e.get('components.model.mapping.' + key);
                     });
 
-                    entities.forEach(e => {
+                    entities.forEach((e) => {
                         if (!e.entity || !e.entity.model) return;
 
                         const mapping = e.entity.model.mapping;
@@ -512,7 +512,7 @@ Object.assign(pcui, (function () {
 
                 let min = Infinity;
                 let max = -Infinity;
-                this._entities.forEach(e => {
+                this._entities.forEach((e) => {
                     if (!e.get('components.model.lightmapped') ||
                         !e.entity || !e.entity.model ||
                         !e.entity.model.asset && e.entity.model.type === 'asset' ||
@@ -590,7 +590,7 @@ Object.assign(pcui, (function () {
 
             const redo = () => {
                 prev = {};
-                this._entities.forEach(e => {
+                this._entities.forEach((e) => {
                     e = e.latest();
                     if (!e || !e.has('components.model')) return;
 
@@ -618,7 +618,7 @@ Object.assign(pcui, (function () {
             };
 
             const undo = () => {
-                this._entities.forEach(e => {
+                this._entities.forEach((e) => {
                     e = e.latest();
                     if (!e || !e.has('components.model')) return;
 
@@ -669,7 +669,7 @@ Object.assign(pcui, (function () {
 
             const customAabbValues = [];
 
-            entities.forEach(e => {
+            entities.forEach((e) => {
                 this._entityEvents.push(e.on('*:set', (path) => {
                     const match = path.match(REGEX_MAPPING);
                     if (!match) return;

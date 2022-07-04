@@ -89,7 +89,7 @@ Object.assign(pcui, (function () {
         }
     }];
 
-    ATTRIBUTES.forEach(attr => {
+    ATTRIBUTES.forEach((attr) => {
         const parts = attr.path.split('.');
         attr.reference = `rigidbody:${parts[parts.length - 1]}`;
     });
@@ -140,7 +140,7 @@ Object.assign(pcui, (function () {
                 'angularDamping',
                 'linearFactor',
                 'angularFactor'
-            ].forEach(field => {
+            ].forEach((field) => {
                 this._field(field).parent.hidden = !isDynamic;
             });
         }

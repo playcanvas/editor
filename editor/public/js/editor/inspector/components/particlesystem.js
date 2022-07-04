@@ -340,7 +340,7 @@ Object.assign(pcui, (function () {
         }
     }];
 
-    ATTRIBUTES.forEach(attr => {
+    ATTRIBUTES.forEach((attr) => {
         if (!attr.path && !attr.paths && !attr.alias || attr.reference) return;
 
         const parts = (attr.path || attr.alias || attr.paths[0]).split('.');
@@ -376,7 +376,7 @@ Object.assign(pcui, (function () {
                 'mesh',
                 'renderAsset',
                 'randomizeAnimIndex'
-            ].forEach(field => {
+            ].forEach((field) => {
                 const fieldAttribute = this._field(field);
                 if (fieldAttribute)
                     fieldAttribute.on('change', this._toggleFields.bind(this));
@@ -473,7 +473,7 @@ Object.assign(pcui, (function () {
             this._btnPlay.hidden = true;
             this._btnPause.hidden = false;
 
-            this._entities.forEach(e => {
+            this._entities.forEach((e) => {
                 if (!e.entity || !e.entity.particlesystem || !e.entity.particlesystem.emitter) return;
 
                 if (e.entity.particlesystem.data.paused) {
@@ -492,7 +492,7 @@ Object.assign(pcui, (function () {
             this._btnPlay.hidden = false;
             this._btnPause.hidden = true;
 
-            this._entities.forEach(e => {
+            this._entities.forEach((e) => {
                 if (!e.entity || !e.entity.particlesystem || !e.entity.particlesystem.emitter) return;
 
                 e.entity.particlesystem.pause();
@@ -503,7 +503,7 @@ Object.assign(pcui, (function () {
         _onClickStop() {
             if (!this._entities) return;
 
-            this._entities.forEach(e => {
+            this._entities.forEach((e) => {
                 if (!e.entity || !e.entity.particlesystem || !e.entity.particlesystem.emitter) return;
 
                 e.entity.particlesystem.stop();
@@ -516,7 +516,7 @@ Object.assign(pcui, (function () {
         _onClickReset() {
             if (!this._entities) return;
 
-            this._entities.forEach(e => {
+            this._entities.forEach((e) => {
                 if (!e.entity || !e.entity.particlesystem || !e.entity.particlesystem.emitter) return;
 
                 e.entity.particlesystem.rebuild();

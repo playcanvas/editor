@@ -94,7 +94,7 @@ Object.assign(pcui, (function () {
 
             // fill attribute meta
             const metaAttributes = {};
-            assets.forEach(asset => {
+            assets.forEach((asset) => {
                 const currMetaAttributes = asset.get('meta.attributes');
                 if (currMetaAttributes) {
                     Object.assign(metaAttributes, currMetaAttributes);
@@ -105,7 +105,7 @@ Object.assign(pcui, (function () {
             const metaAttributesField = this._metaAttributesInspector.getField('meta.attributes');
             metaAttributesField.parent.hidden = !metaAttributesString;
             metaAttributesField.style.whiteSpace = 'normal';
-            metaAttributesField.values = assets.map(asset => {
+            metaAttributesField.values = assets.map((asset) => {
                 return metaAttributesString;
             });
         }

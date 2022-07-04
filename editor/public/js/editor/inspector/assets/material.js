@@ -3,7 +3,7 @@ Object.assign(pcui, (function () {
 
     const CLASS_ROOT = 'asset-material-inspector';
 
-    const DOM = (parent) => [{
+    const DOM = parent => [{
         root: {
             materialPanel: new pcui.Panel({
                 headerText: 'MATERIAL'
@@ -1629,7 +1629,7 @@ Object.assign(pcui, (function () {
 
                 const redo = () => {
                     prev = [];
-                    assets.forEach(asset => {
+                    assets.forEach((asset) => {
                         for (const map in MAPS) {
                             const offsetPath = `data.${map}MapOffset`;
                             const tilingPath = `data.${map}MapTiling`;
@@ -1650,7 +1650,7 @@ Object.assign(pcui, (function () {
                 };
 
                 const undo = () => {
-                    prev.forEach(entry => {
+                    prev.forEach((entry) => {
                         const asset = entry.asset.latest();
                         if (!asset) return;
 
@@ -1734,7 +1734,7 @@ Object.assign(pcui, (function () {
             const redo = () => {
                 prev = [];
 
-                assets.forEach(asset => {
+                assets.forEach((asset) => {
                     asset = asset.latest();
                     if (!asset) return;
 
@@ -1765,14 +1765,14 @@ Object.assign(pcui, (function () {
             };
 
             const undo = () => {
-                prev.forEach(entry => {
+                prev.forEach((entry) => {
                     const asset = entry.asset.latest();
                     if (!asset) return;
 
                     const history = asset.history.enabled;
                     asset.history.enabled = false;
 
-                    entry.values.forEach(item => {
+                    entry.values.forEach((item) => {
                         asset.set(item.path, item.value);
                     });
 
@@ -1827,7 +1827,7 @@ Object.assign(pcui, (function () {
 
                 const path = asset.get('path');
 
-                const texturesInSamePath = this._args.assets.find(asset => {
+                const texturesInSamePath = this._args.assets.find((asset) => {
                     return asset.get('type') === 'texture' &&
                             !asset.get('source') &&
                             path.equals(asset.get('path'));
@@ -1835,7 +1835,7 @@ Object.assign(pcui, (function () {
 
                 const candidates = {};
                 let hasCandidates = false;
-                texturesInSamePath.forEach(entry => {
+                texturesInSamePath.forEach((entry) => {
                     const t = this._tokenizeFilename(entry[1].get('name'));
 
                     if (!t || t[0] !== tokens[0] || !POSTFIX_TO_BULK_SLOT[t[1]]) return;
@@ -1855,7 +1855,7 @@ Object.assign(pcui, (function () {
                 if (hasCandidates) {
                     const assets = this._assets.slice();
 
-                    assets.forEach(asset => {
+                    assets.forEach((asset) => {
                         if (asset.get(`data.${name}Map`)) return;
 
                         const history = asset.history.enabled;
@@ -1968,7 +1968,7 @@ Object.assign(pcui, (function () {
 
                     const redo = () => {
                         let dirty = false;
-                        prev.forEach(record => {
+                        prev.forEach((record) => {
                             const asset = record.asset.latest();
                             if (!asset) return;
 
@@ -1984,7 +1984,7 @@ Object.assign(pcui, (function () {
                     };
 
                     const undo = () => {
-                        prev.forEach(record => {
+                        prev.forEach((record) => {
                             const asset = record.asset.latest();
                             if (!asset) return;
 
@@ -2084,7 +2084,7 @@ Object.assign(pcui, (function () {
                 engineAsset.resource.update();
             };
 
-            this._assets.forEach(asset => {
+            this._assets.forEach((asset) => {
                 const engineAsset = app.assets.get(asset.get('id'));
                 if (!engineAsset) return;
 
@@ -2117,7 +2117,7 @@ Object.assign(pcui, (function () {
 
             if (!this._assets) return;
 
-            this._assets.forEach(asset => {
+            this._assets.forEach((asset) => {
                 const engineAsset = app.assets.get(asset.get('id'));
                 if (!engineAsset) return;
 
@@ -2130,7 +2130,7 @@ Object.assign(pcui, (function () {
             });
 
             this._texturesBeforeHover = {};
-            this._hoverEvents.forEach(evt => { evt.asset.off('load', evt.fn); });
+            this._hoverEvents.forEach((evt) => { evt.asset.off('load', evt.fn); });
             this._hoverEvents.length = 0;
 
             editor.call('viewport:render');
@@ -2234,7 +2234,7 @@ Object.assign(pcui, (function () {
 
             // subscribe to offset / tiling changes to update the state of
             // apply to all fields
-            this._assets.forEach(asset => {
+            this._assets.forEach((asset) => {
                 this._assetEvents.push(asset.on('*:set', (path) => {
                     if (REGEX_MAP_OFFSET_OR_TILING.test(path)) {
                         if (this._suppressUpdateAllOffsetAndTilingsTimeout) return;
@@ -2248,8 +2248,8 @@ Object.assign(pcui, (function () {
             });
 
             // update fresnel model when shader changes
-            this._assets.forEach(asset => {
-                this._assetEvents.push(asset.on('data.shader:set', value => {
+            this._assets.forEach((asset) => {
+                this._assetEvents.push(asset.on('data.shader:set', (value) => {
                     const history = asset.history.enabled;
                     asset.history.enabled = false;
                     asset.set('data.fresnelModel', value === 'blinn' ? 2 : 0);

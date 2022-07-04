@@ -8,7 +8,7 @@ editor.once('load', () => {
             previous = {};
             previousChildrenLayouts = {};
 
-            entities.forEach(e => {
+            entities.forEach((e) => {
                 e = e.latest();
                 if (!e) return;
 
@@ -29,7 +29,7 @@ editor.once('load', () => {
         };
 
         const undo = () => {
-            entities.forEach(e => {
+            entities.forEach((e) => {
                 e = e.latest();
                 if (!e) return;
 

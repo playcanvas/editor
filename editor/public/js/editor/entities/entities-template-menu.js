@@ -97,7 +97,7 @@ editor.once('load', function () {
                     select: true,
                     index: parent.get('children').length
                 })
-                .catch(err => {
+                .catch((err) => {
                     editor.call('status:error', err);
                 });
             });

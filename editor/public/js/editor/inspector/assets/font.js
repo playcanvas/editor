@@ -36,7 +36,7 @@ Object.assign(pcui, (function () {
     }];
 
     const addReferences = (attributes) => {
-        attributes.forEach(attr => {
+        attributes.forEach((attr) => {
             const path = attr.alias || attr.path;
             if (!path) return;
             const parts = path.split('.');
@@ -46,7 +46,7 @@ Object.assign(pcui, (function () {
     addReferences(PROPERTIES_ATTRIBUTES);
     addReferences(FONT_ATTRIBUTES);
 
-    const DOM = (parent) => [
+    const DOM = parent => [
         {
             root: {
                 propertiesPanel: new pcui.Panel({
@@ -166,7 +166,7 @@ Object.assign(pcui, (function () {
                             }],
                             defaultSortColumn: 0,
                             createRowFn: (observer) => {
-                                const copyToClipboard = str => {
+                                const copyToClipboard = (str) => {
                                     const el = document.createElement('textarea');
                                     el.value = str;
                                     document.body.appendChild(el);
@@ -323,7 +323,7 @@ Object.assign(pcui, (function () {
 
         _onClickProcessFontButton() {
             const characterValues = this._fontAttributes.getField('characters').value;
-            this._assets.forEach(asset => {
+            this._assets.forEach((asset) => {
                 const sourceId = asset.get('source_asset_id');
                 if (!sourceId) return;
 
@@ -361,7 +361,7 @@ Object.assign(pcui, (function () {
         }
 
         _refreshLocalizationsForAsset() {
-            Object.keys(this._localizations).forEach(locale => {
+            Object.keys(this._localizations).forEach((locale) => {
                 this._removeLocalization(locale);
             });
             Object.keys(this._assets[0].get('i18n'))
@@ -372,7 +372,7 @@ Object.assign(pcui, (function () {
                     return -1;
                 return 0;
             })
-            .forEach(locale => {
+            .forEach((locale) => {
                 const localizationAssetPanel = new pcui.Panel({
                     headerText: locale,
                     removable: true
@@ -446,7 +446,7 @@ Object.assign(pcui, (function () {
                     if (v === null) {
                         const availableCharacters = asset.get('data.chars');
                         const unavailableCharacters = [];
-                        this._fontAttributes.getField('characters').value.split("").forEach(character => {
+                        this._fontAttributes.getField('characters').value.split("").forEach((character) => {
                             if (!availableCharacters[character.charCodeAt()]) unavailableCharacters.push(character);
                         });
                         if (unavailableCharacters.length > 0) {
@@ -469,7 +469,7 @@ Object.assign(pcui, (function () {
 
             const charactersField = this._fontAttributes.getField('characters');
             charactersField.renderChanges = false;
-            charactersField.values = assets.map(asset => {
+            charactersField.values = assets.map((asset) => {
                 return asset.get('meta.chars');
             });
             charactersField.renderChanges = true;
@@ -480,7 +480,7 @@ Object.assign(pcui, (function () {
             this._propertiesAttributes.unlink();
             this._fontAttributes.unlink();
             this._localizationAttributes.unlink();
-            Object.keys(this._localizations).forEach(localization => {
+            Object.keys(this._localizations).forEach((localization) => {
                 this._removeLocalization(localization);
             });
             this._assetEvents.forEach(evt => evt.unbind());

@@ -160,7 +160,7 @@ editor.once('load', function () {
         var errorPassed = false;
         consoleError(...args);
 
-        args.forEach(item => {
+        args.forEach((item) => {
             if (item instanceof Error && item.stack) {
                 var msg = item.message;
                 var lines = item.stack.split('\n');

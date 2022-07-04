@@ -28,7 +28,7 @@ Object.assign(pcui, (function () {
         type: 'boolean'
     }];
 
-    ATTRIBUTES.forEach(attr => {
+    ATTRIBUTES.forEach((attr) => {
         const parts = attr.path.split('.');
         attr.reference = `animation:${parts[parts.length - 1]}`;
     });
@@ -55,7 +55,7 @@ Object.assign(pcui, (function () {
 
         _refreshPlayButtons(entities, assetList) {
             const listItems = assetList.listItems;
-            listItems.forEach(item => {
+            listItems.forEach((item) => {
                 this._addPlayButtonForAnimation(entities, item.assetId, item.element);
             });
         }

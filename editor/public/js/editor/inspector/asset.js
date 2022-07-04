@@ -101,7 +101,7 @@ Object.assign(pcui, (function () {
         }
     }];
 
-    ATTRIBUTES.forEach(attr => {
+    ATTRIBUTES.forEach((attr) => {
         if (attr.reference || attr.noReference) return;
 
         const path = attr.alias || attr.path;
@@ -264,7 +264,7 @@ Object.assign(pcui, (function () {
             this._typedAssetInspectors = [];
             this._typedAssetPreviews = [];
 
-            this._assetTypes.forEach(assetType => {
+            this._assetTypes.forEach((assetType) => {
                 // check if class exists
                 const cls = `${assetType[0].toUpperCase()}${assetType.substring(1)}AssetInspector`;
                 if (pcui.hasOwnProperty(cls)) {
@@ -329,7 +329,7 @@ Object.assign(pcui, (function () {
 
         _onClickOpenInViewer(evt) {
             const hostname = window.location.hostname;
-            const loadParam = this._assets.map(asset => {
+            const loadParam = this._assets.map((asset) => {
                 const fileUrl = asset.get('file.url');
                 return encodeURIComponent(`https://${hostname}${fileUrl}`);
             }).join('&load=');
@@ -372,13 +372,13 @@ Object.assign(pcui, (function () {
         _updateFileSize(assets) {
             if (!this._assets) return;
 
-            const totalSize = this._assets.map(asset => {
+            const totalSize = this._assets.map((asset) => {
                 return asset.has('file.size') ? asset.get('file.size') : 0;
             }).reduce((total, curr) => {
                 return total + curr;
             });
 
-            this._attributesInspector.getField('size').values = this._assets.map(asset => {
+            this._attributesInspector.getField('size').values = this._assets.map((asset) => {
                 return bytesToHuman(totalSize);
             });
         }
@@ -386,7 +386,7 @@ Object.assign(pcui, (function () {
         _updateDates(assets) {
             if (!this._assets) return;
 
-            this._attributesInspector.getField('createdAt').values = this._assets.map(asset => {
+            this._attributesInspector.getField('createdAt').values = this._assets.map((asset) => {
                 return asset.get('createdAt') &&  editor.call('datetime:convert', asset.get('createdAt'));
             });
         }
@@ -403,7 +403,7 @@ Object.assign(pcui, (function () {
 
             if (this._assets && this._assets[0].get('type') === 'cubemap') {
                 let hasAllCubemapTextures = true;
-                this._assets[0].get('data.textures').forEach(texture => {
+                this._assets[0].get('data.textures').forEach((texture) => {
                     if (texture === null) {
                         hasAllCubemapTextures = false;
                     }
@@ -426,7 +426,7 @@ Object.assign(pcui, (function () {
         }
 
         updatePreview() {
-            Object.keys(this._typedAssetPreviews).forEach(assetPreviewKey => {
+            Object.keys(this._typedAssetPreviews).forEach((assetPreviewKey) => {
                 const assetPreview = this._typedAssetPreviews[assetPreviewKey];
                 if (!assetPreview.hidden && typeof assetPreview.updatePreview === 'function') {
                     assetPreview.updatePreview();
@@ -452,13 +452,13 @@ Object.assign(pcui, (function () {
 
             this._attributesInspector.link(assets);
 
-            this._attributesInspector.getField('source').values = assets.map(asset => {
+            this._attributesInspector.getField('source').values = assets.map((asset) => {
                 return asset.get('source') ? 'no' : 'yes';
             });
-            this._attributesInspector.getField('assets').values = assets.map(asset => {
+            this._attributesInspector.getField('assets').values = assets.map((asset) => {
                 return assets.length;
             });
-            this._attributesInspector.getField('type').values = assets.map(asset => {
+            this._attributesInspector.getField('type').values = assets.map((asset) => {
                 if (asset.get('type') === 'scene') {
                     return 'source scene';
                 }
@@ -468,11 +468,11 @@ Object.assign(pcui, (function () {
             this._updateFileSize();
             this._updateDates();
 
-            assets.forEach(asset => {
+            assets.forEach((asset) => {
                 this._assetEvents.push(asset.on('file.size:set', this._updateFileSize.bind(this)));
             });
 
-            this._attributesInspector.getField('source_asset_id').values = assets.map(asset => {
+            this._attributesInspector.getField('source_asset_id').values = assets.map((asset) => {
                 const sourceAssetId = asset.get('source_asset_id');
                 if (!sourceAssetId) return 'none';
 
@@ -480,12 +480,12 @@ Object.assign(pcui, (function () {
                 return sourceAsset ? sourceAsset.get('name') : sourceAssetId;
             });
 
-            this._assetTypes.forEach(assetType => {
+            this._assetTypes.forEach((assetType) => {
                 // check if class exists
                 const cls = `${assetType[0].toUpperCase()}${assetType.substring(1)}AssetInspector`;
                 if (pcui.hasOwnProperty(cls)) {
                     let shouldDisplayTypedInspector = true;
-                    assets.forEach(asset => {
+                    assets.forEach((asset) => {
                         if (asset.get('type') !== assetType.toLowerCase() || asset.get('source')) {
                             shouldDisplayTypedInspector = false;
                         } else if (assetType === 'script' && legacyScripts) {
@@ -503,7 +503,7 @@ Object.assign(pcui, (function () {
                     const clsSource = `${assetType[0].toUpperCase()}${assetType.substring(1)}SourceAssetInspector`;
                     if (pcui.hasOwnProperty(clsSource)) {
                         let shouldDisplayTypedInspector = true;
-                        assets.forEach(asset => {
+                        assets.forEach((asset) => {
                             if (asset.get('type') !== assetType.toLowerCase() || !asset.get('source') || !asset.get('type') === 'scene') {
                                 shouldDisplayTypedInspector = false;
                             }
@@ -518,7 +518,7 @@ Object.assign(pcui, (function () {
                     const clsPreview = `${assetType[0].toUpperCase()}${assetType.substring(1)}AssetInspectorPreview`;
                     if (pcui.hasOwnProperty(clsPreview)) {
                         let shouldDisplayTypedInspector = true;
-                        assets.forEach(asset => {
+                        assets.forEach((asset) => {
                             if (asset.get('type') !== assetType.toLowerCase() || asset.get('source')) {
                                 shouldDisplayTypedInspector = false;
                             }
@@ -552,7 +552,7 @@ Object.assign(pcui, (function () {
             // Determine if the Edit sprite button should be displayed
             this._btnEditSprite.hidden = assets.length > 1 || !['sprite', 'textureatlas'].includes(assets[0].get('type'));
 
-            Object.keys(HIDDEN_FIELDS).forEach(attribute => {
+            Object.keys(HIDDEN_FIELDS).forEach((attribute) => {
                 this._toggleAssetField(attribute);
             });
             this._toggleAssetField('loadingOrder');
@@ -579,7 +579,7 @@ Object.assign(pcui, (function () {
             const hiddenField = HIDDEN_FIELDS[attribute];
 
             let hiddenForAnyAsset = false;
-            this._assets.forEach(asset => {
+            this._assets.forEach((asset) => {
                 let assetType = asset.get('type');
                 if (asset.get('source') === true) {
                     assetType += '.source';
@@ -627,7 +627,7 @@ Object.assign(pcui, (function () {
 
             this._attributesInspector.unlink();
 
-            this._assetTypes.forEach(assetType => {
+            this._assetTypes.forEach((assetType) => {
                 const cls = `${assetType[0].toUpperCase()}${assetType.substring(1)}AssetInspector`;
                 if (pcui.hasOwnProperty(cls)) {
                     this._typedAssetInspectors[assetType].unlink();

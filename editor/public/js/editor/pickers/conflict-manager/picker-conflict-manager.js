@@ -569,7 +569,7 @@ editor.once('load', function () {
         setLayoutMode(LAYOUT_NONE);
         showMainProgress(spinnerIcon, 'Completing merge...');
 
-        editor.call('branches:applyMerge', config.self.branch.merge.id, true, err => {
+        editor.call('branches:applyMerge', config.self.branch.merge.id, true, (err) => {
             if (err && !/Reqest timed out/.test(err)) {
                 onMergeError(err);
                 setTimeout(function () {
@@ -592,7 +592,7 @@ editor.once('load', function () {
         setLayoutMode(LAYOUT_NONE);
         showMainProgress(spinnerIcon, 'Resolving conflicts...');
 
-        editor.call('branches:applyMerge', config.self.branch.merge.id, false, err => {
+        editor.call('branches:applyMerge', config.self.branch.merge.id, false, (err) => {
             if (err && !/Reqest timed out/.test(err)) {
                 onMergeError(err);
                 setTimeout(function () {

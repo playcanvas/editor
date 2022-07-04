@@ -1,7 +1,7 @@
 Object.assign(pcui, (function () {
     'use strict';
 
-    const DOM = (parent) => [
+    const DOM = parent => [
         {
             root: {
                 panel: new pcui.Panel({

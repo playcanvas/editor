@@ -81,7 +81,7 @@ Object.assign(pcui, (function () {
         }
     }];
 
-    ATTRIBUTES.forEach(attr => {
+    ATTRIBUTES.forEach((attr) => {
         const parts = attr.path.split('.');
         attr.reference = `collision:${parts[parts.length - 1]}`;
     });
@@ -162,7 +162,7 @@ Object.assign(pcui, (function () {
             fieldType.binding.on('history:redo', (context) => {
                 if (!context.prevHeights) return;
 
-                context.observers.forEach(entity => {
+                context.observers.forEach((entity) => {
                     entity = entity.latest();
                     if (!entity) return;
 

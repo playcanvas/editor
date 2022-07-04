@@ -6,7 +6,7 @@ Object.assign(pcui, (function () {
     const CLASS_FACE_LABEL = CLASS_FACE + '-label';
     const CLASS_FACE_BUTTON = CLASS_FACE + '-button';
 
-    const DOM_CUBEMAP_FACE = (args) => [
+    const DOM_CUBEMAP_FACE = args => [
         {
             thumbnail: new pcui.AssetThumbnail({
                 assets: args.assets,
