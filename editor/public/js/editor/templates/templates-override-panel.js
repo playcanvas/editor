@@ -231,7 +231,7 @@ Object.assign(pcui, (function () {
                         value = this._layerName(value);
                     }
                 }
-            } else if (type === 'batchGroup'){
+            } else if (type === 'batchGroup') {
                 // convert batch groups to names
                 if (isArray) {
                     value = value.map(this._batchGroupName.bind(this));

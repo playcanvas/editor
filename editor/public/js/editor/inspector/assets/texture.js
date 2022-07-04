@@ -468,9 +468,9 @@ Object.assign(pcui, (function () {
 
         updateSize() {
             const format = this._format;
-            this.text = (!format.size && !format.vram)
-                ? '-'
-                : `${bytesToHuman(format.size)} [VRAM ${bytesToHuman(format.vram)}]`;
+            this.text = (!format.size && !format.vram) ?
+                '-' :
+                `${bytesToHuman(format.size)} [VRAM ${bytesToHuman(format.vram)}]`;
         }
     }
 
@@ -625,7 +625,7 @@ Object.assign(pcui, (function () {
                 this._btnCompressBasis.disabled = true;
                 this._btnCompressLegacy.disabled = true;
                 return;
-            };
+            }
 
             let differentBasis = false;
             let differentLegacy = false;
@@ -633,7 +633,7 @@ Object.assign(pcui, (function () {
                 if (!assets[i].get('file') || !!assets[i].get('task'))
                     continue;
 
-                for (let key in this._compressionFormats) {
+                for (const key in this._compressionFormats) {
                     if (key === 'original')
                         continue;
 
@@ -763,7 +763,7 @@ Object.assign(pcui, (function () {
                 this._checkCompression();
                 this._updateLegacy();
             }, 0);
-        };
+        }
 
         _handleBtnCompressBasisClick() {
             this._handleCompress(['basis']);
@@ -798,7 +798,7 @@ Object.assign(pcui, (function () {
             const assets = this._assets;
             if (!Array.isArray(assets) || !assets.length) {
                 return;
-            };
+            }
 
             pcui.TextureCompressor.compress(assets, formats);
         }
@@ -983,7 +983,7 @@ Object.assign(pcui, (function () {
                 return this._compressionLegacyAttributesInspector.getField(`meta.compress.${format}`);
             };
 
-            for (let key in this._compressionFormats) {
+            for (const key in this._compressionFormats) {
                 const field = getCompressionField(key);
 
                 if (field) {
@@ -1035,7 +1035,7 @@ Object.assign(pcui, (function () {
             // Show the warnings if any of the assets have an issue
 
             for (let i = 0; i < assets.length; i++) {
-                let asset = assets[i];
+                const asset = assets[i];
                 if (!pcui.TextureCompressor.isPOT(asset.get('meta.width'), asset.get('meta.height'))) {
                     if (asset.get('data.mipmaps')) {
                         this._webgl1NonPotWithMipmapsWarning.hidden = false;
@@ -1045,7 +1045,7 @@ Object.assign(pcui, (function () {
             }
 
             for (let i = 0; i < assets.length; i++) {
-                let asset = assets[i];
+                const asset = assets[i];
                 if (!pcui.TextureCompressor.isPOT(asset.get('meta.width'), asset.get('meta.height'))) {
                     if (asset.get('data.addressu') !== 'clamp' || asset.get('data.addressv') !== 'clamp') {
                         this._webgl1NonPotWithoutAddressClampWarning.hidden = false;
@@ -1088,7 +1088,7 @@ Object.assign(pcui, (function () {
 
             // initial checks
             this._btnGetMetaVisibility();
-            for (let key in this._compressionFormats) {
+            for (const key in this._compressionFormats) {
                 this._calculateSize(key);
             }
             this._checkFormats();
@@ -1131,7 +1131,7 @@ Object.assign(pcui, (function () {
                 this._assetEvents.push(asset.on('meta:unset', () => this._btnGetMeta.hidden = false));
 
                 // recalculate size
-                for (let key in this._compressionFormats) {
+                for (const key in this._compressionFormats) {
                     this._assetEvents.push(asset.on(`file.variants.${key}.size:set`, () => this._queueSizeCalculate(key)));
                     this._assetEvents.push(asset.on(`file.variants.${key}.size:unset`, () => this._queueSizeCalculate(key)));
                     this._assetEvents.push(asset.on(`file.variants.${key}.sizeGzip:set`, () => this._queueSizeCalculate(key)));

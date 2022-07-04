@@ -299,7 +299,7 @@ Object.assign(pcui, (function () {
                 v: pc.FITMODE_COVER, t: 'Cover'
             }]
         }
-    },{
+    }, {
         label: 'Use Input',
         path: 'components.element.useInput',
         type: 'boolean'

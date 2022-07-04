@@ -904,7 +904,7 @@ editor.once('load', function () {
         });
     }
 
-    panelDiffCheckpoints.on('diff',  viewDiff);
+    panelDiffCheckpoints.on('diff', viewDiff);
     panelCheckpoints.on('diff', viewDiff);
 
     // show create branch panel
@@ -939,7 +939,7 @@ editor.once('load', function () {
                 } else {
                     showCheckpoints();
                 }
-            },  1000);
+            }, 1000);
         });
     });
 

@@ -146,7 +146,7 @@ Object.assign(
                     id: -2,
                     enabled: true,
                     opaqueSortMode: 2,
-                    transparentSortMode: 3,
+                    transparentSortMode: 3
                 });
                 this._layerComposition = new pc.LayerComposition("anim-viewer");
                 this._layerComposition.push(this._layer);
@@ -167,7 +167,7 @@ Object.assign(
                 this._camera = new pc.Entity("camera");
                 this._camera.addComponent("camera", {
                     clearColor: new pc.Color(41 / 255, 53 / 255, 56 / 255),
-                    layers: [-1, -2],
+                    layers: [-1, -2]
                 });
                 this._camera.setPosition(0, 0, 3);
                 this._cameraOrigin.addChild(this._camera);
@@ -179,7 +179,7 @@ Object.assign(
                 this._light = new pc.Entity("light");
                 this._light.addComponent("light", {
                     type: "directional",
-                    layers: [],
+                    layers: []
                 });
                 this._light.setPosition(0, 0.5, 3);
                 this._light.setLocalEulerAngles(45, 135, 0);
@@ -270,12 +270,12 @@ Object.assign(
 
             createUIContainer() {
                 this._uiContainer = new pcui.Container({
-                    class: "anim-viewer-ui-container",
+                    class: "anim-viewer-ui-container"
                 });
 
                 this._playButton = new pcui.Button({
                     class: "anim-viewer-play-button",
-                    text: "Pause",
+                    text: "Pause"
                 });
 
                 this._playButton.on("click", () => {
@@ -364,7 +364,7 @@ Object.assign(
                 } else {
                     this._entity = entity;
                 }
-                
+
 
                 this._entity.removeComponent("anim");
                 this._entity.addComponent("anim", {
@@ -456,9 +456,9 @@ Object.assign(
 
                     if (this._renderComponents.length > 0 || this._entity.model && this._entity.model.meshInstances.length > 0) {
                         if (this._showModel) {
-                            this._skeleton.setColor(new pc.Color(1,1,1,0.5));
+                            this._skeleton.setColor(new pc.Color(1, 1, 1, 0.5));
                         } else {
-                            this._skeleton.setColor(new pc.Color(1,0.4,0,1));
+                            this._skeleton.setColor(new pc.Color(1, 0.4, 0, 1));
                         }
                     }
                 }

@@ -402,7 +402,7 @@ editor.once('load', function () {
 
     // Enables / disables the appropriate panels for the right
     // side depending on the specified mode
-    var setLayoutMode = function (mode)  {
+    var setLayoutMode = function (mode) {
         layoutMode = mode;
 
         // turn off all right panel children first

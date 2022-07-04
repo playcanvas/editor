@@ -14,25 +14,25 @@ editor.once('load', function () {
     // add module to the project
     editor.method('project:module:addModule', function (moduleStoreName, wasmFilename) {
         function addModuleToProject() {
-            Ajax( {
+            Ajax({
                 url: '{{url.api}}/store/items?name=' + moduleStoreName,
                 method: 'GET',
                 auth: true,
                 data: { }
             }).on('load', function (status, data) {
                 if (data.length === 1) {
-                    Ajax( {
+                    Ajax({
                         url: '{{url.api}}/store/' + data[0].id.toString() + '/clone',
                         method: 'POST',
                         auth: true,
                         data: { scope: { type: 'project', id: config.project.id } },
                         notJson: true       // server response is empty
-                    } ).on('load', function (status, data) {
+                    }).on('load', function (status, data) {
                         editor.call('status:text', 'Module successfully imported');
                         editor.emit('onModuleImported', moduleStoreName);
-                    } ).on('error', function (err) {
+                    }).on('error', function (err) {
                         editor.call('status:error', 'Failed to import module ' + moduleStoreName);
-                    } );
+                    });
                 }
             }).on('error', function (err) {
                 editor.call('status:error', 'Failed to import module ' + moduleStoreName);

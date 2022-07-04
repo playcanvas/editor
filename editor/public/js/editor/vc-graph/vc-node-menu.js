@@ -61,7 +61,7 @@ editor.once('load', function () {
                 },
                 {
                     text: 'Expand Node',
-                    onSelect: () =>  VcMenuUtils.handleExpand(m),
+                    onSelect: () => VcMenuUtils.handleExpand(m),
                     onIsVisible: () => m.node && m.node.isExpandable
                 },
                 {
@@ -107,11 +107,11 @@ editor.once('load', function () {
             const res = {
                 id: h.id,
                 description: h.checkpointData.description,
-                branchName:  menu.vcGraphState.branches[h.branchId].name,
+                branchName: menu.vcGraphState.branches[h.branchId].name,
                 branchId: h.branchId,
                 user: h.checkpointData.user_full_name,
                 date: d.toLocaleString()
-            }
+            };
 
             const s = JSON.stringify(res, null, 4);
 

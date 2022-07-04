@@ -14,25 +14,25 @@ editor.once('load', function () {
     // add Engine Assset to the project
     editor.method('project:engineAsset:addEngineAsset', function (storeName, assetName) {
         function addAssetToProject() {
-            Ajax( {
+            Ajax({
                 url: '{{url.api}}/store/items?name=' + storeName,
                 method: 'GET',
                 auth: true,
                 data: { }
             }).on('load', function (status, data) {
                 if (data.length === 1) {
-                    Ajax( {
+                    Ajax({
                         url: '{{url.api}}/store/' + data[0].id.toString() + '/clone',
                         method: 'POST',
                         auth: true,
                         data: { scope: { type: 'project', id: config.project.id } },
                         notJson: true       // server response is empty
-                    } ).on('load', function (status, data) {
+                    }).on('load', function (status, data) {
                         editor.call('status:text', 'Engine Assset successfully imported');
                         editor.emit('engineAssetImported', assetName);
-                    } ).on('error', function (err) {
+                    }).on('error', function (err) {
                         editor.call('status:error', 'Failed to import Engine Assset ' + storeName);
-                    } );
+                    });
                 }
             }).on('error', function (err) {
                 editor.call('status:error', 'Failed to import Engine Assset ' + storeName);

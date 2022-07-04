@@ -198,7 +198,7 @@ editor.once('load', function () {
 
     // Create sprite asset from selected frames
     editor.method('picker:sprites:spriteFromSelection', function (args) {
-        if (!highlightedFrames.length )
+        if (!highlightedFrames.length)
             return;
 
         // rendermode: 1 - sliced, 0 - simple

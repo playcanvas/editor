@@ -144,7 +144,7 @@ editor.once('load', function () {
 
         var addedTitle = false;
 
-        for (const field in fields)  {
+        for (const field in fields) {
             if (except && except.indexOf(field) !== -1) continue;
 
             var path = fields[field].path;

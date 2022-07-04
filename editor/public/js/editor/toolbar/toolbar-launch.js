@@ -42,7 +42,7 @@ editor.once('load', function () {
     var launchText = document.createElement('span');
     launchText.innerText = 'Launch';
     buttonLaunch.dom.append(launchText);
-    
+
     buttonLaunch.class.add('icon');
     launch.append(buttonLaunch);
 

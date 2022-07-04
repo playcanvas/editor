@@ -2203,7 +2203,7 @@ Object.assign(pcui, (function () {
                             } else if (type === 'number') {
                                 const value = this._assets[j].get('data.' + field);
                                 const defaultValue = editor.call('schema:material:getDefaultValueForField', field);
-                                if (value !== defaultValue ) {
+                                if (value !== defaultValue) {
                                     collapsed = false;
                                     break;
                                 }

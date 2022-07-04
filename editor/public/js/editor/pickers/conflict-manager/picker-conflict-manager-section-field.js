@@ -136,7 +136,7 @@ editor.once('load', function () {
     ConflictFieldSublayer.prototype = Object.create(ConflictField.prototype);
 
     // for JSON just stringify and show value
-    var ConflictFieldJson = function (value){
+    var ConflictFieldJson = function (value) {
         this.element = new pcui.TextAreaInput({
             readOnly: true,
             value: JSON.stringify(value, null, 2),

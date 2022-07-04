@@ -193,7 +193,7 @@ editor.once('load', function () {
                 }
 
                 // create duplicate scene name
-                while (true)  {
+                while (true) {
                     name = namePart + ' ' + numberPart;
                     var found = true;
                     for (let i = 0; i < scenes.length; i++) {

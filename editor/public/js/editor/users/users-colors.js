@@ -19,7 +19,7 @@ editor.once('load', function () {
         [283, 0.44, 0.47]
     ];
 
-    var hue2rgb = function hue2rgb(p, q, t){
+    var hue2rgb = function hue2rgb(p, q, t) {
         if (t < 0) t += 1;
         if (t > 1) t -= 1;
         if (t < 1 / 6) return p + (q - p) * 6 * t;

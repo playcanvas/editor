@@ -131,7 +131,7 @@ Object.assign(pcui, (function () {
                 return a.transition.priority - b.transition.priority;
             });
 
-            transitions.forEach((item, i)=> {
+            transitions.forEach((item, i) => {
                 const { transition, transitionId } = item;
                 let parameters = this._assets[0].get(`data.parameters`);
                 parameters = Object.keys(parameters).map((key) => { return parameters[key].name; });

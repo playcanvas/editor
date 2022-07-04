@@ -59,7 +59,7 @@ editor.once('load', function () {
         small: 1
     };
 
-    const VC_EDGE_TYPES = [ 'parent', 'child' ];
+    const VC_EDGE_TYPES = ['parent', 'child'];
 
     const DESCRIPTION_LINES = 2;
 
@@ -115,7 +115,7 @@ editor.once('load', function () {
                 name: '',
                 nodeType: SELECTED_MARK.type,
                 posX: VcUtils.transformCoord(markCoords, 'x'),
-                posY: VcUtils.transformCoord(markCoords, 'y'),
+                posY: VcUtils.transformCoord(markCoords, 'y')
             };
 
             graph.createNode(h);
@@ -203,7 +203,7 @@ editor.once('load', function () {
 
             const dateStr = VcUtils.epochToStr(h.created_at);
 
-            const parts = [ id, dateStr ];
+            const parts = [id, dateStr];
 
             if (h.user_full_name) {
                 parts.push(h.user_full_name);
@@ -242,7 +242,7 @@ editor.once('load', function () {
             return data.branches[h.branchId].vcBranchColor;
         },
 
-        renderAllVcEdges: async function (data){
+        renderAllVcEdges: async function (data) {
             const nodes = Object.values(data.idToNode);
 
             const edges = [];
@@ -389,7 +389,7 @@ editor.once('load', function () {
             VcUtils.branchCount = 0;
 
             const h = {
-                dom: container.dom,
+                dom: container.dom
             };
 
             Object.assign(h, GRAPH_DEFAULTS);
@@ -461,7 +461,7 @@ editor.once('load', function () {
             return Object.assign(h, defaults);
         },
 
-        pushArToAr: function(a1, a2) {
+        pushArToAr: function (a1, a2) {
             Array.prototype.push.apply(a1, a2);
         },
 
@@ -506,7 +506,7 @@ editor.once('load', function () {
         setColorForBranch: function (h) {
             let n = VcUtils.strToHashCode(h.name);
 
-            n = n % editor.call('vcgraph:numStyles');
+            n %= editor.call('vcgraph:numStyles');
 
             h.vcBranchColor = Math.max(1, n); // 0 is the special marker node
         },
@@ -518,7 +518,7 @@ editor.once('load', function () {
                 const k = editor.call('template:utils', 'getNodeAtPath', h, path);
 
                 VcUtils.addToArrayField(res, k, h);
-            })
+            });
 
             return res;
         },
@@ -642,7 +642,7 @@ editor.once('load', function () {
             let hash = 0;
 
             for (let i = 0; i < s.length; i++) {
-                let chr = s.charCodeAt(i);
+                const chr = s.charCodeAt(i);
 
                 hash = ((hash << 5) - hash) + chr;
 
@@ -709,14 +709,14 @@ editor.once('load', function () {
         cleanHistNode: function (h) {
             const res = { parent: [], child: [] };
 
-            [ 'parent', 'child' ].forEach(s => VcUtils.cleanEdges(res, h, s));
+            ['parent', 'child'].forEach(s => VcUtils.cleanEdges(res, h, s));
 
             return res;
         },
 
         cleanEdges: function (res, h, field) {
             res[field] = h[field].map((edge) => {
-                return VcUtils.fieldsFromHash(edge, [ 'parent', 'child', 'branch_id' ]);
+                return VcUtils.fieldsFromHash(edge, ['parent', 'child', 'branch_id']);
             });
         },
 

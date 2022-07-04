@@ -39,7 +39,7 @@ Object.assign(pcui, (function () {
         label: 'Use Mouse Wheel',
         path: 'components.scrollview.useMouseWheel',
         type: 'boolean'
-        
+
     }, {
         label: 'Mouse Wheel Sensitivity',
         path: 'components.scrollview.mouseWheelSensitivity',

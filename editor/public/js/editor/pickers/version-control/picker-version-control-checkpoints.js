@@ -539,7 +539,7 @@ editor.once('load', function () {
     editor.method('vcgraph:showGraphPanel', function (h) {
         vcGraphPanel.hidden = !vcGraphPanel.hidden;
         const vcGraphContainer = new pcui.Container();
-        const vcGraphCloseBtn = new pcui.Button({text: 'CLOSE'});
+        const vcGraphCloseBtn = new pcui.Button({ text: 'CLOSE' });
         vcGraphCloseBtn.dom.setAttribute('style', `
             position: absolute;
             top: 6px;

@@ -20,7 +20,7 @@ editor.once('load', function () {
             if (type === 'assets') {
                 for (let i = 0; i < data.ids.length; i++) {
                     const asset = app.assets.get(data.ids[i]);
-                    if (!asset || asset.type !== 'template' ) return false;
+                    if (!asset || asset.type !== 'template') return false;
                 }
 
                 for (let i = 0; i < data.ids.length; i++) {

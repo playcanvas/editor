@@ -12,11 +12,11 @@ class EditorGrid {
 
             pos.push(-size / 2, 0, i * interval);
             col.push(color[0], color[1], color[2], color[3]);
-            pos.push( size / 2, 0, i * interval);
+            pos.push(size / 2, 0, i * interval);
             col.push(color[0], color[1], color[2], color[3]);
             pos.push(i * interval, 0, -size / 2);
             col.push(color[0], color[1], color[2], color[3]);
-            pos.push(i * interval, 0,  size / 2);
+            pos.push(i * interval, 0, size / 2);
             col.push(color[0], color[1], color[2], color[3]);
         }
 

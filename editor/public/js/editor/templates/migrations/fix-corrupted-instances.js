@@ -37,7 +37,7 @@ editor.once('load', function () {
     function onEntitiesAndAssetsLoaded() {
         if (canceledMigrationInThisSession || stopMigration) return;
 
-        let foundCorrupted = detectCorruptedTemplateInstances();
+        const foundCorrupted = detectCorruptedTemplateInstances();
         // if (!foundCorrupted) {
         //     foundCorrupted = detectCorruptedTemplateAssets();
         // }

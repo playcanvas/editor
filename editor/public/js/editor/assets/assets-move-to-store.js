@@ -29,7 +29,7 @@ editor.once('load', function () {
                         assetIds: assetIds
                     }
                 },
-                function (t){ }
+                function (t) { }
             );
             return true;
         },

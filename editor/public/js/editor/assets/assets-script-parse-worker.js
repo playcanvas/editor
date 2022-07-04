@@ -326,7 +326,7 @@ var parseScript = function (id, url, engine) {
                 return null;
             },
             number: function (value) {
-                if ( typeof value !== 'number') {
+                if (typeof value !== 'number') {
                     return 'needs to be a number';
                 }
                 return null;

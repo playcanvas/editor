@@ -102,7 +102,7 @@ editor.once('load', function () {
 
             this.recursCall('sameBranch', parents, logic);
 
-            this.recursCall('otherBranch', parents, logic)
+            this.recursCall('otherBranch', parents, logic);
         }
 
         recursCall(type, parents, logic) {

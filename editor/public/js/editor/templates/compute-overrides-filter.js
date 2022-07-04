@@ -25,7 +25,7 @@ editor.once('load', function () {
 
     });
 
-    function filterRemovableConflicts(overrides, path, method)  {
+    function filterRemovableConflicts(overrides, path, method) {
         const a = overrides.conflicts.map((h) => {
             return h.path === path ?
                 editor.call(method, h, overrides) :

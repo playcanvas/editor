@@ -451,7 +451,7 @@ editor.once('load', function () {
         }
 
         enabledCurves.length = 0;
-        for (let i = 0; i < numCurves; i++)  {
+        for (let i = 0; i < numCurves; i++) {
             if (curveToggles[i].class.contains('active')) {
                 enabledCurves.push(curves[i]);
                 if (betweenCurves) {
@@ -595,7 +595,7 @@ editor.once('load', function () {
         });
 
         enabledCurves.length = 0;
-        for (let i = 0; i < numCurves; i++)  {
+        for (let i = 0; i < numCurves; i++) {
             if (curveToggles[i].class.contains('active')) {
                 enabledCurves.push(curves[i]);
                 if (betweenCurves) {
@@ -897,7 +897,7 @@ editor.once('load', function () {
         for (let i = 0; i < curves.length; i++) {
             var k = curves[i].keys;
             var ka = [];
-            for (var j = 0, len = k.length; j < len; j++ ) {
+            for (var j = 0, len = k.length; j < len; j++) {
                 ka.push(k[j][0], k[j][1]);
             }
             keys.push(ka);

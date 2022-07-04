@@ -14,11 +14,11 @@ editor.once('load', function () {
     /**
      * Generates a new diff between 2 checkpoint ids. If one checkpoint id is null
      *
-     * @param {String} srcBranchId - Source branch id
-     * @param {String} srcCheckpointId - Source checkpoint id
-     * @param {String} dstBranchId - Destination branch id
-     * @param {String} dstCheckpointId - Destination checkpoint id
-     * @param {String} histItem - Type and id (joined by dash) of the item whose history is requested
+     * @param {string} srcBranchId - Source branch id
+     * @param {string} srcCheckpointId - Source checkpoint id
+     * @param {string} dstBranchId - Destination branch id
+     * @param {string} dstCheckpointId - Destination checkpoint id
+     * @param {string} histItem - Type and id (joined by dash) of the item whose history is requested
      * @param {Function} callback - Optional callback after the diff is generated.
      *   Has the following signature: (err, diff)
      */

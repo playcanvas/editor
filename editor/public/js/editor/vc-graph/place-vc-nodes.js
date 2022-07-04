@@ -13,7 +13,7 @@ editor.once('load', function () {
 
             this.q1 = [];
 
-            this.q2 = [ this.startNode ];
+            this.q2 = [this.startNode];
 
             this.visited = {};
         }
@@ -56,7 +56,7 @@ editor.once('load', function () {
                 this.setCoords(h, prev, type);
             }
 
-            const dst = h.branchId === this.curBranch ?  this.q1 : this.q2;
+            const dst = h.branchId === this.curBranch ? this.q1 : this.q2;
 
             dst.push(h);
         }

@@ -1,4 +1,3 @@
-
 editor.once('load', function () {
     'use strict';
 
@@ -31,4 +30,3 @@ editor.once('load', function () {
         showTooltipMessage(`You are currently using engine version: ${Object.keys(config.engineVersions[0])[0]}`);
     }
 });
-

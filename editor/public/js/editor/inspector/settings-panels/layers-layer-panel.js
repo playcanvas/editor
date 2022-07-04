@@ -141,7 +141,7 @@ Object.assign(pcui, (function () {
                         layer: parseInt(this._args.layerKey, 10),
                         transparent: transparent,
                         enabled: enabled
-                    },  Math.min(idx, layerOrder.length));
+                    }, Math.min(idx, layerOrder.length));
                 }
 
                 prevSublayers = [];

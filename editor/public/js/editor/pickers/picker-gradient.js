@@ -7,7 +7,7 @@ Object.assign(Helpers, {
         if (!scale) { scale = 1; }
         let rgba = colour.map(function (element, index) {
             return index < 3 ? Math.round(element * scale) : element;
-        } ).join(',');
+        }).join(',');
         for (let i = colour.length; i < 4; ++i) {
             rgba += ',' + (i < 3 ? scale : 1);
         }
@@ -60,7 +60,7 @@ function ColorPicker(parent) {
     this.panel.class.add('color-panel');
     parent.appendChild(this.panel.element);
 
-    this.colorRect = new ui.Canvas( { useDevicePixelRatio: true } );
+    this.colorRect = new ui.Canvas({ useDevicePixelRatio: true });
     this.colorRect.class.add('color-rect');
     this.panel.append(this.colorRect.element);
     this.colorRect.resize(this.colorRect.element.clientWidth,
@@ -70,7 +70,7 @@ function ColorPicker(parent) {
     this.colorHandle.classList.add('color-handle');
     this.panel.append(this.colorHandle);
 
-    this.hueRect = new ui.Canvas( { useDevicePixelRatio: true } );
+    this.hueRect = new ui.Canvas({ useDevicePixelRatio: true });
     this.hueRect.class.add('hue-rect');
     this.panel.append(this.hueRect.element);
     this.hueRect.resize(this.hueRect.element.clientWidth,
@@ -80,7 +80,7 @@ function ColorPicker(parent) {
     this.hueHandle.classList.add('hue-handle');
     this.panel.append(this.hueHandle);
 
-    this.alphaRect = new ui.Canvas( { useDevicePixelRatio: true } );
+    this.alphaRect = new ui.Canvas({ useDevicePixelRatio: true });
     this.alphaRect.class.add('alpha-rect');
     this.panel.append(this.alphaRect.element);
     this.alphaRect.resize(this.alphaRect.element.clientWidth,
@@ -354,17 +354,17 @@ editor.once('load', function () {
         root: editor.call('layout.root'),
         overlay: new ui.Overlay(),
         panel: document.createElement('div'),
-        gradient: new ui.Canvas( { useDevicePixelRatio: true } ),
+        gradient: new ui.Canvas({ useDevicePixelRatio: true }),
         checkerPattern: createCheckerPattern(),
-        anchors: new ui.Canvas( { useDevicePixelRatio: true } ),
+        anchors: new ui.Canvas({ useDevicePixelRatio: true }),
         footer: new ui.Panel(),
-        typeLabel: new ui.Label( { text: 'Type' }),
+        typeLabel: new ui.Label({ text: 'Type' }),
         typeCombo: new ui.SelectField({
             options: { 0: 'placeholder' },
             type: 'number'
         }),
-        positionLabel: new ui.Label( { text: 'Position' }),
-        positionEdit: new ui.NumberField( { min: 0, max: 100, step: 1 } ),
+        positionLabel: new ui.Label({ text: 'Position' }),
+        positionEdit: new ui.NumberField({ min: 0, max: 100, step: 1 }),
         copyButton: new ui.Button({ text: '&#58193' }),
         pasteButton: new ui.Button({ text: '&#58184' }),
         colorPicker: null
@@ -703,9 +703,9 @@ editor.once('load', function () {
             const keys = [];
             STATE.curves[i].keys.forEach(function (element) {
                 if (element[0] !== time) {
-                    keys.push([element[0], element[1]] );
+                    keys.push([element[0], element[1]]);
                 }
-            } );
+            });
             STATE.keystore.push(keys);
         }
     }
@@ -720,7 +720,7 @@ editor.once('load', function () {
 
             // merge keystore with the drag anchor (ignoring existing anchors at
             // the current anchor location)
-            curve.keys = keystore.map(function (element) { return [element[0], element[1]]; } )
+            curve.keys = keystore.map(function (element) { return [element[0], element[1]]; })
             .filter(function (element) { return element[0] !== time; });
             curve.keys.push([time, STATE.selectedValue[i]]);
             curve.sort();
@@ -960,7 +960,7 @@ editor.once('load', function () {
     UI.footer.append(UI.positionEdit);
     UI.positionEdit.style.width = '40px';
     UI.positionEdit.renderChanges = false;
-    UI.positionEdit.on('change', function (value) { if (!STATE.changing) { moveSelectedAnchor(value / 100); } } );
+    UI.positionEdit.on('change', function (value) { if (!STATE.changing) { moveSelectedAnchor(value / 100); } });
 
     UI.copyButton.on('click', doCopy);
     UI.footer.append(UI.copyButton);

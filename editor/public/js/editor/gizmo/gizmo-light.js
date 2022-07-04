@@ -45,7 +45,7 @@ editor.once('load', function () {
             this.type = '';
             this.entity = null;
         }
-    
+
         // update lines
         update() {
             if (!app) return; // webgl not available
@@ -215,7 +215,7 @@ editor.once('load', function () {
             materialBehind.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
             materialBehind.depthTest = false;
             materialBehind.update();
-            
+
             let shaderSpot;
             materialSpot = new pc.BasicMaterial();
             materialSpot.updateShader = function (device) {
@@ -263,7 +263,7 @@ editor.once('load', function () {
             };
             materialSpot.color = colorPrimary;
             materialSpot.update();
-    
+
             materialSpotBehind = new pc.BasicMaterial();
             materialSpotBehind.updateShader = materialSpot.updateShader;
             materialSpotBehind.color = colorBehind;
@@ -273,16 +273,16 @@ editor.once('load', function () {
             materialSpotBehind.depthTest = false;
             materialSpotBehind.update();
         }
-    
+
         static createDirectional() {
-    
+
             const rad = pc.math.DEG_TO_RAD;
             const size = 0.2;
             const length = -(2 - size * 2);
             const positions = [
                 0, 0, 0,
                 0, length, 0,
-    
+
                 // triangle
                 Math.sin(0 * rad) * size, length, Math.cos(0 * rad) * size,
                 Math.sin(120 * rad) * size, length, Math.cos(120 * rad) * size,
@@ -290,7 +290,7 @@ editor.once('load', function () {
                 Math.sin(240 * rad) * size, length, Math.cos(240 * rad) * size,
                 Math.sin(240 * rad) * size, length, Math.cos(240 * rad) * size,
                 Math.sin(0 * rad) * size, length, Math.cos(0 * rad) * size,
-    
+
                 // triangle corners
                 Math.sin(0 * rad) * size, length, Math.cos(0 * rad) * size,
                 0, length - (size * 2), 0,
@@ -299,12 +299,12 @@ editor.once('load', function () {
                 Math.sin(240 * rad) * size, length, Math.cos(240 * rad) * size,
                 0, length - (size * 2), 0
             ];
-        
+
             return Gizmo.createModel(positions, null, material, materialBehind);
         }
-    
+
         static createPoint() {
-    
+
             // xz axis
             const positions = [];
             const factor = 360 / _circleSegments * pc.math.DEG_TO_RAD;
@@ -315,9 +315,9 @@ editor.once('load', function () {
 
             return Gizmo.createModel(positions, null, material, materialBehind);
         }
-    
+
         static createPointClose() {
-            
+
             // circles
             const positions = [];
             const factor = 360 / _circleSegments * pc.math.DEG_TO_RAD;
@@ -329,32 +329,32 @@ editor.once('load', function () {
                 positions.push(0, Math.cos(factor * i), Math.sin(factor * i));
                 positions.push(0, Math.cos(factor * (i + 1)), Math.sin(factor * (i + 1)));
             }
-    
+
             return Gizmo.createModel(positions, null, material, materialBehind);
         }
-    
+
         static createSpot() {
-    
+
             const positions = [];
             const outers = [];
-    
+
             // left line
             positions.push(0, 0, 0, Math.sin(0), -1, Math.cos(0));
             outers.push(1, 1);
-            
+
             // right line
             positions.push(0, 0, 0, Math.sin(Math.PI), -1, Math.cos(Math.PI));
             outers.push(1, 1);
-    
+
             // circles
             const factor = 360 / _circleSegments * pc.math.DEG_TO_RAD;
             for (let i = 0; i < _circleSegments; i++) {
-    
+
                 // inner
                 positions.push(Math.sin(factor * i), -1, Math.cos(factor * i));
                 positions.push(Math.sin(factor * (i + 1)), -1, Math.cos(factor * (i + 1)));
                 outers.push(0, 0);
-    
+
                 // outer
                 positions.push(Math.sin(factor * i), -1, Math.cos(factor * i));
                 positions.push(Math.sin(factor * (i + 1)), -1, Math.cos(factor * (i + 1)));
@@ -365,7 +365,7 @@ editor.once('load', function () {
         }
 
         static createRectangle() {
-    
+
             // 4 lines
             const positions = [
                 -0.5, 0, -0.5, 0.5, 0, -0.5,
@@ -373,15 +373,15 @@ editor.once('load', function () {
                 -0.5, 0, -0.5, -0.5, 0, 0.5,
                 0.5, 0, -0.5, 0.5, 0, 0.5
             ];
-        
+
             return Gizmo.createModel(positions, null, material, materialBehind);
         }
 
         static createDisk() {
-    
+
             const positions = [];
             const factor = 360 / _circleSegments * pc.math.DEG_TO_RAD;
-    
+
             for (let i = 0; i < _circleSegments; i++) {
                 positions.push(0.5 * Math.sin(factor * i), 0, 0.5 * Math.cos(factor * i));
                 positions.push(0.5 * Math.sin(factor * (i + 1)), 0, 0.5 * Math.cos(factor * (i + 1)));
@@ -391,7 +391,7 @@ editor.once('load', function () {
         }
 
         static createSphere() {
-            
+
             // circles
             const positions = [];
             const factor = 360 / _circleSegments * pc.math.DEG_TO_RAD;
@@ -403,40 +403,40 @@ editor.once('load', function () {
                 positions.push(0, 0.5 * Math.cos(factor * i), 0.5 * Math.sin(factor * i));
                 positions.push(0, 0.5 * Math.cos(factor * (i + 1)), 0.5 * Math.sin(factor * (i + 1)));
             }
-    
+
             return Gizmo.createModel(positions, null, material, materialBehind);
         }
 
         static createModel(positions, outers, materialFront, materialBack) {
-            
+
             // node
             const node = new pc.GraphNode();
-    
+
             // mesh
             const mesh = new pc.Mesh();
             mesh.setPositions(positions);
             if (outers)
                 mesh.setVertexStream(pc.SEMANTIC_ATTR15, outers, 1);
             mesh.update(pc.PRIMITIVE_LINES);
-    
+
             // meshInstances
             const meshInstance = new pc.MeshInstance(node, mesh, materialFront);
             meshInstance.mask = GIZMO_MASK;
             meshInstance.pick = false;
-    
+
             const meshInstanceBehind = new pc.MeshInstance(node, mesh, materialBack);
             meshInstanceBehind.__useFrontLayer = true;
             meshInstanceBehind.mask = GIZMO_MASK;
             meshInstanceBehind.pick = false;
-    
+
             // model
             const model = new pc.Model();
             model.graph = node;
             model.meshInstances = [meshInstance, meshInstanceBehind];
-    
+
             return model;
         }
-    };
+    }
 
     editor.on('selector:change', function (type, items) {
         // clear gizmos

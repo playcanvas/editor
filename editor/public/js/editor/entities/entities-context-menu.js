@@ -248,7 +248,7 @@ editor.once('load', function () {
     });
 
     editor.method('entities:contextmenu:open', function (item, x, y, ignoreSelection) {
-        if (!menu ) return;
+        if (!menu) return;
 
         entity = item;
 

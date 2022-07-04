@@ -1,12 +1,12 @@
 editor.once('load', function () {
     'use strict';
 
-    if (!editor.call('settings:project').get('useLegacyScripts')){
+    if (!editor.call('settings:project').get('useLegacyScripts')) {
         return;
     }
 
     // keep metrics on number of writeable projects
-    if (metrics){
+    if (metrics) {
         metrics.increment({ metricsName: 'editor.script.count.by_type.legacy_script' +
                                             (editor.call('permissions:write') ? '.writable' : '.read_only') +
                                             '.with_project_id.' + config.project.id });
