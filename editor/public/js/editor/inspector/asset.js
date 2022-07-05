@@ -174,6 +174,37 @@ Object.assign(pcui, (function () {
         return type && ['texture', 'textureatlas'].indexOf(type) !== -1;
     };
 
+    // handle opening a list of assets
+    editor.method('assets:open', (assets) => {
+        const hostname = window.location.hostname;
+        const encodeUrl = (url) => {
+            return encodeURIComponent(`https://${hostname}${url}`);
+        };
+
+        const modelUrls = [];
+        const textureUrls = [];
+
+        assets.forEach((asset) => {
+            if (isGlbAsset(asset)) {
+                modelUrls.push(encodeUrl(asset.get('file.url')));
+            } else if (isTextureAsset(asset)) {
+                textureUrls.push(encodeUrl(asset.get('file.url')));
+                const basisUrl = asset.get('file.variants.basis.url');
+                if (basisUrl) {
+                    textureUrls.push(encodeUrl(basisUrl));
+                }
+            }
+        });
+
+        if (modelUrls.length) {
+            window.open(`/model-viewer?load=${modelUrls.join('&load=')}`);
+        }
+
+        if (textureUrls.length) {
+            window.open(`/texture-tool?load=${textureUrls.join('&load=')}`)
+        }
+    });
+
     class AssetInspector extends pcui.Container {
         constructor(args) {
             if (!args) args = {};
@@ -328,17 +359,7 @@ Object.assign(pcui, (function () {
         }
 
         _onClickOpenInViewer(evt) {
-            const hostname = window.location.hostname;
-            const loadParam = this._assets.map((asset) => {
-                const fileUrl = asset.get('file.url');
-                return encodeURIComponent(`https://${hostname}${fileUrl}`);
-            }).join('&load=');
-
-            if (isGlbAsset(this._assets[0])) {
-                window.open(`/model-viewer?load=${loadParam}`);
-            } else {
-                window.open(`/texture-tool?load=${loadParam}`);
-            }
+            editor.call('assets:open', this._assets);
         }
 
         _onClickEditAsset(evt) {

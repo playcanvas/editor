@@ -496,14 +496,7 @@ editor.once('load', function () {
         text: 'Open In Viewer',
         icon: ICONS.OPEN_IN_VIEWER,
         onSelect: () => {
-            const hostname = window.location.hostname;
-            const fileUrl = currentAsset.get('file.url');
-            const loadParam = encodeURIComponent(`https://${hostname}${fileUrl}`);
-            if (isGlbAsset(currentAsset)) {
-                window.open(`/model-viewer?load=${loadParam}`);
-            } else {
-                window.open(`/texture-tool?load=${loadParam}`);
-            }
+            editor.call('assets:open', [currentAsset]);
         }
     });
     menu.append(menuItemOpenInViewer);

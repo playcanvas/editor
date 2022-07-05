@@ -71,7 +71,9 @@ Object.assign(pcui, (function () {
         sprite: true,
         text: true,
         textureatlas: true,
-        animstategraph: true
+        animstategraph: true,
+        texture: true,
+        container: true
     };
 
     // types of assets that we can drop stuff over
@@ -835,8 +837,9 @@ Object.assign(pcui, (function () {
                 }
             } else if (type === 'animstategraph') {
                 editor.call('picker:animstategraph', asset);
+            } else {
+                editor.call('assets:open', [asset]);
             }
-
         }
 
         // Reset hovered asset
