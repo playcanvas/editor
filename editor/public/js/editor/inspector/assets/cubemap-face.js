@@ -26,30 +26,36 @@ Object.assign(pcui, (function () {
         '0': 0,
         'posx': 0,
         'right': 0,
+        'px': 0,
 
         '1': 1,
         'negx': 1,
         'left': 1,
+        'nx': 1,
 
         '2': 2,
         'posy': 2,
         'top': 2,
         'up': 2,
+        'py': 2,
 
         '3': 3,
         'negy': 3,
         'bottom': 3,
         'down': 3,
+        'ny': 3,
 
         '4': 4,
         'posz': 4,
         'front': 4,
         'forward': 4,
+        'pz': 4,
 
         '5': 5,
         'negz': 5,
         'back': 5,
         'backward': 5,
+        'nz': 5,
 
         '6': 6
     };
