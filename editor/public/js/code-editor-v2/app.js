@@ -7,7 +7,7 @@
     }
 
     function CodeEditor() {
-        Events.call(this);
+       window.assignEvents(this);
 
         this._hooks = { };
 

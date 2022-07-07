@@ -1,4 +1,5 @@
 var utils = { };
+window.utils = utils;
 
 
 // utils.deepCopy
@@ -146,6 +147,7 @@ var bytesToHuman = function(bytes) {
     var i = Math.floor(Math.log(bytes) / Math.log(k));
     return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
 };
+window.bytesToHuman = bytesToHuman;
 
 
 // todo move this into proper library
@@ -159,3 +161,4 @@ var swapExtension = function (path, oldExtension, newExtension) {
     }
     return path;
 };
+window.swapExtension = swapExtension;

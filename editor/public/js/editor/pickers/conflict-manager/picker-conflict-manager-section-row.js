@@ -20,7 +20,7 @@ editor.once('load', function () {
      * @param {boolean} args.prettify - If true the name will be prettified
      */
     var ConflictSectionRow = function (resolver, args) {
-        Events.call(this);
+        window.assignEvents(this);
 
         var self = this;
         this._resolver = resolver;

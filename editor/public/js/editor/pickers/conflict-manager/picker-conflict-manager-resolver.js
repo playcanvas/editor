@@ -3,7 +3,7 @@ editor.once('load', function () {
 
     // Shows all the conflicts for an item
     var ConflictResolver = function (conflicts, mergeObject) {
-        Events.call(this);
+        window.assignEvents(this);
 
         // holds conflict UI elements
         this.elements = [];

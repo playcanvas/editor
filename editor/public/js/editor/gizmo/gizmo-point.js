@@ -119,7 +119,7 @@ editor.once('viewport:load', function () {
     };
 
     function Gizmo(axis, dir) {
-        Events.call(this);
+       window.assignEvents(this);
         this.entity = null;
         this.axis = axis || 'y';
         this.dir = dir === undefined ? 1 : dir;

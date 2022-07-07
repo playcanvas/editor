@@ -454,7 +454,7 @@ Object.assign(pcui, (function () {
         }
     }
 
-    class SizeLabel extends Label {
+    class SizeLabel extends pcui.Label {
         constructor({ format, ...args }) {
             super(args);
             this._format = format;

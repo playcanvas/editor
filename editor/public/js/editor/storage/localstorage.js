@@ -1,9 +1,9 @@
 editor.once('load', function () {
     'use strict';
 
-    const ls = new pcui.LocalStorage();
+    const ls = new api.LocalStorage();
 
-    // Returns editor pcui.LocalStorage instance
+    // Returns editor api.LocalStorage instance
     editor.method('localStorage', function () {
         return ls;
     });

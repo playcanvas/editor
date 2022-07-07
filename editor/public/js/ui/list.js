@@ -87,7 +87,7 @@ List.prototype._onAppend = function(item) {
 
 List.prototype.clear = function() {
     this._selected = [ ];
-    ContainerElement.prototype.clear.call(this);
+    ui.ContainerElement.prototype.clear.call(this);
 };
 
 

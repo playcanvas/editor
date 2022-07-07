@@ -273,3 +273,4 @@ Tooltip.attach = function(args) {
 
 
 window.ui.Tooltip = Tooltip;
+window.Tooltip = Tooltip;

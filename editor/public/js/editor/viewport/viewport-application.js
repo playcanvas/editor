@@ -109,8 +109,6 @@ editor.once('load', function () {
     };
 
     Application.prototype.resize = function (w, h) {
-        this.graphicsDevice.width = w;
-        this.graphicsDevice.height = h;
         this.picker.resize(w, h);
         this.redraw = true;
     };

@@ -16,7 +16,7 @@ Object.assign(pcui, (function () {
         constructor(name) {
             this._name = name;
             // we could pass the desired storage as a parameter to change to SessionStorage for example
-            this._storage = new pcui.LocalStorage();
+            this._storage = new api.LocalStorage();
         }
 
         get empty() {

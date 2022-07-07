@@ -47,7 +47,7 @@ Object.assign(Helpers, {
 // color picker
 
 function ColorPicker(parent) {
-    Events.call(this);
+    window.assignEvents(this);
 
     // capture this for the event handler
     function genEvtHandler(self, func) {

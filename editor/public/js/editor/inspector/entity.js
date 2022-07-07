@@ -145,7 +145,7 @@ Object.assign(pcui, (function () {
             this._entities = null;
             this._entityEvents = [];
 
-            this._localStorage = new pcui.LocalStorage();
+            this._localStorage = new api.LocalStorage();
 
             // add component menu
             this._menuAddComponent = this._createAddComponentMenu();

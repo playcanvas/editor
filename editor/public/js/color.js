@@ -33,7 +33,7 @@ var rgb2hsv = function(rgb) {
     }
     return [ h, s, v ];
 };
-
+window.rgb2hsv = rgb2hsv;
 
 var hsv2rgb = function(hsv) {
     var h = hsv[0];
@@ -58,3 +58,4 @@ var hsv2rgb = function(hsv) {
     }
     return [ Math.round(r * 255), Math.round(g * 255), Math.round(b * 255) ];
 };
+window.hsv2rgb = hsv2rgb;

@@ -2,8 +2,7 @@ Object.assign(ui, (function () {
     "use strict";
 
     function Element() {
-        Events.call(this);
-        // this.parent = null;
+        window.assignEvents(this);
 
         this._parent = null;
         var self = this;

@@ -47,3 +47,5 @@ class EditorGrid {
         }
     }
 }
+
+window.EditorGrid = EditorGrid;

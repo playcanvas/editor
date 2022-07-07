@@ -104,7 +104,7 @@ editor.once('load', function () {
             var assetExists = !!asset;
 
             if (!assetExists) {
-                var options = null;
+                var options;
 
                 // allow duplicate values in data.frameKeys of sprite asset
                 if (assetData.type === 'sprite') {

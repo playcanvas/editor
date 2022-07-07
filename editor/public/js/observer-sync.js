@@ -1,5 +1,5 @@
 function ObserverSync(args) {
-    Events.call(this);
+    window.assignEvents(this);
     args = args || { };
 
     this.item = args.item;
@@ -225,3 +225,5 @@ Object.defineProperty(ObserverSync.prototype, 'paths', {
         this._paths = value || null;
     }
 });
+
+window.ObserverSync = ObserverSync;

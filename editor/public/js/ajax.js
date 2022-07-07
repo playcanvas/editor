@@ -5,6 +5,8 @@ function Ajax(args) {
     return new AjaxRequest(args);
 };
 
+window.Ajax = Ajax;
+
 Ajax.get = function(url) {
     return new AjaxRequest({
         url: url
@@ -46,7 +48,7 @@ function AjaxRequest(args) {
     if (! args)
         throw new Error('no arguments provided');
 
-    Events.call(this);
+    window.assignEvents(this);
 
     // progress
     this._progress = 0.0;

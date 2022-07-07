@@ -4,7 +4,7 @@ editor.once('load', function () {
     // A section contains multiple conflicts and it's meant to group
     // conflicts into meaningful categories
     var ConflictSection = function (resolver, title, foldable, allowCloaking) {
-        Events.call(this);
+        window.assignEvents(this);
         this._resolver = resolver;
         this._numConflicts = 0;
         this._numResolvedConflicts = 0;

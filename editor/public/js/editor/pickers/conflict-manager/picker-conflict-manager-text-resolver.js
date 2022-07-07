@@ -10,7 +10,7 @@ editor.once('load', function () {
      * @param {object} mergeObject - The merge object
      */
     var TextResolver = function (conflict, mergeObject) {
-        Events.call(this);
+        window.assignEvents(this);
 
         this._mergeId = mergeObject.id;
         this._conflict = conflict;

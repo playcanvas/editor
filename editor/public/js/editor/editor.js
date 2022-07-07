@@ -1,8 +1,7 @@
 (function () {
-    'use strict';
 
     function Editor() {
-        Events.call(this);
+        window.assignEvents(this);
 
         this._hooks = { };
     }
@@ -46,7 +45,6 @@
 
 // config
 (function () {
-    'use strict';
 
     var applyConfig = function (path, value) {
         if (typeof value === 'object') {

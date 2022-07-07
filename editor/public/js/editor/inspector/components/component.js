@@ -73,7 +73,7 @@ Object.assign(pcui, (function () {
             this._btnCog.style.fontSize = '16px';
             this.header.append(this._btnCog);
 
-            this._localStorage = new pcui.LocalStorage();
+            this._localStorage = new api.LocalStorage();
             this._contextMenu = this._createContextMenu(this._btnCog);
 
             this._templateOverridesInspector = args.templateOverridesInspector;

@@ -15,7 +15,7 @@
  * @param {boolean} [args.noIcon] - If true the box header will not have a top left icon
  */
 var VersionControlSidePanelBox = function (args) {
-    Events.call(this);
+    window.assignEvents(this);
 
     // main box panel
     this.panel = new ui.Panel(args && args.header || ' ');
