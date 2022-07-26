@@ -7,5 +7,5 @@
 }
 
 .sprite-component-inspector-clip + .sprite-component-inspector-clip {
-    margin-top: -$element-margin / 2;
+    margin-top: - calc($element-margin / 2);
 }

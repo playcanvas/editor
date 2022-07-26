@@ -1,3 +1,6 @@
+// editor styling
+import '../../sass/editor/_editor.scss';
+
 // core
 import './constants.js';
 import './array.js';
