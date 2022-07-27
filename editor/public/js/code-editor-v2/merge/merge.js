@@ -1,12 +1,14 @@
 editor.once('load', function () {
     'use strict';
 
-    if (! config.self.branch.merge || !config.self.branch.merge.conflict) return;
+    const inResolveConflictMode = !!(config.self.branch.merge && config.self.branch.merge.conflict);
 
-    var root = editor.call('layout.root');
-    root.class.add('file-only-mode');
+    if (inResolveConflictMode) {
+        var root = editor.call('layout.root');
+        root.class.add('file-only-mode');
+    }
 
-    editor.method('editor:resolveConflictMode', function () {
-        return true;
+    editor.method('editor:resolveConflictMode', () => {
+        return inResolveConflictMode
     });
 });
