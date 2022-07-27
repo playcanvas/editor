@@ -4,14 +4,22 @@ editor.once('viewport:load', function () {
     // Moving towards mouse point in world using mouse wheel
     // Speed is relative to distance of point in world
 
+    var settings = editor.call('settings:user');
+
     var zoom = 0;
     var zoomTarget = 0;
-    var zoomSpeed = 0.1;
-    var zoomSpeedFast = 0.5;
+
+    var zoomSpeed = settings.get('editor.zoomSensitivity') / 100;
+    var zoomSpeedFast = zoomSpeed * 5;
+    settings.on('editor.zoomSensitivity:set', function (sensitivity) {
+        zoomSpeed = sensitivity / 100;
+        zoomSpeedFast = zoomSpeed * 5;
+    });
+
     var zoomEasing = 0.3;
     var zoomMax = 300;
     var zoomCamera;
-    var shiftKey = false;
+    var altKey = false;
     var hovering = false;
     var firstUpdate = 3;
     var mouseCoords = new pc.Vec2();
@@ -25,9 +33,6 @@ editor.once('viewport:load', function () {
     var aabbRoot = new pc.BoundingBox();
     var aabbRootLast = 0;
 
-    editor.on('hotkey:shift', function (state) {
-        shiftKey = state;
-    });
     editor.on('viewport:hover', function (state) {
         hovering = state;
     });
@@ -139,10 +144,9 @@ editor.once('viewport:load', function () {
         if (!hovering)
             return;
 
-        shiftKey = evt.shiftKey;
+        altKey = evt.altKey;
 
         var delta = (evt.deltaY > 0) ? -2 : (evt.deltaY < 0) ? 2 : 0;
-        var isTrackpad = false;
 
         if (delta !== 0) {
             editor.call('camera:focus:stop');
@@ -152,17 +156,10 @@ editor.once('viewport:load', function () {
 
             // Detect whether user is using trackpad
             if (evt.ctrlKey) {
-                isTrackpad = true;
                 evt.preventDefault();  // Prevent pinch to zoom browser functionality
-            } else {
-                isTrackpad = false;
             }
 
-            // Adjust speed if using trackpad
-            zoomSpeed = isTrackpad ? 0.04 : 0.1;
-            zoomSpeedFast = isTrackpad ? 0.07 : 0.5;
-
-            var speed = delta * (shiftKey ? zoomSpeedFast : zoomSpeed);
+            var speed = delta * (altKey ? zoomSpeedFast : zoomSpeed);
             zoomTarget += speed;
 
             editor.call('viewport:render');

@@ -203,6 +203,10 @@ editor.once('load', function () {
         title: 'Max Asset Retries',
         description: 'The maximum number of times to retry loading an asset if it fails to be loaded. If an asset request fails it will be retried with an exponential backoff.'
     }, {
+        name: 'zoomSensitivity',
+        title: 'Change Zoom Sensitivity',
+        description: 'Change this value if you want to adjust the zoom sensitivity in the Editor viewport.'
+    }, {
         name: 'asset-tasks',
         title: 'Asset Tasks',
         description: 'Settings for defining default behaviour rules for asset pipeline jobs: assets extracting, textures resizing, etc.'

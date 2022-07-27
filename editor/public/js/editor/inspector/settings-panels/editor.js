@@ -57,6 +57,21 @@ Object.assign(pcui, (function () {
             }
         },
         {
+            observer: 'userSettings',
+            label: 'Zoom Sensitivity',
+            type: 'slider',
+            alias: 'zoomSensitivity',
+            path: 'editor.zoomSensitivity',
+            args: {
+                value: 1,
+                min: 1,
+                sliderMin: 1,
+                max: 15,
+                sliderMax: 15,
+                step: 1
+            }
+        },
+        {
             observer: 'settings',
             label: 'Clear Color',
             path: 'editor.cameraClearColor',

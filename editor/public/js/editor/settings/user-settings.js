@@ -1,15 +1,18 @@
 editor.once('load', function () {
     'use strict';
 
+    var editorData = {
+        howdoi: true,
+        iconSize: 0.2,
+        showSkeleton: true,
+        zoomSensitivity: 7.5
+    };
+
     var settings = editor.call('settings:create', {
         name: 'user',
         id: 'user_' + config.self.id,
         data: {
-            editor: {
-                howdoi: true,
-                iconSize: 0.2,
-                showSkeleton: true
-            }
+            editor: editorData
         }
     });
 
@@ -27,6 +30,9 @@ editor.once('load', function () {
 
             if (!settings.has('editor.showSkeleton'))
                 settings.set('editor.showSkeleton', true);
+
+            if (!settings.get('editor.zoomSensitivity'))
+                settings.set('editor.zoomSensitivity', 7.5);
 
             settings.history.enabled = history;
         });
