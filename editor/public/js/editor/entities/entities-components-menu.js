@@ -102,6 +102,13 @@ editor.once('load', function () {
             }
         }
 
-        return Object.keys(items);
+        // sort alphabetically and add to new object to be returned
+        const orderedKeys = Object.keys(items).sort();
+        const sorted = [];
+        for (let i = 0; i < orderedKeys.length; i++) {
+            sorted.push(items[orderedKeys[i]]);
+        }
+
+        return sorted;
     });
 });
