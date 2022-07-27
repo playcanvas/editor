@@ -97,15 +97,6 @@ editor.once('viewport:load', function () {
         cameraOptions.innerElement.innerHTML = '';
         viewportCamera.optionElements = {};
 
-        for (const key in viewportCamera.optionTitles) {
-            createOption(viewportCamera.optionTitles[key], key);
-        }
-
-        // Divider UI
-        const divider = new ui.Panel();
-        divider.class.add("divider");
-        cameraOptions.append(divider);
-
         // Physics Edit Mode
         const panelCollision = new ui.Panel();
         panelCollision.class.add('flex');
@@ -129,6 +120,15 @@ editor.once('viewport:load', function () {
             fieldCollisionVisible.element.click();
         });
         panelCollision.append(label);
+
+        // Divider UI
+        const divider = new ui.Panel();
+        divider.class.add("divider");
+        cameraOptions.append(divider);
+
+        for (const key in viewportCamera.optionTitles) {
+            createOption(viewportCamera.optionTitles[key], key);
+        }
     };
 
     var refreshOptions = function (entity) {

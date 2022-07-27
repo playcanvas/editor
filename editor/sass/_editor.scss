@@ -3033,7 +3033,7 @@ strong {
             > .content {
                 > .ui-label {
                     padding: 0 10px;
-                    width: 100px;
+                    width: fit-content;
 
                     &::before {
                         float: left;
@@ -3056,19 +3056,32 @@ strong {
                         align-items: start;
                         text-align: start;
                         min-width: 150px;
+                        max-height: 300px;
+                        overflow-y: auto;
+                        overflow-x: hidden;
                         background-color: rgba($bcg-darker, .75);
                     }
 
                     .ui-panel {
                         width: 100%;
                         background: transparent;
+
+                        .ui-label {
+                            max-width: 200px;
+                            min-height: 20px;
+                            word-wrap: break-word;
+                            white-space: pre-wrap;
+                        }
+
                     }
 
                     .divider {
+                        > .content {
+                            height: 3px;
+                        }
                         position: relative;
                         align-self: center;
                         width: 90%;
-                        height: 3px;
                         background-color: rgba($bcg-darker, .75);
                         margin: 5px 0;
                     }
