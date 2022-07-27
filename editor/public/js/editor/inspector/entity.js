@@ -288,7 +288,7 @@ Object.assign(pcui, (function () {
                 },
                 '3d-sub-menu': {
                     text: '3D',
-                    icon: logos['3d-screen'],
+                    icon: logos.render,
                     items: []
                 },
                 'audio-sub-menu': {
