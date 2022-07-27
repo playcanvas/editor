@@ -141,6 +141,141 @@ editor.once('load', () => {
                 editor.call('entities:new', { parent: getParentFn() });
             }
         }, {
+            text: '2D',
+            icon: componentsLogos.sprite,
+            items: [{
+                text: 'Sprite',
+                icon: componentsLogos.sprite,
+                onSelect: () => {
+                    var data = editor.call('components:getDefault', 'sprite');
+                    editor.call('entities:new', {
+                        name: 'Sprite',
+                        parent: getParentFn(),
+                        components: {
+                            sprite: data
+                        }
+                    });
+                }
+            }, {
+                text: 'Animated Sprite',
+                icon: componentsLogos.animatedsprite,
+                onSelect: () => {
+                    var data = editor.call('components:getDefault', 'sprite');
+                    data.type = 'animated';
+                    data.clips = {
+                        '0': {
+                            name: 'Clip 1',
+                            fps: 10,
+                            loop: true,
+                            autoPlay: true,
+                            spriteAsset: null
+                        }
+                    };
+                    data.autoPlayClip = 'Clip 1';
+                    editor.call('entities:new', {
+                        name: 'Animated Sprite',
+                        parent: getParentFn(),
+                        components: {
+                            sprite: data
+                        }
+                    });
+                }
+            }]
+        }, {
+            text: '3D',
+            icon: componentsLogos.render,
+            items: [{
+                text: 'Render',
+                icon: componentsLogos.render,
+                onSelect: () => {
+                    var component = editor.call('components:getDefault', 'render');
+                    component.type = 'asset';
+
+                    editor.call('entities:new', {
+                        name: 'Render',
+                        parent: getParentFn(),
+                        components: {
+                            render: component
+                        }
+                    });
+                }
+            }, {
+                text: 'Box',
+                icon: componentsLogos.model,
+                onSelect: () => {
+                    var data = createPrimitiveEntityData('box', {
+                        name: 'Box',
+                        parent: getParentFn()
+                    });
+                    editor.call('entities:new', data);
+                }
+            }, {
+                text: 'Capsule',
+                icon: componentsLogos.capsule,
+                onSelect: () => {
+                    var data = createPrimitiveEntityData('capsule', {
+                        name: 'Capsule',
+                        parent: getParentFn()
+                    });
+                    editor.call('entities:new', data);
+                }
+            }, {
+                text: 'Cone',
+                icon: componentsLogos.cone,
+                onSelect: () => {
+                    var data = createPrimitiveEntityData('cone', {
+                        name: 'Cone',
+                        parent: getParentFn()
+                    });
+                    editor.call('entities:new', data);
+                }
+            }, {
+                text: 'Cylinder',
+                icon: componentsLogos.cylinder,
+                onSelect: () => {
+                    var data = createPrimitiveEntityData('cylinder', {
+                        name: 'Cylinder',
+                        parent: getParentFn()
+                    });
+                    editor.call('entities:new', data);
+                }
+            }, {
+                text: 'Plane',
+                icon: componentsLogos.plane,
+                onSelect: () => {
+                    var data = createPrimitiveEntityData('plane', {
+                        name: 'Plane',
+                        parent: getParentFn()
+                    });
+                    editor.call('entities:new', data);
+                }
+            }, {
+                text: 'Sphere',
+                icon: componentsLogos.render,
+                onSelect: () => {
+                    var data = createPrimitiveEntityData('sphere', {
+                        name: 'Sphere',
+                        parent: getParentFn()
+                    });
+                    editor.call('entities:new', data);
+                }
+            },
+            {
+                text: 'Model (legacy)',
+                icon: componentsLogos.model,
+                onSelect: () => {
+                    var component = editor.call('components:getDefault', 'model');
+
+                    editor.call('entities:new', {
+                        name: 'Model',
+                        parent: getParentFn(),
+                        components: {
+                            model: component
+                        }
+                    });
+                }
+            }]
+        }, {
             text: 'Audio',
             icon: componentsLogos.sound,
             items: [{
@@ -152,6 +287,18 @@ editor.once('load', () => {
                         parent: getParentFn(),
                         components: {
                             audiolistener: editor.call('components:getDefault', 'audiolistener')
+                        }
+                    });
+                }
+            }, {
+                text: 'Sound',
+                icon: componentsLogos.sound,
+                onSelect: () => {
+                    editor.call('entities:new', {
+                        name: 'Sound',
+                        parent: getParentFn(),
+                        components: {
+                            sound: editor.call('components:getDefault', 'sound')
                         }
                     });
                 }
@@ -170,31 +317,38 @@ editor.once('load', () => {
                         }
                     });
                 }
-            }, {
-                text: 'Sound',
-                icon: componentsLogos.sound,
-                onSelect: () => {
-                    editor.call('entities:new', {
-                        name: 'Sound',
-                        parent: getParentFn(),
-                        components: {
-                            sound: editor.call('components:getDefault', 'sound')
-                        }
-                    });
-                }
             }]
         }, {
             text: 'Camera',
             icon: componentsLogos.camera,
-            onSelect: () => {
-                editor.call('entities:new', {
-                    name: 'Camera',
-                    parent: getParentFn(),
-                    components: {
-                        camera: editor.call('components:getDefault', 'camera')
-                    }
-                });
-            }
+            items: [{
+                text: 'Perspective',
+                icon: componentsLogos.camera,
+                onSelect: () => {
+                    editor.call('entities:new', {
+                        name: 'Camera',
+                        parent: getParentFn(),
+                        components: {
+                            camera: editor.call('components:getDefault', 'camera')
+                        }
+                    });
+                }
+            }, {
+                text: 'Orthographic',
+                icon: componentsLogos.camera,
+                onSelect: () => {
+                    const component = editor.call('components:getDefault', 'camera');
+                    component.projection = 1;
+
+                    editor.call('entities:new', {
+                        name: 'Camera',
+                        parent: getParentFn(),
+                        components: {
+                            camera: component
+                        }
+                    });
+                }
+            }]
         }, {
             text: 'Light',
             icon: componentsLogos.point,
@@ -246,21 +400,6 @@ editor.once('load', () => {
                 }
             }]
         }, {
-            text: 'Render',
-            icon: componentsLogos.render,
-            onSelect: () => {
-                var component = editor.call('components:getDefault', 'render');
-                component.type = 'asset';
-
-                editor.call('entities:new', {
-                    name: 'Render',
-                    parent: getParentFn(),
-                    components: {
-                        render: component
-                    }
-                });
-            }
-        }, {
             text: 'Particle System',
             icon: componentsLogos.particlesystem,
             onSelect: () => {
@@ -272,111 +411,6 @@ editor.once('load', () => {
                     }
                 });
             }
-        }, {
-            text: 'Primitive',
-            icon: componentsLogos.render,
-            items: [{
-                text: 'Box',
-                icon: componentsLogos.render,
-                onSelect: () => {
-                    var data = createPrimitiveEntityData('box', {
-                        name: 'Box',
-                        parent: getParentFn()
-                    });
-                    editor.call('entities:new', data);
-                }
-            }, {
-                text: 'Capsule',
-                icon: componentsLogos.render,
-                onSelect: () => {
-                    var data = createPrimitiveEntityData('capsule', {
-                        name: 'Capsule',
-                        parent: getParentFn()
-                    });
-                    editor.call('entities:new', data);
-                }
-            }, {
-                text: 'Cone',
-                icon: componentsLogos.render,
-                onSelect: () => {
-                    var data = createPrimitiveEntityData('cone', {
-                        name: 'Cone',
-                        parent: getParentFn()
-                    });
-                    editor.call('entities:new', data);
-                }
-            }, {
-                text: 'Cylinder',
-                icon: componentsLogos.render,
-                onSelect: () => {
-                    var data = createPrimitiveEntityData('cylinder', {
-                        name: 'Cylinder',
-                        parent: getParentFn()
-                    });
-                    editor.call('entities:new', data);
-                }
-            }, {
-                text: 'Plane',
-                icon: componentsLogos.render,
-                onSelect: () => {
-                    var data = createPrimitiveEntityData('plane', {
-                        name: 'Plane',
-                        parent: getParentFn()
-                    });
-                    editor.call('entities:new', data);
-                }
-            }, {
-                text: 'Sphere',
-                icon: componentsLogos.render,
-                onSelect: () => {
-                    var data = createPrimitiveEntityData('sphere', {
-                        name: 'Sphere',
-                        parent: getParentFn()
-                    });
-                    editor.call('entities:new', data);
-                }
-            }]
-        }, {
-            text: 'Sprite',
-            icon: componentsLogos.sprite,
-            items: [{
-                text: 'Sprite',
-                icon: componentsLogos.sprite,
-                onSelect: () => {
-                    var data = editor.call('components:getDefault', 'sprite');
-                    editor.call('entities:new', {
-                        name: 'Sprite',
-                        parent: getParentFn(),
-                        components: {
-                            sprite: data
-                        }
-                    });
-                }
-            }, {
-                text: 'Animated Sprite',
-                icon: componentsLogos.sprite,
-                onSelect: () => {
-                    var data = editor.call('components:getDefault', 'sprite');
-                    data.type = 'animated';
-                    data.clips = {
-                        '0': {
-                            name: 'Clip 1',
-                            fps: 10,
-                            loop: true,
-                            autoPlay: true,
-                            spriteAsset: null
-                        }
-                    };
-                    data.autoPlayClip = 'Clip 1';
-                    editor.call('entities:new', {
-                        name: 'Animated Sprite',
-                        parent: getParentFn(),
-                        components: {
-                            sprite: data
-                        }
-                    });
-                }
-            }]
         }, {
             text: 'User Interface',
             icon: componentsLogos.userinterface,
@@ -412,6 +446,61 @@ editor.once('load', () => {
                     });
                 }
             }, {
+                text: 'Button',
+                icon: componentsLogos.button,
+                onSelect: () => {
+                    editor.call('entities:new', createButtonEntityData({
+                        name: 'Button',
+                        parent: getParentFn(),
+                        children: [
+                            {
+                                name: 'Text',
+                                components: {
+                                    element: createButtonTextElementComponentData()
+                                }
+                            }
+                        ]
+                    }));
+                }
+            }, {
+                text: 'Layout Group',
+                icon: componentsLogos.layoutgroup,
+                onSelect: () => {
+                    editor.call('entities:new', {
+                        name: 'Layout Group',
+                        parent: getParentFn(),
+                        components: {
+                            layoutgroup: editor.call('components:getDefault', 'layoutgroup')
+                        }
+                    });
+                }
+            }, {
+                text: 'Layout Child',
+                icon: componentsLogos.layoutchild,
+                onSelect: () => {
+                    editor.call('entities:new', {
+                        name: 'Layout Child',
+                        parent: getParentFn(),
+                        components: {
+                            layoutchild: editor.call('components:getDefault', 'layoutchild')
+                        }
+                    });
+                }
+            }, {
+                text: 'Group Element',
+                icon: componentsLogos['group-element'],
+                onSelect: () => {
+                    var data = editor.call('components:getDefault', 'element');
+                    data.type = 'group';
+                    editor.call('entities:new', {
+                        name: 'Group',
+                        parent: getParentFn(),
+                        components: {
+                            element: createGroupElementComponentData()
+                        }
+                    });
+                }
+            }, {
                 text: 'Text Element',
                 icon: componentsLogos['text-element'],
                 onSelect: () => {
@@ -436,38 +525,16 @@ editor.once('load', () => {
                     });
                 }
             }, {
-                text: 'Element Group',
-                icon: componentsLogos['group-element'],
+                text: 'Scrollbar',
+                icon: componentsLogos.scrollbar,
                 onSelect: () => {
-                    var data = editor.call('components:getDefault', 'element');
-                    data.type = 'group';
-                    editor.call('entities:new', {
-                        name: 'Group',
-                        parent: getParentFn(),
-                        components: {
-                            element: createGroupElementComponentData()
-                        }
-                    });
-                }
-            }, {
-                text: 'Button Element',
-                icon: componentsLogos.button,
-                onSelect: () => {
-                    editor.call('entities:new', createButtonEntityData({
-                        name: 'Button',
-                        parent: getParentFn(),
-                        children: [
-                            {
-                                name: 'Text',
-                                components: {
-                                    element: createButtonTextElementComponentData()
-                                }
-                            }
-                        ]
+                    editor.call('entities:new', createScrollbarEntityData(ORIENTATION_VERTICAL, {
+                        name: 'Scrollbar',
+                        parent: getParentFn()
                     }));
                 }
             }, {
-                text: 'Scroll View Element',
+                text: 'Scroll View',
                 icon: componentsLogos.scrollview,
                 onSelect: () => {
                     var viewportSize = 200;
@@ -529,15 +596,6 @@ editor.once('load', () => {
                             })
                         ]
                     });
-                }
-            }, {
-                text: 'Scrollbar Element',
-                icon: componentsLogos.scrollbar,
-                onSelect: () => {
-                    editor.call('entities:new', createScrollbarEntityData(ORIENTATION_VERTICAL, {
-                        name: 'Scrollbar',
-                        parent: getParentFn()
-                    }));
                 }
             }]
         }];

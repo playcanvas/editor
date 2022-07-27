@@ -114,13 +114,12 @@ editor.once('load', function () {
         delete schema.script.order;
     }
 
-    var list = Object.keys(schema).sort(function (a, b) {
-        if (a > b) {
-            return 1;
-        } else if (a < b) {
-            return -1;
-        }
+    // Order components alphabetically
+    var components = Object.keys(schema);
 
+    var list = components.sort((a, b) => {
+        if (a < b) return -1;
+        if (a > b) return 1;
         return 0;
     });
 

@@ -5,6 +5,61 @@ Object.assign(pcui, (function () {
     const CLASS_NO_COMPONENTS = CLASS_ROOT + '-no-components';
     const CLASS_ADD_COMPONENT = CLASS_ROOT + '-add-component';
 
+    const additionalComponents = {
+        'light': [{ title: 'Directional Light', icon: 'directional', data: { 'type': 'directional' } },
+            { title: 'Point Light', icon: 'point', data: { 'type': 'point', 'shadowResolution': 256 } },
+            { title: 'Spot Light', icon: 'spot', data: { 'type': 'spot' } }],
+        'camera': [{ title: 'Perspective', icon: 'camera', data: { 'projection': 0 } },
+            { title: 'Orthographic', icon: 'camera', data: { 'projection': 1 } }],
+        'sprite': [{ title: 'Animated Sprite',
+            icon: 'animatedsprite',
+            data: { 'type': 'animated',
+                'clips': { '0': { 'name': 'Clip 1', 'fps': 10, 'loop': true, 'autoPlay': true, 'spriteAsset': null } },
+                'autoPlayClip': 'Clip 1' } }],
+        'screen': [{ title: '2D Screen', icon: '2d-screen', data: { 'screenSpace': true } },
+            { title: '3D Screen', icon: '3d-screen', data: { 'screenSpace': false } }]
+    };
+
+    const getSubMenu = function (key) {
+
+        switch (key) {
+            case 'sprite': return '2d-sub-menu';
+
+            case 'render':
+            case 'model':
+                return '3d-sub-menu';
+
+            case 'audiolistener':
+            case 'audiosource':
+            case 'sound':
+                return 'audio-sub-menu';
+
+            case 'anim':
+            case 'animation':
+                return 'animation-sub-menu';
+
+            case 'rigidbody':
+            case 'collision':
+                return 'physics-sub-menu';
+
+            case 'light': return 'light-sub-menu';
+
+            case 'camera': return 'camera-sub-menu';
+
+            case 'element':
+            case 'screen':
+            case 'layoutgroup':
+            case 'layoutchild':
+            case 'button':
+            case 'scrollview':
+            case 'scrollbar':
+                return 'ui-sub-menu';
+
+            default:
+                return null;
+        }
+    };
+
     const ATTRIBUTES = [{
         label: 'Enabled',
         path: 'enabled',
@@ -157,6 +212,16 @@ Object.assign(pcui, (function () {
             });
         }
 
+        _makeAddComponentMenuItem(component, title, logos, logoName = "", dataComponent = {}) {
+            return {
+                text: title,
+                icon: logoName.length > 0 ? logos[logoName] : logos[component],
+                onSelect: () => {
+                    editor.call('entities:addComponent', this._entities, component, dataComponent);
+                }
+            };
+        }
+
         _onHotkeyF2() {
             if (editor.call('picker:isOpen')) return;
             this._attributesInspector.getField('name').flash();
@@ -208,29 +273,103 @@ Object.assign(pcui, (function () {
 
         // add component menu
         _createAddComponentMenu() {
-            const menu = new pcui.Menu();
+            let menu = null;
             const componentsSchema = editor.call('components:schema');
             const components = editor.call('components:list');
 
             const logos = editor.call('components:logos');
 
-            const items = {};
+            // Create empty menu with sub-menus
+            const items = {
+                '2d-sub-menu': {
+                    text: '2D',
+                    icon: logos.sprite,
+                    items: []
+                },
+                '3d-sub-menu': {
+                    text: '3D',
+                    icon: logos['3d-screen'],
+                    items: []
+                },
+                'audio-sub-menu': {
+                    text: 'Audio',
+                    icon: logos.sound,
+                    items: []
+                },
+                'animation-sub-menu': {
+                    text: 'Animation',
+                    icon: logos.anim,
+                    items: []
+                },
+                'camera-sub-menu': {
+                    text: 'Camera',
+                    icon: logos.camera,
+                    items: []
+                },
+                'light-sub-menu': {
+                    text: 'Light',
+                    icon: logos.light,
+                    items: []
+                },
+                'physics-sub-menu': {
+                    text: 'Physics',
+                    icon: logos.physics,
+                    items: []
+                },
+                'ui-sub-menu': {
+                    text: 'UI',
+                    icon: logos.userinterface,
+                    items: []
+                }
+            };
+
+            // Create list of abstract components (components that have been replaced by subcomponents)
+            const abstractComponents = new Set(['camera', 'light', 'screen']);
+
             components.forEach((component) => {
                 let title = componentsSchema[component].$title;
                 if (title === 'Model' || title === 'Animation') {
                     title += ' (legacy)';
                 }
 
-                items[component] = new pcui.MenuItem({
-                    text: title,
-                    icon: logos[component],
-                    onSelect: () => {
-                        editor.call('entities:addComponent', this._entities, component);
-                    }
-                });
+                const submenu = getSubMenu(component);
+                let newComponent = null;
 
-                menu.append(items[component]);
+                if (!(abstractComponents.has(component))) {
+                    // Build single component
+                    newComponent = this._makeAddComponentMenuItem(component, title, logos);
+
+                    if (submenu)
+                        items[submenu].items.push(newComponent);
+                    else {
+                        // If standalone component, make sure to float UI group to end to preserve order
+                        const uiGroup = items['ui-sub-menu'];
+                        delete items["ui-sub-menu"];
+                        items[component] = newComponent;
+                        items["ui-sub-menu"] = uiGroup;
+                    }
+                }
+
+                // Check if additional components need to be made for submenu
+                if (component in additionalComponents) {
+                    // Load data for additional components
+                    const additional = additionalComponents[component];
+
+                    // Generate each subcomponent
+                    additional.forEach((subcomponent) => {
+                        newComponent = this._makeAddComponentMenuItem(component, subcomponent.title, logos, subcomponent.icon, subcomponent.data);
+                        // Add it to relevant submenu (will always exist as subcomponents live in submenus)
+                        items[submenu].items.push(newComponent);
+                    });
+                }
             });
+
+            const menuData = [];
+            Object.keys(items).forEach((key) => {
+                menuData.push(items[key]);
+            });
+
+            menu = new pcui.Menu({ items: menuData });
 
             menu.on('show', () => {
                 const entities = this._entities;
@@ -248,14 +387,25 @@ Object.assign(pcui, (function () {
                         }
                     }
 
-                    items[components[i]].disabled = different ? false : disabled;
+                    const submenu = getSubMenu(components[i]);
+                    if (submenu) {
+                        let title = componentsSchema[components[i]].$title;
+                        if (title === 'Model' || title === 'Animation') {
+                            title += ' (legacy)';
+                        }
+                        const index = items[submenu].items.findIndex((object) => {
+                            return object.text == title;
+                        });
 
-                    if (components[i] === 'audiosource') {
-                        items[components[i]].hidden = !legacyAudio;
-                    }
+                        if (components[i] === 'audiosource')
+                            items[submenu].items[index].hidden = !legacyAudio;
+                        else if (!(abstractComponents.has(components[i])))
+                            items[submenu].items[index].disabled = different ? false : disabled;
+
+                    } else
+                        items[components[i]].disabled = different ? false : disabled;
                 }
             });
-
 
             editor.call('layout.root').append(menu);
 

@@ -6,8 +6,9 @@ editor.once('load', function () {
      *
      * @param {Observer[]} entities - The entities
      * @param {string} component - The name of the component
+     * @param {Object} componentData - The object containing additional parameters used to build new component
      */
-    editor.method('entities:addComponent', function (entities, component) {
+    editor.method('entities:addComponent', function (entities, component, componentData = {}) {
         let previousChildrenLayouts = {};
 
         function redo() {
@@ -26,7 +27,7 @@ editor.once('load', function () {
                 }
 
                 try {
-                    e.apiEntity.addComponent(component);
+                    e.apiEntity.addComponent(component, componentData);
                 } catch (err) {
                     console.error(err);
                     editor.call(
