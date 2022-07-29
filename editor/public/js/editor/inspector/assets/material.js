@@ -358,6 +358,157 @@ Object.assign(pcui, (function () {
                         max: 1
                     },
                     reference: 'asset:material:metalness'
+                }, {
+                    label: "Use Specular Color and Factor",
+                    path: 'data.useMetalnessSpecularColor',
+                    type: 'boolean',
+                    reference: 'asset:material:useMetalnessSpecularColor'
+                }, {
+                    label: 'Specular',
+                    path: 'data.specularMap',
+                    type: 'asset',
+                    args: {
+                        assetType: 'texture'
+                    },
+                    reference: 'asset:material:specularMap'
+                }, {
+                    label: 'UV Channel',
+                    path: 'data.specularMapUv',
+                    type: 'select',
+                    args: {
+                        type: 'number',
+                        options: [{
+                            v: 0, t: 'UV0'
+                        }, {
+                            v: 1, t: 'UV1'
+                        }]
+                    },
+                    reference: 'asset:material:specularMapUv'
+                }, {
+                    label: 'Color Channel',
+                    path: 'data.specularMapChannel',
+                    type: 'select',
+                    args: {
+                        type: 'string',
+                        options: [{
+                            v: 'r', t: 'R'
+                        }, {
+                            v: 'g', t: 'G'
+                        }, {
+                            v: 'b', t: 'B'
+                        }, {
+                            v: 'a', t: 'A'
+                        }, {
+                            v: 'rgb', t: 'RGB'
+                        }]
+                    },
+                    reference: 'asset:material:specularMapChannel'
+                }, {
+                    label: 'Offset',
+                    path: 'data.specularMapOffset',
+                    type: 'vec2',
+                    args: {
+                        placeholder: ['U', 'V']
+                    },
+                    reference: 'asset:material:specularMapOffset'
+                }, {
+                    label: 'Tiling',
+                    path: 'data.specularMapTiling',
+                    type: 'vec2',
+                    args: {
+                        placeholder: ['U', 'V']
+                    },
+                    reference: 'asset:material:specularMapTiling'
+                }, {
+                    label: 'Vertex Color',
+                    path: 'data.specularMapVertexColor',
+                    type: 'boolean',
+                    reference: 'asset:material:specularMapVertexColor'
+                }, {
+                    label: 'Tint',
+                    path: 'data.specularMapTint',
+                    type: 'boolean',
+                    reference: 'asset:material:specularMapTint'
+                }, {
+                    label: 'Color',
+                    path: 'data.specular',
+                    type: 'rgb',
+                    reference: 'asset:material:specular'
+                }, {
+                    label: 'Specularity Factor',
+                    path: 'data.specularityFactorMap',
+                    type: 'asset',
+                    args: {
+                        assetType: 'texture'
+                    },
+                    reference: 'asset:material:specularityFactorMap'
+                }, {
+                    label: 'UV Channel',
+                    path: 'data.specularityFactorMapUv',
+                    type: 'select',
+                    args: {
+                        type: 'number',
+                        options: [{
+                            v: 0, t: 'UV0'
+                        }, {
+                            v: 1, t: 'UV1'
+                        }]
+                    },
+                    reference: 'asset:material:specularityFactorMapUv'
+                }, {
+                    label: 'Color Channel',
+                    path: 'data.specularityFactorMapChannel',
+                    type: 'select',
+                    args: {
+                        type: 'string',
+                        options: [{
+                            v: 'r', t: 'R'
+                        }, {
+                            v: 'g', t: 'G'
+                        }, {
+                            v: 'b', t: 'B'
+                        }, {
+                            v: 'a', t: 'A'
+                        }]
+                    },
+                    reference: 'asset:material:specularityFactorMapChannel'
+                }, {
+                    label: 'Offset',
+                    path: 'data.specularityFactorMapOffset',
+                    type: 'vec2',
+                    args: {
+                        placeholder: ['U', 'V']
+                    },
+                    reference: 'asset:material:specularityFactorMapOffset'
+                }, {
+                    label: 'Tiling',
+                    path: 'data.specularityFactorMapTiling',
+                    type: 'vec2',
+                    args: {
+                        placeholder: ['U', 'V']
+                    },
+                    reference: 'asset:material:specularityFactorMapTiling'
+                }, {
+                    label: 'Vertex Color',
+                    path: 'data.specularityFactorVertexColor',
+                    type: 'boolean',
+                    reference: 'asset:material:specularityFactorVertexColor'
+                }, {
+                    label: 'Tint',
+                    path: 'data.specularityFactorTint',
+                    type: 'boolean',
+                    reference: 'asset:material:specularityFactorTint'
+                }, {
+                    label: 'Specularity Factor',
+                    path: 'data.specularityFactor',
+                    type: 'slider',
+                    args: {
+                        precision: 3,
+                        step: 0.05,
+                        min: 0,
+                        max: 1
+                    },
+                    reference: 'asset:material:specularityFactor'
                 }]
             })
         }, {
@@ -1219,7 +1370,7 @@ Object.assign(pcui, (function () {
                         precision: 3,
                         step: 0.01,
                         min: 0,
-                        max: 1
+                        max: 40
                     },
                     reference: 'asset:material:refractionIndex'
                 }, {
@@ -1395,26 +1546,27 @@ Object.assign(pcui, (function () {
     }];
 
     const MAPS = {
-        'ao': 'ambientInspector',
-        'diffuse': 'diffuseInspector',
-        'specular': 'specularWorkflowInspector',
-        'emissive': 'emissiveInspector',
-        'normal': 'normalsInspector',
-        'opacity': 'opacityInspector',
-        'height': 'parallaxInspector',
-        'light': 'lightmapInspector',
-        'metalness': 'metalnessWorkflowInspector',
-        'gloss': 'glossInspector',
-        'clearCoat': 'clearCoatInspector',
-        'clearCoatGloss': 'clearCoatGlossInspector',
-        'clearCoatNormal': 'clearCoatNormalInspector'
+        'ao': [ 'ambientInspector' ],
+        'diffuse': [ 'diffuseInspector' ],
+        'specular': [ 'specularWorkflowInspector', 'metalnessWorkflowInspector' ],
+        'specularityFactor': [ 'metalnessWorkflowInspector' ],
+        'emissive': [ 'emissiveInspector' ],
+        'normal': [ 'normalsInspector' ],
+        'opacity': [ 'opacityInspector' ],
+        'height': [ 'parallaxInspector' ],
+        'light': [ 'lightmapInspector' ],
+        'metalness': [ 'metalnessWorkflowInspector' ],
+        'gloss': [ 'glossInspector' ],
+        'clearCoat': [ 'clearCoatInspector' ],
+        'clearCoatGloss': [ 'clearCoatGlossInspector' ],
+        'clearCoatNormal': [ 'clearCoatNormalInspector' ],
     };
 
     const COLLAPSED_PANEL_DEPENDENCIES = {
         '_offsetTilingPanel': ['diffuseMapOffset', 'diffuseMapTiling'],
         '_ambientPanel': ['aoMap'],
         '_diffusePanel': ['diffuseMap'],
-        '_specularPanel': ['specularMap', 'metalnessMap', 'glossMap'],
+        '_specularPanel': ['specularMap', 'metalnessMap', 'glossMap', 'specularityFactorMap'],
         '_clearCoatPanel': ['clearCoatMap', 'clearCoatGlossMap', 'clearCoatNormalMap'],
         '_emissivePanel': ['emissiveMap'],
         '_opacityPanel': ['opacityMap'],
@@ -1428,6 +1580,7 @@ Object.assign(pcui, (function () {
         'ao': ['a', 'ao', 'ambient', 'ambientocclusion', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa'],
         'diffuse': ['d', 'diff', 'diffuse', 'albedo', 'color', 'rgb', 'rgba'],
         'specular': ['s', 'spec', 'specular'],
+        'specularityFactor': ['sf', 'specularityfactor'],
         'metalness': ['m', 'met', 'metal', 'metalness', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa'],
         'gloss': ['g', 'gloss', 'glossiness', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa'],
         'clearCoat': ['cc', 'clearcoat'],
@@ -1501,15 +1654,19 @@ Object.assign(pcui, (function () {
             this._clearCoatFactorInspector.getField('data.clearCoat').on('change', toggleFields);
 
             this._specularInspector.getField('data.useMetalness').on('change', toggleFields);
+            this._metalnessWorkflowInspector.getField('data.useMetalnessSpecularColor').on('change', toggleFields);
 
             this._specularInspector.getField('data.enableGGXSpecular').on('change', toggleFields);
 
             for (const map in MAPS) {
-                const inspector = this[`_${MAPS[map]}`];
-                const texField = inspector.getField(`data.${map}Map`);
-                texField.on('change', value => this._onTextureChange(map, value));
-                texField.dragEnterFn = (type, data) => this._onTextureDragEnter(`${map}Map`, type, data);
-                texField.dragLeaveFn = () => this._onTextureDragLeave(`${map}Map`);
+                const inspectors = MAPS[map];
+                for (const inspectorName of inspectors) {
+                    const inspector = this[`_${inspectorName}`];
+                    const texField = inspector.getField(`data.${map}Map`);
+                    texField.on('change', value => this._onTextureChange(map, value));
+                    texField.dragEnterFn = (type, data) => this._onTextureDragEnter(`${map}Map`, type, data);
+                    texField.dragLeaveFn = () => this._onTextureDragLeave(`${map}Map`);
+                }
             }
 
             this._envInspector.getField('data.cubeMap').on('change', toggleFields);
@@ -1522,14 +1679,43 @@ Object.assign(pcui, (function () {
 
             const applyToAllMaps = this._offsetTilingInspector.getField('applyToAllMaps').value;
 
+            const specularMetalnessAttributes = ['specularMapUv', 'specularMapChannel', 'specularMapOffset', 'specularMapTiling', 'specularMapVertexColor', 'specularMapTint', 'specular'];
+            const speculartyFactorAttributes = ['specularityFactorMapUv', 'specularityFactorMapChannel', 'specularityFactorMapOffset', 'specularityFactorMapTiling', 'specularityFactorVertexColor', 'specularityFactorTint', 'specularityFactor'];
+            if (editor.call('users:hasFlag', 'Engine_1_55')) {
+                const useMetalnessSpecularColor = this._metalnessWorkflowInspector.getField('data.useMetalnessSpecularColor').value;
+                this._metalnessWorkflowInspector.getField('data.specularMap').hidden = !useMetalnessSpecularColor;
+                specularMetalnessAttributes.forEach((field) => {
+                    this._metalnessWorkflowInspector.getField(`data.${field}`).parent.hidden = !useMetalnessSpecularColor;
+                });
+                
+                this._metalnessWorkflowInspector.getField('data.specularityFactorMap').hidden = !useMetalnessSpecularColor;
+                speculartyFactorAttributes.forEach((field) => {
+                    this._metalnessWorkflowInspector.getField(`data.${field}`).parent.hidden = !useMetalnessSpecularColor;
+                });
+            } else {
+                this._metalnessWorkflowInspector.getField('data.useMetalnessSpecularColor').parent.hidden = true;
+                this._metalnessWorkflowInspector.getField('data.specularMap').hidden = true;
+                specularMetalnessAttributes.forEach((field) => {
+                    this._metalnessWorkflowInspector.getField(`data.${field}`).parent.hidden = true;
+                });
+                
+                this._metalnessWorkflowInspector.getField('data.specularityFactorMap').hidden = true;
+                speculartyFactorAttributes.forEach((field) => {
+                    this._metalnessWorkflowInspector.getField(`data.${field}`).parent.hidden = true;
+                });
+            }
+
             this._offsetTilingInspector.getField('offset').parent.hidden = !applyToAllMaps;
             this._offsetTilingInspector.getField('tiling').parent.hidden = !applyToAllMaps;
 
             for (const map in MAPS) {
-                const inspector = this[`_${MAPS[map]}`];
-                const mapValue = inspector.getField(`data.${map}Map`).value;
-                inspector.getField(`data.${map}MapOffset`).parent.hidden = !mapValue || applyToAllMaps;
-                inspector.getField(`data.${map}MapTiling`).parent.hidden = !mapValue || applyToAllMaps;
+                const inspectors = MAPS[map];
+                for (const inspectorName of inspectors) {
+                    const inspector = this[`_${inspectorName}`];
+                    const mapValue = inspector.getField(`data.${map}Map`).value;
+                    inspector.getField(`data.${map}MapOffset`).parent.hidden = !mapValue || applyToAllMaps;
+                    inspector.getField(`data.${map}MapTiling`).parent.hidden = !mapValue || applyToAllMaps;
+                }
             }
 
             this._ambientInspector.getField('data.occludeSpecular').parent.hidden = !this._ambientInspector.getField('data.aoMap').value;
@@ -1873,9 +2059,12 @@ Object.assign(pcui, (function () {
                             });
 
                             // expand texture panel
-                            const inspector = this[`_${MAPS[slot]}`];
-                            if (inspector && inspector.parent && inspector.parent.collapsed) {
-                                inspector.parent.collapsed = false;
+                            const inspectors = MAPS[slot];
+                            for (const inspectorName of inspectors) {
+                                const inspector = this[`_${inspectorName}`];
+                                if (inspector && inspector.parent && inspector.parent.collapsed) {
+                                    inspector.parent.collapsed = false;
+                                }
                             }
 
                             if (slot === 'ao') {

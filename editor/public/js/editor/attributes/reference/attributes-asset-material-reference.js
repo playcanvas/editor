@@ -342,6 +342,11 @@ editor.once('load', function () {
         description: 'Controls the 2D offset of the metalness map. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#metalnessMapChannel'
     }, {
+        title: 'useMetalnessSpecularColor',
+        subTitle: '{boolean}',
+        description: 'Use specular color and specularity factor with metalness.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#useMetalnessSpecularColor'
+    }, {        
         name: 'normalOverview',
         description: 'Use this to specify normal maps in order to simulate \'Bumpiness\' effect.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html'
@@ -500,6 +505,47 @@ editor.once('load', function () {
         description: 'Use vertex colors for specular instead of a map.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#specularMapVertexColor'
     }, {
+        title: 'specularityFactor',
+        subTitle: '{Number}',
+        description: 'If no specularity factor map is set or tint is checked, this is the specular factor of the material.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#specularityFactor'
+    }, {
+        title: 'specularityFactorMap',
+        subTitle: '{pc.Texture}',
+        description: 'The specularity factor map that specifies the per-pixel specular color. If no specular map is set, the specular color is used instead.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#specularityFactorMap'
+    }, {
+        title: 'specularityFactorMapUv',
+        subTitle: '{Number}',
+        description: 'Specular factor map UV channel.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#specularityFactorMapUv'
+    }, {
+        title: 'specularityFactorMapChannel',
+        subTitle: '{String}',
+        description: 'An specularity factor map color channel to extract color value from texture. Can be: r, g, b, a, rgb',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#specularityFactorMapChannel'
+    }, {
+        title: 'specularityFactorMapOffset',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the 2D offset of the specularityFactorMap. Each component is between 0 and 1.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#specularityFactorMapOffset'
+    }, {
+        title: 'specularityFactorMapTiling',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the 2D tiling of the specularityFactorMap.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#specularityFactorMapTiling'
+    }, {
+        title: 'specularityFactorTint',
+        subTitle: '{Boolean}',
+        description: 'Check this to modulate the material\'s specularity factor map with a material specific specular color.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#specularityFactorMapTint'
+    }, {
+        title: 'specularityFactorVertexColor',
+        subTitle: '{Boolean}',
+        description: 'Use vertex colors for specularity factor instead of a map.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#specularityFactorMapVertexColor'
+    }, {
+        
         title: 'sphereMap',
         subTitle: '{pc.Texture}',
         description: 'A sphere map texture asset that approximates environment reflection. If a sphere map is set, the Cube Map property will be hidden (since these properties are mutually exclusive).',
