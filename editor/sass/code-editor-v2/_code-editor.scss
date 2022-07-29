@@ -1,6 +1,8 @@
-@import '../ui';
+@import 'node_modules/@playcanvas/pcui/dist/variables.scss';
+@import 'node_modules/@playcanvas/pcui/dist/fonts.scss';
 @import 'variables';
 @import '../fonts';
+@import '../ui';
 
 html {
     height: 100%;

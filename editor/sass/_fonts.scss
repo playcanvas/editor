@@ -1,17 +1,4 @@
 @font-face {
-    font-family: 'pc-icon';
-    src: url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.eot');
-    src: url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.eot?#iefix') format('embedded-opentype'),
-         url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.woff2') format('woff2'),
-         url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.woff') format('woff'),
-         url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.ttf') format('truetype'),
-         url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.svg') format('svg');
-
-    font-weight: normal;
-    font-style: normal;
-}
-
-@font-face {
     font-family: 'Proxima Nova Regular';
     src: url('https://playcanvas.com/static-assets/fonts/proxima_nova_regular.eot');
     src: url('https://playcanvas.com/static-assets/fonts/proxima_nova_regular.eot?#iefix') format('embedded-opentype'),
@@ -83,11 +70,6 @@
     font-family: 'Proxima Nova Bold', 'Helvetica Neue', Arial, Helvetica, sans-serif;
     font-weight: bold;
     font-style: normal;
-}
-
-.font-icon {
-    font-family: 'pc-icon';
-    @extend .font-smooth;
 }
 
 .fixedFont {
