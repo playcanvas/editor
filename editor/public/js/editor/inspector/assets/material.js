@@ -1,6 +1,97 @@
 Object.assign(pcui, (function () {
     'use strict';
 
+    const TextureTypes = {
+        Normal: 'Normal',
+        Color: 'Color',
+        Scalar: 'Scalar'
+    };
+    function _textureAttribute(label, attributeName, type) {
+
+        const scalarColorChannel = 
+        {
+            label: 'Color Channel',
+            path: `data.${attributeName}MapChannel`,
+            type: 'select',
+            args: {
+                type: 'string',
+                options: [{
+                    v: 'r', t: 'R'
+                }, {
+                    v: 'g', t: 'G'
+                }, {
+                    v: 'b', t: 'B'
+                }, {
+                    v: 'a', t: 'A'
+                }]
+            },
+            reference: `asset:material:${attributeName}MapChannel`
+        };
+        const rgbColorChannel = 
+        {
+            label: 'Color Channel',
+            path: `data.${attributeName}MapChannel`,
+            type: 'select',
+            args: {
+                type: 'string',
+                options: [{
+                    v: 'r', t: 'R'
+                }, {
+                    v: 'g', t: 'G'
+                }, {
+                    v: 'b', t: 'B'
+                }, {
+                    v: 'a', t: 'A'
+                }, {
+                    v: 'rgb', t: 'RGB'
+                }]
+            },
+            reference: `asset:material:${attributeName}MapChannel`
+        };
+        return [{
+                    label: label,
+                    type: 'asset',
+                    path: `data.${attributeName}Map`,
+                    args: {
+                        assetType: 'texture'
+                    },
+                    reference: `asset:material:${attributeName}Map`
+                }, {
+                    label: 'UV Channel',
+                    path: `data.${attributeName}MapUv`,
+                    type: 'select',
+                    args: {
+                        type: 'number',
+                        options: [{
+                            v: 0, t: 'UV0'
+                        }, {
+                            v: 1, t: 'UV1'
+                        }]
+                    },
+                    reference: `asset:material:${attributeName}MapUv`
+                }, 
+                ...(type === TextureTypes.Color ? [rgbColorChannel] : []), 
+                ...(type === TextureTypes.Scalar ? [scalarColorChannel] : []), 
+                {
+                    label: 'Offset',
+                    path: `data.${attributeName}MapOffset`,
+                    type: 'vec2',
+                    args: {
+                        placeholder: ['U', 'V']
+                    },
+                    reference: `asset:material:${attributeName}MapOffset`
+                }, {
+                    label: 'Tiling',
+                    path: `data.${attributeName}MapTiling`,
+                    type: 'vec2',
+                    args: {
+                        placeholder: ['U', 'V']
+                    },
+                    reference: `asset:material:${attributeName}MapTiling`
+                }
+        ];
+    };
+
     const CLASS_ROOT = 'asset-material-inspector';
 
     const DOM = parent => [{
@@ -76,61 +167,7 @@ Object.assign(pcui, (function () {
             ambientInspector: new pcui.AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
-                attributes: [{
-                    label: 'Ambient Occlusion',
-                    type: 'asset',
-                    path: 'data.aoMap',
-                    args: {
-                        assetType: 'texture'
-                    },
-                    reference: 'asset:material:aoMap'
-                }, {
-                    label: 'UV Channel',
-                    type: 'select',
-                    path: 'data.aoMapUv',
-                    args: {
-                        type: 'number',
-                        options: [{
-                            v: 0, t: 'UV0'
-                        }, {
-                            v: 1, t: 'UV1'
-                        }]
-                    },
-                    reference: 'asset:material:aoMapUv'
-                }, {
-                    label: 'Color Channel',
-                    type: 'select',
-                    path: 'data.aoMapChannel',
-                    args: {
-                        type: 'string',
-                        options: [{
-                            v: 'r', t: 'R'
-                        }, {
-                            v: 'g', t: 'G'
-                        }, {
-                            v: 'b', t: 'B'
-                        }, {
-                            v: 'a', t: 'A'
-                        }]
-                    },
-                    reference: 'asset:material:aoMapChannel'
-                }, {
-                    label: 'Offset',
-                    type: 'vec2',
-                    path: 'data.aoMapOffset',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:aoMapOffset'
-                }, {
-                    label: 'Tiling',
-                    type: 'vec2',
-                    path: 'data.aoMapTiling',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:aoMapTiling'
-                }, {
+                attributes: [..._textureAttribute('Ambient Occlusion', 'ao', TextureTypes.Scalar), {
                     label: 'Occlude Specular',
                     type: 'select',
                     path: 'data.occludeSpecular',
@@ -175,66 +212,10 @@ Object.assign(pcui, (function () {
             diffuseInspector: new pcui.AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
-                attributes: [{
-                    label: 'Diffuse',
-                    type: 'asset',
-                    path: 'data.diffuseMap',
-                    args: {
-                        assetType: 'texture'
-                    },
-                    reference: 'asset:material:diffuseMap'
-                }, {
-                    label: 'UV Channel',
-                    path: 'data.diffuseMapUv',
-                    type: 'select',
-                    args: {
-                        type: 'number',
-                        options: [{
-                            v: 0, t: 'UV0'
-                        }, {
-                            v: 1, t: 'UV1'
-                        }]
-                    },
-                    reference: 'asset:material:diffuseMapUv'
-                }, {
-                    label: 'Color Channel',
-                    path: 'data.diffuseMapChannel',
-                    type: 'select',
-                    args: {
-                        type: 'string',
-                        options: [{
-                            v: 'r', t: 'R'
-                        }, {
-                            v: 'g', t: 'G'
-                        }, {
-                            v: 'b', t: 'B'
-                        }, {
-                            v: 'a', t: 'A'
-                        }, {
-                            v: 'rgb', t: 'RGB'
-                        }]
-                    },
-                    reference: 'asset:material:diffuseMapChannel'
-                }, {
-                    label: 'Offset',
-                    path: 'data.diffuseMapOffset',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:diffuseMapOffset'
-                }, {
-                    label: 'Tiling',
-                    path: 'data.diffuseMapTiling',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:diffuseMapTiling'
-                }, {
+                attributes: [..._textureAttribute('Diffuse', 'diffuse', TextureTypes.Color), {
                     label: 'Vertex Color',
-                    path: 'data.diffuseMapVertexColor',
                     type: 'boolean',
+                    path: 'data.diffuseMapVertexColor',
                     reference: 'asset:material:diffuseMapVertexColor'
                 }, {
                     label: 'Tint',
@@ -288,65 +269,11 @@ Object.assign(pcui, (function () {
             metalnessWorkflowInspector: new pcui.AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
-                attributes: [{
-                    label: 'Metalness',
-                    type: 'asset',
-                    path: 'data.metalnessMap',
-                    args: {
-                        assetType: 'texture'
-                    },
-                    reference: 'asset:material:metalnessMap'
-                }, {
-                    label: 'UV Channel',
-                    path: 'data.metalnessMapUv',
-                    type: 'select',
-                    args: {
-                        type: 'number',
-                        options: [{
-                            v: 0, t: 'UV0'
-                        }, {
-                            v: 1, t: 'UV1'
-                        }]
-                    },
-                    reference: 'asset:material:metalnessMapUv'
-                }, {
-                    label: 'Color Channel',
-                    path: 'data.metalnessMapChannel',
-                    type: 'select',
-                    args: {
-                        type: 'string',
-                        options: [{
-                            v: 'r', t: 'R'
-                        }, {
-                            v: 'g', t: 'G'
-                        }, {
-                            v: 'b', t: 'B'
-                        }, {
-                            v: 'a', t: 'A'
-                        }]
-                    },
-                    reference: 'asset:material:metalnessMapChannel'
-                }, {
-                    label: 'Offset',
-                    path: 'data.metalnessMapOffset',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:metalnessMapOffset'
-                }, {
-                    label: 'Tiling',
-                    path: 'data.metalnessMapTiling',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:metalnessMapTiling'
-                }, {
+                attributes: [..._textureAttribute('Metalness', 'metalness', TextureTypes.Scalar), {
                     label: 'Vertex Color',
-                    path: 'data.metalnessMapVertexColor',
+                    path: 'data.metalnessVertexColor',
                     type: 'boolean',
-                    reference: 'asset:material:metalnessMapVertexColor'
+                    reference: 'asset:material:metalnessVertexColor'
                 }, {
                     label: 'Metalness',
                     path: 'data.metalness',
@@ -359,137 +286,36 @@ Object.assign(pcui, (function () {
                     },
                     reference: 'asset:material:metalness'
                 }, {
+                    label: 'Offset',
+                    path: 'data.metalnessMapOffset',
+                    type: 'vec2',
+                    args: {
+                        placeholder: ['U', 'V']
+                    },
+                    reference: 'asset:material:metalnessMapOffset'
+                }, {
                     label: "Use Specular Color and Factor",
                     path: 'data.useMetalnessSpecularColor',
                     type: 'boolean',
                     reference: 'asset:material:useMetalnessSpecularColor'
-                }, {
-                    label: 'Specular',
-                    path: 'data.specularMap',
-                    type: 'asset',
-                    args: {
-                        assetType: 'texture'
-                    },
-                    reference: 'asset:material:specularMap'
-                }, {
-                    label: 'UV Channel',
-                    path: 'data.specularMapUv',
-                    type: 'select',
-                    args: {
-                        type: 'number',
-                        options: [{
-                            v: 0, t: 'UV0'
-                        }, {
-                            v: 1, t: 'UV1'
-                        }]
-                    },
-                    reference: 'asset:material:specularMapUv'
-                }, {
-                    label: 'Color Channel',
-                    path: 'data.specularMapChannel',
-                    type: 'select',
-                    args: {
-                        type: 'string',
-                        options: [{
-                            v: 'r', t: 'R'
-                        }, {
-                            v: 'g', t: 'G'
-                        }, {
-                            v: 'b', t: 'B'
-                        }, {
-                            v: 'a', t: 'A'
-                        }, {
-                            v: 'rgb', t: 'RGB'
-                        }]
-                    },
-                    reference: 'asset:material:specularMapChannel'
-                }, {
-                    label: 'Offset',
-                    path: 'data.specularMapOffset',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:specularMapOffset'
-                }, {
-                    label: 'Tiling',
-                    path: 'data.specularMapTiling',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:specularMapTiling'
-                }, {
+                }, ..._textureAttribute('Specular', 'specular', TextureTypes.Color), {
                     label: 'Vertex Color',
-                    path: 'data.specularMapVertexColor',
+                    path: 'data.specularVertexColor',
                     type: 'boolean',
-                    reference: 'asset:material:specularMapVertexColor'
+                    reference: 'asset:material:specularVertexColor'
                 }, {
                     label: 'Tint',
-                    path: 'data.specularMapTint',
+                    path: 'data.specularTint',
                     type: 'boolean',
-                    reference: 'asset:material:specularMapTint'
+                    reference: 'asset:material:specularTint'
                 }, {
                     label: 'Color',
                     path: 'data.specular',
                     type: 'rgb',
                     reference: 'asset:material:specular'
-                }, {
-                    label: 'Specularity Factor',
-                    path: 'data.specularityFactorMap',
-                    type: 'asset',
-                    args: {
-                        assetType: 'texture'
-                    },
-                    reference: 'asset:material:specularityFactorMap'
-                }, {
-                    label: 'UV Channel',
-                    path: 'data.specularityFactorMapUv',
-                    type: 'select',
-                    args: {
-                        type: 'number',
-                        options: [{
-                            v: 0, t: 'UV0'
-                        }, {
-                            v: 1, t: 'UV1'
-                        }]
-                    },
-                    reference: 'asset:material:specularityFactorMapUv'
-                }, {
-                    label: 'Color Channel',
-                    path: 'data.specularityFactorMapChannel',
-                    type: 'select',
-                    args: {
-                        type: 'string',
-                        options: [{
-                            v: 'r', t: 'R'
-                        }, {
-                            v: 'g', t: 'G'
-                        }, {
-                            v: 'b', t: 'B'
-                        }, {
-                            v: 'a', t: 'A'
-                        }]
-                    },
-                    reference: 'asset:material:specularityFactorMapChannel'
-                }, {
-                    label: 'Offset',
-                    path: 'data.specularityFactorMapOffset',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:specularityFactorMapOffset'
-                }, {
-                    label: 'Tiling',
-                    path: 'data.specularityFactorMapTiling',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:specularityFactorMapTiling'
-                }, {
+                }, ..._textureAttribute('Specularity Factor', 'specularityFactor', TextureTypes.Scalar), {
                     label: 'Vertex Color',
+                    path: 'data.metalnessMapVertexColor',
                     path: 'data.specularityFactorVertexColor',
                     type: 'boolean',
                     reference: 'asset:material:specularityFactorVertexColor'
@@ -515,63 +341,7 @@ Object.assign(pcui, (function () {
             specularWorkflowInspector: new pcui.AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
-                attributes: [{
-                    label: 'Specular',
-                    path: 'data.specularMap',
-                    type: 'asset',
-                    args: {
-                        assetType: 'texture'
-                    },
-                    reference: 'asset:material:specularMap'
-                }, {
-                    label: 'UV Channel',
-                    path: 'data.specularMapUv',
-                    type: 'select',
-                    args: {
-                        type: 'number',
-                        options: [{
-                            v: 0, t: 'UV0'
-                        }, {
-                            v: 1, t: 'UV1'
-                        }]
-                    },
-                    reference: 'asset:material:specularMapUv'
-                }, {
-                    label: 'Color Channel',
-                    path: 'data.specularMapChannel',
-                    type: 'select',
-                    args: {
-                        type: 'string',
-                        options: [{
-                            v: 'r', t: 'R'
-                        }, {
-                            v: 'g', t: 'G'
-                        }, {
-                            v: 'b', t: 'B'
-                        }, {
-                            v: 'a', t: 'A'
-                        }, {
-                            v: 'rgb', t: 'RGB'
-                        }]
-                    },
-                    reference: 'asset:material:specularMapChannel'
-                }, {
-                    label: 'Offset',
-                    path: 'data.specularMapOffset',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:specularMapOffset'
-                }, {
-                    label: 'Tiling',
-                    path: 'data.specularMapTiling',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:specularMapTiling'
-                }, {
+                attributes: [..._textureAttribute('Specular', 'specular', TextureTypes.Color), {
                     label: 'Vertex Color',
                     path: 'data.specularMapVertexColor',
                     type: 'boolean',
@@ -594,61 +364,7 @@ Object.assign(pcui, (function () {
                 history: parent._args.history,
                 attributes: [{
                     type: 'divider'
-                }, {
-                    label: 'Glossiness',
-                    path: 'data.glossMap',
-                    type: 'asset',
-                    args: {
-                        assetType: 'texture'
-                    },
-                    reference: 'asset:material:glossMap'
-                }, {
-                    label: 'UV Channel',
-                    path: 'data.glossMapUv',
-                    type: 'select',
-                    args: {
-                        type: 'number',
-                        options: [{
-                            v: 0, t: 'UV0'
-                        }, {
-                            v: 1, t: 'UV1'
-                        }]
-                    },
-                    reference: 'asset:material:glossMapUv'
-                }, {
-                    label: 'Color Channel',
-                    path: 'data.glossMapChannel',
-                    type: 'select',
-                    args: {
-                        type: 'string',
-                        options: [{
-                            v: 'r', t: 'R'
-                        }, {
-                            v: 'g', t: 'G'
-                        }, {
-                            v: 'b', t: 'B'
-                        }, {
-                            v: 'a', t: 'A'
-                        }]
-                    },
-                    reference: 'asset:material:glossMapChannel'
-                }, {
-                    label: 'Offset',
-                    path: 'data.glossMapOffset',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:glossMapOffset'
-                }, {
-                    label: 'Tiling',
-                    path: 'data.glossMapTiling',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:glossMapTiling'
-                }, {
+                }, ..._textureAttribute('Glossiness', 'gloss', TextureTypes.Scalar), {
                     label: 'Vertex Color',
                     path: 'data.glossMapVertexColor',
                     type: 'boolean',
@@ -696,63 +412,7 @@ Object.assign(pcui, (function () {
             clearCoatInspector: new pcui.AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
-                attributes: [{
-                    label: 'Clear Coat',
-                    type: 'asset',
-                    path: 'data.clearCoatMap',
-                    args: {
-                        assetType: 'texture'
-                    },
-                    reference: 'asset:material:clearCoatMap'
-                }, {
-                    label: 'UV Channel',
-                    path: 'data.clearCoatMapUv',
-                    type: 'select',
-                    args: {
-                        type: 'number',
-                        options: [{
-                            v: 0, t: 'UV0'
-                        }, {
-                            v: 1, t: 'UV1'
-                        }]
-                    },
-                    reference: 'asset:material:clearCoatMapUv'
-                }, {
-                    label: 'Color Channel',
-                    path: 'data.clearCoatMapChannel',
-                    type: 'select',
-                    args: {
-                        type: 'string',
-                        options: [{
-                            v: 'r', t: 'R'
-                        }, {
-                            v: 'g', t: 'G'
-                        }, {
-                            v: 'b', t: 'B'
-                        }, {
-                            v: 'a', t: 'A'
-                        }, {
-                            v: 'rgb', t: 'RGB'
-                        }]
-                    },
-                    reference: 'asset:material:clearCoatMapChannel'
-                }, {
-                    label: 'Offset',
-                    path: 'data.clearCoatMapOffset',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:clearCoatMapOffset'
-                }, {
-                    label: 'Tiling',
-                    path: 'data.clearCoatMapTiling',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:clearCoatMapTiling'
-                }, {
+                attributes: [..._textureAttribute('Clear Coat', 'clearCoat', TextureTypes.Color), {
                     label: 'Vertex Color',
                     path: 'data.clearCoatVertexColor',
                     type: 'boolean',
@@ -782,61 +442,7 @@ Object.assign(pcui, (function () {
                 history: parent._args.history,
                 attributes: [{
                     type: 'divider'
-                }, {
-                    label: 'Clear Coat Glossiness',
-                    path: 'data.clearCoatGlossMap',
-                    type: 'asset',
-                    args: {
-                        assetType: 'texture'
-                    },
-                    reference: 'asset:material:clearCoatGlossMap'
-                }, {
-                    label: 'UV Channel',
-                    path: 'data.clearCoatGlossMapUv',
-                    type: 'select',
-                    args: {
-                        type: 'number',
-                        options: [{
-                            v: 0, t: 'UV0'
-                        }, {
-                            v: 1, t: 'UV1'
-                        }]
-                    },
-                    reference: 'asset:material:clearCoatGlossMapUv'
-                }, {
-                    label: 'Color Channel',
-                    path: 'data.clearCoatGlossMapChannel',
-                    type: 'select',
-                    args: {
-                        type: 'string',
-                        options: [{
-                            v: 'r', t: 'R'
-                        }, {
-                            v: 'g', t: 'G'
-                        }, {
-                            v: 'b', t: 'B'
-                        }, {
-                            v: 'a', t: 'A'
-                        }]
-                    },
-                    reference: 'asset:material:clearCoatGlossMapChannel'
-                }, {
-                    label: 'Offset',
-                    path: 'data.clearCoatGlossMapOffset',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:clearCoatGlossMapOffset'
-                }, {
-                    label: 'Tiling',
-                    path: 'data.clearCoatGlossMapTiling',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:clearCoatGlossMapTiling'
-                }, {
+                }, ..._textureAttribute('Clear Coat Gloss', 'clearCoatGloss', TextureTypes.Scalar), {
                     label: 'Vertex Color',
                     path: 'data.clearCoatGlossVertexColor',
                     type: 'boolean',
@@ -875,44 +481,7 @@ Object.assign(pcui, (function () {
             clearCoatNormalInspector: new pcui.AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
-                attributes: [{
-                    label: 'Clear Coat Normals',
-                    path: 'data.clearCoatNormalMap',
-                    type: 'asset',
-                    args: {
-                        assetType: 'texture'
-                    },
-                    reference: 'asset:material:clearCoatNormalMap'
-                }, {
-                    label: 'UV Channel',
-                    path: 'data.clearCoatNormalMapUv',
-                    type: 'select',
-                    args: {
-                        type: 'number',
-                        options: [{
-                            v: 0, t: 'UV0'
-                        }, {
-                            v: 1, t: 'UV1'
-                        }]
-                    },
-                    reference: 'asset:material:clearCoatNormalMapUv'
-                }, {
-                    label: 'Offset',
-                    path: 'data.clearCoatNormalMapOffset',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:clearCoatNormalMapOffset'
-                }, {
-                    label: 'Tiling',
-                    path: 'data.clearCoatNormalMapTiling',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:clearCoatNormalMapTiling'
-                }, {
+                attributes: [..._textureAttribute('Clear Coat Normals', 'clearCoatNormal', TextureTypes.Normal), {
                     label: 'Bumpiness',
                     path: 'data.clearCoatBumpiness',
                     type: 'slider',
@@ -938,63 +507,7 @@ Object.assign(pcui, (function () {
             emissiveInspector: new pcui.AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
-                attributes: [{
-                    label: 'Emissive',
-                    path: 'data.emissiveMap',
-                    type: 'asset',
-                    args: {
-                        assetType: 'texture'
-                    },
-                    reference: 'asset:material:emissiveMap'
-                }, {
-                    label: 'UV Channel',
-                    path: 'data.emissiveMapUv',
-                    type: 'select',
-                    args: {
-                        type: 'number',
-                        options: [{
-                            v: 0, t: 'UV0'
-                        }, {
-                            v: 1, t: 'UV1'
-                        }]
-                    },
-                    reference: 'asset:material:emissiveMapUv'
-                }, {
-                    label: 'Color Channel',
-                    path: 'data.emissiveMapChannel',
-                    type: 'select',
-                    args: {
-                        type: 'string',
-                        options: [{
-                            v: 'r', t: 'R'
-                        }, {
-                            v: 'g', t: 'G'
-                        }, {
-                            v: 'b', t: 'B'
-                        }, {
-                            v: 'a', t: 'A'
-                        }, {
-                            v: 'rgb', t: 'RGB'
-                        }]
-                    },
-                    reference: 'asset:material:emissiveMapChannel'
-                }, {
-                    label: 'Offset',
-                    path: 'data.emissiveMapOffset',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:emissiveMapOffset'
-                }, {
-                    label: 'Tiling',
-                    path: 'data.emissiveMapTiling',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:emissiveMapTiling'
-                }, {
+                attributes: [..._textureAttribute('Emissive', 'emissive', TextureTypes.Color), {
                     label: 'Vertex Color',
                     path: 'data.emissiveMapVertexColor',
                     type: 'boolean',
@@ -1064,61 +577,7 @@ Object.assign(pcui, (function () {
                         }]
                     },
                     reference: 'asset:material:blendType'
-                }, {
-                    label: 'Opacity',
-                    path: 'data.opacityMap',
-                    type: 'asset',
-                    args: {
-                        assetType: 'texture'
-                    },
-                    reference: 'asset:material:opacityMap'
-                }, {
-                    label: 'UV Channel',
-                    path: 'data.opacityMapUv',
-                    type: 'select',
-                    args: {
-                        type: 'number',
-                        options: [{
-                            v: 0, t: 'UV0'
-                        }, {
-                            v: 1, t: 'UV1'
-                        }]
-                    },
-                    reference: 'asset:material:opacityMapUv'
-                }, {
-                    label: 'Color Channel',
-                    path: 'data.opacityMapChannel',
-                    type: 'select',
-                    args: {
-                        type: 'string',
-                        options: [{
-                            v: 'r', t: 'R'
-                        }, {
-                            v: 'g', t: 'G'
-                        }, {
-                            v: 'b', t: 'B'
-                        }, {
-                            v: 'a', t: 'A'
-                        }]
-                    },
-                    reference: 'asset:material:opacityMapChannel'
-                }, {
-                    label: 'Offset',
-                    path: 'data.opacityMapOffset',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:opacityMapOffset'
-                }, {
-                    label: 'Tiling',
-                    path: 'data.opacityMapTiling',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:opacityMapTiling'
-                }, {
+                }, ..._textureAttribute('Opacity', 'opacity', TextureTypes.Scalar), {
                     label: 'Vertex Color',
                     path: 'data.opacityMapVertexColor',
                     type: 'boolean',
@@ -1181,44 +640,7 @@ Object.assign(pcui, (function () {
             normalsInspector: new pcui.AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
-                attributes: [{
-                    label: 'Normals',
-                    path: 'data.normalMap',
-                    type: 'asset',
-                    args: {
-                        assetType: 'texture'
-                    },
-                    reference: 'asset:material:normalMap'
-                }, {
-                    label: 'UV Channel',
-                    path: 'data.normalMapUv',
-                    type: 'select',
-                    args: {
-                        type: 'number',
-                        options: [{
-                            v: 0, t: 'UV0'
-                        }, {
-                            v: 1, t: 'UV1'
-                        }]
-                    },
-                    reference: 'asset:material:normalMapUv'
-                }, {
-                    label: 'Offset',
-                    path: 'data.normalMapOffset',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:normalMapOffset'
-                }, {
-                    label: 'Tiling',
-                    path: 'data.normalMapTiling',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:normalMapTiling'
-                }, {
+                attributes: [..._textureAttribute('Normals', 'normal', TextureTypes.Normal), {
                     label: 'Bumpiness',
                     path: 'data.bumpMapFactor',
                     type: 'slider',
@@ -1244,61 +666,7 @@ Object.assign(pcui, (function () {
             parallaxInspector: new pcui.AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
-                attributes: [{
-                    label: 'Heightmap',
-                    path: 'data.heightMap',
-                    type: 'asset',
-                    args: {
-                        assetType: 'texture'
-                    },
-                    reference: 'asset:material:heightMap'
-                }, {
-                    label: 'UV Channel',
-                    path: 'data.heightMapUv',
-                    type: 'select',
-                    args: {
-                        type: 'number',
-                        options: [{
-                            v: 0, t: 'UV0'
-                        }, {
-                            v: 1, t: 'UV1'
-                        }]
-                    },
-                    reference: 'asset:material:heightMapUv'
-                }, {
-                    label: 'Color Channel',
-                    path: 'data.heightMapChannel',
-                    type: 'select',
-                    args: {
-                        type: 'string',
-                        options: [{
-                            v: 'r', t: 'R'
-                        }, {
-                            v: 'g', t: 'G'
-                        }, {
-                            v: 'b', t: 'B'
-                        }, {
-                            v: 'a', t: 'A'
-                        }]
-                    },
-                    reference: 'asset:material:heightMapChannel'
-                }, {
-                    label: 'Offset',
-                    path: 'data.heightMapOffset',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:heightMapOffset'
-                }, {
-                    label: 'Tiling',
-                    path: 'data.heightMapTiling',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:heightMapTiling'
-                }, {
+                attributes: [..._textureAttribute('Heightmap', 'height', TextureTypes.Scalar), {
                     label: 'Strength',
                     path: 'data.heightMapFactor',
                     type: 'slider',
@@ -1419,63 +787,7 @@ Object.assign(pcui, (function () {
             lightmapInspector: new pcui.AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
-                attributes: [{
-                    label: 'Lightmap',
-                    path: 'data.lightMap',
-                    type: 'asset',
-                    args: {
-                        assetType: 'texture'
-                    },
-                    reference: 'asset:material:lightMap'
-                }, {
-                    label: 'UV Channel',
-                    path: 'data.lightMapUv',
-                    type: 'select',
-                    args: {
-                        type: 'number',
-                        options: [{
-                            v: 0, t: 'UV0'
-                        }, {
-                            v: 1, t: 'UV1'
-                        }]
-                    },
-                    reference: 'asset:material:lightMapUv'
-                }, {
-                    label: 'Color Channel',
-                    path: 'data.lightMapChannel',
-                    type: 'select',
-                    args: {
-                        type: 'string',
-                        options: [{
-                            v: 'r', t: 'R'
-                        }, {
-                            v: 'g', t: 'G'
-                        }, {
-                            v: 'b', t: 'B'
-                        }, {
-                            v: 'a', t: 'A'
-                        }, {
-                            v: 'rgb', t: 'RGB'
-                        }]
-                    },
-                    reference: 'asset:material:lightMapChannel'
-                }, {
-                    label: 'Offset',
-                    path: 'data.lightMapOffset',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:lightMapOffset'
-                }, {
-                    label: 'Tiling',
-                    path: 'data.lightMapTiling',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:lightMapTiling'
-                }, {
+                attributes: [..._textureAttribute('Lightmap', 'light', TextureTypes.Color), {
                     label: 'Vertex Color',
                     path: 'data.lightMapVertexColor',
                     type: 'boolean',
