@@ -300,12 +300,12 @@ Object.assign(pcui, (function () {
                     reference: 'asset:material:useMetalnessSpecularColor'
                 }, ..._textureAttribute('Specular', 'specular', TextureTypes.Color), {
                     label: 'Vertex Color',
-                    path: 'data.specularVertexColor',
+                    path: 'data.specularMapVertexColor',
                     type: 'boolean',
                     reference: 'asset:material:specularVertexColor'
                 }, {
                     label: 'Tint',
-                    path: 'data.specularTint',
+                    path: 'data.specularMapTint',
                     type: 'boolean',
                     reference: 'asset:material:specularTint'
                 }, {
