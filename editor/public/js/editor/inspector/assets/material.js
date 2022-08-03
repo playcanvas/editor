@@ -993,29 +993,16 @@ Object.assign(pcui, (function () {
 
             const specularMetalnessAttributes = ['specularMapUv', 'specularMapChannel', 'specularMapOffset', 'specularMapTiling', 'specularMapVertexColor', 'specularMapTint', 'specular'];
             const speculartyFactorAttributes = ['specularityFactorMapUv', 'specularityFactorMapChannel', 'specularityFactorMapOffset', 'specularityFactorMapTiling', 'specularityFactorVertexColor', 'specularityFactorTint', 'specularityFactor'];
-            if (editor.call('users:hasFlag', 'Engine_1_55')) {
-                const useMetalnessSpecularColor = this._metalnessWorkflowInspector.getField('data.useMetalnessSpecularColor').value;
-                this._metalnessWorkflowInspector.getField('data.specularMap').hidden = !useMetalnessSpecularColor;
-                specularMetalnessAttributes.forEach((field) => {
-                    this._metalnessWorkflowInspector.getField(`data.${field}`).parent.hidden = !useMetalnessSpecularColor;
-                });
-                
-                this._metalnessWorkflowInspector.getField('data.specularityFactorMap').hidden = !useMetalnessSpecularColor;
-                speculartyFactorAttributes.forEach((field) => {
-                    this._metalnessWorkflowInspector.getField(`data.${field}`).parent.hidden = !useMetalnessSpecularColor;
-                });
-            } else {
-                this._metalnessWorkflowInspector.getField('data.useMetalnessSpecularColor').parent.hidden = true;
-                this._metalnessWorkflowInspector.getField('data.specularMap').hidden = true;
-                specularMetalnessAttributes.forEach((field) => {
-                    this._metalnessWorkflowInspector.getField(`data.${field}`).parent.hidden = true;
-                });
-                
-                this._metalnessWorkflowInspector.getField('data.specularityFactorMap').hidden = true;
-                speculartyFactorAttributes.forEach((field) => {
-                    this._metalnessWorkflowInspector.getField(`data.${field}`).parent.hidden = true;
-                });
-            }
+            const useMetalnessSpecularColor = this._metalnessWorkflowInspector.getField('data.useMetalnessSpecularColor').value;
+            this._metalnessWorkflowInspector.getField('data.specularMap').hidden = !useMetalnessSpecularColor;
+            specularMetalnessAttributes.forEach((field) => {
+                this._metalnessWorkflowInspector.getField(`data.${field}`).parent.hidden = !useMetalnessSpecularColor;
+            });
+            
+            this._metalnessWorkflowInspector.getField('data.specularityFactorMap').hidden = !useMetalnessSpecularColor;
+            speculartyFactorAttributes.forEach((field) => {
+                this._metalnessWorkflowInspector.getField(`data.${field}`).parent.hidden = !useMetalnessSpecularColor;
+            });
 
             this._offsetTilingInspector.getField('offset').parent.hidden = !applyToAllMaps;
             this._offsetTilingInspector.getField('tiling').parent.hidden = !applyToAllMaps;
