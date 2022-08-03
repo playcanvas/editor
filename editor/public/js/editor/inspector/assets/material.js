@@ -738,7 +738,7 @@ Object.assign(pcui, (function () {
                         precision: 3,
                         step: 0.01,
                         min: 0,
-                        max: 40
+                        max: 1
                     },
                     reference: 'asset:material:refractionIndex'
                 }, {

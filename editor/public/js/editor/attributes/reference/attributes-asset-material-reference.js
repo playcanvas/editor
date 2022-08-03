@@ -443,7 +443,7 @@ editor.once('load', function () {
     }, {
         title: 'refractionIndex',
         subTitle: '{Number}',
-        description: 'Determines the amount of distortion of light passing through the material.',
+        description: 'Determines the amount of distortion of light passing through the material. Represented as 1.0 / Index of Refraction',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#refractionIndex'
     }, {
         title: 'shadingModel',
@@ -545,7 +545,6 @@ editor.once('load', function () {
         description: 'Use vertex colors for specularity factor instead of a map.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#specularityFactorMapVertexColor'
     }, {
-        
         title: 'sphereMap',
         subTitle: '{pc.Texture}',
         description: 'A sphere map texture asset that approximates environment reflection. If a sphere map is set, the Cube Map property will be hidden (since these properties are mutually exclusive).',
