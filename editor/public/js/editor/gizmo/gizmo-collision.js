@@ -156,7 +156,7 @@ editor.once('load', function () {
                     model.meshInstances[0].__editor = true;
                     model.meshInstances[0].__collision = true;
                     model.meshInstances[0].material = old.clone();
-                    model.meshInstances[0].material.updateShader = old.updateShader;
+                    model.meshInstances[0].material.getShaderVariant = old.getShaderVariant;
                     model.meshInstances[0].material.depthBias = -8;
                     model.meshInstances[0].material.color.set(color[0], color[1], color[2], alphaFront);
                     model.meshInstances[0].material.update();
@@ -168,7 +168,7 @@ editor.once('load', function () {
                     // model.meshInstances[1].updateKey();
                     model.meshInstances[1].__editor = true;
                     model.meshInstances[1].material = old.clone();
-                    model.meshInstances[1].material.updateShader = old.updateShader;
+                    model.meshInstances[1].material.getShaderVariant = old.getShaderVariant;
                     model.meshInstances[1].material.color.set(color[0], color[1], color[2], alphaBehind);
                     model.meshInstances[1].material.update();
                     model.meshInstances[1].__useFrontLayer = true;
@@ -495,9 +495,9 @@ void main(void)
 
         let shaderDefault;
 
-        const _updateShader = materialDefault.updateShader;
+        const origFunc = materialDefault.getShaderVariant;
 
-        materialDefault.updateShader = function (device, scene, objDefs, staticLightList, pass, sortedLights) {
+        materialDefault.getShaderVariant = function (device, scene, objDefs, staticLightList, pass, sortedLights) {
             if (pass === pc.SHADER_FORWARD) {
                 if (!shaderDefault) {
                     shaderDefault = new pc.Shader(device, {
@@ -509,16 +509,15 @@ void main(void)
                         fshader: defaultFShader
                     });
                 }
-
-                this.shader = shaderDefault;
+                return shaderDefault;
             } else {
-                _updateShader.call(this, device, scene, objDefs, staticLightList, pass, sortedLights);
+                return origFunc.call(this, device, scene, objDefs, staticLightList, pass, sortedLights);
             }
         };
         materialDefault.update();
 
-        materialBehind.updateShader = materialDefault.updateShader;
-        materialOccluder.updateShader = materialDefault.updateShader;
+        materialBehind.getShaderVariant = materialDefault.getShaderVariant;
+        materialOccluder.getShaderVariant = materialDefault.getShaderVariant;
 
         const capsuleVShader = `
 attribute vec3 aPosition;
@@ -596,8 +595,8 @@ void main(void)
 
         const makeCapsuleMaterial = function (a) {
             const matDefault = materials['capsule-' + a] = materialDefault.clone();
-            const _updateShader = matDefault.updateShader;
-            matDefault.updateShader = function (device, scene, objDefs, staticLightList, pass, sortedLights) {
+            const _getShaderVariant = matDefault.getShaderVariant;
+            matDefault.getShaderVariant = function (device, scene, objDefs, staticLightList, pass, sortedLights) {
                 if (pass === pc.SHADER_FORWARD) {
                     if (!shaderCapsule[a]) {
                         shaderCapsule[a] = new pc.Shader(device, {
@@ -610,7 +609,7 @@ void main(void)
                             fshader: capsuleFShader
                         });
                     }
-                    this.shader = shaderCapsule[a];
+                    return shaderCapsule[a];
                 } else if (pass === pc.SHADER_PICK) {
                     const shaderName = 'pick-' + a;
                     if (!shaderCapsule[shaderName]) {
@@ -624,20 +623,20 @@ void main(void)
                             fshader: capsuleFShaderPick
                         });
                     }
-                    this.shader = shaderCapsule[shaderName];
+                    return shaderCapsule[shaderName];
                 } else {
-                    _updateShader.call(this, device, scene, objDefs, staticLightList, pass, sortedLights);
+                    _getShaderVariant.call(this, device, scene, objDefs, staticLightList, pass, sortedLights);
                 }
             };
 
             matDefault.update();
 
             const matBehind = materials['capsuleBehind-' + a] = materialBehind.clone();
-            matBehind.updateShader = matDefault.updateShader;
+            matBehind.getShaderVariant = matDefault.getShaderVariant;
             matBehind.update();
 
             const matOccluder = materials['capsuleOcclude-' + a] = materialOccluder.clone();
-            matOccluder.updateShader = matDefault.updateShader;
+            matOccluder.getShaderVariant = matDefault.getShaderVariant;
             matOccluder.update();
         };
 
@@ -926,7 +925,7 @@ void main(void)
 
             // clone original instance and set it up
             meshInstances[i].material = materialDefault.clone();
-            meshInstances[i].material.updateShader = materialDefault.updateShader;
+            meshInstances[i].material.getShaderVariant = materialDefault.getShaderVariant;
             meshInstances[i].material.color.set(color[0], color[1], color[2], alphaFront);
             meshInstances[i].material.update();
             meshInstances[i].__editor = true;
@@ -940,7 +939,7 @@ void main(void)
 
             // additional instance for behind the mesh
             const meshInstanceBehind = new pc.MeshInstance(mesh, materialBehind.clone(), node);
-            meshInstanceBehind.material.updateShader = materialBehind.updateShader;
+            meshInstanceBehind.material.getShaderVariant = materialBehind.getShaderVariant;
             meshInstanceBehind.material.color.set(color[0], color[1], color[2], alphaBehind);
             meshInstanceBehind.material.update();
             meshInstanceBehind.setParameter('offset', 0);
