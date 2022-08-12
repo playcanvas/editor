@@ -38,7 +38,9 @@ editor.once('viewport:load', function () {
                 width: width,
                 height: height
             });
-            depthTarget = new pc.RenderTarget(device, colorBuffer, {
+            depthTarget = new pc.RenderTarget({
+                name: 'CameraDepthRenderRT',
+                colorBuffer: colorBuffer,
                 depth: true
             });
         }

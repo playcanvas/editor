@@ -287,7 +287,10 @@ void main(void)
                 textures[i].addressU = pc.ADDRESS_CLAMP_TO_EDGE;
                 textures[i].addressV = pc.ADDRESS_CLAMP_TO_EDGE;
 
-                targets[i] = new pc.RenderTarget(device, textures[i]);
+                targets[i] = new pc.RenderTarget({
+                    name: 'OutlineRT',
+                    colorBuffer: textures[i]
+                });
             }
         }
 
@@ -369,7 +372,7 @@ void main(void)
             newLayers.push(outlineLayer.id);
             camera.layers = newLayers;
 
-            app.renderer.renderComposition(outlineComp);
+            app.renderComposition(outlineComp);
 
             // restore camera layers
             camera.layers = backupLayers;

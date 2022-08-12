@@ -153,14 +153,14 @@ Object.assign(pcui, (function () {
             newLayers.push(scene.layer.id);
             scene.cameraEntity.camera.layers = newLayers;
 
-            app.renderer.renderComposition(scene.layerComposition);
+            app.renderComposition(scene.layerComposition);
 
             // restore camera layers
             scene.cameraEntity.camera.layers = backupLayers;
 
             // read pixels from texture
             var device = app.graphicsDevice;
-            device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, rt._glFrameBuffer);
+            device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, rt.impl._glFrameBuffer);
             device.gl.readPixels(0, 0, width, height, device.gl.RGBA, device.gl.UNSIGNED_BYTE, rt.pixels);
 
             // render to canvas

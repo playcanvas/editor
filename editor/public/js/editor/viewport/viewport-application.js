@@ -67,7 +67,7 @@ editor.once('load', function () {
             cameraEntity.camera.rect = rect;
         }
 
-        this.renderer.renderComposition(this.scene.layers);
+        this.renderComposition(this.scene.layers);
         this.fire('postrender');
     };
 

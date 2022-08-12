@@ -12,7 +12,10 @@ Object.assign(pcui, (function () {
                 format: pc.PIXELFORMAT_R8_G8_B8_A8
             });
 
-            target = new pc.RenderTarget(app.graphicsDevice, texture);
+            target = new pc.RenderTarget({
+                name: 'ThumbnailRendererRT',
+                colorBuffer: texture
+            });
             this._renderTargets[width + '-' + height] = target;
 
             target.buffer = new ArrayBuffer(width * height * 4);

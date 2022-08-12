@@ -72,7 +72,7 @@ editor.once('load', function () {
 
                         previewLayer.enabled = false;
                         app.scene.fog = fogType;
-                        app.renderer.renderComposition(app.scene.layers);
+                        app.renderComposition(app.scene.layers);
                         previewLayer.enabled = true;
 
                         previewCamera.enabled = false;

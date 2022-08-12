@@ -276,14 +276,14 @@ Object.assign(pcui, (function () {
             cameraEntity.camera.layers = newLayers;
 
             // render
-            app.renderer.renderComposition(layerComposition);
+            app.renderComposition(layerComposition);
 
             // restore camera layers
             cameraEntity.camera.layers = backupLayers;
 
             // read pixels from texture
             var device = app.graphicsDevice;
-            device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, rt._glFrameBuffer);
+            device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, rt.impl._glFrameBuffer);
             device.gl.readPixels(0, 0, width, height, device.gl.RGBA, device.gl.UNSIGNED_BYTE, rt.pixels);
 
             // render to canvas

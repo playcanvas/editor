@@ -322,7 +322,10 @@ Object.assign(
                     format: pc.PIXELFORMAT_R8_G8_B8_A8
                 });
 
-                const target = new pc.RenderTarget(this._app.graphicsDevice, texture);
+                const target = new pc.RenderTarget({
+                    name: 'AnimViewerRT',
+                    colorBuffer: texture
+                });
 
                 target.buffer = new ArrayBuffer(width * height * 4);
                 target.pixels = new Uint8Array(target.buffer);
@@ -517,7 +520,7 @@ Object.assign(
                 const backupAmbientLight = this._app.scene.ambientLight;
                 this._app.scene.ambientLight = new pc.Color(0.5, 0.5, 0.5);
 
-                this._app.renderer.renderComposition(this._layerComposition);
+                this._app.renderComposition(this._layerComposition);
 
                 this._app.scene.ambientLight = backupAmbientLight;
 

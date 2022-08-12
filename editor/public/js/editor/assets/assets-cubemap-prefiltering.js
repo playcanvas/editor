@@ -11,10 +11,15 @@ editor.once('load', function () {
 
         // read the pixel data of the given texture face
         var readPixels = function (texture, face) {
-            var rt = new pc.RenderTarget({ colorBuffer: texture, depth: false, face: face });
+            var rt = new pc.RenderTarget({
+                name: 'ReadPrefilteredCubemapRT',
+                colorBuffer: texture,
+                depth: false,
+                face: face
+            });
             var data = new Uint8ClampedArray(texture.width * texture.height * 4);
             var device = texture.device;
-            device.setFramebuffer(rt._glFrameBuffer);
+            device.setFramebuffer(rt.impl._glFrameBuffer);
             device.initRenderTarget(rt);
             device.gl.readPixels(0, 0, texture.width, texture.height, device.gl.RGBA, device.gl.UNSIGNED_BYTE, data);
             return data;

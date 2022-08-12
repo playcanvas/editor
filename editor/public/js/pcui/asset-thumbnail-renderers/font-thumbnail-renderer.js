@@ -289,7 +289,7 @@ Object.assign(pcui, (function () {
 
             // skip if the font isn't ready
             if (! engineAsset || ! engineAsset.resource || ! engineAsset.resource.textures || ! engineAsset.resource.textures.length || ! engineAsset.resource.data || ! engineAsset.resource.data.chars) {
-                app.renderer.renderComposition(layerComposition);
+                app.renderComposition(layerComposition);
             } else {
                 // try to use Aa as the text in different languages
                 // and if that is not found try the first two characters of the font
@@ -356,7 +356,7 @@ Object.assign(pcui, (function () {
                     newLayers.push(layer.id);
                     scene.cameraEntity.camera.layers = newLayers;
 
-                    app.renderer.renderComposition(layerComposition);
+                    app.renderComposition(layerComposition);
 
                     // restore camera layers
                     scene.cameraEntity.camera.layers = backupLayers;
@@ -364,7 +364,7 @@ Object.assign(pcui, (function () {
 
                     // read pixels from texture
                     const device = app.graphicsDevice;
-                    device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, rt._glFrameBuffer);
+                    device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, rt.impl._glFrameBuffer);
                     device.gl.readPixels(0, 0, width, height, device.gl.RGBA, device.gl.UNSIGNED_BYTE, rt.pixels);
 
                     // render to canvas
