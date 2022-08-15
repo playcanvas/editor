@@ -24,9 +24,10 @@ editor.once('load', function () {
         panel.classList.remove('hidden');
     };
 
-    if (config.engineVersions.length === 3 && location.search.includes(`version=${Object.values(config.engineVersions[2])[0]}`)) {
-        showTooltipMessage(`You are currently using engine version: ${Object.keys(config.engineVersions[2])[0]}`);
-    } else if (location.search.includes(`version=${Object.values(config.engineVersions[0])[0]}`)) {
-        showTooltipMessage(`You are currently using engine version: ${Object.keys(config.engineVersions[0])[0]}`);
+    // display engine version popup
+    const params = new URLSearchParams(location.search);
+    const version = params.get('version');
+    if (version) {
+        showTooltipMessage(`You are currently using engine version: ${version}`);
     }
 });

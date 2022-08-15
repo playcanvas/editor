@@ -103,13 +103,11 @@ Object.assign(pcui, (function () {
             type: 'select',
             args: {
                 type: 'string',
-                options: config.engineVersions.filter((data) => {
-                    return !Object.keys(data)[0].includes('Release Candidate');
-                }).map((data) => {
-                    const keys = Object.keys(data);
+                options: ['previous', 'current'].map((type) => {
+                    const t = config.engineVersions[type];
                     return {
-                        t: keys[0],
-                        v: data[keys[0]]
+                        t: t.description,
+                        v: type
                     };
                 })
             }

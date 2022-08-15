@@ -228,13 +228,15 @@ editor.once('load', function () {
 
     const engineVersionDropdown = new pcui.SelectInput({
         value: editor.call('settings:session').get('engineVersion'),
-        options: config.engineVersions.map((data) => {
-            const keys = Object.keys(data);
-            return {
-                t: keys[0],
-                v: data[keys[0]]
-            };
-        })
+        options: ['previous', 'current', 'latest']
+            .filter(type => config.engineVersions.hasOwnProperty(type))
+            .map((type) => {
+                const t = config.engineVersions[type];
+                return {
+                    t: t.description,
+                    v: type
+                };
+            })
     });
     engineVersionDropdown.style.margin = '0';
     panelEngineVersion.append(engineVersionDropdown);
@@ -443,9 +445,7 @@ editor.once('load', function () {
         if (fieldOptionsOptimizeSceneFormat)
             data.optimize_scene_format = fieldOptionsOptimizeSceneFormat.value;
 
-        if (engineVersionDropdown.value !== 'current') {
-            data.engine_version = engineVersionDropdown.value;
-        }
+        data.engine_version = config.engineVersions[engineVersionDropdown.value].version;
 
         editor.call('apps:new', data, function () {
             jobInProgress = false;
@@ -485,9 +485,7 @@ editor.once('load', function () {
             optimize_scene_format: fieldOptionsOptimizeSceneFormat ? fieldOptionsOptimizeSceneFormat.value : false
         };
 
-        if (engineVersionDropdown.value !== 'current') {
-            data.engine_version = engineVersionDropdown.value;
-        }
+        data.engine_version = config.engineVersions[engineVersionDropdown.value].version;
 
         // ajax call
         editor.call('apps:download', data, function (job) {

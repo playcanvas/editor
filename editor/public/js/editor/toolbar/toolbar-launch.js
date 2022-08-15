@@ -7,11 +7,7 @@ editor.once('load', function () {
 
     var settings = editor.call('settings:projectUser');
 
-    var releaseCandidate;
-    var releaseCandidateAvailable = config.engineVersions.length === 3;
-    if (releaseCandidateAvailable) {
-        releaseCandidate = Object.values(config.engineVersions[2])[0];
-    }
+    var releaseCandidate = config.engineVersions.latest?.version;
 
     // panel
     var panel = new ui.Panel();
@@ -77,15 +73,15 @@ editor.once('load', function () {
             query.push('ministats=true');
         }
 
-        if (releaseCandidateAvailable && launchOptions.releaseCandidate) {
-            query.push('version=' + releaseCandidate);
-            metrics.increment('launch-release-candidate');
-        } else if (config.url.useCustomEngine) {
+        if (config.url.useCustomEngine) {
             query.push('use_local_engine=' + config.url.engine);
+        } else if (releaseCandidate && launchOptions.releaseCandidate) {
+            query.push('version=' + config.engineVersions.latest.version);
+            metrics.increment('launch-release-candidate');
         } else {
             const engineVersion = editor.call('settings:session').get('engineVersion');
             if (engineVersion && engineVersion !== 'current') {
-                query.push('version=' + engineVersion);
+                query.push('version=' + config.engineVersions[engineVersion].version);
             }
         }
 
@@ -225,7 +221,7 @@ editor.once('load', function () {
     }).class.add('launch-tooltip');
 
     // release-candidate
-    if (releaseCandidateAvailable) {
+    if (releaseCandidate) {
         var optionReleaseCandidate = createOption('releaseCandidate', 'Use Release Candidate');
         optionReleaseCandidate.value = settings.get('editor.launchReleaseCandidate');
         settings.on('editor.launchReleaseCandidate:set', function (value) {
