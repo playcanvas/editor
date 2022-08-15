@@ -41,6 +41,16 @@ Object.assign(pcui, (function () {
             precision: 2,
             step: 0.1
         }
+    }, {
+        label: 'Priority',
+        path: 'components.screen.priority',
+        type: 'number',
+        args: {
+            min: 0,
+            max: 127,
+            precision: 0,
+            step: 1
+        }
     }];
 
     ATTRIBUTES.forEach((attr) => {

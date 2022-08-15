@@ -264,6 +264,13 @@ editor.once('load', function () {
                 }
             }
 
+            // screen
+            if (entity.has('components.screen')) {
+                if (!entity.has('components.screen.priority')) {
+                    entity.set('components.screen.priority', 0);
+                }
+            }
+
             // sprite
             if (entity.has('components.sprite')) {
                 if (!entity.has('components.sprite.width')) {
