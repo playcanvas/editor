@@ -438,11 +438,11 @@ Object.assign(pcui, (function () {
         }
 
         _createOverrideMarker(override, type) {
-            const label = new pcui.Label({
-                class: CLASS_OVERRIDE_MARKER,
+            const label = new ui.Label({
                 text: override ? '&#58208;' : '',
                 unsafe: true
             });
+            label.class.add(CLASS_OVERRIDE_MARKER);
 
             if (override) {
                 label.on('click', (e) => {

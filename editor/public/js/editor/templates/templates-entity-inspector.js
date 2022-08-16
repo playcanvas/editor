@@ -219,10 +219,10 @@ Object.assign(pcui, (function () {
             });
             container.append(label);
 
-            const icon = new pcui.Label({
-                class: CLASS_ENTITY_LIST_ICON,
+            const icon = new ui.Label({
                 unsafe: true
             });
+            icon.class.add(CLASS_ENTITY_LIST_ICON);
 
             if (data.removed) {
                 icon.text = '&#58256;';
