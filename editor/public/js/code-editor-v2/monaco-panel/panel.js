@@ -74,9 +74,8 @@ editor.once('load', function () {
     // when files panel starts folded
     onResize();
 
-
     // add playcanvas typescript definitions
-    const playcanvasUrl = '/editor/scene/js/engine/playcanvas.d.ts';
+    const playcanvasUrl = config.url.engine.replace(/.js$/, '.d.ts');
     fetch(playcanvasUrl).then(response => {
         if (response.ok) {
             response.text().then(code => {
