@@ -101,6 +101,7 @@ Object.assign(pcui, (function () {
         }
 
         _audioPaused(evt) {
+            this._audio.pause();
             this._audioTimeline.value = 0;
             this._audioButton.class.remove('active');
             clearInterval(this._playing);
