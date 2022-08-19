@@ -77,7 +77,9 @@ editor.once('load', function () {
             query.push('use_local_engine=' + config.url.engine);
         } else if (releaseCandidate && launchOptions.releaseCandidate) {
             query.push('version=' + config.engineVersions.latest.version);
-            metrics.increment('launch-release-candidate');
+            if (metrics) {
+                metrics.increment('launch-release-candidate');
+            }
         } else {
             const engineVersion = editor.call('settings:session').get('engineVersion');
             if (engineVersion && engineVersion !== 'current') {
