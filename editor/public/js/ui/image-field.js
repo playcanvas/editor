@@ -31,18 +31,18 @@ function ImageField(args) {
 ImageField.prototype = Object.create(ui.Element.prototype);
 
 
-ImageField.prototype._onClick = function(evt) {
+ImageField.prototype._onClick = function (evt) {
     this.ui.emit('click', evt);
 };
 
-ImageField.prototype._onChange = function() {
-    if (! this.renderChanges)
+ImageField.prototype._onChange = function () {
+    if (!this.renderChanges)
         return;
 
     this.flash();
 };
 
-ImageField.prototype._onKeyDown = function(evt) {
+ImageField.prototype._onKeyDown = function (evt) {
     if (evt.keyCode === 27)
         return this.blur();
 
@@ -54,17 +54,17 @@ ImageField.prototype._onKeyDown = function(evt) {
     this.ui.emit('pick');
 };
 
-ImageField.prototype._onLinkChange = function(value) {
+ImageField.prototype._onLinkChange = function (value) {
     this._value = value;
     this.emit('change', value);
 };
 
 
 Object.defineProperty(ImageField.prototype, 'image', {
-    get: function() {
+    get: function () {
         return this.elementImage.src;
     },
-    set: function(value) {
+    set: function (value) {
         if (this.elementImage.src === value)
             return;
 
@@ -74,11 +74,11 @@ Object.defineProperty(ImageField.prototype, 'image', {
 
 
 Object.defineProperty(ImageField.prototype, 'empty', {
-    get: function() {
+    get: function () {
         return this.class.contains('empty');
     },
-    set: function(value) {
-        if (this.class.contains('empty') === !! value)
+    set: function (value) {
+        if (this.class.contains('empty') === !!value)
             return;
 
         if (value) {
@@ -92,21 +92,21 @@ Object.defineProperty(ImageField.prototype, 'empty', {
 
 
 Object.defineProperty(ImageField.prototype, 'value', {
-    get: function() {
+    get: function () {
         if (this._link) {
             return this._link.get(this.path);
-        } else {
-            return this._value;
         }
+        return this._value;
+
     },
-    set: function(value) {
+    set: function (value) {
         value = value && parseInt(value, 10) || null;
 
         if (this._link) {
-            if (! this._link.set(this.path, value))
+            if (!this._link.set(this.path, value))
                 this._value = this._link.get(this.path);
         } else {
-            if (this._value === value && ! this.class.contains('null'))
+            if (this._value === value && !this.class.contains('null'))
                 return;
 
             this._value = value;

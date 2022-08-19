@@ -25,7 +25,7 @@ Object.assign(pcui, (function () {
      * @event
      * @name pcui.IBindable#change
      * @description Fired when the value of the Element changes
-     * @param {Object} value The new value
+     * @param {object} value - The new value
      */
 
     return {

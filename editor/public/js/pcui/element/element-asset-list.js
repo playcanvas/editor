@@ -16,17 +16,18 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.AssetList
      * @classdesc Element that can allows selecting multiple assets.
-     * @property {Boolean} renderChanges If true the input will flash when changed.
-     * @extends pcui.Element
+     * @property {boolean} renderChanges If true the input will flash when changed.
+     * @augments pcui.Element
      */
     class AssetList extends pcui.Element {
         /**
          * Creates a new pcui.AssetList.
-         * @param {Object} args The arguments
-         * @param {ObserverList} args.assets The assets list
-         * @param {String} [args.assetType] An optional filter for a specific asset type.
-         * @param {Function} [args.filterFn] An optional filter function when determining which assets to show with the asset picker.
-         * @param {Boolean} [args.allowDragDrop] If true then this will enable drag and drop of assets on the input
+         *
+         * @param {object} args - The arguments
+         * @param {ObserverList} args.assets - The assets list
+         * @param {string} [args.assetType] - An optional filter for a specific asset type.
+         * @param {Function} [args.filterFn] - An optional filter function when determining which assets to show with the asset picker.
+         * @param {boolean} [args.allowDragDrop] - If true then this will enable drag and drop of assets on the input
          * The function takes an asset observer as an argument and returns true or false.
          */
         constructor(args) {
@@ -192,7 +193,7 @@ Object.assign(pcui, (function () {
         _addAssets(assets) {
             this._btnDone.text = 'DONE';
 
-            assets.forEach(assetId => {
+            assets.forEach((assetId) => {
                 const entry = this._indexAssets[assetId] || this._createAssetItem(assetId);
                 entry.count = this._values.length;
                 entry.element.class.remove(CLASS_ASSET_NOT_EVERYWHERE);
@@ -201,7 +202,7 @@ Object.assign(pcui, (function () {
                 }
 
                 // add to all values
-                this._values.forEach(array => {
+                this._values.forEach((array) => {
                     if (!array) return;
                     if (array.indexOf(assetId) === -1) {
                         array.push(assetId);
@@ -235,7 +236,7 @@ Object.assign(pcui, (function () {
 
             // pick assets and filter them
             this._pickAssets((assets) => {
-                this._selectedAssets = assets.filter(asset => {
+                this._selectedAssets = assets.filter((asset) => {
                     if (this._filterFn) {
                         return this._filterFn(asset);
                     }
@@ -268,7 +269,7 @@ Object.assign(pcui, (function () {
 
         // Use search filter to filter which assets are visible or hidden
         _onSearchChange(filter) {
-            if (! filter) {
+            if (!filter) {
                 for (const id in this._indexAssets) {
                     this._indexAssets[id].element.hidden = false;
                 }
@@ -386,7 +387,7 @@ Object.assign(pcui, (function () {
 
             let evtAssetAdd = null;
             if (!asset) {
-                evtAssetAdd = this._assets.on('add', item => {
+                evtAssetAdd = this._assets.on('add', (item) => {
                     if (item.get('id') !== assetId) return;
 
                     evtAssetAdd.unbind();
@@ -428,7 +429,7 @@ Object.assign(pcui, (function () {
             this._btnDone.text = 'DONE';
 
             // remove from all values
-            this._values.forEach(array => {
+            this._values.forEach((array) => {
                 if (!array) return;
                 const idx = array.indexOf(assetId);
                 if (idx !== -1) {
@@ -456,9 +457,9 @@ Object.assign(pcui, (function () {
 
             // for every array in values add all
             // assets to the list
-            values.forEach(array => {
+            values.forEach((array) => {
                 if (!array) return;
-                array.forEach(assetId => {
+                array.forEach((assetId) => {
                     const entry = this._indexAssets[assetId] || this._createAssetItem(assetId);
                     entry.count++;
                     if (!appendedIndex[assetId]) {

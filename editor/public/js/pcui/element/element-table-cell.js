@@ -5,14 +5,15 @@ Object.assign(pcui, (function () {
 
     /**
      * @name pcui.TableCell
-     * @extends pcui.Container
+     * @augments pcui.Container
      * @classdesc Represents a table cell inside a pcui.TableRow
      */
     class TableCell extends pcui.Container {
         /**
          * Creates a new TableCell.
-         * @param {Object} [args] The arguments
-         * @param {Boolean} [args.header] If true then this cell belongs to a header row so it will use the <th> element.
+         *
+         * @param {object} [args] - The arguments
+         * @param {boolean} [args.header] - If true then this cell belongs to a header row so it will use the <th> element.
          */
         constructor(args) {
             let dom;

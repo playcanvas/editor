@@ -85,7 +85,7 @@ editor.once('load', function () {
         }
 
         for (const id in whoisonline) {
-            if (! itemsIndex[id])
+            if (!itemsIndex[id])
                 createItem(id);
         }
     });

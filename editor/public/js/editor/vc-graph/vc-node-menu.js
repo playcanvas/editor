@@ -160,9 +160,9 @@ editor.once('load', function () {
                 edge = edge || p[0];
 
                 return menu.vcGraphState.idToNode[edge.parent];
-            } else {
-                return null;
             }
+            return null;
+
         },
 
         selectForCompare: function (menu) {

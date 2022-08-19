@@ -23,11 +23,11 @@ function Canvas(args) {
 
 Canvas.prototype = Object.create(ui.Element.prototype);
 
-Canvas.prototype.onselectstart = function() {
+Canvas.prototype.onselectstart = function () {
     return false;
 };
 
-Canvas.prototype.resize = function(width, height) {
+Canvas.prototype.resize = function (width, height) {
     if (this._width === width && this._height === height)
         return;
 
@@ -41,10 +41,10 @@ Canvas.prototype.resize = function(width, height) {
 };
 
 Object.defineProperty(Canvas.prototype, 'width', {
-    get: function() {
+    get: function () {
         return this._width;
     },
-    set: function(value) {
+    set: function (value) {
         if (this._width === value)
             return;
 
@@ -56,10 +56,10 @@ Object.defineProperty(Canvas.prototype, 'width', {
 });
 
 Object.defineProperty(Canvas.prototype, 'height', {
-    get: function() {
+    get: function () {
         return this._height;
     },
-    set: function(value) {
+    set: function (value) {
         if (this._height === value)
             return;
 
@@ -71,19 +71,19 @@ Object.defineProperty(Canvas.prototype, 'height', {
 });
 
 Object.defineProperty(Canvas.prototype, 'pixelWidth', {
-    get: function() {
+    get: function () {
         return Math.floor(this._width * this._ratio);
     }
 });
 
 Object.defineProperty(Canvas.prototype, 'pixelHeight', {
-    get: function() {
+    get: function () {
         return Math.floor(this._height * this._ratio);
     }
 });
 
 Object.defineProperty(Canvas.prototype, 'pixelRatio', {
-    get: function() {
+    get: function () {
         return this._ratio;
     }
 });

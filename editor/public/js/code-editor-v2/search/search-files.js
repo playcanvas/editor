@@ -85,8 +85,8 @@ editor.once('load', function () {
             if (includeRegex != null || excludeRegex != null) {
                 // rebuild full path to asset in the style 'src/com/playcanvas/script.js'
                 var path = asset.get('path');
-                var assetFullPath = path.map((id) => editor.call('assets:get', id).get('name')).join('/') + (path.length > 0 ? '/' : '') + asset.get('name');
-    
+                var assetFullPath = path.map(id => editor.call('assets:get', id).get('name')).join('/') + (path.length > 0 ? '/' : '') + asset.get('name');
+
                 // if include is present, discard asset if there's no match to the include regex
                 var includeMatch = assetFullPath.match(includeRegex);
                 if (includeRegex != null && !(includeMatch !== null && includeMatch.length >= 1)) {

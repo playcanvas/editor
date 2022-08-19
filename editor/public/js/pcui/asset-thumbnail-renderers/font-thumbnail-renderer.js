@@ -121,7 +121,7 @@ Object.assign(pcui, (function () {
 
     function hasChars(chars, font) {
         for (let i = 0; i < chars.length; i++)
-            if (! font.data.chars[chars[i]])
+            if (!font.data.chars[chars[i]])
                 return false;
 
         return true;
@@ -139,7 +139,7 @@ Object.assign(pcui, (function () {
             const char = text[i]; // TODO: use symbol not char
 
             const charData = font.data.chars[char];
-            if (! charData) {
+            if (!charData) {
                 scene.meshInstances[i].visible = false;
                 continue;
             }
@@ -162,7 +162,7 @@ Object.assign(pcui, (function () {
         for (let i = 0; i < 2; i++) {
             const char = text[i]; // TODO: use symbol not char
             const charData = font.data.chars[char];
-            if (! charData) continue;
+            if (!charData) continue;
 
             const map = charData.map || 0;
 
@@ -229,7 +229,6 @@ Object.assign(pcui, (function () {
     }
 
     class FontThumbnailRenderer {
-
         constructor(asset, canvas) {
             this._asset = asset;
             this._canvas = canvas;
@@ -288,7 +287,7 @@ Object.assign(pcui, (function () {
             const engineAsset = app.assets.get(this._asset.get('id'));
 
             // skip if the font isn't ready
-            if (! engineAsset || ! engineAsset.resource || ! engineAsset.resource.textures || ! engineAsset.resource.textures.length || ! engineAsset.resource.data || ! engineAsset.resource.data.chars) {
+            if (!engineAsset || !engineAsset.resource || !engineAsset.resource.textures || !engineAsset.resource.textures.length || !engineAsset.resource.data || !engineAsset.resource.data.chars) {
                 app.renderComposition(layerComposition);
             } else {
                 // try to use Aa as the text in different languages
@@ -329,7 +328,7 @@ Object.assign(pcui, (function () {
                 // scene.defaultScreenSpaceTextMaterial.msdfMap = engineAsset.resource.textures[0];
                 scene.defaultScreenSpaceTextMaterial.setParameter('font_sdfIntensity', this._asset.get('data.intensity'));
 
-                if (text){
+                if (text) {
 
                     const char = engineAsset.resource.data.chars[text[0]];
                     const pxRange = (char && char.range) ? ((char.scale || 1) * char.range) : 2;
@@ -351,8 +350,8 @@ Object.assign(pcui, (function () {
                     layer.addCamera(scene.cameraEntity.camera);
 
                     // add camera to layer
-                    let backupLayers = scene.cameraEntity.camera.layers.slice();
-                    let newLayers = scene.cameraEntity.camera.layers;
+                    const backupLayers = scene.cameraEntity.camera.layers.slice();
+                    const newLayers = scene.cameraEntity.camera.layers;
                     newLayers.push(layer.id);
                     scene.cameraEntity.camera.layers = newLayers;
 

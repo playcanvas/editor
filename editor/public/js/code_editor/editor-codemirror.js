@@ -17,7 +17,7 @@ editor.once('load', function () {
         styleActiveLine: true,
         scrollPastEnd: true,
 
-        readOnly: editor.call('editor:isReadonly') ? true : false,
+        readOnly: !!editor.call('editor:isReadonly'),
 
         /* match - highlighter */
         highlightSelectionMatches: {
@@ -58,7 +58,7 @@ editor.once('load', function () {
         // folding
         options.foldOptions = {
             widget: '\u2026'
-        }
+        };
         options.foldGutter = true;
     }
 
@@ -107,8 +107,8 @@ editor.once('load', function () {
             };
         }
 
-        if (! config.asset || config.asset.type === 'script') {
-            if (! loadedDefinitions)
+        if (!config.asset || config.asset.type === 'script') {
+            if (!loadedDefinitions)
                 return;
 
             var patchScriptBeforeTern = function (code) {
@@ -147,9 +147,9 @@ editor.once('load', function () {
                             var div = document.createElement('div');
                             div.innerHTML = data.doc;
                             return div;
-                        } else {
-                            return null;
                         }
+                        return null;
+
                     },
 
                     // called when we are about to show the definition of a type
@@ -158,7 +158,7 @@ editor.once('load', function () {
                         var type = data.type;
                         if (data.url) {
                             var parts = data.url.split('/');
-                            type = parts[parts.length-1].replace('.html', '');
+                            type = parts[parts.length - 1].replace('.html', '');
                         }
                         tip.innerHTML = '<span><strong>' + type + '</strong>&nbsp;';
                         if (data.url) {
@@ -171,7 +171,7 @@ editor.once('load', function () {
                 });
 
                 // update hints on cursor activity
-                codeMirror.on("cursorActivity", function(cm) {
+                codeMirror.on("cursorActivity", function (cm) {
                     server.updateArgHints(cm);
                 });
 
@@ -185,7 +185,7 @@ editor.once('load', function () {
                 var shouldComplete = function (e) {
                     // auto complete on '.' or word chars
                     return !e.ctrlKey && !e.altKey && !e.metaKey && (e.keyCode === 190 || (e.key.length === 1 && wordChar.test(e.key)));
-                }
+                };
 
                 // auto complete on keydown after a bit
                 // so that we have the chance to cancel autocompletion
@@ -194,7 +194,7 @@ editor.once('load', function () {
                 // afterwards (because it's async) and that's not what we want.
                 codeMirror.on("keydown", function (cm, e) {
                     var complete = shouldComplete(e);
-                    if (! complete && completeTimeout) {
+                    if (!complete && completeTimeout) {
                         clearTimeout(completeTimeout);
                         completeTimeout = null;
                     } else if (complete) {
@@ -204,13 +204,13 @@ editor.once('load', function () {
 
                 extraKeys = extraKeys || {};
 
-                extraKeys['Ctrl-Space'] = function (cm) {server.complete(cm);};
-                extraKeys['Ctrl-O'] = function (cm) {server.showDocs(cm);};
-                extraKeys['Cmd-O'] = function (cm) {server.showDocs(cm);};
-                extraKeys['Alt-.'] = function (cm) {server.jumpToDef(cm);};
-                extraKeys['Alt-,'] = function (cm) {server.jumpBack(cm);};
-                extraKeys['Ctrl-Q'] = function (cm) {server.rename(cm);};
-                extraKeys['Ctrl-.'] = function (cm) {server.selectName(cm);};
+                extraKeys['Ctrl-Space'] = function (cm) { server.complete(cm); };
+                extraKeys['Ctrl-O'] = function (cm) { server.showDocs(cm); };
+                extraKeys['Cmd-O'] = function (cm) { server.showDocs(cm); };
+                extraKeys['Alt-.'] = function (cm) { server.jumpToDef(cm); };
+                extraKeys['Alt-,'] = function (cm) { server.jumpBack(cm); };
+                extraKeys['Ctrl-Q'] = function (cm) { server.rename(cm); };
+                extraKeys['Ctrl-.'] = function (cm) { server.selectName(cm); };
             } catch (ex) {
                 console.error('Could not initialize auto complete');
                 log.error(ex);
@@ -219,9 +219,9 @@ editor.once('load', function () {
 
         extraKeys = extraKeys || {};
 
-        extraKeys['Ctrl-S'] = function (cm) {editor.call('editor:save');};
-        extraKeys['Cmd-S'] = function (cm) {editor.call('editor:save');};
-        extraKeys['Tab'] = function(cm) {
+        extraKeys['Ctrl-S'] = function (cm) { editor.call('editor:save'); };
+        extraKeys['Cmd-S'] = function (cm) { editor.call('editor:save'); };
+        extraKeys.Tab = function (cm) {
             if (cm.somethingSelected()) {
                 cm.indentSelection("add");
             } else {
@@ -229,7 +229,7 @@ editor.once('load', function () {
             }
         };
 
-        extraKeys['Esc'] = function (cm) {cm.execCommand('clearSearch'); cm.setSelection(cm.getCursor("anchor"), cm.getCursor("anchor"));};
+        extraKeys.Esc = function (cm) { cm.execCommand('clearSearch'); cm.setSelection(cm.getCursor("anchor"), cm.getCursor("anchor")); };
         extraKeys["Shift-Tab"] = "indentLess";
         extraKeys['Ctrl-/'] = 'toggleComment';
         extraKeys['Cmd-/'] = 'toggleComment';
@@ -237,8 +237,8 @@ editor.once('load', function () {
         extraKeys['Ctrl-I'] = 'indentAuto';
         extraKeys['Cmd-I'] = 'indentAuto';
 
-        extraKeys['Alt-Up'] = function (cm) {cm.execCommand('goLineUp'); cm.execCommand('goLineEnd');};
-        extraKeys['Alt-Down'] = function (cm) {cm.execCommand('goLineDown'); cm.execCommand('goLineEnd');};
+        extraKeys['Alt-Up'] = function (cm) { cm.execCommand('goLineUp'); cm.execCommand('goLineEnd'); };
+        extraKeys['Alt-Down'] = function (cm) { cm.execCommand('goLineDown'); cm.execCommand('goLineEnd'); };
 
         // create key bindings
         codeMirror.setOption("extraKeys", CodeMirror.normalizeKeyMap(extraKeys));
@@ -336,12 +336,12 @@ editor.once('load', function () {
             };
         }
 
-        codeMirror.setOption('readOnly', readOnly ? true : false);
+        codeMirror.setOption('readOnly', !!readOnly);
         codeMirror.setOption('cursorBlinkRate', readOnly ? -1 : 530);
 
         // if we are enabling write then restore
         // previous state
-        if (! readOnly && stateBeforeReadOnly) {
+        if (!readOnly && stateBeforeReadOnly) {
             var cursorCoords = cm.cursorCoords(stateBeforeReadOnly.cursor, 'local');
             cm.setCursor(stateBeforeReadOnly.cursor);
 
@@ -379,7 +379,7 @@ editor.once('load', function () {
     });
 
     // fired when the user tries to leave the current page
-    if (! config.asset) {
+    if (!config.asset) {
         window.onbeforeunload = function (event) {
             var message;
 

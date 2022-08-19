@@ -30,7 +30,7 @@ editor.once('load', function () {
     editor.on('select:asset', function (asset) {
         if (asset.get('type') === 'folder') return;
 
-        if (! viewIndex[asset.get('id')]) {
+        if (!viewIndex[asset.get('id')]) {
             panel.toggleCode(false);
         }
     });
@@ -59,7 +59,7 @@ editor.once('load', function () {
         };
 
         // emit change event
-        entry.view.onDidChangeContent(evt => {
+        entry.view.onDidChangeContent((evt) => {
             if (entry.suppressChanges) return;
 
             editor.emit('views:change', id, entry.view, evt);
@@ -73,7 +73,7 @@ editor.once('load', function () {
 
     // Focus document
     editor.on('documents:focus', function (id) {
-        if (! viewIndex[id]) {
+        if (!viewIndex[id]) {
             // This happens on some rare occasions not sure why yet...
             console.warn('Requested to focus document that has no view yet', 'Document ' + id);
             return;
@@ -187,8 +187,8 @@ editor.once('load', function () {
     });
 
     editor.method('editor:isReadOnly', function () {
-        return ! focusedView ||
-               ! editor.call('permissions:write') ||
+        return !focusedView ||
+               !editor.call('permissions:write') ||
                  editor.call('errors:hasRealtime') ||
                  editor.call('documents:hasError', focusedView.asset.get('id'));
     });

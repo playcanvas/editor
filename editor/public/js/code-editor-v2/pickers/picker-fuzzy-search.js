@@ -125,7 +125,7 @@ editor.once('load', function () {
     // when a document if focused steal focus
     // if we are open
     editor.on('documents:focus', function (id) {
-        if (! panel.hidden) {
+        if (!panel.hidden) {
             fieldSearch.focus();
         }
     });
@@ -149,14 +149,14 @@ editor.once('load', function () {
     var openSelection = function () {
         var children = menuResults.innerElement.childNodes;
         var selected = children[selectedIndex];
-        if (! selected) return;
+        if (!selected) return;
 
         pick(selected.ui._assetId);
     };
 
     var selectIndex = function (index) {
         var children = menuResults.innerElement.childNodes;
-        if (! children.length) return;
+        if (!children.length) return;
 
         if (index < 0)
             index = 0;
@@ -166,7 +166,7 @@ editor.once('load', function () {
         var item;
         if (selectedIndex === index) {
             item = children[index];
-            if (! item || item.classList.contains('selected'))
+            if (!item || item.classList.contains('selected'))
                 return;
         }
 
@@ -175,7 +175,7 @@ editor.once('load', function () {
             item.classList.remove('selected');
 
         item = children[index];
-        if (! item) return;
+        if (!item) return;
 
         item.classList.add('selected');
 
@@ -328,7 +328,7 @@ editor.once('load', function () {
             var name = asset.get('name');
 
             var score = calculateScore(name, pattern, plen);
-            if (! score) return;
+            if (!score) return;
 
             scoreIndex[asset.get('id')] = score;
 

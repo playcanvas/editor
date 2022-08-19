@@ -1,10 +1,10 @@
-editor.once('load', function() {
+editor.once('load', function () {
     'use strict';
 
     // do nothing if we're editing a script instead
     // of an asset.
     // TODO: Remove this when scripts are assets
-    if (! config.asset)
+    if (!config.asset)
         return;
 
     var RECONNECT_INTERVAL = 1;
@@ -52,7 +52,7 @@ editor.once('load', function() {
     });
 
     editor.method('editor:loadAssetFile', function (fn) {
-        if (! assetDocument)
+        if (!assetDocument)
             return fn(new Error("Asset not loaded"));
 
         var filename = assetDocument.data.file.filename;
@@ -62,7 +62,7 @@ editor.once('load', function() {
             auth: true,
             notJson: true
         })
-        .on('load', function(status, data) {
+        .on('load', function (status, data) {
             fn(null, data);
         })
         .on('error', function (err) {
@@ -71,7 +71,7 @@ editor.once('load', function() {
     });
 
     editor.method('editor:save', function () {
-        if (! editor.call('editor:canSave'))
+        if (!editor.call('editor:canSave'))
             return;
 
         isSaving = true;
@@ -112,10 +112,10 @@ editor.once('load', function() {
     });
 
     editor.method('editor:isReadonly', function () {
-        return ! editor.call('permissions:write');
+        return !editor.call('permissions:write');
     });
 
-    editor.once('start', function() {
+    editor.once('start', function () {
         var auth = false;
         var socket;
         var connection;
@@ -145,10 +145,10 @@ editor.once('load', function() {
 
             // if the connection does not exist
             // then create a new shareDb connection
-            if (! connection) {
+            if (!connection) {
                 connection = new window.share.Connection(socket);
 
-                connection.on('connected', function() {
+                connection.on('connected', function () {
                     reconnectInterval = RECONNECT_INTERVAL;
 
                     this.socket.send('auth' + JSON.stringify({
@@ -169,7 +169,7 @@ editor.once('load', function() {
 
             var shareDbMessage = connection.socket.onmessage;
 
-            connection.socket.onmessage = function(msg) {
+            connection.socket.onmessage = function (msg) {
                 try {
                     if (msg.data.startsWith('auth')) {
                         if (!auth) {
@@ -179,7 +179,7 @@ editor.once('load', function() {
                             editor.emit('realtime:authenticated');
 
                             // load document
-                            if (! textDocument) {
+                            if (!textDocument) {
                                 loadDocument();
                             } else {
                                 // send doc:reconnect in order for C3 to
@@ -188,7 +188,7 @@ editor.once('load', function() {
                                 textDocument.resume();
                             }
 
-                            if (! assetDocument)
+                            if (!assetDocument)
                                 loadAsset();
                         }
                     } else if (msg.data.startsWith('whoisonline:')) {
@@ -204,8 +204,7 @@ editor.once('load', function() {
                         //     }
                         //     editor.call('whoisonline:' + op, data);
                         // }
-                    }
-                    else if (!msg.data.startsWith('fs:') && !msg.data.startsWith('doc:save:')) {
+                    } else if (!msg.data.startsWith('fs:') && !msg.data.startsWith('doc:save:')) {
                         shareDbMessage(msg);
                     }
                 } catch (e) {
@@ -275,7 +274,7 @@ editor.once('load', function() {
             }
         };
 
-        var loadDocument = function() {
+        var loadDocument = function () {
             textDocument = connection.get('documents', '' + config.asset.id);
 
             // error
@@ -286,8 +285,8 @@ editor.once('load', function() {
                 // notify of scene load
                 isLoading = false;
 
-                if (! editingContext) {
-                    editingContext = textDocument.type.api(function() { return textDocument.data; }, function(component, options, callback) { return textDocument.submitOp(component, options, callback); });
+                if (!editingContext) {
+                    editingContext = textDocument.type.api(function () { return textDocument.data; }, function (component, options, callback) { return textDocument.submitOp(component, options, callback); });
                     editingContext._doc = textDocument;
                 }
 
@@ -299,7 +298,7 @@ editor.once('load', function() {
 
                 documentContent = textDocument.data;
 
-                if (! loadedScriptOnce) {
+                if (!loadedScriptOnce) {
                     editor.emit('editor:loadScript', documentContent);
                     loadedScriptOnce = true;
                 } else {
@@ -313,14 +312,14 @@ editor.once('load', function() {
             textDocument.subscribe();
         };
 
-        var loadAsset = function() {
+        var loadAsset = function () {
             // load asset document too
             assetDocument = connection.get('assets', '' + config.asset.id);
 
             // listen to "after op" in order to check if the asset
             // file has been saved. When the file changes this means that the
             // save operation has finished
-            assetDocument.on('op', function(ops, local) {
+            assetDocument.on('op', function (ops, local) {
                 if (local) return;
 
                 for (var i = 0; i < ops.length; i++) {
@@ -332,7 +331,7 @@ editor.once('load', function() {
                 }
             });
 
-            assetDocument.on('load', function() {
+            assetDocument.on('load', function () {
                 // load asset file to check if it has different contents
                 // than the shareDb document, so that we can enable the
                 // SAVE button if that is the case.
@@ -350,7 +349,7 @@ editor.once('load', function() {
             assetDocument.subscribe();
         };
 
-        editor.method('realtime:send', function(name, data) {
+        editor.method('realtime:send', function (name, data) {
             socket.send(name + JSON.stringify(data));
         });
 

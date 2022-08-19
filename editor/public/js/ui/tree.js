@@ -11,13 +11,13 @@ function Tree() {
     this._element.appendChild(this.elementDrag);
 
     var self = this;
-    this.elementDrag.addEventListener('mousemove', function(evt) {
+    this.elementDrag.addEventListener('mousemove', function (evt) {
         evt.preventDefault();
         evt.stopPropagation();
 
         self._onDragMove(evt);
     });
-    this._element.addEventListener('mouseleave', function(evt) {
+    this._element.addEventListener('mouseleave', function (evt) {
         self._onDragOut();
     });
 
@@ -28,39 +28,39 @@ function Tree() {
 
     this.draggable = true;
     this._dragging = false;
-    this._dragItems = [ ];
+    this._dragItems = [];
     this._dragOver = null;
     this._dragArea = 'inside';
     this._evtDragMove = null;
     this.reordering = true;
     this.dragInstant = true;
 
-    this._selected = [ ];
+    this._selected = [];
 }
 Tree.prototype = Object.create(ui.ContainerElement.prototype);
 
 
 Object.defineProperty(Tree.prototype, 'selected', {
-    get: function() {
+    get: function () {
         return this._selected.slice(0);
     },
-    set: function(value) {
+    set: function (value) {
 
     }
 });
 
 
-Tree.prototype._onItemClick = function(item) {
+Tree.prototype._onItemClick = function (item) {
     if (Tree._ctrl && Tree._ctrl()) {
-        item.selected = ! item.selected;
+        item.selected = !item.selected;
     } else if (Tree._shift && Tree._shift() && this._selected.length) {
         var from = this._selected[this._selected.length - 1];
         var to = item;
 
-        var up = [ ];
-        var down = [ ];
+        var up = [];
+        var down = [];
 
-        var prev = function(refItem) {
+        var prev = function (refItem) {
             var result = null;
             var item = refItem.element.previousSibling;
             if (item)
@@ -76,16 +76,16 @@ Tree.prototype._onItemClick = function(item) {
                         last = last.ui;
 
                     if (last) {
-                        var findLast = function(inside) {
+                        var findLast = function (inside) {
                             if (inside.open && inside._children) {
                                 return inside.element.lastChild.ui || null;
-                            } else {
-                                return null;
                             }
-                        }
+                            return null;
+
+                        };
 
                         var found = false;
-                        while(! found) {
+                        while (!found) {
                             var deeper = findLast(last);
                             if (deeper) {
                                 last = deeper;
@@ -106,7 +106,7 @@ Tree.prototype._onItemClick = function(item) {
             return result;
         };
 
-        var next = function(refItem) {
+        var next = function (refItem) {
             var result = null;
             var item = refItem.element.nextSibling;
             if (item)
@@ -127,7 +127,7 @@ Tree.prototype._onItemClick = function(item) {
                 // no next element, go to parent
                 var parent = refItem.parent;
 
-                var findNext = function(from) {
+                var findNext = function (from) {
                     var next = from.next;
                     if (next) {
                         result = next;
@@ -135,9 +135,9 @@ Tree.prototype._onItemClick = function(item) {
                         return from.parent;
                     }
                     return false;
-                }
+                };
 
-                while(parent = findNext(parent)) { }
+                while (parent = findNext(parent)) { }
             }
 
             return result;
@@ -148,12 +148,12 @@ Tree.prototype._onItemClick = function(item) {
         var lookUp = true;
         var lookDown = true;
         var lookingUp = true;
-        while(! done && ! path) {
-            lookingUp = ! lookingUp;
+        while (!done && !path) {
+            lookingUp = !lookingUp;
 
             var item = null;
             var lookFrom = from;
-            if ((! lookDown || lookingUp) && lookUp) {
+            if ((!lookDown || lookingUp) && lookUp) {
                 // up
                 if (up.length)
                     lookFrom = up[up.length - 1];
@@ -193,7 +193,7 @@ Tree.prototype._onItemClick = function(item) {
         }
 
         if (path) {
-            for(var i = 0; i < path.length; i++) {
+            for (var i = 0; i < path.length; i++) {
                 path[i].selected = true;
             }
         }
@@ -203,18 +203,18 @@ Tree.prototype._onItemClick = function(item) {
         var selected = item.selected && ((this._selected.indexOf(item) === -1) || (this._selected.length === 1 && this._selected[0] === item));
         this.clear();
 
-        if (! selected)
+        if (!selected)
             item.selected = true;
     }
 };
 
 
-Tree.prototype._onSelect = function(item) {
+Tree.prototype._onSelect = function (item) {
     this._selected.push(item);
 };
 
 
-Tree.prototype._onDeselect = function(item) {
+Tree.prototype._onDeselect = function (item) {
     var ind = this._selected.indexOf(item);
     if (ind === -1)
         return;
@@ -223,31 +223,31 @@ Tree.prototype._onDeselect = function(item) {
 };
 
 
-Tree.prototype.clear = function() {
-    if (! this._selected.length)
+Tree.prototype.clear = function () {
+    if (!this._selected.length)
         return;
 
     var i = this._selected.length;
-    while(i--) {
+    while (i--) {
         this._selected[i].selected = false;
     }
-    this._selected = [ ];
-}
+    this._selected = [];
+};
 
 
-Tree.prototype._onDragStart = function(item) {
-    if (! this.draggable || this._dragging)
+Tree.prototype._onDragStart = function (item) {
+    if (!this.draggable || this._dragging)
         return;
 
-    this._dragItems =  [ ];
+    this._dragItems =  [];
 
     if (this._selected && this._selected.length > 1 && this._selected.indexOf(item) !== -1) {
-        var items = [ ];
+        var items = [];
         var index = { };
         var defaultLevel = -1;
 
         // build index
-        for(var i = 0; i < this._selected.length; i++) {
+        for (var i = 0; i < this._selected.length; i++) {
             // cant drag parent
             if (this._selected[i].parent === this)
                 return;
@@ -256,15 +256,15 @@ Tree.prototype._onDragStart = function(item) {
             index[this._selected[i]._dragId] = this._selected[i];
         }
 
-        for(var i = 0; i < this._selected.length; i++) {
+        for (var i = 0; i < this._selected.length; i++) {
             var s = this._selected[i];
             var level = 0;
             var child = false;
             var parent = this._selected[i].parent;
-            if (! (parent instanceof ui.TreeItem))
+            if (!(parent instanceof ui.TreeItem))
                 parent = null;
 
-            while(parent) {
+            while (parent) {
                 if (parent._dragId && index[parent._dragId]) {
                     // child, to be ignored
                     child = true;
@@ -272,7 +272,7 @@ Tree.prototype._onDragStart = function(item) {
                 }
 
                 parent = parent.parent;
-                if (! (parent instanceof ui.TreeItem)) {
+                if (!(parent instanceof ui.TreeItem)) {
                     parent = null;
                     break;
                 }
@@ -280,7 +280,7 @@ Tree.prototype._onDragStart = function(item) {
                 level++;
             }
 
-            if (! child) {
+            if (!child) {
                 if (defaultLevel === -1) {
                     defaultLevel = level;
                 } else if (defaultLevel !== level) {
@@ -293,7 +293,7 @@ Tree.prototype._onDragStart = function(item) {
         }
 
         // clean ids
-        for(var i = 0; i < this._selected.length; i++)
+        for (var i = 0; i < this._selected.length; i++)
             this._selected[i]._dragId = null;
 
         this._dragItems = items;
@@ -303,9 +303,9 @@ Tree.prototype._onDragStart = function(item) {
             var commonParent = null;
 
             // find common parent
-            var findCommonParent = function(items) {
-                var parents = [ ];
-                for(var i = 0; i < items.length; i++) {
+            var findCommonParent = function (items) {
+                var parents = [];
+                for (var i = 0; i < items.length; i++) {
                     if (parents.indexOf(items[i].parent) === -1)
                         parents.push(items[i].parent);
                 }
@@ -316,28 +316,28 @@ Tree.prototype._onDragStart = function(item) {
                 }
             };
             var parents = items;
-            while(! commonParent && parents)
+            while (!commonParent && parents)
                 parents = findCommonParent(parents);
 
             // calculate ind number
-            for(var i = 0; i < items.length; i++) {
+            for (var i = 0; i < items.length; i++) {
                 var ind = 0;
 
-                var countChildren = function(item) {
-                    if (! item._children) {
+                var countChildren = function (item) {
+                    if (!item._children) {
                         return 0;
-                    } else {
-                        var count = 0;
-                        var children = item.innerElement.childNodes;
-                        for(var i = 0; i < children.length; i++) {
-                            if (children[i].ui)
-                                count += countChildren(children[i]) + 1;
-                        }
-                        return count;
                     }
+                    var count = 0;
+                    var children = item.innerElement.childNodes;
+                    for (var i = 0; i < children.length; i++) {
+                        if (children[i].ui)
+                            count += countChildren(children[i]) + 1;
+                    }
+                    return count;
+
                 };
 
-                var scanUpForIndex = function(item) {
+                var scanUpForIndex = function (item) {
                     ind++;
 
                     var sibling = item.element.previousSibling;
@@ -348,32 +348,32 @@ Tree.prototype._onDragStart = function(item) {
                         return sibling;
                     } else if (item.parent === commonParent) {
                         return null;
-                    } else {
-                        return item.parent;
                     }
+                    return item.parent;
+
                 };
 
                 var prev = scanUpForIndex(items[i]);
-                while(prev)
+                while (prev)
                     prev = scanUpForIndex(prev);
 
                 items[i]._dragInd = ind;
             }
 
-            items.sort(function(a, b) {
+            items.sort(function (a, b) {
                 return a._dragInd - b._dragInd;
             });
         }
     } else {
         // single drag
-        this._dragItems = [ item ];
+        this._dragItems = [item];
     }
 
     if (this._dragItems.length) {
         this._dragging = true;
 
         this.class.add('dragging');
-        for(var i = 0; i < this._dragItems.length; i++) {
+        for (var i = 0; i < this._dragItems.length; i++) {
             this._dragItems[i].class.add('dragged');
         }
 
@@ -383,8 +383,8 @@ Tree.prototype._onDragStart = function(item) {
 };
 
 
-Tree.prototype._onDragOver = function(item, evt) {
-    if (! this.draggable || ! this._dragging || (this._dragItems.indexOf(item) !== -1 && ! this._dragOver) || this._dragOver === item)
+Tree.prototype._onDragOver = function (item, evt) {
+    if (!this.draggable || !this._dragging || (this._dragItems.indexOf(item) !== -1 && !this._dragOver) || this._dragOver === item)
         return;
 
     var dragOver = null;
@@ -398,7 +398,6 @@ Tree.prototype._onDragOver = function(item, evt) {
     }
 
 
-
     this._dragOver = dragOver;
 
     this._updateDragHandle();
@@ -406,8 +405,8 @@ Tree.prototype._onDragOver = function(item, evt) {
 };
 
 
-Tree.prototype._hoverCalculate = function(evt) {
-    if (! this.draggable || ! this._dragOver)
+Tree.prototype._hoverCalculate = function (evt) {
+    if (!this.draggable || !this._dragOver)
         return;
 
     var rect = this.elementDrag.getBoundingClientRect();
@@ -418,14 +417,14 @@ Tree.prototype._hoverCalculate = function(evt) {
 
     if (this._dragOver.parent === this) {
         var parent = false;
-        for(var i = 0; i < this._dragItems.length; i++) {
+        for (var i = 0; i < this._dragItems.length; i++) {
             if (this._dragItems[i].parent === this._dragOver) {
                 parent = true;
                 this._dragOver = null;
                 break;
             }
         }
-        if (! parent)
+        if (!parent)
             this._dragArea = 'inside';
     } else {
         // check if we are trying to drag item inside any of its children
@@ -446,12 +445,12 @@ Tree.prototype._hoverCalculate = function(evt) {
             this._dragOver = null;
         } else if (this.reordering && area <= 1 && this._dragItems.indexOf(this._dragOver.prev) === -1) {
             this._dragArea = 'before';
-        } else if (this.reordering && area >= 4 && this._dragItems.indexOf(this._dragOver.next) === -1 && (this._dragOver._children === 0 || ! this._dragOver.open)) {
+        } else if (this.reordering && area >= 4 && this._dragItems.indexOf(this._dragOver.next) === -1 && (this._dragOver._children === 0 || !this._dragOver.open)) {
             this._dragArea = 'after';
         } else {
             var parent = false;
             if (this.reordering && this._dragOver.open) {
-                for(var i = 0; i < this._dragItems.length; i++) {
+                for (var i = 0; i < this._dragItems.length; i++) {
                     if (this._dragItems[i].parent === this._dragOver) {
                         parent = true;
                         this._dragArea = 'before';
@@ -459,7 +458,7 @@ Tree.prototype._hoverCalculate = function(evt) {
                     }
                 }
             }
-            if (! parent)
+            if (!parent)
                 this._dragArea = 'inside';
         }
     }
@@ -469,8 +468,8 @@ Tree.prototype._hoverCalculate = function(evt) {
 };
 
 
-Tree.prototype._onDragMove = function(evt) {
-    if (! this.draggable)
+Tree.prototype._onDragMove = function (evt) {
+    if (!this.draggable)
         return;
 
     this._hoverCalculate(evt);
@@ -478,8 +477,8 @@ Tree.prototype._onDragMove = function(evt) {
 };
 
 
-Tree.prototype._onDragOut = function() {
-    if (! this.draggable || ! this._dragging || ! this._dragOver)
+Tree.prototype._onDragOut = function () {
+    if (!this.draggable || !this._dragging || !this._dragOver)
         return;
 
     this._dragOver = null;
@@ -488,17 +487,17 @@ Tree.prototype._onDragOut = function() {
 };
 
 
-Tree.prototype._onDragEnd = function() {
-    if (! this.draggable || ! this._dragging)
+Tree.prototype._onDragEnd = function () {
+    if (!this.draggable || !this._dragging)
         return;
 
-    var reparentedItems = [ ];
+    var reparentedItems = [];
     this._dragging = false;
     this.class.remove('dragging');
 
     var lastDraggedItem = this._dragOver;
 
-    for(var i = 0; i < this._dragItems.length; i++) {
+    for (var i = 0; i < this._dragItems.length; i++) {
         this._dragItems[i].class.remove('dragged');
 
         if (this._dragOver && this._dragOver !== this._dragItems[i]) {
@@ -544,7 +543,7 @@ Tree.prototype._onDragEnd = function() {
         this.emit('reparent', reparentedItems);
     }
 
-    this._dragItems = [ ];
+    this._dragItems = [];
 
     if (this._dragOver)
         this._dragOver = null;
@@ -553,16 +552,16 @@ Tree.prototype._onDragEnd = function() {
 };
 
 
-Tree.prototype._updateDragHandle = function() {
-    if (! this.draggable || ! this._dragging)
+Tree.prototype._updateDragHandle = function () {
+    if (!this.draggable || !this._dragging)
         return;
 
-    if (! this._dragOver) {
+    if (!this._dragOver) {
         this.elementDrag.classList.add('hidden');
     } else {
         var rect = this._dragOver.elementTitle.getBoundingClientRect();
 
-        this.elementDrag.classList.remove('before', 'inside', 'after', 'hidden')
+        this.elementDrag.classList.remove('before', 'inside', 'after', 'hidden');
         this.elementDrag.classList.add(this._dragArea);
 
         this.elementDrag.style.top = rect.top  + 'px';
@@ -572,12 +571,12 @@ Tree.prototype._updateDragHandle = function() {
 };
 
 
-Tree.prototype._onAppend = function(item) {
+Tree.prototype._onAppend = function (item) {
     item.tree = this;
 
     var self = this;
 
-    item.on('dragstart', function() {
+    item.on('dragstart', function () {
         // can't drag root
         if (this.parent === self)
             return;
@@ -585,17 +584,17 @@ Tree.prototype._onAppend = function(item) {
         self._onDragStart(this);
     });
 
-    item.on('mouseover', function(evt) {
+    item.on('mouseover', function (evt) {
         self._onDragOver(this, evt);
     });
 
-    item.on('dragend', function() {
+    item.on('dragend', function () {
         self._onDragEnd();
     });
 };
 
 
-Tree.prototype._onRemove = function(item) {
+Tree.prototype._onRemove = function (item) {
     item.tree = null;
 
     item.unbind('dragstart');

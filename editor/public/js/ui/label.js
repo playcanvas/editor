@@ -31,30 +31,30 @@ Label.prototype._setText = function (text) {
     }
 };
 
-Label.prototype._onChange = function() {
-    if (! this.renderChanges)
+Label.prototype._onChange = function () {
+    if (!this.renderChanges)
         return;
 
     this.flash();
 };
 
-Label.prototype._onLinkChange = function(value) {
+Label.prototype._onLinkChange = function (value) {
     this.text = value;
     this.emit('change', value);
 };
 
 
 Object.defineProperty(Label.prototype, 'text', {
-    get: function() {
+    get: function () {
         if (this._link) {
             return this._link.get(this.path);
-        } else {
-            return this._text;
         }
+        return this._text;
+
     },
-    set: function(value) {
+    set: function (value) {
         if (this._link) {
-            if (! this._link.set(this.path, value)) {
+            if (!this._link.set(this.path, value)) {
                 value = this._link.get(this.path);
                 this._setText(value);
             }
@@ -81,10 +81,10 @@ Object.defineProperty(Label.prototype, 'value', {
 });
 
 Object.defineProperty(Label.prototype, 'placeholder', {
-    get: function() {
+    get: function () {
         return this._element.getAttribute('placeholder');
     },
-    set: function(value) {
+    set: function (value) {
         this._element.setAttribute('placeholder', value);
     }
 });

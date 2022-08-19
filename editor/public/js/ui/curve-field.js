@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 function CurveField(args) {
     var self = this;
@@ -21,17 +21,17 @@ function CurveField(args) {
     // create checkerboard pattern
     this.checkerboardCanvas = new ui.Canvas();
     var size = 17;
-    var halfSize = size/2;
+    var halfSize = size / 2;
     this.checkerboardCanvas.width = size;
     this.checkerboardCanvas.height = size;
     var ctx = this.checkerboardCanvas.element.getContext('2d');
-    ctx.fillStyle = '#'
+    ctx.fillStyle = '#';
     ctx.fillStyle = "#949a9c";
-    ctx.fillRect(0,0,halfSize,halfSize);
-    ctx.fillRect(halfSize,halfSize,halfSize,halfSize);
+    ctx.fillRect(0, 0, halfSize, halfSize);
+    ctx.fillRect(halfSize, halfSize, halfSize, halfSize);
     ctx.fillStyle = "#657375";
-    ctx.fillRect(halfSize,0,halfSize,halfSize);
-    ctx.fillRect(0,halfSize,halfSize,halfSize);
+    ctx.fillRect(halfSize, 0, halfSize, halfSize);
+    ctx.fillRect(0, halfSize, halfSize, halfSize);
 
     this.checkerboard = this.canvas.element.getContext('2d').createPattern(this.checkerboardCanvas.element, 'repeat');
 
@@ -66,7 +66,7 @@ function CurveField(args) {
 }
 CurveField.prototype = Object.create(ui.Element.prototype);
 
-CurveField.prototype._onKeyDown = function(evt) {
+CurveField.prototype._onKeyDown = function (evt) {
     // esc
     if (evt.keyCode === 27)
         return this.blur();
@@ -80,7 +80,7 @@ CurveField.prototype._onKeyDown = function(evt) {
     this.ui.emit('click');
 };
 
-CurveField.prototype._resize = function(width, height) {
+CurveField.prototype._resize = function (width, height) {
     if (this.canvas.width != width || this.canvas.height != height) {
         this.canvas.resize(width, height);
         this._render();
@@ -88,7 +88,7 @@ CurveField.prototype._resize = function(width, height) {
 };
 
 // Override link method to use multiple paths instead of one
-CurveField.prototype.link = function(link, paths) {
+CurveField.prototype.link = function (link, paths) {
     if (this._link) this.unlink();
     this._link = link;
     this._paths = paths;
@@ -101,7 +101,7 @@ CurveField.prototype.link = function(link, paths) {
     if (this._resizeInterval)
         clearInterval(this._resizeInterval);
 
-    this._resizeInterval = setInterval(function() {
+    this._resizeInterval = setInterval(function () {
         var rect = this._element.getBoundingClientRect();
         this.canvas.resize(rect.width, rect.height);
     }.bind(this), 1000 / 20);
@@ -127,8 +127,8 @@ CurveField.prototype.link = function(link, paths) {
 };
 
 // Override unlink method to use multiple paths instead of one
-CurveField.prototype.unlink = function() {
-    if (! this._link) return;
+CurveField.prototype.unlink = function () {
+    if (!this._link) return;
 
     this.emit('unlink', this._paths);
 
@@ -165,10 +165,10 @@ CurveField.prototype._onLinkChange = function () {
 };
 
 Object.defineProperty(CurveField.prototype, 'value', {
-    get: function() {
+    get: function () {
         return this._value;
     },
-    set: function(value) {
+    set: function (value) {
         this._setValue(value);
     }
 });
@@ -217,7 +217,7 @@ CurveField.prototype._renderCurves = function () {
     if (value && value[0]) {
         var primaryCurves = this._valueToCurves(value[0]);
 
-        if (! primaryCurves)
+        if (!primaryCurves)
             return;
 
         var secondaryCurves = value[0].betweenCurves && value.length > 1 ? this._valueToCurves(value[1]) : null;
@@ -243,13 +243,13 @@ CurveField.prototype._renderCurves = function () {
 
             var precision = 1;
 
-            for(x = 0; x < Math.floor(width / precision); x++) {
+            for (x = 0; x < Math.floor(width / precision); x++) {
                 val = primaryCurves[i].value(x * precision / width);
                 context.lineTo(x * precision, this._clampEdge(height * (1 - (val - minValue) / (maxValue - minValue)), 1, height - 1));
             }
 
             if (secondaryCurves) {
-                for(x = Math.floor(width / precision) ; x >= 0; x--) {
+                for (x = Math.floor(width / precision); x >= 0; x--) {
                     val = secondaryCurves[i].value(x * precision / width);
                     context.lineTo(x * precision, this._clampEdge(height * (1 - (val - minValue) / (maxValue - minValue)), 1, height - 1));
                 }

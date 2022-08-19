@@ -18,7 +18,7 @@ editor.once('load', function () {
     // item
     editor.method('files:contextmenu:selected', function () {
         var selected = editor.call('assets:selected');
-        if (! currentAsset) {
+        if (!currentAsset) {
             return [];
         }
 

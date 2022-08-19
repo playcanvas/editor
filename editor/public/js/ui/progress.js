@@ -29,7 +29,7 @@ function Progress(args) {
     this._failed = false;
 
     var self = this;
-    this._animateHandler = function() {
+    this._animateHandler = function () {
         self._animate();
     };
 }
@@ -37,10 +37,10 @@ Progress.prototype = Object.create(ui.Element.prototype);
 
 
 Object.defineProperty(Progress.prototype, 'progress', {
-    get: function() {
+    get: function () {
         return this._progress;
     },
-    set: function(value) {
+    set: function (value) {
         value = Math.max(0, Math.min(1, value));
 
         if (this._targetProgress === value)
@@ -58,7 +58,7 @@ Object.defineProperty(Progress.prototype, 'progress', {
                 this.emit('progress:' + progress);
                 this.emit('progress', progress);
             }
-        } else if (! this._animating) {
+        } else if (!this._animating) {
             requestAnimationFrame(this._animateHandler);
         }
     }
@@ -66,21 +66,21 @@ Object.defineProperty(Progress.prototype, 'progress', {
 
 
 Object.defineProperty(Progress.prototype, 'speed', {
-    get: function() {
+    get: function () {
         return this._speed;
     },
-    set: function(value) {
+    set: function (value) {
         this._speed = Math.max(0, Math.min(1, value));
     }
 });
 
 
 Object.defineProperty(Progress.prototype, 'failed', {
-    get: function() {
+    get: function () {
         return this._failed;
     },
-    set: function(value) {
-        this._failed = !! value;
+    set: function (value) {
+        this._failed = !!value;
 
         if (this._failed) {
             this.class.add('failed');
@@ -91,12 +91,12 @@ Object.defineProperty(Progress.prototype, 'failed', {
 });
 
 
-Progress.prototype._animate = function() {
+Progress.prototype._animate = function () {
     if (Math.abs(this._targetProgress - this._progress) < 0.01) {
         this._progress = this._targetProgress;
         this._animating = false;
     } else {
-        if (! this._animating) {
+        if (!this._animating) {
             this._now = Date.now() - (1000 / 60);
             this._animating = true;
         }
@@ -104,7 +104,7 @@ Progress.prototype._animate = function() {
 
         var dt = Math.max(0.1, Math.min(3, (Date.now() - this._now) / (1000 / 60)));
         this._now = Date.now();
-        this._progress = this._progress + ((this._targetProgress - this._progress) * (this._speed * dt));
+        this._progress += ((this._targetProgress - this._progress) * (this._speed * dt));
     }
 
     var progress = Math.max(0, Math.min(100, Math.round(this._progress * 100)));

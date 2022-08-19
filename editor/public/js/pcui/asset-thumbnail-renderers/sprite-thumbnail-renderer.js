@@ -121,7 +121,6 @@ Object.assign(pcui, (function () {
     }
 
     class SpriteThumbnailRenderer {
-
         constructor(asset, canvas, assetsList) {
             this._asset = asset;
             this._canvas = canvas;
@@ -171,19 +170,19 @@ Object.assign(pcui, (function () {
             const height = this._canvas.height;
 
             const frameKeys = this._asset.get('data.frameKeys');
-            if (! frameKeys || ! frameKeys.length) return this._cancelRender();
+            if (!frameKeys || !frameKeys.length) return this._cancelRender();
 
             const atlasId = this._asset.get('data.textureAtlasAsset');
-            if (! atlasId) return this._cancelRender();
+            if (!atlasId) return this._cancelRender();
 
             const atlas = this._assets.get(atlasId);
-            if (! atlas) return this._cancelRender();
+            if (!atlas) return this._cancelRender();
 
             const frames = atlas.get('data.frames');
-            if (! frames) return this._cancelRender();
+            if (!frames) return this._cancelRender();
 
             frame = frames[frameKeys[frame]];
-            if (! frame) return this._cancelRender();
+            if (!frame) return this._cancelRender();
 
             const ctx = this._canvas.getContext('2d');
 
@@ -200,7 +199,7 @@ Object.assign(pcui, (function () {
 
             for (let i = 0; i < frameKeys.length; i++) {
                 const f = frames[frameKeys[i]];
-                if (! f) continue;
+                if (!f) continue;
 
                 const pivot = animating ? f.pivot : CENTER_PIVOT;
                 const rect = f.rect;
@@ -265,7 +264,7 @@ Object.assign(pcui, (function () {
                 if (entry.status === 'loaded') {
                     img = entry.value;
                 } else {
-                    this._events.push(entry.once('loaded', entry => {
+                    this._events.push(entry.once('loaded', (entry) => {
                         editor.call('assets:sprite:watch:trigger', this._asset);
                     }));
                 }
@@ -279,7 +278,7 @@ Object.assign(pcui, (function () {
 
                 // insert image into cache which fires an event when the image is loaded
                 entry = imageCache.insert(atlas.get('file.hash'), img);
-                this._events.push(entry.once('loaded', entry => {
+                this._events.push(entry.once('loaded', (entry) => {
                     editor.call('assets:sprite:watch:trigger', this._asset);
                 }));
             }

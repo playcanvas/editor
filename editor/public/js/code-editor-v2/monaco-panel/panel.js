@@ -29,7 +29,7 @@ editor.once('load', function () {
         // fetch theme data and load to monaco
         const themes = editor.call('editor:themes');
         const themeUrl = `/editor/scene/js/monaco-themes/themes/${themes[themeName]}.json`;
-        fetch(themeUrl).then(data => data.json()).then(data => {
+        fetch(themeUrl).then(data => data.json()).then((data) => {
             // define and set for the actual theme
             monaco.editor.defineTheme(themeName, data);
             monaco.editor.setTheme(themeName);
@@ -76,9 +76,9 @@ editor.once('load', function () {
 
     // add playcanvas typescript definitions
     const playcanvasUrl = config.url.engine.replace(/.js$/, '.d.ts');
-    fetch(playcanvasUrl).then(response => {
+    fetch(playcanvasUrl).then((response) => {
         if (response.ok) {
-            response.text().then(code => {
+            response.text().then((code) => {
                 monaco.languages.typescript.javascriptDefaults.addExtraLib(code, playcanvasUrl);
             });
         }

@@ -2,12 +2,12 @@
     'use strict';
 
     // set window name if necessary
-    if (! window.name) {
+    if (!window.name) {
         window.name = 'codeeditor:' + config.project.id;
     }
 
     function CodeEditor() {
-       window.assignEvents(this);
+        window.assignEvents(this);
 
         this._hooks = { };
 
@@ -48,13 +48,13 @@
     window.editor = new CodeEditor();
 
 
-    var visible = ! document.hidden;
+    var visible = !document.hidden;
 
     document.addEventListener('visibilitychange', function () {
-        if (visible === ! document.hidden)
+        if (visible === !document.hidden)
             return;
 
-        visible = ! document.hidden;
+        visible = !document.hidden;
         if (visible) {
             editor.emit('visible');
         } else {
@@ -86,7 +86,7 @@
     'use strict';
 
     var applyConfig = function (path, value) {
-        if (typeof(value) === 'object') {
+        if (typeof (value) === 'object') {
             for (var key in value) {
                 applyConfig((path ? path + '.' : '') + key, value[key]);
             }

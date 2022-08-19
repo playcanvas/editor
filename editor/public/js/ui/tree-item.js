@@ -11,7 +11,7 @@ function TreeItem(args) {
     this._element.classList.add('ui-tree-item');
 
     if (args.classList) {
-        args.classList.forEach(function(className) {
+        args.classList.forEach(function (className) {
             this._element.classList.add(className);
         }, this);
     }
@@ -35,7 +35,7 @@ function TreeItem(args) {
     this._children = 0;
     this.selectable = true;
 
-    this._onMouseUp = function(evt) {
+    this._onMouseUp = function (evt) {
         window.removeEventListener('mouseup', self._dragRelease);
         self._dragRelease = null;
 
@@ -68,7 +68,7 @@ function TreeItem(args) {
 TreeItem.prototype = Object.create(ui.Element.prototype);
 
 
-TreeItem.prototype.append = function(item) {
+TreeItem.prototype.append = function (item) {
     if (this._children === 1) {
         this._element.childNodes[1].classList.remove('single');
     }
@@ -84,11 +84,11 @@ TreeItem.prototype.append = function(item) {
         item.class.remove('single');
     }
 
-    var appendChildren = function(treeItem) {
+    var appendChildren = function (treeItem) {
         treeItem.emit('append', treeItem);
 
         if (treeItem._children) {
-            for(var i = 1; i < treeItem.element.childNodes.length; i++) {
+            for (var i = 1; i < treeItem.element.childNodes.length; i++) {
                 appendChildren(treeItem.element.childNodes[i].ui);
             }
         }
@@ -97,7 +97,7 @@ TreeItem.prototype.append = function(item) {
 };
 
 
-TreeItem.prototype.appendBefore = function(item, referenceItem) {
+TreeItem.prototype.appendBefore = function (item, referenceItem) {
     if (this._children === 1) {
         this._element.childNodes[1].classList.remove('single');
     }
@@ -113,11 +113,11 @@ TreeItem.prototype.appendBefore = function(item, referenceItem) {
         item.class.remove('single');
     }
 
-    var appendChildren = function(treeItem) {
+    var appendChildren = function (treeItem) {
         treeItem.emit('append', treeItem);
 
         if (treeItem._children) {
-            for(var i = 1; i < treeItem.element.childNodes.length; i++) {
+            for (var i = 1; i < treeItem.element.childNodes.length; i++) {
                 appendChildren(treeItem.element.childNodes[i].ui);
             }
         }
@@ -126,12 +126,12 @@ TreeItem.prototype.appendBefore = function(item, referenceItem) {
 };
 
 
-TreeItem.prototype.appendAfter = function(item, referenceItem) {
+TreeItem.prototype.appendAfter = function (item, referenceItem) {
     item.parent = this;
     referenceItem = referenceItem.element.nextSibling;
 
     // might be last
-    if (! referenceItem)
+    if (!referenceItem)
         this.append(item);
 
     this._element.insertBefore(item.element, referenceItem);
@@ -144,11 +144,11 @@ TreeItem.prototype.appendAfter = function(item, referenceItem) {
         this._element.childNodes[1].classList.remove('single');
     }
 
-    var appendChildren = function(treeItem) {
+    var appendChildren = function (treeItem) {
         treeItem.emit('append', treeItem);
 
         if (treeItem._children) {
-            for(var i = 1; i < treeItem.element.childNodes.length; i++) {
+            for (var i = 1; i < treeItem.element.childNodes.length; i++) {
                 appendChildren(treeItem.element.childNodes[i].ui);
             }
         }
@@ -157,8 +157,8 @@ TreeItem.prototype.appendAfter = function(item, referenceItem) {
 };
 
 
-TreeItem.prototype.remove = function(item) {
-    if (! this._children || ! this._element.contains(item.element))
+TreeItem.prototype.remove = function (item) {
+    if (!this._children || !this._element.contains(item.element))
         return;
 
     this._element.removeChild(item.element);
@@ -170,11 +170,11 @@ TreeItem.prototype.remove = function(item) {
         this._element.childNodes[1].classList.add('single');
     }
 
-    var removeChildren = function(treeItem) {
+    var removeChildren = function (treeItem) {
         treeItem.emit('remove', treeItem);
 
         if (treeItem._children) {
-            for(var i = 1; i < treeItem.element.childNodes.length; i++) {
+            for (var i = 1; i < treeItem.element.childNodes.length; i++) {
                 removeChildren(treeItem.element.childNodes[i].ui);
             }
         }
@@ -183,7 +183,7 @@ TreeItem.prototype.remove = function(item) {
 };
 
 
-TreeItem.prototype._onDestroy = function() {
+TreeItem.prototype._onDestroy = function () {
     this.elementTitle.removeEventListener('click', this._onClick);
     this.elementTitle.removeEventListener('dblclick', this._onDblClick);
     this.elementTitle.removeEventListener('mousedown', this._onMouseDown);
@@ -193,23 +193,23 @@ TreeItem.prototype._onDestroy = function() {
 };
 
 
-TreeItem.prototype._onAppend = function(item) {
+TreeItem.prototype._onAppend = function (item) {
     if (this.parent)
         this.parent.emit('append', item);
 };
 
 
-TreeItem.prototype._onRemove = function(item) {
+TreeItem.prototype._onRemove = function (item) {
     if (this.parent)
         this.parent.emit('remove', item);
 };
 
 
-TreeItem.prototype.focus = function() {
+TreeItem.prototype.focus = function () {
     this.elementTitle.focus();
 };
 
-TreeItem.prototype._onRename = function(select) {
+TreeItem.prototype._onRename = function (select) {
     if (select) {
         this.tree.clear();
         this.tree._onItemClick(this);
@@ -224,17 +224,17 @@ TreeItem.prototype._onRename = function(select) {
     field.renderChanges = false;
     field.value = this.text;
     field.elementInput.readOnly = !this.tree.allowRenaming;
-    field.elementInput.addEventListener('blur', function() {
+    field.elementInput.addEventListener('blur', function () {
         field.destroy();
         self.class.remove('rename');
     }, false);
-    field.on('click', function(evt) {
+    field.on('click', function (evt) {
         evt.stopPropagation();
     });
-    field.element.addEventListener('dblclick', function(evt) {
+    field.element.addEventListener('dblclick', function (evt) {
         evt.stopPropagation();
     });
-    field.on('change', function(value) {
+    field.on('change', function (value) {
         value = value.trim();
         if (value) {
             if (self.entity) {
@@ -253,43 +253,43 @@ TreeItem.prototype._onRename = function(select) {
 };
 
 
-TreeItem.prototype._onClick = function(evt) {
-    if (evt.button !== 0 || ! this.ui.selectable)
+TreeItem.prototype._onClick = function (evt) {
+    if (evt.button !== 0 || !this.ui.selectable)
         return;
 
     var rect = this.getBoundingClientRect();
 
     if (this.ui._children && (evt.clientX - rect.left) < 0) {
-        this.ui.open = ! this.ui.open;
+        this.ui.open = !this.ui.open;
     } else {
         this.ui.tree._onItemClick(this.ui);
         evt.stopPropagation();
     }
 };
 
-TreeItem.prototype._onDblClick = function(evt) {
-    if (! this.ui.tree.allowRenaming || evt.button !== 0)
+TreeItem.prototype._onDblClick = function (evt) {
+    if (!this.ui.tree.allowRenaming || evt.button !== 0)
         return;
 
     evt.stopPropagation();
     var rect = this.getBoundingClientRect();
 
     if (this.ui._children && (evt.clientX - rect.left) < 0) {
-        return;
+
     } else {
         this.ui._onRename(true);
     }
 };
 
-TreeItem.prototype._onMouseDown = function(evt) {
-    if (! this.ui.tree.draggable)
+TreeItem.prototype._onMouseDown = function (evt) {
+    if (!this.ui.tree.draggable)
         return;
 
     evt.stopPropagation();
 };
 
-TreeItem.prototype._onDragStart = function(evt) {
-    if (! this.ui.tree.draggable) {
+TreeItem.prototype._onDragStart = function (evt) {
+    if (!this.ui.tree.draggable) {
         evt.stopPropagation();
         evt.preventDefault();
         return;
@@ -309,16 +309,16 @@ TreeItem.prototype._onDragStart = function(evt) {
     this.ui.emit('dragstart');
 };
 
-TreeItem.prototype._onMouseOver = function(evt) {
+TreeItem.prototype._onMouseOver = function (evt) {
     evt.stopPropagation();
     this.ui.emit('mouseover', evt);
 };
 
-TreeItem.prototype._onKeyDown = function(evt) {
+TreeItem.prototype._onKeyDown = function (evt) {
     if ((evt.target && evt.target.tagName.toLowerCase() === 'input'))
         return;
 
-    if ([ 9, 38, 40, 37, 39 ].indexOf(evt.keyCode) === -1)
+    if ([9, 38, 40, 37, 39].indexOf(evt.keyCode) === -1)
         return;
 
     evt.preventDefault();
@@ -326,7 +326,7 @@ TreeItem.prototype._onKeyDown = function(evt) {
 
     var selectedItem = null;
 
-    switch(evt.keyCode) {
+    switch (evt.keyCode) {
         case 9: // tab
             break;
         case 40: // down
@@ -349,7 +349,7 @@ TreeItem.prototype._onKeyDown = function(evt) {
             } else if (this.ui.parent && this.ui.parent instanceof TreeItem) {
                 var parent = this.ui.parent;
 
-                var findNext = function(from) {
+                var findNext = function (from) {
                     var next = from.next;
                     if (next) {
                         selectedItem = next;
@@ -360,7 +360,7 @@ TreeItem.prototype._onKeyDown = function(evt) {
                     return false;
                 };
 
-                while(parent = findNext(parent)) { }
+                while (parent = findNext(parent)) { }
             }
             break;
         case 38: // up
@@ -375,19 +375,19 @@ TreeItem.prototype._onKeyDown = function(evt) {
                         last = last.ui;
 
                     if (last) {
-                        var findLast = function(inside) {
+                        var findLast = function (inside) {
                             if (inside._children && inside.open) {
                                 return inside.element.lastChild.ui || null;
-                            } else {
-                                return null;
                             }
-                        }
+                            return null;
+
+                        };
 
                         var found = false;
-                        while(! found) {
+                        while (!found) {
                             var deeper = findLast(last);
                             if (deeper) {
-                                last = deeper
+                                last = deeper;
                             } else {
                                 found = true;
                             }
@@ -414,33 +414,33 @@ TreeItem.prototype._onKeyDown = function(evt) {
                 this.ui.open = false;
             break;
         case 39: // right (open)
-            if (this.ui._children && ! this.ui.open)
+            if (this.ui._children && !this.ui.open)
                 this.ui.open = true;
             break;
     }
 
     if (selectedItem) {
-        if (! (Tree._ctrl && Tree._ctrl()) && ! (Tree._shift && Tree._shift()))
+        if (!(Tree._ctrl && Tree._ctrl()) && !(Tree._shift && Tree._shift()))
             this.ui.tree.clear();
         selectedItem.selected = true;
     }
 };
 
-TreeItem.prototype._onSelect = function() {
+TreeItem.prototype._onSelect = function () {
     this.elementTitle.focus();
 };
 
-TreeItem.prototype._onDeselect = function() {
+TreeItem.prototype._onDeselect = function () {
     this.elementTitle.blur();
 };
 
 
 Object.defineProperty(TreeItem.prototype, 'selected', {
-    get: function() {
+    get: function () {
         return this.class.contains('selected');
     },
-    set: function(value) {
-        if (this.class.contains('selected') === !! value)
+    set: function (value) {
+        if (this.class.contains('selected') === !!value)
             return;
 
         if (value) {
@@ -462,10 +462,10 @@ Object.defineProperty(TreeItem.prototype, 'selected', {
 
 
 Object.defineProperty(TreeItem.prototype, 'text', {
-    get: function() {
+    get: function () {
         return this.elementText.textContent;
     },
-    set: function(value) {
+    set: function (value) {
         if (this.elementText.textContent === value)
             return;
 
@@ -475,11 +475,11 @@ Object.defineProperty(TreeItem.prototype, 'text', {
 
 
 Object.defineProperty(TreeItem.prototype, 'open', {
-    get: function() {
+    get: function () {
         return this.class.contains('open');
     },
-    set: function(value) {
-        if (this.class.contains('open') === !! value)
+    set: function (value) {
+        if (this.class.contains('open') === !!value)
             return;
 
         if (value) {
@@ -496,14 +496,14 @@ Object.defineProperty(TreeItem.prototype, 'open', {
 
 
 Object.defineProperty(TreeItem.prototype, 'prev', {
-    get: function() {
+    get: function () {
         return this._element.previousSibling && this._element.previousSibling.ui || null;
     }
 });
 
 
 Object.defineProperty(TreeItem.prototype, 'next', {
-    get: function() {
+    get: function () {
         return this._element.nextSibling && this._element.nextSibling.ui || null;
     }
 });
@@ -519,10 +519,9 @@ Object.defineProperty(TreeItem.prototype, 'allowDrop', {
     }
 });
 
-TreeItem.prototype.child = function(ind) {
+TreeItem.prototype.child = function (ind) {
     return this._element.childNodes[ind + 1];
 };
-
 
 
 window.ui.TreeItem = TreeItem;

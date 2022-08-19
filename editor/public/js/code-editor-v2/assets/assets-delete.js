@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     editor.method('assets:delete:picker', function (items) {
-        if (! editor.call('permissions:write'))
+        if (!editor.call('permissions:write'))
             return;
 
         var msg = 'Delete Asset?';
@@ -14,7 +14,7 @@ editor.once('load', function () {
             msg = 'Delete ' + items.length + ' Assets?';
 
         editor.call('picker:confirm', msg, function () {
-            if (! editor.call('permissions:write'))
+            if (!editor.call('permissions:write'))
                 return;
 
             editor.call('assets:fs:delete', items);

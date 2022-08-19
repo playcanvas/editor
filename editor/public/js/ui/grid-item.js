@@ -26,31 +26,31 @@ function GridItem(args) {
 GridItem.prototype = Object.create(ui.Element.prototype);
 
 
-GridItem.prototype._onClick = function() {
+GridItem.prototype._onClick = function () {
     this.ui.emit('click');
     this.ui._clicked = true;
     if (this.ui._toggleSelectOnClick) {
-        this.ui.selected = ! this.ui.selected;
+        this.ui.selected = !this.ui.selected;
     } else {
         this.ui.selected = true;
     }
     this.ui._clicked = false;
 };
 
-GridItem.prototype._onSelect = function() {
+GridItem.prototype._onSelect = function () {
     this._element.focus();
 };
 
-GridItem.prototype._onDeselect = function() {
+GridItem.prototype._onDeselect = function () {
     this._element.blur();
 };
 
 
 Object.defineProperty(GridItem.prototype, 'text', {
-    get: function() {
+    get: function () {
         return this._text;
     },
-    set: function(value) {
+    set: function (value) {
         if (this._text === value) return;
         this._text = value;
         this._element.innerHTML = this._text;
@@ -59,10 +59,10 @@ Object.defineProperty(GridItem.prototype, 'text', {
 
 
 Object.defineProperty(GridItem.prototype, 'selected', {
-    get: function() {
+    get: function () {
         return this._selected;
     },
-    set: function(value) {
+    set: function (value) {
         if (this._selected === value)
             return;
 

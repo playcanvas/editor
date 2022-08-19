@@ -28,7 +28,7 @@ editor.once('load', function () {
 
     var timeout;
     var deferredUpdate = function (tab) {
-        if (! tab.asset) return;
+        if (!tab.asset) return;
 
         clearTimeout(timeout);
         timeout = setTimeout(updateUrl);

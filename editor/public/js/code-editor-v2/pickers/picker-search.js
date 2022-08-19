@@ -13,7 +13,7 @@ editor.once('load', function () {
     filterPanel.hidden = true;
     parent.append(filterPanel);
 
-    var createFilter = function(text, storageKey) {
+    var createFilter = function (text, storageKey) {
         var filterButton = new ui.Button({
             text: text
         });
@@ -21,7 +21,7 @@ editor.once('load', function () {
         filterButton.class.add('option');
         filterButton.style.width = '80px';
         filterPanel.append(filterButton);
-        
+
         var textField = new ui.TextField();
         textField.class.add('search');
         textField.renderChanges = false;
@@ -39,7 +39,7 @@ editor.once('load', function () {
             doFilter: false,
             pattern: '',
             regexp: null
-        }
+        };
     };
     var includeFilter = createFilter('Include', 'picker:search:filters:include');
     var excludeFilter = createFilter('Exclude', 'picker:search:filters:exclude');
@@ -196,7 +196,7 @@ editor.once('load', function () {
 
         var pattern = searchField.value;
         previousText = pattern;
-        if (! pattern) {
+        if (!pattern) {
             regexp = null;
             return;
         }
@@ -247,7 +247,7 @@ editor.once('load', function () {
                 // replace `*` -> `.*` (so users can use only `*` as wildcard), and escape all other regex characters
                 filter.pattern.replace(/[|\\{}()[\]^$+?.]/g, '\\$&').replace(/\*+/g, '.*')
                 // use commas as OR separator, trim blank spaces around them, and sets trailing forward-slash with wildcard
-                .split(',').map((s) => s.trim().replace(/\/$/g, '/.*')).join('|.*') +
+                .split(',').map(s => s.trim().replace(/\/$/g, '/.*')).join('|.*') +
                 ')$';
             filter.regexp = new RegExp(regs);
             editor.call('localStorage:set', filter.storageKey, filter.pattern);
@@ -293,10 +293,10 @@ editor.once('load', function () {
         onFilterPanelTransitionEnd = function () {
             filterPanel.hidden = true;
         };
-    }
+    };
 
     var openPicker = function () {
-        if (! open) {
+        if (!open) {
             open = true;
             panel.hidden = false;
             growPicker();
@@ -332,7 +332,7 @@ editor.once('load', function () {
         window.removeEventListener('keydown', onKeyDown);
 
         onTransitionEnd = null;
-        if (! open) return;
+        if (!open) return;
 
         onTransitionEnd = function () {
             panel.hidden = true;

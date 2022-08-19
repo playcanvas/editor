@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 function ColorField(args) {
     var self = this;
@@ -14,7 +14,7 @@ function ColorField(args) {
     this._element.appendChild(this.elementColor);
 
     this._channels = args.channels || 3;
-    this._values = [ 0, 0, 0, 0 ];
+    this._values = [0, 0, 0, 0];
 
     // space > click
     this._element.addEventListener('keydown', this._onKeyDown, false);
@@ -23,13 +23,13 @@ function ColorField(args) {
     this.on('change', this._onChange);
 
     // link to channels
-    this.evtLinkChannels = [ ];
+    this.evtLinkChannels = [];
     this.on('link', this._onLink);
     this.on('unlink', this._onUnlink);
 }
 ColorField.prototype = Object.create(ui.Element.prototype);
 
-ColorField.prototype._onKeyDown = function(evt) {
+ColorField.prototype._onKeyDown = function (evt) {
     if (evt.keyCode === 27)
         return this.blur();
 
@@ -41,9 +41,9 @@ ColorField.prototype._onKeyDown = function(evt) {
     this.ui.emit('click');
 };
 
-ColorField.prototype._onChange = function(color) {
+ColorField.prototype._onChange = function (color) {
     if (this._channels === 1) {
-        this.elementColor.style.backgroundColor = 'rgb(' + [ this.r, this.r, this.r ].join(',') + ')';
+        this.elementColor.style.backgroundColor = 'rgb(' + [this.r, this.r, this.r].join(',') + ')';
     } else if (this._channels === 3) {
         this.elementColor.style.backgroundColor = 'rgb(' + this._values.slice(0, 3).join(',') + ')';
     } else if (this._channels === 4) {
@@ -55,48 +55,48 @@ ColorField.prototype._onChange = function(color) {
     }
 };
 
-ColorField.prototype._onLink = function() {
-    for(var i = 0; i < 4; i++) {
-        this.evtLinkChannels[i] = this._link.on(this.path + '.' + i + ':set', function(value) {
+ColorField.prototype._onLink = function () {
+    for (var i = 0; i < 4; i++) {
+        this.evtLinkChannels[i] = this._link.on(this.path + '.' + i + ':set', function (value) {
             this._setValue(this._link.get(this.path));
         }.bind(this));
     }
 };
 
-ColorField.prototype._onUnlink = function() {
-    for(var i = 0; i < this.evtLinkChannels.length; i++)
+ColorField.prototype._onUnlink = function () {
+    for (var i = 0; i < this.evtLinkChannels.length; i++)
         this.evtLinkChannels[i].unbind();
 
-    this.evtLinkChannels = [ ];
+    this.evtLinkChannels = [];
 };
 
-ColorField.prototype._onLinkChange = function(value) {
-    if (! value)
+ColorField.prototype._onLinkChange = function (value) {
+    if (!value)
         return;
 
     this._setValue(value);
 };
 
 Object.defineProperty(ColorField.prototype, 'value', {
-    get: function() {
+    get: function () {
         if (this._link) {
-            return this._link.get(this.path).map(function(channel) {
+            return this._link.get(this.path).map(function (channel) {
                 return Math.floor(channel * 255);
             });
-        } else {
-            return this._values.slice(0, this._channels);
         }
+        return this._values.slice(0, this._channels);
+
     },
-    set: function(value) {
-        if (! value) {
+    set: function (value) {
+        if (!value) {
             this.class.add('null');
             return;
-        } else {
-            this.class.remove('null');
         }
+        this.class.remove('null');
+
 
         if (this._link) {
-            this._link.set(this.path, value.map(function(channel) {
+            this._link.set(this.path, value.map(function (channel) {
                 return channel / 255;
             }));
         } else {
@@ -105,10 +105,10 @@ Object.defineProperty(ColorField.prototype, 'value', {
     }
 });
 
-ColorField.prototype._setValue = function(value) {
+ColorField.prototype._setValue = function (value) {
     var changed = false;
 
-    if (! value)
+    if (!value)
         return;
 
     if (value.length !== this._channels) {
@@ -116,7 +116,7 @@ ColorField.prototype._setValue = function(value) {
         this.channels = value.length;
     }
 
-    for(var i = 0; i < this._channels; i++) {
+    for (var i = 0; i < this._channels; i++) {
         if (this._values[i] === Math.floor(value[i]))
             continue;
 
@@ -130,10 +130,10 @@ ColorField.prototype._setValue = function(value) {
 
 
 Object.defineProperty(ColorField.prototype, 'channels', {
-    get: function() {
+    get: function () {
         return this._channels;
     },
-    set: function(value) {
+    set: function (value) {
         if (this._channels === value)
             return;
 
@@ -144,14 +144,14 @@ Object.defineProperty(ColorField.prototype, 'channels', {
 
 
 Object.defineProperty(ColorField.prototype, 'r', {
-    get: function() {
+    get: function () {
         if (this._link) {
             return Math.floor(this._link.get(this.path + '.0') * 255);
-        } else {
-            return this._values[0];
         }
+        return this._values[0];
+
     },
-    set: function(value) {
+    set: function (value) {
         value = Math.min(0, Math.max(255, value));
 
         if (this._values[0] === value)
@@ -165,14 +165,14 @@ Object.defineProperty(ColorField.prototype, 'r', {
 
 
 Object.defineProperty(ColorField.prototype, 'g', {
-    get: function() {
+    get: function () {
         if (this._link) {
             return Math.floor(this._link.get(this.path + '.1') * 255);
-        } else {
-            return this._values[1];
         }
+        return this._values[1];
+
     },
-    set: function(value) {
+    set: function (value) {
         value = Math.min(0, Math.max(255, value));
 
         if (this._values[1] === value)
@@ -189,14 +189,14 @@ Object.defineProperty(ColorField.prototype, 'g', {
 
 
 Object.defineProperty(ColorField.prototype, 'b', {
-    get: function() {
+    get: function () {
         if (this._link) {
             return Math.floor(this._link.get(this.path + '.2') * 255);
-        } else {
-            return this._values[2];
         }
+        return this._values[2];
+
     },
-    set: function(value) {
+    set: function (value) {
         value = Math.min(0, Math.max(255, value));
 
         if (this._values[2] === value)
@@ -213,14 +213,14 @@ Object.defineProperty(ColorField.prototype, 'b', {
 
 
 Object.defineProperty(ColorField.prototype, 'a', {
-    get: function() {
+    get: function () {
         if (this._link) {
             return Math.floor(this._link.get(this.path + '.3') * 255);
-        } else {
-            return this._values[3];
         }
+        return this._values[3];
+
     },
-    set: function(value) {
+    set: function (value) {
         value = Math.min(0, Math.max(255, value));
 
         if (this._values[3] === value)
@@ -237,22 +237,22 @@ Object.defineProperty(ColorField.prototype, 'a', {
 
 
 Object.defineProperty(ColorField.prototype, 'hex', {
-    get: function() {
+    get: function () {
         var values = this._values;
 
         if (this._link) {
-            values = this._link.get(this.path).map(function(channel) {
+            values = this._link.get(this.path).map(function (channel) {
                 return Math.floor(channel * 255);
             });
         }
 
         var hex = '';
-        for(var i = 0; i < this._channels; i++) {
+        for (var i = 0; i < this._channels; i++) {
             hex += ('00' + values[i].toString(16)).slice(-2);
         }
         return hex;
     },
-    set: function(value) {
+    set: function (value) {
         console.log('todo');
     }
 });

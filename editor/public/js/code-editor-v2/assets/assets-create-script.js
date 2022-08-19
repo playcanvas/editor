@@ -6,7 +6,7 @@ editor.once('load', function () {
 
 
     editor.method('assets:create:script', function (args) {
-        if (! editor.call('permissions:write'))
+        if (!editor.call('permissions:write'))
             return;
 
         args = args || { };
@@ -18,7 +18,7 @@ editor.once('load', function () {
             var className = args.className || '';
             var scriptName = args.scriptName || '';
 
-            if (! className || ! scriptName) {
+            if (!className || !scriptName) {
                 // tokenize filename
                 var tokens = [];
                 var string = name.replace(/([^A-Z])([A-Z][^A-Z])/g, '$1 $2').replace(/([A-Z0-9]{2,})/g, ' $1');
@@ -32,7 +32,7 @@ editor.once('load', function () {
                 }
 
                 if (tokens.length) {
-                    if (! scriptName) {
+                    if (!scriptName) {
                         scriptName = tokens[0];
 
                         for (let i = 1; i < tokens.length; i++) {
@@ -40,21 +40,21 @@ editor.once('load', function () {
                         }
                     }
 
-                    if (! className) {
+                    if (!className) {
                         for (let i = 0; i < tokens.length; i++) {
                             className += tokens[i].charAt(0).toUpperCase() + tokens[i].slice(1);
                         }
                     }
                 } else {
-                    if (! className)
+                    if (!className)
                         className = 'Script';
 
-                    if (! scriptName)
+                    if (!scriptName)
                         scriptName = 'script';
                 }
             }
 
-            if (! filenameValid.test(className))
+            if (!filenameValid.test(className))
                 className = 'Script';
 
             args.content = scriptBoilerplate.replace(/\{className\}/g, className).replace(/\{scriptName\}/g, scriptName);

@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 function Overlay(args) {
     ui.ContainerElement.call(this);
@@ -20,16 +20,16 @@ function Overlay(args) {
 }
 Overlay.prototype = Object.create(ui.ContainerElement.prototype);
 
-Overlay.prototype.setCloseCallback = function(callback) {
+Overlay.prototype.setCloseCallback = function (callback) {
     this._closeCallback = callback;
 };
 
-Overlay.prototype._onMouseDown = function(evt) {
+Overlay.prototype._onMouseDown = function (evt) {
     if (this.ui._closeCallback && !this.ui._closeCallback()) {
         return false;
     }
 
-    if (! this.ui.clickable)
+    if (!this.ui.clickable)
         return false;
 
     var self = this;
@@ -38,7 +38,7 @@ Overlay.prototype._onMouseDown = function(evt) {
     document.body.blur();
 
     // wait till blur takes in account
-    requestAnimationFrame(function() {
+    requestAnimationFrame(function () {
         // hide overlay
         self.ui.hidden = true;
     }, 0);
@@ -48,10 +48,10 @@ Overlay.prototype._onMouseDown = function(evt) {
 
 
 Object.defineProperty(Overlay.prototype, 'center', {
-    get: function() {
+    get: function () {
         return this._element.classList.contains('center');
     },
-    set: function(value) {
+    set: function (value) {
         if (value) {
             this._element.classList.add('center');
             this.innerElement.style.left = '';
@@ -64,10 +64,10 @@ Object.defineProperty(Overlay.prototype, 'center', {
 
 
 Object.defineProperty(Overlay.prototype, 'transparent', {
-    get: function() {
+    get: function () {
         return this._element.classList.contains('transparent');
     },
-    set: function(value) {
+    set: function (value) {
         if (value) {
             this._element.classList.add('transparent');
         } else {
@@ -77,10 +77,10 @@ Object.defineProperty(Overlay.prototype, 'transparent', {
 });
 
 Object.defineProperty(Overlay.prototype, 'clickable', {
-    get: function() {
+    get: function () {
         return this.elementOverlay.classList.contains('clickable');
     },
-    set: function(value) {
+    set: function (value) {
         if (value) {
             this.elementOverlay.classList.add('clickable');
         } else {
@@ -91,13 +91,13 @@ Object.defineProperty(Overlay.prototype, 'clickable', {
 
 
 Object.defineProperty(Overlay.prototype, 'rect', {
-    get: function() {
+    get: function () {
         return this.innerElement.getBoundingClientRect();
     }
 });
 
 
-Overlay.prototype.position = function(x, y) {
+Overlay.prototype.position = function (x, y) {
 
     var area = this.elementOverlay.getBoundingClientRect();
     var rect = this.innerElement.getBoundingClientRect();

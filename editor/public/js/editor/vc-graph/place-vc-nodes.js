@@ -88,9 +88,9 @@ editor.once('load', function () {
 
                 return true;
 
-            } else {
-                return false;
             }
+            return false;
+
         }
 
         moveTo1() {

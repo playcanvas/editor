@@ -39,8 +39,8 @@ function Tooltip(args) {
 Tooltip.prototype = Object.create(ui.ContainerElement.prototype);
 
 
-Tooltip.prototype._onMouseOver = function(evt) {
-    if (! this.ui.hoverable)
+Tooltip.prototype._onMouseOver = function (evt) {
+    if (!this.ui.hoverable)
         return;
 
     this.ui.hidden = false;
@@ -48,8 +48,8 @@ Tooltip.prototype._onMouseOver = function(evt) {
 };
 
 
-Tooltip.prototype._onMouseLeave = function() {
-    if (! this.ui.hoverable)
+Tooltip.prototype._onMouseLeave = function () {
+    if (!this.ui.hoverable)
         return;
 
     this.ui.hidden = true;
@@ -57,10 +57,10 @@ Tooltip.prototype._onMouseLeave = function() {
 
 
 Object.defineProperty(Tooltip.prototype, 'align', {
-    get: function() {
+    get: function () {
         return this._align;
     },
-    set: function(value) {
+    set: function (value) {
         if (this._align === value)
             return;
 
@@ -74,10 +74,10 @@ Object.defineProperty(Tooltip.prototype, 'align', {
 
 
 Object.defineProperty(Tooltip.prototype, 'flip', {
-    get: function() {
+    get: function () {
         return this.class.contains('flip');
     },
-    set: function(value) {
+    set: function (value) {
         if (this.class.contains('flip') === value)
             return;
 
@@ -93,10 +93,10 @@ Object.defineProperty(Tooltip.prototype, 'flip', {
 
 
 Object.defineProperty(Tooltip.prototype, 'text', {
-    get: function() {
+    get: function () {
         return this.innerElement.textContent;
     },
-    set: function(value) {
+    set: function (value) {
         if (this.innerElement.textContent === value)
             return;
 
@@ -106,10 +106,10 @@ Object.defineProperty(Tooltip.prototype, 'text', {
 
 
 Object.defineProperty(Tooltip.prototype, 'html', {
-    get: function() {
+    get: function () {
         return this.innerElement.innerHTML;
     },
-    set: function(value) {
+    set: function (value) {
         if (this.innerElement.innerHTML === value)
             return;
 
@@ -118,7 +118,7 @@ Object.defineProperty(Tooltip.prototype, 'html', {
 });
 
 
-Tooltip.prototype._reflow = function() {
+Tooltip.prototype._reflow = function () {
     if (this.hidden)
         return;
 
@@ -135,7 +135,7 @@ Tooltip.prototype._reflow = function() {
     this._element.style.display = 'block';
 
     // alignment
-    switch(this._align) {
+    switch (this._align) {
         case 'top':
             this._element.style.top = this.y + 'px';
             if (this.flip) {
@@ -188,7 +188,7 @@ Tooltip.prototype._reflow = function() {
 };
 
 
-Tooltip.prototype.position = function(x, y) {
+Tooltip.prototype.position = function (x, y) {
     x = Math.floor(x);
     y = Math.floor(y);
 
@@ -202,7 +202,7 @@ Tooltip.prototype.position = function(x, y) {
 };
 
 
-Tooltip.attach = function(args) {
+Tooltip.attach = function (args) {
     var data = {
         align: args.align,
         hoverable: args.hoverable
@@ -216,11 +216,11 @@ Tooltip.attach = function(args) {
 
     var item = new ui.Tooltip(data);
 
-    item.evtHover = function() {
+    item.evtHover = function () {
         var rect = args.target.getBoundingClientRect();
         var off = 16;
 
-        switch(item.align) {
+        switch (item.align) {
             case 'top':
                 if (rect.width < 64) off = rect.width / 2;
                 item.flip = rect.left + off > window.innerWidth / 2;
@@ -254,14 +254,14 @@ Tooltip.attach = function(args) {
         item.hidden = false;
     };
 
-    item.evtBlur = function() {
+    item.evtBlur = function () {
         item.hidden = true;
     };
 
     args.target.addEventListener('mouseover', item.evtHover, false);
     args.target.addEventListener('mouseout', item.evtBlur, false);
 
-    item.on('destroy', function() {
+    item.on('destroy', function () {
         args.target.removeEventListener('mouseover', item.evtHover);
         args.target.removeEventListener('mouseout', item.evtBlur);
     });

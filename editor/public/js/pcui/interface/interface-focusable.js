@@ -25,7 +25,7 @@ Object.assign(pcui, (function () {
      * @event
      * @name pcui.IFocusable#blur
      * @description Fired when the element is blurred (unfocused)
-    */
+     */
 
     return {
         IFocusable: IFocusable

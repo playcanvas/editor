@@ -46,7 +46,7 @@ editor.once('load', function () {
     // create local copy of remove operation
     var createRemoveOp = function (pos, length, text) {
         var result = customOp(
-            pos ? [pos, {d: length}] : [{d: length}]
+            pos ? [pos, { d: length }] : [{ d: length }]
         );
 
         // if text exists remember if it's whitespace
@@ -88,7 +88,7 @@ editor.once('load', function () {
 
         var prevDelete = false;
         for (var i = 0; i < prevLen; i++) {
-            if (typeof(prev.op[i]) === 'object') {
+            if (typeof (prev.op[i]) === 'object') {
                 prevDelete = true;
                 break;
             }
@@ -96,7 +96,7 @@ editor.once('load', function () {
 
         var nextDelete = false;
         for (var i = 0; i < nextLen; i++) {
-            if (typeof(next.op[i]) === 'object') {
+            if (typeof (next.op[i]) === 'object') {
                 nextDelete = true;
                 break;
             }
@@ -136,7 +136,7 @@ editor.once('load', function () {
 
     // concatenate two ops
     var concat = function (prev, next) {
-        if (! next.isWhiteSpace) {
+        if (!next.isWhiteSpace) {
             prev.isWhiteSpace = false;
             prev.isNewLine = false;
         } else {
@@ -173,7 +173,7 @@ editor.once('load', function () {
         remoteOp.op = initialRemoteOp;
         i = redoStack.length;
         while (i--) {
-            var localOp = redoStack[i] ;
+            var localOp = redoStack[i];
             var old = localOp.op;
             localOp.op = transform(localOp.op, remoteOp.op, 'left');
 
@@ -185,8 +185,8 @@ editor.once('load', function () {
             }
         }
 
-        //console.log('transform', remoteOp.op);
-        //printStacks();
+        // console.log('transform', remoteOp.op);
+        // printStacks();
     };
 
     // creates dummy operation in order to move the cursor
@@ -198,8 +198,8 @@ editor.once('load', function () {
     // create 2 ops if anchor and head are different or 1 if they are the same (which is just a cursor..)
     var createCursorOpsFromSelection = function (selection) {
         return selection.anchor === selection.head ?
-               createCursorOp(selection.anchor) :
-               [createCursorOp(selection.anchor), createCursorOp(selection.head)];
+            createCursorOp(selection.anchor) :
+            [createCursorOp(selection.anchor), createCursorOp(selection.head)];
     };
 
     // transform dummy ops with remote op
@@ -208,7 +208,7 @@ editor.once('load', function () {
             var data = ops[i];
             if (data.length) {
                 for (var j = 0; j < data.length; j++) {
-                    data[j].op = transform(data[j].op, remoteOp, 'right')
+                    data[j].op = transform(data[j].op, remoteOp, 'right');
                 }
             } else {
                 data.op = transform(data.op, remoteOp, 'right');
@@ -228,7 +228,7 @@ editor.once('load', function () {
     var restoreSelections = function (cursorOps) {
         for (var i = 0, len = cursorOps.length; i < len; i++) {
             var data = cursorOps[i];
-            var start,end;
+            var start, end;
 
             if (data.length) {
                 start = posFromCursorOp(data[0]);
@@ -318,32 +318,32 @@ editor.once('load', function () {
 
     // Called when the user presses keys to Undo
     editor.method('editor:undo', function () {
-        if (!isConnected || ! undoStack.length) return;
+        if (!isConnected || !undoStack.length) return;
 
         var snapshot = share.get() || '';
         var curr = undoStack.pop();
 
-        var inverseOp = {op: invert(curr.op, snapshot)};
+        var inverseOp = { op: invert(curr.op, snapshot) };
         redoStack.push(inverseOp);
 
         applyCustomOp(curr.op);
 
-        //printStacks();
+        // printStacks();
     });
 
     // Called when the user presses keys to Redo
     editor.method('editor:redo', function () {
-        if (! isConnected || !redoStack.length) return;
+        if (!isConnected || !redoStack.length) return;
 
         var snapshot = share.get() || '';
         var curr = redoStack.pop();
 
-        var inverseOp = {op: invert(curr.op, snapshot)};
+        var inverseOp = { op: invert(curr.op, snapshot) };
         undoStack.push(inverseOp);
 
         applyCustomOp(curr.op);
 
-        //printStacks();
+        // printStacks();
     });
 
     // Applies an operation to the sharedb document
@@ -353,7 +353,7 @@ editor.once('load', function () {
             if (err) {
                 log.error(err);
                 editor.emit('realtime:error', err);
-                return;
+
             }
         });
 
@@ -364,7 +364,7 @@ editor.once('load', function () {
             CodeMirror.Pos(cm.firstLine(), 0),
             CodeMirror.Pos(cm.lastLine(), 0)
         ).filter(function (mark) {
-            return mark.__isFold
+            return mark.__isFold;
         });
 
         // transform folded positions with op
@@ -449,7 +449,7 @@ editor.once('load', function () {
         // try to concatenate new op with latest op in the undo stack
         var timeSinceLastEdit = localOp.time - lastEditTime;
         if (timeSinceLastEdit <= delay || forceConcatenate) {
-            var prev = undoStack[undoStack.length-1];
+            var prev = undoStack[undoStack.length - 1];
             if (prev && canConcatOps(prev, localOp)) {
                 concat(prev, localOp);
                 return;

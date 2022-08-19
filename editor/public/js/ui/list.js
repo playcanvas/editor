@@ -9,7 +9,7 @@ function List(args) {
     this.selectable = args.selectable !== undefined ? args.selectable : true;
 
     this._changing = false;
-    this._selected = [ ];
+    this._selected = [];
 
     this.on('select', this._onSelect);
     this.on('deselect', this._onDeselect);
@@ -18,7 +18,7 @@ function List(args) {
 List.prototype = Object.create(ui.ContainerElement.prototype);
 
 
-List.prototype._onSelect = function(item) {
+List.prototype._onSelect = function (item) {
     var ind = this._selected.indexOf(item);
     if (ind === -1)
         this._selected.push(item);
@@ -36,7 +36,7 @@ List.prototype._onSelect = function(item) {
         var items = this.selected;
 
         if (items.length > 1) {
-            for(var i = 0; i < items.length; i++) {
+            for (var i = 0; i < items.length; i++) {
                 if (items[i] === item)
                     continue;
 
@@ -50,7 +50,7 @@ List.prototype._onSelect = function(item) {
     this.emit('change');
 };
 
-List.prototype._onDeselect = function(item) {
+List.prototype._onDeselect = function (item) {
     var ind = this._selected.indexOf(item);
     if (ind !== -1) this._selected.splice(ind, 1);
 
@@ -65,7 +65,7 @@ List.prototype._onDeselect = function(item) {
         var items = this.selected;
 
         if (items.length) {
-            for(var i = 0; i < items.length; i++)
+            for (var i = 0; i < items.length; i++)
                 items[i].selected = false;
 
             item.selected = true;
@@ -77,26 +77,26 @@ List.prototype._onDeselect = function(item) {
     this.emit('change');
 };
 
-List.prototype._onAppend = function(item) {
-    if (! item.selected)
+List.prototype._onAppend = function (item) {
+    if (!item.selected)
         return;
 
     var ind = this._selected.indexOf(item);
     if (ind === -1) this._selected.push(item);
 };
 
-List.prototype.clear = function() {
-    this._selected = [ ];
+List.prototype.clear = function () {
+    this._selected = [];
     ui.ContainerElement.prototype.clear.call(this);
 };
 
 
 Object.defineProperty(List.prototype, 'selectable', {
-    get: function() {
+    get: function () {
         return this._selectable;
     },
-    set: function(value) {
-        if (this._selectable === !! value)
+    set: function (value) {
+        if (this._selectable === !!value)
             return;
 
         this._selectable = value;
@@ -111,15 +111,15 @@ Object.defineProperty(List.prototype, 'selectable', {
 
 
 Object.defineProperty(List.prototype, 'selected', {
-    get: function() {
+    get: function () {
         return this._selected.slice(0);
     },
-    set: function(value) {
+    set: function (value) {
         this._changing = true;
 
         // deselecting
         var items = this.selected;
-        for(var i = 0; i < items.length; i++) {
+        for (var i = 0; i < items.length; i++) {
             if (value.indexOf(items[i]) !== -1)
                 continue;
 
@@ -127,7 +127,7 @@ Object.defineProperty(List.prototype, 'selected', {
         }
 
         // selecting
-        for(var i = 0; i < value.length; i++) {
+        for (var i = 0; i < value.length; i++) {
             value[i].selected = true;
         }
 

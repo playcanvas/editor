@@ -48,7 +48,7 @@ editor.once('load', function () {
         };
 
         var createShareDbConnection = function () {
-            if (! connection) {
+            if (!connection) {
                 // if we are connecting for the first time
                 // create new sharedb connection
                 connection = new window.share.Connection(socket);
@@ -66,7 +66,7 @@ editor.once('load', function () {
             connection.socket.onmessage = function (msg) {
                 try {
                     if (msg.data.startsWith('auth')) {
-                        if (! isAuthenticated) {
+                        if (!isAuthenticated) {
                             isAuthenticated = true;
                             editor.emit('realtime:authenticated');
                         }
@@ -130,7 +130,7 @@ editor.once('load', function () {
         // Handle initial messages until we are authenticated
         var onMessage = function (msg) {
             // put any irrelevant messages in the buffer
-            if (! msg.data.startsWith('auth')) {
+            if (!msg.data.startsWith('auth')) {
                 msgBuffer.push(msg);
                 return;
             }

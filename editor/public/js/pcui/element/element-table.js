@@ -19,8 +19,8 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.Table
      * @classdesc Represents a table view with optional resizable and sortable columns.
-     * @extends pcui.Container
-     * @property {Object[]} columns The columns of the table. Each column has the following format:
+     * @augments pcui.Container
+     * @property {object[]} columns The columns of the table. Each column has the following format:
      * {
      *   title: String - the title displayed on the column,
      *   width: CSS width of the initial column width,
@@ -32,18 +32,19 @@ Object.assign(pcui, (function () {
      * @property {pcui.Container} head The internal <thead> container
      * @property {pcui.Container} body The internal <tbody> container
      * @property {pcui.TableRow[]} selected Gets the selected rows
-     * @property {String} sortKey Gets the current sort key
+     * @property {string} sortKey Gets the current sort key
      * @property {Function} sortFn Gets the current sort function
-     * @property {Boolean} isAscending Gets whether the current sort order is ascending (or descending)
-     * @property {Boolean} allowRowFocus Gets / sets whether table rows will be focused on selection. Defaults to true.
+     * @property {boolean} isAscending Gets whether the current sort order is ascending (or descending)
+     * @property {boolean} allowRowFocus Gets / sets whether table rows will be focused on selection. Defaults to true.
      */
     class Table extends pcui.Container {
         /**
          * Creates a new Table.
-         * @param {Object} [args] The arguments
-         * @param {Function} [args.createRowFn] A function like (observer) => pcui.TableRow that creates a pcui.TableRow from an observer.
-         * @param {Function} [args.getRowFn] A function like (observer) => pcui.TableRow that returns an existing row from an observer. Used for faster sorting.
-         * @param {Function} [args.filterFn] A function like (pcui.TableRow) => boolean that hides the row if it returns false.
+         *
+         * @param {object} [args] - The arguments
+         * @param {Function} [args.createRowFn] - A function like (observer) => pcui.TableRow that creates a pcui.TableRow from an observer.
+         * @param {Function} [args.getRowFn] - A function like (observer) => pcui.TableRow that returns an existing row from an observer. Used for faster sorting.
+         * @param {Function} [args.filterFn] - A function like (pcui.TableRow) => boolean that hides the row if it returns false.
          */
         constructor(args) {
             args = Object.assign({}, args);
@@ -162,7 +163,7 @@ Object.assign(pcui, (function () {
 
             this._sortObservers();
 
-            this._observers.forEach(observer => {
+            this._observers.forEach((observer) => {
                 const row = this._createRow(observer);
                 this.body.append(row);
             });
@@ -179,7 +180,7 @@ Object.assign(pcui, (function () {
 
             row.dom.addEventListener('keydown', this._onRowKeyDownHandler);
 
-            row.on('destroy', dom => {
+            row.on('destroy', (dom) => {
                 const idx = this._selectedRows.indexOf(row);
                 if (idx !== -1) {
                     this._selectedRows.splice(idx, 1);
@@ -233,7 +234,7 @@ Object.assign(pcui, (function () {
                 let othersSelected = false;
 
                 // deselect others
-                this._containerBody.forEachChild(otherRow => {
+                this._containerBody.forEachChild((otherRow) => {
                     if (otherRow !== row && otherRow.selected) {
                         otherRow.selected = false;
                         othersSelected = true;
@@ -290,7 +291,7 @@ Object.assign(pcui, (function () {
 
             if (!evt.ctrlKey && !evt.metaKey && !evt.shiftKey) {
                 // deselect others
-                this._containerBody.forEachChild(otherRow => {
+                this._containerBody.forEachChild((otherRow) => {
                     if (otherRow !== next) {
                         otherRow.selected = false;
                     }
@@ -311,7 +312,7 @@ Object.assign(pcui, (function () {
         // specified column index for the specified pcui.TableRow container
         // The function has a signature of (pcui.Element) => {}
         _forEachColumnCell(container, columnIndex, fn) {
-            container.forEachChild(row => {
+            container.forEachChild((row) => {
                 if (row instanceof pcui.TableRow) {
                     let index = columnIndex + 1;
                     for (let i = 0; i < row.dom.childNodes.length; i++) {
@@ -336,7 +337,7 @@ Object.assign(pcui, (function () {
             const row = container.dom.childNodes[rowIndex];
             if (row.ui instanceof pcui.TableRow) {
                 let index = -1;
-                row.childNodes.forEach(child => {
+                row.childNodes.forEach((child) => {
                     if (child.ui instanceof pcui.TableCell) {
                         index++;
                         fn(child.ui, index);
@@ -432,7 +433,7 @@ Object.assign(pcui, (function () {
 
             handle.on('hover', () => {
                 if (this._draggedColumn === null) {
-                    this._forEachColumnCell(this._containerHead, colIndex, cell => {
+                    this._forEachColumnCell(this._containerHead, colIndex, (cell) => {
                         cell.class.add(CLASS_CELL_ACTIVE);
                     });
                 }
@@ -440,7 +441,7 @@ Object.assign(pcui, (function () {
 
             handle.on('hoverend', () => {
                 if (this._draggedColumn === null) {
-                    this._forEachColumnCell(this._containerHead, colIndex, cell => {
+                    this._forEachColumnCell(this._containerHead, colIndex, (cell) => {
                         cell.class.remove(CLASS_CELL_ACTIVE);
                     });
                 }
@@ -503,7 +504,7 @@ Object.assign(pcui, (function () {
                 if (this.destroyed) return;
 
                 this.class.remove(CLASS_RESIZING);
-                this._forEachColumnCell(this._containerHead, colIndex, cell => {
+                this._forEachColumnCell(this._containerHead, colIndex, (cell) => {
                     cell.class.remove(CLASS_CELL_ACTIVE);
                 });
 
@@ -519,7 +520,7 @@ Object.assign(pcui, (function () {
 
             handle.dom.addEventListener('mousedown', onMouseDown, true);
 
-            handle.on('destroy', dom => {
+            handle.on('destroy', (dom) => {
                 dom.removeEventListener('mousedown', onMouseDown, true);
                 cleanUp();
             });
@@ -585,7 +586,7 @@ Object.assign(pcui, (function () {
          * filter:end - When filtering ends
          * filter:delay - When an animation frame is requested to process another batch.
          * filter:cancel - When filtering is canceled.
-         * @param {Number} batchLimit The maximum number of rows to show
+         * @param {number} batchLimit - The maximum number of rows to show
          * before requesting another animation frame.
          */
         filterAsync(batchLimit) {
@@ -673,7 +674,7 @@ Object.assign(pcui, (function () {
          * @description Adds a single observer to display. Note that
          * if you are adding multiple observers you should use
          * pcui.Table#link instead.
-         * @param {Observer} observer The observer
+         * @param {Observer} observer - The observer
          */
         addObserver(observer) {
             if (!this._observers) {
@@ -692,7 +693,7 @@ Object.assign(pcui, (function () {
         /**
          * @name pcui.Table#removeObserver
          * @description Removes a single observer.
-         * @param {Observer} observer The observer
+         * @param {Observer} observer - The observer
          */
         removeObserver(observer) {
             if (!this._observers) return;
@@ -713,7 +714,7 @@ Object.assign(pcui, (function () {
          * @name pcui.Table#sortObserver
          * @description Sorts the observers again but only moves the row that
          * corresponds to the specified observer.
-         * @param {Observer} observer The observer
+         * @param {Observer} observer - The observer
          */
         sortObserver(observer) {
             if (!this._observers) return;
@@ -747,7 +748,7 @@ Object.assign(pcui, (function () {
         /**
          * @name pcui.Table#sortByColumnIndex
          * @description Sort table entries by the column at the specified index
-         * @param {Number} index The column index.
+         * @param {number} index - The column index.
          */
         sortByColumnIndex(index) {
             const column = this._columns[index];

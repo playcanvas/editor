@@ -7,17 +7,18 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.EntityInput
      * @classdesc An input that accepts an Entity.
-     * @property {Boolean} renderChanges If true then the Element will flash when its value changes.
-     * @extends pcui.Element
+     * @property {boolean} renderChanges If true then the Element will flash when its value changes.
+     * @augments pcui.Element
      */
     class EntityInput extends pcui.Element {
         /**
          * Creates a new pcui.EntityInput.
-         * @param {Object} args The arguments.
-         * @param {ObserverList} args.entities The entities list
-         * @param {Function} [args.pickEntityFn] A function with signature (callback) => void. The function should allow the user to pick an Entity and then the functino should call the callback passing the Entity's resource id as the argument.
-         * @param {Function} [args.highlightEntityFn] A function that highlights an Entity with signature (string, boolean) => void. The first argument is the resource id of the Entity and the second argument signifies whether we should highlight the entity or not.
-         * @param {Boolean} [args.allowDragDrop] If true then this will enable drag and drop of entities on the input
+         *
+         * @param {object} args - The arguments.
+         * @param {ObserverList} args.entities - The entities list
+         * @param {Function} [args.pickEntityFn] - A function with signature (callback) => void. The function should allow the user to pick an Entity and then the functino should call the callback passing the Entity's resource id as the argument.
+         * @param {Function} [args.highlightEntityFn] - A function that highlights an Entity with signature (string, boolean) => void. The first argument is the resource id of the Entity and the second argument signifies whether we should highlight the entity or not.
+         * @param {boolean} [args.allowDragDrop] - If true then this will enable drag and drop of entities on the input
          */
         constructor(args) {
             const container = new pcui.Container();
@@ -80,7 +81,7 @@ Object.assign(pcui, (function () {
 
                 this.focus();
 
-                this._pickEntity(resourceId => {
+                this._pickEntity((resourceId) => {
                     this.value = resourceId;
                 });
             });
@@ -121,7 +122,7 @@ Object.assign(pcui, (function () {
         }
 
         _pickEntity(callback) {
-            let evtEntityPick = editor.once('picker:entity', entity => {
+            let evtEntityPick = editor.once('picker:entity', (entity) => {
                 callback(entity ? entity.get('resource_id') : null);
                 evtEntityPick = null;
             });

@@ -25,7 +25,7 @@ editor.once('load', function () {
     menu.append(item);
 
     // hotkey
-    if (! editor.call('editor:resolveConflictMode')) {
+    if (!editor.call('editor:resolveConflictMode')) {
         editor.call('hotkey:register', 'go-to-file', {
             key: 'p',
             ctrl: true,
@@ -36,7 +36,7 @@ editor.once('load', function () {
     }
 
     editor.method('editor:command:goToFile', function () {
-        if (! isFuzzyOpen) {
+        if (!isFuzzyOpen) {
             editor.call('picker:fuzzy:open');
         } else {
             editor.call('picker:fuzzy:close');

@@ -22,7 +22,7 @@ editor.once('load', function () {
             // edit component property
             if (component === 'script' && property === 'scripts' && !editor.call('settings:project').get('useLegacyScripts')) {
                 if (parts.length <= 2) {
-                    return;
+
                 } else if (parts.length === 3) {
                     for (let i = entity.script.scripts.length - 1; i >= 0; i--) {
                         entity.script.destroy(entity.script.scripts[i].__scriptType);

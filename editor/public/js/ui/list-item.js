@@ -22,7 +22,7 @@ ListItem.prototype = Object.create(ui.Element.prototype);
 
 
 ListItem.prototype._onClick = function () {
-    if (! this.selected) {
+    if (!this.selected) {
         this.selected = true;
     } else if (this._allowDeselect) {
         this.selected = false;
@@ -31,10 +31,10 @@ ListItem.prototype._onClick = function () {
 
 
 Object.defineProperty(ListItem.prototype, 'text', {
-    get: function() {
+    get: function () {
         return this._text;
     },
-    set: function(value) {
+    set: function (value) {
         if (this._text === value) return;
         this._text = value;
         this.elementText.textContent = this._text;
@@ -43,10 +43,10 @@ Object.defineProperty(ListItem.prototype, 'text', {
 
 
 Object.defineProperty(ListItem.prototype, 'selected', {
-    get: function() {
+    get: function () {
         return this._selected;
     },
-    set: function(value) {
+    set: function (value) {
         if (this._selected === value)
             return;
 

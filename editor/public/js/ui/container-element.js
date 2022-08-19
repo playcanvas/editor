@@ -8,12 +8,12 @@ function ContainerElement() {
 
     this._observerChanged = false;
 
-    var observerTimeout = function() {
+    var observerTimeout = function () {
         self._observerChanged = false;
         self.emit('nodesChanged');
     };
 
-    this._observer = new MutationObserver(function() {
+    this._observer = new MutationObserver(function () {
         if (self._observerChanged)
             return;
 
@@ -35,20 +35,20 @@ ContainerElement.prototype._observerOptions = {
 };
 
 
-ContainerElement.prototype.append = function(element) {
+ContainerElement.prototype.append = function (element) {
     var html = (element instanceof HTMLElement);
     var node = html ? element : element.element;
 
     this._innerElement.appendChild(node);
 
-    if (! html) {
+    if (!html) {
         element.parent = this;
         this.emit('append', element);
     }
 };
 
 
-ContainerElement.prototype.appendBefore = function(element, reference) {
+ContainerElement.prototype.appendBefore = function (element, reference) {
     var html = (element instanceof HTMLElement);
     var node = html ? element : element.element;
 
@@ -57,13 +57,13 @@ ContainerElement.prototype.appendBefore = function(element, reference) {
 
     this._innerElement.insertBefore(node, reference);
 
-    if (! html) {
+    if (!html) {
         element.parent = this;
         this.emit('append', element);
     }
 };
 
-ContainerElement.prototype.appendAfter = function(element, reference) {
+ContainerElement.prototype.appendAfter = function (element, reference) {
     var html = (element instanceof HTMLElement);
     var node = html ? element : element.element;
 
@@ -78,14 +78,14 @@ ContainerElement.prototype.appendAfter = function(element, reference) {
         this._innerElement.appendChild(node);
     }
 
-    if (! html) {
+    if (!html) {
         element.parent = this;
         this.emit('append', element);
     }
 };
 
 
-ContainerElement.prototype.prepend = function(element) {
+ContainerElement.prototype.prepend = function (element) {
     var first = this._innerElement.firstChild;
     var html = (element instanceof HTMLElement);
     var node = html ? element : element.element;
@@ -96,22 +96,22 @@ ContainerElement.prototype.prepend = function(element) {
         this._innerElement.appendChild(node);
     }
 
-    if (! html) {
+    if (!html) {
         element.parent = this;
         this.emit('append', element);
     }
 };
 
-ContainerElement.prototype.remove = function(element) {
+ContainerElement.prototype.remove = function (element) {
     var html = (element instanceof HTMLElement);
     var node = html ? element : element.element;
 
-    if (! node.parentNode || node.parentNode !== this._innerElement)
+    if (!node.parentNode || node.parentNode !== this._innerElement)
         return;
 
     this._innerElement.removeChild(node);
 
-    if (! html) {
+    if (!html) {
         element.parent = null;
         this.emit('remove', element);
     }
@@ -119,10 +119,10 @@ ContainerElement.prototype.remove = function(element) {
 
 
 Object.defineProperty(ContainerElement.prototype, 'innerElement', {
-    get: function() {
+    get: function () {
         return this._innerElement;
     },
-    set: function(value) {
+    set: function (value) {
         if (this._innerElement) {
             this._observer.disconnect();
         }
@@ -134,16 +134,16 @@ Object.defineProperty(ContainerElement.prototype, 'innerElement', {
 });
 
 
-ContainerElement.prototype.clear = function() {
+ContainerElement.prototype.clear = function () {
     var i, node;
 
     this._observer.disconnect();
 
     i = this._innerElement.childNodes.length;
-    while(i--) {
+    while (i--) {
         node = this._innerElement.childNodes[i];
 
-        if (! node.ui)
+        if (!node.ui)
             continue;
 
         node.ui.destroy();
@@ -155,11 +155,11 @@ ContainerElement.prototype.clear = function() {
 
 
 Object.defineProperty(ContainerElement.prototype, 'flexible', {
-    get: function() {
+    get: function () {
         return this._element.classList.contains('flexible');
     },
-    set: function(value) {
-        if (this._element.classList.contains('flexible') === !! value)
+    set: function (value) {
+        if (this._element.classList.contains('flexible') === !!value)
             return;
 
         if (value) {
@@ -172,11 +172,11 @@ Object.defineProperty(ContainerElement.prototype, 'flexible', {
 
 
 Object.defineProperty(ContainerElement.prototype, 'flex', {
-    get: function() {
+    get: function () {
         return this._element.classList.contains('flex');
     },
-    set: function(value) {
-        if (this._element.classList.contains('flex') === !! value)
+    set: function (value) {
+        if (this._element.classList.contains('flex') === !!value)
             return;
 
         if (value) {
@@ -189,10 +189,10 @@ Object.defineProperty(ContainerElement.prototype, 'flex', {
 
 
 Object.defineProperty(ContainerElement.prototype, 'flexDirection', {
-    get: function() {
+    get: function () {
         return this._innerElement.style.flexDirection;
     },
-    set: function(value) {
+    set: function (value) {
         this._innerElement.style.flexDirection = value;
         this._innerElement.style.WebkitFlexDirection = value;
     }
@@ -200,10 +200,10 @@ Object.defineProperty(ContainerElement.prototype, 'flexDirection', {
 
 
 Object.defineProperty(ContainerElement.prototype, 'flexWrap', {
-    get: function() {
+    get: function () {
         return this._innerElement.style.flexWrap;
     },
-    set: function(value) {
+    set: function (value) {
         this.flex = true;
         this._innerElement.style.flexWrap = value;
         this._innerElement.style.WebkitFlexWrap = value;
@@ -211,15 +211,15 @@ Object.defineProperty(ContainerElement.prototype, 'flexWrap', {
 });
 
 Object.defineProperty(ContainerElement.prototype, 'flexGrow', {
-    get: function() {
+    get: function () {
         return this._element.style.flexGrow === 1;
     },
-    set: function(value) {
+    set: function (value) {
         if (value)
             this.flex = true;
 
-        this._element.style.flexGrow = !! value ? 1 : 0;
-        this._element.style.WebkitFlexGrow = !! value ? 1 : 0;
+        this._element.style.flexGrow = !!value ? 1 : 0;
+        this._element.style.WebkitFlexGrow = !!value ? 1 : 0;
         this._innerElement.style.flexGrow = this._element.style.flexGrow;
         this._innerElement.style.WebkitFlexGrow = this._element.style.flexGrow;
     }
@@ -227,15 +227,15 @@ Object.defineProperty(ContainerElement.prototype, 'flexGrow', {
 
 
 Object.defineProperty(ContainerElement.prototype, 'flexShrink', {
-    get: function() {
+    get: function () {
         return this._element.style.flexShrink === 1;
     },
-    set: function(value) {
+    set: function (value) {
         if (value)
             this.flex = true;
 
-        this._element.style.flexShrink = !! value ? 1 : 0;
-        this._element.style.WebkitFlexShrink = !! value ? 1 : 0;
+        this._element.style.flexShrink = !!value ? 1 : 0;
+        this._element.style.WebkitFlexShrink = !!value ? 1 : 0;
         this._innerElement.style.flexShrink = this._element.style.flexShrink;
         this._innerElement.style.WebkitFlexShrink = this._element.style.flexShrink;
     }
@@ -243,10 +243,10 @@ Object.defineProperty(ContainerElement.prototype, 'flexShrink', {
 
 
 Object.defineProperty(ContainerElement.prototype, 'scroll', {
-    get: function() {
+    get: function () {
         return this.class.contains('scrollable');
     },
-    set: function() {
+    set: function () {
         this.class.add('scrollable');
     }
 });

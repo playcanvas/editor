@@ -37,30 +37,30 @@ function TextAreaField(args) {
 TextAreaField.prototype = Object.create(ui.Element.prototype);
 
 
-TextAreaField.prototype._onLinkChange = function(value) {
+TextAreaField.prototype._onLinkChange = function (value) {
     this.elementInput.value = value;
     this.emit('change', value);
 };
 
 
-TextAreaField.prototype._onChange = function() {
+TextAreaField.prototype._onChange = function () {
     if (this.ui.ignoreChange) return;
 
     this.ui.value = this.ui.value || '';
 
-    if (! this.ui._link)
+    if (!this.ui._link)
         this.ui.emit('change', this.ui.value);
 };
 
 
-TextAreaField.prototype._onKeyDown = function(evt) {
+TextAreaField.prototype._onKeyDown = function (evt) {
     if (evt.keyCode === 27) {
         this.blur();
-    } else if (this.ui.blurOnEnter && evt.keyCode === 13 && ! evt.shiftKey) {
+    } else if (this.ui.blurOnEnter && evt.keyCode === 13 && !evt.shiftKey) {
         var focused = false;
 
         var parent = this.ui.parent;
-        while(parent) {
+        while (parent) {
             if (parent.focus) {
                 parent.focus();
                 focused = true;
@@ -70,44 +70,44 @@ TextAreaField.prototype._onKeyDown = function(evt) {
             parent = parent.parent;
         }
 
-        if (! focused)
+        if (!focused)
             this.blur();
     }
 };
 
 
-TextAreaField.prototype._onFullSelect = function() {
+TextAreaField.prototype._onFullSelect = function () {
     this.select();
 };
 
 
-TextAreaField.prototype.focus = function(select) {
+TextAreaField.prototype.focus = function (select) {
     this.elementInput.focus();
     if (select) this.elementInput.select();
 };
 
 
-TextAreaField.prototype._onInputFocus = function() {
+TextAreaField.prototype._onInputFocus = function () {
     this.ui.class.add('focus');
     this.ui.emit('input:focus');
 };
 
 
-TextAreaField.prototype._onInputBlur = function() {
+TextAreaField.prototype._onInputBlur = function () {
     this.ui.class.remove('focus');
     this.ui.emit('input:blur');
 };
 
-TextAreaField.prototype._onDisable = function() {
+TextAreaField.prototype._onDisable = function () {
     this.elementInput.readOnly = true;
 };
 
-TextAreaField.prototype._onEnable = function() {
+TextAreaField.prototype._onEnable = function () {
     this.elementInput.readOnly = false;
 };
 
-TextAreaField.prototype._onChangeField = function() {
-    if (! this.renderChanges)
+TextAreaField.prototype._onChangeField = function () {
+    if (!this.renderChanges)
         return;
 
     this.flash();
@@ -115,16 +115,16 @@ TextAreaField.prototype._onChangeField = function() {
 
 
 Object.defineProperty(TextAreaField.prototype, 'value', {
-    get: function() {
+    get: function () {
         if (this._link) {
             return this._link.get(this.path);
-        } else {
-            return this.elementInput.value;
         }
+        return this.elementInput.value;
+
     },
-    set: function(value) {
+    set: function (value) {
         if (this._link) {
-            if (! this._link.set(this.path, value)) {
+            if (!this._link.set(this.path, value)) {
                 this.elementInput.value = this._link.get(this.path);
             }
         } else {
@@ -139,11 +139,11 @@ Object.defineProperty(TextAreaField.prototype, 'value', {
 
 
 Object.defineProperty(TextAreaField.prototype, 'placeholder', {
-    get: function() {
+    get: function () {
         return this._element.getAttribute('placeholder');
     },
-    set: function(value) {
-        if (! value) {
+    set: function (value) {
+        if (!value) {
             this._element.removeAttribute('placeholder');
         } else {
             this._element.setAttribute('placeholder', value);
@@ -153,11 +153,11 @@ Object.defineProperty(TextAreaField.prototype, 'placeholder', {
 
 
 Object.defineProperty(TextAreaField.prototype, 'keyChange', {
-    get: function() {
-        return !! this.evtKeyChange;
+    get: function () {
+        return !!this.evtKeyChange;
     },
-    set: function(value) {
-        if (!! this.evtKeyChange === !! value)
+    set: function (value) {
+        if (!!this.evtKeyChange === !!value)
             return;
 
         if (value) {
@@ -169,11 +169,11 @@ Object.defineProperty(TextAreaField.prototype, 'keyChange', {
 });
 
 Object.defineProperty(TextAreaField.prototype, 'proxy', {
-    get: function() {
+    get: function () {
         return this._element.getAttribute('proxy');
     },
-    set: function(value) {
-        if (! value) {
+    set: function (value) {
+        if (!value) {
             this._element.removeAttribute('proxy');
         } else {
             this._element.setAttribute('proxy', value);

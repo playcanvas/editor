@@ -11,7 +11,7 @@ editor.once('load', function () {
         var line = options.line || 1;
         var col = options.col || 1;
         var view = editor.call('views:get', id);
-        if (! view) return;
+        if (!view) return;
 
         setTimeout(function () {
             if (view !== editor.call('editor:focusedView')) return;
@@ -50,7 +50,7 @@ editor.once('load', function () {
         options = options || {};
 
         // if asset does not exist exit early
-        if (! editor.call('assets:get', id)) {
+        if (!editor.call('assets:get', id)) {
             return options.callback && options.callback();
         }
 
@@ -59,7 +59,7 @@ editor.once('load', function () {
         // make sure each new selection goes in a new tab
         editor.call('tabs:temp:stick');
 
-        if (! editor.call('views:get', id)) {
+        if (!editor.call('views:get', id)) {
             events[id] = editor.once('views:new:' + id, function () {
                 delete events[id];
                 highlight(id, options || {});

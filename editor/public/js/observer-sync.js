@@ -4,7 +4,7 @@ function ObserverSync(args) {
 
     this.item = args.item;
     this._enabled = args.enabled || true;
-    this._prefix = args.prefix || [ ];
+    this._prefix = args.prefix || [];
     this._paths = args.paths || null;
     this._sync = args.sync || true;
 
@@ -13,13 +13,13 @@ function ObserverSync(args) {
 ObserverSync.prototype = Object.create(Events.prototype);
 
 
-ObserverSync.prototype._initialize = function() {
+ObserverSync.prototype._initialize = function () {
     var self = this;
     var item = this.item;
 
     // object/array set
-    item.on('*:set', function(path, value, valueOld) {
-        if (! self._enabled) return;
+    item.on('*:set', function (path, value, valueOld) {
+        if (!self._enabled) return;
 
         // if this happens it's a bug
         if (item.sync !== self) {
@@ -29,7 +29,7 @@ ObserverSync.prototype._initialize = function() {
         // check if path is allowed
         if (self._paths) {
             var allowedPath = false;
-            for(var i = 0; i < self._paths.length; i++) {
+            for (var i = 0; i < self._paths.length; i++) {
                 if (path.indexOf(self._paths[i]) !== -1) {
                     allowedPath = true;
                     break;
@@ -37,7 +37,7 @@ ObserverSync.prototype._initialize = function() {
             }
 
             // path is not allowed
-            if (! allowedPath)
+            if (!allowedPath)
                 return;
         }
 
@@ -76,8 +76,8 @@ ObserverSync.prototype._initialize = function() {
     });
 
     // unset
-    item.on('*:unset', function(path, value) {
-        if (! self._enabled) return;
+    item.on('*:unset', function (path, value) {
+        if (!self._enabled) return;
 
         self.emit('op', {
             p: self._prefix.concat(path.split('.')),
@@ -86,45 +86,45 @@ ObserverSync.prototype._initialize = function() {
     });
 
     // list move
-    item.on('*:move', function(path, value, ind, indOld) {
-        if (! self._enabled) return;
+    item.on('*:move', function (path, value, ind, indOld) {
+        if (!self._enabled) return;
         self.emit('op', {
-            p: self._prefix.concat(path.split('.')).concat([ indOld ]),
+            p: self._prefix.concat(path.split('.')).concat([indOld]),
             lm: ind
         });
     });
 
     // list remove
-    item.on('*:remove', function(path, value, ind) {
-        if (! self._enabled) return;
+    item.on('*:remove', function (path, value, ind) {
+        if (!self._enabled) return;
 
         // need jsonify
         if (value instanceof Observer || value instanceof ObserverList)
             value = value.json();
 
         self.emit('op', {
-            p: self._prefix.concat(path.split('.')).concat([ ind ]),
+            p: self._prefix.concat(path.split('.')).concat([ind]),
             ld: value
         });
     });
 
     // list insert
-    item.on('*:insert', function(path, value, ind) {
-        if (! self._enabled) return;
+    item.on('*:insert', function (path, value, ind) {
+        if (!self._enabled) return;
 
         // need jsonify
         if (value instanceof Observer || value instanceof ObserverList)
             value = value.json();
 
         self.emit('op', {
-            p: self._prefix.concat(path.split('.')).concat([ ind ]),
+            p: self._prefix.concat(path.split('.')).concat([ind]),
             li: value
         });
     });
 };
 
 
-ObserverSync.prototype.write = function(op) {
+ObserverSync.prototype.write = function (op) {
     // disable history if available
     var historyReEnable = false;
     if (this.item.history && this.item.history.enabled) {
@@ -200,28 +200,28 @@ ObserverSync.prototype.write = function(op) {
 };
 
 Object.defineProperty(ObserverSync.prototype, 'enabled', {
-    get: function() {
+    get: function () {
         return this._enabled;
     },
-    set: function(value) {
-        this._enabled = !! value;
+    set: function (value) {
+        this._enabled = !!value;
     }
 });
 
 Object.defineProperty(ObserverSync.prototype, 'prefix', {
-    get: function() {
+    get: function () {
         return this._prefix;
     },
-    set: function(value) {
-        this._prefix = value || [ ];
+    set: function (value) {
+        this._prefix = value || [];
     }
 });
 
 Object.defineProperty(ObserverSync.prototype, 'paths', {
-    get: function() {
+    get: function () {
         return this._paths;
     },
-    set: function(value) {
+    set: function (value) {
         this._paths = value || null;
     }
 });

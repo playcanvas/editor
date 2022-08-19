@@ -660,7 +660,7 @@ Object.assign(pcui, (function () {
         }
 
         _onSelectNode({ node }) {
-            if(!node) return;
+            if (!node) return;
             this._parent._transitionsContainer.unlink();
             this._parent._transitionsContainer.hidden = true;
             this._parent._stateContainer.link(this._assets, this._selectedLayer, `data.states.${node.id}`);

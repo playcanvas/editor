@@ -1,19 +1,19 @@
 function Ajax(args) {
-    if (typeof(args) === 'string')
+    if (typeof (args) === 'string')
         args = { url: args };
 
     return new AjaxRequest(args);
-};
+}
 
 window.Ajax = Ajax;
 
-Ajax.get = function(url) {
+Ajax.get = function (url) {
     return new AjaxRequest({
         url: url
     });
 };
 
-Ajax.post = function(url, data) {
+Ajax.post = function (url, data) {
     return new AjaxRequest({
         method: 'POST',
         url: url,
@@ -21,7 +21,7 @@ Ajax.post = function(url, data) {
     });
 };
 
-Ajax.put = function(url, data) {
+Ajax.put = function (url, data) {
     return new AjaxRequest({
         method: 'PUT',
         url: url,
@@ -29,7 +29,7 @@ Ajax.put = function(url, data) {
     });
 };
 
-Ajax.delete = function(url) {
+Ajax.delete = function (url) {
     return new AjaxRequest({
         method: 'DELETE',
         url: url
@@ -38,14 +38,13 @@ Ajax.delete = function(url) {
 
 Ajax.params = { };
 
-Ajax.param = function(name, value) {
+Ajax.param = function (name, value) {
     Ajax.params[name] = value;
 };
 
 
-
 function AjaxRequest(args) {
-    if (! args)
+    if (!args)
         throw new Error('no arguments provided');
 
     window.assignEvents(this);
@@ -77,8 +76,8 @@ function AjaxRequest(args) {
             url += '?';
         }
 
-        var query = [ ];
-        for(var key in args.query) {
+        var query = [];
+        for (var key in args.query) {
             query.push(key + '=' + args.query[key]);
         }
 
@@ -88,7 +87,7 @@ function AjaxRequest(args) {
     // templating
     var parts = url.split('{{');
     if (parts.length > 1) {
-        for(var i = 1; i < parts.length; i++) {
+        for (var i = 1; i < parts.length; i++) {
             var ends = parts[i].indexOf('}}');
             var key = parts[i].slice(0, ends);
 
@@ -108,7 +107,7 @@ function AjaxRequest(args) {
     this.notJson = args.notJson || false;
 
     // header for PUT/POST
-    if (! args.ignoreContentType && (args.method === 'PUT' || args.method === 'POST' || args.method === 'DELETE'))
+    if (!args.ignoreContentType && (args.method === 'PUT' || args.method === 'POST' || args.method === 'DELETE'))
         this._xhr.setRequestHeader('Content-Type', 'application/json');
 
     if (args.auth && config.accessToken) {
@@ -121,17 +120,17 @@ function AjaxRequest(args) {
     }
 
     // stringify data if needed
-    if (args.data && typeof(args.data) !== 'string' && ! (args.data instanceof FormData)) {
+    if (args.data && typeof (args.data) !== 'string' && !(args.data instanceof FormData)) {
         args.data = JSON.stringify(args.data);
     }
 
     // make request
     this._xhr.send(args.data || null);
-};
+}
 AjaxRequest.prototype = Object.create(Events.prototype);
 
 
-AjaxRequest.prototype._onLoad = function() {
+AjaxRequest.prototype._onLoad = function () {
     this._progress = 1.0;
     this.emit('progress', 1.0);
 
@@ -141,7 +140,7 @@ AjaxRequest.prototype._onLoad = function() {
         } else {
             try {
                 var json = JSON.parse(this._xhr.responseText);
-            } catch(ex) {
+            } catch (ex) {
                 this.emit('error', this._xhr.status || 0, new Error('invalid json'));
                 return;
             }
@@ -151,11 +150,11 @@ AjaxRequest.prototype._onLoad = function() {
         try {
             var json = JSON.parse(this._xhr.responseText);
             var msg = json.message;
-            if (! msg) {
+            if (!msg) {
                 msg = json.error || (json.response && json.response.error);
             }
 
-            if (! msg) {
+            if (!msg) {
                 msg = this._xhr.responseText;
             }
 
@@ -167,18 +166,18 @@ AjaxRequest.prototype._onLoad = function() {
 };
 
 
-AjaxRequest.prototype._onError = function(evt) {
+AjaxRequest.prototype._onError = function (evt) {
     this.emit('error', 0, evt);
 };
 
 
-AjaxRequest.prototype._onAbort = function(evt) {
+AjaxRequest.prototype._onAbort = function (evt) {
     this.emit('error', 0, evt);
 };
 
 
-AjaxRequest.prototype._onProgress = function(evt) {
-    if (! evt.lengthComputable)
+AjaxRequest.prototype._onProgress = function (evt) {
+    if (!evt.lengthComputable)
         return;
 
     var progress = evt.loaded / evt.total;
@@ -190,6 +189,6 @@ AjaxRequest.prototype._onProgress = function(evt) {
 };
 
 
-AjaxRequest.prototype.abort = function() {
+AjaxRequest.prototype.abort = function () {
     this._xhr.abort();
 };

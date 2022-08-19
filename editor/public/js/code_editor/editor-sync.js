@@ -23,7 +23,7 @@ editor.once('load', function () {
     });
 
     editor.method('editor:save', function () {
-        if (! editor.call('editor:canSave')) return;
+        if (!editor.call('editor:canSave')) return;
 
         isSaving = true;
 
@@ -47,13 +47,13 @@ editor.once('load', function () {
         };
 
         Ajax(data)
-        .on('load', function(status, data) {
+        .on('load', function (status, data) {
             isSaving = false;
             editor.emit('editor:save:end');
         })
-        .on('progress', function(progress) {
+        .on('progress', function (progress) {
         })
-        .on('error', function(status, data) {
+        .on('error', function (status, data) {
             isSaving = false;
             editor.emit('editor:save:error', status);
         });
@@ -68,14 +68,14 @@ editor.once('load', function () {
         };
 
         Ajax(data)
-        .on('load', function(status, data) {
+        .on('load', function (status, data) {
             isSaving = false;
             isLoading = false;
             editor.emit('editor:loadScript', data);
         })
-        .on('progress', function(progress) {
+        .on('progress', function (progress) {
         })
-        .on('error', function(status, data) {
+        .on('error', function (status, data) {
             isLoading = false;
             editor.emit('editor:loadScript:error', status);
         });

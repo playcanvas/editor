@@ -6,10 +6,10 @@ function SelectField(args) {
     args = args || { };
 
     this.options = args.options || { };
-    this.optionsKeys = [ ];
+    this.optionsKeys = [];
     if (this.options instanceof Array) {
         var options = { };
-        for(var i = 0; i < this.options.length; i++) {
+        for (var i = 0; i < this.options.length; i++) {
             this.optionsKeys.push(this.options[i].v);
             options[this.options[i].v] = this.options[i].t;
         }
@@ -36,16 +36,16 @@ function SelectField(args) {
     this.timerClickAway = null;
     this.evtTouchId = null;
     this.evtTouchSecond = false;
-    this.evtMouseDist = [ 0, 0 ];
-    this.evtMouseUp = function(evt) {
+    this.evtMouseDist = [0, 0];
+    this.evtMouseUp = function (evt) {
         evt.preventDefault();
         evt.stopPropagation();
 
         self._onHoldSelect(evt.target, evt.pageX, evt.pageY);
     };
 
-    this.evtTouchEnd = function(evt) {
-        for(var i = 0; i < evt.changedTouches.length; i++) {
+    this.evtTouchEnd = function (evt) {
+        for (var i = 0; i < evt.changedTouches.length; i++) {
             var touch = evt.changedTouches[i];
             if (touch.identifier !== self.evtTouchId)
                 continue;
@@ -96,7 +96,7 @@ function SelectField(args) {
 SelectField.prototype = Object.create(ui.Element.prototype);
 
 
-SelectField.prototype._onHoldSelect = function(target, x, y) {
+SelectField.prototype._onHoldSelect = function (target, x, y) {
     if (target && target.uiElement && target.uiElement === this && target.classList.contains('selected'))
         return;
 
@@ -109,8 +109,8 @@ SelectField.prototype._onHoldSelect = function(target, x, y) {
     this.close();
 };
 
-SelectField.prototype._onMouseDown = function(evt) {
-    if (this.ui.disabled && ! this.ui.disabledClick)
+SelectField.prototype._onMouseDown = function (evt) {
+    if (this.ui.disabled && !this.ui.disabledClick)
         return;
 
     if (this.ui.element.classList.contains('active')) {
@@ -126,8 +126,8 @@ SelectField.prototype._onMouseDown = function(evt) {
     }
 };
 
-SelectField.prototype._onTouchStart = function(evt) {
-    if (this.ui.disabled && ! this.ui.disabledClick)
+SelectField.prototype._onTouchStart = function (evt) {
+    if (this.ui.disabled && !this.ui.disabledClick)
         return;
 
     if (this.ui.element.classList.contains('active')) {
@@ -138,7 +138,7 @@ SelectField.prototype._onTouchStart = function(evt) {
 
         var touch;
 
-        for(var i = 0; i < evt.changedTouches.length; i++) {
+        for (var i = 0; i < evt.changedTouches.length; i++) {
             if (evt.changedTouches[i].target !== this)
                 continue;
 
@@ -147,7 +147,7 @@ SelectField.prototype._onTouchStart = function(evt) {
             break;
         }
 
-        if (! touch) return;
+        if (!touch) return;
 
         this.ui.evtTouchId = touch.identifier;
         this.ui.evtMouseDist[0] = touch.pageX;
@@ -158,7 +158,7 @@ SelectField.prototype._onTouchStart = function(evt) {
     }
 };
 
-SelectField.prototype._onLink = function(path) {
+SelectField.prototype._onLink = function (path) {
     if (this._link.schema && this._link.schema.has(path)) {
         var field = this._link.schema.get(path);
         var options = field.options || { };
@@ -166,21 +166,21 @@ SelectField.prototype._onLink = function(path) {
     }
 };
 
-SelectField.prototype._onChange = function() {
-    if (! this.renderChanges)
+SelectField.prototype._onChange = function () {
+    if (!this.renderChanges)
         return;
 
     this.flash();
 };
 
-SelectField.prototype._onKeyDown = function(evt) {
+SelectField.prototype._onKeyDown = function (evt) {
     if (evt.keyCode === 27) {
         this.ui.close();
         this.blur();
         return;
     }
 
-    if ((this.ui.disabled && ! this.ui.disabledClick) || [ 38, 40 ].indexOf(evt.keyCode) === -1)
+    if ((this.ui.disabled && !this.ui.disabledClick) || [38, 40].indexOf(evt.keyCode) === -1)
         return;
 
     evt.stopPropagation();
@@ -197,16 +197,16 @@ SelectField.prototype._onKeyDown = function(evt) {
 
     // already last item
     if (y === 1 && ind === (keys.length - 1))
-        return
+        return;
 
     // set new item
     this.ui.value = keys[ind + y];
 };
 
-SelectField.prototype.valueToType = function(value) {
-    switch(this._type) {
+SelectField.prototype.valueToType = function (value) {
+    switch (this._type) {
         case 'boolean':
-            return !! value;
+            return !!value;
             break;
         case 'number':
             return parseInt(value, 10);
@@ -218,8 +218,8 @@ SelectField.prototype.valueToType = function(value) {
 };
 
 
-SelectField.prototype.open = function() {
-    if ((this.disabled && ! this.disabledClick) || this._element.classList.contains('active'))
+SelectField.prototype.open = function () {
+    if ((this.disabled && !this.disabledClick) || this._element.classList.contains('active'))
         return;
 
     this._element.classList.add('active');
@@ -265,8 +265,8 @@ SelectField.prototype.open = function() {
     }
 
     var self = this;
-    this.timerClickAway = setTimeout(function() {
-        var looseActive = function() {
+    this.timerClickAway = setTimeout(function () {
+        var looseActive = function () {
             self.element.classList.remove('active');
             self.element.blur();
             window.removeEventListener('click', looseActive);
@@ -279,8 +279,8 @@ SelectField.prototype.open = function() {
 };
 
 
-SelectField.prototype.close = function() {
-    if ((this.disabled && ! this.disabledClick) || ! this._element.classList.contains('active'))
+SelectField.prototype.close = function () {
+    if ((this.disabled && !this.disabledClick) || !this._element.classList.contains('active'))
         return;
 
     window.removeEventListener('mouseup', this.evtMouseUp);
@@ -306,7 +306,7 @@ SelectField.prototype.close = function() {
 };
 
 
-SelectField.prototype.toggle = function() {
+SelectField.prototype.toggle = function () {
     if (this._element.classList.contains('active')) {
         this.close();
     } else {
@@ -315,12 +315,12 @@ SelectField.prototype.toggle = function() {
 };
 
 
-SelectField.prototype._updateOptions = function(options) {
+SelectField.prototype._updateOptions = function (options) {
     if (options !== undefined) {
         if (options instanceof Array) {
             this.options = { };
-            this.optionsKeys = [ ];
-            for(var i = 0; i < options.length; i++) {
+            this.optionsKeys = [];
+            for (var i = 0; i < options.length; i++) {
                 this.optionsKeys.push(options[i].v);
                 this.options[options[i].v] = options[i].t;
             }
@@ -333,8 +333,8 @@ SelectField.prototype._updateOptions = function(options) {
     this.optionElements = { };
     this.elementOptions.innerHTML = '';
 
-    for(var i = 0; i < this.optionsKeys.length; i++) {
-        if (! this.options.hasOwnProperty(this.optionsKeys[i]))
+    for (var i = 0; i < this.optionsKeys.length; i++) {
+        if (!this.options.hasOwnProperty(this.optionsKeys[i]))
             continue;
 
         var element = document.createElement('li');
@@ -354,19 +354,19 @@ SelectField.prototype._updateOptions = function(options) {
     }
 };
 
-SelectField.prototype._onOptionSelect = function() {
+SelectField.prototype._onOptionSelect = function () {
     this.uiElement.value = this.uiValue;
 };
 
-SelectField.prototype._onOptionHover = function() {
+SelectField.prototype._onOptionHover = function () {
     this.classList.add('hover');
 };
 
-SelectField.prototype._onOptionOut = function() {
+SelectField.prototype._onOptionOut = function () {
     this.classList.remove('hover');
 };
 
-SelectField.prototype._onLinkChange = function(value) {
+SelectField.prototype._onLinkChange = function (value) {
     if (this.optionElements[value] === undefined)
         return;
 
@@ -382,14 +382,14 @@ SelectField.prototype._onLinkChange = function(value) {
 
 
 Object.defineProperty(SelectField.prototype, 'value', {
-    get: function() {
+    get: function () {
         if (this._link) {
             return this._link.get(this.path);
-        } else {
-            return this._value;
         }
+        return this._value;
+
     },
-    set: function(raw) {
+    set: function (raw) {
         var value = this.valueToType(raw);
 
         if (this._link) {
@@ -425,11 +425,11 @@ Object.defineProperty(SelectField.prototype, 'value', {
 });
 
 Object.defineProperty(SelectField.prototype, 'placeholder', {
-    get: function() {
+    get: function () {
         return this.elementValue.getAttribute('placeholder');
     },
-    set: function(value) {
-        if (! value) {
+    set: function (value) {
+        if (!value) {
             this.elementValue.removeAttribute('placeholder');
         } else {
             this.elementValue.setAttribute('placeholder', value);

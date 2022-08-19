@@ -510,7 +510,6 @@ Object.assign(pcui, (function () {
         }
     }
     class SpriteFrameElementToObserversBinding extends ImageAssetElementToObserversBinding {
-
         // Override setValue to set additional fields
         setValue(value) {
             if (this.applyingChange) return;

@@ -4,10 +4,12 @@ Object.assign(
         "use strict";
 
         class Skeleton {
-
             static _boneVertex = new pc.Vec3();
+
             static _unitVector = new pc.Vec3(0, 1, 0);
+
             static _rotationMatrix = new pc.Mat4();
+
             static _unitBone = [
                 [0, 0, 0], [-0.5, 0.3, 0],
                 [0, 0, 0], [0.5, 0.3, 0],
@@ -353,9 +355,9 @@ Object.assign(
                 } else if (!entity) {
                     this.displayMessage("No entity provided.");
                     return;
-                } else {
-                    this.hideMessage();
                 }
+                this.hideMessage();
+
                 this._animTrack = animTrack;
                 this._skeleton = null;
                 if (entity && entity.model) {
@@ -501,7 +503,7 @@ Object.assign(
                 if (this._showModel && this._renderComponents) {
                     this._renderComponents.forEach((render) => {
                         render.meshInstances.forEach((meshInstance) => {
-                            if(meshInstance.skinInstance) {
+                            if (meshInstance.skinInstance) {
                                 meshInstance.skinInstance.updateMatrices(meshInstance.node);
                             }
                         });

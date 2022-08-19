@@ -4,13 +4,13 @@ editor.once('load', function () {
     ctxMenu.append(ctxMenu.createItem('rename', {
         title: 'Rename',
         filter: function () {
-            if (! editor.call('permissions:write')) return;
+            if (!editor.call('permissions:write')) return;
 
             var selected = editor.call('files:contextmenu:selected');
             return selected.length === 1;
         },
         select: function () {
-            if (! editor.call('permissions:write')) return;
+            if (!editor.call('permissions:write')) return;
 
             var selected = editor.call('files:contextmenu:selected');
             if (selected.length < 1)

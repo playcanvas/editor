@@ -28,14 +28,15 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.GradientInput
      * @classdesc Shows a color gradient.
-     * @property {Boolean} renderChanges If true the input will flash when changed.
-     * @extends pcui.Element
+     * @property {boolean} renderChanges If true the input will flash when changed.
+     * @augments pcui.Element
      */
     class GradientInput extends pcui.Element {
         /**
          * Creates a new pcui.GradientInput.
-         * @param {Object} args The arguments.
-         * @param {Number} [args.channels] The number of color channels. Between 1 and 4.
+         *
+         * @param {object} args - The arguments.
+         * @param {number} [args.channels] - The number of color channels. Between 1 and 4.
          */
         constructor(args) {
             args = Object.assign({
@@ -46,7 +47,7 @@ Object.assign(pcui, (function () {
 
             this.class.add(CLASS_GRADIENT);
 
-            this._canvas = new pcui.Canvas({useDevicePixelRatio:true});
+            this._canvas = new pcui.Canvas({ useDevicePixelRatio: true });
             this.dom.appendChild(this._canvas.dom);
             this._canvas.parent = this;
             this._canvas.on('resize', this._renderGradient.bind(this));

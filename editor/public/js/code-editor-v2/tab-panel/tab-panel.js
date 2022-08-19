@@ -79,7 +79,7 @@ editor.once('load', function () {
     // Closes a tab
     var closeTab = function (id) {
         var tab = tabsIndex[id];
-        if (! tab) return;
+        if (!tab) return;
 
         tab.tab.destroy();
 
@@ -100,7 +100,7 @@ editor.once('load', function () {
         if (focusedTab === tab) {
             focusedTab = null;
 
-            if (! batchClose) {
+            if (!batchClose) {
                 var next = tabOrder[order - 1] || tabOrder[order];
 
                 if (next) {
@@ -226,7 +226,7 @@ editor.once('load', function () {
         // in order for them to be animated while moving around
         // Do it in a timeout because of a Safari bug
         setTimeout(function () {
-            if (! grabbedTab)
+            if (!grabbedTab)
                 return;
 
             for (let i = 0; i < tabOrder.length; i++) {
@@ -407,7 +407,7 @@ editor.once('load', function () {
 
         // If this is a new tab then make it temporary
         // and close old temporary
-        if (isNew && ! lockTemporary) {
+        if (isNew && !lockTemporary) {
             if (temporaryTab)
                 editor.emit('documents:close', temporaryTab.id);
 
@@ -527,7 +527,7 @@ editor.once('load', function () {
     // close tab
     editor.method('tabs:close', function (id) {
         var entry = tabsIndex[id];
-        if (! entry) return;
+        if (!entry) return;
 
         if (entry.asset)
             editor.emit('documents:close', id);

@@ -73,7 +73,6 @@ Object.assign(pcui, (function () {
     }
 
     class MaterialThumbnailRenderer {
-
         constructor(asset, canvas, sceneSettings) {
             this._asset = asset;
             this._canvas = canvas;
@@ -175,7 +174,7 @@ Object.assign(pcui, (function () {
             this._model = model;
 
             var data = this._asset.get('data');
-            if (! data) return;
+            if (!data) return;
 
             if (!sceneInitialized) initializeScene();
 
@@ -220,10 +219,10 @@ Object.assign(pcui, (function () {
             // first handle texture assets
             for (let i = 0; i < pc.StandardMaterial.TEXTURE_PARAMETERS.length; i++) {
                 const name = pc.StandardMaterial.TEXTURE_PARAMETERS[i];
-                if (! migrated.hasOwnProperty(name) || ! migrated[name]) continue;
+                if (!migrated.hasOwnProperty(name) || !migrated[name]) continue;
 
                 const engineAsset = app.assets.get(migrated[name]);
-                if (! engineAsset || ! engineAsset.resource) {
+                if (!engineAsset || !engineAsset.resource) {
                     migrated[name] = null;
                     if (engineAsset) {
                         app.assets.load(engineAsset);
@@ -236,10 +235,10 @@ Object.assign(pcui, (function () {
             // then handle cubemap assets
             for (let i = 0; i < pc.StandardMaterial.CUBEMAP_PARAMETERS.length; i++) {
                 const name = pc.StandardMaterial.CUBEMAP_PARAMETERS[i];
-                if (! migrated.hasOwnProperty(name) || ! migrated[name]) continue;
+                if (!migrated.hasOwnProperty(name) || !migrated[name]) continue;
 
                 const engineAsset = app.assets.get(migrated[name]);
-                if (! engineAsset) {
+                if (!engineAsset) {
                     migrated[name] = null;
                 } else {
                     if (engineAsset.resource) {
@@ -270,8 +269,8 @@ Object.assign(pcui, (function () {
             layer.addMeshInstances(sphere._enabled ? sphere.model.meshInstances : box.model.meshInstances);
 
             // add camera to layer
-            let backupLayers = cameraEntity.camera.layers.slice();
-            let newLayers = cameraEntity.camera.layers;
+            const backupLayers = cameraEntity.camera.layers.slice();
+            const newLayers = cameraEntity.camera.layers;
             newLayers.push(layer.id);
             cameraEntity.camera.layers = newLayers;
 

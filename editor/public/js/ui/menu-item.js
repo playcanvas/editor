@@ -52,15 +52,15 @@ function MenuItem(args) {
 MenuItem.prototype = Object.create(ui.ContainerElement.prototype);
 
 
-MenuItem.prototype._onMouseEnter = function(evt) {
+MenuItem.prototype._onMouseEnter = function (evt) {
     evt.stopPropagation();
     evt.preventDefault();
 
-    this.ui.parent.emit('over', [ this.ui._value ]);
+    this.ui.parent.emit('over', [this.ui._value]);
 };
 
-MenuItem.prototype._onOver = function(path) {
-    if (! this.parent)
+MenuItem.prototype._onOver = function (path) {
+    if (!this.parent)
         return;
 
     path.splice(0, 0, this._value);
@@ -68,41 +68,41 @@ MenuItem.prototype._onOver = function(path) {
     this.parent.emit('over', path);
 };
 
-MenuItem.prototype._onClick = function(evt) {
-    if (! this.ui.parent || this.ui.disabled)
+MenuItem.prototype._onClick = function (evt) {
+    if (!this.ui.parent || this.ui.disabled)
         return;
 
     this.ui.emit('select', this.ui._value, this.ui._hasChildren, evt);
-    this.ui.parent.emit('select-propagate', [ this.ui._value ], this.ui._hasChildren, evt);
+    this.ui.parent.emit('select-propagate', [this.ui._value], this.ui._hasChildren, evt);
 
     if (!this.ui._clickableSubmenus || !this.ui._hasChildren) {
         this.ui.class.remove('hover');
     }
 };
 
-MenuItem.prototype._onTouchStart = function(evt) {
-    if (! this.ui.parent || this.ui.disabled)
+MenuItem.prototype._onTouchStart = function (evt) {
+    if (!this.ui.parent || this.ui.disabled)
         return;
 
-    if (! this.ui._container || this.ui.class.contains('hover')) {
+    if (!this.ui._container || this.ui.class.contains('hover')) {
         this.ui.emit('select', this.ui._value, this.ui._hasChildren, evt);
-        this.ui.parent.emit('select-propagate', [ this.ui._value ], this.ui._hasChildren, evt);
+        this.ui.parent.emit('select-propagate', [this.ui._value], this.ui._hasChildren, evt);
         this.ui.class.remove('hover');
     } else {
-        this.ui.parent.emit('over', [ this.ui._value ]);
+        this.ui.parent.emit('over', [this.ui._value]);
     }
 };
 
-MenuItem.prototype._onTouchEnd = function(evt) {
-    if (! this.ui.parent || this.ui.disabled)
+MenuItem.prototype._onTouchEnd = function (evt) {
+    if (!this.ui.parent || this.ui.disabled)
         return;
 
     evt.preventDefault();
     evt.stopPropagation();
 };
 
-MenuItem.prototype._onSelectPropagate = function(path, selectedItemHasChildren, mouseEvent) {
-    if (! this.parent)
+MenuItem.prototype._onSelectPropagate = function (path, selectedItemHasChildren, mouseEvent) {
+    if (!this.parent)
         return;
 
     path.splice(0, 0, this._value);
@@ -114,7 +114,7 @@ MenuItem.prototype._onSelectPropagate = function(path, selectedItemHasChildren, 
     }
 };
 
-MenuItem.prototype._onAppend = function(item) {
+MenuItem.prototype._onAppend = function (item) {
     var self = this;
 
     this._container = true;
@@ -122,21 +122,21 @@ MenuItem.prototype._onAppend = function(item) {
 
     this._index[item._value] = item;
 
-    item.on('value', function(value, valueOld) {
-       delete self._index[this.valueOld];
-       self._index[value] = item;
+    item.on('value', function (value, valueOld) {
+        delete self._index[this.valueOld];
+        self._index[value] = item;
     });
-    item.once('destroy', function() {
+    item.once('destroy', function () {
         delete self._index[this._value];
     });
 };
 
 
 Object.defineProperty(MenuItem.prototype, 'value', {
-    get: function() {
+    get: function () {
         return this._value;
     },
-    set: function(value) {
+    set: function (value) {
         if (this._value === value)
             return;
 
@@ -148,10 +148,10 @@ Object.defineProperty(MenuItem.prototype, 'value', {
 
 
 Object.defineProperty(MenuItem.prototype, 'text', {
-    get: function() {
+    get: function () {
         return this.elementText.textContent;
     },
-    set: function(value) {
+    set: function (value) {
         if (this.elementText.textContent === value)
             return;
 
@@ -161,18 +161,18 @@ Object.defineProperty(MenuItem.prototype, 'text', {
 
 
 Object.defineProperty(MenuItem.prototype, 'icon', {
-    get: function() {
+    get: function () {
         return this.elementIcon.textContent;
     },
-    set: function(value) {
-        if ((! value && ! this.elementIcon) || (this.elementIcon && this.elementIcon.textContent === value))
+    set: function (value) {
+        if ((!value && !this.elementIcon) || (this.elementIcon && this.elementIcon.textContent === value))
             return;
 
-        if (! value) {
+        if (!value) {
             this.elementIcon.parentNode.removeChild(this.elementIcon);
             this.elementIcon = null;
         } else {
-            if (! this.elementIcon) {
+            if (!this.elementIcon) {
                 this.elementIcon = document.createElement('span');
                 this.elementIcon.classList.add('icon');
                 this.elementTitle.insertBefore(this.elementIcon, this.elementText);

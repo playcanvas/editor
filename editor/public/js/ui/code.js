@@ -10,10 +10,10 @@ Code.prototype = Object.create(ui.ContainerElement.prototype);
 
 
 Object.defineProperty(Code.prototype, 'text', {
-    get: function() {
+    get: function () {
         return this._element.textContent;
     },
-    set: function(value) {
+    set: function (value) {
         this._element.textContent = value;
     }
 });

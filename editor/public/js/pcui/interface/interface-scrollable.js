@@ -19,7 +19,7 @@ Object.assign(pcui, (function () {
      * @event
      * @name pcui.IScrollable#scroll
      * @description Fired when the Element is scrolled.
-     * @param {Event} The native scroll event.
+     * @param {Event} The - native scroll event.
      */
 
 

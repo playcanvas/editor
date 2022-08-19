@@ -13,19 +13,20 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.Tooltip
      * @classdesc A floating tooltip that can be attached to a target element.
-     * @extends pcui.Container
-     * @property {String} title The tooltip title
-     * @property {String} subTitle The tooltip sub title
-     * @property {String} description The tooltip description
-     * @property {String} title The tooltip title
-     * @property {String} align The tooltip alignment. Can be one of 'top', 'bottom', 'right', 'left'. E.g. if 'right' then the target element will appear on the right side of the tooltip.
+     * @augments pcui.Container
+     * @property {string} title The tooltip title
+     * @property {string} subTitle The tooltip sub title
+     * @property {string} description The tooltip description
+     * @property {string} title The tooltip title
+     * @property {string} align The tooltip alignment. Can be one of 'top', 'bottom', 'right', 'left'. E.g. if 'right' then the target element will appear on the right side of the tooltip.
      */
     class Tooltip extends pcui.Container {
         /**
          * Creates new tooltip.
-         * @param {Object} args The arguments.
-         * @param {Number} [args.showDelay] The delay in milliseconds before showing the tooltip.
-         * @param {Number} [args.hideDelay] The delay in milliseconds before hiding the tooltip.
+         *
+         * @param {object} args - The arguments.
+         * @param {number} [args.showDelay] - The delay in milliseconds before showing the tooltip.
+         * @param {number} [args.hideDelay] - The delay in milliseconds before hiding the tooltip.
          */
         constructor(args) {
             args = Object.assign({
@@ -190,10 +191,10 @@ Object.assign(pcui, (function () {
          * @name pcui.Tooltip#attach
          * @description Attaches the tooltip to an element. When the user hovers on the element
          * the tooltip will show up.
-         * @param {Object} args The arguments
-         * @param {pcui.Element} args.target The target element. When the user hovers over the target element that will show the tooltip.
-         * @param {pcui.Element} args.elementForHorizontalAlign The tooltip will use this element to align itself horizontally depending on the pcui.Tooltip#align property.
-         * @param {pcui.Element} args.elementForVerticalAlign The tooltip will use this element to align itself vertically depending on the pcui.Tooltip#align property.
+         * @param {object} args - The arguments
+         * @param {pcui.Element} args.target - The target element. When the user hovers over the target element that will show the tooltip.
+         * @param {pcui.Element} args.elementForHorizontalAlign - The tooltip will use this element to align itself horizontally depending on the pcui.Tooltip#align property.
+         * @param {pcui.Element} args.elementForVerticalAlign - The tooltip will use this element to align itself vertically depending on the pcui.Tooltip#align property.
          */
         attach(args) {
             this._clearTargetEvents();

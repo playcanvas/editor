@@ -14,15 +14,16 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.DropManager
      * @classdesc Handles drag and drop
-     * @property {Boolean} active True when we are currently dragging
-     * @property {String} dropType The type of data that is being dropped
+     * @property {boolean} active True when we are currently dragging
+     * @property {string} dropType The type of data that is being dropped
      * @property {Any} dropData The data being dropped
-     * @extends pcui.Container
+     * @augments pcui.Container
      */
     class DropManager extends pcui.Container {
         /**
          * Creates a new DropManager
-         * @param {Object} args The arguments.
+         *
+         * @param {object} args - The arguments.
          */
         constructor(args) {
             super(args);
@@ -69,7 +70,7 @@ Object.assign(pcui, (function () {
 
             // deactivate when disabled or readonly
             this.on('disable', () => { this.active = false; });
-            this.on('readOnly', readOnly => { if (!readOnly) this.active = false; });
+            this.on('readOnly', (readOnly) => { if (!readOnly) this.active = false; });
 
             this._domEventDragEnter = this._onDragEnter.bind(this);
             this._domEventDragOver = this._onDragOver.bind(this);
@@ -303,7 +304,6 @@ Object.assign(pcui, (function () {
             this._dropData = value || {};
             this.emit('dropData', value);
         }
-
     }
 
     return {

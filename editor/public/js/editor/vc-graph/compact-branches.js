@@ -58,11 +58,11 @@ editor.once('load', function () {
             if (rendered) {
                 return false;
 
-            } else {
-                const dstLim = this.xToLimits[dst];
-
-                return !dstLim || this.branchFits(branch, dstLim);
             }
+            const dstLim = this.xToLimits[dst];
+
+            return !dstLim || this.branchFits(branch, dstLim);
+
         }
 
         branchFits(branch, dstLim) {

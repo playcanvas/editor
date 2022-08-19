@@ -25,7 +25,7 @@ function Bubble(args) {
 }
 Bubble.prototype = Object.create(ui.Element.prototype);
 
-Bubble.prototype._onClick = function() {
+Bubble.prototype._onClick = function () {
     if (this.class.contains('active')) {
         this.deactivate();
     } else {

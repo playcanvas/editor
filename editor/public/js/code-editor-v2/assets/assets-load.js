@@ -47,7 +47,7 @@ editor.once('load', function () {
 
             // client -> server
             asset.sync.on('op', function (op) {
-                if (! editor.call('permissions:write'))
+                if (!editor.call('permissions:write'))
                     return;
 
                 assetDoc.submitOp([op]);
@@ -95,7 +95,7 @@ editor.once('load', function () {
         var assets = connection.collections.assets;
 
         for (var i = 0; i < data.length; i++) {
-            if (! assets.hasOwnProperty(data[i].uniqueId))
+            if (!assets.hasOwnProperty(data[i].uniqueId))
                 continue;
 
             // force snapshot path data
@@ -131,7 +131,7 @@ editor.once('load', function () {
             auth: true
         })
         .on('load', function (status, res) {
-            if (! res.length) {
+            if (!res.length) {
                 editor.emit('assets:load');
                 editor.call('status:clear');
                 return;

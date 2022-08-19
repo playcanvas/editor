@@ -7,12 +7,13 @@ Object.assign(pcui, (function () {
      * @name pcui.TooltipGroup
      * @classdesc A tooltip group contains other tooltips (or tooltip groups). By default
      * the tooltip group aligns each child tooltip horizontally.
-     * @extends pcui.Tooltip
+     * @augments pcui.Tooltip
      */
     class TooltipGroup extends pcui.Tooltip {
         /**
          * Creates new TooltipGroup.
-         * @param {Object} args The arguments.
+         *
+         * @param {object} args - The arguments.
          */
         constructor(args) {
             args = Object.assign({}, args);

@@ -8,7 +8,7 @@ Object.assign(pcui, (function () {
     };
     function _textureAttribute(label, attributeName, type) {
 
-        const scalarColorChannel = 
+        const scalarColorChannel =
         {
             label: 'Color Channel',
             path: `data.${attributeName}MapChannel`,
@@ -27,7 +27,7 @@ Object.assign(pcui, (function () {
             },
             reference: `asset:material:${attributeName}MapChannel`
         };
-        const rgbColorChannel = 
+        const rgbColorChannel =
         {
             label: 'Color Channel',
             path: `data.${attributeName}MapChannel`,
@@ -49,48 +49,47 @@ Object.assign(pcui, (function () {
             reference: `asset:material:${attributeName}MapChannel`
         };
         return [{
-                    label: label,
-                    type: 'asset',
-                    path: `data.${attributeName}Map`,
-                    args: {
-                        assetType: 'texture'
-                    },
-                    reference: `asset:material:${attributeName}Map`
+            label: label,
+            type: 'asset',
+            path: `data.${attributeName}Map`,
+            args: {
+                assetType: 'texture'
+            },
+            reference: `asset:material:${attributeName}Map`
+        }, {
+            label: 'UV Channel',
+            path: `data.${attributeName}MapUv`,
+            type: 'select',
+            args: {
+                type: 'number',
+                options: [{
+                    v: 0, t: 'UV0'
                 }, {
-                    label: 'UV Channel',
-                    path: `data.${attributeName}MapUv`,
-                    type: 'select',
-                    args: {
-                        type: 'number',
-                        options: [{
-                            v: 0, t: 'UV0'
-                        }, {
-                            v: 1, t: 'UV1'
-                        }]
-                    },
-                    reference: `asset:material:${attributeName}MapUv`
-                }, 
-                ...(type === TextureTypes.Color ? [rgbColorChannel] : []), 
-                ...(type === TextureTypes.Scalar ? [scalarColorChannel] : []), 
-                {
-                    label: 'Offset',
-                    path: `data.${attributeName}MapOffset`,
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: `asset:material:${attributeName}MapOffset`
-                }, {
-                    label: 'Tiling',
-                    path: `data.${attributeName}MapTiling`,
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: `asset:material:${attributeName}MapTiling`
-                }
-        ];
-    };
+                    v: 1, t: 'UV1'
+                }]
+            },
+            reference: `asset:material:${attributeName}MapUv`
+        },
+        ...(type === TextureTypes.Color ? [rgbColorChannel] : []),
+        ...(type === TextureTypes.Scalar ? [scalarColorChannel] : []),
+        {
+            label: 'Offset',
+            path: `data.${attributeName}MapOffset`,
+            type: 'vec2',
+            args: {
+                placeholder: ['U', 'V']
+            },
+            reference: `asset:material:${attributeName}MapOffset`
+        }, {
+            label: 'Tiling',
+            path: `data.${attributeName}MapTiling`,
+            type: 'vec2',
+            args: {
+                placeholder: ['U', 'V']
+            },
+            reference: `asset:material:${attributeName}MapTiling`
+        }];
+    }
 
     const CLASS_ROOT = 'asset-material-inspector';
 
@@ -858,20 +857,20 @@ Object.assign(pcui, (function () {
     }];
 
     const MAPS = {
-        'ao': [ 'ambientInspector' ],
-        'diffuse': [ 'diffuseInspector' ],
-        'specular': [ 'specularWorkflowInspector', 'metalnessWorkflowInspector' ],
-        'specularityFactor': [ 'metalnessWorkflowInspector' ],
-        'emissive': [ 'emissiveInspector' ],
-        'normal': [ 'normalsInspector' ],
-        'opacity': [ 'opacityInspector' ],
-        'height': [ 'parallaxInspector' ],
-        'light': [ 'lightmapInspector' ],
-        'metalness': [ 'metalnessWorkflowInspector' ],
-        'gloss': [ 'glossInspector' ],
-        'clearCoat': [ 'clearCoatInspector' ],
-        'clearCoatGloss': [ 'clearCoatGlossInspector' ],
-        'clearCoatNormal': [ 'clearCoatNormalInspector' ],
+        'ao': ['ambientInspector'],
+        'diffuse': ['diffuseInspector'],
+        'specular': ['specularWorkflowInspector', 'metalnessWorkflowInspector'],
+        'specularityFactor': ['metalnessWorkflowInspector'],
+        'emissive': ['emissiveInspector'],
+        'normal': ['normalsInspector'],
+        'opacity': ['opacityInspector'],
+        'height': ['parallaxInspector'],
+        'light': ['lightmapInspector'],
+        'metalness': ['metalnessWorkflowInspector'],
+        'gloss': ['glossInspector'],
+        'clearCoat': ['clearCoatInspector'],
+        'clearCoatGloss': ['clearCoatGlossInspector'],
+        'clearCoatNormal': ['clearCoatNormalInspector']
     };
 
     const COLLAPSED_PANEL_DEPENDENCIES = {
@@ -998,7 +997,7 @@ Object.assign(pcui, (function () {
             specularMetalnessAttributes.forEach((field) => {
                 this._metalnessWorkflowInspector.getField(`data.${field}`).parent.hidden = !useMetalnessSpecularColor;
             });
-            
+
             this._metalnessWorkflowInspector.getField('data.specularityFactorMap').hidden = !useMetalnessSpecularColor;
             speculartyFactorAttributes.forEach((field) => {
                 this._metalnessWorkflowInspector.getField(`data.${field}`).parent.hidden = !useMetalnessSpecularColor;

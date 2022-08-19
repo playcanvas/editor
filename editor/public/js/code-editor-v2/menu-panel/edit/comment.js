@@ -22,7 +22,7 @@ editor.once('load', function () {
     menu.append(item);
 
     editor.method('editor:command:toggleComment', function () {
-        if (! canEditLine()) return;
+        if (!canEditLine()) return;
         me.focus();
         me.trigger(null, 'editor.action.commentLine');
     });
@@ -39,7 +39,7 @@ editor.once('load', function () {
     menu.append(item);
 
     editor.method('editor:command:toggleBlockComment', function () {
-        if (! canEditLine()) return;
+        if (!canEditLine()) return;
         me.focus();
         me.trigger(null, 'editor.action.blockComment');
     });

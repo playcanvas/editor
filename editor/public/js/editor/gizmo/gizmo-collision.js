@@ -510,9 +510,9 @@ void main(void)
                     });
                 }
                 return shaderDefault;
-            } else {
-                return origFunc.call(this, device, scene, objDefs, staticLightList, pass, sortedLights);
             }
+            return origFunc.call(this, device, scene, objDefs, staticLightList, pass, sortedLights);
+
         };
         materialDefault.update();
 
@@ -624,9 +624,9 @@ void main(void)
                         });
                     }
                     return shaderCapsule[shaderName];
-                } else {
-                    _getShaderVariant.call(this, device, scene, objDefs, staticLightList, pass, sortedLights);
                 }
+                _getShaderVariant.call(this, device, scene, objDefs, staticLightList, pass, sortedLights);
+
             };
 
             matDefault.update();

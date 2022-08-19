@@ -15,7 +15,7 @@ editor.once('load', function () {
     });
 
     editor.method('permissions:read', function (userId) {
-        if (! userId) userId = config.self.id;
+        if (!userId) userId = config.self.id;
         return permissions.hasOwnProperty(userId);
     });
 
@@ -79,7 +79,7 @@ editor.once('load', function () {
 
         config.project.private = msg.project.private;
 
-        if (msg.project.private && ! editor.call('permissions:read', config.self.id)) {
+        if (msg.project.private && !editor.call('permissions:read', config.self.id)) {
             // refresh page so that user gets locked out
             window.location.reload();
         }

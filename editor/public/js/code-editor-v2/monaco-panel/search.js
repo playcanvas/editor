@@ -29,7 +29,7 @@ editor.once('load', function () {
 
         lastLineClicked = line;
 
-        if (! lastMouseDown) {
+        if (!lastMouseDown) {
             lastMouseDown = Date.now();
         } else {
             if (Date.now() - lastMouseDown < 300 && sameLine) {
@@ -75,7 +75,7 @@ editor.once('load', function () {
     function setModel() {
         monacoEditor.updateOptions({
             wordWrap: 'on',
-            lineNumbers: (originalLineNumber) => lineNumbers[originalLineNumber] || '',
+            lineNumbers: originalLineNumber => lineNumbers[originalLineNumber] || '',
             folding: false,
             readOnly: true
         });
@@ -186,7 +186,7 @@ editor.once('load', function () {
         }]);
 
         const len = results.matches.length;
-        if (! len) return;
+        if (!len) return;
 
         const decorations = [];
 
@@ -303,7 +303,7 @@ editor.once('load', function () {
                 to += 3;
             }
 
-            let matchStart = 1;
+            const matchStart = 1;
 
             // add text on the bottom
             newText += text + '\n';

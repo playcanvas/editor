@@ -40,7 +40,7 @@ editor.once('load', function () {
 
     var revert = function (id) {
         var asset = editor.call('assets:get', id);
-        if (! asset) return;
+        if (!asset) return;
 
         editor.call('assets:loadFile', asset, function (err, content) {
             if (err) {
@@ -48,7 +48,7 @@ editor.once('load', function () {
             }
 
             var view = editor.call('views:get', id);
-            if (! view) return;
+            if (!view) return;
 
             view.setValue(content);
 
@@ -93,7 +93,7 @@ editor.once('load', function () {
     // Load asset file and set document content to be the same
     // as the asset file - then save
     editor.method('editor:command:revert', function () {
-        if (! editor.call('editor:command:can:revert')) return;
+        if (!editor.call('editor:command:can:revert')) return;
 
         var focused = editor.call('documents:getFocused');
         revert(focused);

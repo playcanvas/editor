@@ -1,4 +1,4 @@
-var rgb2hsv = function(rgb) {
+var rgb2hsv = function (rgb) {
     var rr, gg, bb,
         r = rgb[0] / 255,
         g = rgb[1] / 255,
@@ -6,7 +6,7 @@ var rgb2hsv = function(rgb) {
         h, s,
         v = Math.max(r, g, b),
         diff = v - Math.min(r, g, b),
-        diffc = function(c) {
+        diffc = function (c) {
             return (v - c) / 6 / diff + 1 / 2;
         };
 
@@ -31,11 +31,11 @@ var rgb2hsv = function(rgb) {
             h -= 1;
         }
     }
-    return [ h, s, v ];
+    return [h, s, v];
 };
 window.rgb2hsv = rgb2hsv;
 
-var hsv2rgb = function(hsv) {
+var hsv2rgb = function (hsv) {
     var h = hsv[0];
     var s = hsv[1];
     var v = hsv[2];
@@ -56,6 +56,6 @@ var hsv2rgb = function(hsv) {
         case 4: r = t, g = p, b = v; break;
         case 5: r = v, g = p, b = q; break;
     }
-    return [ Math.round(r * 255), Math.round(g * 255), Math.round(b * 255) ];
+    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 };
 window.hsv2rgb = hsv2rgb;

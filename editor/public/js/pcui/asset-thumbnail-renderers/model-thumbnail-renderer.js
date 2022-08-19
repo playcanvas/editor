@@ -72,7 +72,6 @@ Object.assign(pcui, (function () {
     }
 
     class ModelThumbnailRenderer {
-
         constructor(asset, canvas) {
             this._asset = asset;
             this._canvas = canvas;
@@ -159,11 +158,11 @@ Object.assign(pcui, (function () {
             if (!this._asset) return;
 
             const data = this._asset.get('data');
-            if (! data) return;
+            if (!data) return;
 
             const app = pc.Application.getApplication();
             const modelAsset = app.assets.get(this._asset.get('id'));
-            if (! modelAsset) return;
+            if (!modelAsset) return;
 
             if (!sceneInitialized) {
                 initializeScene();
@@ -272,8 +271,8 @@ Object.assign(pcui, (function () {
             layer.addCamera(scene.cameraEntity.camera);
 
             // add camera to layer
-            let backupLayers = scene.cameraEntity.camera.layers.slice();
-            let newLayers = scene.cameraEntity.camera.layers;
+            const backupLayers = scene.cameraEntity.camera.layers.slice();
+            const newLayers = scene.cameraEntity.camera.layers;
             newLayers.push(layer.id);
             scene.cameraEntity.camera.layers = newLayers;
 

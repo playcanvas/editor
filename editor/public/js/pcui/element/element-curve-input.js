@@ -6,18 +6,19 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.CurveInput
      * @classdesc Shows a curve or curveset
-     * @property {Boolean} renderChanges If true the input will flash when changed.
-     * @extends pcui.Element
+     * @property {boolean} renderChanges If true the input will flash when changed.
+     * @augments pcui.Element
      */
     class CurveInput extends pcui.Element {
         /**
          * Creates a new pcui.CurveInput.
-         * @param {Object} args The arguments.
-         * @param {Number} [args.lineWidth] The width of the rendered lines in pixels.
-         * @param {Number} [args.min] The minimum value that curves can take.
-         * @param {Number} [args.max] The maximum value that curves can take.
-         * @param {Number} [args.verticalValue] The default maximum and minimum values to show if min and max are undefined.
-         * @param {Boolean} [args.hideRandomize] Whether to hide the randomize button in the curve picker.
+         *
+         * @param {object} args - The arguments.
+         * @param {number} [args.lineWidth] - The width of the rendered lines in pixels.
+         * @param {number} [args.min] - The minimum value that curves can take.
+         * @param {number} [args.max] - The maximum value that curves can take.
+         * @param {number} [args.verticalValue] - The default maximum and minimum values to show if min and max are undefined.
+         * @param {boolean} [args.hideRandomize] - Whether to hide the randomize button in the curve picker.
          */
         constructor(args) {
             args = Object.assign({
@@ -189,7 +190,7 @@ Object.assign(pcui, (function () {
 
             let evtPickerChanged = editor.on('picker:curve:change', this._onPickerChange.bind(this));
 
-            let evtRefreshPicker = this.on('change', value => {
+            let evtRefreshPicker = this.on('change', (value) => {
                 const args = Object.assign({
                     keepZoom: true
                 }, this._pickerArgs);
@@ -242,11 +243,11 @@ Object.assign(pcui, (function () {
                     value = [value];
                 }
 
-                value.forEach(value => {
+                value.forEach((value) => {
                     if (!value || !value.keys || !value.keys.length) return;
 
                     if (Array.isArray(value.keys[0])) {
-                        value.keys.forEach(data => {
+                        value.keys.forEach((data) => {
                             for (let i = 1; i < data.length; i += 2) {
                                 if (data[i] > maxValue) {
                                     maxValue = data[i];
@@ -305,7 +306,7 @@ Object.assign(pcui, (function () {
             if (!value || !value.keys || !value.keys.length) return null;
 
             if (value.keys[0].length !== undefined) {
-                return value.keys.map(data => {
+                return value.keys.map((data) => {
                     const curve = new pc.Curve(data);
                     curve.type = value.type;
                     return curve;

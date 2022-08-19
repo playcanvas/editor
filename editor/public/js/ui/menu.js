@@ -23,7 +23,7 @@ function Menu(args) {
     this._element.appendChild(this.innerElement);
 
     this._index = { };
-    this._hovered = [ ];
+    this._hovered = [];
     this._clickableSubmenus = args.clickableSubmenus;
 
     this.on('select-propagate', this._onSelectPropagate);
@@ -33,20 +33,20 @@ function Menu(args) {
 }
 Menu.prototype = Object.create(ui.ContainerElement.prototype);
 
-Menu.prototype._onClick = function() {
+Menu.prototype._onClick = function () {
     this.ui.open = false;
 };
 
-Menu.prototype._onContextMenu = function() {
+Menu.prototype._onContextMenu = function () {
     this.ui.open = false;
 };
 
-Menu.prototype._onKeyDown = function(evt) {
+Menu.prototype._onKeyDown = function (evt) {
     if (this.ui.open && evt.keyCode === 27)
         this.ui.open = false;
 };
 
-Menu.prototype._onSelectPropagate = function(path, selectedItemHasChildren, mouseEvent) {
+Menu.prototype._onSelectPropagate = function (path, selectedItemHasChildren, mouseEvent) {
     if (this._clickableSubmenus && selectedItemHasChildren) {
         this._updatePath(path);
     } else {
@@ -56,35 +56,35 @@ Menu.prototype._onSelectPropagate = function(path, selectedItemHasChildren, mous
     }
 };
 
-Menu.prototype._onAppend = function(item) {
+Menu.prototype._onAppend = function (item) {
     var self = this;
     this._index[item._value] = item;
 
-    item.on('value', function(value, valueOld) {
-       delete self._index[this.valueOld];
-       self._index[value] = item;
+    item.on('value', function (value, valueOld) {
+        delete self._index[this.valueOld];
+        self._index[value] = item;
     });
-    item.once('destroy', function() {
+    item.once('destroy', function () {
         delete self._index[this._value];
     });
 };
 
-Menu.prototype._onOver = function(path) {
+Menu.prototype._onOver = function (path) {
     this._updatePath(path);
 };
 
-Menu.prototype._onOpen = function(state) {
+Menu.prototype._onOpen = function (state) {
     if (state) return;
-    this._updatePath([ ]);
+    this._updatePath([]);
 };
 
 
 Object.defineProperty(Menu.prototype, 'open', {
-    get: function() {
+    get: function () {
         return this.class.contains('open');
     },
-    set: function(value) {
-        if (this.class.contains('open') === !! value)
+    set: function (value) {
+        if (this.class.contains('open') === !!value)
             return;
 
         if (value) {
@@ -94,20 +94,20 @@ Object.defineProperty(Menu.prototype, 'open', {
             this.class.remove('open');
         }
 
-        this.emit('open', !! value);
+        this.emit('open', !!value);
     }
 });
 
 
-Menu.prototype.findByPath = function(path) {
-    if (! (path instanceof Array))
+Menu.prototype.findByPath = function (path) {
+    if (!(path instanceof Array))
         path = path.split('.');
 
     var item = this;
 
-    for(var i = 0; i < path.length; i++) {
+    for (var i = 0; i < path.length; i++) {
         item = item._index[path[i]];
-        if (! item)
+        if (!item)
             return null;
     }
 
@@ -115,12 +115,12 @@ Menu.prototype.findByPath = function(path) {
 };
 
 
-Menu.prototype._updatePath = function(path) {
+Menu.prototype._updatePath = function (path) {
     var node = this;
 
-    for(var i = 0; i < this._hovered.length; i++) {
+    for (var i = 0; i < this._hovered.length; i++) {
         node = node._index[this._hovered[i]];
-        if (! node) break;
+        if (!node) break;
         if (path.length <= i || path[i] !== this._hovered[i]) {
             node.class.remove('hover');
             node.innerElement.style.top = '';
@@ -132,10 +132,10 @@ Menu.prototype._updatePath = function(path) {
     this._hovered = path;
     node = this;
 
-    for(var i = 0; i < this._hovered.length; i++) {
+    for (var i = 0; i < this._hovered.length; i++) {
         node = node._index[this._hovered[i]];
 
-        if (! node)
+        if (!node)
             break;
 
         node.class.add('hover');
@@ -157,7 +157,7 @@ Menu.prototype._updatePath = function(path) {
 };
 
 
-Menu.prototype.position = function(x, y) {
+Menu.prototype.position = function (x, y) {
     this._element.style.display = 'block';
 
     var rect = this.innerElement.getBoundingClientRect();
@@ -198,7 +198,7 @@ Menu.prototype.createItem = function (key, data) {
     }
 
     if (data.filter) {
-        this.on('open', function() {
+        this.on('open', function () {
             item.enabled = data.filter();
         });
     }
@@ -213,10 +213,10 @@ Menu.prototype.createItem = function (key, data) {
 };
 
 
-Menu.fromData = function(data, args) {
+Menu.fromData = function (data, args) {
     var menu = new ui.Menu(args);
 
-    var listItems = function(data, parent) {
+    var listItems = function (data, parent) {
         for (var key in data) {
             var item = menu.createItem(key, data[key]);
             parent.append(item);

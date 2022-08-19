@@ -24,20 +24,20 @@ function Panel(header) {
 
     this.innerElement.addEventListener('scroll', this._onScroll, false);
 
-    this._resizeEvtMove = function(evt) {
+    this._resizeEvtMove = function (evt) {
         evt.preventDefault();
         evt.stopPropagation();
         self._resizeMove(evt.clientX, evt.clientY);
     };
 
-    this._resizeEvtEnd = function(evt) {
+    this._resizeEvtEnd = function (evt) {
         evt.preventDefault();
         evt.stopPropagation();
         self._resizeEnd();
     };
 
-    this._resizeEvtTouchMove = function(evt) {
-        for(var i = 0; i < evt.changedTouches.length; i++) {
+    this._resizeEvtTouchMove = function (evt) {
+        for (var i = 0; i < evt.changedTouches.length; i++) {
             var touch = evt.changedTouches[i];
 
             if (touch.identifier !== self._resizeTouchId)
@@ -51,8 +51,8 @@ function Panel(header) {
         }
     };
 
-    this._resizeEvtTouchEnd = function(evt) {
-        for(var i = 0; i < evt.changedTouches.length; i++) {
+    this._resizeEvtTouchEnd = function (evt) {
+        for (var i = 0; i < evt.changedTouches.length; i++) {
             var touch = evt.changedTouches[i];
 
             if (touch.identifier !== self._resizeTouchId)
@@ -71,8 +71,8 @@ function Panel(header) {
 
     // HACK
     // skip 2 frames before enabling transitions
-    requestAnimationFrame(function() {
-        requestAnimationFrame(function() {
+    requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
             self.class.remove('noAnimation');
         });
     });
@@ -93,25 +93,25 @@ function Panel(header) {
 }
 Panel.prototype = Object.create(ui.ContainerElement.prototype);
 
-Panel.prototype._onNodesChanged = function() {
-    if (! this.foldable || this.folded || this.horizontal || this.hidden)
+Panel.prototype._onNodesChanged = function () {
+    if (!this.foldable || this.folded || this.horizontal || this.hidden)
         return;
 
     this.style.height = (Math.max(0, (this.headerSize || 32)) + this.innerElement.clientHeight) + 'px';
 };
 
-Panel.prototype._onParent = function() {
+Panel.prototype._onParent = function () {
     // HACK
     // wait till DOM parses, then reflow
     setTimeout(this._reflow.bind(this));
 };
 
 Object.defineProperty(Panel.prototype, 'header', {
-    get: function() {
+    get: function () {
         return (this.headerElement && this.headerElementTitle.textContent) || '';
     },
-    set: function(value) {
-        if (! this.headerElement && value) {
+    set: function (value) {
+        if (!this.headerElement && value) {
             this.headerElement = document.createElement('header');
             this.headerElement.classList.add('ui-header');
 
@@ -132,13 +132,13 @@ Object.defineProperty(Panel.prototype, 'header', {
             var self = this;
 
             // folding
-            this.headerElement.addEventListener('click', function(evt) {
-                if (! self.foldable || (evt.target !== self.headerElement && evt.target !== self.headerElementTitle))
+            this.headerElement.addEventListener('click', function (evt) {
+                if (!self.foldable || (evt.target !== self.headerElement && evt.target !== self.headerElementTitle))
                     return;
 
-                self.folded = ! self.folded;
+                self.folded = !self.folded;
             }, false);
-        } else if (! value && this.headerElement) {
+        } else if (!value && this.headerElement) {
             this.headerElement.parentNode.removeChild(this.headerElement);
             this.headerElement = null;
             this.headerElementTitle = null;
@@ -151,8 +151,8 @@ Object.defineProperty(Panel.prototype, 'header', {
 });
 
 
-Panel.prototype.headerAppend = function(element) {
-    if (! this.headerElement)
+Panel.prototype.headerAppend = function (element) {
+    if (!this.headerElement)
         return;
 
     var html = (element instanceof HTMLElement);
@@ -160,12 +160,12 @@ Panel.prototype.headerAppend = function(element) {
 
     this.headerElement.insertBefore(node, this.headerElementTitle);
 
-    if (! html)
+    if (!html)
         element.parent = this;
 };
 
 
-Panel.prototype._reflow = function() {
+Panel.prototype._reflow = function () {
     if (this.hidden)
         return;
 
@@ -187,20 +187,20 @@ Panel.prototype._reflow = function() {
 };
 
 
-Panel.prototype._onScroll = function(evt) {
+Panel.prototype._onScroll = function (evt) {
     this.ui.emit('scroll', evt);
 };
 
 
 Object.defineProperty(Panel.prototype, 'foldable', {
-    get: function() {
+    get: function () {
         return this.class.contains('foldable');
     },
-    set: function(value) {
+    set: function (value) {
         if (value) {
             this.class.add('foldable');
 
-            if(this.class.contains('folded'))
+            if (this.class.contains('folded'))
                 this.emit('fold');
         } else {
             this.class.remove('foldable');
@@ -215,14 +215,14 @@ Object.defineProperty(Panel.prototype, 'foldable', {
 
 
 Object.defineProperty(Panel.prototype, 'folded', {
-    get: function() {
+    get: function () {
         return this.class.contains('foldable') && this.class.contains('folded');
     },
-    set: function(value) {
+    set: function (value) {
         if (this.hidden)
             return;
 
-        if (this.class.contains('folded') === !! value)
+        if (this.class.contains('folded') === !!value)
             return;
 
         if (this.headerElement && this.headerSize === 0)
@@ -246,10 +246,10 @@ Object.defineProperty(Panel.prototype, 'folded', {
 
 
 Object.defineProperty(Panel.prototype, 'horizontal', {
-    get: function() {
+    get: function () {
         return this.class.contains('horizontal');
     },
-    set: function(value) {
+    set: function (value) {
         if (value) {
             this.class.add('horizontal');
         } else {
@@ -261,10 +261,10 @@ Object.defineProperty(Panel.prototype, 'horizontal', {
 
 
 Object.defineProperty(Panel.prototype, 'resizable', {
-    get: function() {
+    get: function () {
         return this._handle;
     },
-    set: function(value) {
+    set: function (value) {
         if (this._handle === value)
             return;
 
@@ -272,7 +272,7 @@ Object.defineProperty(Panel.prototype, 'resizable', {
         this._handle = value;
 
         if (this._handle) {
-            if (! this._handleElement) {
+            if (!this._handleElement) {
                 this._handleElement = document.createElement('div');
                 this._handleElement.ui = this;
                 this._handleElement.classList.add('handle');
@@ -297,31 +297,31 @@ Object.defineProperty(Panel.prototype, 'resizable', {
 
 
 Object.defineProperty(Panel.prototype, 'resizeMin', {
-    get: function() {
+    get: function () {
         return this._resizeLimits.min;
     },
-    set: function(value) {
+    set: function (value) {
         this._resizeLimits.min = Math.max(0, Math.min(this._resizeLimits.max, value));
     }
 });
 
 
 Object.defineProperty(Panel.prototype, 'resizeMax', {
-    get: function() {
+    get: function () {
         return this._resizeLimits.max;
     },
-    set: function(value) {
+    set: function (value) {
         this._resizeLimits.max = Math.max(this._resizeLimits.min, value);
     }
 });
 
 
-Panel.prototype._resizeStart = function(evt) {
-    if (! this.ui._handle)
+Panel.prototype._resizeStart = function (evt) {
+    if (!this.ui._handle)
         return;
 
     if (evt.changedTouches) {
-        for(var i = 0; i < evt.changedTouches.length; i++) {
+        for (var i = 0; i < evt.changedTouches.length; i++) {
             var touch = evt.changedTouches[i];
             if (touch.target !== this)
                 continue;
@@ -344,8 +344,8 @@ Panel.prototype._resizeStart = function(evt) {
 };
 
 
-Panel.prototype._resizeMove = function(x, y) {
-    if (! this._resizeData) {
+Panel.prototype._resizeMove = function (x, y) {
+    if (!this._resizeData) {
         this._resizeData = {
             x: x,
             y: y,
@@ -381,7 +381,7 @@ Panel.prototype._resizeMove = function(x, y) {
     this.emit('resize');
 };
 
-Panel.prototype._resizeEnd = function(evt) {
+Panel.prototype._resizeEnd = function (evt) {
     window.removeEventListener('mousemove', this._resizeEvtMove, false);
     window.removeEventListener('mouseup', this._resizeEvtEnd, false);
 

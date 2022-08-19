@@ -201,7 +201,7 @@ Object.assign(pcui, (function () {
         }
 
         if (textureUrls.length) {
-            window.open(`/texture-tool?load=${textureUrls.join('&load=')}`)
+            window.open(`/texture-tool?load=${textureUrls.join('&load=')}`);
         }
     });
 

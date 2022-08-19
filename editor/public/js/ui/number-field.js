@@ -53,12 +53,12 @@ function NumberField(args) {
 NumberField.prototype = Object.create(ui.Element.prototype);
 
 
-NumberField.prototype._onLinkChange = function(value) {
+NumberField.prototype._onLinkChange = function (value) {
     this.elementInput.value = value || 0;
     this.emit('change', value || 0);
 };
 
-NumberField.prototype._onChange = function() {
+NumberField.prototype._onChange = function () {
     var value = parseFloat(this.ui.elementInput.value, 10);
     if (isNaN(value)) {
         if (this.ui.allowNull) {
@@ -73,20 +73,20 @@ NumberField.prototype._onChange = function() {
     }
 };
 
-NumberField.prototype.focus = function(select) {
+NumberField.prototype.focus = function (select) {
     this.elementInput.focus();
     if (select) this.elementInput.select();
 };
 
-NumberField.prototype._onInputFocus = function() {
+NumberField.prototype._onInputFocus = function () {
     this.ui.class.add('focus');
 };
 
-NumberField.prototype._onInputBlur = function() {
+NumberField.prototype._onInputBlur = function () {
     this.ui.class.remove('focus');
 };
 
-NumberField.prototype._onKeyDown = function(evt) {
+NumberField.prototype._onKeyDown = function (evt) {
     if (evt.keyCode === 27)
         return this.blur();
 
@@ -94,7 +94,7 @@ NumberField.prototype._onKeyDown = function(evt) {
         var focused = false;
 
         var parent = this.ui.parent;
-        while(parent) {
+        while (parent) {
             if (parent.focus) {
                 parent.focus();
                 focused = true;
@@ -104,13 +104,13 @@ NumberField.prototype._onKeyDown = function(evt) {
             parent = parent.parent;
         }
 
-        if (! focused)
+        if (!focused)
             this.blur();
 
         return;
     }
 
-    if (this.ui.disabled || [ 38, 40 ].indexOf(evt.keyCode) === -1)
+    if (this.ui.disabled || [38, 40].indexOf(evt.keyCode) === -1)
         return;
 
     var inc = evt.keyCode === 40 ? -1 : 1;
@@ -133,36 +133,36 @@ NumberField.prototype._onKeyDown = function(evt) {
     this.ui.value = value;
 };
 
-NumberField.prototype._onFullSelect = function() {
+NumberField.prototype._onFullSelect = function () {
     this.select();
 };
 
-NumberField.prototype._onDisable = function() {
+NumberField.prototype._onDisable = function () {
     this.elementInput.readOnly = true;
 };
 
-NumberField.prototype._onEnable = function() {
+NumberField.prototype._onEnable = function () {
     this.elementInput.readOnly = false;
 };
 
-NumberField.prototype._onChangeField = function() {
-    if (! this.renderChanges)
+NumberField.prototype._onChangeField = function () {
+    if (!this.renderChanges)
         return;
 
     this.flash();
 };
 
 Object.defineProperty(NumberField.prototype, 'value', {
-    get: function() {
+    get: function () {
         if (this._link) {
             return this._link.get(this.path);
-        } else {
-            return this.elementInput.value !== '' ? parseFloat(this.elementInput.value, 10) : null;
         }
+        return this.elementInput.value !== '' ? parseFloat(this.elementInput.value, 10) : null;
+
     },
-    set: function(value) {
+    set: function (value) {
         if (this._link) {
-            if (! this._link.set(this.path, value)) {
+            if (!this._link.set(this.path, value)) {
                 this.elementInput.value = this._link.get(this.path);
             }
         } else {
@@ -192,11 +192,11 @@ Object.defineProperty(NumberField.prototype, 'value', {
 
 
 Object.defineProperty(NumberField.prototype, 'placeholder', {
-    get: function() {
+    get: function () {
         return this._element.getAttribute('placeholder');
     },
-    set: function(value) {
-        if (! value) {
+    set: function (value) {
+        if (!value) {
             this._element.removeAttribute('placeholder');
         } else {
             this._element.setAttribute('placeholder', value);
@@ -206,11 +206,11 @@ Object.defineProperty(NumberField.prototype, 'placeholder', {
 
 
 Object.defineProperty(NumberField.prototype, 'proxy', {
-    get: function() {
+    get: function () {
         return this._element.getAttribute('proxy');
     },
-    set: function(value) {
-        if (! value) {
+    set: function (value) {
+        if (!value) {
             this._element.removeAttribute('proxy');
         } else {
             this._element.setAttribute('proxy', value);

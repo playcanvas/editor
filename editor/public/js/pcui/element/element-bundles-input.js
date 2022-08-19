@@ -22,7 +22,7 @@ Object.assign(pcui, (function () {
 
         _updateOptions() {
             let options = editor.call('assets:bundles:list');
-            options = options.map(bundle => {
+            options = options.map((bundle) => {
                 return { v: bundle.get('id'), t: bundle.get('name') };
             });
             this.options = options;
@@ -52,25 +52,25 @@ Object.assign(pcui, (function () {
             this._updateOptions();
             super.link(observers, paths);
 
-            this._assets = observers.filter(observer => {
+            this._assets = observers.filter((observer) => {
                 return observer._type === 'asset';
             });
 
             const selectedBundles = [];
-            this._containerTags.dom.childNodes.forEach(dom => {
+            this._containerTags.dom.childNodes.forEach((dom) => {
                 selectedBundles.push(dom.ui.value);
             });
 
-            this._assets.forEach(asset => {
+            this._assets.forEach((asset) => {
                 const assetBundles = editor.call('assets:bundles:listForAsset', asset);
-                assetBundles.forEach(assetBundle => {
+                assetBundles.forEach((assetBundle) => {
                     if (!selectedBundles.includes(assetBundle.get('id'))) {
                         this._addTag(assetBundle.get('id'));
                     }
                 });
             });
-            this._containerTags.dom.childNodes.forEach(dom => {
-                const assetBundles = editor.call('assets:bundles:listForAsset', this._assets[0]).map(asset => {
+            this._containerTags.dom.childNodes.forEach((dom) => {
+                const assetBundles = editor.call('assets:bundles:listForAsset', this._assets[0]).map((asset) => {
                     return asset.get('id');
                 });
                 if (!assetBundles.includes(dom.ui.value)) {
@@ -83,7 +83,6 @@ Object.assign(pcui, (function () {
             super.unlink();
             this._assets = [];
         }
-
     }
 
     pcui.Element.register('bundles', BundlesInput, { renderChanges: true });

@@ -40,7 +40,7 @@ editor.once('load', function () {
         // ready to sync
         doc.on('load', function () {
             // check if closed by the user
-            if (! documentsIndex[id]) {
+            if (!documentsIndex[id]) {
                 return;
             }
 
@@ -57,7 +57,7 @@ editor.once('load', function () {
             // check if it's dirty
             editor.call('assets:contents:get', asset, function (err, content) {
                 // re-check if we haven't closed the file
-                if (! documentsIndex[id] || err) return;
+                if (!documentsIndex[id] || err) return;
 
                 var dirty = doc.data !== content;
                 if (entry.isDirty !== dirty) {
@@ -99,7 +99,7 @@ editor.once('load', function () {
         } else {
             // wait until the asset's file is ready
             // or when we are reconnected and load it then
-            if (! queuedLoad[asset.get('id')]) {
+            if (!queuedLoad[asset.get('id')]) {
                 var evtLoad = asset.once('file.filename:set', function () {
                     delete queuedLoad[asset.get('id')];
                     loadDocument(asset);
@@ -149,7 +149,7 @@ editor.once('load', function () {
         log.error(err);
 
         var entry = documentsIndex[id];
-        if (! entry) return;
+        if (!entry) return;
 
         entry.error = err;
         var asset = editor.call('assets:get', id);
@@ -199,7 +199,7 @@ editor.once('load', function () {
         // load any queued documents
         for (const id in queuedLoad) {
             const asset = editor.call('assets:get', id);
-            if (! asset || asset.get('file.filename')) {
+            if (!asset || asset.get('file.filename')) {
                 queuedLoad[id].unbind();
                 delete queuedLoad[id];
 

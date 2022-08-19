@@ -148,8 +148,8 @@ Object.assign(pcui, (function () {
             scene.layer.addLight(scene.lightEntity.light);
 
             // add camera to layer
-            let backupLayers = scene.cameraEntity.camera.layers.slice();
-            let newLayers = scene.cameraEntity.camera.layers;
+            const backupLayers = scene.cameraEntity.camera.layers.slice();
+            const newLayers = scene.cameraEntity.camera.layers;
             newLayers.push(scene.layer.id);
             scene.cameraEntity.camera.layers = newLayers;
 

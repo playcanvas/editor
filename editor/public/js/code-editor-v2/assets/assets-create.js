@@ -32,7 +32,7 @@ editor.once('load', function () {
                 form.append('parent', args.parent.get('id'));
             } else {
                 var id = parseInt(args.parent, 10);
-                if (! isNaN(id))
+                if (!isNaN(id))
                     form.append('parent', id + '');
             }
         }

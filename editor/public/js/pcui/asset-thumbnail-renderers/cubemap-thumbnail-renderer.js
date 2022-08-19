@@ -21,7 +21,7 @@ Object.assign(pcui, (function () {
             this._images = [null, null, null, null, null, null];
 
             this._queueRenderHandler = this.queueRender.bind(this);
-            this._onImageLoadHandler = this._onImageLoad.bind(this)
+            this._onImageLoadHandler = this._onImageLoad.bind(this);
 
             this._watch = editor.call('assets:cubemap:watch', {
                 asset: asset,

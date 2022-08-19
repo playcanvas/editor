@@ -1,18 +1,18 @@
-editor.once('plugins:load:entities-to-obj', function() {
+editor.once('plugins:load:entities-to-obj', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
-    editor.method('plugins:entities-to-obj', function(items) {
-        var entities = [ ];
+    editor.method('plugins:entities-to-obj', function (items) {
+        var entities = [];
 
-        for(var i = 0; i < items.length; i++) {
+        for (var i = 0; i < items.length; i++) {
             if (items[i].entity && items[i].entity.model)
                 entities.push(items[i].entity);
         }
 
-        if (! entities.length)
+        if (!entities.length)
             return null;
 
         var i, j, k;
@@ -22,11 +22,11 @@ editor.once('plugins:load:entities-to-obj', function() {
         var voffset = 1;
         var obj = "";
 
-        for(i=0; i<entities.length; i++) {
+        for (i = 0; i < entities.length; i++) {
             var model = entities[i].model;
             if (model) {
                 var meshes = entities[i].model.model.meshInstances;
-                for(j=0; j<meshes.length; j++) {
+                for (j = 0; j < meshes.length; j++) {
                     var mesh = meshes[j].mesh;
                     var vb = mesh.vertexBuffer;
                     var elems = vb.format.elements;
@@ -34,12 +34,12 @@ editor.once('plugins:load:entities-to-obj', function() {
                     var vertSize = vb.format.size;
                     var index;
                     var offsetP, offsetN, offsetUv;
-                    for(k=0; k<elems.length; k++) {
-                        if (elems[k].name===pc.SEMANTIC_POSITION) {
+                    for (k = 0; k < elems.length; k++) {
+                        if (elems[k].name === pc.SEMANTIC_POSITION) {
                             offsetP = elems[k].offset;
-                        } else if (elems[k].name===pc.SEMANTIC_NORMAL) {
+                        } else if (elems[k].name === pc.SEMANTIC_NORMAL) {
                             offsetN = elems[k].offset;
-                        } else if (elems[k].name===pc.SEMANTIC_TEXCOORD0) {
+                        } else if (elems[k].name === pc.SEMANTIC_TEXCOORD0) {
                             offsetUv = elems[k].offset;
                         }
                     }
@@ -50,43 +50,43 @@ editor.once('plugins:load:entities-to-obj', function() {
                     var vertSizeF = vertSize / 4;
                     var ib = mesh.indexBuffer[0];
                     var dataIb = ib.storage;
-                    if (ib.bytesPerIndex===1) {
+                    if (ib.bytesPerIndex === 1) {
                         dataIb = new Uint8Array(dataIb);
-                    } else if (ib.bytesPerIndex===2) {
+                    } else if (ib.bytesPerIndex === 2) {
                         dataIb = new Uint16Array(dataIb);
-                    } else if (ib.bytesPerIndex===4) {
+                    } else if (ib.bytesPerIndex === 4) {
                         dataIb = new Uint32Array(dataIb);
                     }
                     var ibOffset = mesh.primitive[0].base;
                     var numTris = mesh.primitive[0].count / 3;
                     var transform = meshes[j].node.getWorldTransform();
-                    obj += "g " + entities[i].name + "_" + meshes[j].node.name + "_" + i+"_"+j + "\n";
-                    for(k=0; k<numVerts; k++) {
+                    obj += "g " + entities[i].name + "_" + meshes[j].node.name + "_" + i + "_" + j + "\n";
+                    for (k = 0; k < numVerts; k++) {
                         vec.set(dataF[k * vertSizeF + offsetPF],
-                                dataF[k * vertSizeF + offsetPF + 1],
-                                dataF[k * vertSizeF + offsetPF + 2]);
+                            dataF[k * vertSizeF + offsetPF + 1],
+                            dataF[k * vertSizeF + offsetPF + 2]);
                         transform.transformPoint(vec, vec);
                         obj += "v " + vec.x + " " + vec.y + " " + vec.z + "\n";
                     }
-                    for(k=0; k<numVerts; k++) {
+                    for (k = 0; k < numVerts; k++) {
                         vec.set(dataF[k * vertSizeF + offsetNF],
-                                dataF[k * vertSizeF + offsetNF + 1],
-                                dataF[k * vertSizeF + offsetNF + 2]);
+                            dataF[k * vertSizeF + offsetNF + 1],
+                            dataF[k * vertSizeF + offsetNF + 2]);
                         transform.transformVector(vec, vec).normalize();
                         obj += "vn " + vec.x + " " + vec.y + " " + vec.z + "\n";
                     }
-                    for(k=0; k<numVerts; k++) {
+                    for (k = 0; k < numVerts; k++) {
                         u = dataF[k * vertSizeF + offsetUvF];
                         v = dataF[k * vertSizeF + offsetUvF + 1];
                         obj += "vt " + u + " " + v + "\n";
                     }
-                    for(k=0; k<numTris; k++) {
-                        v0 = dataIb[k*3+ibOffset] + voffset;
-                        v1 = dataIb[k*3+1+ibOffset] + voffset;
-                        v2 = dataIb[k*3+2+ibOffset] + voffset;
-                        obj += "f " +   v0+"/"+v0+"/"+v0 + " " +
-                                        v1+"/"+v1+"/"+v1 + " " +
-                                        v2+"/"+v2+"/"+v2 + "\n";
+                    for (k = 0; k < numTris; k++) {
+                        v0 = dataIb[k * 3 + ibOffset] + voffset;
+                        v1 = dataIb[k * 3 + 1 + ibOffset] + voffset;
+                        v2 = dataIb[k * 3 + 2 + ibOffset] + voffset;
+                        obj += "f " +   v0 + "/" + v0 + "/" + v0 + " " +
+                                        v1 + "/" + v1 + "/" + v1 + " " +
+                                        v2 + "/" + v2 + "/" + v2 + "\n";
                     }
                     voffset += numVerts;
                 }
@@ -96,16 +96,16 @@ editor.once('plugins:load:entities-to-obj', function() {
         return obj;
     });
 
-    var onEntitiesLoaded = function() {
+    var onEntitiesLoaded = function () {
         editor.call('entities:contextmenu:add', {
             text: 'Export to OBJ',
             icon: 'E228',
             onSelect: function (selection) {
                 var obj = editor.call('plugins:entities-to-obj', selection);
-                if (! obj) return;
+                if (!obj) return;
 
                 var element = document.createElement('a');
-                element.href = window.URL.createObjectURL(new Blob([ obj ], { type: 'text/plain;charset=utf-8' }))
+                element.href = window.URL.createObjectURL(new Blob([obj], { type: 'text/plain;charset=utf-8' }));
                 element.download = 'model.obj';
                 element.style.display = 'none';
                 document.body.appendChild(element);
@@ -113,7 +113,7 @@ editor.once('plugins:load:entities-to-obj', function() {
                 document.body.removeChild(element);
             },
             onIsEnabled: function (selection) {
-                for(var i = 0; i < selection.length; i++) {
+                for (var i = 0; i < selection.length; i++) {
                     if (selection[i].entity && selection[i].entity.model)
                         return true;
                 }

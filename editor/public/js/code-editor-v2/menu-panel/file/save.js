@@ -134,7 +134,7 @@ editor.once('load', function () {
         if (doc.hasPending()) {
             // wait for pending data to be sent and
             // acknowledged by the server before saving
-            doc.once('nothing pending',  doSave);
+            doc.once('nothing pending', doSave);
         } else {
             doSave();
         }
@@ -142,7 +142,7 @@ editor.once('load', function () {
 
     // Save
     editor.method('editor:command:save', function (id) {
-        if (! editor.call('editor:command:can:save', id))
+        if (!editor.call('editor:command:can:save', id))
             return;
 
         save(id || editor.call('documents:getFocused'));
@@ -168,13 +168,13 @@ editor.once('load', function () {
     });
 
     editor.method('editor:command:saveSelected', function () {
-        if (! editor.call('editor:command:can:saveSelected'))
+        if (!editor.call('editor:command:can:saveSelected'))
             return;
 
         var selected = editor.call('assets:selected');
         for (var i = 0; i < selected.length; i++) {
             var id = selected[i].get('id');
-            if (savingIndex[id] || ! editor.call('documents:isDirty', id))
+            if (savingIndex[id] || !editor.call('documents:isDirty', id))
                 continue;
 
             save(id);
@@ -201,13 +201,13 @@ editor.once('load', function () {
     });
 
     editor.method('editor:command:saveAll', function () {
-        if (! editor.call('editor:command:can:saveAll'))
+        if (!editor.call('editor:command:can:saveAll'))
             return;
 
         var open = editor.call('documents:list');
         for (var i = 0; i < open.length; i++) {
             var id = open[i];
-            if (savingIndex[id] || ! editor.call('documents:isDirty', id))
+            if (savingIndex[id] || !editor.call('documents:isDirty', id))
                 continue;
 
             save(id);
@@ -234,7 +234,7 @@ editor.once('load', function () {
     // we should delete any saving locks since it's fine
     // to re-save
     editor.on('documents:dirty', function (id, dirty) {
-        if (! dirty) {
+        if (!dirty) {
             if (savingIndex[id]) {
                 delete savingIndex[id];
                 editor.call('status:clear');

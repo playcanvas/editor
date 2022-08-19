@@ -5,7 +5,7 @@ const SEVERITY_ERROR = 8;
 const SEVERITY_WARNING = 4;
 
 onmessage = function (evt) {
-    if (! evt.data.code || !evt.data.id)
+    if (!evt.data.code || !evt.data.id)
         return;
 
     // run JSHINT on code
@@ -16,7 +16,7 @@ onmessage = function (evt) {
     // report back results in monaco marker format
     this.postMessage({
         id: evt.data.id,
-        errors: (JSHINT.data().errors || []).map(e => {
+        errors: (JSHINT.data().errors || []).map((e) => {
             return {
                 startLineNumber: e.line,
                 startColumn: e.character,

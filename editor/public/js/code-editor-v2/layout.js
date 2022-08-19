@@ -108,7 +108,7 @@ editor.on('load', function () {
 
     // disable context menu for everything but the code view
     root.element.addEventListener('contextmenu', function (e) {
-        if (! code.innerElement.contains(e.target)) {
+        if (!code.innerElement.contains(e.target)) {
             e.preventDefault();
         }
     });

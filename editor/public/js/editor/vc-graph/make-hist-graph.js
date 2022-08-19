@@ -83,14 +83,14 @@ editor.once('load', function () {
             } else if (h.vcAction === 'added') {
                 return { recursion: { otherBranch: true } };
 
-            } else {
-                return {
-                    recursion: {
-                        sameBranch: true,
-                        otherBranch: true
-                    }
-                };
             }
+            return {
+                recursion: {
+                    sameBranch: true,
+                    otherBranch: true
+                }
+            };
+
         }
 
         handleLogic(logic, h) {

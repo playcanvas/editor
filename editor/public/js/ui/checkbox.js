@@ -18,19 +18,19 @@ function Checkbox(args) {
 Checkbox.prototype = Object.create(ui.Element.prototype);
 
 
-Checkbox.prototype._onClick = function() {
-    this.value = ! this.value;
+Checkbox.prototype._onClick = function () {
+    this.value = !this.value;
     this._element.blur();
 };
 
-Checkbox.prototype._onChange = function() {
-    if (! this.renderChanges)
+Checkbox.prototype._onChange = function () {
+    if (!this.renderChanges)
         return;
 
     this.flash();
 };
 
-Checkbox.prototype._onKeyDown = function(evt) {
+Checkbox.prototype._onKeyDown = function (evt) {
     if (evt.keyCode === 27)
         return this.blur();
 
@@ -39,10 +39,10 @@ Checkbox.prototype._onKeyDown = function(evt) {
 
     evt.stopPropagation();
     evt.preventDefault();
-    this.ui.value = ! this.ui.value;
+    this.ui.value = !this.ui.value;
 };
 
-Checkbox.prototype._onLinkChange = function(value) {
+Checkbox.prototype._onLinkChange = function (value) {
     if (value === null) {
         this._element.classList.remove('checked');
         this._element.classList.add('null');
@@ -57,14 +57,14 @@ Checkbox.prototype._onLinkChange = function(value) {
 
 
 Object.defineProperty(Checkbox.prototype, 'value', {
-    get: function() {
+    get: function () {
         if (this._link) {
             return this._link.get(this.path);
-        } else {
-            return this._element.classList.contains('checked');
         }
+        return this._element.classList.contains('checked');
+
     },
-    set: function(value) {
+    set: function (value) {
         if (this._link) {
             this._link.set(this.path, value);
         } else {

@@ -4,27 +4,27 @@ window.utils = utils;
 
 // utils.deepCopy
 utils.deepCopy = function deepCopy(data) {
-    if (data == null || typeof(data) !== 'object')
+    if (data == null || typeof (data) !== 'object')
         return data;
 
     if (data instanceof Array) {
-        var arr = [ ];
-        for(var i = 0; i < data.length; i++) {
+        var arr = [];
+        for (var i = 0; i < data.length; i++) {
             arr[i] = deepCopy(data[i]);
         }
         return arr;
-    } else {
-        var obj = { };
-        for(var key in data) {
-            if (data.hasOwnProperty(key))
-                obj[key] = deepCopy(data[key]);
-        }
-        return obj;
     }
+    var obj = { };
+    for (var key in data) {
+        if (data.hasOwnProperty(key))
+            obj[key] = deepCopy(data[key]);
+    }
+    return obj;
+
 };
 
-utils.isMobile = function() {
-  return /Android/i.test(navigator.userAgent) ||
+utils.isMobile = function () {
+    return /Android/i.test(navigator.userAgent) ||
       /iPhone|iPad|iPod/i.test(navigator.userAgent);
 };
 
@@ -33,8 +33,8 @@ utils.isMobile = function() {
  * @description Adds properties and methods from the sourceClass
  * to the targetClass but only if properties with the same name do not
  * already exist in the targetClass.
- * @param {Object} targetClass The target class.
- * @param {Object} sourceClass The source class.
+ * @param {object} targetClass - The target class.
+ * @param {object} sourceClass - The source class.
  * @example utils.implements(pcui.Container, pcui.IContainer);
  */
 utils.implements = function (targetClass, sourceClass) {
@@ -52,13 +52,13 @@ utils.implements = function (targetClass, sourceClass) {
  * @name utils.proxy
  * @description Creates new properties on the target class that get / set
  * the properties of the member.
- * @param {Object} targetClass The target class
- * @param {String} memberName The name of the member of the target class that properties will be proxied to.
- * @param {String[]} properties A list of properties to be proxied.
+ * @param {object} targetClass - The target class
+ * @param {string} memberName - The name of the member of the target class that properties will be proxied to.
+ * @param {string[]} properties - A list of properties to be proxied.
  * @example utils.proxy(pcui.SliderInput, '_numericInput', ['max', 'min', 'placeholder'])
  */
 utils.proxy = function (targetClass, memberName, properties) {
-    properties.forEach(property => {
+    properties.forEach((property) => {
         Object.defineProperty(targetClass.prototype, property, {
             get: function () {
                 return this[memberName][property];
@@ -71,30 +71,30 @@ utils.proxy = function (targetClass, memberName, properties) {
 };
 
 // String.startsWith
-if (! String.prototype.startsWith) {
+if (!String.prototype.startsWith) {
     Object.defineProperty(String.prototype, 'startsWith', {
         enumerable: false,
         configurable: false,
         writable: false,
-        value: function(str) {
+        value: function (str) {
             var that = this;
             var ceil = str.length;
-            for(var i = 0; i < ceil; i++)
-                if(that[i] !== str[i]) return false;
+            for (var i = 0; i < ceil; i++)
+                if (that[i] !== str[i]) return false;
             return true;
         }
     });
 }
 
 // String.endsWith polyfill
-if (! String.prototype.endsWith) {
+if (!String.prototype.endsWith) {
     Object.defineProperty(String.prototype, 'endsWith', {
         enumerable: false,
         configurable: false,
         writable: false,
-        value: function(str) {
+        value: function (str) {
             var that = this;
-            for(var i = 0, ceil = str.length; i < ceil; i++)
+            for (var i = 0, ceil = str.length; i < ceil; i++)
                 if (that[i + that.length - ceil] !== str[i])
                     return false;
             return true;
@@ -105,7 +105,7 @@ if (! String.prototype.endsWith) {
 // Appends query parameter to string (supposedly the string is a URL)
 // automatically figuring out if the separator should be ? or &.
 // Example: url.appendQuery('t=123').appendQuery('q=345');
-if (! String.prototype.appendQuery) {
+if (!String.prototype.appendQuery) {
     Object.defineProperty(String.prototype, 'appendQuery', {
         enumerable: false,
         configurable: false,
@@ -119,7 +119,7 @@ if (! String.prototype.appendQuery) {
 
 // element.classList.add polyfill
 (function () {
-    /*global DOMTokenList */
+    /* global DOMTokenList */
     var dummy  = document.createElement('div'),
         dtp    = DOMTokenList.prototype,
         toggle = dtp.toggle,
@@ -140,7 +140,7 @@ if (! String.prototype.appendQuery) {
     }
 })();
 
-var bytesToHuman = function(bytes) {
+var bytesToHuman = function (bytes) {
     if (isNaN(bytes) || bytes === 0) return '0 B';
     var k = 1000;
     var sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
@@ -156,7 +156,7 @@ window.bytesToHuman = bytesToHuman;
 // return the new path
 // oldExtension and newExtension should have leading period
 var swapExtension = function (path, oldExtension, newExtension) {
-    while(path.indexOf(oldExtension) >= 0) {
+    while (path.indexOf(oldExtension) >= 0) {
         path = path.replace(oldExtension, newExtension);
     }
     return path;

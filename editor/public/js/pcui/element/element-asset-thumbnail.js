@@ -19,17 +19,18 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.AssetThumbnail
      * @classdesc Shows an asset thumbnail. Depending on the asset type that can be an image or a canvas rendering.
-     * @property {Boolean} renderChanges If true the input will flash when changed.
-     * @extends pcui.Element
+     * @property {boolean} renderChanges If true the input will flash when changed.
+     * @augments pcui.Element
      */
     class AssetThumbnail extends pcui.Element {
         /**
          * Creates a new pcui.AssetThumbnail.
-         * @param {Object} args The arguments
-         * @param {ObserverList} args.assets The assets list
-         * @param {Observer} [args.sceneSettings] The scene settings
-         * @param {Number} [args.canvasWidth] Fixed width for the canvas. Increases performance but uses same canvas resolution every time.
-         * @param {Number} [args.canvasHeight] Fixed height for the canvas. Increases performance but uses same canvas resolution every time.
+         *
+         * @param {object} args - The arguments
+         * @param {ObserverList} args.assets - The assets list
+         * @param {Observer} [args.sceneSettings] - The scene settings
+         * @param {number} [args.canvasWidth] - Fixed width for the canvas. Increases performance but uses same canvas resolution every time.
+         * @param {number} [args.canvasHeight] - Fixed height for the canvas. Increases performance but uses same canvas resolution every time.
          */
         constructor(args) {
             if (!args) args = {};

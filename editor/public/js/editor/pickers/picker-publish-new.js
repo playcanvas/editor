@@ -229,14 +229,14 @@ editor.once('load', function () {
     const engineVersionDropdown = new pcui.SelectInput({
         value: editor.call('settings:session').get('engineVersion'),
         options: ['previous', 'current', 'latest']
-            .filter(type => config.engineVersions.hasOwnProperty(type))
-            .map((type) => {
-                const t = config.engineVersions[type];
-                return {
-                    t: t.description,
-                    v: type
-                };
-            })
+        .filter(type => config.engineVersions.hasOwnProperty(type))
+        .map((type) => {
+            const t = config.engineVersions[type];
+            return {
+                t: t.description,
+                v: type
+            };
+        })
     });
     engineVersionDropdown.style.margin = '0';
     panelEngineVersion.append(engineVersionDropdown);

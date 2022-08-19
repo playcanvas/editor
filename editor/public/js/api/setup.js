@@ -29,13 +29,13 @@ editor.once('load', function () {
         'messenger',
         'jobs',
         'clipboard'
-    ].forEach(name => {
+    ].forEach((name) => {
         editor[name] = api.globals[name];
     });
 
     // custom confirm function
     api.globals.confirmFn = function (text, options) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             let resolved = false;
             editor.call('picker:confirm', text, () => {
                 if (resolved) return;

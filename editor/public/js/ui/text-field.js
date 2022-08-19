@@ -38,30 +38,30 @@ function TextField(args) {
 TextField.prototype = Object.create(ui.Element.prototype);
 
 
-TextField.prototype._onLinkChange = function(value) {
+TextField.prototype._onLinkChange = function (value) {
     this.elementInput.value = value;
     this.emit('change', value);
 };
 
 
-TextField.prototype._onChange = function() {
+TextField.prototype._onChange = function () {
     if (this.ui.ignoreChange) return;
 
     this.ui.value = this.ui.value || '';
 
-    if (! this.ui._link)
+    if (!this.ui._link)
         this.ui.emit('change', this.ui.value);
 };
 
 
-TextField.prototype._onKeyDown = function(evt) {
+TextField.prototype._onKeyDown = function (evt) {
     if (evt.keyCode === 27) {
         this.blur();
     } else if (this.ui.blurOnEnter && evt.keyCode === 13) {
         var focused = false;
 
         var parent = this.ui.parent;
-        while(parent) {
+        while (parent) {
             if (parent.focus) {
                 parent.focus();
                 focused = true;
@@ -71,44 +71,44 @@ TextField.prototype._onKeyDown = function(evt) {
             parent = parent.parent;
         }
 
-        if (! focused)
+        if (!focused)
             this.blur();
     }
 };
 
 
-TextField.prototype._onFullSelect = function() {
+TextField.prototype._onFullSelect = function () {
     this.select();
 };
 
 
-TextField.prototype.focus = function(select) {
+TextField.prototype.focus = function (select) {
     this.elementInput.focus();
     if (select) this.elementInput.select();
 };
 
 
-TextField.prototype._onInputFocus = function() {
+TextField.prototype._onInputFocus = function () {
     this.ui.class.add('focus');
     this.ui.emit('input:focus');
 };
 
 
-TextField.prototype._onInputBlur = function() {
+TextField.prototype._onInputBlur = function () {
     this.ui.class.remove('focus');
     this.ui.emit('input:blur');
 };
 
-TextField.prototype._onDisable = function() {
+TextField.prototype._onDisable = function () {
     this.elementInput.readOnly = true;
 };
 
-TextField.prototype._onEnable = function() {
+TextField.prototype._onEnable = function () {
     this.elementInput.readOnly = false;
 };
 
-TextField.prototype._onChangeField = function() {
-    if (! this.renderChanges)
+TextField.prototype._onChangeField = function () {
+    if (!this.renderChanges)
         return;
 
     this.flash();
@@ -116,16 +116,16 @@ TextField.prototype._onChangeField = function() {
 
 
 Object.defineProperty(TextField.prototype, 'value', {
-    get: function() {
+    get: function () {
         if (this._link) {
             return this._link.get(this.path);
-        } else {
-            return this.elementInput.value;
         }
+        return this.elementInput.value;
+
     },
-    set: function(value) {
+    set: function (value) {
         if (this._link) {
-            if (! this._link.set(this.path, value)) {
+            if (!this._link.set(this.path, value)) {
                 this.elementInput.value = this._link.get(this.path);
             }
         } else {
@@ -140,11 +140,11 @@ Object.defineProperty(TextField.prototype, 'value', {
 
 
 Object.defineProperty(TextField.prototype, 'placeholder', {
-    get: function() {
+    get: function () {
         return this._element.getAttribute('placeholder');
     },
-    set: function(value) {
-        if (! value) {
+    set: function (value) {
+        if (!value) {
             this._element.removeAttribute('placeholder');
         } else {
             this._element.setAttribute('placeholder', value);
@@ -154,11 +154,11 @@ Object.defineProperty(TextField.prototype, 'placeholder', {
 
 
 Object.defineProperty(TextField.prototype, 'proxy', {
-    get: function() {
+    get: function () {
         return this._element.getAttribute('proxy');
     },
-    set: function(value) {
-        if (! value) {
+    set: function (value) {
+        if (!value) {
             this._element.removeAttribute('proxy');
         } else {
             this._element.setAttribute('proxy', value);
@@ -168,11 +168,11 @@ Object.defineProperty(TextField.prototype, 'proxy', {
 
 
 Object.defineProperty(TextField.prototype, 'keyChange', {
-    get: function() {
-        return !! this.evtKeyChange;
+    get: function () {
+        return !!this.evtKeyChange;
     },
-    set: function(value) {
-        if (!! this.evtKeyChange === !! value)
+    set: function (value) {
+        if (!!this.evtKeyChange === !!value)
             return;
 
         if (value) {

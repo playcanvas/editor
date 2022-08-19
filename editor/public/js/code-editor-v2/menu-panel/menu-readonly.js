@@ -13,6 +13,6 @@ editor.once('load', function () {
     readonly.hidden = editor.call('permissions:write');
 
     editor.on('editor:readonly:change', function (isReadonly) {
-        readonly.hidden = ! isReadonly;
+        readonly.hidden = !isReadonly;
     });
 });

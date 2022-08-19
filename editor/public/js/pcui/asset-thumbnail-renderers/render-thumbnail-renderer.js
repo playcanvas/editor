@@ -65,7 +65,6 @@ Object.assign(pcui, (function () {
     }
 
     class RenderThumbnailRenderer {
-
         constructor(asset, canvas) {
             this._asset = asset;
             this._canvas = canvas;
@@ -146,7 +145,7 @@ Object.assign(pcui, (function () {
                 }
             }
 
-            materialAssets.forEach(asset => {
+            materialAssets.forEach((asset) => {
                 if (asset === scene.material) return;
 
                 if (!this._materialWatches[asset.id]) {
@@ -195,11 +194,11 @@ Object.assign(pcui, (function () {
             if (!this._asset) return;
 
             const data = this._asset.get('data');
-            if (! data) return;
+            if (!data) return;
 
             const app = pc.Application.getApplication();
             const renderAsset = app.assets.get(this._asset.get('id'));
-            if (! renderAsset) return;
+            if (!renderAsset) return;
 
             if (!sceneInitialized) {
                 initializeScene();
@@ -278,8 +277,8 @@ Object.assign(pcui, (function () {
             layer.addCamera(scene.cameraEntity.camera);
 
             // add camera to layer
-            let backupLayers = scene.cameraEntity.camera.layers.slice();
-            let newLayers = scene.cameraEntity.camera.layers;
+            const backupLayers = scene.cameraEntity.camera.layers.slice();
+            const newLayers = scene.cameraEntity.camera.layers;
             newLayers.push(layer.id);
             scene.cameraEntity.camera.layers = newLayers;
 

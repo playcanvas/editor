@@ -20,7 +20,7 @@ editor.once('load', function () {
         filter: function () {
             return editor.call('permissions:write') &&
                    editor.call('files:contextmenu:selected').length &&
-                   ! editor.call('errors:hasRealtime');
+                   !editor.call('errors:hasRealtime');
         },
         select: function () {
             editor.call('assets:delete:picker', editor.call('files:contextmenu:selected'));
@@ -55,12 +55,12 @@ editor.once('load', function () {
     editor.method('editor:command:can:deleteSelected', function () {
         return editor.call('permissions:write') &&
                editor.call('assets:selected').length &&
-               ! editor.call('errors:hasRealtime');
+               !editor.call('errors:hasRealtime');
     });
 
     // Delete selected files
     editor.method('editor:command:deleteSelected', function () {
-        if (! editor.call('permissions:write')) return;
+        if (!editor.call('permissions:write')) return;
 
         var selected = editor.call('assets:selected');
         if (selected.length)

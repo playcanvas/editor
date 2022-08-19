@@ -1,21 +1,21 @@
-editor.once('plugins:load:asset-texture-lod', function() {
+editor.once('plugins:load:asset-texture-lod', function () {
     'use strict';
 
     var app = editor.call('viewport:app');
-    if (! app) return; // webgl not available
+    if (!app) return; // webgl not available
 
-    var slots = [ 'aoMap', 'diffuseMap', 'emissiveMap', 'glossMap', 'clearCoatMap', 'clearCoatGlossMap', 'clearCoatNormalMap', 'lightMap', 'metalnessMap', 'opacityMap', 'specularMap', 'normalMap' ];
+    var slots = ['aoMap', 'diffuseMap', 'emissiveMap', 'glossMap', 'clearCoatMap', 'clearCoatGlossMap', 'clearCoatNormalMap', 'lightMap', 'metalnessMap', 'opacityMap', 'specularMap', 'normalMap'];
 
-    var convertFilter = function(current) {
-        if (! current)
+    var convertFilter = function (current) {
+        if (!current)
             return false;
 
-        var items = [ current ];
+        var items = [current];
 
         if (editor.call('selector:type') === 'asset' && editor.call('selector:items').indexOf(current) !== -1)
             items = editor.call('selector:items');
 
-        for(var i = 0; i < items.length; i++) {
+        for (var i = 0; i < items.length; i++) {
             if (items[i].get('type') !== 'texture' || items[i].get('source') === true)
                 return false;
 
@@ -32,8 +32,8 @@ editor.once('plugins:load:asset-texture-lod', function() {
         items: [{
             text: 'Convert (x2, x4)',
             icon: 'E201',
-            onSelect: function(current) {
-                var items = [ current ];
+            onSelect: function (current) {
+                var items = [current];
 
                 if (editor.call('selector:type') === 'asset' && editor.call('selector:items').indexOf(current) !== -1)
                     items = editor.call('selector:items');
@@ -70,7 +70,7 @@ editor.once('plugins:load:asset-texture-lod', function() {
             items: [{
                 text: 'Original',
                 value: 'texture-lod-original',
-                onSelect: function() {
+                onSelect: function () {
                     editor.call('plugin:texture-lod:switch', 'original');
                 }
             }, {
@@ -87,7 +87,7 @@ editor.once('plugins:load:asset-texture-lod', function() {
         }]
     });
 
-    editor.method('plugin:texture-lod:switch', function(quality) {
+    editor.method('plugin:texture-lod:switch', function (quality) {
         if (quality !== 'original' && quality !== 'medium' && quality !== 'low')
             return;
 
@@ -95,12 +95,12 @@ editor.once('plugins:load:asset-texture-lod', function() {
         var index = { };
         var indexLinks = { };
 
-        var assetsLow = [ ];
-        var assetsMid = [ ];
-        var assetsHi = [ ];
+        var assetsLow = [];
+        var assetsMid = [];
+        var assetsHi = [];
         var assetsLod;
 
-        for(var i = 0; i < assets.length; i++) {
+        for (var i = 0; i < assets.length; i++) {
             if (assets[i].get('type') !== 'texture' || assets[i].get('source'))
                 continue;
 
@@ -115,7 +115,7 @@ editor.once('plugins:load:asset-texture-lod', function() {
                 list = assetsLow;
             }
 
-            if (! list)
+            if (!list)
                 continue;
 
             list.push(assets[i]);
@@ -124,7 +124,7 @@ editor.once('plugins:load:asset-texture-lod', function() {
 
         assetsLod = assetsMid.concat(assetsLow);
 
-        for(var i = 0; i < assetsLod.length; i++) {
+        for (var i = 0; i < assetsLod.length; i++) {
             var tags = assetsLod[i].get('tags');
             var level = '';
 
@@ -134,16 +134,16 @@ editor.once('plugins:load:asset-texture-lod', function() {
                 level = 'low';
             }
 
-            if (! level)
+            if (!level)
                 continue;
 
-            for(var t = 0; t < tags.length; t++) {
-                if (! tags[t].startsWith('source-'))
+            for (var t = 0; t < tags.length; t++) {
+                if (!tags[t].startsWith('source-'))
                     continue;
 
                 var sourceId = parseInt(tags[t].slice(7), 10);
 
-                if (! sourceId || ! index[sourceId])
+                if (!sourceId || !index[sourceId])
                     continue;
 
                 indexLinks[assetsLod[i].get('id')] = index[sourceId];
@@ -154,26 +154,26 @@ editor.once('plugins:load:asset-texture-lod', function() {
         var usedIndex = editor.call('assets:used:index');
 
         if (quality === 'original') {
-            for(var i = 0; i < assetsLod.length; i++) {
+            for (var i = 0; i < assetsLod.length; i++) {
                 var asset = assetsLod[i];
                 var used = usedIndex[asset.get('id')];
-                if (! used || ! used.parent)
+                if (!used || !used.parent)
                     continue;
 
-                for(var id in used.ref) {
+                for (var id in used.ref) {
                     if (used.ref[id].type !== 'asset')
                         continue;
 
                     var assetRef = editor.call('assets:get', id);
-                    if (! assetRef || assetRef.get('type') !== 'material')
+                    if (!assetRef || assetRef.get('type') !== 'material')
                         continue;
 
-                    for(var s = 0; s < slots.length; s++) {
+                    for (var s = 0; s < slots.length; s++) {
                         if (parseInt(assetRef.get('data.' + slots[s]), 10) !== parseInt(asset.get('id'), 10))
                             continue;
 
                         var assetOriginal = indexLinks[asset.get('id')];
-                        if (! assetOriginal)
+                        if (!assetOriginal)
                             continue;
 
                         assetRef.set('data.' + slots[s], parseInt(assetOriginal.get('id'), 10));
@@ -189,21 +189,21 @@ editor.once('plugins:load:asset-texture-lod', function() {
                 list = assetsHi.concat(assetsMid);
             }
 
-            for(var i = 0; i < list.length; i++) {
+            for (var i = 0; i < list.length; i++) {
                 var asset = list[i];
                 var used = usedIndex[asset.get('id')];
-                if (! used || ! used.parent)
+                if (!used || !used.parent)
                     continue;
 
-                for(var id in used.ref) {
+                for (var id in used.ref) {
                     if (used.ref[id].type !== 'asset')
                         continue;
 
                     var assetRef = editor.call('assets:get', id);
-                    if (! assetRef || assetRef.get('type') !== 'material')
+                    if (!assetRef || assetRef.get('type') !== 'material')
                         continue;
 
-                    for(var s = 0; s < slots.length; s++) {
+                    for (var s = 0; s < slots.length; s++) {
                         if (parseInt(assetRef.get('data.' + slots[s]), 10) !== parseInt(asset.get('id'), 10))
                             continue;
 
@@ -217,7 +217,7 @@ editor.once('plugins:load:asset-texture-lod', function() {
                             assetOther = indexLinks[asset.get('id') + quality];
                         }
 
-                        if (! assetOther)
+                        if (!assetOther)
                             continue;
 
                         assetRef.set('data.' + slots[s], parseInt(assetOther.get('id'), 10));
@@ -227,15 +227,15 @@ editor.once('plugins:load:asset-texture-lod', function() {
         }
     });
 
-    editor.method('plugin:texture-lod:convert', function(items, sizes) {
-        if (! items) {
+    editor.method('plugin:texture-lod:convert', function (items, sizes) {
+        if (!items) {
             if (editor.call('selector:type') !== 'asset')
                 return;
 
             items = editor.call('selector:items');
         }
 
-        items.forEach(function(source) {
+        items.forEach(function (source) {
             // should be ready texture
             if (source.get('status') === 'running' || source.get('type') !== 'texture')
                 return;
@@ -245,7 +245,7 @@ editor.once('plugins:load:asset-texture-lod', function() {
                 return;
 
             // should be at least 128x128
-            if (! source.get('meta.width') || source.get('meta.width') < 128 || ! source.get('meta.height') || source.get('meta.height') < 128)
+            if (!source.get('meta.width') || source.get('meta.width') < 128 || !source.get('meta.height') || source.get('meta.height') < 128)
                 return;
 
             // add 'lod' tag
@@ -265,10 +265,10 @@ editor.once('plugins:load:asset-texture-lod', function() {
                 name = name.slice(0, match.index);
             }
 
-            if (! editor._awaitingFolderCreation)
+            if (!editor._awaitingFolderCreation)
                 editor._awaitingFolderCreation = { };
 
-            if (! sizes) {
+            if (!sizes) {
                 sizes = [{
                     size: 2,
                     name: 'mid'
@@ -281,16 +281,16 @@ editor.once('plugins:load:asset-texture-lod', function() {
             var uiItem = editor.call('assets:panel:get', source.get('id'));
             if (uiItem) uiItem.class.add('task', 'running');
 
-            sizes.forEach(function(options) {
-                var folder = editor.call('assets:findOne', function(asset) {
+            sizes.forEach(function (options) {
+                var folder = editor.call('assets:findOne', function (asset) {
                     return asset.get('type') === 'folder' && asset.get('name') === options.name && asset.get('path').equals(path);
                 });
 
-                var onFolderAvailable = function(folderId) {
-                    var target = editor.call('assets:findOne', function(asset) {
+                var onFolderAvailable = function (folderId) {
+                    var target = editor.call('assets:findOne', function (asset) {
                         var path = asset.get('path');
 
-                        if (! path.length)
+                        if (!path.length)
                             return false;
 
                         return asset.get('name') === (name + '-' + options.name + '.' + ext) && parseInt(asset.get('source_asset_id'), 10) === parseInt(source.get('id'), 10) && path[path.length - 1] === folderId;
@@ -299,7 +299,7 @@ editor.once('plugins:load:asset-texture-lod', function() {
 
                     var evtTargetAvailable;
 
-                    var onTargetAvailable = function(target) {
+                    var onTargetAvailable = function (target) {
                         if (evtTargetAvailable) {
                             evtTargetAvailable.unbind();
                             evtTargetAvailable = null;
@@ -324,11 +324,11 @@ editor.once('plugins:load:asset-texture-lod', function() {
 
                         editor.call('status:text', 'texture-lod: converting \'' + name + '-' + options.name + '.' + ext + '\' asset');
 
-                        var onFileSet = function(value) {
-                            if (! value) return;
+                        var onFileSet = function (value) {
+                            if (!value) return;
                             target.off('file:set', onFileSet);
 
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 editor.call('assets:jobs:thumbnails', null, target);
 
                                 if (++tasksDone === 2) {
@@ -349,7 +349,7 @@ editor.once('plugins:load:asset-texture-lod', function() {
                         target.set('data', source.get('data'));
 
                         // available target
-                        setTimeout(function() {
+                        setTimeout(function () {
                             onTargetAvailable(target);
                         }, 500);
                     } else {
@@ -361,14 +361,14 @@ editor.once('plugins:load:asset-texture-lod', function() {
                             source_asset_id: parseInt(source.get('id'), 10),
                             preload: false,
                             data: source.get('data'),
-                            tags: [ 'source-' + source.get('id').toString(), 'lod-' + options.name ],
+                            tags: ['source-' + source.get('id').toString(), 'lod-' + options.name],
                             region: source.get('region'),
                             parent: folderId,
                             scope: source.get('scope'),
                             meta: source.get('meta')
                         };
 
-                        editor.call('assets:create', assetNew, function(err, id) {
+                        editor.call('assets:create', assetNew, function (err, id) {
                             if (err) {
                                 editor.call('status:error', 'texture-lod: error creating asset (' + err.message + ')');
                                 console.log(err.stack);
@@ -395,7 +395,7 @@ editor.once('plugins:load:asset-texture-lod', function() {
                     var evtName = parentFolder + '-' + options.name;
 
                     if (editor._awaitingFolderCreation[evtName]) {
-                        editor.once('plugin:texture-lod:folder:create:' + evtName, function(id) {
+                        editor.once('plugin:texture-lod:folder:create:' + evtName, function (id) {
                             onFolderAvailable(parseInt(id, 10));
                         });
                     } else {
@@ -411,7 +411,7 @@ editor.once('plugins:load:asset-texture-lod', function() {
                             scope: source.get('scope')
                         };
 
-                        editor.call('assets:create', folderNew, function(err, id) {
+                        editor.call('assets:create', folderNew, function (err, id) {
                             if (err) {
                                 editor.call('status:error', 'texture-lod: error creating folder (' + err.message + ')');
                                 console.log(err.stack);

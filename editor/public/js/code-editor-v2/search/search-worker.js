@@ -1,14 +1,14 @@
 var validate = function (data) {
-    if (! data) return false;
-    if (! data.id) return false;
-    if (! data.query) return false;
+    if (!data) return false;
+    if (!data.id) return false;
+    if (!data.query) return false;
 
     return true;
 };
 
 this.onmessage = function (evt) {
     var data = evt.data;
-    if (! validate(data)) return;
+    if (!validate(data)) return;
 
     var results = {
         id: data.id,

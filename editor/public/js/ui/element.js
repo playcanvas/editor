@@ -6,7 +6,7 @@ Object.assign(ui, (function () {
 
         this._parent = null;
         var self = this;
-        this._parentDestroy = function() {
+        this._parentDestroy = function () {
             self.destroy();
         };
 
@@ -18,7 +18,7 @@ Object.assign(ui, (function () {
         this._linkUnset = null;
         this.renderChanges = null;
         // render changes only from next ticks
-        setTimeout(function() {
+        setTimeout(function () {
             if (self.renderChanges === null)
                 self.renderChanges = true;
         }, 0);
@@ -29,36 +29,36 @@ Object.assign(ui, (function () {
 
         this._evtClick = null;
 
-        this._parentDisable = function() {
+        this._parentDisable = function () {
             if (self._disabledParent)
                 return;
 
             self._disabledParent = true;
 
-            if (! self._disabled) {
+            if (!self._disabled) {
                 self.emit('disable');
                 self.class.add('disabled');
             }
         };
-        this._parentEnable = function() {
-            if (! self._disabledParent)
+        this._parentEnable = function () {
+            if (!self._disabledParent)
                 return;
 
             self._disabledParent = false;
 
-            if (! self._disabled) {
+            if (!self._disabled) {
                 self.emit('enable');
                 self.class.remove('disabled');
             }
         };
 
-        this._onFlashDelay = function() {
+        this._onFlashDelay = function () {
             self.class.remove('flash');
         };
     }
     Element.prototype = Object.create(Events.prototype);
 
-    Element.prototype.link = function(link, path) {
+    Element.prototype.link = function (link, path) {
         var self = this;
 
         if (this._link) this.unlink();
@@ -71,10 +71,10 @@ Object.assign(ui, (function () {
         if (this._onLinkChange) {
             var renderChanges = this.renderChanges;
             this.renderChanges = false;
-            this._linkOnSet = this._link.on(this.path + ':set', function(value) {
+            this._linkOnSet = this._link.on(this.path + ':set', function (value) {
                 self._onLinkChange(value);
             });
-            this._linkOnUnset = this._link.on(this.path + ':unset', function(value) {
+            this._linkOnUnset = this._link.on(this.path + ':unset', function (value) {
                 self._onLinkChange(value);
             });
             this._onLinkChange(this._link.get(this.path));
@@ -82,8 +82,8 @@ Object.assign(ui, (function () {
         }
     };
 
-    Element.prototype.unlink = function() {
-        if (! this._link) return;
+    Element.prototype.unlink = function () {
+        if (!this._link) return;
 
         this.emit('unlink', this.path);
 
@@ -100,7 +100,7 @@ Object.assign(ui, (function () {
         this.path = '';
     };
 
-    Element.prototype.destroy = function() {
+    Element.prototype.destroy = function () {
         if (this._destroyed)
             return;
 
@@ -124,10 +124,10 @@ Object.assign(ui, (function () {
     };
 
     Object.defineProperty(Element.prototype, 'element', {
-        get: function() {
+        get: function () {
             return this._element;
         },
-        set: function(value) {
+        set: function (value) {
             if (this._element)
                 return;
 
@@ -135,32 +135,32 @@ Object.assign(ui, (function () {
             this._element.ui = this;
 
             var self = this;
-            this._evtClick = function(evt) {
-                if (self.disabled && ! self.disabledClick) return;
+            this._evtClick = function (evt) {
+                if (self.disabled && !self.disabledClick) return;
                 self.emit('click', evt);
             };
             this._element.addEventListener('click', this._evtClick, false);
 
-            this._evtHover = function(evt) {
+            this._evtHover = function (evt) {
                 self.emit('hover', evt);
             };
             this._element.addEventListener('mouseover', this._evtHover, false);
 
-            this._evtBlur = function(evt) {
+            this._evtBlur = function (evt) {
                 self.emit('blur', evt);
             };
             this._element.addEventListener('mouseout', this._evtBlur, false);
 
-            if (! this.innerElement)
+            if (!this.innerElement)
                 this.innerElement = this._element;
         }
     });
 
     Object.defineProperty(Element.prototype, 'parent', {
-        get: function() {
+        get: function () {
             return this._parent;
         },
-        set: function(value) {
+        set: function (value) {
             if (this._parent) {
                 this._parent = null;
                 this._evtParentDestroy.unbind();
@@ -192,14 +192,14 @@ Object.assign(ui, (function () {
     });
 
     Object.defineProperty(Element.prototype, 'disabled', {
-        get: function() {
+        get: function () {
             return this._disabled || this._disabledParent;
         },
-        set: function(value) {
+        set: function (value) {
             if (this._disabled == value)
                 return;
 
-            this._disabled = !! value;
+            this._disabled = !!value;
             this.emit((this._disabled || this._disabledParent) ? 'disable' : 'enable');
 
             if ((this._disabled || this._disabledParent)) {
@@ -211,38 +211,38 @@ Object.assign(ui, (function () {
     });
 
     Object.defineProperty(Element.prototype, 'disabledSelf', {
-        get: function() {
+        get: function () {
             return this._disabled;
         }
     });
 
     Object.defineProperty(Element.prototype, 'enabled', {
-        get: function() {
-            return ! this._disabled;
+        get: function () {
+            return !this._disabled;
         },
-        set: function(value) {
-            this.disabled = ! value;
+        set: function (value) {
+            this.disabled = !value;
         }
     });
 
     Object.defineProperty(Element.prototype, 'value', {
-        get: function() {
-            if (! this._link) return null;
+        get: function () {
+            if (!this._link) return null;
             return this._link.get(this.path);
         },
-        set: function(value) {
-            if (! this._link) return;
+        set: function (value) {
+            if (!this._link) return;
             this._link.set(this.path, value);
         }
     });
 
 
     Object.defineProperty(Element.prototype, 'hidden', {
-        get: function() {
+        get: function () {
             return this._element.classList.contains('hidden');
         },
-        set: function(value) {
-            if (this._element.classList.contains('hidden') === !! value)
+        set: function (value) {
+            if (this._element.classList.contains('hidden') === !!value)
                 return;
 
             if (value) {
@@ -257,24 +257,24 @@ Object.assign(ui, (function () {
 
 
     Object.defineProperty(Element.prototype, 'style', {
-        get: function() {
+        get: function () {
             return this._element.style;
         }
     });
 
 
     Object.defineProperty(Element.prototype, 'class', {
-        get: function() {
+        get: function () {
             return this._element.classList;
         }
     });
 
 
     Object.defineProperty(Element.prototype, 'flexGrow', {
-        get: function() {
+        get: function () {
             return this._element.style.flexGrow;
         },
-        set: function(value) {
+        set: function (value) {
             this._element.style.flexGrow = value;
             this._element.style.WebkitFlexGrow = value;
         }
@@ -282,17 +282,17 @@ Object.assign(ui, (function () {
 
 
     Object.defineProperty(Element.prototype, 'flexShrink', {
-        get: function() {
+        get: function () {
             return this._element.style.flexShrink;
         },
-        set: function(value) {
+        set: function (value) {
             this._element.style.flexShrink = value;
             this._element.style.WebkitFlexShrink = value;
         }
     });
 
 
-    Element.prototype.flash = function() {
+    Element.prototype.flash = function () {
         this.class.add('flash');
         setTimeout(this._onFlashDelay, 200);
     };

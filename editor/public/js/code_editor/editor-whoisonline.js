@@ -34,7 +34,7 @@ editor.once('load', function () {
         }
     });
 
-    editor.on('relay:room:join', data => {
+    editor.on('relay:room:join', (data) => {
         if (!config.asset) return;
         if (!data.name.startsWith('codeeditor-' + config.asset.id)) return;
 
@@ -45,7 +45,7 @@ editor.once('load', function () {
         }
     });
 
-    editor.on('relay:room:leave', data => {
+    editor.on('relay:room:leave', (data) => {
         if (!config.asset) return;
         if (!data.name.startsWith('codeeditor-' + config.asset.id)) return;
 

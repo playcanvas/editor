@@ -29,10 +29,10 @@ editor.once('load', function () {
 
     // Load asset file contents and call callback
     editor.method('assets:loadFile', function (asset, fn) {
-        if (! fn) return;
+        if (!fn) return;
 
         var id = asset.get('id');
-        if (! loadRequests[id]) {
+        if (!loadRequests[id]) {
             loadRequests[id] = [fn];
         } else {
             loadRequests[id].push(fn);
@@ -52,7 +52,7 @@ editor.once('load', function () {
             store(asset, data);
 
             var requests = loadRequests[id];
-            if (! requests)
+            if (!requests)
                 return;
 
             for (var i = 0, len = requests.length; i < len; i++) {
@@ -63,7 +63,7 @@ editor.once('load', function () {
         })
         .on('error', function (status, err) {
             var requests = loadRequests[id];
-            if (! requests)
+            if (!requests)
                 return;
 
             err = err || new Error('Status: ' + status);

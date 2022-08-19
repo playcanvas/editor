@@ -9,6 +9,6 @@ editor.once('load', function () {
     }
 
     editor.method('editor:resolveConflictMode', () => {
-        return inResolveConflictMode
+        return inResolveConflictMode;
     });
 });

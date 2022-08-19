@@ -31,12 +31,12 @@ editor.once('load', function () {
         if (evt.keyCode === 13) {
             // enter
             var filename = input.value.trim();
-            if (! filename || ! filenameValid.test(filename)) {
+            if (!filename || !filenameValid.test(filename)) {
                 validate.hidden = false;
             } else {
                 validate.hidden = true;
 
-                if (! filename.endsWith('.js'))
+                if (!filename.endsWith('.js'))
                     filename += '.js';
 
                 if (callback)
@@ -61,11 +61,11 @@ editor.once('load', function () {
     });
 
     editor.method('picker:script-create:validate', function (filename) {
-        if (! filename || ! filenameValid.test(filename)) {
+        if (!filename || !filenameValid.test(filename)) {
             return false;
         }
 
-        if (! filename.endsWith('.js'))
+        if (!filename.endsWith('.js'))
             filename += '.js';
 
         return filename;

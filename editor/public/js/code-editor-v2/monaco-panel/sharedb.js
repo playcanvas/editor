@@ -88,8 +88,8 @@ editor.once('load', function () {
         }
     }
 
-     // transform dummy ops with remote op
-     function transformCursorOps(ops, remoteOp, entry) {
+    // transform dummy ops with remote op
+    function transformCursorOps(ops, remoteOp, entry) {
         for (let i = 0, len = ops.length; i < len; i++) {
             var data = ops[i];
             if (data.length) {
@@ -104,7 +104,7 @@ editor.once('load', function () {
 
     // concatenate two ops
     function concat(prev, next, entry) {
-        if (! next.isWhiteSpace) {
+        if (!next.isWhiteSpace) {
             prev.isWhiteSpace = false;
             prev.isNewLine = false;
         } else {
@@ -130,7 +130,7 @@ editor.once('load', function () {
 
         var prevDelete = false;
         for (let i = 0; i < prevLen; i++) {
-            if (typeof(prev.op[i]) === 'object') {
+            if (typeof (prev.op[i]) === 'object') {
                 prevDelete = true;
                 break;
             }
@@ -138,7 +138,7 @@ editor.once('load', function () {
 
         var nextDelete = false;
         for (let i = 0; i < nextLen; i++) {
-            if (typeof(next.op[i]) === 'object') {
+            if (typeof (next.op[i]) === 'object') {
                 nextDelete = true;
                 break;
             }
@@ -354,7 +354,7 @@ editor.once('load', function () {
                 editor.emit('documents:dirty', docEntry.id, true);
             }
 
-            if (local && ! docEntry.hasLocalChanges) {
+            if (local && !docEntry.hasLocalChanges) {
                 docEntry.hasLocalChanges = true;
                 editor.emit('documents:dirtyLocal', docEntry.id, true);
             }
@@ -406,10 +406,10 @@ editor.once('load', function () {
     // submit operation to sharedb
     editor.on('views:change', (id, view, change) => {
         var entry = documentIndex[id];
-        if (! entry || entry.ignoreLocalChanges) return;
+        if (!entry || entry.ignoreLocalChanges) return;
 
         // this happens sometimes when there is a doc error
-        if (! entry.doc.type) {
+        if (!entry.doc.type) {
             console.warn('Document ' + id + ' has no type');
             return;
         }

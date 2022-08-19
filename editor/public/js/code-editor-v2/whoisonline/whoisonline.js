@@ -10,13 +10,13 @@ editor.once('load', function () {
 
         const existing = whoisonline[assetId] || {};
         for (const key in existing) {
-            if (! index[key]) {
+            if (!index[key]) {
                 editor.emit('whoisonline:remove', assetId, key);
             }
         }
 
         for (const key in index) {
-            if (! existing[key]) {
+            if (!existing[key]) {
                 editor.emit('whoisonline:add', assetId, key);
             }
         }
@@ -33,7 +33,7 @@ editor.once('load', function () {
     });
 
     editor.method('whoisonline:add', function (assetId, id) {
-        if (! whoisonline[assetId])
+        if (!whoisonline[assetId])
             whoisonline[assetId] = {};
 
         whoisonline[assetId][id] = true;
@@ -41,7 +41,7 @@ editor.once('load', function () {
     });
 
     editor.method('whoisonline:remove', function (assetId, id) {
-        if (! whoisonline[assetId]) return;
+        if (!whoisonline[assetId]) return;
 
         delete whoisonline[assetId][id];
         if (Object.keys(whoisonline[assetId]).length === 0) {
@@ -65,7 +65,7 @@ editor.once('load', function () {
         }
     });
 
-    editor.on('relay:room:join', data => {
+    editor.on('relay:room:join', (data) => {
         if (!data.name.startsWith('document-')) return;
 
         const id = data.name.substring('document-'.length);
@@ -79,7 +79,7 @@ editor.once('load', function () {
         }
     });
 
-    editor.on('relay:room:leave', data => {
+    editor.on('relay:room:leave', (data) => {
         if (!data.name.startsWith('document-')) return;
 
         const id = data.name.substring('document-'.length);

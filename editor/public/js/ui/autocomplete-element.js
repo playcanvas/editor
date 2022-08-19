@@ -144,13 +144,13 @@ AutoCompleteElement.prototype.onInputKey = function (e) {
         }
     }
     // down: show dropdown or move highlight down
-    else if (e.keyCode === 40 ) {
+    else if (e.keyCode === 40) {
 
         if (this.hidden) {
             this.filter(this._inputField.value);
         } else {
             if (this._highlightedElement) {
-            index = this._visibleElements.indexOf(this._highlightedElement) + 1;
+                index = this._visibleElements.indexOf(this._highlightedElement) + 1;
                 if (index >= this._visibleElements.length) {
                     index = 0;
                 }
@@ -216,7 +216,7 @@ AutoCompleteElement.prototype._highlight = function (element, silent) {
     if (element) {
         element.classList.add('selected');
 
-        if (! silent) {
+        if (!silent) {
             this.emit('highlight', element.innerHTML);
         }
     }

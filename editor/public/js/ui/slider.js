@@ -29,13 +29,13 @@ function Slider(args) {
     this.element.addEventListener('mousedown', this._onMouseDown, false);
     this.element.addEventListener('touchstart', this._onTouchStart, false);
 
-    this.evtMouseMove = function(evt) {
+    this.evtMouseMove = function (evt) {
         evt.stopPropagation();
         evt.preventDefault();
 
         self._onSlideMove(evt.pageX);
     };
-    this.evtMouseUp = function(evt) {
+    this.evtMouseUp = function (evt) {
         evt.stopPropagation();
         evt.preventDefault();
 
@@ -44,8 +44,8 @@ function Slider(args) {
 
     this.evtTouchId = null;
 
-    this.evtTouchMove = function(evt) {
-        for(var i = 0; i < evt.changedTouches.length; i++) {
+    this.evtTouchMove = function (evt) {
+        for (var i = 0; i < evt.changedTouches.length; i++) {
             var touch = evt.changedTouches[i];
 
             if (touch.identifier !== self.evtTouchId)
@@ -58,8 +58,8 @@ function Slider(args) {
             break;
         }
     };
-    this.evtTouchEnd = function(evt) {
-        for(var i = 0; i < evt.changedTouches.length; i++) {
+    this.evtTouchEnd = function (evt) {
+        for (var i = 0; i < evt.changedTouches.length; i++) {
             var touch = evt.changedTouches[i];
 
             if (touch.identifier !== self.evtTouchId)
@@ -82,19 +82,19 @@ function Slider(args) {
 Slider.prototype = Object.create(ui.Element.prototype);
 
 
-Slider.prototype._onChange = function() {
-    if (! this.renderChanges)
+Slider.prototype._onChange = function () {
+    if (!this.renderChanges)
         return;
 
     this.flash();
 };
 
 
-Slider.prototype._onKeyDown = function(evt) {
+Slider.prototype._onKeyDown = function (evt) {
     if (evt.keyCode === 27)
         return this.ui.elementHandle.blur();
 
-    if (this.ui.disabled || [ 37, 39 ].indexOf(evt.keyCode) === -1)
+    if (this.ui.disabled || [37, 39].indexOf(evt.keyCode) === -1)
         return;
 
     evt.stopPropagation();
@@ -117,19 +117,19 @@ Slider.prototype._onKeyDown = function(evt) {
 };
 
 
-Slider.prototype._onLinkChange = function(value) {
+Slider.prototype._onLinkChange = function (value) {
     this._updateHandle(value);
     this._value = value;
     this.emit('change', value || 0);
 };
 
 
-Slider.prototype._updateHandle = function(value) {
+Slider.prototype._updateHandle = function (value) {
     this.elementHandle.style.left = (Math.max(0, Math.min(1, ((value || 0) - this._min) / (this._max - this._min))) * 100) + '%';
 };
 
 
-Slider.prototype._onMouseDown = function(evt) {
+Slider.prototype._onMouseDown = function (evt) {
     if (evt.button !== 0 || this.ui.disabled)
         return;
 
@@ -137,13 +137,13 @@ Slider.prototype._onMouseDown = function(evt) {
 };
 
 
-Slider.prototype._onTouchStart = function(evt) {
+Slider.prototype._onTouchStart = function (evt) {
     if (this.ui.disabled)
         return;
 
-    for(var i = 0; i < evt.changedTouches.length; i++) {
+    for (var i = 0; i < evt.changedTouches.length; i++) {
         var touch = evt.changedTouches[i];
-        if (! touch.target.ui || touch.target.ui !== this.ui)
+        if (!touch.target.ui || touch.target.ui !== this.ui)
             continue;
 
         this.ui.evtTouchId = touch.identifier;
@@ -153,7 +153,7 @@ Slider.prototype._onTouchStart = function(evt) {
 };
 
 
-Slider.prototype._onSlideStart = function(pageX) {
+Slider.prototype._onSlideStart = function (pageX) {
     this.elementHandle.focus();
 
     this.renderChanges = false;
@@ -177,7 +177,7 @@ Slider.prototype._onSlideStart = function(pageX) {
 };
 
 
-Slider.prototype._onSlideMove = function(pageX) {
+Slider.prototype._onSlideMove = function (pageX) {
     var rect = this.element.getBoundingClientRect();
     var x = Math.max(0, Math.min(1, (pageX - rect.left) / rect.width));
 
@@ -190,7 +190,7 @@ Slider.prototype._onSlideMove = function(pageX) {
 };
 
 
-Slider.prototype._onSlideEnd = function(pageX) {
+Slider.prototype._onSlideEnd = function (pageX) {
     this._onSlideMove(pageX);
 
     this.renderChanges = true;
@@ -213,10 +213,10 @@ Slider.prototype._onSlideEnd = function(pageX) {
 
 
 Object.defineProperty(Slider.prototype, 'min', {
-    get: function() {
+    get: function () {
         return this._min;
     },
-    set: function(value) {
+    set: function (value) {
         if (this._min === value)
             return;
 
@@ -227,10 +227,10 @@ Object.defineProperty(Slider.prototype, 'min', {
 
 
 Object.defineProperty(Slider.prototype, 'max', {
-    get: function() {
+    get: function () {
         return this._max;
     },
-    set: function(value) {
+    set: function (value) {
         if (this._max === value)
             return;
 
@@ -241,16 +241,16 @@ Object.defineProperty(Slider.prototype, 'max', {
 
 
 Object.defineProperty(Slider.prototype, 'value', {
-    get: function() {
+    get: function () {
         if (this._link) {
             return this._link.get(this.path);
-        } else {
-            return this._value;
         }
+        return this._value;
+
     },
-    set: function(value) {
+    set: function (value) {
         if (this._link) {
-            if (! this._link.set(this.path, value))
+            if (!this._link.set(this.path, value))
                 this._updateHandle(this._link.get(this.path));
         } else {
             if (this._max !== null && this._max < value)

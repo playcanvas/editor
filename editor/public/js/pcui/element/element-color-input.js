@@ -6,16 +6,17 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.ColorInput
      * @classdesc Represents a color input. Clicking on the color input will open a color picker.
-     * @property {Number[]} value An array of 1 to 4 numbers that range from 0 to 1. The length of the array depends on the number of channels.
-     * @property {Number} channels Can be 1 to 4.
-     * @property {Boolean} renderChanges If true the input will flash when changed.
+     * @property {number[]} value An array of 1 to 4 numbers that range from 0 to 1. The length of the array depends on the number of channels.
+     * @property {number} channels Can be 1 to 4.
+     * @property {boolean} renderChanges If true the input will flash when changed.
      * @mixes pcui.IBindable
      * @mixes pcui.IFocusable
      */
     class ColorInput extends pcui.Element {
         /**
          * Creates a new ColorInput.
-         * @param {Object} args The arguments. Extends the pcui.Element arguments. Any settable property can also be set through the constructor.
+         *
+         * @param {object} args - The arguments. Extends the pcui.Element arguments. Any settable property can also be set through the constructor.
          */
         constructor(args) {
             args = Object.assign({

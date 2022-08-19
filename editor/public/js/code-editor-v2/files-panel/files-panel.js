@@ -4,9 +4,9 @@ editor.once('load', function () {
     var panel = editor.call('layout.left');
 
     var isTreeEditable = function () {
-        return  editor.call('permissions:write') &&
+        return editor.call('permissions:write') &&
                 editor.call('realtime:isConnected') &&
-                ! editor.call('errors:hasRealtime');
+                !editor.call('errors:hasRealtime');
     };
 
     // files tree
@@ -80,14 +80,14 @@ editor.once('load', function () {
     // but only de-select if there are multiple items selected.
     // This is to avoid having no selected files in the tree view
     var onItemClick = function (evt) {
-        if (evt.button !== 0 || ! this.ui.selectable)
+        if (evt.button !== 0 || !this.ui.selectable)
             return;
 
         var rect = this.getBoundingClientRect();
 
         if (this.ui._children && (evt.clientX - rect.left) < 0) {
-            this.ui.open = ! this.ui.open;
-        } else if (! this.ui.selected || this.ui.tree._selected.length > 1) {
+            this.ui.open = !this.ui.open;
+        } else if (!this.ui.selected || this.ui.tree._selected.length > 1) {
             this.ui.tree._onItemClick(this.ui);
             evt.stopPropagation();
         } else {
@@ -99,14 +99,14 @@ editor.once('load', function () {
     // On double click make this tab stay open
     // and subsequent file selections will open a new tab
     var onItemDblClick = function (evt) {
-        if (evt.button !== 0 || ! this.ui.selectable)
+        if (evt.button !== 0 || !this.ui.selectable)
             return;
 
         var rect = this.getBoundingClientRect();
 
-        if (! this.ui._children || (evt.clientX - rect.left) >= 0) {
+        if (!this.ui._children || (evt.clientX - rect.left) >= 0) {
             var asset = editor.call('assets:get', this.ui._assetId);
-            if (! asset || asset.get('type') === 'folder')
+            if (!asset || asset.get('type') === 'folder')
                 return;
 
             evt.stopPropagation();
@@ -118,7 +118,7 @@ editor.once('load', function () {
     // Puts folders first.
     var appendAlphabetically = function (item, parent) {
         var children = Array.prototype.slice.call(parent.element.childNodes, 1);
-        if (! children.length)
+        if (!children.length)
             return parent.append(item);
 
         var text = item.text.toLowerCase();
@@ -225,7 +225,7 @@ editor.once('load', function () {
 
         var addItem = function (item, path) {
             var length = path.length;
-            if (! length) {
+            if (!length) {
                 append(item, treeRoot);
             } else {
                 var folder = path[length - 1];
@@ -261,7 +261,7 @@ editor.once('load', function () {
         asset.on('name:set', function (name) {
             // remove and re-insert item
             var parent = item.parent;
-            if (! parent) return;
+            if (!parent) return;
 
             parent.remove(item);
             item.text = name;
@@ -319,12 +319,12 @@ editor.once('load', function () {
             return;
 
         // if this item has no asset return
-        if (! item._assetId)
+        if (!item._assetId)
             return;
 
         // emit asset select event
         var asset = editor.call('assets:get', item._assetId);
-        if (! asset)
+        if (!asset)
             return;
 
         editor.call('status:log', 'Selected asset "' + asset.get('name') + '" (id: ' + item._assetId + ')');
@@ -369,7 +369,7 @@ editor.once('load', function () {
     editor.method('assets:selected', function () {
         var result = [];
         for (var i = 0, len = tree._selected.length; i < len; i++) {
-            if (! tree._selected[i]._assetId) continue;
+            if (!tree._selected[i]._assetId) continue;
             var asset = editor.call('assets:get', tree._selected[i]._assetId);
             if (asset)
                 result.push(asset);
@@ -387,12 +387,12 @@ editor.once('load', function () {
             // get last item selected
             var last = tree._selected.length;
             while (last--) {
-                if (! tree._selected[last]._assetId) {
+                if (!tree._selected[last]._assetId) {
                     continue;
                 }
 
                 var asset = editor.call('assets:get', tree._selected[last]._assetId);
-                if (! asset) {
+                if (!asset) {
                     continue;
                 }
 
@@ -415,7 +415,7 @@ editor.once('load', function () {
 
     // handle reparenting
     tree.on('reparent', function (nodes) {
-        if (! nodes.length) return;
+        if (!nodes.length) return;
 
         var assets = nodes.map(function (node) {
             return editor.call('assets:get', node.item._assetId);

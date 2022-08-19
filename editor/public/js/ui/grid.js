@@ -21,7 +21,7 @@ function Grid(args) {
 Grid.prototype = Object.create(ui.ContainerElement.prototype);
 
 
-Grid.prototype._onSelect = function(item) {
+Grid.prototype._onSelect = function (item) {
     if (this._selecting)
         return;
 
@@ -42,8 +42,8 @@ Grid.prototype._onSelect = function(item) {
                 endInd = t;
             }
 
-            for(var i = startInd; i < endInd; i++) {
-                if (! children[i] || ! children[i].ui || children[i].ui.hidden)
+            for (var i = startInd; i < endInd; i++) {
+                if (!children[i] || !children[i].ui || children[i].ui.hidden)
                     continue;
 
                 children[i].ui.selected = true;
@@ -61,7 +61,7 @@ Grid.prototype._onSelect = function(item) {
         var items = this._element.querySelectorAll('.ui-grid-item.selected');
 
         if (items.length > 1) {
-            for(var i = 0; i < items.length; i++) {
+            for (var i = 0; i < items.length; i++) {
                 if (items[i].ui === item)
                     continue;
 
@@ -74,7 +74,7 @@ Grid.prototype._onSelect = function(item) {
 };
 
 
-Grid.prototype._onBeforeDeselect = function(item) {
+Grid.prototype._onBeforeDeselect = function (item) {
     if (this._selecting)
         return;
 
@@ -87,7 +87,7 @@ Grid.prototype._onBeforeDeselect = function(item) {
     } else {
         var items = this._element.querySelectorAll('.ui-grid-item.selected');
         if (items.length > 1) {
-            for(var i = 0; i < items.length; i++) {
+            for (var i = 0; i < items.length; i++) {
                 if (items[i].ui === item)
                     continue;
                 items[i].ui.selected = false;
@@ -101,34 +101,34 @@ Grid.prototype._onBeforeDeselect = function(item) {
 };
 
 
-Grid.prototype.filter = function(fn) {
-    this.forEach(function(item) {
-        item.hidden = ! fn(item);
+Grid.prototype.filter = function (fn) {
+    this.forEach(function (item) {
+        item.hidden = !fn(item);
     });
 };
 
 
-Grid.prototype.forEach = function(fn) {
+Grid.prototype.forEach = function (fn) {
     var child = this._element.firstChild;
-    while(child) {
+    while (child) {
         if (child.ui)
             fn(child.ui);
 
         child = child.nextSibling;
-    };
+    }
 };
 
 Object.defineProperty(Grid.prototype, 'selected', {
-    get: function() {
-        var items = [ ];
+    get: function () {
+        var items = [];
         var elements = this._element.querySelectorAll('.ui-grid-item.selected');
 
-        for(var i = 0; i < elements.length; i++)
+        for (var i = 0; i < elements.length; i++)
             items.push(elements[i].ui);
 
         return items;
     },
-    set: function(value) {
+    set: function (value) {
         if (this._selecting)
             return;
 
@@ -136,18 +136,18 @@ Object.defineProperty(Grid.prototype, 'selected', {
 
         // deselecting
         var items = this.selected;
-        for(var i = 0; i < items.length; i++) {
+        for (var i = 0; i < items.length; i++) {
             if (value && value.indexOf(items[i]) !== -1)
                 continue;
             items[i].selected = false;
         }
 
-        if (! value)
+        if (!value)
             return;
 
         // selecting
-        for(var i = 0; i < value.length; i++) {
-            if (! value[i])
+        for (var i = 0; i < value.length; i++) {
+            if (!value[i])
                 continue;
 
             value[i].selected = true;

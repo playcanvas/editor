@@ -21,7 +21,7 @@ editor.once('load', function () {
 
     var refreshSaveButton = function () {
         if (editor.call('editor:isDirty')) {
-            if (! /^\* /.test(document.title)) {
+            if (!/^\* /.test(document.title)) {
                 document.title = '* ' + document.title;
             }
         } else {
@@ -30,7 +30,7 @@ editor.once('load', function () {
             }
         }
 
-        if (! editor.call('editor:canSave')) {
+        if (!editor.call('editor:canSave')) {
             saveBtn.setAttribute('disabled', '');
             revertBtn.setAttribute('disabled', '');
         } else {
@@ -116,7 +116,7 @@ editor.once('load', function () {
     editor.on('realtime:error', function (err) {
         for (var i = 0; i < knownErrors.length; i++) {
             if (knownErrors[i].test(err)) {
-                err = 'Could not reconnect successfully, please refresh the page.'
+                err = 'Could not reconnect successfully, please refresh the page.';
             }
         }
 
@@ -156,15 +156,15 @@ editor.once('load', function () {
         disconnectedTimeout = setTimeout(function () {
             showDisconnectionErrors = true;
         }, disconnectedDelay * 1000);
-    }
+    };
 
     editor.on('realtime:nextAttempt', function (time) {
         var before = new Date();
 
         deferDisconnected();
 
-        function setText (remaining) {
-            if (! showDisconnectionErrors)
+        function setText(remaining) {
+            if (!showDisconnectionErrors)
                 return;
 
             errorMsg = 'Disconnected. Reconnecting in ' + time + ' seconds...';
@@ -172,7 +172,7 @@ editor.once('load', function () {
             refreshButtons();
         }
 
-        function renderTime () {
+        function renderTime() {
             var now = new Date();
             var elapsed = now.getTime() - before.getTime();
             before = now;

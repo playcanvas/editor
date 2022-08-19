@@ -679,7 +679,7 @@ Object.assign(pcui, (function () {
                     hasAlpha = hasAlphaTmp;
                 } else if (hasAlpha !== -2) {
                     if (hasAlpha !== hasAlphaTmp)
-                    hasAlpha = -2;
+                        hasAlpha = -2;
                 }
 
                 selectedAlpha = selectedAlpha || asset.get('meta.compress.alpha');
@@ -894,8 +894,7 @@ Object.assign(pcui, (function () {
                 }),
                 bindingObserversToElement: new pcui.BindingObserversToElement({
                     customUpdate: (element, observers, paths) => {
-                        const getMergedValue = observer =>
-                            paths.reduce((acc, path) => acc + observer.get(path), '');
+                        const getMergedValue = observer => paths.reduce((acc, path) => acc + observer.get(path), '');
 
                         let value = '';
                         let valueDifferent = false;

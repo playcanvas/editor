@@ -13,10 +13,10 @@ Object.assign(pcui, (function () {
      * @name pcui.AssetInput
      * @classdesc Represents an asset input field. It shows a thumbnail of the asset and
      * allows picking of an asset using an asset picker.
-     * @extends pcui.Element
-     * @property {String} assetType The type of assets that this input can display. Used when picking assets with the asset picker.
+     * @augments pcui.Element
+     * @property {string} assetType The type of assets that this input can display. Used when picking assets with the asset picker.
      * @property {pcui.Label} label Gets the label element on the top right of the input.
-     * @property {Boolean} renderChanges If true the input will flash when changed.
+     * @property {boolean} renderChanges If true the input will flash when changed.
      * @property {Function} dragEnterFn A function that is called when we drag an item over the element.
      * @property {Function} dragLeaveFn A function that is called when we stop dragging an item over the element.
      * @mixes pcui.IBindable
@@ -24,16 +24,17 @@ Object.assign(pcui, (function () {
     class AssetInput extends pcui.Element {
         /**
          * Returns a new AssetInput.
-         * @param {Object} args The arguments. Extends the pcui.Element arguments.
-         * @param {ObserverList} args.assets The assets observer list.
-         * @param {String} [args.text] The text on the top right of the field.
-         * @param {String} [args.assetType] The type of assets that this input can display. Used when picking assets with the asset picker.
-         * @param {Boolean} [args.allowDragDrop] If true then this will enable drag and drop of assets on the input
-         * @param {Function} [args.pickAssetFn] A function to pick an asset and pass its id to the callback parameter. If none is provided
+         *
+         * @param {object} args - The arguments. Extends the pcui.Element arguments.
+         * @param {ObserverList} args.assets - The assets observer list.
+         * @param {string} [args.text] - The text on the top right of the field.
+         * @param {string} [args.assetType] - The type of assets that this input can display. Used when picking assets with the asset picker.
+         * @param {boolean} [args.allowDragDrop] - If true then this will enable drag and drop of assets on the input
+         * @param {Function} [args.pickAssetFn] - A function to pick an asset and pass its id to the callback parameter. If none is provided
          * the default Editor asset picker will be used.
-         * @param {Function} [args.selectAssetFn] A function that selects the asset id passed as a parameter. If none is provided the default
+         * @param {Function} [args.selectAssetFn] - A function that selects the asset id passed as a parameter. If none is provided the default
          * Editor selector will be used.
-         * @param {Function} [args.validateAssetFn] A function that validates whether an asset is selectable by this asset input
+         * @param {Function} [args.validateAssetFn] - A function that validates whether an asset is selectable by this asset input
          */
         constructor(args) {
             args = Object.assign({}, args);
@@ -197,7 +198,7 @@ Object.assign(pcui, (function () {
         // Default select function. Uses global selector
         _defaultSelectAssetFn(assetId) {
             const asset = this._assets.get(assetId);
-            if (! asset) return;
+            if (!asset) return;
 
             editor.call('selector:set', 'asset', [asset]);
 
@@ -244,7 +245,7 @@ Object.assign(pcui, (function () {
                         this._labelAsset.unlink();
                         this._labelAsset.text = 'Missing';
 
-                        this._evtAdd = this._assets.once(`add[${value}]`, asset => {
+                        this._evtAdd = this._assets.once(`add[${value}]`, (asset) => {
                             this._evtAdd = null;
                             this._labelAsset.link(asset, 'name');
                         });

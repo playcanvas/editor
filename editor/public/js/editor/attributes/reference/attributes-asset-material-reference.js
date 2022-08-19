@@ -346,7 +346,7 @@ editor.once('load', function () {
         subTitle: '{boolean}',
         description: 'Use specular color and specularity factor with metalness.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#useMetalnessSpecularColor'
-    }, {        
+    }, {
         name: 'normalOverview',
         description: 'Use this to specify normal maps in order to simulate \'Bumpiness\' effect.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html'

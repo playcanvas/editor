@@ -32,10 +32,10 @@ editor.once('load', function () {
 
     editor.method('editor:command:nextTab', function () {
         var tabs = editor.call('tabs:list');
-        if (! tabs.length) return;
+        if (!tabs.length) return;
 
         var focused = editor.call('tabs:focused');
-        if (! focused) return;
+        if (!focused) return;
 
         var idx = tabs.indexOf(focused);
         var next = tabs[(idx + 1) % tabs.length];
@@ -68,10 +68,10 @@ editor.once('load', function () {
 
     editor.method('editor:command:previousTab', function () {
         var tabs = editor.call('tabs:list');
-        if (! tabs.length) return;
+        if (!tabs.length) return;
 
         var focused = editor.call('tabs:focused');
-        if (! focused) return;
+        if (!focused) return;
 
         var idx = tabs.indexOf(focused);
         idx--;
@@ -85,7 +85,7 @@ editor.once('load', function () {
     editor.method('editor:command:selectTab', function (index) {
         var tabs = editor.call('tabs:list');
         var select = tabs[index];
-        if (! select) return;
+        if (!select) return;
 
         editor.call('files:select', select.id);
     });

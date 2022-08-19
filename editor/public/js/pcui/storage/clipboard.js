@@ -5,13 +5,14 @@ Object.assign(pcui, (function () {
      * @name pcui.Clipboard
      * @classdesc Represents a custom clipboard with a specific name
      * which stores a value in localStorage under that name
-     * @property {Object} value Gets / sets the value stored in the clipboard. Pass null to clear the value from storage.
-     * @property {Boolean} empty Gets whether the clipboard is empty
+     * @property {object} value Gets / sets the value stored in the clipboard. Pass null to clear the value from storage.
+     * @property {boolean} empty Gets whether the clipboard is empty
      */
     class Clipboard {
         /**
          * Creates a new instance of pcui.Clipboard
-         * @param {String} name The name of the clipboard.
+         *
+         * @param {string} name - The name of the clipboard.
          */
         constructor(name) {
             this._name = name;
@@ -38,5 +39,5 @@ Object.assign(pcui, (function () {
 
     return {
         Clipboard: Clipboard
-    }
+    };
 })());

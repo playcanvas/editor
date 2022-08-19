@@ -19,7 +19,7 @@ editor.once('load', function () {
         [283, 0.44, 0.47]
     ];
 
-    var hue2rgb = function hue2rgb(p, q, t){
+    var hue2rgb = function hue2rgb(p, q, t) {
         if (t < 0) t += 1;
         if (t > 1) t -= 1;
         if (t < 1 / 6) return p + (q - p) * 6 * t;
@@ -53,7 +53,7 @@ editor.once('load', function () {
     editor.method('users:color', function (id, type) {
         type = type || 'data';
 
-        if (! users[id]) {
+        if (!users[id]) {
             var hash = id % 14;
             if (Math.floor(hash / 2) !== hash / 2)
                 hash = (hash + Math.floor(palette.length / 2)) % 14;

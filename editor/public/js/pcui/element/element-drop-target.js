@@ -10,21 +10,22 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.DropTarget
      * @classdesc Defines an area where we can drag drop data
-     * @extends pcui.Element
+     * @augments pcui.Element
      */
     class DropTarget extends pcui.Element {
         /**
          * Creates a new pcui.DropTarget.
-         * @param {pcui.Element} targetElement The element that will allow drag dropping
-         * @param {Object} args The arguments
-         * @param {String} [args.dropType] The type of data that is valid for this drop target.
-         * @param {pcui.DropManager} [args.dropManager] The drop manager.
-         * @param {Boolean} [args.hole] If true then the drop target will be above other overlays and will receive drag drop events (unless passThrough is true).
-         * @param {Boolean} [args.passThrough] If true then the drop target will not receive mouse events
-         * @param {Function} [args.onFilter] A function with signature (type, data) => bool that returns true if the dragged type and data is valid for this drop target.
-         * @param {Function} [args.onDragEnter] A function with signature (type, data) => void that is called when something is dragged over the drop target.
-         * @param {Function} [args.onDragLeave] A function with signature () => void that is called when something is no longer dragged over the drop target.
-         * @param {Function} [args.onDrop] A function with signature (type, data) => void that is called when something is dropped over the drop target.
+         *
+         * @param {pcui.Element} targetElement - The element that will allow drag dropping
+         * @param {object} args - The arguments
+         * @param {string} [args.dropType] - The type of data that is valid for this drop target.
+         * @param {pcui.DropManager} [args.dropManager] - The drop manager.
+         * @param {boolean} [args.hole] - If true then the drop target will be above other overlays and will receive drag drop events (unless passThrough is true).
+         * @param {boolean} [args.passThrough] - If true then the drop target will not receive mouse events
+         * @param {Function} [args.onFilter] - A function with signature (type, data) => bool that returns true if the dragged type and data is valid for this drop target.
+         * @param {Function} [args.onDragEnter] - A function with signature (type, data) => void that is called when something is dragged over the drop target.
+         * @param {Function} [args.onDragLeave] - A function with signature () => void that is called when something is no longer dragged over the drop target.
+         * @param {Function} [args.onDrop] - A function with signature (type, data) => void that is called when something is dropped over the drop target.
          */
         constructor(targetElement, args) {
             if (!args) args = {};

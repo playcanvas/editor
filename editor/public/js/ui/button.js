@@ -20,7 +20,7 @@ function Button(args) {
 }
 Button.prototype = Object.create(ui.Element.prototype);
 
-Button.prototype._onKeyDown = function(evt) {
+Button.prototype._onKeyDown = function (evt) {
     if (evt.keyCode === 27)
         return this.blur();
 
@@ -32,19 +32,19 @@ Button.prototype._onKeyDown = function(evt) {
     this.ui.emit('click');
 };
 
-Button.prototype._onClick = function() {
+Button.prototype._onClick = function () {
     this._element.blur();
 };
 
-Button.prototype._onLinkChange = function(value) {
+Button.prototype._onLinkChange = function (value) {
     this._element.value = value;
 };
 
 Object.defineProperty(Button.prototype, 'text', {
-    get: function() {
+    get: function () {
         return this._text;
     },
-    set: function(value) {
+    set: function (value) {
         if (this._text === value) return;
         this._text = value;
         this._element.innerHTML = this._text;

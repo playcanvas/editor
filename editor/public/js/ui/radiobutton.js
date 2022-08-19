@@ -30,7 +30,7 @@ RadioButton.prototype._onChange = function () {
     this.flash();
 };
 
-RadioButton.prototype._onKeyDown = function(evt) {
+RadioButton.prototype._onKeyDown = function (evt) {
     if (evt.keyCode === 27)
         return this.blur();
 
@@ -42,7 +42,7 @@ RadioButton.prototype._onKeyDown = function(evt) {
     this.ui.value = !this.ui.value;
 };
 
-RadioButton.prototype._onLinkChange = function(value) {
+RadioButton.prototype._onLinkChange = function (value) {
     if (value === null) {
         this._element.classList.remove('selected');
         this._element.classList.add('null');

@@ -4,13 +4,14 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.BatchGroupInput
      * @classdesc A select input that holds batch group options.
-     * @extends pcui.SelectInput
+     * @augments pcui.SelectInput
      */
     class BatchGroupInput extends pcui.SelectInput {
         /**
          * Creates new pcui.BatchGroupInput.
-         * @param {Object} args The arguments
-         * @param {Observer} args.projectSettings The project settings
+         *
+         * @param {object} args - The arguments
+         * @param {Observer} args.projectSettings - The project settings
          */
         constructor(args) {
             if (!args) args = {};
@@ -19,7 +20,7 @@ Object.assign(pcui, (function () {
             args.allowNull = true;
             args.allowInput = true;
             args.allowCreate = true;
-            args.createLabelText = 'Create'
+            args.createLabelText = 'Create';
             args.options = [];
 
             super(args);

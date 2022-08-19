@@ -6,9 +6,9 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.Canvas
      * @classdesc A canvas element.
-     * @property {Number} canvasWidth The width of the HTML canvas
-     * @property {Number} canvasHeight The height of the HTML canvas
-     * @extends pcui.Element
+     * @property {number} canvasWidth The width of the HTML canvas
+     * @property {number} canvasHeight The height of the HTML canvas
+     * @augments pcui.Element
      */
     class Canvas extends pcui.Element {
         constructor(args) {
@@ -25,8 +25,8 @@ Object.assign(pcui, (function () {
         /**
          * @name pcui.Canvas#resize
          * @description Resizes the HTML canvas
-         * @param {Number} width The width
-         * @param {Number} height The height
+         * @param {number} width - The width
+         * @param {number} height - The height
          */
         resize(width, height) {
             const pixelWidth = Math.floor(this._pixelRatio * width);
