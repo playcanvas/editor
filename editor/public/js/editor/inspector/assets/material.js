@@ -184,7 +184,7 @@ Object.assign(pcui, (function () {
                 }, {
                     label: 'Vertex Color',
                     type: 'boolean',
-                    path: 'data.aoMapVertexColor',
+                    path: 'data.aoVertexColor',
                     reference: 'asset:material:aoMapVertexColor'
                 }, {
                     label: 'Tint',
@@ -214,11 +214,11 @@ Object.assign(pcui, (function () {
                 attributes: [..._textureAttribute('Diffuse', 'diffuse', TextureTypes.Color), {
                     label: 'Vertex Color',
                     type: 'boolean',
-                    path: 'data.diffuseMapVertexColor',
+                    path: 'data.diffuseVertexColor',
                     reference: 'asset:material:diffuseMapVertexColor'
                 }, {
                     label: 'Tint',
-                    path: 'data.diffuseMapTint',
+                    path: 'data.diffuseTint',
                     type: 'boolean',
                     reference: 'asset:material:diffuseMapTint'
                 }, {
@@ -272,7 +272,7 @@ Object.assign(pcui, (function () {
                     label: 'Vertex Color',
                     path: 'data.metalnessVertexColor',
                     type: 'boolean',
-                    reference: 'asset:material:metalnessVertexColor'
+                    reference: 'asset:material:metalnessMapVertexColor'
                 }, {
                     label: 'Metalness',
                     path: 'data.metalness',
@@ -285,28 +285,20 @@ Object.assign(pcui, (function () {
                     },
                     reference: 'asset:material:metalness'
                 }, {
-                    label: 'Offset',
-                    path: 'data.metalnessMapOffset',
-                    type: 'vec2',
-                    args: {
-                        placeholder: ['U', 'V']
-                    },
-                    reference: 'asset:material:metalnessMapOffset'
-                }, {
                     label: "Use Specular Color and Factor",
                     path: 'data.useMetalnessSpecularColor',
                     type: 'boolean',
                     reference: 'asset:material:useMetalnessSpecularColor'
                 }, ..._textureAttribute('Specular', 'specular', TextureTypes.Color), {
                     label: 'Vertex Color',
-                    path: 'data.specularMapVertexColor',
+                    path: 'data.specularVertexColor',
                     type: 'boolean',
-                    reference: 'asset:material:specularVertexColor'
+                    reference: 'asset:material:specularMapVertexColor'
                 }, {
                     label: 'Tint',
-                    path: 'data.specularMapTint',
+                    path: 'data.specularTint',
                     type: 'boolean',
-                    reference: 'asset:material:specularTint'
+                    reference: 'asset:material:specularMapTint'
                 }, {
                     label: 'Color',
                     path: 'data.specular',
@@ -314,7 +306,6 @@ Object.assign(pcui, (function () {
                     reference: 'asset:material:specular'
                 }, ..._textureAttribute('Specularity Factor', 'specularityFactor', TextureTypes.Scalar), {
                     label: 'Vertex Color',
-                    path: 'data.metalnessMapVertexColor',
                     path: 'data.specularityFactorVertexColor',
                     type: 'boolean',
                     reference: 'asset:material:specularityFactorVertexColor'
@@ -342,12 +333,12 @@ Object.assign(pcui, (function () {
                 history: parent._args.history,
                 attributes: [..._textureAttribute('Specular', 'specular', TextureTypes.Color), {
                     label: 'Vertex Color',
-                    path: 'data.specularMapVertexColor',
+                    path: 'data.specularVertexColor',
                     type: 'boolean',
                     reference: 'asset:material:specularMapVertexColor'
                 }, {
                     label: 'Tint',
-                    path: 'data.specularMapTint',
+                    path: 'data.specularTint',
                     type: 'boolean',
                     reference: 'asset:material:specularMapTint'
                 }, {
@@ -365,7 +356,7 @@ Object.assign(pcui, (function () {
                     type: 'divider'
                 }, ..._textureAttribute('Glossiness', 'gloss', TextureTypes.Scalar), {
                     label: 'Vertex Color',
-                    path: 'data.glossMapVertexColor',
+                    path: 'data.glossVertexColor',
                     type: 'boolean',
                     reference: 'asset:material:glossMapVertexColor'
                 }, {
@@ -508,12 +499,12 @@ Object.assign(pcui, (function () {
                 history: parent._args.history,
                 attributes: [..._textureAttribute('Emissive', 'emissive', TextureTypes.Color), {
                     label: 'Vertex Color',
-                    path: 'data.emissiveMapVertexColor',
+                    path: 'data.emissiveVertexColor',
                     type: 'boolean',
                     reference: 'asset:material:emissiveMapVertexColor'
                 }, {
                     label: 'Tint',
-                    path: 'data.emissiveMapTint',
+                    path: 'data.emissiveTint',
                     type: 'boolean',
                     reference: 'asset:material:emissiveMapTint'
                 }, {
@@ -578,7 +569,7 @@ Object.assign(pcui, (function () {
                     reference: 'asset:material:blendType'
                 }, ..._textureAttribute('Opacity', 'opacity', TextureTypes.Scalar), {
                     label: 'Vertex Color',
-                    path: 'data.opacityMapVertexColor',
+                    path: 'data.opacityVertexColor',
                     type: 'boolean',
                     reference: 'asset:material:opacityMapVertexColor'
                 }, {
@@ -788,7 +779,7 @@ Object.assign(pcui, (function () {
                 history: parent._args.history,
                 attributes: [..._textureAttribute('Lightmap', 'light', TextureTypes.Color), {
                     label: 'Vertex Color',
-                    path: 'data.lightMapVertexColor',
+                    path: 'data.lightVertexColor',
                     type: 'boolean',
                     reference: 'asset:material:lightMapVertexColor'
                 }]
@@ -959,7 +950,7 @@ Object.assign(pcui, (function () {
             this._offsetTilingInspector.getField('tiling').on('change', this._onChangeTiling.bind(this));
 
             this._opacityInspector.getField('data.blendType').on('change', toggleFields);
-            this._opacityInspector.getField('data.opacityMapVertexColor').on('change', toggleFields);
+            this._opacityInspector.getField('data.opacityVertexColor').on('change', toggleFields);
             this._opacityInspector.getField('data.opacityFadesSpecular').on('change', toggleFields);
 
             this._clearCoatFactorInspector.getField('data.clearCoat').on('change', toggleFields);
@@ -990,7 +981,7 @@ Object.assign(pcui, (function () {
 
             const applyToAllMaps = this._offsetTilingInspector.getField('applyToAllMaps').value;
 
-            const specularMetalnessAttributes = ['specularMapUv', 'specularMapChannel', 'specularMapOffset', 'specularMapTiling', 'specularMapVertexColor', 'specularMapTint', 'specular'];
+            const specularMetalnessAttributes = ['specularMapUv', 'specularMapChannel', 'specularMapOffset', 'specularMapTiling', 'specularVertexColor', 'specularTint', 'specular'];
             const speculartyFactorAttributes = ['specularityFactorMapUv', 'specularityFactorMapChannel', 'specularityFactorMapOffset', 'specularityFactorMapTiling', 'specularityFactorVertexColor', 'specularityFactorTint', 'specularityFactor'];
             const useMetalnessSpecularColor = this._metalnessWorkflowInspector.getField('data.useMetalnessSpecularColor').value;
             this._metalnessWorkflowInspector.getField('data.specularMap').hidden = !useMetalnessSpecularColor;
@@ -1034,7 +1025,7 @@ Object.assign(pcui, (function () {
             this._opacityInspector.getField('data.opacity').parent.hidden = ([2, 4, 6].indexOf(blendType) === -1);
 
             const opacityMapField = this._opacityInspector.getField('data.opacityMap');
-            const opacityVertexColorField = this._opacityInspector.getField('data.opacityMapVertexColor');
+            const opacityVertexColorField = this._opacityInspector.getField('data.opacityVertexColor');
 
             this._opacityInspector.getField('data.alphaTest').parent.hidden = !(opacityMapField.class.contains(pcui.CLASS_MULTIPLE_VALUES) || opacityMapField.value) && !(opacityVertexColorField.value || opacityVertexColorField.class.contains(pcui.CLASS_MULTIPLE_VALUES));
 
