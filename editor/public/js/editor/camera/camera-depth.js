@@ -57,7 +57,7 @@ editor.once('viewport:load', function () {
 
         for (let i = 0; i < drawCallsCount; i++) {
             const meshInstance = drawCalls[i];
-            if (!meshInstance.command && meshInstance.material && meshInstance.material.blendType === pc.BLEND_NONE) {
+            if (!meshInstance.command && meshInstance.material) {
                 const mesh = meshInstance.mesh;
 
                 renderer.modelMatrixId.setValue(meshInstance.node.worldTransform.data);
