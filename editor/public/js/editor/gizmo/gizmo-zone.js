@@ -20,14 +20,10 @@ editor.once('load', function () {
     // mesh instances to the front and others to the back layer depending
     // on the __useFrontLayer property
     const addModelToLayers = function () {
-        const frontMeshInstances = this.meshInstances.filter(function (mi) {
-            return mi.__useFrontLayer;
-        });
         const backMeshInstances = this.meshInstances.filter(function (mi) {
             return !mi.__useFrontLayer;
         });
 
-        // layerBack.addMeshInstances(frontMeshInstances);
         layerFront.addMeshInstances(backMeshInstances);
     };
 
@@ -272,7 +268,7 @@ void main(void)
             this.events = [];
             this.entity = null;
             this.type = '';
-            this.color;
+            this.color = null;
         }
 
         // update lines
@@ -693,8 +689,6 @@ void main(void)
             }
 
             if (dragPoint) {
-                const camera = editor.call('camera:current');
-                const transform = lastZone._link.entity.getWorldTransform();
                 const rotation = lastZone.entity.getRotation();
                 const position = dragPoint.entity.getLocalPosition();
                 const scale = lastZone._link.entity.zone.size;

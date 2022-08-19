@@ -22,7 +22,7 @@ editor.once('load', function () {
         return selection;
     }
 
-    function selectEntity(entity) {
+    function selectEntity(entity) { // eslint-disable-line no-unused-vars
         // timeout because there is a chance the selector will be disabled
         // when the entity picker is enabled
         setTimeout(() => {

@@ -66,7 +66,7 @@ editor.once('load', function () {
 
     refreshButtons();
 
-    var showError = function (error) {
+    var showError = function (error) { // eslint-disable-line no-unused-vars
         log.error('There was an error: ' + error);
     };
 

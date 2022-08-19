@@ -15,8 +15,6 @@ var __results = {
     loading: false
 };
 
-var window = self;
-
 var parseScript = function (id, url, engine) {
     // import engine
     importScripts(engine);
@@ -107,6 +105,91 @@ var parseScript = function (id, url, engine) {
                 enumIndex[key] = true;
             }
         }
+
+        const defaultValidators = {
+            vec2: function (value) {
+                if (!(value instanceof Array) || value.length !== 2) {
+                    return 'needs to be an array of 2 numbers';
+                }
+                return null;
+            },
+            vec3: function (value) {
+                if (!(value instanceof Array) || value.length !== 3) {
+                    return 'needs to be an array of 3 numbers';
+                }
+                return null;
+            },
+            vec4: function (value) {
+                if (!(value instanceof Array) || value.length !== 4) {
+                    return 'needs to be an array of 4 numbers';
+                }
+                return null;
+            },
+            rgb: function (value) {
+                if (!(value instanceof Array) || value.length !== 3) {
+                    return 'needs to be an array of 3 numbers';
+                }
+                return null;
+            },
+            rgba: function (value) {
+                if (!(value instanceof Array) || value.length !== 4) {
+                    return 'needs to be an array of 4 numbers';
+                }
+                return null;
+            },
+            number: function (value) {
+                if (typeof value !== 'number') {
+                    return 'needs to be a number';
+                }
+                return null;
+            },
+            boolean: function (value) {
+                if (value !== true && value !== false) {
+                    return 'needs to be a boolean';
+                }
+                return null;
+            },
+            string: function (value) {
+                if (typeof value !== 'string') {
+                    return 'needs to be a string';
+                }
+                return null;
+            },
+            json: function (value, schema) {
+                if (typeof value !== 'object') {
+                    return 'needs to be valid JSON';
+                }
+
+                const schemaIndex = {};
+                for (let i = 0; i < schema.length; i++) {
+                    schemaIndex[schema[i].name] = schema[i];
+
+                    // make sure all fields in the schema are in the value
+                    if (!value.hasOwnProperty(schema[i].name)) {
+                        return 'missing field \`' + schema[i].name + '\` as defined in schema';
+                    }
+                }
+
+                const keys = Object.keys(value);
+                // do not allow fields not in the schema
+                for (let i = 0; i < keys.length; i++) {
+                    const key = keys[i];
+                    if (!schemaIndex[key]) {
+                        return 'field \`' + key + '\` not defined in schema';
+                    }
+
+                    const type = schemaIndex[key].type;
+                    if (defaultValidators[type]) {
+                        const err = defaultValidators[type](value[key]);
+                        if (err) {
+                            return 'field \`' + key + '\` ' + err;
+                        }
+                    }
+                }
+
+                return null;
+            }
+        };
 
         function validateDefaultValue(args) {
             if (args.array) {
@@ -293,92 +376,6 @@ var parseScript = function (id, url, engine) {
             // override pc.ScriptType.attributes.add
             script.attributes.add = obj[name].attributes.add;
         }
-
-        defaultValidators = {
-            vec2: function (value) {
-                if (!(value instanceof Array) || value.length !== 2) {
-                    return 'needs to be an array of 2 numbers';
-                }
-                return null;
-            },
-            vec3: function (value) {
-                if (!(value instanceof Array) || value.length !== 3) {
-                    return 'needs to be an array of 3 numbers';
-                }
-                return null;
-            },
-            vec4: function (value) {
-                if (!(value instanceof Array) || value.length !== 4) {
-                    return 'needs to be an array of 4 numbers';
-                }
-                return null;
-            },
-            rgb: function (value) {
-                if (!(value instanceof Array) || value.length !== 3) {
-                    return 'needs to be an array of 3 numbers';
-                }
-                return null;
-            },
-            rgba: function (value) {
-                if (!(value instanceof Array) || value.length !== 4) {
-                    return 'needs to be an array of 4 numbers';
-                }
-                return null;
-            },
-            number: function (value) {
-                if (typeof value !== 'number') {
-                    return 'needs to be a number';
-                }
-                return null;
-            },
-            boolean: function (value) {
-                if (value !== true && value !== false) {
-                    return 'needs to be a boolean';
-                }
-                return null;
-            },
-            string: function (value) {
-                if (typeof value !== 'string') {
-                    return 'needs to be a string';
-                }
-                return null;
-            },
-            json: function (value, schema) {
-                if (typeof value !== 'object') {
-                    return 'needs to be valid JSON';
-                }
-
-                const schemaIndex = {};
-                for (let i = 0; i < schema.length; i++) {
-                    schemaIndex[schema[i].name] = schema[i];
-
-                    // make sure all fields in the schema are in the value
-                    if (!value.hasOwnProperty(schema[i].name)) {
-                        return 'missing field \`' + schema[i].name + '\` as defined in schema';
-                    }
-                }
-
-
-                const keys = Object.keys(value);
-                // do not allow fields not in the schema
-                for (let i = 0; i < keys.length; i++) {
-                    const key = keys[i];
-                    if (!schemaIndex[key]) {
-                        return 'field \`' + key + '\` not defined in schema';
-                    }
-
-                    const type = schemaIndex[key].type;
-                    if (defaultValidators[type]) {
-                        const err = defaultValidators[type](value[key]);
-                        if (err) {
-                            return 'field \`' + key + '\` ' + err;
-                        }
-                    }
-                }
-
-                return null;
-            }
-        };
 
         // extend
         obj[name].extend = function (methods) {

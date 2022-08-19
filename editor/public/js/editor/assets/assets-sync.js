@@ -13,7 +13,6 @@ editor.once('load', function () {
         'file',
         'i18n'
     ];
-    var docs = {};
 
     // try to detect if the browser was inactive for a while e.g.
     // if the computer went to sleep

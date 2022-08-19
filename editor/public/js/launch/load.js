@@ -3,7 +3,7 @@ editor.once('load', function () {
 
     var auth = false;
     var socket, connection;
-    var data;
+    var data; // eslint-disable-line no-unused-vars
     var reconnectAttempts = 0;
     var reconnectInterval = 1;
 

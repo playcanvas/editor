@@ -60,7 +60,7 @@ function onSuccess(method, url, xhr, success, error) {
     var type = xhr.getResponseHeader("Content-Type");
     if (type && (type.indexOf("application/javascript") >= 0 || type.indexOf("application/x-javascript") >= 0)) {
         try {
-            var fn = new Function(xhr.responseText);
+            var fn = new Function(xhr.responseText); // eslint-disable-line no-new-func
             fn();
             success();
         } catch (e) {

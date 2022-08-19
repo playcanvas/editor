@@ -137,7 +137,7 @@ Tree.prototype._onItemClick = function (item) {
                     return false;
                 };
 
-                while (parent = findNext(parent)) { }
+                while ((parent = findNext(parent))) {} // eslint-disable-line no-empty
             }
 
             return result;
@@ -151,18 +151,18 @@ Tree.prototype._onItemClick = function (item) {
         while (!done && !path) {
             lookingUp = !lookingUp;
 
-            var item = null;
+            let curItem = null;
             var lookFrom = from;
             if ((!lookDown || lookingUp) && lookUp) {
                 // up
                 if (up.length)
                     lookFrom = up[up.length - 1];
 
-                item = prev(lookFrom);
-                if (item) {
-                    up.push(item);
+                curItem = prev(lookFrom);
+                if (curItem) {
+                    up.push(curItem);
 
-                    if (item === to) {
+                    if (curItem === to) {
                         done = true;
                         path = up;
                         break;
@@ -175,11 +175,11 @@ Tree.prototype._onItemClick = function (item) {
                 if (down.length)
                     lookFrom = down[down.length - 1];
 
-                item = next(lookFrom);
-                if (item) {
-                    down.push(item);
+                curItem = next(lookFrom);
+                if (curItem) {
+                    down.push(curItem);
 
-                    if (item === to) {
+                    if (curItem === to) {
                         done = true;
                         path = down;
                         break;
@@ -247,7 +247,7 @@ Tree.prototype._onDragStart = function (item) {
         var defaultLevel = -1;
 
         // build index
-        for (var i = 0; i < this._selected.length; i++) {
+        for (let i = 0; i < this._selected.length; i++) {
             // cant drag parent
             if (this._selected[i].parent === this)
                 return;
@@ -256,8 +256,7 @@ Tree.prototype._onDragStart = function (item) {
             index[this._selected[i]._dragId] = this._selected[i];
         }
 
-        for (var i = 0; i < this._selected.length; i++) {
-            var s = this._selected[i];
+        for (let i = 0; i < this._selected.length; i++) {
             var level = 0;
             var child = false;
             var parent = this._selected[i].parent;
@@ -293,14 +292,14 @@ Tree.prototype._onDragStart = function (item) {
         }
 
         // clean ids
-        for (var i = 0; i < this._selected.length; i++)
+        for (let i = 0; i < this._selected.length; i++)
             this._selected[i]._dragId = null;
 
         this._dragItems = items;
 
         // sort items by their number of apperance in hierarchy
         if (items.length > 1) {
-            var commonParent = null;
+            let commonParent = null;
 
             // find common parent
             var findCommonParent = function (items) {
@@ -316,14 +315,14 @@ Tree.prototype._onDragStart = function (item) {
                 }
             };
             var parents = items;
-            while (!commonParent && parents)
+            while ((!commonParent && parents)) // eslint-disable-line no-unmodified-loop-condition
                 parents = findCommonParent(parents);
 
             // calculate ind number
-            for (var i = 0; i < items.length; i++) {
+            for (let i = 0; i < items.length; i++) {
                 var ind = 0;
 
-                var countChildren = function (item) {
+                const countChildren = function (item) {
                     if (!item._children) {
                         return 0;
                     }
@@ -337,7 +336,7 @@ Tree.prototype._onDragStart = function (item) {
 
                 };
 
-                var scanUpForIndex = function (item) {
+                const scanUpForIndex = function (item) {  // eslint-disable-line no-loop-func
                     ind++;
 
                     var sibling = item.element.previousSibling;
@@ -416,8 +415,8 @@ Tree.prototype._hoverCalculate = function (evt) {
     var oldDragOver = this._dragOver;
 
     if (this._dragOver.parent === this) {
-        var parent = false;
-        for (var i = 0; i < this._dragItems.length; i++) {
+        let parent = false;
+        for (let i = 0; i < this._dragItems.length; i++) {
             if (this._dragItems[i].parent === this._dragOver) {
                 parent = true;
                 this._dragOver = null;
@@ -429,8 +428,8 @@ Tree.prototype._hoverCalculate = function (evt) {
     } else {
         // check if we are trying to drag item inside any of its children
         var invalid = false;
-        for (var i = 0; i < this._dragItems.length; i++) {
-            var parent = this._dragOver.parent;
+        for (let i = 0; i < this._dragItems.length; i++) {
+            let parent = this._dragOver.parent;
             while (parent) {
                 if (parent === this._dragItems[i]) {
                     invalid = true;

@@ -3,7 +3,7 @@ editor.once('load', function () {
 
     var menu = editor.call('menu:navigate');
     var ctrl = editor.call('hotkey:ctrl:string');
-    var monacoEditor = editor.call('editor:monaco');
+    var monacoEditor = editor.call('editor:monaco'); // eslint-disable-line no-unused-vars
     var isFuzzyOpen = false;
 
     editor.on('picker:fuzzy:open', function () {

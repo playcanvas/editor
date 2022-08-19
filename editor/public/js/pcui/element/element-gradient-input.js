@@ -266,7 +266,7 @@ Object.assign(pcui, (function () {
             }
         }
 
-        set values(values) {
+        set values(values) { // eslint-disable-line accessor-pairs
             // we do not support multiple values so just
             // add the multiple values class which essentially disables
             // the input

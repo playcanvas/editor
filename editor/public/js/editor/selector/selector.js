@@ -2,7 +2,6 @@ editor.once('load', function () {
     'use strict';
 
     var enabled = true;
-    var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     var selector = new ObserverList();
     selector.type = null;
 
@@ -236,7 +235,6 @@ editor.once('load', function () {
     // return selected count
     editor.method('selector:count', function () {
         return editor.selection.count || selector.length;
-        return selector.length;
     });
 
 

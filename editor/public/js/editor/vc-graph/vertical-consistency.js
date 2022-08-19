@@ -35,9 +35,11 @@ editor.once('load', function () {
         }
 
         handleCheckpoint(h, prevNode) {
-            prevNode ?
-                this.restInBranch(h, prevNode) :
+            if (prevNode) {
+                this.restInBranch(h, prevNode);
+            } else {
                 this.firstInBranch(h);
+            }
 
             this.xToMaxY[h.coords.x] = h.coords.y;
         }

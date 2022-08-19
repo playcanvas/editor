@@ -54,17 +54,17 @@ editor.once('load', function () {
     }, {
         title: 'blendType',
         subTitle: '{pc.BLEND_*}',
-        description: 'The type of blending for this material. Options are:\n \
-        None {pc.BLEND_NONE}: The mesh is opaque. This is the default.\n \
-        Normal {pc.BLEND_NORMAL}: The mesh is transparent, like stained glass. Called as Alpha Blend as well.\n \
-        Additive {pc.BLEND_ADDITIVE}: The mesh color is added to whatever has already been rendered to the frame buffer.\n \
-        Additive Alpha {pc.BLEND_ADDITIVEALPHA}: Same as Additive except source RGB is multiplied by the source alpha.\n \
-        Screen {pc.BLEND_SCREEN}: Softer version of Additive.\n \
-        Pre-multiply {pc.BLEND_PREMULTIPLIED}: Like \'Normal\' blending except it is assumed that the color of the mesh being rendered with this material has already been modulated by its alpha value.\n \
-        Multiply {pc.BLEND_MULTIPLICATIVE}: When rendered, the mesh color is multiplied by whatever has already been rendered to the frame buffer.\n \
-        Modulate 2x {pc.BLEND_MULTIPLICATIVE2X}: Multiplies colors and doubles the result.\n \
-        Min {pc.BLEND_MIN}: [Partial Support, check `app.graphicsDevice.extBlendMinmax` for support] Minimum color.\n \
-        Max {pc.BLEND_MAX}: [Partial Support, check `app.graphicsDevice.extBlendMinmax` for support] Maximum color.',
+        description: `The type of blending for this material. Options are:
+        None {pc.BLEND_NONE}: The mesh is opaque. This is the default.
+        Normal {pc.BLEND_NORMAL}: The mesh is transparent, like stained glass. Called as Alpha Blend as well.
+        Additive {pc.BLEND_ADDITIVE}: The mesh color is added to whatever has already been rendered to the frame buffer.
+        Additive Alpha {pc.BLEND_ADDITIVEALPHA}: Same as Additive except source RGB is multiplied by the source alpha.
+        Screen {pc.BLEND_SCREEN}: Softer version of Additive.
+        Pre-multiply {pc.BLEND_PREMULTIPLIED}: Like 'Normal' blending except it is assumed that the color of the mesh being rendered with this material has already been modulated by its alpha value.
+        Multiply {pc.BLEND_MULTIPLICATIVE}: When rendered, the mesh color is multiplied by whatever has already been rendered to the frame buffer.
+        Modulate 2x {pc.BLEND_MULTIPLICATIVE2X}: Multiplies colors and doubles the result.
+        Min {pc.BLEND_MIN}: [Partial Support, check \`app.graphicsDevice.extBlendMinmax\` for support] Minimum color.
+        Max {pc.BLEND_MAX}: [Partial Support, check \`app.graphicsDevice.extBlendMinmax\` for support] Maximum color.`,
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#blendType'
     }, {
         title: 'bumpiness',

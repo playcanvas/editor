@@ -81,7 +81,6 @@ editor.once('load', function () {
 
         tooltip.html = editor.call('attributes:reference:template', args);
 
-        var links = { };
         var timerHover = null;
         var timerBlur = null;
 

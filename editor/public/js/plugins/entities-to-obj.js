@@ -15,14 +15,14 @@ editor.once('plugins:load:entities-to-obj', function () {
         if (!entities.length)
             return null;
 
-        var i, j, k;
+        var j, k;
         var vec = new pc.Vec3();
         var u, v;
         var v0, v1, v2;
         var voffset = 1;
         var obj = "";
 
-        for (i = 0; i < entities.length; i++) {
+        for (let i = 0; i < entities.length; i++) {
             var model = entities[i].model;
             if (model) {
                 var meshes = entities[i].model.model.meshInstances;
@@ -32,7 +32,6 @@ editor.once('plugins:load:entities-to-obj', function () {
                     var elems = vb.format.elements;
                     var numVerts = vb.numVertices;
                     var vertSize = vb.format.size;
-                    var index;
                     var offsetP, offsetN, offsetUv;
                     for (k = 0; k < elems.length; k++) {
                         if (elems[k].name === pc.SEMANTIC_POSITION) {

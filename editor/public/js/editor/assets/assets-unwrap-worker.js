@@ -38,7 +38,7 @@ var loadFile = function (id, filename, fn) {
             fn(e);
         }
     });
-    xhr.addEventListener('error', function () {
+    xhr.addEventListener('error', function (e) {
         fn(e);
     });
 

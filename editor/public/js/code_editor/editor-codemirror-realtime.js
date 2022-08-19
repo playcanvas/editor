@@ -87,7 +87,7 @@ editor.once('load', function () {
         }
 
         var prevDelete = false;
-        for (var i = 0; i < prevLen; i++) {
+        for (let i = 0; i < prevLen; i++) {
             if (typeof (prev.op[i]) === 'object') {
                 prevDelete = true;
                 break;
@@ -158,8 +158,8 @@ editor.once('load', function () {
         var initialRemoteOp = remoteOp.op;
 
         while (i--) {
-            var localOp = undoStack[i];
-            var old = localOp.op;
+            const localOp = undoStack[i];
+            const old = localOp.op;
             localOp.op = transform(localOp.op, remoteOp.op, 'left');
 
             // remove noop
@@ -303,7 +303,7 @@ editor.once('load', function () {
     // });
 
     // debug function
-    var printStacks = function () {
+    var printStacks = function () { // eslint-disable-line no-unused-vars
         console.log('undo');
         undoStack.forEach(function (i) {
             console.log(i.op);
@@ -371,8 +371,8 @@ editor.once('load', function () {
         var foldOps;
         if (folds.length) {
             foldOps = [];
-            for (var i = 0; i < folds.length; i++) {
-                var pos = CodeMirror.Pos(folds[i].lines[0].lineNo(), 0);
+            for (let i = 0; i < folds.length; i++) {
+                const pos = CodeMirror.Pos(folds[i].lines[0].lineNo(), 0);
                 foldOps.push(createCursorOp(pos));
             }
 

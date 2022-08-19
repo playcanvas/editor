@@ -274,8 +274,7 @@ TreeItem.prototype._onDblClick = function (evt) {
     evt.stopPropagation();
     var rect = this.getBoundingClientRect();
 
-    if (this.ui._children && (evt.clientX - rect.left) < 0) {
-
+    if (this.ui._children && (evt.clientX - rect.left) < 0) { // eslint-disable-line no-empty
     } else {
         this.ui._onRename(true);
     }
@@ -360,54 +359,55 @@ TreeItem.prototype._onKeyDown = function (evt) {
                     return false;
                 };
 
-                while (parent = findNext(parent)) { }
+                while ((parent = findNext(parent))) { } // eslint-disable-line no-empty
             }
             break;
         case 38: // up
-            var item = this.ui.element.previousSibling;
-            if (item)
-                item = item.ui;
+            {
+                let item = this.ui.element.previousSibling;
+                if (item)
+                    item = item.ui;
 
-            if (item) {
-                if (item._children && item.open && item !== this.ui.parent) {
-                    var last = item.element.lastChild;
-                    if (last.ui)
-                        last = last.ui;
+                if (item) {
+                    if (item._children && item.open && item !== this.ui.parent) {
+                        var last = item.element.lastChild;
+                        if (last.ui)
+                            last = last.ui;
 
-                    if (last) {
-                        var findLast = function (inside) {
-                            if (inside._children && inside.open) {
-                                return inside.element.lastChild.ui || null;
+                        if (last) {
+                            var findLast = function (inside) {
+                                if (inside._children && inside.open) {
+                                    return inside.element.lastChild.ui || null;
+                                }
+                                return null;
+
+                            };
+
+                            var found = false;
+                            while (!found) {
+                                var deeper = findLast(last);
+                                if (deeper) {
+                                    last = deeper;
+                                } else {
+                                    found = true;
+                                }
                             }
-                            return null;
 
-                        };
-
-                        var found = false;
-                        while (!found) {
-                            var deeper = findLast(last);
-                            if (deeper) {
-                                last = deeper;
-                            } else {
-                                found = true;
-                            }
+                            selectedItem = last;
+                            // last.selected = true;
+                        } else {
+                            selectedItem = item;
+                            // item.selected = true;
                         }
-
-                        selectedItem = last;
-                        // last.selected = true;
                     } else {
                         selectedItem = item;
                         // item.selected = true;
                     }
-                } else {
-                    selectedItem = item;
-                    // item.selected = true;
+                } else if (this.ui.parent && this.ui.parent instanceof TreeItem) {
+                    selectedItem = this.ui.parent;
+                    // this.ui.parent.selected = true;
                 }
-            } else if (this.ui.parent && this.ui.parent instanceof TreeItem) {
-                selectedItem = this.ui.parent;
-                // this.ui.parent.selected = true;
             }
-
             break;
         case 37: // left (close)
             if (this.ui.parent !== this.ui.tree && this.ui.open)

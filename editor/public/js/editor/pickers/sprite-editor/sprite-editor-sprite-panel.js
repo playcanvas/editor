@@ -9,7 +9,7 @@ editor.once('load', function () {
         var frameKeys = spriteAsset.get('data.frameKeys');
 
         var spriteEditMode = false;
-        var selectedFrames = null;
+        var selectedFrames = null; // eslint-disable-line no-unused-vars
 
         var events = [];
 
@@ -329,7 +329,6 @@ editor.once('load', function () {
                 panelFrames.remove(draggedPanel);
                 panelFrames.appendBefore(draggedPanel, panelFrames.innerElement.childNodes[overPanelIndex]);
 
-                var idx = panels.splice(panels.indexOf(draggedPanel), 1);
                 panels.splice(overPanelIndex, 0, draggedPanel);
             }
         };

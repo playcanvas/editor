@@ -297,17 +297,14 @@ Object.assign(pcui, (function () {
                 // latin
                 if (hasChars('Aa', engineAsset.resource)) {
                     text = 'Aa';
-                }
-                // greek
-                else if (hasChars('Αα', engineAsset.resource)) {
+                } else if (hasChars('Αα', engineAsset.resource)) {
+                    // greek
                     text = 'Αα';
-                }
-                // cyrillic
-                else if (hasChars('Аа', engineAsset.resource)) {
+                } else if (hasChars('Аа', engineAsset.resource)) {
+                    // cyrillic
                     text = 'Аа';
-                }
-                // rest
-                else {
+                } else {
+                    // rest
                     text = '';
                     const chars = this._asset.get('meta.chars');
                     for (let i = 0, len = chars.length; i < len && text.length < 2; i++) {

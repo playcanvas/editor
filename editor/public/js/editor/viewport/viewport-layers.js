@@ -58,7 +58,7 @@ editor.once('load', function () {
                     if (parts[2] === 'enabled') {
                         editor.call('gizmo:layers:removeFromComposition');
 
-                        var subLayerId = parseInt(parts[1]);
+                        var subLayerId = parseInt(parts[1], 10);
                         app.scene.layers.subLayerEnabled[subLayerId] = value;
 
                         editor.call('gizmo:layers:addToComposition');

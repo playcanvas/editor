@@ -37,8 +37,9 @@ editor.once('load', function () {
 
         handleSrcX(src) {
             for (let dst = 1; dst < src; dst++) {
-                this.xToLimits[src] &&
-                this.handleSrcDst(src, dst);
+                if (this.xToLimits[src]) {
+                    this.handleSrcDst(src, dst);
+                }
             }
         }
 
@@ -48,7 +49,9 @@ editor.once('load', function () {
             const a = Object.values(h);
 
             a.forEach((branch) => {
-                this.canMove(branch, dst) && this.moveBranch(branch, dst);
+                if (this.canMove(branch, dst)) {
+                    this.moveBranch(branch, dst);
+                }
             });
         }
 
@@ -93,7 +96,7 @@ editor.once('load', function () {
 
             this.branches[branch[0].branchId].branchXCoord = dst;
 
-            throw { name: 'CompactIterDone' };
+            throw { name: 'CompactIterDone' }; // eslint-disable-line no-throw-literal
         }
 
         setXToLimit(x) {

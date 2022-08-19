@@ -7,7 +7,7 @@ editor.once('load', function () {
     var vecD = new pc.Vec3();
     var quat = new pc.Quat();
 
-    var gizmoAnchor = null;
+    var gizmoAnchor = null; // eslint-disable-line no-unused-vars
     var evtTapStart = null;
     var moving = false;
     var mouseTap = null;
@@ -18,7 +18,7 @@ editor.once('load', function () {
     var anchorDirty = false;
     var anchorStart = [];
     var anchorCurrent = [];
-    var localPosition = [];
+    var localPosition = []; // eslint-disable-line no-unused-vars
     var offset = new pc.Vec3();
     var visible = true;
 
@@ -126,11 +126,11 @@ editor.once('load', function () {
             }
         });
 
-        var isAnchorSplit = function (anchor) {
+        var isAnchorSplit = function (anchor) { // eslint-disable-line no-unused-vars
             return Math.abs(anchor[0] - anchor[2] > 0.001 || Math.abs(anchor[1] - anchor[3]) > 0.001);
         };
 
-        var clamp = function (value, min, max) {
+        var clamp = function (value, min, max) { // eslint-disable-line no-unused-vars
             return Math.min(Math.max(value, min), max);
         };
 

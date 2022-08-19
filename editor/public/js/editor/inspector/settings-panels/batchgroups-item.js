@@ -56,7 +56,6 @@ Object.assign(pcui, (function () {
 
             this.once('destroy', () => {
                 evtRemove.unbind();
-                evtName.unbind();
             });
 
             const batchGroup = this._projectSettings.get(`batchGroups.${this._args.id}`);

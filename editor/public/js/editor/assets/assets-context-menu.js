@@ -35,7 +35,9 @@ editor.once('load', function () {
 
             editor.call('picker:script-create', function (filename) {
                 editor.assets.createScript({
-                    folder: folder,
+                    // missing folder definition
+                    // legacy script path never executing currently
+                    folder: folder, // eslint-disable-line no-undef
                     filename: filename
                 })
                 .then((asset) => {

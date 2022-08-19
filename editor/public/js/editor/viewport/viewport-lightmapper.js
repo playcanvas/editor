@@ -17,7 +17,7 @@ editor.once('load', function () {
 
         uv1MissingAssets = { };
         var areaJobs = { };
-        var jobs = 0;
+        let jobs = 0;
 
         var readyForBake = function () {
             app.lightmapper.bake(null, app.scene.lightmapMode);
@@ -59,7 +59,7 @@ editor.once('load', function () {
                 // recalculate area
                 areaJobs[assetId] = asset;
                 jobs++;
-                editor.call('assets:model:area', asset, function () {
+                editor.call('assets:model:area', asset, function () { // eslint-disable-line no-loop-func
                     jobs--;
 
                     if (jobs === 0)

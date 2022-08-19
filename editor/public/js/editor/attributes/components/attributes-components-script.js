@@ -146,7 +146,7 @@ editor.once('load', function () {
             }
 
             for (let i = 0; i < entities.length; i++) {
-                var addScript = true;
+                let addScript = true;
                 var scripts = entities[i].getRaw('components.script.scripts');
                 for (var s = 0; s < scripts.length; s++) {
                     if (scripts[s].get('url') === url) {
@@ -337,11 +337,9 @@ editor.once('load', function () {
             var list = [];
             var index = { };
             var toDestroy = [];
-            var toCreate = [];
 
             for (let i = 0; i < children.length; i++) {
                 var attribute = children[i].ui.attribute;
-                var attributeType = children[i].ui.attributeType;
                 var attributeUiType = children[i].ui.attributeUiType;
 
                 if (attributes.indexOf(attribute) === -1 || attributeUiType !== script.get('attributes.' + attribute + '.type')) {
@@ -467,7 +465,7 @@ editor.once('load', function () {
             }
 
             if (scriptAttributeTypes[attribute.type] !== 'assets') {
-                var type = scriptAttributeTypes[attribute.type];
+                let type = scriptAttributeTypes[attribute.type];
                 if (attribute.type === 'enumeration' && choices.length >= 2 && typeof choices[1].v === 'string')
                     type = 'string';
 
@@ -987,7 +985,6 @@ editor.once('load', function () {
                 var rectB = panel.element.getBoundingClientRect();
                 if (rectB.top > rectA.top && rectB.bottom < rectA.bottom) {
                     for (let i = 0; i < entities.length; i++) {
-                        var addScript = true;
                         var scripts = entities[i].getRaw('components.script.scripts');
                         for (var s = 0; s < scripts.length; s++) {
                             if (scripts[s].get('url') === data.filename) {

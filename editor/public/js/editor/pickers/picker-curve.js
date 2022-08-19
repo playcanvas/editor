@@ -1115,7 +1115,7 @@ editor.once('load', function () {
 
         if (!suspendEvents) {
             for (const index in changedCurves) {
-                var curve = curves[parseInt(index)];
+                var curve = curves[parseInt(index, 10)];
                 if (curve) {
                     var val = serializeCurveKeys(curve);
                     paths.push(getKeysPath(curve));
@@ -1325,8 +1325,9 @@ editor.once('load', function () {
             }
 
             // remove its matching curve too
+            let otherCurve;
             if (betweenCurves) {
-                var otherCurve = getOtherCurve(curve);
+                otherCurve = getOtherCurve(curve);
                 if (otherCurve) {
                     index = enabledCurves.indexOf(otherCurve);
                     if (index >= 0) {

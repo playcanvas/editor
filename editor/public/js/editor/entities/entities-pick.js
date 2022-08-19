@@ -28,11 +28,15 @@ editor.once('load', function () {
             if (node.model && node.model.type === 'asset' && node.model.model) {
                 var meshInstances = node.model.model.meshInstances;
 
-                for (let i = 0; i < meshInstances.length; i++) {
-                    var instance = meshInstances[i];
+                let stop = false;
+                meshInstances.forEach((instance, i) => {
+
+                    if (stop) {
+                        return;
+                    }
 
                     if (instance !== picked && instance !== picked._staticSource)
-                        continue;
+                        return;
 
                     var index = i;
 
@@ -43,7 +47,10 @@ editor.once('load', function () {
                     } else {
                         // get model asset
                         var asset = editor.call('assets:get', node.model.asset);
-                        if (!asset) break;
+                        if (!asset) {
+                            stop = true;
+                            return;
+                        }
 
                         // select model asset
                         editor.call('selector:set', 'asset', [asset]);
@@ -57,8 +64,8 @@ editor.once('load', function () {
                         }
                     }, 200);
 
-                    break;
-                }
+                    stop = true;
+                });
             }
         } else {
             // select entity

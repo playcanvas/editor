@@ -249,7 +249,7 @@ Object.assign(
             }
 
             get showSkeleton() {
-                this._showSkeleton;
+                return this._showSkeleton;
             }
 
             set showSkeleton(value) {
@@ -260,7 +260,7 @@ Object.assign(
             }
 
             get showModel() {
-                this._showModel;
+                return this._showModel;
             }
 
             set showModel(value) {

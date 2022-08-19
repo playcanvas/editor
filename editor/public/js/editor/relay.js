@@ -4,7 +4,7 @@ editor.on('start', function () {
     if (typeof RelayServer === 'undefined')
         return;
 
-    const relay = new RelayServer();
+    const relay = new RelayServer(); // eslint-disable-line no-undef
 
     if (editor.call('permissions:read')) {
         relay.connect(config.url.relay.ws);

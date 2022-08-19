@@ -67,7 +67,7 @@ editor.once('load', function () {
 
             var hasFrames = false;
             var currentFrames = atlasAsset.getRaw('data.frames')._data;
-            for (const key in currentFrames) {
+            for (const key in currentFrames) { // eslint-disable-line 
                 hasFrames = true;
                 break;
             }

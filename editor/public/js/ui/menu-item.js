@@ -1,7 +1,7 @@
 "use strict";
 
 function MenuItem(args) {
-    var self = this;
+    var self = this; // eslint-disable-line no-unused-vars
 
     args = args || { };
     ui.ContainerElement.call(this);

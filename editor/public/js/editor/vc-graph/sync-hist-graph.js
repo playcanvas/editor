@@ -61,7 +61,9 @@ editor.once('load', function () {
 
                 const h2 = this.oldGraph[id2];
 
-                h2 && this.addOneEdge(h2[type2], edge);
+                if (h2) {
+                    this.addOneEdge(h2[type2], edge);
+                }
             });
         }
 

@@ -771,7 +771,7 @@ Object.assign(pcui, (function () {
         }
 
         _handleBtnCompressLegacyClick() {
-            const { basis, ...rest } = this._compressionFormats;
+            const { basis, ...rest } = this._compressionFormats; // eslint-disable-line no-unused-vars
             this._handleCompress(Object.keys(rest));
             this._btnCompressLegacy.disabled = true;
         }
@@ -1127,7 +1127,7 @@ Object.assign(pcui, (function () {
                         });
                     }
                 }));
-                this._assetEvents.push(asset.on('meta:unset', () => this._btnGetMeta.hidden = false));
+                this._assetEvents.push(asset.on('meta:unset', () => { this._btnGetMeta.hidden = false; }));
 
                 // recalculate size
                 for (const key in this._compressionFormats) {

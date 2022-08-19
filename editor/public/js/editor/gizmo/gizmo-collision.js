@@ -242,40 +242,42 @@ editor.once('load', function () {
                 this.entity.setLocalScale(radius, radius, height);
                 break;
             case 'mesh':
-                this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
+                {
+                    this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
 
-                // if the asset has changed
-                const isRender = !!collision.renderAsset;
-                const asset = isRender ? collision.renderAsset : collision.asset;
-                if (asset !== this.asset) {
+                    // if the asset has changed
+                    const isRender = !!collision.renderAsset;
+                    const asset = isRender ? collision.renderAsset : collision.asset;
+                    if (asset !== this.asset) {
 
-                    this.asset = asset;
-                    this.createWireframe(this.asset, isRender);
-                    if (!this.asset) {
-                        this.entity.enabled = false;
+                        this.asset = asset;
+                        this.createWireframe(this.asset, isRender);
+                        if (!this.asset) {
+                            this.entity.enabled = false;
 
-                        if (isRender) {
-                            this.entity.render.meshInstances = [];
-                        } else {
-                            this.entity.model.model = null;
+                            if (isRender) {
+                                this.entity.render.meshInstances = [];
+                            } else {
+                                this.entity.model.model = null;
+                            }
+                            return;
                         }
-                        return;
                     }
-                }
 
-                // when model collision mesh gets clicked on again, the mesh instance of the model is selected
-                // Note: render does not have an equivalent of this and so this is not implemented
-                if (this.entity.model.model) {
-                    const picking = !visible && this._link.entity.model && this._link.entity.model.enabled && this._link.entity.model.type === 'asset' && this._link.entity.model.asset === collision.asset;
-                    if (picking !== this.entity.model.model.__picking) {
-                        this.entity.model.model.__picking = picking;
+                    // when model collision mesh gets clicked on again, the mesh instance of the model is selected
+                    // Note: render does not have an equivalent of this and so this is not implemented
+                    if (this.entity.model.model) {
+                        const picking = !visible && this._link.entity.model && this._link.entity.model.enabled && this._link.entity.model.type === 'asset' && this._link.entity.model.asset === collision.asset;
+                        if (picking !== this.entity.model.model.__picking) {
+                            this.entity.model.model.__picking = picking;
 
-                        const meshes = this.entity.model.meshInstances;
-                        for (let i = 0; i < meshes.length; i++) {
-                            if (!meshes[i].__collision)
-                                continue;
+                            const meshes = this.entity.model.meshInstances;
+                            for (let i = 0; i < meshes.length; i++) {
+                                if (!meshes[i].__collision)
+                                    continue;
 
-                            meshes[i].pick = !picking;
+                                meshes[i].pick = !picking;
+                            }
                         }
                     }
                 }

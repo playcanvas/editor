@@ -100,12 +100,12 @@ editor.once('plugins:load:asset-texture-lod', function () {
         var assetsHi = [];
         var assetsLod;
 
-        for (var i = 0; i < assets.length; i++) {
+        for (let i = 0; i < assets.length; i++) {
             if (assets[i].get('type') !== 'texture' || assets[i].get('source'))
                 continue;
 
-            var tags = assets[i].get('tags');
-            var list = null;
+            const tags = assets[i].get('tags');
+            let list = null;
 
             if (tags.indexOf('lod') !== -1) {
                 list = assetsHi;
@@ -124,7 +124,7 @@ editor.once('plugins:load:asset-texture-lod', function () {
 
         assetsLod = assetsMid.concat(assetsLow);
 
-        for (var i = 0; i < assetsLod.length; i++) {
+        for (let i = 0; i < assetsLod.length; i++) {
             var tags = assetsLod[i].get('tags');
             var level = '';
 
@@ -154,21 +154,21 @@ editor.once('plugins:load:asset-texture-lod', function () {
         var usedIndex = editor.call('assets:used:index');
 
         if (quality === 'original') {
-            for (var i = 0; i < assetsLod.length; i++) {
-                var asset = assetsLod[i];
-                var used = usedIndex[asset.get('id')];
+            for (let i = 0; i < assetsLod.length; i++) {
+                const asset = assetsLod[i];
+                const used = usedIndex[asset.get('id')];
                 if (!used || !used.parent)
                     continue;
 
-                for (var id in used.ref) {
+                for (const id in used.ref) {
                     if (used.ref[id].type !== 'asset')
                         continue;
 
-                    var assetRef = editor.call('assets:get', id);
+                    const assetRef = editor.call('assets:get', id);
                     if (!assetRef || assetRef.get('type') !== 'material')
                         continue;
 
-                    for (var s = 0; s < slots.length; s++) {
+                    for (let s = 0; s < slots.length; s++) {
                         if (parseInt(assetRef.get('data.' + slots[s]), 10) !== parseInt(asset.get('id'), 10))
                             continue;
 

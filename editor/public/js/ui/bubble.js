@@ -44,8 +44,6 @@ Bubble.prototype.deactivate = function () {
 };
 
 Bubble.prototype.position = function (x, y) {
-    var rect = this._element.getBoundingClientRect();
-
     var left = (x || 0);
     var top = (y || 0);
 

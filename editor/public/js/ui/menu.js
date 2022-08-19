@@ -1,7 +1,7 @@
 "use strict";
 
 function Menu(args) {
-    var self = this;
+    var self = this; // eslint-disable-line no-unused-vars
 
     args = args || { };
     ui.ContainerElement.call(this);
@@ -118,7 +118,7 @@ Menu.prototype.findByPath = function (path) {
 Menu.prototype._updatePath = function (path) {
     var node = this;
 
-    for (var i = 0; i < this._hovered.length; i++) {
+    for (let i = 0; i < this._hovered.length; i++) {
         node = node._index[this._hovered[i]];
         if (!node) break;
         if (path.length <= i || path[i] !== this._hovered[i]) {

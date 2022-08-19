@@ -446,7 +446,9 @@ editor.once('load', function () {
     editor.method('editor:command:undo', function () {
         if (editor.call('editor:command:can:undo')) {
             if (editor.call('editor:resolveConflictMode')) {
-                return cm.undo();
+                // missing cm definition
+                // legacy script Code Mirror is read only now
+                return cm.undo(); // eslint-disable-line no-undef
             }
 
             var snapshot = focusedDocument.context.get() || '';
@@ -471,7 +473,9 @@ editor.once('load', function () {
     editor.method('editor:command:redo', function () {
         if (editor.call('editor:command:can:redo')) {
             if (editor.call('editor:resolveConflictMode')) {
-                return cm.redo();
+                // missing cm definition
+                // legacy script Code Mirror is read only now
+                return cm.redo(); // eslint-disable-line no-undef
             }
 
             var snapshot = focusedDocument.context.get() || '';

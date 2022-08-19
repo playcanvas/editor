@@ -134,7 +134,7 @@ ObserverSync.prototype.write = function (op) {
 
     if (op.hasOwnProperty('oi')) {
         // set key value
-        var path = op.p.slice(this._prefix.length).join('.');
+        const path = op.p.slice(this._prefix.length).join('.');
 
         this._enabled = false;
         this.item.set(path, op.oi, false, true);
@@ -143,7 +143,7 @@ ObserverSync.prototype.write = function (op) {
 
     } else if (op.hasOwnProperty('ld') && op.hasOwnProperty('li')) {
         // set array value
-        var path = op.p.slice(this._prefix.length).join('.');
+        const path = op.p.slice(this._prefix.length).join('.');
 
         this._enabled = false;
         this.item.set(path, op.li, false, true);
@@ -152,7 +152,7 @@ ObserverSync.prototype.write = function (op) {
 
     } else if (op.hasOwnProperty('ld')) {
         // delete item
-        var path = op.p.slice(this._prefix.length, -1).join('.');
+        const path = op.p.slice(this._prefix.length, -1).join('.');
 
         this._enabled = false;
         this.item.remove(path, op.p[op.p.length - 1], false, true);
@@ -161,8 +161,8 @@ ObserverSync.prototype.write = function (op) {
 
     } else if (op.hasOwnProperty('li')) {
         // add item
-        var path = op.p.slice(this._prefix.length, -1).join('.');
-        var ind = op.p[op.p.length - 1];
+        const path = op.p.slice(this._prefix.length, -1).join('.');
+        const ind = op.p[op.p.length - 1];
 
         this._enabled = false;
         this.item.insert(path, op.li, ind, false, true);
@@ -171,7 +171,7 @@ ObserverSync.prototype.write = function (op) {
 
     } else if (op.hasOwnProperty('lm')) {
         // item moved
-        var path = op.p.slice(this._prefix.length, -1).join('.');
+        const path = op.p.slice(this._prefix.length, -1).join('.');
         var indOld = op.p[op.p.length - 1];
         var ind = op.lm;
 

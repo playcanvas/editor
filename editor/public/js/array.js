@@ -1,5 +1,5 @@
 if (!Array.prototype.equals) {
-    Object.defineProperty(Array.prototype, 'equals', {
+    Object.defineProperty(Array.prototype, 'equals', { // eslint-disable-line no-extend-native
         enumerable: false,
         value: function (array) {
             if (!array)

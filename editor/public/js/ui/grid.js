@@ -1,7 +1,7 @@
 "use strict";
 
 function Grid(args) {
-    var self = this;
+    var self = this; // eslint-disable-line no-unused-vars
     ui.ContainerElement.call(this);
 
     this.element = document.createElement('ul');
@@ -42,7 +42,7 @@ Grid.prototype._onSelect = function (item) {
                 endInd = t;
             }
 
-            for (var i = startInd; i < endInd; i++) {
+            for (let i = startInd; i < endInd; i++) {
                 if (!children[i] || !children[i].ui || children[i].ui.hidden)
                     continue;
 
@@ -136,7 +136,7 @@ Object.defineProperty(Grid.prototype, 'selected', {
 
         // deselecting
         var items = this.selected;
-        for (var i = 0; i < items.length; i++) {
+        for (let i = 0; i < items.length; i++) {
             if (value && value.indexOf(items[i]) !== -1)
                 continue;
             items[i].selected = false;

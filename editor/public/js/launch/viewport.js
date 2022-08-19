@@ -11,7 +11,7 @@ editor.once('load', function () {
     var sceneData = null;
     var sceneSettings = null;
     var loadingScreen = false;
-    var scriptList = [];
+    var scriptList = []; // eslint-disable-line no-unused-vars
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     var canvas;
     var app;

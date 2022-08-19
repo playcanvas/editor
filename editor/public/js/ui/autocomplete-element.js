@@ -125,9 +125,8 @@ AutoCompleteElement.prototype.onInputKey = function (e) {
         if (!this.hidden && this._highlightedElement) {
             this._select(this._highlightedElement);
         }
-    }
-    // up: show dropdown or move highlight up
-    else if (e.keyCode === 38) {
+    } else if (e.keyCode === 38) {
+        // up: show dropdown or move highlight up
         if (this.hidden) {
             this.filter(this._inputField.value);
         } else {
@@ -142,10 +141,8 @@ AutoCompleteElement.prototype.onInputKey = function (e) {
 
             this._highlight(this._visibleElements[index]);
         }
-    }
-    // down: show dropdown or move highlight down
-    else if (e.keyCode === 40) {
-
+    } else if (e.keyCode === 40) {
+        // down: show dropdown or move highlight down
         if (this.hidden) {
             this.filter(this._inputField.value);
         } else {
@@ -164,12 +161,11 @@ AutoCompleteElement.prototype.onInputKey = function (e) {
 };
 
 AutoCompleteElement.prototype.onInputBlur = function () {
-    return;
     // hide the dropdown in a timeout
     // to avoid conflicts with key handlers
-    setTimeout(function () {
-        this.hidden = true;
-    }.bind(this), 50);
+    // setTimeout(function () {
+    //     this.hidden = true;
+    // }.bind(this), 50);
 };
 
 AutoCompleteElement.prototype.onInputChange = function (value) {

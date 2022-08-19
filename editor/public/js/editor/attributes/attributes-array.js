@@ -212,8 +212,6 @@ editor.once('load', function () {
 
                             if (!link) return;
 
-                            var path = pathAt(args, i);
-
                             // set previous value
                             var history = link.history.enabled;
                             link.history.enabled = false;
@@ -370,8 +368,6 @@ editor.once('load', function () {
                     link = link.latest();
 
                     if (!link) return;
-
-                    var path = pathAt(args, i);
 
                     // set previous value
                     var history = link.history.enabled;

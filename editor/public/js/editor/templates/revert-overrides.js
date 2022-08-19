@@ -374,6 +374,7 @@ editor.once('load', function () {
                         return key;
                     }
                 }
+                return undefined;
             });
 
             // add new entities

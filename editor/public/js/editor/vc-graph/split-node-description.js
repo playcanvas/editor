@@ -31,9 +31,11 @@ editor.once('load', function () {
         handleToken(s) {
             const afterAdd = this.curLength + this.spaceBefore() + s.length;
 
-            afterAdd > this.maxPerLine ?
-                this.splitIfNeeded(s) :
+            if (afterAdd > this.maxPerLine) {
+                this.splitIfNeeded(s);
+            } else {
                 this.addToCur(s);
+            }
         }
 
         splitIfNeeded(s) {

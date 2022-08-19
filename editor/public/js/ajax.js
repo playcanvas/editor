@@ -77,7 +77,7 @@ function AjaxRequest(args) {
         }
 
         var query = [];
-        for (var key in args.query) {
+        for (const key in args.query) {
             query.push(key + '=' + args.query[key]);
         }
 
@@ -89,7 +89,7 @@ function AjaxRequest(args) {
     if (parts.length > 1) {
         for (var i = 1; i < parts.length; i++) {
             var ends = parts[i].indexOf('}}');
-            var key = parts[i].slice(0, ends);
+            const key = parts[i].slice(0, ends);
 
             if (Ajax.params[key] === undefined)
                 continue;
@@ -138,8 +138,9 @@ AjaxRequest.prototype._onLoad = function () {
         if (this.notJson) {
             this.emit('load', this._xhr.status, this._xhr.responseText);
         } else {
+            let json;
             try {
-                var json = JSON.parse(this._xhr.responseText);
+                json = JSON.parse(this._xhr.responseText);
             } catch (ex) {
                 this.emit('error', this._xhr.status || 0, new Error('invalid json'));
                 return;

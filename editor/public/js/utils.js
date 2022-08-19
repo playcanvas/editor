@@ -72,7 +72,7 @@ utils.proxy = function (targetClass, memberName, properties) {
 
 // String.startsWith
 if (!String.prototype.startsWith) {
-    Object.defineProperty(String.prototype, 'startsWith', {
+    Object.defineProperty(String.prototype, 'startsWith', { // eslint-disable-line no-extend-native
         enumerable: false,
         configurable: false,
         writable: false,
@@ -88,7 +88,7 @@ if (!String.prototype.startsWith) {
 
 // String.endsWith polyfill
 if (!String.prototype.endsWith) {
-    Object.defineProperty(String.prototype, 'endsWith', {
+    Object.defineProperty(String.prototype, 'endsWith', { // eslint-disable-line no-extend-native
         enumerable: false,
         configurable: false,
         writable: false,
@@ -106,7 +106,7 @@ if (!String.prototype.endsWith) {
 // automatically figuring out if the separator should be ? or &.
 // Example: url.appendQuery('t=123').appendQuery('q=345');
 if (!String.prototype.appendQuery) {
-    Object.defineProperty(String.prototype, 'appendQuery', {
+    Object.defineProperty(String.prototype, 'appendQuery', { // eslint-disable-line no-extend-native
         enumerable: false,
         configurable: false,
         writable: false,
@@ -119,10 +119,10 @@ if (!String.prototype.appendQuery) {
 
 // element.classList.add polyfill
 (function () {
-    /* global DOMTokenList */
+    /* global DOMTokenList */ // eslint-disable-line 
     var dummy  = document.createElement('div'),
         dtp    = DOMTokenList.prototype,
-        toggle = dtp.toggle,
+        toggle = dtp.toggle, // eslint-disable-line no-unused-vars
         add    = dtp.add,
         rem    = dtp.remove;
 

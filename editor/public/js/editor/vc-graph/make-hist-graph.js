@@ -202,7 +202,9 @@ editor.once('load', function () {
             h1[type1].forEach((edge) => {
                 const h2 = this.resGraph[edge[type1]];
 
-                h2 && this.rmEdge(h2, type2, h1.id);
+                if (h2) {
+                    this.rmEdge(h2, type2, h1.id);
+                }
             });
         }
 

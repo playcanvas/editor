@@ -1,7 +1,7 @@
 "use strict";
 
 function CurveField(args) {
-    var self = this;
+    var self = this; // eslint-disable-line no-unused-vars
 
     ui.Element.call(this);
     args = args || { };
@@ -264,7 +264,7 @@ CurveField.prototype._renderCurves = function () {
 };
 
 // Renders color-type graph as a gradient
-CurveField.prototype._renderGradient = function () {
+CurveField.prototype._renderGradient = function () { // eslint-disable-line
     var canvas = this.canvas.element;
     var context = canvas.ctx = canvas.cxt || canvas.getContext('2d');
     var value = this.value && this.value.length ? this.value[0] : null;
@@ -313,7 +313,7 @@ CurveField.prototype._renderGradient = function () {
         context.fillStyle = 'black';
         context.fillRect(0, 0, canvas.width, canvas.height);
     }
-},
+};
 
 // Returns minimum and maximum values for all curves
 CurveField.prototype._getMinMaxValues = function (curves) {
@@ -377,7 +377,7 @@ CurveField.prototype._getMinMaxValues = function (curves) {
     return [minValue, maxValue];
 };
 
-CurveField.prototype._valueToCurves = function (value) {
+CurveField.prototype._valueToCurves = function (value) { // eslint-disable-line 
     var curves = null;
 
     if (value && value.keys && value.keys.length) {
@@ -397,6 +397,6 @@ CurveField.prototype._valueToCurves = function (value) {
     }
 
     return curves;
-},
+};
 
 window.ui.CurveField = CurveField;

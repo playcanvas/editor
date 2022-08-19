@@ -62,12 +62,11 @@ editor.once('load', function () {
                         approxEqual(value[3], existing.w)) {
                         callSetter = false;
                     }
-                }
-                // Changing an element's 'type' fundamentally changes the way it renderers and uses its configuration.
-                // In order to make sure all textures and other resources are cleared, we'll remove the component
-                // and add it again. Note that, since all properties were already saved at the 'scene' level,
-                // the new component will retain all user data.
-                else if (property === 'type') {
+                } else if (property === 'type') {
+                    // Changing an element's 'type' fundamentally changes the way it renderers and uses its configuration.
+                    // In order to make sure all textures and other resources are cleared, we'll remove the component
+                    // and add it again. Note that, since all properties were already saved at the 'scene' level,
+                    // the new component will retain all user data.
                     entity.removeComponent('element');
                     entity.addComponent('element', obj.get('components.element'));
                     // no need to call setter because the new 'element' component was already created with the correct 'type'
@@ -221,9 +220,9 @@ editor.once('load', function () {
         });
 
         children.forEach((child) => {
-            var child = editor.call('entities:get', child);
-            if (child) {
-                recurseFindGuids(child, result);
+            const curChild = editor.call('entities:get', child);
+            if (curChild) {
+                recurseFindGuids(curChild, result);
             }
         });
     }

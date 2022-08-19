@@ -70,10 +70,6 @@ editor.once('load', function () {
         return keepRendering;
     });
 
-    editor.method('viewport:flyMode', function () {
-        return flyMode;
-    });
-
     app.start();
     editor.emit('viewport:load', app);
 });

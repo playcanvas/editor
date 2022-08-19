@@ -73,9 +73,11 @@ editor.once('load', function () {
 
     const VcUtils = {
         renderVcNode: function (h, data) {
-            h.isNodeRendered ?
-                VcUtils.updateRenderedPosition(h, data) :
+            if (h.isNodeRendered) {
+                VcUtils.updateRenderedPosition(h, data);
+            } else {
                 VcUtils.renderNewNode(h, data);
+            }
 
             h.hasNewCoords = false;
         },
@@ -250,14 +252,16 @@ editor.once('load', function () {
             nodes.forEach(h => VcUtils.edgesToRenderForNode(h, data, edges));
 
             for (const h of edges) {
-                await VcUtils.waitMs(1);
+                await VcUtils.waitMs(1); // eslint-disable-line no-await-in-loop
 
                 VcUtils.renderOneEdge(data, h);
             }
         },
 
         waitMs: function (n) {
-            return new Promise(resolve => setTimeout(resolve, n));
+            return new Promise((resolve) => {
+                setTimeout(resolve, n);
+            });
         },
 
         renderAllVcNodes: function (data) {
@@ -375,7 +379,9 @@ editor.once('load', function () {
             h1[type1].forEach((edge) => {
                 const h2 = data.idToNode[edge[type1]];
 
-                h2 && VcUtils.rmOneEdge(h2, type2, h1.id);
+                if (h2) {
+                    VcUtils.rmOneEdge(h2, type2, h1.id);
+                }
             });
         },
 

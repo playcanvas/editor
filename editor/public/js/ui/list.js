@@ -26,10 +26,8 @@ List.prototype._onSelect = function (item) {
     if (this._changing)
         return;
 
-    if (List._ctrl && List._ctrl()) {
-
-    } else if (List._shift && List._shift() && this.selected.length) {
-
+    if (List._ctrl && List._ctrl()) { // eslint-disable-line no-empty
+    } else if (List._shift && List._shift() && this.selected.length) { // eslint-disable-line no-empty
     } else {
         this._changing = true;
 
@@ -57,8 +55,7 @@ List.prototype._onDeselect = function (item) {
     if (this._changing)
         return;
 
-    if (List._ctrl && List._ctrl()) {
-
+    if (List._ctrl && List._ctrl()) { // eslint-disable-line no-empty
     } else {
         this._changing = true;
 
@@ -119,7 +116,7 @@ Object.defineProperty(List.prototype, 'selected', {
 
         // deselecting
         var items = this.selected;
-        for (var i = 0; i < items.length; i++) {
+        for (let i = 0; i < items.length; i++) {
             if (value.indexOf(items[i]) !== -1)
                 continue;
 

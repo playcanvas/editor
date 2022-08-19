@@ -8,7 +8,7 @@ editor.once('load', function () {
     app.root.addChild(container);
 
     let cameraMesh = null;
-    let cameraMeshInstance = null;
+    let cameraMeshInstance = null; // eslint-disable-line no-unused-vars
 
     const cameras = { };
     const userdata = { };

@@ -148,7 +148,7 @@ editor.once('load', function () {
     });
     editor.call('layout.root').append(templateOverrides);
 
-    var templateInspector = new pcui.TemplatesEntityInspector({
+    var templateInspector = new pcui.TemplatesEntityInspector({ // eslint-disable-line no-unused-vars
         flex: true,
         assets: editor.call('assets:raw'),
         entities: editor.call('entities:raw'),

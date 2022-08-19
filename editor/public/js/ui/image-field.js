@@ -1,7 +1,8 @@
 "use strict";
 
 function ImageField(args) {
-    var self = this;
+    var self = this; // eslint-disable-line no-unused-vars
+
     ui.Element.call(this);
     args = args || { };
 

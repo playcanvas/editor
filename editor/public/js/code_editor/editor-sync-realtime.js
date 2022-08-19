@@ -119,7 +119,7 @@ editor.once('load', function () {
         var auth = false;
         var socket;
         var connection;
-        var data;
+        var data; // eslint-disable-line no-unused-vars
         var reconnectInterval = RECONNECT_INTERVAL;
         var documentContent = null;
         var assetContent = null;

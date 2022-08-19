@@ -7,7 +7,7 @@ editor.once('load', function () {
     if (config.asset)
         return;
 
-    var isLoading = true;
+    var isLoading = true; // eslint-disable-line no-unused-vars
     var isSaving = false;
 
     editor.method('editor:canSave', function () {

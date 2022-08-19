@@ -207,13 +207,10 @@ SelectField.prototype.valueToType = function (value) {
     switch (this._type) {
         case 'boolean':
             return !!value;
-            break;
         case 'number':
             return parseInt(value, 10);
-            break;
         case 'string':
             return '' + value;
-            break;
     }
 };
 
@@ -320,7 +317,7 @@ SelectField.prototype._updateOptions = function (options) {
         if (options instanceof Array) {
             this.options = { };
             this.optionsKeys = [];
-            for (var i = 0; i < options.length; i++) {
+            for (let i = 0; i < options.length; i++) {
                 this.optionsKeys.push(options[i].v);
                 this.options[options[i].v] = options[i].t;
             }

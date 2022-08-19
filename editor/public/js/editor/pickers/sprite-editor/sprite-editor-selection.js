@@ -152,7 +152,6 @@ editor.once('load', function () {
     var selectSprite = function (asset, options) {
         if (options && options.history) {
             var prevSprite = spriteAsset;
-            var newSprite = asset;
             var selectedFrames = selected && !prevSprite ? highlightedFrames : null;
 
             var redo = function () {

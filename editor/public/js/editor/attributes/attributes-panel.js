@@ -1304,7 +1304,7 @@ editor.once('load', function () {
 
                 updateField();
 
-                var dropRef = editor.call('drop:target', {
+                var assetDropRef = editor.call('drop:target', {
                     ref: panel,
                     filter: function (type, data) {
                         var rectA = root.innerElement.getBoundingClientRect();
@@ -1349,7 +1349,7 @@ editor.once('load', function () {
                     }
                 });
                 field.on('destroy', function () {
-                    dropRef.destroy();
+                    assetDropRef.destroy();
                     if (evtThumbnailChange) {
                         evtThumbnailChange.unbind();
                         evtThumbnailChange = null;
@@ -1481,7 +1481,7 @@ editor.once('load', function () {
                     });
                 });
 
-                var dropRef = editor.call('drop:target', {
+                editor.call('drop:target', {
                     ref: field,
                     filter: function (type, data) {
                         var rectA = root.innerElement.getBoundingClientRect();

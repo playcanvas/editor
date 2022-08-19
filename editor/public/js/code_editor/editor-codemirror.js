@@ -128,11 +128,11 @@ editor.once('load', function () {
 
             };
 
-            var server;
+            let server;
 
             // set up tern
             try {
-                var server = new CodeMirror.TernServer({
+                server = new CodeMirror.TernServer({
                     // add definition JSON's
                     defs: [
                         editor.call('tern-ecma5'),

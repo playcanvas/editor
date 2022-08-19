@@ -191,8 +191,6 @@ editor.once('load', function () {
                     // to avoid huge performance hit if there's a lot of frames
                     setFrames(asset, newFrames);
                 } else if (type === TYPE_GRID_BY_FRAME_SIZE) {
-                    var width = atlasImage.width;
-                    var height = atlasImage.height;
                     sliceGridBySize(fieldPixels[0].value, fieldPixels[1].value, newFrames);
                     setFrames(asset, newFrames);
                 } else if (type === TYPE_GRID_AUTO) {
@@ -309,7 +307,6 @@ editor.once('load', function () {
             var frameWidth = Math.floor((imgWidth - totalSpacingX) / cols);
             var frameHeight = Math.floor((imgHeight - totalSpacingY) / rows);
 
-            var spacedWidth = frameWidth + spacingX;
             var spacedHeight = frameHeight + spacingY;
 
             for (var r = 0; r < rows; r++) {
@@ -350,10 +347,6 @@ editor.once('load', function () {
             var cols = Math.floor((imgWidth + spacingX) / (frameWidth + spacingX));
             var rows = Math.floor((imgHeight + spacingY) / (frameHeight + spacingY));
 
-            var totalSpacingX = spacingX * (cols - 1);
-            var totalSpacingY = spacingY * (rows - 1);
-
-            var spacedWidth = frameWidth + spacingX;
             var spacedHeight = frameHeight + spacingY;
 
             for (var r = 0; r < rows; r++) {
