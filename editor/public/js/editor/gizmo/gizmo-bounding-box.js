@@ -139,6 +139,7 @@ editor.once('load', function () {
                     return resultBB;
                 case 'capsule':
                 case 'cylinder':
+                    _tmpBB.center.set(0, 0, 0);
                     _tmpBB.halfExtents.set(entity.collision.radius, entity.collision.radius, entity.collision.radius);
                     _tmpBB.halfExtents[axes[entity.collision.axis]] = entity.collision.height / 2;
                     resultBB.setFromTransformedAabb(_tmpBB, entity.getWorldTransform());
