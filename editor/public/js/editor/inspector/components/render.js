@@ -249,7 +249,8 @@ Object.assign(pcui, (function () {
                 let min = Infinity;
                 let max = -Infinity;
                 this._entities.forEach((e) => {
-                    if (!e.get('components.render.lightmapped') ||
+                    const lightmapped = this._field('lightmapped').value;
+                    if (!lightmapped ||
                         !e.entity || !e.entity.render ||
                         !e.entity.render.asset && e.entity.render.type === 'asset' ||
                         e.entity.render.asset && !app.assets.get(e.entity.render.asset)) {
@@ -257,6 +258,7 @@ Object.assign(pcui, (function () {
                         return;
                     }
 
+                    e.entity.render.lightmapSizeMultiplier = this._field('lightmapSizeMultiplier').value;
                     const size = lightmapper.calculateLightmapSize(e.entity);
                     if (size > max) max = size;
                     if (size < min) min = size;
