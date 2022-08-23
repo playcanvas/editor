@@ -295,7 +295,7 @@ editor.once('load', function () {
         };
     };
 
-    var openPicker = function () {
+    var openPicker = function (defaultSearchValue) {
         if (!open) {
             open = true;
             panel.hidden = false;
@@ -303,11 +303,10 @@ editor.once('load', function () {
             editor.emit('picker:search:open');
         }
 
-        // set search field to selected text in the editor
-        // if there is any otherwise keep existing search field value
-        if (!monacoEditor.getSelection().isEmpty()) {
+        // set default search field, if there is any. Otherwise, keep existing search field value
+        if (defaultSearchValue) {
             suspendChangeEvt = true;
-            searchField.value = monacoEditor.getModel().getValueInRange(monacoEditor.getSelection());
+            searchField.value = defaultSearchValue;
             suspendChangeEvt = false;
         }
 
@@ -323,8 +322,16 @@ editor.once('load', function () {
 
     editor.method('picker:search:open', function (instantToggleMode) {
         onTransitionEnd = null;
+
+        // if there's a code selection, use that as search value
+        // this needs to be done *before* we open/switch to 'find in files' tab
+        let customSearchValue = null;
+        if (!monacoEditor.getSelection().isEmpty()) {
+            customSearchValue = monacoEditor.getModel().getValueInRange(monacoEditor.getSelection());
+        }
+
         editor.emit('editor:search:openTab');
-        openPicker();
+        openPicker(customSearchValue);
     });
 
     // Close picker and focus editor
