@@ -1,3 +1,5 @@
+import { getMap, searchItems } from '../advanced_search';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -8,6 +10,8 @@ Object.assign(pcui, (function () {
     const CLASS_HIGHLIGHT = CLASS_ROOT + '-highlight';
     const CLASS_USER_SELECTION_MARKER = CLASS_ROOT + '-user-marker';
     const CLASS_USER_SELECTION_MARKER_CONTAINER = CLASS_USER_SELECTION_MARKER + '-container';
+    const CLASS_FILTERING = 'pcui-treeview' + '-filtering';
+    const CLASS_FILTER_RESULT = CLASS_FILTERING + '-result';
 
     /**
      * @name pcui.EntitiesTreeView
@@ -45,6 +49,10 @@ Object.assign(pcui, (function () {
             this._dropManager = args.dropManager;
             this._dropType = null;
             this._dropData = null;
+
+            this.searchFilters = {};
+            this.searchFilterMap = {};
+            this.fuzzy = true;
 
             this.on('rename', this._onRename.bind(this));
 
@@ -317,6 +325,47 @@ Object.assign(pcui, (function () {
                     editor.call('selector:history', true);
                 });
             }
+        }
+
+        _getSearchFilterMap(searchArr, key) {
+            this.searchFilterMap[key] = getMap(searchArr, key);
+
+            return this.searchFilterMap[key];
+        }
+        
+        // Override PCUI function
+        _searchItems(searchArr, filter) {
+            let results = [];
+            const filters = Object.keys(this.searchFilters).filter((key) => this.searchFilters[key]);
+
+            Object.keys(this.searchFilters).forEach((key) => {
+                if (this.searchFilters[key]) {
+                    if (filters.length === 1) {
+                        results = searchItems(this._getSearchFilterMap(searchArr, key), filter, {fuzzy: this.fuzzy});
+                    }
+                    else {
+                        results = results.concat(searchItems(this._getSearchFilterMap(searchArr, key), filter, {fuzzy: this.fuzzy}));
+                    }
+                }
+            })
+
+            if (!results.length) return;
+            results.forEach((item) => {
+                this._filterResults.push(item);
+                item.class.add(CLASS_FILTER_RESULT);
+            });
+        }
+
+        setFilter(key, value) {
+            this.searchFilters[key] = value;
+        }
+
+        setFuzzy(value) {
+            this.fuzzy = value;
+        }
+
+        getFilter(key) {
+            return this.searchFilters[key];
         }
 
         _instantiateDraggedAssets(dragOverItem, dragArea, dropType, dropData) {

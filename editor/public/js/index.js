@@ -169,7 +169,7 @@ import './editor/entities/entities-treeview.js';
 import './editor/entities/entities-menu.js';
 import './editor/entities/entities-control.js';
 import './editor/entities/entities-fuzzy-search.js';
-import './editor/entities/entities-fuzzy-search-ui.js';
+import './editor/entities/entities-advanced-search-ui.js';
 import './editor/entities/entities-load.js';
 import './editor/entities/entities-layout-utils.js';
 import './editor/entities/entities-history.js';
