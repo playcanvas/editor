@@ -284,7 +284,20 @@ editor.once('load', function () {
 
         // can we overwrite another asset?
         var sourceAsset = null;
+        const fileNameLowerCase = file.name.toLowerCase();
         var candidates = editor.call('assets:find', function (item) {
+            // check to see if the file to upload is already in one of the folders in the current directory
+            if (item.get('type') === 'scene' && item.get('source') === source && item.get('name').toLowerCase() === fileNameLowerCase) {
+                const itemPath = item.get('path');
+                const parentId = itemPath[itemPath.length - 1];
+                if (parentId) {
+                    const itemParent = editor.assets.get(parentId);
+                    // the file's parent folder must be named the same as the uploaded file and be in the current directory
+                    if (itemParent.get('path') === path && itemParent.get('name').toLowerCase() === fileNameLowerCase) {
+                        return true;
+                    }
+                }
+            }
             // check files in current folder only
             if (!item.get('path').equals(path))
                 return false;
@@ -292,14 +305,14 @@ editor.once('load', function () {
             // try locate source when dropping on its targets
             if (source && !item.get('source') && item.get('source_asset_id')) {
                 var itemSource = editor.call('assets:get', item.get('source_asset_id'));
-                if (itemSource && itemSource.get('type') === type && itemSource.get('name').toLowerCase() === file.name.toLowerCase()) {
+                if (itemSource && itemSource.get('type') === type && itemSource.get('name').toLowerCase() === fileNameLowerCase) {
                     sourceAsset = itemSource;
                     return false;
                 }
             }
 
 
-            if (item.get('source') === source && item.get('name').toLowerCase() === file.name.toLowerCase()) {
+            if (item.get('source') === source && item.get('name').toLowerCase() === fileNameLowerCase) {
                 // we want the same type or try to replace a texture atlas with the same name if one exists
                 if (item.get('type') === type || (type === 'texture' && item.get('type') === 'textureatlas')) {
                     return true;
