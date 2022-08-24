@@ -10,7 +10,7 @@ Object.assign(pcui, (function () {
     const CLASS_HIGHLIGHT = CLASS_ROOT + '-highlight';
     const CLASS_USER_SELECTION_MARKER = CLASS_ROOT + '-user-marker';
     const CLASS_USER_SELECTION_MARKER_CONTAINER = CLASS_USER_SELECTION_MARKER + '-container';
-    const CLASS_FILTERING = 'pcui-treeview' + '-filtering';
+    const CLASS_FILTERING = 'pcui-treeview-filtering';
     const CLASS_FILTER_RESULT = CLASS_FILTERING + '-result';
 
     /**
@@ -332,22 +332,21 @@ Object.assign(pcui, (function () {
 
             return this.searchFilterMap[key];
         }
-        
+
         // Override PCUI function
         _searchItems(searchArr, filter) {
             let results = [];
-            const filters = Object.keys(this.searchFilters).filter((key) => this.searchFilters[key]);
+            const filters = Object.keys(this.searchFilters).filter(key => this.searchFilters[key]);
 
             Object.keys(this.searchFilters).forEach((key) => {
                 if (this.searchFilters[key]) {
                     if (filters.length === 1) {
-                        results = searchItems(this._getSearchFilterMap(searchArr, key), filter, {fuzzy: this.fuzzy});
-                    }
-                    else {
-                        results = results.concat(searchItems(this._getSearchFilterMap(searchArr, key), filter, {fuzzy: this.fuzzy}));
+                        results = searchItems(this._getSearchFilterMap(searchArr, key), filter, { fuzzy: this.fuzzy });
+                    } else {
+                        results = results.concat(searchItems(this._getSearchFilterMap(searchArr, key), filter, { fuzzy: this.fuzzy }));
                     }
                 }
-            })
+            });
 
             if (!results.length) return;
             results.forEach((item) => {

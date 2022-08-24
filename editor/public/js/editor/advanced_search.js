@@ -75,31 +75,32 @@ export const searchStringTokenize = function (name) {
     return tokens;
 };
 
-export const getMap = function(items, key) {
-    switch(key) {
+export const getMap = function (items, key) {
+    switch (key) {
         case 'Name':
             return items;
 
-        case 'Component Type':
-            let componentItems = [];
-            items.forEach((item) => {item[1].entity._data.components._keys.forEach((component) => componentItems.push([component.toLowerCase(), item[1]]))});
+        case 'Component Type': {
+            const componentItems = [];
+            items.forEach((item) => { item[1].entity._data.components._keys.forEach(component => componentItems.push([component.toLowerCase(), item[1]])); });
             return componentItems;
-
-        case 'Script Name':
-            let scriptItems = [];
+        }
+        case 'Script Name': {
+            const scriptItems = [];
             items.forEach((item) => {
                 if (item[1].entity._data.components._data.script) {
-                    item[1].entity._data.components._data.script._data.order.forEach((script) => scriptItems.push([script.toLowerCase(), item[1]]));
+                    item[1].entity._data.components._data.script._data.order.forEach(script => scriptItems.push([script.toLowerCase(), item[1]]));
                 }
             });
             return scriptItems;
-
-        case 'Tags':
-            let tagItems = [];
-            items.forEach((item) => {item[1].entity._data.tags.forEach((tag) => tagItems.push([tag.toLowerCase(), item[1]]))});
+        }
+        case 'Tags': {
+            const tagItems = [];
+            items.forEach((item) => { item[1].entity._data.tags.forEach(tag => tagItems.push([tag.toLowerCase(), item[1]])); });
             return tagItems;
+        }
     }
-}
+};
 
 const _searchExact = function (items, search) {
 
@@ -113,7 +114,7 @@ const _searchExact = function (items, search) {
     }
 
     return results;
-}
+};
 
 const _searchItems = function (items, search, args) {
     var results = [];

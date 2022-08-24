@@ -38,27 +38,26 @@ editor.once('load', function () {
     advancedSearchContainer.class.add('advanced-search-container');
 
     // Container for only the filters
-    const advancedSearchFilterContainer = new pcui.Container({flex: true});
+    const advancedSearchFilterContainer = new pcui.Container({ flex: true });
 
     // Advanced Search Filters
     const filterList = ['Name', 'Component Type', 'Script Name', 'Tags'].reverse();
     const filterMap = filterList.reduce((map, name) => {
         map[name] = {};
 
-        map[name]['field'] = new pcui.BooleanInput({
+        map[name].field = new pcui.BooleanInput({
             type: null
         });
 
-        map[name]['field'].class.add('advanced-search-label-filter-checkbox');
+        map[name].field.class.add('advanced-search-label-filter-checkbox');
 
-        map[name]['field'].on('change', (value) => {
+        map[name].field.on('change', (value) => {
             hierarchy.setFilter(name, value);
 
             if (value) {
-                map[name]['field'].class.add('checked');
-            }
-            else {
-                map[name]['field'].class.remove('checked');
+                map[name].field.class.add('checked');
+            } else {
+                map[name].field.class.remove('checked');
             }
 
             // re-perform search with new filters
@@ -66,7 +65,7 @@ editor.once('load', function () {
                 hierarchy._applyFilter(search.value.trim());
             }
 
-            const active = filterList.filter((name) => hierarchy.getFilter(name));
+            const active = filterList.filter(name => hierarchy.getFilter(name));
 
             // if all filters are selected then switch button name from select all to reset
             if (searchByField !== undefined) {
@@ -74,28 +73,28 @@ editor.once('load', function () {
             }
         });
 
-        map[name]['field'].on('click', () => {
-            map[name]['field'].value = !map[name]['field'].value;
+        map[name].field.on('click', () => {
+            map[name].field.value = !map[name].field.value;
         });
 
-        map[name]['label'] = new pcui.LabelGroup({
+        map[name].label = new pcui.LabelGroup({
             text: name,
-            field: map[name]['field']
+            field: map[name].field
         });
 
-        map[name]['label'].class.add('advanced-search-label-filter');
+        map[name].label.class.add('advanced-search-label-filter');
 
-        map[name]['label'].label.class.add('advanced-search-label-filter-text');
+        map[name].label.label.class.add('advanced-search-label-filter-text');
 
-        map[name]['label'].on('click', () => {
-            map[name]['field'].value = !map[name]['field'].value;
+        map[name].label.on('click', () => {
+            map[name].field.value = !map[name].field.value;
         });
 
-        advancedSearchFilterContainer.prepend(map[name]['label']);
+        advancedSearchFilterContainer.prepend(map[name].label);
         return map;
-    }, {})
+    }, {});
 
-    filterMap[filterList[filterList.length - 1]]['field'].value = true;
+    filterMap[filterList[filterList.length - 1]].field.value = true;
 
     // Toggle Smart Search
 
@@ -111,7 +110,7 @@ editor.once('load', function () {
         if (search.value.trim()) {
             hierarchy._applyFilter(search.value.trim());
         }
-    })
+    });
 
     const smartSearchLabel = new pcui.LabelGroup({
         text: 'Smart Search',
@@ -120,17 +119,17 @@ editor.once('load', function () {
 
     smartSearchLabel.class.add('advanced-search-label-toggle');
     smartSearchLabel.label.class.add('advanced-search-label-toggle-text');
-    smartSearchLabel.element.setAttribute('text-hover', 'Toggle whether only exact matches are shown')
+    smartSearchLabel.element.setAttribute('text-hover', 'Toggle whether only exact matches are shown');
 
     // Search by
 
-    var searchByField = new pcui.Element;
+    var searchByField = new pcui.Element();
     searchByField.dom.innerHTML = 'Select All';
     searchByField.class.add('advanced-search-select-all-button');
 
     searchByField.on('click', () => {
 
-        const active = filterList.filter((name) => hierarchy.getFilter(name));
+        const active = filterList.filter(name => hierarchy.getFilter(name));
 
         if (active.length === filterList.length) {
             filterList.forEach((name) => {
@@ -138,13 +137,12 @@ editor.once('load', function () {
             });
 
             filterMap[filterList[filterList.length - 1]].field.value = true;
-        }
-        else {
+        } else {
             filterList.forEach((name) => {
                 filterMap[name].field.value = true;
             });
         }
-    })
+    });
 
     const searchByLabel = new pcui.LabelGroup({
         text: 'Search By',
@@ -174,11 +172,11 @@ editor.once('load', function () {
     showFiltersButton.on('click', function () {
         showFilters = !showFilters;
 
-        const active = filterList.filter((name) => hierarchy.getFilter(name));
+        const active = filterList.filter(name => hierarchy.getFilter(name));
 
         // Default to search by the first filter if nothing is selected
         if (active.length === 0) {
-            filterMap[filterList[filterList.length - 1]]['field'].value = true;
+            filterMap[filterList[filterList.length - 1]].field.value = true;
         }
 
         if (showFilters) {
@@ -186,13 +184,12 @@ editor.once('load', function () {
             showFiltersButton.class.add('showing');
             advancedSearchContainer.class.add('showing');
             searchBar.class.add('activated');
-        }
-        else {
+        } else {
             advancedSearchContainer.remove(advancedSearchFilterContainer);
             showFiltersButton.class.remove('showing');
             advancedSearchContainer.class.remove('showing');
             searchBar.class.remove('activated');
-        };
+        }
     }, false);
 
     var performSearch = function () {
@@ -218,11 +215,11 @@ editor.once('load', function () {
     search.on('change', function (value) {
         clearTimeout(searchTimeOut);
 
-        const active = filterList.filter((name) => hierarchy.getFilter(name));
+        const active = filterList.filter(name => hierarchy.getFilter(name));
 
         // Default to search by the first filter if nothing is selected
         if (active.length === 0) {
-            filterMap[filterList[filterList.length - 1]]['field'].value = true;
+            filterMap[filterList[filterList.length - 1]].field.value = true;
         }
 
         value = value.trim();
