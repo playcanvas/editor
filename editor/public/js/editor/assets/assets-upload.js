@@ -293,7 +293,7 @@ editor.once('load', function () {
                 if (parentId) {
                     const itemParent = editor.assets.get(parentId);
                     // the file's parent folder must be named the same as the uploaded file and be in the current directory
-                    if (itemParent.get('path') === path && itemParent.get('name').toLowerCase() === fileNameLowerCase) {
+                    if (JSON.stringify(itemParent.get('path')) === JSON.stringify(path) && itemParent.get('name').toLowerCase() === fileNameLowerCase) {
                         return true;
                     }
                 }
