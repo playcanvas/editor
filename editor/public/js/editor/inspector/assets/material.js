@@ -487,6 +487,41 @@ Object.assign(pcui, (function () {
         }]
     }, {
         root: {
+            sheenPanel: new pcui.Panel({
+                headerText: 'SHEEN',
+                collapsible: true,
+                collapsed: true
+            })
+        },
+        children: [{
+            sheenInspector: new pcui.AttributesInspector({
+                assets: parent._args.assets,
+                history: parent._args.history,
+                attributes: [{
+                    label: 'Use Sheen',
+                    path: 'data.useSheen',
+                    type: 'boolean',
+                    reference: 'asset:materials:useSheen'
+                }, ..._textureAttribute('Sheen', 'sheen', TextureTypes.Color), {
+                    label: 'Vertex Color',
+                    path: 'data.sheenVertexColor',
+                    type: 'boolean',
+                    reference: 'asset:material:sheenVertexColor'
+                }, {
+                    label: 'Tint',
+                    path: 'data.sheenTint',
+                    type: 'boolean',
+                    reference: 'asset:material:sheenTint'
+                }, {
+                    label: 'Color',
+                    path: 'data.sheen',
+                    type: 'rgb',
+                    reference: 'asset:material:sheen'
+                }]
+            })
+        }]
+    }, {
+        root: {
             emissivePanel: new pcui.Panel({
                 headerText: 'EMISSIVE',
                 collapsible: true,
@@ -861,7 +896,8 @@ Object.assign(pcui, (function () {
         'gloss': ['glossInspector'],
         'clearCoat': ['clearCoatInspector'],
         'clearCoatGloss': ['clearCoatGlossInspector'],
-        'clearCoatNormal': ['clearCoatNormalInspector']
+        'clearCoatNormal': ['clearCoatNormalInspector'],
+        'sheen': ['sheenInspector']
     };
 
     const COLLAPSED_PANEL_DEPENDENCIES = {
@@ -883,6 +919,7 @@ Object.assign(pcui, (function () {
         'diffuse': ['d', 'diff', 'diffuse', 'albedo', 'color', 'rgb', 'rgba'],
         'specular': ['s', 'spec', 'specular'],
         'specularityFactor': ['sf', 'specularityfactor'],
+        'sheen': ['sh', 'sheen'],
         'metalness': ['m', 'met', 'metal', 'metalness', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa'],
         'gloss': ['g', 'gloss', 'glossiness', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa'],
         'clearCoat': ['cc', 'clearcoat'],
@@ -993,6 +1030,10 @@ Object.assign(pcui, (function () {
             speculartyFactorAttributes.forEach((field) => {
                 this._metalnessWorkflowInspector.getField(`data.${field}`).parent.hidden = !useMetalnessSpecularColor;
             });
+
+            if (!editor.call('users:hasFlag', 'Engine_1_56')) {
+                this._sheenInspector.parent.hidden = true;
+            }
 
             this._offsetTilingInspector.getField('offset').parent.hidden = !applyToAllMaps;
             this._offsetTilingInspector.getField('tiling').parent.hidden = !applyToAllMaps;
@@ -1633,6 +1674,7 @@ Object.assign(pcui, (function () {
             this._clearCoatInspector.link(assets);
             this._clearCoatGlossInspector.link(assets);
             this._clearCoatNormalInspector.link(assets);
+            this._sheenInspector.link(assets);
             this._emissiveInspector.link(assets);
             this._opacityInspector.link(assets);
             this._normalsInspector.link(assets);
@@ -1763,6 +1805,7 @@ Object.assign(pcui, (function () {
             this._clearCoatInspector.unlink();
             this._clearCoatGlossInspector.unlink();
             this._clearCoatNormalInspector.unlink();
+            this._sheenInspector.unlink();
             this._emissiveInspector.unlink();
             this._opacityInspector.unlink();
             this._normalsInspector.unlink();

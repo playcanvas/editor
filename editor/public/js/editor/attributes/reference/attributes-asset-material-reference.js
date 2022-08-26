@@ -705,6 +705,51 @@ editor.once('load', function () {
         description: 'Normal map UV channel',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatNormalMapUv'
     }, {
+        title: 'useSheen',
+        subTitle: '{Boolean}',
+        description: 'Enable the use of sheen specular effects.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#useSheen'
+    }, {
+        title: 'sheen',
+        subTitle: '{pc.Color}',
+        description: 'If no sheen map is set or tint is checked, this is the sheen specular color of the material.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheen'
+    }, {
+        title: 'sheenMap',
+        subTitle: '{pc.Texture}',
+        description: 'The sheen map that specifies the per-pixel sheen specular color. If no sheen map is set, the sheen color is used instead.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenMap'
+    }, {
+        title: 'sheenMapChannel',
+        subTitle: '{String}',
+        description: 'A color channel to extract color value from sheen map. Can be: r, g, b, a, rgb',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenMapChannel'
+    }, {
+        title: 'sheenMapOffset',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the 2D offset of the sheen map. Each component is between 0 and 1.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenMapOffset'
+    }, {
+        title: 'sheenMapTiling',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the 2D tiling of the sheen map.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenMapTiling'
+    }, {
+        title: 'sheenMapTint',
+        subTitle: '{Boolean}',
+        description: 'Check this to modulate the material\'s sheen map with a material specific sheen specular color.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenMapTint'
+    }, {
+        title: 'sheenMapUv',
+        subTitle: '{Number}',
+        description: 'Sheen map UV channel.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenMapUv'
+    }, {
+        title: 'sheenMapVertexColor',
+        subTitle: '{Boolean}',
+        description: 'Use vertex colors for sheen instead of a map.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenMapVertexColor'
+    }, {
         title: 'opacityFadesSpecular',
         subTitle: '{Boolean}',
         description: 'Controls whether Specular is faded out by material Opacity which is sometimes not desired for shiny translucent materials such as glass',
