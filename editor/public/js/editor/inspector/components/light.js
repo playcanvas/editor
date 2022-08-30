@@ -428,8 +428,14 @@ Object.assign(pcui, (function () {
             const isPoint = type === 'point';
             const castShadows = this._field('castShadows').value;
             const shadowType = this._field('shadowType').value;
+            let shadowTypeVsm = shadowType === pc.SHADOW_VSM8 || shadowType === pc.SHADOW_VSM16 ||
+                shadowType === pc.SHADOW_VSM32;
             const cookie = this._field('cookieAsset').value;
             const numCascades = this._field('numCascades').value;
+            const isCLustered = editor.call('sceneSettings').get('render.clusteredLightingEnabled') && !isDirectional;
+            if (isCLustered) {
+                shadowTypeVsm = false;
+            }
 
             const hasShapes = editor.call('settings:project').get('areaLightDataAsset');
             const shape = this._field('shape').value;
@@ -475,24 +481,20 @@ Object.assign(pcui, (function () {
                 'cookieOffset',
                 'cookieScale'
             ].forEach((field) => {
-                this._field(field).parent.hidden = isDirectional || isPoint || !cookie;
+                this._field(field).parent.hidden = isDirectional || isPoint || !cookie || isCLustered;
             });
 
             this._field('cookieAsset').hidden = isDirectional;
             this._field('cookieDivider').hidden = this._field('cookieAsset').hidden;
             this._field('cookieAsset').assetType = (isPoint ? 'cubemap' : 'texture');
 
-            this._field('cookieFalloff').parent.hidden = !isSpot || !cookie;
+            this._field('cookieFalloff').parent.hidden = !isSpot || !cookie || isCLustered;
 
-            [
-                'shadowResolution',
-                'shadowDistance',
-                'shadowType'
-            ].forEach((field) => {
-                this._field(field).parent.hidden = !castShadows;
-            });
+            this._field('shadowResolution').parent.hidden = !castShadows || isCLustered;
+            this._field('shadowType').parent.hidden = !castShadows || isCLustered;
+            this._field('shadowDistance').parent.hidden = !castShadows;
 
-            this._field('numCascades').parent.hidden = !(castShadows  && isDirectional);
+            this._field('numCascades').parent.hidden = !(castShadows && isDirectional);
             this._field('cascadeDistribution').parent.hidden = !(castShadows && isDirectional && numCascades > 1);
 
             this._field('shadowUpdateMode').parent.hidden = !castShadows || this._field('bake').value && !this._field('affectDynamic').value;
@@ -502,14 +504,14 @@ Object.assign(pcui, (function () {
                 'vsmBlurSize',
                 'vsmBias'
             ].forEach((field) => {
-                this._field(field).parent.hidden = !castShadows || shadowType === 0 || shadowType === 4;
+                this._field(field).parent.hidden = !castShadows || !shadowTypeVsm || isCLustered;
             });
 
             [
                 'shadowBias',
                 'normalOffsetBias'
             ].forEach((field) => {
-                this._field(field).parent.hidden = !castShadows || shadowType !== 0 && shadowType !== 4;
+                this._field(field).parent.hidden = !castShadows || shadowTypeVsm;
             });
 
             this._btnUpdateShadow.hidden = this._field('shadowUpdateMode').value !== pc.SHADOWUPDATE_THISFRAME;

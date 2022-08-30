@@ -3,3 +3,16 @@
     background-color: $bcg-dark;
     margin: 4px 10px;
 }
+
+.rendering-settings-restart-modal > .content > .ui-label {
+    margin-bottom: 8px;
+}
+
+.rendering-settings-restart-modal > .content {
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    min-width: 500px;
+    align-items: center;
+    justify-content: center;
+}

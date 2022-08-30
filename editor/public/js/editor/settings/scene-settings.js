@@ -46,7 +46,16 @@ editor.once('load', function () {
             ambientBakeNumSamples: 1,
             ambientBakeSpherePart: 0.4,
             ambientBakeOcclusionBrightness: 0,
-            ambientBakeOcclusionContrast: 0
+            ambientBakeOcclusionContrast: 0,
+            clusteredLightingEnabled: true,
+            lightingCells: [10, 3, 10],
+            lightingMaxLightsPerCell: 255,
+            lightingCookieAtlasResolution: 2048,
+            lightingShadowAtlasResolution: 2048,
+            lightingShadowType: 0,
+            lightingCookiesEnabled: false,
+            lightingAreaLightsEnabled: false,
+            lightingShadowsEnabled: true
         };
 
         for (const key in renderDefaults) {

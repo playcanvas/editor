@@ -346,6 +346,52 @@ editor.once('load', function () {
         description: 'Contrast of the baked ambient occlusion.',
         url: 'https://developer.playcanvas.com/api/pc.Scene.html#ambientBakeOcclusionContrast'
     }, {
+        name: 'clusteredLightingEnabled',
+        title: 'clusteredLightingEnabled',
+        subTitle: 'boolean',
+        description: 'Enable the clustered lighting.',
+        url: 'https://developer.playcanvas.com/api/pc.Scene.html#clusteredLightingEnabled'
+    }, {
+        name: 'lightingCells',
+        title: 'lightingCells',
+        description: 'Number of cells along each world-space axis the space containing lights is subdivided into.',
+        url: 'https://developer.playcanvas.com/api/pc.LightingParams.html#cells'
+    }, {
+        name: 'lightingMaxLightsPerCell',
+        title: 'lightingMaxLightsPerCell',
+        description: 'Maximum number of lights a cell can store.',
+        url: 'https://developer.playcanvas.com/api/pc.LightingParams.html#maxLightsPerCell'
+    }, {
+        name: 'lightingCookieAtlasResolution',
+        title: 'lightingCookieAtlasResolution',
+        description: 'Resolution of the atlas texture storing all non-directional cookie textures.',
+        url: 'https://developer.playcanvas.com/api/pc.LightingParams.html#cookieAtlasResolution'
+    }, {
+        name: 'lightingShadowAtlasResolution',
+        title: 'lightingShadowAtlasResolution',
+        description: 'Resolution of the atlas texture storing all non-directional shadow textures.',
+        url: 'https://developer.playcanvas.com/api/pc.LightingParams.html#shadowAtlasResolution'
+    }, {
+        name: 'lightingShadowType',
+        title: 'lightingShadowType',
+        description: 'The type of shadow filtering used by all shadows.',
+        url: 'https://developer.playcanvas.com/api/pc.LightingParams.html#shadowType'
+    }, {
+        name: 'lightingCookiesEnabled',
+        title: 'lightingCookiesEnabled',
+        description: 'Cluster lights support cookies.',
+        url: 'https://developer.playcanvas.com/api/pc.LightingParams.html#cookiesEnabled'
+    }, {
+        name: 'lightingAreaLightsEnabled',
+        title: 'lightingAreaLightsEnabled',
+        description: 'Cluster lights support area lights.',
+        url: 'https://developer.playcanvas.com/api/pc.LightingParams.html#areaLightsEnabled'
+    }, {
+        name: 'lightingShadowsEnabled',
+        title: 'lightingShadowsEnabled',
+        description: 'Cluster lights support shadows.',
+        url: 'https://developer.playcanvas.com/api/pc.LightingParams.html#shadowsEnabled'
+    }, {
         name: 'batchGroups',
         title: 'Batch Groups',
         description: 'Manage batch groups for this project. Batch groups allow you to reduce draw calls by batching similar Models and Elements together.'
