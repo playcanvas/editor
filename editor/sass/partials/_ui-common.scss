@@ -49,3 +49,70 @@
         }
     }
 }
+
+// common loader animation element (ported over from platform)
+@-webkit-keyframes fadeIn {
+    from {
+        opacity:0;
+    }
+    to {
+        opacity:1;
+    }
+}
+
+@-moz-keyframes fadeIn {
+    from {
+        opacity:0;
+    }
+    to {
+        opacity:1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity:0;
+    }
+    to {
+        opacity:1;
+    }
+}
+
+.loader {
+    // some styling
+    $fade-duration: 0.5s;
+
+    display: block;
+    background-size: 100%;
+    background-image:url("//playcanvas.com/static-assets/platform/images/loader.gif");
+    background-repeat:no-repeat;
+
+    opacity: 0;
+    -webkit-animation:fadeIn ease-in 1;
+    -moz-animation:fadeIn ease-in 1;
+    animation:fadeIn ease-in 1;
+
+    -webkit-animation-fill-mode: forwards;
+    -moz-animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
+
+    -webkit-animation-duration: $fade-duration;
+    -moz-animation-duration: $fade-duration;
+    animation-duration: $fade-duration;
+
+    width: 32px;
+    height: 32px;
+
+    &.white { filter: brightness(5); }
+
+    &.small {
+        width: 24px;
+        height: 24px;
+    }
+
+    &.xsmall {
+        width: 18px;
+        height: 18px;
+    }
+}
+

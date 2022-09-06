@@ -7,6 +7,11 @@
 
         editor.call('status:text', 'ready');
 
+        // if no project loaded, open CMS
+        if (!config.project.id) {
+            editor.call('picker:project:cms');
+        }
+
         // if there is a merge in progress for our branch
         var merge = config.self.branch.merge;
         if (merge) {
@@ -34,7 +39,7 @@
             }
         } else {
             // open picker if no scene is loaded
-            if (!config.scene.id) {
+            if (config.scene && !config.scene.id) {
                 editor.call('picker:scene');
             }
         }

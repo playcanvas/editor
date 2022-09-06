@@ -387,7 +387,7 @@ editor.once('load', function () {
             text: 'Publishing',
             icon: 'E237',
             onSelect: function () {
-                editor.call('picker:publish');
+                editor.call('picker:builds-publish');
             }
         }, {
             text: 'Version Control',

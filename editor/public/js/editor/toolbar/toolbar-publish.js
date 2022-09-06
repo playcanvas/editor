@@ -10,14 +10,14 @@ editor.once('load', function () {
     toolbar.append(button);
 
     button.on('click', function () {
-        editor.call('picker:publish');
+        editor.call('picker:builds-publish');
     });
 
-    editor.on('picker:publish:open', function () {
+    editor.on('picker:builds-publish:open', function () {
         button.class.add('active');
     });
 
-    editor.on('picker:publish:close', function () {
+    editor.on('picker:builds-publish:close', function () {
         button.class.remove('active');
     });
 

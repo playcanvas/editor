@@ -106,8 +106,8 @@ function AjaxRequest(args) {
 
     this.notJson = args.notJson || false;
 
-    // header for PUT/POST
-    if (!args.ignoreContentType && (args.method === 'PUT' || args.method === 'POST' || args.method === 'DELETE'))
+    // header for PUT/POST (don't add automatically if sending form [binary] data)
+    if (!args.ignoreContentType && (args.method === 'PUT' || args.method === 'POST' || args.method === 'DELETE') && (args.mimeType !== 'multipart/form-data'))
         this._xhr.setRequestHeader('Content-Type', 'application/json');
 
     if (args.auth && config.accessToken) {

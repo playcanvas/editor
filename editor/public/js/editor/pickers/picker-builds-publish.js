@@ -1,17 +1,15 @@
 editor.once('load', function () {
     'use strict';
 
-    // main panel
-    var panel = new ui.Panel();
-    panel.class.add('picker-builds');
-
-    // holds events that need to be destroyed
-    var events = [];
-
-    var projectSettings = editor.call('settings:project');
+    // global variables
+    const projectSettings = editor.call('settings:project');
+    let dropdownApp = null;  // app whose dropdown was last clicked
+    let apps = [];  // all loaded builds
+    let tooltips = [];  // holds all tooltips
+    let events = [];  // holds events that need to be destroyed
 
     // disables / enables field depending on permissions
-    var handlePermissions = function (field) {
+    const handlePermissions = function (field) {
         field.disabled = !editor.call('permissions:write');
         return editor.on('permissions:set:' + config.self.id, function (accessLevel) {
             if (accessLevel === 'write' || accessLevel == 'admin') {
@@ -22,15 +20,137 @@ editor.once('load', function () {
         });
     };
 
+    // collapses publish and download buttons
+    const toggleCollapsingPublishButtons = (collapse = true) => {
+        if (collapse) {
+            labelDownloadIcon.dom.style.display = 'none';
+            labelDownloadDesc.dom.style.display = 'none';
+            labelPublishDesc.dom.style.display = 'none';
+            labelPublishIcon.dom.style.display = 'none';
+
+            btnPublish.dom.classList.add('collapsed');
+            btnDownload.dom.classList.add('collapsed');
+
+            panelPlaycanvas.dom.classList.add('collapsed');
+            panelSelfHost.dom.classList.add('collapsed');
+        } else {
+            labelDownloadIcon.dom.style.display = 'block';
+            labelDownloadDesc.dom.style.display = 'block';
+            labelPublishDesc.dom.style.display = 'block';
+            labelPublishIcon.dom.style.display = 'block';
+
+            btnPublish.dom.classList.remove('collapsed');
+            btnDownload.dom.classList.remove('collapsed');
+
+            panelPlaycanvas.dom.classList.remove('collapsed');
+            panelSelfHost.dom.classList.remove('collapsed');
+        }
+    };
+
+    // main panel
+    const panel = new pcui.Container({
+        flex: true,
+        class: 'picker-builds-publish'
+    });
+    // panel.class.add('picker-builds-publish');
+
     // progress bar and loading label
-    var loading = new ui.Label({
+    const loading = new pcui.Label({
         text: 'Loading...'
     });
     panel.append(loading);
 
-    var progressBar = new ui.Progress({ progress: 1 });
+    const progressBar = new pcui.Progress({ progress: 1 });
     progressBar.hidden = true;
     panel.append(progressBar);
+
+    // published build section
+    const publishedBuild = new pcui.Label({
+        text: 'Your primary build is available at <a href="' + config.project.playUrl + '" target="_blank">' + config.project.playUrl + '</a>.',
+        unsafe: true
+    });
+    publishedBuild.class.add('build');
+    panel.append(publishedBuild);
+
+    // publish buttons container
+    const publishButtons = new pcui.Container({
+        flex: true,
+        class: 'publish-buttons-container'
+    });
+    panel.append(publishButtons);
+
+    // playcanv.as
+    const panelPlaycanvas = new pcui.Container({
+        flex: true,
+        class: 'buttons'
+    });
+    publishButtons.append(panelPlaycanvas);
+
+    const labelPublishIcon = new pcui.Label({
+        text: '&#57960;',
+        unsafe: true,
+        class: 'icon'
+    });
+    panelPlaycanvas.append(labelPublishIcon);
+
+    const labelPublishDesc = new pcui.Label({
+        text: 'Publish your project publicly on PlayCanvas.',
+        class: 'desc'
+    });
+    panelPlaycanvas.append(labelPublishDesc);
+
+    // publish button
+    const btnPublish = new pcui.Button({
+        text: 'Publish To PlayCanvas',
+        class: 'publish'
+    });
+    handlePermissions(btnPublish);
+    panelPlaycanvas.append(btnPublish);
+
+    handlePermissions(panelPlaycanvas);
+    panelPlaycanvas.on('click', function () {
+        editor.call('picker:publish:new');
+    });
+
+    // self host
+    const panelSelfHost = new pcui.Container({
+        flex: true,
+        class: 'buttons'
+    });
+    publishButtons.append(panelSelfHost);
+
+    const labelDownloadIcon = new pcui.Label({
+        text: '&#57925;',
+        class: 'icon',
+        unsafe: true
+    });
+    panelSelfHost.append(labelDownloadIcon);
+
+    const labelDownloadDesc = new pcui.Label({
+        text: 'Download build and host it on your own server.',
+        class: 'desc'
+    });
+    panelSelfHost.append(labelDownloadDesc);
+
+    // download button
+    const btnDownload = new pcui.Button({
+        text: 'Download .zip',
+        class: 'download'
+    });
+    handlePermissions(btnDownload);
+    panelSelfHost.append(btnDownload);
+
+    handlePermissions(panelSelfHost);
+    panelSelfHost.on('click', function () {
+        editor.call('picker:publish:download');
+    });
+
+    // Existing builds label
+    const existingBuildsLabel = new pcui.Label({
+        text: 'Existing builds',
+        class: 'builds-list-heading'
+    });
+    panel.append(existingBuildsLabel);
 
     // no builds message
     let noBuildsText = 'You have not published any builds.';
@@ -38,35 +158,18 @@ editor.once('load', function () {
         noBuildsText += ' Click PUBLISH to create a new build.';
     }
 
-    var noBuilds = new ui.Label({
-        text: noBuildsText
+    const noBuilds = new pcui.Label({
+        text: noBuildsText,
+        class: 'no-builds-label',
+        hidden: true
     });
-    noBuilds.hidden = true;
-    noBuilds.style.padding = '15px';
     panel.append(noBuilds);
 
-    // published build section
-    var publishedBuild = new ui.Label({
-        text: 'Your primary build is available at <a href="' + config.project.playUrl + '" target="_blank">' + config.project.playUrl + '</a>.',
-        unsafe: true
-    });
-    publishedBuild.class.add('build');
-    panel.append(publishedBuild);
-
     // container for builds
-    var container = new ui.List();
+    const container = new ui.List();
     panel.append(container);
 
-    // app whose dropdown was last clicked
-    var dropdownApp = null;
-
-    // all loaded builds
-    var apps = [];
-
-    // holds all tooltips
-    var tooltips = [];
-
-    var dropdownMenu = ui.Menu.fromData({
+    const dropdownMenu = ui.Menu.fromData({
         'app-delete': {
             title: 'Delete',
             filter: function () {
@@ -88,9 +191,9 @@ editor.once('load', function () {
     // on closing menu remove 'clicked' class from respective dropdown
     dropdownMenu.on('open', function (open) {
         if (!open && dropdownApp) {
-            var item = document.getElementById('app-' + dropdownApp.id);
+            const item = document.getElementById('app-' + dropdownApp.id);
             if (item) {
-                var clicked = item.querySelector('.clicked');
+                const clicked = item.querySelector('.clicked');
                 if (clicked) {
                     clicked.innerHTML = '&#57689;';
                     clicked.classList.remove('clicked');
@@ -100,24 +203,21 @@ editor.once('load', function () {
     });
 
     // register panel with project popup
-    editor.call('picker:project:registerMenu', 'builds', 'Builds', panel);
+    editor.call('picker:project:registerMenu', 'builds-publish', 'Builds', panel, 'BUILDS & PUBLISH');
 
     // hide button if the user doesn't have the right permissions
     if (!editor.call('permissions:read')) {
-        editor.call('picker:project:toggleMenu', 'builds', false);
+        editor.call('picker:project:toggleMenu', 'builds-publish', false);
     }
 
     // if the user permissions change, then change the visibilty of the button
     editor.on('permissions:set', function () {
-        editor.call('picker:project:toggleMenu', 'builds', editor.call('permissions:read'));
+        editor.call('picker:project:toggleMenu', 'builds-publish', editor.call('permissions:read'));
     });
 
-    // open publishing popup
-    editor.method('picker:builds', function () {
-        editor.call('picker:project', 'builds');
-    });
+    // UI
 
-    var toggleProgress = function (toggle) {
+    const toggleProgress = function (toggle) {
         loading.hidden = !toggle;
         progressBar.hidden = !toggle;
         container.hidden = toggle || apps.length === 0;
@@ -125,64 +225,9 @@ editor.once('load', function () {
         noBuilds.hidden = toggle || apps.length > 0;
     };
 
-    // load app list
-    var loadApps = function () {
-        toggleProgress(true);
-
-        editor.call('apps:list', function (results) {
-            apps = results;
-            toggleProgress(false);
-            refreshApps();
-        });
-    };
-
-    // recreate app list UI
-    var refreshApps = function () {
-        dropdownMenu.open = false;
-        destroyTooltips();
-        destroyEvents();
-        container.element.innerHTML = '';
-        sortApps(apps);
-        container.hidden = apps.length === 0;
-        apps.forEach(createAppItem);
-    };
-
-    var destroyTooltips = function () {
-        tooltips.forEach(function (tooltip) {
-            tooltip.destroy();
-        });
-        tooltips = [];
-    };
-
-    var destroyEvents = function () {
-        events.forEach(function (evt) {
-            evt.unbind();
-        });
-        events = [];
-    };
-
-    // sort apps by primary first and then created date
-    var sortApps = function (apps) {
-        return apps.sort(function (a, b) {
-            if (config.project.primaryApp === a.id) {
-                return -1;
-            } else if (config.project.primaryApp === b.id) {
-                return 1;
-            }
-            if (a.created_at < b.created_at) {
-                return 1;
-            } else if (a.created_at > b.created_at) {
-                return -1;
-            }
-            return 0;
-
-
-        });
-    };
-
     // create UI for single app
-    var createAppItem = function (app) {
-        var item = new ui.ListItem();
+    const createAppItem = function (app) {
+        const item = new ui.ListItem();
         item.element.id = 'app-' + app.id;
 
         container.append(item);
@@ -194,13 +239,13 @@ editor.once('load', function () {
         item.class.add(app.task.status);
 
         // primary app button
-        var primary = new ui.Button({
-            text: '&#57891'
+        const primary = new pcui.Button({
+            icon: 'E223',
+            class: 'primary'
         });
         events.push(handlePermissions(primary));
         if (!primary.disabled && app.task.status !== 'complete')
             primary.disabled = true;
-        primary.class.add('primary');
         item.element.appendChild(primary.element);
 
         // set primary app
@@ -208,18 +253,21 @@ editor.once('load', function () {
             if (config.project.primaryApp === app.id || app.task.status !== 'complete')
                 return;
 
-            editor.call('project:setPrimaryApp', app.id, null, function () {
+            editor.call('projects:setPrimaryApp', app.id, null, function () {
                 // error - refresh apps again to go back to previous state
                 refreshApps();
             });
 
             // refresh apps instantly
             refreshApps();
+
+            // collapse publish and download buttons
+            toggleCollapsingPublishButtons(true);
         }));
 
         // primary icon tooltip
-        var tooltipText = config.project.primaryApp === app.id ? 'Primary build' : 'Change the projects\'s primary build';
-        var tooltip = Tooltip.attach({
+        const tooltipText = config.project.primaryApp === app.id ? 'Primary build' : 'Change the projects\'s primary build';
+        const tooltip = Tooltip.attach({
             target: primary.element,
             text: tooltipText,
             align: 'right',
@@ -228,11 +276,11 @@ editor.once('load', function () {
         tooltips.push(tooltip);
 
         // status icon or image
-        var status = document.createElement('span');
+        const status = document.createElement('span');
         status.classList.add('status');
         item.element.appendChild(status);
 
-        var img;
+        let img;
 
         if (app.task.status === 'complete') {
             img = new Image();
@@ -244,88 +292,88 @@ editor.once('load', function () {
             status.appendChild(img);
         }
 
-        var nameRow = document.createElement('div');
+        const nameRow = document.createElement('div');
         nameRow.classList.add('name-row');
         item.element.appendChild(nameRow);
 
         // app name
-        var name = new ui.Label({
-            text: app.name
+        const name = new pcui.Label({
+            text: app.name,
+            class: 'name'
         });
-        name.class.add('name');
         nameRow.appendChild(name.element);
 
         // app version
-        var version = new ui.Label({
-            text: app.version
+        const version = new pcui.Label({
+            text: app.version,
+            class: 'version'
         });
-        version.class.add('version');
         nameRow.appendChild(version.element);
 
         // row below name
-        var info = document.createElement('div');
+        const info = document.createElement('div');
         info.classList.add('info');
         item.element.appendChild(info);
 
         // date
-        var date = new ui.Label({
-            text: editor.call('datetime:convert', app.created_at)
+        const date = new pcui.Label({
+            text: editor.call('datetime:convert', app.created_at),
+            class: 'date',
+            hidden: app.task.status === 'error'
         });
-        date.class.add('date');
-        date.hidden = app.task.status === 'error';
         info.appendChild(date.element);
 
         // views
-        var views = new ui.Label({
-            text: numberWithCommas(app.views)
+        const views = new pcui.Label({
+            text: numberWithCommas(app.views),
+            class: 'views',
+            hidden: app.task.status !== 'complete'
         });
-        views.class.add('views');
-        views.hidden = app.task.status !== 'complete';
         info.appendChild(views.element);
 
         // size
-        var size = new ui.Label({
-            text: sizeToString(app.size)
+        const size = new pcui.Label({
+            text: sizeToString(app.size),
+            class: 'size',
+            hidden: app.task.status !== 'complete'
         });
-        size.hidden = app.task.status !== 'complete';
-        size.class.add('size');
         info.appendChild(size.element);
 
         // branch
-        var branch = new ui.Label({
-            text: app.branch && app.branch.name || 'master'
+        const branch = new pcui.Label({
+            text: app.branch && app.branch.name || 'master',
+            class: 'branch',
+            hidden: app.task.status !== 'complete' || projectSettings.get('useLegacyScripts')
         });
-        branch.hidden = app.task.status !== 'complete' || projectSettings.get('useLegacyScripts');
-        branch.class.add('branch');
         info.appendChild(branch.element);
 
         // error message
-        var error = new ui.Label({
-            text: app.task.message
+        const error = new pcui.Label({
+            text: app.task.message,
+            class: 'error',
+            hidden: app.task.status !== 'error'
         });
-        error.hidden = app.task.status !== 'error';
-        error.class.add('error');
         item.element.appendChild(error.element);
 
         // release notes
-        var releaseNotes = app.release_notes || '';
-        var indexOfNewLine = releaseNotes.indexOf('\n');
+        let releaseNotes = app.release_notes || '';
+        const indexOfNewLine = releaseNotes.indexOf('\n');
         if (indexOfNewLine !== -1) {
             releaseNotes = releaseNotes.substring(0, indexOfNewLine);
         }
-        var notes = new ui.Label({
-            text: app.release_notes
+        const notes = new pcui.Label({
+            text: app.release_notes,
+            class: 'notes',
+            hidden: !error.hidden,
+            renderChanges: false
         });
-        notes.renderChanges = false;
-        notes.class.add('notes');
-        notes.hidden = !error.hidden;
         item.element.appendChild(notes.element);
 
         // dropdown
-        var dropdown = new ui.Button({
-            text: '&#57689;'
+        const dropdown = new pcui.Button({
+            class: 'dropdown'
         });
-        dropdown.class.add('dropdown');
+        dropdown.element.innerHTML = '&#57689;';
         item.element.appendChild(dropdown.element);
 
         events.push(dropdown.on('click', function () {
@@ -338,14 +386,16 @@ editor.once('load', function () {
             dropdownMenu.open = true;
 
             // position dropdown menu
-            var rect = dropdown.element.getBoundingClientRect();
+            const rect = dropdown.element.getBoundingClientRect();
             dropdownMenu.position(rect.right - dropdownMenu.innerElement.clientWidth, rect.bottom);
         }));
 
-        var more = new ui.Button({ text: 'more...' });
-        more.class.add('more');
+        const more = new pcui.Button({
+            text: 'more...',
+            class: 'more',
+            hidden: true
+        });
         item.element.appendChild(more.element);
-        more.hidden = true;
 
         events.push(more.on('click', function () {
             if (notes.class.contains('no-wrap')) {
@@ -367,7 +417,7 @@ editor.once('load', function () {
 
         if (app.task.status === 'complete') {
             // handle row click
-            var validTargets = [
+            const validTargets = [
                 status,
                 img,
                 info,
@@ -391,10 +441,85 @@ editor.once('load', function () {
         return item;
     };
 
+    // CONTROLLERS
+
+    // load app list
+    const loadApps = function () {
+        toggleProgress(true);
+
+        editor.call('apps:list', function (results) {
+            apps = results;
+            toggleProgress(false);
+
+            if (apps.length > 0) {
+                panelPlaycanvas.element.classList.add('collapsed');
+                panelSelfHost.element.classList.add('collapsed');
+            }
+
+            toggleCollapsingPublishButtons(apps.length > 0);
+
+            refreshApps();
+        });
+    };
+
+    // removes an app from the UI
+    const removeApp = function (app) {
+        const item = document.getElementById('app-' + app.id);
+        if (item) {
+            item.remove();
+        }
+
+        // remove from apps array
+        for (let i = 0; i < apps.length; i++) {
+            if (apps[i].id === app.id) {
+                // close dropdown menu if current app deleted
+                if (dropdownApp === apps[i])
+                    dropdownMenu.open = false;
+
+                apps.splice(i, 1);
+                break;
+            }
+        }
+
+        container.hidden = apps.length === 0;
+    };
+
+    // recreate app list UI
+    const refreshApps = function () {
+        dropdownMenu.open = false;
+        destroyTooltips();
+        destroyEvents();
+        container.element.innerHTML = '';
+        sortApps(apps);
+        container.hidden = apps.length === 0;
+        apps.forEach(createAppItem);
+    };
+
+    // LOCAL UTILS
+
+    // sort apps by primary first and then created date
+    const sortApps = function (apps) {
+        return apps.sort(function (a, b) {
+            if (config.project.primaryApp === a.id) {
+                return -1;
+            } else if (config.project.primaryApp === b.id) {
+                return 1;
+            }
+            if (a.created_at < b.created_at) {
+                return 1;
+            } else if (a.created_at > b.created_at) {
+                return -1;
+            }
+            return 0;
+
+
+        });
+    };
+
     // Return the size fixed to 2 digits precision.
     // If the result does not have any decimal points then remove them
-    var toFixed = function (size) {
-        var result = size.toFixed(2);
+    const toFixed = function (size) {
+        let result = size.toFixed(2);
         if (result % 1 === 0) {
             result = Math.floor(result);
         }
@@ -403,8 +528,8 @@ editor.once('load', function () {
     };
 
     // convert size in bytes to readable string
-    var sizeToString = function (size) {
-        var base = 1000;
+    const sizeToString = function (size) {
+        const base = 1000;
 
         if (isNaN(size))
             size = 0;
@@ -433,36 +558,30 @@ editor.once('load', function () {
     };
 
     // adds commas every 3 decimals
-    var numberWithCommas = function (number) {
+    const numberWithCommas = function (number) {
         var parts = number.toString().split(".");
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         return parts.join(".");
     };
 
-    // removes an app from the UI
-    var removeApp = function (app) {
-        var item = document.getElementById('app-' + app.id);
-        if (item) {
-            item.remove();
-        }
-
-        // remove from apps array
-        for (let i = 0; i < apps.length; i++) {
-            if (apps[i].id === app.id) {
-                // close dropdown menu if current app deleted
-                if (dropdownApp === apps[i])
-                    dropdownMenu.open = false;
-
-                apps.splice(i, 1);
-                break;
-            }
-        }
-
-        container.hidden = apps.length === 0;
+    const destroyTooltips = function () {
+        tooltips.forEach(function (tooltip) {
+            tooltip.destroy();
+        });
+        tooltips = [];
     };
 
+    const destroyEvents = function () {
+        events.forEach(function (evt) {
+            evt.unbind();
+        });
+        events = [];
+    };
+
+    // EVENTS
+
     // handle external updates to primary app
-    editor.on('project:primaryApp', function (newValue, oldValue) {
+    editor.on('projects:primaryApp', function (newValue, oldValue) {
         if (panel.hidden) return;
 
         if (!newValue) {
@@ -522,6 +641,11 @@ editor.once('load', function () {
             }
             refreshApps();
         });
+    });
+
+    // open publishing popup
+    editor.method('picker:builds-publish', function () {
+        editor.call('picker:project', 'builds-publish');
     });
 
     // on show

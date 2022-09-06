@@ -1,5 +1,5 @@
 editor.once('load', function () {
-    editor.method('images:upload', function (file, callback, error) {
+    editor.method('images:upload', function (file, project, callback, error) {
         if (!file || !file.size)
             return;
 
@@ -7,7 +7,7 @@ editor.once('load', function () {
         form.append('file', file);
 
         var data = {
-            url: '/api/projects/{{project.id}}/image',
+            url: `/api/projects/${project.id}/image`,
             method: 'POST',
             auth: true,
             data: form,

@@ -526,17 +526,23 @@ import './editor/pickers/picker-curve.js';
 import './editor/pickers/picker-entity.js';
 import './editor/pickers/picker-node.js';
 import './editor/pickers/picker-project.js';
+
+// project management pickers
+import './editor/pickers/project-management/project-management.js';
+
+import './editor/pickers/picker-project-main.js';
+
+import './editor/pickers/project-management/picker-cms.js';
+import './editor/pickers/project-management/picker-modal-new-project.js';
+import './editor/pickers/project-management/picker-modal-new-project-confirmation.js';
+import './editor/pickers/project-management/picker-modal-new-organization.js';
+import './editor/pickers/project-management/picker-modal-delete-organization.js';
+import './editor/pickers/project-management/picker-modal-delete-project-confirmation.js';
+import './editor/pickers/project-management/picker-modal-delete-self-confirmation.js';
+import './editor/pickers/project-management/picker-modal-visibility-confirmation.js';
+
 import './editor/pickers/picker-scene.js';
 import './editor/pickers/picker-script-create.js';
-import './editor/pickers/picker-builds.js';
-import './editor/pickers/picker-publish.js';
-import './editor/pickers/picker-publish-new.js';
-import './editor/pickers/picker-gradient.js';
-import './editor/pickers/picker-text-input.js';
-import './editor/pickers/picker-legacy-scripts.js';
-import './editor/pickers/picker-recompress-textures.js';
-import './editor/pickers/picker-release-notes.js';
-import './editor/pickers/picker-fix-corrupted-templates.js';
 
 // version control pickers
 import './editor/pickers/version-control/picker-version-control-svg.js';
@@ -556,6 +562,18 @@ import './editor/pickers/version-control/picker-version-control.js';
 import './editor/pickers/version-control/picker-version-control-overlay-message.js';
 import './editor/pickers/version-control/picker-version-control-messenger.js';
 import './editor/pickers/version-control/picker-version-control-overlay-merge.js';
+
+import './editor/pickers/picker-builds-publish.js';
+import './editor/pickers/picker-publish-new.js';
+import './editor/pickers/picker-gradient.js';
+import './editor/pickers/picker-text-input.js';
+import './editor/pickers/picker-legacy-scripts.js';
+import './editor/pickers/picker-recompress-textures.js';
+import './editor/pickers/picker-release-notes.js';
+import './editor/pickers/picker-fix-corrupted-templates.js';
+
+// team management picker
+import './editor/pickers/picker-team-management.js';
 
 // conflict manager
 import './editor/pickers/conflict-manager/picker-conflict-manager-section-field.js';

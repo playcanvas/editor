@@ -1,6 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
+    const currentProject = config.project;
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
     // holds all tooltips
@@ -93,7 +94,7 @@ editor.once('load', function () {
         var file = fileInput.files[0];
         fileInput.value = null;
 
-        editor.call('images:upload', file, function (data) {
+        editor.call('images:upload', file, currentProject, function (data) {
             imageS3Key = data.s3Key;
             isUploadingImage = false;
             refreshButtonsState();
@@ -449,11 +450,11 @@ editor.once('load', function () {
 
         editor.call('apps:new', data, function () {
             jobInProgress = false;
-            editor.call('picker:builds');
+            editor.call('picker:builds-publish');
         }, function (status) {
             jobInProgress = false;
             editor.call('status:error', 'Error while publishing: ' + status);
-            editor.call('picker:builds');
+            editor.call('picker:builds-publish');
         });
     });
 
