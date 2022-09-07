@@ -7885,6 +7885,8 @@ strong {
                             left: 0;
                             width: 100%;
                             z-index: 101;
+                            max-height: 150px;
+                            overflow-y: auto;
     
                             li {
                                 background-color: #fff;
