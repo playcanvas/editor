@@ -358,6 +358,7 @@ editor.once('load', function () {
             addMeAsAdminButton.hidden = true;
             editor.call('picker:project:close');
             editor.call('picker:project:reduced', currentProject);
+            editor.call('picker:project:cms:refreshProjects');
         }, (err) => {
             editor.call('picker:project:buildAlert', panel, err);
         });
@@ -481,7 +482,6 @@ editor.once('load', function () {
         setTimeout(() => {
             editor.call('picker:project:reduced', currentProject);
         }, 750);
-        editor.call('picker:project:cms:refreshProjects');
     };
 
     // LOCAL UTILS

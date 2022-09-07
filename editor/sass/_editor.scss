@@ -6371,7 +6371,7 @@ strong {
                         position: relative;
                         height: 30px;
                         display: flex;
-                        padding: 20px 25px 0 25px;
+                        padding: 20px 36px 0 36px;
     
                         & > .search-project {
                             flex: 18;
@@ -6435,6 +6435,7 @@ strong {
                         display: grid;
                         grid-template-columns: 1fr 1fr;
                         align-content: start;
+                        justify-items: center;
                         margin: 25px;
                         gap: 15px;
                         width: calc(100% - 50px);
@@ -6448,7 +6449,7 @@ strong {
                             display: flex;
                             background-image: none !important;
                             background-color: $bcg-dark;
-                            width: calc(100% - 5px);
+                            width: calc(100% - 16px);
                             height: 75px;
                             min-height: 75px;
                             max-height: 75px;

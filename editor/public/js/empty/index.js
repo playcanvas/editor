@@ -76,7 +76,9 @@ import '../editor/pickers/project-management/picker-modal-new-project.js';
 import '../editor/pickers/project-management/picker-modal-new-project-confirmation.js';
 import '../editor/pickers/project-management/picker-modal-new-organization.js';
 import '../editor/pickers/project-management/picker-modal-delete-organization.js';
+import '../editor/pickers/project-management/picker-modal-delete-self-confirmation.js';
 import '../editor/pickers/project-management/picker-modal-delete-project-confirmation.js';
+import '../editor/pickers/project-management/picker-modal-visibility-confirmation.js';
 
 import '../editor/pickers/picker-scene.js';
 

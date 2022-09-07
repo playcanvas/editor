@@ -43,7 +43,7 @@ editor.once('load', () => {
         if (!user)
             result = 'Read';
         else {
-            if (user.id === project.owner.id)
+            if (project && user.id === project.owner.id)
                 result = 'Owner';
             else {
                 if (user.access_level === 'read' || !user.access_level) result = 'Read';
