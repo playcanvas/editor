@@ -634,8 +634,6 @@ Object.assign(pcui, (function () {
                 'key',
                 'autoWidth',
                 'autoHeight',
-                'autoFitWidth',
-                'autoFitHeight',
                 'fitMode',
                 'wrapLines',
                 'materialAsset',
@@ -645,6 +643,8 @@ Object.assign(pcui, (function () {
             ].forEach((name) => {
                 this._field(name).on('change', this._toggleFields.bind(this));
             });
+            this._field('autoFitWidth').on('change', this._toggleAutoFitWidth.bind(this));
+            this._field('autoFitHeight').on('change', this._toggleAutoFitHeight.bind(this));
 
             this._field('key').on('change', this._onFieldKeyChange.bind(this));
             this._field('localized').on('change', this._onFieldLocalizedChange.bind(this));
@@ -756,8 +756,8 @@ Object.assign(pcui, (function () {
             this._field('autoWidth').disabled = horizontalSplit;
             this._field('autoHeight').disabled = verticalSplit;
             this._field('fitMode').parent.hidden = !isImage || (!texture && !sprite) || material;
-            this._field('autoFitWidth').disabled = this._field('autoWidth').value;
-            this._field('autoFitHeight').disabled = this._field('autoHeight').value;
+            this._field('autoFitWidth').disabled = this._field('autoWidth').value && !this._field('autoWidth').disabled;
+            this._field('autoFitHeight').disabled = this._field('autoHeight').value && !this._field('autoHeight').disabled;
             this._field('maxFontSize').parent.hidden = !isText || ((this._field('autoFitWidth').disabled || !this._field('autoFitWidth').value) && (this._field('autoFitHeight').disabled || !this._field('autoFitHeight').value));
             this._field('minFontSize').parent.hidden = this._field('maxFontSize').parent.hidden;
             this._field('fontSize').parent.hidden = !isText || !this._field('maxFontSize').parent.hidden;
@@ -768,6 +768,24 @@ Object.assign(pcui, (function () {
 
             margins[1].disabled = !verticalSplit;
             margins[3].disabled = margins[1].disabled;
+        }
+
+        _toggleAutoFitWidth(value) {
+            if (value) {
+                // autoFitWidth is ignored by the engine if autoWidth is true, so set it to false
+                this._field('autoWidth').value = false;
+            }
+
+            this._toggleFields();
+        }
+
+        _toggleAutoFitHeight(value) {
+            if (value) {
+                // autoFitHeight is ignored by the engine if autoHeight is true, so set it to false
+                this._field('autoHeight').value = false;
+            }
+
+            this._toggleFields();
         }
 
         _onFieldPresetChange(value) {
