@@ -24,8 +24,13 @@ editor.once('load', () => {
     // UI
 
     // displays or hides the loading bar in the CMS main panel based on parameter
-    const toggleProgress = function (toggle) {
+    const toggleProgress = function (toggle, progress = 100, label = "") {
+        progressBar.value = progress;
         progressBar.hidden = !toggle;
+        if (label !== "") {
+            progressLabel.hidden = false;
+            progressLabel.text = label;
+        } else progressLabel.hidden = true;
     };
 
     // builds out the usage modal
@@ -285,7 +290,9 @@ editor.once('load', () => {
             // If user clicks on extended settings button, ignore click
             if (evt.target.nodeName === "BUTTON") return;
 
-            // If locked project, block click event
+            // If disabled project, block click event
+            if (project.disabled) return;
+
             if (project.locked) editor.call('picker:project:lockedView', project);
             else if (project.access_level === 'none') editor.call('picker:project:noAdmin', project);
             else if (IS_EMPTY_STATE || (project.id != config.project.id)) editor.call('picker:project:reduced', project);
@@ -314,6 +321,7 @@ editor.once('load', () => {
         const sizeLabel = new pcui.Label({ class: 'stat', text: sizeToString(project.size.total) });  // size
         statsContainer.append(sizeLabel);
 
+        if (project.disabled) projectContainer.element.classList.add('disabled');
         if (project.access_level === 'none') projectContainer.element.classList.add('noAccess');
         if (project.locked) projectContainer.element.classList.add('locked');
 
@@ -591,7 +599,9 @@ editor.once('load', () => {
     // progress bar and loading label
     const progressBar = new pcui.Progress({ value: 100, class: 'progress' });
     progressBar.hidden = true;
+    const progressLabel = new pcui.Label({ text: 'Uploading', hidden: true });
     rightPanel.dom.appendChild(progressBar.dom);
+    rightPanel.dom.appendChild(progressLabel.dom);
 
     // right panel controls
     const controlsContainer = new pcui.Container({
@@ -697,17 +707,22 @@ editor.once('load', () => {
     // handles the flow for project importing including error and loading states
     const importProject = (files) => {
 
-        // Check if import is disabled
-        if (importDisabled())
+        // Check if import is disabled or no file submitted
+        if (importDisabled() || files.length === 0)
             return;
 
-        toggleProgress(true);
+        toggleProgress(true, 0, 'Uploading... Please stand by');
 
         // Convert file to form data
         var form = new FormData();
         form.append("file", files[0]);
 
-        editor.call('projects:uploadExport', form, async (data) => {
+        editor.call('projects:uploadExport', form, (progress) => {
+            // Progress handler function
+            progressBar.value = progress * 100;
+
+            if (progress === 1) progressLabel.text = "Upload Complete! Importing... (Please don't close this window)";
+        }, async (data) => {
             const result = await data;
 
             let jobId;
@@ -732,7 +747,7 @@ editor.once('load', () => {
                             // add it to the list
                             refreshProjects();
                         } else {
-                            editor.call('picker:project:newProjectConfirmation', `/editor/project/${job.project_id}`);
+                            editor.call('picker:project:newProjectConfirmation', `/editor/project/${job.data.project_id}`);
                         }
                     } else if (job.status === 'error') {
                         const importError = job.messages[0] || "There was an error while importing";
@@ -755,6 +770,7 @@ editor.once('load', () => {
             toggleProgress(false);
             editor.call('picker:project:buildAlert', rightPanel, "There was an error while importing");
         });
+
     };
 
     // loads the current user's projects into the CMS main panel
@@ -869,6 +885,8 @@ editor.once('load', () => {
 
         if (selectedFilter.organization) changeCurrentUser(selectedFilter.organization);
         else changeCurrentUser(rootUser);
+
+        loadProjects();  // reload projects
     };
 
     // formats last __ text for project UI (refreshed on sorting policy change)

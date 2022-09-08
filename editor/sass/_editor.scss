@@ -6483,6 +6483,30 @@ strong {
                                 }
                             }
 
+                            &.disabled {
+                                .project-thumbnail { z-index: initial; }
+
+                                &:before {
+                                    @extend .font-icon;
+                                    content: '\E326';
+                                    color: $text-primary;
+                                    position: absolute;
+                                    left: 0;
+                                    right: 0;
+                                    display: flex;
+                                    align-items: center;
+                                    padding-left: 27px;
+                                    position: absolute;
+                                    width: calc(100% - 27px);
+                                    height: 100%;
+                                    background-color: $bcg-darker;
+                                    filter: opacity(0.8);
+                                    z-index: 2;
+                                    cursor: pointer;
+                                    transition: all 0.3s ease-in-out;
+                                }
+                            }
+
                             &.locked {
                                 .project-thumbnail { z-index: initial; }
                                 &:hover::before { color: $text-active; }
@@ -6498,7 +6522,7 @@ strong {
                                     align-items: center;
                                     padding-left: 27px;
                                     position: absolute;
-                                    width: 100%;
+                                    width: calc(100% - 27px);
                                     height: 100%;
                                     background-color: $bcg-darker;
                                     filter: opacity(0.8);
@@ -6518,7 +6542,7 @@ strong {
                                 & > .project-name, & > .project-last-edited { color: $text-primary; }
                             }
 
-                            &:hover:not(.noAccess):not(.currentlyOpen):not(.locked) {
+                            &:hover:not(.noAccess):not(.currentlyOpen):not(.locked):not(.disabled) {
                                 &:after {
                                     width: 100%;
                                     opacity: 1;
@@ -6668,6 +6692,27 @@ strong {
                                 }
                             }
 
+                            &.disabled {
+                                &:before {
+                                    @extend .font-icon;
+                                    content: '\E326';
+                                    font-size: 2em;
+                                    color: $text-primary;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    position: absolute;
+                                    justify-self: center;
+                                    width: 178px;
+                                    height: 178px;
+                                    background-color: $bcg-darker;
+                                    filter: opacity(0.8);
+                                    z-index: 2;
+                                    cursor: not-allowed;
+                                    transition: all 0.3s ease-in-out;
+                                }
+                            }
+
                             &.locked {
                                 &:hover::before { color: $text-active; }
                                 &:before {
@@ -6690,7 +6735,7 @@ strong {
                                 }   
                             }
 
-                            &:hover:not(.noAccess):not(.currentlyOpen):not(.locked) {
+                            &:hover:not(.noAccess):not(.currentlyOpen):not(.locked):not(.disabled) {
                                 .project-thumbnail {
                                     transform: translate(0, -5px);
                                 }

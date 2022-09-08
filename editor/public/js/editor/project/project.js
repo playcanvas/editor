@@ -129,7 +129,7 @@ editor.once('load', function () {
     });
 
     // Upload specified export
-    editor.method('projects:uploadExport', function (file, success, errorFn) {
+    editor.method('projects:uploadExport', function (file, progressHandler, success, errorFn) {
         const deferred = new Defer();
 
         Ajax({
@@ -139,6 +139,9 @@ editor.once('load', function () {
             'auth': true,
             'mimeType': 'multipart/form-data'
         })
+        .on('progress', (progress) => {
+            if (progressHandler) progressHandler(progress);
+        })
         .on('load', (status, response) => {
             deferred.resolve(response);
             if (success) success(deferred.promise);
@@ -147,6 +150,8 @@ editor.once('load', function () {
             if (status > 0) deferred.reject(status);
             if (errorFn) errorFn(deferred.promise);
         });
+
+        return deferred.promise;
     });
 
     // Imports specified project
