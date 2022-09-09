@@ -30,7 +30,11 @@ editor.once('load', () => {
         if (label !== "") {
             progressLabel.hidden = false;
             progressLabel.text = label;
-        } else progressLabel.hidden = true;
+            progressBarContainer.dom.classList.add('progress-container-expand');
+        } else {
+            progressLabel.hidden = true;
+            progressBarContainer.dom.classList.remove('progress-container-expand');
+        }
     };
 
     // builds out the usage modal
@@ -597,11 +601,13 @@ editor.once('load', () => {
     panel.append(rightPanel);
 
     // progress bar and loading label
+    const progressBarContainer = new pcui.Container({ class: 'progress-container' });
     const progressBar = new pcui.Progress({ value: 100, class: 'progress' });
     progressBar.hidden = true;
     const progressLabel = new pcui.Label({ text: 'Uploading', hidden: true });
-    rightPanel.dom.appendChild(progressBar.dom);
-    rightPanel.dom.appendChild(progressLabel.dom);
+    rightPanel.dom.appendChild(progressBarContainer.dom);
+    progressBarContainer.append(progressBar);
+    progressBarContainer.append(progressLabel);
 
     // right panel controls
     const controlsContainer = new pcui.Container({
