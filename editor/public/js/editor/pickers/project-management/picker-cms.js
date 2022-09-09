@@ -621,6 +621,9 @@ editor.once('load', () => {
         searchMatches.clear();  // reset search matches
         const searchResult = editor.call('search:items', projectsToSearch, searchBar.value);
 
+        if (searchBar.value !== '') searchBar.placeholder = '';
+        else searchBar.placeholder = 'Search';
+
         searchResult.forEach((result) => {
             result.inSearch = true;
             searchMatches.add(result.id);

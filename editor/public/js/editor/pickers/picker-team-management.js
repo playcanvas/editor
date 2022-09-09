@@ -231,11 +231,17 @@ editor.once('load', function () {
     inviteInputGroup.append(inviteInput);
 
     inviteInput.element.addEventListener('keypress', (evt) => {
+        if (inviteInput.value !== '') inviteInput.placeholder = '';
+
         if (evt.key === 'Enter') {
             newCollaborator.user = inviteInput.value;
             createCollaborator();
             inviteInput.value = '';
         }
+    });
+
+    inviteInput.on('blur', () => {
+        if (inviteInput.value === '') inviteInput.placeholder = 'Type Username or Email Address';
     });
 
     const inviteSubmit = new pcui.Button({
@@ -453,7 +459,7 @@ editor.once('load', function () {
 
     // deletes a collaborator from a project and deletes UI element
     const removeCollaborator = (collaborator, container) => {
-        if (canRemoveCollaborator()) {
+        if (canRemoveCollaborator(collaborator)) {
             const index = collaborators.indexOf(collaborator);
             editor.call('users:removeCollaborator', currentProject, collaborator, () => {
                 if (index > -1) collaborators.splice(index, 1);
@@ -500,7 +506,7 @@ editor.once('load', function () {
 
     // determines whether the current user can remove a collaborator depending on their rights
     const canRemoveCollaborator = (collaborator) => {
-        return collaborator && collaborator.username == config.self.username || hasAdminAccess();
+        return (collaborator && collaborator.username === config.self.username) || hasAdminAccess();
     };
 
     // determines whether the current user can edit a collaborator's access rights depending on their rights
