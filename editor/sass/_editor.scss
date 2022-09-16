@@ -10404,6 +10404,13 @@ strong {
                         margin-right: 5px;
                     }
                 }
+
+                .mini-spinner {
+                    position: relative;
+                    margin-left: auto;
+                    margin-right: 0;
+                    top: -32px;
+                }
             }
 
             .ui-list {

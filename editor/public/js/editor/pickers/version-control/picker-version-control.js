@@ -1037,6 +1037,10 @@ editor.once('load', function () {
                 }
             });
 
+            if (panelCheckpoints.currentBranch != null) {
+                selected = panelCheckpoints.currentBranch;
+            }
+
             // if we didn't find a proper selection then select our branch
             if (!selected) {
                 selected = config.self.branch;
