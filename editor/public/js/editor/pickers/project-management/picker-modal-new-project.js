@@ -28,7 +28,8 @@ editor.once('load', function () {
         name: blankProject.name,
         description: blankProject.description,
         private: false,
-        legacy: null
+        legacy: null,
+        fork_from: null
     };
 
     let rootUser;
@@ -76,6 +77,7 @@ editor.once('load', function () {
             formInputs.description = starterKits[fork].description;
             formInputs.private = false;
             formInputs.legacy = null;
+            formInputs.fork_from = starterKits[fork].fork_from;
 
             selectedKitElement.dom.classList.add('selected');
 
@@ -354,6 +356,7 @@ editor.once('load', function () {
             useLegacyScripts: formInputs.legacy === null ? false : formInputs.legacy,
             vr: false
         };
+        newKitData.fork_from = formInputs.fork_from;
         createNewProject();
     });
 
@@ -431,7 +434,7 @@ editor.once('load', function () {
             }
         }, (err) => {
             // unsubscribe from messenger job.update
-            if (data.fork_from) evt.unbind();
+            if (data.fork_from && evt) evt.unbind();
 
             toggleLoader(false);
 
