@@ -23,6 +23,7 @@ editor.once('load', function () {
             continueComments: true,
             autoCloseBrackets: true,
             highlightBrackets: true,
+            minimapMode: 'right',
             formatOnSave: false,
             theme: 'playcanvas'
         }

@@ -12,6 +12,8 @@ editor.once('load', function () {
         }
     };
 
+    const minimapMode = settings.get('ide.minimapMode');
+
     // create editor
     const monacoEditor = monaco.editor.create(panel.innerElement, {
         language: 'javascript',
@@ -20,7 +22,8 @@ editor.once('load', function () {
         autoClosingBrackets: settings.get('ide.autoCloseBrackets'),
         matchBrackets: settings.get('ide.highlightBrackets') ? 'always' : 'never',
         minimap: {
-            enabled: false
+            enabled: minimapMode !== 'none',
+            side: minimapMode
         }
     });
 
@@ -66,8 +69,7 @@ editor.once('load', function () {
     filesPanel.on('resize', () => onResize());
 
     const preferencesPanel = editor.call('layout.attributes');
-    preferencesPanel.on('show', () => setTimeout(() => onResize(), 120));
-    preferencesPanel.on('hide', () => setTimeout(() => onResize(), 120));
+    preferencesPanel.element.addEventListener('transitionend', () => onResize());
     preferencesPanel.on('resize', () => onResize());
 
     // update layout once at startup because it seems to break
@@ -91,6 +93,15 @@ editor.once('load', function () {
     settings.on('ide.fontSize:set', function (value) {
         monacoEditor.updateOptions({
             fontSize: value
+        });
+    });
+
+    settings.on('ide.minimapMode:set', function (value) {
+        monacoEditor.updateOptions({
+            minimap: {
+                enabled: value !== 'none',
+                side: value
+            }
         });
     });
 
