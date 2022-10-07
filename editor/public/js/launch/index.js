@@ -18,6 +18,7 @@ import '../launch/entities-sync.js';
 import '../editor/schema/schema.js';
 import '../editor/schema/schema-components.js';
 import '../editor/assets/assets-bundles.js';
+import '../editor/viewport/viewport-engine-data.js';
 import '../launch/viewport-binding-entities.js';
 import '../launch/viewport-binding-components.js';
 import '../launch/viewport-binding-assets.js';

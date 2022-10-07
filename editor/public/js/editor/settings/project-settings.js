@@ -27,7 +27,6 @@ editor.once('load', function () {
         'layers',
         'layerOrder',
         'i18nAssets',
-        'areaLightDataAsset',
         'useLegacyAmmoPhysics',
         'useLegacyAudio',
         'maxAssetRetries'
@@ -207,10 +206,6 @@ editor.once('load', function () {
 
         if (!settings.get('i18nAssets')) {
             settings.set('i18nAssets', []);
-        }
-
-        if (!settings.get('areaLightDataAsset')) {
-            settings.set('areaLightDataAsset', null);
         }
 
         if (!settings.get('externalScripts')) {

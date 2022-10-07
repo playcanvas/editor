@@ -624,6 +624,7 @@ import './editor/viewport/viewport-drop-material.js';
 import './editor/viewport/viewport-drop-cubemap.js';
 import './editor/viewport/viewport-drop-sprite.js';
 import './editor/viewport/viewport-drop-template.js';
+import './editor/viewport/viewport-engine-data.js';
 import './editor/viewport/viewport-userdata.js';
 import './editor/viewport/viewport-user-cameras.js';
 import './editor/viewport/viewport-tap.js';
@@ -633,7 +634,6 @@ import './editor/viewport/viewport-tooltips.js';
 import './editor/viewport/viewport-focus.js';
 import './editor/viewport/viewport-outline.js';
 import './editor/viewport/viewport-i18n.js';
-import './editor/viewport/viewport-area-light-data.js';
 
 // previews
 import './editor/assets/assets-preview-material-watch.js';

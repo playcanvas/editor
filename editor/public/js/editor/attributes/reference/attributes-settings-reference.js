@@ -70,10 +70,6 @@ editor.once('load', function () {
         description: 'Intensity of the skybox to match the exposure levels.',
         url: 'http://developer.playcanvas.com/api/pc.Scene.html#skyboxIntensity'
     }, {
-        name: 'areaLights',
-        title: 'Area Lights',
-        description: 'Add necessary assets to render area lights correctly'
-    }, {
         title: 'skyboxMip',
         subTitle: '{Number}',
         description: 'Mip level of the prefiletered skybox, higher value is lower mip level which is lower resolution and more prefiltered (blured).',
@@ -166,10 +162,6 @@ editor.once('load', function () {
         name: 'project:antiAlias',
         title: 'Anti-Alias',
         description: 'When disabled, anti-aliasing will be disabled for back-buffer.'
-    }, {
-        name: 'project:areaLightDataAsset',
-        title: 'Area Light Data',
-        description: 'this will be hidden from users'
     }, {
         name: 'project:transparentCanvas',
         title: 'Transparent Canvas',

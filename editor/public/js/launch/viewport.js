@@ -228,19 +228,6 @@ editor.once('load', function () {
         }
     }
 
-    if (config.project.settings.areaLightDataAsset) {
-        var id = config.project.settings.areaLightDataAsset;
-        var engineAsset = app.assets.get(id);
-        if (engineAsset) {
-            app.setAreaLightLuts(engineAsset);
-        } else {
-            app.assets.on('add:' + id, function () {
-                var engineAsset = app.assets.get(id);
-                app.setAreaLightLuts(engineAsset);
-            });
-        }
-    }
-
     editor.call('editor:loadModules', config.wasmModules, "", function () {
         app._loadLibraries(libraryUrls, function (err) {
             libraries = true;
@@ -322,19 +309,6 @@ editor.once('load', function () {
 
     projectSettings.on('i18nAssets:set', function (value) {
         app.i18n.assets = value;
-    });
-
-    projectSettings.on('areaLightDataAsset:set', function (value) {
-        var id = value;
-        var engineAsset = app.assets.get(id);
-        if (engineAsset) {
-            app.setAreaLightLuts(engineAsset);
-        } else {
-            app.assets.on('add:' + id, function () {
-                var engineAsset = app.assets.get(id);
-                app.setAreaLightLuts(engineAsset);
-            });
-        }
     });
 
     projectSettings.on('i18nAssets:insert', function (value) {

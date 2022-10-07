@@ -436,20 +436,17 @@ Object.assign(pcui, (function () {
             if (isCLustered) {
                 shadowTypeVsm = false;
             }
-
-            const hasShapes = editor.call('settings:project').get('areaLightDataAsset');
+            const areaEnabled = editor.call('sceneSettings').get('render.lightingAreaLightsEnabled');
             const shape = this._field('shape').value;
 
-            if (!hasShapes) {
-                this._field('shape').parent.hidden = true;
-            }
+            this._field('shape').parent.hidden = !areaEnabled;
 
             ['range', 'falloffMode'].forEach((field) => {
                 this._field(field).parent.hidden = isDirectional;
             });
 
             // falloff mode is ignored on area lights
-            if (hasShapes && shape !== 0) {
+            if (shape !== 0) {
                 this._field('falloffMode').parent.hidden = true;
             }
 

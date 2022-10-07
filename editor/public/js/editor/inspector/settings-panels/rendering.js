@@ -10,25 +10,6 @@ Object.assign(pcui, (function () {
             type: 'rgb'
         },
         {
-            label: 'Area Lights',
-            alias: 'areaLights',
-            type: 'button',
-            args: {
-                text: 'IMPORT AREA LIGHTS',
-                icon: 'E228'
-            }
-        },
-        {
-            observer: 'projectSettings',
-            label: 'Area Lights Data',
-            path: 'areaLightDataAsset',
-            alias: 'project:areaLightDataAsset',
-            type: 'asset',
-            args: {
-                assetType: 'binary'
-            }
-        },
-        {
             observer: 'sceneSettings',
             label: 'Skybox',
             path: 'render.skybox',
@@ -494,46 +475,6 @@ Object.assign(pcui, (function () {
                 clickBasisEvt.unbind();
             });
 
-            var areaLightImportField = this._attributesInspector.getField('areaLights');
-            var areaLightDataField = this._attributesInspector.getField('areaLightDataAsset');
-
-            if (!editor.call('users:hasFlag', 'hasAreaLights')) {
-                areaLightImportField.parent.hidden = true;
-                areaLightDataField.hidden = true;
-            }
-
-            areaLightDataField.on('change', (value) => {
-                if (!value) {
-                    // show import button again
-                    areaLightImportField.hidden = false;
-                } else {
-                    // hide import button
-                    areaLightImportField.hidden = true;
-                }
-            });
-
-            const handleAreaLightLutsImport = (name) => {
-                if (name === 'area-light-luts') {
-                    var lutAsset = editor.call('project:engineAsset:getEngineAsset', name);
-                    if (lutAsset.length > 0) {
-                        this._attributesInspector.getField('areaLightDataAsset').value = lutAsset[0][1].get('id');
-                    } else {
-                        editor.call('project:engineAsset:addEngineAsset', `${name}.bin`, name);
-                        const importAreaLightEvt = editor.on('engineAssetImported', handleAreaLightLutsImport);
-                        this.once('destroy', () => {
-                            importAreaLightEvt.unbind();
-                        });
-                    }
-                }
-            };
-
-            const clickAreaLightImportEvt = areaLightImportField.on('click', () => {
-                handleAreaLightLutsImport('area-light-luts');
-            });
-            this.once('destroy', () => {
-                clickAreaLightImportEvt.unbind();
-            });
-
             const shadowsEnabled = this._attributesInspector.getField('render.lightingShadowsEnabled');
             const shadowsResolution = this._attributesInspector.getField('render.lightingShadowAtlasResolution');
             const shadowType = this._attributesInspector.getField('render.lightingShadowType');
@@ -541,7 +482,6 @@ Object.assign(pcui, (function () {
             const cookieResolution = this._attributesInspector.getField('render.lightingCookieAtlasResolution');
             const cells = this._attributesInspector.getField('render.lightingCells');
             const lightsPerCell = this._attributesInspector.getField('render.lightingMaxLightsPerCell');
-            const areaEnabled = this._attributesInspector.getField('render.lightingAreaLightsEnabled');
             const clusteredEnabled = this._attributesInspector.getField('render.clusteredLightingEnabled');
 
             // warning message, to be removed when engine 1.56 is promoted to the Editor
@@ -579,9 +519,6 @@ Object.assign(pcui, (function () {
                 cookiesEnabled.parent.hidden = !value;
                 cookieResolution.hidden = !cookies;
                 cookieResolution.parent.hidden = !cookies;
-
-                areaEnabled.hidden = !value;
-                areaEnabled.parent.hidden = !value;
             });
 
             shadowsEnabled.on('change', (value) => {
