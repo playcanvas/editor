@@ -484,11 +484,6 @@ Object.assign(pcui, (function () {
             const lightsPerCell = this._attributesInspector.getField('render.lightingMaxLightsPerCell');
             const clusteredEnabled = this._attributesInspector.getField('render.clusteredLightingEnabled');
 
-            // warning message, to be removed when engine 1.56 is promoted to the Editor
-            clusteredEnabled.parent.parent.appendBefore(new pcui.Panel({
-                headerText: 'Clustered lighting section is taken into account by the Engine 1.56+ only.'
-            }), clusteredEnabled.parent);
-
             const sceneSettings = editor.call('sceneSettings');
 
             clusteredEnabled.on('change', (value) => {
