@@ -90,7 +90,7 @@ editor.once('load', function () {
 
         // create 3 rings of lines (the visible portion of the gizmo)
         for (let i = 0; i < 3; i++) {
-            mesh = new pc.Mesh();
+            mesh = new pc.Mesh(device);
             mesh.vertexBuffer = vertexBuffers[i];
             mesh.indexBuffer[0] = null;
             mesh.primitive[0].type = pc.PRIMITIVE_LINESTRIP;

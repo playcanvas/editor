@@ -26,18 +26,19 @@ Object.assign(
             ];
 
             constructor(app, entity, color) {
+                const device = app.graphicsDevice;
                 this._app = app;
                 this._entity = entity;
 
                 this._vertexCount = 0;
 
-                this._vertexFormat = new pc.VertexFormat(this._app.graphicsDevice, [
+                this._vertexFormat = new pc.VertexFormat(device, [
                     { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 },
                     { semantic: pc.SEMANTIC_COLOR, components: 4, type: pc.TYPE_UINT8, normalize: true }
                 ]);
 
-                const mesh = new pc.Mesh();
-                mesh.vertexBuffer = new pc.VertexBuffer(this._app.graphicsDevice, this._vertexFormat, 1024 * 2, pc.BUFFER_DYNAMIC);
+                const mesh = new pc.Mesh(device);
+                mesh.vertexBuffer = new pc.VertexBuffer(device, this._vertexFormat, 1024 * 2, pc.BUFFER_DYNAMIC);
                 mesh.primitive[0].type = pc.PRIMITIVE_LINES;
                 mesh.primitive[0].base = 0;
                 mesh.primitive[0].indexed = false;

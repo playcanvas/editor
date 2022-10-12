@@ -654,7 +654,7 @@ void main(void)
                 mesh = args.mesh;
             } else if (args.vertices) {
                 // mesh
-                mesh = new pc.Mesh();
+                mesh = new pc.Mesh(app.graphicsDevice);
                 mesh.vertexBuffer = args.vertices;
                 mesh.indexBuffer[0] = args.indices;
                 mesh.primitive[0].type = pc.PRIMITIVE_TRIANGLES;

@@ -217,6 +217,8 @@ editor.once('load', function () {
         app = editor.call('viewport:app');
         if (!app) return; // webgl not available
 
+        const device = app.graphicsDevice;
+
         container = new pc.Entity(app);
         app.root.addChild(container);
 
@@ -226,7 +228,7 @@ editor.once('load', function () {
         materialDefault.update();
 
         var buffer, iterator, node, mesh, meshInstance, model;
-        var vertexFormat = new pc.VertexFormat(app.graphicsDevice, [
+        var vertexFormat = new pc.VertexFormat(device, [
             { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 }
         ]);
         var rad = Math.PI / 180;
@@ -234,7 +236,7 @@ editor.once('load', function () {
 
         // ================
         // box
-        buffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, 12 * 2);
+        buffer = new pc.VertexBuffer(device, vertexFormat, 12 * 2);
         iterator = new pc.VertexIterator(buffer);
         // top
         iterator.element[pc.SEMANTIC_POSITION].set(1, 1, 1);
@@ -291,7 +293,7 @@ editor.once('load', function () {
         // node
         node = new pc.GraphNode();
         // mesh
-        mesh = new pc.Mesh();
+        mesh = new pc.Mesh(device);
         mesh.vertexBuffer = buffer;
         mesh.indexBuffer[0] = null;
         mesh.primitive[0].type = pc.PRIMITIVE_LINES;
@@ -317,7 +319,7 @@ editor.once('load', function () {
         // ================
         // sphere
         var segments = 72;
-        buffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, segments * 2 * 3);
+        buffer = new pc.VertexBuffer(device, vertexFormat, segments * 2 * 3);
         iterator = new pc.VertexIterator(buffer);
         // circles
         for (let i = 0; i < segments; i++) {
@@ -338,7 +340,7 @@ editor.once('load', function () {
         // node
         node = new pc.GraphNode();
         // mesh
-        mesh = new pc.Mesh();
+        mesh = new pc.Mesh(device);
         mesh.vertexBuffer = buffer;
         mesh.indexBuffer[0] = null;
         mesh.primitive[0].type = pc.PRIMITIVE_LINES;

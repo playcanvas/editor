@@ -274,7 +274,7 @@ editor.once('load', function () {
             materialSpotBehind.update();
         }
 
-        static createDirectional() {
+        static createDirectional(device) {
 
             const rad = pc.math.DEG_TO_RAD;
             const size = 0.2;
@@ -300,10 +300,10 @@ editor.once('load', function () {
                 0, length - (size * 2), 0
             ];
 
-            return Gizmo.createModel(positions, null, material, materialBehind);
+            return Gizmo.createModel(device, positions, null, material, materialBehind);
         }
 
-        static createPoint() {
+        static createPoint(device) {
 
             // xz axis
             const positions = [];
@@ -313,10 +313,10 @@ editor.once('load', function () {
                 positions.push(Math.sin(factor * (i + 1)), Math.cos(factor * (i + 1)), 0);
             }
 
-            return Gizmo.createModel(positions, null, material, materialBehind);
+            return Gizmo.createModel(device, positions, null, material, materialBehind);
         }
 
-        static createPointClose() {
+        static createPointClose(device) {
 
             // circles
             const positions = [];
@@ -330,10 +330,10 @@ editor.once('load', function () {
                 positions.push(0, Math.cos(factor * (i + 1)), Math.sin(factor * (i + 1)));
             }
 
-            return Gizmo.createModel(positions, null, material, materialBehind);
+            return Gizmo.createModel(device, positions, null, material, materialBehind);
         }
 
-        static createSpot() {
+        static createSpot(device) {
 
             const positions = [];
             const outers = [];
@@ -361,10 +361,10 @@ editor.once('load', function () {
                 outers.push(1, 1);
             }
 
-            return Gizmo.createModel(positions, outers, materialSpot, materialSpotBehind);
+            return Gizmo.createModel(device, positions, outers, materialSpot, materialSpotBehind);
         }
 
-        static createRectangle() {
+        static createRectangle(device) {
 
             // 4 lines
             const positions = [
@@ -374,10 +374,10 @@ editor.once('load', function () {
                 0.5, 0, -0.5, 0.5, 0, 0.5
             ];
 
-            return Gizmo.createModel(positions, null, material, materialBehind);
+            return Gizmo.createModel(device, positions, null, material, materialBehind);
         }
 
-        static createDisk() {
+        static createDisk(device) {
 
             const positions = [];
             const factor = 360 / _circleSegments * pc.math.DEG_TO_RAD;
@@ -387,10 +387,10 @@ editor.once('load', function () {
                 positions.push(0.5 * Math.sin(factor * (i + 1)), 0, 0.5 * Math.cos(factor * (i + 1)));
             }
 
-            return Gizmo.createModel(positions, null, material, materialBehind);
+            return Gizmo.createModel(device, positions, null, material, materialBehind);
         }
 
-        static createSphere() {
+        static createSphere(device) {
 
             // circles
             const positions = [];
@@ -404,16 +404,16 @@ editor.once('load', function () {
                 positions.push(0, 0.5 * Math.cos(factor * (i + 1)), 0.5 * Math.sin(factor * (i + 1)));
             }
 
-            return Gizmo.createModel(positions, null, material, materialBehind);
+            return Gizmo.createModel(device, positions, null, material, materialBehind);
         }
 
-        static createModel(positions, outers, materialFront, materialBack) {
+        static createModel(device, positions, outers, materialFront, materialBack) {
 
             // node
             const node = new pc.GraphNode();
 
             // mesh
-            const mesh = new pc.Mesh();
+            const mesh = new pc.Mesh(device);
             mesh.setPositions(positions);
             if (outers)
                 mesh.setVertexStream(pc.SEMANTIC_ATTR15, outers, 1);
@@ -491,17 +491,19 @@ editor.once('load', function () {
         if (!app)
             return; // webgl not available
 
+        var device = app.graphicsDevice;
+
         container = new pc.Entity(app);
         app.root.addChild(container);
 
         Gizmo.createMaterials();
-        models.directional = Gizmo.createDirectional();
-        models.point = Gizmo.createPoint();
-        models.pointclose = Gizmo.createPointClose();
-        models.spot = Gizmo.createSpot();
-        models.rectangle = Gizmo.createRectangle();
-        models.disk = Gizmo.createDisk();
-        models.sphere = Gizmo.createSphere();
+        models.directional = Gizmo.createDirectional(device);
+        models.point = Gizmo.createPoint(device);
+        models.pointclose = Gizmo.createPointClose(device);
+        models.spot = Gizmo.createSpot(device);
+        models.rectangle = Gizmo.createRectangle(device);
+        models.disk = Gizmo.createDisk(device);
+        models.sphere = Gizmo.createSphere(device);
     });
 
     editor.on('viewport:gizmoUpdate', function (dt) {
