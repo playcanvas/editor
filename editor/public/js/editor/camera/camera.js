@@ -240,6 +240,7 @@ editor.once('load', function () {
 
             entity.addComponent('camera', params);
             entity.camera.enabled = false;
+            entity.camera.requestSceneColorMap(true);
 
             app.root.addChild(entity);
 

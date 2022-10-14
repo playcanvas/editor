@@ -14,7 +14,7 @@ editor.once('load', function () {
         id = parseInt(id, 10);
         return new pc.Layer({
             id: id,
-            enabled: id !== LAYERID_DEPTH, // disable depth layer - it will be enabled by the engine as needed
+            enabled: true, // disable depth layer - it will be enabled by the engine as needed
             name: data.name,
             opaqueSortMode: data.opaqueSortMode,
             transparentSortMode: data.transparentSortMode
