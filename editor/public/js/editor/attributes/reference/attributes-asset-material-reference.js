@@ -436,16 +436,6 @@ editor.once('load', function () {
         description: 'A factor to determine what portion of light is reflected from the material. This value defaults to 1 (full reflectivity).',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#reflectivity'
     }, {
-        title: 'refraction',
-        subTitle: '{Number}',
-        description: 'A factor to determine what portion of light passes through the material.',
-        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#refraction'
-    }, {
-        title: 'refractionIndex',
-        subTitle: '{Number}',
-        description: 'Determines the amount of distortion of light passing through the material. Represented as 1.0 / Index of Refraction',
-        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#refractionIndex'
-    }, {
         title: 'shadingModel',
         subTitle: '{pc.SPECULAR_*}',
         description: 'Defines the shading model. Phong {pc.SPECULAR_PHONG}: Phong without energy conservation. You should only use it as a backwards compatibility with older projects. Physical {pc.SPECULAR_BLINN}: Energy-conserving Blinn-Phong.',
@@ -745,10 +735,240 @@ editor.once('load', function () {
         description: 'Sheen map UV channel.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenMapUv'
     }, {
-        title: 'sheenMapVertexColor',
+        title: 'sheenVertexColor',
         subTitle: '{Boolean}',
         description: 'Use vertex colors for sheen instead of a map.',
-        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenMapVertexColor'
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenVertexColor'
+    }, {
+        title: 'sheenTint',
+        subTitle: '{Boolean}',
+        description: 'Use sheen color to tint with sheen map.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenTint'
+    }, {
+        title: 'sheenGloss',
+        subTitle: '{Number}',
+        description: 'If no sheen gloss map is set or tint is checked, this is the sheen gloss of the material.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenGloss'
+    }, {
+        title: 'sheenGlossMap',
+        subTitle: '{pc.Texture}',
+        description: 'The sheen gloss map that specifies the per-pixel sheen gloss color. If no sheen gloss map is set, the sheen gloss is used instead.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenGlossMap'
+    }, {
+        title: 'sheenGlossMapChannel',
+        subTitle: '{String}',
+        description: 'A color channel to extract color value from sheen gloss map. Can be: r, g, b or a',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenGlossMapChannel'
+    }, {
+        title: 'sheenGlossMapOffset',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the 2D offset of the sheen gloss map. Each component is between 0 and 1.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenGlossMapOffset'
+    }, {
+        title: 'sheenGlossMapTiling',
+        subTitle: '{pc.Vec2}',
+        description: 'Controls the 2D tiling of the sheen gloss map.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenGlossMapTiling'
+    }, {
+        title: 'sheenGlossMapTint',
+        subTitle: '{Boolean}',
+        description: 'Check this to modulate the material\'s sheen gloss map with a material specific sheen gloss value.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenGlossMapTint'
+    }, {
+        title: 'sheenGlossMapUv',
+        subTitle: '{Number}',
+        description: 'Sheen gloss map UV channel.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenGlossMapUv'
+    }, {
+        title: 'sheenGlossVertexColor',
+        subTitle: '{Boolean}',
+        description: 'Use vertex colors for sheen gloss instead of a map.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenGlossVertexColor'
+    }, {
+        title: 'sheenGlossVertexColorChannel',
+        subTitle: '{Boolean}',
+        description: 'Use vertex color for sheen gloss instead of a map.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenGlossVertexColor'
+    }, {
+        title: 'sheenGlossTint',
+        subTitle: '{Boolean}',
+        description: 'Use sheen gloss to tint with sheen map.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenGlossTint'
+    }, {
+        title: 'useDynamicRefraction',
+        subTitle: '{Boolean}',
+        description: 'Enable use of grab pass for refractions.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#useDynamicRefraction'
+    }, {
+        title: 'refraction',
+        subTitle: '{Number}',
+        description: 'A factor to determine what portion of light passes through the material.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#refraction'
+    }, {
+        title: 'refractionIndex',
+        subTitle: '{Number}',
+        description: 'Determines the amount of distortion of light passing through the material. Represented as 1.0 / Index of Refraction',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#refractionIndex'
+    }, {
+        title: 'refractionMap',
+        subTitle: '{pc.Texture}',
+        description: 'The refraction map defines a per-pixel refraction amount.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#refractionMap'
+    }, {
+        title: 'refractionMapUv',
+        subTitle: '{pc.Vec2}',
+        description: 'The UV set used to sample the refraction map.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#refractionMapUv'
+    }, {
+        title: 'refractionMapChannel',
+        subTitle: '{String}',
+        description: 'A color channel to extract refraction intensity from the texture. Can be r, g, b or a.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#refractionMapChannel'
+    }, {
+        title: 'refractionMapOffset',
+        subTitle: '{pc.Vec2}',
+        description: 'The refraction map UV offset',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#refractionMapOffset'
+    }, {
+        title: 'refractionMapTiling',
+        subTitle: '{pc.Vec2}',
+        description: 'The refraction map UV tiling factor.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#refractionMapTiling'
+    }, {
+        title: 'refractionVertexColor',
+        subTitle: '{Boolean}',
+        description: 'Use vertex color for refraction intensity, or as multiplier with the refraction map.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#useDynamicRefraction'
+    }, {
+        title: 'refractionVertexColorChannel',
+        subTitle: '{Boolean}',
+        description: 'A color channel to extract refraction intensity from the vertex color. Can be r, g, b or a.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#useDynamicRefraction'
+    }, {
+        title: 'thickness',
+        subTitle: '{Number}',
+        description: 'The thickness scale of the material. When used with thickness map, this value scales the thickness of the medium using the map as a weight. The units are in whatever unit the object is in.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#thickness'
+    }, {
+        title: 'thicknessMap',
+        subTitle: '{pc.Texture}',
+        description: 'The thickness map defines a per-pixel thickness of the medium.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#thicknessMap'
+    }, {
+        title: 'thicknessMapUv',
+        subTitle: '{pc.Vec2}',
+        description: 'The UV set used to sample the thickness map.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#thicknessMapUv'
+    }, {
+        title: 'thicknessMapChannel',
+        subTitle: '{String}',
+        description: 'A color channel to extract thickness from the texture. Can be r, g, b or a.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#thicknessMapChannel'
+    }, {
+        title: 'thicknessMapOffset',
+        subTitle: '{pc.Vec2}',
+        description: 'The thickness map UV offset',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#thicknessMapOffset'
+    }, {
+        title: 'thicknessMapTiling',
+        subTitle: '{pc.Vec2}',
+        description: 'The thickness map UV tiling factor.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#thicknessMapTiling'
+    }, {
+        title: 'thicknessVertexColor',
+        subTitle: '{Boolean}',
+        description: 'Use vertex color for thickness, or as multiplier with the thickness map.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#thicknessVertexColor'
+    }, {
+        title: 'thicknessVertexColorChannel',
+        subTitle: '{Boolean}',
+        description: 'A color channel to extract thickness from the vertex color. Can be r, g, b or a.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#thicknessVertexColorChannel'
+    }, {
+        title: 'attenuation',
+        subTitle: '{pc.Color}',
+        description: 'The color attenuation of light passing through the medium.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#attenuation'
+    }, {
+        title: 'attenuationDistance',
+        subTitle: '{Number}',
+        description: 'The distance at which all light is considered to be fully absorbed.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#attenuationDistance'
+    }, {
+        title: 'useIridescence',
+        subTitle: '{Boolean}',
+        description: 'Enable iridescent diffraction effects.' ,
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#useIridescence'
+    }, {
+        title: 'iridescence',
+        subTitle: '{Number}',
+        description: 'The iridescence intensity of the material.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#iridescence'
+    }, {
+        title: 'iridescenceMap',
+        subTitle: '{pc.Texture}',
+        description: 'The iridescence map defines a per-pixel iridescence of the medium.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#iridescenceMap'
+    }, {
+        title: 'iridescenceMapUv',
+        subTitle: '{pc.Vec2}',
+        description: 'The UV set used to sample the iridescence map.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#iridescenceMapUv'
+    }, {
+        title: 'iridescenceMapChannel',
+        subTitle: '{String}',
+        description: 'A color channel to extract iridescence from the texture. Can be r, g, b or a.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#iridescenceMapChannel'
+    }, {
+        title: 'iridescenceMapOffset',
+        subTitle: '{pc.Vec2}',
+        description: 'The iridescence map UV offset',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#iridescenceMapOffset'
+    }, {
+        title: 'iridescenceMapTiling',
+        subTitle: '{pc.Vec2}',
+        description: 'The iridescence map UV tiling factor.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#iridescenceMapTiling'
+    }, {
+        title: 'iridescenceThicknessMap',
+        subTitle: '{pc.Texture}',
+        description: 'The iridescence thickness map defines a per-pixel iridescence thickness of the medium.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#iridescenceThicknessMap'
+    }, {
+        title: 'iridescenceThicknessMapUv',
+        subTitle: '{pc.Vec2}',
+        description: 'The UV set used to sample the iridescence thickness map.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#iridescenceThicknessMapUv'
+    }, {
+        title: 'iridescenceThicknessMapChannel',
+        subTitle: '{String}',
+        description: 'A color channel to extract iridescence thickness from the texture. Can be r, g, b or a.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#iridescenceThicknessMapChannel'
+    }, {
+        title: 'iridescenceThicknessMapOffset',
+        subTitle: '{pc.Vec2}',
+        description: 'The iridescence thickness map UV offset',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#iridescenceThicknessMapOffset'
+    }, {
+        title: 'iridescenceThicknessMapTiling',
+        subTitle: '{pc.Vec2}',
+        description: 'The iridescence thickness map UV tiling factor.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#iridescenceThicknessMapTiling'
+    }, {
+        title: 'iridescenceThicknessMin',
+        subTitle: '{Number}',
+        description: 'The iridescence min thickness of the thin-film layer. Used with iridescence thickness map to scale the value between min and max. The unit is in nanometers (nm)',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#iridescenceThicknessMin'
+    }, {
+        title: 'iridescenceThicknessMax',
+        subTitle: '{Number}',
+        description: 'The iridescence max thickness of the thin-film layer. If no iridescence thickness map is used, this is the thickness of the thin-film layer. The unit is in nanometers (nm)',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#iridescenceThicknessMax'
+    }, {
+        title: 'iridescenceRefractionIndex',
+        subTitle: '{Number}',
+        description: 'The index of refraction of the thin-film layer.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#iridescenceRefractionIndex'
     }, {
         title: 'opacityFadesSpecular',
         subTitle: '{Boolean}',

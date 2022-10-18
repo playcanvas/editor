@@ -375,153 +375,6 @@ Object.assign(pcui, (function () {
         }]
     }, {
         root: {
-            clearCoatPanel: new pcui.Panel({
-                headerText: 'CLEARCOAT',
-                collapsible: true,
-                collapsed: true
-            })
-        },
-        children: [{
-            clearCoatFactorInspector: new pcui.AttributesInspector({
-                assets: parent._args.assets,
-                history: parent._args.history,
-                attributes: [{
-                    label: 'Clear Coat Factor',
-                    path: 'data.clearCoat',
-                    type: 'slider',
-                    args: {
-                        precision: 3,
-                        step: 0.05,
-                        min: 0,
-                        max: 1
-                    },
-                    reference: 'asset:material:clearCoat'
-                }]
-            })
-        }, {
-            clearCoatInspector: new pcui.AttributesInspector({
-                assets: parent._args.assets,
-                history: parent._args.history,
-                attributes: [..._textureAttribute('Clear Coat', 'clearCoat', TextureTypes.Color), {
-                    label: 'Vertex Color',
-                    path: 'data.clearCoatVertexColor',
-                    type: 'boolean',
-                    reference: 'asset:material:clearCoatVertexColor'
-                }, {
-                    label: 'Vertex Color Channel',
-                    path: 'data.clearCoatVertexColorChannel',
-                    type: 'select',
-                    args: {
-                        type: 'string',
-                        options: [{
-                            v: 'r', t: 'R'
-                        }, {
-                            v: 'g', t: 'G'
-                        }, {
-                            v: 'b', t: 'B'
-                        }, {
-                            v: 'a', t: 'A'
-                        }]
-                    },
-                    reference: 'asset:material:clearCoatVertexColorChannel'
-                }]
-            })
-        }, {
-            clearCoatGlossInspector: new pcui.AttributesInspector({
-                assets: parent._args.assets,
-                history: parent._args.history,
-                attributes: [{
-                    type: 'divider'
-                }, ..._textureAttribute('Clear Coat Gloss', 'clearCoatGloss', TextureTypes.Scalar), {
-                    label: 'Vertex Color',
-                    path: 'data.clearCoatGlossVertexColor',
-                    type: 'boolean',
-                    reference: 'asset:material:clearCoatGlossVertexColor'
-                }, {
-                    label: 'Vertex Color Channel',
-                    path: 'data.clearCoatGlossVertexColorChannel',
-                    type: 'select',
-                    args: {
-                        type: 'string',
-                        options: [{
-                            v: 'r', t: 'R'
-                        }, {
-                            v: 'g', t: 'G'
-                        }, {
-                            v: 'b', t: 'B'
-                        }, {
-                            v: 'a', t: 'A'
-                        }]
-                    },
-                    reference: 'asset:material:clearCoatGlossVertexColorChannel'
-                }, {
-                    label: 'Glossiness',
-                    path: 'data.clearCoatGlossiness',
-                    type: 'slider',
-                    args: {
-                        precision: 3,
-                        step: 0.05,
-                        min: 0,
-                        max: 1
-                    },
-                    reference: 'asset:material:clearCoatGlossiness'
-                }]
-            })
-        }, {
-            clearCoatNormalInspector: new pcui.AttributesInspector({
-                assets: parent._args.assets,
-                history: parent._args.history,
-                attributes: [..._textureAttribute('Clear Coat Normals', 'clearCoatNormal', TextureTypes.Normal), {
-                    label: 'Bumpiness',
-                    path: 'data.clearCoatBumpiness',
-                    type: 'slider',
-                    args: {
-                        precision: 3,
-                        step: 0.05,
-                        min: 0,
-                        max: 2
-                    },
-                    reference: 'asset:material:clearCoatBumpiness'
-                }]
-            })
-        }]
-    }, {
-        root: {
-            sheenPanel: new pcui.Panel({
-                headerText: 'SHEEN',
-                collapsible: true,
-                collapsed: true
-            })
-        },
-        children: [{
-            sheenInspector: new pcui.AttributesInspector({
-                assets: parent._args.assets,
-                history: parent._args.history,
-                attributes: [{
-                    label: 'Use Sheen',
-                    path: 'data.useSheen',
-                    type: 'boolean',
-                    reference: 'asset:materials:useSheen'
-                }, ..._textureAttribute('Sheen', 'sheen', TextureTypes.Color), {
-                    label: 'Vertex Color',
-                    path: 'data.sheenVertexColor',
-                    type: 'boolean',
-                    reference: 'asset:material:sheenVertexColor'
-                }, {
-                    label: 'Tint',
-                    path: 'data.sheenTint',
-                    type: 'boolean',
-                    reference: 'asset:material:sheenTint'
-                }, {
-                    label: 'Color',
-                    path: 'data.sheen',
-                    type: 'rgb',
-                    reference: 'asset:material:sheen'
-                }]
-            })
-        }]
-    }, {
-        root: {
             emissivePanel: new pcui.Panel({
                 headerText: 'EMISSIVE',
                 collapsible: true,
@@ -707,6 +560,350 @@ Object.assign(pcui, (function () {
         }]
     }, {
         root: {
+            clearCoatPanel: new pcui.Panel({
+                headerText: 'CLEARCOAT',
+                collapsible: true,
+                collapsed: true
+            })
+        },
+        children: [{
+            clearCoatFactorInspector: new pcui.AttributesInspector({
+                assets: parent._args.assets,
+                history: parent._args.history,
+                attributes: [{
+                    label: 'Clear Coat Factor',
+                    path: 'data.clearCoat',
+                    type: 'slider',
+                    args: {
+                        precision: 3,
+                        step: 0.05,
+                        min: 0,
+                        max: 1
+                    },
+                    reference: 'asset:material:clearCoat'
+                }]
+            })
+        }, {
+            clearCoatInspector: new pcui.AttributesInspector({
+                assets: parent._args.assets,
+                history: parent._args.history,
+                attributes: [..._textureAttribute('Clear Coat', 'clearCoat', TextureTypes.Color), {
+                    label: 'Vertex Color',
+                    path: 'data.clearCoatVertexColor',
+                    type: 'boolean',
+                    reference: 'asset:material:clearCoatVertexColor'
+                }, {
+                    label: 'Vertex Color Channel',
+                    path: 'data.clearCoatVertexColorChannel',
+                    type: 'select',
+                    args: {
+                        type: 'string',
+                        options: [{
+                            v: 'r', t: 'R'
+                        }, {
+                            v: 'g', t: 'G'
+                        }, {
+                            v: 'b', t: 'B'
+                        }, {
+                            v: 'a', t: 'A'
+                        }]
+                    },
+                    reference: 'asset:material:clearCoatVertexColorChannel'
+                }]
+            })
+        }, {
+            clearCoatGlossInspector: new pcui.AttributesInspector({
+                assets: parent._args.assets,
+                history: parent._args.history,
+                attributes: [{
+                    type: 'divider'
+                }, ..._textureAttribute('Clear Coat Gloss', 'clearCoatGloss', TextureTypes.Scalar), {
+                    label: 'Vertex Color',
+                    path: 'data.clearCoatGlossVertexColor',
+                    type: 'boolean',
+                    reference: 'asset:material:clearCoatGlossVertexColor'
+                }, {
+                    label: 'Vertex Color Channel',
+                    path: 'data.clearCoatGlossVertexColorChannel',
+                    type: 'select',
+                    args: {
+                        type: 'string',
+                        options: [{
+                            v: 'r', t: 'R'
+                        }, {
+                            v: 'g', t: 'G'
+                        }, {
+                            v: 'b', t: 'B'
+                        }, {
+                            v: 'a', t: 'A'
+                        }]
+                    },
+                    reference: 'asset:material:clearCoatGlossVertexColorChannel'
+                }, {
+                    label: 'Glossiness',
+                    path: 'data.clearCoatGlossiness',
+                    type: 'slider',
+                    args: {
+                        precision: 3,
+                        step: 0.05,
+                        min: 0,
+                        max: 1
+                    },
+                    reference: 'asset:material:clearCoatGlossiness'
+                }]
+            })
+        }, {
+            clearCoatNormalInspector: new pcui.AttributesInspector({
+                assets: parent._args.assets,
+                history: parent._args.history,
+                attributes: [..._textureAttribute('Clear Coat Normals', 'clearCoatNormal', TextureTypes.Normal), {
+                    label: 'Bumpiness',
+                    path: 'data.clearCoatBumpiness',
+                    type: 'slider',
+                    args: {
+                        precision: 3,
+                        step: 0.05,
+                        min: 0,
+                        max: 2
+                    },
+                    reference: 'asset:material:clearCoatBumpiness'
+                }]
+            })
+        }]
+    }, {
+        root: {
+            sheenPanel: new pcui.Panel({
+                headerText: 'SHEEN',
+                collapsible: true,
+                collapsed: true
+            })
+        },
+        children: [{
+            sheenInspector: new pcui.AttributesInspector({
+                assets: parent._args.assets,
+                history: parent._args.history,
+                attributes: [{
+                    label: 'Use Sheen',
+                    path: 'data.useSheen',
+                    type: 'boolean',
+                    reference: 'asset:material:useSheen'
+                }, ..._textureAttribute('Sheen', 'sheen', TextureTypes.Color), {
+                    label: 'Vertex Color',
+                    path: 'data.sheenVertexColor',
+                    type: 'boolean',
+                    reference: 'asset:material:sheenVertexColor'
+                }, {
+                    label: 'Tint',
+                    path: 'data.sheenTint',
+                    type: 'boolean',
+                    reference: 'asset:material:sheenTint'
+                }, {
+                    label: 'Color',
+                    path: 'data.sheen',
+                    type: 'rgb',
+                    reference: 'asset:material:sheen'
+                }, ..._textureAttribute('Sheen Glossiness', 'sheenGloss', TextureTypes.Scalar), {
+                    label: 'Vertex Color',
+                    path: 'data.sheenGlossVertexColor',
+                    type: 'boolean',
+                    reference: 'asset:material:sheenGlossVertexColor'
+                }, {
+                    label: 'Vertex Color Channel',
+                    path: 'data.sheenGlossVertexColorChannel',
+                    type: 'select',
+                    reference: 'asset:material:sheenGlossVertexColorChannel',
+                    args: {
+                        type: 'string',
+                        options: [{
+                            v: 'r', t: 'R'
+                        }, {
+                            v: 'g', t: 'G'
+                        }, {
+                            v: 'b', t: 'B'
+                        }, {
+                            v: 'a', t: 'A'
+                        }]
+                    }
+                }, {
+                    label: 'Tint',
+                    path: 'data.sheenGlossTint',
+                    type: 'boolean',
+                    reference: 'asset:material:sheenGlossTint'
+                }, {
+                    label: 'Glossiness',
+                    path: 'data.sheenGloss',
+                    type: 'slider',
+                    reference: 'asset:material:sheenGloss'
+                }]
+            })
+        }]
+    }, {
+        root: {
+            refractionPanel: new pcui.Panel({
+                headerText: 'REFRACTION',
+                collapsible: true,
+                collapsed: true
+            })
+        },
+        children: [{
+            refractionInspector: new pcui.AttributesInspector({
+                assets: parent._args.assets,
+                history: parent._args.history,
+                attributes: [{
+                    label: 'Dynamic Refractions',
+                    path: 'data.useDynamicRefraction',
+                    type: 'boolean',
+                    reference: 'asset:material:useDynamicRefraction'
+                }, ..._textureAttribute('Refraction', 'refraction', TextureTypes.Scalar), {
+                    label: 'Vertex Color',
+                    path: 'data.refractionVertexColor',
+                    type: 'boolean',
+                    reference: 'asset:material:refractionVertexColor'
+                }, {
+                    label: 'Vertex Color Channel',
+                    path: 'data.refractionVertexColorChannel',
+                    type: 'select',
+                    reference: 'asset:material:refractionVertexColorChannel',
+                    args: {
+                        type: 'string',
+                        options: [{
+                            v: 'r', t: 'R'
+                        }, {
+                            v: 'g', t: 'G'
+                        }, {
+                            v: 'b', t: 'B'
+                        }, {
+                            v: 'a', t: 'A'
+                        }]
+                    }
+                }, {
+                    label: 'Refraction',
+                    path: 'data.refraction',
+                    type: 'slider',
+                    reference: 'asset:material:refraction'
+                },  {
+                    label: 'Index Of Refraction',
+                    path: 'data.refractionIndex',
+                    type: 'slider',
+                    args: {
+                        precision: 3,
+                        step: 0.01,
+                        min: 0,
+                        max: 1
+                    },
+                    reference: 'asset:material:refractionIndex'
+                }, ..._textureAttribute('Thickness', 'thickness', TextureTypes.Scalar), {
+                    label: 'Vertex Color',
+                    path: 'data.thicknessVertexColor',
+                    type: 'boolean',
+                    reference: 'asset:material:thicknessVertexColor'
+                }, {
+                    label: 'Vertex Color Channel',
+                    path: 'data.thicknessVertexColorChannel',
+                    type: 'boolean',
+                    reference: 'asset:material:thicknessVertexColor',
+                    args: {
+                        type: 'string',
+                        options: [{
+                            v: 'r', t: 'R'
+                        }, {
+                            v: 'g', t: 'G'
+                        }, {
+                            v: 'b', t: 'B'
+                        }, {
+                            v: 'a', t: 'A'
+                        }]
+                    }
+                }, {
+                    label: 'Scale',
+                    path: 'data.thickness',
+                    type: 'number',
+                    reference: 'asset:material:thickness',
+                    args: {
+                        precision: 3,
+                        step: 10.0,
+                        min: 0,
+                        max: 1000
+                    }
+                }, {
+                    label: 'Attenuation',
+                    path: 'data.attenuation',
+                    type: 'rgb',
+                    reference: 'asset:material:attenuation'
+                }, {
+                    label: 'Attenuation Distance',
+                    path: 'data.attenuationDistance',
+                    type: 'number',
+                    reference: 'asset:material:attenuationDistance',
+                    args: {
+                        precision: 3,
+                        step: 10.0,
+                        min: 0,
+                        max: 1000
+                    }
+                }]
+            })
+        }]
+    }, {
+        root: {
+            iridescencePanel: new pcui.Panel({
+                headerText: 'IRIDESCENCE',
+                collapsible: true,
+                collapsed: true
+            })
+        },
+        children: [{
+            iridescenceInspector: new pcui.AttributesInspector({
+                assets: parent._args.assets,
+                history: parent._args.history,
+                attributes: [{
+                    label: 'Use Iridescence',
+                    path: 'data.useIridescence',
+                    type: 'boolean',
+                    reference: 'asset:material:useIridescence'
+                }, ..._textureAttribute('Iridescence', 'iridescence', TextureTypes.Scalar), {
+                    label: 'Iridescence',
+                    path: 'data.iridescence',
+                    type: 'slider',
+                    reference: 'asset:material:iridescence'
+                }, ..._textureAttribute('Iridescence Thickness', 'iridescenceThickness', TextureTypes.Scalar), {
+                    label: 'Thickness Minimum',
+                    path: 'data.iridescenceThicknessMin',
+                    type: 'number',
+                    reference: 'asset:material:iridescenceThicknessMin',
+                    args: {
+                        precision: 3,
+                        step: 10.0,
+                        min: 0,
+                        max: 1000
+                    }
+                }, {
+                    label: 'Thickness Maximum',
+                    path: 'data.iridescenceThicknessMax',
+                    type: 'number',
+                    reference: 'asset:material:iridescenceThicknessMax',
+                    args: {
+                        precision: 3,
+                        step: 10.0,
+                        min: 0,
+                        max: 1000
+                    }
+                }, {
+                    label: 'Index of Refraction',
+                    path: 'data.iridescenceRefractionIndex',
+                    type: 'slider',
+                    reference: 'asset:material:iridescenceRefractionIndex',
+                    args: {
+                        precision: 3,
+                        step: 0.1,
+                        min: 0,
+                        max: 7
+                    }
+                }]
+            })
+        }]
+    }, {
+        root: {
             envPanel: new pcui.Panel({
                 headerText: 'ENVIRONMENT',
                 collapsible: true,
@@ -744,28 +941,6 @@ Object.assign(pcui, (function () {
                         sliderMax: 8
                     },
                     reference: 'asset:material:reflectivity'
-                }, {
-                    label: 'Refraction',
-                    path: 'data.refraction',
-                    type: 'slider',
-                    args: {
-                        precision: 3,
-                        step: 0.01,
-                        min: 0,
-                        max: 1
-                    },
-                    reference: 'asset:material:refraction'
-                }, {
-                    label: 'Index Of Refraction',
-                    path: 'data.refractionIndex',
-                    type: 'slider',
-                    args: {
-                        precision: 3,
-                        step: 0.01,
-                        min: 0,
-                        max: 1
-                    },
-                    reference: 'asset:material:refractionIndex'
                 }, {
                     type: 'divider'
                 }, {
@@ -897,7 +1072,12 @@ Object.assign(pcui, (function () {
         'clearCoat': ['clearCoatInspector'],
         'clearCoatGloss': ['clearCoatGlossInspector'],
         'clearCoatNormal': ['clearCoatNormalInspector'],
-        'sheen': ['sheenInspector']
+        'sheen': ['sheenInspector'],
+        'sheenGloss': ['sheenInspector'],
+        'refraction': ['refractionInspector'],
+        'thickness': ['refractionInspector'],
+        'iridescence': ['iridescenceInspector'],
+        'iridescenceThickness': ['iridescenceInspector']
     };
 
     const COLLAPSED_PANEL_DEPENDENCIES = {
@@ -906,6 +1086,7 @@ Object.assign(pcui, (function () {
         '_diffusePanel': ['diffuseMap'],
         '_specularPanel': ['specularMap', 'metalnessMap', 'glossMap', 'specularityFactorMap'],
         '_clearCoatPanel': ['clearCoatMap', 'clearCoatGlossMap', 'clearCoatNormalMap'],
+        '_sheenPanel': ['sheenMap', 'sheenGlossMap'],
         '_emissivePanel': ['emissiveMap'],
         '_opacityPanel': ['opacityMap'],
         '_normalsPanel': ['normalMap'],
@@ -920,6 +1101,11 @@ Object.assign(pcui, (function () {
         'specular': ['s', 'spec', 'specular'],
         'specularityFactor': ['sf', 'specularityfactor'],
         'sheen': ['sh', 'sheen'],
+        'sheenGloss': ['shg', 'sheenGloss'],
+        'refraction': ['rf', 'refraction'],
+        'thickness': ['th', 'thickness'],
+        'iridescence': ['ir', 'iridescence'],
+        'iridescenceThickness': ['irth', 'iridescenceThickness'],
         'metalness': ['m', 'met', 'metal', 'metalness', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa'],
         'gloss': ['g', 'gloss', 'glossiness', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa'],
         'clearCoat': ['cc', 'clearcoat'],
@@ -997,6 +1183,10 @@ Object.assign(pcui, (function () {
 
             this._specularInspector.getField('data.enableGGXSpecular').on('change', toggleFields);
 
+            this._sheenInspector.getField('data.useSheen').on('change', toggleFields);
+            this._refractionInspector.getField('data.useDynamicRefraction').on('change', toggleFields);
+            this._iridescenceInspector.getField('data.useIridescence').on('change', toggleFields);
+
             for (const map in MAPS) {
                 const inspectors = MAPS[map];
                 for (const inspectorName of inspectors) {
@@ -1005,6 +1195,10 @@ Object.assign(pcui, (function () {
                     texField.on('change', value => this._onTextureChange(map, value));
                     texField.dragEnterFn = (type, data) => this._onTextureDragEnter(`${map}Map`, type, data);
                     texField.dragLeaveFn = () => this._onTextureDragLeave(`${map}Map`);
+
+                    const vertexColorField = inspector.getField(`data.${map}VertexColor`);
+                    if (vertexColorField)
+                        vertexColorField.on('change', toggleFields);
                 }
             }
 
@@ -1035,6 +1229,29 @@ Object.assign(pcui, (function () {
                 this._sheenInspector.parent.hidden = true;
             }
 
+            const useSheen = this._sheenInspector.getField('data.useSheen').value;
+            this._sheenInspector.getField('data.sheenMap').hidden = !useSheen;
+            this._sheenInspector.getField('data.sheenGlossMap').hidden = !useSheen;
+            const sheenAttributes = ['sheenMapUv', 'sheenMapChannel', 'sheenMapOffset', 'sheenMapTiling', 'sheenVertexColor', 'sheenTint', 'sheen', 'sheenGlossMapUv', 'sheenGlossMapChannel', 'sheenGlossMapOffset', 'sheenGlossMapTiling', 'sheenGlossVertexColor', 'sheenGlossTint', 'sheenGloss'];
+            sheenAttributes.forEach((field) => {
+                this._sheenInspector.getField(`data.${field}`).parent.hidden = !useSheen;
+            });
+
+            const useDynamicRefraction = this._refractionInspector.getField('data.useDynamicRefraction').value;
+            this._refractionInspector.getField('data.thicknessMap').hidden = !useDynamicRefraction;
+            const dynamicRefractionAttributes = ['thicknessMapUv', 'thicknessMapChannel', 'thicknessMapOffset', 'thicknessMapTiling', 'thicknessVertexColor', 'thickness', 'attenuation', 'attenuationDistance'];
+            dynamicRefractionAttributes.forEach((field) => {
+                this._refractionInspector.getField(`data.${field}`).parent.hidden = !useDynamicRefraction;
+            });
+
+            const useIridescence = this._iridescenceInspector.getField('data.useIridescence').value;
+            this._iridescenceInspector.getField('data.iridescenceMap').hidden = !useIridescence;
+            this._iridescenceInspector.getField('data.iridescenceThicknessMap').hidden = !useIridescence;
+            const iridescenceAttributes = ['iridescenceMapUv', 'iridescenceMapChannel', 'iridescenceMapOffset', 'iridescenceMapTiling', 'iridescence', 'iridescenceThicknessMapUv', 'iridescenceThicknessMapChannel', 'iridescenceThicknessMapOffset', 'iridescenceThicknessMapTiling', 'iridescenceThicknessMin', 'iridescenceThicknessMax', 'iridescenceRefractionIndex'];
+            iridescenceAttributes.forEach((field) => {
+                this._iridescenceInspector.getField(`data.${field}`).parent.hidden = !useIridescence;
+            });
+
             this._offsetTilingInspector.getField('offset').parent.hidden = !applyToAllMaps;
             this._offsetTilingInspector.getField('tiling').parent.hidden = !applyToAllMaps;
 
@@ -1042,9 +1259,22 @@ Object.assign(pcui, (function () {
                 const inspectors = MAPS[map];
                 for (const inspectorName of inspectors) {
                     const inspector = this[`_${inspectorName}`];
-                    const mapValue = inspector.getField(`data.${map}Map`).value;
+                    const mapValue = inspector.getField(`data.${map}Map`).value && !inspector.getField(`data.${map}Map`).hidden;
+                    inspector.getField(`data.${map}MapUv`).parent.hidden = !mapValue;
+                    const channel = inspector.getField(`data.${map}MapChannel`);
+                    if (channel)
+                        channel.parent.hidden = !mapValue;
                     inspector.getField(`data.${map}MapOffset`).parent.hidden = !mapValue || applyToAllMaps;
                     inspector.getField(`data.${map}MapTiling`).parent.hidden = !mapValue || applyToAllMaps;
+
+                    const tint = inspector.getField(`data.${map}Tint`);
+                    if (tint)
+                        tint.parent.hidden = !mapValue;
+
+                    const vertexColor = inspector.getField(`data.${map}VertexColorChannel`);
+                    if (vertexColor) {
+                        vertexColor.parent.hidden = !inspector.getField(`data.${map}VertexColor`).value;
+                    }
                 }
             }
 
@@ -1675,6 +1905,8 @@ Object.assign(pcui, (function () {
             this._clearCoatGlossInspector.link(assets);
             this._clearCoatNormalInspector.link(assets);
             this._sheenInspector.link(assets);
+            this._refractionInspector.link(assets);
+            this._iridescenceInspector.link(assets);
             this._emissiveInspector.link(assets);
             this._opacityInspector.link(assets);
             this._normalsInspector.link(assets);
@@ -1806,6 +2038,8 @@ Object.assign(pcui, (function () {
             this._clearCoatGlossInspector.unlink();
             this._clearCoatNormalInspector.unlink();
             this._sheenInspector.unlink();
+            this._refractionInspector.unlink();
+            this._iridescenceInspector.unlink();
             this._emissiveInspector.unlink();
             this._opacityInspector.unlink();
             this._normalsInspector.unlink();
