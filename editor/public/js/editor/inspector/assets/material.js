@@ -88,6 +88,18 @@ Object.assign(pcui, (function () {
                 placeholder: ['U', 'V']
             },
             reference: `asset:material:${attributeName}MapTiling`
+        }, {
+            label: 'Rotation',
+            path: `data.${attributeName}MapRotation`,
+            type: 'number',
+            args: {
+                precision: 3,
+                step: 10,
+                min: 0,
+                max: 360,
+                placeholder: 'degrees'
+            },
+            reference: `asset:material:${attributeName}MapRotation`
         }];
     }
 
@@ -151,6 +163,18 @@ Object.assign(pcui, (function () {
                         placeholder: ['U', 'V']
                     },
                     reference: 'asset:material:tiling'
+                }, {
+                    label: 'Rotation',
+                    type: 'number',
+                    alias: 'rotation',
+                    args: {
+                        precision: 3,
+                        step: 10,
+                        min: 0,
+                        max: 360,
+                        placeholder: 'degrees'
+                    },
+                    reference: 'asset:material:rotation'
                 }]
             })
         }]
@@ -1129,6 +1153,12 @@ Object.assign(pcui, (function () {
     const REGEX_EXT = /\.[a-z]+$/;
     const REGEX_MAP_OFFSET_OR_TILING = /^data.\w+?Map(?:Offset|Tiling).*$/;
 
+    const TextureTransformTypes = {
+        Offset: "MapOffset",
+        Tiling: "MapTiling",
+        Rotation: "MapRotation"
+    };
+
     class MaterialAssetInspector extends pcui.Container {
         constructor(args) {
             args = Object.assign({}, args);
@@ -1154,7 +1184,7 @@ Object.assign(pcui, (function () {
 
             this._assets = null;
             this._suppressToggleFields = false;
-            this._suppressOffsetAndTilingFields = false;
+            this._suppressOffsetTilingAndRotationFields = false;
             this._suppressToggleFieldsTimeout = null;
             this._suppressUpdateAllOffsetAndTilingsTimeout = false;
 
@@ -1171,6 +1201,7 @@ Object.assign(pcui, (function () {
             this._offsetTilingInspector.getField('applyToAllMaps').on('change', this._onChangeApplyToAll.bind(this));
             this._offsetTilingInspector.getField('offset').on('change', this._onChangeOffset.bind(this));
             this._offsetTilingInspector.getField('tiling').on('change', this._onChangeTiling.bind(this));
+            this._offsetTilingInspector.getField('rotation').on('change', this._onChangeRotation.bind(this));
 
             this._opacityInspector.getField('data.blendType').on('change', toggleFields);
             this._opacityInspector.getField('data.opacityVertexColor').on('change', toggleFields);
@@ -1212,8 +1243,8 @@ Object.assign(pcui, (function () {
 
             const applyToAllMaps = this._offsetTilingInspector.getField('applyToAllMaps').value;
 
-            const specularMetalnessAttributes = ['specularMapUv', 'specularMapChannel', 'specularMapOffset', 'specularMapTiling', 'specularVertexColor', 'specularTint', 'specular'];
-            const speculartyFactorAttributes = ['specularityFactorMapUv', 'specularityFactorMapChannel', 'specularityFactorMapOffset', 'specularityFactorMapTiling', 'specularityFactorVertexColor', 'specularityFactorTint', 'specularityFactor'];
+            const specularMetalnessAttributes = ['specularMapUv', 'specularMapChannel', 'specularMapOffset', 'specularMapTiling', 'specularMapRotation', 'specularVertexColor', 'specularTint', 'specular'];
+            const speculartyFactorAttributes = ['specularityFactorMapUv', 'specularityFactorMapChannel', 'specularityFactorMapOffset', 'specularityFactorMapTiling', 'specularityFactorMapRotation', 'specularityFactorVertexColor', 'specularityFactorTint', 'specularityFactor'];
             const useMetalnessSpecularColor = this._metalnessWorkflowInspector.getField('data.useMetalnessSpecularColor').value;
             this._metalnessWorkflowInspector.getField('data.specularMap').hidden = !useMetalnessSpecularColor;
             specularMetalnessAttributes.forEach((field) => {
@@ -1232,7 +1263,7 @@ Object.assign(pcui, (function () {
             const useSheen = this._sheenInspector.getField('data.useSheen').value;
             this._sheenInspector.getField('data.sheenMap').hidden = !useSheen;
             this._sheenInspector.getField('data.sheenGlossMap').hidden = !useSheen;
-            const sheenAttributes = ['sheenMapUv', 'sheenMapChannel', 'sheenMapOffset', 'sheenMapTiling', 'sheenVertexColor', 'sheenTint', 'sheen', 'sheenGlossMapUv', 'sheenGlossMapChannel', 'sheenGlossMapOffset', 'sheenGlossMapTiling', 'sheenGlossVertexColor', 'sheenGlossTint', 'sheenGloss'];
+            const sheenAttributes = ['sheenMapUv', 'sheenMapChannel', 'sheenMapOffset', 'sheenMapTiling', 'sheenVertexColor', 'sheenTint', 'sheen', 'sheenGlossMapUv', 'sheenGlossMapChannel', 'sheenGlossMapOffset', 'sheenGlossMapTiling', 'sheenGlossMapRotation', 'sheenGlossVertexColor', 'sheenGlossTint', 'sheenGloss'];
             sheenAttributes.forEach((field) => {
                 this._sheenInspector.getField(`data.${field}`).parent.hidden = !useSheen;
             });
@@ -1247,13 +1278,14 @@ Object.assign(pcui, (function () {
             const useIridescence = this._iridescenceInspector.getField('data.useIridescence').value;
             this._iridescenceInspector.getField('data.iridescenceMap').hidden = !useIridescence;
             this._iridescenceInspector.getField('data.iridescenceThicknessMap').hidden = !useIridescence;
-            const iridescenceAttributes = ['iridescenceMapUv', 'iridescenceMapChannel', 'iridescenceMapOffset', 'iridescenceMapTiling', 'iridescence', 'iridescenceThicknessMapUv', 'iridescenceThicknessMapChannel', 'iridescenceThicknessMapOffset', 'iridescenceThicknessMapTiling', 'iridescenceThicknessMin', 'iridescenceThicknessMax', 'iridescenceRefractionIndex'];
+            const iridescenceAttributes = ['iridescenceMapUv', 'iridescenceMapChannel', 'iridescenceMapOffset', 'iridescenceMapTiling', 'iridescenceMapRotation', 'iridescence', 'iridescenceThicknessMapUv', 'iridescenceThicknessMapChannel', 'iridescenceThicknessMapOffset', 'iridescenceThicknessMapTiling', 'iridescenceThicknessMapRotation', 'iridescenceThicknessMin', 'iridescenceThicknessMax', 'iridescenceRefractionIndex'];
             iridescenceAttributes.forEach((field) => {
                 this._iridescenceInspector.getField(`data.${field}`).parent.hidden = !useIridescence;
             });
 
             this._offsetTilingInspector.getField('offset').parent.hidden = !applyToAllMaps;
             this._offsetTilingInspector.getField('tiling').parent.hidden = !applyToAllMaps;
+            this._offsetTilingInspector.getField('rotation').parent.hidden = !applyToAllMaps;
 
             for (const map in MAPS) {
                 const inspectors = MAPS[map];
@@ -1266,6 +1298,7 @@ Object.assign(pcui, (function () {
                         channel.parent.hidden = !mapValue;
                     inspector.getField(`data.${map}MapOffset`).parent.hidden = !mapValue || applyToAllMaps;
                     inspector.getField(`data.${map}MapTiling`).parent.hidden = !mapValue || applyToAllMaps;
+                    inspector.getField(`data.${map}MapRotation`).parent.hidden = !mapValue || applyToAllMaps;
 
                     const tint = inspector.getField(`data.${map}Tint`);
                     if (tint)
@@ -1326,6 +1359,7 @@ Object.assign(pcui, (function () {
 
             let offset = null;
             let tiling = null;
+            let rotation = null;
 
             for (let i = 0; i < this._assets.length; i++) {
                 for (const map in MAPS) {
@@ -1340,6 +1374,13 @@ Object.assign(pcui, (function () {
                     if (!tiling) {
                         tiling = currentTiling;
                     }  else if (!tiling.equals(currentTiling)) {
+                        return false;
+                    }
+
+                    const currentRotation = this._assets[i].get(`data.${map}MapRotation`);
+                    if (!rotation) {
+                        rotation = currentRotation;
+                    }  else if (rotation !== currentRotation) {
                         return false;
                     }
                 }
@@ -1357,18 +1398,21 @@ Object.assign(pcui, (function () {
             this._suppressToggleFields = true;
 
             if (value) {
-                this._suppressOffsetAndTilingFields = true;
+                this._suppressOffsetTilingAndRotationFields = true;
                 // initialize global offset and tiling to the first asset's diffuse offset and tiling
                 const offsetField = this._offsetTilingInspector.getField('offset');
                 const tilingField = this._offsetTilingInspector.getField('tiling');
+                const rotationField = this._offsetTilingInspector.getField('rotation');
 
                 offsetField.value = this._assets[0].get('data.diffuseMapOffset');
                 tilingField.value = this._assets[0].get('data.diffuseMapTiling');
+                rotationField.value = this._assets[0].get('data.diffuseMaRotation');
 
-                this._suppressOffsetAndTilingFields = false;
+                this._suppressOffsetTilingAndRotationFields = false;
 
                 const offset = offsetField.value;
                 const tiling = tilingField.value;
+                const rotation = rotationField.value;
 
                 const assets = this._assets.slice();
                 let prev = null;
@@ -1379,17 +1423,20 @@ Object.assign(pcui, (function () {
                         for (const map in MAPS) {
                             const offsetPath = `data.${map}MapOffset`;
                             const tilingPath = `data.${map}MapTiling`;
+                            const rotationPath = `data.${map}MapRotation`;
                             prev.push({
                                 asset: asset,
                                 map: map,
                                 offset: asset.get(offsetPath),
-                                tiling: asset.get(tilingPath)
+                                tiling: asset.get(tilingPath),
+                                rotation: asset.get(rotationPath)
                             });
 
                             const history = asset.history.enabled;
                             asset.history.enabled = false;
                             asset.set(offsetPath, offset);
                             asset.set(tilingPath, tiling);
+                            asset.set(rotationPath, rotation);
                             asset.history.enabled = history;
                         }
                     });
@@ -1404,6 +1451,7 @@ Object.assign(pcui, (function () {
                         asset.history.enabled = false;
                         asset.set(`data.${entry.map}MapOffset`, entry.offset);
                         asset.set(`data.${entry.map}MapTiling`, entry.tiling);
+                        asset.set(`data.${entry.map}MapRotation`, entry.rotation);
                         asset.history.enabled = history;
                     });
 
@@ -1414,7 +1462,7 @@ Object.assign(pcui, (function () {
 
                 if (this._args.history) {
                     this._args.history.add({
-                        name: 'assets.materials.tiling-offset',
+                        name: 'assets.materials.tiling-offset-rotation',
                         undo: undo,
                         redo: redo
                     });
@@ -1446,7 +1494,7 @@ Object.assign(pcui, (function () {
             }
 
             if (applyToAll) {
-                this._suppressOffsetAndTilingFields = true;
+                this._suppressOffsetTilingAndRotationFields = true;
 
                 const offset = this._offsetTilingInspector.getField('offset');
                 offset.renderChanges = !!renderChanges;
@@ -1458,7 +1506,12 @@ Object.assign(pcui, (function () {
                 tiling.value = this._assets[0].get('data.diffuseMapTiling');
                 tiling.renderChanges = true;
 
-                this._suppressOffsetAndTilingFields = false;
+                const rotation = this._offsetTilingInspector.getField('rotation');
+                rotation.renderChanges = !!renderChanges;
+                rotation.value = this._assets[0].get('data.diffuseMapRotation');
+                rotation.renderChanges = true;
+
+                this._suppressOffsetTilingAndRotationFields = false;
             }
 
             this._suppressToggleFields = suppress;
@@ -1468,14 +1521,13 @@ Object.assign(pcui, (function () {
             }
         }
 
-        _updateAllOffsetsOrTilings(value, isOffset) {
+
+        _updateAllOffsetsTilingsAndRotations(value, transform) {
             if (!value || !this._assets) return;
 
             const assets = this._assets.slice();
 
             let prev = null;
-
-            const postfix = isOffset ? 'MapOffset' : 'MapTiling';
 
             const redo = () => {
                 prev = [];
@@ -1490,7 +1542,7 @@ Object.assign(pcui, (function () {
                     };
 
                     for (const map in MAPS) {
-                        const path = `data.${map}${postfix}`;
+                        const path = `data.${map}${transform}`;
                         entry.values.push({
                             path: path,
                             value: asset.get(path)
@@ -1503,7 +1555,7 @@ Object.assign(pcui, (function () {
                     asset.history.enabled = false;
 
                     for (const map in MAPS) {
-                        asset.set(`data.${map}${postfix}`, value);
+                        asset.set(`data.${map}${transform}`, value);
                     }
 
                     asset.history.enabled = history;
@@ -1532,7 +1584,7 @@ Object.assign(pcui, (function () {
 
             if (this._args.history) {
                 this._args.history.add({
-                    name: `assets.materials.${postfix}`,
+                    name: `assets.materials.${transform}`,
                     undo: undo,
                     redo: redo
                 });
@@ -1541,16 +1593,23 @@ Object.assign(pcui, (function () {
         }
 
         _onChangeOffset(value) {
-            if (this._suppressOffsetAndTilingFields) return;
+            if (this._suppressOffsetTilingAndRotationFields) return;
             if (this._offsetTilingInspector.getField('applyToAllMaps').value) {
-                this._updateAllOffsetsOrTilings(value, true);
+                this._updateAllOffsetsTilingsAndRotations(value, TextureTransformTypes.Offset);
             }
         }
 
         _onChangeTiling(value) {
-            if (this._suppressOffsetAndTilingFields) return;
+            if (this._suppressOffsetTilingAndRotationFields) return;
             if (this._offsetTilingInspector.getField('applyToAllMaps').value) {
-                this._updateAllOffsetsOrTilings(value, false);
+                this._updateAllOffsetsTilingsAndRotations(value, TextureTransformTypes.Tiling);
+            }
+        }
+
+        _onChangeRotation(value) {
+            if (this._suppressOffsetTilingAndRotationFields) return;
+            if (this._offsetTilingInspector.getField('applyToAllMaps').value) {
+                this._updateAllOffsetsTilingsAndRotations(value, TextureTransformTypes.Rotation);
             }
         }
 

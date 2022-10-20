@@ -52,6 +52,11 @@ editor.once('load', function () {
         description: 'Controls the 2D offset of the AO map. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#aoMapOffset'
     }, {
+        title: 'aoMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the AO map around the center.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#aoMapRotation'
+    }, {
         title: 'blendType',
         subTitle: '{pc.BLEND_*}',
         description: `The type of blending for this material. Options are:
@@ -132,13 +137,18 @@ editor.once('load', function () {
     }, {
         title: 'diffuseMapOffset',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D offset of the diffuseMap. Each component is between 0 and 1.',
+        description: 'Controls the 2D offset of the diffuse map. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#diffuseMapOffset'
     }, {
         title: 'diffuseMapTiling',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D tiling of the diffuseMap.',
+        description: 'Controls the 2D tiling of the diffuse map.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#diffuseMapTiling'
+    }, {
+        title: 'diffuseMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the diffuse map around the center.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#diffuseMapRotation'
     }, {
         title: 'diffuseMapTint',
         subTitle: '{Boolean}',
@@ -181,13 +191,18 @@ editor.once('load', function () {
     }, {
         title: 'emissiveMapOffset',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D offset of the emissiveMap. Each component is between 0 and 1.',
+        description: 'Controls the 2D offset of the emissive map. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#emissiveMapOffset'
     }, {
         title: 'emissiveMapTiling',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D tiling of the emissiveMap.',
+        description: 'Controls the 2D tiling of the emissive map.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#emissiveMapTiling'
+    }, {
+        title: 'emissiveMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the emissive map around the center.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#emissiveMapRotation'
     }, {
         title: 'emissiveMapTint',
         subTitle: '{Boolean}',
@@ -225,13 +240,18 @@ editor.once('load', function () {
     }, {
         title: 'glossMapOffset',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D offset of the glossMap. Each component is between 0 and 1.',
+        description: 'Controls the 2D offset of the gloss map. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#glossMapOffset'
     }, {
         title: 'glossMapTiling',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D tiling of the glossMap.',
+        description: 'Controls the 2D tiling of the gloss map.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#glossMapTiling'
+    }, {
+        title: 'glossMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the gloss map around the center.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#glossMapRotation'
     }, {
         title: 'glossMapUv',
         subTitle: '{Number}',
@@ -260,13 +280,18 @@ editor.once('load', function () {
     }, {
         title: 'heightMapOffset',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D offset of the heightMap. Each component is between 0 and 1.',
+        description: 'Controls the 2D offset of the height map. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#heightMapOffset'
     }, {
         title: 'heightMapTiling',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D tiling of the heightMap.',
+        description: 'Controls the 2D tiling of the height map.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#heightMapTiling'
+    }, {
+        title: 'heightMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the height map around the center.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#heightMapRotation'
     }, {
         title: 'heightMapUv',
         subTitle: '{Number}',
@@ -299,13 +324,18 @@ editor.once('load', function () {
     }, {
         title: 'lightMapTiling',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D tiling of the lightmap.',
+        description: 'Controls the 2D tiling of the light map.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#lightMapTiling'
     }, {
         title: 'lightMapOffset',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D offset of the lightmap. Each component is between 0 and 1.',
+        description: 'Controls the 2D offset of the light map. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#lightMapOffset'
+    }, {
+        title: 'lightMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the light map around the center.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#lightMapRotation'
     }, {
         title: 'metalness',
         subTitle: '{Number}',
@@ -342,6 +372,11 @@ editor.once('load', function () {
         description: 'Controls the 2D offset of the metalness map. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#metalnessMapChannel'
     }, {
+        title: 'metalnessMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the metalness map around the center.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#metalnessMapRotation'
+    }, {
         title: 'useMetalnessSpecularColor',
         subTitle: '{boolean}',
         description: 'Use specular color and specularity factor with metalness.',
@@ -358,13 +393,18 @@ editor.once('load', function () {
     }, {
         title: 'normalMapOffset',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D offset of the normalMap. Each component is between 0 and 1.',
+        description: 'Controls the 2D offset of the normal map. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#normalMapOffset'
     }, {
         title: 'normalMapTiling',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D tiling of the normalMap.',
+        description: 'Controls the 2D tiling of the normal map.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#normalMapTiling'
+    }, {
+        title: 'normalMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the normal map around the center.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#normalMapRotation'
     }, {
         title: 'normalMapUv',
         subTitle: '{Number}',
@@ -384,8 +424,13 @@ editor.once('load', function () {
         description: 'The offset in U and V to apply to the first UV channel referenced by maps in this material.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html'
     }, {
-        name: 'offsetTiling',
-        description: 'The offset and tiling in U and V to apply to the UV channel referenced by all maps in this material.',
+        name: 'tiling',
+        description: 'The scale in U and V to apply to the first UV channel referenced by maps in this material.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html'
+    }, {
+        title: 'rotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates around the center of the maps referenced by this material.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html'
     }, {
         name: 'opacityOverview',
@@ -409,13 +454,18 @@ editor.once('load', function () {
     }, {
         title: 'opacityMapOffset',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D offset of the opacityMap. Each component is between 0 and 1.',
+        description: 'Controls the 2D offset of the opacity map. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#opacityMapOffset'
     }, {
         title: 'opacityMapTiling',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D tiling of the opacityMap.',
+        description: 'Controls the 2D tiling of the opacity map.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#opacityMapTiling'
+    }, {
+        title: 'opacityMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the opacity map around the center.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#opacityMapRotation'
     }, {
         title: 'opacityMapUv',
         subTitle: '{Number}',
@@ -472,13 +522,18 @@ editor.once('load', function () {
     }, {
         title: 'specularMapOffset',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D offset of the specularMap. Each component is between 0 and 1.',
+        description: 'Controls the 2D offset of the specular map. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#specularMapOffset'
     }, {
         title: 'specularMapTiling',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D tiling of the specularMap.',
+        description: 'Controls the 2D tiling of the specular map.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#specularMapTiling'
+    }, {
+        title: 'specularMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the specular map around the center.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#specularMapRotation'
     }, {
         title: 'specularMapTint',
         subTitle: '{Boolean}',
@@ -517,13 +572,18 @@ editor.once('load', function () {
     }, {
         title: 'specularityFactorMapOffset',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D offset of the specularityFactorMap. Each component is between 0 and 1.',
+        description: 'Controls the 2D offset of the specularity factor map. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#specularityFactorMapOffset'
     }, {
         title: 'specularityFactorMapTiling',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D tiling of the specularityFactorMap.',
+        description: 'Controls the 2D tiling of the specularity factor map.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#specularityFactorMapTiling'
+    }, {
+        title: 'specularityFactorMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the specularity factor map around the center.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#specularityFactorMapRotation'
     }, {
         title: 'specularityFactorTint',
         subTitle: '{Boolean}',
@@ -539,10 +599,6 @@ editor.once('load', function () {
         subTitle: '{pc.Texture}',
         description: 'A sphere map texture asset that approximates environment reflection. If a sphere map is set, the Cube Map property will be hidden (since these properties are mutually exclusive).',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sphereMap'
-    }, {
-        name: 'tiling',
-        description: 'The scale in U and V to apply to the first UV channel referenced by maps in this material.',
-        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html'
     }, {
         title: 'useMetalness',
         subTitle: '{Boolean}',
@@ -607,13 +663,18 @@ editor.once('load', function () {
     }, {
         title: 'clearCoatMapOffset',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D offset of the clearCoatMap. Each component is between 0 and 1.',
+        description: 'Controls the 2D offset of the clear coat map. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatMapOffset'
     }, {
         title: 'clearCoatMapTiling',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D tiling of the clearCoatMap.',
+        description: 'Controls the 2D tiling of the clear coat map.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatMapTiling'
+    }, {
+        title: 'clearCoatMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the clear coat map around the center.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatMapRotation'
     }, {
         title: 'clearCoatMapUv',
         subTitle: '{Number}',
@@ -660,6 +721,11 @@ editor.once('load', function () {
         description: 'Controls the 2D offset of the clear coat gloss map. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatGlossMapOffset'
     }, {
+        title: 'clearCoatGlossMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the clear coat gloss map around the center.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatGlossMapRotation'
+    }, {
         title: 'clearCoatGlossMapTiling',
         subTitle: '{pc.Vec2}',
         description: 'Controls the 2D tiling of the clear coat gloss map.',
@@ -682,13 +748,18 @@ editor.once('load', function () {
     }, {
         title: 'clearCoatNormalMapOffset',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D offset of the normalMap. Each component is between 0 and 1.',
+        description: 'Controls the 2D offset of the clear coat normal map. Each component is between 0 and 1.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatNormalMapOffset'
     }, {
         title: 'clearCoatNormalMapTiling',
         subTitle: '{pc.Vec2}',
-        description: 'Controls the 2D tiling of the normalMap.',
+        description: 'Controls the 2D tiling of the clear coat normal map.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatNormalMapTiling'
+    }, {
+        title: 'clearCoatNormalMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the normal map around the center.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatNormalMapRotation'
     }, {
         title: 'clearCoatNormalMapUv',
         subTitle: '{Number}',
@@ -724,6 +795,11 @@ editor.once('load', function () {
         subTitle: '{pc.Vec2}',
         description: 'Controls the 2D tiling of the sheen map.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenMapTiling'
+    }, {
+        title: 'sheenMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the sheen map around the center.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenMapRotation'
     }, {
         title: 'sheenMapTint',
         subTitle: '{Boolean}',
@@ -769,6 +845,11 @@ editor.once('load', function () {
         subTitle: '{pc.Vec2}',
         description: 'Controls the 2D tiling of the sheen gloss map.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenGlossMapTiling'
+    }, {
+        title: 'sheenGlossMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the sheen gloss map around the center.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenGlossMapRotation'
     }, {
         title: 'sheenGlossMapTint',
         subTitle: '{Boolean}',
@@ -840,6 +921,11 @@ editor.once('load', function () {
         description: 'Use vertex color for refraction intensity, or as multiplier with the refraction map.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#useDynamicRefraction'
     }, {
+        title: 'refractionMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the refraction map around the center.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#refractionMapRotation'
+    }, {
         title: 'refractionVertexColorChannel',
         subTitle: '{Boolean}',
         description: 'A color channel to extract refraction intensity from the vertex color. Can be r, g, b or a.',
@@ -874,6 +960,11 @@ editor.once('load', function () {
         subTitle: '{pc.Vec2}',
         description: 'The thickness map UV tiling factor.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#thicknessMapTiling'
+    }, {
+        title: 'thicknessMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the thickness map around the center.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#thicknessMapRotation'
     }, {
         title: 'thicknessVertexColor',
         subTitle: '{Boolean}',
@@ -930,6 +1021,11 @@ editor.once('load', function () {
         description: 'The iridescence map UV tiling factor.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#iridescenceMapTiling'
     }, {
+        title: 'iridescenceMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the iridescence map around the center.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#iridescenceMapRotation'
+    }, {
         title: 'iridescenceThicknessMap',
         subTitle: '{pc.Texture}',
         description: 'The iridescence thickness map defines a per-pixel iridescence thickness of the medium.',
@@ -954,6 +1050,11 @@ editor.once('load', function () {
         subTitle: '{pc.Vec2}',
         description: 'The iridescence thickness map UV tiling factor.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#iridescenceThicknessMapTiling'
+    }, {
+        title: 'iridescenceThicknessMapRotation',
+        subTitle: '{Number}',
+        description: 'Rotate the UV coordinates of the iridescence thickness map around the center.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#iridescenceThicknessMapRotation'
     }, {
         title: 'iridescenceThicknessMin',
         subTitle: '{Number}',
