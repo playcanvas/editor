@@ -1242,50 +1242,63 @@ Object.assign(pcui, (function () {
             if (this._suppressToggleFields) return;
 
             const applyToAllMaps = this._offsetTilingInspector.getField('applyToAllMaps').value;
+            this._offsetTilingInspector.getField('offset').parent.hidden = !applyToAllMaps;
+            this._offsetTilingInspector.getField('tiling').parent.hidden = !applyToAllMaps;
+            this._offsetTilingInspector.getField('rotation').parent.hidden = !applyToAllMaps;
 
-            const specularMetalnessAttributes = ['specularMapUv', 'specularMapChannel', 'specularMapOffset', 'specularMapTiling', 'specularMapRotation', 'specularVertexColor', 'specularTint', 'specular'];
-            const speculartyFactorAttributes = ['specularityFactorMapUv', 'specularityFactorMapChannel', 'specularityFactorMapOffset', 'specularityFactorMapTiling', 'specularityFactorMapRotation', 'specularityFactorVertexColor', 'specularityFactorTint', 'specularityFactor'];
             const useMetalnessSpecularColor = this._metalnessWorkflowInspector.getField('data.useMetalnessSpecularColor').value;
             this._metalnessWorkflowInspector.getField('data.specularMap').hidden = !useMetalnessSpecularColor;
-            specularMetalnessAttributes.forEach((field) => {
-                this._metalnessWorkflowInspector.getField(`data.${field}`).parent.hidden = !useMetalnessSpecularColor;
-            });
-
             this._metalnessWorkflowInspector.getField('data.specularityFactorMap').hidden = !useMetalnessSpecularColor;
-            speculartyFactorAttributes.forEach((field) => {
-                this._metalnessWorkflowInspector.getField(`data.${field}`).parent.hidden = !useMetalnessSpecularColor;
-            });
-
-            if (!editor.call('users:hasFlag', 'Engine_1_56')) {
-                this._sheenInspector.parent.hidden = true;
-            }
 
             const useSheen = this._sheenInspector.getField('data.useSheen').value;
             this._sheenInspector.getField('data.sheenMap').hidden = !useSheen;
             this._sheenInspector.getField('data.sheenGlossMap').hidden = !useSheen;
-            const sheenAttributes = ['sheenMapUv', 'sheenMapChannel', 'sheenMapOffset', 'sheenMapTiling', 'sheenVertexColor', 'sheenTint', 'sheen', 'sheenGlossMapUv', 'sheenGlossMapChannel', 'sheenGlossMapOffset', 'sheenGlossMapTiling', 'sheenGlossMapRotation', 'sheenGlossVertexColor', 'sheenGlossTint', 'sheenGloss'];
-            sheenAttributes.forEach((field) => {
-                this._sheenInspector.getField(`data.${field}`).parent.hidden = !useSheen;
-            });
 
             const useDynamicRefraction = this._refractionInspector.getField('data.useDynamicRefraction').value;
             this._refractionInspector.getField('data.thicknessMap').hidden = !useDynamicRefraction;
-            const dynamicRefractionAttributes = ['thicknessMapUv', 'thicknessMapChannel', 'thicknessMapOffset', 'thicknessMapTiling', 'thicknessVertexColor', 'thickness', 'attenuation', 'attenuationDistance'];
-            dynamicRefractionAttributes.forEach((field) => {
-                this._refractionInspector.getField(`data.${field}`).parent.hidden = !useDynamicRefraction;
-            });
+            this._refractionInspector.getField('data.attenuation').parent.hidden = !useDynamicRefraction;
+            this._refractionInspector.getField('data.attenuationDistance').parent.hidden = !useDynamicRefraction;
 
             const useIridescence = this._iridescenceInspector.getField('data.useIridescence').value;
             this._iridescenceInspector.getField('data.iridescenceMap').hidden = !useIridescence;
             this._iridescenceInspector.getField('data.iridescenceThicknessMap').hidden = !useIridescence;
-            const iridescenceAttributes = ['iridescenceMapUv', 'iridescenceMapChannel', 'iridescenceMapOffset', 'iridescenceMapTiling', 'iridescenceMapRotation', 'iridescence', 'iridescenceThicknessMapUv', 'iridescenceThicknessMapChannel', 'iridescenceThicknessMapOffset', 'iridescenceThicknessMapTiling', 'iridescenceThicknessMapRotation', 'iridescenceThicknessMin', 'iridescenceThicknessMax', 'iridescenceRefractionIndex'];
-            iridescenceAttributes.forEach((field) => {
-                this._iridescenceInspector.getField(`data.${field}`).parent.hidden = !useIridescence;
-            });
+            this._iridescenceInspector.getField('data.iridescenceThicknessMin').parent.hidden = !useIridescence;
+            this._iridescenceInspector.getField('data.iridescenceThicknessMax').parent.hidden = !useIridescence;
+            this._iridescenceInspector.getField('data.iridescenceRefractionIndex').parent.hidden = !useIridescence;
 
-            this._offsetTilingInspector.getField('offset').parent.hidden = !applyToAllMaps;
-            this._offsetTilingInspector.getField('tiling').parent.hidden = !applyToAllMaps;
-            this._offsetTilingInspector.getField('rotation').parent.hidden = !applyToAllMaps;
+            const mapAttributes = ['MapUv', 'MapChannel', 'MapOffset', 'MapTiling', 'MapRotation', 'VertexColor', 'Tint', ''];
+            mapAttributes.forEach((field) => {
+                const spec = this._metalnessWorkflowInspector.getField(`data.specular${field}`);
+                if (spec)
+                    spec.parent.hidden = !useMetalnessSpecularColor;
+
+                const specFactor = this._metalnessWorkflowInspector.getField(`data.specularityFactor${field}`);
+                if (specFactor)
+                    specFactor.parent.hidden = !useMetalnessSpecularColor;
+
+                const sheen = this._sheenInspector.getField(`data.sheen${field}`);
+                if (sheen)
+                    sheen.parent.hidden = !useSheen;
+
+                const sheenGloss = this._sheenInspector.getField(`data.sheenGloss${field}`);
+                if (sheenGloss)
+                    sheenGloss.parent.hidden = !useSheen;
+
+                const thickness = this._refractionInspector.getField(`data.thickness${field}`);
+                if (thickness) {
+                    thickness.parent.hidden = !useDynamicRefraction;
+                }
+
+                const iridescence = this._iridescenceInspector.getField(`data.iridescence${field}`);
+                if (iridescence) {
+                    iridescence.parent.hidden = !useIridescence;
+                }
+
+                const iridescenceThickness = this._iridescenceInspector.getField(`data.iridescenceThickness${field}`);
+                if (iridescenceThickness) {
+                    iridescenceThickness.parent.hidden = !useIridescence;
+                }
+            });
 
             for (const map in MAPS) {
                 const inspectors = MAPS[map];
@@ -1309,6 +1322,31 @@ Object.assign(pcui, (function () {
                         vertexColor.parent.hidden = !inspector.getField(`data.${map}VertexColor`).value;
                     }
                 }
+            }
+
+            if (!editor.call('users:hasFlag', 'Engine_1_56')) {
+                this._sheenInspector.parent.hidden = true;
+            }
+
+            if (!editor.call('users:hasFlag', 'Engine_1_58')) {
+                this._iridescenceInspector.parent.hidden = true;
+                this._refractionInspector.getField('data.useDynamicRefraction').parent.hidden = true;
+                this._sheenInspector.getField('data.sheenGlossMap').hidden = true;
+
+                this._refractionInspector.getField('data.thicknessMap').hidden = true;
+                this._refractionInspector.getField('data.attenuation').parent.hidden = true;
+                this._refractionInspector.getField('data.attenuationDistance').parent.hidden = true;
+
+                mapAttributes.forEach((field) => {
+                    const sheenGloss = this._sheenInspector.getField(`data.sheenGloss${field}`);
+                    if (sheenGloss)
+                        sheenGloss.parent.hidden = true;
+
+                    const thickness = this._refractionInspector.getField(`data.thickness${field}`);
+                    if (thickness) {
+                        thickness.parent.hidden = true;
+                    }
+                });
             }
 
             this._ambientInspector.getField('data.occludeSpecular').parent.hidden = !this._ambientInspector.getField('data.aoMap').value;
