@@ -134,7 +134,7 @@ Object.assign(pcui, (function () {
     }, {
         root: {
             offsetTilingPanel: new pcui.Panel({
-                headerText: 'OFFSET & TILING',
+                headerText: 'TEXTURE TRANSFORM',
                 collapsible: true,
                 collapsed: true
             })
