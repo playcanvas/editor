@@ -988,7 +988,7 @@ editor.once('load', function () {
     }, {
         title: 'useIridescence',
         subTitle: '{Boolean}',
-        description: 'Enable iridescent diffraction effects.' ,
+        description: 'Enable iridescent diffraction effects.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#useIridescence'
     }, {
         title: 'iridescence',
