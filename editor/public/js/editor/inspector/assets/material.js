@@ -1105,7 +1105,7 @@ Object.assign(pcui, (function () {
     };
 
     const COLLAPSED_PANEL_DEPENDENCIES = {
-        '_offsetTilingPanel': ['diffuseMapOffset', 'diffuseMapTiling'],
+        '_offsetTilingPanel': ['diffuseMapOffset', 'diffuseMapTiling', 'diffuseMapRotation'],
         '_ambientPanel': ['aoMap'],
         '_diffusePanel': ['diffuseMap'],
         '_specularPanel': ['specularMap', 'metalnessMap', 'glossMap', 'specularityFactorMap'],
@@ -1151,7 +1151,7 @@ Object.assign(pcui, (function () {
     }
 
     const REGEX_EXT = /\.[a-z]+$/;
-    const REGEX_MAP_OFFSET_OR_TILING = /^data.\w+?Map(?:Offset|Tiling).*$/;
+    const REGEX_MAP_OFFSET_TILING_OR_ROTATION = /^data.\w+?Map(?:(Offset|Tiling|Rotation)).*$/;
 
     const TextureTransformTypes = {
         Offset: "MapOffset",
@@ -1444,7 +1444,7 @@ Object.assign(pcui, (function () {
 
                 offsetField.value = this._assets[0].get('data.diffuseMapOffset');
                 tilingField.value = this._assets[0].get('data.diffuseMapTiling');
-                rotationField.value = this._assets[0].get('data.diffuseMaRotation');
+                rotationField.value = this._assets[0].get('data.diffuseMapRotation');
 
                 this._suppressOffsetTilingAndRotationFields = false;
 
@@ -1513,7 +1513,7 @@ Object.assign(pcui, (function () {
         }
 
 
-        _updateAllOffsetsOrTilingsUiState(renderChanges) {
+        _updateAllOffsetsTilingsOrRotationUiState(renderChanges) {
             if (!this._assets) return;
 
             const suppress = this._suppressToggleFields;
@@ -1561,7 +1561,7 @@ Object.assign(pcui, (function () {
 
 
         _updateAllOffsetsTilingsAndRotations(value, transform) {
-            if (!value || !this._assets) return;
+            if (value === null || !this._assets) return;
 
             const assets = this._assets.slice();
 
@@ -2017,7 +2017,7 @@ Object.assign(pcui, (function () {
             applyToAllMaps.value = this._getApplyToAllValue();
             applyToAllMaps.renderChanges = true;
 
-            this._updateAllOffsetsOrTilingsUiState(false);
+            this._updateAllOffsetsTilingsOrRotationUiState(false);
 
             this._suppressToggleFields = false;
 
@@ -2085,12 +2085,12 @@ Object.assign(pcui, (function () {
             // apply to all fields
             this._assets.forEach((asset) => {
                 this._assetEvents.push(asset.on('*:set', (path) => {
-                    if (REGEX_MAP_OFFSET_OR_TILING.test(path)) {
+                    if (REGEX_MAP_OFFSET_TILING_OR_ROTATION.test(path)) {
                         if (this._suppressUpdateAllOffsetAndTilingsTimeout) return;
 
                         this._suppressUpdateAllOffsetAndTilingsTimeout = setTimeout(() => {
                             this._suppressUpdateAllOffsetAndTilingsTimeout = null;
-                            this._updateAllOffsetsOrTilingsUiState(true);
+                            this._updateAllOffsetsTilingsOrRotationUiState(true);
                         });
                     }
                 }));
