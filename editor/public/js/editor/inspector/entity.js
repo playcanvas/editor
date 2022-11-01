@@ -7,7 +7,7 @@ Object.assign(pcui, (function () {
 
     const additionalComponents = {
         'light': [{ title: 'Directional Light', icon: 'directional', data: { 'type': 'directional' } },
-            { title: 'Point Light', icon: 'point', data: { 'type': 'point', 'shadowResolution': 256 } },
+            { title: 'Omni Light', icon: 'point', data: { 'type': 'point', 'shadowResolution': 256 } },
             { title: 'Spot Light', icon: 'spot', data: { 'type': 'spot' } }],
         'camera': [{ title: 'Perspective', icon: 'camera', data: { 'projection': 0 } },
             { title: 'Orthographic', icon: 'camera', data: { 'projection': 1 } }],

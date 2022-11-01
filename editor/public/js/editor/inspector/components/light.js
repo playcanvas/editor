@@ -12,7 +12,7 @@ Object.assign(pcui, (function () {
             }, {
                 v: 'spot', t: 'Spot'
             }, {
-                v: 'point', t: 'Point'
+                v: 'point', t: 'Omni'
             }]
         }
     }, {

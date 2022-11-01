@@ -368,7 +368,7 @@ editor.once('load', () => {
                     });
                 }
             }, {
-                text: 'Point Light',
+                text: 'Omni Light',
                 icon: componentsLogos.point,
                 onSelect: () => {
                     var component = editor.call('components:getDefault', 'light');
@@ -376,7 +376,7 @@ editor.once('load', () => {
                     component.shadowResolution = 256;
 
                     editor.call('entities:new', {
-                        name: 'Point Light',
+                        name: 'Omni Light',
                         parent: getParentFn(),
                         components: {
                             light: component
