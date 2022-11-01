@@ -83,7 +83,7 @@ Object.assign(pcui, (function () {
         args: {
             placeholder: ['X', 'Y', 'Z'],
             precision: 3,
-            step: 0.05
+            step: 0.5
         }
     }, {
         label: 'Rotation',
@@ -92,7 +92,7 @@ Object.assign(pcui, (function () {
         args: {
             placeholder: ['X', 'Y', 'Z'],
             precision: 2,
-            step: 0.1
+            step: 5
         }
     }, {
         label: 'Scale',
@@ -101,7 +101,7 @@ Object.assign(pcui, (function () {
         args: {
             placeholder: ['X', 'Y', 'Z'],
             precision: 3,
-            step: 0.05
+            step: 1
         }
     }];
 
