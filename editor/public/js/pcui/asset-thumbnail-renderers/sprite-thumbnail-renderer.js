@@ -220,7 +220,7 @@ Object.assign(pcui, (function () {
 
             const x = frame.rect[0];
             // convert bottom left WebGL coord to top left pixel coord
-            const y = (0 || atlas.get('meta.height')) - frame.rect[1] - frame.rect[3];
+            const y = (0 || atlas.get('meta.height')) - frame.rect[1] - frame.rect[3]; // eslint-disable-line no-constant-binary-expression
             const w = frame.rect[2];
             const h = frame.rect[3];
 

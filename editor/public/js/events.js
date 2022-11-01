@@ -25,7 +25,7 @@ Events.prototype.on = function (name, fn) {
     if (events === undefined) {
         this._events[name] = [fn];
     } else {
-        if (events.indexOf(fn) == -1)
+        if (events.indexOf(fn) === -1)
             events.push(fn);
     }
     return new EventHandle(this, name, fn);

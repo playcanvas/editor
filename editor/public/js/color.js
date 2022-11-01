@@ -10,7 +10,7 @@ var rgb2hsv = function (rgb) {
             return (v - c) / 6 / diff + 1 / 2;
         };
 
-    if (diff == 0) {
+    if (diff === 0) {
         h = s = 0;
     } else {
         s = diff / v;

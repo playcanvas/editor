@@ -394,7 +394,7 @@ Object.assign(pcui, (function () {
                             title += ' (legacy)';
                         }
                         const index = items[submenu].items.findIndex((object) => {
-                            return object.text == title;
+                            return object.text === title;
                         });
 
                         if (components[i] === 'audiosource')

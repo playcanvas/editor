@@ -63,7 +63,7 @@ editor.once('load', function () {
                 return 0;
             });
 
-            if (pos === -1 && (ind + 1) == assets.data.length)
+            if (pos === -1 && (ind + 1) === assets.data.length)
                 return;
 
             if (ind !== -1 && (ind + 1 === pos) || (ind === pos))

@@ -1000,7 +1000,7 @@ editor.once('load', function () {
             verticalBottomValue = Math.max(minVertical, verticalBottomValue);
         }
 
-        return oldVerticalTop != verticalTopValue || oldVerticalBottom != verticalBottomValue;
+        return oldVerticalTop !== verticalTopValue || oldVerticalBottom !== verticalBottomValue;
     }
 
     function scroll(delta) {
@@ -1042,11 +1042,11 @@ editor.once('load', function () {
             });
         });
 
-        if (maxValue == -Infinity) {
+        if (maxValue === -Infinity) {
             maxValue = maxVertical != null ? maxVertical : verticalValue;
         }
 
-        if (minValue == Infinity) {
+        if (minValue === Infinity) {
             minValue = minVertical != null ? minVertical : -verticalValue;
         }
 
@@ -1497,7 +1497,7 @@ editor.once('load', function () {
 
             // mouse is moving without selected anchors so just check for hovered anchors or hovered curves
             var hovered = getHoveredAnchor(coords);
-            if (hovered.curve != hoveredCurve || hovered.anchor != hoveredAnchor) {
+            if (hovered.curve !== hoveredCurve || hovered.anchor !== hoveredAnchor) {
                 setHovered(hovered.curve, hovered.anchor);
                 render();
             }
@@ -1530,7 +1530,7 @@ editor.once('load', function () {
                 deleteAnchor(hoveredCurve, hoveredAnchor);
 
                 // clean up selected anchor
-                if (selectedAnchor == hoveredAnchor) {
+                if (selectedAnchor === hoveredAnchor) {
                     setSelected(selectedCurve, null);
                 }
 

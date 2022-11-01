@@ -143,7 +143,7 @@ editor.once('load', function () {
 
             // ensure all reduced view panels are visible
             for (const key in menuOptions) {
-                if (key == 'project-main' || key == 'team') menuOptions[key].item.hidden = false;
+                if (key === 'project-main' || key === 'team') menuOptions[key].item.hidden = false;
             }
 
             projectCMSButton.enabled = false;
@@ -216,7 +216,7 @@ editor.once('load', function () {
 
             // ensure all panels are visible
             for (const key in menuOptions) {
-                if (key != 'publish-download' && key != 'publish-new') menuOptions[key].item.hidden = false;
+                if (key !== 'publish-download' && key !== 'publish-new') menuOptions[key].item.hidden = false;
             }
             editor.call('picker:project:main:cmsView');
         }
@@ -404,7 +404,7 @@ editor.once('load', function () {
 
     editorBtn.element.addEventListener('mousedown', (e) => {
         let target = '_self';
-        if (e.which === 2 || e.button == 4 || e.metaKey || e.ctrlKey) target = '_blank';  // If middle click, open in new tab
+        if (e.which === 2 || e.button === 4 || e.metaKey || e.ctrlKey) target = '_blank';  // If middle click, open in new tab
 
         window.open(`${config.url.home}/editor/project/${currentProject.id}`, target);
     });
@@ -571,7 +571,7 @@ editor.once('load', function () {
             menuItem = new ui.ListItem({ text: name });
         }
 
-        if (title == 'PROJECT SETTINGS') projectSettingsListMenu = menuItem;
+        if (title === 'PROJECT SETTINGS') projectSettingsListMenu = menuItem;
 
         menuItem.class.add(name.replace(' ', '-'));
         list.append(menuItem);

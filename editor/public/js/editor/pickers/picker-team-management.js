@@ -117,7 +117,7 @@ editor.once('load', function () {
         }
 
         deleteCollaboratorBtn.on('click', () => {
-            if (collaborator.username == config.self.username) {
+            if (collaborator.username === config.self.username) {
                 editor.call('picker:project:deleteSelfConfirmation');
             } else if (collaborator.inviter_id) {
                 // If invitation, remove invitation
@@ -382,7 +382,7 @@ editor.once('load', function () {
 
                 // update existing or add new one
                 collaborators.forEach((collaborator) => {
-                    if (collaborator.username == result.username) {
+                    if (collaborator.username === result.username) {
                         added = true;
                         editor.call('picker:project:buildAlert', panel, 'TEAM ERROR: User already exists');
                     }
@@ -436,8 +436,8 @@ editor.once('load', function () {
     const handleTeamError = (status, error) => {
         let text = error;
         const errorMessage = `Team Error: ${text}`;
-        if (status == 404) text = 'User not found';
-        else if (status == 403) {
+        if (status === 404) text = 'User not found';
+        else if (status === 403) {
             if (!text) text = 'You do not have permission to edit the team';
             else if (text === 'Could not retrieve customer') editor.call('picker:project:buildAlert', panel, 'You do not have a credit card on your account', true, 'UPGRADE', { url: `${config.url.home}/upgrade` });
         }
@@ -450,7 +450,7 @@ editor.once('load', function () {
                 // show upgrade
                 editor.call('picker:project:buildAlert', panel, errorMessage, true, 'UPGRADE', { url: `${config.url.home}/upgrade` });
             }
-        } else if (status == 400 && text == 'Could not retrieve customer') {
+        } else if (status === 400 && text === 'Could not retrieve customer') {
             editor.call('picker:project:buildAlert', panel, 'You do not have a credit card on your account', true, 'UPGRADE', { url: `${config.url.home}/upgrade` });
         } else {
             editor.call('picker:project:buildAlert', panel, errorMessage);
@@ -539,7 +539,7 @@ editor.once('load', function () {
             if (config.self.id === owner.id) currentUser = owner;
 
             // Only populate first time around
-            if (currentProject.access_level !== 'none' && (membersGrid.element.childNodes.length == 0 || uiRefresh)) {
+            if (currentProject.access_level !== 'none' && (membersGrid.element.childNodes.length === 0 || uiRefresh)) {
 
                 let currentUserIsCollaborator = false;
                 editor.call('projects:getCollaborators', currentProject, (data) => {

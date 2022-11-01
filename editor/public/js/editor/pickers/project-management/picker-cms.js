@@ -131,7 +131,7 @@ editor.once('load', () => {
                     organizationName.element
                 ]);
 
-                if (e.target == dropdown.dom) {
+                if (e.target === dropdown.dom) {
                     if (!dropdown.class.contains('clicked')) {
                         dropdown.class.add('clicked');
                         dropdown.icon = 'E157';  // change arrow
@@ -299,7 +299,7 @@ editor.once('load', () => {
 
             if (project.locked) editor.call('picker:project:lockedView', project);
             else if (project.access_level === 'none') editor.call('picker:project:noAdmin', project);
-            else if (IS_EMPTY_STATE || (project.id != config.project.id)) editor.call('picker:project:reduced', project);
+            else if (IS_EMPTY_STATE || (project.id !== config.project.id)) editor.call('picker:project:reduced', project);
             else editor.call('picker:project', 'project-main', true);
         });
 
@@ -736,7 +736,7 @@ editor.once('load', () => {
 
             let jobId;
             var evt = editor.on('messenger:job.update', (msg) => {
-                if (msg.job.id == jobId) {
+                if (msg.job.id === jobId) {
                     evt.unbind();
                 }
 
@@ -811,7 +811,7 @@ editor.once('load', () => {
     const refreshProjects = () => {
         projectsToSearch = [];  // reset projects in view
 
-        if (!(currentUser.id in projects) || projects[currentUser.id].length == 0) {
+        if (!(currentUser.id in projects) || projects[currentUser.id].length === 0) {
             projectsContainer.element.innerHTML = '';
             noProjectsButton.hidden = false;
             projects[currentUser.id] = [];
@@ -1019,7 +1019,7 @@ editor.once('load', () => {
         const orgsList = organizationsToggle.element.childNodes[1];
         orgsList.innerHTML = '';
         if (!deleteOrg) rootUser.organizations.push(organization);
-        else rootUser.organizations = rootUser.organizations.filter(org => org.id != organization.id);
+        else rootUser.organizations = rootUser.organizations.filter(org => org.id !== organization.id);
         buildOrganizationsUI(organization.full_name);
     });
 

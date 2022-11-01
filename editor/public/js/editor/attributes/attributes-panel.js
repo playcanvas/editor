@@ -110,7 +110,7 @@ editor.once('load', function () {
                     value = val;
                 }
 
-                if (countUndefined && countUndefined != args.link.length) {
+                if (countUndefined && countUndefined !== args.link.length) {
                     args.field.class.add('star');
                     if (!/^\* /.test(args.field._title.text))
                         args.field._title.text = '* ' + args.field._title.text;

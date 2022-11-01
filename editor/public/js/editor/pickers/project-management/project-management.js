@@ -15,7 +15,7 @@ editor.once('load', () => {
     editor.method('project:management:handlePermissions', (field, success, errorFn) => {
         field.disabled = !editor.call('permissions:write');
         return editor.on('permissions:set:' + config.self.id, function (accessLevel) {
-            if (accessLevel === 'write' || accessLevel == 'admin') {
+            if (accessLevel === 'write' || accessLevel === 'admin') {
                 field.disabled = false;
             } else {
                 field.disabled = true;
@@ -27,7 +27,7 @@ editor.once('load', () => {
     editor.method('project:management:getAccessLevel', (user, collaborators) => {
         if (user && collaborators) {
             for (var i = 0, len = collaborators.length; i < len; i++) {
-                if (collaborators[i].username == user.username) {
+                if (collaborators[i].username === user.username) {
                     return collaborators[i].access_level;
                 }
             }
@@ -113,7 +113,7 @@ editor.once('load', () => {
         if (config.self) {
             if (collaborators) {
                 for (var i = 0, len = collaborators.length; i < len; i++) {
-                    if (collaborators[i].username == config.self.username) {
+                    if (collaborators[i].username === config.self.username) {
                         access_level = collaborators[i].access_level;
                     }
                 }

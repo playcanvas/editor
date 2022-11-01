@@ -60,7 +60,7 @@ editor.once('load', function () {
         });
         container.dom.appendChild(starterKit.dom);
         // Blank project selected by default
-        if (starterkit.name == 'Blank Project') {
+        if (starterkit.name === 'Blank Project') {
             selectedKitElement = starterKit;
             selectedKitElement.dom.classList.add('selected');
         }
@@ -131,7 +131,7 @@ editor.once('load', function () {
     // helper method to build sidebar once data has loaded in
     const buildSidebar = () => {
         // refresh UI if it already exists
-        if (formContent.dom.innerHTML != "") formContent.dom.innerHTML = '';
+        if (formContent.dom.innerHTML !== "") formContent.dom.innerHTML = '';
 
         // make form groups for relevant inputs
         const textName = buildFormGroup('text', "Name", formContent);
@@ -254,8 +254,8 @@ editor.once('load', function () {
 
         ownerDropdown.on('change', () => {
             const oldOwner = newProjectOwner;
-            newProjectOwner = possibleOwners.filter(org => org.id == ownerDropdown.value)[0];
-            if (oldOwner != newProjectOwner) {
+            newProjectOwner = possibleOwners.filter(org => org.id === ownerDropdown.value)[0];
+            if (oldOwner !== newProjectOwner) {
                 possibleOwners = [];  // reset possible owners list
                 buildSidebar();  // rebuild sidebar on owner change
             }

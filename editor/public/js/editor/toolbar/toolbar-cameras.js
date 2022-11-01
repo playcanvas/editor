@@ -50,7 +50,7 @@ editor.once('viewport:load', function () {
         const fieldCameraOption = new ui.RadioButton();
         viewportCamera.optionElements[id] = fieldCameraOption;
         const currentCamera = viewportCamera.optionTitles[viewportCamera.active];
-        fieldCameraOption.value = currentCamera == title;
+        fieldCameraOption.value = currentCamera === title;
         panelCameraOption.append(fieldCameraOption);
 
         // Listen for field option clicks
@@ -155,7 +155,7 @@ editor.once('viewport:load', function () {
         refreshOptions();
 
         // Set perspective camera as default
-        if (entity.name == "Perspective") {
+        if (entity.name === "Perspective") {
             viewportCamera.default = entity.getGuid();
             viewportCamera.active = entity.getGuid();
         }

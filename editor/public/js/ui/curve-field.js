@@ -81,7 +81,7 @@ CurveField.prototype._onKeyDown = function (evt) {
 };
 
 CurveField.prototype._resize = function (width, height) {
-    if (this.canvas.width != width || this.canvas.height != height) {
+    if (this.canvas.width !== width || this.canvas.height !== height) {
         this.canvas.resize(width, height);
         this._render();
     }

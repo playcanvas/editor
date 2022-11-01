@@ -12,7 +12,7 @@ editor.once('load', function () {
     const handlePermissions = function (field) {
         field.disabled = !editor.call('permissions:write');
         return editor.on('permissions:set:' + config.self.id, function (accessLevel) {
-            if (accessLevel === 'write' || accessLevel == 'admin') {
+            if (accessLevel === 'write' || accessLevel === 'admin') {
                 field.disabled = false;
             } else {
                 field.disabled = true;

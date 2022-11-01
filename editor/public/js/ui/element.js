@@ -196,7 +196,7 @@ Object.assign(ui, (function () {
             return this._disabled || this._disabledParent;
         },
         set: function (value) {
-            if (this._disabled == value)
+            if (this._disabled === value)
                 return;
 
             this._disabled = !!value;

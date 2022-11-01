@@ -498,7 +498,7 @@ editor.once('load', function () {
         startPos += change.from.ch;
 
         // handle delete
-        if (change.to.line != change.from.line || change.to.ch != change.from.ch) {
+        if (change.to.line !== change.from.line || change.to.ch !== change.from.ch) {
             text = cm.getRange(change.from, change.to);
 
             if (text) {
