@@ -277,7 +277,7 @@ Object.assign(pcui, (function () {
             // add edit button
             this._btnEditSprite = new pcui.Button({
                 text: 'SPRITE EDITOR',
-                icon: 'E395'
+                icon: 'E413'
             });
             this._btnEditSprite.style.flex = 1;
             this._btnEditSprite.on('click', this._onClickEditSprite.bind(this));

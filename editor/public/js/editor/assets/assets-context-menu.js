@@ -96,7 +96,7 @@ editor.once('load', function () {
     const ICONS = {
         REFERENCES: 'E116',
         TEXTURE_ATLAS: 'E332',
-        SPRITE_ASSET: 'E395',
+        SPRITE_ASSET: 'E413',
         COPY: 'E351',
         PASTE: 'E348',
         REPLACE: 'E128',
