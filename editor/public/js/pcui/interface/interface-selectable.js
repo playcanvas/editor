@@ -6,11 +6,11 @@ Object.assign(pcui, (function () {
      * @classdesc Provides an interface for selecting an Element.
      */
     class ISelectable {
-        get selected() {
+        set selected(value) {
             throw new Error('Not implemented');
         }
 
-        set selected(value) {
+        get selected() {
             throw new Error('Not implemented');
         }
     }

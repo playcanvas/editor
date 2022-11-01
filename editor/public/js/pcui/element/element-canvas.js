@@ -44,10 +44,6 @@ Object.assign(pcui, (function () {
             this.emit('resize', this.width, this.height);
         }
 
-        get width() {
-            return super.width;
-        }
-
         set width(value) {
             const pixelWidth = Math.floor(this._pixelRatio * value);
             if (pixelWidth === this._pixelWidth) {
@@ -59,8 +55,8 @@ Object.assign(pcui, (function () {
             this.emit('resize', this.width, this.height);
         }
 
-        get height() {
-            return super.height;
+        get width() {
+            return super.width;
         }
 
         set height(value) {
@@ -72,6 +68,10 @@ Object.assign(pcui, (function () {
             this.dom.height = pixelHeight;
             super.height = value;
             this.emit('resize', this.width, this.height);
+        }
+
+        get height() {
+            return super.height;
         }
 
         get pixelWidth() {

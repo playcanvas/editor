@@ -12,10 +12,6 @@ Object.assign(pcui, (function () {
             this.reference = args.reference;
         }
 
-        get reference() {
-            return this._reference;
-        }
-
         set reference(value) {
             this._reference = value;
 
@@ -30,12 +26,16 @@ Object.assign(pcui, (function () {
             this.description = this._reference.description || '';
         }
 
-        get templateOverride() {
-            return this._templateOverride;
+        get reference() {
+            return this._reference;
         }
 
         set templateOverride(value) {
             this._templateOverride = value;
+        }
+
+        get templateOverride() {
+            return this._templateOverride;
         }
     }
 

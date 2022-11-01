@@ -832,13 +832,13 @@ Object.assign(pcui, (function () {
             super.destroy();
         }
 
-        get columns() {
-            return this._columns.slice();
-        }
-
         set columns(value) {
             this._columns = value.slice();
             this._refreshLayout();
+        }
+
+        get columns() {
+            return this._columns.slice();
         }
 
         get table() {
@@ -869,12 +869,12 @@ Object.assign(pcui, (function () {
             return this._sort.ascending;
         }
 
-        get allowRowFocus() {
-            return this._allowRowFocus;
-        }
-
         set allowRowFocus(value) {
             this._allowRowFocus = value;
+        }
+
+        get allowRowFocus() {
+            return this._allowRowFocus;
         }
     }
 

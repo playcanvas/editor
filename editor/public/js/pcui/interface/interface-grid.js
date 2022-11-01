@@ -6,11 +6,11 @@ Object.assign(pcui, (function () {
      * @classdesc Provides an interface for allowing support for the grid CSS layout
      */
     class IGrid {
-        get grid() {
+        set grid(value) {
             throw new Error('Not implemented');
         }
 
-        set grid(value) {
+        get grid() {
             throw new Error('Not implemented');
         }
     }

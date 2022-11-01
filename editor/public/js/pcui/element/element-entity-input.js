@@ -215,10 +215,6 @@ Object.assign(pcui, (function () {
             super.destroy();
         }
 
-        get value() {
-            return this._value;
-        }
-
         set value(value) {
             if (this._value === value) return;
             this._updateValue(value);
@@ -226,6 +222,10 @@ Object.assign(pcui, (function () {
             if (this._binding) {
                 this._binding.setValue(value);
             }
+        }
+
+        get value() {
+            return this._value;
         }
 
         set values(values) {

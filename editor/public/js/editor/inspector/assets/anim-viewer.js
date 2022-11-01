@@ -249,10 +249,6 @@ Object.assign(
                 this._playButton.text = "Play";
             }
 
-            get showSkeleton() {
-                return this._showSkeleton;
-            }
-
             set showSkeleton(value) {
                 this._showSkeleton = value;
                 if (!this._playing) {
@@ -260,8 +256,8 @@ Object.assign(
                 }
             }
 
-            get showModel() {
-                return this._showModel;
+            get showSkeleton() {
+                return this._showSkeleton;
             }
 
             set showModel(value) {
@@ -269,6 +265,10 @@ Object.assign(
                 if (!this._playing) {
                     this.render(0);
                 }
+            }
+
+            get showModel() {
+                return this._showModel;
             }
 
             createUIContainer() {

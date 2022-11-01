@@ -897,10 +897,6 @@ Object.assign(pcui, (function () {
             super.destroy();
         }
 
-        get entities() {
-            return this._entities;
-        }
-
         set entities(value) {
             this.clearTreeItems();
 
@@ -923,8 +919,8 @@ Object.assign(pcui, (function () {
             }
         }
 
-        get writePermissions() {
-            return this._writePermissions;
+        get entities() {
+            return this._entities;
         }
 
         set writePermissions(value) {
@@ -935,6 +931,10 @@ Object.assign(pcui, (function () {
             this.allowDrag = value;
             this.allowRenaming = value;
 
+        }
+
+        get writePermissions() {
+            return this._writePermissions;
         }
     }
 

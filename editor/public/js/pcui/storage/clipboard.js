@@ -24,16 +24,16 @@ Object.assign(pcui, (function () {
             return !this._storage.has(this._name);
         }
 
-        get value() {
-            return this._storage.get(this._name);
-        }
-
         set value(value) {
             if (value !== null) {
                 this._storage.set(this._name, value);
             } else {
                 this._storage.unset(this._name);
             }
+        }
+
+        get value() {
+            return this._storage.get(this._name);
         }
     }
 

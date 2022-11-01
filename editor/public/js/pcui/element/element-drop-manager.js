@@ -271,10 +271,6 @@ Object.assign(pcui, (function () {
             super.destroy();
         }
 
-        get active() {
-            return this._active;
-        }
-
         set active(value) {
             if (this._active === value) return;
             this._active = value;
@@ -285,8 +281,8 @@ Object.assign(pcui, (function () {
             }
         }
 
-        get dropType() {
-            return this._dropType;
+        get active() {
+            return this._active;
         }
 
         set dropType(value) {
@@ -295,14 +291,18 @@ Object.assign(pcui, (function () {
             this.emit('dropType', this.dropType);
         }
 
-        get dropData() {
-            return this._dropData;
+        get dropType() {
+            return this._dropType;
         }
 
         set dropData(value) {
             if (this._dropData === value) return;
             this._dropData = value || {};
             this.emit('dropData', value);
+        }
+
+        get dropData() {
+            return this._dropData;
         }
     }
 

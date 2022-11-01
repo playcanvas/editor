@@ -8,11 +8,11 @@ Object.assign(pcui, (function () {
      * @property {Any[]} values Sets multiple values to the Element. It is up to the Element to determine how to display them.
      */
     class IBindable {
-        get value() {
+        set value(value) {
             throw new Error('Not implemented');
         }
 
-        set value(value) {
+        get value() {
             throw new Error('Not implemented');
         }
 

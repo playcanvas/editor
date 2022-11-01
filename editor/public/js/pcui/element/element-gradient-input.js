@@ -230,10 +230,6 @@ Object.assign(pcui, (function () {
             super.destroy();
         }
 
-        get channels() {
-            return this._channels;
-        }
-
         set channels(value) {
             if (this._channels === value) return;
             this._channels = Math.max(1, Math.min(value, 4));
@@ -245,8 +241,8 @@ Object.assign(pcui, (function () {
             }
         }
 
-        get value() {
-            return this._value;
+        get channels() {
+            return this._channels;
         }
 
         set value(value) {
@@ -264,6 +260,10 @@ Object.assign(pcui, (function () {
             if (this._binding) {
                 this._binding.setValue(value);
             }
+        }
+
+        get value() {
+            return this._value;
         }
 
         set values(values) { // eslint-disable-line accessor-pairs

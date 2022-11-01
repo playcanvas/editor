@@ -6,15 +6,11 @@ Object.assign(pcui, (function () {
      * @classdesc Provides an interface for enabling resizing support for an Element
      */
     class IResizable {
-        get resizable() {
-            throw new Error('Not implemented');
-        }
-
         set resizable(value) {
             throw new Error('Not implemented');
         }
 
-        get resizeMin() {
+        get resizable() {
             throw new Error('Not implemented');
         }
 
@@ -22,11 +18,15 @@ Object.assign(pcui, (function () {
             throw new Error('Not implemented');
         }
 
-        get resizeMax() {
+        get resizeMin() {
             throw new Error('Not implemented');
         }
 
         set resizeMax(value) {
+            throw new Error('Not implemented');
+        }
+
+        get resizeMax() {
             throw new Error('Not implemented');
         }
     }

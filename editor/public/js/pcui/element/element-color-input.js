@@ -214,10 +214,6 @@ Object.assign(pcui, (function () {
             super.destroy();
         }
 
-        get value() {
-            return this._value.slice(0, this._channels);
-        }
-
         set value(value) {
             value = value || [0, 0, 0, 0];
             const changed = this._updateValue(value);
@@ -225,6 +221,10 @@ Object.assign(pcui, (function () {
             if (changed && this._binding) {
                 this._binding.setValue(value);
             }
+        }
+
+        get value() {
+            return this._value.slice(0, this._channels);
         }
 
         set values(values) {
@@ -252,14 +252,14 @@ Object.assign(pcui, (function () {
             }
         }
 
-        get channels() {
-            return this._channels;
-        }
-
         set channels(value) {
             if (this._channels === value) return;
             this._channels = Math.max(0, Math.min(value, 4));
             this._setValue(this.value);
+        }
+
+        get channels() {
+            return this._channels;
         }
     }
 

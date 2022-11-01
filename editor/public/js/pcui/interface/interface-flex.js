@@ -6,11 +6,11 @@ Object.assign(pcui, (function () {
      * @classdesc Provides an interface for allowing support for the flexbox CSS layout
      */
     class IFlex {
-        get flex() {
+        set flex(value) {
             throw new Error('Not implemented');
         }
 
-        set flex(value) {
+        get flex() {
             throw new Error('Not implemented');
         }
     }

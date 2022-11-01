@@ -225,12 +225,12 @@ Object.assign(pcui, (function () {
             return this._passThrough;
         }
 
-        get dropManager() {
-            return this._dropManager;
-        }
-
         set dropManager(value) {
             this._dropManager = value;
+        }
+
+        get dropManager() {
+            return this._dropManager;
         }
 
         get rect() {

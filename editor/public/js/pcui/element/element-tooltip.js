@@ -225,17 +225,13 @@ Object.assign(pcui, (function () {
             super.destroy();
         }
 
-        get title() {
-            return this._labelTitle.text;
-        }
-
         set title(value) {
             this._labelTitle.text = value;
             this._labelTitle.hidden = !value;
         }
 
-        get subTitle() {
-            return this._labelSubTitle.text;
+        get title() {
+            return this._labelTitle.text;
         }
 
         set subTitle(value) {
@@ -243,8 +239,8 @@ Object.assign(pcui, (function () {
             this._labelSubTitle.hidden = !value;
         }
 
-        get description() {
-            return this._labelDesc.text;
+        get subTitle() {
+            return this._labelSubTitle.text;
         }
 
         set description(value) {
@@ -252,8 +248,8 @@ Object.assign(pcui, (function () {
             this._labelDesc.hidden = !value;
         }
 
-        get align() {
-            return this._align;
+        get description() {
+            return this._labelDesc.text;
         }
 
         set align(value) {
@@ -261,6 +257,10 @@ Object.assign(pcui, (function () {
             if (!this.hidden) {
                 this._realign();
             }
+        }
+
+        get align() {
+            return this._align;
         }
     }
 

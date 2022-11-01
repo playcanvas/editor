@@ -78,10 +78,6 @@ Object.assign(pcui, (function () {
             super.destroy();
         }
 
-        get selected() {
-            return this._selected;
-        }
-
         set selected(value) {
             if (this._header) return;
 
@@ -102,6 +98,10 @@ Object.assign(pcui, (function () {
                 this.classRemove(CLASS_SELECTED_ROW);
                 this.emit('deselect', this);
             }
+        }
+
+        get selected() {
+            return this._selected;
         }
 
         get nextSibling() {
@@ -130,12 +130,12 @@ Object.assign(pcui, (function () {
             return null;
         }
 
-        get table() {
-            return this._table;
-        }
-
         set table(value) {
             this._table = value;
+        }
+
+        get table() {
+            return this._table;
         }
     }
 

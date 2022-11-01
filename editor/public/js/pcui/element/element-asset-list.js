@@ -490,6 +490,23 @@ Object.assign(pcui, (function () {
             return newValue;
         }
 
+        set value(value) {
+            if (!value) {
+                value = null;
+            }
+
+            const current = this.value;
+            if (current === value) return;
+            if (Array.isArray(value) && value.equals(current)) return;
+
+            // set values property - try to use the existing array length of values
+            value = this._updateValues(new Array(this._values.length || 1).fill(value));
+
+            if (this._binding) {
+                this._binding.setValue(value);
+            }
+        }
+
         get value() {
             // create value from the list of assets we are currently displaying,
             // this is a lossy concept as it doesn't capture whether an asset id is only
@@ -506,23 +523,6 @@ Object.assign(pcui, (function () {
             }
 
             return result;
-        }
-
-        set value(value) {
-            if (!value) {
-                value = null;
-            }
-
-            const current = this.value;
-            if (current === value) return;
-            if (Array.isArray(value) && value.equals(current)) return;
-
-            // set values property - try to use the existing array length of values
-            value = this._updateValues(new Array(this._values.length || 1).fill(value));
-
-            if (this._binding) {
-                this._binding.setValue(value);
-            }
         }
 
         set values(values) {

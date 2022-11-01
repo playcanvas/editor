@@ -314,17 +314,6 @@ Object.assign(pcui, (function () {
             super.destroy();
         }
 
-        get value() {
-            const result = {};
-            for (const key in this._fields) {
-                const field = this._fields[key];
-                const parts = key.split('.');
-                result[parts[parts.length - 1]] = field.value;
-            }
-
-            return result;
-        }
-
         set value(value) {
             if (!value) return;
 
@@ -342,6 +331,17 @@ Object.assign(pcui, (function () {
             this._suspendChangeEvt = suspend;
 
             this._onAttributeChange();
+        }
+
+        get value() {
+            const result = {};
+            for (const key in this._fields) {
+                const field = this._fields[key];
+                const parts = key.split('.');
+                result[parts[parts.length - 1]] = field.value;
+            }
+
+            return result;
         }
 
         set values(values) {

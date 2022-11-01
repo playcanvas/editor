@@ -302,44 +302,40 @@ Object.assign(pcui, (function () {
             return this._validateAssetFn ? this._validateAssetFn(asset) : true;
         }
 
-        get text() {
-            return this._label.value;
-        }
-
         set text(value) {
             this._label.value = value;
+        }
+
+        get text() {
+            return this._label.value;
         }
 
         get label() {
             return this._label;
         }
 
-        get value() {
-            return this._value;
+        set assetType(value) {
+            this._assetType = value;
         }
 
         get assetType() {
             return this._assetType;
         }
 
-        set assetType(value) {
-            this._assetType = value;
+        set dragEnterFn(value) {
+            this._dragEnterFn = value;
         }
 
         get dragEnterFn() {
             return this._dragEnterFn;
         }
 
-        set dragEnterFn(value) {
-            this._dragEnterFn = value;
+        set dragLeaveFn(value) {
+            this._dragLeaveFn = value;
         }
 
         get dragLeaveFn() {
             return this._dragLeaveFn;
-        }
-
-        set dragLeaveFn(value) {
-            this._dragLeaveFn = value;
         }
 
         set value(value) {
@@ -349,6 +345,10 @@ Object.assign(pcui, (function () {
             if (changed && this._binding) {
                 this._binding.setValue(value);
             }
+        }
+
+        get value() {
+            return this._value;
         }
 
         set values(values) {
@@ -371,13 +371,13 @@ Object.assign(pcui, (function () {
             }
         }
 
-        get renderChanges() {
-            return this._renderChanges;
-        }
-
         set renderChanges(value) {
             this._renderChanges = value;
             this._thumbnail.renderChanges = value;
+        }
+
+        get renderChanges() {
+            return this._renderChanges;
         }
     }
 

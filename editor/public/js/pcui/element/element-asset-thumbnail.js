@@ -373,10 +373,6 @@ Object.assign(pcui, (function () {
             super.destroy();
         }
 
-        get value() {
-            return this._value;
-        }
-
         set value(value) {
             const changed = this._updateValue(value);
 
@@ -386,6 +382,10 @@ Object.assign(pcui, (function () {
                 }
                 this._binding.setValue(value);
             }
+        }
+
+        get value() {
+            return this._value;
         }
 
         set values(values) {

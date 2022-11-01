@@ -48,10 +48,6 @@ Object.assign(pcui, (function () {
             }
         }
 
-        get reference() {
-            return this._reference;
-        }
-
         set reference(value) {
             this._reference = value;
 
@@ -68,6 +64,10 @@ Object.assign(pcui, (function () {
 
             this._labelWebgl2.hidden = !this._reference || !this._reference.webgl2;
             this._btnUrl.hidden = !this._reference || !this._reference.url;
+        }
+
+        get reference() {
+            return this._reference;
         }
     }
 

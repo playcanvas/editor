@@ -6,11 +6,11 @@ Object.assign(pcui, (function () {
      * @classdesc Provides an interface for allowing scrolling on an Element.
      */
     class IScrollable {
-        get scrollable() {
+        set scrollable(value) {
             throw new Error('Not implemented');
         }
 
-        set scrollable(value) {
+        get scrollable() {
             throw new Error('Not implemented');
         }
     }

@@ -6,15 +6,11 @@ Object.assign(pcui, (function () {
      * @classdesc Provides an interface for allow the selection of child elements.
      */
     class ISelection {
-        get allowSelection() {
-            throw new Error('Not implemented');
-        }
-
         set allowSelection(value) {
             throw new Error('Not implemented');
         }
 
-        get multiSelect() {
+        get allowSelection() {
             throw new Error('Not implemented');
         }
 
@@ -22,11 +18,15 @@ Object.assign(pcui, (function () {
             throw new Error('Not implemented');
         }
 
-        get selection() {
+        get multiSelect() {
             throw new Error('Not implemented');
         }
 
         set selection(value) {
+            throw new Error('Not implemented');
+        }
+
+        get selection() {
             throw new Error('Not implemented');
         }
     }

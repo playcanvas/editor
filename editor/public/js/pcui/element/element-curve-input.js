@@ -401,10 +401,6 @@ Object.assign(pcui, (function () {
             super.destroy();
         }
 
-        get value() {
-            return this._value;
-        }
-
         set value(value) {
             // TODO: maybe we should check for equality
             // but since this value will almost always be set using
@@ -420,6 +416,10 @@ Object.assign(pcui, (function () {
             if (this._binding) {
                 this._binding.setValues(this._value);
             }
+        }
+
+        get value() {
+            return this._value;
         }
 
         set values(values) {

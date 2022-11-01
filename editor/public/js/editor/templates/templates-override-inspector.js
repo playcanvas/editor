@@ -171,10 +171,6 @@ Object.assign(pcui, (function () {
             delete this._registeredElements[path];
         }
 
-        get entity() {
-            return this._entity;
-        }
-
         set entity(value) {
             if (this._entity === value) return;
 
@@ -213,6 +209,10 @@ Object.assign(pcui, (function () {
                 // their elements
                 this._deferRefreshOverrides();
             }
+        }
+
+        get entity() {
+            return this._entity;
         }
     }
 

@@ -2174,10 +2174,6 @@ Object.assign(pcui, (function () {
             super.destroy();
         }
 
-        get assets() {
-            return this._assets;
-        }
-
         set assets(value) {
             this._setHoveredAsset(undefined);
 
@@ -2232,8 +2228,8 @@ Object.assign(pcui, (function () {
             this.filter();
         }
 
-        get currentFolder() {
-            return this._currentFolder;
+        get assets() {
+            return this._assets;
         }
 
         set currentFolder(value) {
@@ -2287,8 +2283,8 @@ Object.assign(pcui, (function () {
             this.emit('currentFolder', value);
         }
 
-        get dropManager() {
-            return this._dropManager;
+        get currentFolder() {
+            return this._currentFolder;
         }
 
         set dropManager(value) {
@@ -2323,6 +2319,10 @@ Object.assign(pcui, (function () {
             }
         }
 
+        get dropManager() {
+            return this._dropManager;
+        }
+
         get detailsView() {
             return this._detailsView;
         }
@@ -2333,10 +2333,6 @@ Object.assign(pcui, (function () {
 
         get gridView() {
             return this._gridView;
-        }
-
-        get viewMode() {
-            return this._viewMode;
         }
 
         set viewMode(value) {
@@ -2367,6 +2363,10 @@ Object.assign(pcui, (function () {
             this.emit('viewMode', value);
         }
 
+        get viewMode() {
+            return this._viewMode;
+        }
+
         get activeView() {
             return this.viewMode === AssetPanel.VIEW_DETAILS ? this.detailsView : this.gridView;
         }
@@ -2381,10 +2381,6 @@ Object.assign(pcui, (function () {
 
         get searchInput() {
             return this._searchInput;
-        }
-
-        get selectedAssets() {
-            return this._selectedAssets.slice();
         }
 
         set selectedAssets(value) {
@@ -2428,6 +2424,10 @@ Object.assign(pcui, (function () {
             }
         }
 
+        get selectedAssets() {
+            return this._selectedAssets.slice();
+        }
+
         get visibleAssets() {
             const result = [];
 
@@ -2442,10 +2442,6 @@ Object.assign(pcui, (function () {
             return result;
         }
 
-        get showSourceAssets() {
-            return this._showSourceAssets;
-        }
-
         set showSourceAssets(value) {
             if (this._showSourceAssets === value) {
                 return;
@@ -2458,24 +2454,24 @@ Object.assign(pcui, (function () {
             }
         }
 
-        get suspendSelectionEvents() {
-            return this._suspendSelectEvents;
+        get showSourceAssets() {
+            return this._showSourceAssets;
         }
 
         set suspendSelectionEvents(value) {
             this._suspendSelectEvents = value;
         }
 
-        get suspendFiltering() {
-            return this._suspendFiltering;
+        get suspendSelectionEvents() {
+            return this._suspendSelectEvents;
         }
 
         set suspendFiltering(value) {
             this._suspendFiltering = value;
         }
 
-        get writePermissions() {
-            return this._writePermissions;
+        get suspendFiltering() {
+            return this._suspendFiltering;
         }
 
         set writePermissions(value) {
@@ -2492,6 +2488,10 @@ Object.assign(pcui, (function () {
                 this._btnDelete.enabled = !!this._selectedAssets.length;
                 this._foldersView.allowDrag = true;
             }
+        }
+
+        get writePermissions() {
+            return this._writePermissions;
         }
     }
 
