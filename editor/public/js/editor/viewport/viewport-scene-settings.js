@@ -1,16 +1,16 @@
 editor.once('load', function () {
     'use strict';
 
-    var sceneSettings = editor.call('sceneSettings');
-    var app = editor.call('viewport:app');
+    const sceneSettings = editor.call('sceneSettings');
+    const app = editor.call('viewport:app');
     if (!app) return; // webgl not available
 
-    var assetsLoaded = false;
-    var sceneSettingsLoaded = false;
-    var updating;
+    let assetsLoaded = false;
+    let sceneSettingsLoaded = false;
+    let updating;
 
     // apply settings
-    var applySettings = function () {
+    const applySettings = function () {
         if (!app) return;
 
         updating = false;
@@ -19,18 +19,17 @@ editor.once('load', function () {
         app.applySceneSettings(sceneSettings.json());
 
         // need to update all materials on scene settings change
-        for (let i = 0; i < app.assets._assets.length; i++) {
-            if (app.assets._assets[i].type !== 'material' || !app.assets._assets[i].resource)
-                continue;
-
-            app.assets._assets[i].resource.update();
-        }
+        app.assets.filter((asset) => {
+            return asset.type === 'material' && asset.resource;
+        }).forEach((asset) => {
+            asset.resource.update();
+        });
 
         editor.call('viewport:render');
     };
 
     // queue settings apply
-    var queueApplySettings = function () {
+    const queueApplySettings = function () {
         if (!sceneSettingsLoaded || updating || !assetsLoaded)
             return;
 
