@@ -350,19 +350,19 @@ editor.once('load', function () {
                 text: 'Learn',
                 icon: 'E232',
                 onSelect: function () {
-                    window.open('http://developer.playcanvas.com/en/');
+                    window.open('https://developer.playcanvas.com/');
                 }
             }, {
                 text: 'Forum',
                 icon: 'E233',
                 onSelect: function () {
-                    window.open('http://forum.playcanvas.com/');
+                    window.open('https://forum.playcanvas.com/');
                 }
             }, {
                 text: 'Log Issue',
                 icon: 'E259',
                 onSelect: function () {
-                    window.open('https://github.com/playcanvas/editor');
+                    window.open('https://github.com/playcanvas/editor/issues');
                 }
             }, {
                 text: 'How do I...',
