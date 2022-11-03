@@ -52,7 +52,7 @@ Object.assign(pcui, (function () {
         path: 'components.element.anchor',
         type: 'vec4',
         args: {
-            precision: 2,
+            precision: 3,
             step: 0.1,
             min: 0,
             max: 1,
@@ -63,7 +63,7 @@ Object.assign(pcui, (function () {
         path: 'components.element.pivot',
         type: 'vec2',
         args: {
-            precision: 2,
+            precision: 3,
             step: 0.1,
             min: 0,
             max: 1,
@@ -82,7 +82,7 @@ Object.assign(pcui, (function () {
         path: 'components.element.width',
         type: 'number',
         args: {
-            precision: 2,
+            precision: 3,
             step: 1
         }
     }, {
@@ -98,7 +98,7 @@ Object.assign(pcui, (function () {
         path: 'components.element.height',
         type: 'number',
         args: {
-            precision: 2,
+            precision: 3,
             step: 1
         }
     }, {
@@ -115,7 +115,7 @@ Object.assign(pcui, (function () {
         type: 'vec4',
         args: {
             placeholder: ['←', '↓', '→', '↑'],
-            precision: 2,
+            precision: 3,
             step: 1
         }
     }, {
@@ -123,7 +123,7 @@ Object.assign(pcui, (function () {
         path: 'components.element.alignment',
         type: 'vec2',
         args: {
-            precision: 2,
+            precision: 3,
             step: 0.1,
             min: 0,
             max: 1,
@@ -216,7 +216,7 @@ Object.assign(pcui, (function () {
         path: 'components.element.outlineThickness',
         type: 'slider',
         args: {
-            precision: 2,
+            precision: 3,
             step: 0.1,
             min: 0,
             max: 1
@@ -230,7 +230,7 @@ Object.assign(pcui, (function () {
         path: 'components.element.shadowOffset',
         type: 'vec2',
         args: {
-            precision: 2,
+            precision: 3,
             step: 0.1,
             min: -1,
             max: 1,
