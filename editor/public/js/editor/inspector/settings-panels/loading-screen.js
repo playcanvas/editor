@@ -6,6 +6,9 @@ Object.assign(pcui, (function () {
             observer: 'projectSettings',
             label: 'Script',
             type: 'asset',
+            args: {
+                assetType: 'script'
+            },
             alias: 'loadingScreenScript'
         }
     ];
