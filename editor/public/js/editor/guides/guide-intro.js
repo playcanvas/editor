@@ -56,8 +56,8 @@ editor.once('load', function () {
             'guide:bubble',
             'Complete this level (4 / 4)',
             "Click <span class='font-icon'>&#57649;</span> <strong>Launch</strong> to play the game. Use the arrow keys to move the ball. The game will open in a new tab so just switch back to the Editor tab when you're done.<br/><br/>Any changes you make to the scene will automatically update the launched game.",
-            46,
-            29,
+            180,
+            40,
             'top-right',
             editor.call('layout.toolbar.launch')
         );
@@ -68,19 +68,20 @@ editor.once('load', function () {
             'guide:bubble',
             'Scene Hierarchy',
             'This is your <strong>Scene Hierarchy</strong> made up of <strong>Entities</strong>, which can be given new behaviors by adding Components.<br/><br/> <span class="font-icon">&#57632;</span> Add, <span class="font-icon">&#57638;</span> Duplicate and <span class="font-icon">&#57636;</span> Delete Entities using the controls in this panel.',
-            295,
-            60,
-            'left'
+            '50%',
+            '50%',
+            'left',
+            editor.call('layout.hierarchy')
         );
     };
 
     var bubbleLaunch = function () {
         return editor.call(
             'guide:bubble',
-            'Launch Preview',
-            'Click <span class="font-icon">&#57649;</span> <strong>Launch</strong> to preview your scene. Any changes you make to your scene while in the Editor will automatically update the launched scene.',
-            46,
-            29,
+            'Launch Scene',
+            'Click <span class="font-icon">&#57649;</span> <strong>Launch</strong> to run your scene in a new tab. Any changes you make in the Editor will automatically update the launched scene. You may find it convenient to run the Launch tab side by side with the Editor tab.',
+            180,
+            40,
             'top-right',
             editor.call('layout.toolbar.launch')
         );
@@ -89,10 +90,10 @@ editor.once('load', function () {
     var bubbleDashboard = function () {
         return editor.call(
             'guide:bubble',
-            'Dashboard',
-            'This is the name of your <strong>Project</strong>. Click here to go to the <strong>Project Dashboard</strong>.<br/><br/>Visit your <strong>Dashboard</strong> to create a new <strong>Project</strong>.',
-            55,
-            28,
+            'Home',
+            'Click here to go to the <strong>Project Dashboard</strong>.<br/><br/>Visit your <strong>Dashboard</strong> to add to your Dev Log or create a new <strong>Project</strong>.',
+            12,
+            40,
             'top',
             editor.call('layout.toolbar.scene')
         );
@@ -103,10 +104,10 @@ editor.once('load', function () {
             'guide:bubble',
             'Assets',
             '<strong>Drag`n`Drop</strong> files from your computer to upload assets or use the <span class="font-icon">&#57632;</span> Add button to create new assets.<br/><br/>You can filter and <span class="font-icon">&#57641;</span> search your assets using the controls at the top.',
-            54,
-            -39,
+            '50%',
+            '50%',
             'bottom',
-            editor.call('layout.assets').dom
+            editor.call('layout.assets')
         );
     };
 
@@ -115,10 +116,10 @@ editor.once('load', function () {
             'guide:bubble',
             'Store',
             '<img width="424" height="133" src="https://playcanvas.com/static-assets/instructions/asset_library.jpg"/><br/><br/>Click the <strong>STORE</strong> button to open the Store. Add free 3D models and assets from the Store into your scene with a single click.',
-            900,
-            -10,
+            '95%',
+            0,
             'bottom-right',
-            editor.call('layout.assets').dom
+            editor.call('layout.assets')
         );
 
         bubble.style.zIndex = 'initial';
@@ -126,7 +127,7 @@ editor.once('load', function () {
     };
 
     var bubbleMenu = function () {
-        return editor.call(
+        var bubble = editor.call(
             'guide:bubble',
             'Main Menu',
             'The <span style="display:inline-block;background-image:url(\'https://playcanvas.com/static-assets/images/editor_logo.png\');width:18px;height:18px;background-size:36px 18px;background-position:-18px 0;vertical-align:text-bottom;"></span> main menu and toolbar has every command available in the Editor. If you can’t find a button or remember a hot key, you will always find the command in the menu.',
@@ -134,6 +135,9 @@ editor.once('load', function () {
             40,
             'top'
         );
+
+        bubble.style.zIndex = '1000';
+        return bubble;
     };
 
     var bubbleControls = function () {
@@ -141,7 +145,7 @@ editor.once('load', function () {
             'guide:bubble',
             'Controls',
             'Click here to see <strong>controls</strong> and <strong>shortcuts</strong> for the Editor.',
-            41,
+            50,
             0,
             'bottom',
             editor.call('layout.toolbar')
@@ -156,7 +160,7 @@ editor.once('load', function () {
         var bubble = editor.call(
             'guide:bubble',
             'Inspector',
-            'This is the <strong>Inspector</strong>. Here you can enable or disable an Entity, edit its name or its position / rotation and scale. <br/><br/>If you want to add behaviors to your Entity click on Add Component.',
+            'This is the <strong>Inspector</strong>. Here you can enable or disable an Entity, edit its name or its position, rotation and scale. <br/><br/>If you want to add behaviors to your Entity click the <strong>ADD COMPONENT</strong> button.',
             0,
             100,
             'right',

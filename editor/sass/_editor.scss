@@ -4592,7 +4592,7 @@ strong {
 }
 
 .ui-overlay.bubble {
-    z-index: 203;
+    z-index: 1000;
 
     &.arrow-left {
         > .content {
