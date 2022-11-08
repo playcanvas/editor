@@ -1,7 +1,6 @@
 var utils = { };
 window.utils = utils;
 
-
 // utils.deepCopy
 utils.deepCopy = function deepCopy(data) {
     if (data == null || typeof (data) !== 'object')
@@ -70,38 +69,6 @@ utils.proxy = function (targetClass, memberName, properties) {
     });
 };
 
-// String.startsWith
-if (!String.prototype.startsWith) {
-    Object.defineProperty(String.prototype, 'startsWith', { // eslint-disable-line no-extend-native
-        enumerable: false,
-        configurable: false,
-        writable: false,
-        value: function (str) {
-            var that = this;
-            var ceil = str.length;
-            for (var i = 0; i < ceil; i++)
-                if (that[i] !== str[i]) return false;
-            return true;
-        }
-    });
-}
-
-// String.endsWith polyfill
-if (!String.prototype.endsWith) {
-    Object.defineProperty(String.prototype, 'endsWith', { // eslint-disable-line no-extend-native
-        enumerable: false,
-        configurable: false,
-        writable: false,
-        value: function (str) {
-            var that = this;
-            for (var i = 0, ceil = str.length; i < ceil; i++)
-                if (that[i + that.length - ceil] !== str[i])
-                    return false;
-            return true;
-        }
-    });
-}
-
 // Appends query parameter to string (supposedly the string is a URL)
 // automatically figuring out if the separator should be ? or &.
 // Example: url.appendQuery('t=123').appendQuery('q=345');
@@ -148,17 +115,3 @@ var bytesToHuman = function (bytes) {
     return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
 };
 window.bytesToHuman = bytesToHuman;
-
-
-// todo move this into proper library
-
-// replace the oldExtension in a path with the newExtension
-// return the new path
-// oldExtension and newExtension should have leading period
-var swapExtension = function (path, oldExtension, newExtension) {
-    while (path.indexOf(oldExtension) >= 0) {
-        path = path.replace(oldExtension, newExtension);
-    }
-    return path;
-};
-window.swapExtension = swapExtension;
