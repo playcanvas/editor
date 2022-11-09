@@ -19,12 +19,6 @@ utils.deepCopy = function deepCopy(data) {
             obj[key] = deepCopy(data[key]);
     }
     return obj;
-
-};
-
-utils.isMobile = function () {
-    return /Android/i.test(navigator.userAgent) ||
-      /iPhone|iPad|iPod/i.test(navigator.userAgent);
 };
 
 /**
@@ -47,28 +41,6 @@ utils.implements = function (targetClass, sourceClass) {
     Object.defineProperties(targetClass.prototype, properties);
 };
 
-/**
- * @name utils.proxy
- * @description Creates new properties on the target class that get / set
- * the properties of the member.
- * @param {object} targetClass - The target class
- * @param {string} memberName - The name of the member of the target class that properties will be proxied to.
- * @param {string[]} properties - A list of properties to be proxied.
- * @example utils.proxy(pcui.SliderInput, '_numericInput', ['max', 'min', 'placeholder'])
- */
-utils.proxy = function (targetClass, memberName, properties) {
-    properties.forEach((property) => {
-        Object.defineProperty(targetClass.prototype, property, {
-            get: function () {
-                return this[memberName][property];
-            },
-            set: function (value) {
-                this[memberName][property] = value;
-            }
-        });
-    });
-};
-
 // Appends query parameter to string (supposedly the string is a URL)
 // automatically figuring out if the separator should be ? or &.
 // Example: url.appendQuery('t=123').appendQuery('q=345');
@@ -83,29 +55,6 @@ if (!String.prototype.appendQuery) {
         }
     });
 }
-
-// element.classList.add polyfill
-(function () {
-    /* global DOMTokenList */ // eslint-disable-line 
-    var dummy  = document.createElement('div'),
-        dtp    = DOMTokenList.prototype,
-        toggle = dtp.toggle, // eslint-disable-line no-unused-vars
-        add    = dtp.add,
-        rem    = dtp.remove;
-
-    dummy.classList.add('class1', 'class2');
-
-    // Older versions of the HTMLElement.classList spec didn't allow multiple
-    // arguments, easy to test for
-    if (!dummy.classList.contains('class2')) {
-        dtp.add    = function () {
-            Array.prototype.forEach.call(arguments, add.bind(this));
-        };
-        dtp.remove = function () {
-            Array.prototype.forEach.call(arguments, rem.bind(this));
-        };
-    }
-})();
 
 var bytesToHuman = function (bytes) {
     if (isNaN(bytes) || bytes === 0) return '0 B';
