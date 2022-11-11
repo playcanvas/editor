@@ -1,5 +1,5 @@
 // launch styling
-import '../../../sass/_launch.scss';
+import '../../sass/_launch.scss';
 
 import '../editor/settings/settings.js';
 import '../editor/settings/project-settings.js';

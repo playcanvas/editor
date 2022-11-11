@@ -1,5 +1,5 @@
 // editor styling
-import '../../sass/editor/_editor.scss';
+import '../sass/editor/_editor.scss';
 
 // core
 import './constants.js';

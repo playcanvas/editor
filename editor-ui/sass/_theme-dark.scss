@@ -52,7 +52,7 @@ a:visited {
 
     &.disabled {
         > header {
-            background-color: mix($bcg-dark, $bcg-primary, 60);
+            background-color: mix($bcg-dark, $bcg-primary, 60%);
         }
     }
     &.scrollable {

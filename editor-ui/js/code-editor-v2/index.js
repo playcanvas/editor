@@ -1,5 +1,5 @@
 // import styling
-import '../../../sass/code-editor-v2/_code-editor.scss';
+import '../../sass/code-editor-v2/_code-editor.scss';
 
 import '../constants.js';
 import '../ajax.js';

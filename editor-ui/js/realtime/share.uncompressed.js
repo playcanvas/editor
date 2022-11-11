@@ -68,7 +68,7 @@ exports.semanticInvert = function (str, op) {
 };
 * */
 
-// Run "./node_modules/.bin/browserify buildme.js -o public/js/realtime/share.uncompressed.js"
+// Run "./node_modules/.bin/browserify buildme.js -o js/realtime/share.uncompressed.js"
 
 
 },{"ot-text":10,"sharedb/lib/client":15}],2:[function(require,module,exports){
