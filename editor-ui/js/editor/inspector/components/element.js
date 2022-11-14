@@ -20,6 +20,7 @@ Object.assign(pcui, (function () {
         '0.5,0,0.5,0/0.5,0': 'Bottom Anchor & Pivot',
         '1,0,1,0': 'Bottom Right Anchor',
         '1,0,1,0/1,0': 'Bottom Right Anchor & Pivot',
+        '0,0,1,1': 'Stretch',
         'custom': 'Custom'
     };
 
