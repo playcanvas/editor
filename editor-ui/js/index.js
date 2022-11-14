@@ -42,7 +42,6 @@ import './ui/bubble.js';
 import './ui/radiobutton.js';
 
 // pcui
-import './pcui/storage/clipboard.js';
 import './pcui/element/element-color-input.js';
 import './pcui/element/element-gradient-input.js';
 import './pcui/element/element-curve-input.js';
