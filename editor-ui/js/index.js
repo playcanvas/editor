@@ -498,7 +498,6 @@ import './editor/chat/chat-system.js';
 import './editor/chat/chat-notifications.js';
 
 // toolbar
-import './editor/toolbar/toolbar.js';
 import './editor/toolbar/toolbar-logo.js';
 import './editor/toolbar/toolbar-editor-settings.js';
 import './editor/toolbar/toolbar-contact.js';
