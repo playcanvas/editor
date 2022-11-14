@@ -4,6 +4,7 @@ Object.assign(pcui, (function () {
     const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
     const CLASS_ANIMSTATEGRAPH_TRANSITION = CLASS_ANIMSTATEGRAPH + '-transition';
     const CLASS_ANIMSTATEGRAPH_TRANSITIONS = CLASS_ANIMSTATEGRAPH + '-transitions';
+    const CLASS_ANIMSTATEGRAPH_TRANSITION_CONDITIONS_NOTE = CLASS_ANIMSTATEGRAPH_TRANSITION + '-conditions-note';
 
     // This helper function moves the the position of an item in the given array from the supplied old_index position to the new_index position.
     // Used by the AnimstategraphTransitions class to update the transitions order when the _onDragEnd event is fired.
@@ -192,13 +193,17 @@ Object.assign(pcui, (function () {
                         type: 'divider'
                     },
                     {
+                        label: 'Has Exit Time',
+                        alias: `hasExitTime`,
+                        type: 'boolean'
+                    },
+                    {
                         label: 'Exit Time',
                         path: `data.transitions.${transitionId}.exitTime`,
                         reference: 'asset:anim:transition:exitTime',
                         type: 'number',
                         args: {
-                            allowNull: true,
-                            hideSlider: true
+                            min: 0
                         }
                     },
                     {
@@ -287,9 +292,43 @@ Object.assign(pcui, (function () {
                     }
                 };
 
+                const hasExitTimeField = transitionInspector.getField('hasExitTime');
+                hasExitTimeField.value = this._assets[0].get(`data.transitions.${transitionId}.exitTime`) > 0;
+                const exitTimeField = transitionInspector.getField(`data.transitions.${transitionId}.exitTime`);
+                exitTimeField.enabled = hasExitTimeField.value;
+                let lastExitTimeValue = this._assets[0].get(`data.transitions.${transitionId}.exitTime`) || 1;
+                hasExitTimeField.on('change', (value) => {
+                    if (value) {
+                        this._assets[0].set(`data.transitions.${transitionId}.exitTime`, lastExitTimeValue);
+                    } else {
+                        this._assets[0].set(`data.transitions.${transitionId}.exitTime`, 0);
+                    }
+                    exitTimeField.enabled = value;
+                });
+
+                const conditionNote = new pcui.Label({
+                    class: CLASS_ANIMSTATEGRAPH_TRANSITION_CONDITIONS_NOTE,
+                    text: 'Note: No Transition Exit Time or Conditions set - transition will activate instantly.'
+                });
+                const hideConditionNote = () => {
+                    const hasConditions = Object.keys(this._assets[0].get(`data.transitions.${transitionId}.conditions`)).length > 0;
+                    const hasExitTime = this._assets[0].get(`data.transitions.${transitionId}.exitTime`) > 0;
+                    return hasExitTime || hasConditions;
+                };
+                conditionNote.hidden = hideConditionNote();
+                transitionPanel.append(conditionNote);
+
                 this._onAssetUpdateEvent = this._assets[0].on('*:set', (path) => {
-                    if (!path || path.includes('parameters') || path.includes(`transitions.${transitionId}`) && transition.conditions) {
+                    if (path.includes('exitTime')) {
+                        conditionNote.hidden = hideConditionNote();
+                        const exitTime = this._assets[0].get(`data.transitions.${transitionId}.exitTime`);
+                        hasExitTimeField.value = exitTime > 0;
+                        if (exitTime > 0) {
+                            lastExitTimeValue = exitTime;
+                        }
+                    } else if (!path || path.includes('parameters') || path.includes(`transitions.${transitionId}`) && transition.conditions) {
                         addConditions(path);
+                        conditionNote.hidden = hideConditionNote();
                     }
                 });
 

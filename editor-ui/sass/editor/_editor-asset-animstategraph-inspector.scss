@@ -12,6 +12,13 @@
         margin: $element-margin;
         border: 1px solid $bcg-darkest;
         overflow: visible;
+
+        .asset-animstategraph-inspector-transition-conditions-note {
+            font-size: 12px;
+            white-space: break-spaces;
+            margin: 6px 0;
+            padding: 3px 10px;
+        }
     }
 
     > .pcui-button {
