@@ -61,7 +61,6 @@ import './pcui/element/element-asset-list.js';
 import './pcui/element/element-batchgroup-input.js';
 import './pcui/element/element-bundles-input.js';
 import './pcui/element/element-layers-input.js';
-import './pcui/element/element-canvas.js';
 import './pcui/element/element-drop-manager.js';
 import './pcui/element/element-drop-target.js';
 import './pcui/element/element-tooltip.js';

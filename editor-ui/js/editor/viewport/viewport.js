@@ -1,7 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    const canvas = new ui.Canvas({
+    const canvas = new pcui.Canvas({
         id: 'canvas-3d',
         useDevicePixelRatio: true
     });
