@@ -1,11 +1,11 @@
 editor.once('load', function () {
     'use strict';
 
-    var toolbar = editor.call('layout.toolbar');
+    const toolbar = editor.call('layout.toolbar');
 
     // settings button
-    var button = new ui.Button({
-        text: '&#57652;'
+    const button = new pcui.Button({
+        icon: 'E134'
     });
     button.class.add('pc-icon', 'editor-settings', 'bottom');
     toolbar.append(button);

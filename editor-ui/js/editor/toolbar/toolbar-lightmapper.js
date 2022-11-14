@@ -9,8 +9,8 @@ editor.once('load', function () {
     let uv1MissingAssets = { };
 
     // coordinate system
-    const buttonBake = new ui.Button({
-        text: '&#57745;'
+    const buttonBake = new pcui.Button({
+        icon: 'E191'
     });
     buttonBake.class.add('pc-icon', 'light-mapper');
     toolbar.append(buttonBake);

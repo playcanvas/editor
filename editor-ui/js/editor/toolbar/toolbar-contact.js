@@ -1,10 +1,10 @@
 editor.once('load', function () {
     'use strict';
 
-    var toolbar = editor.call('layout.toolbar');
+    const toolbar = editor.call('layout.toolbar');
 
-    var contact = new ui.Button({
-        text: '&#57625;'
+    const contact = new pcui.Button({
+        icon: 'E119'
     });
     contact.class.add('pc-icon', 'contact', 'bottom');
     toolbar.append(contact);
@@ -17,6 +17,6 @@ editor.once('load', function () {
     });
 
     contact.on('click', function () {
-        window.open('http://forum.playcanvas.com/t/playcanvas-editor-feedback/616');
+        window.open('https://forum.playcanvas.com/t/playcanvas-editor-feedback/616');
     });
 });

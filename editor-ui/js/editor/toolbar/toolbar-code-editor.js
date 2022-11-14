@@ -7,8 +7,8 @@ editor.once('load', function () {
     var toolbar = editor.call('layout.toolbar');
     var firefox = navigator.userAgent.indexOf('Firefox') !== -1;
 
-    var button = new ui.Button({
-        text: '&#57648;'
+    var button = new pcui.Button({
+        icon: 'E130'
     });
     button.class.add('pc-icon');
 

@@ -1,13 +1,13 @@
 editor.once('load', function () {
     'use strict';
 
-    var root = editor.call('layout.root');
-    var toolbar = editor.call('layout.toolbar');
-    var history = editor.call('editor:history');
+    const root = editor.call('layout.root');
+    const toolbar = editor.call('layout.toolbar');
+    const history = editor.call('editor:history');
 
     // undo
-    var buttonUndo = new ui.Button({
-        text: '&#57620;'
+    const buttonUndo = new pcui.Button({
+        icon: 'E114'
     });
     buttonUndo.hidden = !editor.call('permissions:write');
     buttonUndo.class.add('pc-icon');
@@ -26,7 +26,7 @@ editor.once('load', function () {
         history.undo();
     });
 
-    var tooltipUndo = Tooltip.attach({
+    const tooltipUndo = Tooltip.attach({
         target: buttonUndo.element,
         text: 'Undo',
         align: 'left',
@@ -37,8 +37,8 @@ editor.once('load', function () {
 
 
     // redo
-    var buttonRedo = new ui.Button({
-        text: '&#57621;'
+    const buttonRedo = new pcui.Button({
+        icon: 'E115'
     });
     buttonRedo.hidden = !editor.call('permissions:write');
     buttonRedo.class.add('pc-icon');
@@ -57,7 +57,7 @@ editor.once('load', function () {
         history.redo();
     });
 
-    var tooltipRedo = Tooltip.attach({
+    const tooltipRedo = Tooltip.attach({
         target: buttonRedo.element,
         text: 'Redo',
         align: 'left',

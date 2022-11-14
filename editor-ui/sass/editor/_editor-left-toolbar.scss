@@ -2,15 +2,14 @@
     background-color: $bcg-darker;
     z-index: 1000;
 
-    > .ui-button {
+    > .pcui-button {
         display: block;
+        border: none;
+        border-radius: 0px;
         margin: 0;
-        padding: 0;
         width: 45px;
         height: 45px;
         flex-shrink: 0;
-        border: none;
-        overflow: hidden;
 
         &.hidden {
             display: none;
@@ -64,6 +63,7 @@
             &:focus {
                 color: $text-primary;
                 background-color: $bcg-dark;
+                box-shadow: none;
             }
         }
 

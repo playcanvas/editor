@@ -1,32 +1,32 @@
 editor.once('load', function () {
     'use strict';
 
-    var root = editor.call('layout.root');
-    var toolbar = editor.call('layout.toolbar');
+    const root = editor.call('layout.root');
+    const toolbar = editor.call('layout.toolbar');
 
-    var activeGizmo = null;
-    var gizmoButtons = { };
+    let activeGizmo = null;
+    const gizmoButtons = { };
 
     // create gizmo type buttons
     [{
-        icon: '&#57617;',
+        icon: 'E111',
         tooltip: 'Translate',
         op: 'translate'
     }, {
-        icon: '&#57619;',
+        icon: 'E113',
         tooltip: 'Rotate',
         op: 'rotate'
     }, {
-        icon: '&#57618;',
+        icon: 'E112',
         tooltip: 'Scale',
         op: 'scale'
     }, {
-        icon: '&#57666;',
+        icon: 'E142',
         tooltip: 'Resize Element Component',
         op: 'resize'
     }].forEach(function (item, index) {
-        var button = new ui.Button({
-            text: item.icon
+        const button = new pcui.Button({
+            icon: item.icon
         });
         button.hidden = !editor.call('permissions:write');
         button.op = item.op;
@@ -65,8 +65,8 @@ editor.once('load', function () {
     });
 
     // coordinate system
-    var buttonWorld = new ui.Button({
-        text: '&#57624;'
+    const buttonWorld = new pcui.Button({
+        icon: 'E118'
     });
     buttonWorld.hidden = !editor.call('permissions:write');
     buttonWorld.class.add('pc-icon', 'active');
@@ -83,7 +83,7 @@ editor.once('load', function () {
         editor.call('gizmo:coordSystem', this.class.contains('active') ? 'world' : 'local');
     });
 
-    var tooltipWorld = Tooltip.attach({
+    const tooltipWorld = Tooltip.attach({
         target: buttonWorld.element,
         align: 'left',
         root: root
@@ -93,8 +93,8 @@ editor.once('load', function () {
 
 
     // toggle grid snap
-    var buttonSnap = new ui.Button({
-        text: '&#57622;'
+    const buttonSnap = new pcui.Button({
+        icon: 'E116'
     });
     buttonSnap.hidden = !editor.call('permissions:write');
     buttonSnap.class.add('pc-icon');
@@ -110,7 +110,7 @@ editor.once('load', function () {
     });
     toolbar.append(buttonSnap);
 
-    var tooltipSnap = Tooltip.attach({
+    const tooltipSnap = Tooltip.attach({
         target: buttonSnap.element,
         text: 'Snap',
         align: 'left',
@@ -130,8 +130,8 @@ editor.once('load', function () {
 
 
     // focus on entity
-    var buttonFocus = new ui.Button({
-        text: '&#57623;'
+    const buttonFocus = new pcui.Button({
+        icon: 'E117'
     });
     buttonFocus.disabled = true;
     buttonFocus.class.add('pc-icon');
@@ -153,7 +153,7 @@ editor.once('load', function () {
         }
     });
 
-    var tooltipFocus = Tooltip.attach({
+    const tooltipFocus = Tooltip.attach({
         target: buttonFocus.element,
         text: 'Focus',
         align: 'left',

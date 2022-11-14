@@ -1,10 +1,10 @@
 editor.once('load', function () {
     'use strict';
 
-    var toolbar = editor.call('layout.toolbar');
+    const toolbar = editor.call('layout.toolbar');
 
-    var button = new ui.Button({
-        text: '&#57656;'
+    const button = new pcui.Button({
+        icon: 'E138'
     });
     button.class.add('pc-icon', 'help-howdoi', 'bottom', 'push-top');
     toolbar.append(button);

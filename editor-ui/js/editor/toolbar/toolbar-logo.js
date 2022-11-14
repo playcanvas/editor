@@ -7,7 +7,7 @@ editor.once('load', function () {
 
     var history = editor.call('editor:history');
 
-    var logo = new ui.Button();
+    var logo = new pcui.Button();
     logo.class.add('logo');
     toolbar.append(logo);
 
