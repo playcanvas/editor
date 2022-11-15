@@ -94,6 +94,10 @@ editor.once('load', function () {
     fieldFontSize.style.minWidth = '80px';
     addField('Font Size:', fieldFontSize, 'ide.fontSize', 'The font size of the code.');
 
+    var fieldWordWrap = new ui.Checkbox();
+    fieldWordWrap.class.add('tick');
+    addField('Word Wrap:', fieldWordWrap, 'ide.wordWrap', 'If enabled, long code lines will wrap to the next line.');
+
     var fieldAutoCloseBrackets = new ui.Checkbox();
     fieldAutoCloseBrackets.class.add('tick');
     addField('Auto Close Brackets:', fieldAutoCloseBrackets, 'ide.autoCloseBrackets', 'If enabled the editor will auto-close brackets and quotes when typed.');
@@ -117,7 +121,7 @@ editor.once('load', function () {
 
     var fieldFormatOnSave = new ui.Checkbox();
     fieldFormatOnSave.class.add('tick');
-    addField('Format On Save', fieldFormatOnSave, 'ide.formatOnSave', 'If enabled the document will be auto-formatted on save');
+    addField('Format On Save:', fieldFormatOnSave, 'ide.formatOnSave', 'If enabled the document will be auto-formatted on save');
 
     panel.on('show', function () {
         editor.emit('picker:settings:open');

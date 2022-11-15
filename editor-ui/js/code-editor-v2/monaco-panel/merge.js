@@ -40,18 +40,9 @@ editor.once('load', function () {
         }
 
         setOptions() {
-            // change mode options
-            const options = {
+            this.monacoEditor.updateOptions({
                 readOnly: false
-            };
-
-            if (this.type === 'text') {
-                options.wordWrap = 'on';
-            } else {
-                options.wordWrap = 'off';
-            }
-
-            this.monacoEditor.updateOptions(options);
+            });
         }
 
         createOverlay(className, branchName, startPos, endPos, reverse) {

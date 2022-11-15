@@ -25,7 +25,8 @@ editor.once('load', function () {
             highlightBrackets: true,
             minimapMode: 'right',
             formatOnSave: false,
-            theme: 'playcanvas'
+            theme: 'playcanvas',
+            wordWrap: false
         }
     });
 

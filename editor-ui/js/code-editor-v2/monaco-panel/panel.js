@@ -24,7 +24,8 @@ editor.once('load', function () {
         minimap: {
             enabled: minimapMode !== 'none',
             side: minimapMode
-        }
+        },
+        wordWrap: settings.get('ide.wordWrap') ? 'on' : 'off'
     });
 
     // Setup Themes
@@ -119,6 +120,12 @@ editor.once('load', function () {
 
     settings.on('ide.theme:set', function (value) {
         setMonacoTheme(value);
+    });
+
+    settings.on('ide.wordWrap:set', function (value) {
+        monacoEditor.updateOptions({
+            wordWrap: value ? 'on' : 'off'
+        });
     });
 
     // focus editor when go-to-file closes

@@ -74,7 +74,6 @@ editor.once('load', function () {
 
     function setModel() {
         monacoEditor.updateOptions({
-            wordWrap: 'on',
             lineNumbers: originalLineNumber => lineNumbers[originalLineNumber] || '',
             folding: false,
             readOnly: true

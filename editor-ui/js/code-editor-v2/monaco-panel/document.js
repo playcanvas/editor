@@ -113,10 +113,8 @@ editor.once('load', function () {
 
             // change mode options
             if (focusedView.type === 'text') {
-                options.wordWrap = 'on';
                 options.folding = false;
             } else {
-                options.wordWrap = 'off';
                 options.folding = true;
             }
 

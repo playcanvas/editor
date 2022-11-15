@@ -29,7 +29,6 @@ editor.once('load', function () {
 
         setOptions() {
             this.monacoEditor.updateOptions({
-                wordWrapping: 'off',
                 folding: false,
                 readOnly: true,
                 lineNumbers: originalLineNumber => this.lineNumbers[originalLineNumber]
