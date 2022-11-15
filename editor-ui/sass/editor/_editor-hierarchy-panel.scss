@@ -394,38 +394,11 @@
 }
 
 .pcui-container.hierarchy-controls {
-    background-color: transparent;
 
-    > .ui-button {
-        width: 32px;
-        border: none;
+    > .pcui-button {
+        width: 28px;
         padding: 0;
-        margin: 0;
-        color: $text-dark;
-        @extend .font-icon;
-        font-size: 14px;
-        text-align: center;
-        background-color: transparent;
-
-        &.active {
-            color: $text-active;
-            background-color: $bcg-darkest;
-        }
-        &.disabled {
-            opacity: 1;
-            color: mix($text-dark, $bcg-primary, 30%);
-
-            &:hover,
-            &:focus {
-                color: mix($text-dark, $bcg-primary, 30%);
-                background-color: transparent;
-            }
-        }
-        &:hover,
-        &:focus {
-            color: $text-primary;
-            background-color: $bcg-darkest;
-        }
+        margin: 2px;
     }
 }
 

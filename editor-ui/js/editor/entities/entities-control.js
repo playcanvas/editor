@@ -4,7 +4,9 @@ editor.once('load', function () {
     const root = editor.call('layout.root');
     const panel = editor.call('layout.hierarchy');
 
-    const menuEntities = new pcui.Menu({ items: editor.call('menu:entities:new') });
+    const menuEntities = new pcui.Menu({
+        items: editor.call('menu:entities:new')
+    });
     root.append(menuEntities);
 
     // controls
@@ -23,10 +25,9 @@ editor.once('load', function () {
     panel.header.append(controls);
 
     // controls add
-    const btnAdd = new ui.Button({
-        text: '&#57632;'
+    const btnAdd = new pcui.Button({
+        icon: 'E287'
     });
-    btnAdd.class.add('add');
     btnAdd.on('click', function () {
         menuEntities.hidden = false;
         const rect = btnAdd.element.getBoundingClientRect();
@@ -42,11 +43,9 @@ editor.once('load', function () {
     });
 
     // controls duplicate
-    const btnDuplicate = new ui.Button({
-        text: '&#57638;'
+    const btnDuplicate = new pcui.Button({
+        icon: 'E288'
     });
-    btnDuplicate.disabled = true;
-    btnDuplicate.class.add('duplicate');
     btnDuplicate.on('click', function () {
         const type = editor.call('selector:type');
         const items = editor.call('selector:items');
@@ -62,14 +61,11 @@ editor.once('load', function () {
         align: 'top',
         root: root
     });
-    tooltipDuplicate.class.add('innactive');
 
     // controls delete
-    const btnDelete = new ui.Button({
-        text: '&#57636;'
+    const btnDelete = new pcui.Button({
+        icon: 'E289'
     });
-    btnDelete.class.add('delete');
-    btnDelete.style.fontWeight = 200;
     btnDelete.on('click', function () {
         const type = editor.call('selector:type');
 
@@ -86,29 +82,22 @@ editor.once('load', function () {
         align: 'top',
         root: root
     });
-    tooltipDelete.class.add('innactive');
 
+    const onEntitySelected = (enabled) => {
+        const op = enabled ? 'remove' : 'add';
+        btnDelete.enabled = enabled;
+        btnDuplicate.enabled = enabled;
+        tooltipDelete.class[op]('innactive');
+        tooltipDuplicate.class[op]('innactive');
+    };
 
     editor.on('attributes:clear', function () {
-        btnDuplicate.disabled = true;
-        btnDelete.disabled = true;
-        tooltipDelete.class.add('innactive');
-        tooltipDuplicate.class.add('innactive');
+        onEntitySelected(false);
     });
 
     editor.on('attributes:inspect[*]', function (type, items) {
         const root = editor.call('entities:root');
-
-        if (type === 'entity' && items[0] !== root) {
-            btnDelete.enabled = true;
-            btnDuplicate.enabled = true;
-            tooltipDelete.class.remove('innactive');
-            tooltipDuplicate.class.remove('innactive');
-        } else {
-            btnDelete.enabled = false;
-            btnDuplicate.enabled = false;
-            tooltipDelete.class.add('innactive');
-            tooltipDuplicate.class.add('innactive');
-        }
+        const entitySelected = type === 'entity' && items[0] !== root;
+        onEntitySelected(entitySelected);
     });
 });
