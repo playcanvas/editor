@@ -38,6 +38,7 @@ Object.assign(pcui, (function () {
 
     const SETTING_TYPES = [
         'editor',
+        'assettasks',
         'physics',
         'rendering',
         'layers',
@@ -48,7 +49,6 @@ Object.assign(pcui, (function () {
         'input',
         'localization',
         'network',
-        'assettasks',
         'audio',
         'scripts',
         'projectHistory'

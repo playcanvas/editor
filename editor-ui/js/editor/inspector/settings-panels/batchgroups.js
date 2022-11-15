@@ -44,6 +44,7 @@ Object.assign(pcui, (function () {
             args = Object.assign({}, args);
             args.headerText = 'BATCH GROUPS';
             args.attributes = ATTRIBUTES;
+            args._tooltipReference = 'settings:batchGroups';
 
             super(args);
 
@@ -72,25 +73,6 @@ Object.assign(pcui, (function () {
             });
             this._evts.push(evtNewBatchGroup);
             this._evts.push(evtDeleteBatchGroup);
-
-            // reference
-            if (!this._panelTooltip) {
-                const ref = editor.call('attributes:reference:get', 'settings:batchGroups');
-                if (ref) {
-                    this._panelTooltip = new pcui.TooltipReference({
-                        reference: ref
-                    });
-
-                    this._panelTooltip.attach({
-                        target: this.header
-                    });
-
-                    this.once('destroy', () => {
-                        this._panelTooltip.destroy();
-                        this._panelTooltip = null;
-                    });
-                }
-            }
         }
 
         _addItem() {

@@ -23,6 +23,7 @@ Object.assign(pcui, (function () {
             args.headerText = 'EXTERNAL SCRIPTS';
             args.attributes = ATTRIBUTES;
             args.splitReferencePath = false;
+            args._tooltipReference = 'settings:external-scripts';
 
             super(args);
         }

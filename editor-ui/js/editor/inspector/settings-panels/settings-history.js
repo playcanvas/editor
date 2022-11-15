@@ -23,6 +23,7 @@ Object.assign(pcui, (function () {
             args = Object.assign({}, args);
             args.headerText = 'PROJECT SETTINGS HISTORY';
             args.attributes = ATTRIBUTES;
+            args._tooltipReference = 'settings:settings-history';
 
             super(args);
 

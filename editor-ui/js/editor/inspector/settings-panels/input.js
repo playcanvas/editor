@@ -38,6 +38,7 @@ Object.assign(pcui, (function () {
             args.headerText = 'INPUT';
             args.attributes = ATTRIBUTES;
             args.splitReferencePath = false;
+            args._tooltipReference = 'settings:input';
 
             super(args);
         }

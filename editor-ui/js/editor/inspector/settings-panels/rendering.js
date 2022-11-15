@@ -431,6 +431,7 @@ Object.assign(pcui, (function () {
             args = Object.assign({}, args);
             args.headerText = 'RENDERING';
             args.attributes = ATTRIBUTES;
+            args._tooltipReference = 'settings:rendering';
 
             super(args);
             const fogAttribute = this._attributesInspector.getField('render.fog');

@@ -167,6 +167,8 @@ Object.assign(pcui, (function () {
             args.headerText = 'ASSET TASKS';
             args.attributes = ATTRIBUTES;
             args.splitReferencePath = false;
+            args.userOnlySettings = true;
+            args._tooltipReference = 'settings:asset-tasks';
 
             super(args);
 
@@ -180,25 +182,6 @@ Object.assign(pcui, (function () {
             if (!editor.call('users:hasFlag', 'hasUnwrapUv')) {
                 this._attributesInspector.getField('editor.pipeline.unwrapUv').parent.hidden = true;
                 this._attributesInspector.getField('editor.pipeline.unwrapUvTexelsPerMeter').parent.hidden = true;
-            }
-
-            // reference
-            if (!this._panelTooltip) {
-                const ref = editor.call('attributes:reference:get', 'settings:asset-tasks');
-                if (ref) {
-                    this._panelTooltip = new pcui.TooltipReference({
-                        reference: ref
-                    });
-
-                    this._panelTooltip.attach({
-                        target: this.header
-                    });
-
-                    this.once('destroy', () => {
-                        this._panelTooltip.destroy();
-                        this._panelTooltip = null;
-                    });
-                }
             }
 
             const useGlbField = this._attributesInspector.getField('editor.pipeline.useGlb');

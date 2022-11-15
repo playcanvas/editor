@@ -133,6 +133,7 @@ Object.assign(pcui, (function () {
             args = Object.assign({}, args);
             args.headerText = 'LIGHTMAPPING';
             args.attributes = ATTRIBUTES;
+            args._tooltipReference = 'settings:lightmapping';
 
             super(args);
         }

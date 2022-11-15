@@ -32,6 +32,45 @@ Object.assign(pcui, (function () {
                 this.append(this._attributesInspector);
             }
 
+            this.class.add('settings-panel');
+
+            if (!args.hideIcon) {
+                const settingsScopeIcon = new pcui.Label({ class: 'settings-scope-icon' });
+                settingsScopeIcon.dom.setAttribute('data-icon', String.fromCodePoint(parseInt(args.userOnlySettings ? 'E337' : 'E217', 16)));
+                this.header.append(settingsScopeIcon);
+            }
+
+            if (args._tooltipReference) {
+                this._addTooltip(args._tooltipReference, args.userOnlySettings);
+            }
+        }
+
+        _addTooltip(tooltipReference, userOnlySettings) {
+            let ref = editor.call('attributes:reference:get', tooltipReference);
+            if (!ref) {
+                ref = {};
+            }
+            ref.subTitle = userOnlySettings ? 'These settings affect only you' : 'These settings affect all users on this branch';
+            if (ref) {
+                this._panelTooltip = new pcui.TooltipReference({
+                    reference: ref
+                });
+
+                this._panelTooltip.attach({
+                    target: this.header
+                });
+
+                this.once('destroy', () => {
+                    this._panelTooltip.destroy();
+                    this._panelTooltip = null;
+                });
+                this._panelTooltip.dom.childNodes[1].setAttribute('data-icon', String.fromCodePoint(parseInt(userOnlySettings ? 'E337' : 'E217', 16)));
+                this._panelTooltip.dom.childNodes[1].classList.add('settings-scope-tooltip');
+                var before = this._panelTooltip.dom.children[1];
+                var child = this._panelTooltip.dom.children[2];
+                this._panelTooltip.dom.removeChild(child);
+                this._panelTooltip.dom.insertBefore(child, before);
+            }
         }
 
 

@@ -29,6 +29,7 @@ Object.assign(pcui, (function () {
             args.headerText = 'LOCALIZATION';
             args.attributes = ATTRIBUTES;
             args.splitReferencePath = false;
+            args._tooltipReference = 'settings:localization';
 
             super(args);
 

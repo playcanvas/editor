@@ -10,6 +10,7 @@ Object.assign(pcui, (function () {
         constructor(args) {
             args = Object.assign({}, args);
             args.headerText = 'SCRIPTS LOADING ORDER';
+            args._tooltipReference = 'settings:scripts';
 
             super(args);
             this._args = args;

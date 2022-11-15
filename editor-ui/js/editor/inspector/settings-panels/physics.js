@@ -28,6 +28,7 @@ Object.assign(pcui, (function () {
             args = Object.assign({}, args);
             args.headerText = 'PHYSICS';
             args.attributes = ATTRIBUTES;
+            args._tooltipReference = 'settings:physics';
 
             super(args);
             const clickAmmoEvt = this._attributesInspector.getField('ammo').on('click', () => {

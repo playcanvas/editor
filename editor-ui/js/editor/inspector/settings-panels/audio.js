@@ -15,6 +15,7 @@ Object.assign(pcui, (function () {
             args = Object.assign({}, args);
             args.headerText = 'AUDIO';
             args.attributes = ATTRIBUTES;
+            args._tooltipReference = 'settings:audio';
 
             super(args);
         }

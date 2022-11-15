@@ -46,6 +46,7 @@ Object.assign(pcui, (function () {
             args.attributes = ATTRIBUTES(args);
             args.removable = true;
             args.splitReferencePath = false;
+            args.hideIcon = true;
 
             super(args);
             this._args = args;

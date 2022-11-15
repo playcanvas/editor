@@ -6,9 +6,6 @@ editor.once('load', function () {
         subTitle: '{String}',
         description: 'Name of the Scene for better navigation across content.'
     }, {
-        name: 'editor',
-        description: 'Editor Settings are applied per user basis and only visible to you, and not team collaborators. Although rest of other sections are shared for the Scene for all collaborators.'
-    }, {
         name: 'snap',
         description: 'Change increment value for Snap gizmo state. Use SHIFT or Snap Toggle on toolbar to enable Snapping during use of Gizmos.'
     }, {

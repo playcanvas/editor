@@ -45,6 +45,7 @@ Object.assign(pcui, (function () {
             args = Object.assign({}, args);
             args.headerText = 'LOADING SCREEN';
             args.attributes = ATTRIBUTES;
+            args._tooltipReference = 'settings:loading-screen';
 
             super(args);
 

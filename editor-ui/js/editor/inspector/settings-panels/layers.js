@@ -47,6 +47,7 @@ Object.assign(pcui, (function () {
             args.headerText = 'LAYERS';
             args.attributes = ATTRIBUTES;
             args.noReferences = true;
+            args._tooltipReference = 'settings:layers';
 
             super(args);
 
@@ -65,27 +66,6 @@ Object.assign(pcui, (function () {
             this._layerEvents.push(this._projectSettings.on('*:unset', () => {
                 this._loadLayers();
             }));
-
-            // reference
-            if (!this._panelTooltip) {
-                const ref = editor.call('attributes:reference:get', 'settings:layers');
-                if (ref) {
-                    this._panelTooltip = new pcui.TooltipReference({
-                        reference: ref
-                    });
-
-                    this._panelTooltip.attach({
-                        target: this.header
-                    });
-
-                    this.once('destroy', () => {
-                        this._panelTooltip.destroy();
-                        this._panelTooltip = null;
-                    });
-
-                }
-
-            }
         }
 
         _addLayer() {

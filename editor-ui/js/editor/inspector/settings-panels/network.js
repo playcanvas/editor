@@ -20,6 +20,7 @@ Object.assign(pcui, (function () {
             args = Object.assign({}, args);
             args.headerText = 'NETWORK';
             args.attributes = ATTRIBUTES;
+            args._tooltipReference = 'settings:network';
 
             super(args);
         }

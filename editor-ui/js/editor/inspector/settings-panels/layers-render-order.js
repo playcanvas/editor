@@ -33,6 +33,7 @@ Object.assign(pcui, (function () {
             args = Object.assign({}, args);
             args.attributes = ATTRIBUTES;
             args.headerText = 'RENDER ORDER';
+            args.hideIcon = true;
 
             super(args);
 

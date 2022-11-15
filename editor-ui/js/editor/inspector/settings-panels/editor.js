@@ -136,6 +136,8 @@ Object.assign(pcui, (function () {
             args = Object.assign({}, args);
             args.headerText = 'EDITOR';
             args.attributes = ATTRIBUTES;
+            args.userOnlySettings = true;
+            args._tooltipReference = 'settings:editor';
 
             super(args);
 
