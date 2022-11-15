@@ -1,17 +1,16 @@
 editor.on('load', function () {
-    var hierarchyOverlay = new pcui.Container({
+    const hierarchyPanel = editor.call('layout.hierarchy');
+
+    const hierarchyOverlay = new pcui.Container({
         class: 'progress-overlay',
         flex: true
     });
-    editor.call('layout.hierarchy').append(hierarchyOverlay);
+    hierarchyPanel.append(hierarchyOverlay);
 
-    var p = new ui.Progress();
-    p.on('progress:100', function () {
-        hierarchyOverlay.hidden = true;
-    });
-    hierarchyOverlay.append(p);
+    const progress = new pcui.Progress();
+    hierarchyOverlay.append(progress);
 
-    var loadedEntities = false;
+    let loadedEntities = false;
 
     editor.method('entities:loaded', function () {
         return loadedEntities;
@@ -23,8 +22,8 @@ editor.on('load', function () {
         editor.call('entities:clear');
         editor.call('attributes:clear');
 
-        var total = Object.keys(data.entities).length;
-        var i = 0;
+        const total = Object.keys(data.entities).length;
+        let i = 0;
 
         // list
         for (const key in data.entities) {
@@ -34,10 +33,14 @@ editor.on('load', function () {
             }
 
             editor.entities.serverAdd(data.entities[key]);
-            p.progress = (++i / total) * 0.8 + 0.1;
+
+            // Note that updating the progress bar here will have no effect in a loop.
+            // Consider using setTimeout to give the DOM a change to update.
+            progress.value = ((++i / total) * 0.8 + 0.1) * 100;
         }
 
-        p.progress = 1;
+        progress.value = 100;
+        hierarchyOverlay.hidden = true;
 
         loadedEntities = true;
         editor.emit('entities:load');
@@ -58,7 +61,6 @@ editor.on('load', function () {
 
     editor.on('scene:beforeload', function () {
         hierarchyOverlay.hidden = false;
-        p.hidden = false;
-        p.progress = 0.1;
+        progress.value = 10;
     });
 });
