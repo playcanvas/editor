@@ -3190,7 +3190,7 @@ strong {
     }
 }
 
-.ui-panel.whoisonline {
+.pcui-container.whoisonline {
     position: absolute;
     bottom: 34px;
     left: 246px;
@@ -3209,29 +3209,27 @@ strong {
         left: 2px;
         transition: none;
     }
-    > .content {
-        > a {
-            position: relative;
-            display: block;
-            margin-right: 4px;
-            float: left;
-            background-color: $bcg-darkest;
+    > a {
+        position: relative;
+        display: block;
+        margin-right: 4px;
+        float: left;
+        background-color: $bcg-darkest;
 
-            > img {
-                display: block;
-                width: 28px;
-                height: 28px;
-                margin: 2px;
-            }
-            &:after {
-                content: '\00a0';
-                position: absolute;
-                right: 2px;
-                bottom: 2px;
-                width: 6px;
-                height: 6px;
-                background: inherit;
-            }
+        > img {
+            display: block;
+            width: 28px;
+            height: 28px;
+            margin: 2px;
+        }
+        &:after {
+            content: '\00a0';
+            position: absolute;
+            right: 2px;
+            bottom: 2px;
+            width: 6px;
+            height: 6px;
+            background: inherit;
         }
     }
 }

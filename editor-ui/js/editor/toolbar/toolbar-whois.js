@@ -1,10 +1,10 @@
 editor.once('load', function () {
     'use strict';
 
-    var root = editor.call('layout.root');
-    var viewport = editor.call('layout.viewport');
+    const root = editor.call('layout.root');
+    const viewport = editor.call('layout.viewport');
 
-    var panel = new ui.Panel();
+    const panel = new pcui.Container();
     panel.class.add('whoisonline');
     viewport.append(panel);
 
@@ -16,7 +16,7 @@ editor.once('load', function () {
         }
     });
 
-    var assetPanel = editor.call('layout.assets');
+    const assetPanel = editor.call('layout.assets');
 
     const adjustPosition = () => {
         panel.style.bottom = assetPanel.collapsed ? '34px' : '2px';
@@ -27,20 +27,19 @@ editor.once('load', function () {
     assetPanel.on('expand', adjustPosition);
 
     editor.on('whoisonline:add', function (id) {
-        for (let i = 0; i < panel.innerElement.childNodes.length; i++) {
-            var child = panel.innerElement.childNodes[i];
-            if (child.userId === id)
+        for (const childNode of panel.innerElement.childNodes) {
+            if (childNode.userId === id)
                 return;
         }
 
-        var link = document.createElement('a');
+        const link = document.createElement('a');
         link.userId = id;
         link.href = '/' + id;
         link.target = "_blank";
         panel.append(link);
 
-        var img = document.createElement('img');
-        img.src = '/api/users/' + id + '/thumbnail?size=28';
+        const img = document.createElement('img');
+        img.src = `/api/users/${id}/thumbnail?size=28`;
         link.appendChild(img);
 
         link.tooltip = Tooltip.attach({
@@ -59,12 +58,11 @@ editor.once('load', function () {
 
 
     editor.on('whoisonline:remove', function (id, index) {
-        for (let i = 0; i < panel.innerElement.childNodes.length; i++) {
-            var child = panel.innerElement.childNodes[i];
-            if (child.userId === id) {
-                if (child.tooltip)
-                    child.tooltip.destroy();
-                panel.innerElement.removeChild(child);
+        for (const childNode of panel.innerElement.childNodes) {
+            if (childNode.userId === id) {
+                if (childNode.tooltip)
+                    childNode.tooltip.destroy();
+                panel.innerElement.removeChild(childNode);
                 return;
             }
         }
@@ -75,7 +73,7 @@ editor.once('load', function () {
         return panel;
     });
 
-    var chatWidget = editor.call('chat:panel');
+    const chatWidget = editor.call('chat:panel');
     if (chatWidget) {
         panel.class.add('chat-minified');
 
