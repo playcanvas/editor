@@ -1324,31 +1324,6 @@ Object.assign(pcui, (function () {
                 }
             }
 
-            if (!editor.call('users:hasFlag', 'Engine_1_56')) {
-                this._sheenInspector.parent.hidden = true;
-            }
-
-            if (!editor.call('users:hasFlag', 'Engine_1_58')) {
-                this._iridescenceInspector.parent.hidden = true;
-                this._refractionInspector.getField('data.useDynamicRefraction').parent.hidden = true;
-                this._sheenInspector.getField('data.sheenGlossMap').hidden = true;
-
-                this._refractionInspector.getField('data.thicknessMap').hidden = true;
-                this._refractionInspector.getField('data.attenuation').parent.hidden = true;
-                this._refractionInspector.getField('data.attenuationDistance').parent.hidden = true;
-
-                mapAttributes.forEach((field) => {
-                    const sheenGloss = this._sheenInspector.getField(`data.sheenGloss${field}`);
-                    if (sheenGloss)
-                        sheenGloss.parent.hidden = true;
-
-                    const thickness = this._refractionInspector.getField(`data.thickness${field}`);
-                    if (thickness) {
-                        thickness.parent.hidden = true;
-                    }
-                });
-            }
-
             this._ambientInspector.getField('data.occludeSpecular').parent.hidden = !this._ambientInspector.getField('data.aoMap').value;
 
             const enableGGXSpecular = this._specularInspector.getField('data.enableGGXSpecular').value;
