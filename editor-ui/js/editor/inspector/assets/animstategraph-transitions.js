@@ -51,7 +51,7 @@ Object.assign(pcui, (function () {
                     from: this._edgeData.from,
                     to: this._edgeData.to,
                     edgeType: 1,
-                    exitTime: 1,
+                    exitTime: 0,
                     conditions: {}
                 };
                 data.layers[this._selectedLayer].transitions.push(transitionId);
@@ -308,7 +308,7 @@ Object.assign(pcui, (function () {
 
                 const conditionNote = new pcui.Label({
                     class: CLASS_ANIMSTATEGRAPH_TRANSITION_CONDITIONS_NOTE,
-                    text: 'Note: No Transition Exit Time or Conditions set - transition will activate instantly.'
+                    text: 'Note: No Exit Time or Conditions set - transition will activate instantly.'
                 });
                 const hideConditionNote = () => {
                     const hasConditions = Object.keys(this._assets[0].get(`data.transitions.${transitionId}.conditions`)).length > 0;

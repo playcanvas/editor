@@ -644,7 +644,7 @@ Object.assign(pcui, (function () {
             if (!data.layers[this._selectedLayer].transitions.includes(edgeId)) {
                 data.layers[this._selectedLayer].transitions.push(edgeId);
             }
-            data.transitions[edgeId] = Object.assign({ exitTime: 1 }, edge);
+            data.transitions[edgeId] = Object.assign({ exitTime: 0 }, edge);
             this._assets[0].set('data', data);
         }
 
