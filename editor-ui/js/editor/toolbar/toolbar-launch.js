@@ -1,16 +1,16 @@
 editor.once('load', function () {
     'use strict';
 
-    var root = editor.call('layout.root');
-    var viewport = editor.call('layout.viewport');
-    var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
+    const root = editor.call('layout.root');
+    const viewport = editor.call('layout.viewport');
+    const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
-    var settings = editor.call('settings:projectUser');
+    const settings = editor.call('settings:projectUser');
 
-    var releaseCandidate = config.engineVersions.latest?.version;
+    const releaseCandidate = config.engineVersions.latest?.version;
 
     // panel
-    var panel = new ui.Panel();
+    const panel = new pcui.Container();
     panel.class.add('top-controls');
     viewport.append(panel);
 
@@ -19,7 +19,7 @@ editor.once('load', function () {
     });
 
     // launch
-    var launch = new ui.Panel();
+    const launch = new pcui.Container();
     launch.class.add('launch');
     panel.append(launch);
     launch.disabled = true;
@@ -32,22 +32,22 @@ editor.once('load', function () {
         launch.disabled = true;
     });
 
-    var buttonLaunch = new ui.Button({
-        text: '&#57649;'
+    const buttonLaunch = new pcui.Button({
+        icon: 'E131'
     });
-    var launchText = document.createElement('span');
+    const launchText = document.createElement('span');
     launchText.innerText = 'Launch';
     buttonLaunch.dom.append(launchText);
 
     buttonLaunch.class.add('icon');
     launch.append(buttonLaunch);
 
-    var launchOptions = { };
+    const launchOptions = { };
 
-    var launchApp = function () {
-        var url = config.url.launch + config.scene.id;
+    const launchApp = function () {
+        let url = config.url.launch + config.scene.id;
 
-        var query = [];
+        const query = [];
 
         if (launchOptions.webgl1) {
             query.push('webgl1=true');
@@ -90,24 +90,23 @@ editor.once('load', function () {
         if (query.length)
             url += '?' + query.join('&');
 
-        var launcher = window.open();
+        const launcher = window.open();
         launcher.opener = null;
         launcher.location = url;
     };
 
     buttonLaunch.on('click', launchApp);
 
-    var panelOptions = new ui.Panel();
+    const panelOptions = new pcui.Container();
     panelOptions.class.add('options');
     launch.append(panelOptions);
     panelOptions.hidden = true;
 
-    var createOption = function (name, title) {
-        var panel = new ui.Panel();
-        panel.flex = true;
+    const createOption = function (name, title) {
+        const panel = new pcui.Container();
         panelOptions.append(panel);
 
-        var option = new ui.Checkbox();
+        const option = new pcui.BooleanInput();
         option.style.marginTop = '6px';
         option.value = false;
         option.class.add('tick');
@@ -117,7 +116,9 @@ editor.once('load', function () {
             e.stopPropagation();
         });
 
-        var label = new ui.Label({ text: title });
+        const label = new pcui.Label({
+            text: title
+        });
         panel.append(label);
 
         panel.on('click', function () {
@@ -132,8 +133,8 @@ editor.once('load', function () {
         return option;
     };
 
-    var optionProfiler = createOption('profiler', 'Profiler');
-    var tooltipProfiler = Tooltip.attach({
+    const optionProfiler = createOption('profiler', 'Profiler');
+    const tooltipProfiler = Tooltip.attach({
         target: optionProfiler.parent.element,
         text: 'Enable the visual performance profiler in the launch page.',
         align: 'right',
@@ -141,9 +142,9 @@ editor.once('load', function () {
     });
     tooltipProfiler.class.add('launch-tooltip');
 
-    var optionDebug = createOption('debug', 'Debug');
+    const optionDebug = createOption('debug', 'Debug');
 
-    var suspendDebug = false;
+    let suspendDebug = false;
     optionDebug.value = settings.get('editor.launchDebug');
     settings.on('editor.launchDebug:set', function (value) {
         suspendDebug = true;
@@ -155,7 +156,7 @@ editor.once('load', function () {
         settings.set('editor.launchDebug', value);
     });
 
-    var tooltipDebug = Tooltip.attach({
+    const tooltipDebug = Tooltip.attach({
         target: optionDebug.parent.element,
         text: 'Enable the logging of warning and error messages to the JavaScript console.',
         align: 'right',
@@ -165,8 +166,8 @@ editor.once('load', function () {
 
 
     if (!legacyScripts) {
-        var optionConcatenate = createOption('concatenate', 'Concatenate Scripts');
-        var tooltipConcatenate = Tooltip.attach({
+        const optionConcatenate = createOption('concatenate', 'Concatenate Scripts');
+        const tooltipConcatenate = Tooltip.attach({
             target: optionConcatenate.parent.element,
             text: 'Concatenate scripts on launch to reduce scene load time.',
             align: 'right',
@@ -176,9 +177,9 @@ editor.once('load', function () {
     }
 
     if (editor.call('users:hasFlag', 'hasBundles')) {
-        var optionDisableBundles = createOption('disableBundles', 'Disable Asset Bundles');
+        const optionDisableBundles = createOption('disableBundles', 'Disable Asset Bundles');
 
-        var tooltipBundles = Tooltip.attach({
+        const tooltipBundles = Tooltip.attach({
             target: optionDisableBundles.parent.element,
             text: 'Disable loading assets from Asset Bundles.',
             align: 'right',
@@ -187,9 +188,9 @@ editor.once('load', function () {
         tooltipBundles.class.add('launch-tooltip');
     }
 
-    var preferWebGl1 = createOption('webgl1', 'Prefer WebGL 1.0');
+    const preferWebGl1 = createOption('webgl1', 'Prefer WebGL 1.0');
 
-    var tooltipPreferWebGl1 = Tooltip.attach({
+    const tooltipPreferWebGl1 = Tooltip.attach({
         target: preferWebGl1.parent.element,
         text: 'Force the use of WebGL 1 regardless of whether WebGL 2 is preferred in Scene Settings.',
         align: 'right',
@@ -205,7 +206,7 @@ editor.once('load', function () {
     });
 
     // mini-stats
-    var optionMiniStats = createOption('ministats', 'Mini stats');
+    const optionMiniStats = createOption('ministats', 'Mini stats');
     optionMiniStats.value = settings.get('editor.launchMinistats');
     settings.on('editor.launchMinistats:set', function (value) {
         if (value !== optionMiniStats.value) {
@@ -224,7 +225,7 @@ editor.once('load', function () {
 
     // release-candidate
     if (releaseCandidate) {
-        var optionReleaseCandidate = createOption('releaseCandidate', 'Use Release Candidate');
+        const optionReleaseCandidate = createOption('releaseCandidate', 'Use Release Candidate');
         optionReleaseCandidate.value = settings.get('editor.launchReleaseCandidate');
         settings.on('editor.launchReleaseCandidate:set', function (value) {
             if (value !== optionReleaseCandidate.value) {
@@ -254,7 +255,7 @@ editor.once('load', function () {
     });
 
 
-    var timeout;
+    let timeout;
 
     // show dropdown menu
     launch.element.addEventListener('mouseenter', function () {
@@ -296,8 +297,8 @@ editor.once('load', function () {
 
 
     // fullscreen
-    var buttonExpand = new ui.Button({
-        text: '&#57639;'
+    const buttonExpand = new pcui.Button({
+        icon: 'E127'
     });
     buttonExpand.class.add('icon', 'expand');
     panel.append(buttonExpand);
@@ -306,7 +307,7 @@ editor.once('load', function () {
         editor.call('viewport:expand');
     });
 
-    var tooltipExpand = Tooltip.attach({
+    const tooltipExpand = Tooltip.attach({
         target: buttonExpand.element,
         text: 'Hide Panels',
         align: 'top',

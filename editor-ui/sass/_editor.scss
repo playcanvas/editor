@@ -2977,214 +2977,179 @@ strong {
     }
 }
 
-.ui-panel.top-controls {
+.pcui-container.top-controls {
     position: absolute;
     top: 4px;
     right: 4px;
     background-color: transparent;
 
-    > .content {
-        > .ui-button.expand {
-            float: right;
-            width: 33px;
-            height: 33px;
-            line-height: 33px;
-            margin: 0 2px 0 0;
-            padding: 0;
-            border: none;
-            @extend .font-icon;
-            font-size: 16px;
-            text-align: center;
-            color: rgba($text-primary, .75);
-            background-color: rgba($bcg-darker, .5);
+    > .pcui-button.expand {
+        float: right;
+        width: 33px;
+        height: 33px;
+        line-height: 33px;
+        margin: 0 2px 0 0;
+        padding: 0;
+        border: none;
+        border-radius: 0;
+        @extend .font-icon;
+        font-size: 16px;
+        text-align: center;
+        color: rgba($text-primary, .75);
+        background-color: rgba($bcg-darker, .5);
 
-            &:hover {
-                color: $text-primary;
-                background-color: rgba($bcg-darker, .75);
+        &:hover {
+            color: $text-primary;
+            background-color: rgba($bcg-darker, .75);
+            box-shadow: none;
+        }
+        &.icon.active {
+            color: $text-primary;
+            background-color: $text-active;
+        }
+    }
+
+    > .ui-panel.camera {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        float: right;
+        height: 33px;
+        margin: 0 2px 0 0;
+        padding: 0;
+        border: none;
+        @extend .font-regular;
+        font-size: 12px;
+        text-align: center;
+        color: rgba($text-primary, .75);
+        background-color: rgba($bcg-darker, .5);
+        cursor: pointer;
+
+        &:hover {
+            color: $text-primary;
+            background-color: rgba($bcg-darker, .75);
+        }
+
+        > .content {
+            > .ui-label {
+                padding: 0 10px;
+                width: fit-content;
+
+                &::before {
+                    float: left;
+
+                    @extend .font-icon;
+                    content: '\E212';
+                    margin-right: 7px;
+                    font-size: 14px;
+                }
             }
-            &.icon.active {
+
+            > .ui-panel.camera-options {
+                > .content {
+                    position: absolute;
+                    display: none;  // Hidden by default
+                    padding: 10px;
+                    top: 3px;
+                    right: 0;
+                    flex-direction: column;
+                    align-items: start;
+                    text-align: start;
+                    min-width: 150px;
+                    max-height: 300px;
+                    overflow-y: auto;
+                    overflow-x: hidden;
+                    background-color: rgba($bcg-darker, .75);
+                }
+
+                .ui-panel {
+                    width: 100%;
+                    background: transparent;
+
+                    .ui-label {
+                        max-width: 200px;
+                        min-height: 20px;
+                        word-wrap: break-word;
+                        white-space: pre-wrap;
+                    }
+
+                }
+
+                .divider {
+                    > .content {
+                        height: 3px;
+                    }
+                    position: relative;
+                    align-self: center;
+                    width: 90%;
+                    background-color: rgba($bcg-darker, .75);
+                    margin: 5px 0;
+                }
+
+            }
+        }
+    }
+
+    > .launch {
+        float: right;
+        position: relative;
+        background-color: transparent;
+
+        &:not(.disabled):hover {
+            > .pcui-button {
                 color: $text-primary;
                 background-color: $text-active;
             }
         }
 
-        > .ui-panel.camera {
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            float: right;
+        > .pcui-button {
+            width: 83px;
             height: 33px;
-            margin: 0 2px 0 0;
+            line-height: 33px;
+            margin: 0;
             padding: 0;
             border: none;
-            @extend .font-regular;
-            font-size: 12px;
+            border-radius: 0;
+            @extend .font-icon;
+            font-size: 20px;
             text-align: center;
             color: rgba($text-primary, .75);
             background-color: rgba($bcg-darker, .5);
-            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
 
-            &:hover {
-                color: $text-primary;
-                background-color: rgba($bcg-darker, .75);
-            }
-
-            > .content {
-                > .ui-label {
-                    padding: 0 10px;
-                    width: fit-content;
-
-                    &::before {
-                        float: left;
-    
-                        @extend .font-icon;
-                        content: '\E212';
-                        margin-right: 7px;
-                        font-size: 14px;
-                    }
-                }
-
-                > .ui-panel.camera-options {
-                    > .content {
-                        position: absolute;
-                        display: none;  // Hidden by default
-                        padding: 10px;
-                        top: 3px;
-                        right: 0;
-                        flex-direction: column;
-                        align-items: start;
-                        text-align: start;
-                        min-width: 150px;
-                        max-height: 300px;
-                        overflow-y: auto;
-                        overflow-x: hidden;
-                        background-color: rgba($bcg-darker, .75);
-                    }
-
-                    .ui-panel {
-                        width: 100%;
-                        background: transparent;
-
-                        .ui-label {
-                            max-width: 200px;
-                            min-height: 20px;
-                            word-wrap: break-word;
-                            white-space: pre-wrap;
-                        }
-
-                    }
-
-                    .divider {
-                        > .content {
-                            height: 3px;
-                        }
-                        position: relative;
-                        align-self: center;
-                        width: 90%;
-                        background-color: rgba($bcg-darker, .75);
-                        margin: 5px 0;
-                    }
-
-                }
+            > span {
+                font-family: 'Proxima Nova Regular';
+                font-size: 12px;
             }
         }
 
-        > .ui-panel.modes {
-            display: none;
+        .pcui-container.options {
             position: absolute;
             top: 33px;
-            right: 69px;
-            width: 240px;
-            padding: 4px;
+            right: 0;
+            margin: 0;
+            padding: 5px;
+            list-style: none;
             background-color: rgba($bcg-darker, .75);
 
-            > .content {
-                > .ui-panel.field {
-                    background-color: transparent;
-
-                    > .content {
-                        > .ui-checkbox {
-                            margin-top: 5px;
-                            background-color: $bcg-darkest;
-
-                            &.checked {
-                                background-color: $text-dark;
-                            }
-                        }
-                        > .ui-label {
-                            margin: 0 4px;
-                            line-height: 24px;
-                            font-size: 12px;
-                            @extend .noSelect;
-                            cursor: pointer;
-                        }
-                    }
-                }
+            .pcui-boolean-input:not(.pcui-boolean-input-ticked) {
+                background-color: #20292b;
             }
-        }
 
-        > .launch {
-            float: right;
-            position: relative;
-            background-color: transparent;
-
-            &:not(.disabled):hover {
-                > .content > .ui-button {
-                    color: $text-primary;
-                    background-color: $text-active;
-                }
+            .pcui-label {
+                vertical-align: top;
+                font-size: 12px;
             }
-            > .content {
-                > .ui-button {
-                    width: 83px;
-                    height: 33px;
-                    line-height: 33px;
-                    margin: 0;
-                    padding: 0;
-                    border: none;
-                    @extend .font-icon;
-                    font-size: 20px;
-                    text-align: center;
-                    color: rgba($text-primary, .75);
-                    background-color: rgba($bcg-darker, .5);
-                    display: flex;
-                    align-items: center;
-                    padding-left: 8px; 
 
-                    > span {
-                        margin-left: 6px;
-                        font-family: 'Proxima Nova Regular';
-                        font-size: 12px;
-                    }
-                }
-
-                .ui-panel.options {
-                    position: absolute;
-                    top: 33px;
-                    right: 0;
-                    margin: 0;
-                    padding: 5px;
-                    list-style: none;
-                    background-color: rgba($bcg-darker, .75);
-
-                    .ui-checkbox:not(.checked) {
-                        background-color: #20292b;
-                    }
-
-                    .ui-label {
-                        vertical-align: top;
-                        font-size: 12px;
-                    }
-
-                    .ui-panel {
-                        @extend .noSelect;
-                        background: transparent;
-                        width: 160px;
-                        cursor: pointer;
-                        margin: 2px 0;
-                    }
-                }
+            .pcui-container {
+                @extend .noSelect;
+                background: transparent;
+                width: 160px;
+                cursor: pointer;
+                margin: 2px 0;
             }
         }
     }
