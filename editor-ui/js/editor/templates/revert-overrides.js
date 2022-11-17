@@ -563,23 +563,21 @@ editor.once('load', function () {
             // the template keeping the same ids as before
             prev = entity.apiEntity.jsonHierarchy();
             entity.apiEntity.delete({ history: false }).then(() => {
-                setTimeout(function () {
-                    asset.apiAsset.instantiateTemplate(parent.apiEntity, {
-                        history: false,
-                        index: childIndex,
-                        extraData: {
-                            dstToSrc: templateEntIds,
-                            srcToDst: editor.call('template:utils', 'invertMap', templateEntIds)
-                        }
-                    })
-                    .then((newEntity) => {
-                        entity = newEntity._observer;
-                        // use timeout to make sure treeview has been updated
-                        setTimeout(() => {
-                            afterAddInstance(entity, entitiesPanelState, ignorePathValues);
-                        });
+                asset.apiAsset.instantiateTemplate(parent.apiEntity, {
+                    history: false,
+                    index: childIndex,
+                    extraData: {
+                        dstToSrc: templateEntIds,
+                        srcToDst: editor.call('template:utils', 'invertMap', templateEntIds)
+                    }
+                })
+                .then((newEntity) => {
+                    entity = newEntity._observer;
+                    // use timeout to make sure treeview has been updated
+                    setTimeout(() => {
+                        afterAddInstance(entity, entitiesPanelState, ignorePathValues);
                     });
-                }, 0);
+                });
             });
         }
 
