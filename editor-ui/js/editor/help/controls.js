@@ -3,32 +3,35 @@ editor.once('load', function () {
 
     const root = editor.call('layout.root');
 
-    const overlay = new ui.Overlay();
-    overlay.class.add('help-controls');
-    overlay.style.zIndex = 203;
-    overlay.center = true;
-    overlay.hidden = true;
+    const overlay = new pcui.Overlay({
+        class: 'help-controls',
+        clickable: true,
+        hidden: true
+    });
 
     overlay.element.addEventListener('mousewheel', function (evt) {
         evt.stopPropagation();
     }, { passive: true });
 
     // header
-    const header = new ui.Label({
-        unsafe: true,
-        text: '<span class="icon">&#57654;</span>Controls'
+    const header = new pcui.Container({
+        class: 'header'
     });
-    header.class.add('header');
     overlay.append(header);
 
+    const title = new pcui.Label({
+        text: 'CONTROLS'
+    });
+    header.append(title);
+
     // close
-    const btnClose = new ui.Button();
-    btnClose.class.add('close');
-    btnClose.text = '&#57650;';
+    const btnClose = new pcui.Button({
+        icon: 'E132'
+    });
     btnClose.on('click', function () {
         overlay.hidden = true;
     });
-    header.element.appendChild(btnClose.element);
+    header.append(btnClose);
 
     // top image
     const imgTop = new Image();
@@ -37,8 +40,9 @@ editor.once('load', function () {
     imgTop.draggable = false;
     overlay.append(imgTop);
 
-    const container = new ui.Panel();
-    container.class.add('container');
+    const container = new pcui.Container({
+        class: 'container'
+    });
     overlay.append(container);
 
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
