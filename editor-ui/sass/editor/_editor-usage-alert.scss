@@ -5,19 +5,20 @@
     line-height: 30px;
     padding-left: 10px;
 
-    .ui-label {
+    .pcui-label {
         color: white;
         font-size: 12px;
         height: 30px;
         line-height: 30px;
         margin: 0;
+        vertical-align: bottom;
 
         a {
             color: yellow;
         }
     }
 
-    .ui-button.close {
+    .pcui-button.close {
         float: right;
         padding: 0;
         margin: 0;

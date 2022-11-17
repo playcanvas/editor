@@ -4,28 +4,28 @@ editor.once('load', function () {
     if (config.owner.plan.type !== 'free')
         return;
 
-    var root = editor.call('layout.root');
-    var container = new pcui.Container({
+    const root = editor.call('layout.root');
+    const container = new pcui.Container({
         id: 'usage-alert'
     });
 
-    var label = new ui.Label({
+    const label = new pcui.Label({
         unsafe: true
     });
     container.append(label);
 
-    var btnClose = new ui.Button({
-        text: '&#57650;'
+    const btnClose = new pcui.Button({
+        class: 'close',
+        icon: 'E132'
     });
     container.append(btnClose);
-    btnClose.class.add('close');
     btnClose.on('click', function () {
         container.hidden = true;
     });
 
-    var refreshUsage = function () {
-        var diff = config.owner.diskAllowance - config.owner.size;
-        var upgrade = '<a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
+    const refreshUsage = function () {
+        const diff = config.owner.diskAllowance - config.owner.size;
+        const upgrade = '<a href="/upgrade" target="_blank">UPGRADE</a> to get more disk space.';
         if (diff > 0 && diff < 30000000) {
             label.text = 'You are close to your disk allowance limit. ' + upgrade;
             container.hidden = false;
@@ -41,5 +41,5 @@ editor.once('load', function () {
 
     refreshUsage();
 
-    editor.on('user:' + config.owner.id + ':usage', refreshUsage);
+    editor.on(`user:${config.owner.id}:usage`, refreshUsage);
 });
