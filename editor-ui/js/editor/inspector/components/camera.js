@@ -14,6 +14,14 @@ Object.assign(pcui, (function () {
         path: 'components.camera.clearColor',
         type: 'rgba'
     }, {
+        label: 'Depth Grabpass',
+        path: 'components.camera.renderSceneDepthMap',
+        type: 'boolean'
+    }, {
+        label: 'Color Grabpass',
+        path: 'components.camera.renderSceneColorMap',
+        type: 'boolean'
+    }, {
         label: 'Projection',
         path: 'components.camera.projection',
         type: 'select',
