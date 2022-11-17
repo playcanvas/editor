@@ -22,12 +22,11 @@ editor.once('load', function () {
     });
 
     let hiddenTime = 0;
-    const tooltip = new ui.Label({
+    const tooltip = new pcui.Label({
+        class: 'cursor-tooltip',
+        hidden: true,
         unsafe: true
     });
-    tooltip.class.add('cursor-tooltip');
-    tooltip.renderChanges = false;
-    tooltip.hidden = true;
     editor.call('layout.root').append(tooltip);
 
     let lastX = 0;
