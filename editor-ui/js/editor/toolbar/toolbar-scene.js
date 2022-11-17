@@ -1,24 +1,25 @@
 editor.once('load', function () {
     'use strict';
 
-    var root = editor.call('layout.root');
-    var viewport = editor.call('layout.viewport');
+    const root = editor.call('layout.root');
+    const viewport = editor.call('layout.viewport');
 
-    var panel = new ui.Panel();
-    panel.class.add('widget-title');
+    const panel = new pcui.Container({
+        class: 'widget-title'
+    });
     viewport.append(panel);
 
     editor.method('layout.toolbar.scene', function () {
         return panel;
     });
 
-    var projectName = new ui.Label();
-    projectName.class.add('project-name');
-    projectName.renderChanges = false;
+    const projectName = new pcui.Label({
+        class: 'project-name'
+    });
     panel.append(projectName);
 
     projectName.on('click', function (argument) {
-        window.open('/project/' + config.project.id, '_blank');
+        window.open(`/project/${config.project.id}`, '_blank');
     });
 
     Tooltip.attach({
@@ -28,9 +29,9 @@ editor.once('load', function () {
         root: root
     });
 
-    var sceneName = new ui.Label();
-    sceneName.class.add('scene-name');
-    sceneName.renderChanges = false;
+    const sceneName = new pcui.Label({
+        class: 'scene-name'
+    });
     panel.append(sceneName);
 
     Tooltip.attach({
@@ -53,14 +54,14 @@ editor.once('load', function () {
     });
 
     if (!config.project.settings.useLegacyScripts) {
-        var name = config.self.branch.name;
+        let name = config.self.branch.name;
         if (name.length > 33) {
             name = name.substring(0, 30) + '...';
         }
-        var branchButton = new ui.Label({
+        const branchButton = new pcui.Label({
+            class: 'branch-name',
             text: name
         });
-        branchButton.class.add('branch-name');
         panel.append(branchButton);
         branchButton.on('click', function () {
             editor.call('picker:versioncontrol');
@@ -82,8 +83,9 @@ editor.once('load', function () {
         });
     }
 
-    var sceneList = new ui.Label();
-    sceneList.class.add('scene-list');
+    const sceneList = new pcui.Label({
+        class: 'scene-list'
+    });
     panel.append(sceneList);
 
     editor.on('scene:name', function (name) {

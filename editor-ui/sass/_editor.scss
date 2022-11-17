@@ -3642,57 +3642,55 @@ strong {
     }
 }
 
-.ui-panel.widget-title {
+.pcui-container.widget-title {
     position: absolute;
     top: 4px;
     left: 4px;
     padding: 0;
     background-color: transparent;
 
-    > .content {
-        > .project-name, > .scene-name, > .branch-name,  > .scene-list {
-            height: 33px;
-            min-height: 33px;
+    > .project-name, > .scene-name, > .branch-name,  > .scene-list {
+        height: 33px;
+        min-height: 33px;
+        line-height: 34px;
+        padding: 0 10px;
+        font-size: 12px;
+        margin: 0 2px 0 0;
+        color: rgba(#fff, 0.75);
+        background-color: rgba(41, 53, 56, 0.5);
+        cursor: pointer;
+
+        &:hover,
+        &.active {
+            background-color: rgba(41, 53, 56, 0.75);
+            color: #fff;
+        }
+
+        &:before {
+            @extend .font-icon;
+            font-size: 14px;
+            margin-right: 7px;
+            float: left;
             line-height: 34px;
-            padding: 0 10px;
-            font-size: 12px;
-            margin: 0 2px 0 0;
-            color: rgba(#fff, 0.75);
-            background-color: rgba(41, 53, 56, 0.5);
-            cursor: pointer;
-
-            &:hover,
-            &.active {
-                background-color: rgba(41, 53, 56, 0.75);
-                color: #fff;
-            }
-
-            &:before {
-                @extend .font-icon;
-                font-size: 14px;
-                margin-right: 7px;
-                float: left;
-                line-height: 34px;
-            }
         }
+    }
 
-        > .project-name:before {
-            content: '\E140';
-            margin-right: 0;
-        }
+    > .project-name:before {
+        content: '\E140';
+        margin-right: 0;
+    }
 
-        > .scene-name:before {
-            content: '\E134';
-            margin-right: 0;
-        }
+    > .scene-name:before {
+        content: '\E134';
+        margin-right: 0;
+    }
 
-        > .branch-name:before {
-            content: '\E399';
-        }
+    > .branch-name:before {
+        content: '\E399';
+    }
 
-        > .scene-list:before {
-            content: '\E147';
-        }
+    > .scene-list:before {
+        content: '\E147';
     }
 }
 
