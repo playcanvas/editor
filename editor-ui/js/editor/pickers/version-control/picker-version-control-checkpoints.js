@@ -159,7 +159,7 @@ editor.once('load', function () {
 
     Tooltip.attach({
         target: menuCheckpointsHardReset.element,
-        text: 'Deletes all checkpoints after this checkpoint. Useful if you want to undo a merge.',
+        text: 'Deletes all checkpoints and changes after this checkpoint. Useful if you want to undo a merge.',
         align: 'right',
         root: editor.call('layout.root')
     });

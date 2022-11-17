@@ -30,7 +30,7 @@ editor.once('load', function () {
 
     var panel = editor.call('picker:versioncontrol:createSidePanel', {
         title: 'Hard reset to checkpoint?',
-        note: 'All checkpoints after this checkpoint will be permanently deleted!',
+        note: 'All checkpoints and changes after this checkpoint will be permanently deleted!',
         mainContents: [boxConfirm.panel, boxRestore.panel],
         buttons: {
             cancel: {

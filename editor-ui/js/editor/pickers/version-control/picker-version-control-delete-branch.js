@@ -42,7 +42,7 @@ editor.once('load', function () {
 
     var panel = editor.call('picker:versioncontrol:createSidePanel', {
         title: 'Delete branch?',
-        note: 'This action will delete all checkpoints in this branch and cannot be undone!',
+        note: 'This action will delete all checkpoints and changes in this branch and cannot be undone!',
         mainContents: [boxConfirm.panel, labelIcon, boxBranch.panel],
         buttons: {
             cancel: {
