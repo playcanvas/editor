@@ -26,7 +26,8 @@ editor.once('load', function () {
             minimapMode: 'right',
             formatOnSave: false,
             theme: 'playcanvas',
-            wordWrap: false
+            wordWrap: false,
+            bracketPairColorization: false
         }
     });
 

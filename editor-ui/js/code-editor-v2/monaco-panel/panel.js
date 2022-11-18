@@ -25,7 +25,8 @@ editor.once('load', function () {
             enabled: minimapMode !== 'none',
             side: minimapMode
         },
-        wordWrap: settings.get('ide.wordWrap') ? 'on' : 'off'
+        wordWrap: settings.get('ide.wordWrap') ? 'on' : 'off',
+        "bracketPairColorization.enabled": settings.get('ide.bracketPairColorization')
     });
 
     // Setup Themes
@@ -126,6 +127,17 @@ editor.once('load', function () {
         monacoEditor.updateOptions({
             wordWrap: value ? 'on' : 'off'
         });
+    });
+
+    settings.on('ide.bracketPairColorization:set', function (value) {
+        // Using quotes in the object looks odd but is considered the official way to set the options
+        // https://github.com/microsoft/monaco-editor/blob/main/CHANGELOG.md#0280-22092021
+        monacoEditor.updateOptions({
+            "bracketPairColorization.enabled": value
+        });
+
+        // Immediately set the theme to apply the colorization
+        setMonacoTheme(settings.get('ide.theme'));
     });
 
     // focus editor when go-to-file closes

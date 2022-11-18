@@ -106,6 +106,10 @@ editor.once('load', function () {
     fieldHighlightBrackets.class.add('tick');
     addField('Highlight Brackets:', fieldHighlightBrackets, 'ide.highlightBrackets', 'If enabled causes matching brackets to be highlighted whenever the cursor is next to them.');
 
+    var fieldBracketPairColorization = new ui.Checkbox();
+    fieldBracketPairColorization.class.add('tick');
+    addField('Bracket Pair Colorization:', fieldBracketPairColorization, 'ide.bracketPairColorization', 'If enabled, paired brackets will be unique colors.');
+
     var fieldMinimap = new ui.SelectField({
         options: {
             'none': 'None',
@@ -117,7 +121,7 @@ editor.once('load', function () {
     fieldMinimap.flexGrow = 1;
     fieldMinimap.style.minWidth = '80px';
     fieldMinimap.elementOptions.style.maxHeight = '240px';
-    addField('Code Minimap', fieldMinimap, 'ide.minimapMode', 'Display a high-level code outline minimap - useful for quick navigation and code understanding.');
+    addField('Code Minimap:', fieldMinimap, 'ide.minimapMode', 'Display a high-level code outline minimap - useful for quick navigation and code understanding.');
 
     var fieldFormatOnSave = new ui.Checkbox();
     fieldFormatOnSave.class.add('tick');
