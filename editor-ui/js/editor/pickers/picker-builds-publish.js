@@ -341,7 +341,7 @@ editor.once('load', function () {
 
         // branch
         const branch = new pcui.Label({
-            text: app.branch && app.branch.name || 'master',
+            text: app.branch && app.branch.name || 'main',
             class: 'branch',
             hidden: app.task.status !== 'complete' || projectSettings.get('useLegacyScripts')
         });

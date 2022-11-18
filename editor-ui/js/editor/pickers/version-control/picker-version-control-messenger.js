@@ -35,7 +35,7 @@ editor.once('load', function () {
 
     var overlayBranchClosed = editor.call('picker:versioncontrol:createOverlay', {
         title: 'This branch has been closed.',
-        message: 'Switching to master branch...',
+        message: 'Switching to main branch...',
         icon: editor.call('picker:versioncontrol:svg:spinner', 50)
     });
 
@@ -202,7 +202,7 @@ editor.once('load', function () {
         overlayDeletingBranch.hidden = true;
         overlayBranchClosed.hidden = false;
 
-        // check out master branch and then refresh the browser
+        // check out main branch and then refresh the browser
         Ajax({
             url: '/api/branches/{{project.masterBranch}}/checkout',
             method: 'POST',
