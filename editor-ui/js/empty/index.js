@@ -9,7 +9,7 @@ import '../ajax.js';
 import '../observer-sync.js';
 
 // legacy ui
-import '../ui.js';
+import '../ui/ui.js';
 import '../ui/element.js';
 import '../ui/container-element.js';
 import '../ui/button.js';

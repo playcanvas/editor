@@ -16,7 +16,7 @@ import '../editor/relay.js';
 import '../code-editor-v2/permissions.js';
 
 // ui
-import '../ui.js';
+import '../ui/ui.js';
 import '../ui/element.js';
 import '../ui/container-element.js';
 import '../ui/button.js';
