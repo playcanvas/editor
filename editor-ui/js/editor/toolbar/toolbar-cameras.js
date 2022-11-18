@@ -16,22 +16,25 @@ editor.once('viewport:load', function () {
     };
 
     // Panels and Containers UI
-    const cameraPanel = new ui.Panel();
-    cameraPanel.class.add('camera');
+    const cameraPanel = new pcui.Container({
+        class: 'camera',
+        flex: true
+    });
     controls.append(cameraPanel);
 
-    const cameraSelected = new ui.Label();
-    cameraSelected.class.add('viewport-camera');
-    cameraSelected.renderChanges = false;
+    const cameraSelected = new pcui.Label({
+        class: 'viewport-camera'
+    });
     cameraPanel.append(cameraSelected);
 
-    const cameraOptions = new ui.Panel();
-    cameraOptions.class.add('camera-options');
-    cameraOptions.hidden = false;
+    const cameraOptions = new pcui.Container({
+        class: 'camera-options',
+        hidden: true
+    });
     cameraPanel.append(cameraOptions);
 
     // Clear out all active cameras
-    var clearRadioButtons = function () {
+    const clearRadioButtons = function () {
         for (const key in viewportCamera.optionElements) {
             const radioButton = viewportCamera.optionElements[key];
             radioButton.value = false;
@@ -39,15 +42,16 @@ editor.once('viewport:load', function () {
     };
 
     // Option Fields UI
-    var createOption = function (title, id) {
+    const createOption = function (title, id) {
 
         // Create UI Panel
-        const panelCameraOption = new ui.Panel();
-        panelCameraOption.class.add('flex');
+        const panelCameraOption = new pcui.Container({
+            flex: true
+        });
         cameraOptions.append(panelCameraOption);
 
         // Create Field
-        const fieldCameraOption = new ui.RadioButton();
+        const fieldCameraOption = new pcui.RadioButton();
         viewportCamera.optionElements[id] = fieldCameraOption;
         const currentCamera = viewportCamera.optionTitles[viewportCamera.active];
         fieldCameraOption.value = currentCamera === title;
@@ -55,7 +59,7 @@ editor.once('viewport:load', function () {
 
         // Listen for field option clicks
         panelCameraOption.element.addEventListener('click', function () {
-            var entity = app.root.findByGuid(id);
+            const entity = app.root.findByGuid(id);
             editor.call('camera:set', entity);
 
             clearRadioButtons();
@@ -72,7 +76,7 @@ editor.once('viewport:load', function () {
         });
 
         // Create Label
-        const label = new ui.Label({
+        const label = new pcui.Label({
             text: title
         });
         label.on('click', function () {
@@ -87,24 +91,23 @@ editor.once('viewport:load', function () {
     });
 
     cameraOptions.on('change', function (value) {
-        var entity = app.root.findByGuid(value);
+        const entity = app.root.findByGuid(value);
         editor.call('camera:set', entity);
     });
 
 
-    var buildOptionsUI = function () {
+    const buildOptionsUI = function () {
         // Reset options
         cameraOptions.innerElement.innerHTML = '';
         viewportCamera.optionElements = {};
 
         // Physics Edit Mode
-        const panelCollision = new ui.Panel();
-        panelCollision.class.add('flex');
-        cameraOptions.append(panelCollision);
+        const physicsEditMode = new pcui.Container();
+        cameraOptions.append(physicsEditMode);
+
         // field
-        const fieldCollisionVisible = new ui.Checkbox();
-        fieldCollisionVisible.class.add('tick');
-        panelCollision.append(fieldCollisionVisible);
+        const fieldCollisionVisible = new pcui.BooleanInput();
+        physicsEditMode.append(fieldCollisionVisible);
         fieldCollisionVisible.value = editor.call('gizmo:collision:visible');
         fieldCollisionVisible.on('change', function (value) {
             editor.call('gizmo:collision:visible', value);
@@ -113,17 +116,18 @@ editor.once('viewport:load', function () {
             fieldCollisionVisible.value = visible;
         });
         // label
-        const label = new ui.Label({
+        const label = new pcui.Label({
             text: 'Physics Edit Mode'
         });
         label.on('click', function () {
             fieldCollisionVisible.element.click();
         });
-        panelCollision.append(label);
+        physicsEditMode.append(label);
 
         // Divider UI
-        const divider = new ui.Panel();
-        divider.class.add("divider");
+        const divider = new pcui.Container({
+            class: 'divider'
+        });
         cameraOptions.append(divider);
 
         for (const key in viewportCamera.optionTitles) {
@@ -131,57 +135,58 @@ editor.once('viewport:load', function () {
         }
     };
 
-    var refreshOptions = function (entity) {
+    const refreshOptions = function (entity) {
         buildOptionsUI(entity);
 
-        var writePermission = editor.call('permissions:write');
+        const writePermission = editor.call('permissions:write');
         for (const key in viewportCamera.optionElements) {
             if (viewportCamera.cameras[key].__editorCamera)
                 continue;
 
-            if (writePermission) {
-                viewportCamera.optionElements[key].element.classList.remove('hidden');
-            } else {
-                viewportCamera.optionElements[key].element.classList.add('hidden');
-            }
+            const radioButton = viewportCamera.optionElements[key];
+            radioButton.parent.hidden = !writePermission;
         }
     };
 
     editor.on('permissions:writeState', refreshOptions);
 
     editor.on('camera:add', function (entity) {
-        viewportCamera.optionTitles[entity.getGuid()] = entity.name;
-        viewportCamera.cameras[entity.getGuid()] = entity;
+        const guid = entity.getGuid();
+
+        viewportCamera.optionTitles[guid] = entity.name;
+        viewportCamera.cameras[guid] = entity;
         refreshOptions();
 
         // Set perspective camera as default
         if (entity.name === "Perspective") {
-            viewportCamera.default = entity.getGuid();
-            viewportCamera.active = entity.getGuid();
+            viewportCamera.default = guid;
+            viewportCamera.active = guid;
         }
 
-        if (viewportCamera.cameraEvents[entity.getGuid()])
-            viewportCamera.cameraEvents[entity.getGuid()].unbind();
+        if (viewportCamera.cameraEvents[guid])
+            viewportCamera.cameraEvents[guid].unbind();
 
-        const obj = editor.call('entities:get', entity.getGuid());
+        const obj = editor.call('entities:get', guid);
         if (obj) {
-            viewportCamera.cameraEvents[entity.getGuid()] = obj.on('name:set', function (value) {
-                viewportCamera.optionTitles[entity.getGuid()] = value;
+            viewportCamera.cameraEvents[guid] = obj.on('name:set', function (value) {
+                viewportCamera.optionTitles[guid] = value;
                 refreshOptions();
 
-                if (viewportCamera.active === entity.getGuid())
+                if (viewportCamera.active === guid)
                     cameraSelected.text = value;
             });
         }
     });
 
     editor.on('camera:remove', function (entity) {
-        delete viewportCamera.optionTitles[entity.getGuid()];
+        const guid = entity.getGuid();
+
+        delete viewportCamera.optionTitles[guid];
         refreshOptions();
 
-        if (viewportCamera.cameraEvents[entity.getGuid()]) {
-            viewportCamera.cameraEvents[entity.getGuid()].unbind();
-            delete viewportCamera.cameraEvents[entity.getGuid()];
+        if (viewportCamera.cameraEvents[guid]) {
+            viewportCamera.cameraEvents[guid].unbind();
+            delete viewportCamera.cameraEvents[guid];
         }
     });
 
@@ -194,55 +199,25 @@ editor.once('viewport:load', function () {
     });
 
     // UI interactions
-    var timeout;
-    var inOptions = false;
-    var inButton = false;
-
-    const enable = function () {
-        if (timeout) {
-            clearTimeout(timeout);
-            timeout = null;
-        }
-
-        var content = cameraOptions.element.firstChild;
-        content.style.display = 'flex';
-    };
-
-    const disable = function () {
-        if (timeout) {
-            clearTimeout(timeout);
-            timeout = null;
-        }
-
-        var content = cameraOptions.element.firstChild;
-        if (!inOptions && !inButton) {
-            content.style.display = 'none';
-        }
-    };
+    let inOptions = false;
+    let inButton = false;
 
     cameraPanel.element.addEventListener('mouseenter', function () {
         inButton = true;
-        enable();
+        cameraOptions.hidden = false;
     }, false);
 
     cameraPanel.element.addEventListener('mouseleave', function () {
         inButton = false;
-        disable();
+        cameraOptions.hidden = !inOptions && !inButton;
     }, false);
 
     cameraOptions.element.addEventListener('mouseenter', function () {
         inOptions = true;
-
-        if (timeout) {
-            clearTimeout(timeout);
-            timeout = null;
-        }
     }, false);
 
     cameraOptions.element.addEventListener('mouseleave', function () {
         inOptions = false;
-
-        disable();
+        cameraOptions.hidden = !inOptions && !inButton;
     }, false);
-
 });
