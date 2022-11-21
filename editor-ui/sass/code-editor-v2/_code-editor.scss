@@ -1,6 +1,4 @@
-@import 'node_modules/@playcanvas/pcui/dist/variables.scss';
-@import 'node_modules/@playcanvas/pcui/dist/theme-colors-green.scss';
-@import 'node_modules/@playcanvas/pcui/dist/fonts.scss';
+@import "../pcui/_pcui.scss";
 @import 'variables';
 @import '../fonts';
 @import '../ui';
@@ -339,9 +337,14 @@ strong {
             text-align: center;
             padding: 0;
             margin: 0;
+            font-size: 14px;
+            font-weight: bold;
+            border: 0;
+            border-radius: 0;
 
             &:hover {
                 border-color: transparent;
+                box-shadow: none;
             }
         }
     }
@@ -353,16 +356,13 @@ strong {
         white-space: nowrap;
         overflow: hidden;
 
-        > .ui-panel.field-container {
-            > .content {
-                > .ui-label {
-                    max-width: 150px;
-                    min-width: 150px;
-                    font-size: 13px;
-                    flex-grow: 1;
-                }
-            }
+        > .pcui-label-group {
+            height: 24px;
 
+            > .pcui-label {
+                width: 150px;
+                font-size: 13px;
+            }
         }
     }
 }
@@ -1119,79 +1119,9 @@ a.link-docs {
     visibility: hidden;
 }
 
-.ui-checkbox.tick {
-    width: 14px;
-    height: 14px;
-    overflow: hidden;
-
-    &.null {
-        &:after {
-            color: mix($bcg-primary, $text-darkest, 50%);
-            left: 0;
-        }
-        &:hover:after {
-            color: $text-primary;
-        }
-    }
-    &:after {
-        @extend .font-icon;
-        position: absolute;
-        margin: 0;
-        content: none;
-        width: 12px;
-        height: 12px;
-        line-height: 13px;
-        font-weight: bold;
-        font-size: 11px;
-        text-align: center;
-        left: 0;
-        top: 0;
-        border-radius: 0;
-        background-color: transparent;
-        transition: none;
-    }
-    &.null {
-        &:after {
-            @extend .font-regular;
-            content: '?';
-            color: $text-dark;
-            font-weight: bold;
-            background-color: transparent;
-        }
-        &:hover {
-            &:after {
-                @extend .font-icon;
-                content: '\E133';
-                color: $text-primary;
-                background-color: transparent;
-            }
-        }
-    }
-    &:hover {
-        &:after {
-            @extend .font-icon;
-            content: '\E133';
-            color: $text-primary;
-        }
-        &.checked:after {
-            color: $text-primary;
-            background-color: mix($text-dark, $bcg-darkest, 50%);
-        }
-    }
-    &.checked {
-        background-color: $text-dark;
-
-        &:after {
-            content: '\E133';
-            color: $bcg-dark;
-        }
-    }
-}
-
 .ui-button.icon {
     @extend .font-icon;
 }
-
 
 .ui-overlay.version-control-overlay {
     > .content {
@@ -1307,9 +1237,6 @@ a.link-docs {
             }
         }
     }
-
-
-
 }
 
 @import '../partials/ui-common';

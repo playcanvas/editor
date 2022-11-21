@@ -1,30 +1,30 @@
 editor.once('load', function () {
     'use strict';
 
-    var settings = editor.call('editor:settings');
+    const settings = editor.call('editor:settings');
 
-    var root = editor.call('layout.root');
-    var panel = editor.call('layout.attributes');
-    var hidden = true;
-    var width = panel.resizeMin + 'px';
+    const root = editor.call('layout.root');
+    const settingsPanel = editor.call('layout.attributes');
+    let hidden = true;
+    let width = settingsPanel.resizeMin + 'px';
 
     // close button
-    var btnClose = new ui.Button({
-        text: '&#57650;'
+    const btnClose = new pcui.Button({
+        class: ['close'],
+        hidden: true,
+        icon: 'E132'
     });
-    btnClose.class.add('icon', 'close');
-    btnClose.hidden = true;
     btnClose.on('click', function () {
         hidden = true;
-        width = panel.style.width;
-        panel.style.width = '';
+        width = settingsPanel.style.width;
+        settingsPanel.style.width = '';
         btnClose.hidden = true;
     });
-    panel.headerElement.appendChild(btnClose.element);
+    settingsPanel.headerElement.appendChild(btnClose.element);
 
-    panel.element.addEventListener('transitionend', function () {
+    settingsPanel.element.addEventListener('transitionend', function () {
         if (hidden) {
-            panel.hidden = true;
+            settingsPanel.hidden = true;
         } else {
             btnClose.hidden = false;
         }
@@ -32,28 +32,23 @@ editor.once('load', function () {
 
     editor.method('picker:settings', function () {
         hidden = false;
-        panel.hidden = false;
+        settingsPanel.hidden = false;
         setTimeout(function () {
-            panel.style.width = width;
+            settingsPanel.style.width = width;
         }, 100);
     });
 
 
-    var addField = function (name, field, path, tooltip) {
-        var container = new ui.Panel();
-        container.flex = true;
-        container.class.add('field-container');
-        var label = new ui.Label({
+    const addField = function (name, field, path, tooltip) {
+        const labelGroup = new pcui.LabelGroup({
+            field: field,
             text: name
         });
-        container.append(label);
-        container.append(field);
-        panel.append(container);
+        settingsPanel.append(labelGroup);
 
-        field.class.add('field');
         field.value = settings.get(path);
 
-        var suspendChange = false;
+        let suspendChange = false;
 
         settings.on(path + ':set', function (value) {
             suspendChange = true;
@@ -69,7 +64,7 @@ editor.once('load', function () {
 
         if (tooltip) {
             Tooltip.attach({
-                target: label.element,
+                target: labelGroup.label.element,
                 html: tooltip,
                 align: 'right',
                 root: root
@@ -77,61 +72,56 @@ editor.once('load', function () {
         }
     };
 
-    var fieldTheme = new ui.SelectField({
-        options: editor.call('editor:themes'),
+    const themes = editor.call('editor:themes');
+    const themeOptions = Object.keys(themes).map(key => {
+        return {
+            v: key,
+            t: themes[key]
+        };
+    });
+    const fieldTheme = new pcui.SelectInput({
+        options: themeOptions,
         type: 'string'
     });
-    fieldTheme.flexGrow = 1;
-    fieldTheme.style.minWidth = '80px';
-    fieldTheme.elementOptions.style.maxHeight = '240px';
     addField('Editor Theme:', fieldTheme, 'ide.theme', 'The code editor theme.');
 
-    var fieldFontSize = new ui.NumberField({
+    const fieldFontSize = new pcui.NumericInput({
+        hideSlider: true,
         min: 1,
         placeholder: 'pixels'
     });
-    fieldFontSize.flexGrow = 1;
-    fieldFontSize.style.minWidth = '80px';
     addField('Font Size:', fieldFontSize, 'ide.fontSize', 'The font size of the code.');
 
-    var fieldWordWrap = new ui.Checkbox();
-    fieldWordWrap.class.add('tick');
+    const fieldWordWrap = new pcui.BooleanInput();
     addField('Word Wrap:', fieldWordWrap, 'ide.wordWrap', 'If enabled, long code lines will wrap to the next line.');
 
-    var fieldAutoCloseBrackets = new ui.Checkbox();
-    fieldAutoCloseBrackets.class.add('tick');
+    const fieldAutoCloseBrackets = new pcui.BooleanInput();
     addField('Auto Close Brackets:', fieldAutoCloseBrackets, 'ide.autoCloseBrackets', 'If enabled the editor will auto-close brackets and quotes when typed.');
 
-    var fieldHighlightBrackets = new ui.Checkbox();
-    fieldHighlightBrackets.class.add('tick');
+    const fieldHighlightBrackets = new pcui.BooleanInput();
     addField('Highlight Brackets:', fieldHighlightBrackets, 'ide.highlightBrackets', 'If enabled causes matching brackets to be highlighted whenever the cursor is next to them.');
 
-    var fieldBracketPairColorization = new ui.Checkbox();
-    fieldBracketPairColorization.class.add('tick');
+    const fieldBracketPairColorization = new pcui.BooleanInput();
     addField('Bracket Pair Colorization:', fieldBracketPairColorization, 'ide.bracketPairColorization', 'If enabled, paired brackets will be unique colors.');
 
-    var fieldMinimap = new ui.SelectField({
-        options: {
-            'none': 'None',
-            'right': 'Right',
-            'left': 'Left'
-        },
+    const fieldMinimap = new pcui.SelectInput({
+        options: [
+            { v: 'none', t: 'None' },
+            { v: 'right', t: 'Right' },
+            { v: 'left', t: 'Left' }
+        ],
         type: 'string'
     });
-    fieldMinimap.flexGrow = 1;
-    fieldMinimap.style.minWidth = '80px';
-    fieldMinimap.elementOptions.style.maxHeight = '240px';
     addField('Code Minimap:', fieldMinimap, 'ide.minimapMode', 'Display a high-level code outline minimap - useful for quick navigation and code understanding.');
 
-    var fieldFormatOnSave = new ui.Checkbox();
-    fieldFormatOnSave.class.add('tick');
+    const fieldFormatOnSave = new pcui.BooleanInput();
     addField('Format On Save:', fieldFormatOnSave, 'ide.formatOnSave', 'If enabled the document will be auto-formatted on save');
 
-    panel.on('show', function () {
+    settingsPanel.on('show', function () {
         editor.emit('picker:settings:open');
     });
 
-    panel.on('hide', function () {
+    settingsPanel.on('hide', function () {
         editor.emit('picker:settings:close');
     });
 });
