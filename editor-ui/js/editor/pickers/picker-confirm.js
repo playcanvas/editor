@@ -1,24 +1,26 @@
 editor.once('load', function () {
     'use strict';
 
-    var callback = null;
+    let callback = null;
 
     // overlay
-    var overlay = new ui.Overlay();
-    overlay.class.add('picker-confirm');
-    overlay.hidden = true;
+    const overlay = new pcui.Overlay({
+        class: 'picker-confirm',
+        hidden: true
+    });
 
     // label
-    var label = new ui.Label();
-    label.text = 'Are you sure?';
-    label.class.add('text');
-    label.renderChanges = false;
+    const label = new pcui.Label({
+        class: 'text',
+        text: 'Are you sure?'
+    });
     overlay.append(label);
 
     // no
-    var btnNo = new ui.Button();
-    btnNo.text = 'No';
-    btnNo.class.add('no');
+    const btnNo = new pcui.Button({
+        class: 'no',
+        text: 'No'
+    });
     btnNo.on('click', function () {
         editor.emit('picker:confirm:no');
         overlay.hidden = true;
@@ -26,9 +28,10 @@ editor.once('load', function () {
     overlay.append(btnNo);
 
     // yes
-    var btnYes = new ui.Button();
-    btnYes.text = 'Yes';
-    btnYes.class.add('yes');
+    const btnYes = new pcui.Button({
+        class: 'yes',
+        text: 'Yes'
+    });
     btnYes.on('click', function () {
         editor.emit('picker:confirm:yes');
 
@@ -39,7 +42,7 @@ editor.once('load', function () {
     });
     overlay.append(btnYes);
 
-    var root = editor.call('layout.root');
+    const root = editor.call('layout.root');
     root.append(overlay);
 
 
@@ -65,7 +68,7 @@ editor.once('load', function () {
         evt.preventDefault();
         evt.stopPropagation();
 
-        if (evt.keyCode === 13) { // enter > click focused button
+        if (evt.key === 'Enter') { // click focused button
             if (document.activeElement === btnYes.element) {
                 if (!btnYes.disabled) {
                     btnYes.emit('click');
@@ -73,7 +76,7 @@ editor.once('load', function () {
             } else if (!btnNo.disabled) {
                 btnNo.emit('click');
             }
-        } else if (evt.keyCode === 9) { // tab - focus yes / no buttons
+        } else if (evt.key === 'Tab') { // focus yes / no buttons
             if (document.activeElement === btnYes.element) {
                 btnNo.element.focus();
             } else {

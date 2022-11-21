@@ -176,7 +176,7 @@ editor.once('load', function () {
                 return editor.call('permissions:write');
             },
             select: function () {
-                editor.call('picker:confirm', 'Are you sure you want to delete this Build?');
+                editor.call('picker:confirm', 'Are you sure you want to delete this build?');
                 editor.once('picker:confirm:yes', function () {
                     removeApp(dropdownApp);
                     editor.call('apps:delete', dropdownApp.id);

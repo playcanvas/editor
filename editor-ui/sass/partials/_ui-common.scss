@@ -1,9 +1,9 @@
 .picker-confirm {
-    z-index: 10000;
-}
+    z-index: 10000; // TODO: Reorganize how the UI sets z-indexes
 
-.picker-confirm.center {
-    > .content {
+    > .pcui-overlay-content {
+        z-index: 10001;
+
         width: 400px;
         height: auto;
         left: calc(50% - 200px);
@@ -15,7 +15,6 @@
         > .text {
             display: block;
             color: $text-primary;
-            font-size: 14px;
             text-align: left;
             padding: 30px;
             margin: 0;
@@ -23,13 +22,11 @@
             border-bottom: 1px solid $border-primary;
         }
 
-        > .ui-button {
-            font-size: 12px;
+        > .pcui-button {
             line-height: 26px;
             height: 26px;
             text-transform: uppercase;
             margin: 0 12px 8px 0;
-            text-align: center;
             min-width: 100px;
         }
         > .no {
@@ -39,13 +36,6 @@
             &:hover,&:focus {
                 background: darken($text-active, 12%);
             }
-        }
-    }
-
-    &.asset-delete {
-        > .content {
-            width: 300px;
-            left: calc(50% - 150px);
         }
     }
 }
