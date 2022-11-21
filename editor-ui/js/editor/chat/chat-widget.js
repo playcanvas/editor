@@ -1,26 +1,34 @@
 editor.once('load', function () {
     'use strict';
 
-    var root = editor.call('layout.root');
-    var viewport = editor.call('layout.viewport');
-    var lastMessage = null;
+    const root = editor.call('layout.root');
+    const viewport = editor.call('layout.viewport');
 
-    var panel = new ui.Panel();
-    panel.header = 'Chat';
-    panel.flexShrink = false;
-    panel.foldable = true;
-    panel.folded = true;
-    panel.class.add('chat-widget');
-    panel.hidden = !editor.call('permissions:read') || editor.call('viewport:expand:state');
-    editor.on('permissions:set', function (level) {
-        panel.hidden = !level || editor.call('viewport:expand:state');
+    const chatPanel = new pcui.Panel({
+        class: 'chat-widget',
+        collapsed: true,
+        collapsible: true,
+        headerText: 'CHAT',
+        hidden: !editor.call('permissions:read') || editor.call('viewport:expand:state')
     });
-    viewport.append(panel);
+    viewport.append(chatPanel);
+
+    // HACK: The chat panel is created in a collapsed state. The transition CSS rule is
+    // disabled here to prevent the initial collapse animation from playing. Restore the
+    // transition animation 100ms from now. This should be considered a PCUI bug.
+    chatPanel.style.transition = 'none';
+    setTimeout(() => {
+        chatPanel.style.transition = 'height 100ms, width 100ms';
+    }, 100);
+
+    editor.on('permissions:set', function (level) {
+        chatPanel.hidden = !level || editor.call('viewport:expand:state');
+    });
 
     const assetPanel = editor.call('layout.assets');
 
     const adjustPosition = () => {
-        panel.style.bottom = assetPanel.collapsed ? '36px' : '4px';
+        chatPanel.style.bottom = assetPanel.collapsed ? '36px' : '4px';
     };
 
     adjustPosition();
@@ -28,30 +36,25 @@ editor.once('load', function () {
     assetPanel.on('expand', adjustPosition);
 
     editor.method('chat:panel', function () {
-        return panel;
+        return chatPanel;
     });
 
     editor.on('viewport:expand', function (state) {
-        if (state) {
-            panel.class.add('expanded');
-        } else {
-            panel.class.remove('expanded');
-        }
+        chatPanel.hidden = state;
     });
 
-
-    panel.element.addEventListener('mouseover', function () {
+    chatPanel.element.addEventListener('mouseover', function () {
         editor.emit('viewport:hover', false);
     }, false);
 
     // notification icon
-    var notify = new ui.Button({
-        text: '&#57751;'
+    const notify = new pcui.Button({
+        class: 'notifications',
+        icon: 'E197'
     });
-    notify.class.add('notifyToggle');
-    panel.headerAppend(notify);
+    chatPanel.header.append(notify);
 
-    var tooltipNotify = Tooltip.attach({
+    const tooltipNotify = Tooltip.attach({
         target: notify.element,
         text: 'Notifications (enabled)',
         align: 'bottom',
@@ -59,24 +62,25 @@ editor.once('load', function () {
     });
 
     notify.on('click', function () {
-        var permission = editor.call('notify:state');
+        const permission = editor.call('notify:state');
 
         if (permission === 'granted') {
-            var granted = editor.call('localStorage:get', 'editor:notifications:chat');
+            const granted = editor.call('localStorage:get', 'editor:notifications:chat');
             editor.call('localStorage:set', 'editor:notifications:chat', !granted);
             editor.emit('chat:notify', !granted);
         } else if (permission !== 'denied') {
             editor.call('notify:permission');
         }
     });
-    var checkNotificationsState = function () {
-        var permission = editor.call('notify:state');
+
+    const checkNotificationsState = function () {
+        const permission = editor.call('notify:state');
 
         if (permission === 'denied') {
             tooltipNotify.text = 'Notifications Denied in Browser Settings';
             notify.class.remove('active');
         } else if (permission === 'granted') {
-            var granted = editor.call('localStorage:get', 'editor:notifications:chat');
+            const granted = editor.call('localStorage:get', 'editor:notifications:chat');
             if (granted === false) {
                 tooltipNotify.text = 'Notifications Disabled';
                 notify.class.remove('active');
@@ -94,45 +98,45 @@ editor.once('load', function () {
     checkNotificationsState();
 
     // typers
-    var typersLast = null;
-    var typers = document.createElement('span');
+    let typersLast = null;
+    const typers = document.createElement('span');
     typers.classList.add('typers');
-    panel.headerAppend(typers);
+    chatPanel.header.append(typers);
 
     // typers single
-    var typersSingle = document.createElement('span');
+    const typersSingle = document.createElement('span');
     typersSingle.classList.add('single');
     typers.appendChild(typersSingle);
 
-    var typersSingleUser = document.createElement('span');
+    const typersSingleUser = document.createElement('span');
     typersSingleUser.classList.add('user');
     typersSingle.appendChild(typersSingleUser);
 
     typersSingle.appendChild(document.createTextNode(' is typing...'));
 
     // typers double
-    var typersDouble = document.createElement('span');
+    const typersDouble = document.createElement('span');
     typersDouble.classList.add('double');
     typers.appendChild(typersDouble);
 
-    var typersDoubleUserA = document.createElement('span');
+    const typersDoubleUserA = document.createElement('span');
     typersDoubleUserA.classList.add('user');
     typersDouble.appendChild(typersDoubleUserA);
 
     typersDouble.appendChild(document.createTextNode(' and '));
 
-    var typersDoubleUserB = document.createElement('span');
+    const typersDoubleUserB = document.createElement('span');
     typersDoubleUserB.classList.add('user');
     typersDouble.appendChild(typersDoubleUserB);
 
     typersDouble.appendChild(document.createTextNode(' are typing...'));
 
     // typers multiple
-    var typersMultiple = document.createElement('span');
+    const typersMultiple = document.createElement('span');
     typersMultiple.classList.add('multiple');
     typers.appendChild(typersMultiple);
 
-    var typersMultipleUsers = document.createElement('span');
+    const typersMultipleUsers = document.createElement('span');
     typersMultipleUsers.classList.add('user');
     typersMultiple.appendChild(typersMultipleUsers);
 
@@ -140,7 +144,7 @@ editor.once('load', function () {
 
 
     editor.on('chat:typing', function (count, ids) {
-        var color;
+        let color;
         if (count === 0) {
             if (typersLast) typersLast.classList.remove('active');
             typersLast = null;
@@ -149,7 +153,7 @@ editor.once('load', function () {
             typersLast = typersSingle;
             typersSingle.classList.add('active');
             // user
-            var user = editor.call('users:get', ids[0]);
+            const user = editor.call('users:get', ids[0]);
             color = editor.call('users:color', user && user.id, 'hex');
             typersSingleUser.textContent = user && user.username || 'user';
             typersSingleUser.style.color = color;
@@ -158,12 +162,12 @@ editor.once('load', function () {
             typersLast = typersDouble;
             typersDouble.classList.add('active');
             // userA
-            var userA = editor.call('users:get', ids[0]);
+            const userA = editor.call('users:get', ids[0]);
             color = editor.call('users:color', userA && userA.id, 'hex');
             typersDoubleUserA.textContent = userA && userA.username || 'user';
             typersDoubleUserA.style.color = color;
             // userB
-            var userB = editor.call('users:get', ids[1]);
+            const userB = editor.call('users:get', ids[1]);
             color = editor.call('users:color', userB && userB.id, 'hex');
             typersDoubleUserB.textContent = userB && userB.username || 'userB';
             typersDoubleUserB.style.color = color;
@@ -176,25 +180,27 @@ editor.once('load', function () {
     });
 
     // number
-    var messagesNumber = 0;
-    var number = document.createElement('span');
+    let messagesNumber = 0;
+    const number = document.createElement('span');
     number.classList.add('number');
     number.textContent = '0';
-    panel.headerAppend(number);
+    chatPanel.header.append(number);
 
     editor.method('chat:unreadCount', function () {
         return messagesNumber;
     });
 
+    let lastMessage = null;
+
     editor.on('chat:post', function (type, msg, element) {
-        if (!panel.folded)
+        if (!chatPanel.collapsed)
             lastMessage = element;
 
-        if (!panel.folded || type === 'typing')
+        if (!chatPanel.collapsed || type === 'typing')
             return;
 
         messagesNumber++;
-        panel.class.add('notify');
+        chatPanel.class.add('notify');
         number.classList.add('notify');
 
         if (!number.classList.contains('typing'))
@@ -202,7 +208,7 @@ editor.once('load', function () {
     });
 
     editor.on('chat:typing', function (typing, ids) {
-        if (!panel.folded)
+        if (!chatPanel.collapsed)
             return;
 
         if (typing) {
@@ -210,7 +216,7 @@ editor.once('load', function () {
             number.classList.add('typing');
 
             if (typing === 1) {
-                var color = editor.call('users:color', ids[0], 'hex');
+                const color = editor.call('users:color', ids[0], 'hex');
                 number.style.color = color;
             } else {
                 number.style.color = '';
@@ -223,11 +229,11 @@ editor.once('load', function () {
     });
 
     // messages
-    var messages = new ui.Panel();
-    messages.class.add('messages');
-    messages.innerElement.classList.add('selectable');
-    messages.scroll = true;
-    panel.append(messages);
+    const messages = new pcui.Container({
+        class: 'messages',
+        scrollable: true
+    });
+    chatPanel.append(messages);
 
     messages.innerElement.addEventListener('contextmenu', function (evt) {
         if (evt.target.tagName !== 'A')
@@ -236,25 +242,25 @@ editor.once('load', function () {
         evt.stopPropagation();
     });
 
-    var messageDivider = document.createElement('div');
+    const messageDivider = document.createElement('div');
     messageDivider.classList.add('divider');
 
     // input
-    var typing = false;
-    var typingTimeout = null;
-    var typingTimeoutDelay = 1000;
-    var input = new ui.TextField();
-    input.blurOnEnter = false;
-    input.keyChange = true;
-    input.renderChanges = false;
-    input.placeholder = '>';
-    panel.append(input);
+    let typing = false;
+    let typingTimeout = null;
+    const typingTimeoutDelay = 1000;
+    const input = new pcui.TextInput({
+        blurOnEnter: false,
+        keyChange: true,
+        placeholder: '>'
+    });
+    chatPanel.append(input);
 
-    panel.on('unfold', function () {
+    chatPanel.on('expand', function () {
         messagesNumber = 0;
         number.textContent = '0';
         number.classList.remove('typing', 'notify');
-        panel.class.remove('notify');
+        chatPanel.class.remove('notify');
 
         if (messageDivider.parentNode)
             messageDivider.parentNode.removeChild(messageDivider);
@@ -266,9 +272,8 @@ editor.once('load', function () {
             lastMessage = messages.innerElement.lastChild;
         }
 
-        setTimeout(function () {
-            input.elementInput.select();
-            input.elementInput.focus();
+        setTimeout(() => {
+            input.focus(true);
         }, 200);
     });
 
@@ -280,12 +285,12 @@ editor.once('load', function () {
         return input;
     });
 
-    var clear = document.createElement('div');
+    const clear = document.createElement('div');
     clear.innerHTML = '&#57650;';
     clear.classList.add('clear');
     input.element.appendChild(clear);
 
-    var onTypingEnd = function () {
+    const onTypingEnd = function () {
         if (typingTimeout) {
             clearTimeout(typingTimeout);
             typingTimeout = null;

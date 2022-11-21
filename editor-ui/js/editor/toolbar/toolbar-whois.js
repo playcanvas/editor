@@ -77,10 +77,10 @@ editor.once('load', function () {
     if (chatWidget) {
         panel.class.add('chat-minified');
 
-        chatWidget.on('fold', function () {
+        chatWidget.on('collapse', function () {
             panel.class.add('chat-minified');
         });
-        chatWidget.on('unfold', function () {
+        chatWidget.on('expand', function () {
             panel.class.remove('chat-minified');
         });
 
