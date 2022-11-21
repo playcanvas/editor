@@ -27,7 +27,7 @@ editor.once('load', function () {
         textField.renderChanges = false;
         textField.keyChange = true;
         textField.elementInput.placeholder = 'e.g. *.js, src/*';
-        // prevent default behaviour on browser shortcuts
+        // prevent default behavior on browser shortcuts
         textField.elementInput.classList.add('hotkeys');
         textField.elementInput.addEventListener('keydown', onInputKeyDown);
         filterPanel.append(textField);
@@ -89,7 +89,7 @@ editor.once('load', function () {
     searchField.renderChanges = false;
     searchField.keyChange = true;
     searchField.elementInput.placeholder = 'Find in files';
-    // prevent default behaviour on browser shortcuts
+    // prevent default behavior on browser shortcuts
     searchField.elementInput.classList.add('hotkeys');
     searchField.elementInput.addEventListener('keydown', onInputKeyDown);
     panel.append(searchField);

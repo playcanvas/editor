@@ -1069,7 +1069,7 @@ editor.once('load', function () {
         return [e.clientX - left, e.clientY - top];
     }
 
-    // Returns true if the specidifed coordinates are within the grid bounds
+    // Returns true if the specified coordinates are within the grid bounds
     function areCoordsInGrid(coords) {
         return coords[0] >= gridLeft() &&
                coords[0] <= gridRight() &&

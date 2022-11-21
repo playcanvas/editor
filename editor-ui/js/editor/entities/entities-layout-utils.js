@@ -43,9 +43,9 @@ editor.once('load', function () {
     editor.method('entities:layout:isUnderControlOfLayoutGroup', function (entity) {
         var layoutGroup = getLayoutGroup(entity.get('parent'));
         var isElement = entity.has('components.element');
-        var exludedFromLayout = entity.get('components.layoutchild.excludeFromLayout');
+        var excludedFromLayout = entity.get('components.layoutchild.excludeFromLayout');
 
-        var isControlledByLayoutGroup = layoutGroup && layoutGroup.enabled && !exludedFromLayout;
+        var isControlledByLayoutGroup = layoutGroup && layoutGroup.enabled && !excludedFromLayout;
 
         return isElement && isControlledByLayoutGroup;
     });

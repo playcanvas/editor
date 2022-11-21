@@ -26,7 +26,7 @@ editor.once('load', function () {
         }
     };
 
-    // fill bundlexIndex when a new bundle asset is added
+    // fill bundlesIndex when a new bundle asset is added
     editor.on('assets:add', function (asset) {
         if (asset.get('type') !== 'bundle') return;
 

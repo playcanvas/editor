@@ -57,7 +57,7 @@ editor.once('load', function () {
         }
 
         run() { // ent is always from src
-            this.runTraveral();
+            this.runTraversal();
 
             this.conflicts.forEach((h) => {
                 h.resource_id = this.ent.resource_id;
@@ -66,7 +66,7 @@ editor.once('load', function () {
             return this.conflicts;
         }
 
-        runTraveral() {
+        runTraversal() {
             const h = {
                 typeToRoot: this.typeToNode,
                 conflicts: this.conflicts,

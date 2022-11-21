@@ -16,7 +16,7 @@ editor.once('load', function () {
         let entity = entities.get(override.resource_id);
         while (entity) {
             if (entity.get('template_id') && entity.has(`template_ent_ids.${override.resource_id}`)) {
-                // if this entity is the same entity as the override is refering to
+                // if this entity is the same entity as the override is referring to
                 // and this entity is a template then do not consider it a candidate
                 // if the path of the override is not supposed to be considered a valid
                 // override for a template root

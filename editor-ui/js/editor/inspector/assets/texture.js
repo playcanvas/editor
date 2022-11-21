@@ -566,7 +566,7 @@ Object.assign(pcui, (function () {
                 if (!assets[i].get('file') || !assets[i].get('meta'))
                     continue;
 
-                // slighly different handling for original size
+                // slightly different handling for original size
                 if (format === 'original') {
                     const pixels = (assets[i].get('meta.width') || 0) * (assets[i].get('meta.height') || 0);
                     formats.original.size += (assets[i].get('file.size') || 0);
@@ -1110,7 +1110,7 @@ Object.assign(pcui, (function () {
                 this._assetEvents.push(asset.on('meta:set', () => {
                     this._btnGetMetaVisibility();
                     // asset meta migration...
-                    // this should probably eventually be moved to the pipline job
+                    // this should probably eventually be moved to the pipeline job
                     if (asset.get('meta') && !asset.has('meta.compress')) {
                         setTimeout(() => {
                             asset.set('meta.compress', {

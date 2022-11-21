@@ -3,12 +3,12 @@
 function Helpers() { }
 
 Object.assign(Helpers, {
-    rgbaStr: function (colour, scale) {
+    rgbaStr: function (color, scale) {
         if (!scale) { scale = 1; }
-        let rgba = colour.map(function (element, index) {
+        let rgba = color.map(function (element, index) {
             return index < 3 ? Math.round(element * scale) : element;
         }).join(',');
-        for (let i = colour.length; i < 4; ++i) {
+        for (let i = color.length; i < 4; ++i) {
             rgba += ',' + (i < 3 ? scale : 1);
         }
         return 'rgba(' + rgba + ')';
@@ -544,7 +544,7 @@ editor.once('load', function () {
             ctx.fill();
         }
 
-        // render the colour circle and border
+        // render the color circle and border
         ctx.beginPath();
         ctx.arc(coords[0], coords[1], (radius + 1), 0, 2 * Math.PI, false);
         ctx.fillStyle = 'rgb(0, 0, 0)';

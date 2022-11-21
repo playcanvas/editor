@@ -168,7 +168,7 @@ editor.once('load', function () {
         }
     };
 
-    // Destroyes the resolver and its UI elements
+    // Destroys the resolver and its UI elements
     ConflictResolver.prototype.destroy = function () {
         this.unbind();
 

@@ -40,7 +40,7 @@ editor.once('load', function () {
 
         var values = this._convertValues(self._conflict);
 
-        // Create 3 panels for base, source and destionation values
+        // Create 3 panels for base, source and destination values
         for (let i = 0; i < 3; i++) {
             var panel = new ui.Panel();
             panel.class.add('conflict-field');

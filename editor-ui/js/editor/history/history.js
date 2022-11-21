@@ -8,7 +8,7 @@ editor.once('load', function () {
         return editor.history;
     });
 
-    // Keep for backwards compatibilty
+    // Keep for backwards compatibility
     editor.method('history:add', function (action) {
         editor.history.add(action);
     });

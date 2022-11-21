@@ -2,7 +2,7 @@ editor.once('load', function () {
     'use strict';
 
     var users = { };
-    var pallete = [
+    var palette = [
         [5, 0.63, 0.46],
         [6, 0.78, 0.57],
         [24, 1.00, 0.41],
@@ -51,7 +51,7 @@ editor.once('load', function () {
     };
 
 
-    var hsl = pallete[0];
+    var hsl = palette[0];
     var rgb = hslToRgb(hsl[0] / 360, hsl[1], hsl[2]);
 
     var colorDefault = {
@@ -65,9 +65,9 @@ editor.once('load', function () {
     function addUser(id) {
         var hash = id % 14;
         if (Math.floor(hash / 2) !== hash / 2)
-            hash = (hash + Math.floor(pallete.length / 2)) % 14;
+            hash = (hash + Math.floor(palette.length / 2)) % 14;
 
-        var hsl = pallete[hash];
+        var hsl = palette[hash];
         var rgb = hslToRgb(hsl[0] / 360, hsl[1], hsl[2]);
 
         users[id] = {

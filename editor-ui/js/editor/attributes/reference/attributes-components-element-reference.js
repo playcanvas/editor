@@ -97,7 +97,7 @@ editor.once('load', function () {
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#autoFitHeight'
     }, {
         title: 'autoHeight',
-        subTitle: '{Booelan}',
+        subTitle: '{Boolean}',
         description: 'Make the height of the element match the height of the text content automatically.',
         url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#autoHeight'
     }, {

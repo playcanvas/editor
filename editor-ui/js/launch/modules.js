@@ -41,7 +41,7 @@ editor.once('load', function () {
 
     editor.method('editor:loadModules', function (modules, urlPrefix, doneCallback) {
         if (typeof modules === "undefined" || modules.length === 0) {
-            // caller may depend on callback behaviour being async
+            // caller may depend on callback behavior being async
             setTimeout(doneCallback);
         } else {
             var asyncCounter = modules.length;

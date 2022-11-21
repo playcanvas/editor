@@ -3,7 +3,7 @@ editor.once('load', function () {
 
     const templateItems = [];
 
-    // Get Entites on which to apply the result of the context menu
+    // Get Entities on which to apply the result of the context menu
     // If the entity that is clicked on is part of a selection, then the entire
     // selection is returned.
     // Otherwise return just the entity that is clicked on.

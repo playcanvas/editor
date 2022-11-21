@@ -4,7 +4,7 @@ editor.once('viewport:load', function () {
     // Looking around with right mouse button
 
     var looking = false;
-    var sensivity = 0.2;
+    var sensitivity = 0.2;
     var vecA = new pc.Vec2();
     var lookCamera;
 
@@ -53,8 +53,8 @@ editor.once('viewport:load', function () {
         if (camera.camera.projection !== pc.PROJECTION_PERSPECTIVE)
             return;
 
-        pitch = Math.max(-89.99, Math.min(89.99, pitch + (tap.ly - tap.y) * sensivity));
-        yaw += (tap.lx - tap.x) * sensivity;
+        pitch = Math.max(-89.99, Math.min(89.99, pitch + (tap.ly - tap.y) * sensitivity));
+        yaw += (tap.lx - tap.x) * sensitivity;
 
         camera.setEulerAngles(pitch, yaw, 0);
 

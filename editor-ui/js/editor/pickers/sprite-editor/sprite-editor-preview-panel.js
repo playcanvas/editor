@@ -43,7 +43,7 @@ editor.once('load', function () {
 
         let renderQueued;
 
-        // queue up the rendering to prevent too oftern renders
+        // queue up the rendering to prevent too often renders
         const queueRender = function () {
             if (renderQueued) return;
             renderQueued = true;

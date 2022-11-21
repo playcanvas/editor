@@ -198,7 +198,7 @@ editor.once('load', function () {
     }, {
         name: 'asset-tasks',
         title: 'Asset Tasks',
-        description: 'Settings for defining default behaviour rules for asset pipeline jobs: assets extracting, textures resizing, etc.'
+        description: 'Settings for defining default behavior rules for asset pipeline jobs: assets extracting, textures resizing, etc.'
     }, {
         name: 'asset-tasks:texturePot',
         title: 'Texture power of two',

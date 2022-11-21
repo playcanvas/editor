@@ -142,7 +142,7 @@ Object.assign(pcui, (function () {
             super(args);
 
             const evtPermission = editor.on('notify:permission', this._checkChatNotificationState.bind(this));
-            const evtChatNofityState = editor.on('chat:notify', this._checkChatNotificationState.bind(this));
+            const evtChatNotifyState = editor.on('chat:notify', this._checkChatNotificationState.bind(this));
             const fieldChatNotification = this._attributesInspector.getField('chatNotification');
             this._checkChatNotificationState();
             fieldChatNotification.on('change', (value) => {
@@ -156,7 +156,7 @@ Object.assign(pcui, (function () {
             });
             this.once('destroy', () => {
                 evtPermission.unbind();
-                evtChatNofityState.unbind();
+                evtChatNotifyState.unbind();
             });
         }
 

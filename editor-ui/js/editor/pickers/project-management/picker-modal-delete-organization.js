@@ -48,7 +48,7 @@ editor.once('load', () => {
     // conditionally display information about containing projects
     const projectsWarning = new pcui.Label({
         class: 'form-group--warning',
-        text: 'WARNING: This organisation contains projects. If you decide to go ahead, these will be transferred to your account.'
+        text: 'WARNING: This organization contains projects. If you decide to go ahead, these will be transferred to your account.'
     });
     container.append(projectsWarning);
 

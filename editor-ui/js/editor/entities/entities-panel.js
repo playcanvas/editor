@@ -27,7 +27,7 @@ editor.once('load', function () {
         treeView.writePermissions = state;
     });
 
-    // return hirarchy
+    // return hierarchy
     editor.method('entities:hierarchy', function () {
         return treeView;
     });

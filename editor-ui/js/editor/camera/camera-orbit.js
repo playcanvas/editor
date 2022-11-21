@@ -8,7 +8,7 @@ editor.once('viewport:load', function () {
     let orbitCamera;
     const pivot = new pc.Vec3();
     let distance = 1;
-    const sensivity = 0.2;
+    const sensitivity = 0.2;
     let pitch = 0;
     let yaw = 0;
     const vec2 = new pc.Vec2();
@@ -107,8 +107,8 @@ editor.once('viewport:load', function () {
         if (!orbiting || tap.button !== 0)
             return;
 
-        pitch = Math.max(-89.99, Math.min(89.99, pitch - (tap.y - tap.ly) * sensivity));
-        yaw += (tap.lx - tap.x) * sensivity;
+        pitch = Math.max(-89.99, Math.min(89.99, pitch - (tap.y - tap.ly) * sensitivity));
+        yaw += (tap.lx - tap.x) * sensitivity;
 
         editor.call('viewport:render');
     });

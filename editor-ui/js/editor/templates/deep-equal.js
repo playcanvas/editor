@@ -70,7 +70,7 @@ editor.once('load', function () {
 
     /**
      * Perform a deep comparison of two nodes consisting of
-     * ojbects, arrays and scalar values.
+     * objects, arrays and scalar values.
      *
      * @param {object} node1 - First object to compare
      * @param {object} node2 - Second object to compare

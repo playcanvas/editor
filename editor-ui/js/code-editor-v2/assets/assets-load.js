@@ -140,7 +140,7 @@ editor.once('load', function () {
             totalAssets = res.length;
             loadedAssets = 0;
 
-            // do bulk subsribe in batches of 'batchSize' assets
+            // do bulk subscribe in batches of 'batchSize' assets
             var batchSize = 256;
             var startBatch = 0;
             var connection = editor.call('realtime:connection');

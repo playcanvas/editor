@@ -48,11 +48,11 @@ editor.once('load', function () {
             // if organization does not belong to user or they are on a free account (limits only accessible to org owner)
             inviteWarning.dom.innerHTML = '';
         } else if ((!owner.organization && owner.plan_type !== 'free') || (owner.organization && !currentProjectPrivate)) {
-            inviteWarning.dom.innerHTML = "Invite paid/personal organisation users only.";
+            inviteWarning.dom.innerHTML = "Invite paid/personal organization users only.";
         } else if (owner.organization && (collaborators.length - 1) < owner.limits.seats && collaborators.length < 60) {
-            inviteWarning.dom.innerHTML = `Invite users who already occupy seats on your organisation. New users will occupy 1 seat each once invites are accepted. This organisation has <a class='warning-link--white' href='${config.url.home}/upgrade?account=${owner.username}' target='_blank'>${owner.limits.seats - (collaborators.length - 1)}/${owner.limits.seats} seats</a> left.`;
+            inviteWarning.dom.innerHTML = `Invite users who already occupy seats on your organization. New users will occupy 1 seat each once invites are accepted. This organization has <a class='warning-link--white' href='${config.url.home}/upgrade?account=${owner.username}' target='_blank'>${owner.limits.seats - (collaborators.length - 1)}/${owner.limits.seats} seats</a> left.`;
         } else if (owner.organization && (collaborators.length - 1) === owner.limits.seats && collaborators.length < 60) {
-            inviteWarning.dom.innerHTML = `Invite users who already occupy seats on your organisation only. This organisation has no remaining seats for new users. <a class='warning-link' href='${config.url.home}/upgrade?account=${owner.username}' target='_blank'>Buy more seats now</a>`;
+            inviteWarning.dom.innerHTML = `Invite users who already occupy seats on your organization only. This organization has no remaining seats for new users. <a class='warning-link' href='${config.url.home}/upgrade?account=${owner.username}' target='_blank'>Buy more seats now</a>`;
         } else if (collaborators.length === 60) {
             inviteInput.hidden = true;
             inviteSubmit.hidden = true;  // don't allow to invite any more members
@@ -191,7 +191,7 @@ editor.once('load', function () {
         editor.call('picker:project:toggleMenu', 'team', false);
     }
 
-    // if the user permissions change, then change the visibilty of the button
+    // if the user permissions change, then change the visibility of the button
     editor.on('permissions:set', function () {
         editor.call('picker:project:toggleMenu', 'team', editor.call('permissions:read'));
     });
@@ -312,7 +312,7 @@ editor.once('load', function () {
     panel.append(membersContainer);
 
     const membersLabel = new pcui.Label({
-        text: `Organisation\nMembers\n\n${collaborators.length}/60`,
+        text: `Organization\nMembers\n\n${collaborators.length}/60`,
         class: 'section-label'
     });
     membersContainer.append(membersLabel);

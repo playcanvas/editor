@@ -1,7 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    // method if the Engine Assset is included in the project
+    // method if the Engine Asset is included in the project
     editor.method('project:engineAsset:getEngineAsset', function (assetName) {
         var engineAssets = editor.call('assets:find', function (item) {
             var name = item.get('name');
@@ -11,7 +11,7 @@ editor.once('load', function () {
         return engineAssets;
     });
 
-    // add Engine Assset to the project
+    // add Engine Asset to the project
     editor.method('project:engineAsset:addEngineAsset', function (storeName, assetName) {
         function addAssetToProject() {
             Ajax({
@@ -28,14 +28,14 @@ editor.once('load', function () {
                         data: { scope: { type: 'project', id: config.project.id } },
                         notJson: true       // server response is empty
                     }).on('load', function (status, data) {
-                        editor.call('status:text', 'Engine Assset successfully imported');
+                        editor.call('status:text', 'Engine Asset successfully imported');
                         editor.emit('engineAssetImported', assetName);
                     }).on('error', function (err) {
-                        editor.call('status:error', 'Failed to import Engine Assset ' + storeName);
+                        editor.call('status:error', 'Failed to import Engine Asset ' + storeName);
                     });
                 }
             }).on('error', function (err) {
-                editor.call('status:error', 'Failed to import Engine Assset ' + storeName);
+                editor.call('status:error', 'Failed to import Engine Asset ' + storeName);
             });
         }
 

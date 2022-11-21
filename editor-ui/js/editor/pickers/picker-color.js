@@ -175,19 +175,19 @@ editor.once('load', function () {
     };
 
 
-    var callingCallaback = false;
+    var callingCallback = false;
     var callbackHandle = function () {
-        callingCallaback = false;
+        callingCallback = false;
 
         editor.emit('picker:color', channels.map(function (channel) {
             return channel.value || 0;
         }).slice(0, channelsNumber));
     };
     var callCallback = function () {
-        if (callingCallaback)
+        if (callingCallback)
             return;
 
-        callingCallaback = true;
+        callingCallback = true;
         setTimeout(callbackHandle, 1000 / 60);
     };
 
@@ -263,7 +263,7 @@ editor.once('load', function () {
     pickOpacity.classList.add('pick-opacity');
     overlay.append(pickOpacity);
 
-    // opacoty drag start
+    // opacity drag start
     pickOpacity.addEventListener('mousedown', function (evt) {
         pickOpacityMouseMove(evt);
 

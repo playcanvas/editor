@@ -190,7 +190,7 @@ editor.once('load', function () {
         // cannot concatenate so push new op
         entry.undo.push(localOp);
 
-        // make sure our undo stack doens't get too big
+        // make sure our undo stack doesn't get too big
         if (entry.undo.length > MAX_UNDO_SIZE) {
             entry.undo.splice(0, 1);
         }

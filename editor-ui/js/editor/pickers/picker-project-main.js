@@ -48,7 +48,7 @@ editor.once('load', () => {
         editor.call('picker:project:toggleMenu', 'project-main', false);
     }
 
-    // if the user permissions change, then change the visibilty of the button
+    // if the user permissions change, then change the visibility of the button
     editor.on('permissions:set', function () {
         editor.call('picker:project:toggleMenu', 'project-main', editor.call('permissions:read'));
     });

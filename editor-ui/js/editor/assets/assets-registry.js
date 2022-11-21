@@ -64,7 +64,7 @@ editor.once('load', function () {
                 var match = path.match(checkPath);
                 if (!match) return;
 
-                // skip firing change when an indidual frame changes
+                // skip firing change when an individual frame changes
                 // for performance reasons. We handle this elsewhere
                 if (asset.get('type') === 'textureatlas') {
                     if (path.startsWith('data.frames.')) {

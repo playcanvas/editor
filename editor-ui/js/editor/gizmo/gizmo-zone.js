@@ -68,7 +68,7 @@ editor.once('load', function () {
         };
         let zones = 0;
         let lastZone = null;
-        const historyPositon = new pc.Vec3();
+        const historyPosition = new pc.Vec3();
         const historySize = new pc.Vec3();
         let points = [];
         let hoverPoint = null;
@@ -455,7 +455,7 @@ void main(void)
 
             const position = lastZone._link.get('position');
             const size = lastZone._link.get('components.zone.size');
-            historyPositon.set(position[0], position[1], position[2]);
+            historyPosition.set(position[0], position[1], position[2]);
             historySize.set(size[0], size[1], size[2]);
         };
 
@@ -476,7 +476,7 @@ void main(void)
             const newPosition = lastZone._link.get('position');
             const newSize = lastZone._link.get('components.zone.size');
 
-            const prevPosition = [historyPositon.x, historyPositon.y, historyPositon.z];
+            const prevPosition = [historyPosition.x, historyPosition.y, historyPosition.z];
             const prevSize = [historySize.x, historySize.y, historySize.z];
 
             editor.call('history:add', {

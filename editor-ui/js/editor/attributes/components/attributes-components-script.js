@@ -361,7 +361,7 @@ editor.once('load', function () {
                     var panelAttribute = null;
 
                     if (ind === -1) {
-                        // new attibute
+                        // new attribute
                         panelAttribute = createAttributeField(script, attributes[i], parent);
                         list.splice(i, 0, attributes[i]);
                         index[attributes[i]] = panelAttribute;

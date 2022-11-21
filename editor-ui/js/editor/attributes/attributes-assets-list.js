@@ -28,7 +28,7 @@ editor.once('load', function () {
      *
      * @param {object} args - Widget arguments
      * @param {Observer[]} args.link - The observers we are editing
-     * @param {string} [args.type] - The asset type that is selectible from the asset list
+     * @param {string} [args.type] - The asset type that is selectable from the asset list
      * @param {Function} [args.filterFn] - A custom function that filters assets that can be dragged on the list. The function
      * takes the asset as its only argument.
      */

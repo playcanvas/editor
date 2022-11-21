@@ -1,5 +1,5 @@
 /**
- * project-managment.js
+ * project-management.js
  *
  * A file that contains some of the common utility methods used by
  * the project management pickers exposed as hooks.

@@ -30,7 +30,7 @@ editor.once('load', function () {
         var name = 'codeeditor:' + config.project.id;
 
         if (firefox) {
-            // (Firefox doesn't work at all so open a new tab everytime)
+            // (Firefox doesn't work at all so open a new tab every time)
             window.open(url);
         } else {
             var wnd = window.open('', name);

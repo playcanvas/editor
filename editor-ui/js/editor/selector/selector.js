@@ -101,7 +101,7 @@ editor.once('load', function () {
     // selecting item (toggle)
     editor.method('selector:toggle', function (type, item) {
         if (item.apiEntity) {
-            editor.selection.toogle(item.apiEntity);
+            editor.selection.toggle(item.apiEntity);
             return;
         }
 

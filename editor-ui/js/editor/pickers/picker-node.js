@@ -119,7 +119,7 @@ editor.once('load', function () {
         });
     };
 
-    var isAlreadyOverriden = function (index) {
+    var isAlreadyOverridden = function (index) {
         var len = currentEntities.length;
         var overrideCount = 0;
         for (let i = 0; i < len; i++) {
@@ -160,7 +160,7 @@ editor.once('load', function () {
                 assets: editor.call('assets:raw'),
                 history: editor.call('editor:history'),
                 mode: 'picker',
-                isMeshInstanceDisabled: isAlreadyOverriden
+                isMeshInstanceDisabled: isAlreadyOverridden
             });
 
             modelEntityMaterials.on('select', (ind) => {

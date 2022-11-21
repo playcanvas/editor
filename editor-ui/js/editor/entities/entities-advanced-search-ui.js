@@ -196,7 +196,7 @@ editor.once('load', function () {
         hierarchy.filter = lastSearch;
     };
 
-    // if entity added, check if it maching query
+    // if entity added, check if it matching query
     editor.on('entities:add', function (entity) {
 
         var query = search.value.trim();

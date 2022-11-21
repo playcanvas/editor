@@ -74,7 +74,7 @@ editor.once('load', function () {
             assetData.id = parseInt(assetData.item_id, 10);
             assetData.uniqueId = parseInt(uniqueId, 10);
 
-            // delete unecessary fields
+            // delete unnecessary fields
             delete assetData.item_id;
             delete assetData.branch_id;
 
@@ -340,7 +340,7 @@ editor.once('load', function () {
 
         var connection = editor.call('realtime:connection');
 
-        // do bulk subsribe in batches of 'batchSize' assets
+        // do bulk subscribe in batches of 'batchSize' assets
         var batchSize = 256;
         var startBatch = 0;
 
