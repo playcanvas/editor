@@ -510,7 +510,7 @@ editor.once('load', function () {
             // Check if all conflicts of all groups are now resolved
             // in a timeout. Do it in a timeout in case the user
             // clicks on one of the resolve all buttons in which case
-            // the resolve event will be fired mutliple times in the same frame
+            // the resolve event will be fired multiple times in the same frame
             group.listItem.onResolved();
 
             if (timeoutCheckAllResolved) {
@@ -570,7 +570,7 @@ editor.once('load', function () {
         showMainProgress(spinnerIcon, 'Completing merge...');
 
         editor.call('branches:applyMerge', config.self.branch.merge.id, true, (err) => {
-            if (err && !/Reqest timed out/.test(err)) {
+            if (err && !/Request timed out/.test(err)) {
                 onMergeError(err);
                 setTimeout(function () {
                     window.location.reload();
@@ -593,7 +593,7 @@ editor.once('load', function () {
         showMainProgress(spinnerIcon, 'Resolving conflicts...');
 
         editor.call('branches:applyMerge', config.self.branch.merge.id, false, (err) => {
-            if (err && !/Reqest timed out/.test(err)) {
+            if (err && !/Request timed out/.test(err)) {
                 onMergeError(err);
                 setTimeout(function () {
                     window.location.reload();
