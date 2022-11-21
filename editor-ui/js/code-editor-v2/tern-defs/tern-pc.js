@@ -1,7 +1,7 @@
 editor.once('load', function () {
-    var def = {};
+    let def = {};
 
-    var data = {
+    const data = {
         url: config.url.autocomplete,
         method: 'GET'
     };

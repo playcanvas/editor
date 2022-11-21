@@ -1,14 +1,14 @@
 editor.once('load', function () {
     'use strict';
 
-    var root = editor.call('layout.root');
-    var panel = editor.call('layout.top');
+    const root = editor.call('layout.root');
+    const panel = editor.call('layout.top');
 
-    var menuFile = new ui.Menu();
+    const menuFile = new ui.Menu();
     menuFile.position(0, 33);
     root.append(menuFile);
 
-    var btnFile = new ui.Button({
+    const btnFile = new ui.Button({
         text: 'File'
     });
 

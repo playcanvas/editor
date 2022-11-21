@@ -1,4 +1,4 @@
-var validate = function (data) {
+const validate = function (data) {
     if (!data) return false;
     if (!data.id) return false;
     if (!data.query) return false;
@@ -7,22 +7,22 @@ var validate = function (data) {
 };
 
 this.onmessage = function (evt) {
-    var data = evt.data;
+    const data = evt.data;
     if (!validate(data)) return;
 
-    var results = {
+    const results = {
         id: data.id,
         matches: []
     };
 
-    var text = data.text || '';
+    const text = data.text || '';
 
-    var match;
+    let match;
 
     // remember new line positions
-    var newLines = [];
-    var newLinesLength = 0;
-    var findNewLines = /\n/g;
+    const newLines = [];
+    let newLinesLength = 0;
+    const findNewLines = /\n/g;
 
     while (match = findNewLines.exec(text)) { // eslint-disable-line no-cond-assign
         newLines.push(match.index);
@@ -30,17 +30,17 @@ this.onmessage = function (evt) {
     }
 
     // reset query
-    var query = data.query;
+    const query = data.query;
     query.lastIndex = 0;
 
     // start matching
     while (match = query.exec(text)) { // eslint-disable-line no-cond-assign
 
         // binary search the line of the match
-        var index = match.index;
-        var low = 0;
-        var hi = newLines.length - 1;
-        var mid = 0;
+        const index = match.index;
+        let low = 0;
+        let hi = newLines.length - 1;
+        let mid = 0;
         while (low <= hi) {
             mid = Math.floor((low + hi) / 2);
             if (index === newLines[mid] || low === hi) {
@@ -52,9 +52,9 @@ this.onmessage = function (evt) {
             }
         }
 
-        var line = 0;
-        var char = 0;
-        var substring;
+        let line = 0;
+        let char = 0;
+        let substring;
 
         // extract line and column of the match
         // and also start / end indices for the line text

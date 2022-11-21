@@ -1,10 +1,10 @@
 editor.once('load', function () {
     'use strict';
 
-    var menu = editor.call('menu:navigate');
-    var ctrl = editor.call('hotkey:ctrl:string');
-    var monacoEditor = editor.call('editor:monaco'); // eslint-disable-line no-unused-vars
-    var isFuzzyOpen = false;
+    const menu = editor.call('menu:navigate');
+    const ctrl = editor.call('hotkey:ctrl:string');
+
+    let isFuzzyOpen = false;
 
     editor.on('picker:fuzzy:open', function () {
         isFuzzyOpen = true;
@@ -15,7 +15,7 @@ editor.once('load', function () {
     });
 
     // Go to anything
-    var item = menu.createItem('go-to-file', {
+    const item = menu.createItem('go-to-file', {
         title: 'Go To File',
         select: function () {
             editor.call('editor:command:goToFile');

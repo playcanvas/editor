@@ -13,9 +13,9 @@ editor.once('load', function () {
         editor.call('status:connection', 'Connected');
     });
 
-    var remainingTime;
+    let remainingTime;
 
-    var retry = function () {
+    const retry = function () {
         editor.call('status:connection', 'Connecting again in ' + remainingTime + ' seconds...');
         if (remainingTime > 1) {
             remainingTime--;

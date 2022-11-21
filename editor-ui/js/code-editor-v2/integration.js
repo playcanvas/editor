@@ -1,16 +1,16 @@
 editor.once('load', function () {
     'use strict';
 
-    var filePanelReady = false;
-    var queue = [];
-    var monacoEditor = editor.call('editor:monaco');
+    let filePanelReady = false;
+    const queue = [];
+    const monacoEditor = editor.call('editor:monaco');
 
-    var events = {};
+    const events = {};
 
-    var highlight = function (id, options) {
-        var line = options.line || 1;
-        var col = options.col || 1;
-        var view = editor.call('views:get', id);
+    const highlight = function (id, options) {
+        const line = options.line || 1;
+        const col = options.col || 1;
+        const view = editor.call('views:get', id);
         if (!view) return;
 
         setTimeout(function () {
@@ -43,7 +43,7 @@ editor.once('load', function () {
         });
     };
 
-    var selectAndHighlight = function (id, options) {
+    const selectAndHighlight = function (id, options) {
         if (events[id])
             events[id].unbind();
 
@@ -72,7 +72,7 @@ editor.once('load', function () {
     editor.once('files:load', function () {
         filePanelReady = true;
 
-        for (var i = 0, len = queue.length; i < len; i++) {
+        for (let i = 0, len = queue.length; i < len; i++) {
             selectAndHighlight(queue[i].id, queue[i].options);
         }
 
@@ -85,7 +85,7 @@ editor.once('load', function () {
         if (filePanelReady) {
             selectAndHighlight(id, options);
         } else {
-            for (var i = 0, len = queue.length; i < len; i++) {
+            for (let i = 0, len = queue.length; i < len; i++) {
                 if (queue[i].id === id) {
                     queue.splice(i, 1);
                     break;

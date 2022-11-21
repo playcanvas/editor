@@ -1,8 +1,8 @@
 editor.once('load', function () {
-    var panel = editor.call('layout.top');
+    const panel = editor.call('layout.top');
 
     // readonly label on the top right
-    var readonly = new ui.Label({
+    const readonly = new ui.Label({
         text: 'READ ONLY'
     });
 

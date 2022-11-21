@@ -5,7 +5,7 @@ editor.once('load', function () {
         if (!editor.call('permissions:write'))
             return;
 
-        var msg = 'Delete Asset?';
+        let msg = 'Delete Asset?';
 
         if (items.length === 1 && items[0].get('type') === 'folder')
             msg = 'Delete Folder?';

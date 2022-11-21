@@ -53,11 +53,11 @@ editor.once('load', function () {
 
     // transform undo and redo operations against the new remote operation
     function transformStacks(remoteOp, entry) {
-        var undo = entry.undo;
-        var redo = entry.redo;
+        const undo = entry.undo;
+        const redo = entry.redo;
 
-        var i = undo.length;
-        var initialRemoteOp = remoteOp.op;
+        let i = undo.length;
+        const initialRemoteOp = remoteOp.op;
 
         while (i--) {
             const localOp = undo[i];
@@ -91,7 +91,7 @@ editor.once('load', function () {
     // transform dummy ops with remote op
     function transformCursorOps(ops, remoteOp, entry) {
         for (let i = 0, len = ops.length; i < len; i++) {
-            var data = ops[i];
+            const data = ops[i];
             if (data.length) {
                 for (let j = 0; j < data.length; j++) {
                     data[j].op = transform(data[j].op, remoteOp, 'right', entry);
@@ -120,15 +120,15 @@ editor.once('load', function () {
         if (entry.forceConcatenate)
             return true;
 
-        var prevLen = prev.op.length;
-        var nextLen = next.op.length;
+        const prevLen = prev.op.length;
+        const nextLen = next.op.length;
 
         // true if both are noops
         if (prevLen === 0 || nextLen === 0) {
             return true;
         }
 
-        var prevDelete = false;
+        let prevDelete = false;
         for (let i = 0; i < prevLen; i++) {
             if (typeof (prev.op[i]) === 'object') {
                 prevDelete = true;
@@ -136,7 +136,7 @@ editor.once('load', function () {
             }
         }
 
-        var nextDelete = false;
+        let nextDelete = false;
         for (let i = 0; i < nextLen; i++) {
             if (typeof (next.op[i]) === 'object') {
                 nextDelete = true;
@@ -178,9 +178,9 @@ editor.once('load', function () {
     // add local op to undo history
     function addToHistory(localOp, entry) {
         // try to concatenate new op with latest op in the undo stack
-        var timeSinceLastEdit = localOp.time - entry.lastEditTime;
+        const timeSinceLastEdit = localOp.time - entry.lastEditTime;
         if (timeSinceLastEdit <= MERGE_EDITS_DELAY || entry.forceConcatenate) {
-            var prev = entry.undo[entry.undo.length - 1];
+            const prev = entry.undo[entry.undo.length - 1];
             if (prev && canConcatOps(prev, localOp, entry)) {
                 concat(prev, localOp, entry);
                 return;
@@ -390,7 +390,7 @@ editor.once('load', function () {
             const to = entry.view.getPositionAt(pos + length);
 
             // add remote operation to the edits stack
-            var remoteOp = createRemoveOp(pos, length);
+            const remoteOp = createRemoveOp(pos, length);
             transformStacks(remoteOp, entry);
 
             // apply operation locally
@@ -405,7 +405,7 @@ editor.once('load', function () {
 
     // submit operation to sharedb
     editor.on('views:change', (id, view, change) => {
-        var entry = documentIndex[id];
+        const entry = documentIndex[id];
         if (!entry || entry.ignoreLocalChanges) return;
 
         // this happens sometimes when there is a doc error
@@ -451,10 +451,10 @@ editor.once('load', function () {
                 return cm.undo(); // eslint-disable-line no-undef
             }
 
-            var snapshot = focusedDocument.context.get() || '';
-            var curr = focusedDocument.undo.pop();
+            const snapshot = focusedDocument.context.get() || '';
+            const curr = focusedDocument.undo.pop();
 
-            var inverseOp = { op: invert(curr.op, snapshot, focusedDocument) };
+            const inverseOp = { op: invert(curr.op, snapshot, focusedDocument) };
             focusedDocument.redo.push(inverseOp);
 
             applyCustomOp(curr.op, focusedDocument);
@@ -478,10 +478,10 @@ editor.once('load', function () {
                 return cm.redo(); // eslint-disable-line no-undef
             }
 
-            var snapshot = focusedDocument.context.get() || '';
-            var curr = focusedDocument.redo.pop();
+            const snapshot = focusedDocument.context.get() || '';
+            const curr = focusedDocument.redo.pop();
 
-            var inverseOp = { op: invert(curr.op, snapshot, focusedDocument) };
+            const inverseOp = { op: invert(curr.op, snapshot, focusedDocument) };
             focusedDocument.undo.push(inverseOp);
 
             applyCustomOp(curr.op, focusedDocument);

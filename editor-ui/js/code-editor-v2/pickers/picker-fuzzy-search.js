@@ -1,43 +1,43 @@
 editor.once('load', function () {
     'use strict';
 
-    var root = editor.call('layout.root');
-    var overlay = new ui.Overlay();
+    const root = editor.call('layout.root');
+    const overlay = new ui.Overlay();
     overlay.class.add('picker-fuzzy-search');
     overlay.clickable = true;
     overlay.hidden = true;
     root.append(overlay);
 
-    var parent = editor.call('layout.center');
-    var panel = new ui.Panel();
+    const parent = editor.call('layout.center');
+    const panel = new ui.Panel();
     panel.hidden = true;
     panel.class.add('picker-fuzzy-search');
     parent.append(panel);
 
     // this is where we type our search query
-    var fieldSearch = new ui.TextField();
+    const fieldSearch = new ui.TextField();
     fieldSearch.elementInput.classList.add('hotkeys');
     fieldSearch.renderChanges = false;
     panel.append(fieldSearch);
 
     // shows results
-    var menuResults = new ui.Menu();
+    const menuResults = new ui.Menu();
     menuResults.open = true;
     menuResults.class.add('results');
     panel.append(menuResults);
 
-    var findInFilesFakeAsset = null;
+    let findInFilesFakeAsset = null;
     const FIND_RESULTS = 'Find in Files';
 
     // selected item index
-    var selectedIndex = 0;
+    let selectedIndex = 0;
 
     // scores for fuzzy search
-    var scoreIndex = {};
+    let scoreIndex = {};
 
     // keeps stack of assets selected
     // over time
-    var selectionStack = [];
+    const selectionStack = [];
 
     // Open picker
     editor.method('picker:fuzzy:open', function () {
@@ -76,8 +76,8 @@ editor.once('load', function () {
     editor.on('select:asset', function (asset) {
         if (asset.get('type') === 'folder') return;
 
-        var id = asset.get('id');
-        var idx = selectionStack.indexOf(id);
+        const id = asset.get('id');
+        const idx = selectionStack.indexOf(id);
         if (idx !== -1) {
             selectionStack.splice(idx, 1);
         }
@@ -86,7 +86,7 @@ editor.once('load', function () {
     });
 
     editor.on('tabs:focus', function (tab) {
-        var id = tab.id;
+        const id = tab.id;
         if (id !== FIND_RESULTS) return;
 
         // if the find results tab is focused create
@@ -99,7 +99,7 @@ editor.once('load', function () {
             type: 'script'
         });
 
-        var idx = selectionStack.indexOf(id);
+        const idx = selectionStack.indexOf(id);
         if (idx !== -1) {
             selectionStack.splice(idx, 1);
         }
@@ -116,7 +116,7 @@ editor.once('load', function () {
 
     // when a document is closed remove it from the stack
     editor.on('documents:close', function (id) {
-        var idx = selectionStack.indexOf(id);
+        const idx = selectionStack.indexOf(id);
         if (idx !== -1) {
             selectionStack.splice(idx, 1);
         }
@@ -130,7 +130,7 @@ editor.once('load', function () {
         }
     });
 
-    var pick = function (assetId) {
+    const pick = function (assetId) {
         if (assetId === FIND_RESULTS) {
             editor.call('tabs:findInFiles:focus');
             return;
@@ -146,16 +146,16 @@ editor.once('load', function () {
             editor.call('tabs:temp:stick');
     };
 
-    var openSelection = function () {
-        var children = menuResults.innerElement.childNodes;
-        var selected = children[selectedIndex];
+    const openSelection = function () {
+        const children = menuResults.innerElement.childNodes;
+        const selected = children[selectedIndex];
         if (!selected) return;
 
         pick(selected.ui._assetId);
     };
 
-    var selectIndex = function (index) {
-        var children = menuResults.innerElement.childNodes;
+    const selectIndex = function (index) {
+        const children = menuResults.innerElement.childNodes;
         if (!children.length) return;
 
         if (index < 0)
@@ -163,7 +163,7 @@ editor.once('load', function () {
         else if (index > children.length - 1)
             index = children.length - 1;
 
-        var item;
+        let item;
         if (selectedIndex === index) {
             item = children[index];
             if (!item || item.classList.contains('selected'))
@@ -180,9 +180,9 @@ editor.once('load', function () {
         item.classList.add('selected');
 
         // scroll if necessary
-        var container = item.parentElement;
-        var containerBottom = container.scrollTop + container.offsetHeight;
-        var itemBottom = item.offsetTop + item.offsetHeight;
+        const container = item.parentElement;
+        const containerBottom = container.scrollTop + container.offsetHeight;
+        const itemBottom = item.offsetTop + item.offsetHeight;
         if (itemBottom > containerBottom)
             container.scrollTop += itemBottom - containerBottom;
         else if (item.offsetTop < container.scrollTop)
@@ -191,7 +191,7 @@ editor.once('load', function () {
         selectedIndex = index;
     };
 
-    var onKeyDown = function (e) {
+    const onKeyDown = function (e) {
         // enter
         if (e.keyCode === 13) {
             e.preventDefault();
@@ -209,18 +209,18 @@ editor.once('load', function () {
         }
     };
 
-    var createResultItem = function (asset, index) {
-        var item = menuResults.createItem(asset.get('id'), {
+    const createResultItem = function (asset, index) {
+        const item = menuResults.createItem(asset.get('id'), {
             select: function () {
                 pick(asset.get('id'));
                 editor.call('picker:fuzzy:close');
             }
         });
 
-        var path = asset.get('path');
+        let path = asset.get('path');
         if (path && path.length) {
-            for (var i = 0, len = path.length; i < len; i++) {
-                var a = editor.call('assets:get', path[i]);
+            for (let i = 0, len = path.length; i < len; i++) {
+                const a = editor.call('assets:get', path[i]);
                 path[i] = a ? a.get('name') : a.get('id');
             }
 
@@ -239,16 +239,16 @@ editor.once('load', function () {
         return item;
     };
 
-    var refreshResults = function (results) {
-        var children = menuResults.innerElement.childNodes;
-        var item = children ? children[0] : null;
+    const refreshResults = function (results) {
+        const children = menuResults.innerElement.childNodes;
+        let item = children ? children[0] : null;
         while (item) {
-            var next = item.nextSibling;
+            const next = item.nextSibling;
             item.ui.destroy();
             item = next;
         }
 
-        for (var i = 0, len = results.length; i < len; i++) {
+        for (let i = 0, len = results.length; i < len; i++) {
             const asset = results[i];
             menuResults.append(createResultItem(asset));
         }
@@ -256,18 +256,18 @@ editor.once('load', function () {
 
     // calculate score:
     // Higher score for more matches close to the beginning
-    var calculateScore = function (name, pattern, patternLength) {
-        var score = 0;
-        var nameLength = name.length;
-        var n = 0;
-        var p = 0;
+    const calculateScore = function (name, pattern, patternLength) {
+        let score = 0;
+        const nameLength = name.length;
+        let n = 0;
+        let p = 0;
 
         while (n < nameLength && p < patternLength) {
             if (name[n] === pattern[p]) {
                 score += 1 / (n + 1);
                 p++;
             } else {
-                var otherCase = name[n].toUpperCase();
+                let otherCase = name[n].toUpperCase();
                 if (otherCase === name[n])
                     otherCase = name[n].toLowerCase();
 
@@ -287,9 +287,9 @@ editor.once('load', function () {
     };
 
     // Sorts search results by score
-    var sortByScore = function (a, b) {
-        var aid = a.get('id');
-        var bid = b.get('id');
+    const sortByScore = function (a, b) {
+        const aid = a.get('id');
+        const bid = b.get('id');
         if (scoreIndex[aid] !== undefined && scoreIndex[bid] !== undefined)
             return scoreIndex[bid] - scoreIndex[aid];
 
@@ -303,9 +303,9 @@ editor.once('load', function () {
     };
 
     // Sorts by case insensitive name
-    var sortByName = function (a, b) {
-        var aname = a.get('name').toLowerCase();
-        var bname = b.get('name').toLowerCase();
+    const sortByName = function (a, b) {
+        const aname = a.get('name').toLowerCase();
+        const bname = b.get('name').toLowerCase();
         if (aname < bname)
             return -1;
         if (aname > bname)
@@ -313,21 +313,21 @@ editor.once('load', function () {
         return 0;
     };
 
-    var fuzzySearch = function () {
+    const fuzzySearch = function () {
         const assets = editor.call('assets:raw').data;
 
-        var pattern = fieldSearch.value;
-        var plen = pattern.length;
+        const pattern = fieldSearch.value;
+        const plen = pattern.length;
 
         scoreIndex = {};
-        var results = [];
+        const results = [];
 
         function process(asset) {
             if (asset.get('type') === 'folder') return;
 
-            var name = asset.get('name');
+            const name = asset.get('name');
 
-            var score = calculateScore(name, pattern, plen);
+            const score = calculateScore(name, pattern, plen);
             if (!score) return;
 
             scoreIndex[asset.get('id')] = score;
@@ -335,7 +335,7 @@ editor.once('load', function () {
             results.push(asset);
         }
 
-        for (var i = 0, len = assets.length; i < len; i++) {
+        for (let i = 0, len = assets.length; i < len; i++) {
             process(assets[i]);
         }
 
@@ -351,12 +351,12 @@ editor.once('load', function () {
         selectIndex(0);
     };
 
-    var stackBasedSearch = function () {
-        var skipAssets = {};
-        var results = [];
+    const stackBasedSearch = function () {
+        const skipAssets = {};
+        const results = [];
 
         // first add whatever is in the stack except the selected one
-        var i = selectionStack.length - 1;
+        let i = selectionStack.length - 1;
         while (--i >= 0) {
             let asset;
             if (selectionStack[i] === FIND_RESULTS) {
@@ -404,7 +404,7 @@ editor.once('load', function () {
         selectIndex(0);
     };
 
-    var filterAssets = function () {
+    const filterAssets = function () {
         if (fieldSearch.value) {
             fuzzySearch();
         } else {

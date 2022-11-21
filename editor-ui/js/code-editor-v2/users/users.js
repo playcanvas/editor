@@ -1,8 +1,8 @@
 editor.once('load', function () {
     'use strict';
 
-    var users = { };
-    var userRequests = { };
+    const users = { };
+    const userRequests = { };
 
     // Loads a user from the server
     editor.method('users:loadOne', function (id, callback) {
@@ -21,7 +21,7 @@ editor.once('load', function () {
         .on('load', function (status, data) {
             users[id] = data;
 
-            for (var i = 0; i < userRequests[id].length; i++)
+            for (let i = 0; i < userRequests[id].length; i++)
                 userRequests[id][i](data);
 
             delete userRequests[id];

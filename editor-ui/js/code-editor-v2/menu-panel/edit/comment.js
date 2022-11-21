@@ -1,16 +1,16 @@
 editor.once('load', function () {
     'use strict';
 
-    var menu = editor.call('menu:edit');
-    var me = editor.call('editor:monaco');
-    var ctrl = editor.call('hotkey:ctrl:string');
+    const menu = editor.call('menu:edit');
+    const me = editor.call('editor:monaco');
+    const ctrl = editor.call('hotkey:ctrl:string');
 
-    var canEditLine = function () {
+    const canEditLine = function () {
         return editor.call('editor:resolveConflictMode') || editor.call('documents:getFocused') && !editor.call('editor:isReadOnly');
     };
 
     // toggle comment
-    var item = menu.createItem('toggle-comment', {
+    let item = menu.createItem('toggle-comment', {
         title: 'Toggle Comment',
         filter: canEditLine,
         select: function () {

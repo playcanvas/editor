@@ -1,19 +1,19 @@
 editor.once('load', function () {
-    var panel = editor.call('layout.top');
+    const panel = editor.call('layout.top');
 
-    var wioPanel = new ui.Panel();
+    const wioPanel = new ui.Panel();
     wioPanel.class.add('whoisonline');
     panel.append(wioPanel);
 
-    var itemsIndex = {};
-    var tooltips = {};
+    const itemsIndex = {};
+    const tooltips = {};
 
-    var createItem = function (id) {
-        var item = document.createElement('a');
+    const createItem = function (id) {
+        const item = document.createElement('a');
         item.href = '/' + id;
         item.target = '_blank';
 
-        var img = new Image();
+        const img = new Image();
         img.onload = function () {
             item.style.borderColor = editor.call('users:color', id, 'hex');
         };
@@ -52,7 +52,7 @@ editor.once('load', function () {
         if (focused && focused !== assetId)
             return;
 
-        var item = itemsIndex[userId];
+        const item = itemsIndex[userId];
         if (item) {
             wioPanel.remove(item);
             delete itemsIndex[userId];

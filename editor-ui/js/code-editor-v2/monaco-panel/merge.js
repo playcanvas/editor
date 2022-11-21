@@ -106,7 +106,7 @@ editor.once('load', function () {
         rebuildOverlayGroups() {
             this.overlayGroups.length = 0;
             // sort overlays by position in code
-            var sortedOverlays = this.overlays.slice().sort(function (a, b) {
+            const sortedOverlays = this.overlays.slice().sort(function (a, b) {
                 return a.pos - b.pos;
             });
 
@@ -118,8 +118,8 @@ editor.once('load', function () {
                 };
             }
 
-            var currentGroup;
-            for (var i = 0; i < sortedOverlays.length; i++) {
+            let currentGroup;
+            for (let i = 0; i < sortedOverlays.length; i++) {
                 if (!currentGroup) {
                     currentGroup = createOverlayGroup();
                 }
@@ -198,16 +198,16 @@ editor.once('load', function () {
         goToNextConflict(stayInCurrentConflictIfPossible) {
             this.monacoEditor.focus();
 
-            var len = this.overlayGroups.length;
+            const len = this.overlayGroups.length;
             if (!len) {
                 return;
             }
 
-            var currentPos = this.model.getOffsetAt(this.monacoEditor.getPosition());
-            var foundPos = null;
-            for (var i = 0; i < len; i++) {
-                var group = this.overlayGroups[i];
-                var overlayPos = group.dest !== null ? group.dest : group.src;
+            const currentPos = this.model.getOffsetAt(this.monacoEditor.getPosition());
+            let foundPos = null;
+            for (let i = 0; i < len; i++) {
+                const group = this.overlayGroups[i];
+                const overlayPos = group.dest !== null ? group.dest : group.src;
                 if (stayInCurrentConflictIfPossible && overlayPos >= currentPos || overlayPos > currentPos) {
                     foundPos = overlayPos;
                     break;
@@ -215,12 +215,12 @@ editor.once('load', function () {
             }
 
             if (foundPos === null) {
-                var wrappedGroup = this.overlayGroups[0];
+                const wrappedGroup = this.overlayGroups[0];
                 foundPos = wrappedGroup.dest !== null ? wrappedGroup.dest : wrappedGroup.src;
             }
 
             if (foundPos !== null) {
-                var pos = this.model.getPositionAt(foundPos);
+                const pos = this.model.getPositionAt(foundPos);
                 this.monacoEditor.setPosition(pos);
                 this.monacoEditor.revealRangeInCenterIfOutsideViewport(
                     monaco.Range.fromPositions(pos, pos),
@@ -233,16 +233,16 @@ editor.once('load', function () {
         goToPrevConflict() {
             this.monacoEditor.focus();
 
-            var len = this.overlayGroups.length;
+            const len = this.overlayGroups.length;
             if (!len) {
                 return;
             }
 
-            var currentPos = this.model.getOffsetAt(this.monacoEditor.getPosition());
-            var foundPos = null;
-            for (var i = len - 1; i >= 0; i--) {
-                var group = this.overlayGroups[i];
-                var overlayPos = group.dest !== null ? group.dest : group.src;
+            const currentPos = this.model.getOffsetAt(this.monacoEditor.getPosition());
+            let foundPos = null;
+            for (let i = len - 1; i >= 0; i--) {
+                const group = this.overlayGroups[i];
+                const overlayPos = group.dest !== null ? group.dest : group.src;
                 if (overlayPos < currentPos) {
                     foundPos = overlayPos;
                     break;
@@ -250,12 +250,12 @@ editor.once('load', function () {
             }
 
             if (foundPos === null) {
-                var wrappedGroup = this.overlayGroups[this.overlayGroups.length - 1];
+                const wrappedGroup = this.overlayGroups[this.overlayGroups.length - 1];
                 foundPos = wrappedGroup.dest !== null ? wrappedGroup.dest : wrappedGroup.src;
             }
 
             if (foundPos !== null) {
-                var pos = this.model.getPositionAt(foundPos);
+                const pos = this.model.getPositionAt(foundPos);
                 this.monacoEditor.setPosition(pos);
                 this.monacoEditor.revealRangeInCenterIfOutsideViewport(
                     monaco.Range.fromPositions(pos, pos),
@@ -266,9 +266,9 @@ editor.once('load', function () {
 
         run() {
             // if the conflict is resolved then get the resolved file otherwise get the unresolved file
-            var conflict = config.self.branch.merge.conflict;
-            var isResolved = conflict.useSrc || conflict.useDst || conflict.useMergedFile;
-            var method = isResolved ? 'conflicts:getResolvedFile' : 'conflicts:getUnresolvedFile';
+            const conflict = config.self.branch.merge.conflict;
+            const isResolved = conflict.useSrc || conflict.useDst || conflict.useMergedFile;
+            const method = isResolved ? 'conflicts:getResolvedFile' : 'conflicts:getUnresolvedFile';
             editor.call(
                 method,
                 config.self.branch.merge.id,
@@ -299,7 +299,7 @@ editor.once('load', function () {
         }
     }
 
-    var mergeFileEditor = new MergeFileEditor();
+    const mergeFileEditor = new MergeFileEditor();
     mergeFileEditor.run();
 
     /**

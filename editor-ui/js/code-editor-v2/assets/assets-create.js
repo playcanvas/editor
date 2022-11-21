@@ -6,7 +6,7 @@ editor.once('load', function () {
         // non-file form data should be above file,
         // to make it parsed on back-end first
 
-        var form = new FormData();
+        const form = new FormData();
 
         // scope
         form.append('projectId', config.project.id);
@@ -31,7 +31,7 @@ editor.once('load', function () {
             if (args.parent instanceof Observer) {
                 form.append('parent', args.parent.get('id'));
             } else {
-                var id = parseInt(args.parent, 10);
+                const id = parseInt(args.parent, 10);
                 if (!isNaN(id))
                     form.append('parent', id + '');
             }
@@ -64,7 +64,7 @@ editor.once('load', function () {
         if (args.file && args.file.size)
             form.append('file', args.file, args.filename || args.name);
 
-        var data = {
+        const data = {
             url: '/api/assets',
             method: 'POST',
             auth: true,
@@ -91,7 +91,7 @@ editor.once('load', function () {
     });
 
 
-    var onAssetSelect = function (asset) {
+    const onAssetSelect = function (asset) {
         // do this in a timeout to give the asset a frame
         // to be added to the tree
         setTimeout(function () {
@@ -103,7 +103,7 @@ editor.once('load', function () {
 
     // create asset
     editor.method('assets:create', function (data, fn) {
-        var evtAssetAdd;
+        let evtAssetAdd;
 
         editor.call('status:log', 'Creating new asset...');
 
@@ -122,7 +122,7 @@ editor.once('load', function () {
                 return fn && fn(err);
             }
 
-            var asset = editor.call('assets:get', res.id);
+            const asset = editor.call('assets:get', res.id);
             if (asset) {
                 onAssetSelect(asset);
             } else {

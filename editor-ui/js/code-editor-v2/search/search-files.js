@@ -1,15 +1,15 @@
 editor.once('load', function () {
     'use strict';
 
-    var worker;
+    let worker;
 
-    var todo = 0;
-    var done = 0;
-    var ignored = 0;
+    let todo = 0;
+    let done = 0;
+    let ignored = 0;
 
-    var lastSearchId = 0;
+    let lastSearchId = 0;
 
-    var checkDone = function () {
+    const checkDone = function () {
         if (todo === done) {
             if (worker) {
                 worker.terminate();
@@ -20,11 +20,11 @@ editor.once('load', function () {
         }
     };
 
-    var searchAsset = function (asset, regex, searchId) {
+    const searchAsset = function (asset, regex, searchId) {
         todo++;
 
         // get open document if it exists
-        var doc = editor.call('documents:get', asset.get('id'));
+        const doc = editor.call('documents:get', asset.get('id'));
         if (doc) {
             worker.postMessage({
                 id: asset.get('id'),
@@ -55,7 +55,7 @@ editor.once('load', function () {
         editor.emit('editor:search:files:start');
 
         lastSearchId++;
-        var currentSearchId = lastSearchId;
+        const currentSearchId = lastSearchId;
 
         if (worker) {
             worker.terminate();
@@ -71,30 +71,30 @@ editor.once('load', function () {
             checkDone();
         };
 
-        var assets = editor.call('assets:list');
+        const assets = editor.call('assets:list');
 
         todo = 0;
         done = 0;
         ignored = 0;
 
-        for (var i = 0, len = assets.length; i < len; i++) {
-            var asset = assets[i];
+        for (let i = 0, len = assets.length; i < len; i++) {
+            const asset = assets[i];
             if (asset.get('type') === 'folder') continue;
 
             // skip path rebuilding if there's no include or exclude regexes
             if (includeRegex != null || excludeRegex != null) {
                 // rebuild full path to asset in the style 'src/com/playcanvas/script.js'
-                var path = asset.get('path');
-                var assetFullPath = path.map(id => editor.call('assets:get', id).get('name')).join('/') + (path.length > 0 ? '/' : '') + asset.get('name');
+                const path = asset.get('path');
+                const assetFullPath = path.map(id => editor.call('assets:get', id).get('name')).join('/') + (path.length > 0 ? '/' : '') + asset.get('name');
 
                 // if include is present, discard asset if there's no match to the include regex
-                var includeMatch = assetFullPath.match(includeRegex);
+                const includeMatch = assetFullPath.match(includeRegex);
                 if (includeRegex != null && !(includeMatch !== null && includeMatch.length >= 1)) {
                     ignored++;
                     continue;
                 }
                 // if exclude is present, discard asset if there is a match to the exclude regex
-                var excludeMatch = assetFullPath.match(excludeRegex);
+                const excludeMatch = assetFullPath.match(excludeRegex);
                 if (excludeRegex != null && excludeMatch !== null && excludeMatch.length >= 1) {
                     ignored++;
                     continue;

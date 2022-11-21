@@ -1,25 +1,25 @@
 editor.once('load', function () {
     'use strict';
 
-    var syncPaths = [
+    const syncPaths = [
         'name',
         'file',
         'data'
     ];
 
-    var totalAssets = 0;
-    var loadedAssets = 0;
+    let totalAssets = 0;
+    let loadedAssets = 0;
 
-    var docIndex = {};
+    const docIndex = {};
 
     // Load asset from C3 and call callback
     editor.method('assets:loadOne', function (uniqueId, callback) {
         uniqueId = uniqueId.toString(); // ensure id is string
-        var connection = editor.call('realtime:connection');
-        var assetDoc = connection.get('assets', uniqueId);
+        const connection = editor.call('realtime:connection');
+        const assetDoc = connection.get('assets', uniqueId);
         docIndex[uniqueId] = assetDoc;
 
-        var asset;
+        let asset;
 
         // handle errors
         assetDoc.on('error', function (err) {
@@ -30,7 +30,7 @@ editor.once('load', function () {
 
         // mark asset as done
         assetDoc.on('load', function () {
-            var data = assetDoc.data;
+            const data = assetDoc.data;
             data.id = data.item_id.toString();
             data.uniqueId = uniqueId;
 
@@ -57,7 +57,7 @@ editor.once('load', function () {
             assetDoc.on('op', function (ops, local) {
                 if (local) return;
 
-                for (var i = 0; i < ops.length; i++) {
+                for (let i = 0; i < ops.length; i++) {
                     let dirty = true;
 
                     // When the file changes this means that the
@@ -91,10 +91,10 @@ editor.once('load', function () {
 
     // Handle asset path changes
     editor.method('assets:fs:paths:patch', function (data) {
-        var connection = editor.call('realtime:connection');
-        var assets = connection.collections.assets;
+        const connection = editor.call('realtime:connection');
+        const assets = connection.collections.assets;
 
-        for (var i = 0; i < data.length; i++) {
+        for (let i = 0; i < data.length; i++) {
             if (!assets.hasOwnProperty(data[i].uniqueId))
                 continue;
 
@@ -102,7 +102,7 @@ editor.once('load', function () {
             assets[data[i].uniqueId].data.path = data[i].path;
 
             // sync observer
-            var observer = editor.call('assets:get', data[i].id);
+            const observer = editor.call('assets:get', data[i].id);
             if (observer) {
                 observer.sync.write({
                     p: ['path'],
@@ -115,7 +115,7 @@ editor.once('load', function () {
 
     // destroy documents if assets are deleted
     editor.on('assets:remove', function (asset) {
-        var doc = docIndex[asset.get('uniqueId')];
+        const doc = docIndex[asset.get('uniqueId')];
         if (doc) {
             doc.unsubscribe();
             doc.destroy();
@@ -123,7 +123,7 @@ editor.once('load', function () {
         }
     });
 
-    var loadEditableAssets = function () {
+    const loadEditableAssets = function () {
         editor.call('assets:load:progress', 0);
 
         Ajax({
@@ -141,11 +141,11 @@ editor.once('load', function () {
             loadedAssets = 0;
 
             // do bulk subscribe in batches of 'batchSize' assets
-            var batchSize = 256;
-            var startBatch = 0;
-            var connection = editor.call('realtime:connection');
+            const batchSize = 256;
+            let startBatch = 0;
+            const connection = editor.call('realtime:connection');
 
-            var onLoad = function () {
+            const onLoad = function () {
                 loadedAssets++;
                 editor.emit('assets:load:progress', loadedAssets / totalAssets);
                 if (totalAssets === loadedAssets) {
@@ -157,7 +157,7 @@ editor.once('load', function () {
             while (startBatch < totalAssets) {
                 // start bulk subscribe
                 connection.startBulk();
-                for (var i = startBatch; i < startBatch + batchSize && i < totalAssets; i++) {
+                for (let i = startBatch; i < startBatch + batchSize && i < totalAssets; i++) {
                     editor.call('assets:loadOne', res[i].uniqueId, onLoad);
                 }
                 // end bulk subscribe and send message to server
@@ -177,8 +177,8 @@ editor.once('load', function () {
 
     // this is for reconnections
     editor.on('realtime:authenticated', function () {
-        for (var id in docIndex) {
-            var assetDoc = docIndex[id];
+        for (const id in docIndex) {
+            const assetDoc = docIndex[id];
 
             // check if we are no longer subscribed
             // to the document and re-subscribe
@@ -196,7 +196,7 @@ editor.once('load', function () {
     // pause any asset operations while we are disconnected
     // and resume when we reauthenticate
     editor.on('realtime:disconnected', function () {
-        for (var id in docIndex) {
+        for (const id in docIndex) {
             docIndex[id].pause();
         }
     });

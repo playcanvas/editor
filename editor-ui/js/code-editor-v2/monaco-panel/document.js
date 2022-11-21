@@ -3,7 +3,7 @@ editor.once('load', function () {
 
     const panel = editor.call('layout.code');
 
-    var monacoEditor = editor.call('editor:monaco');
+    const monacoEditor = editor.call('editor:monaco');
     const viewIndex = {};
     let focusedView = null;
 
@@ -16,8 +16,8 @@ editor.once('load', function () {
     };
 
     function refreshReadonly() {
-        var readonly = editor.call('editor:isReadOnly');
-        var wasReadonly = monacoEditor.getOption('readOnly');
+        const readonly = editor.call('editor:isReadOnly');
+        const wasReadonly = monacoEditor.getOption('readOnly');
         monacoEditor.updateOptions({ readOnly: readonly });
 
         if (readonly !== wasReadonly)
@@ -38,18 +38,18 @@ editor.once('load', function () {
     // When document is loaded create document
     // and add entry to index
     editor.on('documents:load', function (doc, asset) {
-        var id = asset.get('id');
+        const id = asset.get('id');
         if (viewIndex[id]) return;
 
-        var mode;
-        var type = asset.get('type');
+        let mode;
+        const type = asset.get('type');
         if (modes[type]) {
             mode = modes[type];
         } else {
             mode = null;
         }
 
-        var entry = {
+        const entry = {
             doc: doc,
             type: type,
             asset: asset,
@@ -88,7 +88,7 @@ editor.once('load', function () {
         }
 
         if (focusedView && viewIndex[id] === focusedView) {
-            var content = focusedView.doc.data;
+            const content = focusedView.doc.data;
             if (focusedView.view.getValue() === content) {
                 return;
             }
@@ -196,7 +196,7 @@ editor.once('load', function () {
 
     // Returns the monaco view for an id
     editor.method('views:get', function (id) {
-        var entry = viewIndex[id];
+        const entry = viewIndex[id];
         return entry ? entry.view : null;
     });
 });

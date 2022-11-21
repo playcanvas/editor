@@ -1,7 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    var permissions = { };
+    const permissions = { };
 
     // cache permissions in a dictionary
     ['read', 'write', 'admin'].forEach(function (access) {
@@ -33,10 +33,10 @@ editor.once('load', function () {
 
     // subscribe to messenger
     editor.on('messenger:project.permissions', function (msg) {
-        var userId = msg.user.id;
+        const userId = msg.user.id;
 
         // remove from read
-        var ind = config.project.permissions.read.indexOf(userId);
+        let ind = config.project.permissions.read.indexOf(userId);
         if (ind !== -1)
             config.project.permissions.read.splice(ind, 1);
 
@@ -54,7 +54,7 @@ editor.once('load', function () {
 
         delete permissions[userId];
 
-        var accessLevel = msg.user.permission;
+        const accessLevel = msg.user.permission;
 
         // add new permission
         if (accessLevel) {
@@ -73,7 +73,7 @@ editor.once('load', function () {
 
     // subscribe to project private changes
     editor.on('messenger:project.private', function (msg) {
-        var projectId = msg.project.id;
+        const projectId = msg.project.id;
         if (config.project.id !== projectId)
             return;
 

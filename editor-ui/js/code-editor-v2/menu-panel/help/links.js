@@ -1,10 +1,10 @@
 editor.once('load', function () {
     'use strict';
 
-    var menu = editor.call('menu:help');
+    const menu = editor.call('menu:help');
 
     // API ref
-    var item = menu.createItem('open-api-ref', {
+    let item = menu.createItem('open-api-ref', {
         title: 'API Reference',
         select: function () {
             return editor.call('editor:command:openApiReference');

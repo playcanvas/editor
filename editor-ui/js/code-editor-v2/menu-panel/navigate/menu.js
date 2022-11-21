@@ -1,14 +1,14 @@
 editor.once('load', function () {
     'use strict';
 
-    var root = editor.call('layout.root');
-    var panel = editor.call('layout.top');
+    const root = editor.call('layout.root');
+    const panel = editor.call('layout.top');
 
-    var menuNavigate = new ui.Menu();
+    const menuNavigate = new ui.Menu();
     menuNavigate.position(168, 33);
     root.append(menuNavigate);
 
-    var btnNavigate = new ui.Button({
+    const btnNavigate = new ui.Button({
         text: 'Navigate'
     });
 

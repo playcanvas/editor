@@ -1,26 +1,26 @@
 editor.once('load', function () {
     'use strict';
 
-    var callback = null;
-    var filenameValid = /^([^0-9.#<>$+%!`&='{}@\\/:*?"<>|\n])([^#<>$+%!`&='{}@\\/:*?"<>|\n])*$/i;
+    let callback = null;
+    const filenameValid = /^([^0-9.#<>$+%!`&='{}@\\/:*?"<>|\n])([^#<>$+%!`&='{}@\\/:*?"<>|\n])*$/i;
 
     // overlay
-    var overlay = new ui.Overlay();
+    const overlay = new ui.Overlay();
     overlay.class.add('picker-script-create');
     overlay.hidden = true;
 
     // label
-    var label = new ui.Label();
+    const label = new ui.Label();
     label.text = 'Enter script filename:';
     label.class.add('text');
     overlay.append(label);
 
-    var input = new ui.TextField();
+    const input = new ui.TextField();
     input.blurOnEnter = false;
     input.renderChanges = false;
     overlay.append(input);
 
-    var validate = new ui.Label();
+    const validate = new ui.Label();
     validate.text = 'Invalid filename';
     validate.class.add('validate');
     overlay.append(validate);
@@ -30,7 +30,7 @@ editor.once('load', function () {
 
         if (evt.keyCode === 13) {
             // enter
-            var filename = input.value.trim();
+            let filename = input.value.trim();
             if (!filename || !filenameValid.test(filename)) {
                 validate.hidden = false;
             } else {
@@ -51,7 +51,7 @@ editor.once('load', function () {
         }
     }, false);
 
-    var root = editor.call('layout.root');
+    const root = editor.call('layout.root');
     root.append(overlay);
 
 

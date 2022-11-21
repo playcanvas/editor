@@ -1,14 +1,14 @@
 editor.once('load', function () {
     'use strict';
 
-    var root = editor.call('layout.root');
-    var panel = editor.call('layout.top');
+    const root = editor.call('layout.root');
+    const panel = editor.call('layout.top');
 
-    var menuHelp = new ui.Menu();
+    const menuHelp = new ui.Menu();
     menuHelp.position(310, 33);
     root.append(menuHelp);
 
-    var btnHelp = new ui.Button({
+    const btnHelp = new ui.Button({
         text: 'Help'
     });
 

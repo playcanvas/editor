@@ -1,26 +1,26 @@
 editor.once('load', function () {
     'use strict';
 
-    var documentsIndex = {};
+    const documentsIndex = {};
 
     // load requests that have been
     // queued for after an asset file
     // becomes available for example
-    var queuedLoad = {};
+    const queuedLoad = {};
 
     // the last document id the
     // user requested to focus
-    var lastFocusedId = null;
+    let lastFocusedId = null;
 
     // Loads the editable document that corresponds to the specified asset id
-    var loadDocument = function (asset) {
-        var id = asset.get('id').toString();
-        var uniqueId = asset.get('uniqueId').toString();
-        var connection = editor.call('realtime:connection');
-        var doc = connection.get('documents', uniqueId);
+    const loadDocument = function (asset) {
+        const id = asset.get('id').toString();
+        const uniqueId = asset.get('uniqueId').toString();
+        const connection = editor.call('realtime:connection');
+        const doc = connection.get('documents', uniqueId);
 
         // add index entry
-        var entry = {
+        const entry = {
             id: id,
             uniqueId: uniqueId,
             doc: doc,
@@ -59,7 +59,7 @@ editor.once('load', function () {
                 // re-check if we haven't closed the file
                 if (!documentsIndex[id] || err) return;
 
-                var dirty = doc.data !== content;
+                const dirty = doc.data !== content;
                 if (entry.isDirty !== dirty) {
                     entry.isDirty = dirty;
                     editor.emit('documents:dirty', id, dirty);
@@ -79,7 +79,7 @@ editor.once('load', function () {
             return;
         }
 
-        var id = asset.get('id');
+        const id = asset.get('id');
         lastFocusedId = id;
 
         // if already loaded just focus it
@@ -100,7 +100,7 @@ editor.once('load', function () {
             // wait until the asset's file is ready
             // or when we are reconnected and load it then
             if (!queuedLoad[asset.get('id')]) {
-                var evtLoad = asset.once('file.filename:set', function () {
+                const evtLoad = asset.once('file.filename:set', function () {
                     delete queuedLoad[asset.get('id')];
                     loadDocument(asset);
                 });
@@ -113,14 +113,14 @@ editor.once('load', function () {
 
     // Unload document
     editor.on('documents:close', function (id) {
-        var entry = documentsIndex[id];
+        const entry = documentsIndex[id];
         if (entry) {
             entry.doc.unsubscribe();
             entry.doc.destroy();
             delete documentsIndex[id];
 
             // send close message to update whoisonline for document
-            var connection = editor.call('realtime:connection');
+            const connection = editor.call('realtime:connection');
             connection.socket.send('close:document:' + entry.uniqueId);
         }
 
@@ -148,30 +148,30 @@ editor.once('load', function () {
     editor.on('documents:error', function (id, err) {
         log.error(err);
 
-        var entry = documentsIndex[id];
+        const entry = documentsIndex[id];
         if (!entry) return;
 
         entry.error = err;
-        var asset = editor.call('assets:get', id);
+        const asset = editor.call('assets:get', id);
         editor.call('status:error', 'Realtime error for document "' + asset.get('name') + '": ' + err + '. Please reload this document.');
     });
 
     // Check if document content differs from asset file contents
     editor.method('documents:isDirty', function (id) {
-        var entry = documentsIndex[id];
+        const entry = documentsIndex[id];
         return entry ? entry.isDirty : false;
     });
 
     // Update dirty status
     editor.on('documents:dirty', function (id, dirty) {
-        var entry = documentsIndex[id];
+        const entry = documentsIndex[id];
         if (entry)
             entry.isDirty = dirty;
     });
 
     // Returns true if the document hasn't finished loading yet
     editor.method('documents:isLoading', function (id) {
-        var entry = documentsIndex[id];
+        const entry = documentsIndex[id];
         return entry ? entry.isLoading : false;
     });
 
@@ -180,7 +180,7 @@ editor.once('load', function () {
         // pause all documents otherwise
         // the documents will attempt to sync to the server
         // as soon as we reconnect before we manage to re-authenticate first
-        for (var id in documentsIndex) {
+        for (const id in documentsIndex) {
             documentsIndex[id].doc.pause();
         }
     });

@@ -1,13 +1,13 @@
 editor.once('load', function () {
     'use strict';
 
-    var root = editor.call('layout.root');
-    var menu = new ui.Menu();
+    const root = editor.call('layout.root');
+    const menu = new ui.Menu();
     root.append(menu);
 
     menu.class.add('context');
 
-    var currentAsset = null;
+    let currentAsset = null;
 
     // Return menu
     editor.method('files:contextmenu', function () {
@@ -17,7 +17,7 @@ editor.once('load', function () {
     // Get the assets that should be affected by the context menu
     // item
     editor.method('files:contextmenu:selected', function () {
-        var selected = editor.call('assets:selected');
+        const selected = editor.call('assets:selected');
         if (!currentAsset) {
             return [];
         }
@@ -31,7 +31,7 @@ editor.once('load', function () {
 
     // show context menu for tree item
     editor.method('files:contextmenu:attach', function (treeItem) {
-        var showMenu = function (e) {
+        const showMenu = function (e) {
             e.stopPropagation();
             e.preventDefault();
 
@@ -41,7 +41,7 @@ editor.once('load', function () {
             menu.position(e.clientX + 1, e.clientY);
         };
 
-        var el = treeItem.element;
+        const el = treeItem.element;
         el.addEventListener('contextmenu', showMenu);
         treeItem.on('destroy', function () {
             el.removeEventListener('contextmenu', showMenu);

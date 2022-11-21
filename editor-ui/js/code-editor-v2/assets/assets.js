@@ -1,12 +1,12 @@
 editor.once('load', function () {
     'use strict';
 
-    var uniqueIdToItemId = {};
+    const uniqueIdToItemId = {};
 
-    var assets = new ObserverList({
+    const assets = new ObserverList({
         index: 'id',
         sorted: function (a, b) {
-            var f = (b._data.type === 'folder') - (a._data.type === 'folder');
+            const f = (b._data.type === 'folder') - (a._data.type === 'folder');
 
             if (f !== 0)
                 return f;
@@ -39,7 +39,7 @@ editor.once('load', function () {
         // function to get latest version of asset observer
         asset.latestFn = createLatestFn(asset.get('id'));
 
-        var pos = assets.add(asset);
+        const pos = assets.add(asset);
 
         if (pos === null)
             return;
@@ -48,9 +48,9 @@ editor.once('load', function () {
             name = name.toLowerCase();
             nameOld = nameOld.toLowerCase();
 
-            var ind = assets.data.indexOf(this);
-            var pos = assets.positionNextClosest(this, function (a, b) {
-                var f = (b._data.type === 'folder') - (a._data.type === 'folder');
+            const ind = assets.data.indexOf(this);
+            let pos = assets.positionNextClosest(this, function (a, b) {
+                const f = (b._data.type === 'folder') - (a._data.type === 'folder');
 
                 if (f !== 0)
                     return f;
@@ -99,7 +99,7 @@ editor.once('load', function () {
 
     // get asset by unique id
     editor.method('assets:getUnique', function (uniqueId) {
-        var id = uniqueIdToItemId[uniqueId];
+        const id = uniqueIdToItemId[uniqueId];
         return id ? assets.get(id) : null;
     });
 

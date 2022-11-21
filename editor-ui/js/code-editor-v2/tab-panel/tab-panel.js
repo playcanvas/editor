@@ -1,44 +1,44 @@
 editor.once('load', function () {
     'use strict';
 
-    var panel = editor.call('layout.tabs');
+    const panel = editor.call('layout.tabs');
 
     // holds tabs
-    var tabsIndex = {};
+    const tabsIndex = {};
 
     // tab order
-    var tabOrder = [];
+    const tabOrder = [];
 
     // The focused tab
-    var focusedTab = null;
+    let focusedTab = null;
     // The tab that new files will use
     // to open in
-    var temporaryTab = null;
+    let temporaryTab = null;
 
     // The tab that the user is currently dragging
-    var grabbedTab = null;
+    let grabbedTab = null;
 
     // mouse x when we grabbed a tab
-    var grabbedMouseX = 0;
+    let grabbedMouseX = 0;
     // tab x when we grabbed it
-    var grabbedX = 0;
+    let grabbedX = 0;
 
     // tab positions when we grabbed a tab
-    var tabPositions = [];
+    const tabPositions = [];
 
     // if true then when we close a tab
     // we won't automatically select a different tab
-    var batchClose = false;
+    let batchClose = false;
 
     // If true then the temporary tab will
     // not switch to a different file
-    var lockTemporary = false;
+    let lockTemporary = false;
 
     // pseudo-id of find in files tab
-    var FIND_IN_FILES = 'Find in Files';
+    const FIND_IN_FILES = 'Find in Files';
 
-    var updateDirty = function (id, dirty) {
-        var entry = tabsIndex[id];
+    const updateDirty = function (id, dirty) {
+        const entry = tabsIndex[id];
         if (entry) {
             if (dirty) {
                 entry.tab.class.add('dirty');
@@ -50,8 +50,8 @@ editor.once('load', function () {
     };
 
     // focus a tab
-    var focusTab = function (id) {
-        var entry = tabsIndex[id];
+    const focusTab = function (id) {
+        const entry = tabsIndex[id];
         if (focusedTab === entry) {
             return;
         }
@@ -77,13 +77,13 @@ editor.once('load', function () {
     };
 
     // Closes a tab
-    var closeTab = function (id) {
-        var tab = tabsIndex[id];
+    const closeTab = function (id) {
+        const tab = tabsIndex[id];
         if (!tab) return;
 
         tab.tab.destroy();
 
-        var order = tabOrder.indexOf(tab);
+        const order = tabOrder.indexOf(tab);
 
         if (temporaryTab === tab)
             temporaryTab = null;
@@ -101,7 +101,7 @@ editor.once('load', function () {
             focusedTab = null;
 
             if (!batchClose) {
-                var next = tabOrder[order - 1] || tabOrder[order];
+                const next = tabOrder[order - 1] || tabOrder[order];
 
                 if (next) {
                     if (next.asset) {
@@ -116,19 +116,19 @@ editor.once('load', function () {
         }
     };
 
-    var moveTab = function (e) {
+    const moveTab = function (e) {
         e.preventDefault();
         e.stopPropagation();
 
-        var x = Math.max(0, grabbedX + e.clientX - grabbedMouseX);
+        const x = Math.max(0, grabbedX + e.clientX - grabbedMouseX);
         grabbedTab.tab.style.left = x + 'px';
 
         // search if we need to swap places with other tabs
-        var index = tabOrder.indexOf(grabbedTab);
+        let index = tabOrder.indexOf(grabbedTab);
 
-        var width = grabbedTab.tab.element.offsetWidth;
+        const width = grabbedTab.tab.element.offsetWidth;
 
-        var searchRight = true;
+        let searchRight = true;
 
         // first search left
         for (let i = index - 1; i >= 0; i--) {
@@ -180,7 +180,7 @@ editor.once('load', function () {
         }
     };
 
-    var releaseTab = function () {
+    const releaseTab = function () {
         window.removeEventListener('mouseup', releaseTab);
         window.removeEventListener('mousemove', moveTab);
 
@@ -200,7 +200,7 @@ editor.once('load', function () {
         tabPositions.length = 0;
     };
 
-    var grabTab = function (tab, e) {
+    const grabTab = function (tab, e) {
         grabbedTab = tab;
 
         grabbedMouseX = e.clientX;
@@ -209,7 +209,7 @@ editor.once('load', function () {
         // turn all tabs to absolute positioning
         // but first get their coords before we start
         // changing them
-        var widths = [];
+        const widths = [];
         for (let i = 0; i < tabOrder.length; i++) {
             tabPositions.push(tabOrder[i].tab.element.offsetLeft);
             widths.push(tabOrder[i].tab.element.offsetWidth);
@@ -243,23 +243,23 @@ editor.once('load', function () {
     };
 
     // creates a tab
-    var createTab = function (id, asset) {
-        var tabName = asset ? asset.get('name') : id;
+    const createTab = function (id, asset) {
+        const tabName = asset ? asset.get('name') : id;
 
-        var tab = new ui.Panel();
+        const tab = new ui.Panel();
         tab.class.add('tab');
 
         if (asset)
             tab._assetId = id;
 
         // name container
-        var panelName = new ui.Panel();
+        const panelName = new ui.Panel();
         panelName.class.add('name');
 
         tab.append(panelName);
 
         // tab name
-        var name = new ui.Label({
+        const name = new ui.Label({
             text: tabName
         });
         name.class.add('name');
@@ -267,7 +267,7 @@ editor.once('load', function () {
         panelName.append(name);
 
         // close button
-        var btnClose = new ui.Button({
+        const btnClose = new ui.Button({
             text: '&#57650;'
         });
         btnClose.class.add('close');
@@ -275,7 +275,7 @@ editor.once('load', function () {
         tab.append(btnClose);
 
         // loading progress
-        var progress;
+        let progress;
         if (asset) {
             progress = new ui.Progress();
             progress.progress = 100;
@@ -283,7 +283,7 @@ editor.once('load', function () {
         }
 
         // add index entry
-        var entry = {
+        const entry = {
             id: id,
             tab: tab,
             name: name
@@ -297,7 +297,7 @@ editor.once('load', function () {
         tabsIndex[id] = entry;
 
         // add the tab next to the focused tab
-        var focused = -1;
+        let focused = -1;
         if (focusedTab) {
             focused = tabOrder.indexOf(focusedTab);
         }
@@ -310,7 +310,7 @@ editor.once('load', function () {
             panel.append(tab);
         }
 
-        var close = function () {
+        const close = function () {
             if (asset)
                 editor.emit('documents:close', id);
             else
@@ -323,7 +323,7 @@ editor.once('load', function () {
             close();
         });
 
-        var onGrab = function (e) {
+        const onGrab = function (e) {
             if (e.target === btnClose.element)
                 return;
 
@@ -345,11 +345,11 @@ editor.once('load', function () {
             }
         };
 
-        var onMouseEnter = function (e) {
+        const onMouseEnter = function (e) {
             tab.class.add('hovered');
         };
 
-        var onMouseLeave = function (e) {
+        const onMouseLeave = function (e) {
             tab.class.remove('hovered');
         };
 
@@ -377,8 +377,8 @@ editor.once('load', function () {
         editor.emit('tabs:open', entry);
     };
 
-    var toggleProgress = function (id, toggle) {
-        var tab = tabsIndex[id];
+    const toggleProgress = function (id, toggle) {
+        const tab = tabsIndex[id];
         if (tab && tab.progress)
             tab.progress.hidden = !toggle;
     };
@@ -390,9 +390,9 @@ editor.once('load', function () {
         if (asset.get('type') === 'folder')
             return;
 
-        var id = asset.get('id');
+        const id = asset.get('id');
 
-        var isNew = !tabsIndex[id];
+        const isNew = !tabsIndex[id];
 
         if (isNew) {
 
@@ -468,14 +468,14 @@ editor.once('load', function () {
     });
 
     editor.on('documents:save:success', function (uniqueId) {
-        var asset = editor.call('assets:getUnique', uniqueId);
+        const asset = editor.call('assets:getUnique', uniqueId);
         if (asset) {
             toggleProgress(asset.get('id'), false);
         }
     });
 
     editor.on('documents:save:error', function (uniqueId) {
-        var asset = editor.call('assets:getUnique', uniqueId);
+        const asset = editor.call('assets:getUnique', uniqueId);
         if (asset) {
             toggleProgress(asset.get('id'), false);
         }
@@ -526,7 +526,7 @@ editor.once('load', function () {
 
     // close tab
     editor.method('tabs:close', function (id) {
-        var entry = tabsIndex[id];
+        const entry = tabsIndex[id];
         if (!entry) return;
 
         if (entry.asset)
@@ -538,7 +538,7 @@ editor.once('load', function () {
     // handle asset name changes
     editor.on('assets:add', function (asset) {
         asset.on('name:set', function (name) {
-            var entry = tabsIndex[asset.get('id')];
+            const entry = tabsIndex[asset.get('id')];
             if (entry)
                 entry.name.text = name;
         });
@@ -546,7 +546,7 @@ editor.once('load', function () {
 
     // Mark errored tab
     editor.on('documents:error', function (id) {
-        var entry = tabsIndex[id];
+        const entry = tabsIndex[id];
         if (entry)
             entry.tab.class.add('error');
     });

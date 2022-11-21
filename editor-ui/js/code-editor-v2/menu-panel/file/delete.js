@@ -1,8 +1,8 @@
 editor.once('load', function () {
     'use strict';
 
-    var menu = editor.call('menu:file');
-    var leftPanel = editor.call('layout.left');
+    const menu = editor.call('menu:file');
+    const leftPanel = editor.call('layout.left');
 
     menu.append(menu.createItem('delete-selected', {
         title: 'Delete Selected Files',
@@ -14,7 +14,7 @@ editor.once('load', function () {
         }
     }));
 
-    var ctxMenu = editor.call('files:contextmenu');
+    const ctxMenu = editor.call('files:contextmenu');
     ctxMenu.append(ctxMenu.createItem('delete', {
         title: 'Delete',
         filter: function () {
@@ -62,7 +62,7 @@ editor.once('load', function () {
     editor.method('editor:command:deleteSelected', function () {
         if (!editor.call('permissions:write')) return;
 
-        var selected = editor.call('assets:selected');
+        const selected = editor.call('assets:selected');
         if (selected.length)
             editor.call('assets:delete:picker', selected);
     });

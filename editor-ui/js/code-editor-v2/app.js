@@ -33,7 +33,7 @@
 
     CodeEditor.prototype.call = function (name) {
         if (this._hooks[name]) {
-            var args = Array.prototype.slice.call(arguments, 1);
+            const args = Array.prototype.slice.call(arguments, 1);
 
             try {
                 return this._hooks[name].apply(null, args);
@@ -48,7 +48,7 @@
     window.editor = new CodeEditor();
 
 
-    var visible = !document.hidden;
+    let visible = !document.hidden;
 
     document.addEventListener('visibilitychange', function () {
         if (visible === !document.hidden)
@@ -85,9 +85,9 @@
 (function () {
     'use strict';
 
-    var applyConfig = function (path, value) {
+    const applyConfig = function (path, value) {
         if (typeof (value) === 'object') {
-            for (var key in value) {
+            for (const key in value) {
                 applyConfig((path ? path + '.' : '') + key, value[key]);
             }
         } else {

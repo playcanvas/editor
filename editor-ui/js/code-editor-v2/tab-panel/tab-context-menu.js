@@ -1,13 +1,13 @@
 editor.once('load', function () {
     'use strict';
 
-    var root = editor.call('layout.root');
-    var menu = new ui.Menu();
+    const root = editor.call('layout.root');
+    const menu = new ui.Menu();
     root.append(menu);
 
     menu.class.add('context');
 
-    var currentTab = null;
+    let currentTab = null;
 
     // Return menu
     editor.method('tabs:contextmenu', function () {
@@ -16,7 +16,7 @@ editor.once('load', function () {
 
     // show context menu for a tab
     editor.method('tabs:contextmenu:attach', function (tab) {
-        var showMenu = function (e) {
+        const showMenu = function (e) {
             e.stopPropagation();
             e.preventDefault();
 
@@ -26,7 +26,7 @@ editor.once('load', function () {
             menu.position(e.clientX + 1, e.clientY);
         };
 
-        var el = tab.tab.element;
+        const el = tab.tab.element;
         el.addEventListener('contextmenu', showMenu);
         tab.tab.on('destroy', function () {
             el.removeEventListener('contextmenu', showMenu);
@@ -48,8 +48,8 @@ editor.once('load', function () {
             return editor.call('tabs:list').length > 1;
         },
         select: function () {
-            var tabs = editor.call('tabs:list');
-            var i = tabs.length;
+            const tabs = editor.call('tabs:list');
+            let i = tabs.length;
             while (i--) {
                 if (tabs[i] === currentTab)
                     continue;
@@ -63,15 +63,15 @@ editor.once('load', function () {
     menu.append(menu.createItem('close-right', {
         title: 'Close Tabs To The Right',
         filter: function () {
-            var tabs = editor.call('tabs:list');
-            var idx = tabs.indexOf(currentTab);
+            const tabs = editor.call('tabs:list');
+            const idx = tabs.indexOf(currentTab);
             return idx >= 0 && idx < tabs.length - 1;
         },
         select: function () {
-            var tabs = editor.call('tabs:list');
-            var idx = tabs.indexOf(currentTab);
+            const tabs = editor.call('tabs:list');
+            const idx = tabs.indexOf(currentTab);
             if (idx === -1) return;
-            var i = tabs.length;
+            let i = tabs.length;
             while (i-- && i > idx) {
                 editor.call('tabs:close', tabs[i].id);
             }
@@ -83,8 +83,8 @@ editor.once('load', function () {
         title: 'Close All Tabs',
         select: function () {
             editor.call('tabs:batchClose:start');
-            var tabs = editor.call('tabs:list');
-            var i = tabs.length;
+            const tabs = editor.call('tabs:list');
+            let i = tabs.length;
             while (i--) {
                 editor.call('tabs:close', tabs[i].id);
             }

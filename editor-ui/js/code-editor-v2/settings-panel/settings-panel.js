@@ -73,7 +73,7 @@ editor.once('load', function () {
     };
 
     const themes = editor.call('editor:themes');
-    const themeOptions = Object.keys(themes).map(key => {
+    const themeOptions = Object.keys(themes).map((key) => {
         return {
             v: key,
             t: themes[key]

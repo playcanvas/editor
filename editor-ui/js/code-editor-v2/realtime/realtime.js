@@ -1,33 +1,33 @@
 editor.once('load', function () {
     'use strict';
 
-    var RECONNECT_INTERVAL = 1;
-    var reconnectInterval = RECONNECT_INTERVAL;
+    const RECONNECT_INTERVAL = 1;
+    let reconnectInterval = RECONNECT_INTERVAL;
 
-    var connection;
-    var socket;
+    let connection;
+    let socket;
 
-    var isConnected = false;
-    var isAuthenticated = false;
+    let isConnected = false;
+    let isAuthenticated = false;
 
-    var onError = function (err) {
+    const onError = function (err) {
         editor.emit('realtime:error', err);
     };
 
-    var connect = function () {
+    const connect = function () {
         editor.emit('realtime:connecting');
 
-        var msgBuffer = [];
+        const msgBuffer = [];
 
         // When socket is connected send auth message
-        var onOpen = function () {
+        const onOpen = function () {
             isConnected = true;
             reconnectInterval = RECONNECT_INTERVAL;
             socket.send('auth' + JSON.stringify({}));
         };
 
         // If socket is closed try to reconnect
-        var onClose = function (reason) {
+        const onClose = function (reason) {
             isConnected = false;
             isAuthenticated = false;
 
@@ -47,7 +47,7 @@ editor.once('load', function () {
                 reconnectInterval++;
         };
 
-        var createShareDbConnection = function () {
+        const createShareDbConnection = function () {
             if (!connection) {
                 // if we are connecting for the first time
                 // create new sharedb connection
@@ -60,7 +60,7 @@ editor.once('load', function () {
             }
 
             // hook handlers on socket
-            var onShareDbMessage = connection.socket.onmessage;
+            const onShareDbMessage = connection.socket.onmessage;
 
             // Message handler
             connection.socket.onmessage = function (msg) {
@@ -113,7 +113,7 @@ editor.once('load', function () {
             };
 
             // Close handler
-            var onConnectionClosed = connection.socket.onclose;
+            const onConnectionClosed = connection.socket.onclose;
             connection.socket.onclose = function (reason) {
                 onConnectionClosed(reason);
                 onClose(reason);
@@ -121,14 +121,14 @@ editor.once('load', function () {
 
             // pass any buffered messages that came before
             // authentication to the connection
-            for (var i = 0; i < msgBuffer.length; i++) {
+            for (let i = 0; i < msgBuffer.length; i++) {
                 connection.socket.onmessage(msgBuffer[i]);
             }
             msgBuffer.length = 0;
         };
 
         // Handle initial messages until we are authenticated
-        var onMessage = function (msg) {
+        const onMessage = function (msg) {
             // put any irrelevant messages in the buffer
             if (!msg.data.startsWith('auth')) {
                 msgBuffer.push(msg);

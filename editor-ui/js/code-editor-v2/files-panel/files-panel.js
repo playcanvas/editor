@@ -1,16 +1,16 @@
 editor.once('load', function () {
     'use strict';
 
-    var panel = editor.call('layout.left');
+    const panel = editor.call('layout.left');
 
-    var isTreeEditable = function () {
+    const isTreeEditable = function () {
         return editor.call('permissions:write') &&
                 editor.call('realtime:isConnected') &&
                 !editor.call('errors:hasRealtime');
     };
 
     // files tree
-    var tree = new ui.Tree();
+    const tree = new ui.Tree();
     tree.allowRenaming = true;
     tree.draggable = false;
     tree.reordering = false;
@@ -19,7 +19,7 @@ editor.once('load', function () {
     panel.append(tree);
 
     // loading progress bar
-    var progressBar = new ui.Progress();
+    const progressBar = new ui.Progress();
     panel.append(progressBar);
 
     editor.on('assets:load:progress', function (progress) {
@@ -27,7 +27,7 @@ editor.once('load', function () {
         progressBar.progress = progress;
     });
 
-    var refreshTreePermissions = function () {
+    const refreshTreePermissions = function () {
         tree.draggable = isTreeEditable();
     };
 
@@ -37,13 +37,13 @@ editor.once('load', function () {
     editor.on('realtime:authenticated', refreshTreePermissions);
     editor.on('realtime:disconnected', refreshTreePermissions);
 
-    var resizeQueued = false;
-    var resizeTree = function () {
+    let resizeQueued = false;
+    const resizeTree = function () {
         resizeQueued = false;
         tree.element.style.width = '';
         tree.element.style.width = (panel.innerElement.scrollWidth - 5) + 'px';
     };
-    var resizeQueue = function () {
+    const resizeQueue = function () {
         if (resizeQueued) return;
         resizeQueued = true;
         requestAnimationFrame(resizeTree);
@@ -54,7 +54,7 @@ editor.once('load', function () {
     setInterval(resizeQueue, 1000);
 
     // tree root
-    var treeRoot = new ui.TreeItem({
+    const treeRoot = new ui.TreeItem({
         text: '/'
     });
     // do not allow double click renaming
@@ -68,22 +68,22 @@ editor.once('load', function () {
     editor.call('files:contextmenu:attach', treeRoot);
 
     // contains <asset id, tree item>
-    var itemIndex = {};
+    const itemIndex = {};
 
     // contains <folder id, nodes that wait for folder id to be added>
-    var waitingParent = {};
+    const waitingParent = {};
 
     // assets to be selected once everything is loaded
-    var toBeSelected = [];
+    const toBeSelected = [];
 
     // Select item or expand children
     // but only de-select if there are multiple items selected.
     // This is to avoid having no selected files in the tree view
-    var onItemClick = function (evt) {
+    const onItemClick = function (evt) {
         if (evt.button !== 0 || !this.ui.selectable)
             return;
 
-        var rect = this.getBoundingClientRect();
+        const rect = this.getBoundingClientRect();
 
         if (this.ui._children && (evt.clientX - rect.left) < 0) {
             this.ui.open = !this.ui.open;
@@ -98,14 +98,14 @@ editor.once('load', function () {
 
     // On double click make this tab stay open
     // and subsequent file selections will open a new tab
-    var onItemDblClick = function (evt) {
+    const onItemDblClick = function (evt) {
         if (evt.button !== 0 || !this.ui.selectable)
             return;
 
-        var rect = this.getBoundingClientRect();
+        const rect = this.getBoundingClientRect();
 
         if (!this.ui._children || (evt.clientX - rect.left) >= 0) {
-            var asset = editor.call('assets:get', this.ui._assetId);
+            const asset = editor.call('assets:get', this.ui._assetId);
             if (!asset || asset.get('type') === 'folder')
                 return;
 
@@ -116,16 +116,16 @@ editor.once('load', function () {
 
     // Append item to parent keeping order alphabetical.
     // Puts folders first.
-    var appendAlphabetically = function (item, parent) {
-        var children = Array.prototype.slice.call(parent.element.childNodes, 1);
+    const appendAlphabetically = function (item, parent) {
+        const children = Array.prototype.slice.call(parent.element.childNodes, 1);
         if (!children.length)
             return parent.append(item);
 
-        var text = item.text.toLowerCase();
-        var folder  = item._folder;
-        var low = 0;
-        var hi = children.length - 1;
-        var mid, node, nodeText, nodeFolder;
+        const text = item.text.toLowerCase();
+        const folder  = item._folder;
+        let low = 0;
+        let hi = children.length - 1;
+        let mid, node, nodeText, nodeFolder;
 
         while (low <= hi) {
             mid = Math.floor((low + hi) / 2);
@@ -170,25 +170,25 @@ editor.once('load', function () {
     // append item to parent in alphabetical order
     // if item is a folder also append any other items
     // that were waiting for this folder to be added
-    var append = function (item, parent) {
+    const append = function (item, parent) {
         appendAlphabetically(item, parent);
 
-        var id = item._assetId;
-        var items = waitingParent[id];
+        const id = item._assetId;
+        const items = waitingParent[id];
         if (items) {
             delete waitingParent[id];
 
-            for (var i = 0; i < items.length; i++) {
+            for (let i = 0; i < items.length; i++) {
                 append(items[i], item);
             }
         }
     };
 
     // Create tree nodes for each asset
-    var addAsset = function (asset) {
-        var id = asset.get('id');
+    const addAsset = function (asset) {
+        const id = asset.get('id');
 
-        var item = new ui.TreeItem({
+        const item = new ui.TreeItem({
             text: asset.get('name'),
             allowDrop: asset.get('type') === 'folder'
         });
@@ -196,7 +196,7 @@ editor.once('load', function () {
         item.elementTitle.removeEventListener('dblclick', item._onDblClick);
         item.class.add('type-' + asset.get('type'));
 
-        // var users = document.createElement('span');
+        // let users = document.createElement('span');
         // users.classList.add('users');
         // item.elementTitle.appendChild(users);
         // item.elementUsers = users;
@@ -223,12 +223,12 @@ editor.once('load', function () {
             item.elementTitle.removeEventListener('dblclick', onItemDblClick);
         });
 
-        var addItem = function (item, path) {
-            var length = path.length;
+        const addItem = function (item, path) {
+            const length = path.length;
             if (!length) {
                 append(item, treeRoot);
             } else {
-                var folder = path[length - 1];
+                const folder = path[length - 1];
                 if (itemIndex[folder]) {
                     append(item, itemIndex[folder]);
                 } else {
@@ -246,8 +246,8 @@ editor.once('load', function () {
             if (item.parent) {
                 item.parent.remove(item);
             } else if (oldPath && oldPath.length) {
-                var oldFolder = oldPath[oldPath.length - 1];
-                var index = waitingParent[oldFolder] ? waitingParent[oldFolder].indexOf(item) : -1;
+                const oldFolder = oldPath[oldPath.length - 1];
+                const index = waitingParent[oldFolder] ? waitingParent[oldFolder].indexOf(item) : -1;
                 if (index !== -1) {
                     waitingParent[oldFolder].splice(index, 1);
                 }
@@ -260,7 +260,7 @@ editor.once('load', function () {
         // handle name changes (need to keep alphabetical order)
         asset.on('name:set', function (name) {
             // remove and re-insert item
-            var parent = item.parent;
+            const parent = item.parent;
             if (!parent) return;
 
             parent.remove(item);
@@ -277,7 +277,7 @@ editor.once('load', function () {
     // add all assets once they're all loaded
     editor.on('assets:load', function () {
         tree.hidden = false;
-        var assets = editor.call('assets:list');
+        const assets = editor.call('assets:list');
         assets.forEach(addAsset);
 
         // subscribe for new assets being added
@@ -288,14 +288,14 @@ editor.once('load', function () {
 
         // select any assets requested to be selected
         // before assets were loaded
-        for (var i = 0, len = toBeSelected.length; i < len; i++) {
+        for (let i = 0, len = toBeSelected.length; i < len; i++) {
             editor.call('files:select', toBeSelected[i]);
         }
     });
 
     // Delete tree node for removed assets
     editor.on('assets:remove', function (asset) {
-        var id = asset.get('id');
+        const id = asset.get('id');
         if (itemIndex[id]) {
             itemIndex[id].destroy();
             delete itemIndex[id];
@@ -305,7 +305,7 @@ editor.once('load', function () {
     // handle selections
     tree.on('select', function (item) {
         // open items till parent
-        var parent = item.parent;
+        let parent = item.parent;
         while (parent && parent instanceof ui.TreeItem) {
             parent.open = true;
             parent = parent.parent;
@@ -323,7 +323,7 @@ editor.once('load', function () {
             return;
 
         // emit asset select event
-        var asset = editor.call('assets:get', item._assetId);
+        const asset = editor.call('assets:get', item._assetId);
         if (!asset)
             return;
 
@@ -338,7 +338,7 @@ editor.once('load', function () {
 
     // show dirty assets
     editor.on('documents:dirty', function (id, dirty) {
-        var item = itemIndex[id];
+        const item = itemIndex[id];
         if (item) {
             if (dirty) {
                 item.class.add('dirty');
@@ -350,7 +350,7 @@ editor.once('load', function () {
 
     // Select file by id
     editor.method('files:select', function (id) {
-        var item = itemIndex[id];
+        const item = itemIndex[id];
         if (item) {
             tree.clear();
             item.selected = true;
@@ -359,7 +359,7 @@ editor.once('load', function () {
 
     // deselect all
     editor.method('files:deselectAll', function () {
-        var i = tree._selected.length;
+        let i = tree._selected.length;
         while (i--) {
             tree._selected[i].selected = false;
         }
@@ -367,10 +367,10 @@ editor.once('load', function () {
 
     // Get selected assets
     editor.method('assets:selected', function () {
-        var result = [];
-        for (var i = 0, len = tree._selected.length; i < len; i++) {
+        const result = [];
+        for (let i = 0, len = tree._selected.length; i < len; i++) {
             if (!tree._selected[i]._assetId) continue;
-            var asset = editor.call('assets:get', tree._selected[i]._assetId);
+            const asset = editor.call('assets:get', tree._selected[i]._assetId);
             if (asset)
                 result.push(asset);
         }
@@ -381,17 +381,17 @@ editor.once('load', function () {
     // selected asset is in if no specific folder
     // is selected
     editor.method('assets:selected:folder', function () {
-        var result = null;
+        let result = null;
 
         if (tree._selected.length) {
             // get last item selected
-            var last = tree._selected.length;
+            let last = tree._selected.length;
             while (last--) {
                 if (!tree._selected[last]._assetId) {
                     continue;
                 }
 
-                var asset = editor.call('assets:get', tree._selected[last]._assetId);
+                const asset = editor.call('assets:get', tree._selected[last]._assetId);
                 if (!asset) {
                     continue;
                 }
@@ -401,7 +401,7 @@ editor.once('load', function () {
                     break;
                 }
 
-                var path = asset.get('path');
+                const path = asset.get('path');
                 if (path.length) {
                     result = editor.call('assets:get', path[path.length - 1]);
                 }
@@ -417,11 +417,11 @@ editor.once('load', function () {
     tree.on('reparent', function (nodes) {
         if (!nodes.length) return;
 
-        var assets = nodes.map(function (node) {
+        const assets = nodes.map(function (node) {
             return editor.call('assets:get', node.item._assetId);
         });
 
-        var parent = editor.call('assets:get', nodes[0].new._assetId);
+        const parent = editor.call('assets:get', nodes[0].new._assetId);
 
         editor.call('assets:fs:move', assets, parent);
     });
@@ -429,7 +429,7 @@ editor.once('load', function () {
 
     // deselect tree item
     editor.on('documents:close', function (id) {
-        var item = itemIndex[id];
+        const item = itemIndex[id];
         if (item) {
             item.selected = false;
             item.class.remove('dirty');

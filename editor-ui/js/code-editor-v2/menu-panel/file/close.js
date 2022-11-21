@@ -1,9 +1,9 @@
 editor.once('load', function () {
     'use strict';
 
-    var menu = editor.call('menu:file');
+    const menu = editor.call('menu:file');
 
-    var item;
+    let item;
 
     item = menu.createItem('close', {
         title: 'Close File',
@@ -61,20 +61,20 @@ editor.once('load', function () {
         }
     });
 
-    var ctxMenu = editor.call('files:contextmenu');
+    const ctxMenu = editor.call('files:contextmenu');
     ctxMenu.append(ctxMenu.createItem('close', {
         title: 'Close',
         filter: function () {
-            var selected = editor.call('files:contextmenu:selected');
-            for (var i = 0; i < selected.length; i++) {
+            const selected = editor.call('files:contextmenu:selected');
+            for (let i = 0; i < selected.length; i++) {
                 if (editor.call('documents:get', selected[i].get('id'))) {
                     return true;
                 }
             }
         },
         select: function () {
-            var selected = editor.call('files:contextmenu:selected');
-            for (var i = 0; i < selected.length; i++) {
+            const selected = editor.call('files:contextmenu:selected');
+            for (let i = 0; i < selected.length; i++) {
                 if (editor.call('documents:get', selected[i].get('id'))) {
                     editor.emit('documents:close', selected[i].get('id'));
                 }
@@ -89,7 +89,7 @@ editor.once('load', function () {
 
     // Close focused
     editor.method('editor:command:close', function () {
-        var tab = editor.call('tabs:focused');
+        const tab = editor.call('tabs:focused');
         if (tab)
             editor.call('tabs:close', tab.id);
     });
@@ -102,8 +102,8 @@ editor.once('load', function () {
 
     // Close selected
     editor.method('editor:command:closeSelected', function () {
-        var selected = editor.call('assets:selected');
-        for (var i = 0; i < selected.length; i++) {
+        const selected = editor.call('assets:selected');
+        for (let i = 0; i < selected.length; i++) {
             if (selected[i].get('type') !== 'folder') {
                 editor.emit('documents:close', selected[i].get('id'));
             }
@@ -117,9 +117,9 @@ editor.once('load', function () {
 
     // Close all
     editor.method('editor:command:closeAll', function () {
-        var tabs = editor.call('tabs:list');
+        const tabs = editor.call('tabs:list');
         editor.call('tabs:batchClose:start');
-        var i = tabs.length;
+        let i = tabs.length;
         while (i--) {
             editor.call('tabs:close', tabs[i].id);
         }

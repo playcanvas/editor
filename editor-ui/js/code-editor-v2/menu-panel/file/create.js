@@ -1,10 +1,10 @@
 editor.once('load', function () {
     'use strict';
 
-    var menu = editor.call('menu:file');
+    const menu = editor.call('menu:file');
 
     // create menu items
-    var group = menu.createItem('create', {
+    let group = menu.createItem('create', {
         title: 'Create New',
         filter: function () {
             return editor.call('editor:command:can:create');
@@ -16,7 +16,7 @@ editor.once('load', function () {
     group.class.add('create-new');
     menu.append(group);
 
-    var types = [
+    const types = [
         'script',
         'css',
         'html',
@@ -26,7 +26,7 @@ editor.once('load', function () {
         'folder'
     ];
 
-    var titles = [
+    const titles = [
         'Script Asset',
         'CSS Asset',
         'HTML Asset',
@@ -50,17 +50,17 @@ editor.once('load', function () {
 
 
     // context menu
-    var ctxMenu = editor.call('files:contextmenu');
+    const ctxMenu = editor.call('files:contextmenu');
 
     group = ctxMenu.createItem('create', {
         title: 'Create New',
         filter: function () {
-            var selection = editor.call('files:contextmenu:selected');
+            const selection = editor.call('files:contextmenu:selected');
             if (selection.length <= 1)
                 return editor.call('editor:command:can:create', selection[0]);
         },
         select: function () {
-            var selection = editor.call('files:contextmenu:selected');
+            const selection = editor.call('files:contextmenu:selected');
             if (selection.length <= 1)
                 return editor.call('editor:command:create', 'script', selection[0]);
         }
@@ -72,12 +72,12 @@ editor.once('load', function () {
         group.append(menu.createItem('create-' + type, {
             title: titles[index],
             filter: function () {
-                var selection = editor.call('files:contextmenu:selected');
+                const selection = editor.call('files:contextmenu:selected');
                 if (selection.length <= 1)
                     return editor.call('editor:command:can:create', selection[0]);
             },
             select: function () {
-                var selection = editor.call('files:contextmenu:selected');
+                const selection = editor.call('files:contextmenu:selected');
                 if (selection.length <= 1)
                     return editor.call('editor:command:create', type, selection[0]);
             }

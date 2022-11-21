@@ -1,20 +1,20 @@
 editor.once('load', function () {
     'use strict';
 
-    var parent = editor.call('layout.center');
-    var codePanel = editor.call('layout.code');
+    const parent = editor.call('layout.center');
+    const codePanel = editor.call('layout.code');
     const monacoEditor = editor.call('editor:monaco');
 
     // Filter Panel
-    var filterPanel = new ui.Panel();
+    const filterPanel = new ui.Panel();
     filterPanel.flex = true;
     filterPanel.class.add('picker-search');
     filterPanel.style.height = '0px';
     filterPanel.hidden = true;
     parent.append(filterPanel);
 
-    var createFilter = function (text, storageKey) {
-        var filterButton = new ui.Button({
+    const createFilter = function (text, storageKey) {
+        const filterButton = new ui.Button({
             text: text
         });
         filterButton.element.tabIndex = -1;
@@ -22,7 +22,7 @@ editor.once('load', function () {
         filterButton.style.width = '80px';
         filterPanel.append(filterButton);
 
-        var textField = new ui.TextField();
+        const textField = new ui.TextField();
         textField.class.add('search');
         textField.renderChanges = false;
         textField.keyChange = true;
@@ -41,11 +41,11 @@ editor.once('load', function () {
             regexp: null
         };
     };
-    var includeFilter = createFilter('Include', 'picker:search:filters:include');
-    var excludeFilter = createFilter('Exclude', 'picker:search:filters:exclude');
+    const includeFilter = createFilter('Include', 'picker:search:filters:include');
+    const excludeFilter = createFilter('Exclude', 'picker:search:filters:exclude');
 
     // Main Panel
-    var panel = new ui.Panel();
+    const panel = new ui.Panel();
     panel.flex = true;
     panel.class.add('picker-search');
     panel.style.height = '0px';
@@ -56,35 +56,35 @@ editor.once('load', function () {
     codePanel.class.add('animate-height');
     filterPanel.class.add('animate-height');
 
-    var optionFilter = new ui.Button({
+    const optionFilter = new ui.Button({
         text: '...'
     });
     optionFilter.element.tabIndex = -1;
     optionFilter.class.add('option');
     panel.append(optionFilter);
 
-    var optionRegex = new ui.Button({
+    const optionRegex = new ui.Button({
         text: '.*'
     });
     optionRegex.element.tabIndex = -1;
     optionRegex.class.add('option');
     panel.append(optionRegex);
 
-    var optionCase = new ui.Button({
+    const optionCase = new ui.Button({
         text: 'Aa'
     });
     optionCase.element.tabIndex = -1;
     optionCase.class.add('option');
     panel.append(optionCase);
 
-    var optionWholeWords = new ui.Button({
+    const optionWholeWords = new ui.Button({
         text: '“ ”'
     });
     optionWholeWords.element.tabIndex = -1;
     optionWholeWords.class.add('option');
     panel.append(optionWholeWords);
 
-    var searchField = new ui.TextField();
+    const searchField = new ui.TextField();
     searchField.class.add('search');
     searchField.renderChanges = false;
     searchField.keyChange = true;
@@ -94,12 +94,12 @@ editor.once('load', function () {
     searchField.elementInput.addEventListener('keydown', onInputKeyDown);
     panel.append(searchField);
 
-    var error = new ui.Label();
+    const error = new ui.Label();
     error.class.add('error');
     error.hidden = true;
     searchField.element.appendChild(error.element);
 
-    var btnFindInFiles = new ui.Button({
+    const btnFindInFiles = new ui.Button({
         'text': 'Find'
     });
     btnFindInFiles.element.tabIndex = -1;
@@ -134,44 +134,44 @@ editor.once('load', function () {
         root: editor.call('layout.root')
     });
 
-    var regexp = null;
-    var caseSensitive = false;
-    var isRegex = false;
-    var matchWholeWords = false;
-    var filterShow = false;
-    var queryDirty = false;
-    var previousText = '';
-    var searchTimeout = null;
+    let regexp = null;
+    let caseSensitive = false;
+    let isRegex = false;
+    let matchWholeWords = false;
+    let filterShow = false;
+    let queryDirty = false;
+    let previousText = '';
+    let searchTimeout = null;
 
-    var open = false;
-    var suspendChangeEvt = false;
+    let open = false;
+    let suspendChangeEvt = false;
 
     // Returns the picker panel
     editor.method('picker:search', function () {
         return panel;
     });
 
-    var growPicker = function () {
+    const growPicker = function () {
         panel.style.height = '';
         codePanel.style.height = 'calc(100% - 64px)';
     };
 
-    var shrinkPicker = function () {
+    const shrinkPicker = function () {
         panel.style.height = '0px';
         codePanel.style.height = 'calc(100% - 32px)';
     };
 
-    var growFilter = function () {
+    const growFilter = function () {
         filterPanel.style.height = '';
         codePanel.style.height = 'calc(100% - 96px)';
     };
 
-    var shrinkFilter = function () {
+    const shrinkFilter = function () {
         filterPanel.style.height = '0px';
         codePanel.style.height = 'calc(100% - 64px)';
     };
 
-    var onTransitionEnd;
+    let onTransitionEnd;
 
     panel.element.addEventListener('transitionend', function (e) {
         if (onTransitionEnd) {
@@ -180,7 +180,7 @@ editor.once('load', function () {
         }
     });
 
-    var onFilterPanelTransitionEnd;
+    let onFilterPanelTransitionEnd;
 
     filterPanel.element.addEventListener('transitionend', function (e) {
         if (onFilterPanelTransitionEnd) {
@@ -191,10 +191,10 @@ editor.once('load', function () {
 
     // Updates our regular expression.
     // Optionally pass override options for the regexp
-    var updateQuery = function (overrides) {
+    const updateQuery = function (overrides) {
         queryDirty = true;
 
-        var pattern = searchField.value;
+        let pattern = searchField.value;
         previousText = pattern;
         if (!pattern) {
             regexp = null;
@@ -203,7 +203,7 @@ editor.once('load', function () {
 
         overrides = overrides || {};
 
-        var isRawRegex = overrides.isRegex !== undefined ? overrides.isRegex : isRegex;
+        const isRawRegex = overrides.isRegex !== undefined ? overrides.isRegex : isRegex;
 
         if (!isRawRegex) {
             // replace characters for regex
@@ -229,7 +229,7 @@ editor.once('load', function () {
         }
     };
 
-    var updateFilterRegex = function (filter) {
+    const updateFilterRegex = function (filter) {
         queryDirty = true;
 
         filter.pattern = filter.textField.value.trim();
@@ -281,7 +281,7 @@ editor.once('load', function () {
         }
     }
 
-    var closeFilter = function () {
+    const closeFilter = function () {
         if (!filterShow) return;
         filterShow = false;
 
@@ -295,7 +295,7 @@ editor.once('load', function () {
         };
     };
 
-    var openPicker = function (defaultSearchValue) {
+    const openPicker = function (defaultSearchValue) {
         if (!open) {
             open = true;
             panel.hidden = false;
@@ -377,7 +377,7 @@ editor.once('load', function () {
 
     // Set search term externally.
     editor.method('picker:search:set', function (text, options) {
-        var dirty = false;
+        let dirty = false;
 
         suspendChangeEvt = true;
         if (searchField.value !== text) {
@@ -393,14 +393,14 @@ editor.once('load', function () {
         }
     });
 
-    var cancelDelayedSearch = function () {
+    const cancelDelayedSearch = function () {
         if (searchTimeout) {
             clearTimeout(searchTimeout);
             searchTimeout = null;
         }
     };
 
-    var search = function (reverse) {
+    const search = function (reverse) {
         cancelDelayedSearch();
 
         if (queryDirty) {

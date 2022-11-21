@@ -1,12 +1,12 @@
 editor.once('load', function () {
     'use strict';
 
-    var menu = editor.call('menu:file');
+    const menu = editor.call('menu:file');
 
     const settings = editor.call('editor:settings');
 
     // create save menu
-    var item = menu.createItem('save', {
+    let item = menu.createItem('save', {
         title: 'Save File',
         filter: function () {
             return editor.call('editor:command:can:save');
@@ -50,20 +50,20 @@ editor.once('load', function () {
         }
     });
 
-    var ctxMenu = editor.call('files:contextmenu');
+    const ctxMenu = editor.call('files:contextmenu');
     ctxMenu.append(ctxMenu.createItem('save', {
         title: 'Save',
         filter: function () {
-            var selection = editor.call('files:contextmenu:selected');
-            for (var i = 0; i < selection.length; i++) {
+            const selection = editor.call('files:contextmenu:selected');
+            for (let i = 0; i < selection.length; i++) {
                 if (editor.call('editor:command:can:save', selection[i].get('id'))) {
                     return true;
                 }
             }
         },
         select: function () {
-            var selection = editor.call('files:contextmenu:selected');
-            for (var i = 0; i < selection.length; i++) {
+            const selection = editor.call('files:contextmenu:selected');
+            for (let i = 0; i < selection.length; i++) {
                 if (editor.call('editor:command:can:save', selection[i].get('id'))) {
                     editor.call('editor:command:save', selection[i].get('id'));
                 }
@@ -72,12 +72,12 @@ editor.once('load', function () {
     }));
 
     // documents currently being saved
-    var savingIndex = {};
+    const savingIndex = {};
 
     // Returns true if we can save
     editor.method('editor:command:can:save', function (id) {
         if (editor.call('permissions:write') && editor.call('realtime:isConnected') && !editor.call('errors:hasRealtime')) {
-            var focused = id || editor.call('documents:getFocused');
+            const focused = id || editor.call('documents:getFocused');
 
             return focused &&
                    !savingIndex[focused] &&
@@ -97,16 +97,16 @@ editor.once('load', function () {
     }
 
     // Save document
-    var save = function (id) {
+    const save = function (id) {
         beforeSave();
 
         savingIndex[id] = true;
 
         editor.emit('editor:command:save:start', id);
 
-        var doc = editor.call('documents:get', id);
+        const doc = editor.call('documents:get', id);
 
-        var uniqueId = parseInt(doc.id, 10);
+        const uniqueId = parseInt(doc.id, 10);
 
         function doSave() {
             const asset = editor.call('assets:get', id);
@@ -150,10 +150,10 @@ editor.once('load', function () {
 
     editor.method('editor:command:can:saveSelected', function () {
         if (editor.call('permissions:write') && editor.call('realtime:isConnected') && !editor.call('errors:hasRealtime')) {
-            var selected = editor.call('assets:selected');
-            var hasDirty = false;
-            for (var i = 0; i < selected.length; i++) {
-                var id = selected[i].get('id');
+            const selected = editor.call('assets:selected');
+            let hasDirty = false;
+            for (let i = 0; i < selected.length; i++) {
+                const id = selected[i].get('id');
                 if (!savingIndex[id] && editor.call('documents:isDirty', id)) {
                     hasDirty = true;
                     break;
@@ -171,9 +171,9 @@ editor.once('load', function () {
         if (!editor.call('editor:command:can:saveSelected'))
             return;
 
-        var selected = editor.call('assets:selected');
-        for (var i = 0; i < selected.length; i++) {
-            var id = selected[i].get('id');
+        const selected = editor.call('assets:selected');
+        for (let i = 0; i < selected.length; i++) {
+            const id = selected[i].get('id');
             if (savingIndex[id] || !editor.call('documents:isDirty', id))
                 continue;
 
@@ -183,10 +183,10 @@ editor.once('load', function () {
 
     editor.method('editor:command:can:saveAll', function () {
         if (editor.call('permissions:write') && editor.call('realtime:isConnected') && !editor.call('errors:hasRealtime')) {
-            var open = editor.call('documents:list');
-            var hasDirty = false;
-            for (var i = 0; i < open.length; i++) {
-                var id = open[i];
+            const open = editor.call('documents:list');
+            let hasDirty = false;
+            for (let i = 0; i < open.length; i++) {
+                const id = open[i];
                 if (!savingIndex[id] && editor.call('documents:isDirty', id)) {
                     hasDirty = true;
                     break;
@@ -204,9 +204,9 @@ editor.once('load', function () {
         if (!editor.call('editor:command:can:saveAll'))
             return;
 
-        var open = editor.call('documents:list');
-        for (var i = 0; i < open.length; i++) {
-            var id = open[i];
+        const open = editor.call('documents:list');
+        for (let i = 0; i < open.length; i++) {
+            const id = open[i];
             if (savingIndex[id] || !editor.call('documents:isDirty', id))
                 continue;
 
@@ -216,7 +216,7 @@ editor.once('load', function () {
 
     // Handle save success
     editor.on('documents:save:success', function (uniqueId) {
-        var asset = editor.call('assets:getUnique', uniqueId);
+        const asset = editor.call('assets:getUnique', uniqueId);
         editor.call('status:log', 'Saved "' + asset.get('name') + '"');
 
         delete savingIndex[asset.get('id')];
@@ -224,7 +224,7 @@ editor.once('load', function () {
 
     // Handle save error
     editor.on('documents:save:error', function (uniqueId) {
-        var asset = editor.call('assets:getUnique', uniqueId);
+        const asset = editor.call('assets:getUnique', uniqueId);
         editor.call('status:error', 'Could not save "' + asset.get('name') + '"');
 
         delete savingIndex[asset.get('id')];
@@ -246,7 +246,7 @@ editor.once('load', function () {
     // or it's reloaded. In either case make sure we can save the document again
     // if we got disconnected in the meantime
     editor.on('documents:load', function (doc, asset, docEntry) {
-        var id = asset.get('id');
+        const id = asset.get('id');
         if (savingIndex[id]) {
             delete savingIndex[id];
             editor.call('status:clear');
@@ -262,7 +262,7 @@ editor.once('load', function () {
     });
 
     editor.on('editor:command:save:start', function (id) {
-        var asset = editor.call('assets:get', id);
+        const asset = editor.call('assets:get', id);
         editor.call('status:log', 'Saving "' + asset.get('name') + '"...');
     });
 });

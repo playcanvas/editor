@@ -1,11 +1,11 @@
 editor.once('load', function () {
     'use strict';
 
-    var menu = editor.call('menu:edit');
-    var codePanel = editor.call('layout.code');
-    var ctrl = editor.call('hotkey:ctrl:string');
+    const menu = editor.call('menu:edit');
+    const codePanel = editor.call('layout.code');
+    const ctrl = editor.call('hotkey:ctrl:string');
 
-    var item = menu.createItem('undo', {
+    let item = menu.createItem('undo', {
         title: 'Undo',
         filter: function () {
             return editor.call('editor:command:can:undo');

@@ -1,24 +1,24 @@
 editor.once('load', function () {
     'use strict';
 
-    var suspendEvents = false;
+    let suspendEvents = false;
 
     // Update url with new tab order
-    var updateUrl = function () {
+    const updateUrl = function () {
         if (suspendEvents)
             return;
 
-        var tabs = editor.call('tabs:list');
-        var str = '';
-        var comma = '';
-        for (var i = 0, len = tabs.length; i < len; i++) {
+        const tabs = editor.call('tabs:list');
+        let str = '';
+        let comma = '';
+        for (let i = 0, len = tabs.length; i < len; i++) {
             if (tabs[i].asset) {
                 str += comma + tabs[i].id;
                 comma = ',';
             }
         }
 
-        var url = '/editor/code/' + config.project.id;
+        let url = '/editor/code/' + config.project.id;
         if (str) {
             url += '?tabs=' + str;
         }
@@ -26,8 +26,8 @@ editor.once('load', function () {
         window.history.replaceState('', '', url);
     };
 
-    var timeout;
-    var deferredUpdate = function (tab) {
+    let timeout;
+    const deferredUpdate = function (tab) {
         if (!tab.asset) return;
 
         clearTimeout(timeout);
@@ -38,10 +38,10 @@ editor.once('load', function () {
     editor.on('tabs:close', deferredUpdate);
     editor.on('tabs:reorder', deferredUpdate);
 
-    var totalTabs = config.tabs.length;
-    var openedTabs = 0;
+    const totalTabs = config.tabs.length;
+    let openedTabs = 0;
 
-    var onOpen = function () {
+    const onOpen = function () {
         openedTabs++;
         if (openedTabs === totalTabs) {
             suspendEvents = false;
@@ -51,8 +51,8 @@ editor.once('load', function () {
     // Select tabs when ready
     if (config.tabs.length) {
         suspendEvents = true;
-        for (var i = 0, len = config.tabs.length; i < len; i++) {
-            var options = {
+        for (let i = 0, len = config.tabs.length; i < len; i++) {
+            const options = {
                 callback: onOpen
             };
 

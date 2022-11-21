@@ -30,7 +30,7 @@ editor.once('load', function () {
     });
 
     // Setup Themes
-    var setMonacoTheme = function (themeName) {
+    const setMonacoTheme = function (themeName) {
         // fetch theme data and load to monaco
         const themes = editor.call('editor:themes');
         const themeUrl = `/editor/scene/js/monaco-themes/themes/${themes[themeName]}.json`;

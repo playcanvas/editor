@@ -1,9 +1,9 @@
 editor.once('load', function () {
     'use strict';
 
-    var panel = editor.call('layout.statusBar');
+    const panel = editor.call('layout.statusBar');
 
-    var branchName = new ui.Label({
+    const branchName = new ui.Label({
         text: config.self.branch.name
     });
     branchName.class.add('branch-name');
@@ -15,7 +15,7 @@ editor.once('load', function () {
         branchName.hidden = !editor.call('permissions:read');
     });
 
-    var label = new ui.Label({
+    const label = new ui.Label({
         text: 'Loading...'
     });
     label.renderChanges = false;
@@ -23,13 +23,13 @@ editor.once('load', function () {
     panel.append(label);
 
     // connection status
-    var connection = new ui.Label();
+    const connection = new ui.Label();
     connection.renderChanges = false;
     connection.class.add('connection-status');
     panel.append(connection);
 
     // if true then do not clear the errors
-    var permanentError = false;
+    let permanentError = false;
 
     editor.method('status:log', function (msg) {
         if (permanentError) {

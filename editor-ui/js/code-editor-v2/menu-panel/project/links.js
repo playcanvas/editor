@@ -1,10 +1,10 @@
 editor.once('load', function () {
     'use strict';
 
-    var menu = editor.call('menu:project');
+    const menu = editor.call('menu:project');
 
     // Open project
-    var item = menu.createItem('open-project', {
+    let item = menu.createItem('open-project', {
         title: 'Open Dashboard',
         select: function () {
             return editor.call('editor:command:openProject');

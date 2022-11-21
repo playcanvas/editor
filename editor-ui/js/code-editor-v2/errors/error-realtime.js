@@ -1,7 +1,7 @@
 editor.once('load', function () {
     'use strict';
 
-    var hasError = false;
+    let hasError = false;
 
     // if we get a realtime error then make everything
     // read only as it can be anything.

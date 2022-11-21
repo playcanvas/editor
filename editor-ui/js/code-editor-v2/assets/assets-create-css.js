@@ -7,7 +7,7 @@ editor.once('load', function () {
 
         args = args || { };
 
-        var asset = {
+        const asset = {
             name: 'New Css',
             type: 'css',
             source: false,

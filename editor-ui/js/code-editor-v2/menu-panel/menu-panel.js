@@ -1,10 +1,10 @@
 editor.once('load', function () {
     'use strict';
 
-    var menus = {};
-    var panel = editor.call('layout.top');
+    const menus = {};
+    const panel = editor.call('layout.top');
 
-    var openMenus = 0;
+    let openMenus = 0;
 
     editor.method('menu:register', function (name, button, menu) {
         menus[name] = menu;
@@ -17,7 +17,7 @@ editor.once('load', function () {
                 openMenus++;
 
                 // close other menus
-                for (var key in menus) {
+                for (const key in menus) {
                     if (menus[key] !== menu) {
                         menus[key].open = false;
                     }
@@ -48,7 +48,7 @@ editor.once('load', function () {
 
     // close menus when we click on the background
     panel.on('click', function (e) {
-        for (var key in menus) {
+        for (const key in menus) {
             menus[key].open = false;
         }
     });
@@ -70,7 +70,7 @@ editor.once('load', function () {
         .replace(/Up Arrow/g, '↑')
         .replace(/Down Arrow/g, '↓');
 
-        var label = new ui.Label({
+        const label = new ui.Label({
             text: shortcut
         });
         label.renderChanges = false;

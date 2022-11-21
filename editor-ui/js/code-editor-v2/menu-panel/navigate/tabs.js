@@ -1,9 +1,9 @@
 editor.once('load', function () {
     'use strict';
 
-    var menu = editor.call('menu:navigate');
+    const menu = editor.call('menu:navigate');
 
-    var item;
+    let item;
 
     // Next tab
     item = menu.createItem('next-tab', {
@@ -31,14 +31,14 @@ editor.once('load', function () {
 
 
     editor.method('editor:command:nextTab', function () {
-        var tabs = editor.call('tabs:list');
+        const tabs = editor.call('tabs:list');
         if (!tabs.length) return;
 
-        var focused = editor.call('tabs:focused');
+        const focused = editor.call('tabs:focused');
         if (!focused) return;
 
-        var idx = tabs.indexOf(focused);
-        var next = tabs[(idx + 1) % tabs.length];
+        const idx = tabs.indexOf(focused);
+        const next = tabs[(idx + 1) % tabs.length];
         editor.call('files:select', next.id);
     });
 
@@ -67,24 +67,24 @@ editor.once('load', function () {
 
 
     editor.method('editor:command:previousTab', function () {
-        var tabs = editor.call('tabs:list');
+        const tabs = editor.call('tabs:list');
         if (!tabs.length) return;
 
-        var focused = editor.call('tabs:focused');
+        const focused = editor.call('tabs:focused');
         if (!focused) return;
 
-        var idx = tabs.indexOf(focused);
+        let idx = tabs.indexOf(focused);
         idx--;
         if (idx < 0)
             idx = tabs.length - 1;
 
-        var next = tabs[idx];
+        const next = tabs[idx];
         editor.call('files:select', next.id);
     });
 
     editor.method('editor:command:selectTab', function (index) {
-        var tabs = editor.call('tabs:list');
-        var select = tabs[index];
+        const tabs = editor.call('tabs:list');
+        const select = tabs[index];
         if (!select) return;
 
         editor.call('files:select', select.id);
