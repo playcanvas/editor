@@ -132,12 +132,20 @@ editor.once('load', function () {
     settings.on('ide.bracketPairColorization:set', function (value) {
         // Using quotes in the object looks odd but is considered the official way to set the options
         // https://github.com/microsoft/monaco-editor/blob/main/CHANGELOG.md#0280-22092021
+
+        // We need to apply a 'real' option to apply immediately and then change it back
+        // otherwise the user can't see the change
+        const matchBrackets = settings.get('ide.highlightBrackets');
         monacoEditor.updateOptions({
+            matchBrackets: !matchBrackets ? 'always' : 'never',
             "bracketPairColorization.enabled": value
         });
 
-        // Immediately set the theme to apply the colorization
-        setMonacoTheme(settings.get('ide.theme'));
+        setTimeout(() => {
+            monacoEditor.updateOptions({
+                matchBrackets: matchBrackets ? 'always' : 'never'
+            });
+        })
     });
 
     // focus editor when go-to-file closes
