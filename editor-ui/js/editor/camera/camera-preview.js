@@ -20,10 +20,10 @@ editor.once('load', function () {
     if (editor.call('permissions:write'))
         cameraPreviewBorder.classList.add('clickable');
 
-    const btnPin = new ui.Button({
-        text: '&#58177;'
+    const btnPin = new pcui.Button({
+        class: 'lock',
+        icon: 'E340'
     });
-    btnPin.class.add('pin');
     cameraPreviewBorder.appendChild(btnPin.element);
 
     const updateCameraState = function () {
