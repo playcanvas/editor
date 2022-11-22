@@ -554,31 +554,30 @@ strong {
     background-color: $bcg-primary;
 }
 
-.picker-script-create.center {
-    > .content {
-        width: 288px;
-        height: auto;
-        left: calc(50% - 144px);
-        top: calc(50% - 32px);
-        padding: 16px;
-        transition: none;
+.pcui-overlay.picker-script-create {
 
-        > .text {
-            display: block;
-            margin-top: 0;
+    .pcui-overlay-content {
+
+        width: 288px;
+        padding: 16px;
+        z-index: 0;
+    
+        > .pcui-label {
+            margin:  0 0 8px 0;
         }
-        > .ui-text-field {
-            display: block;
-            width: calc(100% - 8px);
-        }
-        > .validate {
-            position: absolute;
-            top: 16px;
-            right: 16px;
+
+        > .pcui-text-input {
             margin: 0;
+            width: 100%;
+        }
+
+        > .validate {
+            float: right;
+            margin: 2px 0 0 0;
             font-size: 12px;
             color: #f30;
         }
+    
     }
 }
 

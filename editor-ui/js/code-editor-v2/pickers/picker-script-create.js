@@ -5,25 +5,29 @@ editor.once('load', function () {
     const filenameValid = /^([^0-9.#<>$+%!`&='{}@\\/:*?"<>|\n])([^#<>$+%!`&='{}@\\/:*?"<>|\n])*$/i;
 
     // overlay
-    const overlay = new ui.Overlay();
-    overlay.class.add('picker-script-create');
-    overlay.hidden = true;
+    const overlay = new pcui.Overlay({
+        class: 'picker-script-create',
+        clickable: true,
+        hidden: true
+    });
 
     // label
-    const label = new ui.Label();
-    label.text = 'Enter script filename:';
-    label.class.add('text');
+    const label = new pcui.Label({
+        text: 'Enter script filename:'
+    });
     overlay.append(label);
 
-    const input = new ui.TextField();
-    input.blurOnEnter = false;
-    input.renderChanges = false;
-    overlay.append(input);
-
-    const validate = new ui.Label();
-    validate.text = 'Invalid filename';
-    validate.class.add('validate');
+    const validate = new pcui.Label({
+        class: 'validate',
+        text: 'Invalid filename'
+    });
     overlay.append(validate);
+
+    const input = new pcui.TextInput({
+        blurOnEnter: false,
+        renderChanges: false
+    });
+    overlay.append(input);
 
     input.element.addEventListener('keydown', function (evt) {
         if (overlay.hidden) return;
@@ -80,9 +84,7 @@ editor.once('load', function () {
         validate.hidden = true;
         input.value = string || '';
 
-        setTimeout(function () {
-            input.elementInput.focus();
-        }, 100);
+        input.focus(true);
     });
 
     // close picker
