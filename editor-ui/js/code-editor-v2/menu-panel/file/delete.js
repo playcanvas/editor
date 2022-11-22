@@ -15,14 +15,14 @@ editor.once('load', function () {
     }));
 
     const ctxMenu = editor.call('files:contextmenu');
-    ctxMenu.append(ctxMenu.createItem('delete', {
-        title: 'Delete',
-        filter: function () {
+    ctxMenu.append(new pcui.MenuItem({
+        text: 'Delete',
+        onIsEnabled: () => {
             return editor.call('permissions:write') &&
                    editor.call('files:contextmenu:selected').length &&
                    !editor.call('errors:hasRealtime');
         },
-        select: function () {
+        onSelect: () => {
             editor.call('assets:delete:picker', editor.call('files:contextmenu:selected'));
         }
     }));

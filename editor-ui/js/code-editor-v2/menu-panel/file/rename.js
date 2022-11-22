@@ -1,15 +1,15 @@
 editor.once('load', function () {
     'use strict';
     const ctxMenu = editor.call('files:contextmenu');
-    ctxMenu.append(ctxMenu.createItem('rename', {
-        title: 'Rename',
-        filter: function () {
+    ctxMenu.append(new pcui.MenuItem({
+        text: 'Rename',
+        onIsEnabled: () => {
             if (!editor.call('permissions:write')) return;
 
             const selected = editor.call('files:contextmenu:selected');
             return selected.length === 1;
         },
-        select: function () {
+        onSelect: () => {
             if (!editor.call('permissions:write')) return;
 
             const selected = editor.call('files:contextmenu:selected');

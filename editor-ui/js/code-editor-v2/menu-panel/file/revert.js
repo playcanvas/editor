@@ -58,20 +58,20 @@ editor.once('load', function () {
     };
 
     const ctxMenu = editor.call('files:contextmenu');
-    ctxMenu.append(ctxMenu.createItem('revert', {
-        title: 'Revert',
-        filter: function () {
+    ctxMenu.append(new pcui.MenuItem({
+        text: 'Revert',
+        onIsEnabled: () => {
             const selected = editor.call('files:contextmenu:selected');
-            for (let i = 0; i < selected.length; i++) {
-                if (editor.call('editor:command:can:revert', selected[i].get('id')))
+            for (const doc of selected) {
+                if (editor.call('editor:command:can:revert', doc.get('id')))
                     return true;
             }
         },
-        select: function () {
+        onSelect: () => {
             const selected = editor.call('files:contextmenu:selected');
-            for (let i = 0; i < selected.length; i++) {
-                if (editor.call('editor:command:can:revert', selected[i].get('id'))) {
-                    revert(selected[i].get('id'));
+            for (const doc of selected) {
+                if (editor.call('editor:command:can:revert', doc.get('id'))) {
+                    revert(doc.get('id'));
                 }
             }
         }
@@ -101,8 +101,8 @@ editor.once('load', function () {
 
     editor.method('editor:command:can:revertSelected', function () {
         const selected = editor.call('assets:selected');
-        for (let i = 0; i < selected.length; i++) {
-            const id = selected[i].get('id');
+        for (const doc of selected) {
+            const id = doc.get('id');
             if (editor.call('editor:command:can:revert', id)) {
                 return true;
             }
@@ -113,8 +113,8 @@ editor.once('load', function () {
 
     editor.method('editor:command:revertSelected', function () {
         const selected = editor.call('assets:selected');
-        for (let i = 0; i < selected.length; i++) {
-            const id = selected[i].get('id');
+        for (const doc of selected) {
+            const id = doc.get('id');
             if (editor.call('editor:command:can:revert', id))
                 revert(id);
         }
@@ -122,8 +122,7 @@ editor.once('load', function () {
 
     editor.method('editor:command:can:revertAll', function () {
         const open = editor.call('documents:list');
-        for (let i = 0; i < open.length; i++) {
-            const id = open[i];
+        for (const id of open) {
             if (editor.call('editor:command:can:revert', id)) {
                 return true;
             }
@@ -134,8 +133,7 @@ editor.once('load', function () {
 
     editor.method('editor:command:revertAll', function () {
         const open = editor.call('documents:list');
-        for (let i = 0; i < open.length; i++) {
-            const id = open[i];
+        for (const id of open) {
             if (editor.call('editor:command:can:revert', id)) {
                 revert(id);
             }

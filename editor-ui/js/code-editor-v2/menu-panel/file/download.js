@@ -15,13 +15,13 @@ editor.once('load', function () {
     menu.append(item);
 
     const ctxMenu = editor.call('files:contextmenu');
-    ctxMenu.append(ctxMenu.createItem('download', {
-        title: 'Download',
-        filter: function () {
+    ctxMenu.append(new pcui.MenuItem({
+        text: 'Download',
+        onIsEnabled: () => {
             const selected = editor.call('files:contextmenu:selected');
             return selected.length === 1 && selected[0].get('type') !== 'folder';
         },
-        select: function () {
+        onSelect: () => {
             const selected = editor.call('files:contextmenu:selected');
             if (selected.length && selected[0].get('type') !== 'folder') {
                 editor.call('editor:command:download', selected[0].get('id'));

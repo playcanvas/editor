@@ -527,7 +527,6 @@ strong {
 }
 
 .pcui-menu {
-    top: 32px; // move overlay below the top menu bar to allow hovering on other items
 
     .pcui-menu-item {
         font-size: 14px;
@@ -546,6 +545,11 @@ strong {
         min-width: 150px;
     }
 }
+
+.pcui-menu.top {
+    top: 32px; // move overlay below the top menu bar to allow hovering on other items
+}
+
 
 .ui-label.readonly {
     margin: 0 0 0 auto;

@@ -62,25 +62,29 @@ editor.once('load', function () {
     });
 
     const ctxMenu = editor.call('files:contextmenu');
-    ctxMenu.append(ctxMenu.createItem('close', {
-        title: 'Close',
-        filter: function () {
+
+    const close = new pcui.MenuItem({
+        text: 'Close',
+        onIsEnabled: () => {
             const selected = editor.call('files:contextmenu:selected');
-            for (let i = 0; i < selected.length; i++) {
-                if (editor.call('documents:get', selected[i].get('id'))) {
+            for (const doc of selected) {
+                const id = doc.get('id');
+                if (editor.call('documents:get', id)) {
                     return true;
                 }
             }
         },
-        select: function () {
+        onSelect: () => {
             const selected = editor.call('files:contextmenu:selected');
-            for (let i = 0; i < selected.length; i++) {
-                if (editor.call('documents:get', selected[i].get('id'))) {
-                    editor.emit('documents:close', selected[i].get('id'));
+            for (const doc of selected) {
+                const id = doc.get('id');
+                if (editor.call('documents:get', id)) {
+                    editor.emit('documents:close', id);
                 }
             }
         }
-    }));
+    });
+    ctxMenu.append(close);
 
     // True if you can close focused file
     editor.method('editor:command:can:close', function () {
@@ -103,9 +107,9 @@ editor.once('load', function () {
     // Close selected
     editor.method('editor:command:closeSelected', function () {
         const selected = editor.call('assets:selected');
-        for (let i = 0; i < selected.length; i++) {
-            if (selected[i].get('type') !== 'folder') {
-                editor.emit('documents:close', selected[i].get('id'));
+        for (const doc of selected) {
+            if (doc.get('type') !== 'folder') {
+                editor.emit('documents:close', doc.get('id'));
             }
         }
     });

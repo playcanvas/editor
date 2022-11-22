@@ -4,7 +4,8 @@ editor.once('load', function () {
     const menu = editor.call('menu:file');
 
     // create menu items
-    let group = new pcui.MenuItem({
+    let item = new pcui.MenuItem({
+        class: 'create-new',
         text: 'Create New',
         onIsEnabled: () => {
             return editor.call('editor:command:can:create');
@@ -13,8 +14,7 @@ editor.once('load', function () {
             return editor.call('editor:command:create', 'script');
         }
     });
-    group.class.add('create-new');
-    menu.append(group);
+    menu.append(item);
 
     const types = [
         'script',
@@ -37,7 +37,8 @@ editor.once('load', function () {
     ];
 
     types.forEach(function (type, index) {
-        group.append(new pcui.MenuItem({
+        item.append(new pcui.MenuItem({
+            class: 'no-bottom-border',
             text: titles[index],
             onIsEnabled: () => {
                 return editor.call('editor:command:can:create');
@@ -52,24 +53,25 @@ editor.once('load', function () {
     // context menu
     const ctxMenu = editor.call('files:contextmenu');
 
-    group = ctxMenu.createItem('create', {
-        title: 'Create New',
-        filter: function () {
+    item = new pcui.MenuItem({
+        class: ['create-new', 'no-bottom-border'],
+        text: 'Create New',
+        onIsEnabled: () => {
             const selection = editor.call('files:contextmenu:selected');
             if (selection.length <= 1)
                 return editor.call('editor:command:can:create', selection[0]);
         },
-        select: function () {
+        onSelect: () => {
             const selection = editor.call('files:contextmenu:selected');
             if (selection.length <= 1)
                 return editor.call('editor:command:create', 'script', selection[0]);
         }
     });
-    group.class.add('no-bottom-border');
-    ctxMenu.append(group);
+    ctxMenu.append(item);
 
     types.forEach(function (type, index) {
-        group.append(new pcui.MenuItem({
+        item.append(new pcui.MenuItem({
+            class: 'no-bottom-border',
             text: titles[index],
             onIsEnabled: () => {
                 const selection = editor.call('files:contextmenu:selected');

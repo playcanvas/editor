@@ -145,7 +145,7 @@ editor.once('load', function () {
             monacoEditor.updateOptions({
                 matchBrackets: matchBrackets ? 'always' : 'never'
             });
-        })
+        });
     });
 
     // focus editor when go-to-file closes

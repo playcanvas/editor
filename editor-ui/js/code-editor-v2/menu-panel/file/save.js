@@ -51,21 +51,23 @@ editor.once('load', function () {
     });
 
     const ctxMenu = editor.call('files:contextmenu');
-    ctxMenu.append(ctxMenu.createItem('save', {
-        title: 'Save',
-        filter: function () {
-            const selection = editor.call('files:contextmenu:selected');
-            for (let i = 0; i < selection.length; i++) {
-                if (editor.call('editor:command:can:save', selection[i].get('id'))) {
+    ctxMenu.append(new pcui.MenuItem({
+        text: 'Save',
+        onIsEnabled: () => {
+            const selected = editor.call('files:contextmenu:selected');
+            for (const doc of selected) {
+                const id = doc.get('id');
+                if (editor.call('editor:command:can:save', id)) {
                     return true;
                 }
             }
         },
-        select: function () {
-            const selection = editor.call('files:contextmenu:selected');
-            for (let i = 0; i < selection.length; i++) {
-                if (editor.call('editor:command:can:save', selection[i].get('id'))) {
-                    editor.call('editor:command:save', selection[i].get('id'));
+        onSelect: () => {
+            const selected = editor.call('files:contextmenu:selected');
+            for (const doc of selected) {
+                const id = doc.get('id');
+                if (editor.call('editor:command:can:save', id)) {
+                    editor.call('editor:command:save', id);
                 }
             }
         }
@@ -150,10 +152,10 @@ editor.once('load', function () {
 
     editor.method('editor:command:can:saveSelected', function () {
         if (editor.call('permissions:write') && editor.call('realtime:isConnected') && !editor.call('errors:hasRealtime')) {
-            const selected = editor.call('assets:selected');
             let hasDirty = false;
-            for (let i = 0; i < selected.length; i++) {
-                const id = selected[i].get('id');
+            const selected = editor.call('assets:selected');
+            for (const doc of selected) {
+                const id = doc.get('id');
                 if (!savingIndex[id] && editor.call('documents:isDirty', id)) {
                     hasDirty = true;
                     break;
@@ -172,8 +174,8 @@ editor.once('load', function () {
             return;
 
         const selected = editor.call('assets:selected');
-        for (let i = 0; i < selected.length; i++) {
-            const id = selected[i].get('id');
+        for (const doc of selected) {
+            const id = doc.get('id');
             if (savingIndex[id] || !editor.call('documents:isDirty', id))
                 continue;
 
@@ -183,10 +185,9 @@ editor.once('load', function () {
 
     editor.method('editor:command:can:saveAll', function () {
         if (editor.call('permissions:write') && editor.call('realtime:isConnected') && !editor.call('errors:hasRealtime')) {
-            const open = editor.call('documents:list');
             let hasDirty = false;
-            for (let i = 0; i < open.length; i++) {
-                const id = open[i];
+            const open = editor.call('documents:list');
+            for (const id of open) {
                 if (!savingIndex[id] && editor.call('documents:isDirty', id)) {
                     hasDirty = true;
                     break;
@@ -205,8 +206,7 @@ editor.once('load', function () {
             return;
 
         const open = editor.call('documents:list');
-        for (let i = 0; i < open.length; i++) {
-            const id = open[i];
+        for (const id of open) {
             if (savingIndex[id] || !editor.call('documents:isDirty', id))
                 continue;
 

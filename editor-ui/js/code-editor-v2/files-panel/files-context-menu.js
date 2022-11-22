@@ -2,7 +2,8 @@ editor.once('load', function () {
     'use strict';
 
     const root = editor.call('layout.root');
-    const menu = new ui.Menu();
+
+    const menu = new pcui.Menu();
     root.append(menu);
 
     menu.class.add('context');
@@ -37,7 +38,7 @@ editor.once('load', function () {
 
             currentAsset = editor.call('assets:get', treeItem._assetId);
 
-            menu.open = true;
+            menu.hidden = false;
             menu.position(e.clientX + 1, e.clientY);
         };
 

@@ -17,7 +17,7 @@ editor.once('load', function () {
     'use strict';
 
     // settings observer
-    var settings = new Observer({
+    const settings = new Observer({
         ide: {
             fontSize: 12,
             continueComments: true,
@@ -97,7 +97,7 @@ editor.once('load', function () {
         };
     });
 
-    var doc;
+    let doc;
 
     editor.on('realtime:authenticated', function () {
         if (doc) {
@@ -109,7 +109,7 @@ editor.once('load', function () {
             return;
         }
 
-        var connection = editor.call('realtime:connection');
+        const connection = editor.call('realtime:connection');
         doc = connection.get('settings', 'user_' + config.self.id);
 
         // handle errors
@@ -119,8 +119,8 @@ editor.once('load', function () {
 
         // load settings
         doc.on('load', function () {
-            var data = doc.data;
-            for (var key in data) {
+            const data = doc.data;
+            for (const key in data) {
                 settings.set(key, data[key]);
             }
 
@@ -128,7 +128,7 @@ editor.once('load', function () {
             doc.on('op', function (ops, local) {
                 if (local) return;
 
-                for (var i = 0; i < ops.length; i++) {
+                for (let i = 0; i < ops.length; i++) {
                     settings.sync.write(ops[i]);
                 }
             });
