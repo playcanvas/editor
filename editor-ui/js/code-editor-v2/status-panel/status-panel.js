@@ -3,10 +3,10 @@ editor.once('load', function () {
 
     const panel = editor.call('layout.statusBar');
 
-    const branchName = new ui.Label({
+    const branchName = new pcui.Label({
+        class: 'branch-name',
         text: config.self.branch.name
     });
-    branchName.class.add('branch-name');
     panel.append(branchName);
     if (!editor.call('permissions:read')) {
         branchName.hidden = true;
@@ -15,17 +15,16 @@ editor.once('load', function () {
         branchName.hidden = !editor.call('permissions:read');
     });
 
-    const label = new ui.Label({
+    const label = new pcui.Label({
+        class: 'status',
         text: 'Loading...'
     });
-    label.renderChanges = false;
-    label.class.add('status');
     panel.append(label);
 
     // connection status
-    const connection = new ui.Label();
-    connection.renderChanges = false;
-    connection.class.add('connection-status');
+    const connection = new pcui.Label({
+        class: 'connection-status'
+    });
     panel.append(connection);
 
     // if true then do not clear the errors
