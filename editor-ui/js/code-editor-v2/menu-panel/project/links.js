@@ -4,31 +4,29 @@ editor.once('load', function () {
     const menu = editor.call('menu:project');
 
     // Open project
-    let item = menu.createItem('open-project', {
-        title: 'Open Dashboard',
-        select: function () {
+    let item = new pcui.MenuItem({
+        class: 'no-bottom-border',
+        text: 'Open Dashboard',
+        onSelect: () => {
             return editor.call('editor:command:openProject');
         }
     });
-    item.class.add('noBorder');
     menu.append(item);
 
     editor.method('editor:command:openProject', function () {
-        menu.open = false;
         window.open('/project/' + config.project.id);
     });
 
     // Open Editor
-    item = menu.createItem('open-editor', {
-        title: 'Open Editor',
-        select: function () {
+    item = new pcui.MenuItem({
+        text: 'Open Editor',
+        onSelect: () => {
             return editor.call('editor:command:openEditor');
         }
     });
     menu.append(item);
 
     editor.method('editor:command:openEditor', function () {
-        menu.open = false;
         window.open('/editor/project/' + config.project.id);
     });
 });

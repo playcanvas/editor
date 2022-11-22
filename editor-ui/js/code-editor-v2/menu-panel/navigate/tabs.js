@@ -6,16 +6,16 @@ editor.once('load', function () {
     let item;
 
     // Next tab
-    item = menu.createItem('next-tab', {
-        title: 'Next Tab',
-        filter: function () {
+    item = new pcui.MenuItem({
+        class: 'no-bottom-border',
+        text: 'Next Tab',
+        onIsEnabled: () => {
             return editor.call('tabs:list').length;
         },
-        select: function () {
+        onSelect: () => {
             editor.call('editor:command:nextTab');
         }
     });
-    item.class.add('noBorder');
     editor.call('menu:item:setShortcut', item, 'Ctrl+Alt+.');
     menu.append(item);
 
@@ -43,12 +43,12 @@ editor.once('load', function () {
     });
 
     // Previous tab
-    item = menu.createItem('previous-tab', {
-        title: 'Previous Tab',
-        filter: function () {
+    item = new pcui.MenuItem({
+        text: 'Previous Tab',
+        onIsEnabled: () => {
             return editor.call('tabs:list').length;
         },
-        select: function () {
+        onSelect: () => {
             editor.call('editor:command:previousTab');
         }
     });

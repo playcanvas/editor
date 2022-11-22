@@ -4,11 +4,11 @@ editor.once('load', function () {
     const root = editor.call('layout.root');
     const panel = editor.call('layout.top');
 
-    const menuFile = new ui.Menu();
+    const menuFile = new pcui.Menu();
     menuFile.position(0, 33);
     root.append(menuFile);
 
-    const btnFile = new ui.Button({
+    const btnFile = new pcui.Button({
         text: 'File'
     });
 

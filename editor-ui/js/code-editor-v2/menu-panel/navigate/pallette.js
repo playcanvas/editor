@@ -5,9 +5,9 @@ editor.once('load', function () {
     const me = editor.call('editor:monaco');
     const ctrlCmd = editor.call('hotkey:ctrl:string');
 
-    const item = menu.createItem('pallette', {
-        title: 'Open Command Pallette',
-        select: function () {
+    const item = new pcui.MenuItem({
+        text: 'Open Command Pallette',
+        onSelect: () => {
             me.focus();
             me.trigger(null, 'editor.action.quickCommand');
         }

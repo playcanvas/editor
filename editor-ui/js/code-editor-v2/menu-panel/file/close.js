@@ -5,38 +5,38 @@ editor.once('load', function () {
 
     let item;
 
-    item = menu.createItem('close', {
-        title: 'Close File',
-        filter: function () {
+    item = new pcui.MenuItem({
+        class: 'no-bottom-border',
+        text: 'Close File',
+        onIsEnabled: () => {
             return editor.call('editor:command:can:close');
         },
-        select: function () {
+        onSelect: () => {
             return editor.call('editor:command:close');
         }
     });
-    item.class.add('noBorder');
     editor.call('menu:item:setShortcut', item, 'Alt+W');
     menu.append(item);
 
-    item = menu.createItem('close-selected', {
-        title: 'Close Selected Files',
-        filter: function () {
+    item = new pcui.MenuItem({
+        class: 'no-bottom-border',
+        text: 'Close Selected Files',
+        onIsEnabled: () => {
             return editor.call('editor:command:can:closeSelected');
         },
-        select: function () {
+        onSelect: () => {
             return editor.call('editor:command:closeSelected');
         }
     });
-    item.class.add('noBorder');
 
     menu.append(item);
 
-    item = menu.createItem('close-all', {
-        title: 'Close All Files',
-        filter: function () {
+    item = new pcui.MenuItem({
+        text: 'Close All Files',
+        onIsEnabled: () => {
             return editor.call('editor:command:can:closeAll');
         },
-        select: function () {
+        onSelect: () => {
             return editor.call('editor:command:closeAll');
         }
     });

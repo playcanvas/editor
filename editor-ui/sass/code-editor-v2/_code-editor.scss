@@ -91,9 +91,9 @@ strong {
 
 #ui-top {
     background-color: mix($bcg-darkest, black, 75%);
-
+    
     > .content {
-        > .ui-button {
+        > .pcui-button {
             background-color: transparent;
             border-color: transparent;
             color: $text-secondary;
@@ -101,10 +101,14 @@ strong {
             padding: 0 10px;
             height: 32px;
             line-height: 32px;
+            font-size: 14px;
+            border: 0;
+            border-radius: 0;
 
             &:hover {
                 color: $text-primary;
                 background-color: mix($text-darkest, $bcg-darker, 30%);
+                box-shadow: none;
             }
 
             &.open {
@@ -515,55 +519,30 @@ strong {
     }
 }
 
-
-.ui-menu-item {
-    font-size: 14px;
-
-    &.noBorder {
-        > .title {
-            border-bottom: 0;
-        }
-    }
-
-    .ui-label.shortcut {
-        position: absolute;
-        top: 0;
-        right: 4px;
-        z-index: 2;
-        transition: none;
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 12px;
+.no-bottom-border {
+    > .pcui-menu-item-content {
+        border-bottom: 0;
     }
 }
 
-.ui-menu {
-    &.top, &.context {
-        .inner {
-            -moz-box-shadow: 0 1px 1px 0px rgba(0,0,0,0.5);
-            -webkit-box-shadow: 0 1px 1px 0px rgba(0,0,0,0.5);
-            box-shadow: 0 1px 1px 0px rgba(0,0,0,0.5);
+.pcui-menu {
+    top: 32px; // move overlay below the top menu bar to allow hovering on other items
+
+    .pcui-menu-item {
+        font-size: 14px;
+        min-width: 300px;
+
+        .shortcut {
+            position: absolute;
+            top: 0;
+            right: 4px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
         }
     }
 
-    &.top {
-
-        .ui-menu-item {
-            min-width: 320px;
-
-            > .title {
-                padding-left: 4px;
-            }
-        }
-
-        .ui-menu-item.create-new .ui-menu-item {
-            min-width: 150px;
-        }
-
-        // move overlay below the top menu bar to allow hovering on other items
-        top: 32px;
-        .overlay {
-            top: 32px;
-        }
+    .pcui-menu-item.create-new .pcui-menu-item {
+        min-width: 150px;
     }
 }
 
@@ -771,33 +750,30 @@ strong {
     }
 }
 
-.ui-panel.whoisonline {
+.pcui-container.whoisonline {
     flex-grow: 1;
     text-align: right;
     margin: auto;
     height: 32px;
     line-height: 32px;
-    > .content {
-        height: 100%;
 
-        a {
-            margin-right: 3px;
-            display: inline-block;
+    a {
+        margin-right: 3px;
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        vertical-align: middle;
+
+        -webkit-transition: border-color 300ms ease;
+        -moz-transition: border-color 300ms ease;
+        transition: border-color 300ms ease;
+
+        img {
+            border-radius: 50%;
             width: 24px;
             height: 24px;
-            border-radius: 50%;
-            border: 2px solid transparent;
-            vertical-align: middle;
-
-            -webkit-transition: border-color 300ms ease;
-            -moz-transition: border-color 300ms ease;
-            transition: border-color 300ms ease;
-
-            img {
-                border-radius: 50%;
-                width: 24px;
-                height: 24px;
-            }
         }
     }
 }

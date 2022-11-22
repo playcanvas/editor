@@ -15,9 +15,9 @@ editor.once('load', function () {
     });
 
     // Go to anything
-    const item = menu.createItem('go-to-file', {
-        title: 'Go To File',
-        select: function () {
+    const item = new pcui.MenuItem({
+        text: 'Go To File',
+        onSelect: () => {
             editor.call('editor:command:goToFile');
         }
     });

@@ -3,12 +3,12 @@ editor.once('load', function () {
 
     const menu = editor.call('menu:file');
 
-    const item = menu.createItem('download', {
-        title: 'Download File',
-        filter: function () {
+    const item = new pcui.MenuItem({
+        text: 'Download File',
+        onIsEnabled: () => {
             return !!editor.call('documents:getFocused');
         },
-        select: function () {
+        onSelect: () => {
             return editor.call('editor:command:download');
         }
     });

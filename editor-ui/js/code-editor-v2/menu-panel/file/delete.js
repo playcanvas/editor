@@ -4,12 +4,12 @@ editor.once('load', function () {
     const menu = editor.call('menu:file');
     const leftPanel = editor.call('layout.left');
 
-    menu.append(menu.createItem('delete-selected', {
-        title: 'Delete Selected Files',
-        filter: function () {
+    menu.append(new pcui.MenuItem({
+        text: 'Delete Selected Files',
+        onIsEnabled: () => {
             return editor.call('editor:command:can:deleteSelected');
         },
-        select: function () {
+        onSelect: () => {
             return editor.call('editor:command:deleteSelected');
         }
     }));

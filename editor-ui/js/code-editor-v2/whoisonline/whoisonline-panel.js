@@ -1,8 +1,9 @@
 editor.once('load', function () {
     const panel = editor.call('layout.top');
 
-    const wioPanel = new ui.Panel();
-    wioPanel.class.add('whoisonline');
+    const wioPanel = new pcui.Container({
+        class: 'whoisonline'
+    });
     panel.append(wioPanel);
 
     const itemsIndex = {};
@@ -18,7 +19,7 @@ editor.once('load', function () {
             item.style.borderColor = editor.call('users:color', id, 'hex');
         };
 
-        img.src = '/api/users/' + id + '/thumbnail?size=28';
+        img.src = `/api/users/${id}/thumbnail?size=28`;
         item.appendChild(img);
 
         itemsIndex[id] = item;

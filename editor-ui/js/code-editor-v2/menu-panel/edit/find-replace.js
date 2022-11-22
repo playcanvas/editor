@@ -6,29 +6,29 @@ editor.once('load', function () {
     const me = editor.call('editor:monaco');
     const isMac = editor.call('editor:mac');
 
-    let item = menu.createItem('find', {
-        title: 'Find',
-        select: function () {
+    let item = new pcui.MenuItem({
+        class: 'no-bottom-border',
+        text: 'Find',
+        onSelect: () => {
             me.trigger(null, 'actions.find');
         }
     });
-    item.class.add('noBorder');
     editor.call('menu:item:setShortcut', item, ctrl + '+F');
     menu.append(item);
 
-    item = menu.createItem('replace', {
-        title: 'Replace',
-        select: function () {
+    item = new pcui.MenuItem({
+        class: 'no-bottom-border',
+        text: 'Replace',
+        onSelect: () => {
             me.trigger(null, 'editor.action.startFindReplaceAction');
         }
     });
-    item.class.add('noBorder');
     editor.call('menu:item:setShortcut', item, isMac ? 'Alt+Cmd+F' : 'Ctrl+H');
     menu.append(item);
 
-    item = menu.createItem('find-in-files', {
-        title: 'Find In Files',
-        select: function () {
+    item = new pcui.MenuItem({
+        text: 'Find In Files',
+        onSelect: () => {
             editor.call('picker:search:open');
         }
     });

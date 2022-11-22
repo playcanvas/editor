@@ -5,20 +5,20 @@ editor.once('load', function () {
     const me = editor.call('editor:monaco');
     const ctrl = editor.call('hotkey:ctrl:string');
 
-    let item = menu.createItem('next-occurrence', {
-        title: 'Add Next Occurrence',
-        select: function () {
+    let item = new pcui.MenuItem({
+        class: 'no-bottom-border',
+        text: 'Add Next Occurrence',
+        onSelect: () => {
             me.focus();
             me.trigger(null, 'editor.action.addSelectionToNextFindMatch');
         }
     });
-    item.class.add('noBorder');
     editor.call('menu:item:setShortcut', item, ctrl + '+D');
     menu.append(item);
 
-    item = menu.createItem('all-occurrences', {
-        title: 'Select All Occurrences',
-        select: function () {
+    item = new pcui.MenuItem({
+        text: 'Select All Occurrences',
+        onSelect: () => {
             me.focus();
             me.trigger(null, 'editor.action.selectHighlights');
         }

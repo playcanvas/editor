@@ -6,37 +6,37 @@ editor.once('load', function () {
     const settings = editor.call('editor:settings');
 
     // create save menu
-    let item = menu.createItem('save', {
-        title: 'Save File',
-        filter: function () {
+    let item = new pcui.MenuItem({
+        class: 'no-bottom-border',
+        text: 'Save File',
+        onIsEnabled: () => {
             return editor.call('editor:command:can:save');
         },
-        select: function () {
+        onSelect: () => {
             return editor.call('editor:command:save');
         }
     });
-    item.class.add('noBorder');
     editor.call('menu:item:setShortcut', item, editor.call('hotkey:ctrl:string') + '+S');
     menu.append(item);
 
-    item = menu.createItem('save-selected', {
-        title: 'Save Selected Files',
-        filter: function () {
+    item = new pcui.MenuItem({
+        class: 'no-bottom-border',
+        text: 'Save Selected Files',
+        onIsEnabled: () => {
             return editor.call('editor:command:can:saveSelected');
         },
-        select: function () {
+        onSelect: () => {
             return editor.call('editor:command:saveSelected');
         }
     });
-    item.class.add('noBorder');
     menu.append(item);
 
-    menu.append(menu.createItem('save-all', {
-        title: 'Save All Files',
-        filter: function () {
+    menu.append(new pcui.MenuItem({
+        text: 'Save All Files',
+        onIsEnabled: () => {
             return editor.call('editor:command:can:saveAll');
         },
-        select: function () {
+        onSelect: () => {
             return editor.call('editor:command:saveAll');
         }
     }));

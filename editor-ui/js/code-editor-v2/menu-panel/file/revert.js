@@ -4,36 +4,36 @@ editor.once('load', function () {
     const menu = editor.call('menu:file');
 
     // create menu items
-    let item = menu.createItem('revert', {
-        title: 'Revert File',
-        filter: function () {
+    let item = new pcui.MenuItem({
+        class: 'no-bottom-border',
+        text: 'Revert File',
+        onIsEnabled: () => {
             return editor.call('editor:command:can:revert');
         },
-        select: function () {
+        onSelect: () => {
             return editor.call('editor:command:revert');
         }
     });
-    item.class.add('noBorder');
     menu.append(item);
 
-    item = menu.createItem('revert-selected', {
-        title: 'Revert Selected Files',
-        filter: function () {
+    item = new pcui.MenuItem({
+        class: 'no-bottom-border',
+        text: 'Revert Selected Files',
+        onIsEnabled: () => {
             return editor.call('editor:command:can:revertSelected');
         },
-        select: function () {
+        onSelect: () => {
             return editor.call('editor:command:revertSelected');
         }
     });
-    item.class.add('noBorder');
     menu.append(item);
 
-    menu.append(menu.createItem('revert-all', {
-        title: 'Revert All Files',
-        filter: function () {
+    menu.append(new pcui.MenuItem({
+        text: 'Revert All Files',
+        onIsEnabled: () => {
             return editor.call('editor:command:can:revertAll');
         },
-        select: function () {
+        onSelect: () => {
             return editor.call('editor:command:revertAll');
         }
     }));

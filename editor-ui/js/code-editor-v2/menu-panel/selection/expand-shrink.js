@@ -5,20 +5,19 @@ editor.once('load', function () {
     const me = editor.call('editor:monaco');
     const isMac = editor.call('editor:mac');
 
-    let item = menu.createItem('expand-selection', {
-        title: 'Expand Selection',
-        select: function () {
+    let item = new pcui.MenuItem({
+        text: 'Expand Selection',
+        onSelect: () => {
             me.focus();
             me.trigger(null, 'editor.action.smartSelect.expand');
         }
     });
-    item.class.add('noBorder');
     editor.call('menu:item:setShortcut', item, isMac ? 'Ctrl+Shift+Cmd+Right Arrow' : 'Shift+Alt+Right Arrow');
     menu.append(item);
 
-    item = menu.createItem('shrink-selection', {
-        title: 'Shrink Selection',
-        select: function () {
+    item = new pcui.MenuItem({
+        text: 'Shrink Selection',
+        onSelect: () => {
             me.focus();
             me.trigger(null, 'editor.action.smartSelect.shrink');
         }

@@ -4,12 +4,12 @@ editor.once('load', function () {
     const menu = editor.call('menu:project');
 
     // Launch primary build
-    const item = menu.createItem('launch-build', {
-        title: 'Launch Primary Build',
-        filter: function () {
+    const item = new pcui.MenuItem({
+        text: 'Launch Primary Build',
+        onIsEnabled: () => {
             return !!config.project.primaryApp;
         },
-        select: function () {
+        onSelect: () => {
             return editor.call('editor:command:launchBuild');
         }
     });

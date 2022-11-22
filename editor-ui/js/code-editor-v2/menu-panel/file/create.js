@@ -4,12 +4,12 @@ editor.once('load', function () {
     const menu = editor.call('menu:file');
 
     // create menu items
-    let group = menu.createItem('create', {
-        title: 'Create New',
-        filter: function () {
+    let group = new pcui.MenuItem({
+        text: 'Create New',
+        onIsEnabled: () => {
             return editor.call('editor:command:can:create');
         },
-        select: function () {
+        onSelect: () => {
             return editor.call('editor:command:create', 'script');
         }
     });
@@ -37,12 +37,12 @@ editor.once('load', function () {
     ];
 
     types.forEach(function (type, index) {
-        group.append(menu.createItem('create-' + type, {
-            title: titles[index],
-            filter: function () {
+        group.append(new pcui.MenuItem({
+            text: titles[index],
+            onIsEnabled: () => {
                 return editor.call('editor:command:can:create');
             },
-            select: function () {
+            onSelect: () => {
                 return editor.call('editor:command:create', type);
             }
         }));
@@ -65,18 +65,18 @@ editor.once('load', function () {
                 return editor.call('editor:command:create', 'script', selection[0]);
         }
     });
-    group.class.add('noBorder');
+    group.class.add('no-bottom-border');
     ctxMenu.append(group);
 
     types.forEach(function (type, index) {
-        group.append(menu.createItem('create-' + type, {
-            title: titles[index],
-            filter: function () {
+        group.append(new pcui.MenuItem({
+            text: titles[index],
+            onIsEnabled: () => {
                 const selection = editor.call('files:contextmenu:selected');
                 if (selection.length <= 1)
                     return editor.call('editor:command:can:create', selection[0]);
             },
-            select: function () {
+            onSelect: () => {
                 const selection = editor.call('files:contextmenu:selected');
                 if (selection.length <= 1)
                     return editor.call('editor:command:create', type, selection[0]);

@@ -1,9 +1,9 @@
 editor.once('load', function () {
     'use strict';
 
-    const menus = {};
     const panel = editor.call('layout.top');
 
+    const menus = {};
     let openMenus = 0;
 
     editor.method('menu:register', function (name, button, menu) {
@@ -12,44 +12,40 @@ editor.once('load', function () {
         menu.class.add('top');
         menu.class.add(name);
 
-        menu.on('open', function (open) {
-            if (open) {
-                openMenus++;
+        menu.on('show', function () {
+            openMenus++;
 
-                // close other menus
-                for (const key in menus) {
-                    if (menus[key] !== menu) {
-                        menus[key].open = false;
-                    }
+            // close other menus
+            for (const key in menus) {
+                if (menus[key] !== menu) {
+                    menus[key].hidden = true;
                 }
-
-                button.class.add('open');
-            } else {
-                button.class.remove('open');
-                openMenus--;
             }
         });
 
-        button.on('hover', function () {
+        menu.on('hide', function () {
+            openMenus--;
+        });
+
+        button.element.addEventListener('mouseover', function () {
             if (openMenus) {
-                menu.open = true;
+                menu.hidden = false;
             }
         });
 
 
         button.on('click', function (e) {
             e.stopPropagation();
-            menu.open = !menu.open;
+            menu.hidden = !menu.hidden;
         });
 
         editor.method('menu:' + name, function () { return menu; });
     });
 
-
     // close menus when we click on the background
     panel.on('click', function (e) {
         for (const key in menus) {
-            menus[key].open = false;
+            menus[key].hidden = true;
         }
     });
 
@@ -70,11 +66,13 @@ editor.once('load', function () {
         .replace(/Up Arrow/g, '↑')
         .replace(/Down Arrow/g, '↓');
 
-        const label = new ui.Label({
+        const label = new pcui.Label({
             text: shortcut
         });
-        label.renderChanges = false;
         label.class.add('shortcut');
-        item.elementTitle.appendChild(label.element);
+
+        // HACK: there is no way to access the elements of a menu item
+        // so manipulate the DOM directly
+        item._containerContent.element.appendChild(label.element);
     });
 });

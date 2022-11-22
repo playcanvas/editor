@@ -5,16 +5,16 @@ editor.once('load', function () {
     const codePanel = editor.call('layout.code');
     const ctrl = editor.call('hotkey:ctrl:string');
 
-    let item = menu.createItem('undo', {
-        title: 'Undo',
-        filter: function () {
+    let item = new pcui.MenuItem({
+        class: 'no-bottom-border',
+        text: 'Undo',
+        onIsEnabled: () => {
             return editor.call('editor:command:can:undo');
         },
-        select: function () {
+        onSelect: () => {
             return editor.call('editor:command:undo');
         }
     });
-    item.class.add('noBorder');
     editor.call('menu:item:setShortcut', item, editor.call('hotkey:ctrl:string') + '+Z');
     menu.append(item);
 
@@ -33,12 +33,12 @@ editor.once('load', function () {
         }
     });
 
-    item = menu.createItem('redo', {
-        title: 'Redo',
-        filter: function () {
+    item = new pcui.MenuItem({
+        text: 'Redo',
+        onIsEnabled: () => {
             return editor.call('editor:command:can:redo');
         },
-        select: function () {
+        onSelect: () => {
             return editor.call('editor:command:redo');
         }
     });

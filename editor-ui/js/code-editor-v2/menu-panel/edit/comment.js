@@ -10,14 +10,14 @@ editor.once('load', function () {
     };
 
     // toggle comment
-    let item = menu.createItem('toggle-comment', {
-        title: 'Toggle Comment',
-        filter: canEditLine,
-        select: function () {
+    let item = new pcui.MenuItem({
+        class: 'no-bottom-border',
+        text: 'Toggle Comment',
+        onIsEnabled: canEditLine,
+        onSelect: () => {
             return editor.call('editor:command:toggleComment');
         }
     });
-    item.class.add('noBorder');
     editor.call('menu:item:setShortcut', item, ctrl + '+/');
     menu.append(item);
 
@@ -28,10 +28,10 @@ editor.once('load', function () {
     });
 
     // toggle comment
-    item = menu.createItem('toggle-comment', {
-        title: 'Block Comment',
-        filter: canEditLine,
-        select: function () {
+    item = new pcui.MenuItem({
+        text: 'Block Comment',
+        onIsEnabled: canEditLine,
+        onSelect: () => {
             return editor.call('editor:command:toggleBlockComment');
         }
     });
