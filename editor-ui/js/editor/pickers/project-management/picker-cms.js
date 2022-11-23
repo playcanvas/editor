@@ -187,6 +187,7 @@ editor.once('load', () => {
         const [sortByModified, modifiedRadio] = buildSortingMenuItem(sortingContainer, 'radio', 'Sort By Last Edited');  // sort by last edited
         const [sortByName, nameRadio] = buildSortingMenuItem(sortingContainer, 'radio', 'Sort By Name');  // sort by name
         const [sortByCreated, createdRadio] = buildSortingMenuItem(sortingContainer, 'radio', 'Sort By Created');  // sort by date created
+        const [sortBySize, sizeRadio] = buildSortingMenuItem(sortingContainer, 'radio', 'Sort By Size');  // sort by project size
 
         selectedSortRadioButton = modifiedRadio;
         selectedSortRadioButton.value = true;
@@ -201,6 +202,7 @@ editor.once('load', () => {
 
             if (selectedSortRadioButton === nameRadio) sortPolicy = 'name';
             else if (selectedSortRadioButton === createdRadio) sortPolicy = 'created';
+            else if (selectedSortRadioButton === sizeRadio) sortPolicy = 'size';
 
             if (sortDescending) sortButton.icon = 'E437';
             else sortButton.icon = 'E438';
@@ -224,6 +226,11 @@ editor.once('load', () => {
             updateRadioButtons(createdRadio);
             sortProjects('created');
         });
+
+        sortBySize.on('click', () => {
+            updateRadioButtons(sizeRadio);
+            sortProjects('size');
+        })
 
         return sortingContainer;
     };
@@ -852,6 +859,13 @@ editor.once('load', () => {
                 projects[currentUser.id].sort((a, b) => {
                     if (a.created < b.created) return 1 * ascending;
                     if (a.created > b.created) return -1 * ascending;
+                    return 0;
+                });
+                break;
+            case 'size':
+                projects[currentUser.id].sort((a, b) => {
+                    if (a.size.total < b.size.total) return 1 * ascending;
+                    if (a.size.total > b.size.total) return -1 * ascending;
                     return 0;
                 });
                 break;
