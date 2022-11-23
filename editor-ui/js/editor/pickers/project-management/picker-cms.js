@@ -230,7 +230,7 @@ editor.once('load', () => {
         sortBySize.on('click', () => {
             updateRadioButtons(sizeRadio);
             sortProjects('size');
-        })
+        });
 
         return sortingContainer;
     };
