@@ -27,6 +27,7 @@
         cursor: pointer;
         box-shadow: $element-shadow-hover;
     }
+
     &:active {
         box-shadow: $element-shadow-active;
     }

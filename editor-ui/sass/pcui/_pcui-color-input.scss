@@ -21,7 +21,7 @@
     }
 
     // checkerboard pattern
-    @include checkerboard(#fff, black, calc(44px/5));
+    @include checkerboard(#fff, black, calc(44px / 5));
 
     &:after {
         content: '\00a0';
@@ -41,12 +41,13 @@
         display: none;
     }
 
-    @include checkerboard(#465659, #5b696c, calc(44px/5));
+    @include checkerboard(#465659, #5b696c, calc(44px / 5));
 }
 
 // readonly color input
 .pcui-color-input.pcui-readonly {
     cursor: default;
+
     &:after {
         display: none;
     }
@@ -67,6 +68,7 @@
             border-bottom-color: $bcg-darkest;
         }
     }
+
     &:active {
         box-shadow: $element-shadow-active;
     }

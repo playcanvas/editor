@@ -7,11 +7,11 @@ $editor-bg: #1d292c;
 $editor-gutter-bg: lighten($editor-bg, 2%);
 $editor-text-color: #f8f4f0;
 $editor-gutter-fg: #5b7073;
-$editor-line-highlight: #324447;//#163a43;
-$editor-selection: #677173; //#324447;//#275C69;
+$editor-line-highlight: #324447;
+$editor-selection: #677173;
 $editor-activeline-bg: lighten($editor-bg, 10);
 $editor-activeline-linenumber-bg: lighten($editor-bg, 10);
-$editor-activeline-linenumber: #B1B8BA;
+$editor-activeline-linenumber: #b1b8ba;
 $editor-tooltip-bg: #324447;
 $editor-hint-line: #b1b8ba;
 $editor-hint-line-active: $editor-text-color;
@@ -24,7 +24,7 @@ $editor-numeric: #c978eb;
 $editor-keyword: #77bef3;
 $editor-tag: #ed1e79;
 $editor-string: $editor-yellow;
-$editor-link: #F16524;
+$editor-link: #f16524;
 $editor-comment: #779296;
 $editor-meta: #779296;
 $editor-def: #3cff94;
@@ -32,7 +32,7 @@ $editor-variable: white;
 $editor-variable-2: white;
 $editor-variable-3: white;
 $editor-parameter: #ff842f;
-$editor-attribute-name: #A9E884;
+$editor-attribute-name: #a9e884;
 $editor-property: white;
 $editor-attribute: white;
 $editor-function: $editor-variable;
@@ -52,10 +52,10 @@ $top-bar-line-height: 34px;
 $top-bar-border: 1px;
 $top-bar-height: $top-bar-line-height + $top-bar-border;
 
-$muted-green: #27AE60;
-$bright-green: #2ECC71;
-$bg-bright: #5B7073;
-$bright-red: #E74C3C;
+$muted-green: #27ae60;
+$bright-green: #2ecc71;
+$bg-bright: #5b7073;
+$bright-red: #e74c3c;
 $gray-light: lighten(#000, 60%);
 $text-color: #324447;
 
@@ -114,7 +114,7 @@ body {
         @mixin block {
             display: inline-block;
             float: right;
-            padding: 0px 10px;
+            padding: 0 10px;
 
             @extend .font-regular;
         }
@@ -142,7 +142,7 @@ body {
         }
 
         .code-editor-revert {
-            background-color: #5B7073;
+            background-color: #5b7073;
         }
 
         .code-editor-readonly {
@@ -327,7 +327,7 @@ body {
 }
 
 .CodeMirror-Tern-tooltip {
-    border-color:  $editor-bg;
+    border-color: $editor-bg;
     color: $editor-text-color;
     padding: 5px 10px;
     background-color: $editor-tooltip-bg;
@@ -407,7 +407,7 @@ li.CodeMirror-hint-active {
 }
 
 .CodeMirror-dialog-top {
-    background-color: rgba(0,0,0,0.9);
+    background-color: rgba(0, 0, 0, 0.9);
     border: none;
     top: 0;
     padding: 10px 20px;
@@ -445,6 +445,7 @@ li.CodeMirror-hint-active {
 
 .CodeMirror-activeline-gutter {
     background-color: $editor-activeline-linenumber-bg;
+
     .CodeMirror-linenumber {
         color: $editor-activeline-linenumber;
     }
@@ -483,12 +484,15 @@ a.link-docs {
     width: 8px;
     height: 8px;
 }
+
 ::-webkit-scrollbar-track {
     background: #20292b;
 }
+
 ::-webkit-scrollbar-thumb {
     background: #5b7073;
 }
+
 ::-webkit-scrollbar-corner {
     background: $editor-tooltip-bg;
 }

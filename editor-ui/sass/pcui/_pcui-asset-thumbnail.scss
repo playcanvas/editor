@@ -31,7 +31,6 @@
         }
     }
 
-
     > img {
         width: 100%;
         height: 100%;
@@ -60,7 +59,7 @@
 // showing multiple values
 .pcui-asset-thumb.pcui-multiple-values {
     > img, > canvas {
-        display: none
+        display: none;
     }
 }
 

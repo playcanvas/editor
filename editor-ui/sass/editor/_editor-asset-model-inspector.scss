@@ -1,14 +1,16 @@
 .asset-model-inspector {
     .pcui-inspector {
-        .asset-model-inspector-auto-unwrap-progress  {
+        .asset-model-inspector-auto-unwrap-progress {
             > .pcui-label {
                 width: 35%;
             }
+
             > .pcui-progress {
                 width: 128px;
             }
         }
-        .asset-model-inspector-auto-unwrap-padding  {
+
+        .asset-model-inspector-auto-unwrap-padding {
             > .pcui-label {
                 width: 86px;
             }
@@ -22,7 +24,7 @@
         overflow: hidden;
         height: 100%;
         background-color: $bcg-darkest;
-        
+
         .pcui-label {
             color: $text-active;
         }
@@ -60,6 +62,7 @@
     padding: 8px 20px;
     margin: 0;
     white-space: inherit;
+
     h5 {
         color: $text-active;
         font-family: 'Proxima Nova Bold', 'Helvetica Neue', Arial, Helvetica, sans-serif;

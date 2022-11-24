@@ -5,7 +5,7 @@ $color-three: #fff;
 $rotation-period: 5s;
 
 @font-face {
-    font-family: 'inconsolatamedium';
+    font-family: inconsolatamedium;
     src: url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.eot');
     src: url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.eot?#iefix') format('embedded-opentype'),
          url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.woff2') format('woff2'),
@@ -17,7 +17,7 @@ $rotation-period: 5s;
 }
 
 @font-face {
-    font-family: 'pc-icon';
+    font-family: pc-icon;
     src: url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.eot');
     src: url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.eot?#iefix') format('embedded-opentype'),
          url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.woff2') format('woff2'),
@@ -34,6 +34,7 @@ html {
     width: 100%;
     background-color: #1d292c;
 }
+
 body {
     margin: 0;
     max-height: 100%;
@@ -60,11 +61,13 @@ body {
 #application-canvas.fill-mode-NONE {
     margin: auto;
 }
+
 #application-canvas.fill-mode-KEEP_ASPECT {
     width: 100%;
     height: auto;
     margin: 0;
 }
+
 #application-canvas.fill-mode-FILL_WINDOW {
     width: 100%;
     height: 100%;
@@ -128,7 +131,7 @@ canvas:focus {
     display: flex;
     flex-direction: row-reverse;
     align-items: center;
-    font-family: 'inconsolatamedium';
+    font-family: inconsolatamedium;
 
     img {
         margin-left: 14px;
@@ -162,7 +165,7 @@ canvas:focus {
 }
 
 .font-icon {
-    font-family: 'pc-icon';
+    font-family: pc-icon;
     @extend .font-smooth;
 }
 
@@ -183,15 +186,17 @@ body > #dev-tools {
         cursor: -webkit-grabbing;
         cursor: -moz-grabbing;
     }
+
     > .overview {
         position: absolute;
         left: 300px;
-        top: 0px;
+        top: 0;
         display: block;
         background-color: #202020;
 
         @extend .noSelect;
     }
+
     > .timeline {
         position: absolute;
         left: 300px;
@@ -201,6 +206,7 @@ body > #dev-tools {
 
         @extend .noSelect;
     }
+
     > .frame {
         position: absolute;
         top: 0;
@@ -217,15 +223,19 @@ body > #dev-tools {
             width: 4px;
             height: 4px;
         }
+
         &::-webkit-scrollbar-track {
             background: #303030;
         }
+
         &::-webkit-scrollbar-thumb {
             background: #202020;
         }
+
         &::-webkit-scrollbar-thumb:hover {
             background: #fff;
         }
+
         &::-webkit-scrollbar-corner {
             background: #303030;
         }
@@ -242,6 +252,7 @@ body > #dev-tools {
                 background-color: #202020;
                 cursor: pointer;
             }
+
             > .row {
                 overflow: hidden;
                 margin: 4px 8px;
@@ -250,9 +261,11 @@ body > #dev-tools {
                     float: left;
                     width: 150px;
                 }
+
                 > .field {
                     float: left;
                 }
+
                 > select {
                     padding: 0;
                     margin: 0;
@@ -263,6 +276,7 @@ body > #dev-tools {
                     font-size: 12px;
                     font-family: 'Courier New', monospace;
                 }
+
                 > input[type='text'] {
                     float: left;
                     padding: 4px 8px;
@@ -279,6 +293,7 @@ body > #dev-tools {
                         margin-right: 4px;
                     }
                 }
+
                 > .drawcallsLimitButton {
                     float: left;
                     width: 24px;
@@ -293,11 +308,13 @@ body > #dev-tools {
                     &:hover {
                         background-color: #000;
                     }
+
                     &:last-child {
                         margin-right: 0;
                     }
                 }
             }
+
             &.folded {
                 height: 24px;
 
@@ -307,6 +324,7 @@ body > #dev-tools {
             }
         }
     }
+
     > .toolbar {
         position: absolute;
         top: 0;

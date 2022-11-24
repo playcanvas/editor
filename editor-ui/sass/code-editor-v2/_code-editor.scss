@@ -28,6 +28,7 @@ strong {
 
     .ui-tooltip {
         max-width: 280px;
+
         > .inner {
             padding: 10px;
             white-space: normal;
@@ -47,6 +48,7 @@ strong {
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }
@@ -83,6 +85,7 @@ strong {
         #ui-top, #ui-left, #ui-bottom, #ui-tabs {
             display: none;
         }
+
         #ui-center, #ui-code {
             height: 100%;
         }
@@ -91,7 +94,7 @@ strong {
 
 #ui-top {
     background-color: mix($bcg-darkest, black, 75%);
-    
+
     > .content {
         > .pcui-button {
             background-color: transparent;
@@ -124,6 +127,7 @@ strong {
     height: calc(100vh - 64px);
     flex-grow: 1;
     overflow: hidden;
+
     > .content {
         height: 100%;
     }
@@ -134,6 +138,7 @@ strong {
         display: block;
     }
     height: calc(100% - 32px);
+
     > .content {
         height: 100%;
     }
@@ -146,7 +151,7 @@ strong {
     -moz-box-sizing: border-box;
 
     $tab-bottom-margin: 2px;
-    $tab-bg-color:  mix($bcg-darker, $bcg-darkest, 25%);
+    $tab-bg-color: mix($bcg-darker, $bcg-darkest, 25%);
 
     height: 32px - $tab-bottom-margin;
     line-height: 32px - $tab-bottom-margin;
@@ -282,8 +287,6 @@ strong {
                 left: -5px;
             }
         }
-
-
     }
 }
 
@@ -310,7 +313,7 @@ strong {
     color: $text-primary;
     flex-shrink: 0;
     background-color: $bcg-primary;
-    width: 0px;
+    width: 0;
 
     &:not(.resizing) {
         transition: width 200ms ease;
@@ -318,6 +321,7 @@ strong {
 
     > .ui-header {
         padding: 0;
+
         > .title:before {
             @extend .font-icon;
             content: '\E134';
@@ -411,6 +415,7 @@ strong {
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
+
             &::before {
                 @extend .font-icon;
                 content: '\E399';
@@ -418,7 +423,6 @@ strong {
             }
         }
     }
-
 }
 
 .ui-tree.files {
@@ -432,6 +436,7 @@ strong {
                 }
             }
         }
+
         > .title {
             > .text {
                 @extend .font-regular;
@@ -442,8 +447,10 @@ strong {
                     color: #fff;
                 }
             }
+
             > .icon {
                 color: $text-darkest;
+
                 &:after {
                     @extend .font-icon;
                     font-size: 16px;
@@ -457,21 +464,27 @@ strong {
         &.type-folder .icon:after {
             content: '\E139';
         }
+
         &.type-script .icon:after {
             content: '\E392';
         }
+
         &.type-html .icon:after {
             content: '\E205';
         }
+
         &.type-css .icon:after {
             content: '\E206';
         }
+
         &.type-shader .icon:after {
             content: '\E219';
         }
+
         &.type-text .icon:after {
             content: '\E209';
         }
+
         &.type-json .icon:after {
             content: '\E207';
         }
@@ -483,6 +496,7 @@ strong {
                 > .text {
                     display: none;
                 }
+
                 > .ui-text-field {
                     width: calc(100% - 24px);
                     height: 22px;
@@ -513,10 +527,8 @@ strong {
                         color: $muted-yellow;
                     }
                 }
-
             }
         }
-
     }
 }
 
@@ -527,7 +539,6 @@ strong {
 }
 
 .pcui-menu {
-
     .pcui-menu-item {
         font-size: 14px;
         min-width: 300px;
@@ -550,25 +561,23 @@ strong {
     top: 32px; // move overlay below the top menu bar to allow hovering on other items
 }
 
-
 .ui-label.readonly {
     margin: 0 0 0 auto;
-    padding: 0px 10px;
+    padding: 0 10px;
     height: 100%;
     line-height: 34px;
     background-color: $bcg-primary;
 }
 
 .pcui-overlay.picker-script-create {
-
     .pcui-overlay-content {
 
         width: 288px;
         padding: 16px;
         z-index: 0;
-    
+
         > .pcui-label {
-            margin:  0 0 8px 0;
+            margin: 0 0 8px 0;
         }
 
         > .pcui-text-input {
@@ -582,7 +591,6 @@ strong {
             font-size: 12px;
             color: #f30;
         }
-    
     }
 }
 
@@ -594,7 +602,7 @@ strong {
         background-color: $bcg-darker;
 
         > .ui-text-field {
-            background-color: rgba(0,0,0, 0.5);
+            background-color: rgba(0, 0, 0, 0.5);
             border: 0;
             margin: 0;
             height: 32px;
@@ -620,7 +628,6 @@ strong {
                 -webkit-transition: flex-grow 200ms ease;
                 -moz-transition: flex-grow 200ms ease;
                 transition: flex-grow 200ms ease;
-
 
                 &:not(.focused) {
                     flex-grow: 0.3;
@@ -659,10 +666,12 @@ strong {
 
 .ui-overlay.picker-fuzzy-search {
     z-index: 50;
+
     > .overlay {
         background-color: transparent;
         cursor: default;
     }
+
     > .content {
         display: none;
     }
@@ -672,7 +681,7 @@ strong {
     position: absolute;
     z-index: 51;
     top: 28px;
-    left: calc(50% - 25vw) ;
+    left: calc(50% - 25vw);
     width: 50vw;
     height: 32px;
     line-height: 32px;
@@ -707,9 +716,9 @@ strong {
                 max-height: 50vh;
                 overflow-y: auto;
 
-                -moz-box-shadow: 0 1px 1px 0px rgba(0,0,0,0.5);
-                -webkit-box-shadow: 0 1px 1px 0px rgba(0,0,0,0.5);
-                box-shadow: 0 1px 1px 0px rgba(0,0,0,0.5);
+                -moz-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.5);
+                -webkit-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.5);
+                box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.5);
 
                 > .ui-menu-item {
                     > .title {
@@ -908,7 +917,7 @@ strong {
 }
 
 .CodeMirror-Tern-tooltip {
-    border-color:  $editor-bg;
+    border-color: $editor-bg;
     color: $editor-text-color;
     padding: 5px 10px;
     background-color: $editor-tooltip-bg;
@@ -988,7 +997,7 @@ li.CodeMirror-hint-active {
 }
 
 .CodeMirror-dialog {
-    background-color: rgba(0,0,0,0.9);
+    background-color: rgba(0, 0, 0, 0.9);
     color: $editor-hint-line !important;
     border: none;
     padding: 10px 20px;
@@ -1033,6 +1042,7 @@ li.CodeMirror-hint-active {
 
 .CodeMirror-activeline-gutter {
     background-color: $editor-activeline-linenumber-bg;
+
     .CodeMirror-linenumber {
         color: $editor-activeline-linenumber;
     }
@@ -1120,6 +1130,7 @@ a.link-docs {
 
             svg {
                 margin: auto;
+
                 &.spin {
                     g {
                         animation-name: spin;
@@ -1145,44 +1156,44 @@ a.link-docs {
             .ui-label {
                 margin: 1px;
                 display: block;
+
                 &.title {
                     color: $text-primary;
                     font-size: 16px;
                 }
             }
         }
-
     }
 }
 
 .dst-branch {
-    background:rgba(#0B3B76, 0.5);
+    background: rgba(#0b3b76, 0.5);
 
     > .ui-button {
-        background: #2460AA;
-        border: 1px solid #20292B;
+        background: #2460aa;
+        border: 1px solid #20292b;
     }
 }
 
 .src-branch {
-    background:rgba(#15515E, 0.5);
+    background: rgba(#15515e, 0.5);
 
     > .ui-button {
-        background: #1D6D7F;
-        border: 1px solid #20292B;
+        background: #1d6d7f;
+        border: 1px solid #20292b;
     }
 }
 
 .diff-overlay-hunk {
-    background:$bcg-primary;
+    background: $bcg-primary;
 }
 
 .diff-overlay-add {
-    background:rgba(green, 0.2);
+    background: rgba(green, 0.2);
 }
 
 .diff-overlay-remove {
-    background:rgba(red, 0.2);
+    background: rgba(red, 0.2);
 }
 
 .conflict-overlay {
@@ -1209,6 +1220,7 @@ a.link-docs {
             z-index: 2;
             font-size: 12px;
             color: $text-primary;
+
             &:before {
                 font-size: 12px;
                 content: '\E399';
@@ -1222,4 +1234,3 @@ a.link-docs {
 @import '../partials/ui-common';
 @import '../partials/version-control';
 @import '../theme-dark';
-

@@ -74,6 +74,7 @@
 .pcui-entity-input:not(.pcui-disabled):not(.pcui-readonly) {
     &.pcui-focus, &:hover {
         cursor: pointer;
+
         &:after, &:before {
             display: none;
         }

@@ -3,11 +3,13 @@
     border-left: 1px solid $bcg-darker;
     border-top: 1px solid $bcg-darker;
     border-right: 1px solid $bcg-darker;
+
     .pcui-panel-header {
         color: $text-active;
         background-color: transparent;
     }
 }
+
 .scripts-settings-panel-scripts-list-item:last-child {
     border-bottom: 1px solid $bcg-darker;
 }

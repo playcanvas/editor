@@ -50,6 +50,7 @@
         .pcui-button.cancel {
             background: $text-active;
             color: $text-primary;
+
             &:hover {
                 background: darken($text-active, 5%);
             }
@@ -60,6 +61,7 @@
 .picker-fix-templates-fullscreen {
     z-index: 10000;
     background: $bcg-primary;
+
     .pcui-overlay-inner {
         background: transparent;
     }
@@ -81,6 +83,7 @@
         .pcui-button.cancel {
             background: $text-active;
             color: $text-primary;
+
             &:hover {
                 background: darken($text-active, 5%);
             }

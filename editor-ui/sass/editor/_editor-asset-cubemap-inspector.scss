@@ -14,9 +14,11 @@
     background-repeat: no-repeat;
     background-size: 100% 100%;
     background-color: #07f;
+
     .pcui-asset-thumb {
         padding-top: 100%;
         display: block;
+
         > img {
             position: absolute;
             left: 0;
@@ -68,7 +70,7 @@
     left: -7px;
     color: #b1b8ba;
     padding: 2px 4px;
-    background-color: rgba(44,57,60,0.8);
+    background-color: rgba(44, 57, 60, 0.8);
     font-size: 12px;
 }
 
@@ -76,11 +78,10 @@
     position: absolute;
     z-index: 1;
     width: 22px;
-    height: 0px;
+    height: 0;
     top: -8px;
     right: -7px;
 }
-
 
 .pcui-cubemap-asset-inspector-face-button::before {
     display: flex;

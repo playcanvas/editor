@@ -7,15 +7,19 @@ body {
     width: 8px;
     height: 8px;
 }
+
 ::-webkit-scrollbar-track {
     background: $bcg-darkest;
 }
+
 ::-webkit-scrollbar-thumb {
     background: $text-darkest;
 }
+
 ::-webkit-scrollbar-thumb:hover {
     background: $text-active;
 }
+
 ::-webkit-scrollbar-corner {
     background: $bcg-dark;
 }
@@ -24,6 +28,7 @@ body {
     color: $text-active;
     background-color: $bcg-darkest;
 }
+
 ::selection {
     color: $text-active;
     background-color: $bcg-darkest;
@@ -33,10 +38,12 @@ a {
     color: $text-active;
     text-decoration: none;
 }
+
 a:hover {
     color: saturate(lighten($text-active, 10%), 10%);
     text-decoration: underline;
 }
+
 a:visited {
     color: $text-active;
 }
@@ -55,11 +62,13 @@ a:visited {
             background-color: mix($bcg-dark, $bcg-primary, 60%);
         }
     }
+
     &.scrollable {
         > .content {
             top: 32px;
         }
     }
+
     > header {
         @extend .font-bold;
         @extend .font-smooth;
@@ -67,6 +76,7 @@ a:visited {
         color: $text-primary;
         font-size: 12px;
     }
+
     &.foldable {
         &.folded {
             > header {
@@ -77,6 +87,7 @@ a:visited {
                     content: '\E180';
                 }
             }
+
             &.horizontal {
                 background-color: $bcg-darker;
 
@@ -91,6 +102,7 @@ a:visited {
                 }
             }
         }
+
         > header {
             padding-left: 32px;
 
@@ -118,10 +130,12 @@ a:visited {
                 background-color: transparent;
             }
         }
+
         &.horizontal {
             > header:after {
                 content: '\E183';
             }
+
             &.resizable-right {
                 &.folded {
                     > header:after {
@@ -141,23 +155,27 @@ a:visited {
             }
         }
     }
+
     &.resizable {
         $handle-size: 1px;
 
         &.resizing > .handle {
             background-color: transparent;
         }
+
         &.resizable-left {
             padding-left: 0;
 
             &.scrollable > .content {
                 left: 0;
             }
+
             > .handle {
                 width: $handle-size;
                 border-left: 3px solid $bcg-darkest;
             }
         }
+
         &.resizable-right {
             padding-right: 0;
 
@@ -166,17 +184,20 @@ a:visited {
                 border-right: 3px solid $bcg-darkest;
             }
         }
+
         &.resizable-top {
             padding-top: 0;
 
             &.scrollable > .content {
                 top: 32px;
             }
+
             > .handle {
                 height: $handle-size;
                 border-top: 3px solid $bcg-darkest;
             }
         }
+
         &.resizable-bottom {
             padding-bottom: 0;
 
@@ -185,9 +206,11 @@ a:visited {
                 border-bottom: 3px solid $bcg-darkest;
             }
         }
+
         &.resizing > .handle {
             opacity: 1;
         }
+
         > .handle {
             opacity: 0;
             background-color: transparent;
@@ -198,6 +221,7 @@ a:visited {
             }
         }
     }
+
     &.flash {
         @extend .ui-flash;
     }
@@ -207,6 +231,7 @@ a:visited {
     > .content {
         background-color: $bcg-primary;
     }
+
     .ui-list {
         &.model-nodes {
             > .ui-list-item {
@@ -227,8 +252,9 @@ a:visited {
 
 .ui-overlay {
     > .overlay {
-        background-color: rgba($bcg-darkest, .7);
+        background-color: rgba($bcg-darkest, 0.7);
     }
+
     > .content {
         background-color: $bcg-primary;
     }
@@ -276,12 +302,14 @@ a:visited {
             }
         }
     }
+
     &.disabled {
         > .title > .icon:after {
             background-color: mix($text-darkest, $bcg-primary, 50%);
             opacity: 1;
         }
     }
+
     > .title {
         color: $text-secondary;
 
@@ -295,6 +323,7 @@ a:visited {
                 background-color: mix($text-darkest, $text-active, 50%);
             }
         }
+
         > .icon {
             // line-left
             &:before {
@@ -309,6 +338,7 @@ a:visited {
             }
         }
     }
+
     &.selected {
         > .title {
             background-color: $bcg-darkest;
@@ -325,9 +355,10 @@ a:visited {
             }
         }
     }
+
     &.dragged {
         > .title {
-            background-color: rgba($bcg-dark, .5);
+            background-color: rgba($bcg-dark, 0.5);
             color: $text-primary;
         }
     }
@@ -371,54 +402,63 @@ a:visited {
             }
         }
     }
+
     &.align-top {
         margin-left: -16px;
 
         > .inner {
             margin-top: 8px;
         }
+
         > .arrow {
             top: -8px;
             left: 8px;
             border-bottom-color: mix($bcg-darkest, #000, 75%);
         }
     }
+
     &.align-right {
         margin-top: -16px;
 
         > .inner {
             margin-right: 8px;
         }
+
         > .arrow {
             top: 8px;
             right: -8px;
             border-left-color: mix($bcg-darkest, #000, 75%);
         }
     }
+
     &.align-bottom {
         margin-left: -16px;
 
         > .inner {
             margin-bottom: 8px;
         }
+
         > .arrow {
             bottom: -8px;
             left: 8px;
             border-top-color: mix($bcg-darkest, #000, 75%);
         }
     }
+
     &.align-left {
         margin-top: -16px;
 
         > .inner {
             margin-left: 8px;
         }
+
         > .arrow {
             top: 8px;
             left: -8px;
             border-right-color: mix($bcg-darkest, #000, 75%);
         }
     }
+
     > .inner {
         padding: 0 16px;
         line-height: 32px;
@@ -426,12 +466,14 @@ a:visited {
         background-color: mix($bcg-darkest, #000, 75%);
         color: $text-primary;
     }
+
     > .arrow {
         width: 0;
         height: 0;
         position: absolute;
         border: 8px solid transparent;
     }
+
     &.innactive {
         > .inner {
             color: $text-darkest;
@@ -449,6 +491,7 @@ a:visited {
             color: $text-dark;
         }
     }
+
     &.container {
         > .title:after {
             content: '\E160';
@@ -459,6 +502,7 @@ a:visited {
             color: $text-dark;
             line-height: 14px;
         }
+
         &.hover > .title {
             color: $text-primary;
             background-color: $text-darkest;
@@ -466,16 +510,19 @@ a:visited {
             &:after {
                 color: $text-primary;
             }
+
             > .icon {
                 color: $text-primary;
             }
         }
     }
+
     &:last-child {
         > .title {
             border-bottom: none;
         }
     }
+
     > .title {
         color: $text-dark;
         border-bottom: 1px solid mix($bcg-darkest, $bcg-dark, 50%);
@@ -488,6 +535,7 @@ a:visited {
                 color: $text-primary;
             }
         }
+
         > .icon {
             @extend .font-icon;
             font-size: 14px;
@@ -496,8 +544,9 @@ a:visited {
             color: $text-dark;
         }
     }
+
     > .content {
-        box-shadow: 0 0 8px rgba(0, 0, 0, .3);
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
     }
 }
 
@@ -509,6 +558,7 @@ a:visited {
     &.flash {
         @extend .ui-flash;
     }
+
     &.selectable {
         > .ui-list-item {
             &:hover {
@@ -546,6 +596,7 @@ a:visited {
                 }
             }
         }
+
         &.container {
             > .title {
                 &:hover {
@@ -553,6 +604,7 @@ a:visited {
                         color: $text-secondary;
                     }
                 }
+
                 &:before {
                     background-color: mix($text-darkest, $bcg-darker, 30%);
 
@@ -568,14 +620,17 @@ a:visited {
                 }
             }
         }
+
         > .title {
             &:hover {
                 > .icon {
                     color: #fff;
                 }
             }
+
             > .icon {
                 color: $text-darkest;
+
                 &:after {
                     @extend .font-icon;
                     content: '\E139';
@@ -586,14 +641,17 @@ a:visited {
                 }
             }
         }
+
         &.current {
             > .title {
                 color: $text-active;
+
                 > .icon {
                     color: $text-active;
                 }
             }
         }
+
         &.scripts {
             > .title {
                 &:after {
@@ -631,12 +689,14 @@ a:visited {
         &.disabled.selected {
             background-color: $bcg-darkest;
         }
+
         &:hover,
         &:focus {
             color: $text-primary;
             background-color: mix($bcg-darkest, $bcg-dark, 50%);
             outline: none;
         }
+
         &.selected {
             color: $text-active;
             background-color: $bcg-darkest;
@@ -661,12 +721,14 @@ a:visited {
         &.disabled.selected {
             background-color: $bcg-darkest;
         }
+
         &:hover,
         &:focus {
             color: $text-primary;
             background-color: mix($bcg-darkest, $bcg-dark, 50%);
             outline-color: transparent;
         }
+
         &.selected {
             color: $text-active;
             background-color: $bcg-darkest;
@@ -687,6 +749,7 @@ a:visited {
         @extend .ui-flash;
     }
 }
+
 .ui-label[placeholder] {
     &:after {
         color: $text-darkest;
@@ -710,11 +773,13 @@ a:visited {
             }
         }
     }
+
     &.flash {
         > .bar {
             @extend .ui-flash;
         }
     }
+
     &.disabled {
         cursor: default;
 
@@ -732,6 +797,7 @@ a:visited {
             }
         }
     }
+
     > .bar {
         background-color: $bcg-dark;
         border-color: $bcg-darker;
@@ -751,6 +817,7 @@ a:visited {
             }
         }
     }
+
     &.null {
         > .bar {
             > .handle {
@@ -768,6 +835,7 @@ a:visited {
     > input.field {
         color: $text-secondary;
     }
+
     &.active,
     &:hover,
     &:focus,
@@ -775,6 +843,7 @@ a:visited {
         border-color: $bcg-darkest;
         background-color: $bcg-darkest;
     }
+
     > input.field:focus,
     > input.field:hover {
         box-shadow: none;
@@ -787,6 +856,7 @@ a:visited {
         @extend .ui-flash;
     }
 }
+
 .ui-text-field[placeholder] {
     &:after {
         color: $text-darkest;
@@ -802,6 +872,7 @@ a:visited {
     > textarea.field {
         color: $text-secondary;
     }
+
     &.active,
     &:hover,
     &:focus,
@@ -809,6 +880,7 @@ a:visited {
         border-color: $bcg-darkest;
         background-color: $bcg-darkest;
     }
+
     > textarea.field:focus,
     > textarea.field:hover {
         box-shadow: none;
@@ -821,6 +893,7 @@ a:visited {
         @extend .ui-flash;
     }
 }
+
 .ui-textarea-field[placeholder] {
     &:after {
         color: $text-darkest;
@@ -842,30 +915,34 @@ a:visited {
         border-bottom: 12px solid $bcg-dark;
         border-left: 12px solid transparent;
     }
+
     &:hover,
     &:focus {
         outline: 1px solid $bcg-darkest;
         border-color: $bcg-darkest;
         box-shadow: none;
+
         &:after {
             border-bottom: 12px solid $bcg-darkest;
         }
     }
+
     &.flash {
         @extend .ui-flash;
     }
+
     &.null {
         > .color {
             background-color: #465659 !important;
             background-image:
-            -moz-linear-gradient(45deg, #5b696c 25%, transparent 25%,transparent 75%, #5b696c 75%, #5b696c 100%),
-            -moz-linear-gradient(45deg, #5b696c 25%, transparent 25%,transparent 75%, #5b696c 75%, #5b696c 100%);
+            -moz-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
+            -moz-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
             background-image:
-            -webkit-linear-gradient(45deg, #5b696c 25%, transparent 25%,transparent 75%, #5b696c 75%, #5b696c 100%),
-            -webkit-linear-gradient(45deg, #5b696c 25%, transparent 25%,transparent 75%, #5b696c 75%, #5b696c 100%);
+            -webkit-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
+            -webkit-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
             background-image:
-            linear-gradient(45deg, #5b696c 25%, transparent 25%,transparent 75%, #5b696c 75%, #5b696c 100%),
-            linear-gradient(45deg, #5b696c 25%, transparent 25%,transparent 75%, #5b696c 75%, #5b696c 100%);
+            linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
+            linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
             -moz-background-size: 20px 20px;
             background-size: 20px 20px;
             -webkit-background-size: 22px 22px;
@@ -894,10 +971,12 @@ a:visited {
         border-color: $bcg-darkest;
         outline: 1px solid $bcg-darkest;
         box-shadow: none;
+
         &:after {
             background-color: $bcg-darkest;
         }
     }
+
     &.flash {
         @extend .ui-flash;
     }
@@ -911,6 +990,7 @@ a:visited {
     > input.field {
         color: $text-secondary;
     }
+
     &.active,
     &:hover,
     &:focus,
@@ -918,6 +998,7 @@ a:visited {
         border-color: $bcg-darkest;
         background-color: $bcg-darkest;
     }
+
     > input.field:focus,
     > input.field:hover {
         // color: #f00;
@@ -931,12 +1012,14 @@ a:visited {
         @extend .ui-flash;
     }
 }
+
 .ui-number-field[placeholder] {
     &:after {
         color: $text-darkest;
         background-color: $bcg-dark;
     }
 }
+
 .ui-number-field[proxy] {
     &:after {
         color: $text-secondary;
@@ -983,6 +1066,7 @@ a:visited {
             background-color: $error-secondary;
         }
     }
+
     &:after {
         content: '\00a0';
         position: absolute;
@@ -994,6 +1078,7 @@ a:visited {
         background-color: $text-darkest;
         transition: left 100ms ease, background-color 100ms ease;
     }
+
     &.checked {
         border-color: $bcg-darker;
         background-color: $bcg-dark;
@@ -1002,6 +1087,7 @@ a:visited {
             left: 15px;
             background-color: mix($text-darkest, #7f7, 50%);
         }
+
         &.component-toggle:hover,
         &.component-toggle:focus {
             border-color: $bcg-darkest;
@@ -1012,11 +1098,13 @@ a:visited {
             }
         }
     }
+
     &.null {
         &:after {
             left: 8px;
             background-color: rgba($text-dark, 0.25);
         }
+
         &:hover,
         &:focus {
             &:after {
@@ -1024,6 +1112,7 @@ a:visited {
             }
         }
     }
+
     &.component-toggle {
         border-radius: 8px;
     }
@@ -1048,6 +1137,7 @@ a:visited {
             }
         }
     }
+
     > .value {
         color: $text-secondary;
 
@@ -1070,6 +1160,7 @@ a:visited {
             background-color: transparent;
         }
     }
+
     > ul {
         color: $text-secondary;
         background-color: $bcg-darkest;
@@ -1081,6 +1172,7 @@ a:visited {
                 color: $text-primary;
                 background-color: $bcg-dark;
             }
+
             &.selected {
                 color: $text-primary;
                 background-color: $bcg-darker;
@@ -1088,6 +1180,7 @@ a:visited {
             }
         }
     }
+
     &.flash {
         @extend .ui-flash;
     }
@@ -1126,7 +1219,6 @@ a:visited {
     }
 }
 
-
 .ui-progress {
     background-color: $bcg-darkest;
 
@@ -1141,7 +1233,7 @@ a:visited {
         background: -ms-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
         background: -o-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
         background: linear-gradient(135deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
-        background-position: 0px 0px;
+        background-position: 0 0;
         background-size: 24px 24px;
         background-repeat: repeat;
     }
@@ -1185,6 +1277,7 @@ a:visited {
         > .pick-opacity {
             border: 1px solid $bcg-darker;
         }
+
         > .fields {
             background-color: $bcg-primary;
         }
@@ -1230,6 +1323,7 @@ a:visited {
                     > .alpha-rect {
                         border: 1px solid $bcg-darker;
                     }
+
                     > .fields {
                         background-color: $bcg-primary;
                     }

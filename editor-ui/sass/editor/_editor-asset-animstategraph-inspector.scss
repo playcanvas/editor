@@ -1,5 +1,6 @@
 .asset-animstategraph-inspector {
     overflow: visible;
+
     .asset-animstategraph-inspector-parameter, .asset-animstategraph-inspector-layer, .asset-animstategraph-inspector-state, .asset-animstategraph-inspector-transition {
         margin: $element-margin;
         border: 1px solid $bcg-darkest;
@@ -8,6 +9,7 @@
 
 .asset-animstategraph-inspector-transitions {
     overflow: visible;
+
     .asset-animstategraph-inspector-transition {
         margin: $element-margin;
         border: 1px solid $bcg-darkest;
@@ -31,7 +33,7 @@
     border-left: 1px solid $bcg-darker;
     border-top: 1px solid $bcg-darker;
     border-right: 1px solid $bcg-darker;
-    margin: 0px $element-margin;
+    margin: 0 $element-margin;
     flex-grow: 1;
     cursor: pointer;
     width: calc(100% - 12px);
@@ -47,7 +49,7 @@
 
 .asset-animstategraph-inspector-state-transition:before {
     content: '\E166';
-    font-family: 'pc-icon';
+    font-family: pc-icon;
     font-size: 16px;
     margin-top: $element-margin;
     position: absolute;
@@ -70,17 +72,17 @@
 
 .asset-animstategraph-inspector-close-button {
     position: absolute;
-    right: 0px;
+    right: 0;
     top: -1px;
     width: 26px;
     height: 26px;
     z-index: 1000000;
-    color: rgba(255,255,255,0.75);
-    background-color: rgba(41,53,56,0.5);
+    color: rgba(255, 255, 255, 0.75);
+    background-color: rgba(41, 53, 56, 0.5);
 }
 
 .pcui-button.asset-animstategraph-inspector-close-button:not(.pcui-disabled):not(.pcui-readonly):hover {
-    background-color: rgba(41,53,56,0.75);
+    background-color: rgba(41, 53, 56, 0.75);
     color: #fff;
     box-shadow: none;
 }
@@ -92,7 +94,6 @@
     top: -5px;
     line-height: 34px;
 }
-
 
 .asset-animstategraph-inspector-close-button-tooltip {
     top: 40px !important;
@@ -110,7 +111,7 @@
 .asset-animstategraph-inspector-layer-select {
     .pcui-select-input-container-value {
         .pcui-select-input-value::before {
-            font-family: 'pc-icon';
+            font-family: pc-icon;
             font-size: 12px;
             content: '\E147';
             padding-right: 8px;
@@ -125,15 +126,18 @@
 .pcui-animstategraph-condition {
     display: flex;
     align-items: center;
+
     > .pcui-select-input {
         width: 30%;
         margin-right: 0;
     }
+
     > .pcui-numeric-input {
         width: 20%;
         flex-grow: 1;
         margin-right: 46px;
     }
+
     > .pcui-button {
         min-width: 30px;
         margin-right: 10px;

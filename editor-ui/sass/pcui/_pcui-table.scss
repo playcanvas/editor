@@ -50,8 +50,6 @@
                     color: $text-primary;
                 }
             }
-
-
         }
     }
 }
@@ -74,8 +72,7 @@
     }
 }
 
-.pcui-table > table > tbody >
-.pcui-table-row:not(.pcui-table-row-selected) {
+.pcui-table > table > tbody > .pcui-table-row:not(.pcui-table-row-selected) {
     &:hover, &:focus {
         background-color: $bcg-dark;
         color: $text-primary;
@@ -108,7 +105,6 @@
         display: none;
     }
 }
-
 
 .pcui-table-row-selected {
     background-color: $bcg-darkest;
@@ -156,7 +152,7 @@
         position: absolute;
         top: 0;
         height: 100%;
-        right: 0px;
+        right: 0;
         width: 4px;
         background-color: $bcg-darkest;
         pointer-events: none;
@@ -171,7 +167,7 @@ th.pcui-table-cell-active:before {
 .pcui-table-cell-handle {
     position: absolute;
     top: 0;
-    right: 0px;
+    right: 0;
     height: 100%;
     width: 6px;
     background-color: transparent;

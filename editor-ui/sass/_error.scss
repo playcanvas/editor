@@ -24,18 +24,21 @@ body {
         height: 112px;
         margin: 8px 32px 0 0;
     }
+
     > .status {
         font-size: 48px;
         font-weight: bold;
         margin: 0;
         color: $text-primary;
     }
+
     > .message {
         margin: 0 16px;
         font-size: 16px;
         font-weight: bold;
         color: $text-primary;
     }
+
     > a.home {
         display: inline-block;
         margin: 8px 2px;

@@ -12,12 +12,13 @@
 }
 
 .anim-component-edit-mask-button {
-    margin-bottom: 0px;
+    margin-bottom: 0;
     flex-grow: 1;
 }
+
 .anim-component-delete-mask-button {
-    margin-bottom: 0px;
-    margin-left: 0px;
+    margin-bottom: 0;
+    margin-left: 0;
 }
 
 .anim-component-boolean-input-item {
@@ -40,11 +41,11 @@
 
 .anim-component-mask-inspector-close-button {
     position: fixed;
-    right: 0px;
-    top: 0px;
+    right: 0;
+    top: 0;
     width: 32px;
     height: 32px;
-    color: rgba(255,255,255,0.75);
+    color: rgba(255, 255, 255, 0.75);
     background-color: $bcg-dark;
     border: none;
     margin: 0;
@@ -62,7 +63,7 @@
 
 .anim-component-mask-inspector-toggle-selected-button {
     width: calc(100% - 12px);
-    margin-top: 0px;
+    margin-top: 0;
 }
 
 .anim-component-mask-inspector-close-button[data-icon]:before {

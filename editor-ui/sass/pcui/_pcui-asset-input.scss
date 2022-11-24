@@ -21,7 +21,6 @@
     box-sizing: border-box;
     background-color: $bcg-dark;
 
-
     &.asset-icon-prefix:before {
         font-size: 50px;
     }
@@ -76,7 +75,6 @@
 .pcui-asset-input-edit {
     margin-left: auto;
 }
-
 
 // readonly state
 .pcui-asset-input.pcui-readonly {

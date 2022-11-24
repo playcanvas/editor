@@ -5,7 +5,7 @@
     > .pcui-button {
         display: block;
         border: none;
-        border-radius: 0px;
+        border-radius: 0;
         margin: 0;
         width: 45px;
         height: 45px;
@@ -14,6 +14,7 @@
         &.hidden {
             display: none;
         }
+
         &.logo {
             background-image: url("https://playcanvas.com/static-assets/images/editor_logo.png");
             background-size: 92px 46px;
@@ -24,6 +25,7 @@
                 background-position: -47px -1px;
             }
         }
+
         &.icon, &.pc-icon {
             color: $text-dark;
             line-height: 43px;
@@ -39,6 +41,7 @@
                     background-color: mix($bcg-dark, $bcg-darkest, 50%);
                 }
             }
+
             &.light-mapper.active {
                 background-color: $bcg-primary;
                 color: $text-active;
@@ -49,6 +52,7 @@
                     background-color: $bcg-dark;
                 }
             }
+
             &.disabled {
                 opacity: 1;
                 color: mix($text-dark, $bcg-primary, 30%);
@@ -59,6 +63,7 @@
                     background-color: $bcg-primary;
                 }
             }
+
             &:hover,
             &:focus {
                 color: $text-primary;

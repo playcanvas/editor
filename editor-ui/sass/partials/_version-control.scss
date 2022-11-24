@@ -20,6 +20,7 @@
 
             svg {
                 margin: auto;
+
                 &.spin {
                     g {
                         animation-name: spin;
@@ -45,16 +46,17 @@
             .ui-label {
                 margin: 1px;
                 display: block;
+
                 &.title {
                     color: $text-primary;
                     font-size: 16px;
                 }
+
                 &.message {
                     @extend .font-thin;
                 }
             }
         }
-
     }
 
     &.merge-overlay {
@@ -71,10 +73,11 @@
             .ui-panel.left {
                 width: 100px;
                 vertical-align: top;
+
                 .icon {
                     @extend .font-icon;
                     font-size: 32px;
-                    color: #E05F2C;
+                    color: #e05f2c;
                     margin-top: -5px;
                 }
             }
@@ -134,6 +137,7 @@
                     &:hover {
                         opacity: 1;
                     }
+
                     &:active {
                         opacity: 0.9;
                     }
@@ -170,17 +174,21 @@
     &.focus {
         border-color: $bcg-darkest;
         background-color: $bcg-darkest;
+
         &:before {
             content: '';
             padding: 0;
         }
+
         &:after {
             content: '';
         }
     }
+
     > input.field {
         line-height: 24px;
     }
+
     &:before {
         content: 'Search';
         position: absolute;
@@ -191,10 +199,12 @@
         font-size: 12px;
         font-family: inconsolatamedium, Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
     }
+
     &.not-empty:before {
         padding: 0;
         content: '';
     }
+
     &:after {
         content: '\E129';
         line-height: 21px;
@@ -203,18 +213,23 @@
         font-size: 14px;
         text-align: center;
     }
+
     &.not-empty {
         background-color: $bcg-darkest;
+
         > input.field {
             color: $text-active;
         }
+
         > .clear {
             display: block;
         }
+
         &:after {
             content: '';
         }
     }
+
     > .clear {
         display: none;
         position: absolute;

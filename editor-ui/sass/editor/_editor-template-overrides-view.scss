@@ -55,7 +55,7 @@
     margin: 0;
     height: initial;
 
-    &.pcui-label-group  {
+    &.pcui-label-group {
         > .pcui-label {
             font-size: 12px;
             width: 130px;
@@ -75,7 +75,6 @@
 .template-overrides-column-left {
     grid-column: 1;
     border-right: 1px solid $bcg-darker;
-
 }
 
 .template-overrides-column-right {
@@ -144,7 +143,7 @@
 }
 
 .template-overrides-override-marker {
-    color: #00F1FF;
+    color: #00f1ff;
     @extend .font-icon;
 
     flex-grow: 1;
@@ -197,7 +196,7 @@
 }
 
 .template-overrides-override-group-not-first {
-    padding-top: 0px;
+    padding-top: 0;
 }
 
 .template-overrides-override-group-action {
