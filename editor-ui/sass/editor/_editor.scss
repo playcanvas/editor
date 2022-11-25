@@ -1,8 +1,8 @@
-@import "../pcui/_pcui.scss";
-@import "../_fonts.scss";
-@import "../_ui.scss";
-@import "../_editor.scss";
-@import "../_theme-dark.scss";
+@import "../pcui/pcui";
+@import "../fonts";
+@import "../ui";
+@import "../editor";
+@import "../theme-dark";
 @import "editor-common";
 @import "editor-layout";
 @import "editor-left-toolbar";
