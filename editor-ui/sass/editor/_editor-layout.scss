@@ -5,9 +5,9 @@
     grid-template-columns: 45px auto 1fr auto;
     grid-template-rows: 1fr auto 24px;
     grid-template-areas:
-        "toolbar hierarchy viewport attributes"
-        "toolbar hierarchy assets attributes"
-        "statusbar statusbar statusbar statusbar";
+        'toolbar hierarchy viewport attributes'
+        'toolbar hierarchy assets attributes'
+        'statusbar statusbar statusbar statusbar';
 }
 
 // left toolbar

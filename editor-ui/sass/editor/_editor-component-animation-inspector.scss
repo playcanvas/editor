@@ -10,7 +10,7 @@
     margin-left: 0;
 }
 
-.animation-component-inspector:not(.pcui-disabled):not(.pcui-readonly) {
+.animation-component-inspector:not(.pcui-disabled, .pcui-readonly) {
     .pcui-asset-list-item:hover {
         .animation-component-inspector-play {
             display: inline-block;

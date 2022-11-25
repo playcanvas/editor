@@ -34,7 +34,8 @@
             background: darken($text-active, 7%);
             color: $text-primary;
 
-            &:hover,&:focus {
+            &:hover,
+            &:focus {
                 background: darken($text-active, 12%);
             }
         }
@@ -78,7 +79,7 @@
 
     display: block;
     background-size: 100%;
-    background-image: url("//playcanvas.com/static-assets/platform/images/loader.gif");
+    background-image: url('//playcanvas.com/static-assets/platform/images/loader.gif');
     background-repeat: no-repeat;
 
     opacity: 0;

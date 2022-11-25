@@ -73,7 +73,8 @@
 }
 
 .pcui-table > table > tbody > .pcui-table-row:not(.pcui-table-row-selected) {
-    &:hover, &:focus {
+    &:hover,
+    &:focus {
         background-color: $bcg-dark;
         color: $text-primary;
     }

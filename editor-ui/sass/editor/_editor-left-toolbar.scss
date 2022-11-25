@@ -16,7 +16,7 @@
         }
 
         &.logo {
-            background-image: url("https://playcanvas.com/static-assets/images/editor_logo.png");
+            background-image: url('https://playcanvas.com/static-assets/images/editor_logo.png');
             background-size: 92px 46px;
             background-repeat: no-repeat;
             background-position: -1px -1px;
@@ -26,7 +26,8 @@
             }
         }
 
-        &.icon, &.pc-icon {
+        &.icon,
+        &.pc-icon {
             color: $text-dark;
             line-height: 43px;
             text-align: center;

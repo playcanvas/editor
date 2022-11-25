@@ -1,7 +1,10 @@
 .asset-animstategraph-inspector {
     overflow: visible;
 
-    .asset-animstategraph-inspector-parameter, .asset-animstategraph-inspector-layer, .asset-animstategraph-inspector-state, .asset-animstategraph-inspector-transition {
+    .asset-animstategraph-inspector-parameter,
+    .asset-animstategraph-inspector-layer,
+    .asset-animstategraph-inspector-state,
+    .asset-animstategraph-inspector-transition {
         margin: $element-margin;
         border: 1px solid $bcg-darkest;
     }
@@ -81,7 +84,7 @@
     background-color: rgba(41, 53, 56, 0.5);
 }
 
-.pcui-button.asset-animstategraph-inspector-close-button:not(.pcui-disabled):not(.pcui-readonly):hover {
+.pcui-button.asset-animstategraph-inspector-close-button:not(.pcui-disabled, .pcui-readonly):hover {
     background-color: rgba(41, 53, 56, 0.75);
     color: #fff;
     box-shadow: none;

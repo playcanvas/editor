@@ -119,7 +119,8 @@ body {
             @extend .font-regular;
         }
 
-        .code-editor-save, .code-editor-revert {
+        .code-editor-save,
+        .code-editor-revert {
             font-size: 16px;
             color: #fff;
             opacity: 0.75;
@@ -244,16 +245,17 @@ body {
     }
 
     .CodeMirror-cursor {
-       border-left: 1px solid $editor-text-color !important;
-       border-right: 1px solid $editor-text-color !important;
-       margin-left: -1px;
+        border-left: 1px solid $editor-text-color !important;
+        border-right: 1px solid $editor-text-color !important;
+        margin-left: -1px;
     }
 
     span.cm-comment {
         color: $editor-comment;
     }
 
-    span.cm-atom, span.cm-keyword {
+    span.cm-atom,
+    span.cm-keyword {
         color: $editor-keyword;
     }
 
@@ -273,7 +275,9 @@ body {
         color: $editor-string;
     }
 
-    span.cm-tag, span.cm-qualifier, span.cm-builtin {
+    span.cm-tag,
+    span.cm-qualifier,
+    span.cm-builtin {
         color: $editor-tag;
     }
 

@@ -158,7 +158,7 @@
             > .content {
                 > .ui-label:nth-child(2) {
                     padding: 0 8px;
-                    font-family: "Lucida Console", Monaco, monospace;
+                    font-family: 'Lucida Console', Monaco, monospace;
                     font-weight: normal;
                     font-size: 11px;
                     overflow: hidden;
@@ -181,7 +181,8 @@
             }
         }
 
-        &.field-number, &.field {
+        &.field-number,
+        &.field {
             > .content {
                 > .ui-button.generate-uv1 {
                     height: 22px;
@@ -220,7 +221,6 @@
 
             > .content > .ui-panel {
                 width: 100%;
-                // max-width: calc(100% - 77px);
 
                 > .content {
                     padding: 2px;
@@ -273,7 +273,7 @@
 
                             > .tag {
                                 position: relative;
-                                font-family: "Lucida Console", Monaco, monospace;
+                                font-family: 'Lucida Console', Monaco, monospace;
                                 font-weight: normal;
                                 font-size: 10px;
                                 display: inline-block;
@@ -290,7 +290,7 @@
                                 &:hover {
                                     color: $text-primary;
                                     background-color: $bcg-darkest;
-                                    // padding-right: 26px;
+
                                     > .icon {
                                         padding-left: 0;
                                     }
@@ -377,14 +377,14 @@
 
                             background-color: #465659;
                             background-image:
-                            -moz-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
-                            -moz-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
+                                -moz-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
+                                -moz-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
                             background-image:
-                            -webkit-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
-                            -webkit-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
+                                -webkit-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
+                                -webkit-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
                             background-image:
-                            linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
-                            linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
+                                linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
+                                linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
                             -moz-background-size: 24px 24px;
                             background-size: 24px 24px;
                             -webkit-background-size: 25px 25px;
@@ -517,7 +517,7 @@
             }
         }
 
-       .add-entity {
+        .add-entity {
             position: relative;
             font-size: 12px;
             font-family: inconsolatamedium;
@@ -618,7 +618,7 @@
                 padding-bottom: 25%;
                 font-size: 12px;
 
-                background-image: url("/editor/scene/img/asset-placeholder-texture.png");
+                background-image: url('/editor/scene/img/asset-placeholder-texture.png');
                 background-position: center center;
                 background-repeat: no-repeat;
                 background-size: 100% 100%;
@@ -781,7 +781,6 @@
 
             &.model > header > .title:before {
                 content: '\E188';
-                // font-size: 16px;
             }
 
             &.animation > header > .title:before {
@@ -929,7 +928,8 @@
             }
         }
 
-        &.model, &.element {
+        &.model,
+        &.element {
             > .content {
                 .add-batch-group {
                     color: $text-active;
@@ -1247,7 +1247,6 @@
                     padding: 0 8px;
                     font-size: 12px;
                     @extend .font-bold;
-                    // font-weight: bold;
                     color: $text-primary;
                     background-color: $bcg-dark;
                     border: 1px solid $bcg-darker;
@@ -1435,7 +1434,8 @@
                 }
             }
 
-            > .ui-button.override-material, .ui-button.loading-screen {
+            > .ui-button.override-material,
+            .ui-button.loading-screen {
                 flex-grow: 1;
                 -webkit-flex-grow: 1;
                 background-color: $bcg-dark;
@@ -1489,7 +1489,11 @@
                 top: 0;
             }
 
-            > .ui-button.add-script, .ui-button.add-sound-slot, .ui-button.add-batch-group, .ui-button.add-clip, .ui-button.add-i18n-asset {
+            > .ui-button.add-script,
+            .ui-button.add-sound-slot,
+            .ui-button.add-batch-group,
+            .ui-button.add-clip,
+            .ui-button.add-i18n-asset {
                 margin: 0 0 8px 0;
                 background-color: $bcg-dark;
 
@@ -1740,7 +1744,10 @@
                     }
                 }
 
-                > .move-down, > .move-up, > .refresh, > .remove {
+                > .move-down,
+                > .move-up,
+                > .refresh,
+                > .remove {
                     float: right;
                     width: 32px;
                     height: 32px;
@@ -2034,7 +2041,8 @@
     }
 }
 
-.collision-component-inspector, .rigidbody-component-inspector {
+.collision-component-inspector,
+.rigidbody-component-inspector {
     .library-warning {
         background-color: $bcg-darkest;
         border: 1px solid $error-secondary;

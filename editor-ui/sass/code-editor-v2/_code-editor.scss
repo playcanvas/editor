@@ -1,4 +1,4 @@
-@import "../pcui/pcui";
+@import '../pcui/pcui';
 @import 'variables';
 @import '../fonts';
 @import '../ui';
@@ -82,11 +82,15 @@ strong {
     }
 
     &.file-only-mode {
-        #ui-top, #ui-left, #ui-bottom, #ui-tabs {
+        #ui-top,
+        #ui-left,
+        #ui-bottom,
+        #ui-tabs {
             display: none;
         }
 
-        #ui-center, #ui-code {
+        #ui-center,
+        #ui-code {
             height: 100%;
         }
     }
@@ -223,7 +227,8 @@ strong {
         &.dirty:not(.error) {
             color: transparentize($muted-yellow, 0.15);
 
-            &:hover, &.focused {
+            &:hover,
+            &.focused {
                 color: $muted-yellow;
             }
         }
@@ -700,7 +705,10 @@ strong {
                 font-size: 14px;
             }
 
-            &:hover, &.active, &:focus, &.focus {
+            &:hover,
+            &.active,
+            &:focus,
+            &.focus {
                 background-color: $bcg-primary;
             }
         }
@@ -735,7 +743,6 @@ strong {
                             font-size: 12px;
                             overflow: hidden;
                             text-overflow: ellipsis;
-                            // margin-left: 15px;
                             color: $text-darkest;
                         }
                     }
@@ -835,16 +842,17 @@ strong {
     }
 
     .CodeMirror-cursor {
-       border-left: 1px solid $editor-text-color !important;
-       border-right: 1px solid $editor-text-color !important;
-       margin-left: -1px;
+        border-left: 1px solid $editor-text-color !important;
+        border-right: 1px solid $editor-text-color !important;
+        margin-left: -1px;
     }
 
     span.cm-comment {
         color: $editor-comment;
     }
 
-    span.cm-atom, span.cm-keyword {
+    span.cm-atom,
+    span.cm-keyword {
         color: $editor-keyword;
     }
 
@@ -864,7 +872,9 @@ strong {
         color: $editor-string;
     }
 
-    span.cm-tag, span.cm-qualifier, span.cm-builtin {
+    span.cm-tag,
+    span.cm-qualifier,
+    span.cm-builtin {
         color: $editor-tag;
     }
 
@@ -1068,7 +1078,7 @@ li.CodeMirror-hint-active {
 }
 
 .CodeMirror-scrollbar-filler {
-   background-color: $editor-bg;
+    background-color: $editor-bg;
 }
 
 .CodeMirror-bookmark {

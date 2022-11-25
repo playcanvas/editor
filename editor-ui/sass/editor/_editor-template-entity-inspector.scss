@@ -87,7 +87,8 @@
         visibility: hidden;
     }
 
-    &:hover, &.template-entity-inspector-entity-list-clicked {
+    &:hover,
+    &.template-entity-inspector-entity-list-clicked {
         background: $bcg-darkest;
 
         .template-entity-inspector-entity-list-name {

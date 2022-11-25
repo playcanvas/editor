@@ -359,14 +359,16 @@
 
             > table > tbody {
                 .pcui-table-row:not(.pcui-table-row-selected) {
-                    &:hover, &:focus {
+                    &:hover,
+                    &:focus {
                         background-color: $bcg-darker;
                     }
                 }
             }
 
             > thead > tr {
-                > th, &:after {
+                > th,
+                &:after {
                     background-color: $bcg-darker;
                 }
 
@@ -434,7 +436,8 @@
 
 .pcui-asset-panel-highlighted-asset {
     &.pcui-treeview-item > .pcui-treeview-item-contents {
-        .pcui-treeview-item-icon, .pcui-treeview-item-text {
+        .pcui-treeview-item-icon,
+        .pcui-treeview-item-text {
             color: $text-primary;
         }
     }
@@ -502,7 +505,8 @@
     }
 
     &:not(.pcui-disabled) {
-        &:hover, &.pcui-gridview-item-selected {
+        &:hover,
+        &.pcui-gridview-item-selected {
             > .pcui-asset-thumb:before {
                 color: $text-primary;
             }
@@ -522,7 +526,9 @@
 }
 
 .pcui-asset-grid-view-item {
-    &.type-textureatlas, &.type-render, &.type-sprite {
+    &.type-textureatlas,
+    &.type-render,
+    &.type-sprite {
         &:before {
             @extend .font-icon;
             position: absolute;
@@ -538,11 +544,11 @@
     }
 
     &.type-render:before {
-        content: map-get($asset-icons, "render");
+        content: map-get($asset-icons, 'render');
     }
 
     &.type-sprite:before {
-        content: map-get($asset-icons, "sprite");
+        content: map-get($asset-icons, 'sprite');
     }
 }
 
@@ -557,7 +563,8 @@
     }
 }
 
-.pcui-asset-panel-task-running, .pcui-asset-panel-task-failed {
+.pcui-asset-panel-task-running,
+.pcui-asset-panel-task-failed {
     .pcui-spinner {
         display: inline-block !important;
     }

@@ -12,11 +12,12 @@ $disabled-opacity: 0.4;
 @font-face {
     font-family: inconsolatamedium;
     src: url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.eot');
-    src: url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.eot?#iefix') format('embedded-opentype'),
-         url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.woff2') format('woff2'),
-         url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.woff') format('woff'),
-         url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.ttf') format('truetype'),
-         url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.svg#inconsolatamedium') format('svg');
+    src:
+        url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.eot?#iefix') format('embedded-opentype'),
+        url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.woff2') format('woff2'),
+        url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.woff') format('woff'),
+        url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.ttf') format('truetype'),
+        url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.svg#inconsolatamedium') format('svg');
     font-weight: normal;
     font-style: normal;
 }
@@ -1179,7 +1180,8 @@ a:visited {
     }
 }
 // proxy
-.ui-text-field[proxy], .ui-textarea-field[proxy] {
+.ui-text-field[proxy],
+.ui-textarea-field[proxy] {
     position: relative;
 
     &:before {
@@ -1357,15 +1359,15 @@ a:visited {
     transition: opacity 100ms;
 
     background-image:
-          -moz-linear-gradient(45deg, #000 25%, transparent 25%),
-          -moz-linear-gradient(-45deg, #000 25%, transparent 25%),
-          -moz-linear-gradient(45deg, transparent 75%, #000 75%),
-          -moz-linear-gradient(-45deg, transparent 75%, #000 75%);
+        -moz-linear-gradient(45deg, #000 25%, transparent 25%),
+        -moz-linear-gradient(-45deg, #000 25%, transparent 25%),
+        -moz-linear-gradient(45deg, transparent 75%, #000 75%),
+        -moz-linear-gradient(-45deg, transparent 75%, #000 75%);
     background-image:
-      -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, #000), color-stop(0.25, transparent)),
-      -webkit-gradient(linear, 0 0, 100% 100%, color-stop(0.25, #000), color-stop(0.25, transparent)),
-      -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.75, transparent), color-stop(0.75, #000)),
-      -webkit-gradient(linear, 0 0, 100% 100%, color-stop(0.75, transparent), color-stop(0.75, #000));
+        -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, #000), color-stop(0.25, transparent)),
+        -webkit-gradient(linear, 0 0, 100% 100%, color-stop(0.25, #000), color-stop(0.25, transparent)),
+        -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.75, transparent), color-stop(0.75, #000)),
+        -webkit-gradient(linear, 0 0, 100% 100%, color-stop(0.75, transparent), color-stop(0.75, #000));
     background-color: #fff;
 
     background-size: 8px 8px;
@@ -1444,7 +1446,8 @@ a:visited {
         }
     }
 
-    > img.preview[src=''], > img.preview:not([src]) {
+    > img.preview[src=''],
+    > img.preview:not([src]) {
         display: none;
     }
 

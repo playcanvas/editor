@@ -1,23 +1,23 @@
 $assets: 'animation',
-         'audio',
-         'binary',
-         'bundle',
-         'cubemap',
-         'css',
-         'folder',
-         'font',
-         'json',
-         'html',
-         'material',
-         'model',
-         'scene',
-         'script',
-         'shader',
-         'sprite',
-         'text',
-         'texture',
-         'textureatlas'
-         'wasm';
+    'audio',
+    'binary',
+    'bundle',
+    'cubemap',
+    'css',
+    'folder',
+    'font',
+    'json',
+    'html',
+    'material',
+    'model',
+    'scene',
+    'script',
+    'shader',
+    'sprite',
+    'text',
+    'texture',
+    'textureatlas',
+    'wasm';
 
 $icons: (
     'asset-animation': '\E213',
@@ -44,8 +44,9 @@ $icons: (
 
 @mixin checkerboard($color1, $color2, $size) {
     background-color: $color1;
-    background-image: linear-gradient(45deg, $color2 25%, transparent 25%, transparent 75%, $color2 75%, $color2 100%),
-                      linear-gradient(45deg, $color2 25%, transparent 25%, transparent 75%, $color2 75%, $color2 100%);
+    background-image:
+        linear-gradient(45deg, $color2 25%, transparent 25%, transparent 75%, $color2 75%, $color2 100%),
+        linear-gradient(45deg, $color2 25%, transparent 25%, transparent 75%, $color2 75%, $color2 100%);
     background-size: ($size * 2) ($size * 2);
     background-position: 0 0, $size $size;
 }

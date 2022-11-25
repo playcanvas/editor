@@ -72,7 +72,7 @@
 }
 
 // hover
-.pcui-asset-list:not(.pcui-disabled):not(.pcui-readonly) {
+.pcui-asset-list:not(.pcui-disabled, .pcui-readonly) {
     .pcui-asset-list-item {
         &:hover {
             background-color: $bcg-darker;

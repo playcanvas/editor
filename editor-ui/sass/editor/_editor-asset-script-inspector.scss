@@ -1,4 +1,5 @@
-.script-asset-inspector-container, .script-asset-inspector-error-container {
+.script-asset-inspector-container,
+.script-asset-inspector-error-container {
     display: flex;
     flex-direction: column;
     border: 1px solid #293538;
@@ -9,7 +10,8 @@
     white-space: normal;
 }
 
-.script-asset-inspector-container.pcui-hidden, .script-asset-inspector-error-container.pcui-hidden {
+.script-asset-inspector-container.pcui-hidden,
+.script-asset-inspector-error-container.pcui-hidden {
     display: none;
 }
 

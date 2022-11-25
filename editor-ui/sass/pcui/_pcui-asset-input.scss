@@ -8,8 +8,8 @@
     grid-template-columns: 66px minmax(0, 1fr);
     grid-template-rows: 36px 30px;
     grid-template-areas:
-        "thumb label"
-        "thumb controls";
+        'thumb label'
+        'thumb controls';
 }
 
 // thumb on the left
@@ -61,7 +61,8 @@
 }
 
 // edit / remove buttons
-.pcui-asset-input-edit, .pcui-asset-input-remove {
+.pcui-asset-input-edit,
+.pcui-asset-input-remove {
     width: 24px;
     height: 24px;
     line-height: 24px;
@@ -77,7 +78,8 @@
 
 // readonly state
 .pcui-asset-input.pcui-readonly {
-    .pcui-asset-input-edit, .pcui-asset-input-remove {
+    .pcui-asset-input-edit,
+    .pcui-asset-input-remove {
         display: none;
     }
 

@@ -17,17 +17,19 @@
 }
 
 // disabled gradient input
-.pcui-curve.pcui-disabled, .pcui-curve.pcui-multiple-values {
+.pcui-curve.pcui-disabled,
+.pcui-curve.pcui-multiple-values {
     opacity: $element-opacity-disabled;
 }
 
 // hover / focus states
-.pcui-curve:not(.pcui-disabled):not(.pcui-readonly):not(.pcui-multiple-values) {
+.pcui-curve:not(.pcui-disabled, .pcui-readonly, .pcui-multiple-values) {
     &:hover {
         cursor: pointer;
     }
 
-    &:hover, &:focus {
+    &:hover,
+    &:focus {
         cursor: pointer;
         box-shadow: $element-shadow-hover;
     }

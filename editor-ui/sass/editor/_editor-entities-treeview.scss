@@ -24,7 +24,8 @@
                 @extend .font-icon;
             }
 
-            &.pcui-treeview-item-selected, &:hover {
+            &.pcui-treeview-item-selected,
+            &:hover {
                 > .pcui-treeview-item-text:before {
                     color: $text-primary;
                 }

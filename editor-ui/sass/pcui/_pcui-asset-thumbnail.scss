@@ -58,13 +58,14 @@
 
 // showing multiple values
 .pcui-asset-thumb.pcui-multiple-values {
-    > img, > canvas {
+    > img,
+    > canvas {
         display: none;
     }
 }
 
 // hovered state
-.pcui-asset-thumb:not(.pcui-readonly):not(.pcui-disabled):not(.pcui-asset-thumb-empty):not(.pcui-asset-thumb-missing) {
+.pcui-asset-thumb:not(.pcui-readonly, .pcui-disabled, .pcui-asset-thumb-empty, .pcui-asset-thumb-missing) {
     &:hover {
         cursor: pointer;
         box-shadow: $element-shadow-hover;

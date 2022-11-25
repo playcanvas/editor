@@ -7,11 +7,12 @@ $rotation-period: 5s;
 @font-face {
     font-family: inconsolatamedium;
     src: url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.eot');
-    src: url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.eot?#iefix') format('embedded-opentype'),
-         url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.woff2') format('woff2'),
-         url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.woff') format('woff'),
-         url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.ttf') format('truetype'),
-         url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.svg#inconsolatamedium') format('svg');
+    src:
+        url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.eot?#iefix') format('embedded-opentype'),
+        url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.woff2') format('woff2'),
+        url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.woff') format('woff'),
+        url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.ttf') format('truetype'),
+        url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.svg#inconsolatamedium') format('svg');
     font-weight: normal;
     font-style: normal;
 }
@@ -19,12 +20,12 @@ $rotation-period: 5s;
 @font-face {
     font-family: pc-icon;
     src: url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.eot');
-    src: url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.eot?#iefix') format('embedded-opentype'),
-         url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.woff2') format('woff2'),
-         url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.woff') format('woff'),
-         url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.ttf') format('truetype'),
-         url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.svg') format('svg');
-
+    src:
+        url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.eot?#iefix') format('embedded-opentype'),
+        url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.woff2') format('woff2'),
+        url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.woff') format('woff'),
+        url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.ttf') format('truetype'),
+        url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.svg') format('svg');
     font-weight: normal;
     font-style: normal;
 }
@@ -341,7 +342,6 @@ body > #dev-tools {
             color: #fff;
             font-size: 16px;
             cursor: pointer;
-            // background-color: #07f;
 
             @extend .font-icon;
 

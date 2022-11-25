@@ -274,7 +274,6 @@ a:visited {
 
 .ui-tree-item {
     $line-color: mix($bcg-dark, $bcg-primary, 50%);
-    // $line-color: $bcg-dark;
 
     &.container {
         // plus icon
@@ -345,9 +344,6 @@ a:visited {
             border-color: transparent;
 
             > .icon {
-                // &:before {
-                //     background-color: $bcg-darkest;
-                // }
                 &:after {
                     background-color: $text-active;
                 }
@@ -572,7 +568,6 @@ a:visited {
 }
 
 .ui-list-item {
-    // background-color: #0f0;
     border-color: $bcg-darker;
     color: $text-secondary;
 
@@ -934,22 +929,18 @@ a:visited {
         > .color {
             background-color: #465659 !important;
             background-image:
-            -moz-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
-            -moz-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
+                -moz-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
+                -moz-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
             background-image:
-            -webkit-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
-            -webkit-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
+                -webkit-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
+                -webkit-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
             background-image:
-            linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
-            linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
+                linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
+                linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
             -moz-background-size: 20px 20px;
             background-size: 20px 20px;
             -webkit-background-size: 22px 22px;
             background-position: 0 0, 10px 10px;
-
-            // background-color: #000 !important;
-            // background-image: linear-gradient(45deg, #fff 25%, transparent 25%, transparent), linear-gradient(-45deg, #fff 25%, transparent 25%, transparent), linear-gradient(45deg, transparent 75%, #fff 75%), linear-gradient(-45deg, transparent 75%, #fff 75%);
-            // background-size: 24px 22px;
         }
     }
 }
@@ -1000,7 +991,6 @@ a:visited {
 
     > input.field:focus,
     > input.field:hover {
-        // color: #f00;
         box-shadow: none;
         color: $text-primary;
         outline: none;
@@ -1031,7 +1021,10 @@ a:visited {
     background-color: $bcg-dark;
     margin: $field-padding;
 
-    &.active, &:hover, &:focus, &.active {
+    &.active,
+    &:hover,
+    &:focus,
+    &.active {
         border-color: $text-primary;
         outline: 1px solid $text-primary;
 
@@ -1050,7 +1043,6 @@ a:visited {
     border: none;
     border: 1px solid $bcg-darker;
     background-color: $bcg-dark;
-    // border-radius: 12px;
     width: 28px;
     height: 16px;
     margin: $field-padding;
@@ -1163,7 +1155,6 @@ a:visited {
     > ul {
         color: $text-secondary;
         background-color: $bcg-darkest;
-        // outline: 1px solid $bcg-darkest;
 
         > li {
             &:hover,

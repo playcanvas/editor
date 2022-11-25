@@ -71,11 +71,13 @@
 }
 
 // focus / hover states
-.pcui-entity-input:not(.pcui-disabled):not(.pcui-readonly) {
-    &.pcui-focus, &:hover {
+.pcui-entity-input:not(.pcui-disabled, .pcui-readonly) {
+    &.pcui-focus,
+    &:hover {
         cursor: pointer;
 
-        &:after, &:before {
+        &:after,
+        &:before {
             display: none;
         }
     }

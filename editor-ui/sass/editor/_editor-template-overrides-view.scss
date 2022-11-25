@@ -62,7 +62,8 @@
         }
 
         // align asset lists and arrays at flex start
-        .pcui-asset-list, .pcui-array-input {
+        .pcui-asset-list,
+        .pcui-array-input {
             align-self: flex-start;
         }
     }
