@@ -4,7 +4,6 @@
             content: attr(data-icon);
             @extend .font-icon;
             font-weight: 100;
-            font-size: inherit;
             margin-right: $element-margin;
             vertical-align: middle;
             font-size: 14px;

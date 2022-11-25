@@ -307,7 +307,6 @@ strong {
                 @extend .font-regular;
                 margin: 16px 0 0;
                 font-size: 12px;
-                font-weight: normal;
                 line-height: 20px;
                 font-weight: 100;
                 color: mix($text-dark, $text-primary, 50%);
@@ -889,7 +888,6 @@ strong {
                             line-height: 28px;
                             @extend .font-icon;
                             font-size: 16px;
-                            text-align: center;
                             text-align: center;
                             background: transparent;
                             border: none;
@@ -3795,7 +3793,6 @@ strong {
                 width: 32px;
                 height: 32px;
                 line-height: 32px;
-                text-align: center;
                 color: #d34141;
                 @extend .font-icon;
                 font-size: 18px;
@@ -6843,7 +6840,6 @@ strong {
                                     @extend .font-icon;
                                     content: '\E326';
                                     color: $text-primary;
-                                    position: absolute;
                                     left: 0;
                                     right: 0;
                                     display: flex;
@@ -6868,7 +6864,6 @@ strong {
                                     @extend .font-icon;
                                     content: '\E341';
                                     color: $text-primary;
-                                    position: absolute;
                                     left: 0;
                                     right: 0;
                                     display: flex;
@@ -7977,7 +7972,6 @@ strong {
             }
 
             > .content {
-                height: 100%;
                 border-top: 1px solid $border-primary;
                 padding: 0;
                 overflow-y: visible;
@@ -8145,7 +8139,6 @@ strong {
                     & > .owner-dropdown {
                         & > .pcui-select-input-container-value {
                             .owner-profile {
-                                position: absolute;
                                 left: 5px;
                                 display: inline-block;
                                 width: 20px;
@@ -8349,7 +8342,6 @@ strong {
                 align-self: center;
                 margin: 0;
                 position: relative;
-                width: fit-content;
                 height: 168px;
                 background-color: #454545 !important;
                 box-shadow: none !important;
@@ -8932,7 +8924,6 @@ strong {
             &:hover,
             &:focus,
             &.focus {
-                border-color: $bcg-darkest;
                 background-color: $bcg-darkest;
                 outline: none;
                 border-color: transparent;
@@ -11743,7 +11734,6 @@ strong {
                                                 > .ui-label.title {
                                                     display: block;
                                                     margin: 0;
-                                                    background: 32px;
                                                     padding: 0 10px 0 34px;
                                                     height: 32px;
                                                     line-height: 32px;

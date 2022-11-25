@@ -7,7 +7,6 @@
         "at-rule-no-vendor-prefix": null,
         "block-no-empty": null,
         "color-function-notation": null,
-        "declaration-block-no-duplicate-properties": null,
         "declaration-block-no-redundant-longhand-properties": null,
         "declaration-block-no-shorthand-property-overrides": null,
         "declaration-colon-newline-after": null,
