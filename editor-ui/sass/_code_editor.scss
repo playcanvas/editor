@@ -124,7 +124,7 @@ body {
             color: #fff;
             opacity: 0.75;
 
-            @include block();
+            @include block;
 
             &:not([disabled]):hover {
                 opacity: 1;
@@ -150,18 +150,18 @@ body {
             color: $editor-bg;
             font-size: 14px;
 
-            @include block();
+            @include block;
         }
 
         .code-editor-error {
             color: $bright-red;
             font-size: 12px;
-            @include block();
+            @include block;
         }
 
         .code-editor-progress {
             background-color: $muted-green;
-            @include block();
+            @include block;
 
             img {
                 vertical-align: middle;
@@ -169,7 +169,7 @@ body {
         }
 
         #connection-progress {
-            @include block();
+            @include block;
 
             img {
                 vertical-align: middle;

@@ -55,11 +55,6 @@ strong {
     }
 }
 
-#ui-toolbar {
-    > .content {
-    }
-}
-
 #canvas-3d {
     width: 100%;
     height: 100%;
@@ -4599,7 +4594,7 @@ strong {
                 &:before {
                     display: block;
                     content: ' ';
-                    background-image: url(https://playcanvas.com/static-assets/images/bcg_primary.jpg);
+                    background-image: url('https://playcanvas.com/static-assets/images/bcg_primary.jpg');
                     background-repeat: no-repeat;
                     background-position: center center;
                     background-size: cover;
@@ -5423,10 +5418,6 @@ strong {
         > .picker-gradient-panel {
             height: 100%;
             font-size: 11px;
-
-            > .picker-gradient-header {
-
-            }
 
             > .picker-gradient-gradient {
                 width: 320px;
@@ -8226,7 +8217,7 @@ strong {
                             right: 15px;
                             z-index: 102;
 
-                            background: url(/static/platform/images/common/HOME_CHEVRON.png) #fff;
+                            background: url('/static/platform/images/common/HOME_CHEVRON.png') #fff;
                             background-repeat: no-repeat;
                             background-size: 16px 16px;
                         }
