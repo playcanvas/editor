@@ -6,35 +6,37 @@ editor.once('load', function () {
     const monacoEditor = editor.call('editor:monaco');
 
     // Filter Panel
-    const filterPanel = new ui.Panel();
-    filterPanel.flex = true;
-    filterPanel.class.add('picker-search');
+    const filterPanel = new pcui.Container({
+        class: 'picker-search',
+        flex: true,
+        hidden: true
+    });
     filterPanel.style.height = '0px';
-    filterPanel.hidden = true;
     parent.append(filterPanel);
 
     const createFilter = function (text, storageKey) {
-        const filterButton = new ui.Button({
+        const filterButton = new pcui.Button({
+            class: 'option',
             text: text
         });
         filterButton.element.tabIndex = -1;
-        filterButton.class.add('option');
         filterButton.style.width = '80px';
         filterPanel.append(filterButton);
 
-        const textField = new ui.TextField();
-        textField.class.add('search');
-        textField.renderChanges = false;
-        textField.keyChange = true;
-        textField.elementInput.placeholder = 'e.g. *.js, src/*';
+        const textInput = new pcui.TextInput({
+            class: 'search',
+            keyChange: true,
+            placeholder: 'e.g. *.js, src/*',
+            renderChanges: false
+        });
         // prevent default behavior on browser shortcuts
-        textField.elementInput.classList.add('hotkeys');
-        textField.elementInput.addEventListener('keydown', onInputKeyDown);
-        filterPanel.append(textField);
+        textInput.input.classList.add('hotkeys');
+        textInput.input.addEventListener('keydown', onInputKeyDown);
+        filterPanel.append(textInput);
 
         return {
             filterButton,
-            textField,
+            textField: textInput,
             storageKey,
             doFilter: false,
             pattern: '',
@@ -45,61 +47,64 @@ editor.once('load', function () {
     const excludeFilter = createFilter('Exclude', 'picker:search:filters:exclude');
 
     // Main Panel
-    const panel = new ui.Panel();
-    panel.flex = true;
-    panel.class.add('picker-search');
+    const panel = new pcui.Container({
+        class: 'picker-search',
+        flex: true,
+        hidden: true
+    });
     panel.style.height = '0px';
-    panel.hidden = true;
     parent.append(panel);
 
     panel.class.add('animate-height');
     codePanel.class.add('animate-height');
     filterPanel.class.add('animate-height');
 
-    const optionFilter = new ui.Button({
+    const optionFilter = new pcui.Button({
+        class: 'option',
         text: '...'
     });
     optionFilter.element.tabIndex = -1;
-    optionFilter.class.add('option');
     panel.append(optionFilter);
 
-    const optionRegex = new ui.Button({
+    const optionRegex = new pcui.Button({
+        class: 'option',
         text: '.*'
     });
     optionRegex.element.tabIndex = -1;
-    optionRegex.class.add('option');
     panel.append(optionRegex);
 
-    const optionCase = new ui.Button({
+    const optionCase = new pcui.Button({
+        class: 'option',
         text: 'Aa'
     });
     optionCase.element.tabIndex = -1;
-    optionCase.class.add('option');
     panel.append(optionCase);
 
-    const optionWholeWords = new ui.Button({
+    const optionWholeWords = new pcui.Button({
+        class: 'option',
         text: '“ ”'
     });
     optionWholeWords.element.tabIndex = -1;
-    optionWholeWords.class.add('option');
     panel.append(optionWholeWords);
 
-    const searchField = new ui.TextField();
-    searchField.class.add('search');
-    searchField.renderChanges = false;
-    searchField.keyChange = true;
-    searchField.elementInput.placeholder = 'Find in files';
+    const searchField = new pcui.TextInput({
+        class: 'search',
+        keyChange: true,
+        placeholder: 'Find in files',
+        renderChanges: false
+    });
     // prevent default behavior on browser shortcuts
-    searchField.elementInput.classList.add('hotkeys');
-    searchField.elementInput.addEventListener('keydown', onInputKeyDown);
+    searchField.input.classList.add('hotkeys');
+    searchField.input.addEventListener('keydown', onInputKeyDown);
     panel.append(searchField);
 
-    const error = new ui.Label();
-    error.class.add('error');
-    error.hidden = true;
+    const error = new pcui.Label({
+        class: 'error',
+        hidden: true
+    });
     searchField.element.appendChild(error.element);
 
-    const btnFindInFiles = new ui.Button({
+    const btnFindInFiles = new pcui.Button({
         'text': 'Find'
     });
     btnFindInFiles.element.tabIndex = -1;
@@ -191,7 +196,7 @@ editor.once('load', function () {
 
     // Updates our regular expression.
     // Optionally pass override options for the regexp
-    const updateQuery = function (overrides) {
+    const updateQuery = function (overrides = {}) {
         queryDirty = true;
 
         let pattern = searchField.value;
@@ -200,8 +205,6 @@ editor.once('load', function () {
             regexp = null;
             return;
         }
-
-        overrides = overrides || {};
 
         const isRawRegex = overrides.isRegex !== undefined ? overrides.isRegex : isRegex;
 
@@ -272,7 +275,7 @@ editor.once('load', function () {
         // select input text on ctrl + shift + f
         if (evt.ctrlKey || evt.metaKey) {
             if (evt.shiftKey && evt.keyCode === 70) {
-                searchField.elementInput.select();
+                searchField.focus(true);
             }
         }
         // search on enter
@@ -310,8 +313,7 @@ editor.once('load', function () {
             suspendChangeEvt = false;
         }
 
-        searchField.elementInput.select();
-        searchField.elementInput.focus();
+        searchField.focus(true);
 
         // update search query and view search overlay
         updateQuery();

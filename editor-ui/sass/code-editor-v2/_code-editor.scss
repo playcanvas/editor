@@ -578,66 +578,56 @@ strong {
 }
 
 .picker-search {
+    background-color: $bcg-darker;
     height: 32px;
+    flex-direction: row;
 
-    > .content {
-        height: 100%;
-        background-color: $bcg-darker;
+    > .pcui-text-input {
+        background-color: rgba(0, 0, 0, 0.5);
+        margin: 2px;
+        height: 28px;
+        flex-grow: 1;
 
-        > .ui-text-field {
-            background-color: rgba(0, 0, 0, 0.5);
-            border: 0;
-            margin: 0;
-            height: 32px;
-            line-height: 32px;
-            flex-grow: 1;
-            position: relative;
-
-            > input {
-                font-size: 14px;
-                height: 32px;
-                line-height: 32px;
-            }
-
-            > .ui-label.error {
-                color: $bright-red;
-                font-size: 12px;
-                position: absolute;
-                top: 0;
-                right: 5px;
-            }
-
-            &.replace {
-                transition: flex-grow 200ms ease;
-
-                &:not(.focused) {
-                    flex-grow: 0.3;
-                }
-            }
+        > input {
+            font-size: 14px;
         }
 
-        > .ui-button {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        > .pcui-label.error {
+            color: $bright-red;
+            font-size: 12px;
+            position: absolute;
+            top: 0;
+            right: 5px;
         }
 
-        > .ui-button.option {
-            border: 0;
-            width: 32px;
-            height: 32px;
-            line-height: 32px;
-            margin: 0 0 0 1px;
-            padding: 0;
-            text-align: center;
-            box-sizing: border-box;
+        &.replace {
+            transition: flex-grow 200ms ease;
 
-            @extend .font-bold;
-
-            &.toggled {
-                background-color: $text-active;
-                color: $text-primary;
+            &:not(.focused) {
+                flex-grow: 0.3;
             }
+        }
+    }
+
+    > .pcui-button {
+        font-size: 14px;
+        line-height: 14px;
+        margin: 2px;
+    }
+
+    > .pcui-button.option {
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        font-size: 14px;
+        margin: 2px;
+        box-sizing: border-box;
+
+        @extend .font-bold;
+
+        &.toggled {
+            background-color: $text-active;
+            color: $text-primary;
         }
     }
 }
