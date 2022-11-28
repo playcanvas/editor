@@ -1227,9 +1227,6 @@
                     color: $text-primary;
                     background-color: $bcg-dark;
                     border: 1px solid $bcg-darker;
-                    -webkit-font-smoothing: antialiased;
-                    -moz-osx-font-smoothing: grayscale;
-                    font-smoothing: antialiased;
 
                     &.hidden {
                         display: none;

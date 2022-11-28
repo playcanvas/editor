@@ -1662,9 +1662,6 @@ strong {
                     color: $text-primary;
                     background-color: $bcg-dark;
                     border: 1px solid $bcg-darker;
-                    -webkit-font-smoothing: antialiased;
-                    -moz-osx-font-smoothing: grayscale;
-                    font-smoothing: antialiased;
 
                     &.hidden {
                         display: none;
@@ -7499,7 +7496,6 @@ strong {
                                 text-transform: uppercase;
                                 font-size: 12px;
                                 @extend .font-bold;
-                                @extend .font-smooth;
 
                                 &:hover,
                                 &.active {
@@ -8580,7 +8576,6 @@ strong {
             font-size: 12px;
             text-transform: uppercase;
             @extend .font-bold;
-            @extend .font-smooth;
 
             &:before {
                 @extend .font-icon;
@@ -8708,7 +8703,6 @@ strong {
             text-transform: uppercase;
             text-align: center;
             @extend .font-bold;
-            @extend .font-smooth;
 
             &:before {
                 @extend .font-icon;
@@ -8987,7 +8981,6 @@ strong {
                     color: $text-primary;
                     text-transform: uppercase;
                     @extend .font-bold;
-                    @extend .font-smooth;
 
                     &:before {
                         @extend .font-icon;
@@ -9123,7 +9116,6 @@ strong {
                 text-align: center;
                 box-shadow: unset;
                 @extend .font-bold;
-                @extend .font-smooth;
 
                 &::before {
                     @extend .font-icon;
@@ -9581,7 +9573,6 @@ strong {
 
                         > .ui-button.remove {
                             @extend .font-icon;
-                            @extend .font-smooth;
                             font-weight: 400;
                             position: absolute;
                             right: 0;
@@ -9883,7 +9874,6 @@ strong {
             font-size: 12px;
             text-transform: uppercase;
             @extend .font-bold;
-            @extend .font-smooth;
 
             &:before {
                 @extend .font-icon;
@@ -11148,7 +11138,6 @@ strong {
                                     flex-basis: $vertical-section-width;
                                     padding: 0 10px;
                                     @extend .font-bold;
-                                    @extend .font-smooth;
                                     font-size: 12px;
                                     box-sizing: border-box;
                                     height: 34px;
@@ -11238,7 +11227,6 @@ strong {
                                         position: relative;
 
                                         @extend .font-bold;
-                                        @extend .font-smooth;
 
                                         > .title {
                                             float: none;
@@ -11257,7 +11245,6 @@ strong {
                                             margin-right: 10px;
                                             color: $text-dark;
                                             @extend .font-bold;
-                                            @extend .font-smooth;
                                         }
                                     }
 
@@ -11486,7 +11473,6 @@ strong {
 
                                                     &:not(.light) {
                                                         @extend .font-bold;
-                                                        @extend .font-smooth;
                                                         background: lighten($bcg-dark, 1%);
                                                     }
 
@@ -11550,7 +11536,6 @@ strong {
                                     background: $bcg-dark;
                                     border-top: 1px solid $border-primary;
                                     @extend .font-bold;
-                                    @extend .font-smooth;
                                     color: $text-primary;
                                 }
                             }
