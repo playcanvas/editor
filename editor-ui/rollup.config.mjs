@@ -7,6 +7,8 @@ import replace from '@rollup/plugin-replace';
 import strip from '@rollup/plugin-strip';
 import terser from '@rollup/plugin-terser';
 
+import autoprefixer from 'autoprefixer';
+import postcss from 'postcss';
 import sass from 'rollup-plugin-sass';
 
 const production = process.env.NODE_ENV === 'production';
@@ -60,7 +62,10 @@ export default [
             sass({
                 insert: false,
                 output: 'dist/css/editor.css',
-                outputStyle: 'compressed'
+                outputStyle: 'compressed',
+                processor: css => postcss([autoprefixer])
+                    .process(css)
+                    .then(result => result.css)
             }),
             alias(aliasEntries()),
             replace({
@@ -85,7 +90,10 @@ export default [
             sass({
                 insert: false,
                 output: 'dist/css/editor-empty.css',
-                outputStyle: 'compressed'
+                outputStyle: 'compressed',
+                processor: css => postcss([autoprefixer])
+                    .process(css)
+                    .then(result => result.css)
             }),
             alias(aliasEntries()),
             replace({
@@ -110,7 +118,10 @@ export default [
             sass({
                 insert: false,
                 output: 'dist/css/code-editor-v2.css',
-                outputStyle: 'compressed'
+                outputStyle: 'compressed',
+                processor: css => postcss([autoprefixer])
+                    .process(css)
+                    .then(result => result.css)
             }),
             alias(aliasEntries()),
             replace({
@@ -135,7 +146,10 @@ export default [
             sass({
                 insert: false,
                 output: 'dist/css/launch.css',
-                outputStyle: 'compressed'
+                outputStyle: 'compressed',
+                processor: css => postcss([autoprefixer])
+                    .process(css)
+                    .then(result => result.css)
             }),
             alias(aliasEntries()),
             replace({
@@ -158,7 +172,10 @@ export default [
             sass({
                 insert: false,
                 output: 'dist/css/error.css',
-                outputStyle: 'compressed'
+                outputStyle: 'compressed',
+                processor: css => postcss([autoprefixer])
+                    .process(css)
+                    .then(result => result.css)
             })
         ]
     },
@@ -171,7 +188,10 @@ export default [
             sass({
                 insert: false,
                 output: 'dist/css/code_editor.css',
-                outputStyle: 'compressed'
+                outputStyle: 'compressed',
+                processor: css => postcss([autoprefixer])
+                    .process(css)
+                    .then(result => result.css)
             })
         ]
     },

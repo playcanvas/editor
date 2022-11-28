@@ -4,7 +4,6 @@
         "indentation": 4,
         "alpha-value-notation": null,
         "at-rule-empty-line-before": null,
-        "at-rule-no-vendor-prefix": null,
         "color-function-notation": null,
         "declaration-block-no-redundant-longhand-properties": null,
         "declaration-block-no-shorthand-property-overrides": null,
@@ -17,18 +16,15 @@
         "no-duplicate-selectors": null,
         "no-invalid-position-at-import-rule": null,
         "property-no-unknown": null,
-        "property-no-vendor-prefix": null,
         "scss/no-global-function-names": null,
         "scss/at-extend-no-missing-placeholder": null,
         "scss/dollar-variable-empty-line-before": null,
         "scss/dollar-variable-pattern": null,
         "scss/double-slash-comment-empty-line-before": null,
         "selector-class-pattern": null,
-        "selector-no-vendor-prefix": null,
         "selector-pseudo-element-colon-notation": null,
         "shorthand-property-no-redundant-values": null,
         "string-quotes": "single",
-        "value-keyword-case": null,
-        "value-no-vendor-prefix": null
+        "value-keyword-case": null
     }
 }

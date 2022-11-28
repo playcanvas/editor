@@ -55,11 +55,6 @@ strong {
 }
 
 .noSelect {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
     user-select: none;
 }
 
@@ -151,8 +146,6 @@ strong {
 #ui-tabs {
     background-color: $bcg-darker;
     box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
 
     $tab-bottom-margin: 2px;
     $tab-bg-color: mix($bcg-darker, $bcg-darkest, 25%);
@@ -170,14 +163,10 @@ strong {
         max-width: 150px;
 
         box-sizing: border-box;
-        -webkit-box-sizing: border-box;
-        -moz-box-sizing: border-box;
 
         background-color: $tab-bg-color;
         color: $text-secondary;
 
-        -webkit-transition: color 200ms ease;
-        -moz-transition: color 200ms ease;
         transition: color 200ms ease;
 
         padding: 0 5px;
@@ -190,8 +179,6 @@ strong {
         white-space: nowrap;
 
         &.animated {
-            -webkit-transition: left 200ms ease;
-            -moz-transition: left 200ms ease;
             transition: left 200ms ease;
         }
 
@@ -218,8 +205,6 @@ strong {
 
             > .content > .close {
                 background-color: $bcg-darkest;
-                -webkit-box-shadow: -2px -2px 2px $bcg-darkest;
-                -moz-box-shadow: -2px -2px 2px $bcg-darkest;
                 box-shadow: -2px -2px 2px $bcg-darkest;
             }
         }
@@ -260,8 +245,6 @@ strong {
                 @extend .font-icon;
                 color: $text-secondary;
                 background-color: $tab-bg-color;
-                -webkit-box-shadow: -2px -2px 2px $tab-bg-color;
-                -moz-box-shadow: -2px -2px 2px $tab-bg-color;
                 box-shadow: -2px -2px 2px $tab-bg-color;
                 border: 0;
                 position: absolute;
@@ -276,8 +259,6 @@ strong {
                 text-align: center;
                 opacity: 0;
 
-                -webkit-transition: opacity 200ms ease;
-                -moz-transition: opacity 200ms ease;
                 transition: opacity 200ms ease;
 
                 &:hover {
@@ -386,9 +367,6 @@ strong {
     line-height: 32px;
     background-color: mix($bcg-darkest, black, 75%);
     z-index: 10;
-
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
     box-sizing: border-box;
 
     .pcui-label {
@@ -630,8 +608,6 @@ strong {
             }
 
             &.replace {
-                -webkit-transition: flex-grow 200ms ease;
-                -moz-transition: flex-grow 200ms ease;
                 transition: flex-grow 200ms ease;
 
                 &:not(.focused) {
@@ -654,9 +630,6 @@ strong {
             margin: 0 0 0 1px;
             padding: 0;
             text-align: center;
-
-            -webkit-box-sizing: border-box;
-            -moz-box-sizing: border-box;
             box-sizing: border-box;
 
             @extend .font-bold;
@@ -723,9 +696,6 @@ strong {
                 width: 100%;
                 max-height: 50vh;
                 overflow-y: auto;
-
-                -moz-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.5);
-                -webkit-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.5);
                 box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.5);
 
                 > .ui-menu-item {
@@ -785,9 +755,6 @@ strong {
         border-radius: 50%;
         border: 2px solid transparent;
         vertical-align: middle;
-
-        -webkit-transition: border-color 300ms ease;
-        -moz-transition: border-color 300ms ease;
         transition: border-color 300ms ease;
 
         img {
@@ -982,7 +949,6 @@ li.CodeMirror-hint-active {
     line-height: 20px;
     text-align: center;
     color: $editor-text-color;
-    -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
 
@@ -1096,8 +1062,6 @@ a.link-docs {
 }
 
 .animate-height {
-    -webkit-transition: height 200ms ease;
-    -moz-transition: height 200ms ease;
     transition: height 200ms ease;
 }
 

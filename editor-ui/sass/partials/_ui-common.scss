@@ -43,26 +43,6 @@
 }
 
 // common loader animation element (ported over from platform)
-@-webkit-keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-@-moz-keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -83,16 +63,8 @@
     background-repeat: no-repeat;
 
     opacity: 0;
-    -webkit-animation: fadeIn ease-in 1;
-    -moz-animation: fadeIn ease-in 1;
     animation: fadeIn ease-in 1;
-
-    -webkit-animation-fill-mode: forwards;
-    -moz-animation-fill-mode: forwards;
     animation-fill-mode: forwards;
-
-    -webkit-animation-duration: $fade-duration;
-    -moz-animation-duration: $fade-duration;
     animation-duration: $fade-duration;
 
     width: 32px;

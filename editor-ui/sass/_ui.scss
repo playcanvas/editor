@@ -1,9 +1,4 @@
 .noSelect {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
     user-select: none;
 }
 
@@ -27,30 +22,7 @@ $disabled-opacity: 0.4;
     font-family: inconsolatamedium, Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
     font-weight: normal;
     font-size: 12px;
-    // -webkit-font-smoothing: antialiased;
-    // -webkit-text-stroke: 0.35px;
 }
-
-// scrollbar
-// ::-webkit-scrollbar {
-//     background: #000;
-// }
-// ::-webkit-scrollbar-button {
-//     background: #0f0;
-// }
-// ::-webkit-scrollbar-track {
-//     // background: #00f;
-// }
-// ::-webkit-scrollbar-track-piece {
-//     // background: #ff0;
-// }
-// ::-webkit-scrollbar-thumb {
-//     background: #f0f;
-// }
-
-// ::-webkit-resizer {
-//     background: #fff;
-// }
 
 // scrollbar
 
@@ -157,7 +129,6 @@ a:visited {
 
     &.flexible {
         display: flex;
-        display: -webkit-flex;
 
         // firefox scrolling fix
         min-height: 0;
@@ -167,7 +138,6 @@ a:visited {
     &.flex {
         > .content {
             display: flex;
-            display: -webkit-flex;
 
             // firefox scrolling fix
             min-height: 0;
@@ -191,17 +161,7 @@ a:visited {
                     position: absolute;
                     top: -32px;
                     width: 2048px;
-
-                    -webkit-transform: rotate(90deg);
-                    -moz-transform: rotate(90deg);
-                    -ms-transform: rotate(90deg);
-                    -o-transform: rotate(90deg);
                     transform: rotate(90deg);
-
-                    -webkit-transform-origin: 0% 100%;
-                    -moz-transform-origin: 0% 100%;
-                    -ms-transform-origin: 0% 100%;
-                    -o-transform-origin: 0% 100%;
                     transform-origin: 0% 100%;
                 }
 
@@ -411,8 +371,6 @@ a:visited {
         position: relative;
         background-color: #07f;
         transition: width 100ms, height 100ms, margin-left 100ms, margin-top 100ms;
-        -webkit-box-shadow: 7px 7px 7px rgba(0, 0, 0, 0.15);
-        -moz-box-shadow: 7px 7px 7px rgba(0, 0, 0, 0.15);
         box-shadow: 7px 7px 7px rgba(0, 0, 0, 0.15);
     }
 }
@@ -484,17 +442,12 @@ a:visited {
 .ui-grid {
     @extend .noSelect;
 
-    display: -webkit-flex;
     display: flex;
-    -webkit-flex-wrap: wrap;
     flex-wrap: wrap;
-    // justify-content: space-between;
     list-style: none;
-    // padding: 4px;
     padding: 0;
     margin: 0;
     font-size: 0;
-    // border: 1px solid #1a1a1a;
 
     &:focus {
         outline: none;
@@ -1357,22 +1310,13 @@ a:visited {
     cursor: pointer;
     overflow: hidden;
     transition: opacity 100ms;
-
     background-image:
-        -moz-linear-gradient(45deg, #000 25%, transparent 25%),
-        -moz-linear-gradient(-45deg, #000 25%, transparent 25%),
-        -moz-linear-gradient(45deg, transparent 75%, #000 75%),
-        -moz-linear-gradient(-45deg, transparent 75%, #000 75%);
-    background-image:
-        -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, #000), color-stop(0.25, transparent)),
-        -webkit-gradient(linear, 0 0, 100% 100%, color-stop(0.25, #000), color-stop(0.25, transparent)),
-        -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.75, transparent), color-stop(0.75, #000)),
-        -webkit-gradient(linear, 0 0, 100% 100%, color-stop(0.75, transparent), color-stop(0.75, #000));
+        linear-gradient(45deg, #000 25%, transparent 25%),
+        linear-gradient(-45deg, #000 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #000 75%),
+        linear-gradient(-45deg, transparent 75%, #000 75%);
     background-color: #fff;
-
     background-size: 8px 8px;
-    -moz-background-size: 8px 8px;
-    -webkit-background-size: 8px 8px;
     background-position: 0 0, 4px 0, 4px -4px, 0 4px;
 
     &.disabled {
@@ -1440,9 +1384,6 @@ a:visited {
     > canvas.preview {
         &.flipY {
             transform: scale(1, -1);
-            -ms-transform: scale(1, -1);
-            -moz-transform: scale(1, -1);
-            -webkit-transform: scale(1, -1);
         }
     }
 
@@ -1501,7 +1442,6 @@ a:visited {
     cursor: pointer;
     transition: opacity 100ms;
     flex-shrink: 0;
-    -webkit-flex-shrink: 0;
 
     &.checked {
         background-color: #fff;
@@ -1692,11 +1632,6 @@ a:visited {
 
             // pattern
             background: #f66;
-            background: -webkit-gradient(left top, right bottom, color-stop(0%, rgba(255, 128, 128, 1)), color-stop(25%, rgba(255, 128, 128, 1)), color-stop(26%, rgba(255, 64, 64, 1)), color-stop(50%, rgba(255, 64, 64, 1)), color-stop(51%, rgba(255, 128, 128, 1)), color-stop(75%, rgba(255, 128, 128, 1)), color-stop(76%, rgba(255, 64, 64, 1)), color-stop(100%, rgba(255, 64, 64, 1)));
-            background: -webkit-linear-gradient(-45deg, rgba(255, 128, 128, 1) 0%, rgba(255, 128, 128, 1) 25%, rgba(255, 64, 64, 1) 26%, rgba(255, 64, 64, 1) 50%, rgba(255, 128, 128, 1) 51%, rgba(255, 128, 128, 1) 75%, rgba(255, 64, 64, 1) 76%, rgba(255, 64, 64, 1) 100%);
-            background: -moz-linear-gradient(-45deg, rgba(255, 128, 128, 1) 0%, rgba(255, 128, 128, 1) 25%, rgba(255, 64, 64, 1) 26%, rgba(255, 64, 64, 1) 50%, rgba(255, 128, 128, 1) 51%, rgba(255, 128, 128, 1) 75%, rgba(255, 64, 64, 1) 76%, rgba(255, 64, 64, 1) 100%);
-            background: -ms-linear-gradient(-45deg, rgba(255, 128, 128, 1) 0%, rgba(255, 128, 128, 1) 25%, rgba(255, 64, 64, 1) 26%, rgba(255, 64, 64, 1) 50%, rgba(255, 128, 128, 1) 51%, rgba(255, 128, 128, 1) 75%, rgba(255, 64, 64, 1) 76%, rgba(255, 64, 64, 1) 100%);
-            background: -o-linear-gradient(-45deg, rgba(255, 128, 128, 1) 0%, rgba(255, 128, 128, 1) 25%, rgba(255, 64, 64, 1) 26%, rgba(255, 64, 64, 1) 50%, rgba(255, 128, 128, 1) 51%, rgba(255, 128, 128, 1) 75%, rgba(255, 64, 64, 1) 76%, rgba(255, 64, 64, 1) 100%);
             background: linear-gradient(135deg, rgba(255, 128, 128, 1) 0%, rgba(255, 128, 128, 1) 25%, rgba(255, 64, 64, 1) 26%, rgba(255, 64, 64, 1) 50%, rgba(255, 128, 128, 1) 51%, rgba(255, 128, 128, 1) 75%, rgba(255, 64, 64, 1) 76%, rgba(255, 64, 64, 1) 100%);
             background-position: 0 0;
             background-size: 24px 24px;
@@ -1710,27 +1645,17 @@ a:visited {
 
         // pattern
         background: #07f;
-        background: -webkit-gradient(left top, right bottom, color-stop(0%, rgba(0, 128, 255, 1)), color-stop(25%, rgba(0, 128, 255, 1)), color-stop(26%, rgba(0, 96, 192, 1)), color-stop(50%, rgba(0, 96, 192, 1)), color-stop(51%, rgba(0, 128, 255, 1)), color-stop(75%, rgba(0, 128, 255, 1)), color-stop(76%, rgba(0, 96, 192, 1)), color-stop(100%, rgba(0, 96, 192, 1)));
-        background: -webkit-linear-gradient(-45deg, rgba(0, 128, 255, 1) 0%, rgba(0, 128, 255, 1) 25%, rgba(0, 96, 192, 1) 26%, rgba(0, 96, 192, 1) 50%, rgba(0, 128, 255, 1) 51%, rgba(0, 128, 255, 1) 75%, rgba(0, 96, 192, 1) 76%, rgba(0, 96, 192, 1) 100%);
-        background: -moz-linear-gradient(-45deg, rgba(0, 128, 255, 1) 0%, rgba(0, 128, 255, 1) 25%, rgba(0, 96, 192, 1) 26%, rgba(0, 96, 192, 1) 50%, rgba(0, 128, 255, 1) 51%, rgba(0, 128, 255, 1) 75%, rgba(0, 96, 192, 1) 76%, rgba(0, 96, 192, 1) 100%);
-        background: -ms-linear-gradient(-45deg, rgba(0, 128, 255, 1) 0%, rgba(0, 128, 255, 1) 25%, rgba(0, 96, 192, 1) 26%, rgba(0, 96, 192, 1) 50%, rgba(0, 128, 255, 1) 51%, rgba(0, 128, 255, 1) 75%, rgba(0, 96, 192, 1) 76%, rgba(0, 96, 192, 1) 100%);
-        background: -o-linear-gradient(-45deg, rgba(0, 128, 255, 1) 0%, rgba(0, 128, 255, 1) 25%, rgba(0, 96, 192, 1) 26%, rgba(0, 96, 192, 1) 50%, rgba(0, 128, 255, 1) 51%, rgba(0, 128, 255, 1) 75%, rgba(0, 96, 192, 1) 76%, rgba(0, 96, 192, 1) 100%);
         background: linear-gradient(135deg, rgba(0, 128, 255, 1) 0%, rgba(0, 128, 255, 1) 25%, rgba(0, 96, 192, 1) 26%, rgba(0, 96, 192, 1) 50%, rgba(0, 128, 255, 1) 51%, rgba(0, 128, 255, 1) 75%, rgba(0, 96, 192, 1) 76%, rgba(0, 96, 192, 1) 100%);
         background-position: 0 0;
         background-size: 24px 24px;
         background-repeat: repeat;
 
         // animate
-        -webkit-animation: ui-progress-background 1000ms linear infinite;
         animation: ui-progress-background 1000ms linear infinite;
     }
 }
 
 // ui-progress animation
-@-webkit-keyframes ui-progress-background {
-    from { background-position: 0 0; }
-    to { background-position: 24px 0; }
-}
 @keyframes ui-progress-background {
     from { background-position: 0 0; }
     to { background-position: 24px 0; }

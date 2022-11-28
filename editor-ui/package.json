@@ -23,6 +23,9 @@
     "type": "git",
     "url": "https://github.com/playcanvas/editor.git"
   },
+  "browserslist": [
+    ">0.3%, defaults"
+  ],
   "scripts": {
     "lint:css": "stylelint sass",
     "lint:js": "eslint --ext .js .",
@@ -44,11 +47,13 @@
     "@rollup/plugin-replace": "^5.0.1",
     "@rollup/plugin-strip": "^3.0.1",
     "@rollup/plugin-terser": "^0.1.0",
+    "autoprefixer": "^10.4.13",
     "browserify": "17.0.0",
     "concurrently": "^7.5.0",
     "cross-env": "^7.0.3",
     "eslint": "^8.26.0",
     "ot-text": "1.0.2",
+    "postcss": "^8.4.19",
     "rollup": "^3.3.0",
     "rollup-plugin-sass": "^1.12.16",
     "serve": "^14.1.1",

@@ -22,20 +22,10 @@ strong {
 }
 
 .noSelect {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
     user-select: none;
 }
 
 .allowSelect {
-    -webkit-touch-callout: initial;
-    -webkit-user-select: initial;
-    -khtml-user-select: initial;
-    -moz-user-select: initial;
-    -ms-user-select: initial;
     user-select: initial;
 }
 
@@ -538,9 +528,6 @@ strong {
 
                 &.flipY {
                     transform: scale(1, -1);
-                    -ms-transform: scale(1, -1);
-                    -moz-transform: scale(1, -1);
-                    -webkit-transform: scale(1, -1);
                 }
             }
 
@@ -658,7 +645,6 @@ strong {
 
         .ui-label.label-field {
             @extend .noSelect;
-            -webkit-flex-shrink: 0;
             flex-shrink: 0;
             width: 27%;
             font-size: 12px;
@@ -811,7 +797,6 @@ strong {
 
             > .content {
                 > .ui-image-field {
-                    -webkit-flex-shrink: 0;
                     flex-shrink: 0;
                     margin-right: 3px;
                     background-color: $bcg-dark;
@@ -834,17 +819,9 @@ strong {
 
                             background-color: #465659;
                             background-image:
-                                -moz-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
-                                -moz-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
-                            background-image:
-                                -webkit-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
-                                -webkit-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
-                            background-image:
                                 linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
                                 linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
-                            -moz-background-size: 24px 24px;
                             background-size: 24px 24px;
-                            -webkit-background-size: 25px 25px;
                             background-position: 0 0, 12px 12px;
                         }
                     }
@@ -867,7 +844,6 @@ strong {
                     width: 100%;
 
                     > .controls {
-                        display: -webkit-flex;
                         display: flex;
                         margin-top: 10px;
                         height: 32px;
@@ -1359,7 +1335,6 @@ strong {
                             line-height: 24px;
                             text-align: right;
                             flex-grow: 1;
-                            -webkit-flex-grow: 1;
                             color: $text-dark;
                         }
 
@@ -1516,20 +1491,12 @@ strong {
                                     $radiusI: 20%;
                                     $radiusO: 55%;
 
-                                    background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
-                                    background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
                                     background: radial-gradient($color $radiusI, transparent $radiusO);
-                                    -webkit-background-size: $size ($size + 1px);
-                                    -moz-background-size: $size $size;
                                     background-size: $size $size;
 
                                     &:hover {
                                         $color: $text-primary;
-                                        background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
-                                        background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
                                         background: radial-gradient($color $radiusI, transparent $radiusO);
-                                        -webkit-background-size: $size ($size + 1px);
-                                        -moz-background-size: $size $size;
                                         background-size: $size $size;
                                     }
                                 }
@@ -1815,7 +1782,6 @@ strong {
 
                     > .ui-button.large-with-icon {
                         flex-grow: 1;
-                        -webkit-flex-grow: 1;
                         width: 100%;
 
                         &.download-asset:before {
@@ -1882,7 +1848,6 @@ strong {
             > .ui-button.override-material,
             .ui-button.loading-screen {
                 flex-grow: 1;
-                -webkit-flex-grow: 1;
                 background-color: $bcg-dark;
 
                 &:hover {
@@ -2056,20 +2021,12 @@ strong {
                                 $radiusI: 20%;
                                 $radiusO: 55%;
 
-                                background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
-                                background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
                                 background: radial-gradient($color $radiusI, transparent $radiusO);
-                                -webkit-background-size: $size ($size + 1px);
-                                -moz-background-size: $size $size;
                                 background-size: $size $size;
 
                                 &:hover {
                                     $color: $text-primary;
-                                    background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
-                                    background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
                                     background: radial-gradient($color $radiusI, transparent $radiusO);
-                                    -webkit-background-size: $size ($size + 1px);
-                                    -moz-background-size: $size $size;
                                     background-size: $size $size;
                                 }
                             }
@@ -2086,7 +2043,6 @@ strong {
                 line-height: 26px;
                 text-align: center;
                 flex-shrink: 0;
-                -webkit-flex-shrink: 0;
                 margin: 0 0 0 4px;
                 padding: 0;
                 font-size: 14px;
@@ -2100,7 +2056,6 @@ strong {
             .ui-progress.audio-timeline {
                 float: left;
                 flex-grow: 1;
-                -webkit-flex-grow: 1;
                 width: calc(100% - 42px);
                 margin: 11px 0 0 8px;
                 height: 4px;
@@ -2648,8 +2603,6 @@ strong {
     display: block;
     flex-shrink: 0;
     flex-grow: 0;
-    -webkit-flex-grow: 0;
-    -webkit-flex-shrink: 0;
     height: calc(100% - 4px);
 
     .ui-tree-item {
@@ -2671,8 +2624,6 @@ strong {
     align-content: flex-start;
     flex-grow: 1;
     flex-shrink: 1;
-    -webkit-flex-grow: 1;
-    -webkit-flex-shrink: 1;
 
     > .ui-grid-item {
         width: 104px;
@@ -3018,17 +2969,10 @@ strong {
                 $second: rgba(darken(#f77, 17%), 1);
 
                 background: $text-active;
-                background: -webkit-gradient(left top, right bottom, color-stop(0%, $first), color-stop(25%, $first), color-stop(26%, $second), color-stop(50%, $second), color-stop(51%, $first), color-stop(75%, $first), color-stop(76%, $second), color-stop(100%, $second));
-                background: -webkit-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
-                background: -moz-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
-                background: -ms-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
-                background: -o-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
                 background: linear-gradient(135deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
                 background-position: 0 0;
                 background-size: 24px 24px;
                 background-repeat: repeat;
-
-                -webkit-animation: none;
                 animation: none;
             }
 
@@ -3046,17 +2990,10 @@ strong {
                 $second: rgba(darken($text-active, 17%), 1);
 
                 background: $text-active;
-                background: -webkit-gradient(left top, right bottom, color-stop(0%, $first), color-stop(25%, $first), color-stop(26%, $second), color-stop(50%, $second), color-stop(51%, $first), color-stop(75%, $first), color-stop(76%, $second), color-stop(100%, $second));
-                background: -webkit-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
-                background: -moz-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
-                background: -ms-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
-                background: -o-linear-gradient(-45deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
                 background: linear-gradient(135deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
                 background-position: 0 0;
                 background-size: 24px 24px;
                 background-repeat: repeat;
-
-                -webkit-animation: task-background 1000ms linear infinite;
                 animation: task-background 1000ms linear infinite;
             }
         }
@@ -3080,9 +3017,6 @@ strong {
 
             &.flipY {
                 transform: scale(1, -1);
-                -ms-transform: scale(1, -1);
-                -moz-transform: scale(1, -1);
-                -webkit-transform: scale(1, -1);
             }
         }
 
@@ -3260,10 +3194,6 @@ strong {
     }
 }
 
-@-webkit-keyframes task-background {
-    from { background-position: 0 0; }
-    to { background-position: 24px 0; }
-}
 @keyframes task-background {
     from { background-position: 0 0; }
     to { background-position: 24px 0; }
@@ -4248,16 +4178,7 @@ strong {
 
                 @extend .font-regular;
 
-                &::-webkit-input-placeholder {
-                    color: $text-primary;
-                    opacity: 0.75;
-                }
-
-                &::-moz-placeholder {
-                    color: $text-primary;
-                }
-
-                &:-ms-input-placeholder {
+                &::placeholder {
                     color: $text-primary;
                     opacity: 0.75;
                 }
@@ -5181,13 +5102,7 @@ strong {
                 height: 144px;
                 top: 0;
                 left: 0;
-
-                background: -moz-linear-gradient(left, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.01) 100%); /* FF3.6+ */
-                background: -webkit-gradient(linear, left top, right top, color-stop(0%, rgba(255, 255, 255, 1)), color-stop(100%, rgba(255, 255, 255, 0.01))); /* Chrome,Safari4+ */
-                background: -webkit-linear-gradient(left, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.01) 100%); /* Chrome10+,Safari5.1+ */
-                background: -o-linear-gradient(left, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.01) 100%); /* Opera 11.10+ */
-                background: -ms-linear-gradient(left, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.01) 100%); /* IE10+ */
-                background: linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.01) 100%); /* W3C */
+                background: linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.01) 100%);
             }
 
             > .black {
@@ -5196,13 +5111,7 @@ strong {
                 height: 144px;
                 top: 0;
                 left: 0;
-
-                background: -moz-linear-gradient(top, rgba(0, 0, 0, 0.01) 0%, rgba(0, 0, 0, 1) 100%); /* FF3.6+ */
-                background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(0, 0, 0, 0.01)), color-stop(100%, rgba(0, 0, 0, 1))); /* Chrome,Safari4+ */
-                background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.01) 0%, rgba(0, 0, 0, 1) 100%); /* Chrome10+,Safari5.1+ */
-                background: -o-linear-gradient(top, rgba(0, 0, 0, 0.01) 0%, rgba(0, 0, 0, 1) 100%); /* Opera 11.10+ */
-                background: -ms-linear-gradient(top, rgba(0, 0, 0, 0.01) 0%, rgba(0, 0, 0, 1) 100%); /* IE10+ */
-                background: linear-gradient(to bottom, rgba(0, 0, 0, 0.01) 0%, rgba(0, 0, 0, 1) 100%); /* W3C */
+                background: linear-gradient(to bottom, rgba(0, 0, 0, 0.01) 0%, rgba(0, 0, 0, 1) 100%);
             }
 
             > .handle {
@@ -5231,69 +5140,6 @@ strong {
 
             background: #000;
             background:
-                // FF3.6+
-                -moz-linear-gradient(
-                    top,
-                    rgba(255, 0, 0, 1) 0%,
-                    rgba(255, 255, 0, 1) 16.67%,
-                    rgba(0, 255, 0, 1) 33.33%,
-                    rgba(0, 255, 255, 1) 50%,
-                    rgba(0, 0, 255, 1) 66.67%,
-                    rgba(255, 0, 255, 1) 83.33%,
-                    rgba(255, 0, 0, 1) 100%
-                );
-            background:
-                // Chrome,Safari4+
-                -webkit-gradient(
-                    linear,
-                    left top,
-                    left bottom,
-                    color-stop(0%, rgba(255, 0, 0, 1)),
-                    color-stop(16.67%, rgba(255, 255, 0, 1)),
-                    color-stop(33.33%, rgba(0, 255, 0, 1)),
-                    color-stop(50%, rgba(0, 255, 255, 1)),
-                    color-stop(66.67%, rgba(0, 0, 255, 1)),
-                    color-stop(83.33%, rgba(255, 0, 255, 1)),
-                    color-stop(100%, rgba(255, 0, 0, 1))
-                );
-            background:
-                // Chrome10+,Safari5.1+
-                -webkit-linear-gradient(
-                    top,
-                    rgba(255, 0, 0, 1) 0%,
-                    rgba(255, 255, 0, 1) 16.67%,
-                    rgba(0, 255, 0, 1) 33.33%,
-                    rgba(0, 255, 255, 1) 50%,
-                    rgba(0, 0, 255, 1) 66.67%,
-                    rgba(255, 0, 255, 1) 83.33%,
-                    rgba(255, 0, 0, 1) 100%
-                );
-            background:
-                // Opera 11.10+
-                -o-linear-gradient(
-                    top,
-                    rgba(255, 0, 0, 1) 0%,
-                    rgba(255, 255, 0, 1) 16.67%,
-                    rgba(0, 255, 0, 1) 33.33%,
-                    rgba(0, 255, 255, 1) 50%,
-                    rgba(0, 0, 255, 1) 66.67%,
-                    rgba(255, 0, 255, 1) 83.33%,
-                    rgba(255, 0, 0, 1) 100%
-                );
-            background:
-                // IE10+
-                -ms-linear-gradient(
-                    top,
-                    rgba(255, 0, 0, 1) 0%,
-                    rgba(255, 255, 0, 1) 16.67%,
-                    rgba(0, 255, 0, 1) 33.33%,
-                    rgba(0, 255, 255, 1) 50%,
-                    rgba(0, 0, 255, 1) 66.67%,
-                    rgba(255, 0, 255, 1) 83.33%,
-                    rgba(255, 0, 0, 1) 100%
-                );
-            background:
-                // W3C
                 linear-gradient(
                     to bottom,
                     rgba(255, 0, 0, 1) 0%,
@@ -5327,14 +5173,8 @@ strong {
             margin: 8px 0 8px 8px;
             border: 1px solid #000;
             cursor: crosshair;
-
             background: #000;
-            background: -moz-linear-gradient(top, #fff 0%, #000 100%); /* FF3.6+ */
-            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #fff), color-stop(100%, #000)); /* Chrome,Safari4+ */
-            background: -webkit-linear-gradient(top, #fff 0%, #000 100%); /* Chrome10+,Safari5.1+ */
-            background: -o-linear-gradient(top, #fff 0%, #000 100%); /* Opera 11.10+ */
-            background: -ms-linear-gradient(top, #fff 0%, #000 100%); /* IE10+ */
-            background: linear-gradient(to bottom, #fff 0%, #000 100%); /* W3C */
+            background: linear-gradient(to bottom, #fff 0%, #000 100%);
 
             > .handle {
                 position: absolute;
@@ -5422,8 +5262,7 @@ strong {
             }
 
             &.scroll {
-                cursor: -webkit-grabbing;
-                cursor: -moz-grabbing;
+                cursor: grabbing;
             }
         }
     }
@@ -5646,17 +5485,9 @@ strong {
                             $checkerboard-dark: #eaeaea;
                             background-color: #fff;
                             background-image:
-                                -moz-linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%, transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%),
-                                -moz-linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%, transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%);
-                            background-image:
-                                -webkit-linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%, transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%),
-                                -webkit-linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%, transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%);
-                            background-image:
                                 linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%, transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%),
                                 linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%, transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%);
-                            -moz-background-size: 24px 24px;
                             background-size: 24px 24px;
-                            -webkit-background-size: 24px 24px;
                             background-position: 0 0, 12px 12px;
                         }
 
@@ -5687,15 +5518,12 @@ strong {
 
                             > .content {
                                 display: flex;
-                                -webkit-flex: flex;
                                 flex-wrap: nowrap;
 
                                 > .ui-grid {
                                     align-content: flex-start;
                                     flex-grow: 1;
                                     flex-shrink: 1;
-                                    -webkit-flex-grow: 1;
-                                    -webkit-flex-shrink: 1;
 
                                     > .ui-grid-item {
                                         width: 104px;
@@ -5786,13 +5614,11 @@ strong {
                     }
 
                     &.grab {
-                        cursor: -webkit-grab;
-                        cursor: -moz-grab;
+                        cursor: grab;
                     }
 
                     &.grabbing {
-                        cursor: -webkit-grabbing;
-                        cursor: -moz-grabbing;
+                        cursor: grabbing;
                     }
 
                     &.ew-resize {
@@ -5972,20 +5798,12 @@ strong {
                             $radiusI: 20%;
                             $radiusO: 55%;
 
-                            background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
-                            background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
                             background: radial-gradient($color $radiusI, transparent $radiusO);
-                            -webkit-background-size: $size ($size + 1px);
-                            -moz-background-size: $size $size;
                             background-size: $size $size;
 
                             &:hover {
                                 $color: $text-primary;
-                                background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
-                                background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
                                 background: radial-gradient($color $radiusI, transparent $radiusO);
-                                -webkit-background-size: $size ($size + 1px);
-                                -moz-background-size: $size $size;
                                 background-size: $size $size;
                             }
                         }
@@ -6219,83 +6037,6 @@ strong {
     }
 }
 
-@-webkit-keyframes pulseline {
-    0% {
-        width: 2px;
-        height: 2px;
-        opacity: 1;
-        left: 5px;
-        top: 5px;
-        box-shadow: 0 0 0 0 $text-active;
-    }
-
-    100% {
-        width: 47px;
-        height: 46px;
-        opacity: 0;
-        left: -19px;
-        top: -18px;
-        box-shadow: 0 0 0 6px $text-active;
-    }
-}
-
-@-moz-keyframes pulseline {
-    0% {
-        width: 2px;
-        height: 2px;
-        opacity: 1;
-        left: 5px;
-        top: 5px;
-        box-shadow: 0 0 0 0 $text-active;
-    }
-
-    100% {
-        width: 47px;
-        height: 46px;
-        opacity: 0;
-        left: -19px;
-        top: -18px;
-        box-shadow: 0 0 0 6px $text-active;
-    }
-}
-@-ms-keyframes pulseline {
-    0% {
-        width: 2px;
-        height: 2px;
-        opacity: 1;
-        left: 5px;
-        top: 5px;
-        box-shadow: 0 0 0 0 $text-active;
-    }
-
-    100% {
-        width: 47px;
-        height: 46px;
-        opacity: 0;
-        left: -19px;
-        top: -18px;
-        box-shadow: 0 0 0 6px $text-active;
-    }
-}
-@-o-keyframes pulseline {
-    0% {
-        width: 2px;
-        height: 2px;
-        opacity: 1;
-        left: 5px;
-        top: 5px;
-        box-shadow: 0 0 0 0 $text-active;
-    }
-
-    100% {
-        width: 47px;
-        height: 46px;
-        opacity: 0;
-        left: -19px;
-        top: -18px;
-        box-shadow: 0 0 0 6px $text-active;
-    }
-}
 @keyframes pulseline {
     0% {
         width: 2px;
@@ -6327,11 +6068,6 @@ strong {
         position: absolute;
         opacity: 0;
         transition: all 2s ease;
-
-        -webkit-animation: pulseline 1s ease-out -0.5s infinite;
-        -moz-animation: pulseline 1s ease-out -0.5s infinite;
-        -ms-animation: pulseline 1s ease-out -0.5s infinite;
-        -o-animation: pulseline 1s ease-out -0.5s infinite;
         animation: pulseline 1s ease-out -0.5s infinite;
     }
 
@@ -6343,11 +6079,7 @@ strong {
         width: 24px;
         height: 24px;
         background: $text-active;
-
-        -webkit-box-shadow: 7px 7px 5px 0 rgba(0, 0, 0, 0.1);
-        -moz-box-shadow: 7px 7px 5px 0 rgba(0, 0, 0, 0.1);
         box-shadow: 7px 7px 5px 0 rgba(0, 0, 0, 0.1);
-
         transition: all 0.1s ease;
     }
 
@@ -6357,10 +6089,6 @@ strong {
 
         > .pulse {
             display: none;
-            -webkit-animation: none;
-            -moz-animation: none;
-            -ms-animation: none;
-            -o-animation: none;
             animation: none;
         }
 
@@ -8381,13 +8109,7 @@ strong {
                 box-shadow: none !important;
                 border: none !important;
                 width: 168px;
-
                 user-select: none;
-                -moz-user-select: none;
-                -webkit-user-drag: none;
-                -webkit-user-select: none;
-                -ms-user-select: none;
-
                 transition: all 0.2s ease-in-out;
                 transition-property: top opacity;
 
@@ -8398,12 +8120,7 @@ strong {
 
                 img {
                     width: 168px;
-
                     user-select: none;
-                    -moz-user-select: none;
-                    -webkit-user-drag: none;
-                    -webkit-user-select: none;
-                    -ms-user-select: none;
                 }
 
                 .overlay {
@@ -8418,20 +8135,11 @@ strong {
 
                     opacity: 0;
 
+                    /* stylelint-disable-next-line property-no-vendor-prefix */
                     -webkit-transform: translateZ(0); /* fix Chrome transition bug */
 
-                    -webkit-transition: opacity 200ms;
-                    -moz-transition: opacity 200ms;
-                    -o-transition: opacity 200ms;
                     transition: opacity 200ms;
 
-                    // @include starter-kit-overlay-background();
-
-                    background: -moz-linear-gradient(top, rgba(69, 69, 69, 0) 0%, rgba(224, 95, 44, 1) 100%);
-                    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(69, 69, 69, 0)), color-stop(100%, rgba(224, 95, 44, 1)));
-                    background: -webkit-linear-gradient(top, rgba(69, 69, 69, 0) 0%, rgba(224, 95, 44, 1) 100%);
-                    background: -o-linear-gradient(top, rgba(69, 69, 69, 0) 0%, rgba(224, 95, 44, 1) 100%);
-                    background: -ms-linear-gradient(top, rgba(69, 69, 69, 0) 0%, rgba(224, 95, 44, 1) 100%);
                     background: linear-gradient(to bottom, rgba(69, 69, 69, 0) 0%, rgba(224, 95, 44, 1) 100%);
                     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#45454500', endColorstr='#E05F2C', GradientType=0);
 
@@ -10001,29 +9709,15 @@ strong {
                             border: 1px solid $border-primary;
 
                             &.transparent {
-                                -moz-background-size: 20px 20px;
                                 background-size: 20px 20px;
-                                -webkit-background-size: 20px 20px;
                                 background-position: 0 -13px, 10px -3px;
 
-                                background-image:
-                                    -moz-linear-gradient(45deg, $bcg-darker 25%, transparent 25%, transparent 75%, $bcg-darker 75%, $bcg-darker 100%),
-                                    -moz-linear-gradient(45deg, $bcg-darker 25%, transparent 25%, transparent 75%, $bcg-darker 75%, $bcg-darker 100%);
-                                background-image:
-                                    -webkit-linear-gradient(45deg, $bcg-darker 25%, transparent 25%, transparent 75%, $bcg-darker 75%, $bcg-darker 100%),
-                                    -webkit-linear-gradient(45deg, $bcg-darker 25%, transparent 25%, transparent 75%, $bcg-darker 75%, $bcg-darker 100%);
                                 background-image:
                                     linear-gradient(45deg, $bcg-darker 25%, transparent 25%, transparent 75%, $bcg-darker 75%, $bcg-darker 100%),
                                     linear-gradient(45deg, $bcg-darker 25%, transparent 25%, transparent 75%, $bcg-darker 75%, $bcg-darker 100%);
 
                                 &.dragged {
                                     $color: darken($bcg-darkest, 2%);
-                                    background-image:
-                                        -moz-linear-gradient(45deg, $color 25%, transparent 25%, transparent 75%, $color 75%, $color 100%),
-                                        -moz-linear-gradient(45deg, $color 25%, transparent 25%, transparent 75%, $color 75%, $color 100%);
-                                    background-image:
-                                        -webkit-linear-gradient(45deg, $color 25%, transparent 25%, transparent 75%, $color 75%, $color 100%),
-                                        -webkit-linear-gradient(45deg, $color 25%, transparent 25%, transparent 75%, $color 75%, $color 100%);
                                     background-image:
                                         linear-gradient(45deg, $color 25%, transparent 25%, transparent 75%, $color 75%, $color 100%),
                                         linear-gradient(45deg, $color 25%, transparent 25%, transparent 75%, $color 75%, $color 100%);
@@ -10045,15 +9739,10 @@ strong {
                                         $radiusI: 20%;
                                         $radiusO: 55%;
                                         $color: $text-primary;
-                                        background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
-                                        background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
                                         background: radial-gradient($color $radiusI, transparent $radiusO);
-                                        -webkit-background-size: $size ($size + 1px);
-                                        -moz-background-size: $size $size;
                                         background-size: $size $size;
 
-                                        cursor: -webkit-grabbing;
-                                        cursor: -moz-grabbing;
+                                        cursor: grabbing;
                                     }
                                 }
                             }
@@ -10075,11 +9764,7 @@ strong {
                                     $radiusI: 20%;
                                     $radiusO: 55%;
 
-                                    background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
-                                    background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
                                     background: radial-gradient($color $radiusI, transparent $radiusO);
-                                    -webkit-background-size: $size ($size + 1px);
-                                    -moz-background-size: $size $size;
                                     background-size: $size $size;
 
                                     &.disabled {
@@ -10089,11 +9774,7 @@ strong {
 
                                     &:not(.disabled):hover {
                                         $color: $text-primary;
-                                        background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
-                                        background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
                                         background: radial-gradient($color $radiusI, transparent $radiusO);
-                                        -webkit-background-size: $size ($size + 1px);
-                                        -moz-background-size: $size $size;
                                         background-size: $size $size;
                                     }
                                 }
@@ -10166,8 +9847,7 @@ strong {
     }
 
     &.dragged {
-        cursor: -webkit-grabbing;
-        cursor: -moz-grabbing;
+        cursor: grabbing;
 
         > .content {
             .ui-panel.layer-order {
@@ -10179,8 +9859,7 @@ strong {
 
 .ui-overlay.layers-drag {
     > .overlay {
-        cursor: -webkit-grabbing;
-        cursor: -moz-grabbing;
+        cursor: grabbing;
     }
 
     > .content {

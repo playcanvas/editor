@@ -151,11 +151,6 @@ canvas:focus {
 }
 
 .noSelect {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
     user-select: none;
 }
 
@@ -184,8 +179,7 @@ body > #dev-tools {
     border-top: 1px solid #202020;
 
     &.dragging {
-        cursor: -webkit-grabbing;
-        cursor: -moz-grabbing;
+        cursor: grabbing;
     }
 
     > .overview {

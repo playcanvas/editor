@@ -85,9 +85,6 @@
 
                 &.flipY {
                     transform: scale(1, -1);
-                    -ms-transform: scale(1, -1);
-                    -moz-transform: scale(1, -1);
-                    -webkit-transform: scale(1, -1);
                 }
             }
 
@@ -201,7 +198,6 @@
 
         .ui-label.label-field {
             @extend .noSelect;
-            -webkit-flex-shrink: 0;
             flex-shrink: 0;
             width: 27%;
             font-size: 12px;
@@ -354,7 +350,6 @@
 
             > .content {
                 > .ui-image-field {
-                    -webkit-flex-shrink: 0;
                     flex-shrink: 0;
                     margin-right: 3px;
                     background-color: $bcg-dark;
@@ -377,17 +372,9 @@
 
                             background-color: #465659;
                             background-image:
-                                -moz-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
-                                -moz-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
-                            background-image:
-                                -webkit-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
-                                -webkit-linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
-                            background-image:
                                 linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
                                 linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
-                            -moz-background-size: 24px 24px;
                             background-size: 24px 24px;
-                            -webkit-background-size: 25px 25px;
                             background-position: 0 0, 12px 12px;
                         }
                     }
@@ -415,7 +402,6 @@
                     width: 100%;
 
                     > .controls {
-                        display: -webkit-flex;
                         display: flex;
                         margin-top: 10px;
                         height: 32px;
@@ -907,7 +893,6 @@
                             line-height: 24px;
                             text-align: right;
                             flex-grow: 1;
-                            -webkit-flex-grow: 1;
                             color: $text-dark;
                             white-space: nowrap;
                             overflow: hidden;
@@ -1067,20 +1052,12 @@
                                     $radiusI: 20%;
                                     $radiusO: 55%;
 
-                                    background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
-                                    background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
                                     background: radial-gradient($color $radiusI, transparent $radiusO);
-                                    -webkit-background-size: $size ($size + 1px);
-                                    -moz-background-size: $size $size;
                                     background-size: $size $size;
 
                                     &:hover {
                                         $color: $text-primary;
-                                        background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
-                                        background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
                                         background: radial-gradient($color $radiusI, transparent $radiusO);
-                                        -webkit-background-size: $size ($size + 1px);
-                                        -moz-background-size: $size $size;
                                         background-size: $size $size;
                                     }
                                 }
@@ -1370,7 +1347,6 @@
 
                     > .ui-button.large-with-icon {
                         flex-grow: 1;
-                        -webkit-flex-grow: 1;
                         width: 100%;
 
                         &.download-asset:before {
@@ -1437,7 +1413,6 @@
             > .ui-button.override-material,
             .ui-button.loading-screen {
                 flex-grow: 1;
-                -webkit-flex-grow: 1;
                 background-color: $bcg-dark;
 
                 &:hover {
@@ -1614,20 +1589,12 @@
                                 $radiusI: 20%;
                                 $radiusO: 55%;
 
-                                background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
-                                background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
                                 background: radial-gradient($color $radiusI, transparent $radiusO);
-                                -webkit-background-size: $size ($size + 1px);
-                                -moz-background-size: $size $size;
                                 background-size: $size $size;
 
                                 &:hover {
                                     $color: $text-primary;
-                                    background: -webkit-radial-gradient($color $radiusI, transparent $radiusO);
-                                    background: -moz-radial-gradient($color $radiusI, transparent $radiusO);
                                     background: radial-gradient($color $radiusI, transparent $radiusO);
-                                    -webkit-background-size: $size ($size + 1px);
-                                    -moz-background-size: $size $size;
                                     background-size: $size $size;
                                 }
                             }
@@ -1644,7 +1611,6 @@
                 line-height: 26px;
                 text-align: center;
                 flex-shrink: 0;
-                -webkit-flex-shrink: 0;
                 margin: 0 0 0 4px;
                 padding: 0;
                 font-size: 14px;
@@ -1658,7 +1624,6 @@
             .ui-progress.audio-timeline {
                 float: left;
                 flex-grow: 1;
-                -webkit-flex-grow: 1;
                 width: calc(100% - 42px);
                 margin: 11px 0 0 8px;
                 height: 4px;
@@ -1940,7 +1905,6 @@
 
             &.back {
                 transform: rotate(180deg);
-                -webkit-transform: rotate(180deg);
             }
         }
     }
