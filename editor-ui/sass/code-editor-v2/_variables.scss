@@ -2,19 +2,14 @@ $bcg-primary: #324447;
 $bcg-darkest: #1d292c;
 $bcg-darker: mix($bcg-primary, $bcg-darkest, 25%);
 $bcg-dark: mix($bcg-primary, $bcg-darkest, 75%);
-
 $text-darkest: #5b7073;
 $text-dark: #9ba1a3;
 $text-secondary: #b1b8ba;
 $text-primary: #fff;
 $text-active: #f60;
-
 $field-padding: 3px;
-
 $border-primary: mix($bcg-darkest, $bcg-dark, 50%);
-
 $disabled-opacity: 0.4;
-
 $editor-bg: #1d292c;
 $editor-gutter-bg: $editor-bg;
 $editor-text-color: #f8f4f0;
@@ -51,19 +46,14 @@ $editor-function: $editor-variable;
 $editor-invalid-text: white;
 $editor-invalid-bg: #ff3295;
 $editor-invalid-deprecated-bg: #e3a9ff;
-
 $editor-font-family: Monaco, Menlo, Consolas, source-code-pro, monospace;
-
 $save-btn-disabled-bg: #35454a;
 $save-btn-disabled-color: #29363b;
-
 $editor-btn-bg: lighten($save-btn-disabled-color, 5%);
 $editor-btn-bg-hover: lighten($save-btn-disabled-color, 7%);
-
 $top-bar-line-height: 34px;
 $top-bar-border: 1px;
 $top-bar-height: $top-bar-line-height + $top-bar-border;
-
 $muted-green: #27ae60;
 $bright-green: #2ecc71;
 $bg-bright: #5b7073;
@@ -74,7 +64,6 @@ $gray-light: lighten(#000, 60%);
 $bright-yellow: #f1c40f;
 $muted-yellow: #f4a62a;
 $text-color: #324447;
-
 $status-error: $bright-red;
 $status-warning: $bright-yellow;
 $status-log: #ccc;

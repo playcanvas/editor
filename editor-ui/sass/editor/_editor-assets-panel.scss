@@ -54,6 +54,7 @@
                     margin: 0;
                     vertical-align: top;
                     @extend .font-icon;
+
                     font-size: 14px;
                     text-align: center;
                     color: $text-dark;
@@ -92,12 +93,14 @@
                     padding: 0;
                     margin: 0;
                     @extend .font-bold;
+
                     font-size: 12px;
                     color: $text-dark;
                     background-color: transparent;
 
-                    &:before {
+                    &::before {
                         @extend .font-icon;
+
                         content: '\E352';
                         float: left;
                         font-size: 14px;
@@ -111,7 +114,7 @@
                         color: $text-active;
                         background-color: $bcg-darkest;
 
-                        &:before {
+                        &::before {
                             color: $text-active;
                         }
 
@@ -124,7 +127,7 @@
                         color: $text-primary;
                         background-color: mix($bcg-darker, $bcg-darkest, 66%);
 
-                        &:before {
+                        &::before {
                             color: $text-primary;
                         }
                     }
@@ -142,9 +145,10 @@
 
                     > .value {
                         @extend .font-bold;
+
                         line-height: 32px;
 
-                        &:after {
+                        &::after {
                             width: 32px;
                             height: 32px;
                             line-height: 32px;
@@ -153,6 +157,7 @@
 
                     > ul > li {
                         @extend .font-bold;
+
                         line-height: 32px;
                     }
 
@@ -160,6 +165,7 @@
                         > .value {
                             color: $text-active;
                         }
+
                         background-color: $bcg-darkest;
                     }
 
@@ -182,12 +188,12 @@
                         border-color: $bcg-darkest;
                         background-color: $bcg-darkest;
 
-                        &:before {
+                        &::before {
                             content: '';
                             padding: 0;
                         }
 
-                        &:after {
+                        &::after {
                             content: '';
                         }
                     }
@@ -196,26 +202,28 @@
                         line-height: 32px;
                     }
 
-                    &:before {
+                    &::before {
                         content: 'Search';
                         position: absolute;
                         color: $text-dark;
                         line-height: 32px;
                         padding: 0 8px;
                         @extend .font-bold;
+
                         font-size: 12px;
                     }
 
-                    &.not-empty:before {
+                    &.not-empty::before {
                         padding: 0;
                         content: '';
                     }
 
-                    &:after {
+                    &::after {
                         content: '\E129';
                         line-height: 32px;
                         background-color: $bcg-darker;
                         @extend .font-icon;
+
                         font-size: 14px;
                         text-align: center;
                     }
@@ -231,7 +239,7 @@
                             display: block;
                         }
 
-                        &:after {
+                        &::after {
                             content: '';
                         }
                     }
@@ -246,6 +254,7 @@
                         line-height: 32px;
                         color: $error-secondary;
                         @extend .font-icon;
+
                         font-size: 18px;
                         text-align: center;
                         cursor: pointer;
@@ -264,8 +273,9 @@
             background-color: $bcg-darker;
             border-color: transparent;
 
-            &:after {
+            &::after {
                 @extend .font-icon;
+
                 content: '\E169';
                 position: absolute;
                 right: 5px;
@@ -275,7 +285,7 @@
                 color: $text-darkest;
             }
 
-            &:hover:after {
+            &:hover::after {
                 color: $text-active;
             }
         }
@@ -296,11 +306,9 @@
         bottom: 0;
         left: 0;
         background-color: $bcg-primary;
-
         justify-content: center;
         align-items: center;
         flex-direction: row;
-
         opacity: 1;
         visibility: visible;
         transition: visibility 100ms, opacity 100ms;
@@ -339,7 +347,7 @@
             max-width: 100%;
             border-top: 1px solid $border-primary;
 
-            .pcui-treeview-item-icon:after {
+            .pcui-treeview-item-icon::after {
                 content: '\E139';
             }
 
@@ -353,7 +361,6 @@
         > .pcui-table {
             flex: 1;
             border-left: 1px solid $border-primary;
-
             background-color: $bcg-dark;
 
             > table > tbody {
@@ -367,7 +374,7 @@
 
             > thead > tr {
                 > th,
-                &:after {
+                &::after {
                     background-color: $bcg-darker;
                 }
 
@@ -410,7 +417,7 @@
             background-color: transparent;
         }
 
-        &:before {
+        &::before {
             font-size: 14px;
             color: $text-darkest;
         }
@@ -445,7 +452,7 @@
         color: $text-primary;
         position: relative;
 
-        &:after {
+        &::after {
             content: ' ';
             display: block;
             position: absolute;
@@ -487,13 +494,13 @@
             background-color: transparent;
         }
 
-        &:before {
+        &::before {
             font-size: 48px;
             font-weight: 100;
             color: $text-darkest;
         }
 
-        &.type-folder:before {
+        &.type-folder::before {
             font-size: 58px;
             margin-top: -6px;
         }
@@ -506,7 +513,7 @@
     &:not(.pcui-disabled) {
         &:hover,
         &.pcui-gridview-item-selected {
-            > .pcui-asset-thumb:before {
+            > .pcui-asset-thumb::before {
                 color: $text-primary;
             }
         }
@@ -528,8 +535,9 @@
     &.type-textureatlas,
     &.type-render,
     &.type-sprite {
-        &:before {
+        &::before {
             @extend .font-icon;
+
             position: absolute;
             top: 2px;
             left: 2px;
@@ -538,23 +546,23 @@
         }
     }
 
-    &.type-textureatlas:before {
+    &.type-textureatlas::before {
         content: '\E332';
     }
 
-    &.type-render:before {
+    &.type-render::before {
         content: map-get($asset-icons, 'render');
     }
 
-    &.type-sprite:before {
+    &.type-sprite::before {
         content: map-get($asset-icons, 'sprite');
     }
 }
 
 .pcui-asset-panel-grid-view-small {
     .pcui-asset-grid-view-item {
-        &.type-textureatlas:before,
-        &.type-render:before {
+        &.type-textureatlas::before,
+        &.type-render::before {
             top: 1px;
             left: 1px;
             font-size: 10px;
@@ -589,11 +597,11 @@
             height: 40px;
             margin: 4px;
 
-            &:before {
+            &::before {
                 font-size: 32px;
             }
 
-            &.type-folder:before {
+            &.type-folder::before {
                 font-size: 38px;
             }
         }
@@ -673,7 +681,6 @@
             padding-left: 3 * $element-margin;
             border-left: 1px solid $bcg-darkest;
             flex-shrink: 0;
-
             margin-right: 2 * $element-margin;
             padding-right: 2 * $element-margin;
             border-right: 1px solid $bcg-darkest;
@@ -719,7 +726,7 @@
             }
 
             // placeholder left
-            &:after {
+            &::after {
                 left: 0;
                 right: initial;
                 font-size: 12px;
@@ -734,7 +741,7 @@
 
 .pcui-asset-panel-legacy-scripts {
     &.pcui-gridview-item {
-        &:after {
+        &::after {
             content: 's';
             position: absolute;
             left: 46px;
@@ -745,7 +752,7 @@
     }
 
     &.pcui-treeview-item {
-        &:after {
+        &::after {
             content: 's';
             position: absolute;
             left: 34px;
@@ -758,7 +765,7 @@
 
     &.pcui-table-row {
         .pcui-asset-thumb {
-            &:after {
+            &::after {
                 content: 's';
                 position: absolute;
                 left: 6px;
@@ -773,7 +780,7 @@
 .pcui-asset-panel-grid-view-small {
     .pcui-asset-panel-legacy-scripts {
         &.pcui-gridview-item {
-            &:after {
+            &::after {
                 left: 27px;
                 top: 14px;
                 font-size: 23px;
@@ -829,8 +836,9 @@
 }
 
 .pcui-asset-panel-unreferenced-asset {
-    .pcui-gridview-item-text:before {
+    .pcui-gridview-item-text::before {
         @extend .font-icon;
+
         content: '\E186';
         font-size: 10px;
         margin-right: 2px;
@@ -838,8 +846,9 @@
         color: $text-darkest;
     }
 
-    .pcui-asset-panel-details-name .pcui-label:after {
+    .pcui-asset-panel-details-name .pcui-label::after {
         @extend .font-icon;
+
         content: '\E186';
         font-size: 10px;
         vertical-align: middle;
@@ -850,7 +859,7 @@
 
 .pcui-asset-panel-grid-view-small {
     .pcui-asset-panel-unreferenced-asset {
-        .pcui-gridview-item-text:before {
+        .pcui-gridview-item-text::before {
             font-size: 8px;
             margin-right: 1px;
         }

@@ -173,10 +173,11 @@ a:visited {
 
         > header {
             @extend .noSelect;
+
             position: relative;
             cursor: pointer;
 
-            &:after {
+            &::after {
                 content: '\00a0';
                 position: absolute;
                 top: 0;
@@ -279,6 +280,7 @@ a:visited {
 
         > .handle {
             @extend .noSelect;
+
             position: absolute;
             background-color: #000;
 
@@ -311,6 +313,7 @@ a:visited {
 
     > .content {
         position: relative;
+
         // overflow: hidden;
         // border-right: 1px solid #111;
         // border-left: 1px solid #111;
@@ -360,7 +363,7 @@ a:visited {
         right: 0;
         bottom: 0;
         left: 0;
-        background-color: rgba(0, 0, 0, 0.7);
+        background-color: rgba(0, 0, 0, 70%);
 
         &.clickable {
             cursor: pointer;
@@ -371,7 +374,7 @@ a:visited {
         position: relative;
         background-color: #07f;
         transition: width 100ms, height 100ms, margin-left 100ms, margin-top 100ms;
-        box-shadow: 7px 7px 7px rgba(0, 0, 0, 0.15);
+        box-shadow: 7px 7px 7px rgba(0, 0, 0, 15%);
     }
 }
 
@@ -410,6 +413,7 @@ a:visited {
 
 .ui-list-item {
     @extend .fieldFont;
+
     cursor: default;
     padding: 0 8px;
     height: 22px;
@@ -479,10 +483,12 @@ a:visited {
 
 .ui-grid-item {
     @extend .fieldFont;
+
     cursor: pointer;
     width: 96px;
     height: 96px;
     margin: 2px;
+
     // border: 1px solid transparent;
     background-position: center center;
     background-repeat: no-repeat;
@@ -520,6 +526,7 @@ a:visited {
 .ui-tree {
     @extend .noSelect;
     @extend .fieldFont;
+
     padding: 2px;
     overflow: visible;
     font-size: 12px;
@@ -566,13 +573,13 @@ a:visited {
         display: block;
         padding-left: 0;
 
-        &:before {
+        &::before {
             content: none;
         }
 
         &.container {
             > .title {
-                &:before {
+                &::before {
                     content: none;
                 }
             }
@@ -582,11 +589,11 @@ a:visited {
             margin-left: 0;
 
             > .icon {
-                &:before {
+                &::before {
                     content: none;
                 }
 
-                &:after {
+                &::after {
                     margin-left: 0;
                 }
             }
@@ -597,12 +604,13 @@ a:visited {
             padding-left: 21px;
 
             // line-top
-            &:before {
+            &::before {
                 left: 11px;
             }
+
             // line-top, single item
             &.single {
-                &:before {
+                &::before {
                     left: 11px;
                 }
             }
@@ -611,7 +619,7 @@ a:visited {
 }
 
 .ui-tree-item {
-    $line-color: rgba(0, 128, 255, 0.5);
+    $line-color: rgba(0, 128, 255, 50%);
 
     position: relative;
     padding-left: 24px;
@@ -620,7 +628,7 @@ a:visited {
 
     &.container {
         > .title {
-            &:before {
+            &::before {
                 content: '\00a0';
                 position: absolute;
                 top: 0;
@@ -637,7 +645,7 @@ a:visited {
 
     &.open {
         > .title {
-            &:before {
+            &::before {
                 background-color: #f00;
             }
         }
@@ -653,7 +661,7 @@ a:visited {
                 opacity: $disabled-opacity;
             }
 
-            > .icon:after {
+            > .icon::after {
                 opacity: $disabled-opacity;
             }
         }
@@ -662,17 +670,19 @@ a:visited {
     > .title {
         position: relative;
         cursor: pointer;
+
         // padding-left: 4px;
         font-size: 14px;
         margin-left: 3px;
         line-height: 22px;
         border: 1px solid transparent;
+
         // display: table-row;
 
         &:hover,
         &:focus {
             border-color: #07f;
-            background-color: rgba(0, 128, 255, 0.1);
+            background-color: rgba(0, 128, 255, 10%);
         }
 
         &:focus {
@@ -681,7 +691,7 @@ a:visited {
 
         > .icon {
             // line-left
-            &:before {
+            &::before {
                 content: '\00a0';
                 position: absolute;
                 top: 9px;
@@ -690,10 +700,12 @@ a:visited {
                 height: 4px;
                 background-color: $line-color;
             }
+
             // icon
-            &:after {
+            &::after {
                 // content: '\E211';
                 content: '\00a0';
+
                 // color: #7d8688;
                 // font-size: 18px;
 
@@ -701,10 +713,12 @@ a:visited {
                 width: 22px;
                 height: 22px;
                 margin-right: 2px;
+
                 // margin-left: 4px;
                 // line-height: 22px;
                 // text-align: center;
                 position: relative;
+
                 // background-color: rgba(0, 128, 255, .5);
                 background-color: $line-color;
                 z-index: 1;
@@ -728,7 +742,7 @@ a:visited {
     &.dragged {
         &:hover {
             > .title {
-                > .icon:before {
+                > .icon::before {
                     content: '\00a0';
                 }
 
@@ -741,7 +755,7 @@ a:visited {
         > .title {
             background-color: #07f;
 
-            > .icon:before {
+            > .icon::before {
                 opacity: 0.5;
             }
 
@@ -752,7 +766,7 @@ a:visited {
     }
 
     // line-top
-    &:before {
+    &::before {
         content: '\00a0';
         position: absolute;
         left: 13px;
@@ -762,16 +776,18 @@ a:visited {
         background-color: $line-color;
         height: auto;
     }
+
     // line-top, last item
     &:last-child {
-        &:before {
+        &::before {
             bottom: auto;
             height: 24px;
         }
     }
+
     // line-top, single item
     &.single {
-        &:before {
+        &::before {
             content: '\00a0';
             position: absolute;
             left: 13px;
@@ -818,6 +834,7 @@ a:visited {
 
 .ui-menu {
     @extend .noSelect;
+
     display: none;
     position: absolute;
     top: 0;
@@ -842,6 +859,7 @@ a:visited {
         left: 0;
         width: auto;
         height: auto;
+
         // background-color: rgba(0, 0, 0, .5);
     }
 
@@ -872,7 +890,7 @@ a:visited {
             min-width: 158px - 32px;
             padding-right: 24px;
 
-            &:after {
+            &::after {
                 content: '\00a0';
                 position: absolute;
                 right: 8px;
@@ -949,8 +967,9 @@ a:visited {
 .ui-label[placeholder] {
     position: relative;
 
-    &:after {
+    &::after {
         @extend .fieldFont;
+
         content: attr(placeholder);
         position: absolute;
         top: 0;
@@ -962,7 +981,7 @@ a:visited {
         font-family: Helvetica;
         white-space: nowrap;
         color: #999;
-        background-color: rgba(0, 0, 0, 0.7);
+        background-color: rgba(0, 0, 0, 70%);
         pointer-events: none;
     }
 }
@@ -984,6 +1003,7 @@ a:visited {
 
     > input.field {
         @extend .fieldFont;
+
         width: calc(100% - 16px);
         height: 100%;
         padding: 0 8px;
@@ -1006,8 +1026,9 @@ a:visited {
 .ui-number-field[placeholder] {
     position: relative;
 
-    &:after {
+    &::after {
         @extend .fieldFont;
+
         content: attr(placeholder);
         position: absolute;
         top: 0;
@@ -1018,13 +1039,13 @@ a:visited {
         font-weight: 100;
         white-space: nowrap;
         color: #999;
-        background-color: rgba(0, 0, 0, 0.7);
+        background-color: rgba(0, 0, 0, 70%);
         pointer-events: none;
     }
 
     &:hover,
     &.focus {
-        &:after {
+        &::after {
             content: none;
         }
     }
@@ -1033,7 +1054,7 @@ a:visited {
 // smaller padding for placeholders in vec4 fields
 // because they are too small
 .ui-panel.field-vec4 {
-    .ui-number-field[placeholder]:after {
+    .ui-number-field[placeholder]::after {
         padding-left: 2px;
         padding-right: 2px;
     }
@@ -1043,8 +1064,9 @@ a:visited {
 .ui-number-field[proxy] {
     position: relative;
 
-    &:before {
+    &::before {
         @extend .fieldFont;
+
         content: attr(proxy);
         position: absolute;
         top: 0;
@@ -1059,14 +1081,14 @@ a:visited {
 
     &:hover,
     &.focus {
-        &:before {
+        &::before {
             content: none;
         }
     }
 }
 
 .ui-number-field[value] {
-    &:before {
+    &::before {
         content: none;
     }
 }
@@ -1088,6 +1110,7 @@ a:visited {
 
     > input.field {
         @extend .fieldFont;
+
         height: 100%;
         width: calc(100% - 16px);
         padding: 0 8px;
@@ -1109,8 +1132,9 @@ a:visited {
 .ui-text-field[placeholder] {
     position: relative;
 
-    &:after {
+    &::after {
         @extend .fieldFont;
+
         content: attr(placeholder);
         position: absolute;
         top: 0;
@@ -1121,24 +1145,26 @@ a:visited {
         font-weight: 100;
         white-space: nowrap;
         color: #999;
-        background-color: rgba(0, 0, 0, 0.7);
+        background-color: rgba(0, 0, 0, 70%);
         pointer-events: none;
     }
 
     &:hover,
     &.focus {
-        &:after {
+        &::after {
             content: none;
         }
     }
 }
+
 // proxy
 .ui-text-field[proxy],
 .ui-textarea-field[proxy] {
     position: relative;
 
-    &:before {
+    &::before {
         @extend .fieldFont;
+
         content: attr(proxy);
         position: absolute;
         top: 0;
@@ -1153,14 +1179,14 @@ a:visited {
 
     &:hover,
     &.focus {
-        &:before {
+        &::before {
             content: none;
         }
     }
 }
 
 .ui-text-field[value] {
-    &:before {
+    &::before {
         content: none;
     }
 }
@@ -1182,6 +1208,7 @@ a:visited {
 
     > textarea.field {
         @extend .fieldFont;
+
         height: 100%;
         width: calc(100% - 16px);
         padding: 0 8px;
@@ -1204,8 +1231,9 @@ a:visited {
 .ui-textarea-field[placeholder] {
     position: relative;
 
-    &:after {
+    &::after {
         @extend .fieldFont;
+
         content: attr(placeholder);
         position: absolute;
         top: 0;
@@ -1216,23 +1244,25 @@ a:visited {
         font-weight: 100;
         white-space: nowrap;
         color: #999;
-        background-color: rgba(0, 0, 0, 0.7);
+        background-color: rgba(0, 0, 0, 70%);
         pointer-events: none;
     }
 
     &:hover,
     &.focus {
-        &:after {
+        &::after {
             content: none;
         }
     }
 }
+
 // proxy
 .ui-textarea-field[proxy] {
     position: relative;
 
-    &:before {
+    &::before {
         @extend .fieldFont;
+
         content: attr(proxy);
         position: absolute;
         top: 0;
@@ -1247,20 +1277,21 @@ a:visited {
 
     &:hover,
     &.focus {
-        &:before {
+        &::before {
             content: none;
         }
     }
 }
 
 .ui-textarea-field[value] {
-    &:before {
+    &::before {
         content: none;
     }
 }
 
 .ui-slider {
     @extend .noSelect;
+
     display: inline-block;
     height: 24px;
     margin: 4px;
@@ -1300,6 +1331,7 @@ a:visited {
 
 .ui-color-field {
     @extend .noSelect;
+
     position: relative;
     display: inline-block;
     border: 1px solid #666;
@@ -1331,7 +1363,7 @@ a:visited {
         background-color: #000;
     }
 
-    &:after {
+    &::after {
         content: '\00a0';
         position: absolute;
         bottom: 0;
@@ -1353,6 +1385,7 @@ a:visited {
 
 .ui-image-field {
     @extend .noSelect;
+
     position: relative;
     width: 66px;
     height: 66px;
@@ -1392,7 +1425,7 @@ a:visited {
         display: none;
     }
 
-    &:after {
+    &::after {
         content: '\00a0';
         position: absolute;
         bottom: 0;
@@ -1407,6 +1440,7 @@ a:visited {
 
 .ui-button {
     @extend .noSelect;
+
     display: inline-block;
     border: 1px solid #666;
     box-sizing: border-box;
@@ -1473,7 +1507,7 @@ a:visited {
     transition: opacity 100ms;
 
     &:hover {
-        > .value:after {
+        > .value::after {
             content: none;
         }
     }
@@ -1482,7 +1516,7 @@ a:visited {
         outline: none;
         border-color: #07f;
 
-        > .value:after {
+        > .value::after {
             content: none;
         }
     }
@@ -1491,7 +1525,7 @@ a:visited {
         opacity: $disabled-opacity;
         cursor: default;
 
-        > .value:after {
+        > .value::after {
             content: none;
         }
     }
@@ -1503,19 +1537,20 @@ a:visited {
             display: block;
         }
 
-        > .value:after {
+        > .value::after {
             content: none;
         }
     }
 
     > .value {
         @extend .fieldFont;
+
         min-height: 22px;
         line-height: 22px;
         white-space: nowrap;
         overflow: hidden;
 
-        &:after {
+        &::after {
             content: '\00a0';
             position: absolute;
             top: 0;
@@ -1526,7 +1561,7 @@ a:visited {
             background-color: #07f;
         }
 
-        &[placeholder]:empty:before {
+        &[placeholder]:empty::before {
             content: attr(placeholder);
             position: absolute;
             left: 8px;
@@ -1547,10 +1582,11 @@ a:visited {
         padding: 0;
         background-color: #000;
         overflow-y: auto;
-        box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 0 8px rgba(0, 0, 0, 50%);
 
         > li {
             @extend .fieldFont;
+
             padding: 0 8px 0 8px;
             line-height: 22px;
             white-space: nowrap;
@@ -1601,6 +1637,7 @@ a:visited {
 
 .ui-code {
     @extend .fieldFont;
+
     display: block;
     margin: 0;
     padding: 4px;
@@ -1632,7 +1669,7 @@ a:visited {
 
             // pattern
             background: #f66;
-            background: linear-gradient(135deg, rgba(255, 128, 128, 1) 0%, rgba(255, 128, 128, 1) 25%, rgba(255, 64, 64, 1) 26%, rgba(255, 64, 64, 1) 50%, rgba(255, 128, 128, 1) 51%, rgba(255, 128, 128, 1) 75%, rgba(255, 64, 64, 1) 76%, rgba(255, 64, 64, 1) 100%);
+            background: linear-gradient(135deg, rgba(255, 128, 128, 100%) 0%, rgba(255, 128, 128, 100%) 25%, rgba(255, 64, 64, 100%) 26%, rgba(255, 64, 64, 100%) 50%, rgba(255, 128, 128, 100%) 51%, rgba(255, 128, 128, 100%) 75%, rgba(255, 64, 64, 100%) 76%, rgba(255, 64, 64, 100%) 100%);
             background-position: 0 0;
             background-size: 24px 24px;
             background-repeat: repeat;
@@ -1645,7 +1682,7 @@ a:visited {
 
         // pattern
         background: #07f;
-        background: linear-gradient(135deg, rgba(0, 128, 255, 1) 0%, rgba(0, 128, 255, 1) 25%, rgba(0, 96, 192, 1) 26%, rgba(0, 96, 192, 1) 50%, rgba(0, 128, 255, 1) 51%, rgba(0, 128, 255, 1) 75%, rgba(0, 96, 192, 1) 76%, rgba(0, 96, 192, 1) 100%);
+        background: linear-gradient(135deg, rgba(0, 128, 255, 100%) 0%, rgba(0, 128, 255, 100%) 25%, rgba(0, 96, 192, 100%) 26%, rgba(0, 96, 192, 100%) 50%, rgba(0, 128, 255, 100%) 51%, rgba(0, 128, 255, 100%) 75%, rgba(0, 96, 192, 100%) 76%, rgba(0, 96, 192, 100%) 100%);
         background-position: 0 0;
         background-size: 24px 24px;
         background-repeat: repeat;

@@ -1,6 +1,5 @@
 #layout-hierarchy,
 #layout-attributes-secondary {
-
     border-left: 1px solid $bcg-darker;
 
     &.pcui-collapsed {
@@ -32,7 +31,7 @@
                 flex-direction: row;
                 height: 30px;
 
-                &:before {
+                &::before {
                     content: attr(text-hover);
                     visibility: hidden;
                     opacity: 0;
@@ -42,7 +41,6 @@
                     text-align: center;
                     border-radius: 5px;
                     padding: 5px 0;
-
                     position: absolute;
                     z-index: 1;
                     right: 0;
@@ -50,7 +48,7 @@
                     font-size: 11px;
                 }
 
-                &:hover:before {
+                &:hover::before {
                     opacity: 0.8;
                     visibility: visible;
                 }
@@ -62,7 +60,6 @@
                     font-size: 12px;
                     line-height: 12px;
                     font-family: 'Proxima Nova Bold';
-
                     letter-spacing: 0.2px;
                     text-transform: capitalize;
                 }
@@ -105,7 +102,6 @@
                     font-size: 12px;
                     line-height: 16px;
                     font-family: 'Proxima Nova Bold';
-
                     letter-spacing: 0.2px;
                     text-transform: capitalize;
                 }
@@ -131,7 +127,6 @@
         }
 
         >.advanced-search-bar {
-
             display: flex;
             flex-direction: row;
             min-height: 30px;
@@ -162,12 +157,12 @@
                 &:hover,
                 &:focus,
                 &.focus {
-                    &:before {
+                    &::before {
                         content: '';
                         padding: 0;
                     }
 
-                    &:after {
+                    &::after {
                         content: '';
                     }
                 }
@@ -181,7 +176,7 @@
                     padding: 0;
                 }
 
-                &:before {
+                &::before {
                     content: 'Search';
                     position: absolute;
                     font-style: normal;
@@ -189,11 +184,10 @@
                     font-size: 14px;
                     line-height: 14px;
                     padding: 8px 0;
-
                     color: #9ba1a3;
                 }
 
-                &.not-empty:before {
+                &.not-empty::before {
                     padding: 0;
                     content: '';
                 }
@@ -207,7 +201,7 @@
                         display: block;
                     }
 
-                    &:after {
+                    &::after {
                         content: '';
                     }
                 }
@@ -221,6 +215,7 @@
                     height: 8px;
                     color: #fff;
                     @extend .font-icon;
+
                     font-size: 18px;
                     text-align: center;
                     cursor: pointer;
@@ -231,9 +226,9 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-
                 min-width: 38px;
                 @extend .font-icon;
+
                 font-size: 18px;
                 cursor: pointer;
                 color: #b1b8ba;
@@ -249,13 +244,13 @@
                     color: white;
                 }
 
-                &:before {
+                &::before {
                     content: '\E129';
                     left: 5px;
                     position: absolute;
                 }
 
-                &:after {
+                &::after {
                     content: '\E159';
                     position: absolute;
                     left: 20px;
@@ -280,17 +275,19 @@
 
             > .ui-list-item {
                 @extend .font-regular;
+
                 font-size: 14px;
                 height: 24px;
                 line-height: 22px;
                 padding: 0 5px;
                 border: none;
 
-                &:before {
+                &::before {
                     content: '\E185';
                     padding-right: 6px;
                     line-height: 24px;
                     @extend .font-icon;
+
                     font-size: 14px;
                     text-align: center;
                     background-color: transparent;
@@ -300,7 +297,7 @@
                 &:hover {
                     background-color: $bcg-dark;
 
-                    &:before {
+                    &::before {
                         color: $text-primary;
                     }
                 }
@@ -308,7 +305,7 @@
                 &.selected {
                     background-color: $bcg-darkest;
 
-                    &:before {
+                    &::before {
                         color: $text-primary;
                     }
                 }
@@ -321,63 +318,63 @@
                     }
                 }
 
-                &.container:before {
+                &.container::before {
                     content: '\E139';
                 }
 
-                &.c-script:before {
+                &.c-script::before {
                     content: '\E236';
                 }
 
-                &.c-model:before {
+                &.c-model::before {
                     content: '\E188';
                 }
 
-                &.c-animation:before {
+                &.c-animation::before {
                     content: '\E198';
                 }
 
-                &.c-audiosource:before {
+                &.c-audiosource::before {
                     content: '\E197';
                 }
 
-                &.c-sound:before {
+                &.c-sound::before {
                     content: '\E197';
                 }
 
-                &.c-collision:before {
+                &.c-collision::before {
                     content: '\E187';
                 }
 
-                &.c-rigidbody:before {
+                &.c-rigidbody::before {
                     content: '\E189';
                 }
 
-                &.c-particlesystem:before {
+                &.c-particlesystem::before {
                     content: '\E199';
                 }
 
-                &.c-light:before {
+                &.c-light::before {
                     content: '\E194';
                 }
 
-                &.c-audiolistener:before {
+                &.c-audiolistener::before {
                     content: '\E196';
                 }
 
-                &.c-camera:before {
+                &.c-camera::before {
                     content: '\E212';
                 }
 
-                &.c-screen:before {
+                &.c-screen::before {
                     content: '\E141';
                 }
 
-                &.c-sprite:before {
+                &.c-sprite::before {
                     content: '\E395';
                 }
 
-                &.template-instance:before {
+                &.template-instance::before {
                     content: '\E411';
                 }
             }
@@ -392,11 +389,9 @@
         bottom: 0;
         left: 0;
         background-color: $bcg-primary;
-
         justify-content: center;
         align-items: center;
         flex-direction: row;
-
         opacity: 1;
         visibility: visible;
         transition: visibility 100ms, opacity 100ms;

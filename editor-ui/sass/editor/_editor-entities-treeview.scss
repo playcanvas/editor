@@ -4,7 +4,7 @@
     // template instance icon
     .pcui-treeview-item.template-instance {
         > .pcui-treeview-item-contents {
-            > .pcui-treeview-item-icon:after {
+            > .pcui-treeview-item-icon::after {
                 content: map-get($asset-icons, 'template');
             }
         }
@@ -13,7 +13,7 @@
     // template instance child
     .pcui-treeview-item.template-instance-child {
         > .pcui-treeview-item-contents {
-            > .pcui-treeview-item-text:before {
+            > .pcui-treeview-item-text::before {
                 content: map-get($asset-icons, 'template');
                 position: absolute;
                 left: -13px;
@@ -26,7 +26,7 @@
 
             &.pcui-treeview-item-selected,
             &:hover {
-                > .pcui-treeview-item-text:before {
+                > .pcui-treeview-item-text::before {
                     color: $text-primary;
                 }
             }

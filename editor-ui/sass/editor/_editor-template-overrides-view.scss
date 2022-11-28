@@ -98,19 +98,20 @@
     padding-bottom: 9px;
     outline: 1px solid $bcg-darker;
 
-    &:before {
+    &::before {
         @extend .font-icon;
+
         margin-right: 5px;
     }
 }
 
-.template-overrides-component-new:after {
+.template-overrides-component-new::after {
     content: 'NEW';
     float: right;
     color: $text-primary;
 }
 
-.template-overrides-component-removed:after {
+.template-overrides-component-removed::after {
     content: 'REMOVED';
     float: right;
     color: $text-primary;
@@ -178,6 +179,7 @@
 
 .template-overrides-override-group-icon {
     @extend .font-icon;
+
     color: $text-darkest;
 }
 

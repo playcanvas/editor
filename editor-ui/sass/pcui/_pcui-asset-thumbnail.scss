@@ -6,8 +6,9 @@
     align-items: center;
 
     &.asset-icon-prefix {
-        &:before {
+        &::before {
             @extend .font-icon;
+
             margin: auto;
         }
 
@@ -16,15 +17,15 @@
         }
 
         // fix some misaligned font icons
-        &.type-bundle:before {
+        &.type-bundle::before {
             padding-top: 3px;
         }
 
-        &.type-template:before {
+        &.type-template::before {
             padding-top: 4px; // fix misaligned font icon
         }
 
-        &.type-font-source:before {
+        &.type-font-source::before {
             padding-top: 4px; // fix misaligned font icon
         }
     }
@@ -44,7 +45,7 @@
         transform: scale(1, -1);
     }
 
-    &.pcui-asset-thumb-empty:before {
+    &.pcui-asset-thumb-empty::before {
         display: block;
         content: '';
         width: 100%;

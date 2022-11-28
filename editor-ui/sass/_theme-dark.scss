@@ -65,6 +65,7 @@ a:visited {
 
     > header {
         @extend .font-bold;
+
         background-color: $bcg-darker;
         color: $text-primary;
         font-size: 12px;
@@ -75,7 +76,7 @@ a:visited {
             > header {
                 color: $text-dark;
 
-                &:after {
+                &::after {
                     color: $text-dark;
                     content: '\E180';
                 }
@@ -90,7 +91,7 @@ a:visited {
             }
 
             &.resizable-top {
-                > header:after {
+                > header::after {
                     content: '\E181';
                 }
             }
@@ -102,16 +103,18 @@ a:visited {
             &:hover {
                 color: $text-primary;
 
-                &:after {
+                &::after {
                     color: $text-primary;
                 }
             }
+
             // fold icon
-            &:after {
+            &::after {
                 right: auto;
                 left: 0;
                 content: '\E179';
                 @extend .font-icon;
+
                 font-size: 14px;
                 text-align: center;
                 margin: 0;
@@ -125,24 +128,24 @@ a:visited {
         }
 
         &.horizontal {
-            > header:after {
+            > header::after {
                 content: '\E183';
             }
 
             &.resizable-right {
                 &.folded {
-                    > header:after {
+                    > header::after {
                         content: '\E181';
                     }
                 }
             }
 
             &.resizable-left {
-                > header:after {
+                > header::after {
                     content: '\E183';
                 }
 
-                &.folded > header:after {
+                &.folded > header::after {
                     content: '\E183';
                 }
             }
@@ -270,12 +273,13 @@ a:visited {
 
     &.container {
         // plus icon
-        > .title:before {
+        > .title::before {
             content: '\E120';
             width: 16px;
             height: 16px;
             margin: 3px;
             @extend .font-icon;
+
             font-size: 10px;
             color: $text-secondary;
             text-align: center;
@@ -284,9 +288,10 @@ a:visited {
             font-weight: bold;
             background-color: $bcg-dark;
         }
+
         // minus icon
         &.open {
-            > .title:before {
+            > .title::before {
                 content: '\E121';
                 color: $text-secondary;
                 background-color: $bcg-dark;
@@ -295,7 +300,7 @@ a:visited {
     }
 
     &.disabled {
-        > .title > .icon:after {
+        > .title > .icon::after {
             background-color: mix($text-darkest, $bcg-primary, 50%);
             opacity: 1;
         }
@@ -310,21 +315,22 @@ a:visited {
             border-color: transparent;
             background-color: $bcg-dark;
 
-            > .icon:after {
+            > .icon::after {
                 background-color: mix($text-darkest, $text-active, 50%);
             }
         }
 
         > .icon {
             // line-left
-            &:before {
+            &::before {
                 background-color: $line-color;
                 left: -12px;
                 top: 10px;
                 height: 2px;
             }
+
             // icon
-            &:after {
+            &::after {
                 background-color: $text-darkest;
             }
         }
@@ -337,7 +343,7 @@ a:visited {
             border-color: transparent;
 
             > .icon {
-                &:after {
+                &::after {
                     background-color: $text-active;
                 }
             }
@@ -350,23 +356,26 @@ a:visited {
             color: $text-primary;
         }
     }
+
     // line-top
-    &:before {
+    &::before {
         background-color: $line-color;
         width: 2px;
         left: 14px;
         top: -12px;
         bottom: 12px;
     }
+
     // line-top, last item
     &:last-child {
-        &:before {
+        &::before {
             height: 25px;
         }
     }
+
     // line-top, single item
     &.single {
-        &:before {
+        &::before {
             left: 14px;
             top: -12px;
             width: 2px;
@@ -481,9 +490,10 @@ a:visited {
     }
 
     &.container {
-        > .title:after {
+        > .title::after {
             content: '\E160';
             @extend .font-icon;
+
             font-size: 14px;
             text-align: center;
             background-color: transparent;
@@ -495,7 +505,7 @@ a:visited {
             color: $text-primary;
             background-color: $text-darkest;
 
-            &:after {
+            &::after {
                 color: $text-primary;
             }
 
@@ -526,6 +536,7 @@ a:visited {
 
         > .icon {
             @extend .font-icon;
+
             font-size: 14px;
             text-align: center;
             background-color: transparent;
@@ -534,7 +545,7 @@ a:visited {
     }
 
     > .content {
-        box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 0 8px rgba(0, 0, 0, 30%);
     }
 }
 
@@ -587,12 +598,12 @@ a:visited {
         &.container {
             > .title {
                 &:hover {
-                    &:before {
+                    &::before {
                         color: $text-secondary;
                     }
                 }
 
-                &:before {
+                &::before {
                     background-color: mix($text-darkest, $bcg-darker, 30%);
 
                     &:hover {
@@ -602,7 +613,7 @@ a:visited {
             }
 
             &.open {
-                > .title:before {
+                > .title::before {
                     background-color: mix($text-darkest, $bcg-darker, 30%);
                 }
             }
@@ -618,8 +629,9 @@ a:visited {
             > .icon {
                 color: $text-darkest;
 
-                &:after {
+                &::after {
                     @extend .font-icon;
+
                     content: '\E139';
                     font-size: 14px;
                     line-height: 23px;
@@ -641,7 +653,7 @@ a:visited {
 
         &.scripts {
             > .title {
-                &:after {
+                &::after {
                     content: 's';
                     position: absolute;
                     left: 8px;
@@ -738,7 +750,7 @@ a:visited {
 }
 
 .ui-label[placeholder] {
-    &:after {
+    &::after {
         color: $text-darkest;
         background-color: transparent;
     }
@@ -845,7 +857,7 @@ a:visited {
 }
 
 .ui-text-field[placeholder] {
-    &:after {
+    &::after {
         color: $text-darkest;
         background-color: $bcg-dark;
     }
@@ -882,7 +894,7 @@ a:visited {
 }
 
 .ui-textarea-field[placeholder] {
-    &:after {
+    &::after {
         color: $text-darkest;
         background-color: $bcg-dark;
     }
@@ -894,7 +906,7 @@ a:visited {
     width: 42px;
     height: 20px;
 
-    &:after {
+    &::after {
         width: 0;
         height: 0;
         background-color: transparent;
@@ -909,7 +921,7 @@ a:visited {
         border-color: $bcg-darkest;
         box-shadow: none;
 
-        &:after {
+        &::after {
             border-bottom: 12px solid $bcg-darkest;
         }
     }
@@ -935,7 +947,7 @@ a:visited {
     border: 1px solid $bcg-darker;
     margin: $field-padding;
 
-    &:after {
+    &::after {
         background-color: $bcg-darker;
         border-color: $bcg-darker;
     }
@@ -947,7 +959,7 @@ a:visited {
         outline: 1px solid $bcg-darkest;
         box-shadow: none;
 
-        &:after {
+        &::after {
             background-color: $bcg-darkest;
         }
     }
@@ -988,14 +1000,14 @@ a:visited {
 }
 
 .ui-number-field[placeholder] {
-    &:after {
+    &::after {
         color: $text-darkest;
         background-color: $bcg-dark;
     }
 }
 
 .ui-number-field[proxy] {
-    &:after {
+    &::after {
         color: $text-secondary;
         background-color: $bcg-dark;
     }
@@ -1038,12 +1050,12 @@ a:visited {
         border-color: $bcg-darkest;
         background-color: $bcg-darkest;
 
-        &.component-toggle:after {
+        &.component-toggle::after {
             background-color: $error-secondary;
         }
     }
 
-    &:after {
+    &::after {
         content: '\00a0';
         position: absolute;
         top: 1px;
@@ -1059,7 +1071,7 @@ a:visited {
         border-color: $bcg-darker;
         background-color: $bcg-dark;
 
-        &.component-toggle:after {
+        &.component-toggle::after {
             left: 15px;
             background-color: mix($text-darkest, #7f7, 50%);
         }
@@ -1069,21 +1081,21 @@ a:visited {
             border-color: $bcg-darkest;
             background-color: $bcg-darkest;
 
-            &:after {
+            &::after {
                 background-color: #7f7;
             }
         }
     }
 
     &.null {
-        &:after {
+        &::after {
             left: 8px;
             background-color: rgba($text-dark, 0.25);
         }
 
         &:hover,
         &:focus {
-            &:after {
+            &::after {
                 background-color: rgba($text-dark, 0.5);
             }
         }
@@ -1107,7 +1119,7 @@ a:visited {
         > .value {
             color: $text-primary;
 
-            &:after {
+            &::after {
                 content: '\E159';
                 color: $text-active;
             }
@@ -1117,7 +1129,7 @@ a:visited {
     > .value {
         color: $text-secondary;
 
-        &:after {
+        &::after {
             content: '\E159';
             width: 22px;
             height: 22px;
@@ -1125,13 +1137,14 @@ a:visited {
             padding: 0;
             margin: 0;
             @extend .font-icon;
+
             font-size: 14px;
             text-align: center;
             color: $text-darkest;
             background-color: transparent;
         }
 
-        &[placeholder]:empty:before {
+        &[placeholder]:empty::before {
             color: $text-darkest;
             background-color: transparent;
         }

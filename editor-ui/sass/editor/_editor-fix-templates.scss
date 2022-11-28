@@ -14,9 +14,9 @@
 
             > .icon {
                 @extend .font-icon;
+
                 background: $error-secondary;
                 color: $text-primary;
-
                 text-align: center;
                 font-size: 20px;
                 width: 32px;

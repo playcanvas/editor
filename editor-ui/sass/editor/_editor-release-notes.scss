@@ -12,8 +12,9 @@
         color: $text-primary;
         font-size: 12px;
 
-        &:before {
+        &::before {
             @extend .font-icon;
+
             content: '\E191';
             margin-right: $element-margin;
         }

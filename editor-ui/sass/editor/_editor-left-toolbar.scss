@@ -75,11 +75,13 @@
 
         &.icon {
             @extend .font-icon;
+
             font-size: 24px;
         }
 
         &.pc-icon {
             @extend .font-icon;
+
             font-size: 20px;
         }
 

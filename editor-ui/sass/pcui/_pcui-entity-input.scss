@@ -2,7 +2,6 @@
     display: inline-flex;
     flex-direction: row;
     align-items: center;
-
     border: 1px solid $bcg-darker;
     border-radius: 2px;
     box-sizing: border-box;
@@ -11,9 +10,7 @@
     background-color: $bcg-dark;
     vertical-align: top;
     transition: color 100ms, background-color 100ms, box-shadow 100ms;
-
     color: $text-secondary;
-
     overflow: hidden;
 
     > .pcui-label {
@@ -37,7 +34,7 @@
         line-height: 24px;
     }
 
-    &:before {
+    &::before {
         color: inherit;
     }
 }
@@ -56,12 +53,13 @@
 .pcui-entity-input.pcui-multiple-values {
     position: relative;
 
-    &:before {
+    &::before {
         position: absolute;
         padding: 0 8px;
         content: '...';
         white-space: nowrap;
         @extend .fixedFont;
+
         font-size: 12px;
     }
 
@@ -76,8 +74,8 @@
     &:hover {
         cursor: pointer;
 
-        &:after,
-        &:before {
+        &::after,
+        &::before {
             display: none;
         }
     }
@@ -93,6 +91,7 @@
         box-shadow: $element-shadow-active;
     }
 }
+
 // readonly state
 .pcui-entity-input.pcui-readonly {
     color: $text-secondary;

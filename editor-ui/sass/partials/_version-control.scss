@@ -9,7 +9,6 @@
         left: calc(50% - 250px);
         height: 106px;
         top: calc(50% - 53px);
-
         white-space: nowrap;
 
         .ui-panel.left {
@@ -76,6 +75,7 @@
 
                 .icon {
                     @extend .font-icon;
+
                     font-size: 32px;
                     color: #e05f2c;
                     margin-top: -5px;
@@ -129,7 +129,6 @@
                     height: 28px;
                     line-height: 28px;
                     text-align: center;
-
                     background: #fb222f;
                     color: $text-primary;
                     opacity: 0.8;
@@ -175,12 +174,12 @@
         border-color: $bcg-darkest;
         background-color: $bcg-darkest;
 
-        &:before {
+        &::before {
             content: '';
             padding: 0;
         }
 
-        &:after {
+        &::after {
             content: '';
         }
     }
@@ -189,27 +188,29 @@
         line-height: 24px;
     }
 
-    &:before {
+    &::before {
         content: 'Search';
         position: absolute;
         color: $text-dark;
         line-height: 24px;
         padding: 0 8px;
         @extend .font-bold;
+
         font-size: 12px;
         font-family: inconsolatamedium, Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
     }
 
-    &.not-empty:before {
+    &.not-empty::before {
         padding: 0;
         content: '';
     }
 
-    &:after {
+    &::after {
         content: '\E129';
         line-height: 21px;
         background-color: $bcg-darker;
         @extend .font-icon;
+
         font-size: 14px;
         text-align: center;
     }
@@ -225,7 +226,7 @@
             display: block;
         }
 
-        &:after {
+        &::after {
             content: '';
         }
     }
@@ -240,6 +241,7 @@
         line-height: 24px;
         color: $error-secondary;
         @extend .font-icon;
+
         font-size: 18px;
         text-align: center;
         cursor: pointer;

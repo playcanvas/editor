@@ -1,7 +1,8 @@
 .component-inspector {
     > .pcui-panel-header {
-        &:before {
+        &::before {
             @extend .font-icon;
+
             font-size: 14px;
             width: 24px;
             margin-right: 4px;

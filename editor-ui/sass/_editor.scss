@@ -5,6 +5,7 @@ html {
 
 body {
     @extend .font-regular;
+
     min-height: 100%;
     height: 100%;
     overflow: hidden;
@@ -51,87 +52,87 @@ strong {
 }
 
 .asset-icon-prefix {
-    &.type-animation:before {
+    &.type-animation::before {
         content: '\E213';
     }
 
-    &.type-animstategraph:before {
+    &.type-animstategraph::before {
         content: '\E412';
     }
 
-    &.type-audio:before {
+    &.type-audio::before {
         content: '\E210';
     }
 
-    &.type-cubemap:before {
+    &.type-cubemap::before {
         content: '\E220';
     }
 
-    &.type-folder:before {
+    &.type-folder::before {
         content: '\E139';
     }
 
-    &.type-bundle:before {
+    &.type-bundle::before {
         content: '\E410';
     }
 
-    &.type-json:before {
+    &.type-json::before {
         content: '\E207';
     }
 
-    &.type-material:before {
+    &.type-material::before {
         content: '\E195';
     }
 
-    &.type-model:before {
+    &.type-model::before {
         content: '\E188';
     }
 
-    &.type-scene:before {
+    &.type-scene::before {
         content: '\E188';
     }
 
-    &.type-script:before {
+    &.type-script::before {
         content: '\E392';
     }
 
-    &.type-sprite:before {
+    &.type-sprite::before {
         content: '\E413';
     }
 
-    &.type-texture:before {
+    &.type-texture::before {
         content: '\E201';
     }
 
-    &.type-textureatlas:before {
+    &.type-textureatlas::before {
         content: '\E201';
     }
 
-    &.type-text:before {
+    &.type-text::before {
         content: '\E209';
     }
 
-    &.type-html:before {
+    &.type-html::before {
         content: '\E205';
     }
 
-    &.type-css:before {
+    &.type-css::before {
         content: '\E206';
     }
 
-    &.type-shader:before {
+    &.type-shader::before {
         content: '\E353';
     }
 
-    &.type-shader:before {
+    &.type-shader::before {
         content: '\E202';
     }
 
-    &.type-binary:before {
+    &.type-binary::before {
         content: '\E208';
     }
 
-    &.type-font:before {
+    &.type-font::before {
         content: '\E208';
     }
 }
@@ -262,6 +263,7 @@ strong {
 
             > h1 {
                 @extend .font-regular;
+
                 margin: 0;
                 line-height: normal;
                 font-size: 14px;
@@ -270,6 +272,7 @@ strong {
 
             > h2 {
                 @extend .font-regular;
+
                 margin: 8px 0 0;
                 line-height: normal;
                 font-size: 12px;
@@ -290,6 +293,7 @@ strong {
 
             > p {
                 @extend .font-regular;
+
                 margin: 16px 0 0;
                 font-size: 12px;
                 line-height: 20px;
@@ -321,16 +325,16 @@ strong {
                     text-decoration: none;
                     background-color: $text-active;
 
-                    &:after {
+                    &::after {
                         background-color: mix($text-active, mix($bcg-darkest, #000, 75%), 50%);
                     }
                 }
 
-                &:after {
+                &::after {
                     @extend .font-icon;
+
                     content: '\E166';
                     float: right;
-
                     width: 32px;
                     height: 32px;
                     line-height: 32px;
@@ -423,6 +427,7 @@ strong {
 
             > h1 {
                 @extend .font-regular;
+
                 margin: 16px 0 0 0;
                 line-height: normal;
                 font-size: 14px;
@@ -476,7 +481,7 @@ strong {
         text-overflow: ellipsis;
         text-transform: uppercase;
 
-        &:after {
+        &::after {
             content: '\E184';
             font-weight: 200;
             font-size: 14px;
@@ -541,7 +546,6 @@ strong {
                 border: 8px solid $bcg-darker;
                 border-top: 0;
                 box-sizing: border-box;
-
                 margin: auto;
                 background-position: center;
                 background-size: contain;
@@ -554,6 +558,7 @@ strong {
                 &:not(.pinned) {
                     display: none;
                 }
+
                 position: absolute;
                 bottom: 0;
                 right: 0;
@@ -645,6 +650,7 @@ strong {
 
         .ui-label.label-field {
             @extend .noSelect;
+
             flex-shrink: 0;
             width: 27%;
             font-size: 12px;
@@ -745,6 +751,7 @@ strong {
 
                                 > .icon {
                                     @extend .font-icon;
+
                                     position: absolute;
                                     right: 0;
                                     top: 0;
@@ -804,19 +811,18 @@ strong {
                     &:hover {
                         background-color: $bcg-darkest;
 
-                        &:after {
+                        &::after {
                             border-bottom: 24px solid $bcg-darkest;
                         }
                     }
 
                     &.empty {
-                        &:before {
+                        &::before {
                             display: block;
                             content: '';
                             width: 60px;
                             height: 60px;
                             margin: 2px;
-
                             background-color: #465659;
                             background-image:
                                 linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
@@ -826,7 +832,7 @@ strong {
                         }
                     }
 
-                    &:after {
+                    &::after {
                         width: 0;
                         height: 0;
                         border: none;
@@ -858,6 +864,7 @@ strong {
                             height: 28px;
                             line-height: 28px;
                             @extend .font-icon;
+
                             font-size: 16px;
                             text-align: center;
                             background: transparent;
@@ -914,7 +921,7 @@ strong {
                     }
 
                     > .ui-label[placeholder] {
-                        &:after {
+                        &::after {
                             font-size: 24px;
                             line-height: 14px;
                             height: 22px;
@@ -959,7 +966,7 @@ strong {
             background-color: $bcg-dark;
 
             &[placeholder] {
-                &:after {
+                &::after {
                     font-size: 24px;
                     line-height: 14px;
                 }
@@ -986,6 +993,7 @@ strong {
                 padding: 0;
                 border: none;
                 @extend .font-icon;
+
                 font-size: 16px;
                 text-align: center;
 
@@ -993,7 +1001,7 @@ strong {
                     color: $text-active;
                 }
 
-                &:after {
+                &::after {
                     content: '\E132';
                 }
             }
@@ -1018,9 +1026,10 @@ strong {
 
         &.related-assets {
             > .ui-list-item {
-                &:before {
+                &::before {
                     content: '\E209';
                     @extend .font-icon;
+
                     font-size: 14px;
                     padding-right: 8px;
                     color: $text-darkest;
@@ -1045,13 +1054,12 @@ strong {
                 cursor: pointer;
                 padding-bottom: 25%;
                 font-size: 12px;
-
                 background-image: url('/editor/scene/img/asset-placeholder-texture.png');
                 background-position: center center;
                 background-repeat: no-repeat;
                 background-size: 100% 100%;
                 background-color: #07f;
-                color: rgba(255, 255, 255, 0.5);
+                color: rgba(255, 255, 255, 50%);
 
                 &:hover {
                     outline: $text-active 2px solid;
@@ -1090,6 +1098,7 @@ strong {
                     background-color: #364346;
                     cursor: pointer;
                     @extend .font-icon;
+
                     font-size: 16px;
                     text-align: center;
 
@@ -1098,7 +1107,7 @@ strong {
                         background-color: #20292b;
                     }
 
-                    &:after {
+                    &::after {
                         content: '\E124';
                         font-weight: 200;
                     }
@@ -1151,9 +1160,10 @@ strong {
                 border-top: 1px solid $bcg-dark;
 
                 > .title {
-                    &:before {
+                    &::before {
                         content: '\E243';
                         @extend .font-icon;
+
                         font-size: 14px;
                         float: left;
                         width: 24px;
@@ -1187,6 +1197,7 @@ strong {
                     padding: 0;
                     border: none;
                     @extend .font-icon;
+
                     font-size: 14px;
                     text-align: center;
                     background-color: transparent;
@@ -1196,83 +1207,83 @@ strong {
                         background-color: #20292b;
                     }
 
-                    &:after {
+                    &::after {
                         content: '\E124';
                         font-weight: 200;
                     }
                 }
             }
 
-            &.script > header > .title:before {
+            &.script > header > .title::before {
                 content: '\E236';
             }
 
-            &.model > header > .title:before {
+            &.model > header > .title::before {
                 content: '\E188';
             }
 
-            &.animation > header > .title:before {
+            &.animation > header > .title::before {
                 content: '\E198';
             }
 
-            &.audiosource > header > .title:before {
+            &.audiosource > header > .title::before {
                 content: '\E197';
             }
 
-            &.sound > header > .title:before {
+            &.sound > header > .title::before {
                 content: '\E197';
             }
 
-            &.collision > header > .title:before {
+            &.collision > header > .title::before {
                 content: '\E187';
             }
 
-            &.rigidbody > header > .title:before {
+            &.rigidbody > header > .title::before {
                 content: '\E189';
             }
 
-            &.particlesystem > header > .title:before {
+            &.particlesystem > header > .title::before {
                 content: '\E199';
             }
 
-            &.light > header > .title:before {
+            &.light > header > .title::before {
                 content: '\E194';
             }
 
-            &.audiolistener > header > .title:before {
+            &.audiolistener > header > .title::before {
                 content: '\E196';
             }
 
-            &.camera > header > .title:before {
+            &.camera > header > .title::before {
                 content: '\E212';
             }
 
-            &.screen > header > .title:before {
+            &.screen > header > .title::before {
                 content: '\E403';
             }
 
-            &.element > header > .title:before {
+            &.element > header > .title::before {
                 content: '\E378';
             }
 
-            &.button > header > .title:before {
+            &.button > header > .title::before {
                 content: '\E405';
             }
 
-            &.scrollview > header > .title:before {
+            &.scrollview > header > .title::before {
                 content: '\E408';
             }
 
-            &.scrollbar > header > .title:before {
+            &.scrollbar > header > .title::before {
                 content: '\E409';
             }
 
-            &.sprite > header > .title:before {
+            &.sprite > header > .title::before {
                 content: '\E395';
             }
 
-            &.layoutgroup > header > .title:before,
-            &.layoutchild > header > .title:before {
+            &.layoutgroup > header > .title::before,
+            &.layoutchild > header > .title::before {
                 content: '\E143';
             }
         }
@@ -1280,6 +1291,7 @@ strong {
         &.light {
             .ui-button.shadowUpdate {
                 @extend .font-icon;
+
                 font-weight: bold;
                 text-align: center;
                 line-height: 24px;
@@ -1295,6 +1307,7 @@ strong {
                     > .content {
                         > .ui-button {
                             @extend .font-icon;
+
                             padding: 0;
                             width: 22px;
                             height: 22px;
@@ -1322,6 +1335,7 @@ strong {
                     &:not(.hidden) {
                         display: block;
                     }
+
                     color: #d34141;
                     text-align: right;
                     font-size: 12px;
@@ -1342,7 +1356,7 @@ strong {
                             &.disabled {
                                 background-color: $bcg-dark;
 
-                                &:after {
+                                &::after {
                                     content: none;
                                 }
                             }
@@ -1358,10 +1372,11 @@ strong {
                 .add-batch-group {
                     color: $text-active;
 
-                    &:before {
+                    &::before {
                         content: '\E120';
                         padding-right: 8px;
                         @extend .font-icon;
+
                         color: $text-active;
                     }
                 }
@@ -1382,23 +1397,24 @@ strong {
                     &:focus,
                     &.focus,
                     &.not-empty {
-                        &:before,
-                        &:after {
+                        &::before,
+                        &::after {
                             content: '';
                         }
                     }
 
-                    &:before {
+                    &::before {
                         content: '\E120';
                         position: absolute;
                         top: 0;
                         left: 8px;
                         @extend .font-icon;
+
                         font-weight: bold;
                         line-height: 24px;
                     }
 
-                    &:after {
+                    &::after {
                         content: 'Add Script';
                         position: absolute;
                         right: auto;
@@ -1408,6 +1424,7 @@ strong {
                         line-height: 24px;
                         color: $text-secondary;
                         @extend .font-bold;
+
                         font-weight: bold;
                         font-size: 12px;
                         text-transform: uppercase;
@@ -1441,9 +1458,10 @@ strong {
                         }
 
                         &.new {
-                            &:before {
+                            &::before {
                                 content: '\E120';
                                 @extend .font-icon;
+
                                 font-size: 14px;
                                 padding-right: 4px;
                             }
@@ -1486,6 +1504,7 @@ strong {
                                     margin: 4px 2px;
                                     cursor: move;
                                     @extend .noSelect;
+
                                     $color: mix($text-darkest, $bcg-primary, 50%);
                                     $size: 6px;
                                     $radiusI: 20%;
@@ -1496,6 +1515,7 @@ strong {
 
                                     &:hover {
                                         $color: $text-primary;
+
                                         background: radial-gradient($color $radiusI, transparent $radiusO);
                                         background-size: $size $size;
                                     }
@@ -1504,6 +1524,7 @@ strong {
                                 > .title {
                                     padding: 0 8px;
                                     @extend .noSelect;
+
                                     white-space: nowrap;
 
                                     &.link {
@@ -1522,6 +1543,7 @@ strong {
                                 > .edit,
                                 > .parse {
                                     @extend .font-icon;
+
                                     width: 32px;
                                     height: 32px;
                                     line-height: 32px;
@@ -1551,6 +1573,7 @@ strong {
                                     background-color: transparent;
                                     border: none;
                                     @extend .font-icon;
+
                                     font-size: 14px;
                                     text-align: center;
 
@@ -1559,7 +1582,7 @@ strong {
                                         background-color: #20292b;
                                     }
 
-                                    &:after {
+                                    &::after {
                                         content: '\E124';
                                         font-weight: 200;
                                     }
@@ -1613,10 +1636,11 @@ strong {
                     float: right;
                     margin: 0;
 
-                    &:before {
+                    &::before {
                         float: left;
                         content: '\E128';
                         @extend .font-icon;
+
                         font-size: 14px;
                         padding-right: 8px;
                         vertical-align: middle;
@@ -1659,6 +1683,7 @@ strong {
                     padding: 0 8px;
                     font-size: 12px;
                     @extend .font-bold;
+
                     color: $text-primary;
                     background-color: $bcg-dark;
                     border: 1px solid $bcg-darker;
@@ -1757,17 +1782,18 @@ strong {
                 &:hover {
                     background-color: $bcg-darkest;
 
-                    &:before {
+                    &::before {
                         color: $text-active;
                     }
                 }
 
-                &:before {
+                &::before {
                     position: absolute;
                     top: 0;
                     left: 8px;
                     content: '\E120';
                     @extend .font-icon;
+
                     font-size: 14px;
                     text-align: center;
                 }
@@ -1781,15 +1807,15 @@ strong {
                         flex-grow: 1;
                         width: 100%;
 
-                        &.download-asset:before {
+                        &.download-asset::before {
                             content: '\E228';
                         }
 
-                        &.edit-script:before {
+                        &.edit-script::before {
                             content: '\E130';
                         }
 
-                        &.sprite-editor:before {
+                        &.sprite-editor::before {
                             content: '\E395';
                         }
                     }
@@ -1801,17 +1827,18 @@ strong {
                 display: block;
                 text-align: center;
 
-                &:before {
+                &::before {
                     content: '?';
                     line-height: 23px;
                     padding-right: 8px;
                     @extend .font-icon;
+
                     font-size: 16px;
                     text-align: center;
                     vertical-align: middle;
                 }
 
-                &.parse-script:before {
+                &.parse-script::before {
                     content: '\E120';
                 }
 
@@ -1820,7 +1847,7 @@ strong {
                         display: none;
                     }
 
-                    &:before {
+                    &::before {
                         content: '\E131';
                     }
                 }
@@ -1836,7 +1863,7 @@ strong {
                         color: $text-primary;
                     }
 
-                    &:before {
+                    &::before {
                         content: '\E278';
                     }
                 }
@@ -1850,7 +1877,7 @@ strong {
                 &:hover {
                     background-color: $bcg-darkest;
 
-                    &:before {
+                    &::before {
                         color: $text-active;
                     }
                 }
@@ -1868,29 +1895,30 @@ strong {
 
                 @extend .font-bold;
 
-                &:before {
+                &::before {
                     position: absolute;
                     top: 0;
                     left: 8px;
                     @extend .font-icon;
+
                     font-size: 14px;
                     text-align: center;
                 }
             }
 
-            > .ui-button.override-material:before {
+            > .ui-button.override-material::before {
                 content: '\E184';
                 font-size: 14px;
                 font-weight: 200;
             }
 
-            > .ui-button.loading-screen:before {
+            > .ui-button.loading-screen::before {
                 content: '\E184';
                 font-size: 14px;
                 font-weight: 200;
             }
 
-            > .ui-button.loading-screen.add:before {
+            > .ui-button.loading-screen.add::before {
                 content: '\E120';
                 font-size: 14px;
                 top: 0;
@@ -1907,7 +1935,7 @@ strong {
                 &:hover {
                     background-color: $bcg-darkest;
 
-                    &:before {
+                    &::before {
                         color: $text-active;
                     }
                 }
@@ -1926,12 +1954,13 @@ strong {
 
                 @extend .font-bold;
 
-                &:before {
+                &::before {
                     position: absolute;
                     top: 0;
                     left: 8px;
                     content: '\E120';
                     @extend .font-icon;
+
                     font-size: 14px;
                     text-align: center;
                 }
@@ -2001,7 +2030,7 @@ strong {
                                 margin-right: 8px;
                                 color: $text-dark;
 
-                                &:before {
+                                &::before {
                                     content: '#';
                                 }
                             }
@@ -2013,6 +2042,7 @@ strong {
                                 margin: 4px 2px;
                                 cursor: move;
                                 @extend .noSelect;
+
                                 $color: mix($text-darkest, $bcg-primary, 50%);
                                 $size: 6px;
                                 $radiusI: 20%;
@@ -2023,6 +2053,7 @@ strong {
 
                                 &:hover {
                                     $color: $text-primary;
+
                                     background: radial-gradient($color $radiusI, transparent $radiusO);
                                     background-size: $size $size;
                                 }
@@ -2034,6 +2065,7 @@ strong {
 
             .ui-button.audio-play {
                 @extend .font-icon;
+
                 float: left;
                 width: 26px;
                 height: 26px;
@@ -2152,6 +2184,7 @@ strong {
                     background-color: transparent;
                     border: none;
                     @extend .font-icon;
+
                     font-size: 14px;
                     text-align: center;
 
@@ -2162,17 +2195,17 @@ strong {
                 }
 
                 > .refresh {
-                    &:after {
+                    &::after {
                         content: '\E128';
                     }
                 }
 
-                > .move-up:after {
+                > .move-up::after {
                     content: '\E161';
                 }
 
                 > .move-down {
-                    &:after {
+                    &::after {
                         content: '\E163';
                     }
                 }
@@ -2182,7 +2215,7 @@ strong {
                         color: #d34141;
                     }
 
-                    &:after {
+                    &::after {
                         content: '\E124';
                         font-weight: 200;
                     }
@@ -2247,7 +2280,7 @@ strong {
                     background-color: $bcg-darkest;
                 }
 
-                &:after {
+                &::after {
                     content: '\E124';
                     font-weight: 200;
                 }
@@ -2293,18 +2326,19 @@ strong {
     overflow: hidden;
 
     &.null {
-        &:after {
+        &::after {
             color: mix($bcg-primary, $text-darkest, 50%);
             left: 0;
         }
 
-        &:hover:after {
+        &:hover::after {
             color: $text-primary;
         }
     }
 
-    &:after {
+    &::after {
         @extend .font-icon;
+
         position: absolute;
         margin: 0;
         content: none;
@@ -2322,8 +2356,9 @@ strong {
     }
 
     &.null {
-        &:after {
+        &::after {
             @extend .font-regular;
+
             content: '?';
             color: $text-dark;
             font-weight: bold;
@@ -2331,15 +2366,16 @@ strong {
         }
 
         &:hover {
-            &:after {
+            &::after {
                 background-color: transparent;
             }
         }
     }
 
     &:hover {
-        &.checked:after {
+        &.checked::after {
             @extend .font-icon;
+
             content: '\E133';
             color: $text-primary;
             background-color: mix($text-dark, $bcg-darkest, 50%);
@@ -2349,7 +2385,7 @@ strong {
     &.checked {
         background-color: $text-dark;
 
-        &:after {
+        &::after {
             content: '\E133';
             color: $bcg-dark;
         }
@@ -2398,7 +2434,7 @@ strong {
                 color: $text-active;
                 box-shadow: none;
 
-                &:before {
+                &::before {
                     content: '\E341';
                 }
             }
@@ -2417,28 +2453,29 @@ strong {
             position: relative;
             @extend .font-regular;
 
-            &:hover > .icon:after {
+            &:hover > .icon::after {
                 color: $text-primary;
             }
 
             &:hover {
-                > .icon:after,
-                > .text:before {
+                > .icon::after,
+                > .text::before {
                     color: $text-primary;
                 }
             }
 
-            > .icon:after {
+            > .icon::after {
                 content: '\E185';
                 line-height: 22px;
                 @extend .font-icon;
+
                 font-size: 14px;
                 text-align: center;
                 background-color: transparent;
                 color: $text-darkest;
             }
 
-            > .text:before {
+            > .text::before {
                 color: $text-darkest;
                 text-shadow: -1px 2px 1px $bcg-primary;
             }
@@ -2464,17 +2501,17 @@ strong {
         }
 
         &.container {
-            > .title > .icon:after {
+            > .title > .icon::after {
                 content: '\E139';
             }
         }
 
         &.selected {
-            > .title > .icon:after {
+            > .title > .icon::after {
                 color: $text-primary;
             }
 
-            > .title > .text:before {
+            > .title > .text::before {
                 color: $text-primary;
             }
         }
@@ -2485,84 +2522,84 @@ strong {
             }
         }
 
-        &.c-script > .title > .icon:after {
+        &.c-script > .title > .icon::after {
             content: '\E236';
         }
 
-        &.c-model > .title > .icon:after {
+        &.c-model > .title > .icon::after {
             content: '\E188';
         }
 
-        &.c-animation > .title > .icon:after {
+        &.c-animation > .title > .icon::after {
             content: '\E198';
         }
 
-        &.c-audiosource > .title > .icon:after {
+        &.c-audiosource > .title > .icon::after {
             content: '\E197';
         }
 
-        &.c-sound > .title > .icon:after {
+        &.c-sound > .title > .icon::after {
             content: '\E197';
         }
 
-        &.c-collision > .title > .icon:after {
+        &.c-collision > .title > .icon::after {
             content: '\E187';
         }
 
-        &.c-rigidbody > .title > .icon:after {
+        &.c-rigidbody > .title > .icon::after {
             content: '\E189';
         }
 
-        &.c-particlesystem > .title > .icon:after {
+        &.c-particlesystem > .title > .icon::after {
             content: '\E199';
         }
 
-        &.c-light > .title > .icon:after {
+        &.c-light > .title > .icon::after {
             content: '\E194';
         }
 
-        &.c-audiolistener > .title > .icon:after {
+        &.c-audiolistener > .title > .icon::after {
             content: '\E196';
         }
 
-        &.c-camera > .title > .icon:after {
+        &.c-camera > .title > .icon::after {
             content: '\E212';
         }
 
-        &.c-screen > .title > .icon:after {
+        &.c-screen > .title > .icon::after {
             content: '\E403';
         }
 
-        &.c-sprite > .title > .icon:after {
+        &.c-sprite > .title > .icon::after {
             content: '\E395';
         }
 
-        &.c-element > .title > .icon:after {
+        &.c-element > .title > .icon::after {
             content: '\E378';
         }
 
-        &.c-button > .title > .icon:after {
+        &.c-button > .title > .icon::after {
             content: '\E405';
         }
 
-        &.c-layoutgroup > .title > .icon:after,
-        &.c-layoutchild > .title > .icon:after {
+        &.c-layoutgroup > .title > .icon::after,
+        &.c-layoutchild > .title > .icon::after {
             content: '\E143';
         }
 
-        &.c-scrollview > .title > .icon:after {
+        &.c-scrollview > .title > .icon::after {
             content: '\E408';
         }
 
-        &.c-scrollbar > .title > .icon:after {
+        &.c-scrollbar > .title > .icon::after {
             content: '\E409';
         }
 
-        &.template-instance > .title > .icon:after {
+        &.template-instance > .title > .icon::after {
             content: '\E411';
         }
 
-        &.template-instance-child > .title > .text:before {
+        &.template-instance-child > .title > .text::before {
             position: absolute;
             left: -13px;
             top: -9px;
@@ -2588,6 +2625,7 @@ strong {
                     > .field {
                         padding: 0;
                         @extend .font-regular;
+
                         font-size: 14px;
                     }
                 }
@@ -2629,7 +2667,7 @@ strong {
         background-color: $bcg-darker;
 
         &.type-animation {
-            > .thumbnail.placeholder:after {
+            > .thumbnail.placeholder::after {
                 content: '\E213';
             }
 
@@ -2639,7 +2677,7 @@ strong {
         }
 
         &.type-audio {
-            > .thumbnail.placeholder:after {
+            > .thumbnail.placeholder::after {
                 content: '\E210';
             }
 
@@ -2649,7 +2687,7 @@ strong {
         }
 
         &.type-cubemap {
-            > .thumbnail.placeholder:after {
+            > .thumbnail.placeholder::after {
                 content: '\E220';
             }
 
@@ -2659,7 +2697,7 @@ strong {
         }
 
         &.type-folder {
-            > .thumbnail.placeholder:after {
+            > .thumbnail.placeholder::after {
                 content: '\E139';
                 font-size: 58px;
             }
@@ -2670,7 +2708,7 @@ strong {
         }
 
         &.type-bundle {
-            > .thumbnail.placeholder:after {
+            > .thumbnail.placeholder::after {
                 content: '\E410';
                 font-size: 58px;
                 transition: opacity 300ms;
@@ -2685,8 +2723,9 @@ strong {
             > .confirm {
                 position: absolute;
 
-                &:after {
+                &::after {
                     @extend .font-icon;
+
                     content: '\E154';
                     color: $text-primary;
                     font-size: 48px;
@@ -2697,12 +2736,12 @@ strong {
             }
 
             &.confirm-animation {
-                > .thumbnail.placeholder:after {
+                > .thumbnail.placeholder::after {
                     transition-delay: 0ms;
                     opacity: 0;
                 }
 
-                > .confirm:after {
+                > .confirm::after {
                     transition-delay: 300ms;
                     opacity: 1;
                 }
@@ -2710,7 +2749,7 @@ strong {
         }
 
         &.type-json {
-            > .thumbnail.placeholder:after {
+            > .thumbnail.placeholder::after {
                 content: '\E207';
             }
 
@@ -2720,7 +2759,7 @@ strong {
         }
 
         &.type-material {
-            > .thumbnail.placeholder:after {
+            > .thumbnail.placeholder::after {
                 content: '\E195';
             }
 
@@ -2730,27 +2769,27 @@ strong {
         }
 
         &.type-model {
-            > .thumbnail.placeholder:after {
+            > .thumbnail.placeholder::after {
                 content: '\E188';
             }
 
-            > .icon:after {
+            > .icon::after {
                 content: '\E188';
             }
         }
 
         &.type-scene {
-            > .thumbnail.placeholder:after {
+            > .thumbnail.placeholder::after {
                 content: '\E188';
             }
 
-            > .icon:after {
+            > .icon::after {
                 content: '\E188';
             }
         }
 
         &.type-script {
-            > .thumbnail.placeholder:after {
+            > .thumbnail.placeholder::after {
                 content: '\E392';
             }
 
@@ -2762,7 +2801,7 @@ strong {
                 > .icon {
                     display: block;
 
-                    &:after {
+                    &::after {
                         content: '!';
                         font-size: 24px;
                         font-weight: bold;
@@ -2774,7 +2813,7 @@ strong {
         }
 
         &.type-texture {
-            > .thumbnail.placeholder:after {
+            > .thumbnail.placeholder::after {
                 content: '\E201';
             }
 
@@ -2784,17 +2823,17 @@ strong {
         }
 
         &.type-textureatlas {
-            > .thumbnail.placeholder:after {
+            > .thumbnail.placeholder::after {
                 content: '\E201';
             }
 
-            > .icon:after {
+            > .icon::after {
                 content: '\E396';
             }
         }
 
         &.type-text {
-            > .thumbnail.placeholder:after {
+            > .thumbnail.placeholder::after {
                 content: '\E209';
             }
 
@@ -2804,7 +2843,7 @@ strong {
         }
 
         &.type-html {
-            > .thumbnail.placeholder:after {
+            > .thumbnail.placeholder::after {
                 content: '\E205';
             }
 
@@ -2814,7 +2853,7 @@ strong {
         }
 
         &.type-css {
-            > .thumbnail.placeholder:after {
+            > .thumbnail.placeholder::after {
                 content: '\E206';
             }
 
@@ -2824,7 +2863,7 @@ strong {
         }
 
         &.type-shader {
-            > .thumbnail.placeholder:after {
+            > .thumbnail.placeholder::after {
                 content: '\E219';
             }
 
@@ -2834,17 +2873,17 @@ strong {
         }
 
         &.type-sprite {
-            > .thumbnail.placeholder:after {
+            > .thumbnail.placeholder::after {
                 content: '\E395';
             }
 
-            > .icon:after {
+            > .icon::after {
                 content: '\E395';
             }
         }
 
         &.type-binary {
-            > .thumbnail.placeholder:after {
+            > .thumbnail.placeholder::after {
                 content: '\E208';
             }
 
@@ -2854,7 +2893,7 @@ strong {
         }
 
         &.type-font {
-            > .thumbnail.placeholder:after {
+            > .thumbnail.placeholder::after {
                 content: '\E208';
             }
 
@@ -2864,7 +2903,7 @@ strong {
         }
 
         &.type-wasm {
-            > .thumbnail.placeholder:after {
+            > .thumbnail.placeholder::after {
                 content: '\E208';
             }
 
@@ -2874,7 +2913,7 @@ strong {
         }
 
         &.type-template {
-            > .thumbnail.placeholder:after {
+            > .thumbnail.placeholder::after {
                 content: '\E411';
             }
 
@@ -2884,7 +2923,7 @@ strong {
         }
 
         &.scripts {
-            > .thumbnail.placeholder:before {
+            > .thumbnail.placeholder::before {
                 content: 's';
                 display: block;
                 position: absolute;
@@ -2943,8 +2982,9 @@ strong {
         }
 
         &.unused {
-            > .label:before {
+            > .label::before {
                 @extend .font-icon;
+
                 content: '\E185';
                 font-size: 8px;
                 line-height: 14px;
@@ -2954,14 +2994,14 @@ strong {
             }
 
             &.type-folder {
-                > .label:before {
+                > .label::before {
                     content: none;
                 }
             }
         }
 
         &.task {
-            &.failed:after {
+            &.failed::after {
                 $first: rgba(#f77, 1);
                 $second: rgba(darken(#f77, 17%), 1);
 
@@ -2973,7 +3013,7 @@ strong {
                 animation: none;
             }
 
-            &:after {
+            &::after {
                 content: '';
                 position: absolute;
                 left: 0;
@@ -3006,8 +3046,9 @@ strong {
             text-align: center;
             color: $text-darkest;
 
-            &.placeholder:after {
+            &.placeholder::after {
                 @extend .font-icon;
+
                 font-size: 48px;
                 font-weight: 100;
             }
@@ -3044,6 +3085,7 @@ strong {
             top: 0;
             left: 0;
             @extend .font-icon;
+
             font-size: 14px;
             font-weight: 100;
             line-height: 22px;
@@ -3051,13 +3093,14 @@ strong {
             color: $bcg-darker;
             background-color: $text-darkest;
 
-            &:after {
+            &::after {
                 content: '\E208';
             }
         }
 
         > .label {
             @extend .font-regular;
+
             position: absolute;
             right: 0;
             left: 0;
@@ -3097,13 +3140,13 @@ strong {
             height: 64px;
 
             &.type-folder {
-                > .thumbnail.placeholder:after {
+                > .thumbnail.placeholder::after {
                     font-size: 38px;
                 }
             }
 
             &.type-bundle {
-                > .thumbnail.placeholder:after {
+                > .thumbnail.placeholder::after {
                     font-size: 38px;
                 }
             }
@@ -3111,7 +3154,7 @@ strong {
             &.type-script {
                 &.scripts-collide {
                     > .icon {
-                        &:after {
+                        &::after {
                             font-size: 16px;
                             line-height: 20px;
                         }
@@ -3121,7 +3164,7 @@ strong {
 
             &.unused {
                 > .label {
-                    &:before {
+                    &::before {
                         width: 10px;
                         line-height: 10px;
                         vertical-align: text-top;
@@ -3152,7 +3195,7 @@ strong {
                 background-size: 40px 40px;
 
                 &.placeholder {
-                    &:after {
+                    &::after {
                         font-size: 32px;
                     }
                 }
@@ -3222,6 +3265,7 @@ strong {
         border: none;
         border-radius: 0;
         @extend .font-icon;
+
         font-size: 16px;
         text-align: center;
         color: rgba($text-primary, 0.75);
@@ -3250,6 +3294,7 @@ strong {
         padding: 0;
         border: none;
         @extend .font-regular;
+
         font-size: 12px;
         text-align: center;
         color: rgba($text-primary, 0.75);
@@ -3270,6 +3315,7 @@ strong {
                     float: left;
 
                     @extend .font-icon;
+
                     content: '\E212';
                     margin-right: 7px;
                     font-size: 14px;
@@ -3309,6 +3355,7 @@ strong {
                     > .content {
                         height: 3px;
                     }
+
                     position: relative;
                     align-self: center;
                     width: 90%;
@@ -3340,6 +3387,7 @@ strong {
             border: none;
             border-radius: 0;
             @extend .font-icon;
+
             font-size: 20px;
             text-align: center;
             color: rgba($text-primary, 0.75);
@@ -3374,6 +3422,7 @@ strong {
 
             .pcui-container {
                 @extend .noSelect;
+
                 background: transparent;
                 width: 160px;
                 cursor: pointer;
@@ -3419,7 +3468,7 @@ strong {
             margin: 2px;
         }
 
-        &:after {
+        &::after {
             content: '\00a0';
             position: absolute;
             right: 2px;
@@ -3440,12 +3489,12 @@ strong {
     margin-right: 3px;
 
     &:hover {
-        &:before {
+        &::before {
             background-color: $bcg-darkest;
         }
     }
 
-    &:before {
+    &::before {
         position: absolute;
         display: block;
         content: '';
@@ -3459,7 +3508,7 @@ strong {
         background-color: $bcg-darker;
     }
 
-    &:after {
+    &::after {
         position: absolute;
         width: 11px;
         min-width: 11px;
@@ -3472,7 +3521,7 @@ strong {
     }
 
     &.selected {
-        &:before {
+        &::before {
             width: 16px;
             min-width: 16px;
             height: 16px;
@@ -3480,7 +3529,7 @@ strong {
             border: 1px solid white;
         }
 
-        &:after {
+        &::after {
             display: block;
             content: '';
         }
@@ -3500,7 +3549,7 @@ strong {
         > .pcui-panel-header {
             color: $text-secondary;
 
-            &:before {
+            &::before {
                 content: '\E233';
                 color: $text-secondary;
             }
@@ -3517,7 +3566,7 @@ strong {
 
     &.notify {
         > .pcui-panel-header {
-            &:after {
+            &::after {
                 color: $text-active;
             }
 
@@ -3528,17 +3577,16 @@ strong {
     }
 
     > .pcui-panel-header {
-
         // header collapsible hover state
         &:hover {
             color: $text-primary;
 
-            &:before {
+            &::before {
                 color: $text-primary;
             }
         }
 
-        &:before {
+        &::before {
             content: '\E233';
         }
 
@@ -3683,7 +3731,7 @@ strong {
                 box-shadow: none;
             }
 
-            &:after {
+            &::after {
                 right: auto;
                 left: 0;
                 line-height: 32px;
@@ -3697,7 +3745,7 @@ strong {
                 content: '';
                 background-color: $bcg-darkest;
 
-                &:after {
+                &::after {
                     content: '';
                 }
 
@@ -3725,6 +3773,7 @@ strong {
                 line-height: 32px;
                 color: #d34141;
                 @extend .font-icon;
+
                 font-size: 18px;
                 font-weight: bold;
                 text-align: center;
@@ -3835,6 +3884,7 @@ strong {
 
                 > .ui-button.auto {
                     @extend .font-icon;
+
                     margin: 0;
                     border: none;
                     float: right;
@@ -3849,6 +3899,7 @@ strong {
 
         > .ui-button {
             @extend .font-icon;
+
             position: absolute;
             bottom: 0;
             margin: 0;
@@ -3911,17 +3962,18 @@ strong {
         font-size: 12px;
         margin: 0 2px 0 0;
         color: rgba(#fff, 0.75);
-        background-color: rgba(41, 53, 56, 0.5);
+        background-color: rgba(41, 53, 56, 50%);
         cursor: pointer;
 
         &:hover,
         &.active {
-            background-color: rgba(41, 53, 56, 0.75);
+            background-color: rgba(41, 53, 56, 75%);
             color: #fff;
         }
 
-        &:before {
+        &::before {
             @extend .font-icon;
+
             font-size: 14px;
             margin-right: 7px;
             float: left;
@@ -3929,21 +3981,21 @@ strong {
         }
     }
 
-    > .project-name:before {
+    > .project-name::before {
         content: '\E140';
         margin-right: 0;
     }
 
-    > .scene-name:before {
+    > .scene-name::before {
         content: '\E134';
         margin-right: 0;
     }
 
-    > .branch-name:before {
+    > .branch-name::before {
         content: '\E399';
     }
 
-    > .scene-list:before {
+    > .scene-list::before {
         content: '\E147';
     }
 }
@@ -3956,6 +4008,7 @@ strong {
         top: 0;
         right: 10px;
         @extend .font-icon;
+
         text-align: center;
         border: none;
         color: #5b7073;
@@ -3965,7 +4018,7 @@ strong {
             color: #d34141;
         }
 
-        &:after {
+        &::after {
             content: '\E124';
             font-weight: 200;
         }
@@ -3989,6 +4042,7 @@ strong {
 
     .ui-button.remove {
         @extend .font-icon;
+
         line-height: 66px;
         height: 66px;
         width: 40px;
@@ -4010,14 +4064,12 @@ strong {
         background-color: $bcg-dark;
 
         > .ui-panel > .content {
-
             background-color: $bcg-dark;
 
             > .ui-text-field {
                 width: 100%;
                 background-color: $bcg-darker;
                 margin-top: 8px;
-
                 height: 32px;
                 line-height: 32px;
 
@@ -4078,7 +4130,7 @@ strong {
             display: block;
             text-align: center;
 
-            &:before {
+            &::before {
                 content: '\E120';
                 padding-right: 8px;
                 @extend .font-icon;
@@ -4104,6 +4156,7 @@ strong {
         background-color: transparent;
         border: none;
         @extend .font-icon;
+
         font-size: 16px;
         text-align: center;
 
@@ -4113,19 +4166,19 @@ strong {
         }
     }
 
-    .move-up:after {
+    .move-up::after {
         content: '\E161';
     }
 
     .move-down {
         line-height: 32px;
 
-        &:after {
+        &::after {
             content: '\E163';
         }
     }
 
-    .remove:after {
+    .remove::after {
         content: '\E124';
         font-weight: 200;
     }
@@ -4136,13 +4189,11 @@ strong {
 }
 
 .ui-panel.help-howdoi {
-    background-color: rgba(41, 53, 56, 0.5);
+    background-color: rgba(41, 53, 56, 50%);
     padding: 0;
     height: 33px;
     line-height: 33px;
-
     margin: 0;
-
     position: absolute;
     top: 4px;
 
@@ -4155,8 +4206,9 @@ strong {
             width: 100%;
             height: 100%;
 
-            &:before {
+            &::before {
                 @extend .font-icon;
+
                 font-size: 14px;
                 content: '\E129';
                 line-height: 34px;
@@ -4228,7 +4280,6 @@ strong {
                 overflow-y: auto;
 
                 > .ui-menu-item {
-
                     width: 100%;
 
                     &:hover > .title {
@@ -4242,7 +4293,6 @@ strong {
                     > .title {
                         font-size: 12px;
                         color: $text-primary;
-
                         width: 100%;
                         overflow: hidden;
                         text-overflow: ellipsis;
@@ -4258,7 +4308,7 @@ strong {
 
     // ghost element to help
     // center vertically
-    &:before {
+    &::before {
         content: '';
         display: inline-block;
         height: 100%;
@@ -4269,7 +4319,6 @@ strong {
         text-align: left;
         display: inline-block;
         vertical-align: middle;
-
         top: initial;
         left: initial;
         position: relative;
@@ -4295,6 +4344,7 @@ strong {
                     h2 {
                         color: $text-active;
                         @extend .font-bold;
+
                         font-size: 16px;
                         margin-top: 0;
                         margin-bottom: 10px;
@@ -4316,6 +4366,7 @@ strong {
                         position: absolute;
                         bottom: 20px;
                         @extend .font-bold;
+
                         background-color: $bcg-darkest;
                         border: none;
                         color: $text-primary;
@@ -4350,11 +4401,10 @@ strong {
                         display: block;
                         padding: 0 10px;
                         text-decoration: none;
-
                         background-color: $text-active;
                         border-color: $text-active;
 
-                        &:after {
+                        &::after {
                             display: inline-block;
                             position: absolute;
                             vertical-align: top;
@@ -4365,12 +4415,12 @@ strong {
                             text-align: center;
                             content: '\E166';
                             @extend .font-icon;
-                            font-size: 20px;
 
+                            font-size: 20px;
                             background-color: transparentize($text-active, 0.5);
                         }
 
-                        &:hover:after {
+                        &:hover::after {
                             background-color: $text-active;
                         }
                     }
@@ -4395,8 +4445,9 @@ strong {
                 font-size: 16px;
                 line-height: 48px;
 
-                &:before {
+                &::before {
                     @extend .font-icon;
+
                     content: '\E136';
                     font-size: 20px;
                     margin-right: 8px;
@@ -4481,6 +4532,7 @@ strong {
 
                     > .icon {
                         @extend .font-icon;
+
                         float: right;
                         margin: 0 8px;
                         font-size: 18px;
@@ -4515,7 +4567,7 @@ strong {
                 font-size: 16px;
                 color: $text-active;
 
-                &:before {
+                &::before {
                     display: block;
                     content: ' ';
                     background-image: url('https://playcanvas.com/static-assets/images/bcg_primary.jpg');
@@ -4541,6 +4593,7 @@ strong {
 
             > .close {
                 @extend .font-bold;
+
                 font-size: 12px;
                 background-color: #4a5a5d;
                 width: 80px;
@@ -4571,12 +4624,13 @@ strong {
             height: 64px;
             line-height: 64px;
             @extend .font-icon;
+
             font-size: 34px;
             font-weight: 100;
             text-align: center;
             display: inline-block;
 
-            &.error:before {
+            &.error::before {
                 content: '\E218';
             }
         }
@@ -4610,7 +4664,7 @@ strong {
             margin-left: 16px;
             margin-top: -32px;
 
-            &:after {
+            &::after {
                 content: '';
                 width: 0;
                 height: 0;
@@ -4628,7 +4682,7 @@ strong {
             margin-top: -32px;
             margin-left: -336px;
 
-            &:after {
+            &::after {
                 content: '';
                 width: 0;
                 height: 0;
@@ -4646,7 +4700,7 @@ strong {
             margin-top: -16px;
             margin-left: -32px;
 
-            &:after {
+            &::after {
                 content: '';
                 width: 0;
                 height: 0;
@@ -4664,7 +4718,7 @@ strong {
             margin-top: 16px;
             margin-left: -32px;
 
-            &:after {
+            &::after {
                 content: '';
                 width: 0;
                 height: 0;
@@ -4682,7 +4736,7 @@ strong {
             margin-top: 16px;
             margin-left: -308px;
 
-            &:after {
+            &::after {
                 content: '';
                 width: 0;
                 height: 0;
@@ -4700,7 +4754,7 @@ strong {
             margin-top: -16px;
             margin-left: -308px;
 
-            &:after {
+            &::after {
                 content: '';
                 width: 0;
                 height: 0;
@@ -4732,6 +4786,7 @@ strong {
 
                 > .ui-header {
                     @extend .font-bold;
+
                     background-color: transparent;
                     font-size: 18px;
                     height: auto;
@@ -4820,7 +4875,7 @@ strong {
             margin-left: 48px;
             margin-top: -28px;
 
-            &:after {
+            &::after {
                 content: '';
                 width: 0;
                 height: 0;
@@ -4838,7 +4893,7 @@ strong {
             margin-top: -28px;
             margin-left: -520px;
 
-            &:after {
+            &::after {
                 content: '';
                 width: 0;
                 height: 0;
@@ -4856,7 +4911,7 @@ strong {
             margin-top: -16px;
             margin-left: -28px;
 
-            &:after {
+            &::after {
                 content: '';
                 width: 0;
                 height: 0;
@@ -4874,7 +4929,7 @@ strong {
             margin-top: 48px;
             margin-left: -28px;
 
-            &:after {
+            &::after {
                 content: '';
                 width: 0;
                 height: 0;
@@ -4892,7 +4947,7 @@ strong {
             margin-top: 48px;
             margin-left: -444px;
 
-            &:after {
+            &::after {
                 content: '';
                 width: 0;
                 height: 0;
@@ -4910,7 +4965,7 @@ strong {
             margin-top: -16px;
             margin-left: -444px;
 
-            &:after {
+            &::after {
                 content: '';
                 width: 0;
                 height: 0;
@@ -4939,6 +4994,7 @@ strong {
 
             > .ui-header {
                 @extend .font-bold;
+
                 background-color: transparent;
                 font-size: 18px;
                 height: auto;
@@ -4978,6 +5034,7 @@ strong {
             line-height: 32px;
             font-size: 12px;
             @extend .font-bold;
+
             text-transform: uppercase;
             color: $text-primary;
             background-color: $text-darkest;
@@ -5082,6 +5139,7 @@ strong {
 
         > .pick-rect {
             @extend .noSelect;
+
             position: relative;
             display: none;
             float: left;
@@ -5099,7 +5157,7 @@ strong {
                 height: 144px;
                 top: 0;
                 left: 0;
-                background: linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.01) 100%);
+                background: linear-gradient(to right, rgba(255, 255, 255, 100%) 0%, rgba(255, 255, 255, 1%) 100%);
             }
 
             > .black {
@@ -5108,7 +5166,7 @@ strong {
                 height: 144px;
                 top: 0;
                 left: 0;
-                background: linear-gradient(to bottom, rgba(0, 0, 0, 0.01) 0%, rgba(0, 0, 0, 1) 100%);
+                background: linear-gradient(to bottom, rgba(0, 0, 0, 1%) 0%, rgba(0, 0, 0, 100%) 100%);
             }
 
             > .handle {
@@ -5125,6 +5183,7 @@ strong {
 
         > .pick-hue {
             @extend .noSelect;
+
             position: relative;
             display: none;
             float: left;
@@ -5134,18 +5193,17 @@ strong {
             border: 1px solid #000;
             box-sizing: border-box;
             cursor: crosshair;
-
             background: #000;
             background:
                 linear-gradient(
                     to bottom,
-                    rgba(255, 0, 0, 1) 0%,
-                    rgba(255, 255, 0, 1) 16.67%,
-                    rgba(0, 255, 0, 1) 33.33%,
-                    rgba(0, 255, 255, 1) 50%,
-                    rgba(0, 0, 255, 1) 66.67%,
-                    rgba(255, 0, 255, 1) 83.33%,
-                    rgba(255, 0, 0, 1) 100%
+                    rgba(255, 0, 0, 100%) 0%,
+                    rgba(255, 255, 0, 100%) 16.67%,
+                    rgba(0, 255, 0, 100%) 33.33%,
+                    rgba(0, 255, 255, 100%) 50%,
+                    rgba(0, 0, 255, 100%) 66.67%,
+                    rgba(255, 0, 255, 100%) 83.33%,
+                    rgba(255, 0, 0, 100%) 100%
                 );
 
             > .handle {
@@ -5162,6 +5220,7 @@ strong {
 
         > .pick-opacity {
             @extend .noSelect;
+
             position: relative;
             display: none;
             float: left;
@@ -5248,6 +5307,7 @@ strong {
 
                     > .ui-button {
                         @extend .font-icon;
+
                         font-size: 14px;
                         width: 32px;
                         height: 24px;
@@ -5301,6 +5361,7 @@ strong {
 
                     > .ui-button {
                         @extend .font-icon;
+
                         vertical-align: bottom;
                     }
                 }
@@ -5390,6 +5451,7 @@ strong {
 
             .close {
                 @extend .font-icon;
+
                 font-size: 14px;
                 position: absolute;
                 top: 0;
@@ -5480,6 +5542,7 @@ strong {
                             width: 100%;
 
                             $checkerboard-dark: #eaeaea;
+
                             background-color: #fff;
                             background-image:
                                 linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%, transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%),
@@ -5574,6 +5637,7 @@ strong {
 
                                         > .label {
                                             @extend .font-regular;
+
                                             position: absolute;
                                             right: 0;
                                             left: 0;
@@ -5738,8 +5802,9 @@ strong {
                             background: transparent;
                             padding: 0;
 
-                            &:before {
+                            &::before {
                                 @extend .font-icon;
+
                                 content: '\E400';
                                 float: left;
                                 margin-right: 5px;
@@ -5790,6 +5855,7 @@ strong {
                             margin: 2px 8px 2px 2px;
                             cursor: move;
                             @extend .noSelect;
+
                             $color: mix($text-darkest, $bcg-primary, 50%);
                             $size: 6px;
                             $radiusI: 20%;
@@ -5800,6 +5866,7 @@ strong {
 
                             &:hover {
                                 $color: $text-primary;
+
                                 background: radial-gradient($color $radiusI, transparent $radiusO);
                                 background-size: $size $size;
                             }
@@ -5847,7 +5914,7 @@ strong {
                                 color: #d34141;
                             }
 
-                            &:after {
+                            &::after {
                                 content: '\E124';
                                 font-weight: 200;
                             }
@@ -5866,11 +5933,11 @@ strong {
                     &:hover {
                         background-color: $bcg-darkest;
 
-                        &:before {
+                        &::before {
                             color: $text-active;
                         }
 
-                        &.remove:before {
+                        &.remove::before {
                             color: #d34141;
                         }
                     }
@@ -5893,8 +5960,9 @@ strong {
 
                     @extend .font-bold;
 
-                    &:before {
+                    &::before {
                         @extend .font-icon;
+
                         font-size: 14px;
                         text-align: center;
                         margin-left: -18px;
@@ -5902,31 +5970,31 @@ strong {
                         font-weight: 100;
                     }
 
-                    &.create:before {
+                    &.create::before {
                         content: '\E120';
                     }
 
-                    &.remove:before {
+                    &.remove::before {
                         content: '\E124';
                     }
 
-                    &.cancel:before {
+                    &.cancel::before {
                         content: '\E132';
                     }
 
-                    &.trim:before {
+                    &.trim::before {
                         content: '\E394';
                     }
 
-                    &.focus:before {
+                    &.focus::before {
                         content: '\E397';
                     }
 
-                    &.generate:before {
+                    &.generate::before {
                         content: '\E398';
                     }
 
-                    &.upload:before {
+                    &.upload::before {
                         content: '\E222';
                     }
                 }
@@ -5984,7 +6052,7 @@ strong {
                 background-color: $bcg-darkest;
             }
 
-            &:after {
+            &::after {
                 content: '\E124';
                 font-weight: 200;
             }
@@ -6026,7 +6094,7 @@ strong {
                 background-color: $bcg-darkest;
             }
 
-            &:after {
+            &::after {
                 content: '\E124';
                 font-weight: 200;
             }
@@ -6076,7 +6144,7 @@ strong {
         width: 24px;
         height: 24px;
         background: $text-active;
-        box-shadow: 7px 7px 5px 0 rgba(0, 0, 0, 0.1);
+        box-shadow: 7px 7px 5px 0 rgba(0, 0, 0, 10%);
         transition: all 0.1s ease;
     }
 
@@ -6111,6 +6179,7 @@ strong {
     #organization-details {
         &::after {
             @extend .font-icon;
+
             content: '\E435';
             display: none;
             position: absolute;
@@ -6165,10 +6234,8 @@ strong {
                     left: 5px;
                     margin: 0;
                     opacity: 1;
-
-                    background: linear-gradient(360deg, #f06531 -4.69%, #ffa468 125.79%), linear-gradient(0.36deg, #ff0 -151.33%, rgba(63, 63, 63, 0) 133.42%);
-                    box-shadow: inset 0 0 6px rgba(255, 252, 0, 0.5);
-
+                    background: linear-gradient(360deg, #f06531 -4.69%, #ffa468 125.79%), linear-gradient(0.36deg, #ff0 -151.33%, rgba(63, 63, 63, 0%) 133.42%);
+                    box-shadow: inset 0 0 6px rgba(255, 252, 0, 50%);
                     height: 100%;
                     border-radius: initial;
                     color: $text-primary;
@@ -6328,6 +6395,7 @@ strong {
 
                             .organization-button > .dropdown {
                                 @extend .font-icon;
+
                                 position: absolute;
                                 right: 0;
                                 display: flex;
@@ -6371,8 +6439,9 @@ strong {
                                 background-color: $bcg-darker;
                                 text-align: start;
 
-                                &:after {
+                                &::after {
                                     @extend .font-icon;
+
                                     content: '\E435';
                                     display: none;
                                     position: absolute;
@@ -6407,6 +6476,7 @@ strong {
 
                             & > .upgrade-label {
                                 @extend .font-regular;
+
                                 font-weight: 900;
                                 margin-bottom: 0;
                             }
@@ -6478,6 +6548,7 @@ strong {
 
                             &::after {
                                 @extend .font-regular;
+
                                 font-size: 14px;
                                 right: auto;
                                 left: 28px;
@@ -6486,6 +6557,7 @@ strong {
 
                             &::before {
                                 @extend .font-icon;
+
                                 content: '\E290';
                                 position: absolute;
                                 left: 0;
@@ -6512,6 +6584,7 @@ strong {
 
                             &::after {
                                 @extend .font-icon;
+
                                 margin-left: 3px;
                             }
 
@@ -6538,6 +6611,7 @@ strong {
 
                         & > .project-container {
                             $p: &;
+
                             position: relative;
                             display: flex;
                             background-image: none !important;
@@ -6548,7 +6622,7 @@ strong {
                             max-height: 75px;
                             cursor: pointer;
 
-                            &:after {
+                            &::after {
                                 content: '';
                                 position: absolute;
                                 left: 0;
@@ -6556,7 +6630,7 @@ strong {
                                 display: block;
                                 height: 100%;
                                 opacity: 0;
-                                background: linear-gradient(89.93deg, rgba(#f60, 0.5) 0.5%, rgba(255, 255, 255, 0.2) 75.94%, transparent 94%);
+                                background: linear-gradient(89.93deg, rgba(#f60, 0.5) 0.5%, rgba(255, 255, 255, 20%) 75.94%, transparent 94%);
                                 transition: opacity 0.45s ease-in-out;
                                 transition: width 0.3s ease-in-out;
                             }
@@ -6564,7 +6638,7 @@ strong {
                             &.noAccess {
                                 .project-thumbnail { z-index: initial; }
 
-                                &:before {
+                                &::before {
                                     content: '';
                                     display: block;
                                     position: absolute;
@@ -6579,8 +6653,9 @@ strong {
                             &.disabled {
                                 .project-thumbnail { z-index: initial; }
 
-                                &:before {
+                                &::before {
                                     @extend .font-icon;
+
                                     content: '\E326';
                                     color: $text-primary;
                                     left: 0;
@@ -6603,8 +6678,9 @@ strong {
                                 .project-thumbnail { z-index: initial; }
                                 &:hover::before { color: $text-active; }
 
-                                &:before {
+                                &::before {
                                     @extend .font-icon;
+
                                     content: '\E341';
                                     color: $text-primary;
                                     left: 0;
@@ -6624,7 +6700,7 @@ strong {
                             }
 
                             &.currentlyOpen {
-                                &:after {
+                                &::after {
                                     opacity: 1;
                                     width: 100% !important;
                                 }
@@ -6640,7 +6716,7 @@ strong {
                             }
 
                             &:hover:not(.noAccess, .currentlyOpen, .locked, .disabled) {
-                                &:after {
+                                &::after {
                                     width: 100%;
                                     opacity: 1;
                                 }
@@ -6672,6 +6748,7 @@ strong {
 
                                     & > .add-me-as-admin {
                                         @extend .font-regular;
+
                                         text-transform: uppercase;
                                         position: absolute;
                                         top: 50%;
@@ -6706,6 +6783,7 @@ strong {
 
                             & > .project-name {
                                 @extend .font-regular;
+
                                 position: absolute;
                                 left: 74px;
                                 height: min-content;
@@ -6715,6 +6793,7 @@ strong {
 
                             & > .project-last-edited {
                                 @extend .font-regular;
+
                                 position: absolute;
                                 height: min-content;
                                 left: 74px;
@@ -6732,10 +6811,12 @@ strong {
 
                                 & > .stat {
                                     @extend .font-regular;
+
                                     transition: all 0.2s ease-in-out;
 
                                     &::before {
                                         @extend .font-icon;
+
                                         display: inline-block;
                                         margin-right: 5px;
                                     }
@@ -6782,7 +6863,7 @@ strong {
                             &.noAccess {
                                 cursor: pointer;
 
-                                &:before {
+                                &::before {
                                     content: '';
                                     display: block;
                                     position: absolute;
@@ -6796,8 +6877,9 @@ strong {
                             }
 
                             &.disabled {
-                                &:before {
+                                &::before {
                                     @extend .font-icon;
+
                                     content: '\E326';
                                     font-size: 2em;
                                     color: $text-primary;
@@ -6819,8 +6901,9 @@ strong {
                             &.locked {
                                 &:hover::before { color: $text-active; }
 
-                                &:before {
+                                &::before {
                                     @extend .font-icon;
+
                                     content: '\E341';
                                     font-size: 2em;
                                     color: $text-primary;
@@ -6865,6 +6948,7 @@ strong {
 
                                 & > .add-me-as-admin {
                                     @extend .font-regular;
+
                                     text-transform: uppercase;
                                     position: absolute;
                                     top: 50%;
@@ -6877,7 +6961,7 @@ strong {
                                 &::after {
                                     content: '';
                                     display: block;
-                                    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 102, 0, 0.7) 128.11%);
+                                    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0%) 0%, rgba(255, 102, 0, 70%) 128.11%);
                                     height: 0;
                                     width: 100%;
                                     position: absolute;
@@ -6900,7 +6984,7 @@ strong {
                                     border-radius: 50%;
                                     color: $text-primary;
                                     box-shadow: inset 0 0 6px rgb(255 252 0 / 50%);
-                                    background-image: linear-gradient(360deg, #f06531 -4.69%, #ffa468 125.79%), linear-gradient(0.36deg, #ff0 -151.33%, rgba(63, 63, 63, 0) 133.42%);
+                                    background-image: linear-gradient(360deg, #f06531 -4.69%, #ffa468 125.79%), linear-gradient(0.36deg, #ff0 -151.33%, rgba(63, 63, 63, 0%) 133.42%);
                                     z-index: 1;
 
                                     &:hover {
@@ -6949,12 +7033,14 @@ strong {
 
                                 & > .stat {
                                     @extend .font-regular;
+
                                     color: $text-primary;
                                     font-size: 0.7rem;
                                     margin: 3px 0;
 
-                                    &:before {
+                                    &::before {
                                         @extend .font-icon;
+
                                         display: inline-block;
                                         font-size: 0.7rem;
                                         margin-right: 5px;
@@ -6970,7 +7056,7 @@ strong {
                             &::after {
                                 content: '';
                                 display: block;
-                                background-image: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 102, 0, 0.4) 128.11%);
+                                background-image: linear-gradient(180deg, rgba(255, 255, 255, 0%) 0%, rgba(255, 102, 0, 40%) 128.11%);
                                 height: 0;
                                 width: 100%;
                                 position: absolute;
@@ -7146,6 +7232,7 @@ strong {
 
                 .form-group--warning {
                     @extend .font-regular;
+
                     position: relative;
                     display: block;
                     padding: 3% 5% 3% 10%;
@@ -7156,6 +7243,7 @@ strong {
 
                     &::before {
                         @extend .font-icon;
+
                         content: '\E218';
                         display: block;
                         position: absolute;
@@ -7298,6 +7386,7 @@ strong {
     &.center {
         > .content {
             @extend .font-regular;
+
             top: auto;
             left: auto;
             width: 100%;
@@ -7320,7 +7409,6 @@ strong {
                         background-color: $bcg-dark;
                         margin: 0;
                         padding: 0;
-
                         flex: 0 0 188px;
                         width: 188px;
                         height: 100%;
@@ -7328,6 +7416,7 @@ strong {
 
                         > .content {
                             $c: &;
+
                             height: 100%;
                             position: relative;
 
@@ -7367,22 +7456,23 @@ strong {
                                 height: 50px;
                                 font-size: 0.8em;
                                 color: $text-secondary;
-                                background-image: linear-gradient(rgba(0, 0, 0, 0.8) 15%, transparent);
+                                background-image: linear-gradient(rgba(0, 0, 0, 80%) 15%, transparent);
                                 opacity: 1;
                                 transition: transform 0.4s ease-in-out, opacity 0.2s ease-in, background-image 0.4s ease-in-out;
 
                                 span {
                                     @extend .font-regular;
 
-                                    &:before {
+                                    &::before {
                                         @extend .font-icon;
+
                                         margin-right: 5px;
                                     }
                                 }
 
-                                .forks-stat:before { content: '\E431'; }
-                                .views-stat:before { content: '\E117'; }
-                                .plays-stat:before { content: '\E180'; }
+                                .forks-stat::before { content: '\E431'; }
+                                .views-stat::before { content: '\E117'; }
+                                .plays-stat::before { content: '\E180'; }
 
                                 .size-stat {
                                     position: absolute;
@@ -7428,6 +7518,7 @@ strong {
                             .cms-editor-button,
                             .cms-play-button {
                                 @extend .font-regular;
+
                                 position: absolute;
                                 left: 0;
                                 width: calc(100% - 10px);
@@ -7489,10 +7580,8 @@ strong {
                                 padding: 0 10px;
                                 height: 36px;
                                 line-height: 36px;
-
                                 border: none;
                                 border-bottom: 1px solid $border-primary;
-
                                 text-transform: uppercase;
                                 font-size: 12px;
                                 @extend .font-bold;
@@ -7504,43 +7593,44 @@ strong {
                                     cursor: pointer;
                                     margin: 0;
 
-                                    &:before {
+                                    &::before {
                                         color: $text-active;
                                     }
                                 }
 
-                                &:before {
+                                &::before {
                                     @extend .font-icon;
+
                                     font-size: 14px;
                                     vertical-align: top;
                                     padding-right: 10px;
                                 }
 
-                                &.project-main:before {
+                                &.project-main::before {
                                     content: '\E283';
                                 }
 
-                                &.projects:before {
+                                &.projects::before {
                                     content: '\E267';
                                 }
 
-                                &.scenes:before {
+                                &.scenes::before {
                                     content: '\E147';
                                 }
 
-                                &.builds-publish:before {
+                                &.builds-publish::before {
                                     content: '\E226';
                                 }
 
-                                &.checkpoints:before {
+                                &.checkpoints::before {
                                     content: '\E401';
                                 }
 
-                                &.version-control:before {
+                                &.version-control::before {
                                     content: '\E399';
                                 }
 
-                                &.team:before {
+                                &.team::before {
                                     content: '\E337';
                                 }
                             }
@@ -7563,6 +7653,7 @@ strong {
 
                             .close {
                                 @extend .font-icon;
+
                                 font-size: 14px;
                                 position: absolute;
                                 top: 0;
@@ -7696,10 +7787,11 @@ strong {
                     top: 0;
                     width: 35px;
                     height: 100%;
-                    background-image: linear-gradient(360deg, #f06531 -4.69%, #ffa468 125.79%), linear-gradient(0.36deg, #ff0 -151.33%, rgba(63, 63, 63, 0) 133.42%);
+                    background-image: linear-gradient(360deg, #f06531 -4.69%, #ffa468 125.79%), linear-gradient(0.36deg, #ff0 -151.33%, rgba(63, 63, 63, 0%) 133.42%);
 
-                    &:after {
+                    &::after {
                         @extend .font-icon;
+
                         content: '\E268';
                         font-size: 1.1rem;
                     }
@@ -7713,6 +7805,7 @@ strong {
 
                 & > .pcui-button.close {
                     @extend .font-icon;
+
                     position: absolute;
                     right: 0;
                     margin: 0;
@@ -7860,7 +7953,7 @@ strong {
                 }
 
                 &::-webkit-scrollbar-thumb {
-                    background-color: rgba(96, 96, 96, 0.5);
+                    background-color: rgba(96, 96, 96, 50%);
                 }
 
                 .form-group {
@@ -7909,6 +8002,7 @@ strong {
 
                             & > span {
                                 @extend .font-regular;
+
                                 line-height: 40px;
                                 height: 40px;
                                 padding-left: 30px;
@@ -7917,6 +8011,7 @@ strong {
                                 &:focus,
                                 &:hover {
                                     & + .pcui-select-input-icon { background-color: $bcg-darker; }
+
                                     background-color: $bcg-darker;
                                 }
                             }
@@ -7935,6 +8030,7 @@ strong {
 
                                 & > span {
                                     @extend .font-regular;
+
                                     position: relative;
                                     display: block;
                                     line-height: 40px;
@@ -7986,7 +8082,6 @@ strong {
                             height: 16px;
                             right: 15px;
                             z-index: 102;
-
                             background: url('/static/platform/images/common/HOME_CHEVRON.png') #fff;
                             background-repeat: no-repeat;
                             background-size: 16px 16px;
@@ -8010,7 +8105,6 @@ strong {
                             list-style: none;
                             padding: 0;
                             margin: 0;
-
                             position: absolute;
                             top: 0;
                             left: 0;
@@ -8128,15 +8222,12 @@ strong {
                     right: 0;
                     bottom: 0;
                     left: 0;
-
                     opacity: 0;
 
                     /* stylelint-disable-next-line property-no-vendor-prefix */
                     -webkit-transform: translateZ(0); /* fix Chrome transition bug */
-
                     transition: opacity 200ms;
-
-                    background: linear-gradient(to bottom, rgba(69, 69, 69, 0) 0%, rgba(224, 95, 44, 1) 100%);
+                    background: linear-gradient(to bottom, rgba(69, 69, 69, 0%) 0%, rgba(224, 95, 44, 100%) 100%);
                     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#45454500', endColorstr='#E05F2C', GradientType=0);
 
                     .ui-icon-button {
@@ -8176,10 +8267,10 @@ strong {
                         border-radius: 50%;
                         color: #fff;
                         border: none;
-                        background-image: linear-gradient(360deg, #f06531 -4.69%, #ffa468 125.79%), linear-gradient(0.36deg, #ff0 -151.33%, rgba(63, 63, 63, 0) 133.42%);
+                        background-image: linear-gradient(360deg, #f06531 -4.69%, #ffa468 125.79%), linear-gradient(0.36deg, #ff0 -151.33%, rgba(63, 63, 63, 0%) 133.42%);
                         box-shadow: 0 0 10px rgba($text-darkest, 0.8);
 
-                        &:before { height: 50%; }
+                        &::before { height: 50%; }
                         &:hover { filter: brightness(1.1); }
                     }
                 }
@@ -8229,6 +8320,7 @@ strong {
     // Text and icon for the alert dialog
     &-text {
         @extend .font-regular;
+
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -8325,6 +8417,7 @@ strong {
 
         span {
             @extend .font-regular;
+
             font-size: 14px;
             font-weight: 800;
         }
@@ -8349,6 +8442,7 @@ strong {
         // Text and icon for the alert dialog
         &-text {
             @extend .font-regular;
+
             display: flex;
             flex-direction: row;
             align-items: center;
@@ -8487,8 +8581,9 @@ strong {
             }
 
             &.current {
-                &:after {
+                &::after {
                     @extend .font-bold;
+
                     content: 'CURRENT';
                     position: absolute;
                     top: 25px;
@@ -8525,6 +8620,7 @@ strong {
                 vertical-align: top;
 
                 @extend .font-icon;
+
                 font-size: 12px;
                 color: $bcg-darkest;
                 background-color: $text-darkest;
@@ -8577,8 +8673,9 @@ strong {
             text-transform: uppercase;
             @extend .font-bold;
 
-            &:before {
+            &::before {
                 @extend .font-icon;
+
                 font-size: 14px;
                 content: '\E122';
                 color: $text-secondary;
@@ -8587,7 +8684,7 @@ strong {
                 padding-left: 20px;
             }
 
-            &:not(.disabled):hover:before {
+            &:not(.disabled):hover::before {
                 color: $text-active;
             }
         }
@@ -8627,12 +8724,13 @@ strong {
 
             > input {
                 @extend .font-regular;
+
                 font-size: 14px;
                 color: $text-primary;
             }
 
             &[placeholder] {
-                &:after {
+                &::after {
                     line-height: 34px;
                 }
             }
@@ -8657,6 +8755,7 @@ strong {
             resize: none;
 
             @extend .font-regular;
+
             font-size: 14px;
             width: calc(100% - 20px);
             height: 65px;
@@ -8695,7 +8794,6 @@ strong {
 
         > .ui-button {
             margin: 0 0 15px 15px;
-
             padding: 0;
             height: 34px;
             line-height: 34px;
@@ -8704,15 +8802,16 @@ strong {
             text-align: center;
             @extend .font-bold;
 
-            &:before {
+            &::before {
                 @extend .font-icon;
+
                 font-size: 14px;
                 color: $text-secondary;
                 vertical-align: top;
                 padding-right: 10px;
             }
 
-            &:not(.disabled):hover:before {
+            &:not(.disabled):hover::before {
                 color: $text-active;
             }
 
@@ -8720,7 +8819,7 @@ strong {
                 text-align: center;
                 width: calc(100% - 30px);
 
-                &:before {
+                &::before {
                     content: '\E226';
                 }
             }
@@ -8730,7 +8829,7 @@ strong {
                 display: none;
                 width: 208px;
 
-                &:before {
+                &::before {
                     content: '\E245';
                 }
             }
@@ -8738,6 +8837,7 @@ strong {
 
         .ui-button.help {
             @extend .font-icon;
+
             background: transparent;
             vertical-align: top;
             line-height: 1;
@@ -8759,7 +8859,6 @@ strong {
                         border: 2px solid $border-primary;
                         margin-right: 15px;
                         vertical-align: top;
-
                         background-size: 100% 100%;
 
                         &.progress {
@@ -8921,8 +9020,9 @@ strong {
                 }
 
                 &.success {
-                    &:after {
+                    &::after {
                         @extend .font-icon;
+
                         font-size: 34px;
                         display: block;
                         margin-top: 15px;
@@ -8933,8 +9033,9 @@ strong {
                 &.error {
                     background-color: #e74c3c;
 
-                    &:after {
+                    &::after {
                         @extend .font-icon;
+
                         font-size: 34px;
                         display: block;
                         margin-top: 15px;
@@ -8982,8 +9083,9 @@ strong {
                     text-transform: uppercase;
                     @extend .font-bold;
 
-                    &:before {
+                    &::before {
                         @extend .font-icon;
+
                         font-size: 16px;
                         vertical-align: top;
                         padding-right: 10px;
@@ -9024,12 +9126,12 @@ strong {
         }
 
         .progress {
-            > .icon.success:after {
+            > .icon.success::after {
                 content: '\E245';
             }
 
             > .progress-info {
-                > .ready:before {
+                > .ready::before {
                     content: '\E245';
                 }
             }
@@ -9056,6 +9158,7 @@ strong {
 
         &.builds-list-heading {
             @extend .font-regular;
+
             color: $text-primary;
             padding-bottom: 10px;
             padding-top: 10px;
@@ -9092,6 +9195,7 @@ strong {
 
                 &.icon {
                     @extend .font-icon;
+
                     font-size: 70px;
                     margin: 30px 0 0 0;
                 }
@@ -9119,6 +9223,7 @@ strong {
 
                 &::before {
                     @extend .font-icon;
+
                     display: block;
                     margin-right: 10px;
                 }
@@ -9140,7 +9245,7 @@ strong {
                         background: $bcg-darkest;
                         color: $text-primary;
 
-                        &:before {
+                        &::before {
                             color: $text-active;
                         }
                     }
@@ -9240,9 +9345,10 @@ strong {
                 > .status {
                     background-color: #e74c3c;
 
-                    &:after {
+                    &::after {
                         color: $bcg-dark;
                         @extend .font-icon;
+
                         font-size: 24px;
                         content: '\E132';
                         display: inline-block;
@@ -9288,23 +9394,24 @@ strong {
                 > .branch {
                     padding-right: 10px;
 
-                    &:before {
+                    &::before {
                         @extend .font-icon;
+
                         font-size: 12px;
                         padding-right: 6px;
                         color: $text-darkest;
                     }
                 }
 
-                > .size:before {
+                > .size::before {
                     content: '\E216';
                 }
 
-                > .branch:before {
+                > .branch::before {
                     content: '\E399';
                 }
 
-                > .views:before {
+                > .views::before {
                     content: '\E308';
                 }
             }
@@ -9362,6 +9469,7 @@ strong {
                 vertical-align: top;
 
                 @extend .font-icon;
+
                 font-size: 12px;
                 color: $bcg-darkest;
                 background-color: $text-darkest;
@@ -9396,6 +9504,7 @@ strong {
 
         span {
             @extend .font-regular;
+
             color: $text-primary;
             margin-bottom: 0;
         }
@@ -9476,10 +9585,12 @@ strong {
 
         & > span {
             @extend .font-regular;
+
             color: $text-primary;
 
             &::before {
                 @extend .font-icon;
+
                 content: '\E400';
                 line-height: 1.1em;
                 margin-right: 5px;
@@ -9500,11 +9611,11 @@ strong {
             &:hover {
                 background-color: $bcg-darkest;
 
-                &:before {
+                &::before {
                     color: $text-active;
                 }
 
-                &.remove:before {
+                &.remove::before {
                     color: #d34141;
                 }
             }
@@ -9527,19 +9638,20 @@ strong {
 
             @extend .font-bold;
 
-            &:before {
+            &::before {
                 @extend .font-icon;
+
                 font-size: 14px;
                 text-align: center;
                 margin-left: -18px;
                 margin-right: 9px;
             }
 
-            &.create:before {
+            &.create::before {
                 content: '\E120';
             }
 
-            &.remove:before {
+            &.remove::before {
                 content: '\E124';
             }
         }
@@ -9573,6 +9685,7 @@ strong {
 
                         > .ui-button.remove {
                             @extend .font-icon;
+
                             font-weight: 400;
                             position: absolute;
                             right: 0;
@@ -9585,11 +9698,11 @@ strong {
                             border-color: transparent;
                             background-color: transparent;
 
-                            &:before {
+                            &::before {
                                 content: '\E124';
                             }
 
-                            &:hover:before {
+                            &:hover::before {
                                 color: #d34141;
                             }
                         }
@@ -9620,23 +9733,24 @@ strong {
                             &:focus,
                             &.focus,
                             &.not-empty {
-                                &:before,
-                                &:after {
+                                &::before,
+                                &::after {
                                     content: '';
                                 }
                             }
 
-                            &:before {
+                            &::before {
                                 content: '\E120';
                                 position: absolute;
                                 top: 0;
                                 left: 8px;
                                 @extend .font-icon;
+
                                 font-weight: bold;
                                 line-height: 24px;
                             }
 
-                            &:after {
+                            &::after {
                                 content: 'Add Sublayer';
                                 position: absolute;
                                 right: auto;
@@ -9646,6 +9760,7 @@ strong {
                                 line-height: 24px;
                                 color: $text-secondary;
                                 @extend .font-bold;
+
                                 font-weight: bold;
                                 font-size: 12px;
                                 text-transform: uppercase;
@@ -9679,9 +9794,10 @@ strong {
                                 }
 
                                 &.new {
-                                    &:before {
+                                    &::before {
                                         content: '\E120';
                                         @extend .font-icon;
+
                                         font-size: 14px;
                                         padding-right: 4px;
                                     }
@@ -9702,13 +9818,13 @@ strong {
                             &.transparent {
                                 background-size: 20px 20px;
                                 background-position: 0 -13px, 10px -3px;
-
                                 background-image:
                                     linear-gradient(45deg, $bcg-darker 25%, transparent 25%, transparent 75%, $bcg-darker 75%, $bcg-darker 100%),
                                     linear-gradient(45deg, $bcg-darker 25%, transparent 25%, transparent 75%, $bcg-darker 75%, $bcg-darker 100%);
 
                                 &.dragged {
                                     $color: darken($bcg-darkest, 2%);
+
                                     background-image:
                                         linear-gradient(45deg, $color 25%, transparent 25%, transparent 75%, $color 75%, $color 100%),
                                         linear-gradient(45deg, $color 25%, transparent 25%, transparent 75%, $color 75%, $color 100%);
@@ -9730,9 +9846,9 @@ strong {
                                         $radiusI: 20%;
                                         $radiusO: 55%;
                                         $color: $text-primary;
+
                                         background: radial-gradient($color $radiusI, transparent $radiusO);
                                         background-size: $size $size;
-
                                         cursor: grabbing;
                                     }
                                 }
@@ -9750,6 +9866,7 @@ strong {
                                     height: 24px;
                                     cursor: move;
                                     @extend .noSelect;
+
                                     $color: mix($text-darkest, $bcg-primary, 50%);
                                     $size: 6px;
                                     $radiusI: 20%;
@@ -9765,6 +9882,7 @@ strong {
 
                                     &:not(.disabled):hover {
                                         $color: $text-primary;
+
                                         background: radial-gradient($color $radiusI, transparent $radiusO);
                                         background-size: $size $size;
                                     }
@@ -9802,6 +9920,7 @@ strong {
 
                                 > .ui-button.remove {
                                     @extend .font-icon;
+
                                     position: absolute;
                                     right: 0;
                                     top: 2px;
@@ -9813,11 +9932,11 @@ strong {
                                     border-color: transparent;
                                     background-color: transparent;
 
-                                    &:before {
+                                    &::before {
                                         content: '\E124';
                                     }
 
-                                    &:hover:before {
+                                    &:hover::before {
                                         color: #d34141;
                                     }
                                 }
@@ -9875,8 +9994,9 @@ strong {
             text-transform: uppercase;
             @extend .font-bold;
 
-            &:before {
+            &::before {
                 @extend .font-icon;
+
                 font-size: 14px;
                 content: '\E122';
                 color: $text-secondary;
@@ -9885,7 +10005,7 @@ strong {
                 padding-left: 20px;
             }
 
-            &:not(.disabled):hover:before {
+            &:not(.disabled):hover::before {
                 color: $text-active;
             }
         }
@@ -9903,6 +10023,7 @@ strong {
 
             > li {
                 @extend .font-regular;
+
                 height: auto;
                 border-top: 1px solid $border-primary;
 
@@ -9962,11 +10083,11 @@ strong {
                     height: 22px;
                     width: 22px;
                     @extend .font-icon;
+
                     background: transparent;
                     border: 0;
                     margin: 0;
                     margin-left: 3px;
-
                     color: $text-darkest;
 
                     &:hover {
@@ -10122,11 +10243,13 @@ strong {
 
                             > .ui-header {
                                 @extend .allowSelect;
+
                                 color: $text-secondary;
                                 border: 1px solid $border-primary;
 
-                                &:before {
+                                &::before {
                                     @extend .font-icon;
+
                                     content: '\E399';
                                     color: $text-active;
                                     font-size: 16px;
@@ -10150,7 +10273,7 @@ strong {
                                 }
                             }
 
-                            &.no-icon > .ui-header:before {
+                            &.no-icon > .ui-header::before {
                                 display: none;
                             }
 
@@ -10174,6 +10297,7 @@ strong {
 
                                     .help {
                                         @extend .font-icon;
+
                                         cursor: pointer;
                                         position: absolute;
                                         right: 0;
@@ -10216,6 +10340,7 @@ strong {
 
                                     .ui-label.branch-icon {
                                         @extend .font-icon;
+
                                         font-size: 32px;
                                         color: $text-darkest;
                                         margin: 5px auto 25px auto;
@@ -10237,6 +10362,7 @@ strong {
 
                                     .ui-label.close-icon {
                                         @extend .font-icon;
+
                                         font-size: 32px;
                                         color: $text-darkest;
                                         margin: 5px auto 25px auto;
@@ -10262,6 +10388,7 @@ strong {
 
                                     > .ui-label.arrow {
                                         @extend .font-icon;
+
                                         font-size: 32px;
                                         color: $text-darkest;
                                         margin: -19px auto 10px auto;
@@ -10405,7 +10532,7 @@ strong {
                         > .value {
                             line-height: 21px;
 
-                            &:after {
+                            &::after {
                                 line-height: 22px;
                             }
                         }
@@ -10484,7 +10611,6 @@ strong {
                         padding: 0;
                         margin: 0;
                         text-align: center;
-
                         font-size: 12px;
                         color: $bcg-darkest;
                         background-color: $text-darkest;
@@ -10540,6 +10666,7 @@ strong {
 
                             &.icon {
                                 @extend .font-icon;
+
                                 float: left;
                                 font-size: 8px;
                                 margin-top: 8px;
@@ -10603,9 +10730,10 @@ strong {
                             .ui-label {
                                 width: 100%;
 
-                                &:before {
+                                &::before {
                                     content: '\E326';
                                     @extend .font-icon;
+
                                     margin-right: 20px;
                                     margin-left: 5px;
                                     font-size: 16px;
@@ -10645,12 +10773,12 @@ strong {
                 width: 100%;
                 bottom: 0;
                 background: $bcg-dark;
-
                 height: 130px;
                 overflow: hidden;
 
-                > .ui-header:before {
+                > .ui-header::before {
                     @extend .font-icon;
+
                     content: '\E236';
                     font-size: 14px;
                     font-weight: 100;
@@ -10661,6 +10789,7 @@ strong {
 
                 > .ui-header > .close {
                     @extend .font-icon;
+
                     float: right;
                     background: transparent;
                     border: 0;
@@ -10676,7 +10805,6 @@ strong {
                         height: 75px;
                         z-index: 1;
                         background: $bcg-darker;
-
                         border: 1px solid $border-primary;
 
                         &.empty {
@@ -10729,9 +10857,10 @@ strong {
                                     background: transparent;
                                     border-bottom: 1px solid $border-primary;
 
-                                    &:before {
+                                    &::before {
                                         content: '\E399';
                                         @extend .font-icon;
+
                                         margin-right: 5px;
                                         float: left;
                                         font-weight: 100;
@@ -10746,6 +10875,7 @@ strong {
 
                                     > .close {
                                         @extend .font-icon;
+
                                         background: transparent;
                                         border: 0;
                                         position: absolute;
@@ -10807,9 +10937,10 @@ strong {
                             top: initial;
                             bottom: 5px;
 
-                            &:before {
+                            &::before {
                                 content: '\E128';
                                 @extend .font-icon;
+
                                 margin-right: 5px;
                             }
                         }
@@ -10879,7 +11010,7 @@ strong {
         &:hover {
             background-color: $bcg-darkest;
 
-            &:before {
+            &::before {
                 color: $text-active;
             }
         }
@@ -10906,31 +11037,32 @@ strong {
             border-right: 1px solid $border-primary;
         }
 
-        &:before {
+        &::before {
             @extend .font-icon;
+
             font-size: 14px;
             line-height: inherit;
             margin-right: 8px;
             font-weight: 100;
         }
 
-        &.create:before {
+        &.create::before {
             content: '\E120';
         }
 
-        &.diff:before {
+        &.diff::before {
             content: '\E236';
         }
 
         // TODO: remove unicode star hack once a star has been added to the icon font
-        &.favorite:before {
+        &.favorite::before {
             content: '\2605';
             font-family: none;
             font-size: 12px;
             line-height: 1.1;
         }
 
-        &.vc-graph:before {
+        &.vc-graph::before {
             content: '\E399';
         }
     }
@@ -10972,6 +11104,7 @@ strong {
             > .ui-header {
                 .ui-button.close {
                     @extend .font-icon;
+
                     position: absolute;
                     right: 0;
                     margin: 0;
@@ -11017,6 +11150,7 @@ strong {
                                     > .content {
                                         > .icon {
                                             @extend .font-icon;
+
                                             margin-right: 15px;
                                             vertical-align: top;
                                             font-size: 8px;
@@ -11040,6 +11174,7 @@ strong {
                                                     display: block;
                                                     margin: 0;
                                                     @extend .font-regular;
+
                                                     overflow: hidden;
                                                     text-overflow: ellipsis;
 
@@ -11138,6 +11273,7 @@ strong {
                                     flex-basis: $vertical-section-width;
                                     padding: 0 10px;
                                     @extend .font-bold;
+
                                     font-size: 12px;
                                     box-sizing: border-box;
                                     height: 34px;
@@ -11153,16 +11289,17 @@ strong {
                                         text-overflow: ellipsis;
                                         white-space: nowrap;
 
-                                        &:before {
+                                        &::before {
                                             content: '\E399';
                                             @extend .font-icon;
+
                                             color: $text-active;
                                             margin-right: 10px;
                                             font-size: 15px;
                                         }
                                     }
 
-                                    &.base .ui-label:before {
+                                    &.base .ui-label::before {
                                         content: '\E117';
                                     }
                                 }
@@ -11312,7 +11449,7 @@ strong {
                                                         }
                                                     }
 
-                                                    &:before {
+                                                    &::before {
                                                         content: ' ';
                                                         position: absolute;
                                                         top: -10px;
@@ -11324,7 +11461,7 @@ strong {
                                                         transition: opacity 100ms;
                                                     }
 
-                                                    &.hovered:before {
+                                                    &.hovered::before {
                                                         opacity: 0.5;
                                                     }
 
@@ -11341,7 +11478,7 @@ strong {
                                                         &.ui-color-field {
                                                             pointer-events: none;
 
-                                                            &:after {
+                                                            &::after {
                                                                 display: none;
                                                             }
                                                         }
@@ -11473,6 +11610,7 @@ strong {
 
                                                     &:not(.light) {
                                                         @extend .font-bold;
+
                                                         background: lighten($bcg-dark, 1%);
                                                     }
 
@@ -11487,11 +11625,11 @@ strong {
                                                 > .content {
                                                     > .ui-panel.conflict-field {
                                                         $dis: &;
-
                                                         $selected-color: rgb(105, 184, 117);
+
                                                         cursor: pointer;
 
-                                                        &:after {
+                                                        &::after {
                                                             content: ' ';
                                                             display: block;
                                                             position: absolute;
@@ -11508,13 +11646,13 @@ strong {
                                                         }
 
                                                         &:not(.selected):hover {
-                                                            &:after {
+                                                            &::after {
                                                                 background: rgba($selected-color, 0.03);
                                                                 border: 1px solid rgba($selected-color, 0.2);
                                                             }
                                                         }
 
-                                                        &.selected:after {
+                                                        &.selected::after {
                                                             background: rgba($selected-color, 0.06);
                                                             border: 1px solid rgba($selected-color, 0.3);
                                                         }
@@ -11536,6 +11674,7 @@ strong {
                                     background: $bcg-dark;
                                     border-top: 1px solid $border-primary;
                                     @extend .font-bold;
+
                                     color: $text-primary;
                                 }
                             }
@@ -11560,8 +11699,9 @@ strong {
                                     margin-top: 5px;
                                     margin-left: 15px;
 
-                                    &:before {
+                                    &::before {
                                         @extend .font-icon;
+
                                         margin-right: 5px;
                                         vertical-align: middle;
                                         font-size: 16px;
@@ -11571,7 +11711,7 @@ strong {
                                         background: darken($text-active, 7%);
                                         color: $text-primary;
 
-                                        &:before {
+                                        &::before {
                                             content: '\E133';
                                         }
 
@@ -11582,8 +11722,9 @@ strong {
                                     }
 
                                     &.use-all {
-                                        &:after {
+                                        &::after {
                                             @extend .font-icon;
+
                                             margin-left: 5px;
                                             vertical-align: middle;
                                             font-size: 16px;
@@ -11591,19 +11732,20 @@ strong {
                                         }
                                     }
 
-                                    &.go-back:before {
+                                    &.go-back::before {
                                         content: '\E158';
                                     }
 
-                                    &.go-to-prev:before {
+                                    &.go-to-prev::before {
                                         content: '\E162';
                                     }
 
                                     &.go-to-next {
                                         margin-left: 0;
 
-                                        &:after {
+                                        &::after {
                                             @extend .font-icon;
+
                                             margin-left: 5px;
                                             vertical-align: middle;
                                             font-size: 16px;
@@ -11702,12 +11844,12 @@ strong {
                                                     > .ui-panel.conflict-field {
                                                         cursor: default;
 
-                                                        &:after {
+                                                        &::after {
                                                             pointer-events: all;
                                                             display: none;
                                                         }
 
-                                                        &:nth-child(odd):before {
+                                                        &:nth-child(odd)::before {
                                                             opacity: 0.4;
                                                             background: $bcg-dark;
                                                         }
@@ -11790,13 +11932,14 @@ strong {
             cursor: not-allowed !important;
         }
 
-        &:after {
+        &::after {
             display: inline-block !important;
         }
     }
 
     .section-label {
         @extend .font-regular;
+
         color: $text-primary;
         text-align: start;
         white-space: pre-wrap;
@@ -11856,6 +11999,7 @@ strong {
 
                 & > .warning-link::after {
                     @extend .font-icon;
+
                     content: '\E112';
                     margin-left: 5px;
                 }
@@ -11985,8 +12129,9 @@ strong {
                     text-align: center;
                     margin: auto;
 
-                    &:before {
+                    &::before {
                         @extend .font-icon;
+
                         margin-right: 5px;
                     }
 
@@ -11994,12 +12139,12 @@ strong {
                         margin-right: 3px;
                         flex-grow: 1;
 
-                        &:before {
+                        &::before {
                             content: '\E120';
                         }
                     }
 
-                    &.done:before {
+                    &.done::before {
                         content: '\E133';
                     }
                 }
@@ -12018,9 +12163,10 @@ strong {
                 color: $text-primary;
             }
 
-            &:after {
+            &::after {
                 content: '\E120';
                 @extend .font-icon;
+
                 position: absolute;
                 top: 1px;
                 right: 5px;
@@ -12030,7 +12176,7 @@ strong {
                 color: $text-primary;
                 border: 1px solid $text-active;
 
-                &:after {
+                &::after {
                     content: '\E133';
                 }
             }
@@ -12050,8 +12196,9 @@ strong {
                 }
             }
 
-            &:before {
+            &::before {
                 @extend .font-icon;
+
                 content: '\E129';
                 position: absolute;
                 top: 1px;
@@ -12072,9 +12219,10 @@ strong {
                 position: relative;
                 padding: 0 2px 0 8px;
 
-                &:before {
+                &::before {
                     content: '\E209';
                     @extend .font-icon;
+
                     padding-right: 8px;
                     vertical-align: top;
                 }
@@ -12101,9 +12249,9 @@ strong {
                     padding: 0;
                     border: none;
                     @extend .font-icon;
+
                     font-size: 12px;
                     text-align: center;
-
                     background: transparent;
 
                     &:hover {
@@ -12115,7 +12263,7 @@ strong {
                             color: #d34141;
                         }
 
-                        &:after {
+                        &::after {
                             content: '\E132';
                         }
                     }
@@ -12123,7 +12271,7 @@ strong {
                     &.play {
                         right: 15px;
 
-                        &:after {
+                        &::after {
                             content: '\E131';
                         }
                     }

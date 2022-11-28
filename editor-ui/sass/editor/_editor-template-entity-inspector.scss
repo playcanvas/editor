@@ -41,9 +41,10 @@
 .template-entity-inspector-root {
     font-size: 12px;
 
-    &:before {
+    &::before {
         content: '\E411';
         @extend .font-icon;
+
         margin-right: 5px;
         vertical-align: middle;
     }
@@ -76,7 +77,6 @@
     padding-right: 5px;
     height: 36px;
     flex-shrink: 0;
-
     border-bottom: 1px solid $border-primary;
 
     &:last-child {
@@ -105,8 +105,9 @@
     line-height: 24px;
     font-size: 12px;
 
-    &:before {
+    &::before {
         @extend .font-icon;
+
         content: '\E185';
         margin-right: 10px;
     }
@@ -123,6 +124,7 @@
 
 .template-entity-inspector-entity-list-icon-font {
     @extend .font-icon;
+
     left: 8px;
     top: -4px;
     font-size: 20px;

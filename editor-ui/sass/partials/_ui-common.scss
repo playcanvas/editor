@@ -3,7 +3,6 @@
 
     > .pcui-overlay-content {
         z-index: 10001;
-
         width: 400px;
         height: auto;
         left: calc(50% - 200px);
@@ -61,12 +60,10 @@
     background-size: 100%;
     background-image: url('//playcanvas.com/static-assets/platform/images/loader.gif');
     background-repeat: no-repeat;
-
     opacity: 0;
     animation: fadeIn ease-in 1;
     animation-fill-mode: forwards;
     animation-duration: $fade-duration;
-
     width: 32px;
     height: 32px;
 

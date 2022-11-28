@@ -1,6 +1,7 @@
 // asset input
 .pcui-asset-input {
     @extend .pcui-grid;
+
     position: relative;
     height: 66px;
     box-sizing: border-box;
@@ -21,7 +22,7 @@
     box-sizing: border-box;
     background-color: $bcg-dark;
 
-    &.asset-icon-prefix:before {
+    &.asset-icon-prefix::before {
         font-size: 50px;
     }
 }
@@ -41,6 +42,7 @@
     align-items: center;
 
     @extend .pcui-flex;
+
     flex-wrap: nowrap;
     flex-direction: row;
     margin-left: $element-margin;

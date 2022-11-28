@@ -57,7 +57,7 @@
 
 @each $assetType in $assets {
     .pcui-asset-list-item-#{$assetType} {
-        &:before {
+        &::before {
             content: map-get($icons, 'asset-#{$assetType}');
             @extend .font-icon;
         }
@@ -65,7 +65,7 @@
 }
 
 .pcui-asset-list-not-everywhere {
-    > .pcui-label:before {
+    > .pcui-label::before {
         content: '*';
         margin: 0 $element-margin;
     }

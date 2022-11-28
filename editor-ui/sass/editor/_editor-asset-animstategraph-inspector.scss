@@ -50,7 +50,7 @@
     background-color: $bcg-darker;
 }
 
-.asset-animstategraph-inspector-state-transition:before {
+.asset-animstategraph-inspector-state-transition::before {
     content: '\E166';
     font-family: pc-icon;
     font-size: 16px;
@@ -80,12 +80,12 @@
     width: 26px;
     height: 26px;
     z-index: 1000000;
-    color: rgba(255, 255, 255, 0.75);
-    background-color: rgba(41, 53, 56, 0.5);
+    color: rgba(255, 255, 255, 75%);
+    background-color: rgba(41, 53, 56, 50%);
 }
 
 .pcui-button.asset-animstategraph-inspector-close-button:not(.pcui-disabled, .pcui-readonly):hover {
-    background-color: rgba(41, 53, 56, 0.75);
+    background-color: rgba(41, 53, 56, 75%);
     color: #fff;
     box-shadow: none;
 }

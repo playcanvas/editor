@@ -16,12 +16,11 @@
             // when the table is at 100% width the user can resize these columns
             // below the visible width of the table and this fake column covers
             // the rest of the space.
-            &:after {
+            &::after {
                 content: ' ';
                 display: table-cell;
                 width: auto;
                 background-color: $bcg-darker;
-
                 position: sticky;
                 top: 0;
                 z-index: 1;
@@ -37,7 +36,6 @@
                 line-height: 26px;
                 font-size: 13px;
                 background-color: $bcg-darker;
-
                 border-top: 1px solid $bcg-darkest;
                 border-bottom: 1px solid $bcg-darkest;
                 border-right: 1px solid $bcg-darkest;
@@ -56,7 +54,7 @@
 
 // fake cell at the end of each row - see fake cell for the header
 // row above
-.pcui-table > table > tbody > tr:after {
+.pcui-table > table > tbody > tr::after {
     content: ' ';
     display: table-cell;
     width: auto;
@@ -84,18 +82,20 @@
     > table > tbody {
         // add fake row before all visible
         // resized elements
-        &:before {
+        &::before {
             content: ' ';
             display: table-row;
+
             // get height from custom CSS property set in JS
             height: var(--resizing-before);
         }
 
         // add fake row after all visible
         // resized elements
-        &:after {
+        &::after {
             content: ' ';
             display: table-row;
+
             // get height from custom CSS property set in JS
             height: var(--resizing-after);
         }
@@ -129,13 +129,14 @@
 .pcui-table-cell-sort {
     color: $text-primary;
 
-    &:after {
+    &::after {
         @extend .font-icon;
+
         vertical-align: middle;
         content: '\E167';
     }
 
-    &.pcui-table-cell-sort-descending:after {
+    &.pcui-table-cell-sort-descending::after {
         content: '\E168';
     }
 }
@@ -147,7 +148,7 @@
 .pcui-table-cell-active {
     cursor: col-resize !important;
 
-    &:before {
+    &::before {
         content: ' ';
         display: block;
         position: absolute;
@@ -161,7 +162,7 @@
     }
 }
 
-th.pcui-table-cell-active:before {
+th.pcui-table-cell-active::before {
     right: -1px;
 }
 

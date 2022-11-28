@@ -33,7 +33,7 @@
 }
 
 .pcui-cubemap-asset-inspector-face.pcui-disabled {
-    opacity: 50%;
+    opacity: 0.5;
 }
 
 .pcui-cubemap-asset-inspector-face.Top {
@@ -70,7 +70,7 @@
     left: -7px;
     color: #b1b8ba;
     padding: 2px 4px;
-    background-color: rgba(44, 57, 60, 0.8);
+    background-color: rgba(44, 57, 60, 80%);
     font-size: 12px;
 }
 

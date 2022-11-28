@@ -1,5 +1,5 @@
 .model-component-inspector-mapping-not-everywhere {
-    .pcui-asset-input-controls:before {
+    .pcui-asset-input-controls::before {
         content: '*';
         margin: $element-margin;
         align-self: flex-start;

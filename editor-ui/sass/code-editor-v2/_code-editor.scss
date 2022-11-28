@@ -10,6 +10,7 @@ html {
 
 body {
     @extend .font-regular;
+
     min-height: 100%;
     height: 100%;
     overflow: hidden;
@@ -136,6 +137,7 @@ strong {
     &:not(.hidden) {
         display: block;
     }
+
     height: calc(100% - 32px);
 
     > .content {
@@ -161,20 +163,14 @@ strong {
         flex: 1 1 auto;
         min-width: 10px;
         max-width: 150px;
-
         box-sizing: border-box;
-
         background-color: $tab-bg-color;
         color: $text-secondary;
-
         transition: color 200ms ease;
-
         padding: 0 5px;
         height: 32px - $tab-bottom-margin;
         line-height: 32px - $tab-bottom-margin;
-
         margin-right: 3px;
-
         font-size: 13px;
         white-space: nowrap;
 
@@ -243,6 +239,7 @@ strong {
 
             > .close {
                 @extend .font-icon;
+
                 color: $text-secondary;
                 background-color: $tab-bg-color;
                 box-shadow: -2px -2px 2px $tab-bg-color;
@@ -258,7 +255,6 @@ strong {
                 font-size: 14px;
                 text-align: center;
                 opacity: 0;
-
                 transition: opacity 200ms ease;
 
                 &:hover {
@@ -308,8 +304,9 @@ strong {
     > .ui-header {
         padding: 0;
 
-        > .title:before {
+        > .title::before {
             @extend .font-icon;
+
             content: '\E134';
             display: inline-block;
             font-size: 14px;
@@ -374,7 +371,6 @@ strong {
         height: 32px;
         line-height: 32px;
         vertical-align: bottom;
-
         color: $status-log;
 
         &.error {
@@ -401,6 +397,7 @@ strong {
 
             &::before {
                 @extend .font-icon;
+
                 content: '\E399';
                 margin-right: 5px;
             }
@@ -434,8 +431,9 @@ strong {
             > .icon {
                 color: $text-darkest;
 
-                &:after {
+                &::after {
                     @extend .font-icon;
+
                     font-size: 16px;
                     line-height: 23px;
                     text-align: center;
@@ -444,31 +442,31 @@ strong {
             }
         }
 
-        &.type-folder .icon:after {
+        &.type-folder .icon::after {
             content: '\E139';
         }
 
-        &.type-script .icon:after {
+        &.type-script .icon::after {
             content: '\E392';
         }
 
-        &.type-html .icon:after {
+        &.type-html .icon::after {
             content: '\E205';
         }
 
-        &.type-css .icon:after {
+        &.type-css .icon::after {
             content: '\E206';
         }
 
-        &.type-shader .icon:after {
+        &.type-shader .icon::after {
             content: '\E219';
         }
 
-        &.type-text .icon:after {
+        &.type-text .icon::after {
             content: '\E209';
         }
 
-        &.type-json .icon:after {
+        &.type-json .icon::after {
             content: '\E207';
         }
 
@@ -491,6 +489,7 @@ strong {
                     > .field {
                         padding: 0;
                         @extend .font-regular;
+
                         font-size: 14px;
                     }
                 }
@@ -554,7 +553,6 @@ strong {
 
 .pcui-overlay.picker-script-create {
     .pcui-overlay-content {
-
         width: 288px;
         padding: 16px;
         z-index: 0;
@@ -583,7 +581,7 @@ strong {
     flex-direction: row;
 
     > .pcui-text-input {
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: rgba(0, 0, 0, 50%);
         margin: 2px;
         height: 28px;
         flex-grow: 1;
@@ -686,7 +684,7 @@ strong {
                 width: 100%;
                 max-height: 50vh;
                 overflow-y: auto;
-                box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.5);
+                box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 50%);
 
                 > .ui-menu-item {
                     > .title {
@@ -892,6 +890,7 @@ strong {
     border-radius: 0;
 
     @extend .font-regular;
+
     font-size: 12px;
     line-height: 1.5;
 
@@ -928,7 +927,7 @@ li.CodeMirror-hint-active {
     margin-left: 10px;
 }
 
-.CodeMirror-Tern-completion:before {
+.CodeMirror-Tern-completion::before {
     left: 0;
     top: 0;
     border-radius: 0;
@@ -963,7 +962,7 @@ li.CodeMirror-hint-active {
 }
 
 .CodeMirror-dialog {
-    background-color: rgba(0, 0, 0, 0.9);
+    background-color: rgba(0, 0, 0, 90%);
     color: $editor-hint-line !important;
     border: none;
     padding: 10px 20px;
@@ -1083,7 +1082,6 @@ a.link-docs {
         left: calc(50% - 250px);
         height: 106px;
         top: calc(50% - 53px);
-
         white-space: nowrap;
 
         .ui-panel.left {
@@ -1185,10 +1183,11 @@ a.link-docs {
             font-size: 12px;
             color: $text-primary;
 
-            &:before {
+            &::before {
                 font-size: 12px;
                 content: '\E399';
                 @extend .font-icon;
+
                 margin-right: 5px;
             }
         }
