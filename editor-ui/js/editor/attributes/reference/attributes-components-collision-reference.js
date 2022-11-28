@@ -20,12 +20,12 @@ editor.once('load', function () {
     }, {
         title: 'axis',
         subTitle: '{Number}',
-        description: 'Aligns the capsule/cylinder with the local-space X, Y or Z axis of the entity',
+        description: 'Aligns the capsule/cylinder with the local-space X, Y or Z axis of the entity.',
         url: 'http://developer.playcanvas.com/api/pc.CollisionComponent.html#axis'
     }, {
         title: 'halfExtents',
         subTitle: '{pc.Vec3}',
-        description: 'The half-extents of the collision box. This is a 3-dimensional vector: local space half-width, half-height, and half-depth.',
+        description: 'The half-extents of the box-shaped collision volume in the local x, y and z axes.',
         url: 'http://developer.playcanvas.com/api/pc.CollisionComponent.html#halfExtents'
     }, {
         title: 'height',
