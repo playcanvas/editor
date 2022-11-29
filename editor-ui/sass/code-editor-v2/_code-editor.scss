@@ -523,7 +523,6 @@ strong {
 .pcui-menu {
     .pcui-menu-item {
         font-size: 14px;
-        min-width: 300px;
 
         .shortcut {
             position: absolute;
@@ -541,6 +540,10 @@ strong {
 
 .pcui-menu.top {
     top: 32px; // move overlay below the top menu bar to allow hovering on other items
+
+    .pcui-menu-item {
+        min-width: 300px;
+    }
 }
 
 .ui-label.readonly {

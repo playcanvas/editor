@@ -2,10 +2,9 @@ editor.once('load', function () {
     'use strict';
 
     const root = editor.call('layout.root');
-    const menu = new ui.Menu();
-    root.append(menu);
 
-    menu.class.add('context');
+    const menu = new pcui.Menu();
+    root.append(menu);
 
     let currentTab = null;
 
@@ -22,7 +21,7 @@ editor.once('load', function () {
 
             currentTab = tab;
 
-            menu.open = true;
+            menu.hidden = false;
             menu.position(e.clientX + 1, e.clientY);
         };
 
@@ -34,20 +33,20 @@ editor.once('load', function () {
     });
 
     // close tab
-    menu.append(menu.createItem('close', {
-        title: 'Close',
-        select: function () {
+    menu.append(new pcui.MenuItem({
+        text: 'Close',
+        onSelect: () => {
             editor.call('tabs:close', currentTab.id);
         }
     }));
 
     // close other tabs
-    menu.append(menu.createItem('close-other', {
-        title: 'Close Other Tabs',
-        filter: function () {
+    menu.append(new pcui.MenuItem({
+        text: 'Close Other Tabs',
+        onIsEnabled: () => {
             return editor.call('tabs:list').length > 1;
         },
-        select: function () {
+        onSelect: () => {
             const tabs = editor.call('tabs:list');
             let i = tabs.length;
             while (i--) {
@@ -60,14 +59,14 @@ editor.once('load', function () {
     }));
 
     // close tabs to the right
-    menu.append(menu.createItem('close-right', {
-        title: 'Close Tabs To The Right',
-        filter: function () {
+    menu.append(new pcui.MenuItem({
+        text: 'Close Tabs To The Right',
+        onIsEnabled: () => {
             const tabs = editor.call('tabs:list');
             const idx = tabs.indexOf(currentTab);
             return idx >= 0 && idx < tabs.length - 1;
         },
-        select: function () {
+        onSelect: () => {
             const tabs = editor.call('tabs:list');
             const idx = tabs.indexOf(currentTab);
             if (idx === -1) return;
@@ -79,9 +78,9 @@ editor.once('load', function () {
     }));
 
     // close all tabs
-    menu.append(menu.createItem('close-all', {
-        title: 'Close All Tabs',
-        select: function () {
+    menu.append(new pcui.MenuItem({
+        text: 'Close All Tabs',
+        onSelect: () => {
             editor.call('tabs:batchClose:start');
             const tabs = editor.call('tabs:list');
             let i = tabs.length;
