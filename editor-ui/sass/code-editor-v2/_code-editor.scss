@@ -546,11 +546,10 @@ strong {
     }
 }
 
-.ui-label.readonly {
+.pcui-label.readonly {
     margin: 0 0 0 auto;
     padding: 0 10px;
-    height: 100%;
-    line-height: 34px;
+    line-height: 32px;
     background-color: $bcg-primary;
 }
 
