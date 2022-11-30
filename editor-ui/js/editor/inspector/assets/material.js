@@ -755,9 +755,9 @@ Object.assign(pcui, (function () {
                     reference: 'asset:material:sheenGlossTint'
                 }, {
                     label: 'Glossiness',
-                    path: 'data.sheenGloss',
+                    path: 'data.sheenGlossiness',
                     type: 'slider',
-                    reference: 'asset:material:sheenGloss'
+                    reference: 'asset:material:sheenGlossiness'
                 }]
             })
         }]

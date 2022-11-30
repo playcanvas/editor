@@ -821,10 +821,10 @@ editor.once('load', function () {
         description: 'Use sheen color to tint with sheen map.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenTint'
     }, {
-        title: 'sheenGloss',
+        title: 'sheenGlossiness',
         subTitle: '{Number}',
-        description: 'If no sheen gloss map is set or tint is checked, this is the sheen gloss of the material.',
-        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenGloss'
+        description: 'If no sheen gloss map is set or tint is checked, this is the sheen glossiness of the material.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenGlossiness'
     }, {
         title: 'sheenGlossMap',
         subTitle: '{pc.Texture}',
