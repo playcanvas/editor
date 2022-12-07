@@ -281,7 +281,7 @@ editor.once('load', function () {
         return scenes;
     }
 
-    // loads a scene from c3
+    // loads a scene from collab-server
     async function loadScene(scene) {
         await new Promise((resolve, reject) => {
             try {

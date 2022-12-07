@@ -33,7 +33,8 @@
     "build": "cross-env NODE_ENV=production rollup -c",
     "watch": "rollup -c -w",
     "serve": "serve dist -p 3487",
-    "develop": "concurrently --kill-others \"npm run watch\" \"npm run serve\""
+    "develop": "concurrently --kill-others \"npm run watch\" \"npm run serve\"",
+    "postinstall": "./node_modules/.bin/browserify build-sharedb-client.js -o js/realtime/share.uncompressed.js"
   },
   "devDependencies": {
     "@playcanvas/editor-api": "^1.0.24",
@@ -52,12 +53,12 @@
     "concurrently": "^7.5.0",
     "cross-env": "^7.0.3",
     "eslint": "^8.26.0",
-    "ot-text": "1.0.2",
+    "ot-text": "github:playcanvas/ot-text",
     "postcss": "^8.4.19",
     "rollup": "^3.3.0",
     "rollup-plugin-sass": "^1.12.16",
     "serve": "^14.1.1",
-    "sharedb": "1.9.2",
+    "sharedb": "3.2.1",
     "stylelint": "^14.15.0",
     "stylelint-config-standard-scss": "^6.1.0"
   }

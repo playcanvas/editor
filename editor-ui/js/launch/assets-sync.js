@@ -100,7 +100,7 @@ editor.once('load', function () {
             }
 
             var asset = editor.call('assets:get', assetData.id);
-            // asset can exist if we are reconnecting to c3
+            // asset can exist if we are reconnecting to collab-server
             var assetExists = !!asset;
 
             if (!assetExists) {
