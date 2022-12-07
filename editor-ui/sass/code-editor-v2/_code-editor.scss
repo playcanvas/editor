@@ -609,6 +609,11 @@ strong {
         }
     }
 
+    > .pcui-text-input[placeholder]:after {
+        background-color: transparent;
+        line-height: 26px;
+    }
+
     > .pcui-button {
         font-size: 14px;
         line-height: 14px;
