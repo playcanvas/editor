@@ -543,52 +543,53 @@ editor.once('load', function () {
 
         let prev;
 
-        function undo() {
+        async function undo() {
             if (!parent.latest()) return;
 
             if (entity) {
-                entity.apiEntity.delete({ history: false }).then(() => {
-                    entity = editor.entities.create(prev, { history: false, index: childIndex, select: true });
-                    entity = entity._observer;
+                await entity.apiEntity.delete({ history: false });
 
-                    prev = null;
-                });
+                entity = editor.entities.create(prev, { history: false, index: childIndex, select: true });
+                entity = entity._observer;
+
+                prev = null;
             }
         }
 
-        function redo() {
+        async function redo() {
             if (!parent.latest()) return;
 
             // remove entity and then re-add instance from
             // the template keeping the same ids as before
             prev = entity.apiEntity.jsonHierarchy();
-            entity.apiEntity.delete({ history: false }).then(() => {
-                asset.apiAsset.instantiateTemplate(parent.apiEntity, {
-                    history: false,
-                    index: childIndex,
-                    extraData: {
-                        dstToSrc: templateEntIds,
-                        srcToDst: editor.call('template:utils', 'invertMap', templateEntIds)
-                    }
-                })
-                .then((newEntity) => {
-                    entity = newEntity._observer;
-                    // use timeout to make sure treeview has been updated
-                    setTimeout(() => {
-                        afterAddInstance(entity, entitiesPanelState, ignorePathValues);
-                    });
-                });
+
+            // use waitSubmitted to wait for scene operational transforms to be submitted to ShareDB -
+            // delete() prepares Operations Transforms on the frontend but instantiateTemplate()
+            // bakes them on the backend and we should wait till everything submitted after delete
+            await entity.apiEntity.delete({ history: false, waitSubmitted: true });
+
+            const newEntity = await asset.apiAsset.instantiateTemplate(parent.apiEntity, {
+                history: false,
+                index: childIndex,
+                extraData: {
+                    dstToSrc: templateEntIds,
+                    srcToDst: editor.call('template:utils', 'invertMap', templateEntIds)
+                }
+            });
+
+            entity = newEntity._observer;
+
+            // use timeout to make sure treeview has been updated
+            setTimeout(() => {
+                afterAddInstance(entity, entitiesPanelState, ignorePathValues);
             });
         }
 
-        redo();
-
-        editor.history.add({
+        editor.history.addAndExecute({
             name: 'revert all',
             undo: undo,
             redo: redo
         });
-
 
         return true;
     });
