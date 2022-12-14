@@ -117,6 +117,10 @@ editor.once('load', function () {
                     entity.set('components.light.layers', []);
                     entity.insert('components.light.layers', LAYERID_WORLD);
                 }
+
+                // shadow intensity
+                if (!entity.has('components.light.shadowIntensity'))
+                    entity.set('components.light.shadowIntensity', 1.0);
             }
 
             // model

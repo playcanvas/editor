@@ -205,6 +205,16 @@ Object.assign(pcui, (function () {
             step: 1,
             min: 0
         }
+    }, , {
+        label: 'Shadow Intensity',
+        path: 'components.light.shadowIntensity',
+        type: 'slider',
+        args: {
+            precision: 2,
+            step: 0.01,
+            min: 0,
+            max: 1
+        }
     }, {
         label: 'Shadow Type',
         path: 'components.light.shadowType',
@@ -490,6 +500,7 @@ Object.assign(pcui, (function () {
             this._field('shadowResolution').parent.hidden = !castShadows || isCLustered;
             this._field('shadowType').parent.hidden = !castShadows || isCLustered;
             this._field('shadowDistance').parent.hidden = !castShadows;
+            this._field('shadowIntensity').parent.hidden = !castShadows;
 
             this._field('numCascades').parent.hidden = !(castShadows && isDirectional);
             this._field('cascadeDistribution').parent.hidden = !(castShadows && isDirectional && numCascades > 1);
