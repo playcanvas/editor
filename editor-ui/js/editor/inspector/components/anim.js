@@ -33,7 +33,8 @@ Object.assign(pcui, (function () {
         },
         {
             label: 'State Graph',
-            path: 'components.anim.stateGraphAsset',
+            alias: 'stateGraphAsset',
+            reference: 'anim:stateGraphAsset',
             type: 'asset',
             args: {
                 assetType: 'animstategraph',
@@ -101,23 +102,6 @@ Object.assign(pcui, (function () {
             normalizeWeightsLink.setAttribute('target', '_blank');
             normalizeWeightsLink.innerText = 'here.';
             this._normalizeWeightsMessage.dom.children[1].appendChild(normalizeWeightsLink);
-
-            this.stateGraphFieldChangeEvent = (value) => {
-                if (!value) {
-                    const prevHistoryEnabled = this._entities[0].history.enabled;
-                    this._entities[0].history.enabled = false;
-                    this._entities[0].set('components.anim.animationAssets', {});
-                    this._entities[0].history.enabled = prevHistoryEnabled;
-                }
-            };
-
-            this.stateGraphAssetSetEvent = () => {
-                this._addAnimationAssetSlots();
-            };
-            this.entityStateGraphAssetSetEvent = () => {
-                this._stateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
-                this._addAnimationAssetSlots();
-            };
         }
 
         _createMask(rootEntity) {
@@ -470,12 +454,14 @@ Object.assign(pcui, (function () {
                     if (!state) return;
                     if (!['START', 'END', 'ANY'].includes(state.name)) {
                         if (!this._entities[0].get(`components.anim.animationAssets.${layer.name}:${state.name}`)) {
-                            const prevHistoryEnabled = this._entities[0].history.enabled;
-                            this._entities[0].history.enabled = false;
                             var animAssets = this._entities[0].get('components.anim.animationAssets');
-                            animAssets[`${layer.name}:${state.name}`] = { asset: null };
-                            this._entities[0].set(`components.anim.animationAssets`, animAssets);
-                            this._entities[0].history.enabled = prevHistoryEnabled;
+                            if (!animAssets[`${layer.name}:${state.name}`]) {
+                                animAssets[`${layer.name}:${state.name}`] = { asset: null };
+                                const prevHistoryEnabled = this._entities[0].history.enabled;
+                                this._entities[0].history.enabled = false;
+                                this._entities[0].set(`components.anim.animationAssets`, animAssets);
+                                this._entities[0].history.enabled = prevHistoryEnabled;
+                            }
                         }
                         const stateAsset = new pcui.AssetInput({
                             text: state.name,
@@ -518,31 +504,79 @@ Object.assign(pcui, (function () {
             this.unlink();
             super.link(entities);
             this._entities = entities;
-
             this._attributesInspector.link(entities);
-            const stateGraphField = this._attributesInspector.getField('components.anim.stateGraphAsset');
-            this.stateGraphFieldChangeEventBound = stateGraphField.on('change', this.stateGraphFieldChangeEvent);
+
+            const stateGraphAssetField = this._attributesInspector.getField('stateGraphAsset');
+            // handle multiselect
+            if (this._entities.length > 1) {
+                stateGraphAssetField.hidden = true;
+                return;
+            }
+            stateGraphAssetField.hidden = false;
 
             this._stateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
+            stateGraphAssetField.value = this._stateGraphAssetId;
+
+            // update state graph asset id and animationAssets when state graph asset is changed by the user
+            let suppressStateGraphAssetFieldChanges = false;
+            this._entityEvents.push(stateGraphAssetField.on('change', (value) => {
+                if (suppressStateGraphAssetFieldChanges) return;
+                const prevStateGraphAssetId = this._entities[0].get(`components.anim.stateGraphAsset`);
+                const prevAnimAssets = this._entities[0].get(`components.anim.animationAssets`);
+                const undo = () => {
+                    suppressStateGraphAssetFieldChanges = true;
+                    stateGraphAssetField.value = prevStateGraphAssetId;
+                    suppressStateGraphAssetFieldChanges = false;
+                    const prevHistoryEnabled = this._entities[0].history.enabled;
+                    this._entities[0].history.enabled = false;
+                    this._entities[0].set(`components.anim.stateGraphAsset`, prevStateGraphAssetId);
+                    // when undoing a clear of the state graph, restore the previous animation assets
+                    if (!value) {
+                        this._entities[0].set(`components.anim.animationAssets`, prevAnimAssets);
+                    }
+                    this._entities[0].history.enabled = prevHistoryEnabled;
+                    this._addAnimationAssetSlots();
+                };
+                const redo = () => {
+                    suppressStateGraphAssetFieldChanges = true;
+                    stateGraphAssetField.value = value;
+                    suppressStateGraphAssetFieldChanges = false;
+                    const prevHistoryEnabled = this._entities[0].history.enabled;
+                    this._entities[0].history.enabled = false;
+                    this._entities[0].set(`components.anim.stateGraphAsset`, value);
+                    // when clearing the state graph, remove all animation assets
+                    if (!value) {
+                        this._entities[0].set(`components.anim.animationAssets`, {});
+                    }
+                    this._entities[0].history.enabled = prevHistoryEnabled;
+                    this._addAnimationAssetSlots();
+                };
+                this._history.add({
+                    name: 'change stateGraphAsset',
+                    undo: undo,
+                    redo: redo
+                });
+                redo();
+            }));
+
             if (this._stateGraphAssetId) {
-                this._stateGraphAsset = this._args.assets.get(this._stateGraphAssetId);
-                if (this._stateGraphAsset) {
-                    this.stateGraphAssetSetEventBound = this._stateGraphAsset.on('*:set', this.stateGraphAssetSetEvent);
+                this._addAnimationAssetSlots();
+            }
+
+            // update the state graph asset input and display / hide the animation slots when an incoming change to the state graph asset is detected
+            this._entityEvents.push(this._entities[0].on('components.anim.stateGraphAsset:set', (value) => {
+                suppressStateGraphAssetFieldChanges = true;
+                stateGraphAssetField.value = value;
+                suppressStateGraphAssetFieldChanges = false;
+                this._stateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
+                if (this._stateGraphAssetId) {
                     this._addAnimationAssetSlots();
                 } else {
                     this._clearAnimationSlots();
-                    const prevHistoryEnabled = this._entities[0].history.enabled;
-                    this._entities[0].history.enabled = false;
-                    this._entities[0].set('components.anim.animationAssets', {});
-                    this._entities[0].history.enabled = prevHistoryEnabled;
                 }
-            } else {
-                this._clearAnimationSlots();
-            }
-            this._entityEvents.push(this._entities[0].on('components.anim.stateGraphAsset:set', () => {
-                this._stateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
-                this._addAnimationAssetSlots();
             }));
+
+            // normalize weights migration message
             if (window.sessionStorage.getItem(`${this._entities[0].get('resource_id')}:animNormalizeWeightsMessage`)) {
                 this._normalizeWeightsMessage.hidden = false;
                 const normalizeWeightsField = this._attributesInspector.getField('components.anim.normalizeWeights');
@@ -576,11 +610,7 @@ Object.assign(pcui, (function () {
             this._evts.forEach(e => e.unbind());
             this._evts.length = 0;
 
-            if (this.entityStateGraphAssetSetEventBound) this.entityStateGraphAssetSetEventBound.unbind();
-            if (this.stateGraphFieldChangeEventBound) this.stateGraphFieldChangeEventBound.unbind();
-            if (this.stateGraphAssetSetEventBound) this.stateGraphAssetSetEventBound.unbind();
-            if (this.onDestroyStateGraphAsset) this.onDestroyStateGraphAsset.unbind();
-
+            this._clearAnimationSlots();
             this._clearMaskInspector();
         }
     }
