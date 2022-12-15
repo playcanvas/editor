@@ -365,6 +365,7 @@ editor.once('load', function () {
         }),
         positionLabel: new ui.Label({ text: 'Position' }),
         positionEdit: new ui.NumberField({ min: 0, max: 100, step: 1 }),
+        resetButton: new ui.Button({ text: '&#57680' }),
         copyButton: new ui.Button({ text: '&#58193' }),
         pasteButton: new ui.Button({ text: '&#58184' }),
         colorPicker: null
@@ -819,6 +820,19 @@ editor.once('load', function () {
         editor.emit('picker:curve:change', paths, values);
     }
 
+    function doReset() {
+        // Remove all the anchors in the gradient
+        for (let i = 0; i < STATE.curves.length; ++i) {
+            STATE.curves[i].keys = [];
+        }
+
+        // Add a default key
+        insertAnchor(0, [1, 1, 1]);
+
+        selectHovered(-1);
+        emitCurveChange();
+    }
+
     function doCopy() {
         const data = {
             type: STATE.curves[0].type,
@@ -961,6 +975,15 @@ editor.once('load', function () {
     UI.positionEdit.style.width = '40px';
     UI.positionEdit.renderChanges = false;
     UI.positionEdit.on('change', function (value) { if (!STATE.changing) { moveSelectedAnchor(value / 100); } });
+
+    UI.resetButton.on('click', doReset);
+    UI.footer.append(UI.resetButton);
+    Tooltip.attach({
+        target: UI.resetButton.element,
+        text: 'Reset',
+        align: 'bottom',
+        root: UI.root
+    });
 
     UI.copyButton.on('click', doCopy);
     UI.footer.append(UI.copyButton);
