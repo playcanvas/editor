@@ -34,7 +34,7 @@
     "watch": "rollup -c -w",
     "serve": "serve dist -p 3487",
     "develop": "concurrently --kill-others \"npm run watch\" \"npm run serve\"",
-    "postinstall": "./node_modules/.bin/browserify build-sharedb-client.js -o js/realtime/share.uncompressed.js"
+    "postinstall": "node build-sharedb-client.js"
   },
   "devDependencies": {
     "@playcanvas/editor-api": "1.0.27",
