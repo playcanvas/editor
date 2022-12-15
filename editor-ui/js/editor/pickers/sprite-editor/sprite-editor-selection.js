@@ -189,6 +189,22 @@ editor.once('load', function () {
         }
     };
 
+    var getFilename = function (name) {
+        // Get the filename from a filepath if there's a '/'
+        // https://github.com/playcanvas/editor/issues/784
+        var lastSlash = name.lastIndexOf('/');
+        if (lastSlash > 0) {
+            if (lastSlash < name.length - 1) {
+                return name.substring(lastSlash+1);
+            }
+
+            // If for some reason the '/' is the last character, return a default name
+            return 'New Sprite'
+        }
+
+        return name;
+    };
+
     // Methods
 
     editor.method('picker:sprites:selectSprite', selectSprite);
@@ -231,6 +247,8 @@ editor.once('load', function () {
             name = 'New Sprite';
         }
 
+        name = getFilename(name);
+
         const folder = editor.call('assets:panel:currentFolder');
 
         editor.assets.createSprite({
@@ -263,6 +281,9 @@ editor.once('load', function () {
             if (!name) {
                 name = 'New Sprite ' + i;
             }
+
+            name = getFilename(name);
+
             // rendermode: 0 - simple
             editor.assets.createSprite({
                 name: name,
@@ -305,8 +326,6 @@ editor.once('load', function () {
                 });
             }
         });
-
-
     };
 
     var endSpriteEditMode = function () {
