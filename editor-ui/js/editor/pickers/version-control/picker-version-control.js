@@ -315,7 +315,7 @@ editor.once('load', function () {
     var showCheckpoints = function () {
         showRightSidePanel(panelCheckpoints);
     };
-
+    
     // Close branch
     panelCloseBranch.on('cancel', function () {
         showCheckpoints();
@@ -881,7 +881,7 @@ editor.once('load', function () {
             item.isFavorite = projectUserSettings.get('favoriteBranches').includes(item.branch.id);
     };
 
-    function viewDiff(srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId, histItem) {
+    function viewDiff(srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId, histItem, onShowDiffCallback) {
         panelDiffCheckpoints.hidden = true;
         togglePanels(false);
         showRightSidePanel(panelGenerateDiffProgress);
@@ -890,22 +890,45 @@ editor.once('load', function () {
 
             togglePanels(true);
 
-            if (!err && diff.numConflicts === 0) {
-                panelGenerateDiffProgress.setMessage("There are no changes");
-                setTimeout(function () {
-                    editor.call('vcgraph:moveToForeground');
-                    showCheckpoints();
-                }, 1500);
-            } else if (!err) {
-                editor.call('picker:project:close');
-                editor.call('picker:versioncontrol:mergeOverlay:hide'); // hide this in case it's open
-                editor.call('picker:diffManager', diff);
+            if (!err) {
+                const hasChanges = diff.numConflicts !== 0;
+
+                if (hasChanges) {
+                    editor.call('picker:project:close');
+                    editor.call('picker:versioncontrol:mergeOverlay:hide'); // hide this in case it's open
+                    editor.call('picker:diffManager', diff);
+                } else {
+                    panelGenerateDiffProgress.setMessage("There are no changes");
+                    setTimeout(function () {
+                        editor.call('vcgraph:moveToForeground');
+                        showCheckpoints();
+                    }, 1500);
+                }
+
+                if (onShowDiffCallback) {
+                    onShowDiffCallback(hasChanges);
+                }
             }
         });
     }
 
-    panelDiffCheckpoints.on('diff', viewDiff);
-    panelCheckpoints.on('diff', viewDiff);
+    function viewDiffFromShowCheckpoints(srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId) {
+        viewDiff(srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId);
+    };
+
+    function viewDiffFromCreateCheckpoint() {
+        const branch = config.self.branch;
+        viewDiff(branch.id, null, branch.id, branch.latestCheckpointId, null, function (shownDiff) {
+            // Only show the create new checkpoint panel on if we've shown a diff window
+            if (shownDiff) {
+                showNewCheckpointOnLoad = true;
+            }
+        });
+    }
+
+    panelDiffCheckpoints.on('diff', viewDiffFromShowCheckpoints);
+    panelCheckpoints.on('diff', viewDiffFromShowCheckpoints);
+    panelCreateCheckpoint.on('diff', viewDiffFromCreateCheckpoint);
 
     // show create branch panel
     // btnNewBranch.on('click', function () {

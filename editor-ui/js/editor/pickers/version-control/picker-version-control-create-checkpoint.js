@@ -1,19 +1,27 @@
 editor.once('load', function () {
     'use strict';
 
-    var labelDesc = new ui.Label({
+    const labelDesc = new ui.Label({
         text: 'Description:'
     });
     labelDesc.class.add('small');
 
-    var fieldDescription = new ui.TextAreaField({
+    const fieldDescription = new ui.TextAreaField({
         blurOnEnter: false
     });
     fieldDescription.renderChanges = false;
     fieldDescription.keyChange = true;
     fieldDescription.flexGrow = 1;
 
-    var create = function () {
+    const viewChangesButton = new ui.Button({
+        text: 'View Changes'
+    });
+
+    viewChangesButton.on('click', function () {
+        panel.emit('diff');
+    })
+
+    const create = function () {
         panel.emit('confirm', {
             description: fieldDescription.value.trim()
         });
@@ -27,10 +35,10 @@ editor.once('load', function () {
         }
     });
 
-    var panel = editor.call('picker:versioncontrol:createSidePanel', {
+    const panel = editor.call('picker:versioncontrol:createSidePanel', {
         title: 'Create a new checkpoint',
         note: 'A new checkpoint will take a snapshot of the current branch which you can revert to at a later date.',
-        mainContents: [labelDesc, fieldDescription],
+        mainContents: [labelDesc, fieldDescription, viewChangesButton],
         buttons: {
             confirm: {
                 highlighted: true,

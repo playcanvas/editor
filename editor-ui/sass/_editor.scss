@@ -10317,6 +10317,17 @@ strong {
                                         height: 100px;
                                         background: $bcg-darkest;
                                     }
+
+                                    .ui-button {
+                                        width: 140px;
+                                        text-transform: uppercase;
+                                        text-align: center;
+                                        align-self: center;
+                                        background: $bcg-primary;
+                                        font-size: 12px;
+                                        height: 28px;
+                                        line-height: 28px;
+                                    }
                                 }
                             }
                         }
