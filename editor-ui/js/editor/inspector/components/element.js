@@ -810,7 +810,8 @@ Object.assign(pcui, (function () {
                     anchor: entities[i].get('components.element.anchor'),
                     pivot: entities[i].get('components.element.pivot'),
                     width: entities[i].get('components.element.width'),
-                    height: entities[i].get('components.element.height')
+                    height: entities[i].get('components.element.height'),
+                    margin: entities[i].get('components.element.margin')
                 };
             }
 
@@ -823,6 +824,7 @@ Object.assign(pcui, (function () {
                     entity.history.enabled = false;
                     const prevRecord = prev[entity.get('resource_id')];
                     entity.set('components.element.anchor', prevRecord.anchor);
+                    entity.set('components.element.margin', prevRecord.margin);
                     if (pivot) {
                         entity.set('components.element.pivot', prevRecord.pivot);
                     }
@@ -842,6 +844,13 @@ Object.assign(pcui, (function () {
                     const history = entity.history.enabled;
                     entity.history.enabled = false;
                     entity.set('components.element.anchor', anchor);
+
+                    // If we are trying to stretch the element, then we should to set the
+                    // margin to 0, 0, 0, 0 to stretch correctly
+                    if (value === '0,0,1,1') {
+                        entity.set('components.element.margin', [0, 0, 0, 0]);
+                    }
+
                     if (pivot) {
                         entity.set('components.element.pivot', pivot);
                     }
