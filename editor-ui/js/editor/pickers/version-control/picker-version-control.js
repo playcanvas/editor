@@ -315,7 +315,7 @@ editor.once('load', function () {
     var showCheckpoints = function () {
         showRightSidePanel(panelCheckpoints);
     };
-    
+
     // Close branch
     panelCloseBranch.on('cancel', function () {
         showCheckpoints();
@@ -914,7 +914,7 @@ editor.once('load', function () {
 
     function viewDiffFromShowCheckpoints(srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId) {
         viewDiff(srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId);
-    };
+    }
 
     function viewDiffFromCreateCheckpoint() {
         const branch = config.self.branch;

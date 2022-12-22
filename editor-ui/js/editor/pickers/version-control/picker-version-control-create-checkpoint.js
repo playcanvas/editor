@@ -19,7 +19,7 @@ editor.once('load', function () {
 
     viewChangesButton.on('click', function () {
         panel.emit('diff');
-    })
+    });
 
     const create = function () {
         panel.emit('confirm', {

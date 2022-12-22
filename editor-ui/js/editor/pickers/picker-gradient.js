@@ -323,6 +323,7 @@ Object.defineProperty(ColorPicker.prototype, 'color', {
     }
 });
 
+// eslint-disable-next-line accessor-pairs
 Object.defineProperty(ColorPicker.prototype, 'editAlpha', {
     set: function (editAlpha) {
         if (editAlpha) {
@@ -837,6 +838,7 @@ editor.once('load', function () {
         const data = {
             type: STATE.curves[0].type,
             keys: STATE.curves.map(function (c) {
+                // eslint-disable-next-line prefer-spread
                 return [].concat.apply([], c.keys);
             })
         };
@@ -856,6 +858,7 @@ editor.once('load', function () {
                 if (index < data.keys.length) {
                     pasteData.keys.push(data.keys[index]);
                 } else {
+                    // eslint-disable-next-line prefer-spread
                     pasteData.keys.push([].concat.apply([], STATE.curves[index].keys));
                 }
             }

@@ -195,11 +195,11 @@ editor.once('load', function () {
         var lastSlash = name.lastIndexOf('/');
         if (lastSlash > 0) {
             if (lastSlash < name.length - 1) {
-                return name.substring(lastSlash+1);
+                return name.substring(lastSlash + 1);
             }
 
             // If for some reason the '/' is the last character, return a default name
-            return 'New Sprite'
+            return 'New Sprite';
         }
 
         return name;

@@ -205,7 +205,7 @@ Object.assign(pcui, (function () {
             step: 1,
             min: 0
         }
-    }, , {
+    }, {
         label: 'Shadow Intensity',
         path: 'components.light.shadowIntensity',
         type: 'slider',
