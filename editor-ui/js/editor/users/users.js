@@ -139,9 +139,8 @@ editor.once('load', function () {
         Array.from(['token', 'promo', 'seats']).forEach((field) => {
             if (data[field]) options[field] = data[field];
         });
-
         Ajax({
-            url: `{{url.api}}/users/${owner.id}/subscription`,
+            url: `{{url.api}}/payment/subscription/users/${owner.id}`,
             method: 'PUT',
             auth: true,
             data: options
