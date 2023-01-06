@@ -47,6 +47,14 @@ editor.once('load', function () {
         }
     }
 
+    // returns true if the filename is recognized as a scene file and false otherwise
+    editor.method('assets:isSceneFilename', function (filename) {
+        for (let i = 0; i < typeToExt.scene.length; ++i) {
+            if (filename.match(new RegExp(`.${typeToExt.scene[i]}$`, 'i')))
+                return true;
+        }
+        return false;
+    });
 
     editor.method('assets:canUploadFiles', function (files) {
         // check usage first
@@ -382,7 +390,7 @@ editor.once('load', function () {
         var settings = editor.call('settings:projectUser');
         // if we're not replacing a current file, the file is of type FBX and the user has the createFBXFolder option enabled,
         // we should create a folder for the contents of the FBX
-        if (!asset && file.name.match(/\.fbx$/i) && settings.get('editor.pipeline.createFBXFolder')) {
+        if (!asset && editor.call('assets:isSceneFilename', file.name) && settings.get('editor.pipeline.createFBXFolder')) {
             createFolder(currentFolder, file.name, (folder) => {
                 if (!multipleFiles) {
                     currentFolder = editor.call('assets:panel:currentFolder', folder);
