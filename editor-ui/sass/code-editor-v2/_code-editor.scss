@@ -70,12 +70,7 @@ strong {
     max-height: 100%;
     background-color: $bcg-primary;
     color: $text-primary;
-
-    > .content {
-        max-height: 100%;
-        height: 100%;
-        overflow: hidden;
-    }
+    overflow: hidden;
 
     &.file-only-mode {
         #ui-top,
@@ -95,29 +90,25 @@ strong {
 #ui-top {
     background-color: mix($bcg-darkest, black, 75%);
 
-    > .content {
-        > .pcui-button {
-            background-color: transparent;
-            border-color: transparent;
-            color: $text-secondary;
-            margin: 0;
-            padding: 0 10px;
-            height: 32px;
-            line-height: 32px;
-            font-size: 14px;
-            border: 0;
-            border-radius: 0;
+    > .pcui-button {
+        background-color: transparent;
+        color: $text-secondary;
+        margin: 0;
+        padding: 0 10px;
+        height: 32px;
+        line-height: 32px;
+        font-size: 14px;
+        border: 0;
 
-            &:hover {
-                color: $text-primary;
-                background-color: mix($text-darkest, $bcg-darker, 30%);
-                box-shadow: none;
-            }
+        &:hover {
+            color: $text-primary;
+            background-color: mix($text-darkest, $bcg-darker, 30%);
+            box-shadow: none;
+        }
 
-            &.open {
-                color: $text-primary;
-                background-color: $bcg-darkest;
-            }
+        &.open {
+            color: $text-primary;
+            background-color: $bcg-darkest;
         }
     }
 }
@@ -127,21 +118,13 @@ strong {
     height: calc(100vh - 64px);
     flex-grow: 1;
     overflow: hidden;
-
-    > .content {
-        height: 100%;
-    }
 }
 
 #ui-code {
-    &:not(.hidden) {
-        display: block;
-    }
-
     height: calc(100% - 32px);
 
-    > .content {
-        height: 100%;
+    &:not(.hidden) {
+        display: block;
     }
 }
 
@@ -274,37 +257,30 @@ strong {
 
 #ui-left {
     color: $text-primary;
-    width: 220px;
     flex-shrink: 0;
 
-    > .content {
-        width: 220px;
-
-        > .ui-progress {
-            box-sizing: border-box;
-            width: 100%;
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            border-right: 1px solid $border-primary;
-        }
+    > .ui-progress {
+        box-sizing: border-box;
+        width: 100%;
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        border-right: 1px solid $border-primary;
     }
 }
 
 #ui-right {
-    color: $text-primary;
     flex-shrink: 0;
-    background-color: $bcg-primary;
     width: 0;
 
     &:not(.resizing) {
         transition: width 200ms ease;
     }
 
-    > .ui-header {
+    > .pcui-panel-header {
         padding: 0;
 
-        > .title::before {
+        > .pcui-panel-header-title::before {
             @extend .font-icon;
 
             content: '\E134';
@@ -319,33 +295,20 @@ strong {
 
         > .close {
             background: transparent;
-            border-color: transparent;
             position: absolute;
             right: 0;
-            width: 32px;
-            height: 32px;
-            line-height: 32px;
-            text-align: center;
-            padding: 0;
-            margin: 0;
             font-size: 14px;
-            font-weight: bold;
             border: 0;
-            border-radius: 0;
 
             &:hover {
-                border-color: transparent;
                 box-shadow: none;
             }
         }
     }
 
-    > .content {
+    > .pcui-panel-content {
         box-sizing: border-box;
         padding: 8px 6px;
-        width: 100% !important;
-        white-space: nowrap;
-        overflow: hidden;
 
         > .pcui-label-group {
             height: 24px;
@@ -359,12 +322,7 @@ strong {
 }
 
 #ui-bottom {
-    height: 32px;
-    font-size: 14px;
-    line-height: 32px;
     background-color: mix($bcg-darkest, black, 75%);
-    z-index: 10;
-    box-sizing: border-box;
 
     .pcui-label {
         margin: 0 0 0 5px;
@@ -758,9 +716,6 @@ strong {
             height: 24px;
         }
     }
-}
-a.link-docs {
-    margin-left: 10px;
 }
 
 .animate-height {

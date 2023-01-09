@@ -6,16 +6,16 @@ editor.once('load', function () {
     const panel = editor.call('layout.code');
     panel.toggleCode = function (toggle) {
         if (toggle) {
-            panel.innerElement.classList.remove('invisible');
+            panel.domContent.classList.remove('invisible');
         } else {
-            panel.innerElement.classList.add('invisible');
+            panel.domContent.classList.add('invisible');
         }
     };
 
     const minimapMode = settings.get('ide.minimapMode');
 
     // create editor
-    const monacoEditor = monaco.editor.create(panel.innerElement, {
+    const monacoEditor = monaco.editor.create(panel.domContent, {
         language: 'javascript',
         tabIndex: 1,
         fontSize: settings.get('ide.fontSize'),
@@ -66,12 +66,12 @@ editor.once('load', function () {
     // update editor layout when panels (left file panels, or the settings panel) is folded, unfolded, and resized
     // (but wait a bit in a timeout because of the folding / unfolding animation)
     const filesPanel = editor.call('layout.left');
-    filesPanel.on('fold', () => setTimeout(() => onResize(), 120));
-    filesPanel.on('unfold', () => setTimeout(() => onResize(), 120));
+    filesPanel.on('collapse', () => setTimeout(() => onResize(), 120));
+    filesPanel.on('expand', () => setTimeout(() => onResize(), 120));
     filesPanel.on('resize', () => onResize());
 
     const preferencesPanel = editor.call('layout.attributes');
-    preferencesPanel.element.addEventListener('transitionend', () => onResize());
+    preferencesPanel.dom.addEventListener('transitionend', () => onResize());
     preferencesPanel.on('resize', () => onResize());
 
     // update layout once at startup because it seems to break
@@ -92,13 +92,13 @@ editor.once('load', function () {
     panel.toggleCode(false);
 
     // subscribe to settings changes
-    settings.on('ide.fontSize:set', function (value) {
+    settings.on('ide.fontSize:set', (value) => {
         monacoEditor.updateOptions({
             fontSize: value
         });
     });
 
-    settings.on('ide.minimapMode:set', function (value) {
+    settings.on('ide.minimapMode:set', (value) => {
         monacoEditor.updateOptions({
             minimap: {
                 enabled: value !== 'none',
@@ -107,29 +107,29 @@ editor.once('load', function () {
         });
     });
 
-    settings.on('ide.autoCloseBrackets:set', function (value) {
+    settings.on('ide.autoCloseBrackets:set', (value) => {
         monacoEditor.updateOptions({
             autoClosingBrackets: !!value
         });
     });
 
-    settings.on('ide.highlightBrackets:set', function (value) {
+    settings.on('ide.highlightBrackets:set', (value) => {
         monacoEditor.updateOptions({
             matchBrackets: value ? 'always' : 'never'
         });
     });
 
-    settings.on('ide.theme:set', function (value) {
+    settings.on('ide.theme:set', (value) => {
         setMonacoTheme(value);
     });
 
-    settings.on('ide.wordWrap:set', function (value) {
+    settings.on('ide.wordWrap:set', (value) => {
         monacoEditor.updateOptions({
             wordWrap: value ? 'on' : 'off'
         });
     });
 
-    settings.on('ide.bracketPairColorization:set', function (value) {
+    settings.on('ide.bracketPairColorization:set', (value) => {
         // Using quotes in the object looks odd but is considered the official way to set the options
         // https://github.com/microsoft/monaco-editor/blob/main/CHANGELOG.md#0280-22092021
 
@@ -154,7 +154,7 @@ editor.once('load', function () {
     });
 
     // expose
-    editor.method('editor:monaco', function () {
+    editor.method('editor:monaco', () => {
         return monacoEditor;
     });
 });

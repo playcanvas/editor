@@ -2,113 +2,136 @@ editor.on('load', function () {
     'use strict';
 
     // main container
-    const root = new ui.Panel();
-    root.element.id = 'ui-root';
-    root.flex = true;
-    root.flexDirection = 'column';
-    root.flexWrap = 'nowrap';
-    document.body.appendChild(root.element);
+    const root = new pcui.Container({
+        id: 'ui-root',
+        flex: true,
+        flexDirection: 'column',
+        flexWrap: 'nowrap'
+    });
+    document.body.appendChild(root.dom);
     // expose
-    editor.method('layout.root', function () { return root; });
+    editor.method('layout.root', () => {
+        return root;
+    });
 
-
-    const top = new ui.Panel();
-    top.element.id = 'ui-top';
-    top.flexWrap = 'nowrap';
-    top.flexShrink = false;
+    // menu bar
+    const top = new pcui.Container({
+        id: 'ui-top',
+        flex: true,
+        flexDirection: 'row',
+        flexWrap: 'nowrap',
+        flexShrink: '0'
+    });
     root.append(top);
-
     // expose
-    editor.method('layout.top', function () { return top; });
-
+    editor.method('layout.top', () => {
+        return top;
+    });
 
     // middle
-    const middle = new ui.Panel();
-    middle.element.id = 'ui-middle';
-    middle.flexible = true;
-    middle.flexGrow = true;
+    const middle = new pcui.Container({
+        id: 'ui-middle',
+        flex: true,
+        flexDirection: 'row',
+        flexGrow: '1'
+    });
     root.append(middle);
 
-
     // left
-    const left = new ui.Panel('FILES');
-    left.element.id = 'ui-left';
-    left.class.add('noSelect');
-    left.foldable = true;
-    left.folded = editor.call('localStorage:get', 'editor:layout:left:fold') || false;
-    left.horizontal = true;
-    left.scroll = true;
-    left.resizable = 'right';
-    const leftWidth = editor.call('localStorage:get', 'editor:layout:left:width') || '220px';
-    left.style.width = leftWidth;
-    left.innerElement.style.width = leftWidth;
-    left.resizeMin = 200;
-    left.resizeMax = 500;
-
-    left.on('resize', function () {
-        editor.call('localStorage:set', 'editor:layout:left:width', left.innerElement.style.width);
+    const left = new pcui.Panel({
+        collapseHorizontally: true,
+        collapsible: true,
+        collapsed: editor.call('localStorage:get', 'editor:layout:left:fold') || false,
+        headerText: 'FILES',
+        id: 'ui-left',
+        resizable: 'right',
+        resizeMin: 200,
+        resizeMax: 500,
+        scrollable: true,
+        width: editor.call('localStorage:get', 'editor:layout:left:width') || 220
     });
-    left.on('fold', function () {
+
+    left.on('resize', () => {
+        editor.call('localStorage:set', 'editor:layout:left:width', left.width);
+    });
+    left.on('collapse', () => {
         editor.call('localStorage:set', 'editor:layout:left:fold', true);
     });
-    left.on('unfold', function () {
+    left.on('expand', () => {
         editor.call('localStorage:set', 'editor:layout:left:fold', false);
     });
 
     middle.append(left);
     // expose
-    editor.method('layout.left', function () { return left; });
+    editor.method('layout.left', () => {
+        return left;
+    });
 
     // center
-    const center = new ui.Panel();
-    center.element.id = 'ui-center';
+    const center = new pcui.Container({
+        id: 'ui-center'
+    });
     middle.append(center);
-
     // expose
-    editor.method('layout.center', function () { return center; });
+    editor.method('layout.center', () => {
+        return center;
+    });
 
     // tabs
-    const tabs = new ui.Panel();
-    tabs.element.id = 'ui-tabs';
-    tabs.flexShrink = false;
-    tabs.flexWrap = 'nowrap';
-    tabs.class.add('invisible');
+    const tabs = new pcui.Container({
+        class: 'invisible',
+        id: 'ui-tabs',
+        flex: true,
+        flexDirection: 'row',
+        flexWrap: 'nowrap',
+        flexShrink: '0'
+    });
     center.append(tabs);
-
     // expose
-    editor.method('layout.tabs', function () { return tabs; });
+    editor.method('layout.tabs', () => {
+        return tabs;
+    });
 
     // code
-    const code = new ui.Panel();
-    code.element.id = 'ui-code';
+    const code = new pcui.Container({
+        id: 'ui-code'
+    });
     center.append(code);
-    editor.method('layout.code', function () { return code; });
+    // expose
+    editor.method('layout.code', () => {
+        return code;
+    });
 
     // right
-    const right = new ui.Panel('PREFERENCES');
-    right.element.id = 'ui-right';
-    right.class.add('noSelect');
-    right.horizontal = true;
-    right.scroll = true;
-    right.resizable = 'left';
-    right.resizeMin = 264;
-    right.resizeMax = 500;
-    right.hidden = true;
+    const right = new pcui.Panel({
+        collapseHorizontally: true,
+        headerText: 'PREFERENCES',
+        hidden: true,
+        id: 'ui-right',
+        resizable: 'left',
+        resizeMin: 264,
+        resizeMax: 500,
+        scrollable: true
+    });
     middle.append(right);
     // expose
-    editor.method('layout.attributes', function () { return right; });
+    editor.method('layout.attributes', () => {
+        return right;
+    });
 
     // bottom (status)
-    const bottom = new ui.Panel();
-    bottom.element.id = 'ui-bottom';
-    // bottom.flexShrink = false;
+    const bottom = new pcui.Container({
+        id: 'ui-bottom'
+    });
     root.append(bottom);
     // expose
-    editor.method('layout.statusBar', function () { return bottom; });
+    editor.method('layout.statusBar', () => {
+        return bottom;
+    });
 
     // disable context menu for everything but the code view
-    root.element.addEventListener('contextmenu', function (e) {
-        if (!code.innerElement.contains(e.target)) {
+    root.dom.addEventListener('contextmenu', (e) => {
+        if (!code.domContent.contains(e.target)) {
             e.preventDefault();
         }
     });

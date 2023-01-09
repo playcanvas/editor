@@ -10,19 +10,19 @@ editor.once('load', function () {
 
     // close button
     const btnClose = new pcui.Button({
-        class: ['close'],
+        class: 'close',
         hidden: true,
         icon: 'E132'
     });
-    btnClose.on('click', function () {
+    btnClose.on('click', () => {
         hidden = true;
         width = settingsPanel.style.width;
         settingsPanel.style.width = '';
         btnClose.hidden = true;
     });
-    settingsPanel.headerElement.appendChild(btnClose.element);
+    settingsPanel.header.append(btnClose);
 
-    settingsPanel.element.addEventListener('transitionend', function () {
+    settingsPanel.dom.addEventListener('transitionend', () => {
         if (hidden) {
             settingsPanel.hidden = true;
         } else {
@@ -33,7 +33,7 @@ editor.once('load', function () {
     editor.method('picker:settings', function () {
         hidden = false;
         settingsPanel.hidden = false;
-        setTimeout(function () {
+        setTimeout(() => {
             settingsPanel.style.width = width;
         }, 100);
     });
@@ -64,7 +64,7 @@ editor.once('load', function () {
 
         if (tooltip) {
             Tooltip.attach({
-                target: labelGroup.label.element,
+                target: labelGroup.label.dom,
                 html: tooltip,
                 align: 'right',
                 root: root
@@ -117,11 +117,11 @@ editor.once('load', function () {
     const fieldFormatOnSave = new pcui.BooleanInput();
     addField('Format On Save:', fieldFormatOnSave, 'ide.formatOnSave', 'If enabled the document will be auto-formatted on save');
 
-    settingsPanel.on('show', function () {
+    settingsPanel.on('show', () => {
         editor.emit('picker:settings:open');
     });
 
-    settingsPanel.on('hide', function () {
+    settingsPanel.on('hide', () => {
         editor.emit('picker:settings:close');
     });
 });
