@@ -87,6 +87,10 @@ editor.once('load', function () {
             }
         }
 
+        if (location.search.includes('use_local_frontend')) {
+            query.push('use_local_frontend');
+        }
+
         if (query.length)
             url += '?' + query.join('&');
 

@@ -24,9 +24,18 @@ editor.once('load', function () {
         // (only works in Chrome and only if the Code Editor has been opened by the Editor)
 
         var url = '/editor/code/' + config.project.id;
-        if (asset) {
-            url += '?tabs=' + asset.get('id');
+
+        const query = [];
+        if (location.search.includes('use_local_frontend')) {
+            query.push('use_local_frontend');
         }
+        if (asset) {
+            query.push(`tabs=${asset.get('id')}`);
+        }
+        if (query.length) {
+            url += '?' + query.join('&');
+        }
+
         var name = 'codeeditor:' + config.project.id;
 
         if (firefox) {

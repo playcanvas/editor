@@ -406,7 +406,12 @@ editor.once('load', function () {
         let target = '_self';
         if (e.which === 2 || e.button === 4 || e.metaKey || e.ctrlKey) target = '_blank';  // If middle click, open in new tab
 
-        window.open(`${config.url.home}/editor/project/${currentProject.id}`, target);
+        let url = `${config.url.home}/editor/project/${currentProject.id}`;
+        if (location.search.includes('use_local_frontend')) {
+            url += '?use_local_frontend';
+        }
+
+        window.open(url, target);
     });
 
     // launch button

@@ -763,7 +763,7 @@ editor.once('load', () => {
                             // add it to the list
                             refreshProjects();
                         } else {
-                            editor.call('picker:project:newProjectConfirmation', `/editor/project/${job.data.project_id}`);
+                            editor.call('picker:project:newProjectConfirmation', job.data.project_id);
                         }
                     } else if (job.status === 'error') {
                         const importError = job.messages[0] || "There was an error while importing";

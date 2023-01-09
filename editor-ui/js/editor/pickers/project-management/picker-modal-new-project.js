@@ -401,7 +401,7 @@ editor.once('load', function () {
                         toggleLoader(false);
 
                         // open confirmation modal
-                        editor.call('picker:project:newProjectConfirmation', `/editor/project/${result.id}`);
+                        editor.call('picker:project:newProjectConfirmation', result.id);
                         overlay.hidden = true;  // close new project modal
                     });
                 });

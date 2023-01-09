@@ -17,7 +17,13 @@ editor.once('load', function () {
             if (!editor.call('settings:project').get('useLegacyScripts')) {
                 editor.call('picker:codeeditor', asset);
             } else {
-                window.open('/editor/asset/' + asset.get('id'), asset.get('id')).focus();
+                let url = `/editor/asset/${asset.get('id')}`;
+
+                if (location.search.includes('use_local_frontend')) {
+                    url += '?use_local_frontend';
+                }
+
+                window.open(url, asset.get('id')).focus();
             }
         }
     });
