@@ -28,7 +28,7 @@ editor.once('load', function () {
     };
 
     var typeToExt = {
-        'scene': ['fbx', 'dae', 'obj', '3ds'],
+        'scene': ['fbx', 'dae', 'obj', '3ds', 'glb'],
         'text': ['txt', 'xml', 'atlas'],
         'html': ['html'],
         'css': ['css'],

@@ -263,6 +263,11 @@ editor.once('load', function () {
         description: 'Use vertex colors for glossiness instead of a map',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#glossMapVertexColor'
     }, {
+        title: 'glossInvert',
+        subTitle: '{Boolean}',
+        description: 'Invert material gloss, effectively treating it as roughness.',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#glossInvert'
+    }, {
         title: 'heightMap',
         subTitle: '{pc.Texture}',
         description: 'The height map that specifies the per-pixel strength of the parallax effect. White is full height and black is zero height.',
@@ -691,10 +696,10 @@ editor.once('load', function () {
         description: 'A color channel to extract color value from vertex colors. Can be: r, g, b, a',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatVertexColorChannel'
     }, {
-        title: 'clearCoatGlossiness',
+        title: 'clearCoatGloss',
         subTitle: '{Number}',
         description: 'A value determining the smoothness of a surface. For smaller glossiness values, the clear coat surface is rougher and specular highlights will be broader. For larger glossiness values, the clear coat surface is smoother and will exhibit more concentrated specular highlights (as if the clear coat surface is polished and shiny).',
-        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatGlossiness'
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatGloss'
     }, {
         title: 'clearCoatGlossVertexColor',
         subTitle: '{Boolean}',
@@ -735,6 +740,11 @@ editor.once('load', function () {
         subTitle: '{Number}',
         description: 'clear coat gloss map UV channel',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatGlossMapUv'
+    }, {
+        title: 'clearCoatGlossInvert',
+        subTitle: '{Boolean}',
+        description: 'Invert material clear coat gloss, effectively treating it as roughness',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#clearCoatGlossInvert'
     }, {
         title: 'clearCoatBumpiness',
         subTitle: '{Number}',
@@ -821,10 +831,10 @@ editor.once('load', function () {
         description: 'Use sheen color to tint with sheen map.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenTint'
     }, {
-        title: 'sheenGlossiness',
+        title: 'sheenGloss',
         subTitle: '{Number}',
         description: 'If no sheen gloss map is set or tint is checked, this is the sheen glossiness of the material.',
-        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenGlossiness'
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenGloss'
     }, {
         title: 'sheenGlossMap',
         subTitle: '{pc.Texture}',
@@ -875,6 +885,11 @@ editor.once('load', function () {
         subTitle: '{Boolean}',
         description: 'Use sheen gloss to tint with sheen map.',
         url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenGlossTint'
+    }, {
+        title: 'sheenGlossInvert',
+        subTitle: '{Boolean}',
+        description: 'Invert material sheen gloss, effectively treating it as roughness',
+        url: 'http://developer.playcanvas.com/api/pc.StandardMaterial.html#sheenGlossInvert'
     }, {
         title: 'useDynamicRefraction',
         subTitle: '{Boolean}',

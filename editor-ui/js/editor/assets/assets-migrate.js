@@ -60,8 +60,13 @@ editor.once('load', function () {
             if (!asset.has('data.clearCoatVertexColorChannel'))
                 asset.set('data.clearCoatVertexColorChannel', 'r');
 
-            if (!asset.has('data.clearCoatGlossiness'))
-                asset.set('data.clearCoatGlossiness', 1.0);
+            if (!asset.has('data.clearCoatGloss')) {
+                if (asset.has('data.clearCoatGlossiness')) {
+                    asset.set('data.clearCoatGloss', asset.get('data.clearCoatGlossiness'));
+                } else {
+                    asset.set('data.clearCoatGloss', 1.0);
+                }
+            }
 
             if (!asset.has('data.clearCoatGlossMap'))
                 asset.set('data.clearCoatGlossMap', null);

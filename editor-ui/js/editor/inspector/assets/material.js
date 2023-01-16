@@ -394,6 +394,11 @@ Object.assign(pcui, (function () {
                         max: 100
                     },
                     reference: 'asset:material:shininess'
+                }, {
+                    label: 'Invert',
+                    path: 'data.glossInvert',
+                    type: 'boolean',
+                    reference: 'asset:material:glossInvert'
                 }]
             })
         }]
@@ -665,7 +670,7 @@ Object.assign(pcui, (function () {
                     reference: 'asset:material:clearCoatGlossVertexColorChannel'
                 }, {
                     label: 'Glossiness',
-                    path: 'data.clearCoatGlossiness',
+                    path: 'data.clearCoatGloss',
                     type: 'slider',
                     args: {
                         precision: 3,
@@ -673,7 +678,12 @@ Object.assign(pcui, (function () {
                         min: 0,
                         max: 1
                     },
-                    reference: 'asset:material:clearCoatGlossiness'
+                    reference: 'asset:material:clearCoatGloss'
+                }, {
+                    label: 'Invert',
+                    path: 'data.clearCoatGlossInvert',
+                    type: 'boolean',
+                    reference: 'asset:material:clearCoatGlossInvert'
                 }]
             })
         }, {
@@ -757,7 +767,12 @@ Object.assign(pcui, (function () {
                     label: 'Glossiness',
                     path: 'data.sheenGloss',
                     type: 'slider',
-                    reference: 'asset:material:sheenGlossiness'
+                    reference: 'asset:material:sheenGloss'
+                }, {
+                    label: 'Invert',
+                    path: 'data.sheenGlossInvert',
+                    type: 'boolean',
+                    reference: 'asset:material:sheenGlossInvert'
                 }]
             })
         }]
