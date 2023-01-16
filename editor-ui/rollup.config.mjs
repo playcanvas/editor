@@ -64,15 +64,21 @@ export default [
                 output: 'dist/css/editor.css',
                 outputStyle: 'compressed',
                 processor: css => postcss([autoprefixer])
-                    .process(css)
-                    .then(result => result.css)
+                .process(css)
+                .then(result => result.css)
             }),
             alias(aliasEntries()),
             replace({
                 values: {
-                    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+                    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+                    '___$insertStyle': 'REPLACE_FUNCTION',
+                    '.font-regular': '.font-regular-disabled',
                 },
                 preventAssignment: true
+            }),
+            strip({
+                include: '**/*.(mjs|js)',
+                functions: ['REPLACE_FUNCTION', 'styleInject']
             }),
             commonjs(),
             resolve(),
@@ -92,15 +98,21 @@ export default [
                 output: 'dist/css/editor-empty.css',
                 outputStyle: 'compressed',
                 processor: css => postcss([autoprefixer])
-                    .process(css)
-                    .then(result => result.css)
+                .process(css)
+                .then(result => result.css)
             }),
             alias(aliasEntries()),
             replace({
                 values: {
-                    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+                    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+                    '___$insertStyle': 'REPLACE_FUNCTION',
+                    '.font-regular': '.font-regular-disabled',
                 },
                 preventAssignment: true
+            }),
+            strip({
+                include: '**/*.(mjs|js)',
+                functions: ['REPLACE_FUNCTION', 'styleInject']
             }),
             commonjs(),
             resolve(),
@@ -120,15 +132,21 @@ export default [
                 output: 'dist/css/code-editor-v2.css',
                 outputStyle: 'compressed',
                 processor: css => postcss([autoprefixer])
-                    .process(css)
-                    .then(result => result.css)
+                .process(css)
+                .then(result => result.css)
             }),
             alias(aliasEntries()),
             replace({
                 values: {
-                    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+                    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+                    '___$insertStyle': 'REPLACE_FUNCTION',
+                    '.font-regular': '.font-regular-disabled',
                 },
                 preventAssignment: true
+            }),
+            strip({
+                include: '**/*.(mjs|js)',
+                functions: ['REPLACE_FUNCTION', 'styleInject']
             }),
             commonjs(),
             resolve(),
@@ -148,15 +166,21 @@ export default [
                 output: 'dist/css/launch.css',
                 outputStyle: 'compressed',
                 processor: css => postcss([autoprefixer])
-                    .process(css)
-                    .then(result => result.css)
+                .process(css)
+                .then(result => result.css)
             }),
             alias(aliasEntries()),
             replace({
                 values: {
-                    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+                    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+                    '___$insertStyle': 'REPLACE_FUNCTION',
+                    '.font-regular': '.font-regular-disabled',
                 },
                 preventAssignment: true
+            }),
+            strip({
+                include: '**/*.(mjs|js)',
+                functions: ['REPLACE_FUNCTION', 'styleInject']
             }),
             commonjs(),
             resolve(),
@@ -174,8 +198,8 @@ export default [
                 output: 'dist/css/error.css',
                 outputStyle: 'compressed',
                 processor: css => postcss([autoprefixer])
-                    .process(css)
-                    .then(result => result.css)
+                .process(css)
+                .then(result => result.css)
             })
         ]
     },
@@ -190,103 +214,10 @@ export default [
                 output: 'dist/css/code_editor.css',
                 outputStyle: 'compressed',
                 processor: css => postcss([autoprefixer])
-                    .process(css)
-                    .then(result => result.css)
+                .process(css)
+                .then(result => result.css)
             })
         ]
-    },
-    {
-        input: 'js/external/editor-api.js',
-        output: {
-            file: 'dist/js/editor-api.js',
-            format: 'umd',
-            globals: {
-                '@playcanvas/observer': 'observer',
-                '@playcanvas/pcui': 'pcui'
-            }
-        },
-        external: ['@playcanvas/observer', '@playcanvas/pcui'],
-        plugins: [
-            alias(aliasEntries()),
-            commonjs(),
-            resolve(),
-            production && terser()
-        ]
-    },
-    {
-        input: 'js/external/pcui.js',
-        output: {
-            file: 'dist/js/pcui.js',
-            format: 'umd',
-            globals: {
-                '@playcanvas/observer': 'observer'
-            }
-        },
-        external: ['@playcanvas/observer'],
-        plugins: [
-            alias(aliasEntries()),
-            commonjs(),
-            resolve(),
-            replace({
-                '___$insertStyle': 'REPLACE_FUNCTION',
-                preventAssignment: true
-            }),
-            strip({
-                include: '**/*.(mjs|js)',
-                functions: ['REPLACE_FUNCTION']
-            }),
-            production && terser()
-        ]
-    },
-    {
-        input: 'js/external/pcui-graph.js',
-        output: {
-            file: 'dist/js/pcui-graph.js',
-            format: 'umd',
-            globals: {
-                '@playcanvas/pcui': 'pcui'
-            }
-        },
-        external: ['@playcanvas/pcui'],
-        plugins: [
-            alias(aliasEntries()),
-            commonjs(),
-            resolve(),
-            replace({
-                '.font-regular': '.font-regular-disabled',
-                preventAssignment: true
-            }),
-            strip({
-                include: '**/*.(mjs|js)',
-                functions: ['styleInject']
-            }),
-            production && terser()
-        ]
-    },
-    {
-        input: 'js/external/observer.js',
-        output: {
-            file: 'dist/js/observer.js',
-            format: 'umd'
-        },
-        plugins: [
-            alias(aliasEntries()),
-            commonjs(),
-            resolve(),
-            production && terser()
-        ]
-    },
-    {
-        input: 'js/messenger/messenger.js',
-        output: {
-            file: 'dist/js/messenger.js',
-            format: 'umd'
-        },
-        plugins: [
-            alias(aliasEntries()),
-            commonjs(),
-            resolve(),
-            production && terser()
-        ]
     }
+
 ];

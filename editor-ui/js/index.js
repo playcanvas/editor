@@ -1,6 +1,19 @@
 // editor styling
 import '../sass/editor/_editor.scss';
 
+// utils
+import './utils.js';
+
+// externals
+import './external/observer.js';
+import './messenger/messenger.js';
+import './external/editor-api.js';
+import './external/pcui.js';
+import './external/pcui-graph.js';
+
+// relay server client
+import './relay/client.js';
+
 // core
 import './constants.js';
 import './array.js';

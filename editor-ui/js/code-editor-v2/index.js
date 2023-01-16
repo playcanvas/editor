@@ -1,6 +1,21 @@
 // import styling
 import '../../sass/code-editor-v2/_code-editor.scss';
 
+// core
+import '../utils.js';
+import '../external/observer.js';
+import '../external/editor-api.js';
+import '../external/pcui.js';
+
+// messenger
+import '../messenger/messenger.js';
+
+// relay
+import '../relay/client.js';
+
+// realtime
+import '../realtime/share.uncompressed.js';
+
 import '../constants.js';
 import '../ajax.js';
 
