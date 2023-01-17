@@ -42,6 +42,16 @@ editor.once('load', function () {
         subTitle: '{String}',
         description: 'The type of collision primitive. Can be: box, sphere, capsule, cylinder, mesh.',
         url: 'http://developer.playcanvas.com/api/pc.CollisionComponent.html#type'
+    }, {
+        title: 'linearOffset',
+        subTitle: '{pc.Vec3}',
+        description: 'The positional offset of the collision shape from the Entity position along the local axes.',
+        url: 'http://developer.playcanvas.com/api/pc.CollisionComponent.html#linearOffset'
+    }, {
+        title: 'angularOffset',
+        subTitle: '{pc.Vec3}',
+        description: 'The rotational offset of the collision shape from the Entity rotation in local space.',
+        url: 'http://developer.playcanvas.com/api/pc.CollisionComponent.html#angularOffset'
     }];
 
     for (let i = 0; i < fields.length; i++) {

@@ -366,6 +366,17 @@ editor.once('load', function () {
                 }
             }
 
+            // collision
+            if (entity.has('components.collision')) {
+                if (!entity.has('components.collision.linearOffset')) {
+                    entity.set('components.collision.linearOffset', [0.0, 0.0, 0.0]);
+                }
+
+                if (!entity.has('components.collision.angularOffset')) {
+                    entity.set('components.collision.angularOffset', [0.0, 0.0, 0.0]);
+                }
+            }
+
             entity.history.enabled = true;
         }, 0);
     });

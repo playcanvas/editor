@@ -79,6 +79,24 @@ Object.assign(pcui, (function () {
         args: {
             assetType: 'render'
         }
+    }, {
+        label: 'Position Offset',
+        path: 'components.collision.linearOffset',
+        type: 'vec3',
+        args: {
+            placeholder: ['X', 'Y', 'Z'],
+            precision: 3,
+            step: 0.5
+        }
+    }, {
+        label: 'Rotation Offset',
+        path: 'components.collision.angularOffset',
+        type: 'vec3',
+        args: {
+            placeholder: ['X', 'Y', 'Z'],
+            precision: 3,
+            step: 5
+        }
     }];
 
     ATTRIBUTES.forEach((attr) => {
@@ -206,6 +224,23 @@ Object.assign(pcui, (function () {
             this._entities = entities;
             this._suppressToggleFields = true;
             this._attributesInspector.link(entities);
+
+            // Migration at the inspector level
+            // We shouldn't need to do this but to allow creation of new
+            // components of properties that have no default value, I need to also add them
+            // here as well as support existing components in editor-ui/js/editor/entities/entities-migrations.js
+            setTimeout(() => {
+                for (const entity of entities) {
+                    if (!entity.has('components.collision.linearOffset')) {
+                        entity.set('components.collision.linearOffset', [0.0, 0.0, 0.0]);
+                    }
+
+                    if (!entity.has('components.collision.angularOffset')) {
+                        entity.set('components.collision.angularOffset', [0.0, 0.0, 0.0]);
+                    }
+                }
+            });
+
             this._suppressToggleFields = false;
             this._toggleFields();
 

@@ -101,8 +101,8 @@ editor.once('load', function () {
         }
 
         this._link.entity.__noIcon = true;
-        this.entity.setPosition(this._link.entity.getPosition());
-        this.entity.setRotation(this._link.entity.getRotation());
+        this.entity.setPosition(this._link.entity.collision.getShapePosition());
+        this.entity.setRotation(this._link.entity.collision.getShapeRotation());
 
         let type = collision.type;
 
