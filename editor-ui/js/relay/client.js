@@ -322,3 +322,5 @@ class RelayServer extends Events { // eslint-disable-line no-unused-vars
         });
     }
 }
+
+window.RelayServer = RelayServer;
