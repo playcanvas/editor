@@ -15,13 +15,23 @@ editor.once('load', function () {
     }, {
         title: 'clearColorBuffer',
         subTitle: '{Boolean}',
-        description: 'If selected, the camera will explicitly clear its render target to the chosen clear color before rendering the scene.',
+        description: 'If selected, the camera will request the scene to generate a texture containing the scene color map.',
         url: 'http://developer.playcanvas.com/api/pc.CameraComponent.html#clearColorBuffer'
     }, {
         title: 'clearDepthBuffer',
         subTitle: '{Boolean}',
-        description: 'If selected, the camera will explicitly clear the depth buffer of its render target before rendering the scene.',
+        description: 'If selected, the camera will request the scene to generate a texture containing the scene depth map.',
         url: 'http://developer.playcanvas.com/api/pc.CameraComponent.html#clearDepthBuffer'
+    }, {
+        title: 'renderSceneDepthMap',
+        subTitle: '{Boolean}',
+        description: 'If selected, the camera will explicitly clear its render target to the chosen clear color before rendering the scene.',
+        url: 'http://developer.playcanvas.com/api/pc.CameraComponent.html#requestSceneDepthMap'
+    }, {
+        title: 'renderSceneColorMap',
+        subTitle: '{Boolean}',
+        description: 'If selected, the camera will explicitly clear the depth buffer of its render target before rendering the scene.',
+        url: 'http://developer.playcanvas.com/api/pc.CameraComponent.html#requestSceneColorMap'
     }, {
         name: 'clip',
         title: 'nearClip / farClip',

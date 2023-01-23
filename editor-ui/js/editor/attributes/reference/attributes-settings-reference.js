@@ -6,6 +6,10 @@ editor.once('load', function () {
         subTitle: '{String}',
         description: 'Name of the Scene for better navigation across content.'
     }, {
+        name: 'editor',
+        title: 'Editor',
+        description: 'Settings for the Editor: setting Editor camera near and far clip, zoom sensitivity etc.'
+    }, {
         name: 'snap',
         description: 'Change increment value for Snap gizmo state. Use SHIFT or Snap Toggle on toolbar to enable Snapping during use of Gizmos.'
     }, {
@@ -39,6 +43,10 @@ editor.once('load', function () {
         name: 'renameDuplicatedEntities',
         description: "If ticked, duplicated entity names get an incremental number added to the end for a unique name from the original. E.g. 'Box' becomes 'Box2'."
     }, {
+        name: 'physics',
+        title: 'Physics',
+        description: 'Settings for the physics to import the library and set gravity.'
+    }, {
         title: 'gravity',
         subTitle: '{pc.Vec3}',
         description: 'Gravity is the acceleration applied every frame to all rigid bodies in your scene. By default, it is set to -9.8 meters per second per second, which essentially approximates Earth\'s gravity. If you are making a game in space, you might want to set this to 0, 0, 0 (zero g).',
@@ -51,6 +59,10 @@ editor.once('load', function () {
         name: 'basis',
         title: 'Basis Library',
         description: 'Add the necessary libraries to support Basis compression'
+    }, {
+        name: 'rendering',
+        title: 'Rendering',
+        description: 'Settings for the rendering: setting the skybox, clustered lighting, shadow settings etc.'
     }, {
         title: 'ambientColor',
         subTitle: '{pc.Color}',
@@ -117,6 +129,10 @@ editor.once('load', function () {
         description: 'The name of the script to use for creating the loading screen of the application. The script needs to call pc.script.createLoadingScreen.',
         url: 'http://developer.playcanvas.com/en/api/pc.script.html#createLoadingScreen'
     }, {
+        name: 'external-scripts',
+        title: 'External Scripts',
+        description: 'Settings for adding external script URLs.'
+    }, {
         name: 'project:externalScripts',
         title: 'External Scripts',
         description: 'The URLs of external scripts you would like to include in your application. These URLs are added as <script> tags in the main HTML page of the application before any other script is loaded.'
@@ -172,6 +188,10 @@ editor.once('load', function () {
         title: 'Use Legacy Audio',
         description: 'If checked the old AudioSource component will be available in the Editor otherwise you will only see the new Sound component.'
     }, {
+        name: 'input',
+        title: 'Input',
+        description: 'Settings for enabling/disabling different input controllers. Mouse, keyboard etc.'
+    }, {
         name: 'project:useKeyboard',
         title: 'Enable Keyboard input',
         description: 'Disable this if you do not want to handle any keyboard input in your application.'
@@ -187,6 +207,10 @@ editor.once('load', function () {
         name: 'project:useGamepads',
         title: 'Enable Gamepad input',
         description: 'Disable this if you do not want to handle any gamepad input in your application.'
+    }, {
+        name: 'network',
+        title: 'Network',
+        description: 'Network related settings for the project.'
     }, {
         name: 'project:maxAssetRetries',
         title: 'Max Asset Retries',
@@ -271,6 +295,10 @@ editor.once('load', function () {
         name: 'asset-tasks:overwrite:texture',
         title: 'Overwrite textures',
         description: 'When a model is imported, overwrite previously imported texture assets.'
+    }, {
+        name: 'lightmapping',
+        title: 'Lightmapping',
+        description: 'Settings for the lightmapper: setting the resolution, mode and ambient bake settings.'
     }, {
         title: 'lightmapSizeMultiplier',
         subTitle: '{Number}',
@@ -443,12 +471,28 @@ editor.once('load', function () {
         title: 'Enabled',
         description: 'Enables or disables this part of the layer. When a part is disabled the mesh instances of that part will not be rendered.'
     }, {
+        name: 'localization',
+        title: 'Localization',
+        description: 'Settings for adding localization assets.'
+    }, {
         name: 'localization:i18nAssets',
         title: 'Localization Assets',
         description: 'JSON Assets that contain localization data. Assets in this list will automatically be parsed for localization data when loaded. These are used to localized your Text Elements.'
     }, {
         name: 'localization:createAsset',
         description: 'Creates a new Localization JSON Asset with the default en-US format.'
+    }, {
+        name: 'loading-screen',
+        title: 'Loading Screen',
+        description: 'Settings for the loading screen.'
+    }, {
+        name: 'scripts',
+        title: 'Scripts Loading Order',
+        description: 'Set the loading order for the scripts in the project.'
+    }, {
+        name: 'settings-history',
+        title: 'Settings History',
+        description: 'View the version history for the project settings.'
     }];
 
     for (let i = 0; i < fields.length; i++) {
