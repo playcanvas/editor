@@ -103,13 +103,15 @@ Object.assign(pcui, (function () {
             type: 'select',
             args: {
                 type: 'string',
-                options: ['previous', 'current'].map((type) => {
-                    const t = config.engineVersions[type];
-                    return {
-                        t: t.description,
-                        v: type
-                    };
-                })
+                options: ['previousMinor', 'previousPatch', 'current']
+                    .filter(type => config.engineVersions.hasOwnProperty(type))
+                    .map((type) => {
+                        const t = config.engineVersions[type];
+                        return {
+                            t: t.description,
+                            v: type
+                        };
+                    })
             }
         },
         {

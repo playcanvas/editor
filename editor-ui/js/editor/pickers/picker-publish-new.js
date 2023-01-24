@@ -229,7 +229,7 @@ editor.once('load', function () {
 
     const engineVersionDropdown = new pcui.SelectInput({
         value: editor.call('settings:projectUser').get('editor.launchReleaseCandidate') ? 'latest' : editor.call('settings:session').get('engineVersion'),
-        options: ['previous', 'current', 'latest']
+        options: ['previousMinor', 'previousPatch', 'current', 'latest']
         .filter(type => config.engineVersions.hasOwnProperty(type))
         .map((type) => {
             const t = config.engineVersions[type];
