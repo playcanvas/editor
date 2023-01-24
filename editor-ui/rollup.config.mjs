@@ -72,7 +72,7 @@ export default [
                 values: {
                     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
                     '___$insertStyle': 'REPLACE_FUNCTION',
-                    '.font-regular': '.font-regular-disabled',
+                    '.font-regular': '.font-regular-disabled'
                 },
                 preventAssignment: true
             }),
@@ -106,7 +106,7 @@ export default [
                 values: {
                     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
                     '___$insertStyle': 'REPLACE_FUNCTION',
-                    '.font-regular': '.font-regular-disabled',
+                    '.font-regular': '.font-regular-disabled'
                 },
                 preventAssignment: true
             }),
@@ -140,7 +140,7 @@ export default [
                 values: {
                     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
                     '___$insertStyle': 'REPLACE_FUNCTION',
-                    '.font-regular': '.font-regular-disabled',
+                    '.font-regular': '.font-regular-disabled'
                 },
                 preventAssignment: true
             }),
@@ -174,7 +174,7 @@ export default [
                 values: {
                     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
                     '___$insertStyle': 'REPLACE_FUNCTION',
-                    '.font-regular': '.font-regular-disabled',
+                    '.font-regular': '.font-regular-disabled'
                 },
                 preventAssignment: true
             }),

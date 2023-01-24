@@ -275,9 +275,6 @@ Object.assign(pcui, (function () {
         }
     }
 
-    utils.implements(GradientInput, pcui.IBindable);
-    utils.implements(GradientInput, pcui.IFocusable);
-
     pcui.Element.register('gradient', GradientInput, { renderChanges: true });
 
     return {

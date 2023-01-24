@@ -381,8 +381,6 @@ Object.assign(pcui, (function () {
         }
     }
 
-    utils.implements(AssetInput, pcui.IBindable);
-
     pcui.Element.register('asset', AssetInput, { allowDragDrop: true, renderChanges: true });
 
     return {

@@ -106,7 +106,7 @@ Object.assign(pcui, (function () {
                 }, {
                     text: 'Delete',
                     icon: 'E124',
-                    onSelect: this._onClickRemove.bind(this)
+                    onSelect: this._onClickDelete.bind(this)
                 }]
             });
 
@@ -137,7 +137,7 @@ Object.assign(pcui, (function () {
         }
 
         // Remove component on click
-        _onClickRemove() {
+        _onClickDelete() {
             if (!this._entities) return;
 
             // make copy of entities for undo / redo

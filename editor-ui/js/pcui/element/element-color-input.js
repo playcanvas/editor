@@ -263,9 +263,6 @@ Object.assign(pcui, (function () {
         }
     }
 
-    utils.implements(ColorInput, pcui.IBindable);
-    utils.implements(ColorInput, pcui.IFocusable);
-
     pcui.Element.register('rgb', ColorInput, { channels: 3, renderChanges: true });
     pcui.Element.register('rgba', ColorInput, { channels: 4, renderChanges: true });
 

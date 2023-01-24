@@ -407,8 +407,6 @@ Object.assign(pcui, (function () {
         }
     }
 
-    utils.implements(AssetThumbnail, pcui.IBindable, { renderChanges: true });
-
     return {
         AssetThumbnail: AssetThumbnail
     };

@@ -431,9 +431,6 @@ Object.assign(pcui, (function () {
         }
     }
 
-    utils.implements(CurveInput, pcui.IBindable);
-    utils.implements(CurveInput, pcui.IFocusable);
-
     pcui.Element.register('curveset', CurveInput, { renderChanges: true });
 
     return {

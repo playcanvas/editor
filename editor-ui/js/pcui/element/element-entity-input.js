@@ -247,9 +247,6 @@ Object.assign(pcui, (function () {
         }
     }
 
-    utils.implements(EntityInput, pcui.IBindable);
-    utils.implements(EntityInput, pcui.IFocusable);
-
     pcui.Element.register('entity', EntityInput, { allowDragDrop: true, renderChanges: true });
 
     return {

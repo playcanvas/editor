@@ -906,7 +906,7 @@ Object.assign(pcui, (function () {
                             }
                         }
 
-                        if (!valueDifferent) {
+                        if (observers.length && !valueDifferent) {
                             if (observers[0].get('data.minfilter') === 'linear_mip_linear' && observers[0].get('data.magfilter') === 'linear') {
                                 value = 'linear';
                             } else if (observers[0].get('data.minfilter') === 'nearest_mip_nearest' && observers[0].get('data.magfilter') === 'nearest') {

@@ -2,7 +2,7 @@
     user-select: none;
 }
 
-$disabled-opacity: 0.4;
+$disabled-opacity: 0.4 * 100%;
 
 @font-face {
     font-family: inconsolatamedium;

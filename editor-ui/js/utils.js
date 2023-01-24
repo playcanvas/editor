@@ -21,26 +21,6 @@ utils.deepCopy = function deepCopy(data) {
     return obj;
 };
 
-/**
- * @name utils.implements
- * @description Adds properties and methods from the sourceClass
- * to the targetClass but only if properties with the same name do not
- * already exist in the targetClass.
- * @param {object} targetClass - The target class.
- * @param {object} sourceClass - The source class.
- * @example utils.implements(pcui.Container, pcui.IContainer);
- */
-utils.implements = function (targetClass, sourceClass) {
-    var properties = Object.getOwnPropertyDescriptors(sourceClass.prototype);
-    for (var key in properties) {
-        if (targetClass.prototype.hasOwnProperty(key)) {
-            delete properties[key];
-        }
-    }
-
-    Object.defineProperties(targetClass.prototype, properties);
-};
-
 // Appends query parameter to string (supposedly the string is a URL)
 // automatically figuring out if the separator should be ? or &.
 // Example: url.appendQuery('t=123').appendQuery('q=345');

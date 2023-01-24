@@ -139,8 +139,6 @@ Object.assign(pcui, (function () {
         }
     }
 
-    utils.implements(TableRow, pcui.IFocusable);
-
     return {
         TableRow: TableRow
     };
