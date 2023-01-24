@@ -32,7 +32,7 @@ editor.once('load', function () {
             for (let i = 0, len = selected.length; i < len; i++) {
                 var item = selected[i];
 
-                var entity = item.entity;
+                var entity = item.viewportEntity;
                 if (!entity || !entity.element)
                     continue;
 

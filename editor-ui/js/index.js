@@ -215,6 +215,7 @@ import './editor/gizmo/gizmo-screen.js';
 import './editor/gizmo/gizmo-element.js';
 import './editor/gizmo/gizmo-element-anchor.js';
 import './editor/gizmo/gizmo-element-size.js';
+import './editor/gizmo/gizmo-button.js';
 
 // assets
 import './editor/assets/assets-registry.js';
