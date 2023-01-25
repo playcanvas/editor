@@ -218,6 +218,18 @@ export default [
                 .then(result => result.css)
             })
         ]
+    },
+    {
+        input: 'js/external/observer.js',
+        output: {
+            file: 'dist/js/observer.js',
+            format: 'umd'
+        },
+        plugins: [
+            alias(aliasEntries()),
+            commonjs(),
+            resolve(),
+            production && terser()
+        ]
     }
-
 ];
