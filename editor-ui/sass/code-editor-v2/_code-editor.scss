@@ -567,7 +567,7 @@ strong {
         }
     }
 
-    > .pcui-text-input[placeholder]:after {
+    > .pcui-text-input[placeholder]::after {
         background-color: transparent;
         line-height: 26px;
     }

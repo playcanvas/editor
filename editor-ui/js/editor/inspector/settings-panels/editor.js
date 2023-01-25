@@ -104,14 +104,14 @@ Object.assign(pcui, (function () {
             args: {
                 type: 'string',
                 options: ['previousMinor', 'previousPatch', 'current']
-                    .filter(type => config.engineVersions.hasOwnProperty(type))
-                    .map((type) => {
-                        const t = config.engineVersions[type];
-                        return {
-                            t: t.description,
-                            v: type
-                        };
-                    })
+                .filter(type => config.engineVersions.hasOwnProperty(type))
+                .map((type) => {
+                    const t = config.engineVersions[type];
+                    return {
+                        t: t.description,
+                        v: type
+                    };
+                })
             }
         },
         {

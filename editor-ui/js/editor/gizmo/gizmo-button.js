@@ -49,7 +49,7 @@ editor.once('load', function () {
 
                 // Add the padding to the existing world corners
                 // We are always in world space in the Editor
-                const elementScale = pc.ElementInput.calculateScaleToWorld(entity.element)
+                const elementScale = pc.ElementInput.calculateScaleToWorld(entity.element);
                 hitCorners = pc.ElementInput.buildHitCorners(entity.element, hitCorners, elementScale);
 
                 renderLineCorners[0].copy(hitCorners[0]);
