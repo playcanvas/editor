@@ -280,7 +280,7 @@ Object.assign(pcui, (function () {
                                 redo();
                             }
                         }
-                    ],
+                    ]
                 });
 
                 root.append(contextMenu);
@@ -411,7 +411,7 @@ Object.assign(pcui, (function () {
                 this._maskInspector = null;
             }
 
-            for(const contextMenu of this._contextMenus) {
+            for (const contextMenu of this._contextMenus) {
                 contextMenu.destroy();
             }
             this._contextMenus.length = 0;
