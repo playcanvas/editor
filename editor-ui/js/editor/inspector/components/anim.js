@@ -76,6 +76,7 @@ Object.assign(pcui, (function () {
             this._entities = null;
 
             this._maskInspector = null;
+            this._contextMenus = [];
 
             this._evts = [];
             this._maskEvts = [];
@@ -120,6 +121,8 @@ Object.assign(pcui, (function () {
         }
 
         _addMaskInspector(layerId, layerName) {
+            const root = editor.call('layout.root');
+
             if (this._maskInspector) {
                 this._clearMaskInspector();
             }
@@ -159,7 +162,6 @@ Object.assign(pcui, (function () {
             }
 
             const mask = masks[layerId].mask;
-
 
             const createBooleanTreeViewItem = (name, path, args = {}) => {
                 var item = new pcui.TreeViewItem(Object.assign({
@@ -222,12 +224,11 @@ Object.assign(pcui, (function () {
                     });
                 };
 
-                new pcui.ContextMenu({
-                    triggerElement: item.dom,
+                const contextMenu = new pcui.Menu({
                     items: [
                         {
                             text: 'Add hierarchy',
-                            onClick: () => {
+                            onSelect: () => {
                                 const redo = () => {
                                     const e = entityObserver.latest();
                                     if (!e) return;
@@ -254,7 +255,7 @@ Object.assign(pcui, (function () {
                         },
                         {
                             text: 'Remove hierarchy',
-                            onClick: () => {
+                            onSelect: () => {
                                 const redo = () => {
                                     const e = entityObserver.latest();
                                     if (!e) return;
@@ -280,7 +281,16 @@ Object.assign(pcui, (function () {
                             }
                         }
                     ],
-                    dom: contextMenuDom.dom
+                });
+
+                root.append(contextMenu);
+                this._contextMenus.push(contextMenu);
+
+                item.dom.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    contextMenu.position(e.clientX, e.clientY);
+                    contextMenu.hidden = false;
                 });
 
                 return item;
@@ -400,6 +410,12 @@ Object.assign(pcui, (function () {
                 this._maskInspector.destroy();
                 this._maskInspector = null;
             }
+
+            for(const contextMenu of this._contextMenus) {
+                contextMenu.destroy();
+            }
+            this._contextMenus.length = 0;
+
             document.querySelector('#layout-attributes').ui.headerText = 'ENTITY';
             this._maskEvts.forEach(e => e.unbind);
             this._maskEvts.length = 0;

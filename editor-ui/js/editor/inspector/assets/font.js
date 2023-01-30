@@ -193,28 +193,44 @@ Object.assign(pcui, (function () {
                                 unicodeCell.append(unicodeLabel);
                                 row.append(unicodeCell);
 
-                                const characterContextMenuDom = document.createElement('div');
-                                characterCell.dom.appendChild(characterContextMenuDom);
-                                new pcui.ContextMenu({
-                                    dom: characterContextMenuDom,
+                                const root = editor.call('layout.root');
+
+                                const characterMenu = new pcui.Menu({
                                     items: [
                                         {
                                             text: 'Copy character',
-                                            onClick: () => copyToClipboard(character)
+                                            onSelect: () => copyToClipboard(character)
                                         }
                                     ]
                                 });
 
-                                const unicodeContextMenuDom = document.createElement('div');
-                                unicodeCell.dom.appendChild(unicodeContextMenuDom);
-                                new pcui.ContextMenu({
-                                    dom: unicodeContextMenuDom,
+                                root.append(characterMenu);
+                                parent._contextMenus.push(characterMenu);
+
+                                characterCell.dom.addEventListener('contextmenu', (e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    characterMenu.position(e.clientX, e.clientY);
+                                    characterMenu.hidden = false;
+                                });
+
+                                const unicodeMenu = new pcui.Menu({
                                     items: [
                                         {
                                             text: 'Copy unicode',
-                                            onClick: () => copyToClipboard(character.charCodeAt())
+                                            onSelect: () => copyToClipboard(character.charCodeAt())
                                         }
                                     ]
+                                });
+
+                                root.append(unicodeMenu);
+                                parent._contextMenus.push(unicodeMenu);
+
+                                unicodeCell.dom.addEventListener('contextmenu', (e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    unicodeMenu.position(e.clientX, e.clientY);
+                                    unicodeMenu.hidden = false;
                                 });
 
                                 return row;
@@ -257,6 +273,7 @@ Object.assign(pcui, (function () {
             this._assets = null;
             this._assetEvents = [];
             this._localizations = {};
+            this._contextMenus = [];
 
             this.buildDom(DOM(this));
 
@@ -322,6 +339,13 @@ Object.assign(pcui, (function () {
         }
 
         _onClickProcessFontButton() {
+            // Remove all the context menus if we have any
+            for (const contextMenu of this._contextMenus) {
+                contextMenu.destroy();
+            }
+
+            this._contextMenus.length = 0;
+
             const characterValues = this._fontAttributes.getField('characters').value;
             this._assets.forEach((asset) => {
                 const sourceId = asset.get('source_asset_id');
