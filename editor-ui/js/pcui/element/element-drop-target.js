@@ -130,7 +130,7 @@ Object.assign(pcui, (function () {
 
             if (this.readOnly) return;
 
-            // check if we have alrady called drag leave. This can happen
+            // check if we have already called drag leave. This can happen
             // if we call onDragLeave from onDrop and then our mouse leaves
             // the drop target in which case onDragLeave will be called twice
             // (once in onDrop and once on mouseleave)

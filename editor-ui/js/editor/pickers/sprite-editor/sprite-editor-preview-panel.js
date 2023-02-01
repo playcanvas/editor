@@ -20,11 +20,7 @@ editor.once('load', function () {
         previewContainer.append(canvas);
 
         canvas.addEventListener('click', function () {
-            if (parent.class.contains('large')) {
-                parent.class.remove('large');
-            } else {
-                parent.class.add('large');
-            }
+            parent.class.toggle('large');
             queueRender();
         }, false);
 

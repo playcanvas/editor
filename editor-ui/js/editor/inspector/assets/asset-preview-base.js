@@ -45,11 +45,7 @@ Object.assign(pcui, (function () {
         }
 
         _toggleSize() {
-            if (this.class.contains(CLASS_CONTAINER_LARGE)) {
-                this.class.remove(CLASS_CONTAINER_LARGE);
-            } else {
-                this.class.add(CLASS_CONTAINER_LARGE);
-            }
+            this.class.toggle(CLASS_CONTAINER_LARGE);
         }
 
         link() {
