@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-es5:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Setup Node.js 16.x
+      uses: actions/setup-node@v2.1.4
+      with:
+        node-version: 16.x
+    - name: Install dependencies
+      run: npm ci
+    - name: Build Editor UI
+      run: npm run build
+
+  lint:
+    name: Lint JS
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Setup Node.js 16.x
+      uses: actions/setup-node@v2.1.4
+      with:
+        node-version: 16.x
+    - name: Install dependencies
+      run: npm ci
+    - name: Run ESLint
+      run: npm run lint:js
+
+  lint-styles:
+    name: Lint CSS
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Setup Node.js 16.x
+      uses: actions/setup-node@v2.1.4
+      with:
+        node-version: 16.x
+    - name: Install dependencies
+      run: npm ci
+    - name: Run Stylelint
+      run: npm run lint:css
