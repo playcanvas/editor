@@ -43,7 +43,7 @@ Object.assign(pcui, (function () {
                 tabIndex: 0
             }, args);
 
-            super(document.createElement('div'), args);
+            super(args);
 
             this.class.add(CLASS_GRADIENT);
 

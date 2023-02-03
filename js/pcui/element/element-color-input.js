@@ -23,7 +23,7 @@ Object.assign(pcui, (function () {
                 tabIndex: 0
             }, args);
 
-            super(document.createElement('div'), args);
+            super(args);
 
             this.class.add(CLASS_COLOR_INPUT);
             this.class.add(pcui.CLASS_NOT_FLEXIBLE);

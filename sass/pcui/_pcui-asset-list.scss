@@ -3,7 +3,7 @@
     transition: opacity 100ms;
     min-width: 0; // this prevents the element from overflowing
 
-    .pcui-text-input {
+    .pcui-input-element {
         margin: 0;
     }
 }
@@ -101,7 +101,7 @@
 // readonly
 .pcui-asset-list.pcui-readonly {
     .pcui-asset-list-btn-selection-mode,
-    .pcui-text-input,
+    .pcui-input-element,
     .pcui-asset-list-btn-remove {
         display: none;
     }

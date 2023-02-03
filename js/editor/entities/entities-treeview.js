@@ -236,7 +236,8 @@ Object.assign(pcui, (function () {
 
                 let marker = this._userSelectionMarkers[user].pool.pop();
                 if (!marker) {
-                    marker = new pcui.Element(document.createElement('span'), {
+                    marker = new pcui.Element({
+                        dom: 'span',
                         class: CLASS_USER_SELECTION_MARKER
                     });
                     marker.style.backgroundColor = this._userSelectionMarkers[user].color;

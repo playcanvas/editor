@@ -521,7 +521,7 @@ strong {
             margin: 0 0 8px 0;
         }
 
-        > .pcui-text-input {
+        > .pcui-input-element {
             margin: 0;
             width: 100%;
         }
@@ -540,7 +540,7 @@ strong {
     height: 32px;
     flex-direction: row;
 
-    > .pcui-text-input {
+    > .pcui-input-element {
         background-color: rgba(0, 0, 0, 50%);
         margin: 2px;
         height: 28px;
@@ -567,7 +567,7 @@ strong {
         }
     }
 
-    > .pcui-text-input[placeholder]::after {
+    > .pcui-input-element[placeholder]::after {
         background-color: transparent;
         line-height: 26px;
     }
