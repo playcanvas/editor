@@ -29,7 +29,7 @@ Object.assign(pcui, (function () {
          */
         constructor(targetElement, args) {
             if (!args) args = {};
-            super(document.createElement('div'), args);
+            super(args);
 
             this.class.add(CLASS_DROP_TARGET);
 

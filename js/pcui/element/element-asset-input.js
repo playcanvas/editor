@@ -39,7 +39,7 @@ Object.assign(pcui, (function () {
         constructor(args) {
             args = Object.assign({}, args);
 
-            super(document.createElement('div'), args);
+            super(args);
 
             this.class.add(CLASS_ASSET_INPUT);
 

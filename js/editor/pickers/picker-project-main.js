@@ -153,7 +153,7 @@ editor.once('load', () => {
     projectDescGroup.append(projectDescInput.element);
 
     // private settings container
-    const privateSettings = new pcui.Element(document.createElement('div'), {
+    const privateSettings = new pcui.Element({
         class: 'horizontal-container'
     });
     settingsContainer.append(privateSettings.dom);
@@ -176,7 +176,7 @@ editor.once('load', () => {
     privateSettings.dom.appendChild(privateToggle.element);
 
     // project url
-    const projectURLSettings = new pcui.Element(document.createElement('div'), {
+    const projectURLSettings = new pcui.Element({
         class: 'horizontal-container'
     });
     settingsContainer.append(projectURLSettings.dom);
@@ -219,7 +219,7 @@ editor.once('load', () => {
     });
     exportProjectButtonContainer.append(exportProjectButton);
 
-    const loader = new pcui.Element(document.createElement('div'), {
+    const loader = new pcui.Element({
         class: ['loader', 'xsmall', 'white']
     });
     loader.dom.style.display = 'none';

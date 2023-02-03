@@ -57,12 +57,12 @@ editor.once('load', () => {
             });
             upgradeContainer.dom.appendChild(usageLabel.element);
 
-            const usageBarContainer = new pcui.Element(document.createElement('div'), {
+            const usageBarContainer = new pcui.Element({
                 class: 'usage-bar-container'
             });
             upgradeContainer.dom.appendChild(usageBarContainer.element);
 
-            const usageBar = new pcui.Element(document.createElement('div'), {
+            const usageBar = new pcui.Element({
                 class: 'usage-bar'
             });
             usageBar.dom.style.width = `${percentageUsed}%`;
@@ -105,7 +105,8 @@ editor.once('load', () => {
 
             if (selected && selected === org.full_name) setSelectedFilter(organizationFilter);
 
-            const organizationImage = new pcui.Element(document.createElement('img'), {
+            const organizationImage = new pcui.Element({
+                dom: 'img',
                 class: 'organization-icon'
             });
             organizationImage.element.src = `${config.url.api}/users/${org.id}/thumbnail?size=26`;
@@ -261,7 +262,8 @@ editor.once('load', () => {
         });
         projectContainer.append(projectThumbnailContainer);
 
-        const projectThumbnail = new pcui.Element(document.createElement('img'), {
+        const projectThumbnail = new pcui.Element({
+            dom: 'img',
             class: 'project-thumbnail'
         });
         projectThumbnailContainer.append(projectThumbnail);
@@ -466,7 +468,7 @@ editor.once('load', () => {
     });
 
     // user icon
-    const userIcon = new pcui.Element(document.createElement('div'), {
+    const userIcon = new pcui.Element({
         class: 'user-icon'
     });
     userIcon.style.backgroundImage = `url(${config.url.api}/users/${config.self.id}/thumbnail?size=24)`;
@@ -477,7 +479,7 @@ editor.once('load', () => {
     });
 
     // left panel
-    const leftPanel = new pcui.Element(document.createElement('div'), {
+    const leftPanel = new pcui.Element({
         class: 'cms-left-panel'
     });
     panel.append(leftPanel);
@@ -596,13 +598,13 @@ editor.once('load', () => {
     quickLinksContainer.append(githubLink);
 
     // upgrade container
-    const upgradeContainer = new pcui.Element(document.createElement('div'), {
+    const upgradeContainer = new pcui.Element({
         class: 'upgrade-container'
     });
     miscContainer.append(upgradeContainer);
 
     // right panel
-    const rightPanel = new pcui.Element(document.createElement('div'), {
+    const rightPanel = new pcui.Element({
         class: 'cms-right-panel'
     });
     panel.append(rightPanel);
@@ -678,7 +680,7 @@ editor.once('load', () => {
     controlsContainer.append(layoutButton);
 
     // right panel projects
-    const projectsContainer = new pcui.Element(document.createElement('div'), {
+    const projectsContainer = new pcui.Element({
         class: 'projects-container-grid'
     });
     rightPanel.dom.appendChild(projectsContainer.element);

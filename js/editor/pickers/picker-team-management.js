@@ -64,14 +64,15 @@ editor.once('load', function () {
     const createCollaboratorUI = (collaborator) => {
         if (collaborator.inviter_id && currentUser.access_level !== 'admin') return;  // don't display invitees to non-admin users
 
-        const parentContainer = new pcui.Element(document.createElement('div'), {
+        const parentContainer = new pcui.Element({
             class: 'collaborator-container'
         });
         if (collaborator.id === config.self.id) parentContainer.dom.classList.add('user-collaborator');
         membersGrid.element.appendChild(parentContainer.dom);
 
         // image container (left)
-        const image = new pcui.Element(document.createElement('img'), {
+        const image = new pcui.Element({
+            dom: 'img',
             class: 'collaborator-image',
             height: 62,
             width: 62
@@ -85,13 +86,13 @@ editor.once('load', function () {
         parentContainer.dom.appendChild(image.dom);
 
         // right container
-        const collaboratorRightContainer = new pcui.Element(document.createElement('div'), {
+        const collaboratorRightContainer = new pcui.Element({
             class: 'collaborator-right-container'
         });
         parentContainer.dom.appendChild(collaboratorRightContainer.dom);
 
         // first row
-        const firstRow = new pcui.Element(document.createElement('div'), {
+        const firstRow = new pcui.Element({
             class: 'collaborator-first-row'
         });
         collaboratorRightContainer.dom.appendChild(firstRow.dom);
@@ -285,7 +286,8 @@ editor.once('load', function () {
     ownerWidgetContainer.append(ownerWidget);
     ownerWidget.dom.style.width = '307.6px';
 
-    const ownerProfilePic = new pcui.Element(document.createElement('img'), {
+    const ownerProfilePic = new pcui.Element({
+        dom: 'img',
         class: 'collaborator-image'
     });
     ownerProfilePic.dom.style.width = '62px';
@@ -317,7 +319,7 @@ editor.once('load', function () {
     });
     membersContainer.append(membersLabel);
 
-    const membersGrid = new pcui.Element(document.createElement('div'), {
+    const membersGrid = new pcui.Element({
         class: 'members-grid',
         flex: true
     });

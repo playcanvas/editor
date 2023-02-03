@@ -58,15 +58,15 @@ editor.once('load', function () {
 
     // helper method to build alert
     const buildAlert = (root, alert, showButton = false, buttonText = "", funcParameters) => {
-        const alertContainer = new pcui.Element(document.createElement('div'), {
+        const alertContainer = new pcui.Element({
             class: 'alert'
         });
         root.dom.appendChild(alertContainer.dom);
 
-        const alertTextContainer = new pcui.Element(document.createElement('div'), {
+        const alertTextContainer = new pcui.Element({
             class: 'alert-text'
         });
-        const alertInfo = new pcui.Element(document.createElement('div'), {
+        const alertInfo = new pcui.Element({
             class: 'alert--info'
         });
         const alertText = new pcui.Label({

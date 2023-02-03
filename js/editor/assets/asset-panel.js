@@ -1399,7 +1399,7 @@ Object.assign(pcui, (function () {
         }
 
         _createUserIndicator(userId, userEntry, container) {
-            const indicator = new pcui.Element(document.createElement('div'), {
+            const indicator = new pcui.Element({
                 class: CLASS_USER_INDICATOR
             });
             indicator.style.backgroundColor = userEntry.color;

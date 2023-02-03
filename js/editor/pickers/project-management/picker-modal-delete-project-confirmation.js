@@ -74,7 +74,7 @@ editor.once('load', () => {
     });
     deleteButtonContainer.append(deleteButton);
 
-    const loader = new pcui.Element(document.createElement('div'), {
+    const loader = new pcui.Element({
         class: ['loader', 'small', 'white']
     });
     loader.dom.style.display = 'none';
