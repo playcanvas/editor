@@ -1,9 +1,11 @@
+import { Element, Container, LabelGroup, Panel, ArrayInput, BindingTwoWay } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
     const CLASS_ROOT = 'pcui-inspector';
 
-    class AttributesInspector extends pcui.Container {
+    class AttributesInspector extends Container {
         constructor(args) {
             args = Object.assign({
                 flex: true
@@ -63,7 +65,7 @@ Object.assign(pcui, (function () {
             }
 
             let actualTarget = target;
-            if (target instanceof pcui.LabelGroup) {
+            if (target instanceof LabelGroup) {
                 actualTarget = target.label;
             } else if (target instanceof pcui.AssetInput) {
                 actualTarget = target._label;
@@ -86,7 +88,7 @@ Object.assign(pcui, (function () {
         addAttribute(attr, index) {
             try {
                 const fieldArgs = Object.assign({
-                    binding: new pcui.BindingTwoWay({
+                    binding: new BindingTwoWay({
                         history: this._history
                     }),
                     assets: this._assets,
@@ -94,7 +96,7 @@ Object.assign(pcui, (function () {
                     projectSettings: this._projectSettings
                 }, attr.args);
 
-                const field = pcui.Element.create(attr.type, fieldArgs);
+                const field = Element.create(attr.type, fieldArgs);
                 let evtChange = field.on('change', this._onAttributeChangeHandler);
                 field.once('destroy', () => {
                     if (!evtChange) return;
@@ -122,7 +124,7 @@ Object.assign(pcui, (function () {
 
                 if (attr.type !== 'asset' && attr.type !== 'json' && attr.type !== 'array:json') {
                     if (attr.label) {
-                        const labelGroup = new pcui.LabelGroup({
+                        const labelGroup = new LabelGroup({
                             text: attr.label,
                             field: field,
                             nativeTooltip: attr.nativeTooltip,
@@ -163,7 +165,7 @@ Object.assign(pcui, (function () {
                     }
                     tooltipGroup = this._createTooltipGroup(field, tooltipData);
                 } else {
-                    const panel = new pcui.Panel({
+                    const panel = new Panel({
                         headerText: attr.label,
                         collapsible: true,
                         flex: true
@@ -191,7 +193,7 @@ Object.assign(pcui, (function () {
                         const field = this.getField(attr.path);
                         this._templateOverridesInspector.registerElementForPath(attr.path, attr.type === 'asset' ? field : field.parent, tooltipGroup);
 
-                        if (field instanceof pcui.ArrayInput) {
+                        if (field instanceof ArrayInput) {
                             const pathsIndex = {};
 
                             // register each array element for template overrides
@@ -360,7 +362,7 @@ Object.assign(pcui, (function () {
         }
     }
 
-    pcui.Element.register('json', AttributesInspector, {});
+    Element.register('json', AttributesInspector, {});
 
     return {
         AttributesInspector: AttributesInspector

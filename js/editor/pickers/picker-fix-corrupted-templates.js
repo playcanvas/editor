@@ -1,3 +1,5 @@
+import { Overlay, Container, Label, Button, Spinner } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     'use strict';
 
@@ -11,33 +13,33 @@ editor.once('load', function () {
     const STATE_END = 5;
     const STATE_ERROR = 100;
 
-    const overlay = new pcui.Overlay({
+    const overlay = new Overlay({
         class: 'picker-fix-templates',
         hidden: true
     });
 
     editor.call('layout.root').append(overlay);
 
-    const header = new pcui.Container({
+    const header = new Container({
         flex: true,
         flexDirection: 'row',
         class: 'header'
     });
     overlay.append(header);
 
-    const icon = new pcui.Label({
+    const icon = new Label({
         class: 'icon',
         text: '&#57880;',
         unsafe: true
     });
     header.append(icon);
 
-    const title = new pcui.Label({
+    const title = new Label({
         text: 'ISSUES WITH TEMPLATES'
     });
     header.append(title);
 
-    const text = new pcui.Label({
+    const text = new Label({
         unsafe: true,
         text: '<p>We identified some template instances with invalid data. These might cause further issues as you continue development if not fixed.</p>' +
               '<p>Please see <a href="https://forum.playcanvas.com/t/draft-corruption-of-template-instances-please-read/23265" target="_blank">this post</a> for more information.</p>' +
@@ -46,32 +48,32 @@ editor.once('load', function () {
 
     overlay.append(text);
 
-    const containerButtons = new pcui.Container({
+    const containerButtons = new Container({
         flex: true,
         class: 'buttons',
         flexDirection: 'row'
     });
     overlay.append(containerButtons);
 
-    const btnCancel = new pcui.Button({
+    const btnCancel = new Button({
         text: 'CANCEL',
         class: 'cancel'
     });
     btnCancel.style.marginLeft = 'auto';
     containerButtons.append(btnCancel);
 
-    const btnConfirm = new pcui.Button({
+    const btnConfirm = new Button({
         text: 'PROCEED'
     });
     containerButtons.append(btnConfirm);
 
-    const overlayFullScreen = new pcui.Overlay({
+    const overlayFullScreen = new Overlay({
         class: 'picker-fix-templates-fullscreen',
         hidden: true
     });
     editor.call('layout.root').append(overlayFullScreen);
 
-    const content = new pcui.Container({
+    const content = new Container({
         flex: true
     });
     content.style.alignItems = 'center';
@@ -93,7 +95,7 @@ editor.once('load', function () {
         document.body.removeChild(a);
     }
 
-    const progressText = new pcui.Label({
+    const progressText = new Label({
         unsafe: true
     });
     content.append(progressText);
@@ -101,13 +103,13 @@ editor.once('load', function () {
         progressText.text = text;
     });
 
-    const spinner = new pcui.Spinner({
+    const spinner = new Spinner({
         size: 64,
         hidden: true
     });
     content.append(spinner);
 
-    const progressButtons = new pcui.Container({
+    const progressButtons = new Container({
         flex: true,
         flexDirection: 'row'
     });
@@ -161,7 +163,7 @@ editor.once('load', function () {
         }
     }
 
-    const btnFindIssues = new pcui.Button({
+    const btnFindIssues = new Button({
         text: 'FIND ISSUES'
     });
     progressButtons.append(btnFindIssues);
@@ -170,7 +172,7 @@ editor.once('load', function () {
         editor.emit('picker:fixCorruptedTemplates:findIssues');
     });
 
-    const btnReport = new pcui.Button({
+    const btnReport = new Button({
         text: 'DOWNLOAD REPORT',
         hidden: true
     });
@@ -181,7 +183,7 @@ editor.once('load', function () {
         downloadReport(title);
     });
 
-    const btnProceedWithMigration = new pcui.Button({
+    const btnProceedWithMigration = new Button({
         text: 'CREATE CHECKPOINT AND MIGRATE',
         hidden: true
     });
@@ -202,7 +204,7 @@ editor.once('load', function () {
         });
     });
 
-    const btnCancelMigration = new pcui.Button({
+    const btnCancelMigration = new Button({
         text: 'CANCEL',
         class: 'cancel',
         hidden: true

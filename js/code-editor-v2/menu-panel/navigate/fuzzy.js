@@ -1,3 +1,5 @@
+import { MenuItem } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     'use strict';
 
@@ -15,7 +17,7 @@ editor.once('load', function () {
     });
 
     // Go to anything
-    const item = new pcui.MenuItem({
+    const item = new MenuItem({
         text: 'Go To File',
         onSelect: () => {
             editor.call('editor:command:goToFile');

@@ -1,3 +1,5 @@
+import { MenuItem } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     'use strict';
 
@@ -5,7 +7,7 @@ editor.once('load', function () {
     const codePanel = editor.call('layout.code');
     const ctrl = editor.call('hotkey:ctrl:string');
 
-    let item = new pcui.MenuItem({
+    let item = new MenuItem({
         class: 'no-bottom-border',
         text: 'Undo',
         onIsEnabled: () => {
@@ -33,7 +35,7 @@ editor.once('load', function () {
         }
     });
 
-    item = new pcui.MenuItem({
+    item = new MenuItem({
         text: 'Redo',
         onIsEnabled: () => {
             return editor.call('editor:command:can:redo');

@@ -1,10 +1,12 @@
+import { MenuItem } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     'use strict';
 
     const menu = editor.call('menu:project');
 
     // Open project
-    let item = new pcui.MenuItem({
+    let item = new MenuItem({
         class: 'no-bottom-border',
         text: 'Open Dashboard',
         onSelect: () => {
@@ -18,7 +20,7 @@ editor.once('load', function () {
     });
 
     // Open Editor
-    item = new pcui.MenuItem({
+    item = new MenuItem({
         text: 'Open Editor',
         onSelect: () => {
             return editor.call('editor:command:openEditor');

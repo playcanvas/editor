@@ -1,3 +1,5 @@
+import { Element, Container, Button, Label, TextInput, BindingObserversToElement } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -17,9 +19,9 @@ Object.assign(pcui, (function () {
      * @name pcui.AssetList
      * @classdesc Element that can allows selecting multiple assets.
      * @property {boolean} renderChanges If true the input will flash when changed.
-     * @augments pcui.Element
+     * @augments Element
      */
-    class AssetList extends pcui.Element {
+    class AssetList extends Element {
         /**
          * Creates a new pcui.AssetList.
          *
@@ -33,7 +35,7 @@ Object.assign(pcui, (function () {
         constructor(args) {
             if (!args) args = {};
 
-            const container = new pcui.Container({
+            const container = new Container({
                 flex: true
             });
 
@@ -49,7 +51,7 @@ Object.assign(pcui, (function () {
             this._filterFn = args.filterFn;
 
             // button that enables selection mode
-            this._btnSelectionMode = new pcui.Button({
+            this._btnSelectionMode = new Button({
                 class: CLASS_BUTTON_SELECTION_MODE,
                 text: 'Add Assets',
                 icon: 'E120'
@@ -58,14 +60,14 @@ Object.assign(pcui, (function () {
             this._container.append(this._btnSelectionMode);
 
             // label for buttons container
-            this._labelAddAssets = new pcui.Label({
+            this._labelAddAssets = new Label({
                 text: 'Add Assets',
                 hidden: true
             });
             this._container.append(this._labelAddAssets);
 
             // container for buttons that are visible while in selection mode
-            this._containerButtons = new pcui.Container({
+            this._containerButtons = new Container({
                 class: CLASS_CONTAINER_BUTTONS,
                 flex: true,
                 flexDirection: 'row',
@@ -75,7 +77,7 @@ Object.assign(pcui, (function () {
             this._container.append(this._containerButtons);
 
             // button to add selected assets to list
-            this._btnAdd = new pcui.Button({
+            this._btnAdd = new Button({
                 text: 'ADD SELECTION',
                 enabled: false,
                 class: CLASS_BUTTON_ADD,
@@ -85,7 +87,7 @@ Object.assign(pcui, (function () {
             this._containerButtons.append(this._btnAdd);
 
             // button to exit selection mode
-            this._btnDone = new pcui.Button({
+            this._btnDone = new Button({
                 text: 'CANCEL',
                 class: CLASS_BUTTON_DONE,
                 icon: 'E133'
@@ -94,7 +96,7 @@ Object.assign(pcui, (function () {
             this._containerButtons.append(this._btnDone);
 
             // search input field
-            this._searchInput = new pcui.TextInput({
+            this._searchInput = new TextInput({
                 hidden: true,
                 placeholder: 'Filter assets',
                 keyChange: true
@@ -103,7 +105,7 @@ Object.assign(pcui, (function () {
             this._container.append(this._searchInput);
 
             // asset list
-            this._containerAssets = new pcui.Container({
+            this._containerAssets = new Container({
                 class: CLASS_CONTAINER_ASSETS,
                 hidden: true
             });
@@ -335,7 +337,7 @@ Object.assign(pcui, (function () {
         _createAssetItem(assetId) {
             let asset = this._assets.get(assetId);
 
-            const container = new pcui.Container({
+            const container = new Container({
                 flex: true,
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -356,9 +358,9 @@ Object.assign(pcui, (function () {
             });
 
             // asset name - bind it to the asset name
-            const label = new pcui.Label({
+            const label = new Label({
                 text: asset ? asset.get('name') : 'Missing',
-                binding: new pcui.BindingObserversToElement()
+                binding: new BindingObserversToElement()
             });
             if (asset) {
                 label.link(asset, 'name');
@@ -366,7 +368,7 @@ Object.assign(pcui, (function () {
             container.append(label);
 
             // button to remove asset from list
-            const btnRemove = new pcui.Button({
+            const btnRemove = new Button({
                 icon: 'E289',
                 size: 'small',
                 class: CLASS_BUTTON_REMOVE
@@ -545,7 +547,7 @@ Object.assign(pcui, (function () {
         }
     }
 
-    pcui.Element.register('assets', AssetList, { allowDragDrop: true, renderChanges: true });
+    Element.register('assets', AssetList, { allowDragDrop: true, renderChanges: true });
 
     return {
         AssetList: AssetList

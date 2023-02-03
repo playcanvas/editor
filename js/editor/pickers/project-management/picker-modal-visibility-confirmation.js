@@ -1,3 +1,5 @@
+import { Panel, Button, Label } from '@playcanvas/pcui';
+
 editor.once('load', () => {
 
     // UI
@@ -11,14 +13,14 @@ editor.once('load', () => {
     root.append(overlay);
 
     // main panel
-    const panel = new pcui.Panel({
+    const panel = new Panel({
         headerText: 'CHANGING VISIBILITY',
         class: 'modal-confirmation-panel'
     });
     overlay.append(panel);
 
     // close button
-    const btnClose = new pcui.Button({
+    const btnClose = new Button({
         class: 'close',
         icon: 'E132'
     });
@@ -29,13 +31,13 @@ editor.once('load', () => {
     panel.header.append(btnClose);
 
     // confirmation message
-    const confirmationMessage = new pcui.Label({
+    const confirmationMessage = new Label({
         text: ''
     });
     panel.append(confirmationMessage);
 
     // cancel button
-    const cancelButton = new pcui.Button({
+    const cancelButton = new Button({
         class: 'negative-action-button',
         text: 'Cancel'
     });
@@ -47,7 +49,7 @@ editor.once('load', () => {
     });
 
     // yes button
-    const yesButton = new pcui.Button({
+    const yesButton = new Button({
         class: 'positive-action-button',
         text: 'Yes'
     });

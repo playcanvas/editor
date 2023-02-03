@@ -1,9 +1,11 @@
+import { MenuItem } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     'use strict';
 
     const menu = editor.call('menu:file');
 
-    const item = new pcui.MenuItem({
+    const item = new MenuItem({
         text: 'Download File',
         onIsEnabled: () => {
             return !!editor.call('documents:getFocused');
@@ -15,7 +17,7 @@ editor.once('load', function () {
     menu.append(item);
 
     const ctxMenu = editor.call('files:contextmenu');
-    ctxMenu.append(new pcui.MenuItem({
+    ctxMenu.append(new MenuItem({
         text: 'Download',
         onIsEnabled: () => {
             const selected = editor.call('files:contextmenu:selected');

@@ -1,3 +1,5 @@
+import { Menu, MenuItem } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     'use strict';
 
@@ -19,15 +21,15 @@ editor.once('load', function () {
     };
 
     // menu
-    const menu = new pcui.Menu();
+    const menu = new Menu();
     root.append(menu);
 
     // menu related only to creating assets
-    const menuCreate = new pcui.Menu();
+    const menuCreate = new Menu();
     if (editor.call('permissions:write')) root.append(menuCreate);
 
     // edit
-    const menuItemNewScript = new pcui.MenuItem({
+    const menuItemNewScript = new MenuItem({
         text: 'New Script',
         icon: 'E208',
         onSelect: () => {
@@ -52,7 +54,7 @@ editor.once('load', function () {
     if (editor.call('permissions:write')) menu.append(menuItemNewScript);
 
     // new asset
-    const menuItemNew = new pcui.MenuItem({
+    const menuItemNew = new MenuItem({
         text: 'New Asset',
         icon: 'E120'
     });
@@ -148,7 +150,7 @@ editor.once('load', function () {
 
     const addNewMenuItem = function (menu, key, title) {
         // new folder
-        const item = new pcui.MenuItem({
+        const item = new MenuItem({
             text: title,
             icon: icons[key] || null,
             onSelect: () => {
@@ -232,14 +234,14 @@ editor.once('load', function () {
 
 
     // related
-    const menuItemReferences = new pcui.MenuItem({
+    const menuItemReferences = new MenuItem({
         text: 'References',
         icon: ICONS.REFERENCES
     });
     menu.append(menuItemReferences);
 
     // Create Atlas
-    const menuItemTextureToAtlas = new pcui.MenuItem({
+    const menuItemTextureToAtlas = new MenuItem({
         text: 'Create Texture Atlas',
         icon: ICONS.TEXTURE_ATLAS,
         onSelect: () => {
@@ -249,7 +251,7 @@ editor.once('load', function () {
     if (editor.call('permissions:write')) menu.append(menuItemTextureToAtlas);
 
     // Create Sprite From Atlas
-    const menuItemCreateSprite = new pcui.MenuItem({
+    const menuItemCreateSprite = new MenuItem({
         text: 'Create Sprite Asset',
         icon: ICONS.SPRITE_ASSET,
         onSelect: () => {
@@ -261,7 +263,7 @@ editor.once('load', function () {
     if (editor.call('permissions:write')) menu.append(menuItemCreateSprite);
 
     // Create Sliced Sprite From Atlas
-    const menuItemCreateSlicedSprite = new pcui.MenuItem({
+    const menuItemCreateSlicedSprite = new MenuItem({
         text: 'Create Sliced Sprite Asset',
         icon: ICONS.SPRITE_ASSET,
         onSelect: () => {
@@ -274,7 +276,7 @@ editor.once('load', function () {
     if (editor.call('permissions:write')) menu.append(menuItemCreateSlicedSprite);
 
     // copy
-    const menuItemCopy = new pcui.MenuItem({
+    const menuItemCopy = new MenuItem({
         text: 'Copy',
         icon: ICONS.COPY,
         onSelect: () => {
@@ -306,7 +308,7 @@ editor.once('load', function () {
 
     // paste
     // copy
-    const menuItemPaste = new pcui.MenuItem({
+    const menuItemPaste = new MenuItem({
         text: 'Paste',
         icon: ICONS.PASTE,
         onSelect: () => {
@@ -344,7 +346,7 @@ editor.once('load', function () {
         'animstategraph': true,
         'font': true
     };
-    const menuItemReplace = new pcui.MenuItem({
+    const menuItemReplace = new MenuItem({
         text: 'Replace',
         icon: ICONS.REPLACE,
         onSelect: () => {
@@ -368,7 +370,7 @@ editor.once('load', function () {
     });
     if (editor.call('permissions:write')) menu.append(menuItemReplace);
 
-    const menuItemReplaceTextureToSprite = new pcui.MenuItem({
+    const menuItemReplaceTextureToSprite = new MenuItem({
         text: 'Convert Texture To Sprite',
         icon: ICONS.SPRITE_ASSET,
         onSelect: () => {
@@ -396,7 +398,7 @@ editor.once('load', function () {
     // todo: merge these 2 items.
 
     // extract. Used for source assets.
-    const menuItemExtract = new pcui.MenuItem({
+    const menuItemExtract = new MenuItem({
         text: 'Re-Import',
         icon: ICONS.REIMPORT,
         onSelect: () => {
@@ -406,7 +408,7 @@ editor.once('load', function () {
     if (editor.call('permissions:write')) menu.append(menuItemExtract);
 
     // re-import. Used for target assets.
-    const menuItemReImport = new pcui.MenuItem({
+    const menuItemReImport = new MenuItem({
         text: 'Re-Import',
         icon: ICONS.REIMPORT,
         onSelect: () => {
@@ -416,7 +418,7 @@ editor.once('load', function () {
     if (editor.call('permissions:write')) menu.append(menuItemReImport);
 
     // download
-    const menuItemDownload = new pcui.MenuItem({
+    const menuItemDownload = new MenuItem({
         text: 'Download',
         icon: ICONS.DOWNLOAD,
         onSelect: () => {
@@ -426,7 +428,7 @@ editor.once('load', function () {
     menu.append(menuItemDownload);
 
     // edit
-    const menuItemEdit = new pcui.MenuItem({
+    const menuItemEdit = new MenuItem({
         text: editor.call('permissions:write') ? 'Edit' : 'View',
         icon: ICONS.EDIT,
         onSelect: () => {
@@ -436,7 +438,7 @@ editor.once('load', function () {
     menu.append(menuItemEdit);
 
     // duplicate
-    const menuItemDuplicate = new pcui.MenuItem({
+    const menuItemDuplicate = new MenuItem({
         text: 'Duplicate',
         icon: ICONS.DUPLICATE,
         onSelect: () => {
@@ -446,7 +448,7 @@ editor.once('load', function () {
     if (editor.call('permissions:write')) menu.append(menuItemDuplicate);
 
     // delete
-    const menuItemDelete = new pcui.MenuItem({
+    const menuItemDelete = new MenuItem({
         text: 'Delete',
         icon: ICONS.DELETE,
         onSelect: () => {
@@ -484,7 +486,7 @@ editor.once('load', function () {
     if (editor.call('permissions:write')) menu.append(menuItemDelete);
 
     // move-to-store
-    const menuItemMoveToStore = new pcui.MenuItem({
+    const menuItemMoveToStore = new MenuItem({
         text: 'Move To Store',
         icon: ICONS.EDIT,
         onSelect: () => {
@@ -494,7 +496,7 @@ editor.once('load', function () {
     if (editor.call('permissions:write')) menu.append(menuItemMoveToStore);
 
     // open-in-viewer
-    const menuItemOpenInViewer = new pcui.MenuItem({
+    const menuItemOpenInViewer = new MenuItem({
         text: 'Open In Viewer',
         icon: ICONS.OPEN_IN_VIEWER,
         onSelect: () => {
@@ -503,7 +505,7 @@ editor.once('load', function () {
     });
     menu.append(menuItemOpenInViewer);
 
-    const menuItemHistory = new pcui.MenuItem({
+    const menuItemHistory = new MenuItem({
         text: 'Item History',
         icon: ICONS.ITEM_HISTORY,
         onIsVisible: () => currentAsset,
@@ -629,7 +631,7 @@ editor.once('load', function () {
                     const menuItems = [];
 
                     const addReferenceItem = function (type, id) {
-                        const menuItem = new pcui.MenuItem();
+                        const menuItem = new MenuItem();
                         let item = null;
 
                         if (type === 'editorSettings') {
@@ -800,7 +802,7 @@ editor.once('load', function () {
     });
 
     function createCustomContextMenu(data, parent) {
-        const item = new pcui.MenuItem({
+        const item = new MenuItem({
             text: data.text,
             icon: data.icon,
             onIsVisible: () => {

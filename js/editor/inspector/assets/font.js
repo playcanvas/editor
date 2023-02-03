@@ -1,3 +1,5 @@
+import { Panel, Button, Container, Label, TextInput, Menu, BindingTwoWay } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -49,7 +51,7 @@ Object.assign(pcui, (function () {
     const DOM = parent => [
         {
             root: {
-                propertiesPanel: new pcui.Panel({
+                propertiesPanel: new Panel({
                     headerText: 'PROPERTIES'
                 })
             },
@@ -63,32 +65,32 @@ Object.assign(pcui, (function () {
         },
         {
             root: {
-                characterPresetsPanel: new pcui.Panel({
+                characterPresetsPanel: new Panel({
                     headerText: 'CHARACTER PRESETS'
                 })
             },
             children: [{
-                latinButton: new pcui.Button({ text: 'Latin' })
+                latinButton: new Button({ text: 'Latin' })
             },
             {
-                latinSupplementButton: new pcui.Button({ text: 'Latin Supplement' })
+                latinSupplementButton: new Button({ text: 'Latin Supplement' })
             },
             {
-                cyrillicButton: new pcui.Button({ text: 'Cyrillic' })
+                cyrillicButton: new Button({ text: 'Cyrillic' })
             },
             {
-                greekButton: new pcui.Button({ text: 'Greek' })
+                greekButton: new Button({ text: 'Greek' })
             }]
         },
         {
             root: {
-                characterRangePanel: new pcui.Panel({
+                characterRangePanel: new Panel({
                     headerText: 'CUSTOM CHARACTER RANGE'
                 })
             },
             children: [{
                 root: {
-                    characterRangeContainer: new pcui.Container({
+                    characterRangeContainer: new Container({
                         flex: true,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -97,22 +99,22 @@ Object.assign(pcui, (function () {
                     })
                 },
                 children: [{
-                    characterRangeLabel: new pcui.Label({
+                    characterRangeLabel: new Label({
                         text: 'Range (hex)',
                         class: CLASS_CHARACTER_RANGE_LABEL
                     })
                 }, {
-                    characterRangeStart: new pcui.TextInput({
+                    characterRangeStart: new TextInput({
                         placeholder: 'From',
                         value: '0x20'
                     })
                 }, {
-                    characterRangeEnd: new pcui.TextInput({
+                    characterRangeEnd: new TextInput({
                         placeholder: 'To',
                         value: '0x7E'
                     })
                 }, {
-                    characterRangeButton: new pcui.Button({
+                    characterRangeButton: new Button({
                         icon: 'E287',
                         class: CLASS_CHARACTER_RANGE_BUTTON
                     })
@@ -121,7 +123,7 @@ Object.assign(pcui, (function () {
         },
         {
             root: {
-                fontPanel: new pcui.Panel({
+                fontPanel: new Panel({
                     headerText: 'FONT',
                     flex: true,
                     class: CLASS_FONT
@@ -134,20 +136,20 @@ Object.assign(pcui, (function () {
                     attributes: FONT_ATTRIBUTES
                 })
             }, {
-                processFontButton: new pcui.Button({
+                processFontButton: new Button({
                     text: 'PROCESS FONT',
                     flexGrow: 1
                 })
             }, {
                 root: {
-                    processFontWarningContainer: new pcui.Container({
+                    processFontWarningContainer: new Container({
                         flex: true,
                         hidden: true
                     })
                 },
                 children: [
                     {
-                        processFontWarningMessage: new pcui.Label({
+                        processFontWarningMessage: new Label({
                             text: 'Warning. The following characters were not found in the font file:',
                             flexGrow: 1,
                             class: [pcui.CLASS_ERROR, CLASS_PROCESS_FONT_WARNING_MESSAGE]
@@ -182,20 +184,20 @@ Object.assign(pcui, (function () {
                                 const characterCell = new pcui.TableCell({
                                     alignItems: 'center'
                                 });
-                                const characterLabel = new pcui.Label({ text: character });
+                                const characterLabel = new Label({ text: character });
                                 characterCell.append(characterLabel);
                                 row.append(characterCell);
 
                                 const unicodeCell = new pcui.TableCell({
                                     alignItems: 'center'
                                 });
-                                const unicodeLabel = new pcui.Label({ text: character.charCodeAt() });
+                                const unicodeLabel = new Label({ text: character.charCodeAt() });
                                 unicodeCell.append(unicodeLabel);
                                 row.append(unicodeCell);
 
                                 const root = editor.call('layout.root');
 
-                                const characterMenu = new pcui.Menu({
+                                const characterMenu = new Menu({
                                     items: [
                                         {
                                             text: 'Copy character',
@@ -214,7 +216,7 @@ Object.assign(pcui, (function () {
                                     characterMenu.hidden = false;
                                 });
 
-                                const unicodeMenu = new pcui.Menu({
+                                const unicodeMenu = new Menu({
                                     items: [
                                         {
                                             text: 'Copy unicode',
@@ -242,7 +244,7 @@ Object.assign(pcui, (function () {
         },
         {
             root: {
-                localizationPanel: new pcui.Panel({
+                localizationPanel: new Panel({
                     headerText: 'LOCALIZATION'
                 })
             },
@@ -264,7 +266,7 @@ Object.assign(pcui, (function () {
         GREEK: { from: 0x370, to: 0x3FF }
     };
 
-    class FontAssetInspector extends pcui.Container {
+    class FontAssetInspector extends Container {
         constructor(args) {
             args = Object.assign({}, args);
 
@@ -397,7 +399,7 @@ Object.assign(pcui, (function () {
                 return 0;
             })
             .forEach((locale) => {
-                const localizationAssetPanel = new pcui.Panel({
+                const localizationAssetPanel = new Panel({
                     headerText: locale,
                     removable: true
                 });
@@ -410,7 +412,7 @@ Object.assign(pcui, (function () {
                     assets: this._args.assets,
                     flexGrow: 1,
                     text: 'Asset',
-                    binding: new pcui.BindingTwoWay({
+                    binding: new BindingTwoWay({
                         history: this._args.history
                     }),
                     allowDragDrop: true

@@ -1,3 +1,5 @@
+import { Button, LabelGroup } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -383,7 +385,7 @@ Object.assign(pcui, (function () {
             });
 
             // add control buttons
-            const btnPlay = new pcui.Button({
+            const btnPlay = new Button({
                 size: 'small',
                 icon: 'E131',
                 hidden: true
@@ -394,7 +396,7 @@ Object.assign(pcui, (function () {
 
             this._btnPlay = btnPlay;
 
-            const btnPause = new pcui.Button({
+            const btnPause = new Button({
                 size: 'small',
                 text: '&#10074;&#10074;',
                 unsafe: true
@@ -405,7 +407,7 @@ Object.assign(pcui, (function () {
 
             this._btnPause = btnPause;
 
-            const btnStop = new pcui.Button({
+            const btnStop = new Button({
                 size: 'small',
                 icon: 'E135'
             });
@@ -413,7 +415,7 @@ Object.assign(pcui, (function () {
 
             btnStop.on('click', this._onClickStop.bind(this));
 
-            const btnReset = new pcui.Button({
+            const btnReset = new Button({
                 size: 'small',
                 icon: 'E113'
             });
@@ -421,7 +423,7 @@ Object.assign(pcui, (function () {
 
             btnReset.on('click', this._onClickReset.bind(this));
 
-            const controls = new pcui.LabelGroup({
+            const controls = new LabelGroup({
                 text: 'Controls'
             });
             controls.append(btnPlay);

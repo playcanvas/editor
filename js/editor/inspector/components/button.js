@@ -1,3 +1,5 @@
+import { InfoBox } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -106,7 +108,7 @@ Object.assign(pcui, (function () {
 
             super(args);
 
-            this._inputWarning = new pcui.InfoBox({
+            this._inputWarning = new InfoBox({
                 icon: 'E218',
                 title: 'Warning!',
                 text: 'This button will not be active as this entity\'s element component does not have input enabled.'

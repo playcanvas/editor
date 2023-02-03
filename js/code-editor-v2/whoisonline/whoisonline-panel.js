@@ -1,7 +1,9 @@
+import { Container } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     const panel = editor.call('layout.top');
 
-    const wioPanel = new pcui.Container({
+    const wioPanel = new Container({
         class: 'whoisonline'
     });
     panel.append(wioPanel);

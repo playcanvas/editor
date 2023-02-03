@@ -1,3 +1,5 @@
+import { Panel, Container, Button } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -147,7 +149,7 @@ Object.assign(pcui, (function () {
 
     const CLASS_SLOT = 'sound-component-inspector-slot';
 
-    class SoundSlotInspector extends pcui.Panel {
+    class SoundSlotInspector extends Panel {
         constructor(args) {
             args = Object.assign({
                 headerText: args.slot.name || 'New Slot',
@@ -264,14 +266,14 @@ Object.assign(pcui, (function () {
             });
             this.append(this._attributesInspector);
 
-            this._containerSlots = new pcui.Container({
+            this._containerSlots = new Container({
                 flex: true
             });
             this.append(this._containerSlots);
 
             this._slotInspectors = {};
 
-            this._btnAddSlot = new pcui.Button({
+            this._btnAddSlot = new Button({
                 text: 'ADD SLOT',
                 icon: 'E120',
                 flexGrow: 1,

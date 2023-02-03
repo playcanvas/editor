@@ -1,3 +1,5 @@
+import { Label, Progress } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     'use strict';
 
@@ -5,17 +7,17 @@ editor.once('load', function () {
     const panel = editor.call('layout.statusBar');
 
     // status
-    const status = new pcui.Label();
+    const status = new Label();
     status.class.add('status');
     panel.append(status);
 
     // progress
-    const progress = new pcui.Progress();
+    const progress = new Progress();
     progress.class.add('jobsProgress');
     panel.append(progress);
 
     // jobs
-    const jobsCount = new pcui.Label({
+    const jobsCount = new Label({
         text: '0'
     });
     jobsCount.class.add('jobsCount');

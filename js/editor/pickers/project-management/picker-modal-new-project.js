@@ -1,3 +1,5 @@
+import { Element, Button, Label, TextInput, TextAreaInput, BooleanInput, SelectInput, Panel } from '@playcanvas/pcui';
+
 editor.once('load', function () {
 
     // GLOBAL VARIABLES
@@ -55,7 +57,7 @@ editor.once('load', function () {
     // helper method to construct UI for starterkit
     const createStarterKitUI = (starterkit, fork, container) => {
         // Starter Kit
-        var starterKit = new pcui.Element({
+        var starterKit = new Element({
             class: 'starter-kit'
         });
         container.dom.appendChild(starterKit.dom);
@@ -89,27 +91,27 @@ editor.once('load', function () {
         });
 
         // Thumbnail
-        var thumbnail = new pcui.Element({
+        var thumbnail = new Element({
             class: 'thumbnail'
         });
         starterKit.dom.appendChild(thumbnail.dom);
 
         // Image
-        var image = new pcui.Element({
+        var image = new Element({
             dom: 'img'
         });
         image.dom.src = starterkit.image;
         thumbnail.dom.appendChild(image.dom);
 
         // Overlay
-        var overlay = new pcui.Element({
+        var overlay = new Element({
             class: 'overlay'
         });
         thumbnail.dom.appendChild(overlay.dom);
 
         // Preview Button (ignore for blank project)
         if (starterkit !== blankProject) {
-            const previewButton = new pcui.Button({
+            const previewButton = new Button({
                 class: 'preview-button',
                 icon: 'E286',
                 hidden: true
@@ -122,7 +124,7 @@ editor.once('load', function () {
         }
 
         // Title
-        var title = new pcui.Element({
+        var title = new Element({
             dom: 'h4'
         });
         title.dom.textContent = starterkit.name;
@@ -161,26 +163,26 @@ editor.once('load', function () {
             'flex-direction': type !== 'toggle' ? 'column' : 'row',
             'justify-content': type !== 'toggle' ? 'start' : 'space-between'
         };
-        const formGroup = new pcui.Element();
+        const formGroup = new Element();
         Object.assign(formGroup.style, formGroupStyling);
         container.dom.appendChild(formGroup.dom);
 
         switch (type) {
             case 'text': {
-                const labelElement = new pcui.Label({
+                const labelElement = new Label({
                     text: label
                 });
                 formGroup.dom.appendChild(labelElement.element);
 
                 let textInput;
                 if (label === 'Name') {
-                    textInput = new pcui.TextInput({
+                    textInput = new TextInput({
                         class: 'form-control',
                         value: formInputs.name,
                         renderChanges: true
                     });
                 } else {
-                    textInput = new pcui.TextAreaInput({
+                    textInput = new TextAreaInput({
                         class: 'form-control',
                         value: formInputs.description,
                         renderChanges: true,
@@ -194,12 +196,12 @@ editor.once('load', function () {
             }
 
             case 'toggle': {
-                const labelElement = new pcui.Label({
+                const labelElement = new Label({
                     text: label
                 });
                 formGroup.dom.appendChild(labelElement.element);
 
-                const toggleElement = new pcui.BooleanInput({
+                const toggleElement = new BooleanInput({
                     type: 'toggle',
                     value: false,
                     enabled: allowPrivate()
@@ -220,16 +222,16 @@ editor.once('load', function () {
             'flex-direction': 'column',
             'justify-content': 'space-between'
         };
-        const ownerContainer = new pcui.Element({ class: 'form-owner' });
+        const ownerContainer = new Element({ class: 'form-owner' });
         Object.assign(ownerContainer.style, formGroupStyling);
         container.dom.appendChild(ownerContainer.dom);
 
-        const ownerLabel = new pcui.Label({
+        const ownerLabel = new Label({
             text: 'Owner'
         });
         ownerContainer.dom.appendChild(ownerLabel.element);
 
-        const ownerDropdown = new pcui.SelectInput({
+        const ownerDropdown = new SelectInput({
             class: 'owner-dropdown',
             options: possibleOwners.map((owner) => { return { v: owner.id, t: owner.full_name }; }),
             value: newProjectOwner.id,
@@ -238,7 +240,7 @@ editor.once('load', function () {
         ownerContainer.dom.appendChild(ownerDropdown.element);
 
         const ownerDropdownContainer = ownerDropdown.element.querySelector('.pcui-select-input-container-value');
-        const ownerDropdownSelectedProfile = new pcui.Element({
+        const ownerDropdownSelectedProfile = new Element({
             dom: 'img',
             class: 'owner-profile'
         });
@@ -250,7 +252,7 @@ editor.once('load', function () {
         for (let i = 0; i < possibleOwners.length; i++) {
             const dropdownOption = ownerDropdownList.childNodes[i];
 
-            imageContainer = new pcui.Element({
+            imageContainer = new Element({
                 dom: 'img',
                 class: 'owner-profile'
             });
@@ -288,19 +290,19 @@ editor.once('load', function () {
     root.append(overlay);
 
     // main panel
-    const panel = new pcui.Panel({
+    const panel = new Panel({
         headerText: 'NEW PROJECT'
     });
     overlay.append(panel);
 
     // playcanvas icon
-    const playcanvasIcon = new pcui.Element({
+    const playcanvasIcon = new Element({
         class: 'playcanvas-icon'
     });
     panel.header.append(playcanvasIcon);
 
     // close button
-    const btnClose = new pcui.Button({
+    const btnClose = new Button({
         class: 'close',
         icon: 'E132'
     });
@@ -310,42 +312,42 @@ editor.once('load', function () {
     panel.header.append(btnClose);
 
     // container
-    const container = new pcui.Element({
+    const container = new Element({
         class: 'modal-new-project-container'
     });
     panel.append(container);
 
     // main view
-    const mainView = new pcui.Element({
+    const mainView = new Element({
         class: 'modal-new-project-main-view'
     });
     container.dom.appendChild(mainView.dom);
 
     // kits container
-    const kitsContainer = new pcui.Element({
+    const kitsContainer = new Element({
         class: 'modal-new-project-kits-container'
     });
     mainView.dom.appendChild(kitsContainer.dom);
 
     // sidebar
-    const sidebar = new pcui.Element({
+    const sidebar = new Element({
         class: 'modal-new-project-sidebar'
     });
     container.dom.appendChild(sidebar.dom);
 
     // form content
-    const formContent = new pcui.Element({
+    const formContent = new Element({
         class: 'modal-new-project-form-content'
     });
     sidebar.dom.appendChild(formContent.dom);
 
     // add create button
-    const createBtnContainer = new pcui.Element({
+    const createBtnContainer = new Element({
         class: 'create-btn-container'
     });
     sidebar.dom.appendChild(createBtnContainer.dom);
 
-    const createBtn = new pcui.Button({
+    const createBtn = new Button({
         class: 'create-btn',
         text: 'CREATE'
     });
@@ -366,7 +368,7 @@ editor.once('load', function () {
         createNewProject();
     });
 
-    const loader = new pcui.Element({
+    const loader = new Element({
         class: 'loader'
     });
     loader.element.style.display = 'none';  // hide loader by default

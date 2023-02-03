@@ -1,3 +1,5 @@
+import { Container, Panel } from '@playcanvas/pcui';
+
 editor.on('load', function () {
     'use strict';
 
@@ -49,7 +51,7 @@ editor.on('load', function () {
     }, false);
 
     // main container
-    var root = new pcui.Container({
+    var root = new Container({
         id: 'layout-root',
         grid: true,
         isRoot: true
@@ -61,7 +63,7 @@ editor.on('load', function () {
     });
 
     // toolbar (left)
-    var toolbar = new pcui.Container({
+    var toolbar = new Container({
         id: 'layout-toolbar',
         flex: true
     });
@@ -70,7 +72,7 @@ editor.on('load', function () {
     editor.method('layout.toolbar', function () { return toolbar; });
 
     // hierarchy
-    var hierarchyPanel = new pcui.Panel({
+    var hierarchyPanel = new Panel({
         headerText: 'HIERARCHY',
         id: 'layout-hierarchy',
         flex: true,
@@ -101,7 +103,7 @@ editor.on('load', function () {
     editor.method('layout.hierarchy', function () { return hierarchyPanel; });
 
     // viewport
-    var viewport = new pcui.Container({
+    var viewport = new Container({
         id: 'layout-viewport',
         class: 'viewport'
     });
@@ -143,7 +145,7 @@ editor.on('load', function () {
     editor.method('layout.assets', function () { return assetsPanel; });
 
     // attributes
-    var attributesPanel = new pcui.Panel({
+    var attributesPanel = new Panel({
         id: 'layout-attributes',
         class: 'attributes',
         headerText: 'INSPECTOR',
@@ -177,7 +179,7 @@ editor.on('load', function () {
     });
 
     // secondary attributes panel
-    var attributesSecondaryPanel = new pcui.Panel({
+    var attributesSecondaryPanel = new Panel({
         headerText: 'INSPECTOR',
         id: 'layout-attributes-secondary',
         flex: true,
@@ -210,7 +212,7 @@ editor.on('load', function () {
 
 
     // status bar
-    var statusBar = new pcui.Container({
+    var statusBar = new Container({
         id: 'layout-statusbar',
         flex: true,
         flexDirection: 'row'

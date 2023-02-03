@@ -1,20 +1,22 @@
+import { Panel, Code, Container, Label, Progress } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
     const DOM = parent => [
         {
             root: {
-                panel: new pcui.Panel({
+                panel: new Panel({
                     headerText: parent._assetType.toUpperCase()
                 })
             },
             children: [
                 {
-                    code: new pcui.Code()
+                    code: new Code()
                 },
                 {
                     root: {
-                        errorLoadingDataContainer: new pcui.Container({
+                        errorLoadingDataContainer: new Container({
                             flex: true,
                             flexDirection: 'column',
                             alignItems: 'center'
@@ -22,20 +24,20 @@ Object.assign(pcui, (function () {
                     },
                     children: [
                         {
-                            errorLoadingDataLabel: new pcui.Label({
+                            errorLoadingDataLabel: new Label({
                                 text: 'failed loading data'
                             })
                         }
                     ]
                 },
                 {
-                    progress: new pcui.Progress({ width: '100%' })
+                    progress: new Progress({ width: '100%' })
                 }
             ]
         }
     ];
 
-    class CodeBlockAssetInspector extends pcui.Container {
+    class CodeBlockAssetInspector extends Container {
         constructor(args) {
             args = Object.assign({}, args);
 

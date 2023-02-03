@@ -1,3 +1,5 @@
+import { Element, Label, Button, Container, BooleanInput, RadioButton, Panel, Progress, TextInput } from '@playcanvas/pcui';
+
 editor.once('load', () => {
 
     // global variables
@@ -51,25 +53,25 @@ editor.once('load', () => {
             const percentageUsed = ((accountUsage.total / (currentUser.limits.disk_allowance * 1000 * 1000)) * 100).toPrecision(1);
 
             // build upgrade container
-            const usageLabel = new pcui.Label({
+            const usageLabel = new Label({
                 text: `${usage} / ${diskAllowance} Used`,
                 class: 'upgrade-label'
             });
             upgradeContainer.dom.appendChild(usageLabel.element);
 
-            const usageBarContainer = new pcui.Element({
+            const usageBarContainer = new Element({
                 class: 'usage-bar-container'
             });
             upgradeContainer.dom.appendChild(usageBarContainer.element);
 
-            const usageBar = new pcui.Element({
+            const usageBar = new Element({
                 class: 'usage-bar'
             });
             usageBar.dom.style.width = `${percentageUsed}%`;
             usageBarContainer.dom.appendChild(usageBar.dom);
 
             // upgrade button
-            const upgradeButton = new pcui.Button({
+            const upgradeButton = new Button({
                 text: 'UPGRADE',
                 class: 'upgrade-button'
             });
@@ -84,7 +86,7 @@ editor.once('load', () => {
         organizationsToggle.element.childNodes[1].innerHTML = '';
 
         // new organization button
-        const newOrganizationBtn = new pcui.Button({
+        const newOrganizationBtn = new Button({
             class: 'new-organization-button',
             icon: 'E370',
             text: 'NEW ORGANIZATION'
@@ -97,7 +99,7 @@ editor.once('load', () => {
 
         // load Organizations
         rootUser.organizations.forEach((org) => {
-            const organizationFilter = new pcui.Container({
+            const organizationFilter = new Container({
                 class: 'organization-button'
             });
             organizationFilter.organization = org;  // add field
@@ -105,20 +107,20 @@ editor.once('load', () => {
 
             if (selected && selected === org.full_name) setSelectedFilter(organizationFilter);
 
-            const organizationImage = new pcui.Element({
+            const organizationImage = new Element({
                 dom: 'img',
                 class: 'organization-icon'
             });
             organizationImage.element.src = `${config.url.api}/users/${org.id}/thumbnail?size=26`;
             organizationFilter.append(organizationImage);
 
-            const organizationName = new pcui.Label({
+            const organizationName = new Label({
                 text: org.full_name
             });
             organizationFilter.append(organizationName);
 
             // dropdown
-            const dropdown = new pcui.Button({
+            const dropdown = new Button({
                 class: 'dropdown',
                 icon: 'E159',
                 renderChanges: true
@@ -154,14 +156,14 @@ editor.once('load', () => {
     };
 
     const buildSortingMenuItem = (root, type, label) => {
-        const sortingMenuItem = new pcui.Container({ class: 'sorting-menu-item' });
+        const sortingMenuItem = new Container({ class: 'sorting-menu-item' });
         root.append(sortingMenuItem);
 
         let booleanInput;
-        if (type === 'checkbox') booleanInput = new pcui.BooleanInput({ class: type });
-        else booleanInput = new pcui.RadioButton({ class: type });
+        if (type === 'checkbox') booleanInput = new BooleanInput({ class: type });
+        else booleanInput = new RadioButton({ class: type });
 
-        const labelElement = new pcui.Label({ text: label });
+        const labelElement = new Label({ text: label });
         sortingMenuItem.append(booleanInput);
         sortingMenuItem.append(labelElement);
 
@@ -176,7 +178,7 @@ editor.once('load', () => {
 
     // builds sorting dropdown with different sorting algorithms
     const buildSortingDropdown = () => {
-        const sortingContainer = new pcui.Container({
+        const sortingContainer = new Container({
             flex: true,
             class: 'sorting-container',
             hidden: true
@@ -252,17 +254,17 @@ editor.once('load', () => {
 
     // builds each of the project CMS UI components
     const buildProjectUI = (root, project) => {
-        const projectContainer = new pcui.Container({
+        const projectContainer = new Container({
             class: 'project-container'
         });
         root.dom.appendChild(projectContainer.element);
 
-        const projectThumbnailContainer = new pcui.Container({
+        const projectThumbnailContainer = new Container({
             class: 'project-thumbnail-container'
         });
         projectContainer.append(projectThumbnailContainer);
 
-        const projectThumbnail = new pcui.Element({
+        const projectThumbnail = new Element({
             dom: 'img',
             class: 'project-thumbnail'
         });
@@ -271,13 +273,13 @@ editor.once('load', () => {
         if (project.thumbnails) projectThumbnail.dom.src = project.thumbnails.m;
         else projectThumbnail.dom.src = EMPTY_THUMBNAIL_IMAGE;
 
-        const projectName = new pcui.Label({
+        const projectName = new Label({
             class: 'project-name',
             text: project.name
         });
         projectContainer.append(projectName);
 
-        const projectLastEdited = new pcui.Label({
+        const projectLastEdited = new Label({
             class: 'project-last-edited',
             text: `Last Edited ${formatLastText(project.modified)}`
         });
@@ -287,7 +289,7 @@ editor.once('load', () => {
         if (!IS_EMPTY_STATE && project.id === currentProject.id) {
             projectContainer.element.classList.add('currentlyOpen');
 
-            const extendedSettings = new pcui.Button({
+            const extendedSettings = new Button({
                 class: 'extended-settings-button',
                 icon: 'E430'
             });
@@ -313,25 +315,25 @@ editor.once('load', () => {
         });
 
         // stats container
-        const statsContainer = new pcui.Container({
+        const statsContainer = new Container({
             class: 'project-stats-container'
         });
         if (project.access_level === 'none') statsContainer.class.add('noadmin');
         projectContainer.append(statsContainer);
 
         if (project.access_level !== 'none') {
-            const forksLabel = new pcui.Label({ class: 'stat', text: `${project.fork_count ? project.fork_count : 0}` });  // forks
+            const forksLabel = new Label({ class: 'stat', text: `${project.fork_count ? project.fork_count : 0}` });  // forks
             forksLabel.element.id = 'forks-stat';
-            const viewsLabel = new pcui.Label({ class: 'stat', text: `${project.views}` });  // views
+            const viewsLabel = new Label({ class: 'stat', text: `${project.views}` });  // views
             viewsLabel.element.id = 'views-stat';
-            const playsLabel = new pcui.Label({ class: 'stat', text: project.primary_app_url ? `${project.plays}` : 'N/A' });  // plays
+            const playsLabel = new Label({ class: 'stat', text: project.primary_app_url ? `${project.plays}` : 'N/A' });  // plays
             playsLabel.element.id = 'plays-stat';
 
             statsContainer.append(forksLabel);
             statsContainer.append(viewsLabel);
             statsContainer.append(playsLabel);
         }
-        const sizeLabel = new pcui.Label({ class: 'stat', text: sizeToString(project.size.total) });  // size
+        const sizeLabel = new Label({ class: 'stat', text: sizeToString(project.size.total) });  // size
         statsContainer.append(sizeLabel);
 
         if (project.disabled) projectContainer.element.classList.add('disabled');
@@ -404,14 +406,14 @@ editor.once('load', () => {
     root.append(overlay);
 
     // main panel
-    const panel = new pcui.Panel({
+    const panel = new Panel({
         headerText: 'PLAYCANVAS',
         class: 'cms-root-panel'
     });
     overlay.append(panel);
 
     // home button
-    const homeButton = new pcui.Button({
+    const homeButton = new Button({
         icon: IS_EMPTY_STATE ? 'E268' : 'E430',
         class: 'home-button',
         enabled: !IS_EMPTY_STATE
@@ -430,7 +432,7 @@ editor.once('load', () => {
     });
 
     // header utils container
-    const headerUtils = new pcui.Container({
+    const headerUtils = new Container({
         class: 'header-utils'
     });
     panel.header.append(headerUtils);
@@ -446,7 +448,7 @@ editor.once('load', () => {
     });
 
     // import project button
-    const importProjectButton = new pcui.Button({
+    const importProjectButton = new Button({
         class: 'import-button',
         icon: 'E222'
     });
@@ -457,7 +459,7 @@ editor.once('load', () => {
     });
 
     // new project button
-    const newProjectButton = new pcui.Button({
+    const newProjectButton = new Button({
         class: 'new-project-button',
         text: 'NEW PROJECT'
     });
@@ -468,7 +470,7 @@ editor.once('load', () => {
     });
 
     // user icon
-    const userIcon = new pcui.Element({
+    const userIcon = new Element({
         class: 'user-icon'
     });
     userIcon.style.backgroundImage = `url(${config.url.api}/users/${config.self.id}/thumbnail?size=24)`;
@@ -479,13 +481,13 @@ editor.once('load', () => {
     });
 
     // left panel
-    const leftPanel = new pcui.Element({
+    const leftPanel = new Element({
         class: 'cms-left-panel'
     });
     panel.append(leftPanel);
 
     // projects toggle
-    const projectsToggle = new pcui.Panel({
+    const projectsToggle = new Panel({
         class: 'projects-toggle',
         collapsible: true,
         headerText: 'PROJECTS'
@@ -493,7 +495,7 @@ editor.once('load', () => {
     leftPanel.dom.appendChild(projectsToggle.element);
 
     // filter list
-    const allFilter = new pcui.Button({
+    const allFilter = new Button({
         class: 'filter-button',
         icon: 'E139',
         text: 'ALL'
@@ -503,7 +505,7 @@ editor.once('load', () => {
 
     allFilter.on('click', () => { setSelectedFilter(allFilter); });
 
-    const myProjectsFilter = new pcui.Button({
+    const myProjectsFilter = new Button({
         class: 'filter-button',
         icon: 'E337',
         text: 'MY PROJECTS'
@@ -511,7 +513,7 @@ editor.once('load', () => {
     projectsToggle.append(myProjectsFilter);
     myProjectsFilter.on('click', () => { setSelectedFilter(myProjectsFilter); });
 
-    const sharedFilter = new pcui.Button({
+    const sharedFilter = new Button({
         class: 'filter-button',
         icon: 'E301',
         text: 'SHARED WITH ME'
@@ -519,7 +521,7 @@ editor.once('load', () => {
     projectsToggle.append(sharedFilter);
     sharedFilter.on('click', () => { setSelectedFilter(sharedFilter); });
 
-    const privateFilter = new pcui.Button({
+    const privateFilter = new Button({
         class: 'filter-button',
         icon: 'E341',
         text: 'PRIVATE PROJECTS'
@@ -528,7 +530,7 @@ editor.once('load', () => {
     privateFilter.on('click', () => { setSelectedFilter(privateFilter); });
 
     // organizations toggle
-    const organizationsToggle = new pcui.Panel({
+    const organizationsToggle = new Panel({
         class: 'organizations-toggle',
         collapsible: true,
         collapsed: false,
@@ -536,7 +538,7 @@ editor.once('load', () => {
     });
     leftPanel.dom.appendChild(organizationsToggle.element);
 
-    const addOrganizationButton = new pcui.Button({
+    const addOrganizationButton = new Button({
         class: 'organization-add',
         icon: 'E370'
     });
@@ -547,20 +549,20 @@ editor.once('load', () => {
     });
 
     // miscellaneous container
-    const miscContainer = new pcui.Container({
+    const miscContainer = new Container({
         class: 'misc-container',
         flex: true
     });
     leftPanel.dom.appendChild(miscContainer.element);
 
     // quick links container
-    const quickLinksContainer = new pcui.Container({
+    const quickLinksContainer = new Container({
         class: 'quick-links-container',
         flex: true
     });
     miscContainer.append(quickLinksContainer);
 
-    const exploreLink = new pcui.Button({
+    const exploreLink = new Button({
         class: 'quick-link',
         icon: 'E129',
         text: 'Explore'
@@ -568,7 +570,7 @@ editor.once('load', () => {
 
     exploreLink.on('click', () => { window.open(`${config.url.home}/explore/featured`, '_blank'); });
 
-    const docsLink = new pcui.Button({
+    const docsLink = new Button({
         class: 'quick-link',
         icon: 'E232',
         text: 'Docs and Tutorials'
@@ -576,7 +578,7 @@ editor.once('load', () => {
 
     docsLink.on('click', () => { window.open('https://developer.playcanvas.com/en/', '_blank'); });
 
-    const feedbackLink = new pcui.Button({
+    const feedbackLink = new Button({
         class: 'quick-link',
         icon: 'E119',
         text: 'Feedback'
@@ -584,7 +586,7 @@ editor.once('load', () => {
 
     feedbackLink.on('click', () => { window.open(`https://forum.playcanvas.com/t/playcanvas-editor-feedback/616`, '_blank'); });
 
-    const githubLink = new pcui.Button({
+    const githubLink = new Button({
         class: 'quick-link',
         icon: 'E259',
         text: 'GitHub'
@@ -598,33 +600,33 @@ editor.once('load', () => {
     quickLinksContainer.append(githubLink);
 
     // upgrade container
-    const upgradeContainer = new pcui.Element({
+    const upgradeContainer = new Element({
         class: 'upgrade-container'
     });
     miscContainer.append(upgradeContainer);
 
     // right panel
-    const rightPanel = new pcui.Element({
+    const rightPanel = new Element({
         class: 'cms-right-panel'
     });
     panel.append(rightPanel);
 
     // progress bar and loading label
-    const progressBarContainer = new pcui.Container({ class: 'progress-container' });
-    const progressBar = new pcui.Progress({ value: 100, class: 'progress' });
+    const progressBarContainer = new Container({ class: 'progress-container' });
+    const progressBar = new Progress({ value: 100, class: 'progress' });
     progressBar.hidden = true;
-    const progressLabel = new pcui.Label({ text: 'Uploading', hidden: true });
+    const progressLabel = new Label({ text: 'Uploading', hidden: true });
     rightPanel.dom.appendChild(progressBarContainer.dom);
     progressBarContainer.append(progressBar);
     progressBarContainer.append(progressLabel);
 
     // right panel controls
-    const controlsContainer = new pcui.Container({
+    const controlsContainer = new Container({
         class: 'list-project-controls'
     });
     rightPanel.dom.appendChild(controlsContainer.element);
 
-    const searchBar = new pcui.TextInput({
+    const searchBar = new TextInput({
         placeholder: 'Search',
         class: 'search-project',
         keyChange: true
@@ -647,7 +649,7 @@ editor.once('load', () => {
         refreshProjects();
     });
 
-    const sortButton = new pcui.Button({
+    const sortButton = new Button({
         icon: 'E437',
         class: ['sort-btn', 'closed']
     });
@@ -673,19 +675,19 @@ editor.once('load', () => {
         sortingDropdown.dom.style.top = `${rect.bottom + 3}px`;
     });
 
-    const layoutButton = new pcui.Button({
+    const layoutButton = new Button({
         icon: 'E284',
         class: 'layout-btn'
     });
     controlsContainer.append(layoutButton);
 
     // right panel projects
-    const projectsContainer = new pcui.Element({
+    const projectsContainer = new Element({
         class: 'projects-container-grid'
     });
     rightPanel.dom.appendChild(projectsContainer.element);
 
-    const noProjectsButton = new pcui.Button({
+    const noProjectsButton = new Button({
         class: 'no-projects-button',
         icon: 'E370',
         hidden: true,

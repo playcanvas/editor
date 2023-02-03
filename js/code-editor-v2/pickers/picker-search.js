@@ -1,3 +1,5 @@
+import { Container, Button, TextInput, Label } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     'use strict';
 
@@ -6,7 +8,7 @@ editor.once('load', function () {
     const monacoEditor = editor.call('editor:monaco');
 
     // Filter Panel
-    const filterPanel = new pcui.Container({
+    const filterPanel = new Container({
         class: 'picker-search',
         flex: true,
         hidden: true
@@ -15,7 +17,7 @@ editor.once('load', function () {
     parent.append(filterPanel);
 
     const createFilter = function (text, storageKey) {
-        const filterButton = new pcui.Button({
+        const filterButton = new Button({
             class: 'option',
             text: text
         });
@@ -23,7 +25,7 @@ editor.once('load', function () {
         filterButton.style.width = '80px';
         filterPanel.append(filterButton);
 
-        const textInput = new pcui.TextInput({
+        const textInput = new TextInput({
             class: 'search',
             keyChange: true,
             placeholder: 'e.g. *.js, src/*',
@@ -47,7 +49,7 @@ editor.once('load', function () {
     const excludeFilter = createFilter('Exclude', 'picker:search:filters:exclude');
 
     // Main Panel
-    const panel = new pcui.Container({
+    const panel = new Container({
         class: 'picker-search',
         flex: true,
         hidden: true
@@ -59,35 +61,35 @@ editor.once('load', function () {
     codePanel.class.add('animate-height');
     filterPanel.class.add('animate-height');
 
-    const optionFilter = new pcui.Button({
+    const optionFilter = new Button({
         class: 'option',
         text: '...'
     });
     optionFilter.element.tabIndex = -1;
     panel.append(optionFilter);
 
-    const optionRegex = new pcui.Button({
+    const optionRegex = new Button({
         class: 'option',
         text: '.*'
     });
     optionRegex.element.tabIndex = -1;
     panel.append(optionRegex);
 
-    const optionCase = new pcui.Button({
+    const optionCase = new Button({
         class: 'option',
         text: 'Aa'
     });
     optionCase.element.tabIndex = -1;
     panel.append(optionCase);
 
-    const optionWholeWords = new pcui.Button({
+    const optionWholeWords = new Button({
         class: 'option',
         text: '“ ”'
     });
     optionWholeWords.element.tabIndex = -1;
     panel.append(optionWholeWords);
 
-    const searchField = new pcui.TextInput({
+    const searchField = new TextInput({
         class: 'search',
         keyChange: true,
         placeholder: 'Find in files',
@@ -98,13 +100,13 @@ editor.once('load', function () {
     searchField.input.addEventListener('keydown', onInputKeyDown);
     panel.append(searchField);
 
-    const error = new pcui.Label({
+    const error = new Label({
         class: 'error',
         hidden: true
     });
     searchField.element.appendChild(error.element);
 
-    const btnFindInFiles = new pcui.Button({
+    const btnFindInFiles = new Button({
         'text': 'Find'
     });
     btnFindInFiles.element.tabIndex = -1;

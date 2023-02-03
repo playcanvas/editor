@@ -1,3 +1,5 @@
+import { Container } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -17,9 +19,9 @@ Object.assign(pcui, (function () {
      * @property {boolean} active True when we are currently dragging
      * @property {string} dropType The type of data that is being dropped
      * @property {Any} dropData The data being dropped
-     * @augments pcui.Container
+     * @augments Container
      */
-    class DropManager extends pcui.Container {
+    class DropManager extends Container {
         /**
          * Creates a new DropManager
          *

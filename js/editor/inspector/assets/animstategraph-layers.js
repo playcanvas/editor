@@ -1,3 +1,5 @@
+import { Panel, Button, SelectInput } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -20,7 +22,7 @@ Object.assign(pcui, (function () {
         }
     };
 
-    class AnimstategraphLayers extends pcui.Panel {
+    class AnimstategraphLayers extends Panel {
         constructor(parent, args) {
             args = Object.assign({ enabled: !parent.readOnly }, args);
             super(args);
@@ -29,14 +31,14 @@ Object.assign(pcui, (function () {
             this._assets = null;
             this._assetEvents = [];
 
-            this._addNewLayerButton = new pcui.Button({ text: 'LAYER', icon: 'E120' });
+            this._addNewLayerButton = new Button({ text: 'LAYER', icon: 'E120' });
             this._addNewLayerButton.on('click', () => {
                 this._addNewLayer();
             });
             this.header.append(this._addNewLayerButton);
 
             this._layerSelectInputValue = "";
-            this._layerSelect = new pcui.SelectInput({
+            this._layerSelect = new SelectInput({
                 class: CLASS_ANIMSTATEGRAPH_LAYER_SELECT,
                 type: 'number'
             });
@@ -238,7 +240,7 @@ Object.assign(pcui, (function () {
 
             Object.keys(this._assets[0].get('data.layers')).forEach((layerKey, i) => {
                 const layer = layers[layerKey];
-                const layerPanel = new pcui.Panel({
+                const layerPanel = new Panel({
                     class: CLASS_ANIMSTATEGRAPH_LAYER,
                     collapsible: true,
                     headerText: layer.name,

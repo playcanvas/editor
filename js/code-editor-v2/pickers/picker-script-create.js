@@ -1,3 +1,5 @@
+import { Overlay, Label, TextInput } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     'use strict';
 
@@ -5,25 +7,25 @@ editor.once('load', function () {
     const filenameValid = /^([^0-9.#<>$+%!`&='{}@\\/:*?"<>|\n])([^#<>$+%!`&='{}@\\/:*?"<>|\n])*$/i;
 
     // overlay
-    const overlay = new pcui.Overlay({
+    const overlay = new Overlay({
         class: 'picker-script-create',
         clickable: true,
         hidden: true
     });
 
     // label
-    const label = new pcui.Label({
+    const label = new Label({
         text: 'Enter script filename:'
     });
     overlay.append(label);
 
-    const validate = new pcui.Label({
+    const validate = new Label({
         class: 'validate',
         text: 'Invalid filename'
     });
     overlay.append(validate);
 
-    const input = new pcui.TextInput({
+    const input = new TextInput({
         blurOnEnter: false,
         renderChanges: false
     });

@@ -1,3 +1,5 @@
+import { Element, Container, Label, Button, BindingObserversToElement } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -8,9 +10,9 @@ Object.assign(pcui, (function () {
      * @name pcui.EntityInput
      * @classdesc An input that accepts an Entity.
      * @property {boolean} renderChanges If true then the Element will flash when its value changes.
-     * @augments pcui.Element
+     * @augments Element
      */
-    class EntityInput extends pcui.Element {
+    class EntityInput extends Element {
         /**
          * Creates a new pcui.EntityInput.
          *
@@ -21,13 +23,13 @@ Object.assign(pcui, (function () {
          * @param {boolean} [args.allowDragDrop] - If true then this will enable drag and drop of entities on the input
          */
         constructor(args) {
-            const container = new pcui.Container();
+            const container = new Container();
 
             args = Object.assign({
                 tabIndex: 0
             }, args);
 
-            super(container.dom, args);
+            super({ ...args, dom: container.dom });
 
             this.class.add(CLASS_ENTITY_INPUT);
 
@@ -44,14 +46,14 @@ Object.assign(pcui, (function () {
             this.dom.addEventListener('blur', this._domEvtBlur);
             this.dom.addEventListener('keydown', this._domEvtKeyDown);
 
-            this._label = new pcui.Label({
+            this._label = new Label({
                 flexGrow: 1,
-                binding: new pcui.BindingObserversToElement()
+                binding: new BindingObserversToElement()
             });
 
             this._container.append(this._label);
 
-            this._buttonRemove = new pcui.Button({
+            this._buttonRemove = new Button({
                 icon: 'E132'
             });
             this._container.append(this._buttonRemove);
@@ -247,7 +249,7 @@ Object.assign(pcui, (function () {
         }
     }
 
-    pcui.Element.register('entity', EntityInput, { allowDragDrop: true, renderChanges: true });
+    Element.register('entity', EntityInput, { allowDragDrop: true, renderChanges: true });
 
     return {
         EntityInput: EntityInput

@@ -1,3 +1,5 @@
+import { Element, Canvas } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -29,9 +31,9 @@ Object.assign(pcui, (function () {
      * @name pcui.GradientInput
      * @classdesc Shows a color gradient.
      * @property {boolean} renderChanges If true the input will flash when changed.
-     * @augments pcui.Element
+     * @augments Element
      */
-    class GradientInput extends pcui.Element {
+    class GradientInput extends Element {
         /**
          * Creates a new pcui.GradientInput.
          *
@@ -47,7 +49,7 @@ Object.assign(pcui, (function () {
 
             this.class.add(CLASS_GRADIENT);
 
-            this._canvas = new pcui.Canvas({ useDevicePixelRatio: true });
+            this._canvas = new Canvas({ useDevicePixelRatio: true });
             this.dom.appendChild(this._canvas.dom);
             this._canvas.parent = this;
             this._canvas.on('resize', this._renderGradient.bind(this));
@@ -275,7 +277,7 @@ Object.assign(pcui, (function () {
         }
     }
 
-    pcui.Element.register('gradient', GradientInput, { renderChanges: true });
+    Element.register('gradient', GradientInput, { renderChanges: true });
 
     return {
         GradientInput: GradientInput

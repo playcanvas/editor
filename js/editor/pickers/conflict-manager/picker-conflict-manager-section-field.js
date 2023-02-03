@@ -1,3 +1,5 @@
+import { TextAreaInput } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     'use strict';
 
@@ -137,7 +139,7 @@ editor.once('load', function () {
 
     // for JSON just stringify and show value
     var ConflictFieldJson = function (value) {
-        this.element = new pcui.TextAreaInput({
+        this.element = new TextAreaInput({
             readOnly: true,
             value: JSON.stringify(value, null, 2),
             height: 100

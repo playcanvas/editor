@@ -1,3 +1,5 @@
+import { Container } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -14,7 +16,7 @@ Object.assign(pcui, (function () {
         })
     }];
 
-    class ContainerAssetInspector extends pcui.Container {
+    class ContainerAssetInspector extends Container {
         constructor(args) {
             args = Object.assign({}, args);
 

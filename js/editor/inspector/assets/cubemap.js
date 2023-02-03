@@ -1,3 +1,5 @@
+import { Panel, Container, Label, BooleanInput, Button } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -48,7 +50,7 @@ Object.assign(pcui, (function () {
     const DOM = (parent, args) => [
         {
             root: {
-                cubemapPanel: new pcui.Panel({
+                cubemapPanel: new Panel({
                     headerText: 'CUBEMAP'
                 })
             },
@@ -61,50 +63,50 @@ Object.assign(pcui, (function () {
             }]
         },
         {
-            facesPanel: new pcui.Panel({
+            facesPanel: new Panel({
                 headerText: 'FACES'
             })
         },
         {
             root: {
-                prefilteringContainer: new pcui.Container()
+                prefilteringContainer: new Container()
             },
             children: [{
                 root: {
-                    prefilteringPanel: new pcui.Panel({ headerText: 'PREFILTERING', flex: true })
+                    prefilteringPanel: new Panel({ headerText: 'PREFILTERING', flex: true })
                 },
                 children: [{
                     root: {
-                        prefilterPhongContainer: new pcui.Container({
+                        prefilterPhongContainer: new Container({
                             flex: true,
                             flexDirection: 'row'
                         })
                     },
                     children: [{
-                        prefilterPhongLabel: new pcui.Label({
+                        prefilterPhongLabel: new Label({
                             text: 'Use legacy phong lobe'
                         })
                     }, {
-                        prefilterPhong: new pcui.BooleanInput({
+                        prefilterPhong: new BooleanInput({
                             flexShrink: 0,
                             flexGrow: 0
                         })
                     }]
                 }, {
-                    prefilterButton: new pcui.Button({ text: 'PREFILTER CUBEMAP' })
+                    prefilterButton: new Button({ text: 'PREFILTER CUBEMAP' })
                 }, {
-                    deletePrefilterButton: new pcui.Button({ text: 'DELETE PREFILTERED DATA' })
+                    deletePrefilterButton: new Button({ text: 'DELETE PREFILTERED DATA' })
                 }]
             },
             {
                 root: {
-                    errorContainer: new pcui.Container({
+                    errorContainer: new Container({
                         flex: true,
                         alignItems: 'center'
                     })
                 },
                 children: [{
-                    errorLabel: new pcui.Label({
+                    errorLabel: new Label({
                         class: pcui.CLASS_ERROR
                     })
                 }]
@@ -112,7 +114,7 @@ Object.assign(pcui, (function () {
         }
     ];
 
-    class CubemapAssetInspector extends pcui.Container {
+    class CubemapAssetInspector extends Container {
         constructor(args) {
             args = Object.assign({}, args);
 
