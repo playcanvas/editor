@@ -1,3 +1,5 @@
+import { Button, LabelGroup, SelectInput, NumericInput, BooleanInput } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     'use strict';
 
@@ -9,7 +11,7 @@ editor.once('load', function () {
     let width = settingsPanel.resizeMin + 'px';
 
     // close button
-    const btnClose = new pcui.Button({
+    const btnClose = new Button({
         class: 'close',
         hidden: true,
         icon: 'E132'
@@ -40,7 +42,7 @@ editor.once('load', function () {
 
 
     const addField = function (name, field, path, tooltip) {
-        const labelGroup = new pcui.LabelGroup({
+        const labelGroup = new LabelGroup({
             field: field,
             text: name
         });
@@ -79,32 +81,32 @@ editor.once('load', function () {
             t: themes[key]
         };
     });
-    const fieldTheme = new pcui.SelectInput({
+    const fieldTheme = new SelectInput({
         options: themeOptions,
         type: 'string'
     });
     addField('Editor Theme:', fieldTheme, 'ide.theme', 'The code editor theme.');
 
-    const fieldFontSize = new pcui.NumericInput({
+    const fieldFontSize = new NumericInput({
         hideSlider: true,
         min: 1,
         placeholder: 'pixels'
     });
     addField('Font Size:', fieldFontSize, 'ide.fontSize', 'The font size of the code.');
 
-    const fieldWordWrap = new pcui.BooleanInput();
+    const fieldWordWrap = new BooleanInput();
     addField('Word Wrap:', fieldWordWrap, 'ide.wordWrap', 'If enabled, long code lines will wrap to the next line.');
 
-    const fieldAutoCloseBrackets = new pcui.BooleanInput();
+    const fieldAutoCloseBrackets = new BooleanInput();
     addField('Auto Close Brackets:', fieldAutoCloseBrackets, 'ide.autoCloseBrackets', 'If enabled the editor will auto-close brackets and quotes when typed.');
 
-    const fieldHighlightBrackets = new pcui.BooleanInput();
+    const fieldHighlightBrackets = new BooleanInput();
     addField('Highlight Brackets:', fieldHighlightBrackets, 'ide.highlightBrackets', 'If enabled causes matching brackets to be highlighted whenever the cursor is next to them.');
 
-    const fieldBracketPairColorization = new pcui.BooleanInput();
+    const fieldBracketPairColorization = new BooleanInput();
     addField('Bracket Pair Colorization:', fieldBracketPairColorization, 'ide.bracketPairColorization', 'If enabled, paired brackets will be unique colors.');
 
-    const fieldMinimap = new pcui.SelectInput({
+    const fieldMinimap = new SelectInput({
         options: [
             { v: 'none', t: 'None' },
             { v: 'right', t: 'Right' },
@@ -114,7 +116,7 @@ editor.once('load', function () {
     });
     addField('Code Minimap:', fieldMinimap, 'ide.minimapMode', 'Display a high-level code outline minimap - useful for quick navigation and code understanding.');
 
-    const fieldFormatOnSave = new pcui.BooleanInput();
+    const fieldFormatOnSave = new BooleanInput();
     addField('Format On Save:', fieldFormatOnSave, 'ide.formatOnSave', 'If enabled the document will be auto-formatted on save');
 
     settingsPanel.on('show', () => {

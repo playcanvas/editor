@@ -1,3 +1,5 @@
+import { Panel, Container, Label } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -5,10 +7,10 @@ Object.assign(pcui, (function () {
     const CLASS_RELATED_ASSET = CLASS_ROOT + '-related-asset';
 
     const DOM = title => [{
-        relatedAssetsPanel: new pcui.Panel({ flex: true, headerText: title })
+        relatedAssetsPanel: new Panel({ flex: true, headerText: title })
     }];
 
-    class RelatedAssetsInspector extends pcui.Container {
+    class RelatedAssetsInspector extends Container {
         constructor(args) {
             args = Object.assign({}, args);
 
@@ -33,7 +35,7 @@ Object.assign(pcui, (function () {
             const relatedAssets = this._args.assets.data.filter(asset => this._relatedFn(asset, sourceId));
             this._relatedAssets = [];
             relatedAssets.forEach((asset) => {
-                const relatedAssetLabel = new pcui.Label({
+                const relatedAssetLabel = new Label({
                     text: asset.get('name'),
                     class: [CLASS_RELATED_ASSET, 'asset-icon-prefix', `type-${asset.get('type')}`]
                 });

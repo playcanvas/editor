@@ -1,3 +1,5 @@
+import { Container, Button, BooleanInput, Label } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     'use strict';
 
@@ -10,7 +12,7 @@ editor.once('load', function () {
     const releaseCandidate = config.engineVersions.latest?.version;
 
     // panel
-    const panel = new pcui.Container();
+    const panel = new Container();
     panel.class.add('top-controls');
     viewport.append(panel);
 
@@ -19,7 +21,7 @@ editor.once('load', function () {
     });
 
     // launch
-    const launch = new pcui.Container();
+    const launch = new Container();
     launch.class.add('launch');
     panel.append(launch);
     launch.disabled = true;
@@ -32,7 +34,7 @@ editor.once('load', function () {
         launch.disabled = true;
     });
 
-    const buttonLaunch = new pcui.Button({
+    const buttonLaunch = new Button({
         icon: 'E131'
     });
     const launchText = document.createElement('span');
@@ -101,16 +103,16 @@ editor.once('load', function () {
 
     buttonLaunch.on('click', launchApp);
 
-    const panelOptions = new pcui.Container();
+    const panelOptions = new Container();
     panelOptions.class.add('options');
     launch.append(panelOptions);
     panelOptions.hidden = true;
 
     const createOption = function (name, title) {
-        const panel = new pcui.Container();
+        const panel = new Container();
         panelOptions.append(panel);
 
-        const option = new pcui.BooleanInput();
+        const option = new BooleanInput();
         option.style.marginTop = '6px';
         option.value = false;
         option.class.add('tick');
@@ -120,7 +122,7 @@ editor.once('load', function () {
             e.stopPropagation();
         });
 
-        const label = new pcui.Label({
+        const label = new Label({
             text: title
         });
         panel.append(label);
@@ -301,7 +303,7 @@ editor.once('load', function () {
 
 
     // fullscreen
-    const buttonExpand = new pcui.Button({
+    const buttonExpand = new Button({
         icon: 'E127'
     });
     buttonExpand.class.add('icon', 'expand');

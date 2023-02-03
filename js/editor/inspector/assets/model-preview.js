@@ -1,3 +1,5 @@
+import { Canvas } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -8,7 +10,7 @@ Object.assign(pcui, (function () {
         constructor(args) {
             super(args);
 
-            this._preview = new pcui.Canvas({ useDevicePixelRatio: true });
+            this._preview = new Canvas({ useDevicePixelRatio: true });
             this._preview.resize(320, 144);
             this._preview.class.add(CLASS_CANVAS, CLASS_CANVAS_FLIP);
             this.append(this._preview);

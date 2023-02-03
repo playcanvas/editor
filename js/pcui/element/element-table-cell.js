@@ -1,3 +1,5 @@
+import { Container } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -5,10 +7,10 @@ Object.assign(pcui, (function () {
 
     /**
      * @name pcui.TableCell
-     * @augments pcui.Container
+     * @augments Container
      * @classdesc Represents a table cell inside a pcui.TableRow
      */
-    class TableCell extends pcui.Container {
+    class TableCell extends Container {
         /**
          * Creates a new TableCell.
          *

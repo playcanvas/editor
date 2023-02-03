@@ -1,9 +1,11 @@
+import { MenuItem } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     'use strict';
 
     const menu = editor.call('menu:edit');
 
-    const group = new pcui.MenuItem({
+    const group = new MenuItem({
         text: 'Preferences',
         onSelect: () => {
             return editor.call('picker:settings');

@@ -1,3 +1,5 @@
+import { Element, Label, Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -13,19 +15,19 @@ Object.assign(pcui, (function () {
      * @name pcui.AssetInput
      * @classdesc Represents an asset input field. It shows a thumbnail of the asset and
      * allows picking of an asset using an asset picker.
-     * @augments pcui.Element
+     * @augments Element
      * @property {string} assetType The type of assets that this input can display. Used when picking assets with the asset picker.
-     * @property {pcui.Label} label Gets the label element on the top right of the input.
+     * @property {Label} label Gets the label element on the top right of the input.
      * @property {boolean} renderChanges If true the input will flash when changed.
      * @property {Function} dragEnterFn A function that is called when we drag an item over the element.
      * @property {Function} dragLeaveFn A function that is called when we stop dragging an item over the element.
      * @mixes pcui.IBindable
      */
-    class AssetInput extends pcui.Element {
+    class AssetInput extends Element {
         /**
          * Returns a new AssetInput.
          *
-         * @param {object} args - The arguments. Extends the pcui.Element arguments.
+         * @param {object} args - The arguments. Extends the Element arguments.
          * @param {ObserverList} args.assets - The assets observer list.
          * @param {string} [args.text] - The text on the top right of the field.
          * @param {string} [args.assetType] - The type of assets that this input can display. Used when picking assets with the asset picker.
@@ -45,7 +47,7 @@ Object.assign(pcui, (function () {
 
             // asset thumbnail on the left
             this._thumbnail = new pcui.AssetThumbnail({
-                binding: new pcui.BindingObserversToElement(),
+                binding: new BindingObserversToElement(),
                 assets: args.assets,
                 ignoreParent: true
             });
@@ -55,7 +57,7 @@ Object.assign(pcui, (function () {
             this._thumbnail.on('click', this._onClickThumb.bind(this));
 
             // input label
-            this._label = new pcui.Label({
+            this._label = new Label({
                 text: args.text
             });
             this._label.class.add(CLASS_ASSET_INPUT_LABEL);
@@ -63,21 +65,21 @@ Object.assign(pcui, (function () {
             this._label.parent = this;
 
             // container for controls
-            this._containerControls = new pcui.Container({
+            this._containerControls = new Container({
                 class: CLASS_ASSET_INPUT_CONTROLS
             });
             this.dom.appendChild(this._containerControls.dom);
             this._containerControls.parent = this;
 
             // asset name
-            this._labelAsset = new pcui.Label({
-                binding: new pcui.BindingObserversToElement()
+            this._labelAsset = new Label({
+                binding: new BindingObserversToElement()
             });
             this._labelAsset.class.add(CLASS_ASSET_INPUT_ASSET);
             this._containerControls.append(this._labelAsset);
 
             // only shown when we are displaying multiple different values
-            this._labelVarious = new pcui.Label({
+            this._labelVarious = new Label({
                 text: 'various',
                 hidden: true
             });
@@ -85,7 +87,7 @@ Object.assign(pcui, (function () {
             this._containerControls.append(this._labelVarious);
 
             // select asset button
-            this._btnEdit = new pcui.Button({
+            this._btnEdit = new Button({
                 icon: 'E336'
             });
             this._btnEdit.class.add(CLASS_ASSET_INPUT_EDIT);
@@ -93,7 +95,7 @@ Object.assign(pcui, (function () {
             this._btnEdit.on('click', this._onClickEdit.bind(this));
 
             // remove asset button
-            this._btnRemove = new pcui.Button({
+            this._btnRemove = new Button({
                 icon: 'E132'
             });
             this._btnRemove.class.add(CLASS_ASSET_INPUT_REMOVE);
@@ -381,7 +383,7 @@ Object.assign(pcui, (function () {
         }
     }
 
-    pcui.Element.register('asset', AssetInput, { allowDragDrop: true, renderChanges: true });
+    Element.register('asset', AssetInput, { allowDragDrop: true, renderChanges: true });
 
     return {
         AssetInput: AssetInput

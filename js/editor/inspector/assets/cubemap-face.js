@@ -1,3 +1,5 @@
+import { Button, Label, Container, BindingTwoWay } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -11,14 +13,14 @@ Object.assign(pcui, (function () {
             thumbnail: new pcui.AssetThumbnail({
                 assets: args.assets,
                 width: '100%',
-                binding: new pcui.BindingTwoWay({
+                binding: new BindingTwoWay({
                     history: args.history
                 })
             })
         }, {
-            deleteButton: new pcui.Button({ icon: 'E124', class: CLASS_FACE_BUTTON })
+            deleteButton: new Button({ icon: 'E124', class: CLASS_FACE_BUTTON })
         }, {
-            faceLabel: new pcui.Label({ text: args.label, class: CLASS_FACE_LABEL })
+            faceLabel: new Label({ text: args.label, class: CLASS_FACE_LABEL })
         }
     ];
 
@@ -60,7 +62,7 @@ Object.assign(pcui, (function () {
         '6': 6
     };
 
-    class CubemapFace extends pcui.Container {
+    class CubemapFace extends Container {
         constructor(args) {
             args = Object.assign({}, args);
 

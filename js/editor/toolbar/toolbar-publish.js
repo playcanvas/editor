@@ -1,9 +1,11 @@
+import { Button } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     'use strict';
 
     const toolbar = editor.call('layout.toolbar');
 
-    const button = new pcui.Button({
+    const button = new Button({
         icon: 'E237'
     });
     button.class.add('pc-icon', 'publish-download');

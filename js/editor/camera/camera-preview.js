@@ -1,3 +1,5 @@
+import { Button } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     'use strict';
 
@@ -20,7 +22,7 @@ editor.once('load', function () {
     if (editor.call('permissions:write'))
         cameraPreviewBorder.classList.add('clickable');
 
-    const btnPin = new pcui.Button({
+    const btnPin = new Button({
         class: 'lock',
         icon: 'E340'
     });

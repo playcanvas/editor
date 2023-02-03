@@ -1,3 +1,5 @@
+import { Label, Button } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -14,20 +16,20 @@ Object.assign(pcui, (function () {
 
             this.class.add(CLASS_ROOT);
 
-            this._labelWebgl2 = new pcui.Label({
+            this._labelWebgl2 = new Label({
                 class: CLASS_WEBGL2,
                 text: 'WebGL 2.0 Only',
                 hidden: true
             });
             this.append(this._labelWebgl2);
 
-            this._labelCode = new pcui.Label({
+            this._labelCode = new Label({
                 class: CLASS_CODE,
                 hidden: true
             });
             this.append(this._labelCode);
 
-            this._btnUrl = new pcui.Button({
+            this._btnUrl = new Button({
                 text: 'API REFERENCE',
                 class: CLASS_API,
                 flexGrow: 1,

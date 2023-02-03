@@ -1,3 +1,5 @@
+import { Panel, Container } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -45,7 +47,7 @@ Object.assign(pcui, (function () {
     const DOM = parent => [
         {
             root: {
-                metaPanel: new pcui.Panel({
+                metaPanel: new Panel({
                     headerText: 'META'
                 })
             },
@@ -61,7 +63,7 @@ Object.assign(pcui, (function () {
         },
         {
             root: {
-                metaPanel: new pcui.Panel({
+                metaPanel: new Panel({
                     headerText: 'RENDER'
                 })
             },
@@ -77,7 +79,7 @@ Object.assign(pcui, (function () {
         }
     ];
 
-    class RenderAssetInspector extends pcui.Container {
+    class RenderAssetInspector extends Container {
         constructor(args) {
             args = Object.assign({}, args);
             args.headerText = 'RENDER';

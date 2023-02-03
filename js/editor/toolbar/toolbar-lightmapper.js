@@ -1,3 +1,5 @@
+import { Button } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     'use strict';
 
@@ -9,7 +11,7 @@ editor.once('load', function () {
     let uv1MissingAssets = { };
 
     // coordinate system
-    const buttonBake = new pcui.Button({
+    const buttonBake = new Button({
         icon: 'E191'
     });
     buttonBake.class.add('pc-icon', 'light-mapper');

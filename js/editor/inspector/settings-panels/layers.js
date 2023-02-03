@@ -1,3 +1,5 @@
+import { Container } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -27,7 +29,7 @@ Object.assign(pcui, (function () {
 
     const DOM = args => [
         {
-            layersContainer: new pcui.Container({
+            layersContainer: new Container({
                 class: CLASS_LAYERS_CONTAINER
             })
         },

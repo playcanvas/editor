@@ -1,3 +1,5 @@
+import { Progress, Label, Container, BindingTwoWay } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -7,21 +9,21 @@ Object.assign(pcui, (function () {
 
     const DOM = parent => [
         {
-            progress: new pcui.Progress({ width: '100%' })
+            progress: new Progress({ width: '100%' })
         },
         {
-            pickerLabel: new pcui.Label({
+            pickerLabel: new Label({
                 text: '<h5>SELECT MESH INSTANCE</h5>Choose a mesh instance to customize the material for these Entities.',
                 unsafe: true,
                 class: CLASS_PICKER_LABEL
             })
         },
         {
-            meshInstancesContainer: new pcui.Container()
+            meshInstancesContainer: new Container()
         },
         {
             root: {
-                errorLoadingDetailedDataContainer: new pcui.Container({
+                errorLoadingDetailedDataContainer: new Container({
                     flex: true,
                     flexDirection: 'column',
                     alignItems: 'center'
@@ -29,7 +31,7 @@ Object.assign(pcui, (function () {
             },
             children: [
                 {
-                    errorLoadingDetailedDataLabel: new pcui.Label({
+                    errorLoadingDetailedDataLabel: new Label({
                         text: 'failed loading detailed data'
                     })
                 }
@@ -37,7 +39,7 @@ Object.assign(pcui, (function () {
         }
     ];
 
-    class ModelAssetInspectorMeshInstances extends pcui.Container {
+    class ModelAssetInspectorMeshInstances extends Container {
         constructor(args) {
             args = Object.assign({}, args);
 
@@ -140,7 +142,7 @@ Object.assign(pcui, (function () {
             this.unlink();
             this._assets = assets;
             this._assets[0].get('data.mapping').forEach((_, ind) => {
-                const binding = new pcui.BindingTwoWay({
+                const binding = new BindingTwoWay({
                     history: this._args.history
                 });
 

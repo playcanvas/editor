@@ -1,3 +1,5 @@
+import { Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -205,7 +207,7 @@ Object.assign(pcui, (function () {
         }
     });
 
-    class AssetInspector extends pcui.Container {
+    class AssetInspector extends Container {
         constructor(args) {
             if (!args) args = {};
             args.flex = true;
@@ -227,14 +229,14 @@ Object.assign(pcui, (function () {
             });
             this.append(this._attributesInspector);
 
-            this._containerButtons = new pcui.Container({
+            this._containerButtons = new Container({
                 flex: true,
                 flexDirection: 'row'
             });
             this.append(this._containerButtons);
 
             // add download button
-            this._btnDownloadAsset = new pcui.Button({
+            this._btnDownloadAsset = new Button({
                 text: 'DOWNLOAD',
                 icon: 'E228',
                 ignoreParent: true
@@ -246,7 +248,7 @@ Object.assign(pcui, (function () {
             this._btnDownloadAsset.on('click', this._onClickDownloadAsset.bind(this));
 
             // open in viewer button
-            this._btnOpenInViewer = new pcui.Button({
+            this._btnOpenInViewer = new Button({
                 text: 'OPEN IN VIEWER',
                 icon: 'E117',
                 ignoreParent: true
@@ -259,7 +261,7 @@ Object.assign(pcui, (function () {
 
             // add edit button
 
-            this._btnEditAsset = new pcui.Button({
+            this._btnEditAsset = new Button({
                 text: editor.call('permissions:write') ? 'EDIT' : 'VIEW',
                 icon: 'E130',
                 ignoreParent: true
@@ -275,7 +277,7 @@ Object.assign(pcui, (function () {
             this._containerButtons.append(this._btnEditAsset);
 
             // add edit button
-            this._btnEditSprite = new pcui.Button({
+            this._btnEditSprite = new Button({
                 text: 'SPRITE EDITOR',
                 icon: 'E413'
             });
@@ -287,7 +289,7 @@ Object.assign(pcui, (function () {
 
             // one way binding from observers to element for name field
             // because the other way is handled by calling assets:rename
-            this._attributesInspector.getField('name').binding = new pcui.BindingObserversToElement({
+            this._attributesInspector.getField('name').binding = new BindingObserversToElement({
                 history: args.history
             });
 

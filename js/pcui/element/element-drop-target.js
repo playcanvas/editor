@@ -1,3 +1,5 @@
+import { Element } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -10,13 +12,13 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.DropTarget
      * @classdesc Defines an area where we can drag drop data
-     * @augments pcui.Element
+     * @augments Element
      */
-    class DropTarget extends pcui.Element {
+    class DropTarget extends Element {
         /**
          * Creates a new pcui.DropTarget.
          *
-         * @param {pcui.Element} targetElement - The element that will allow drag dropping
+         * @param {Element} targetElement - The element that will allow drag dropping
          * @param {object} args - The arguments
          * @param {string} [args.dropType] - The type of data that is valid for this drop target.
          * @param {pcui.DropManager} [args.dropManager] - The drop manager.

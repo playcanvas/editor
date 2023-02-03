@@ -1,3 +1,5 @@
+import { Canvas, Button } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -12,13 +14,13 @@ Object.assign(pcui, (function () {
 
             this.class.add(CLASS_ROOT);
 
-            this._preview = new pcui.Canvas({
+            this._preview = new Canvas({
                 class: CLASS_CANVAS,
                 useDevicePixelRatio: true
             });
             this.append(this._preview);
 
-            this._playButton = new pcui.Button({ icon: 'E286', class: CLASS_BUTTON });
+            this._playButton = new Button({ icon: 'E286', class: CLASS_BUTTON });
             this.append(this._playButton);
 
             this._renderFrame = false;

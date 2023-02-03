@@ -1,9 +1,11 @@
+import { Menu } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     'use strict';
 
     const root = editor.call('layout.root');
 
-    const menu = new pcui.Menu();
+    const menu = new Menu();
     root.append(menu);
 
     let currentTab = null;
@@ -33,7 +35,7 @@ editor.once('load', function () {
     });
 
     // close tab
-    menu.append(new pcui.MenuItem({
+    menu.append(new MenuItem({
         text: 'Close',
         onSelect: () => {
             editor.call('tabs:close', currentTab.id);
@@ -41,7 +43,7 @@ editor.once('load', function () {
     }));
 
     // close other tabs
-    menu.append(new pcui.MenuItem({
+    menu.append(new MenuItem({
         text: 'Close Other Tabs',
         onIsEnabled: () => {
             return editor.call('tabs:list').length > 1;
@@ -59,7 +61,7 @@ editor.once('load', function () {
     }));
 
     // close tabs to the right
-    menu.append(new pcui.MenuItem({
+    menu.append(new MenuItem({
         text: 'Close Tabs To The Right',
         onIsEnabled: () => {
             const tabs = editor.call('tabs:list');
@@ -78,7 +80,7 @@ editor.once('load', function () {
     }));
 
     // close all tabs
-    menu.append(new pcui.MenuItem({
+    menu.append(new MenuItem({
         text: 'Close All Tabs',
         onSelect: () => {
             editor.call('tabs:batchClose:start');

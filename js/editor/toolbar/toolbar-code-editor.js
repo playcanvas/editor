@@ -1,3 +1,5 @@
+import { Button } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     'use strict';
 
@@ -7,7 +9,7 @@ editor.once('load', function () {
     var toolbar = editor.call('layout.toolbar');
     var firefox = navigator.userAgent.indexOf('Firefox') !== -1;
 
-    var button = new pcui.Button({
+    var button = new Button({
         icon: 'E130'
     });
     button.class.add('pc-icon');

@@ -1,3 +1,5 @@
+import { Panel } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -25,7 +27,7 @@ Object.assign(pcui, (function () {
         }
     ];
 
-    class WasmAssetInspector extends pcui.Panel {
+    class WasmAssetInspector extends Panel {
         constructor(args) {
             args = Object.assign({}, args);
             args.headerText = 'WASM MODULE';

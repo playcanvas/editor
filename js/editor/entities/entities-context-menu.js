@@ -1,3 +1,5 @@
+import { Menu } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     'use strict';
 
@@ -214,12 +216,12 @@ editor.once('load', function () {
         });
 
         // menu
-        menu = new pcui.Menu({ items: menuData });
+        menu = new Menu({ items: menuData });
         root.append(menu);
     });
 
     editor.method('entities:contextmenu:add', function (data) {
-        var item = new pcui.MenuItem({
+        var item = new MenuItem({
             text: data.text,
             icon: data.icon,
             items: data.items,

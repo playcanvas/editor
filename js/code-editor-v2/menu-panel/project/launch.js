@@ -1,10 +1,12 @@
+import { MenuItem } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     'use strict';
 
     const menu = editor.call('menu:project');
 
     // Launch primary build
-    const item = new pcui.MenuItem({
+    const item = new MenuItem({
         text: 'Launch Primary Build',
         onIsEnabled: () => {
             return !!config.project.primaryApp;

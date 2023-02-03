@@ -1,3 +1,5 @@
+import { Label } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -135,7 +137,7 @@ Object.assign(pcui, (function () {
             });
             this.append(this._attributesInspector);
 
-            this._labelUv1Missing = new pcui.Label({
+            this._labelUv1Missing = new Label({
                 text: 'UV1 is missing',
                 class: pcui.CLASS_ERROR
             });

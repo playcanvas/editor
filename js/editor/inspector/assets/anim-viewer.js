@@ -1,3 +1,5 @@
+import { Container, Canvas, Label, Button, SliderInput } from '@playcanvas/pcui';
+
 Object.assign(
     pcui,
     (function () {
@@ -127,13 +129,13 @@ Object.assign(
             }
         }
 
-        class AnimViewer extends pcui.Container {
+        class AnimViewer extends Container {
             constructor(args) {
                 super(args);
 
                 this.dom.classList.add("anim-viewer");
 
-                this._canvas = new pcui.Canvas({
+                this._canvas = new Canvas({
                     useDevicePixelRatio: true
                 });
                 this.append(this._canvas);
@@ -196,7 +198,7 @@ Object.assign(
                 // create UI
                 this.createUIContainer();
 
-                this._messageLabel = new pcui.Label({
+                this._messageLabel = new Label({
                     class: 'message-label',
                     text: ''
                 });
@@ -272,11 +274,11 @@ Object.assign(
             }
 
             createUIContainer() {
-                this._uiContainer = new pcui.Container({
+                this._uiContainer = new Container({
                     class: "anim-viewer-ui-container"
                 });
 
-                this._playButton = new pcui.Button({
+                this._playButton = new Button({
                     class: "anim-viewer-play-button",
                     text: "Pause"
                 });
@@ -290,7 +292,7 @@ Object.assign(
                 });
                 this._uiContainer.append(this._playButton);
 
-                this._slider = new pcui.SliderInput({
+                this._slider = new SliderInput({
                     class: "anim-viewer-slider",
                     value: 0,
                     min: 0,

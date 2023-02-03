@@ -1,3 +1,5 @@
+import { Label, Container, Button, BindingTwoWay, BindingElementToObservers } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     'use strict';
 
@@ -117,7 +119,7 @@ Object.assign(pcui, (function () {
 
     // Custom binding for asset field so that when we change the asset we
     // reset the model's mapping
-    class AssetElementToObserversBinding extends pcui.BindingElementToObservers {
+    class AssetElementToObserversBinding extends BindingElementToObservers {
         constructor(assets, args) {
             super(args);
             this._assets = assets;
@@ -245,19 +247,19 @@ Object.assign(pcui, (function () {
             });
             this.append(this._attributesInspector);
 
-            this._labelUv1Missing = new pcui.Label({
+            this._labelUv1Missing = new Label({
                 text: 'UV1 is missing',
                 class: pcui.CLASS_ERROR
             });
             this._labelUv1Missing.style.marginLeft = 'auto';
             this._field('lightmapped').parent.append(this._labelUv1Missing);
 
-            this._containerButtons = new pcui.Container({
+            this._containerButtons = new Container({
                 flex: true,
                 flexDirection: 'row'
             });
 
-            const btnAssetMaterials = new pcui.Button({
+            const btnAssetMaterials = new Button({
                 text: 'ASSET MATERIALS',
                 icon: 'E184',
                 flexGrow: 1
@@ -267,7 +269,7 @@ Object.assign(pcui, (function () {
 
             this._containerButtons.append(btnAssetMaterials);
 
-            const btnEntityMaterials = new pcui.Button({
+            const btnEntityMaterials = new Button({
                 text: 'ENTITY MATERIALS',
                 icon: 'E184',
                 flexGrow: 1
@@ -279,7 +281,7 @@ Object.assign(pcui, (function () {
 
             this.append(this._containerButtons);
 
-            this._containerMappings = new pcui.Container({
+            this._containerMappings = new Container({
                 flex: true
             });
             this.append(this._containerMappings);
@@ -298,7 +300,7 @@ Object.assign(pcui, (function () {
 
             this._field('asset').on('change', this._onAssetChange.bind(this));
 
-            this._field('asset').binding = new pcui.BindingTwoWay({
+            this._field('asset').binding = new BindingTwoWay({
                 history: this._history,
                 bindingElementToObservers: new AssetElementToObserversBinding(this._assets, {
                     history: this._history
@@ -374,7 +376,7 @@ Object.assign(pcui, (function () {
                 this._mappingInspectors[key].destroy();
             }
 
-            const container = new pcui.Container({
+            const container = new Container({
                 flex: true,
                 flexDirection: 'row'
             });
@@ -387,7 +389,7 @@ Object.assign(pcui, (function () {
                 text: this._getMeshInstanceName(index, entities),
                 flexGrow: 1,
                 renderChanges: true,
-                binding: new pcui.BindingTwoWay({
+                binding: new BindingTwoWay({
                     history: this._history
                 }),
                 allowDragDrop: true,
@@ -433,7 +435,7 @@ Object.assign(pcui, (function () {
 
             fieldMaterial.link(entities, `components.model.mapping.${key}`);
 
-            const btnRemove = new pcui.Button({
+            const btnRemove = new Button({
                 icon: 'E289',
                 size: 'small',
                 flexShrink: 0
