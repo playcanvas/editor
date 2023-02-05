@@ -1,4 +1,4 @@
-import { Menu } from '@playcanvas/pcui';
+import { Menu, MenuItem } from '@playcanvas/pcui';
 
 editor.once('load', function () {
     'use strict';
