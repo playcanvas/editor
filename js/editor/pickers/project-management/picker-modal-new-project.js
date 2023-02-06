@@ -57,7 +57,7 @@ editor.once('load', function () {
     // helper method to construct UI for starterkit
     const createStarterKitUI = (starterkit, fork, container) => {
         // Starter Kit
-        var starterKit = new Element({
+        var starterKit = new Element(document.createElement('div'), {
             class: 'starter-kit'
         });
         container.dom.appendChild(starterKit.dom);
@@ -91,20 +91,18 @@ editor.once('load', function () {
         });
 
         // Thumbnail
-        var thumbnail = new Element({
+        var thumbnail = new Element(document.createElement('div'), {
             class: 'thumbnail'
         });
         starterKit.dom.appendChild(thumbnail.dom);
 
         // Image
-        var image = new Element({
-            dom: 'img'
-        });
+        var image = new Element(document.createElement('img'));
         image.dom.src = starterkit.image;
         thumbnail.dom.appendChild(image.dom);
 
         // Overlay
-        var overlay = new Element({
+        var overlay = new Element(document.createElement('div'), {
             class: 'overlay'
         });
         thumbnail.dom.appendChild(overlay.dom);
@@ -124,9 +122,7 @@ editor.once('load', function () {
         }
 
         // Title
-        var title = new Element({
-            dom: 'h4'
-        });
+        var title = new Element(document.createElement('h4'));
         title.dom.textContent = starterkit.name;
         starterKit.dom.appendChild(title.dom);
 
@@ -163,7 +159,7 @@ editor.once('load', function () {
             'flex-direction': type !== 'toggle' ? 'column' : 'row',
             'justify-content': type !== 'toggle' ? 'start' : 'space-between'
         };
-        const formGroup = new Element();
+        const formGroup = new Element(document.createElement('div'));
         Object.assign(formGroup.style, formGroupStyling);
         container.dom.appendChild(formGroup.dom);
 
@@ -222,7 +218,7 @@ editor.once('load', function () {
             'flex-direction': 'column',
             'justify-content': 'space-between'
         };
-        const ownerContainer = new Element({ class: 'form-owner' });
+        const ownerContainer = new Element(document.createElement('div'), { class: 'form-owner' });
         Object.assign(ownerContainer.style, formGroupStyling);
         container.dom.appendChild(ownerContainer.dom);
 
@@ -240,8 +236,7 @@ editor.once('load', function () {
         ownerContainer.dom.appendChild(ownerDropdown.element);
 
         const ownerDropdownContainer = ownerDropdown.element.querySelector('.pcui-select-input-container-value');
-        const ownerDropdownSelectedProfile = new Element({
-            dom: 'img',
+        const ownerDropdownSelectedProfile = new Element(document.createElement('img'), {
             class: 'owner-profile'
         });
         ownerDropdownSelectedProfile.element.src = `${config.url.api}/users/${newProjectOwner.id}/thumbnail?size=32`;
@@ -252,8 +247,7 @@ editor.once('load', function () {
         for (let i = 0; i < possibleOwners.length; i++) {
             const dropdownOption = ownerDropdownList.childNodes[i];
 
-            imageContainer = new Element({
-                dom: 'img',
+            imageContainer = new Element(document.createElement('img'), {
                 class: 'owner-profile'
             });
             dropdownOption.appendChild(imageContainer.dom);
@@ -296,7 +290,7 @@ editor.once('load', function () {
     overlay.append(panel);
 
     // playcanvas icon
-    const playcanvasIcon = new Element({
+    const playcanvasIcon = new Element(document.createElement('div'), {
         class: 'playcanvas-icon'
     });
     panel.header.append(playcanvasIcon);
@@ -312,37 +306,37 @@ editor.once('load', function () {
     panel.header.append(btnClose);
 
     // container
-    const container = new Element({
+    const container = new Element(document.createElement('div'), {
         class: 'modal-new-project-container'
     });
     panel.append(container);
 
     // main view
-    const mainView = new Element({
+    const mainView = new Element(document.createElement('div'), {
         class: 'modal-new-project-main-view'
     });
     container.dom.appendChild(mainView.dom);
 
     // kits container
-    const kitsContainer = new Element({
+    const kitsContainer = new Element(document.createElement('div'), {
         class: 'modal-new-project-kits-container'
     });
     mainView.dom.appendChild(kitsContainer.dom);
 
     // sidebar
-    const sidebar = new Element({
+    const sidebar = new Element(document.createElement('div'), {
         class: 'modal-new-project-sidebar'
     });
     container.dom.appendChild(sidebar.dom);
 
     // form content
-    const formContent = new Element({
+    const formContent = new Element(document.createElement('div'), {
         class: 'modal-new-project-form-content'
     });
     sidebar.dom.appendChild(formContent.dom);
 
     // add create button
-    const createBtnContainer = new Element({
+    const createBtnContainer = new Element(document.createElement('div'), {
         class: 'create-btn-container'
     });
     sidebar.dom.appendChild(createBtnContainer.dom);
@@ -368,7 +362,7 @@ editor.once('load', function () {
         createNewProject();
     });
 
-    const loader = new Element({
+    const loader = new Element(document.createElement('div'), {
         class: 'loader'
     });
     loader.element.style.display = 'none';  // hide loader by default

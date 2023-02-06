@@ -153,7 +153,7 @@ editor.once('load', () => {
     projectDescGroup.append(projectDescInput.element);
 
     // private settings container
-    const privateSettings = new Element({
+    const privateSettings = new Element(document.createElement('div'), {
         class: 'horizontal-container'
     });
     settingsContainer.append(privateSettings.dom);
@@ -176,7 +176,7 @@ editor.once('load', () => {
     privateSettings.dom.appendChild(privateToggle.element);
 
     // project url
-    const projectURLSettings = new Element({
+    const projectURLSettings = new Element(document.createElement('div'), {
         class: 'horizontal-container'
     });
     settingsContainer.append(projectURLSettings.dom);
@@ -219,7 +219,7 @@ editor.once('load', () => {
     });
     exportProjectButtonContainer.append(exportProjectButton);
 
-    const loader = new Element({
+    const loader = new Element(document.createElement('div'), {
         class: ['loader', 'xsmall', 'white']
     });
     loader.dom.style.display = 'none';

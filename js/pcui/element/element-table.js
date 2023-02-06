@@ -426,7 +426,7 @@ Object.assign(pcui, (function () {
         // Adds handle to resize column
         _addResizeHandle(cell, colIndex) {
             // add resize handle
-            const handle = new Element({
+            const handle = new Element(document.createElement('div'), {
                 class: CLASS_CELL_HANDLE
             });
             cell.append(handle);

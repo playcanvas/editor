@@ -76,7 +76,7 @@ editor.once('load', () => {
     });
     deleteButtonContainer.append(deleteButton);
 
-    const loader = new Element({
+    const loader = new Element(document.createElement('div'), {
         class: ['loader', 'small', 'white']
     });
     loader.dom.style.display = 'none';

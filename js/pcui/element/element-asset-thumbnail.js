@@ -34,7 +34,7 @@ Object.assign(pcui, (function () {
          */
         constructor(args) {
             if (!args) args = {};
-            super({ ...args, dom: 'span' });
+            super(document.createElement('span'), args);
 
             this.class.add(CLASS_ASSET_THUMB, CLASS_ASSET_THUMB_EMPTY);
 

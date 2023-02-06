@@ -59,12 +59,12 @@ editor.once('load', () => {
             });
             upgradeContainer.dom.appendChild(usageLabel.element);
 
-            const usageBarContainer = new Element({
+            const usageBarContainer = new Element(document.createElement('div'), {
                 class: 'usage-bar-container'
             });
             upgradeContainer.dom.appendChild(usageBarContainer.element);
 
-            const usageBar = new Element({
+            const usageBar = new Element(document.createElement('div'), {
                 class: 'usage-bar'
             });
             usageBar.dom.style.width = `${percentageUsed}%`;
@@ -107,8 +107,7 @@ editor.once('load', () => {
 
             if (selected && selected === org.full_name) setSelectedFilter(organizationFilter);
 
-            const organizationImage = new Element({
-                dom: 'img',
+            const organizationImage = new Element(document.createElement('img'), {
                 class: 'organization-icon'
             });
             organizationImage.element.src = `${config.url.api}/users/${org.id}/thumbnail?size=26`;
@@ -264,8 +263,7 @@ editor.once('load', () => {
         });
         projectContainer.append(projectThumbnailContainer);
 
-        const projectThumbnail = new Element({
-            dom: 'img',
+        const projectThumbnail = new Element(document.createElement('img'), {
             class: 'project-thumbnail'
         });
         projectThumbnailContainer.append(projectThumbnail);
@@ -470,7 +468,7 @@ editor.once('load', () => {
     });
 
     // user icon
-    const userIcon = new Element({
+    const userIcon = new Element(document.createElement('div'), {
         class: 'user-icon'
     });
     userIcon.style.backgroundImage = `url(${config.url.api}/users/${config.self.id}/thumbnail?size=24)`;
@@ -481,7 +479,7 @@ editor.once('load', () => {
     });
 
     // left panel
-    const leftPanel = new Element({
+    const leftPanel = new Element(document.createElement('div'), {
         class: 'cms-left-panel'
     });
     panel.append(leftPanel);
@@ -600,13 +598,13 @@ editor.once('load', () => {
     quickLinksContainer.append(githubLink);
 
     // upgrade container
-    const upgradeContainer = new Element({
+    const upgradeContainer = new Element(document.createElement('div'), {
         class: 'upgrade-container'
     });
     miscContainer.append(upgradeContainer);
 
     // right panel
-    const rightPanel = new Element({
+    const rightPanel = new Element(document.createElement('div'), {
         class: 'cms-right-panel'
     });
     panel.append(rightPanel);
@@ -682,7 +680,7 @@ editor.once('load', () => {
     controlsContainer.append(layoutButton);
 
     // right panel projects
-    const projectsContainer = new Element({
+    const projectsContainer = new Element(document.createElement('div'), {
         class: 'projects-container-grid'
     });
     rightPanel.dom.appendChild(projectsContainer.element);

@@ -58,15 +58,15 @@ editor.once('load', function () {
 
     // helper method to build alert
     const buildAlert = (root, alert, showButton = false, buttonText = "", funcParameters) => {
-        const alertContainer = new Element({
+        const alertContainer = new Element(document.createElement('div'), {
             class: 'alert'
         });
         root.dom.appendChild(alertContainer.dom);
 
-        const alertTextContainer = new Element({
+        const alertTextContainer = new Element(document.createElement('div'), {
             class: 'alert-text'
         });
-        const alertInfo = new Element({
+        const alertInfo = new Element(document.createElement('div'), {
             class: 'alert--info'
         });
         const alertText = new Label({
