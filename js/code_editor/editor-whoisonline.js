@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var whoisonline = { };
 
     editor.method('whoisonline:set', function (list) {

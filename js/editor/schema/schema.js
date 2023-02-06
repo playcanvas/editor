@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     /**
      * Gets the schema object that corresponds to the specified dot separated
      * path from the specified schema object.

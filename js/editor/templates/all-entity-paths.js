@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const parentChildren = ['parent', 'children'];
 
     const addIfPresent = function (entity, field, result) {

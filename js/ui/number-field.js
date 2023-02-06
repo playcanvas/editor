@@ -1,5 +1,3 @@
-"use strict";
-
 function NumberField(args) {
     ui.Element.call(this);
     args = args || { };

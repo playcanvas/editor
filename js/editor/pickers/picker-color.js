@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var size = 144;
     var directInput = true;
     var colorHSV = [0, 0, 0];

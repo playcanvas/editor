@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     /**
      * @name pcui.ICollapsible
      * @classdesc Provides an interface to allow collapsing / expanding of an Element.

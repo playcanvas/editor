@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const handleWidth = 10;
     const pivotWidth = 7;
 

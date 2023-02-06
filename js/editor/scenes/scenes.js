@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // Fetch list of scenes from the server and
     // pass them to the callback
     editor.method('scenes:list', function (callback) {

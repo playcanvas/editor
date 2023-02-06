@@ -1,8 +1,6 @@
 import { Container, Button, TextInput, Label } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     const parent = editor.call('layout.center');
     const codePanel = editor.call('layout.code');
     const monacoEditor = editor.call('editor:monaco');

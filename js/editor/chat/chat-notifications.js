@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const panel = editor.call('chat:panel');
     let number = 0;
 

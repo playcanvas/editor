@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const labelDesc = new ui.Label({
         text: 'Description:'
     });

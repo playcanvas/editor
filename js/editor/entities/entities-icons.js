@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     let app;
     let iconsEntity;
     const textureNames = ['animation', 'audiolistener', 'audiosource', 'sound', 'camera', 'collision', 'light-point', 'light-directional', 'light-spot', 'particlesystem', 'rigidbody', 'script', 'unknown'];

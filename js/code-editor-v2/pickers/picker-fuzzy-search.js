@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const root = editor.call('layout.root');
     const overlay = new ui.Overlay();
     overlay.class.add('picker-fuzzy-search');

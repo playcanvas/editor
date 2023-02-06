@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var changeName = function (assetId, assetName) {
         var form = new FormData();
         form.append('name', assetName);

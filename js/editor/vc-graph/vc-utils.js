@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const COORD_OFFSETS = { x: 80, y: 50 };
 
     const COORD_COEFS = { x: 265, y: 110 };

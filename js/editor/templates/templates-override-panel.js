@@ -1,8 +1,6 @@
 import { Element, Container, Label, Button, ArrayInput, VectorInput, BooleanInput, NumericInput, TextInput, LabelGroup, Panel } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'template-overrides';
     const CLASS_TOP_HEADER = CLASS_ROOT + '-top-header';
     const CLASS_BUTTON_CLOSE = CLASS_ROOT + '-btn-close';

@@ -1,8 +1,6 @@
 import { Button, Container } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
     const CLASS_ANIMSTATEGRAPH_OPEN_BUTTON = CLASS_ANIMSTATEGRAPH + '-open-button';
     const CLASS_ANIMSTATEGRAPH_CLOSE_BUTTON = CLASS_ANIMSTATEGRAPH + '-close-button';

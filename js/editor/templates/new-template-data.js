@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     class NewTemplateData {
         constructor(root, srcEnts) {
             this.root = root;

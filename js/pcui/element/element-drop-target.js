@@ -1,8 +1,6 @@
 import { Element } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_DROP_TARGET = 'pcui-droptarget';
     const CLASS_DROP_TARGET_HOLE = CLASS_DROP_TARGET + '-hole';
     const CLASS_DROP_TARGET_PASSTHROUGH = CLASS_DROP_TARGET + '-passthrough';

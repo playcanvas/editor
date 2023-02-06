@@ -1,8 +1,6 @@
 import { Button, LabelGroup } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const ATTRIBUTES = [{
         label: 'Auto Play',
         path: 'components.particlesystem.autoPlay',

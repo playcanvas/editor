@@ -1,8 +1,6 @@
 import { MenuItem } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     const menu = editor.call('menu:edit');
     const ctrl = editor.call('hotkey:ctrl:string');
     const me = editor.call('editor:monaco');

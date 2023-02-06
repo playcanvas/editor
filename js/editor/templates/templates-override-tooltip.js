@@ -1,8 +1,6 @@
 import { Button } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     /**
      * @name pcui.TemplateOverrideTooltip
      * @classdesc A template override tooltip.

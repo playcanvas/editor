@@ -1,5 +1,3 @@
-"use strict";
-
 function Slider(args) {
     var self = this;
     ui.Element.call(this);

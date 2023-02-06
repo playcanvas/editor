@@ -1,8 +1,6 @@
 import { Panel } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'asset-tasks-settings-panel';
     const CLASS_SECTION = CLASS_ROOT + '-section';
     const CLASS_ATTRIBUTES = CLASS_ROOT + '-attributes';

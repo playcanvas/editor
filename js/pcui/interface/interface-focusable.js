@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     /**
      * @name pcui.IFocusable
      * @classdesc Provides an interface for focusing / unfocusing an Element.

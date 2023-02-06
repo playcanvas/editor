@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const RECONNECT_INTERVAL = 1;
     let reconnectInterval = RECONNECT_INTERVAL;
 

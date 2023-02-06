@@ -2,8 +2,6 @@
 // most of the code in here is taken from there
 
 editor.once('load', function () {
-    'use strict';
-
     if (!config.asset)
         return;
 

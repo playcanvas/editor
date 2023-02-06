@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // Indexes all entities with scripts
     // When primary script is set, update attributes on entities components
     // When script attributes change, update attributes on entities components

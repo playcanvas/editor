@@ -1,5 +1,3 @@
-"use strict";
-
 function Code() {
     ui.ContainerElement.call(this);
 

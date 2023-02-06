@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var state = false;
     var inViewport = false;
 

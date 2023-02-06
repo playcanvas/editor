@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     if (editor.call('editor:resolveConflictMode')) return;
 
     const monacoEditor = editor.call('editor:monaco');

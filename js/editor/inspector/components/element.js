@@ -1,8 +1,6 @@
 import { BindingTwoWay, BindingElementToObservers } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const PRESETS = {
         '0,1,0,1': 'Top Left Anchor',
         '0,1,0,1/0,1': 'Top Left Anchor & Pivot',

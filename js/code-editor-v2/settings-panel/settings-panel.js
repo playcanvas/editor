@@ -1,8 +1,6 @@
 import { Button, LabelGroup, SelectInput, NumericInput, BooleanInput } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     const settings = editor.call('editor:settings');
 
     const root = editor.call('layout.root');

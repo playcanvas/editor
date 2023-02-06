@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var defaults = {
         checkbox: false,
         number: 0,

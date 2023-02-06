@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     /**
      * @name pcui.IContainer
      * @classdesc Provides an interface for appending / removing children from an Element.

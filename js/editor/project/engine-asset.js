@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // method if the Engine Asset is included in the project
     editor.method('project:engineAsset:getEngineAsset', function (assetName) {
         var engineAssets = editor.call('assets:find', function (item) {

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var boxFrom = new ui.VersionControlSidePanelBox({
         headerNote: 'Merge from',
         createSourceCheckpoint: true,

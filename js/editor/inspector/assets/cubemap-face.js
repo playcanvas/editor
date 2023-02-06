@@ -1,8 +1,6 @@
 import { Button, Label, Container, BindingTwoWay } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'pcui-cubemap-asset-inspector';
     const CLASS_FACE = CLASS_ROOT + '-face';
     const CLASS_FACE_LABEL = CLASS_FACE + '-label';

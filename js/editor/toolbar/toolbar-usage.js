@@ -1,8 +1,6 @@
 import { Container, Label, Button } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     if (config.owner.plan.type !== 'free')
         return;
 

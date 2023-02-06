@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var panel = editor.call('layout.hierarchy');
 
     const treeView = new pcui.EntitiesTreeView({

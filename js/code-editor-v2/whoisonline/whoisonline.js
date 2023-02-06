@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const whoisonline = { };
 
     editor.method('whoisonline:set', function (assetId, list) {

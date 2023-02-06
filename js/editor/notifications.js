@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var TIMEOUT = 5000;
     var TIMEOUT_OVERLAP = 500;
     var last;

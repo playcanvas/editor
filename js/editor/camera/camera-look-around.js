@@ -1,6 +1,4 @@
 editor.once('viewport:load', function () {
-    'use strict';
-
     // Looking around with right mouse button
 
     var looking = false;

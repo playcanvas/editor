@@ -1,8 +1,6 @@
 import { Overlay, Container, Label, Button } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     const root = editor.call('layout.root');
 
     const overlay = new Overlay({

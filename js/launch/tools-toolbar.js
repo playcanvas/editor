@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // variables
     var toolbar = document.createElement('div');
     toolbar.classList.add('toolbar');

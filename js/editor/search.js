@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // calculate, how many string `a`
     // requires edits, to become string `b`
     editor.method('search:stringEditDistance', function (a, b) {

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const scriptBoilerplate = "var {className} = pc.createScript('{scriptName}');\n\n// initialize code called once per entity\n{className}.prototype.initialize = function() {\n    \n};\n\n// update code called every frame\n{className}.prototype.update = function(dt) {\n    \n};\n\n// swap method called for script hot-reloading\n// inherit your script state here\n// {className}.prototype.swap = function(old) { };\n\n// to learn more about script anatomy, please read:\n// http://developer.playcanvas.com/en/user-manual/scripting/";
     const filenameValid = /^([^0-9.#<>$+%!`&='{}@\\/:*?"<>|\n])([^#<>$+%!`&='{}@\\/:*?"<>|\n])*$/i;
 

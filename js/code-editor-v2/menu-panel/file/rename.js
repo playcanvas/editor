@@ -1,7 +1,6 @@
 import { MenuItem } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
     const ctxMenu = editor.call('files:contextmenu');
     ctxMenu.append(new MenuItem({
         text: 'Rename',

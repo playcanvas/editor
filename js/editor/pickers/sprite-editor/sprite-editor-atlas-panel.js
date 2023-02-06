@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.method('picker:sprites:attributes:atlas', function (atlasAsset) {
         var rootPanel = editor.call('picker:sprites:rightPanel');
 

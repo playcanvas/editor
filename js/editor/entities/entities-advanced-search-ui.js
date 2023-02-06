@@ -1,8 +1,6 @@
 import { Element, Container, TextInput, BooleanInput, LabelGroup } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     var panel = editor.call('layout.hierarchy');
     var hierarchy = editor.call('entities:hierarchy');
 

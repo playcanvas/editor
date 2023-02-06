@@ -1,8 +1,6 @@
 import { Canvas } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_CANVAS = 'pcui-asset-preview-canvas';
     const CLASS_CANVAS_FLIP = 'pcui-asset-preview-canvas-flip';
 

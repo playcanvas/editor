@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const panel = editor.call('layout.code');
 
     const monacoEditor = editor.call('editor:monaco');

@@ -1,8 +1,6 @@
 import { Container, Button, Panel, Label } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
     const CLASS_ANIMSTATEGRAPH_TRANSITION = CLASS_ANIMSTATEGRAPH + '-transition';
     const CLASS_ANIMSTATEGRAPH_TRANSITIONS = CLASS_ANIMSTATEGRAPH + '-transitions';

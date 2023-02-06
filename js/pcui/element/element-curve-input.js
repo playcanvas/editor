@@ -1,8 +1,6 @@
 import { Element, Canvas } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_CURVE = 'pcui-curve';
 
     /**

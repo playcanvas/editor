@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var boxBranch = new ui.VersionControlSidePanelBox({
         createTargetCheckpoint: true,
         targetCheckpointHelp: 'Tick to create a checkpoint before closing this branch. If you leave this unticked any changes will be discarded.'

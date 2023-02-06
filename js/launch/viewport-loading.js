@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.method('viewport:loadingScreen', function () {
         pc.script.createLoadingScreen(function (app) {
             var showSplash = function () {

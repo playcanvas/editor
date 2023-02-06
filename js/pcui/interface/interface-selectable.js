@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     /**
      * @name pcui.ISelectable
      * @classdesc Provides an interface for selecting an Element.

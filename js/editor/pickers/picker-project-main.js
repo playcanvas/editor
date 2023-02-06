@@ -1,8 +1,6 @@
 import { Element, Container, Label, Button, TextInput, TextAreaInput, BooleanInput } from '@playcanvas/pcui';
 
 editor.once('load', () => {
-    'use strict';
-
     // global variables
     let initialLoad = true;
     let projectSettingsChanged = false;

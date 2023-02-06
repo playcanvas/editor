@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     let suspendEvents = false;
 
     // Update url with new tab order

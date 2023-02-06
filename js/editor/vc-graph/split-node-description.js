@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // Split description into lines of up to 'maxPerLine' characters,
     // only breaking up tokens of length > 'maxPerToken'
     class SplitNodeDescription {

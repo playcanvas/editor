@@ -1,8 +1,6 @@
 import { Element, Container, LabelGroup, Panel, ArrayInput, BindingTwoWay } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'pcui-inspector';
 
     class AttributesInspector extends Container {

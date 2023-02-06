@@ -1,8 +1,6 @@
 import { Panel, Container, Label } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'scene-asset-inspector';
     const CLASS_ASSET = CLASS_ROOT + '-asset';
 

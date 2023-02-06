@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var projectSettings = editor.call('settings:project');
 
     var schema = config.schema.scene.entities.$of.components;

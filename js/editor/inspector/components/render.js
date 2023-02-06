@@ -1,8 +1,6 @@
 import { Label } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const ATTRIBUTES = [{
         label: 'Type',
         path: 'components.render.type',

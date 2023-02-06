@@ -20,8 +20,6 @@
  * of item history.
  */
 editor.once('load', function () {
-    'use strict';
-
     class MakeHistGraph {
         constructor(fullGraph, startId) {
             this.fullGraph = fullGraph;

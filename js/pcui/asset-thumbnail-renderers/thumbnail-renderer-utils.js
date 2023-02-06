@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     class ThumbnailRendererUtils {
         static getRenderTarget(app, width, height) {
             let target = this._renderTargets[width + '-' + height];

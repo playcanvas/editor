@@ -1,8 +1,6 @@
 import { Panel, Container, Label, BooleanInput, Button } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'pcui-cubemap-asset-inspector';
     const CLASS_FACES_CONTAINER = CLASS_ROOT + '-faces-container';
 

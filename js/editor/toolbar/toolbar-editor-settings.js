@@ -1,8 +1,6 @@
 import { Button } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     const toolbar = editor.call('layout.toolbar');
 
     // settings button

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     /**
      * Copies the specified entities into localStorage
      *

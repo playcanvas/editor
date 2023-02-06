@@ -1,5 +1,3 @@
-"use strict";
-
 function Events() {
     // _world
     Object.defineProperty(

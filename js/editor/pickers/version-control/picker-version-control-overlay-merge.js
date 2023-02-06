@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var icon = document.createElement('div');
     icon.classList.add('icon');
     icon.innerHTML = '&#57880;';

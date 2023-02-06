@@ -1,8 +1,6 @@
 import { Container, Label, Progress, Button } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     // global variables
     const projectSettings = editor.call('settings:project');
     let dropdownApp = null;  // app whose dropdown was last clicked

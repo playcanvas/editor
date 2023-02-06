@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     /**
      * Returns a JSON object that contains all of the default anim state graph data.
      *

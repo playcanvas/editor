@@ -1,8 +1,6 @@
 import { Panel, BindingTwoWay } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const DOM = parent => [
         {
             assetList: new pcui.AssetList({

@@ -1,5 +1,3 @@
-"use strict";
-
 function SelectField(args) {
     var self = this;
     ui.Element.call(this);

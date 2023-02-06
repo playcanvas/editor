@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // converts the data to runtime types
     var runtimeComponentData = function (component, data) {
         var result = {};

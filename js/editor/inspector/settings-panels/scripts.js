@@ -1,8 +1,6 @@
 import { Container, Panel, Label } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'scripts-settings-panel';
     const CLASS_SCRIPTS_LIST = CLASS_ROOT + '-scripts-list';
     const CLASS_SCRIPTS_LIST_CONTAINER = CLASS_SCRIPTS_LIST + '-container';

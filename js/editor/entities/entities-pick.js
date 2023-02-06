@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.on('viewport:pick:clear', function () {
         if (!editor.call('hotkey:ctrl'))
             editor.call('selector:clear');

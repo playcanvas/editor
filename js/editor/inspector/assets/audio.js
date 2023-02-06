@@ -1,8 +1,6 @@
 import { Container, Button, Progress, Panel } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'asset-audio-inspector';
 
     const ATTRIBUTES = [{

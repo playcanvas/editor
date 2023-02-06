@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.method('settings:create', function (args) {
         // settings observer
         var settings = new Observer(args.data);

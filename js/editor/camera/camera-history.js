@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var camera;
     var overlapping = 0;
     var position, rotation, eulers, orthoHeight;

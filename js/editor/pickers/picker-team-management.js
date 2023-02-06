@@ -1,8 +1,6 @@
 import { Element, Label, Button, SelectInput, Container, TextInput } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     // GLOBAL VARIABLES
     const isAdmin = editor.call('permissions:admin');
     let owner;

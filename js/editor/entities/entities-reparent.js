@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     /**
      * Reparent entities under new parent.
      *

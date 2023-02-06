@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // spinner svg
     editor.method('picker:versioncontrol:svg:spinner', function (size) {
         var spinner = document.createElementNS('http://www.w3.org/2000/svg', 'svg');

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     /**
      * Pastes entities in localStore under the specified parent
      *

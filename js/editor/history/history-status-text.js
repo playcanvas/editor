@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var history = editor.call('editor:history');
 
     history.on('add', function (name) {

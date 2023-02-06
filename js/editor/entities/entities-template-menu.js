@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const templateItems = [];
 
     // Get Entities on which to apply the result of the context menu

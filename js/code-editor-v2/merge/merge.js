@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const inResolveConflictMode = !!(config.self.branch.merge && config.self.branch.merge.conflict);
 
     if (inResolveConflictMode) {

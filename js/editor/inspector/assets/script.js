@@ -1,8 +1,6 @@
 import { Container, Label, Panel, Button } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'script-asset-inspector';
     const CLASS_ERROR_CONTAINER = CLASS_ROOT + '-error-container';
     const CLASS_CONTAINER = CLASS_ROOT + '-container';

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.method('assets:create:shader', function (args) {
         if (!editor.call('permissions:write'))
             return;

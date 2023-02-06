@@ -1,5 +1,3 @@
-"use strict";
-
 function Progress(args) {
     ui.Element.call(this);
     args = args || { };

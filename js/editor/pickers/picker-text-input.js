@@ -1,8 +1,6 @@
 import { TextInput, LabelGroup, Button, Panel, Overlay } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     const entry = new TextInput({ });
     const label = new LabelGroup({ field: entry });
     const button = new Button({ });

@@ -1,6 +1,4 @@
 editor.once('load', () => {
-    'use strict';
-
     editor.method('assets:paste', function (parentFolder, keepFolderStructure, callback) {
         if (!editor.call('permissions:write')) return;
 

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var corners = [];
     var cornerColor = new pc.Color(1, 1, 1, 0.9);
     var visible = true;

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var gizmoType = 'translate';
     var coordSystem = 'world';
     var snap = false;

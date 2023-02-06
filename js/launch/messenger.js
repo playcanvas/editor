@@ -1,6 +1,4 @@
 editor.on('load', function () {
-    'use strict';
-
     if (typeof Messenger === 'undefined')
         return;
 

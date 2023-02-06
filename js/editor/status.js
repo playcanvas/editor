@@ -1,8 +1,6 @@
 import { Label, Progress } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     const jobs = { };
     const panel = editor.call('layout.statusBar');
 

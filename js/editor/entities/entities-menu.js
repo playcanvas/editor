@@ -1,6 +1,4 @@
 editor.once('load', () => {
-    'use strict';
-
     var componentsLogos = editor.call('components:logos');
 
     var applyAdditions = function (object, additions) {

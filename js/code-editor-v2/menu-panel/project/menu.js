@@ -1,8 +1,6 @@
 import { Menu, Button } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     const root = editor.call('layout.root');
     const panel = editor.call('layout.top');
 

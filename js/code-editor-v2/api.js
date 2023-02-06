@@ -8,8 +8,6 @@ if (typeof (Messenger) !== 'undefined') {
 }
 
 editor.once('load', function () {
-    'use strict';
-
     if (api.globals.messenger) {
         editor.messenger = api.globals.messenger;
     }

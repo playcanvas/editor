@@ -1,8 +1,6 @@
 import { Container, Label, Button, BindingObserversToElement } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'template-entity-inspector';
     const CLASS_HEADER = CLASS_ROOT + '-header';
     const CLASS_CONTAINER = CLASS_ROOT + '-container';

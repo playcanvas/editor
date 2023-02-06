@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // Converts specified date string to a date in this format:
     // Wed, Jul 18, 2018, 12:55:00
     editor.method('datetime:convert', function (date) {

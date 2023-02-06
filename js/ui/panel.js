@@ -1,5 +1,3 @@
-"use strict";
-
 function Panel(header) {
     var self = this;
 

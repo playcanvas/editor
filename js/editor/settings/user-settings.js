@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var editorData = {
         howdoi: true,
         iconSize: 0.2,

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.method('picker:versioncontrol:createOverlay', function (args) {
         // overlay
         var overlay = new ui.Overlay();

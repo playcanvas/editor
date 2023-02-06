@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const getLayerName = function (id, mergeObject) {
         // try to get layer name from destination checkpoint first and if not
         // available try the source checkpoint

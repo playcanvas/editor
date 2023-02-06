@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     class HandleChildrenConflict {
         constructor(conflict, overrides) {
             this.conflict = conflict;

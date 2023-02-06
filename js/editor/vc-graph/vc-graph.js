@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     /**
      * Initialize and show the Version Control graph. Assign initial
      * coordinates to each node, make sure nodes do not overlap vertically

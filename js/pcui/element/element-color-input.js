@@ -1,8 +1,6 @@
 import { Element } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_COLOR_INPUT = 'pcui-color-input';
 
     /**

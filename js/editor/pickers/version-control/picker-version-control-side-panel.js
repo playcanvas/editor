@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var sidePanelIndex = 1;
 
     editor.method('picker:versioncontrol:createSidePanel', function (args) {

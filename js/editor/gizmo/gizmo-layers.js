@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // holds all layers that are to be added in the beginning of the composition
     var layerIndexBefore = {};
     // holds all layers that are to be added to the end of the composition

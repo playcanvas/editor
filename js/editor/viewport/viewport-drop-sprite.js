@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const canvas = editor.call('viewport:canvas');
     if (!canvas) return;
 

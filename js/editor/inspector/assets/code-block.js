@@ -1,8 +1,6 @@
 import { Panel, Code, Container, Label, Progress } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const DOM = parent => [
         {
             root: {

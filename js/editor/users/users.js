@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var users = { };
     var userRequests = { };
 

@@ -1,8 +1,6 @@
 import { Container } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     var projectSettings = editor.call('settings:project');
 
     editor.method('editorSettings:batchGroups:create', (name) => {
@@ -26,8 +24,6 @@ editor.once('load', function () {
 });
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'batchgroups-settings-panel';
     const CLASS_ITEM = CLASS_ROOT + '-item';
 

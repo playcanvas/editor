@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // Matching darker and lighter colors suitable as the
     // stroke and fill values of graph nodes
     const DARKER_COLORS = [

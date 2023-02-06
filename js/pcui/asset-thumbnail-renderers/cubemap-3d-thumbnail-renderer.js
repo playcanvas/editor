@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     const scene = {
         scene: null,
         cameraEntity: null,

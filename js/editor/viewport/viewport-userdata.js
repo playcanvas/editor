@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.on('userdata:load', function (userdata) {
         if (!editor.call('permissions:read'))
             return;

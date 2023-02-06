@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var boxBranch = new ui.VersionControlSidePanelBox();
 
     var labelIcon = new ui.Label({

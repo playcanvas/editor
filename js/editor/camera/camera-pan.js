@@ -1,6 +1,4 @@
 editor.once('viewport:load', function (app) {
-    'use strict';
-
     // Panning with left mouse button while shift key is down
 
     let panning = false;

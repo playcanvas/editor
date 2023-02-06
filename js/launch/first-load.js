@@ -1,6 +1,4 @@
 (function () {
-    'use strict';
-
     var visible = !document.hidden;
 
     document.addEventListener('visibilitychange', function () {

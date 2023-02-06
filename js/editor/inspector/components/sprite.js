@@ -1,8 +1,6 @@
 import { Panel, Container, Button } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const COMPONENT_ATTRIBUTES = [{
         label: 'Type',
         path: 'components.sprite.type',

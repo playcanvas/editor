@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     class HandleScriptOrderConflict {
         constructor(conflict) {
             this.conflict = conflict;

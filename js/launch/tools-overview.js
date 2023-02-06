@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // variables
     var enabled = editor.call('tools:enabled');
     var events = [];

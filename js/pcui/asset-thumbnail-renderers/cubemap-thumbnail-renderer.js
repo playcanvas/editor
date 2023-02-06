@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     const POSITIONS = [
         [30 / 64, 22 / 64],
         [0, 22 / 64],

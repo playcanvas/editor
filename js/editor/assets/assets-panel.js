@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const assetsPanel = editor.call('layout.assets');
 
     editor.once('assets:load', () => {

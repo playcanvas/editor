@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     let hitCorners = [];
     const renderLineCorners = [];
     const cornerColor = new pc.Color(0, 1, 0, 0.9);

@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     const PREFILTERED_CUBEMAP_PROPERTIES = [
         'prefilteredCubeMap128',
         'prefilteredCubeMap64',

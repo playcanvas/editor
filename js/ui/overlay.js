@@ -1,5 +1,3 @@
-"use strict";
-
 function Overlay(args) {
     ui.ContainerElement.call(this);
     args = args || { };

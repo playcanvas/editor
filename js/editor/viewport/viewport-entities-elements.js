@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var events = [];
 
     editor.on('attributes:inspect[entity]', function (entities) {

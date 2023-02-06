@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // Shows asset field conflicts
     editor.method('picker:conflictManager:showAssetFieldConflicts', function (parent, conflicts, mergeObject) {
         var resolver = new ui.ConflictResolver(conflicts, mergeObject);

@@ -1,8 +1,6 @@
 import { TextAreaInput } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     // Base class for fields
     var ConflictField = function () {
         this.element = null;

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.method('assets:move-to-store', function (asset) {
         if (!asset) {
             return;

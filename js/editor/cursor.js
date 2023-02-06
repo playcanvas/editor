@@ -1,8 +1,6 @@
 import { Label } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     let cursorType = '';
 
     editor.method('cursor:set', function (type) {

@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_OVERRIDE = 'template-inspector-override';
 
     /**

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var overlay = new ui.Overlay();
     overlay.class.add('picker-node');
     overlay.center = false;

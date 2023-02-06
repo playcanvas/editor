@@ -1,8 +1,6 @@
 import { Label, Button } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'tooltip-reference';
     const CLASS_WEBGL2 = CLASS_ROOT + '-webgl2';
     const CLASS_API = CLASS_ROOT + '-api';

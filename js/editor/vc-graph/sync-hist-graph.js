@@ -5,8 +5,6 @@
  * nodes to connect them to new nodes.
  */
 editor.once('load', function () {
-    'use strict';
-
     class SyncHistGraph {
         constructor(newGraph, data) {
             this.newGraph = newGraph;

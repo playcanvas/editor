@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     class AttributesFromScriptAssets {
         constructor(assets) {
             this.assets = assets;

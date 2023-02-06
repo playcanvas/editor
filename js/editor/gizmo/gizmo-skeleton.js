@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var app = null;
     var entities = [];
     var visible = true;

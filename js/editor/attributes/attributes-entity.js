@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const projectSettings = editor.call('settings:project');
 
     var entityInspector;

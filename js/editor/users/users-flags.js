@@ -1,6 +1,4 @@
 editor.once("load", function () {
-    'use strict';
-
     const WHITELISTED_FOR_EVERYONE = {
         hasRecompressFlippedTextures: true,
         hasFixCorruptedTemplates: true

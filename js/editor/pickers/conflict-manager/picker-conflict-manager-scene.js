@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var componentSchema = config.schema.scene.entities.$of.components;
 
     function appendScriptAttribute(attribute, attributeName, section) {

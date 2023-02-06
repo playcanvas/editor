@@ -1,8 +1,6 @@
 import { Label } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     const panel = editor.call('layout.statusBar');
 
     const branchName = new Label({

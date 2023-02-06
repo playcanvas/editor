@@ -1,8 +1,6 @@
 import { Menu } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     const MENU_OFFSET = { x: -30, y: -160 };
 
     const LOADING_COORDS = { x: 110, y: 210, w: 0 };

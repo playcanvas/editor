@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.on('assets:add', function (asset) {
         if (asset.history)
             return;

@@ -1,8 +1,6 @@
 import { Element, SelectInput } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     /**
      * @name pcui.BatchGroupInput
      * @classdesc A select input that holds batch group options.

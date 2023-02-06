@@ -1,5 +1,4 @@
 editor.once('load', function () {
-    'use strict';
     let app = null;
     let entities = [];
 

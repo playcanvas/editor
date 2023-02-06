@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const dropManager = new pcui.DropManager();
     editor.call('layout.root').append(dropManager);
 

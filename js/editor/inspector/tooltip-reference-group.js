@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'tooltip-reference-group';
 
     class TooltipReferenceGroup extends pcui.TooltipGroup {

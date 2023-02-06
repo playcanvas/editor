@@ -1,6 +1,4 @@
 (function () {
-    'use strict';
-
     // set window name if necessary
     if (!window.name) {
         window.name = 'codeeditor:' + config.project.id;
@@ -83,8 +81,6 @@
 
 // config
 (function () {
-    'use strict';
-
     const applyConfig = function (path, value) {
         if (typeof (value) === 'object') {
             for (const key in value) {

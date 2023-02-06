@@ -3,8 +3,6 @@ import { Container, Canvas, Label, Button, SliderInput } from '@playcanvas/pcui'
 Object.assign(
     pcui,
     (function () {
-        "use strict";
-
         class Skeleton {
             static _boneVertex = new pc.Vec3();
 

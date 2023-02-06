@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var boxRestore = new ui.VersionControlSidePanelBox({
         header: 'RESTORING TO',
         createTargetCheckpoint: true,

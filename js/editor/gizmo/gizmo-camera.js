@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var app;
     // selected entity gizmos
     var entities = { };

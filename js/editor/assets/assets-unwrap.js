@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var unwrapping = { };
 
     editor.method('assets:model:unwrap', function (asset, args, fn) {

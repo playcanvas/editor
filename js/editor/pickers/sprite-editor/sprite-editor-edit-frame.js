@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // Modify frame and make the action undoable
     editor.method('picker:sprites:commitFrameChanges', function (key, frame, oldFrame) {
         if (!editor.call('permissions:write')) return;

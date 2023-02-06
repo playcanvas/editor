@@ -341,8 +341,6 @@ Object.defineProperty(ColorPicker.prototype, 'editAlpha', {
 // gradient picker
 
 editor.once('load', function () {
-    'use strict';
-
     // constants
     const CONST = {
         bg: '#2c393c',

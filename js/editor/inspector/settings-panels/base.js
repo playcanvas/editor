@@ -1,8 +1,6 @@
 import { Panel, Label } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     class BaseSettingsPanel extends Panel {
         constructor(args) {
             args = Object.assign({}, args);

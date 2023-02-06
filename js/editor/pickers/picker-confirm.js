@@ -1,8 +1,6 @@
 import { Overlay, Label, Button } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     let callback = null;
 
     // overlay

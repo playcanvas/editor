@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const ls = new api.LocalStorage();
 
     // Returns editor api.LocalStorage instance

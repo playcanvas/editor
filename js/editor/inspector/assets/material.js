@@ -1,8 +1,6 @@
 import { Panel, Container } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const TextureTypes = {
         Normal: 'Normal',
         Color: 'Color',

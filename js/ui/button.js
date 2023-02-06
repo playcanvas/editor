@@ -1,5 +1,3 @@
-"use strict";
-
 function Button(args) {
     var self = this; // eslint-disable-line no-unused-vars
     ui.Element.call(this);

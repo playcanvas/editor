@@ -4,7 +4,5 @@ api.globals.projectId = config.project.id;
 api.globals.messenger = new api.Messenger(new Messenger());
 
 editor.once('load', function () {
-    'use strict';
-
     editor.messenger = api.globals.messenger;
 });

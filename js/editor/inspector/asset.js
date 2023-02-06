@@ -1,8 +1,6 @@
 import { Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'asset-inspector';
 
     const ATTRIBUTES = [{

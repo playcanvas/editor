@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     const ATTRIBUTES = [{
         label: 'Min Width',
         path: 'components.layoutchild.minWidth',

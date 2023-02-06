@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // Wait for assets, hierarchy and settings to load before initializing application and starting.
     var done = false;
     var hierarchy = false;

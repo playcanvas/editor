@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.on('entities:add', function (entity) {
         if (entity.history)
             return;

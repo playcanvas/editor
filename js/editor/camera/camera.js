@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.once('viewport:load', function () {
         const camerasIndex = { };
         const editorCameras = { };

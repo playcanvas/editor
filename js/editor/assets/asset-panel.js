@@ -1,8 +1,6 @@
 import { Element, GridViewItem, Container, Progress, Panel, Button, SelectInput, TextInput, TreeView, TreeViewItem, GridView, Spinner, Label, BindingObserversToElement } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'pcui-asset-panel';
     const CLASS_FOLDERS = CLASS_ROOT + '-folders';
     const CLASS_CURRENT_FOLDER = CLASS_ROOT + '-current-folder';

@@ -1,8 +1,6 @@
 import { Canvas, Button } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'asset-sprite-preview';
     const CLASS_BUTTON = CLASS_ROOT + '-button';
     const CLASS_BUTTON_PLAYING = CLASS_ROOT + '-button-playing';

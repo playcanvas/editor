@@ -1,8 +1,6 @@
 import { Progress, Label, Container, BindingTwoWay } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'asset-model-inspector-mesh-instances';
     const CLASS_PICKER_MODE = CLASS_ROOT + '-picker-mode';
     const CLASS_PICKER_LABEL = CLASS_ROOT + '-picker-label';

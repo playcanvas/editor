@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var entities = new ObserverList({
         index: 'resource_id'
     });

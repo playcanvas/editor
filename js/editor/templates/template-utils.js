@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const IGNORE_ROOT_PATHS_FOR_OVERRIDES = {
         parent: 1,
         template_id: 1,

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const vecA = new pc.Vec3();
     const vecB = new pc.Vec3();
     const vecC = new pc.Vec3();

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     class SetReparentPath {
         constructor(conflict, overrides) {
             this.conflict = conflict;

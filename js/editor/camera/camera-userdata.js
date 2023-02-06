@@ -1,6 +1,4 @@
 editor.once('camera:load', function () {
-    'use strict';
-
     const userdata = editor.call('userdata');
     let camera = editor.call('camera:current');
 

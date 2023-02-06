@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     class AnimstategraphAnimComponent {
         constructor(args, view) {
             this._args = args;

@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     /**
      * @name pcui.IFlex
      * @classdesc Provides an interface for allowing support for the flexbox CSS layout

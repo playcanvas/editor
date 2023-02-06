@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     /**
      * @name pcui.IBindable
      * @classdesc Provides an interface for getting / setting a value for the Element.

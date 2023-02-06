@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const WORKER_PATH = '/editor/scene/js/editor/assets/assets-script-parse-worker.js';
 
     editor.method('scripts:handleParse', function (asset, inEditor, callback) {

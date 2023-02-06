@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // Checks if the entity is part of a template and if so returns the template
     // root or null otherwise
     editor.method('templates:isTemplateChild', function (entity, entities) {

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var content = JSON.stringify({
         "header": {
             "version": 1

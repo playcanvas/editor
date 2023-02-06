@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.method('picker:sprites:attributes:frames', function (args) {
         var events = [];
         var suspendChanges = false;

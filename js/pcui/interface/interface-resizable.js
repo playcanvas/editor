@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     /**
      * @name pcui.IResizable
      * @classdesc Provides an interface for enabling resizing support for an Element

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var INVALID_TYPES = ['script', 'folder', 'bundle'];
 
     // stores <asset id, [bundle assets]> index for mapping

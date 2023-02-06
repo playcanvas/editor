@@ -1,8 +1,6 @@
 import { Menu, MenuItem } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     var entity = null; // the entity that was clicked on to open the context menu
     var items = [];   // the current selection
     var root = editor.call('layout.root');

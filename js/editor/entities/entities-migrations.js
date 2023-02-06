@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.on('entities:add', function (entity) {
         setTimeout(function () {
             entity.history.enabled = false;

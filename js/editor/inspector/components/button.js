@@ -1,8 +1,6 @@
 import { InfoBox } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const ATTRIBUTES = [{
         label: 'Active',
         path: 'components.button.active',

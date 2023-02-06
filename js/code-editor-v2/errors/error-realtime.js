@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     let hasError = false;
 
     // if we get a realtime error then make everything

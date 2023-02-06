@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var fields = [{
         name: 'component',
         title: 'pc.RenderComponent',

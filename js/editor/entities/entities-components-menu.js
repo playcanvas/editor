@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const logos = editor.call('components:logos');
 
     const getSubMenu = function (key) {

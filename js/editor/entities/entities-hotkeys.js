@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // new
     editor.call('hotkey:register', 'entity:new', {
         key: 'e',

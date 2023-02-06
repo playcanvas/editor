@@ -1,8 +1,6 @@
 import { Panel, Button } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'pcui-asset-animation-inspector';
     const CLASS_EVENT_PANEL = CLASS_ROOT + '-event-panel';
 

@@ -1,8 +1,6 @@
 import { Panel, Container, Button, BooleanInput, LabelGroup, Label, SelectInput, BindingTwoWay } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_SCRIPT_CONTAINER = 'script-component-inspector-scripts';
     const CLASS_SCRIPT = 'script-component-inspector-script';
     const CLASS_SCRIPT_ENABLED = CLASS_SCRIPT + '-enabled';

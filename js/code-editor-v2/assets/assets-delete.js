@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.method('assets:delete:picker', function (items) {
         if (!editor.call('permissions:write'))
             return;

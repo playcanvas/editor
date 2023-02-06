@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // cache
     var loaded = {};
     var sceneLoadingCount = 0;

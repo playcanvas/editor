@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.method('assets:replace', function (asset, replacement) {
         asset.apiAsset.replace(replacement.apiAsset);
     });

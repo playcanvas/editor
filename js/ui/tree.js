@@ -1,5 +1,3 @@
-"use strict";
-
 function Tree() {
     ui.ContainerElement.call(this);
 

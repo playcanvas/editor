@@ -1,5 +1,3 @@
-"use strict";
-
 function AutoCompleteElement() {
     ui.Element.call(this);
 

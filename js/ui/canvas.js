@@ -1,5 +1,3 @@
-"use strict";
-
 function Canvas(args) {
     ui.Element.call(this);
     args = args || { };

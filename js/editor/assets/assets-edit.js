@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var types = {
         'css': 1,
         'html': 1,

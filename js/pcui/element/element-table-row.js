@@ -1,8 +1,6 @@
 import { Container } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROW = 'pcui-table-row';
     const CLASS_SELECTED_ROW = CLASS_ROW + '-selected';
 

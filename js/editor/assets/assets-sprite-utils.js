@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // Creates new texture atlas asset from texture asset
     editor.method('assets:textureToAtlas', function (asset, callback) {
         if (asset.get('type') !== 'texture' || asset.get('source')) return;

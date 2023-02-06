@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // Shows all the conflicts for an item
     var ConflictResolver = function (conflicts, mergeObject) {
         window.assignEvents(this);

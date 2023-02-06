@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var icon = document.createElement('img');
     icon.classList.add('connecting');
     icon.src = 'https://playcanvas.com/static-assets/platform/images/loader_transparent.gif';

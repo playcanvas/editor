@@ -1,8 +1,6 @@
 import { MenuItem } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     const menu = editor.call('menu:file');
 
     const settings = editor.call('editor:settings');

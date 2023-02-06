@@ -1,8 +1,6 @@
 import { Menu, MenuItem } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     let currentAsset = null;
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     const projectUserSettings = editor.call('settings:projectUser');

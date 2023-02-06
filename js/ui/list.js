@@ -1,5 +1,3 @@
-"use strict";
-
 function List(args) {
     args = args || { };
     ui.ContainerElement.call(this);

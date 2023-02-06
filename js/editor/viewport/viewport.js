@@ -1,8 +1,6 @@
 import { Canvas } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     const canvas = new Canvas({
         id: 'canvas-3d',
         useDevicePixelRatio: true

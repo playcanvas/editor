@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     let filePanelReady = false;
     const queue = [];
     const monacoEditor = editor.call('editor:monaco');

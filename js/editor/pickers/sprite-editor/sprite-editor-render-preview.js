@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const centerPivot = [0.5, 0.5];
 
     // Renders a frame to the canvas taking into account the size of all the specified frames

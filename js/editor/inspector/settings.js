@@ -1,8 +1,6 @@
 import { Container } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     const settingsArgs = {
         assets: editor.call('assets:raw'),
         entities: editor.call('entities:list'),
@@ -34,8 +32,6 @@ editor.once('load', function () {
 });
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'settings';
 
     const SETTING_TYPES = [

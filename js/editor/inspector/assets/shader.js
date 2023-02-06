@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     class ShaderAssetInspector extends pcui.CodeBlockAssetInspector {
         constructor(args) {
             args = Object.assign({}, args);

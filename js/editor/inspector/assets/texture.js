@@ -1,8 +1,6 @@
 import { Panel, Container, Button, InfoBox, Divider, Label, BindingTwoWay, BindingObserversToElement, BindingElementToObservers } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     // util
     const makeRefAssigner = (prefix = '') => (attr) => {
         if (attr.hasOwnProperty('reference')) return;

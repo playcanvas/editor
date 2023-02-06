@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var callback = null;
     var filenameValid = /^([^0-9.#<>$+%!`&='{}@\\/:*?"<>|\n])([^#<>$+%!`&='{}@\\/:*?"<>|\n])*$/i;
 

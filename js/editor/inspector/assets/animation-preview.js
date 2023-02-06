@@ -1,8 +1,6 @@
 import { Panel } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'pcui-asset-animation-inspector-preview';
 
     class AnimationAssetInspectorPreview extends pcui.AssetInspectorPreviewBase {

@@ -1,8 +1,6 @@
 import { Panel, Button, Container, Label, TextInput, Menu, BindingTwoWay } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'asset-font-inspector';
     const CLASS_LOCALE_PANEL = CLASS_ROOT + '-locale-panel';
     const CLASS_CHARACTER_RANGE = CLASS_ROOT + '-character-range';

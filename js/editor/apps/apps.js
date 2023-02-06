@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // Fetch list of apps from the server and
     // pass them to the callback
     editor.method('apps:list', function (callback) {

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const permissions = { };
 
     // cache permissions in a dictionary

@@ -1,8 +1,6 @@
 import { Overlay, Label, TextInput } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     let callback = null;
     const filenameValid = /^([^0-9.#<>$+%!`&='{}@\\/:*?"<>|\n])([^#<>$+%!`&='{}@\\/:*?"<>|\n])*$/i;
 

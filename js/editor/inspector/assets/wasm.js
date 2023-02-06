@@ -1,8 +1,6 @@
 import { Panel } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const ATTRIBUTES = [{
         label: 'Name',
         path: 'data.moduleName',

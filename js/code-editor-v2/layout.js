@@ -1,8 +1,6 @@
 import { Container, Panel } from '@playcanvas/pcui';
 
 editor.on('load', function () {
-    'use strict';
-
     // main container
     const root = new Container({
         id: 'ui-root',

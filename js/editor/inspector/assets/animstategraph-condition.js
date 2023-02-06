@@ -1,8 +1,6 @@
 import { Container, SelectInput, NumericInput, BooleanInput, Button } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'pcui-animstategraph-condition';
 
     class AnimstategraphCondition extends Container {

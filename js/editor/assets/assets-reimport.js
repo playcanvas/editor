@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var index = 0;
     editor.method('assets:reimport', function (assetId, type, callback) {
         var data = {};

@@ -1,8 +1,6 @@
 import { Panel, Button, SelectInput } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
     const CLASS_ANIMSTATEGRAPH_LAYER = CLASS_ANIMSTATEGRAPH + '-layer';
     const CLASS_ANIMSTATEGRAPH_LAYER_SELECT = CLASS_ANIMSTATEGRAPH_LAYER + '-select';

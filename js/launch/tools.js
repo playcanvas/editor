@@ -8,8 +8,6 @@ if (!performance || !performance.now || !performance.timing)
 var start = now();
 
 editor.once('load', function () {
-    'use strict';
-
     // times
     var timeBeginning = performance.timing ? performance.timing.responseEnd : start;
     var timeNow = now() - timeBeginning;

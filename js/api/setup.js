@@ -16,8 +16,6 @@ api.globals.jobs = new api.Jobs();
 api.globals.clipboard = new api.Clipboard('playcanvas_editor_clipboard');
 
 editor.once('load', function () {
-    'use strict';
-
     [
         'history',
         'selection',

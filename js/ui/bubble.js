@@ -1,5 +1,3 @@
-"use strict";
-
 function Bubble(args) {
     ui.Element.call(this);
     args = args || { };

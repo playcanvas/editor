@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var assetsPanel = editor.call('layout.assets');
 
     var dropRef = editor.call('drop:target', {

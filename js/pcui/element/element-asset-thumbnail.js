@@ -1,8 +1,6 @@
 import { Element } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ASSET_THUMB = 'pcui-asset-thumb';
     const CLASS_ASSET_THUMB_EMPTY = 'pcui-asset-thumb-empty';
     const CLASS_ASSET_THUMB_MISSING = 'pcui-asset-thumb-missing';

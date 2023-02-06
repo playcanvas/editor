@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.method('picker:sprites:attributes:frames:preview', function (args) {
         const parent = editor.call('picker:sprites:rightPanel');
 

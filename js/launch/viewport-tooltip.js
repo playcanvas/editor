@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // console
     var panel = document.createElement('div');
     panel.id = 'application-tooltip';

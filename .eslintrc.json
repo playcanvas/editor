@@ -99,7 +99,6 @@
       "MemberExpression": 0,
       "SwitchCase": 1
     }],
-    "no-use-before-define": "off",
-    "strict": "off"
+    "no-use-before-define": "off"
   }
 }

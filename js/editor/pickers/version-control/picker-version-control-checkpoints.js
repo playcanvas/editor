@@ -1,8 +1,6 @@
 import { Button, Container } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     var events = [];
 
     const VC_GRAPH_ZINDEX = { inForeground: 301, inBackground: 299 };

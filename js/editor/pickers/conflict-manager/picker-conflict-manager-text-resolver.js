@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     /**
      * Contains the UI for showing text conflicts using
      * an i-framed code editor. Also contains buttons to resolve

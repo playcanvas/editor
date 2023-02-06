@@ -13,8 +13,6 @@
 //     remove
 
 editor.once('load', function () {
-    'use strict';
-
     // hook into private assets observer list in API
     // (this should all be temporary as this file should eventually be removed)
     const assets = editor.assets._assets;

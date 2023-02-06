@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const projectUserSettings = editor.call('settings:projectUser');
 
     /**

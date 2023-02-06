@@ -1,8 +1,6 @@
 import { Container } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_DROP_MANAGER = 'pcui-dropmanager';
     const CLASS_DROP_MANAGER_WALL = CLASS_DROP_MANAGER + '-wall';
     const CLASS_DROP_MANAGER_WALL_FULL = CLASS_DROP_MANAGER_WALL + '-full';

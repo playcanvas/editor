@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var editableTypes = {
         'script': 1,
         'css': 1,

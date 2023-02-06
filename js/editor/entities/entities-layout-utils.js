@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var getLayoutGroup = function (entityId) {
         var entity = editor.call('entities:get', entityId);
         return entity && entity.entity && entity.entity.layoutgroup;

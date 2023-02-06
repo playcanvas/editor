@@ -1,8 +1,6 @@
 import { Container, Panel, Label, BooleanInput } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'layers-settings-panel';
     const CLASS_RENDER_ORDER_LIST = CLASS_ROOT + '-render-order-list';
     const CLASS_RENDER_ORDER_LIST_CONTAINER = CLASS_RENDER_ORDER_LIST + '-container';

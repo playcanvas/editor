@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.method('assets:create:animstategraph', function (args) {
         if (!editor.call('permissions:write'))
             return;

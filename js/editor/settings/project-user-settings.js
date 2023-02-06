@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var isConnected = false;
 
     var settings = editor.call('settings:create', {

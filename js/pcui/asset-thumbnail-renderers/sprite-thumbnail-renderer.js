@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     let sceneInitialized = false;
 
     const scene = {

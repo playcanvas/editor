@@ -1,8 +1,6 @@
 import { Panel, Label, Button, BindingTwoWay } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
     const CLASS_ANIMSTATEGRAPH_STATE = CLASS_ANIMSTATEGRAPH + '-state';
     const CLASS_ANIMSTATEGRAPH_STATE_VIEW_BUTTON = CLASS_ANIMSTATEGRAPH_STATE + '-view-button';

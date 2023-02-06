@@ -1,8 +1,6 @@
 import { Button, LabelGroup } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     // append the basis module controls to the provided panel
     editor.method('attributes:appendImportModule', function (panel, moduleStoreName, wasmFilename) {
         // button

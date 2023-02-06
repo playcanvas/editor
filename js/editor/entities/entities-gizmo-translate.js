@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     let events = [];
     let items = [];
     const quat = new pc.Quat();

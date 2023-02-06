@@ -1,5 +1,3 @@
-"use strict";
-
 function Checkbox(args) {
     ui.Element.call(this);
     args = args || { };

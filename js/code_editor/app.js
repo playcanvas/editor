@@ -1,6 +1,4 @@
 (function () {
-    'use strict';
-
     function CodeEditor() {
         window.assignEvents(this);
 
@@ -69,8 +67,6 @@
 
 // config
 (function () {
-    'use strict';
-
     var applyConfig = function (path, value) {
         if (typeof (value) === 'object') {
             for (var key in value) {

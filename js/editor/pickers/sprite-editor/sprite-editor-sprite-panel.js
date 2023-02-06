@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.method('picker:sprites:attributes:sprite', function (args) {
         var atlasAsset = args.atlasAsset;
         var atlasImage = args.atlasImage;

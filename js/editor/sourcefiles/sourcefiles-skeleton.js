@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // returns skeleton script for a script with the specified url
     editor.method('sourcefiles:skeleton', function (url) {
         var parts = url.split('/');

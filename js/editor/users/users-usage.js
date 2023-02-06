@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.on('messenger:user.usage', function (data) {
         if (data.user !== config.owner.id) return;
 

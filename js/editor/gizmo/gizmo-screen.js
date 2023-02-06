@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const left = new pc.Vec3();
     const right = new pc.Vec3();
     const top = new pc.Vec3();

@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * Represents a box widget that is commonly used in version control side panels
  *

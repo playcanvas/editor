@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.method('picker:sprites:frames', function (args) {
         const events = [];
 

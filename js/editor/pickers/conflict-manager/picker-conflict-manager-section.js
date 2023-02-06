@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // A section contains multiple conflicts and it's meant to group
     // conflicts into meaningful categories
     var ConflictSection = function (resolver, title, foldable, allowCloaking) {

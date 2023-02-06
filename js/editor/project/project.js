@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     function Defer() {
         const self = this;
         self.promise = new Promise((resolve, reject) => {

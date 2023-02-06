@@ -1,8 +1,6 @@
 import { Container, Button } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const ATTRIBUTES = [
         {
             observer: 'projectSettings',

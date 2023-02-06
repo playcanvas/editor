@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const settings = editor.call('settings:project');
 
     editor.method('assets:delete:picker', function (items) {

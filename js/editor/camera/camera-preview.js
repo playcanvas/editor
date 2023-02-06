@@ -1,8 +1,6 @@
 import { Button } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     let selectedEntity = null; // currently selected entity
     let currentCamera = null;  // current camera rendering to viewport
     let renderCamera = false;

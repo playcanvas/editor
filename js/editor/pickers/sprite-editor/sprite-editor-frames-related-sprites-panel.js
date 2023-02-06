@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.method('picker:sprites:attributes:frames:relatedSprites', function (args) {
         var events = [];
 

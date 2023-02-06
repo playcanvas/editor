@@ -1,8 +1,6 @@
 import { Button, Menu } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     var root = editor.call('layout.root');
     var toolbar = editor.call('layout.toolbar');
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');

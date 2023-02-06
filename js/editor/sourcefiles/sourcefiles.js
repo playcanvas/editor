@@ -1,6 +1,4 @@
 editor.once('repositories:load', function (repositories) {
-    'use strict';
-
     if (!editor.call('settings:project').get('useLegacyScripts'))
         return;
 

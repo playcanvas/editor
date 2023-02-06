@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.on('sceneSettings:load', function (sceneSettings) {
         var app = editor.call('viewport:app');
         if (!app) return; // webgl not available

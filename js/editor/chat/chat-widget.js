@@ -1,8 +1,6 @@
 import { Panel, Button, Container, TextInput } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     const root = editor.call('layout.root');
     const viewport = editor.call('layout.viewport');
 

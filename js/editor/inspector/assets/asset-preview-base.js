@@ -1,8 +1,6 @@
 import { Container, Button } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'pcui-asset-preview';
     const CLASS_CONTAINER = CLASS_ROOT + '-container';
     const CLASS_CONTAINER_LARGE = CLASS_CONTAINER + '-large';

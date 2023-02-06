@@ -1,6 +1,4 @@
 editor.once('viewport:load', function () {
-    'use strict';
-
     // Flying with WASD or Arrows
 
     var vecA = new pc.Vec3();

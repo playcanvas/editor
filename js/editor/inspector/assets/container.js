@@ -1,8 +1,6 @@
 import { Container } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'container-asset-inspector';
     const CLASS_ASSET = CLASS_ROOT + '-asset';
 

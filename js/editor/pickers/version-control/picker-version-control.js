@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     if (config.project.settings.useLegacyScripts) {
         return;
     }

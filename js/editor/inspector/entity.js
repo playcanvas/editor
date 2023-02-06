@@ -1,8 +1,6 @@
 import { Container, Button, Menu } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'entity-inspector';
     const CLASS_NO_COMPONENTS = CLASS_ROOT + '-no-components';
     const CLASS_ADD_COMPONENT = CLASS_ROOT + '-add-component';

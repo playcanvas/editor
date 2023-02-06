@@ -1,8 +1,6 @@
 import { Panel, Container, Label } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'pcui-related-assets';
     const CLASS_RELATED_ASSET = CLASS_ROOT + '-related-asset';
 

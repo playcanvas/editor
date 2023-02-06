@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     /**
      * Given the root entity of the intended template,
      * create a template asset with new entity guids.

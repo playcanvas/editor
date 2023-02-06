@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.on('realtime:connecting', function () {
         editor.call('status:connection', 'Connecting...');
     });

@@ -1,8 +1,6 @@
 import { Label, Container, Button, BindingTwoWay, BindingElementToObservers } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const ATTRIBUTES = [{
         label: 'Type',
         path: 'components.model.type',

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // this used to have facebook settings
     // but we removed those so leaving this here in case
     // it is needed in the future

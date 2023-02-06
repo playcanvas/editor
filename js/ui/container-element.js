@@ -1,5 +1,3 @@
-"use strict";
-
 function ContainerElement() {
     var self = this;
 

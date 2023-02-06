@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var currentCheckpointBeingCreated = null;
 
     var overlayBranchSwitched = editor.call('picker:versioncontrol:createOverlay', {

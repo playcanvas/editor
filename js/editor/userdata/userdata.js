@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var userdata = new Observer();
 
     editor.on('userdata:' + config.self.id + ':raw', function (data) {

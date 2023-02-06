@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     class TextureCompressor {
         // returns true if the dimensions are power of two and false otherwise.
         static isPOT(width, height) {

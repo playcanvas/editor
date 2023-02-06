@@ -1,5 +1,3 @@
-"use strict";
-
 function TreeItem(args) {
     var self = this;
     ui.Element.call(this);

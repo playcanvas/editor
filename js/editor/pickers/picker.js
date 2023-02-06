@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var openPickers = {};
 
     // the number of open pickers that block the main Editor

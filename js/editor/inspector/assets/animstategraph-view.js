@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     const GRAPH_ACTIONS = {
         ADD_NODE: 'EVENT_ADD_NODE',
         UPDATE_NODE_POSITION: 'EVENT_UPDATE_NODE_POSITION',

@@ -1,8 +1,6 @@
 import { Element, Canvas } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const REGEX_KEYS = /keys/;
     const REGEX_TYPE = /type/;
     const CLASS_GRADIENT = 'pcui-gradient';

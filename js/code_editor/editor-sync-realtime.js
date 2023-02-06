@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // do nothing if we're editing a script instead
     // of an asset.
     // TODO: Remove this when scripts are assets

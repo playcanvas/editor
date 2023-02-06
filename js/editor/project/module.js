@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // method if the module is included in the project
     editor.method('project:module:hasModule', function (wasmFilename) {
         var moduleAssets = editor.call('assets:find', function (item) {

@@ -14,8 +14,6 @@
  */
 
 editor.once('load', function () {
-    'use strict';
-
     // settings observer
     const settings = new Observer({
         ide: {

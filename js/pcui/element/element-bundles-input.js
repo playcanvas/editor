@@ -1,8 +1,6 @@
 import { Element, SelectInput } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'pcui-bundles-input';
 
     class BundlesInput extends SelectInput {

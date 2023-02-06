@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     /**
      * @name pcui.IScrollable
      * @classdesc Provides an interface for allowing scrolling on an Element.

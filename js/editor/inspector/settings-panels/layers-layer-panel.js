@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'layers-settings-panel';
     const CLASS_LAYER_PANEL = CLASS_ROOT + '-layer-panel';
 

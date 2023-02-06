@@ -1,8 +1,6 @@
 import { Container, Label } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'pcui-tooltip';
     const CLASS_TITLE = CLASS_ROOT + '-title';
     const CLASS_SUBTITLE = CLASS_ROOT + '-subtitle';

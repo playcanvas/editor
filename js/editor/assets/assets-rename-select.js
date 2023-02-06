@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var onRename = function () {
         if (!editor.call('permissions:write'))
             return;

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var panel = new ui.Panel();
     panel.class.add('picker-scene-panel');
 

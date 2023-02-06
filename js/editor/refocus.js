@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var last = null;
     var timeout = null;
 

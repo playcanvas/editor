@@ -4,8 +4,6 @@
  * when expanded.
  */
 Object.assign(pcui, (function () {
-    'use strict';
-
     const ATTRIBUTES = [
         {
             label: '',

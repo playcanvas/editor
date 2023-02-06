@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     /**
      * Given asset and instance entity data, and the guid of the instance root,
      * return data about the instance's overrides.

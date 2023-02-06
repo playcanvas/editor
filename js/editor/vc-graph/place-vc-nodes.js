@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // Set the 'coords' field of every checkpoint node. The coords
     // are set relative to the previous node of our bfs traversal
     class PlaceVcNodes {

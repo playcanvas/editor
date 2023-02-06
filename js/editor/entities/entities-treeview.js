@@ -3,8 +3,6 @@ import { Element, TreeView, TreeViewItem, Container } from '@playcanvas/pcui';
 import { getMap, searchItems } from '../advanced_search';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'entities-treeview';
     const CLASS_COMPONENT_ICON = 'component-icon-postfix';
     const CLASS_TEMPLATE_INSTANCE = 'template-instance';

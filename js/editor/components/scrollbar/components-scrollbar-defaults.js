@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var DEFAULT_THICKNESS = 20;
     var DEFAULT_LENGTH = 100;
 

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var element = document.getElementById('editor-container');
 
     // create editor

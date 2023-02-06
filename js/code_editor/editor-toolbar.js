@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     document.getElementById('editor').style.display = 'block';
 
     var saveBtn = document.getElementById('btn-save');

@@ -1,6 +1,4 @@
 Object.assign(pcui, (function () {
-    'use strict';
-
     const ATTRIBUTES = [{
         label: 'Clear Color Buffer',
         path: 'components.camera.clearColorBuffer',

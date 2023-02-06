@@ -1,8 +1,6 @@
 import { SelectInput } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     const currentProject = config.project;
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 

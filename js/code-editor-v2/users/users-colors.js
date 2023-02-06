@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const users = { };
     const palette = [
         [5, 0.63, 0.46],

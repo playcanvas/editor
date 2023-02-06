@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     class RemapEntityIds {
         constructor(entity, scriptAttrs, srcToDst) {
             this.entity = entity;

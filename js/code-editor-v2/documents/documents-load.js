@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const documentsIndex = {};
 
     // load requests that have been

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     let app;
     let visible = false;
 

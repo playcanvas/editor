@@ -1,5 +1,3 @@
-"use strict";
-
 function TextAreaField(args) {
     ui.Element.call(this);
     args = args || { };

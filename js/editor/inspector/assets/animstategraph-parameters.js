@@ -1,8 +1,6 @@
 import { Panel, Button } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
     const CLASS_ANIMSTATEGRAPH_PARAMETER = CLASS_ANIMSTATEGRAPH + '-parameter';
 

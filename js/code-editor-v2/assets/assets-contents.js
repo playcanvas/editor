@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // used if localStorage doesn't work
     const memoryCache = {};
 

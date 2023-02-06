@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const root = editor.call('layout.root');
     const widget = editor.call('chat:panel');
     const messages = editor.call('chat:messagesPanel');

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var auth = false;
     var socket, connection;
     var data; // eslint-disable-line no-unused-vars

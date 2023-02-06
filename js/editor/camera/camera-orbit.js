@@ -1,6 +1,4 @@
 editor.once('viewport:load', function () {
-    'use strict';
-
     // Orbit camera with virtual point of focus
     // Zooming / Flying will not move virtual point forward/backwards
 

@@ -1,8 +1,6 @@
 import { Panel, Container, Button } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'asset-model-inspector';
     const CLASS_AUTO_UNWRAP_PROGRESS = CLASS_ROOT + '-auto-unwrap-progress';
     const CLASS_AUTO_UNWRAP_PADDING = CLASS_ROOT + '-auto-unwrap-padding';

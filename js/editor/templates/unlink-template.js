@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.method('templates:unlink', function (entity) {
         if (!editor.call('permissions:write')) {
             return;

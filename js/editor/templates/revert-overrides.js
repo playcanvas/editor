@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const REGEX_SCRIPT_NAME = /^components\.script\.scripts\.([^.]+)$/;
     const REGEX_JSON_SCRIPT_ATTR_ARRAY_ELEMENT = /^components\.script\.scripts\.[^.]+\.attributes\.[^.]+\.\d+$/;
 

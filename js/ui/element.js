@@ -1,6 +1,4 @@
 Object.assign(ui, (function () {
-    "use strict";
-
     function Element() {
         window.assignEvents(this);
 

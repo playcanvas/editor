@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     if (!editor.call('users:hasFlag', 'hasRecompressFlippedTextures')) return;
 
     if (!editor.call('permissions:write')) return;

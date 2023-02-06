@@ -1,8 +1,6 @@
 import { Container, Panel } from '@playcanvas/pcui';
 
 editor.on('load', function () {
-    'use strict';
-
     var ignoreMouseDownClasses = /(default-mousedown)|(ui-list-item)|(ui-button)|(ui-text)|(ui-number-field)/i;
     var ignoreContextMenuClasses = /(default-mousedown)/i;
     var ignoreElements = /(input)|(textarea)/i;

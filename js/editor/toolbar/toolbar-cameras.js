@@ -1,6 +1,4 @@
 editor.once('viewport:load', function () {
-    'use strict';
-
     const controls = editor.call('layout.toolbar.launch');
 
     const app = editor.call('viewport:app');

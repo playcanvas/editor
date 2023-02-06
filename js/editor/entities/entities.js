@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const entities = editor.entities._entities;
 
     editor.entities.on('add', (entity, isRoot) => {

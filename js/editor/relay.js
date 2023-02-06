@@ -1,6 +1,4 @@
 editor.on('start', function () {
-    'use strict';
-
     if (typeof RelayServer === 'undefined')
         return;
 

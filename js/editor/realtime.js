@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.once('start', function () {
         editor.realtime.on('cannotConnect', () => {
             editor.emit('realtime:cannotConnect');

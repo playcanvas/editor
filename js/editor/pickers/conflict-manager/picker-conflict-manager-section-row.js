@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const BASE_PANEL = 0;
     const DEST_PANEL = 1;
     const SOURCE_PANEL = 2;

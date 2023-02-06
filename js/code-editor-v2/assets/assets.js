@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const uniqueIdToItemId = {};
 
     const assets = new ObserverList({

@@ -1,5 +1,3 @@
-"use strict";
-
 function Grid(args) {
     var self = this; // eslint-disable-line no-unused-vars
     ui.ContainerElement.call(this);

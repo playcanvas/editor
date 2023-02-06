@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // used to disable event handlers
     var suspendEvents = false;
 

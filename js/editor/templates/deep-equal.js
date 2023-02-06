@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     class DeepEqual {
         constructor(node1, node2) {
             this.node1 = node1;

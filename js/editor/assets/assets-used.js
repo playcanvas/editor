@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     const index = {};
     const keys = {

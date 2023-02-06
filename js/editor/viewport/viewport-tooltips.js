@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var inViewport = false;
     var nameLast = '';
     var timeout = null;

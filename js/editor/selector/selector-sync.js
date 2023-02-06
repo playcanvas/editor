@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var lastSelectionType = null;
     var lastIds = [];
     var selection = { };

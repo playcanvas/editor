@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     //  Try to place branches above or below each other
     //  when possible, to save horizontal space
     class CompactBranches {

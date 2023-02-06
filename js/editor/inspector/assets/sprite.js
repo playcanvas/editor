@@ -1,8 +1,6 @@
 import { Panel, BindingTwoWay } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const ATTRIBUTES = [{
         label: 'Pixels Per Unit',
         path: 'data.pixelsPerUnit',

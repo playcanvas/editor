@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.method('assets:registry:bind', function (assetRegistry, assetTypes) {
         // add assets to asset registry
         editor.on('assets:add', function (asset) {

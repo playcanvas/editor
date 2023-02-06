@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.method('assets:uploadFile', function (args, fn) {
         // NOTE
         // non-file form data should be above file,

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var leftBranch = null;
     var leftCheckpoint = null;
     var rightBranch = null;

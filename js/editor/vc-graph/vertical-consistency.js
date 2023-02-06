@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // Check and, if necessary, update the assigned coords of each node
     // so that there is proper distance between them vertically
     class VerticalConsistency {

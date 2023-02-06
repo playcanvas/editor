@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const filenameValid = /^([^0-9.#<>$+%!`&='{}@\\/:*?"<>|\n])([^#<>$+%!`&='{}@\\/:*?"<>|\n])*$/i;
 
     editor.method('assets:create:script', function (args) {

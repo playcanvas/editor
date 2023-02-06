@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     class MergePathStore {
         constructor() {
             this.store = {};

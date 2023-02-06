@@ -1,8 +1,6 @@
 import { Panel, BooleanInput, LabelGroup, Button, Menu, BindingTwoWay } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ROOT = 'component-inspector';
     const CLASS_COMPONENT_ICON = 'component-icon-prefix';
     const CLASS_ENABLED = CLASS_ROOT + '-enabled';

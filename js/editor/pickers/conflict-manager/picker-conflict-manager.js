@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var LAYOUT_NONE = 0;
     var LAYOUT_FIELDS_ONLY = 1;
     var LAYOUT_FIELDS_AND_FILE_CONFLICTS = 2;

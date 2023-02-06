@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     editor.method('picker:sprites:attributes:importFrames', function (args) {
         var events = [];
         var atlasAsset = args.atlasAsset;

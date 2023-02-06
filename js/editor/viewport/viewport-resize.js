@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var container = editor.call('layout.viewport');
     var canvas = editor.call('viewport:canvas');
     var app = editor.call('viewport:app');

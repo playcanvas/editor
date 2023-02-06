@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const timeouts = {};
     const errors = {};
     const worker = new Worker('/editor/scene/js/code-editor-v2/monaco-panel/jshint-worker.js');

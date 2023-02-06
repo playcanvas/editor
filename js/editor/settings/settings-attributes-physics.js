@@ -1,8 +1,6 @@
 import { Button, LabelGroup } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     var projectSettings = editor.call('settings:project');
 
     // check legacy physics include flag

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var uploadJobs = 0;
     var userSettings = editor.call('settings:projectUser');
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');

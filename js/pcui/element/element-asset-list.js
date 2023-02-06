@@ -1,8 +1,6 @@
 import { Element, Container, Button, Label, TextInput, BindingObserversToElement } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ASSET_LIST = 'pcui-asset-list';
     const CLASS_ASSET_LIST_SELECTION_MODE = CLASS_ASSET_LIST + '-selection-mode';
     const CLASS_ASSET_LIST_EMPTY = CLASS_ASSET_LIST + '-empty';

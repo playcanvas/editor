@@ -1,8 +1,6 @@
 import { Element, Container, Label, Button } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    'use strict';
-
     // GLOBAL VARIABLES
     let projectSettingsListMenu;  // used to enable hot reload of sidebar menu text upon project name change
     let currentProject;  // used to display project stats

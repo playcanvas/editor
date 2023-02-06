@@ -1,5 +1,3 @@
-"use strict";
-
 function MenuItem(args) {
     var self = this; // eslint-disable-line no-unused-vars
 

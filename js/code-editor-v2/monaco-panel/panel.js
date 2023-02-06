@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const settings = editor.call('editor:settings');
 
     const panel = editor.call('layout.code');

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     const app = editor.call('viewport:app');
     if (!app) return;
 

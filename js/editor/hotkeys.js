@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var hotkeys = { };
     var keyIndex = { };
     var ctrl = false;

@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var enabled = editor.call('tools:enabled');
     var app = editor.call('viewport:app');
     if (!app) return; // webgl not available

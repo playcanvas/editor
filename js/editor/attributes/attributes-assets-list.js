@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     var root = editor.call('layout.attributes');
 

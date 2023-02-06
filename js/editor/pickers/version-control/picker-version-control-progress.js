@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // this is true if ANY progress widget is currently
     // showing a spinner. This is so that we don't show
     // version control overlays on top of these windows if any widget here is showing a spinner

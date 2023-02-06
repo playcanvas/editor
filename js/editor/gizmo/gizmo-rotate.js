@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var gizmo = null;
     var visible = true;
     var moving = false;

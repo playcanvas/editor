@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // Delete frames with specified keys from atlas and also
     // remove these frames from any sprite assets that are referencing them
     // Options can be:

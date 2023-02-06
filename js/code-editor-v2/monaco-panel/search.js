@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     let model = null;
     const monacoEditor = editor.call('editor:monaco');
     let totalMatches = 0;

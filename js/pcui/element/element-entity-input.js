@@ -1,8 +1,6 @@
 import { Element, Container, Label, Button, BindingObserversToElement } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
-    'use strict';
-
     const CLASS_ENTITY_INPUT = 'pcui-entity-input';
     const CLASS_EMPTY = CLASS_ENTITY_INPUT + '-empty';
 

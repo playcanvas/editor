@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     var root = editor.call('layout.root');
     var overlay = new ui.Overlay();
     overlay.class.add('help-howdoi');

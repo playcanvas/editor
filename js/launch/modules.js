@@ -1,6 +1,4 @@
 editor.once('load', function () {
-    'use strict';
-
     // check for wasm module support
     function wasmSupported() {
         try {

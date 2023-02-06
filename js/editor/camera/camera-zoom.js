@@ -1,6 +1,4 @@
 editor.once('viewport:load', function () {
-    'use strict';
-
     // Moving towards mouse point in world using mouse wheel
     // Speed is relative to distance of point in world
 

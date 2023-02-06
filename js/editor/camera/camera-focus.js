@@ -1,6 +1,4 @@
 editor.once('viewport:load', function () {
-    'use strict';
-
     // Focusing on a point and a distance
 
     var focusTarget = new pc.Vec3();
