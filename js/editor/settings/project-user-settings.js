@@ -17,6 +17,8 @@ editor.once('load', function () {
                     0.118,
                     1
                 ],
+                cameraGrabColor: true,
+                cameraGrabDepth: true,
                 showFog: false,
                 gridDivisions: 8,
                 gridDivisionSize: 1,
@@ -160,6 +162,12 @@ editor.once('load', function () {
             if (!settings.has('editor.showFog')) {
                 settings.set('editor.showFog', false);
             }
+
+            if (!settings.has('editor.cameraGrabColor'))
+                settings.set('editor.cameraGrabColor', true);
+
+            if (!settings.has('editor.cameraGrabDepth'))
+                settings.set('editor.cameraGrabDepth', true);
 
             settings.history.enabled = history;
             settings.sync.enabled = sync;

@@ -57,6 +57,20 @@ Object.assign(pcui, (function () {
             }
         },
         {
+            observer: 'settings',
+            label: 'Camera Depth Grabpass',
+            path: 'editor.cameraGrabDepth',
+            alias: 'cameraGrabDepth',
+            type: 'boolean'
+        },
+        {
+            observer: 'settings',
+            label: 'Camera Color Grabpass',
+            path: 'editor.cameraGrabColor',
+            alias: 'cameraGrabColor',
+            type: 'boolean'
+        },
+        {
             observer: 'userSettings',
             label: 'Zoom Sensitivity',
             type: 'slider',

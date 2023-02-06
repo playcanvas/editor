@@ -5,7 +5,9 @@ editor.once('load', function () {
         howdoi: true,
         iconSize: 0.2,
         showSkeleton: true,
-        zoomSensitivity: 7.5
+        zoomSensitivity: 7.5,
+        cameraGrabColor: true,
+        cameraGrabDepth: true
     };
 
     var settings = editor.call('settings:create', {

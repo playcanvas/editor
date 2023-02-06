@@ -19,6 +19,12 @@ editor.once('load', function () {
         name: 'cameraClip',
         description: 'If your scene is too large or objects needs to be too close, change Near/Far clip values of a camera for Editor. This setting does not affects the game.'
     }, {
+        name: 'cameraGrabDepth',
+        description: 'Request the Editor viewport to generate a texture containing the scene depth map. Needed to see some material rendering effects in the viewport.'
+    }, {
+        name: 'cameraGrabColor',
+        description: 'Request the Editor viewport to generate a texture containing the scene color map. Needed to see some material rendering effects in the viewport.'
+    }, {
         name: 'clearColor',
         description: 'Set the Camera Clear Color of your preference to affect Editor. This color will not affect the game.'
     }, {

@@ -15,6 +15,7 @@ editor.once('load', function () {
         if (!app) return; // webgl not available
 
         const projectSettings = editor.call('settings:project');
+        const projectUserSettings = editor.call('settings:projectUser');
 
         editor.method('camera:get', function (name) {
             return editorCameras[name] || null;
@@ -240,8 +241,6 @@ editor.once('load', function () {
 
             entity.addComponent('camera', params);
             entity.camera.enabled = false;
-            entity.camera.requestSceneColorMap(true);
-            entity.camera.requestSceneDepthMap(true);
 
             app.root.addChild(entity);
 
@@ -289,6 +288,40 @@ editor.once('load', function () {
             }
 
             editor.call('viewport:render');
+        });
+
+        const requestSceneColorMap = function (enabled) {
+            for (const key in editorCameras) {
+                const entity = editorCameras[key];
+                entity.camera.requestSceneColorMap(enabled);
+            }
+            editor.call('viewport:render');
+        };
+
+        const requestSceneDepthMap = function (enabled) {
+            for (const key in editorCameras) {
+                const entity = editorCameras[key];
+                entity.camera.requestSceneDepthMap(enabled);
+            }
+            editor.call('viewport:render');
+        };
+
+        editor.on('settings:projectUser:load', function () {
+            if (projectUserSettings.get('editor.cameraGrabDepth')) {
+                requestSceneDepthMap(true);
+            }
+
+            if (projectUserSettings.get('editor.cameraGrabColor')) {
+                requestSceneColorMap(true);
+            }
+
+            projectUserSettings.on('editor.cameraGrabDepth:set', function (value) {
+                requestSceneDepthMap(value);
+            });
+
+            projectUserSettings.on('editor.cameraGrabColor:set', function (value) {
+                requestSceneColorMap(value);
+            });
         });
 
         editor.emit('camera:load');
