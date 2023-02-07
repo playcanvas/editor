@@ -1,5 +1,3 @@
-import { MenuItem } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     const menu = editor.call('menu:navigate');
     const ctrl = editor.call('hotkey:ctrl:string');
@@ -15,7 +13,7 @@ editor.once('load', function () {
     });
 
     // Go to anything
-    const item = new MenuItem({
+    const item = new pcui.MenuItem({
         text: 'Go To File',
         onSelect: () => {
             editor.call('editor:command:goToFile');

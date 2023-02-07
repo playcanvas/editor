@@ -1,10 +1,8 @@
-import { Button } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     const toolbar = editor.call('layout.toolbar');
 
     // settings button
-    const button = new Button({
+    const button = new pcui.Button({
         icon: 'E134'
     });
     button.class.add('pc-icon', 'editor-settings', 'bottom');

@@ -1,5 +1,3 @@
-import { Container, Label, Button, BindingObserversToElement } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'template-entity-inspector';
     const CLASS_HEADER = CLASS_ROOT + '-header';
@@ -18,7 +16,7 @@ Object.assign(pcui, (function () {
     const CLASS_BUTTON_DROPDOWN = CLASS_ENTITY_LIST + '-btn-dropdown';
     const CLASS_ENTITY_DROPDOWN = CLASS_ENTITY_LIST + '-dropdown';
 
-    class TemplatesEntityInspector extends Container {
+    class TemplatesEntityInspector extends pcui.Container {
         constructor(args) {
             super(args);
             this.class.add(CLASS_ROOT);
@@ -34,66 +32,66 @@ Object.assign(pcui, (function () {
 
             this._diffView = args.templateOverridesDiffView;
 
-            this.append(new Label({
+            this.append(new pcui.Label({
                 text: 'TEMPLATE INSTANCE',
                 class: CLASS_HEADER
             }));
 
-            this._innerContainer = new Container({
+            this._innerContainer = new pcui.Container({
                 flex: true,
                 class: CLASS_CONTAINER
             });
             this.append(this._innerContainer);
 
-            const containerTop = new Container({
+            const containerTop = new pcui.Container({
                 flex: true,
                 flexDirection: 'row',
                 class: CLASS_CONTAINER_TOP
             });
             this._innerContainer.append(containerTop);
 
-            this._labelTemplate = new Label({
+            this._labelTemplate = new pcui.Label({
                 class: CLASS_TEMPLATE_ROOT,
-                binding: new BindingObserversToElement()
+                binding: new pcui.BindingObserversToElement()
             });
             containerTop.append(this._labelTemplate);
 
             this._labelTemplate.on('click', this._onTemplateClick.bind(this));
 
-            this._labelOverrides = new Label({
+            this._labelOverrides = new pcui.Label({
                 class: CLASS_OVERRIDES
             });
             containerTop.append(this._labelOverrides);
 
-            const containerMiddle = new Container({
+            const containerMiddle = new pcui.Container({
                 flex: true,
                 flexDirection: 'row',
                 class: CLASS_CONTAINER_MIDDLE
             });
             this._innerContainer.append(containerMiddle);
 
-            this._btnViewDiff = new Button({
+            this._btnViewDiff = new pcui.Button({
                 text: 'VIEW DIFF',
                 size: 'small'
             });
             this._btnViewDiff.on('click', this._onViewDiffClick.bind(this));
             containerMiddle.append(this._btnViewDiff);
 
-            this._btnRevertAll = new Button({
+            this._btnRevertAll = new pcui.Button({
                 text: 'REVERT ALL',
                 size: 'small'
             });
             this._btnRevertAll.on('click', this._onRevertAllClick.bind(this));
             containerMiddle.append(this._btnRevertAll);
 
-            this._btnApplyAll = new Button({
+            this._btnApplyAll = new pcui.Button({
                 text: 'APPLY ALL',
                 size: 'small'
             });
             this._btnApplyAll.on('click', this._onApplyAllClick.bind(this));
             containerMiddle.append(this._btnApplyAll);
 
-            this._containerEntitiesList = new Container({
+            this._containerEntitiesList = new pcui.Container({
                 flex: true,
                 class: CLASS_ENTITY_LIST,
                 scrollable: true
@@ -103,7 +101,7 @@ Object.assign(pcui, (function () {
 
             this._containerEntitiesList.on('scroll', this._onEntitiesListScroll.bind(this));
 
-            this._entityDropdownMenu = new Container({
+            this._entityDropdownMenu = new pcui.Container({
                 class: CLASS_ENTITY_DROPDOWN,
                 flex: true,
                 hidden: true
@@ -208,12 +206,12 @@ Object.assign(pcui, (function () {
         }
 
         _createEntityListItem(data) {
-            const container = new Container({
+            const container = new pcui.Container({
                 flex: true,
                 flexDirection: 'row'
             });
 
-            const label = new Label({
+            const label = new pcui.Label({
                 text: data.name,
                 class: CLASS_ENTITY_LIST_NAME
             });
@@ -235,7 +233,7 @@ Object.assign(pcui, (function () {
             }
             container.append(icon);
 
-            const btnView = new Button({
+            const btnView = new pcui.Button({
                 icon: 'E117',
                 class: CLASS_BUTTON_VIEW
             });
@@ -251,7 +249,7 @@ Object.assign(pcui, (function () {
                 editor.call('selector:set', 'entity', [entity]);
             });
 
-            const btnDropdown = new Button({
+            const btnDropdown = new pcui.Button({
                 icon: 'E159',
                 class: CLASS_BUTTON_DROPDOWN
             });
@@ -295,7 +293,7 @@ Object.assign(pcui, (function () {
                     this._entityDropdownMenu.clear();
 
                     parentTemplates.forEach((entity) => {
-                        const menuItem = new Label({
+                        const menuItem = new pcui.Label({
                             text: `Apply to ${entity.get('name')}`
                         });
                         menuItem.on('click', () => {
@@ -304,7 +302,7 @@ Object.assign(pcui, (function () {
                         this._entityDropdownMenu.append(menuItem);
                     });
 
-                    const revert = new Label({
+                    const revert = new pcui.Label({
                         text: 'Revert'
                     });
                     revert.on('click', () => {

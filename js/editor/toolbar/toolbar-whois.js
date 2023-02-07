@@ -1,10 +1,8 @@
-import { Container } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     const root = editor.call('layout.root');
     const viewport = editor.call('layout.viewport');
 
-    const panel = new Container();
+    const panel = new pcui.Container();
     panel.class.add('whoisonline');
     viewport.append(panel);
 

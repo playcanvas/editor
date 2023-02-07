@@ -1,5 +1,3 @@
-import { Panel, Container, Button, BooleanInput, LabelGroup, Label, SelectInput, BindingTwoWay } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const CLASS_SCRIPT_CONTAINER = 'script-component-inspector-scripts';
     const CLASS_SCRIPT = 'script-component-inspector-script';
@@ -22,14 +20,14 @@ Object.assign(pcui, (function () {
         curve: '{pc.Curve}'
     };
 
-    class ScriptInspector extends Panel {
+    class ScriptInspector extends pcui.Panel {
         constructor(args) {
             super(args);
 
             this._componentInspector = args.componentInspector;
             this._scriptName = args.scriptName;
 
-            this.containerErrors = new Container({
+            this.containerErrors = new pcui.Container({
                 hidden: true,
                 class: pcui.CLASS_ERROR
             });
@@ -56,7 +54,7 @@ Object.assign(pcui, (function () {
                 this.class.add(CLASS_SCRIPT_INVALID);
             }
 
-            this._btnEdit = new Button({
+            this._btnEdit = new pcui.Button({
                 icon: 'E130',
                 class: CLASS_SCRIPT_VALID,
                 enabled: true,
@@ -77,7 +75,7 @@ Object.assign(pcui, (function () {
                 tooltipEdit.destroy();
             });
 
-            this._btnParse = new Button({
+            this._btnParse = new pcui.Button({
                 icon: 'E128',
                 class: CLASS_SCRIPT_VALID
             });
@@ -97,14 +95,14 @@ Object.assign(pcui, (function () {
                 tooltipParse.destroy();
             });
 
-            this._fieldEnable = new BooleanInput({
+            this._fieldEnable = new pcui.BooleanInput({
                 type: 'toggle',
-                binding: new BindingTwoWay({
+                binding: new pcui.BindingTwoWay({
                     history: args.history
                 })
             });
 
-            const enableGroup = new LabelGroup({
+            const enableGroup = new pcui.LabelGroup({
                 text: 'On',
                 class: CLASS_SCRIPT_ENABLED,
                 field: this._fieldEnable
@@ -123,7 +121,7 @@ Object.assign(pcui, (function () {
                 });
             }
 
-            this._labelInvalid = new Label({
+            this._labelInvalid = new pcui.Label({
                 text: '!',
                 class: CLASS_SCRIPT_INVALID
             });
@@ -522,7 +520,7 @@ Object.assign(pcui, (function () {
 
             this._editorEvents = [];
 
-            this._selectScript = new SelectInput({
+            this._selectScript = new pcui.SelectInput({
                 placeholder: '+ ADD SCRIPT',
                 allowInput: true,
                 allowCreate: true,
@@ -534,7 +532,7 @@ Object.assign(pcui, (function () {
 
             this._selectScript.on('change', this._onSelectScript.bind(this));
 
-            this._containerScripts = new Container({
+            this._containerScripts = new pcui.Container({
                 flex: true,
                 class: CLASS_SCRIPT_CONTAINER
             });
@@ -790,7 +788,7 @@ Object.assign(pcui, (function () {
         onParseError(error, scriptName) {
             if (!this._scriptPanels[scriptName]) return;
 
-            const label = new Label({
+            const label = new pcui.Label({
                 class: pcui.CLASS_ERROR,
                 text: error
             });

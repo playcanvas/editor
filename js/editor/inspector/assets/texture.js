@@ -1,5 +1,3 @@
-import { Panel, Container, Button, InfoBox, Divider, Label, BindingTwoWay, BindingObserversToElement, BindingElementToObservers } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     // util
     const makeRefAssigner = (prefix = '') => (attr) => {
@@ -210,7 +208,7 @@ Object.assign(pcui, (function () {
     const DOM = parent => [
         {
             root: {
-                texturePanel: new Panel({
+                texturePanel: new pcui.Panel({
                     headerText: 'TEXTURE',
                     collapsible: true
                 })
@@ -218,7 +216,7 @@ Object.assign(pcui, (function () {
             children: [
                 {
                     root: {
-                        btnContainerGetMeta: new Container({
+                        btnContainerGetMeta: new pcui.Container({
                             flex: true,
                             flexDirection: 'row',
                             alignItems: 'center'
@@ -226,7 +224,7 @@ Object.assign(pcui, (function () {
                     },
                     children: [
                         {
-                            btnGetMeta: new Button({
+                            btnGetMeta: new pcui.Button({
                                 text: 'CALCULATE META',
                                 icon: 'E131',
                                 flexGrow: 1
@@ -245,14 +243,14 @@ Object.assign(pcui, (function () {
         },
         {
             root: {
-                compressionPanel: new Panel({
+                compressionPanel: new pcui.Panel({
                     headerText: 'COMPRESSION',
                     collapsible: true
                 })
             },
             children: [
                 {
-                    recompressWarning: new InfoBox({
+                    recompressWarning: new pcui.InfoBox({
                         icon: 'E218',
                         title: 'Warning',
                         text: 'This texture must be recompressed due to a non-backwards compatible engine change. This texture will appear upside down if it isn\'t recompressed.'
@@ -260,7 +258,7 @@ Object.assign(pcui, (function () {
                 },
                 {
                     root: {
-                        compressionBasisContainer: new Container()
+                        compressionBasisContainer: new pcui.Container()
                     },
                     children: [
                         {
@@ -271,7 +269,7 @@ Object.assign(pcui, (function () {
                             })
                         },
                         {
-                            compressionBasisPvrWarning: new InfoBox({
+                            compressionBasisPvrWarning: new pcui.InfoBox({
                                 icon: 'E218',
                                 title: 'Texture dimensions are not square and power of two',
                                 text: 'On devices that only support PVR compression, Basis will transcode this texture to 565 uncompressed format. <strong><a href="https://developer.playcanvas.com/en/user-manual/assets/textures/texture-compression/#basis-limitations" target="_blank">Read more</a></strong>',
@@ -280,7 +278,7 @@ Object.assign(pcui, (function () {
                         },
                         {
                             root: {
-                                compressBasisBtnContainer: new Container({
+                                compressBasisBtnContainer: new pcui.Container({
                                     flex: true,
                                     flexDirection: 'row',
                                     alignItems: 'center'
@@ -288,7 +286,7 @@ Object.assign(pcui, (function () {
                             },
                             children: [
                                 {
-                                    btnCompressBasis: new Button({
+                                    btnCompressBasis: new pcui.Button({
                                         text: 'COMPRESS BASIS',
                                         flexGrow: 1,
                                         class: CLASS_COMPRESS_BUTTON
@@ -297,12 +295,12 @@ Object.assign(pcui, (function () {
                             ]
                         },
                         {
-                            basisDivider: new Divider()
+                            basisDivider: new pcui.Divider()
                         }
                     ]
                 }, {
                     root: {
-                        compressionLegacyContainer: new Container()
+                        compressionLegacyContainer: new pcui.Container()
                     },
                     children: [
                         {
@@ -314,7 +312,7 @@ Object.assign(pcui, (function () {
                         },
                         {
                             root: {
-                                compressLegacyBtnContainer: new Container({
+                                compressLegacyBtnContainer: new pcui.Container({
                                     flex: true,
                                     flexDirection: 'row',
                                     alignItems: 'center'
@@ -322,7 +320,7 @@ Object.assign(pcui, (function () {
                             },
                             children: [
                                 {
-                                    btnCompressLegacy: new Button({
+                                    btnCompressLegacy: new pcui.Button({
                                         text: 'COMPRESS LEGACY',
                                         flexGrow: 1,
                                         class: CLASS_COMPRESS_BUTTON
@@ -339,8 +337,8 @@ Object.assign(pcui, (function () {
 
     // custom binding to change multiple paths per observer
     // this has been kept as agnostic as possible to hopefully
-    // maybe work back into BindingElementToObservers
-    class MultiPathBindingElementToObservers extends BindingElementToObservers {
+    // maybe work back into pcui.BindingElementToObservers
+    class MultiPathBindingElementToObservers extends pcui.BindingElementToObservers {
         constructor({ formatters, ...args }) {
             super(args);
             this._valueFormatters = formatters;
@@ -454,7 +452,7 @@ Object.assign(pcui, (function () {
         }
     }
 
-    class SizeLabel extends Label {
+    class SizeLabel extends pcui.Label {
         constructor({ format, ...args }) {
             super(args);
             this._format = format;
@@ -474,7 +472,7 @@ Object.assign(pcui, (function () {
         }
     }
 
-    class TextureAssetInspector extends Container {
+    class TextureAssetInspector extends pcui.Container {
         constructor(args) {
             super(args);
 
@@ -522,7 +520,7 @@ Object.assign(pcui, (function () {
             this._btnCompressLegacy.disabled = true;
 
             // Add WebGL1 warnings below the relevant settings in the inspector
-            this._webgl1NonPotWithMipmapsWarning = new InfoBox({
+            this._webgl1NonPotWithMipmapsWarning = new pcui.InfoBox({
                 icon: 'E218',
                 title: 'Texture dimensions are not power of two (POT) and Mipmaps are enabled',
                 text: 'Only WebGL2 supports mipmap generation on non power of two textures in width and height. (E.g. 256 x 256, 512 x 1024). Visit <strong><a href="https://caniuse.com/webgl2" target="_blank">can I use webgl2</a></strong> to see current browser support. Expect browsers that only support WebGL1 to render differently. Please use textures with dimensions of POT wherever possible for best compatibility.',
@@ -532,7 +530,7 @@ Object.assign(pcui, (function () {
             const mipmapsField = this._textureAttributesInspector.getField('data.mipmaps');
             mipmapsField.parent.parent.appendAfter(this._webgl1NonPotWithMipmapsWarning.dom, mipmapsField.parent.dom);
 
-            this._webgl1NonPotWithoutAddressClampWarning = new InfoBox({
+            this._webgl1NonPotWithoutAddressClampWarning = new pcui.InfoBox({
                 icon: 'E218',
                 title: 'Texture dimensions are not power of two (POT) and Address UV are not clamped',
                 text: 'Only WebGL2 supports Address UV modes \'Repeat\' or \'Mirror Repeat\' on non power of two textures in width and height. (E.g. 256 x 256, 512 x 1024). Visit <strong><a href="https://caniuse.com/webgl2" target="_blank">can I use webgl2</a></strong> to see current browser support. Expect browsers that only support WebGL1 to render differently. Please use textures with dimensions of POT wherever possible for best compatibility.',
@@ -838,19 +836,19 @@ Object.assign(pcui, (function () {
 
         _setupImportButton(panel, moduleStoreName, wasmFilename) {
             if (!this._containerImportBasis) {
-                this._containerImportBasis = new Container({
+                this._containerImportBasis = new pcui.Container({
                     flex: true,
                     flexDirection: 'row',
                     alignItems: 'center'
                 });
                 this._containerImportBasis.class.add('pcui-subpanel');
 
-                this._labelImportBasis = new Label({
+                this._labelImportBasis = new pcui.Label({
                     text: 'Basis Not Found'
                 });
                 this._containerImportBasis.append(this._labelImportBasis);
 
-                this._btnImportBasis = new Button({
+                this._btnImportBasis = new pcui.Button({
                     text: 'IMPORT BASIS',
                     icon: 'E228',
                     flexGrow: 1
@@ -883,7 +881,7 @@ Object.assign(pcui, (function () {
         _setupFilteringTwoWayBinding() {
             const args = this._args;
 
-            this._textureAttributesInspector.getField('filtering').binding = new BindingTwoWay({
+            this._textureAttributesInspector.getField('filtering').binding = new pcui.BindingTwoWay({
                 history: args.history,
                 bindingElementToObservers: new MultiPathBindingElementToObservers({
                     formatters: {
@@ -892,7 +890,7 @@ Object.assign(pcui, (function () {
                     history: args.history,
                     historyName: 'assets.filtering'
                 }),
-                bindingObserversToElement: new BindingObserversToElement({
+                bindingObserversToElement: new pcui.BindingObserversToElement({
                     customUpdate: (element, observers, paths) => {
                         const getMergedValue = observer => paths.reduce((acc, path) => acc + observer.get(path), '');
 
@@ -960,7 +958,7 @@ Object.assign(pcui, (function () {
             const fieldPvr = this._compressionLegacyAttributesInspector.getField(`meta.compress.pvr`);
             const fieldPvrBpp = this._compressionLegacyAttributesInspector.getField(`meta.compress.pvrBpp`);
 
-            this._pvrWarningLabel = new Label({
+            this._pvrWarningLabel = new pcui.Label({
                 text: 'Compressed texture will be resized square'
             });
             this._pvrWarningLabel.class.add('pcui-pvr-warning');

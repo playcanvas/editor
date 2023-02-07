@@ -1,9 +1,7 @@
-import { Label } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     const panel = editor.call('layout.statusBar');
 
-    const branchName = new Label({
+    const branchName = new pcui.Label({
         class: 'branch-name',
         text: config.self.branch.name
     });
@@ -15,14 +13,14 @@ editor.once('load', function () {
         branchName.hidden = !editor.call('permissions:read');
     });
 
-    const label = new Label({
+    const label = new pcui.Label({
         class: 'status',
         text: 'Loading...'
     });
     panel.append(label);
 
     // connection status
-    const connection = new Label({
+    const connection = new pcui.Label({
         class: 'connection-status'
     });
     panel.append(connection);

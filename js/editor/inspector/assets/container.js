@@ -1,5 +1,3 @@
-import { Container } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'container-asset-inspector';
     const CLASS_ASSET = CLASS_ROOT + '-asset';
@@ -14,7 +12,7 @@ Object.assign(pcui, (function () {
         })
     }];
 
-    class ContainerAssetInspector extends Container {
+    class ContainerAssetInspector extends pcui.Container {
         constructor(args) {
             args = Object.assign({}, args);
 

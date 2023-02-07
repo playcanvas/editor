@@ -1,10 +1,8 @@
-import { Panel, Button, Container, TextInput } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     const root = editor.call('layout.root');
     const viewport = editor.call('layout.viewport');
 
-    const chatPanel = new Panel({
+    const chatPanel = new pcui.Panel({
         class: 'chat-widget',
         collapsed: true,
         collapsible: true,
@@ -48,7 +46,7 @@ editor.once('load', function () {
     }, false);
 
     // notification icon
-    const notify = new Button({
+    const notify = new pcui.Button({
         class: 'notifications',
         icon: 'E197'
     });
@@ -229,7 +227,7 @@ editor.once('load', function () {
     });
 
     // messages
-    const messages = new Container({
+    const messages = new pcui.Container({
         class: 'messages',
         scrollable: true
     });
@@ -249,7 +247,7 @@ editor.once('load', function () {
     let typing = false;
     let typingTimeout = null;
     const typingTimeoutDelay = 1000;
-    const input = new TextInput({
+    const input = new pcui.TextInput({
         blurOnEnter: false,
         keyChange: true,
         placeholder: '>'

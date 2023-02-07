@@ -1,11 +1,9 @@
-import { Panel, Label, Button, BindingTwoWay } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
     const CLASS_ANIMSTATEGRAPH_STATE = CLASS_ANIMSTATEGRAPH + '-state';
     const CLASS_ANIMSTATEGRAPH_STATE_VIEW_BUTTON = CLASS_ANIMSTATEGRAPH_STATE + '-view-button';
     const CLASS_ANIMSTATEGRAPH_STATE_TRANSITION = CLASS_ANIMSTATEGRAPH_STATE + '-transition';
-    class AnimstategraphState extends Panel {
+    class AnimstategraphState extends pcui.Panel {
         constructor(args, view) {
             args.headerText = 'STATE';
             super(args);
@@ -15,13 +13,13 @@ Object.assign(pcui, (function () {
             this._evts = [];
             this._suppressOnNameChange = false;
 
-            this._transitionsPanel = new Panel({
+            this._transitionsPanel = new pcui.Panel({
                 headerText: 'TRANSITIONS',
                 collapsible: true
             });
             this.append(this._transitionsPanel);
 
-            this._linkedEntitiesPanel = new Panel({
+            this._linkedEntitiesPanel = new pcui.Panel({
                 headerText: 'LINKED ENTITIES',
                 collapsible: true,
                 history: ''
@@ -60,7 +58,7 @@ Object.assign(pcui, (function () {
                 if (transition.from !== state.id || transition.to === undefined) return;
                 hasTransitions = true;
                 const toStateName = data.states[transition.to].name;
-                const transitionLabel = new Label({
+                const transitionLabel = new pcui.Label({
                     text: `${toStateName}`,
                     class: CLASS_ANIMSTATEGRAPH_STATE_TRANSITION,
                     ignoreParent: true
@@ -205,12 +203,12 @@ Object.assign(pcui, (function () {
             this._args.entities.forEach((entityObserver) => {
 
                 if (entityObserver.get('components.anim.stateGraphAsset') === this._assets[0].get('id')) {
-                    const entityPanel = new Panel({
+                    const entityPanel = new pcui.Panel({
                         class: CLASS_ANIMSTATEGRAPH_STATE,
                         headerText: entityObserver.entity.name,
                         collapsible: true
                     });
-                    const viewEntityButton = new Button({
+                    const viewEntityButton = new pcui.Button({
                         icon: 'E117',
                         class: CLASS_ANIMSTATEGRAPH_STATE_VIEW_BUTTON
                     });
@@ -226,7 +224,7 @@ Object.assign(pcui, (function () {
                             this._previewEntity(entityObserver);
                         }
                     });
-                    const openEntityButton = new Button({
+                    const openEntityButton = new pcui.Button({
                         icon: 'E188',
                         class: CLASS_ANIMSTATEGRAPH_STATE_VIEW_BUTTON
                     });
@@ -238,7 +236,7 @@ Object.assign(pcui, (function () {
                         assets: this._args.assets,
                         assetType: 'animation',
                         allowDragDrop: true,
-                        binding: new BindingTwoWay({
+                        binding: new pcui.BindingTwoWay({
                             history: this._args.history
                         }),
                         enabled: !this._view.parent.readOnly

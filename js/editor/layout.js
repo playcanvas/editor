@@ -1,5 +1,3 @@
-import { Container, Panel } from '@playcanvas/pcui';
-
 editor.on('load', function () {
     var ignoreMouseDownClasses = /(default-mousedown)|(ui-list-item)|(ui-button)|(ui-text)|(ui-number-field)/i;
     var ignoreContextMenuClasses = /(default-mousedown)/i;
@@ -49,7 +47,7 @@ editor.on('load', function () {
     }, false);
 
     // main container
-    var root = new Container({
+    var root = new pcui.Container({
         id: 'layout-root',
         grid: true,
         isRoot: true
@@ -61,7 +59,7 @@ editor.on('load', function () {
     });
 
     // toolbar (left)
-    var toolbar = new Container({
+    var toolbar = new pcui.Container({
         id: 'layout-toolbar',
         flex: true
     });
@@ -70,7 +68,7 @@ editor.on('load', function () {
     editor.method('layout.toolbar', function () { return toolbar; });
 
     // hierarchy
-    var hierarchyPanel = new Panel({
+    var hierarchyPanel = new pcui.Panel({
         headerText: 'HIERARCHY',
         id: 'layout-hierarchy',
         flex: true,
@@ -101,7 +99,7 @@ editor.on('load', function () {
     editor.method('layout.hierarchy', function () { return hierarchyPanel; });
 
     // viewport
-    var viewport = new Container({
+    var viewport = new pcui.Container({
         id: 'layout-viewport',
         class: 'viewport'
     });
@@ -143,7 +141,7 @@ editor.on('load', function () {
     editor.method('layout.assets', function () { return assetsPanel; });
 
     // attributes
-    var attributesPanel = new Panel({
+    var attributesPanel = new pcui.Panel({
         id: 'layout-attributes',
         class: 'attributes',
         headerText: 'INSPECTOR',
@@ -177,7 +175,7 @@ editor.on('load', function () {
     });
 
     // secondary attributes panel
-    var attributesSecondaryPanel = new Panel({
+    var attributesSecondaryPanel = new pcui.Panel({
         headerText: 'INSPECTOR',
         id: 'layout-attributes-secondary',
         flex: true,
@@ -210,7 +208,7 @@ editor.on('load', function () {
 
 
     // status bar
-    var statusBar = new Container({
+    var statusBar = new pcui.Container({
         id: 'layout-statusbar',
         flex: true,
         flexDirection: 'row'

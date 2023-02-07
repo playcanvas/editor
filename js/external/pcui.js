@@ -1,4 +1,4 @@
-import { Element, ArrayInput } from '@playcanvas/pcui';
+import * as pcuiExternal from '@playcanvas/pcui';
 
 const DEFAULTS = {
     boolean: false,
@@ -18,6 +18,8 @@ const DEFAULTS = {
     gradient: { type: 4, keys: [], betweenCurves: false }
 };
 
+const Element = pcuiExternal.Element;
+const ArrayInput = pcuiExternal.ArrayInput;
 for (const name in DEFAULTS) {
     if (!ArrayInput.DEFAULTS.hasOwnProperty(name)) {
         Element.register(`array:${name}`, ArrayInput, { type: name, renderChanges: true });
@@ -45,6 +47,10 @@ Object.assign(pcui,
         CLASS_NOT_FLEXIBLE: 'pcui-not-flexible',
         CLASS_DEFAULT_MOUSEDOWN: 'pcui-default-mousedown',
         DEFAULTS: DEFAULTS
+    }, pcuiExternal,
+    {
+        Element: Element,
+        ArrayInput: ArrayInput
     }
 );
 

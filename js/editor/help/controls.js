@@ -1,9 +1,7 @@
-import { Overlay, Container, Label, Button } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     const root = editor.call('layout.root');
 
-    const overlay = new Overlay({
+    const overlay = new pcui.Overlay({
         class: 'help-controls',
         clickable: true,
         hidden: true
@@ -14,18 +12,18 @@ editor.once('load', function () {
     }, { passive: true });
 
     // header
-    const header = new Container({
+    const header = new pcui.Container({
         class: 'header'
     });
     overlay.append(header);
 
-    const title = new Label({
+    const title = new pcui.Label({
         text: 'CONTROLS'
     });
     header.append(title);
 
     // close
-    const btnClose = new Button({
+    const btnClose = new pcui.Button({
         icon: 'E132'
     });
     btnClose.on('click', function () {
@@ -40,7 +38,7 @@ editor.once('load', function () {
     imgTop.draggable = false;
     overlay.append(imgTop);
 
-    const container = new Container({
+    const container = new pcui.Container({
         class: 'container'
     });
     overlay.append(container);

@@ -1,14 +1,12 @@
-import { Container } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const CLASS_CELL = 'pcui-table-cell';
 
     /**
      * @name pcui.TableCell
-     * @augments Container
+     * @augments pcui.Container
      * @classdesc Represents a table cell inside a pcui.TableRow
      */
-    class TableCell extends Container {
+    class TableCell extends pcui.Container {
         /**
          * Creates a new TableCell.
          *

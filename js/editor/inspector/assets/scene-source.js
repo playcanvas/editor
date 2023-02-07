@@ -1,5 +1,3 @@
-import { Panel, Container, Label } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'scene-asset-inspector';
     const CLASS_ASSET = CLASS_ROOT + '-asset';
@@ -47,7 +45,7 @@ Object.assign(pcui, (function () {
     const DOM = args => [
         {
             root: {
-                contentPanel: new Panel({ headerText: 'CONTENTS' })
+                contentPanel: new pcui.Panel({ headerText: 'CONTENTS' })
             },
             children: [
                 {
@@ -66,7 +64,7 @@ Object.assign(pcui, (function () {
         }
     ];
 
-    class SceneSourceAssetInspector extends Container {
+    class SceneSourceAssetInspector extends pcui.Container {
         constructor(args) {
             args = Object.assign({}, args);
 
@@ -86,7 +84,7 @@ Object.assign(pcui, (function () {
         }
 
         _createSmallLabel(text) {
-            const label = new Label({
+            const label = new pcui.Label({
                 text: text
             });
             label.style.marginTop = '0';
@@ -103,7 +101,7 @@ Object.assign(pcui, (function () {
         _addTextures(textures) {
             if (textures && textures.length > 0) {
                 textures.forEach((texture) => {
-                    const textureLabel = new Label({ text: texture.name, class: CLASS_ASSET });
+                    const textureLabel = new pcui.Label({ text: texture.name, class: CLASS_ASSET });
                     this._getContainer('textures').append(textureLabel);
                 });
             } else {
@@ -118,7 +116,7 @@ Object.assign(pcui, (function () {
         _addMaterials(materials) {
             if (materials && materials.length > 0) {
                 materials.forEach((material) => {
-                    const materialLabel = new Label({ text: material.name, class: CLASS_ASSET });
+                    const materialLabel = new pcui.Label({ text: material.name, class: CLASS_ASSET });
                     this._getContainer('materials').append(materialLabel);
                 });
             } else {

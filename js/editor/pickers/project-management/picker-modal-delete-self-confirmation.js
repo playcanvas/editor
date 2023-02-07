@@ -1,5 +1,3 @@
-import { Panel, Button, Label } from '@playcanvas/pcui';
-
 editor.once('load', () => {
 
     // UI
@@ -13,14 +11,14 @@ editor.once('load', () => {
     root.append(overlay);
 
     // main panel
-    const panel = new Panel({
+    const panel = new pcui.Panel({
         headerText: 'LEAVING PROJECT',
         class: 'modal-confirmation-panel'
     });
     overlay.append(panel);
 
     // close button
-    const btnClose = new Button({
+    const btnClose = new pcui.Button({
         class: 'close',
         icon: 'E132'
     });
@@ -30,13 +28,13 @@ editor.once('load', () => {
     panel.header.append(btnClose);
 
     // confirmation message
-    const confirmationMessage = new Label({
+    const confirmationMessage = new pcui.Label({
         text: 'Are you sure you want to remove yourself from the project?'
     });
     panel.append(confirmationMessage);
 
     // stay button
-    const stayButton = new Button({
+    const stayButton = new pcui.Button({
         class: 'negative-action-button',
         text: 'Stay'
     });
@@ -47,7 +45,7 @@ editor.once('load', () => {
     });
 
     // leave button
-    const leaveButton = new Button({
+    const leaveButton = new pcui.Button({
         class: 'positive-action-button',
         text: 'Leave Project'
     });

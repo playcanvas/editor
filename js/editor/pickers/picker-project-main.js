@@ -1,5 +1,3 @@
-import { Element, Container, Label, Button, TextInput, TextAreaInput, BooleanInput } from '@playcanvas/pcui';
-
 editor.once('load', () => {
     // global variables
     let initialLoad = true;
@@ -36,7 +34,7 @@ editor.once('load', () => {
     };
 
     // main panel
-    const panel = new Container({
+    const panel = new pcui.Container({
         class: 'picker-project-main'
     });
 
@@ -54,19 +52,19 @@ editor.once('load', () => {
     });
 
     // locked UI
-    const lockedContainer = new Container({
+    const lockedContainer = new pcui.Container({
         class: 'locked-container',
         flex: true
     });
     panel.append(lockedContainer);
 
-    const lockedText = new Label({
+    const lockedText = new pcui.Label({
         class: 'locked-text'
     });
     lockedText.dom.innerHTML = `This project is locked. Unlocking this project will make it public. Another way of unlocking is to <a href="${config.url.home}/upgrade" target="_blank">UPGRADE</a>`;
     lockedContainer.append(lockedText);
 
-    const unlockButton = new Button({
+    const unlockButton = new pcui.Button({
         icon: 'E340',
         text: 'UNLOCK'
     });
@@ -83,24 +81,24 @@ editor.once('load', () => {
     });
 
     // project settings container
-    const settingsContainer = new Container({
+    const settingsContainer = new pcui.Container({
         class: 'project-settings',
         flex: true
     });
     panel.append(settingsContainer);
 
     // project name group
-    const projectNameGroup = new Container({
+    const projectNameGroup = new pcui.Container({
         flex: true,
         class: 'settings-group'
     });
     settingsContainer.append(projectNameGroup);
 
-    const projectNameLabel = new Label({
+    const projectNameLabel = new pcui.Label({
         text: 'Name'
     });
     projectNameGroup.append(projectNameLabel.element);
-    const projectNameInput = new TextInput({
+    const projectNameInput = new pcui.TextInput({
         enabled: isAdmin(),
         class: 'form-input',
         value: projectSettings.name,
@@ -124,17 +122,17 @@ editor.once('load', () => {
     });
 
     // project description group
-    const projectDescGroup = new Container({
+    const projectDescGroup = new pcui.Container({
         flex: true,
         class: 'settings-group'
     });
     settingsContainer.append(projectDescGroup);
 
-    const projectDescLabel = new Label({
+    const projectDescLabel = new pcui.Label({
         text: 'Description'
     });
     projectDescGroup.append(projectDescLabel.element);
-    const projectDescInput = new TextAreaInput({
+    const projectDescInput = new pcui.TextAreaInput({
         enabled: isAdmin(),
         class: 'form-input',
         value: projectSettings.description,
@@ -153,17 +151,17 @@ editor.once('load', () => {
     projectDescGroup.append(projectDescInput.element);
 
     // private settings container
-    const privateSettings = new Element(document.createElement('div'), {
+    const privateSettings = new pcui.Element(document.createElement('div'), {
         class: 'horizontal-container'
     });
     settingsContainer.append(privateSettings.dom);
 
-    const privateLabel = new Label({
+    const privateLabel = new pcui.Label({
         text: 'Private Project'
     });
     privateSettings.dom.appendChild(privateLabel.element);
 
-    const privateToggle = new BooleanInput({
+    const privateToggle = new pcui.BooleanInput({
         enabled: isAdmin() && editor.call('users:allowPrivate', config.owner),
         type: 'toggle',
         value: projectSettings.private
@@ -176,17 +174,17 @@ editor.once('load', () => {
     privateSettings.dom.appendChild(privateToggle.element);
 
     // project url
-    const projectURLSettings = new Element(document.createElement('div'), {
+    const projectURLSettings = new pcui.Element(document.createElement('div'), {
         class: 'horizontal-container'
     });
     settingsContainer.append(projectURLSettings.dom);
 
-    const projectUrlLabel = new Label({
+    const projectUrlLabel = new pcui.Label({
         text: 'Share Project'
     });
     projectURLSettings.dom.appendChild(projectUrlLabel.element);
 
-    const projectURLButton = new Button({
+    const projectURLButton = new pcui.Button({
         icon: 'E357',
         text: 'Copy URL'
     });
@@ -202,24 +200,24 @@ editor.once('load', () => {
     });
 
     // action buttons container
-    const actionButtonsContainer = new Container({
+    const actionButtonsContainer = new pcui.Container({
         class: 'action-buttons',
         flex: true
     });
     panel.append(actionButtonsContainer);
 
-    const exportProjectButtonContainer = new Container({ flex: true });
+    const exportProjectButtonContainer = new pcui.Container({ flex: true });
     actionButtonsContainer.append(exportProjectButtonContainer);
 
     // export project button
-    const exportProjectButton = new Button({
+    const exportProjectButton = new pcui.Button({
         class: 'full-width-button',
         icon: 'E228',
         text: 'EXPORT PROJECT'
     });
     exportProjectButtonContainer.append(exportProjectButton);
 
-    const loader = new Element(document.createElement('div'), {
+    const loader = new pcui.Element(document.createElement('div'), {
         class: ['loader', 'xsmall', 'white']
     });
     loader.dom.style.display = 'none';
@@ -231,7 +229,7 @@ editor.once('load', () => {
     });
 
     // delete project button
-    const deleteProjectButton = new Button({
+    const deleteProjectButton = new pcui.Button({
         class: 'full-width-button',
         icon: 'E124',
         text: 'DELETE PROJECT',
@@ -246,12 +244,12 @@ editor.once('load', () => {
     });
 
     // copied URL to clipboard popup box
-    const copiedURLPopup = new Container({
+    const copiedURLPopup = new pcui.Container({
         class: 'copied-url-popup'
     });
     panel.append(copiedURLPopup);
 
-    const copiedURLText = new Label({
+    const copiedURLText = new pcui.Label({
         text: 'URL Copied to the clipboard!'
     });
     copiedURLPopup.append(copiedURLText);

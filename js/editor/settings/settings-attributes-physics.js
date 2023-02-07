@@ -1,5 +1,3 @@
-import { Button, LabelGroup } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     var projectSettings = editor.call('settings:project');
 
@@ -18,7 +16,7 @@ editor.once('load', function () {
     // append the physics module controls to the provided panel
     editor.method('attributes:appendImportAmmo', function (panel) {
         // button
-        var button = new Button({
+        var button = new pcui.Button({
             text: 'IMPORT AMMO',
             icon: 'E228'
         });
@@ -30,7 +28,7 @@ editor.once('load', function () {
         });
 
         // group
-        var group = new LabelGroup({
+        var group = new pcui.LabelGroup({
             field: button,
             text: 'Physics Library'
         });

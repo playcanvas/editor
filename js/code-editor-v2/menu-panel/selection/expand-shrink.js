@@ -1,11 +1,9 @@
-import { MenuItem } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     const menu = editor.call('menu:selection');
     const me = editor.call('editor:monaco');
     const isMac = editor.call('editor:mac');
 
-    let item = new MenuItem({
+    let item = new pcui.MenuItem({
         text: 'Expand Selection',
         onSelect: () => {
             me.focus();
@@ -15,7 +13,7 @@ editor.once('load', function () {
     editor.call('menu:item:setShortcut', item, isMac ? 'Ctrl+Shift+Cmd+Right Arrow' : 'Shift+Alt+Right Arrow');
     menu.append(item);
 
-    item = new MenuItem({
+    item = new pcui.MenuItem({
         text: 'Shrink Selection',
         onSelect: () => {
             me.focus();

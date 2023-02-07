@@ -1,5 +1,3 @@
-import { MenuItem } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     const menu = editor.call('menu:edit');
     const me = editor.call('editor:monaco');
@@ -10,7 +8,7 @@ editor.once('load', function () {
     };
 
     // toggle comment
-    let item = new MenuItem({
+    let item = new pcui.MenuItem({
         class: 'no-bottom-border',
         text: 'Toggle Comment',
         onIsEnabled: canEditLine,
@@ -28,7 +26,7 @@ editor.once('load', function () {
     });
 
     // toggle comment
-    item = new MenuItem({
+    item = new pcui.MenuItem({
         text: 'Block Comment',
         onIsEnabled: canEditLine,
         onSelect: () => {

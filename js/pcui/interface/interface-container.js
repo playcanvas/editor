@@ -33,14 +33,14 @@ Object.assign(pcui, (function () {
      * @event
      * @name pcui.IContainer#append
      * @description Fired when a child Element gets added
-     * @param {Element} The - element that was added
+     * @param {pcui.Element} The - element that was added
      */
 
     /**
      * @event
      * @name pcui.IContainer#remove
      * @description Fired when a child Element gets removed
-     * @param {Element} The - element that was removed
+     * @param {pcui.Element} The - element that was removed
      */
 
 

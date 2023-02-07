@@ -1,12 +1,10 @@
-import { Button } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     const root = editor.call('layout.root');
     const toolbar = editor.call('layout.toolbar');
     const history = editor.call('editor:history');
 
     // undo
-    const buttonUndo = new Button({
+    const buttonUndo = new pcui.Button({
         icon: 'E114'
     });
     buttonUndo.hidden = !editor.call('permissions:write');
@@ -37,7 +35,7 @@ editor.once('load', function () {
 
 
     // redo
-    const buttonRedo = new Button({
+    const buttonRedo = new pcui.Button({
         icon: 'E115'
     });
     buttonRedo.hidden = !editor.call('permissions:write');

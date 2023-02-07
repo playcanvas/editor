@@ -1,5 +1,3 @@
-import { Label } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     const panel = editor.call('layout.top');
 
@@ -66,7 +64,7 @@ editor.once('load', function () {
         .replace(/Up Arrow/g, '↑')
         .replace(/Down Arrow/g, '↓');
 
-        const label = new Label({
+        const label = new pcui.Label({
             text: shortcut
         });
         label.class.add('shortcut');

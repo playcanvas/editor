@@ -1,5 +1,3 @@
-import { InfoBox } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const ATTRIBUTES = [{
         label: 'Type',
@@ -111,7 +109,7 @@ Object.assign(pcui, (function () {
 
             super(args);
 
-            this._variedTransformScalesWarning = new InfoBox({
+            this._variedTransformScalesWarning = new pcui.InfoBox({
                 icon: 'E218',
                 title: 'Warning!',
                 text: 'This entity has a non-uniform scale. Mesh collision will not work as expected.'

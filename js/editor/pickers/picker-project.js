@@ -1,5 +1,3 @@
-import { Element, Container, Label, Button } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     // GLOBAL VARIABLES
     let projectSettingsListMenu;  // used to enable hot reload of sidebar menu text upon project name change
@@ -19,7 +17,7 @@ editor.once('load', function () {
     // build project stats
     let statsContainer;
     const buildProjectStatsUI = () => {
-        statsContainer = new Container({
+        statsContainer = new pcui.Container({
             class: 'project-stats'
         });
         statsContainer.element.id = 'project-stats';
@@ -27,21 +25,21 @@ editor.once('load', function () {
 
         if (!noAdminView) {
             // Forks
-            const forksLabel = new Label({
+            const forksLabel = new pcui.Label({
                 text: `${currentProject.fork_count}`,
                 class: 'forks-stat'
             });
             statsContainer.append(forksLabel);
 
             // Views
-            const viewsLabel = new Label({
+            const viewsLabel = new pcui.Label({
                 text: `${currentProject.views}`,
                 class: 'views-stat'
             });
             statsContainer.append(viewsLabel);
 
             // Plays
-            const playsLabel = new Label({
+            const playsLabel = new pcui.Label({
                 text: `${currentProject.plays}`,
                 class: 'plays-stat'
             });
@@ -49,7 +47,7 @@ editor.once('load', function () {
         }
 
         // Size
-        const sizeLabel = new Label({
+        const sizeLabel = new pcui.Label({
             text: sizeToString(currentProject.size.total),
             class: 'size-stat'
         });
@@ -58,18 +56,18 @@ editor.once('load', function () {
 
     // helper method to build alert
     const buildAlert = (root, alert, showButton = false, buttonText = "", funcParameters) => {
-        const alertContainer = new Element(document.createElement('div'), {
+        const alertContainer = new pcui.Element(document.createElement('div'), {
             class: 'alert'
         });
         root.dom.appendChild(alertContainer.dom);
 
-        const alertTextContainer = new Element(document.createElement('div'), {
+        const alertTextContainer = new pcui.Element(document.createElement('div'), {
             class: 'alert-text'
         });
-        const alertInfo = new Element(document.createElement('div'), {
+        const alertInfo = new pcui.Element(document.createElement('div'), {
             class: 'alert--info'
         });
-        const alertText = new Label({
+        const alertText = new pcui.Label({
             text: alert
         });
         alertContainer.dom.appendChild(alertTextContainer.dom);
@@ -77,7 +75,7 @@ editor.once('load', function () {
         alertTextContainer.dom.appendChild(alertText.element);
 
         if (showButton && buttonText.length > 0) {
-            const button = new Button({
+            const button = new pcui.Button({
                 class: 'btn',
                 text: buttonText
             });
@@ -101,7 +99,7 @@ editor.once('load', function () {
             });
         }
 
-        const alertClose = new Button({
+        const alertClose = new pcui.Button({
             class: 'alert-close'
         });
         alertContainer.dom.appendChild(alertClose.element);
@@ -336,13 +334,13 @@ editor.once('load', function () {
     var defaultMenuOption = null;
 
     // thumbnail buttons
-    const thumbnailButtons = new Container({
+    const thumbnailButtons = new pcui.Container({
         class: 'thumbnail-buttons'
     });
     leftPanel.append(thumbnailButtons);
     thumbnailButtons.style.opacity = '0';  // thumbnail buttons start hidden
 
-    const replaceButton = new Button({
+    const replaceButton = new pcui.Button({
         class: 'thumbnail-replace',
         icon: 'E222',
         text: 'REPLACE'
@@ -353,7 +351,7 @@ editor.once('load', function () {
         fileInput.click();  // open file picker
     });
 
-    const deleteButton = new Button({
+    const deleteButton = new pcui.Button({
         class: 'thumbnail-delete',
         icon: 'E124'
     });
@@ -371,7 +369,7 @@ editor.once('load', function () {
     leftPanel.append(list);
 
     // project CMS button
-    const projectCMSButton = new Button({
+    const projectCMSButton = new pcui.Button({
         class: 'project-cms-button',
         text: 'See all projects',
         enabled: !reducedView,
@@ -393,7 +391,7 @@ editor.once('load', function () {
     });
 
     // editor CMS button
-    const editorBtn = new Button({
+    const editorBtn = new pcui.Button({
         class: 'cms-editor-button',
         icon: 'E294',
         text: 'EDITOR',
@@ -415,7 +413,7 @@ editor.once('load', function () {
     });
 
     // launch button
-    const playBtn = new Button({
+    const playBtn = new pcui.Button({
         class: 'cms-play-button',
         icon: 'E131',
         text: 'PLAY',

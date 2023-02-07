@@ -1,5 +1,3 @@
-import { Menu } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     const MENU_OFFSET = { x: -30, y: -160 };
 
@@ -8,7 +6,7 @@ editor.once('load', function () {
     const LOADING_MSG_DELAY = 70;
 
     editor.method('vcgraph:makeNodeMenu', function (mainPanel) {
-        const m = new Menu({
+        const m = new pcui.Menu({
             items: [
                 {
                     text: 'View Changes',

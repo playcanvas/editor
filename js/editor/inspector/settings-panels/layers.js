@@ -1,5 +1,3 @@
-import { Container } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'layers-settings-panel';
     const CLASS_LAYERS_CONTAINER = CLASS_ROOT + '-layers-container';
@@ -27,7 +25,7 @@ Object.assign(pcui, (function () {
 
     const DOM = args => [
         {
-            layersContainer: new Container({
+            layersContainer: new pcui.Container({
                 class: CLASS_LAYERS_CONTAINER
             })
         },

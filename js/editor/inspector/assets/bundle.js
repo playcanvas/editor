@@ -1,18 +1,16 @@
-import { Panel, BindingTwoWay } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const DOM = parent => [
         {
             assetList: new pcui.AssetList({
                 assets: parent._args.assets,
-                binding: new BindingTwoWay({
+                binding: new pcui.BindingTwoWay({
                     history: parent._args.history
                 })
             })
         }
     ];
 
-    class BundleAssetInspector extends Panel {
+    class BundleAssetInspector extends pcui.Panel {
         constructor(args) {
             args = Object.assign({}, args);
             args.headerText = 'ASSETS';

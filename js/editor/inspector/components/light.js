@@ -1,5 +1,3 @@
-import { Button } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const ATTRIBUTES = [{
         label: 'Type',
@@ -404,7 +402,7 @@ Object.assign(pcui, (function () {
             });
 
             // add update shadow button
-            this._btnUpdateShadow = new Button({
+            this._btnUpdateShadow = new pcui.Button({
                 size: 'small',
                 icon: 'E128'
             });

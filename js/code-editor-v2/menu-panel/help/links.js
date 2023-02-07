@@ -1,10 +1,8 @@
-import { MenuItem } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     const menu = editor.call('menu:help');
 
     // API ref
-    let item = new MenuItem({
+    let item = new pcui.MenuItem({
         class: 'no-bottom-border',
         text: 'API Reference',
         onSelect: () => {
@@ -18,7 +16,7 @@ editor.once('load', function () {
     });
 
     // User Manual
-    item = new MenuItem({
+    item = new pcui.MenuItem({
         class: 'no-bottom-border',
         text: 'User Manual',
         onSelect: () => {
@@ -32,7 +30,7 @@ editor.once('load', function () {
     });
 
     // Tutorials
-    item = new MenuItem({
+    item = new pcui.MenuItem({
         class: 'no-bottom-border',
         text: 'Tutorials',
         onSelect: () => {
@@ -46,7 +44,7 @@ editor.once('load', function () {
     });
 
     // Forum
-    item = new MenuItem({
+    item = new pcui.MenuItem({
         text: 'Forum',
         onSelect: () => {
             return editor.call('editor:command:openForum');

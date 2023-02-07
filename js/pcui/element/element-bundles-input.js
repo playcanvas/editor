@@ -1,9 +1,7 @@
-import { Element, SelectInput } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'pcui-bundles-input';
 
-    class BundlesInput extends SelectInput {
+    class BundlesInput extends pcui.SelectInput {
         constructor(args) {
             if (!args) args = {};
 
@@ -85,7 +83,7 @@ Object.assign(pcui, (function () {
         }
     }
 
-    Element.register('bundles', BundlesInput, { renderChanges: true });
+    pcui.Element.register('bundles', BundlesInput, { renderChanges: true });
 
     return {
         BundlesInput: BundlesInput

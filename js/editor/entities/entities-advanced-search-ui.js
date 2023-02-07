@@ -1,27 +1,25 @@
-import { Element, Container, TextInput, BooleanInput, LabelGroup } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     var panel = editor.call('layout.hierarchy');
     var hierarchy = editor.call('entities:hierarchy');
 
     // Container for the search input and the button for toggling filters
-    var searchBar = new Container();
+    var searchBar = new pcui.Container();
 
     var lastSearch = '';
-    var search = new TextInput();
+    var search = new pcui.TextInput();
     search.blurOnEnter = false;
     search.keyChange = true;
     search.class.add('search');
     search.renderChanges = false;
 
     // Button for clearing search
-    var searchClear = new Element();
+    var searchClear = new pcui.Element();
     searchClear.class.add('clear');
     searchClear.dom.innerHTML = '&#57650;';
     search.element.appendChild(searchClear.dom);
 
     // Button for showing filters
-    var showFiltersButton = new Element();
+    var showFiltersButton = new pcui.Element();
     showFiltersButton.class.add('toggle-filters');
 
     searchBar.append(showFiltersButton);
@@ -34,18 +32,18 @@ editor.once('load', function () {
     });
 
     // Container for both the search bar and the filters
-    const advancedSearchContainer = new Container();
+    const advancedSearchContainer = new pcui.Container();
     advancedSearchContainer.class.add('advanced-search-container');
 
     // Container for only the filters
-    const advancedSearchFilterContainer = new Container({ flex: true });
+    const advancedSearchFilterContainer = new pcui.Container({ flex: true });
 
     // Advanced Search Filters
     const filterList = ['Name', 'Component Type', 'Script Name', 'Tags'].reverse();
     const filterMap = filterList.reduce((map, name) => {
         map[name] = {};
 
-        map[name].field = new BooleanInput({
+        map[name].field = new pcui.BooleanInput({
             type: null
         });
 
@@ -77,7 +75,7 @@ editor.once('load', function () {
             map[name].field.value = !map[name].field.value;
         });
 
-        map[name].label = new LabelGroup({
+        map[name].label = new pcui.LabelGroup({
             text: name,
             field: map[name].field
         });
@@ -98,7 +96,7 @@ editor.once('load', function () {
 
     // Toggle Smart Search
 
-    const smartSearchField = new BooleanInput({
+    const smartSearchField = new pcui.BooleanInput({
         type: 'toggle',
         value: true
     });
@@ -112,7 +110,7 @@ editor.once('load', function () {
         }
     });
 
-    const smartSearchLabel = new LabelGroup({
+    const smartSearchLabel = new pcui.LabelGroup({
         text: 'Smart Search',
         field: smartSearchField
     });
@@ -123,7 +121,7 @@ editor.once('load', function () {
 
     // Search by
 
-    var searchByField = new Element();
+    var searchByField = new pcui.Element();
     searchByField.dom.innerHTML = 'Select All';
     searchByField.class.add('advanced-search-select-all-button');
 
@@ -144,7 +142,7 @@ editor.once('load', function () {
         }
     });
 
-    const searchByLabel = new LabelGroup({
+    const searchByLabel = new pcui.LabelGroup({
         text: 'Search By',
         field: searchByField
     });

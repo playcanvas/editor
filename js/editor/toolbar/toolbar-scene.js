@@ -1,10 +1,8 @@
-import { Container, Label } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     const root = editor.call('layout.root');
     const viewport = editor.call('layout.viewport');
 
-    const panel = new Container({
+    const panel = new pcui.Container({
         class: 'widget-title'
     });
     viewport.append(panel);
@@ -13,7 +11,7 @@ editor.once('load', function () {
         return panel;
     });
 
-    const projectName = new Label({
+    const projectName = new pcui.Label({
         class: 'project-name'
     });
     panel.append(projectName);
@@ -29,7 +27,7 @@ editor.once('load', function () {
         root: root
     });
 
-    const sceneName = new Label({
+    const sceneName = new pcui.Label({
         class: 'scene-name'
     });
     panel.append(sceneName);
@@ -58,7 +56,7 @@ editor.once('load', function () {
         if (name.length > 33) {
             name = name.substring(0, 30) + '...';
         }
-        const branchButton = new Label({
+        const branchButton = new pcui.Label({
             class: 'branch-name',
             text: name
         });
@@ -83,7 +81,7 @@ editor.once('load', function () {
         });
     }
 
-    const sceneList = new Label({
+    const sceneList = new pcui.Label({
         class: 'scene-list'
     });
     panel.append(sceneList);

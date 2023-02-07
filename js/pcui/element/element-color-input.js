@@ -1,5 +1,3 @@
-import { Element } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const CLASS_COLOR_INPUT = 'pcui-color-input';
 
@@ -12,11 +10,11 @@ Object.assign(pcui, (function () {
      * @mixes pcui.IBindable
      * @mixes pcui.IFocusable
      */
-    class ColorInput extends Element {
+    class ColorInput extends pcui.Element {
         /**
          * Creates a new ColorInput.
          *
-         * @param {object} args - The arguments. Extends the Element arguments. Any settable property can also be set through the constructor.
+         * @param {object} args - The arguments. Extends the pcui.Element arguments. Any settable property can also be set through the constructor.
          */
         constructor(args) {
             args = Object.assign({
@@ -263,8 +261,8 @@ Object.assign(pcui, (function () {
         }
     }
 
-    Element.register('rgb', ColorInput, { channels: 3, renderChanges: true });
-    Element.register('rgba', ColorInput, { channels: 4, renderChanges: true });
+    pcui.Element.register('rgb', ColorInput, { channels: 3, renderChanges: true });
+    pcui.Element.register('rgba', ColorInput, { channels: 4, renderChanges: true });
 
     return {
         ColorInput: ColorInput

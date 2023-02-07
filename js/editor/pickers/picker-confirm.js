@@ -1,23 +1,21 @@
-import { Overlay, Label, Button } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     let callback = null;
 
     // overlay
-    const overlay = new Overlay({
+    const overlay = new pcui.Overlay({
         class: 'picker-confirm',
         hidden: true
     });
 
     // label
-    const label = new Label({
+    const label = new pcui.Label({
         class: 'text',
         text: 'Are you sure?'
     });
     overlay.append(label);
 
     // no
-    const btnNo = new Button({
+    const btnNo = new pcui.Button({
         class: 'no',
         text: 'No'
     });
@@ -28,7 +26,7 @@ editor.once('load', function () {
     overlay.append(btnNo);
 
     // yes
-    const btnYes = new Button({
+    const btnYes = new pcui.Button({
         class: 'yes',
         text: 'Yes'
     });

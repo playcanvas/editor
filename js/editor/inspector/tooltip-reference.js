@@ -1,5 +1,3 @@
-import { Label, Button } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'tooltip-reference';
     const CLASS_WEBGL2 = CLASS_ROOT + '-webgl2';
@@ -14,20 +12,20 @@ Object.assign(pcui, (function () {
 
             this.class.add(CLASS_ROOT);
 
-            this._labelWebgl2 = new Label({
+            this._labelWebgl2 = new pcui.Label({
                 class: CLASS_WEBGL2,
                 text: 'WebGL 2.0 Only',
                 hidden: true
             });
             this.append(this._labelWebgl2);
 
-            this._labelCode = new Label({
+            this._labelCode = new pcui.Label({
                 class: CLASS_CODE,
                 hidden: true
             });
             this.append(this._labelCode);
 
-            this._btnUrl = new Button({
+            this._btnUrl = new pcui.Button({
                 text: 'API REFERENCE',
                 class: CLASS_API,
                 flexGrow: 1,

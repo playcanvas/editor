@@ -1,5 +1,3 @@
-import { Container, Button } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const ATTRIBUTES = [
         {
@@ -16,21 +14,21 @@ Object.assign(pcui, (function () {
     const DOM = () => [
         {
             root: {
-                buttonContainer: new Container({
+                buttonContainer: new pcui.Container({
                     flex: true,
                     flexDirection: 'row'
                 })
             },
             children: [
                 {
-                    createDefaultButton: new Button({
+                    createDefaultButton: new pcui.Button({
                         text: 'CREATE DEFAULT',
                         icon: 'E120',
                         flexGrow: 1
                     })
                 },
                 {
-                    selectExistingButton: new Button({
+                    selectExistingButton: new pcui.Button({
                         text: 'SELECT EXISTING',
                         icon: 'E184',
                         flexGrow: 1

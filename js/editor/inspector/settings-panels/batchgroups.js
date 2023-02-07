@@ -1,5 +1,3 @@
-import { Container } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     var projectSettings = editor.call('settings:project');
 
@@ -49,7 +47,7 @@ Object.assign(pcui, (function () {
             this._items = [];
             this._evts = [];
 
-            this._itemsContainer = new Container();
+            this._itemsContainer = new pcui.Container();
             this.prepend(this._itemsContainer);
 
             this._attributesInspector.getField('addGroupButton').on('click', () => {

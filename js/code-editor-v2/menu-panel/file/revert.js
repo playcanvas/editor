@@ -1,10 +1,8 @@
-import { MenuItem } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     const menu = editor.call('menu:file');
 
     // create menu items
-    let item = new MenuItem({
+    let item = new pcui.MenuItem({
         class: 'no-bottom-border',
         text: 'Revert File',
         onIsEnabled: () => {
@@ -16,7 +14,7 @@ editor.once('load', function () {
     });
     menu.append(item);
 
-    item = new MenuItem({
+    item = new pcui.MenuItem({
         class: 'no-bottom-border',
         text: 'Revert Selected Files',
         onIsEnabled: () => {
@@ -28,7 +26,7 @@ editor.once('load', function () {
     });
     menu.append(item);
 
-    menu.append(new MenuItem({
+    menu.append(new pcui.MenuItem({
         text: 'Revert All Files',
         onIsEnabled: () => {
             return editor.call('editor:command:can:revertAll');
@@ -58,7 +56,7 @@ editor.once('load', function () {
     };
 
     const ctxMenu = editor.call('files:contextmenu');
-    ctxMenu.append(new MenuItem({
+    ctxMenu.append(new pcui.MenuItem({
         text: 'Revert',
         onIsEnabled: () => {
             const selected = editor.call('files:contextmenu:selected');

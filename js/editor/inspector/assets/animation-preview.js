@@ -1,5 +1,3 @@
-import { Panel } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'pcui-asset-animation-inspector-preview';
 
@@ -20,7 +18,7 @@ Object.assign(pcui, (function () {
                 });
                 this.prepend(this._animViewer);
 
-                this._controlsContainer = new Panel({
+                this._controlsContainer = new pcui.Panel({
                     headerText: 'PREVIEW OPTIONS'
                 });
                 const layoutAttributes = editor.call('layout.attributes');
@@ -87,7 +85,7 @@ Object.assign(pcui, (function () {
                     this._animViewer.showModel = value;
                 });
 
-                this._endPreviewPanel = new Panel({
+                this._endPreviewPanel = new pcui.Panel({
                     headerText: 'ANIMATION'
                 });
                 this.append(this._endPreviewPanel);

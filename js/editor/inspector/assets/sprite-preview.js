@@ -1,5 +1,3 @@
-import { Canvas, Button } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'asset-sprite-preview';
     const CLASS_BUTTON = CLASS_ROOT + '-button';
@@ -12,13 +10,13 @@ Object.assign(pcui, (function () {
 
             this.class.add(CLASS_ROOT);
 
-            this._preview = new Canvas({
+            this._preview = new pcui.Canvas({
                 class: CLASS_CANVAS,
                 useDevicePixelRatio: true
             });
             this.append(this._preview);
 
-            this._playButton = new Button({ icon: 'E286', class: CLASS_BUTTON });
+            this._playButton = new pcui.Button({ icon: 'E286', class: CLASS_BUTTON });
             this.append(this._playButton);
 
             this._renderFrame = false;

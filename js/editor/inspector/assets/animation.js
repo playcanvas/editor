@@ -1,5 +1,3 @@
-import { Panel, Button } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'pcui-asset-animation-inspector';
     const CLASS_EVENT_PANEL = CLASS_ROOT + '-event-panel';
@@ -27,13 +25,13 @@ Object.assign(pcui, (function () {
 
     const DOM = () => [
         {
-            eventsPanel: new Panel({
+            eventsPanel: new pcui.Panel({
                 headerText: 'EVENTS'
             })
         }
     ];
 
-    class AnimationAssetInspector extends Panel {
+    class AnimationAssetInspector extends pcui.Panel {
         constructor(args) {
             args = Object.assign({}, args);
             args.headerText = 'META';
@@ -50,7 +48,7 @@ Object.assign(pcui, (function () {
             this.append(this._attributesInspector);
 
             this.buildDom(DOM(this));
-            this._addEventButton = new Button({ icon: 'E120', text: 'EVENT' });
+            this._addEventButton = new pcui.Button({ icon: 'E120', text: 'EVENT' });
             this._addEventButton.on('click', this.addEvent.bind(this));
             this._eventsPanel.header.append(this._addEventButton);
             this._eventPanels = {};
@@ -82,7 +80,7 @@ Object.assign(pcui, (function () {
             });
             events.forEach((eventKey) => {
                 const event = this._assets[0].get(`data.events.${eventKey}`);
-                const eventPanel = new Panel({
+                const eventPanel = new pcui.Panel({
                     class: CLASS_EVENT_PANEL,
                     headerText: event.name,
                     removable: true

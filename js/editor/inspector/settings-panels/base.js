@@ -1,7 +1,5 @@
-import { Panel, Label } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
-    class BaseSettingsPanel extends Panel {
+    class BaseSettingsPanel extends pcui.Panel {
         constructor(args) {
             args = Object.assign({}, args);
             args.collapsible = true;
@@ -35,7 +33,7 @@ Object.assign(pcui, (function () {
             this.class.add('settings-panel');
 
             if (!args.hideIcon) {
-                const settingsScopeIcon = new Label({ class: 'settings-scope-icon' });
+                const settingsScopeIcon = new pcui.Label({ class: 'settings-scope-icon' });
                 settingsScopeIcon.dom.setAttribute('data-icon', String.fromCodePoint(parseInt(args.userOnlySettings ? 'E337' : 'E217', 16)));
                 this.header.append(settingsScopeIcon);
             }

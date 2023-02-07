@@ -1,5 +1,3 @@
-import { Label } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     let cursorType = '';
 
@@ -22,7 +20,7 @@ editor.once('load', function () {
     });
 
     let hiddenTime = 0;
-    const tooltip = new Label({
+    const tooltip = new pcui.Label({
         class: 'cursor-tooltip',
         hidden: true,
         unsafe: true

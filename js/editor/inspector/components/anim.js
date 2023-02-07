@@ -1,5 +1,3 @@
-import { InfoBox, Container, TreeView, TreeViewItem, BooleanInput, Menu, Button, Panel, BindingTwoWay } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const ATTRIBUTES = [
         {
@@ -90,7 +88,7 @@ Object.assign(pcui, (function () {
             });
             this.append(this._attributesInspector);
 
-            this._normalizeWeightsMessage = new InfoBox({
+            this._normalizeWeightsMessage = new pcui.InfoBox({
                 icon: 'E400',
                 title: 'Normalize Weights Migration',
                 text: 'This anim component was created before the normalize weights option was introduced. To maintain the component\'s previous behaviour, normalize weights has been turned on. For more info click '
@@ -129,14 +127,14 @@ Object.assign(pcui, (function () {
             this.parent.hidden = true;
             editor.call('layout.attributes').headerText = `${layerName} MASK`.toUpperCase();
 
-            this._maskInspector = new Container({
+            this._maskInspector = new pcui.Container({
                 class: CLASS_MASK_INSPECTOR
             });
             this.parent.parent.append(this._maskInspector.dom);
 
             const entityObserver = this._entities[0];
 
-            const maskTreeView = new TreeView();
+            const maskTreeView = new pcui.TreeView();
 
             let masks = entityObserver.get(`components.anim.masks`);
             if (!masks) {
@@ -164,12 +162,12 @@ Object.assign(pcui, (function () {
             const mask = masks[layerId].mask;
 
             const createBooleanTreeViewItem = (name, path, args = {}) => {
-                var item = new TreeViewItem(Object.assign({
+                var item = new pcui.TreeViewItem(Object.assign({
                     text: name,
                     class: CLASS_BOOLEAN_INPUT_ITEM
                 }, args));
                 item.path = path;
-                const booleanInput = new BooleanInput({
+                const booleanInput = new pcui.BooleanInput({
                     value: entityObserver.get(`components.anim.masks.${layerId}.mask.${path}.value`)
                 });
                 booleanInput.on('click', (e) => {
@@ -212,19 +210,19 @@ Object.assign(pcui, (function () {
                 }));
 
                 item._containerContents.prepend(booleanInput);
-                const contextMenuDom = new Container();
+                const contextMenuDom = new pcui.Container();
                 item._containerContents.append(contextMenuDom);
 
                 const updateItemAndChildren = (item, value) => {
                     entityObserver.set(`components.anim.masks.${layerId}.mask.${item.path}.value`, value);
                     item.forEachChild((childItem) => {
-                        if (childItem instanceof TreeViewItem) {
+                        if (childItem instanceof pcui.TreeViewItem) {
                             updateItemAndChildren(childItem, value);
                         }
                     });
                 };
 
-                const contextMenu = new Menu({
+                const contextMenu = new pcui.Menu({
                     items: [
                         {
                             text: 'Add hierarchy',
@@ -354,9 +352,9 @@ Object.assign(pcui, (function () {
                 redo();
             };
 
-            const maskInspectorOptions = new Container();
+            const maskInspectorOptions = new pcui.Container();
 
-            const addAllPathsButton = new Button({
+            const addAllPathsButton = new pcui.Button({
                 text: 'ADD ALL',
                 class: CLASS_MASK_INSPECTOR_ADD_ALL_BUTTON
             });
@@ -365,7 +363,7 @@ Object.assign(pcui, (function () {
             });
             maskInspectorOptions.append(addAllPathsButton);
 
-            const removeAllPathsButton = new Button({
+            const removeAllPathsButton = new pcui.Button({
                 text: 'REMOVE ALL',
                 class: CLASS_MASK_INSPECTOR_REMOVE_ALL_BUTTON
             });
@@ -389,7 +387,7 @@ Object.assign(pcui, (function () {
 
             });
 
-            const closeButton = new Button({
+            const closeButton = new pcui.Button({
                 text: '',
                 icon: 'E389',
                 class: CLASS_MASK_INSPECTOR_CLOSE_BUTTON
@@ -428,18 +426,18 @@ Object.assign(pcui, (function () {
             const stateGraph = this._assets.get(this._stateGraphAssetId);
             if (!stateGraph) return;
             const layers = stateGraph.get('data.layers');
-            this._layersContainer = new Container();
+            this._layersContainer = new pcui.Container();
             for (const layerId in layers) {
                 const layer = layers[layerId];
-                const layerPanel = new Panel({
+                const layerPanel = new pcui.Panel({
                     headerText: `Layer: ${layer.name}`,
                     class: CLASS_LAYER,
                     collapsible: true
                 });
 
-                const maskButtonsContainer = new Container({ class: CLASS_MASK_BUTTON_CONTAINER, flex: true });
+                const maskButtonsContainer = new pcui.Container({ class: CLASS_MASK_BUTTON_CONTAINER, flex: true });
                 layerPanel.append(maskButtonsContainer);
-                const layerMaskButton = new Button({
+                const layerMaskButton = new pcui.Button({
                     text: this._entities[0].get(`components.anim.masks.${layerId}.mask`) ? 'EDIT MASK' : 'CREATE MASK',
                     class: CLASS_EDIT_MASK_BUTTON
                 });
@@ -447,7 +445,7 @@ Object.assign(pcui, (function () {
                     this._addMaskInspector(layerId, layer.name);
                 });
                 maskButtonsContainer.append(layerMaskButton);
-                const deleteLayerMaskButton = new Button({
+                const deleteLayerMaskButton = new pcui.Button({
                     text: '',
                     icon: 'E289',
                     class: CLASS_DELETE_MASK_BUTTON
@@ -484,7 +482,7 @@ Object.assign(pcui, (function () {
                             assetType: 'animation',
                             allowDragDrop: true,
                             assets: this._assets,
-                            binding: new BindingTwoWay({
+                            binding: new pcui.BindingTwoWay({
                                 history: this._args.history
                             }),
                             validateAssetFn: (asset) => {
@@ -495,7 +493,7 @@ Object.assign(pcui, (function () {
                         stateAsset._thumbnail.on('click', () => {
                             sessionStorage.setItem(`animation-preview-entity-id`, this._entities[0].get('resource_id'));
                         });
-                        const statePanel = new Panel({
+                        const statePanel = new pcui.Panel({
                             collapsible: true,
                             class: CLASS_STATE,
                             headerText: state.name

@@ -1,7 +1,5 @@
-import { Canvas } from '@playcanvas/pcui';
-
 editor.once('load', function () {
-    const canvas = new Canvas({
+    const canvas = new pcui.Canvas({
         id: 'canvas-3d',
         useDevicePixelRatio: true
     });

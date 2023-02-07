@@ -1,5 +1,3 @@
-import { Button } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     const root = editor.call('layout.root');
     const toolbar = editor.call('layout.toolbar');
@@ -25,7 +23,7 @@ editor.once('load', function () {
         tooltip: 'Resize Element Component',
         op: 'resize'
     }].forEach(function (item, index) {
-        const button = new Button({
+        const button = new pcui.Button({
             icon: item.icon
         });
         button.hidden = !editor.call('permissions:write');
@@ -65,7 +63,7 @@ editor.once('load', function () {
     });
 
     // coordinate system
-    const buttonWorld = new Button({
+    const buttonWorld = new pcui.Button({
         icon: 'E118'
     });
     buttonWorld.hidden = !editor.call('permissions:write');
@@ -93,7 +91,7 @@ editor.once('load', function () {
 
 
     // toggle grid snap
-    const buttonSnap = new Button({
+    const buttonSnap = new pcui.Button({
         icon: 'E116'
     });
     buttonSnap.hidden = !editor.call('permissions:write');
@@ -130,7 +128,7 @@ editor.once('load', function () {
 
 
     // focus on entity
-    const buttonFocus = new Button({
+    const buttonFocus = new pcui.Button({
         icon: 'E117'
     });
     buttonFocus.disabled = true;

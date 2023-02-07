@@ -1,15 +1,13 @@
-import { Container, Progress } from '@playcanvas/pcui';
-
 editor.on('load', function () {
     const hierarchyPanel = editor.call('layout.hierarchy');
 
-    const hierarchyOverlay = new Container({
+    const hierarchyOverlay = new pcui.Container({
         class: 'progress-overlay',
         flex: true
     });
     hierarchyPanel.append(hierarchyOverlay);
 
-    const progress = new Progress();
+    const progress = new pcui.Progress();
     hierarchyOverlay.append(progress);
 
     let loadedEntities = false;

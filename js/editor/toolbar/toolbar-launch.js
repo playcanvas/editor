@@ -1,5 +1,3 @@
-import { Container, Button, BooleanInput, Label } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     const root = editor.call('layout.root');
     const viewport = editor.call('layout.viewport');
@@ -10,7 +8,7 @@ editor.once('load', function () {
     const releaseCandidate = config.engineVersions.latest?.version;
 
     // panel
-    const panel = new Container();
+    const panel = new pcui.Container();
     panel.class.add('top-controls');
     viewport.append(panel);
 
@@ -19,7 +17,7 @@ editor.once('load', function () {
     });
 
     // launch
-    const launch = new Container();
+    const launch = new pcui.Container();
     launch.class.add('launch');
     panel.append(launch);
     launch.disabled = true;
@@ -32,7 +30,7 @@ editor.once('load', function () {
         launch.disabled = true;
     });
 
-    const buttonLaunch = new Button({
+    const buttonLaunch = new pcui.Button({
         icon: 'E131'
     });
     const launchText = document.createElement('span');
@@ -101,16 +99,16 @@ editor.once('load', function () {
 
     buttonLaunch.on('click', launchApp);
 
-    const panelOptions = new Container();
+    const panelOptions = new pcui.Container();
     panelOptions.class.add('options');
     launch.append(panelOptions);
     panelOptions.hidden = true;
 
     const createOption = function (name, title) {
-        const panel = new Container();
+        const panel = new pcui.Container();
         panelOptions.append(panel);
 
-        const option = new BooleanInput();
+        const option = new pcui.BooleanInput();
         option.style.marginTop = '6px';
         option.value = false;
         option.class.add('tick');
@@ -120,7 +118,7 @@ editor.once('load', function () {
             e.stopPropagation();
         });
 
-        const label = new Label({
+        const label = new pcui.Label({
             text: title
         });
         panel.append(label);
@@ -301,7 +299,7 @@ editor.once('load', function () {
 
 
     // fullscreen
-    const buttonExpand = new Button({
+    const buttonExpand = new pcui.Button({
         icon: 'E127'
     });
     buttonExpand.class.add('icon', 'expand');

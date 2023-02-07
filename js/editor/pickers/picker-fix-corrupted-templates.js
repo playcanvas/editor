@@ -1,5 +1,3 @@
-import { Overlay, Container, Label, Button, Spinner } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     if (!editor.call('users:hasFlag', 'hasFixCorruptedTemplates')) return;
     if (!editor.call('permissions:write')) return;
@@ -11,33 +9,33 @@ editor.once('load', function () {
     const STATE_END = 5;
     const STATE_ERROR = 100;
 
-    const overlay = new Overlay({
+    const overlay = new pcui.Overlay({
         class: 'picker-fix-templates',
         hidden: true
     });
 
     editor.call('layout.root').append(overlay);
 
-    const header = new Container({
+    const header = new pcui.Container({
         flex: true,
         flexDirection: 'row',
         class: 'header'
     });
     overlay.append(header);
 
-    const icon = new Label({
+    const icon = new pcui.Label({
         class: 'icon',
         text: '&#57880;',
         unsafe: true
     });
     header.append(icon);
 
-    const title = new Label({
+    const title = new pcui.Label({
         text: 'ISSUES WITH TEMPLATES'
     });
     header.append(title);
 
-    const text = new Label({
+    const text = new pcui.Label({
         unsafe: true,
         text: '<p>We identified some template instances with invalid data. These might cause further issues as you continue development if not fixed.</p>' +
               '<p>Please see <a href="https://forum.playcanvas.com/t/draft-corruption-of-template-instances-please-read/23265" target="_blank">this post</a> for more information.</p>' +
@@ -46,32 +44,32 @@ editor.once('load', function () {
 
     overlay.append(text);
 
-    const containerButtons = new Container({
+    const containerButtons = new pcui.Container({
         flex: true,
         class: 'buttons',
         flexDirection: 'row'
     });
     overlay.append(containerButtons);
 
-    const btnCancel = new Button({
+    const btnCancel = new pcui.Button({
         text: 'CANCEL',
         class: 'cancel'
     });
     btnCancel.style.marginLeft = 'auto';
     containerButtons.append(btnCancel);
 
-    const btnConfirm = new Button({
+    const btnConfirm = new pcui.Button({
         text: 'PROCEED'
     });
     containerButtons.append(btnConfirm);
 
-    const overlayFullScreen = new Overlay({
+    const overlayFullScreen = new pcui.Overlay({
         class: 'picker-fix-templates-fullscreen',
         hidden: true
     });
     editor.call('layout.root').append(overlayFullScreen);
 
-    const content = new Container({
+    const content = new pcui.Container({
         flex: true
     });
     content.style.alignItems = 'center';
@@ -93,7 +91,7 @@ editor.once('load', function () {
         document.body.removeChild(a);
     }
 
-    const progressText = new Label({
+    const progressText = new pcui.Label({
         unsafe: true
     });
     content.append(progressText);
@@ -101,13 +99,13 @@ editor.once('load', function () {
         progressText.text = text;
     });
 
-    const spinner = new Spinner({
+    const spinner = new pcui.Spinner({
         size: 64,
         hidden: true
     });
     content.append(spinner);
 
-    const progressButtons = new Container({
+    const progressButtons = new pcui.Container({
         flex: true,
         flexDirection: 'row'
     });
@@ -161,7 +159,7 @@ editor.once('load', function () {
         }
     }
 
-    const btnFindIssues = new Button({
+    const btnFindIssues = new pcui.Button({
         text: 'FIND ISSUES'
     });
     progressButtons.append(btnFindIssues);
@@ -170,7 +168,7 @@ editor.once('load', function () {
         editor.emit('picker:fixCorruptedTemplates:findIssues');
     });
 
-    const btnReport = new Button({
+    const btnReport = new pcui.Button({
         text: 'DOWNLOAD REPORT',
         hidden: true
     });
@@ -181,7 +179,7 @@ editor.once('load', function () {
         downloadReport(title);
     });
 
-    const btnProceedWithMigration = new Button({
+    const btnProceedWithMigration = new pcui.Button({
         text: 'CREATE CHECKPOINT AND MIGRATE',
         hidden: true
     });
@@ -202,7 +200,7 @@ editor.once('load', function () {
         });
     });
 
-    const btnCancelMigration = new Button({
+    const btnCancelMigration = new pcui.Button({
         text: 'CANCEL',
         class: 'cancel',
         hidden: true

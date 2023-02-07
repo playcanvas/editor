@@ -1,5 +1,3 @@
-import { Panel, Container } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const TextureTypes = {
         Normal: 'Normal',
@@ -107,7 +105,7 @@ Object.assign(pcui, (function () {
 
     const DOM = parent => [{
         root: {
-            materialPanel: new Panel({
+            materialPanel: new pcui.Panel({
                 headerText: 'MATERIAL'
             })
         },
@@ -133,7 +131,7 @@ Object.assign(pcui, (function () {
         }]
     }, {
         root: {
-            offsetTilingPanel: new Panel({
+            offsetTilingPanel: new pcui.Panel({
                 headerText: 'TEXTURE TRANSFORM',
                 collapsible: true,
                 collapsed: true
@@ -180,7 +178,7 @@ Object.assign(pcui, (function () {
         }]
     }, {
         root: {
-            ambientPanel: new Panel({
+            ambientPanel: new pcui.Panel({
                 headerText: 'AMBIENT',
                 collapsible: true,
                 collapsed: true
@@ -225,7 +223,7 @@ Object.assign(pcui, (function () {
         }]
     }, {
         root: {
-            diffusePanel: new Panel({
+            diffusePanel: new pcui.Panel({
                 headerText: 'DIFFUSE',
                 collapsible: true,
                 collapsed: true
@@ -255,7 +253,7 @@ Object.assign(pcui, (function () {
         }]
     }, {
         root: {
-            specularPanel: new Panel({
+            specularPanel: new pcui.Panel({
                 headerText: 'SPECULAR',
                 collapsible: true,
                 collapsed: true
@@ -404,7 +402,7 @@ Object.assign(pcui, (function () {
         }]
     }, {
         root: {
-            emissivePanel: new Panel({
+            emissivePanel: new pcui.Panel({
                 headerText: 'EMISSIVE',
                 collapsible: true,
                 collapsed: true
@@ -445,7 +443,7 @@ Object.assign(pcui, (function () {
         }]
     }, {
         root: {
-            opacityPanel: new Panel({
+            opacityPanel: new pcui.Panel({
                 headerText: 'OPACITY',
                 collapsible: true,
                 collapsed: true
@@ -537,7 +535,7 @@ Object.assign(pcui, (function () {
         }]
     }, {
         root: {
-            normalsPanel: new Panel({
+            normalsPanel: new pcui.Panel({
                 headerText: 'NORMALS',
                 collapsible: true,
                 collapsed: true
@@ -563,7 +561,7 @@ Object.assign(pcui, (function () {
         }]
     }, {
         root: {
-            parallaxPanel: new Panel({
+            parallaxPanel: new pcui.Panel({
                 headerText: 'PARALLAX',
                 collapsible: true,
                 collapsed: true
@@ -589,7 +587,7 @@ Object.assign(pcui, (function () {
         }]
     }, {
         root: {
-            clearCoatPanel: new Panel({
+            clearCoatPanel: new pcui.Panel({
                 headerText: 'CLEARCOAT',
                 collapsible: true,
                 collapsed: true
@@ -706,7 +704,7 @@ Object.assign(pcui, (function () {
         }]
     }, {
         root: {
-            sheenPanel: new Panel({
+            sheenPanel: new pcui.Panel({
                 headerText: 'SHEEN',
                 collapsible: true,
                 collapsed: true
@@ -778,7 +776,7 @@ Object.assign(pcui, (function () {
         }]
     }, {
         root: {
-            refractionPanel: new Panel({
+            refractionPanel: new pcui.Panel({
                 headerText: 'REFRACTION',
                 collapsible: true,
                 collapsed: true
@@ -885,7 +883,7 @@ Object.assign(pcui, (function () {
         }]
     }, {
         root: {
-            iridescencePanel: new Panel({
+            iridescencePanel: new pcui.Panel({
                 headerText: 'IRIDESCENCE',
                 collapsible: true,
                 collapsed: true
@@ -943,7 +941,7 @@ Object.assign(pcui, (function () {
         }]
     }, {
         root: {
-            envPanel: new Panel({
+            envPanel: new pcui.Panel({
                 headerText: 'ENVIRONMENT',
                 collapsible: true,
                 collapsed: true
@@ -1016,7 +1014,7 @@ Object.assign(pcui, (function () {
         }]
     }, {
         root: {
-            lightmapPanel: new Panel({
+            lightmapPanel: new pcui.Panel({
                 headerText: 'LIGHTMAP',
                 collapsible: true,
                 collapsed: true
@@ -1036,7 +1034,7 @@ Object.assign(pcui, (function () {
         }]
     }, {
         root: {
-            otherPanel: new Panel({
+            otherPanel: new pcui.Panel({
                 headerText: 'OTHER',
                 collapsible: true,
                 collapsed: true
@@ -1174,7 +1172,7 @@ Object.assign(pcui, (function () {
         Rotation: "MapRotation"
     };
 
-    class MaterialAssetInspector extends Container {
+    class MaterialAssetInspector extends pcui.Container {
         constructor(args) {
             args = Object.assign({}, args);
 

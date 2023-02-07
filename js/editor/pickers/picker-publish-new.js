@@ -1,5 +1,3 @@
-import { SelectInput } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     const currentProject = config.project;
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
@@ -227,7 +225,7 @@ editor.once('load', function () {
     label.class.add('field-label');
     panelEngineVersion.append(label);
 
-    const engineVersionDropdown = new SelectInput({
+    const engineVersionDropdown = new pcui.SelectInput({
         value: editor.call('settings:projectUser').get('editor.launchReleaseCandidate') ? 'latest' : editor.call('settings:session').get('engineVersion'),
         options: ['previousMinor', 'previousPatch', 'current', 'latest']
         .filter(type => config.engineVersions.hasOwnProperty(type))

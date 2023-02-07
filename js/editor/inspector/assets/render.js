@@ -1,5 +1,3 @@
-import { Panel, Container } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const META_ATTRIBUTES = [{
         label: 'Vertices',
@@ -45,7 +43,7 @@ Object.assign(pcui, (function () {
     const DOM = parent => [
         {
             root: {
-                metaPanel: new Panel({
+                metaPanel: new pcui.Panel({
                     headerText: 'META'
                 })
             },
@@ -61,7 +59,7 @@ Object.assign(pcui, (function () {
         },
         {
             root: {
-                metaPanel: new Panel({
+                metaPanel: new pcui.Panel({
                     headerText: 'RENDER'
                 })
             },
@@ -77,7 +75,7 @@ Object.assign(pcui, (function () {
         }
     ];
 
-    class RenderAssetInspector extends Container {
+    class RenderAssetInspector extends pcui.Container {
         constructor(args) {
             args = Object.assign({}, args);
             args.headerText = 'RENDER';

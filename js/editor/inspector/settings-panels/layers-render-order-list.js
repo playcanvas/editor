@@ -1,5 +1,3 @@
-import { Container, Panel, Label, BooleanInput } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'layers-settings-panel';
     const CLASS_RENDER_ORDER_LIST = CLASS_ROOT + '-render-order-list';
@@ -8,7 +6,7 @@ Object.assign(pcui, (function () {
     const CLASS_RENDER_ORDER_LIST_ITEM_TRANSPARENT = CLASS_RENDER_ORDER_LIST_ITEM + '-transparent';
 
     const REGEX_LAYER_ENABLED = /^layerOrder\.(\d+)\.enabled$/;
-    class LayersSettingsPanelRenderOrderList extends Container {
+    class LayersSettingsPanelRenderOrderList extends pcui.Container {
         constructor(args) {
             args = Object.assign({}, args);
 
@@ -21,7 +19,7 @@ Object.assign(pcui, (function () {
             this._sceneSettings = args.sceneSettings;
             this._suspendLayerEvents = false;
 
-            this._layerListContainer = new Container();
+            this._layerListContainer = new pcui.Container();
             this.append(this._layerListContainer);
 
             this._layerListContainer.on('child:dragend', (_, newIndex, oldIndex) => {
@@ -49,7 +47,7 @@ Object.assign(pcui, (function () {
 
         _createLayerElement(layer, name) {
             const transparent = layer.transparent;
-            const layerPanel = new Panel({
+            const layerPanel = new pcui.Panel({
                 headerText: name,
                 sortable: true,
                 removable: true,
@@ -71,12 +69,12 @@ Object.assign(pcui, (function () {
             }
 
             layerPanel.header.append(
-                new Label({
+                new pcui.Label({
                     text: transparent ? 'Transparent' : 'Opaque'
                 })
             );
 
-            const enabledCheckbox = new BooleanInput({
+            const enabledCheckbox = new pcui.BooleanInput({
                 value: layer.enabled
             });
 

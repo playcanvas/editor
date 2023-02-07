@@ -1,5 +1,3 @@
-import { Container, Panel, Label } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'scripts-settings-panel';
     const CLASS_SCRIPTS_LIST = CLASS_ROOT + '-scripts-list';
@@ -17,7 +15,7 @@ Object.assign(pcui, (function () {
 
             this._scriptList = [];
             this._scriptEvents = [];
-            this._scriptListContainer = new Container({
+            this._scriptListContainer = new pcui.Container({
                 class: CLASS_SCRIPTS_LIST_CONTAINER
             });
             this.append(this._scriptListContainer);
@@ -90,7 +88,7 @@ Object.assign(pcui, (function () {
         _createScriptPanel(assetId, order) {
             const asset = this._args.assets.get(assetId);
 
-            const scriptPanel = new Panel({
+            const scriptPanel = new pcui.Panel({
                 headerText: asset ? asset.get('name') : assetId,
                 sortable: true,
                 class: CLASS_SCRIPTS_LIST_ITEM
@@ -112,7 +110,7 @@ Object.assign(pcui, (function () {
                 }));
             }
 
-            scriptPanel._fieldOrder = new Label({ text: `#${order + 1}` });
+            scriptPanel._fieldOrder = new pcui.Label({ text: `#${order + 1}` });
             scriptPanel.header.append(scriptPanel._fieldOrder);
             scriptPanel.on('click', () => {
                 const asset = this._args.assets.get(assetId);

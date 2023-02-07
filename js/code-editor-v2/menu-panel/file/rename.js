@@ -1,8 +1,6 @@
-import { MenuItem } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     const ctxMenu = editor.call('files:contextmenu');
-    ctxMenu.append(new MenuItem({
+    ctxMenu.append(new pcui.MenuItem({
         text: 'Rename',
         onIsEnabled: () => {
             if (!editor.call('permissions:write')) return;

@@ -1,5 +1,3 @@
-import { Element, Panel, Button, Container, Label, TextInput } from '@playcanvas/pcui';
-
 editor.once('load', () => {
 
     // GLOBAL VARIABLES
@@ -27,14 +25,14 @@ editor.once('load', () => {
     root.append(overlay);
 
     // main panel
-    const panel = new Panel({
+    const panel = new pcui.Panel({
         headerText: 'DELETE PROJECT',
         class: 'delete-project-panel'
     });
     overlay.append(panel);
 
     // close button
-    const btnClose = new Button({
+    const btnClose = new pcui.Button({
         class: 'close',
         icon: 'E132'
     });
@@ -43,18 +41,18 @@ editor.once('load', () => {
     });
     panel.header.append(btnClose);
 
-    const inputContainer = new Container({
+    const inputContainer = new pcui.Container({
         flex: true,
         class: 'form-group'
     });
     panel.append(inputContainer);
 
-    const labelElement = new Label({
+    const labelElement = new pcui.Label({
         class: 'form-group--label'
     });
     inputContainer.append(labelElement);
 
-    const inputElement = new TextInput({
+    const inputElement = new pcui.TextInput({
         class: 'form-group--input',
         keyChange: true
     });
@@ -63,12 +61,12 @@ editor.once('load', () => {
     inputElement.on('change', () => { validateInput(inputElement.value); });
     inputElement.dom.addEventListener('paste', e => e.preventDefault());
 
-    const deleteButtonContainer = new Container({
+    const deleteButtonContainer = new pcui.Container({
         flex: true
     });
     panel.append(deleteButtonContainer);
 
-    const deleteButton = new Button({
+    const deleteButton = new pcui.Button({
         class: 'delete-project-button',
         text: 'DELETE',
         enabled: false,  // create button disabled on load
@@ -76,7 +74,7 @@ editor.once('load', () => {
     });
     deleteButtonContainer.append(deleteButton);
 
-    const loader = new Element(document.createElement('div'), {
+    const loader = new pcui.Element(document.createElement('div'), {
         class: ['loader', 'small', 'white']
     });
     loader.dom.style.display = 'none';

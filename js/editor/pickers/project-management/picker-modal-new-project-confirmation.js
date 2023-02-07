@@ -1,5 +1,3 @@
-import { Panel, Button, Label } from '@playcanvas/pcui';
-
 editor.once('load', () => {
 
     // GLOBAL VARIABLES
@@ -17,14 +15,14 @@ editor.once('load', () => {
     root.append(overlay);
 
     // main panel
-    const panel = new Panel({
+    const panel = new pcui.Panel({
         headerText: 'CLOSE CURRENT PROJECT',
         class: 'modal-confirmation-panel'
     });
     overlay.append(panel);
 
     // close button
-    const btnClose = new Button({
+    const btnClose = new pcui.Button({
         class: 'close',
         icon: 'E132'
     });
@@ -34,13 +32,13 @@ editor.once('load', () => {
     panel.header.append(btnClose);
 
     // confirmation message
-    const confirmationMessage = new Label({
+    const confirmationMessage = new pcui.Label({
         text: 'Would you like to open your new project or continue working on your current project?'
     });
     panel.append(confirmationMessage);
 
     // open project button
-    const openProjectButton = new Button({
+    const openProjectButton = new pcui.Button({
         class: 'negative-action-button',
         text: IS_EMPTY_STATE ? 'Open New Project' : 'Close Current and Open New Project'
     });
@@ -51,7 +49,7 @@ editor.once('load', () => {
     });
 
     // continue button
-    const continueButton = new Button({
+    const continueButton = new pcui.Button({
         class: 'positive-action-button',
         text: IS_EMPTY_STATE ? 'Continue Browsing' : 'Continue with Current Project'
     });

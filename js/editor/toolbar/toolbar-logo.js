@@ -1,5 +1,3 @@
-import { Button, Menu } from '@playcanvas/pcui';
-
 editor.once('load', function () {
     var root = editor.call('layout.root');
     var toolbar = editor.call('layout.toolbar');
@@ -7,7 +5,7 @@ editor.once('load', function () {
 
     var history = editor.call('editor:history');
 
-    var logo = new Button();
+    var logo = new pcui.Button();
     logo.class.add('logo');
     toolbar.append(logo);
 
@@ -53,7 +51,7 @@ editor.once('load', function () {
         });
     };
 
-    var menu = new Menu({
+    var menu = new pcui.Menu({
         items: [{
             text: 'Entity',
             onIsEnabled: function () {

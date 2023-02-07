@@ -1,5 +1,3 @@
-import { Panel, Container, Label, BooleanInput, Button } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'pcui-cubemap-asset-inspector';
     const CLASS_FACES_CONTAINER = CLASS_ROOT + '-faces-container';
@@ -48,7 +46,7 @@ Object.assign(pcui, (function () {
     const DOM = (parent, args) => [
         {
             root: {
-                cubemapPanel: new Panel({
+                cubemapPanel: new pcui.Panel({
                     headerText: 'CUBEMAP'
                 })
             },
@@ -61,50 +59,50 @@ Object.assign(pcui, (function () {
             }]
         },
         {
-            facesPanel: new Panel({
+            facesPanel: new pcui.Panel({
                 headerText: 'FACES'
             })
         },
         {
             root: {
-                prefilteringContainer: new Container()
+                prefilteringContainer: new pcui.Container()
             },
             children: [{
                 root: {
-                    prefilteringPanel: new Panel({ headerText: 'PREFILTERING', flex: true })
+                    prefilteringPanel: new pcui.Panel({ headerText: 'PREFILTERING', flex: true })
                 },
                 children: [{
                     root: {
-                        prefilterPhongContainer: new Container({
+                        prefilterPhongContainer: new pcui.Container({
                             flex: true,
                             flexDirection: 'row'
                         })
                     },
                     children: [{
-                        prefilterPhongLabel: new Label({
+                        prefilterPhongLabel: new pcui.Label({
                             text: 'Use legacy phong lobe'
                         })
                     }, {
-                        prefilterPhong: new BooleanInput({
+                        prefilterPhong: new pcui.BooleanInput({
                             flexShrink: 0,
                             flexGrow: 0
                         })
                     }]
                 }, {
-                    prefilterButton: new Button({ text: 'PREFILTER CUBEMAP' })
+                    prefilterButton: new pcui.Button({ text: 'PREFILTER CUBEMAP' })
                 }, {
-                    deletePrefilterButton: new Button({ text: 'DELETE PREFILTERED DATA' })
+                    deletePrefilterButton: new pcui.Button({ text: 'DELETE PREFILTERED DATA' })
                 }]
             },
             {
                 root: {
-                    errorContainer: new Container({
+                    errorContainer: new pcui.Container({
                         flex: true,
                         alignItems: 'center'
                     })
                 },
                 children: [{
-                    errorLabel: new Label({
+                    errorLabel: new pcui.Label({
                         class: pcui.CLASS_ERROR
                     })
                 }]
@@ -112,7 +110,7 @@ Object.assign(pcui, (function () {
         }
     ];
 
-    class CubemapAssetInspector extends Container {
+    class CubemapAssetInspector extends pcui.Container {
         constructor(args) {
             args = Object.assign({}, args);
 

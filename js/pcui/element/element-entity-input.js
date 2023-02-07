@@ -1,5 +1,3 @@
-import { Element, Container, Label, Button, BindingObserversToElement } from '@playcanvas/pcui';
-
 Object.assign(pcui, (function () {
     const CLASS_ENTITY_INPUT = 'pcui-entity-input';
     const CLASS_EMPTY = CLASS_ENTITY_INPUT + '-empty';
@@ -8,9 +6,9 @@ Object.assign(pcui, (function () {
      * @name pcui.EntityInput
      * @classdesc An input that accepts an Entity.
      * @property {boolean} renderChanges If true then the Element will flash when its value changes.
-     * @augments Element
+     * @augments pcui.Element
      */
-    class EntityInput extends Element {
+    class EntityInput extends pcui.Element {
         /**
          * Creates a new pcui.EntityInput.
          *
@@ -21,13 +19,13 @@ Object.assign(pcui, (function () {
          * @param {boolean} [args.allowDragDrop] - If true then this will enable drag and drop of entities on the input
          */
         constructor(args) {
-            const container = new Container();
+            const container = new pcui.Container();
 
             args = Object.assign({
                 tabIndex: 0
             }, args);
 
-            super({ ...args, dom: container.dom });
+            super(container.dom, args);
 
             this.class.add(CLASS_ENTITY_INPUT);
 
@@ -44,14 +42,14 @@ Object.assign(pcui, (function () {
             this.dom.addEventListener('blur', this._domEvtBlur);
             this.dom.addEventListener('keydown', this._domEvtKeyDown);
 
-            this._label = new Label({
+            this._label = new pcui.Label({
                 flexGrow: 1,
-                binding: new BindingObserversToElement()
+                binding: new pcui.BindingObserversToElement()
             });
 
             this._container.append(this._label);
 
-            this._buttonRemove = new Button({
+            this._buttonRemove = new pcui.Button({
                 icon: 'E132'
             });
             this._container.append(this._buttonRemove);
@@ -247,7 +245,7 @@ Object.assign(pcui, (function () {
         }
     }
 
-    Element.register('entity', EntityInput, { allowDragDrop: true, renderChanges: true });
+    pcui.Element.register('entity', EntityInput, { allowDragDrop: true, renderChanges: true });
 
     return {
         EntityInput: EntityInput
